@@ -20,22 +20,22 @@
 package org.bigbluebutton.api.domain;
 
 public class UserSession {
-	String internalUserId = null;
-    String conferencename = null;
-    String meetingID = null;
-    String externMeetingID = null;
-    String externUserID = null;
-    String fullname = null; 
-    String role = null;
-    String conference = null;
-    String room = null;
-    String voicebridge = null;
-    String webvoiceconf = null;
-    String mode = null;
-    String record = null;
-    String welcome = null;
-    String logoutUrl = null;
-    String defaultLayout = "NOLAYOUT";
-    String avatarURL;
-    String configXML;
+	public String internalUserId = null;
+	public String conferencename = null;
+  public String meetingID = null;
+  public String externMeetingID = null;
+  public String externUserID = null;
+  public String fullname = null; 
+  public String role = null;
+  public String conference = null;
+  public String room = null;
+  public String voicebridge = null;
+  public String webvoiceconf = null;
+  public String mode = null;
+  public String record = null;
+  public String welcome = null;
+  public String logoutUrl = null;
+  public String defaultLayout = "NOLAYOUT";
+  public String avatarURL;
+  public String configXML;
 }

@@ -1,0 +1,143 @@
+/*
+ * barebones - Theme for Acorn Media Player 
+ * 
+ * To be used with the horizontal volume slider.
+ *
+ * Copyright (C) 2010 Cristian I. Colceriu
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ *
+ * www.ghinda.net
+ * contact@ghinda.net
+ *
+ */
+ 
+/* Start of barebones theme */
+.acorn-player.barebones {
+	float: left;
+	position: relative;
+	
+	font-family: Arial, Helvetica, sans-serif;
+}
+/* <video> element */
+.acorn-player.barebones video {
+	float: left;
+	clear: both;
+	
+	margin-bottom: 5px;
+}
+/* Player Controls */
+.acorn-player.barebones .acorn-controls {
+	position: relative;
+	float: left;
+	clear: both;
+	
+	width: 100%;	
+}
+/* <button>s */
+.acorn-player.barebones button {	
+}
+/* Playback controls(Play, Pause) */
+.acorn-player.barebones .acorn-play-button {
+	float: left;
+}
+.acorn-player.barebones .acorn-paused-button {	
+}
+/* Seek Slider */
+.acorn-player.barebones .acorn-seek-slider {
+	position: relative;
+	display: block;
+	float: left;
+	width: 40%;
+	height: 10px;
+	margin: 6px 0px 0px 10px;
+	background: #ADADAD;
+}
+.acorn-player.barebones .acorn-seek-slider .ui-slider-handle {
+	display: block;
+	position: absolute;	
+	width: 15px;
+	height: 15px;	
+	top: -3px;
+	background: #e6e6e6;
+	border: 1px solid #000;
+}
+.acorn-player.barebones .acorn-seek-slider .ui-slider-range {		
+	background: #4cbae8;
+}
+.acorn-player.barebones .acorn-buffer {
+	background: #939393 !important;
+}
+.acorn-player.barebones .acorn-seek-slider .ui-state-focus, .acorn-player.barebones .acorn-seek-slider .ui-slider-handle.ui-state-hover {
+	background: #fff !important;
+}
+/* Timer */
+.acorn-player.barebones .acorn-timer {
+	float: left;
+	margin: 2px 0px 0px 5px;
+}
+/* Volume Box */
+.acorn-player.barebones .acorn-volume-box {	
+	float: left;
+	margin-left: 10px;
+}
+/* Volume Slider */
+.acorn-player.barebones .acorn-volume-slider {
+	float: left;
+	height: 10px;
+	width: 50px;
+	left: 4px;
+	margin: 6px 0px 0px 10px;
+	
+	background: #535353;
+}
+.acorn-player.barebones .acorn-volume-slider .ui-slider-handle {
+	width: 12px;
+	height: 12px;
+	left: -4px;
+	top: -2px;	
+	border: 1px solid #000;
+	background: #e6e6e6;
+}
+.acorn-player.barebones .acorn-volume-slider .ui-slider-handle.ui-state-hover {
+	background: #fff;
+}
+.acorn-player.barebones .acorn-volume-slider .ui-slider-range {	
+	background: #e6e6e6;
+}
+/* Volume Button */
+.acorn-player.barebones .acorn-volume-button {
+	float: left;
+}
+.acorn-player.barebones .acorn-volume-mute {
+}
+/* Fullscreen Button */
+.acorn-player.barebones .acorn-fullscreen-button {
+	float: right;
+}
+/* Fullscreen Mode */
+.acorn-player.barebones .fullscreen-controls {	
+	left: 0px;
+	bottom: 0px;
+}
+/* Caption Button */
+.acorn-player.barebones .acorn-caption-button {
+	float: right;
+}
+.acorn-player.barebones .acorn-caption {
+	font-size: 14px;
+	font-weight: bold;
+	color: #fff;
+}
+.acorn-player.barebones .acorn-caption-active {
+	border: 2px solid #8F0000 !important;
+}
+.acorn-player.barebones .acorn-transcript-active {
+	border: 2px solid #8F0000 !important;
+}
+/* Transcript Button */
+.acorn-player.barebones .acorn-transcript-button {
+	float: right;
+}

@@ -35,6 +35,8 @@ package org.bigbluebutton.main.model.modules
 
 	public class ModulesDispatcher
 	{
+    private static const LOG:String = "Main::ModulesDispatcher - ";
+    
 		private var dispatcher:Dispatcher;
 		private var delay:uint = 5000;
 		private var repeat:uint = 30;
@@ -100,6 +102,7 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function sendTunnelingFailedEvent():void{
+      trace(LOG + "Sending TunnelingFailed Event");
 			dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
 			stopTimers();
 		}
@@ -116,6 +119,7 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function sendPortTestFailedEvent(port:String, host:String, protocol:String, app:String):void{
+      trace(LOG + "Sending PORT_TEST_FAILED Event");
 			stopTimers();
 			var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
 			portFailEvent.port = port;

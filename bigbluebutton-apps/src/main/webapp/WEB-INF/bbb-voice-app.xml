@@ -24,29 +24,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 	
-	<beans:bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
-		<beans:property name="conferenceService" ref="conferenceService"/>
-		<beans:property name="clientNotifier" ref="clientNotifier"/>
-	</beans:bean>
-		
-	<beans:bean id="clientNotifier" class="org.bigbluebutton.webconference.red5.voice.ClientManager"/>
-		
-	<beans:bean id="conferenceService" class="org.bigbluebutton.webconference.voice.ConferenceService">
-		<beans:property name="conferenceServiceProvider" ref="conferenceServiceProvider"/>
-		<beans:property name="roomManager" ref="roomManager"/>
-		<beans:property name="clientManager" ref="clientNotifier"/>
-	</beans:bean>
-
-	<beans:bean id="roomManager" class="org.bigbluebutton.webconference.voice.internal.RoomManager">
-		<beans:property name="voiceEventRecorder" ref="voiceEventRecorder"/>
-	</beans:bean>
-
 	<beans:bean id="voiceEventRecorder" class="org.bigbluebutton.webconference.voice.VoiceEventRecorder">
 		<beans:property name="recorderApplication" ref="recorderApplication"/>
 	</beans:bean>
 				
 	<beans:bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
-		<beans:property name="conferenceService" ref="conferenceService"/>
+		<beans:property name="bigBlueButtonInGW" ref="bbbInGW"/>
 	</beans:bean>
-
+	
 </beans:beans>

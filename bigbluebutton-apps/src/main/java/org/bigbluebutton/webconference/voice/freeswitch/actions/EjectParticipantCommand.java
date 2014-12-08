@@ -20,9 +20,9 @@ package org.bigbluebutton.webconference.voice.freeswitch.actions;
 
 public class EjectParticipantCommand extends FreeswitchCommand {
     
-    private final Integer participant;
+    private final String participant;
 
-    public EjectParticipantCommand(String room, Integer participant, Integer requesterId) {
+    public EjectParticipantCommand(String room, String participant, String requesterId) {
             super(room, requesterId);
             this.participant = participant;
     }

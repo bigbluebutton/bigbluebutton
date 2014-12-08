@@ -1,18 +1,19 @@
-usePlugin 'eclipse'
-usePlugin 'java'
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
-version = '0.8.2'
+version = '0.9.0'
 jar.enabled = true
 
 def appName = 'fs-esl-client'
 
 archivesBaseName = appName 
 
-task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(type: Copy) {
     into('lib')
     from configurations.default
-    from configurations.default.allArtifacts*.file
+    from configurations.default.allArtifacts.file
 }
+
 
 artifacts {
     archives jar

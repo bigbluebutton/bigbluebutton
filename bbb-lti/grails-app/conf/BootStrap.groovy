@@ -15,13 +15,10 @@
     You should have received a copy of the GNU Lesser General Public License along
     with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */    
-
 class BootStrap {
 
-     def init = { servletContext ->
-         log.debug "Bootstrapping bbb-lti"
-     }
-     
-     def destroy = {
-     }
-} 
+    def init = { servletContext ->
+    }
+    def destroy = {
+    }
+}

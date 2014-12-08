@@ -20,10 +20,10 @@ package org.bigbluebutton.webconference.voice.freeswitch.actions;
 
 public class MuteParticipantCommand extends FreeswitchCommand {
 	
-    private final Integer participant;
+    private final String participant;
     private final Boolean mute;
 
-    public MuteParticipantCommand(String room, Integer participant, Boolean mute, Integer requesterId) {
+    public MuteParticipantCommand(String room, String participant, Boolean mute, String requesterId) {
             super(room, requesterId);
             this.participant = participant;
             this.mute = mute;

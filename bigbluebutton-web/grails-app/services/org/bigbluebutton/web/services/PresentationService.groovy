@@ -33,8 +33,9 @@ class PresentationService {
 	def testPresentationName
 	def testUploadedPresentation
 	def defaultUploadedPresentation
+	def presentationBaseUrl
 	
-    def deletePresentation = {conf, room, filename ->
+  def deletePresentation = {conf, room, filename ->
     		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
     		deleteDirectory(directory) 
 	}
@@ -71,30 +72,30 @@ class PresentationService {
 		}	
 		return presentationsList
 	}
-	
-	public File uploadedPresentationDirectory(String conf, String room, String presentation_name) {
-		File dir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentation_name)
-		println "Uploaded presentation ${presentation_name} for conf ${conf} and room ${room} to dir ${dir.absolutePath}"
 
-		/* If the presentation name already exist, delete it. We should provide a check later on to notify user
-			that there is already a presentation with that name. */
-		if (dir.exists()) deleteDirectory(dir)		
-		dir.mkdirs()
-
-		assert dir.exists()
-		return dir
-	}
+  def getPresentationDir = {
+    return presentationDir
+  }
 	
 	def processUploadedPresentation = {uploadedPres ->	
 		// Run conversion on another thread.
-		new Timer().runAfter(1000) 
-		{
-			documentConversionService.processDocument(uploadedPres)
+		Timer t = new Timer(uploadedPres.getName(), false)
+		
+		t.runAfter(1000) {
+			try {
+				documentConversionService.processDocument(uploadedPres)
+			} finally {
+		    t.cancel()
+			} 
 		}
 	}
  	
 	def showSlide(String conf, String room, String presentationName, String id) {
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "slide-${id}.swf")
+	}
+	
+	def showPngImage(String conf, String room, String presentationName, String id) {
+		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "pngs" + File.separatorChar + id)
 	}
 	
 	def showPresentation = {conf, room, filename ->
@@ -130,9 +131,9 @@ class PresentationService {
 		textfilesDir.listFiles().length
 	}
 	
-	def roomDirectory = {conf, room ->
-		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
-	}
+  def roomDirectory = {conf, room ->
+      return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
+  }
 
 	def testConversionProcess() {
 		File presDir = new File(roomDirectory(testConferenceMock, testRoomMock).absolutePath + File.separatorChar + testPresentationName)

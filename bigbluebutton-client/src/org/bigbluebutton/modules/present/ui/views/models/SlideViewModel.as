@@ -190,8 +190,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function onMove(deltaX:Number, deltaY:Number):void {
-			_calcPageX += deltaX;
-			_calcPageY += deltaY;
+			_calcPageX += deltaX / MYSTERY_NUM;
+			_calcPageY += deltaY / MYSTERY_NUM;
 			
 			onResizeMove();	
 			calcViewedRegion();
@@ -232,13 +232,20 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function onZoom(zoomValue:Number, mouseX:Number, mouseY:Number):void {
-			var cpw:Number = _calcPageW;
-			var cph:Number = _calcPageH;
-			var zpx:Number = Math.abs(_calcPageX) + mouseX;
-			var zpy:Number = Math.abs(_calcPageY) + mouseY;
-			var zpxp:Number = zpx/cpw;
-			var zpyp:Number = zpy/cph;
-
+			
+			// Absolute x and y positions of the mouse over the (enlarged) slide:
+			var absXcoordInPage:Number = Math.abs(_calcPageX) * MYSTERY_NUM + mouseX;
+			var absYcoordInPage:Number = Math.abs(_calcPageY) * MYSTERY_NUM + mouseY;
+			
+			// Relative position of mouse over the slide. For example, if your slide is 1000 pixels wide, 
+			// and your mouse has an absolute x-coordinate of 700, then relXcoordInPage will be 0.7 :
+			var relXcoordInPage:Number = absXcoordInPage / _calcPageW; 
+			var relYcoordInPage:Number = absYcoordInPage / _calcPageH;
+			
+			// Relative position of mouse in the view port (same as above, but with the view port):
+			var relXcoordInViewport:Number = mouseX / viewportW;
+			var relYcoordInViewport:Number = mouseY / viewportH;
+			
 			if (isPortraitDoc()) {
 				if (fitToPage) {
 					_calcPageH = viewportH * zoomValue / HUNDRED_PERCENT;
@@ -256,12 +263,13 @@ package org.bigbluebutton.modules.present.ui.views.models
 					_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;
 				}
 			}
-				
-			var zpx1:Number = _calcPageW * zpxp;
-			var zpy1:Number = _calcPageH * zpyp;				
-			_calcPageX = -((zpx1 + zpx)/2) + mouseX;
-			_calcPageY = -((zpy1 + zpy)/2) + mouseY;
-						
+			
+			absXcoordInPage = relXcoordInPage * _calcPageW;
+			absYcoordInPage = relYcoordInPage * _calcPageH;
+			
+			_calcPageX = -((absXcoordInPage - mouseX) / MYSTERY_NUM);
+			_calcPageY = -((absYcoordInPage - mouseY) / MYSTERY_NUM);
+			
 			doWidthBoundsDetection();
 			doHeightBoundsDetection();
 			

@@ -24,12 +24,18 @@ package org.bigbluebutton.modules.present.business
 	import flash.net.FileReference;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.net.URLVariables;	
-	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import flash.net.URLVariables;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
+	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
+	import org.bigbluebutton.modules.present.events.UploadProgressEvent;
+	import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
 	
 	public class FileUploadService {
 		public static const ID:String = "FileUploadService";
+		private static const LOG:String = "Present::FileUploadService - ";
 
 		public static const UPLOAD_PROGRESS:String = "UPLOAD_PROGRESS";
 		public static const UPLOAD_COMPLETED:String = "UPLOAD_COMPLETED";
@@ -96,8 +102,7 @@ package org.bigbluebutton.modules.present.business
 		 */		
 		private function onUploadProgress(event:ProgressEvent) : void {
 			var percentage:Number = Math.round((event.bytesLoaded / event.bytesTotal) * 100);
-			var e:UploadEvent = new UploadEvent(UploadEvent.UPLOAD_PROGRESS_UPDATE);
-			e.percentageComplete = percentage;
+			var e:UploadProgressEvent = new UploadProgressEvent(percentage);
 			dispatcher.dispatchEvent(e);
 		}
 		
@@ -107,7 +112,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		private function onUploadComplete(event:Event):void {
-			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_COMPLETE));
+			dispatcher.dispatchEvent(new UploadCompletedEvent());
 		}
 
 		/**
@@ -116,8 +121,11 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */
 		private function onUploadIoError(event:IOErrorEvent):void {
-			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_IO_ERROR));
-			LogUtil.error("An error occured while uploading the file. " + event.toString()); 
+			if(event.errorID != 2038){ //upload works despite of this error.
+				trace(LOG + "onUploadIoError text: " + event.text + ", errorID: " + event.errorID);
+				dispatcher.dispatchEvent(new UploadIoErrorEvent());
+			}
+			
 		}
 		
 		/**
@@ -126,7 +134,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		private function onUploadSecurityError(event:SecurityErrorEvent) : void {
-			dispatcher.dispatchEvent(new UploadEvent(UploadEvent.UPLOAD_SECURITY_ERROR));
+			dispatcher.dispatchEvent(new UploadSecurityErrorEvent());
 			LogUtil.error("A security error occured while trying to upload the presentation. " + event.toString());
 		}		
 	}

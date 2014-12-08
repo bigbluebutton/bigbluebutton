@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion suppressWarning="false">0.8</localeversion>
+    <localeversion suppressWarning="false">0.9.0</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <javaTest url="http://HOST/testjava.html"/>
@@ -10,20 +10,22 @@
     <language userSelectionEnabled="true" />
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
     <shortcutKeys showButton="true" />
-    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" confirmLogout="true"/>
+            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" confirmLogout="true"
+            showRecordingNotification="true"/>
+    <lock allowModeratorLocking="false" disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
+          disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false"/>
             
 		<modules>
 		 
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"	
-			translationOn="false"
-			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
 			baseTabIndex="701"
+			colorPickerIsVisible="false"
 		/>
 
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
@@ -47,9 +49,15 @@
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
+			listenOnlyMode="true"
+			forceListenOnly="false"
+			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
+			useWebRTCIfAvailable="true"
+			showPhoneOption="false"
+			echoTestApp="9196"
 			dependsOn="UsersModule"
 		/>
 
@@ -92,14 +100,14 @@
 			whiteboardAccess="presenter"
 			keepToolbarVisible="false"
 		/>
-
 <!--
+
     <module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
       uri="rtmp://HOST/bigbluebutton" 
       dependsOn="PresentModule"
     />
--->
     		
+-->
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 

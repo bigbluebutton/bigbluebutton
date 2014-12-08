@@ -24,15 +24,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.events.FlexEvent;
-      
+      import com.asfusion.mate.events.Dispatcher;     
+      import mx.events.FlexEvent;     
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.main.events.ModuleStartedEvent;
       import org.bigbluebutton.modules.chat.events.ChatEvent;
-      import org.bigbluebutton.modules.chat.events.ConnectionEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
@@ -50,17 +47,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<ObjectBuilder generator="{ChatEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
 	</EventHandlers>
 	
-	<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">        
-		<MethodInvoker generator="{ChatEventMapDelegate}" method="setTranslationOptions" arguments="{event}" />
+	<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">
+		<MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow" />
     <ObjectBuilder generator="{ChatMessageService}"/>
   </EventHandlers>
     
   <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
    		<MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindow" />
-  </EventHandlers>
-        
-  <EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">        
- 		<MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow"/>	
   </EventHandlers>
 
   <EventHandlers type="{EventConstants.SEND_PUBLIC_CHAT_REQ}">        

@@ -88,7 +88,7 @@ public class TextFileCreatorImp implements TextFileCreator {
 	 	}else{
 	 		dest = textfilesDir.getAbsolutePath() + File.separator + "slide-";
 	 		// sudo apt-get install xpdf-utils
-	 		for( int i=1; i<=pres.getNumberOfPages(); i++){
+	 		for( int i = 1; i <= pres.getNumberOfPages(); i++){
 	 			COMMAND = IMAGEMAGICK_DIR + "/pdftotext -raw -nopgbrk -f "+ i +" -l " + i + " " + source + " " + dest + i + ".txt";
 	 			boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 	 			if (!done) {

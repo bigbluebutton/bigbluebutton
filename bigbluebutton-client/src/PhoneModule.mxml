@@ -27,13 +27,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()">
 	
 	<maps:PhoneEventMap id="phoneLocalEventMap"/>
-	
+  <maps:WebRTCEventMap id="webRTCEventMap"/>
+  <maps:FlashCallEventMap id="flashCallEventMap"/>
+  
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Alert;
-			
+			import com.asfusion.mate.events.Dispatcher;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;

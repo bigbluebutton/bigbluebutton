@@ -87,9 +87,13 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 			if (log.isDebugEnabled()) log.debug("Stopped audioBroadcastStream for {}", listenStreamName);
 			audioBroadcastStream.close();
 		    if (log.isDebugEnabled()) log.debug("Closed audioBroadcastStream for {}", listenStreamName);
-		} else
+		} else {
 			if (log.isDebugEnabled()) log.debug("audioBroadcastStream is null, couldn't stop");
-	    if (log.isDebugEnabled()) log.debug("Stream(s) stopped");
+		}
+		
+	   if (log.isDebugEnabled()) log.debug("Stream(s) stopped");
+	    
+	    if (observer != null) observer.onStreamStopped();
 	}
 	
 	public void start() {

@@ -19,11 +19,9 @@
 package org.bigbluebutton.webconference.voice;
 
 public interface ConferenceServiceProvider {
-	public boolean startup();
-	public void shutdown();
 	public void populateRoom(String room);
-	public void mute(String room, Integer participant, Boolean mute);	
-	public void eject(String room, Integer participant);
+	public void mute(String room, String participant, Boolean mute);	
+	public void eject(String room, String participant);
 	public void ejectAll(String room);
 	public void record(String room, String meetingid);
 	public void broadcast(String room, String meetingid);

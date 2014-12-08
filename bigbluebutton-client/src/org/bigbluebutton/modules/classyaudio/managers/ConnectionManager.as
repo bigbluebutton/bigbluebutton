@@ -70,6 +70,7 @@ package org.bigbluebutton.modules.classyaudio.managers {
 		private function connectToServer(externUID:String, username:String):void {			
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
+			netConnection.proxyType = "best";
 			netConnection.client = this;
 			netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 			netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);

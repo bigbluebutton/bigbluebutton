@@ -29,11 +29,13 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
@@ -42,8 +44,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 	
 	public class WhiteboardManager
 	{
-        /* Injected by Mate */
-        public var whiteboardModel:WhiteboardModel;
+    private static const LOG:String = "WB::WhiteboardManager - ";
+    
+    /* Injected by Mate */
+    public var whiteboardModel:WhiteboardModel;
         
 		private var globalDispatcher:Dispatcher;
 		private var highlighterCanvas:WhiteboardCanvas;
@@ -62,12 +66,12 @@ package org.bigbluebutton.modules.whiteboard.managers
             
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
-            highlighterCanvas.displayModel = displayModel;
-            displayModel.whiteboardModel = whiteboardModel;
-            model.whiteboardModel = whiteboardModel
+      highlighterCanvas.displayModel = displayModel;
+      displayModel.whiteboardModel = whiteboardModel;
+      model.whiteboardModel = whiteboardModel
                 
-		    model.wbCanvas = highlighterCanvas;
-            displayModel.wbCanvas = highlighterCanvas;
+		  model.wbCanvas = highlighterCanvas;
+      displayModel.wbCanvas = highlighterCanvas;
             
 			if (highlighterToolbar != null) return;
             
@@ -88,6 +92,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		private function addHighlighterCanvas(e:TimerEvent):void {
+      trace(LOG + "Adding Whiteboard Overlay Canvas");
 			PresentationAPI.getInstance().addOverlayCanvas(highlighterCanvas);
 		}	
 
@@ -110,25 +115,21 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function clearAnnotations():void {
-            displayModel.clearBoard();
+      displayModel.clearBoard();
 		}
         
-        public function receivedAnnotationsHistory():void {
-            displayModel.receivedAnnotationsHistory();
-        }
+    public function receivedAnnotationsHistory(event:WhiteboardShapesEvent):void {
+      displayModel.receivedAnnotationsHistory(event.whiteboardId);
+    }
 		
 		public function undoAnnotation(event:WhiteboardUpdate):void {
-            displayModel.undoAnnotation(event.annotationID);
+      displayModel.undoAnnotation(event.annotationID);
 		}
 		
 		public function toggleGrid(event:ToggleGridEvent = null):void {
 	//		model.toggleGrid();
 		}
-		
-		public function changePage():void {
-            displayModel.changePage();
-		}
-		
+			
 		public function enableWhiteboard(e:WhiteboardButtonEvent):void {
 			highlighterCanvas.enableWhiteboard(e);
 		}
@@ -136,5 +137,9 @@ package org.bigbluebutton.modules.whiteboard.managers
 		public function disableWhiteboard(e:WhiteboardButtonEvent):void {
 			highlighterCanvas.disableWhiteboard(e);
 		}
+    
+    public function handlePageChangedEvent(e:PageLoadedEvent):void {
+      displayModel.changePage(e.pageId);
+    }
 	}
 }

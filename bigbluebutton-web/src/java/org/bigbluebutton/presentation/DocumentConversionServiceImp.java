@@ -23,8 +23,12 @@ import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
 import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
 import org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
+	private static Logger log = LoggerFactory.getLogger(DocumentConversionServiceImp.class);
+	
 	private MessagingService messagingService;
 	private OfficeToPdfConversionService officeToPdfConversionService;
 	private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;
@@ -32,6 +36,8 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 	
 	public void processDocument(UploadedPresentation pres) {
 		SupportedDocumentFilter sdf = new SupportedDocumentFilter(messagingService);
+		log.info("Start presentation conversion. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], timestamp=[" + System.currentTimeMillis() + "]");
+
 		if (sdf.isSupported(pres)) {
 			String fileType = pres.getFileType();
 			
@@ -54,6 +60,9 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 		} else {
 			// TODO: error log
 		}
+		
+		log.info("End presentation conversion. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], timestamp=[" + System.currentTimeMillis() + "]");
+
 	}
 	
 	public void setMessagingService(MessagingService m) {

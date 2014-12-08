@@ -26,11 +26,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
-			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
-			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
 			import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
 			import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
-			import org.bigbluebutton.modules.phone.managers.PhoneManager;
 			import org.bigbluebutton.modules.phone.managers.StreamManager;
 			import org.bigbluebutton.modules.phone.managers.ConnectionManager;
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
@@ -47,44 +46,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
 		<ObjectBuilder generator="{PhoneEventMapDelegate}" />
-		<ObjectBuilder generator="{PhoneManager}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
-		<MethodInvoker generator="{PhoneManager}" method="setModuleAttributes" arguments="{event.attributes}" />
 		<MethodInvoker generator="{PhoneEventMapDelegate}" method="addToolbarButton"/>
     </EventHandlers>
     
     <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
     	<MethodInvoker generator="{PhoneEventMapDelegate}" method="removeToolbarButton"/> 
-		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup"/>
+    </EventHandlers>
+
+	<EventHandlers type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}">     
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton" arguments="{event.listenOnlyCall}"/>
     </EventHandlers>
     
-    <EventHandlers type="LEAVE_VOICE_CONFERENCE_EVENT">        
-		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup"/>
-    </EventHandlers>
-    
-	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT">        
-		<MethodInvoker generator="{PhoneManager}" method="joinVoice" arguments="{event.payload.useMicrophone}"/>
-	</EventHandlers>
-	
-	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>
-		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
-    </EventHandlers>
-    
-    <EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
-    	<MethodInvoker generator="{PhoneManager}" method="hangup" /> 
+    <EventHandlers type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
 		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
-		<MethodInvoker generator="{PhoneManager}" method="rejoin" />
     </EventHandlers>
         
-    <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
-		<MethodInvoker generator="{PhoneManager}" method="dialConference"/>
-    </EventHandlers>
-	
-	<EventHandlers type="{ConnectionStatusEvent.SUCCESS}">        
-		<MethodInvoker generator="{PhoneManager}" method="calledFromGlobal" arguments="ConnectionStatusEvent.SUCCESS"/>
-	</EventHandlers>
+
     
 </EventMap>

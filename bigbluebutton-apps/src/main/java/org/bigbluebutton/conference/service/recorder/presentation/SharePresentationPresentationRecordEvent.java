@@ -30,6 +30,10 @@ public class SharePresentationPresentationRecordEvent extends
 		eventMap.put("presentationName", name);
 	}
 	
+	public void setOriginalFilename(String name) {
+		eventMap.put("originalFilename", name);
+	}
+	
 	public void setShare(boolean share) {
 		eventMap.put("share", Boolean.toString(share));
 	}

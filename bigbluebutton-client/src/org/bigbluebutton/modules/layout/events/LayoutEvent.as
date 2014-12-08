@@ -18,29 +18,28 @@
 */
 package org.bigbluebutton.modules.layout.events
 {
-	import flash.events.Event;
+  import flash.events.Event;
 
-	public class LayoutEvent extends Event
-	{
-		public static const REMOTE_LOCK_LAYOUT_EVENT:String = 'REMOTE_LOCK_LAYOUT_EVENT';
-		public static const REMOTE_UNLOCK_LAYOUT_EVENT:String = 'REMOTE_UNLOCK_LAYOUT_EVENT';
+  public class LayoutEvent extends Event
+  {
+    public static const SYNC_LAYOUT_EVENT:String = 'SYNC_LAYOUT_EVENT';
+    public static const BROADCAST_LAYOUT_EVENT:String = 'BROADCAST_LAYOUT_EVENT';
+    public static const LOCK_LAYOUT_EVENT:String = 'LOCK_LAYOUT_EVENT';
+    public static const UNLOCK_LAYOUT_EVENT:String = 'UNLOCK_LAYOUT_EVENT';
+    public static const STOP_LAYOUT_MODULE_EVENT:String = 'STOP_LAYOUT_MODULE_EVENT';
+    public static const VIEW_INITIALIZED_EVENT:String = 'VIEW_INITIALIZED_EVENT';
 
-		public static const LOCK_LAYOUT_EVENT:String = 'LOCK_LAYOUT_EVENT';
-		public static const UNLOCK_LAYOUT_EVENT:String = 'UNLOCK_LAYOUT_EVENT';
-		public static const STOP_LAYOUT_MODULE_EVENT:String = 'STOP_LAYOUT_MODULE_EVENT';
-		public static const VIEW_INITIALIZED_EVENT:String = 'VIEW_INITIALIZED_EVENT';
-		
-		public static const SAVE_LAYOUTS_EVENT:String = 'SAVE_LAYOUTS_EVENT';
-		public static const LOAD_LAYOUTS_EVENT:String = 'LOAD_LAYOUTS_EVENT';
-		public static const ADD_CURRENT_LAYOUT_EVENT:String = 'ADD_CURRENT_LAYOUT_EVENT';
-		public static const FILE_LOADED_SUCCESSFULLY_EVENT:String = 'FILE_LOADED_SUCCESSFULLY_EVENT';
-		public static const APPLY_DEFAULT_LAYOUT_EVENT:String = 'APPLY_DEFAULT_LAYOUT_EVENT';
-		public static const INVALIDATE_LAYOUT_EVENT:String = 'INVALIDATE_LAYOUT_EVENT';
-		
-		public function LayoutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
-		{
-			super(type, bubbles, cancelable);
-		}
-		
-	}
+    public static const SAVE_LAYOUTS_EVENT:String = 'SAVE_LAYOUTS_EVENT';
+    public static const LOAD_LAYOUTS_EVENT:String = 'LOAD_LAYOUTS_EVENT';
+    public static const ADD_CURRENT_LAYOUT_EVENT:String = 'ADD_CURRENT_LAYOUT_EVENT';
+    public static const FILE_LOADED_SUCCESSFULLY_EVENT:String = 'FILE_LOADED_SUCCESSFULLY_EVENT';
+    public static const APPLY_DEFAULT_LAYOUT_EVENT:String = 'APPLY_DEFAULT_LAYOUT_EVENT';
+    public static const INVALIDATE_LAYOUT_EVENT:String = 'INVALIDATE_LAYOUT_EVENT';
+
+    public function LayoutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+    {
+      super(type, bubbles, cancelable);
+    }
+
+  }
 }

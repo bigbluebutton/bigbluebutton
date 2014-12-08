@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.whiteboard.services
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.modules.present.events.PresentationEvent;
+  import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
   import org.bigbluebutton.modules.whiteboard.events.PageEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
@@ -28,31 +29,19 @@ package org.bigbluebutton.modules.whiteboard.services
 
   public class WhiteboardService
   {
+    private static const LOG:String = "WB::WhiteboardService - ";
+    
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     public var whiteboardModel:WhiteboardModel;
 
-    public function getAnnotationHistory():void
+    public function getAnnotationHistory(cmd:GetWhiteboardShapesCommand):void
     {
-      var cp:Object = whiteboardModel.getCurrentPresentationAndPage();
-      if (cp != null) {
-        sender.requestAnnotationHistory(cp.presentationID, cp.currentPageNumber);
-      }
+      sender.requestAnnotationHistory(cmd.whiteboardId);
     }
     
     public function modifyEnabled(e:WhiteboardPresenterEvent):void {
       sender.modifyEnabled(e);
-    }
-
-    public function changePage(pageNum:Number):void {
-      pageNum += 1;
-      if (isPresenter) {
-        LogUtil.debug("PRESENTER Switch to page [" + pageNum + "]");
-        sender.changePage(pageNum);	
-      } else {
-        LogUtil.debug("Switch to page [" + pageNum + "]"); 
-        whiteboardModel.changePage(pageNum, 0);
-      }
     }
 
     public function toggleGrid():void {
@@ -60,11 +49,19 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     public function undoGraphic():void {
-      sender.undoGraphic()
+      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
+      if (wbId != null) {
+        
+        sender.undoGraphic(wbId)
+      }      
     }
 
     public function clearBoard():void {
-      sender.clearBoard();
+      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
+      if (wbId != null) {
+        trace(LOG + "Clear shape for wb [" + wbId + "]");
+        sender.clearBoard(wbId);
+      }
     }
 
     public function sendText(e:WhiteboardDrawEvent):void {
@@ -79,19 +76,5 @@ package org.bigbluebutton.modules.whiteboard.services
       sender.checkIsWhiteboardOn();
     }
 
-    public function setActivePresentation(e:PresentationEvent):void {
-      if (isPresenter) {
- //               LogUtil.debug("PRESENTER Switch to presentation [" + e.presentationName + "," + e.numberOfPages + "]");
-        sender.setActivePresentation(e);
-      } else {
- //               LogUtil.debug("Switch to presentation [" + e.presentationName + "," + e.numberOfPages + "]");
-        whiteboardModel.changePresentation(e.presentationName, e.numberOfPages);
-      }
-    }
-
-        /** Helper method to test whether this user is the presenter */
-        private function get isPresenter():Boolean {
-            return UserManager.getInstance().getConference().amIPresenter;
-        }
 	}
 }

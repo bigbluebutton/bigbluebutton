@@ -41,6 +41,8 @@ package org.bigbluebutton.modules.notes.services
   
   public class NoteSaver
   {
+    private static const LOG:String = "NoteSaver - ";
+    
     private var _serverURL:String;
 
     private var _request:URLRequest = new URLRequest();
@@ -68,6 +70,8 @@ package org.bigbluebutton.modules.notes.services
     }
     
     public function save():void {
+      trace(LOG + " save");
+      
       //_request.url = _serverURL + "/save";
       _request.url = _serverURL;
       _request.method = URLRequestMethod.GET;

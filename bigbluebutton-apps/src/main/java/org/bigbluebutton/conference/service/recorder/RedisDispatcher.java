@@ -28,7 +28,7 @@ public class RedisDispatcher implements Recorder {
 	private static final String COLON=":";
 	JedisPool redisPool;
 	
-	public RedisDispatcher(){
+	public RedisDispatcher() {
 		super();
 		log.debug("setting redis dispatcher");
 	}

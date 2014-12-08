@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+          xmlns:mate="http://mate.asfusion.com/"
+          borderStyle="none" horizontalAlign="center"
+          headerHeight="0" borderThicknessBottom="0" borderThicknessLeft="0"
+          borderThicknessRight="0" borderThicknessTop="0" creationComplete="onCreationComplete()">
+  
+  <mate:Listener type="{PollEvent.POLL_RESULTS_UPDATED}" method="onPollResultsUpdatedEvent" />
+  
+  <mx:Script>
+    <![CDATA[
+      import mx.collections.ArrayCollection;
+      
+      import org.bigbluebutton.modules.polling.events.PollEvent;
+      import org.bigbluebutton.modules.polling.model.PollingViewModel;
+      import org.bigbluebutton.modules.polling.model.QuestionVO;
+      
+      public var viewModel:PollingViewModel;
+      public var pollID:String;
+      
+      [Bindable] private var _responses:Array;
+      [Bindable] private var _question:String;
+      
+      private function onCreationComplete():void {
+        updateResults();
+      }
+      
+      private function onPollResultsUpdatedEvent(event:PollEvent):void {        
+        updateResults();
+      }
+      
+      private function updateResults():void {
+        var q1:QuestionVO = viewModel.getPoll(pollID).questions[0] as QuestionVO;
+        _responses = q1.answers;   
+        _question = q1.question;
+        barChart.dataProvider = _responses;
+      }
+
+    ]]>
+    </mx:Script>
+  <mx:VBox width="100%" height="100%">
+    <mx:HBox width="100%" height="25" horizontalAlign="center" paddingTop="5">
+      <mx:Label text="{_question}" fontSize="12" styleName="micSettingsWindowTitleStyle" paddingLeft="3"/>
+    </mx:HBox>
+    <mx:VBox width="100%" height="100%" horizontalAlign="center" paddingTop="5">
+      <mx:ColumnChart id="barChart" dataProvider="{_responses}" showDataTips="true" width="100%" height="100%">
+        <mx:horizontalAxis>
+          <mx:CategoryAxis dataProvider="{_responses}" categoryField="response" />
+        </mx:horizontalAxis>
+        <mx:series>
+          <mx:ColumnSeries xField="response" yField="numResponses" displayName="Number of responses"/>
+        </mx:series>
+      </mx:ColumnChart>
+      <mx:HBox width="100%" horizontalAlign="center" borderStyle="none">
+        <mx:Legend dataProvider="{barChart}" paddingLeft="5"/>  
+      </mx:HBox> 
+    </mx:VBox>  
+  </mx:VBox>
+
+</mx:Panel>

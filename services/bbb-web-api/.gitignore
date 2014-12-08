@@ -1,0 +1,12 @@
+.gradle
+.project
+*.war
+stacktrace.log
+lib/commons-lang-2.5.jar
+lib/commons-pool-1.5.6.jar
+lib/gson-1.7.1.jar
+lib/junit-4.8.2.jar
+lib/jedis-2.0.0.jar
+web-app/demo/bbb_api_conf.jsp
+target
+plugins/*

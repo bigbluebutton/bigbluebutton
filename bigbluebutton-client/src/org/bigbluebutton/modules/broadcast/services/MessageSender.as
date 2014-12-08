@@ -82,6 +82,9 @@ package org.bigbluebutton.modules.broadcast.services
       message["requestedBy"] = requestedByUserID;
       message["streamID"] = streamID;
 
+      trace("MessageSender:: sendWhatIsTheCurrentStreamReply [" + message["requestedBy"] 
+        + "," +  message["streamID"] + "]");
+      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("bigbluebutton.sendMessage", 
         function(result:String):void { // On successful result

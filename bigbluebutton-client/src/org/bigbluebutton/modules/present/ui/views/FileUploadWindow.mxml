@@ -22,44 +22,60 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-      x="168" y="86" layout="absolute" width="700" height="410" styleName="presentationFileUploadWindowStyle"
+	 layout="absolute" width="580" height="400" styleName="presentationFileUploadWindowStyle"
       initialize="initData();">
 
     <mate:Dispatcher id="globalDispatch" />
-    <mate:Listener type="{UploadEvent.UPLOAD_PROGRESS_UPDATE}" method="uploadProgressUpdate" />
-    <mate:Listener type="{UploadEvent.UPLOAD_COMPLETE}" method="uploadComplete" />
-    <mate:Listener type="{UploadEvent.UPLOAD_IO_ERROR}" method="uploadIOError" />
-    <mate:Listener type="{UploadEvent.UPLOAD_SECURITY_ERROR}" method="uploadSecurityError" />
-    <mate:Listener type="{UploadEvent.CONVERT_ERROR}" method="convertError" />
-    <mate:Listener type="{UploadEvent.CONVERT_SUCCESS}" method="convertSuccess" />
-    <mate:Listener type="{UploadEvent.CONVERT_UPDATE}" method="convertUpdate" />
-    <mate:Listener type="{UploadEvent.UPDATE_PROGRESS}" method="updateProgress" />
-    <mate:Listener type="{UploadEvent.THUMBNAILS_UPDATE}" method="handleThumbnailsProgressEvent" />
-    <mate:Listener type="{UploadEvent.OFFICE_DOC_CONVERSION_FAILED}" method="handleOfficeDocumentConversionFailed"/>
-    <mate:Listener type="{UploadEvent.OFFICE_DOC_CONVERSION_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
-    <mate:Listener type="{UploadEvent.SUPPORTED_DOCUMENT}" method="handleSupportedDocument"/>	
-    <mate:Listener type="{UploadEvent.UNSUPPORTED_DOCUMENT}" method="handleUnsupportedDocument"/>
-    <mate:Listener type="{UploadEvent.PAGE_COUNT_FAILED}" method="handlePageCountFailed"/>
-    <mate:Listener type="{UploadEvent.PAGE_COUNT_EXCEEDED}" method="handlePageCountExceeded"/>
-
+    <mate:Listener type="{UploadProgressEvent.UPLOAD_PROGRESS_UPDATE}" method="handleUploadProgressUpdate" />
+    <mate:Listener type="{UploadCompletedEvent.UPLOAD_COMPLETED}" method="handleUploadCompletedEvent" />
+    <mate:Listener type="{UploadIoErrorEvent.UPLOAD_IO_ERROR}" method="handleUploadIoError" />
+    <mate:Listener type="{UploadSecurityErrorEvent.UPLOAD_SECURITY_ERROR}" method="handleUploadSecurityError" />
+    <mate:Listener type="{ConversionCompletedEvent.CONVERSION_COMPLETED}" method="handleConversionCompleted" />
+    <mate:Listener type="{ConversionUpdateEvent.CONVERSION_UPDATE}" method="handleConvertUpdate" />
+    <mate:Listener type="{CreatingThumbnailsEvent.CREATING_THUMBNAILS}" method="handleThumbnailsProgressEvent" />
+    <mate:Listener type="{OfficeDocConvertFailedEvent.OFFICE_DOC_CONVERT_FAILED}" method="handleOfficeDocumentConversionFailed"/>
+    <mate:Listener type="{OfficeDocConvertSuccessEvent.OFFICE_DOC_CONVERT_SUCCESS}" method="handleOfficeDocumentConversionSuccess"/>
+    <mate:Listener type="{ConversionSupportedDocEvent.SUPPORTED_DOC}" method="handleSupportedDocument"/>	
+    <mate:Listener type="{ConversionUnsupportedDocEvent.UNSUPPORTED_DOC}" method="handleUnsupportedDocument"/>
+    <mate:Listener type="{ConversionPageCountError.PAGE_COUNT_ERROR}" method="handlePageCountFailed"/>
+    <mate:Listener type="{ConversionPageCountMaxed.PAGE_COUNT_MAXED}" method="handlePageCountExceeded"/>
+	<mate:Listener type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}" method="handlePresentationRemoved" />
   <mx:Script>
     <![CDATA[
-      import org.bigbluebutton.common.LogUtil;
-      import com.asfusion.mate.events.Dispatcher;			
+      import com.asfusion.mate.events.Dispatcher;
+      
       import mx.collections.*;
       import mx.events.FlexEvent;
       import mx.events.ValidationResultEvent;
       import mx.managers.PopUpManager;
       import mx.utils.*;
-      import mx.validators.*;			
+      import mx.validators.*;
+      
       import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.modules.present.commands.UploadFileCommand;
+      import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
+      import org.bigbluebutton.modules.present.events.ConversionPageCountError;
+      import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
+      import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
+      import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
+      import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
+      import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+      import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+      import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+      import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
+      import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
+      import org.bigbluebutton.modules.present.events.UploadProgressEvent;
+      import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
+      import org.bigbluebutton.modules.present.model.PresentationModel;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-
-            	
-      [Bindable] public var presentationNamesAC:ArrayCollection;
-	  [BIndable] public var maxFileSize:Number;
+      
+      private static const LOG:String = "Present::FileUploadWindow - ";
+        
+      [Bindable] private var presentationNamesAC:ArrayCollection;
+	    [BIndable] public var maxFileSize:Number;
 
       private var images:Images = new Images();
       [Bindable] private var addIcon : Class = images.add;
@@ -71,19 +87,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var genThumbDots:String = ".";
 
       private var fileToUpload:FileReference = new FileReference();
-
-      override public function move(x:Number, y:Number):void
-      {
+		
+      override public function move(x:Number, y:Number):void{
         return;
       }
       
       private function initData():void {
+        presentationNamesAC = PresentationModel.getInstance().getPresentations();
         if (presentationNamesAC.length <= 0) {
           selectFile();
         }
       }
             
-      private function handleThumbnailsProgressEvent(event:Event):void {	
+      private function handleThumbnailsProgressEvent(event:CreatingThumbnailsEvent):void {	
         genThumbDots = ".";
 
         thumbnailTimer.repeatCount = 20;
@@ -122,7 +138,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function onSelectFile(e:Event):void{
-        fileTxtInput.text = fileToUpload.name;
+        lblFileName.text = fileToUpload.name;
         uploadBtn.enabled = true;
       }
 
@@ -130,100 +146,101 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var fileSize:Number = fileToUpload.size;
         var maxFileSizeBytes:Number = maxFileSize * 1000000;
 
-		progressBar.visible = true;
+        fileFormatHintLbl.visible = false;
+        fileFormatHintLbl.includeInLayout = false;
+		
+		    uploadedFilesList.enabled = false;
+
+        progressReportBox.visible = true;
+        progressBar.visible = true;
+        okCancelBtn.visible = true;
+        
+        disableClosing();
+        
+        selectBtn.enabled = false;
+        uploadBtn.enabled = false;		
+        
         if (fileSize > maxFileSizeBytes) {     
           // Hardcode for now to 30M limit. 
           // This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
-          trace("File exceeds max limit:(" + fileSize + ">" + maxFileSizeBytes + ")");  			
+          trace(LOG + "File exceeds max limit:(" + fileSize + ">" + maxFileSizeBytes + ")");  			
           enableControls();
           displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
         } else {
           var presentationName:String = StringUtil.trim(fileToUpload.name);
-          trace("Uploading file : " + presentationName);
+          trace(LOG + "Uploading file : " + presentationName);
 
-          var filenamePattern:RegExp = /(.+)(\..+)/i;
-          // Get the first match which should be the filename without the extension.
-          presentationName = presentationName.replace(filenamePattern, "$1")
-          // Replace any character other than a word character (A-Z, a-z, 0-9, or _).
-          presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
-          trace("Uploadling presentation name: " + presentationName);
-
-          var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
-          uploadEvent.presentationName = presentationName;
-          uploadEvent.fileToUpload = fileToUpload;
-          globalDispatch.dispatchEvent(uploadEvent);
-
-          progBarLbl.visible = true;
-
-          okCancelBtn.visible = true;
-          selectBtn.enabled = false;
-          uploadBtn.enabled = false;
-          fileTxtInput.enabled = false;
-
-          presentationNamesLb.visible = false;
+          progBarLbl.visible = true;          
+          lblFileName.enabled = false;
+          
+          var uploadCmd:UploadFileCommand = new UploadFileCommand();
+          uploadCmd.filename = presentationName;
+          uploadCmd.file = fileToUpload;
+          globalDispatch.dispatchEvent(uploadCmd);
 
         }       		
       }
 
-      private function uploadProgressUpdate(e:UploadEvent):void{
-        var progress:Number = e.percentageComplete;
+      private function handleUploadProgressUpdate(e:UploadProgressEvent):void{
+        var progress:Number = e.percentUploaded;
         progressBar.label = progress + "% " + ResourceUtil.getInstance().getString('bbb.presentation.uploaded');
         progressBar.setProgress(progress, 100);
         progressBar.validateNow();
       }
 
-      private function uploadComplete(e:UploadEvent):void{
+      private function handleUploadCompletedEvent(e:UploadCompletedEvent):void{
         progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.uploadcomplete');
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
 
-        fileLbl.visible = false;
         selectBtn.visible = false;
         uploadBtn.visible = false;
-        fileTxtInput.visible = false;
+        selectBtn.enabled = false;
+        uploadBtn.enabled = false;	
+        lblFileName.visible = false;
       }
 
-      private function handleOfficeDocumentConversionFailed(e:UploadEvent):void {
+      private function handleOfficeDocumentConversionFailed(e:OfficeDocConvertFailedEvent):void {
         enableControls();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.document.convert.failed'));
       }   
 
-      private function handleOfficeDocumentConversionSuccess(e:UploadEvent):void {
+      private function handleOfficeDocumentConversionSuccess(e:OfficeDocConvertSuccessEvent):void {
         progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.converted');
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
       }
 
-      private function handleSupportedDocument(e:UploadEvent):void {
-        LogUtil.debug("handleSupportedDocument");
+      private function handleSupportedDocument(e:ConversionSupportedDocEvent):void {
+        trace(LOG + "handleSupportedDocument");
         progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.supported');
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
       }
 
-      private function handleUnsupportedDocument(e:UploadEvent):void {
+      private function handleUnsupportedDocument(e:ConversionUnsupportedDocEvent):void {
         enableControls();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.notsupported'));
       }
 
-      private function handlePageCountFailed(e:UploadEvent):void {
+      private function handlePageCountFailed(e:ConversionPageCountError):void {
         enableControls();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.nbpage'));
       }
 
-      private function handlePageCountExceeded(e:UploadEvent):void {
-        LogUtil.debug("handlePageCountExceeded");
+      private function handlePageCountExceeded(e:ConversionPageCountMaxed):void {
+        trace(LOG + "handlePageCountExceeded");
         enableControls();
-        var message:String = " Maximum supported is " + e.maximumSupportedNumberOfSlides;
+        var message:String = " Maximum supported is " + e.maxPages;
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'), message);
       }
 
-      private function uploadIOError(e:UploadEvent):void{
+      private function handleUploadIoError(e:UploadIoErrorEvent):void{
         enableControls();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.io'));
       }
 
-      private function uploadSecurityError(e:UploadEvent):void{
+      private function handleUploadSecurityError(e:UploadSecurityErrorEvent):void{
         enableControls();
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.security'));
       }
@@ -237,71 +254,75 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function enableControls():void {
         okCancelBtn.visible = true;
+        okCancelBtn.enabled = true;
         selectBtn.enabled = true;
         uploadBtn.enabled = true;
-        fileTxtInput.enabled = true;			
+        lblFileName.enabled = true;			
       }
 
-      private function convertUpdate(e:UploadEvent):void{
-        progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.completedSlides, e.totalSlides]);
-        progressBar.setProgress(e.completedSlides, e.totalSlides);
+      private function handleConvertUpdate(e:ConversionUpdateEvent):void{
+        progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.converted',[e.numPagesDone, e.totalPages]);
+        progressBar.setProgress(e.numPagesDone, e.totalPages);
         progressBar.validateNow();
       }
 
-      private function convertError(e:UploadEvent):void{
-        enableControls();
-        okCancelBtn.label = "Ok";
-        okCancelBtn.visible = true;
-        globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-      }
-
-      private function convertSuccess(e:UploadEvent):void{
+      private function handleConversionCompleted(e:ConversionCompletedEvent):void{
         okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');
-        okCancelBtn.visible = true;
+        enableClosing();
         globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
       }
 
-      //Unlike UploadProgress, this event comes from the PresentSOService, not the UploadService
-      private function updateProgress(e:UploadEvent):void{
-
+      private function disableClosing():void {
+        okCancelBtn.enabled = false;
       }
-
+      
+      private function enableClosing():void {
+        okCancelBtn.enabled = true;
+      }
+		
+		private function handlePresentationRemoved(e:RemovePresentationEvent):void {
+			for(var i:int = 0; i < presentationNamesAC.length; i++) {
+				if(e.presentationName == presentationNamesAC.getItemAt(i).id) {
+					presentationNamesAC.removeItemAt(i);
+					return;
+				}
+			}
+		}
   ]]>
 
   </mx:Script>
 
-  <mx:VBox width="100%" height="100%">
-    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}" styleName="presentationUploadTitleStyle" paddingBottom="12"/>
-    <mx:HBox width="100%" paddingTop="5">
-      <mx:Label id="fileLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileLbl')}" styleName="presentationUploadChooseFileLabelStyle"/>
-    </mx:HBox>
-    <mx:HBox width="100%" paddingLeft="5" paddingTop="5"> 
-      <mx:TextInput id="fileTxtInput" width="328" editable="false"/>
-	  <mx:Button label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" id="selectBtn" 
+  <mx:VBox width="100%" height="100%" verticalAlign="top">
+    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}" styleName="presentationUploadTitleStyle" paddingBottom="0"/>
+    <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingTop="0" verticalAlign="middle"> 
+      <mx:Label id="lblFileName" width="{fileUploadBox.width-selectBtn.width-uploadBtn.width-30}" selectable="false" click="selectFile()" text="{ResourceUtil.getInstance().getString('bbb.fileupload.lblFileName.defaultText')}" />
+	  <mx:Button id="selectBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
 				   click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>
       <mx:Button id="uploadBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn')}" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
-    <mx:HBox width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10">
+    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
-                styleName="presentationUploadProgressBarLabelStyle"
-                visible="false"/>
+                styleName="presentationUploadProgressBarLabelStyle" visible="false"/>
       <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"
-                      styleName="presentationUploadProgressBarStyle"
-                      labelPlacement="center" width="460" visible="false"/>      
+                      styleName="presentationUploadProgressBarStyle" labelPlacement="center" width="460" visible="false"/>
     </mx:HBox>
-    <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle" paddingLeft="5"/>
-    <mx:Canvas width="90%" height="140" verticalScrollPolicy="off">
-      <mx:List id="presentationNamesList" width="90%" height="120" left="5" top="5" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
+	<mx:Box width="100%" height="100%" paddingLeft="5" paddingRight="5">
+		<mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" styleName="presentationUploadFileFormatHintBoxStyle">
+	        <mx:Text width="100%" id="fileFormatHintLbl" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileFormatHint')}" styleName="presentationUploadFileFormatHintTextStyle"/>
+		</mx:Box>
+    </mx:Box>
+    <mx:Canvas width="100%" height="145" verticalScrollPolicy="off">
+      <mx:List width="100%" height="142" left="5" top="5" right="5" bottom="5" id="uploadedFilesList" alternatingItemColors="[#EFEFEF, #FEFEFE]" allowMultipleSelection="false"
                itemRenderer="org.bigbluebutton.modules.present.ui.views.UploadedPresentationRenderer"
                dragEnabled="false" dataProvider="{presentationNamesAC}">
       </mx:List>
     </mx:Canvas>
-    <mx:Canvas width="100%">
+    <mx:Canvas width="100%" height="100%">
       <mx:Button id="okCancelBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
-                 styleName="presentationUploadCancelButtonStyle" right="5" top="5"
+                 styleName="presentationUploadCancelButtonStyle" right="5" bottom="15"
                  click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip')}"/>
     </mx:Canvas>	

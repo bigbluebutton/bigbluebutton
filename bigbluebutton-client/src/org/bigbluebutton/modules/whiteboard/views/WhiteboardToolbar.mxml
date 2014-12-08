@@ -21,68 +21,63 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:VBox xmlns="flexlib.containers.*" 
-		initialize="init()" 
-		xmlns:mx="http://www.adobe.com/2006/mxml" 
-		xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
-		xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
-		xmlns:mate="http://mate.asfusion.com/" 
-		creationComplete="onCreationComplete()"
-		visible="{showWhiteboardToolbar}" 
-		styleName="whiteboardToolbarStyle">
-	
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
-	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
-	<mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
-	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
-	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
-	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
-    <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
-    <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
-    <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
-    
-	<mx:Style>
-		.colorPickerStyle {
-	      backgroundColor:#E5E6E7;
-	      columnCount:13;
-	      horizontalGap:0;
-	      previewHeight:22;
-	      previewWidth:50;
-	      swatchGridBackgroundColor:#000000;
-	      swatchGridBorderSize:0;
-	      swatchHeight:60;
-	      swatchHighlightColor:#FFFFFF;
-	      swatchHighlightSize:1;
-	      swatchWidth:12;
-	      textFieldWidth:72;
-	      verticalGap:0;
-	   }
+    initialize="init()" 
+    xmlns:mx="http://www.adobe.com/2006/mxml" 
+    xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
+    xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
+    xmlns:mate="http://mate.asfusion.com/" 
+    creationComplete="onCreationComplete()"
+    visible="{showWhiteboardToolbar}" 
+    styleName="whiteboardToolbarStyle">
 
-	</mx:Style>
-	
-	<mx:Script>
-		<![CDATA[
-            import com.asfusion.mate.events.Listener;
-            
-			import flash.ui.Keyboard;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.containers.ControlBar;
-			import mx.events.MoveEvent;
-			import mx.events.ResizeEvent;
-			import mx.managers.CursorManager;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.managers.UserManager;
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
+  <mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
+  <mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
+  <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
+  <mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
+  <mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
+  <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="handleSlideChange" />
+  <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleSlideLoaded" />
+  <mate:Listener type="{UploadEvent.PRESENTATION_READY}" method="handlePresentationSwitch" />
+    
+  <mx:Style>
+    .colorPickerStyle {
+      backgroundColor:#E5E6E7;
+      columnCount:13;
+      horizontalGap:0;
+      previewHeight:22;
+      previewWidth:50;
+      swatchGridBackgroundColor:#000000;
+      swatchGridBorderSize:0;
+      swatchHeight:60;
+      swatchHighlightColor:#FFFFFF;
+      swatchHighlightSize:1;
+      swatchWidth:12;
+      textFieldWidth:72;
+      verticalGap:0;
+    }
+
+  </mx:Style>
+
+  <mx:Script>
+    <![CDATA[
+      import com.asfusion.mate.events.Listener;            
+      import flash.ui.Keyboard;		
+      import flexlib.mdi.events.MDIWindowEvent;			
+      import mx.containers.ControlBar;
+      import mx.events.MoveEvent;
+      import mx.events.ResizeEvent;
+      import mx.managers.CursorManager;			
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
-			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.present.ui.views.SlideView;
@@ -125,6 +120,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
+      private static const LOG:String = "WB::WhiteboardToolbar - ";
+      
 			private var mousedOver:Boolean = false;
 			private var slideLoaded:Boolean = false;
 			
@@ -139,24 +136,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				baseIndex = wbOptions.baseTabIndex;
 			}
 			
-            private function onCreationComplete():void {
-                setToolType(WhiteboardConstants.TYPE_ZOOM, null);
-            }
-                       
-            private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
-                setToolType(e.graphicType, e.toolType);
-            }
-            
-            private function setToolType(graphicType:String, toolType:String):void {                
-                if (graphicType == WhiteboardConstants.TYPE_CLEAR) {
-                    dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
-                } else if (graphicType == WhiteboardConstants.TYPE_UNDO) {
-                    sendUndoCommand();
-                } else {
-                    canvas.setGraphicType(graphicType);
-                    canvas.setTool(toolType);
-                    
-                    if (panzoomBtn != null) {
+      private function onCreationComplete():void {
+        setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+      }
+
+      private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
+        setToolType(e.graphicType, e.toolType);
+      }
+
+      private function setToolType(graphicType:String, toolType:String):void {                
+        if (graphicType == WhiteboardConstants.TYPE_CLEAR) {
+           dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+        } else if (graphicType == WhiteboardConstants.TYPE_UNDO) {
+           sendUndoCommand();
+        } else {
+           canvas.setGraphicType(graphicType);
+           canvas.setTool(toolType);
+        
+           if (panzoomBtn != null) {
                         panzoomBtn.setTool(graphicType, toolType);
                     }
                     
@@ -224,21 +221,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
-				LogUtil.debug("Ctrl-Z got into undoShortcut");
+				trace(LOG + "Ctrl-Z got into undoShortcut");
 				sendUndoCommand();
 			}
 			
 			private function sendUndoCommand():void {
-				if (!canvas.isPageEmpty()) {          
+//				if (!canvas.isPageEmpty()) {          
 					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
-        }
+//        }
 			}
 			
 			public function positionToolbar(window:PresentationWindow):void {
-        trace("Positioning whiteboard toolbar");
+        trace(LOG + "Positioning whiteboard toolbar");
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				
                 if (!wbOptions.keepToolbarVisible) {
     				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, handleMouseOut);
@@ -256,14 +254,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     var listener2:Listener = new Listener();
                     listener2.method = checkVisibility;
                     listener2.type = MadePresenterEvent.SWITCH_TO_VIEWER_MODE;
-                    presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
                     //Do an initial check to see if the toolbar should be visible
                     checkVisibility();
                 }
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && mousedOver) {
+                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver)) {
                     setPositionAndDepth();
                     showWhiteboardToolbar = true;
                 } else {

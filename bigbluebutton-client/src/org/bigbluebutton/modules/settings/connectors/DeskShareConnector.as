@@ -70,6 +70,7 @@ package org.bigbluebutton.modules.settings.connectors
 			this.uri = Requirements.bbb_deskshare_url + "/" + this.room;
 			trace("Deskshare Service connecting to " + uri);
 			nc = new NetConnection()
+			nc.proxyType = "best";
 			nc.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);

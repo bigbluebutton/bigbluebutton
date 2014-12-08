@@ -2,7 +2,7 @@ usePlugin 'eclipse'
 usePlugin 'java'
 usePlugin 'groovy'
 
-version = '0.8'
+version = '0.9.0'
 jar.enabled = true
 
 def appName = 'bbb-common-message'

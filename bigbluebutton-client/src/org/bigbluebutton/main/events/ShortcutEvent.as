@@ -50,6 +50,7 @@ package org.bigbluebutton.main.events {
 		public static const SHARE_DESKTOP:String = 'SHARE_DESKTOP';
 		public static const SHARE_MICROPHONE:String = 'SHARE_MICROPHONE';
 		public static const SHARE_WEBCAM:String = 'SHARE_WEBCAM';
+		public static const PAUSE_REMOTE_STREAM:String = 'PAUSE_REMOTE_STREAM';
 		
 		public static const REMOTE_FOCUS_DESKTOP:String = 'REMOTE_FOCUS_DESKTOP';
 		public static const REMOTE_FOCUS_WEBCAM:String = 'REMOTE_FOCUS_WEBCAM';

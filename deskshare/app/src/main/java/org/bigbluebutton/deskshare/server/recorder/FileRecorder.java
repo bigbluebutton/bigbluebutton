@@ -25,6 +25,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.bigbluebutton.deskshare.server.recorder.event.RecordErrorEvent;
@@ -54,9 +55,13 @@ public class FileRecorder implements Recorder {
 	
 	public FileRecorder(String name, String recordingPath) {
 		session = name;
-		flvFilename = recordingPath + "/" + name + "-" + System.currentTimeMillis() + ".flv";
+		flvFilename = recordingPath + "/" + name + "-" + genTimestamp() + ".flv";
 	}
 	
+  private Long genTimestamp() {
+  	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
+  
 	public void addListener(RecordStatusListener l) {
 		listeners.addListener(l);
 	}

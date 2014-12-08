@@ -47,8 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flexlib.mdi.events.MDIWindowEvent;
       
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;
-      
+      import mx.events.ResizeEvent;     
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.Role;
@@ -57,7 +56,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;

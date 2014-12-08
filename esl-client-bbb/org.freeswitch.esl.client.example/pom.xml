@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.freeswitch.esl.client</groupId>
     <artifactId>java-esl-client</artifactId>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.9.0</version>
   </parent>
   <artifactId>org.freeswitch.esl.client.example</artifactId>
   <name>FreeSWITCH Event Socket Library - Java Client example usage</name>

@@ -19,98 +19,32 @@
 
 package org.bigbluebutton.conference.service.chat;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;
-import org.bigbluebutton.conference.ClientMessage;
-import org.bigbluebutton.conference.ConnectionInvokerService;
-import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
-import org.bigbluebutton.conference.service.chat.ChatRoom;import org.bigbluebutton.conference.service.chat.IChatRoomListener;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 
 public class ChatApplication {
-
 	private static Logger log = Red5LoggerFactory.getLogger( ChatApplication.class, "bigbluebutton" );	
-		
-	private ChatRoomsManager roomsManager;
-	public ChatHandler handler;
-	private ConnectionInvokerService connInvokerService;
 	
-	public boolean createRoom(String name) {
-		roomsManager.addRoom(new ChatRoom(name));
-		return true;
+	private IBigBlueButtonInGW bbbInGW;
+	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
 	}
 	
-	public boolean destroyRoom(String name) {
-		if (roomsManager.hasRoom(name)) {
-			roomsManager.removeRoom(name);
-		}
-		return true;
+	public void sendPublicChatHistory(String meetingID, String requesterID) {
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.getChatHistory(meetingID, requesterID, replyTo);
 	}
 	
-	public boolean hasRoom(String name) {
-		return roomsManager.hasRoom(name);
+	public void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message) {
+		bbbInGW.sendPublicMessage(meetingID, requesterID, message);
 	}
 	
-	public boolean addRoomListener(String room, IChatRoomListener listener) {
-		if (roomsManager.hasRoom(room)){
-			roomsManager.addRoomListener(room, listener);
-			return true;
-		}
-		log.warn("Adding listener to a non-existant room " + room);
-		return false;
-	}
-	
-	public void sendPublicChatHistory(String meetingID) {
-		List<ChatMessageVO> messages = roomsManager.getChatMessages(meetingID);
-		
-		List<Map<String, Object>> msgs = new ArrayList<Map<String, Object>>();
-		for (ChatMessageVO v : messages) {
-			msgs.add(v.toMap());
-		}
-		
-		Map<String, Object> messageToSend = new HashMap<String, Object>();
-		messageToSend.put("count", new Integer(msgs.size()));
-		messageToSend.put("messages", msgs);
-		
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, getBbbSession().getInternalUserID(), "ChatRequestMessageHistoryReply", messageToSend);
-		connInvokerService.sendMessage(m);
-	}
-	
-	public void sendPublicMessage(String room, ChatMessageVO chatobj) {
-		roomsManager.sendMessage(room, chatobj);
-		
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "ChatReceivePublicMessageCommand", chatobj.toMap());
-		connInvokerService.sendMessage(m);
-	}
-
-	public void sendPrivateMessage(ChatMessageVO chatobj) {
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, chatobj.toUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
-		connInvokerService.sendMessage(m);
-		
-		ClientMessage m2 = new ClientMessage(ClientMessage.DIRECT, chatobj.fromUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
-		connInvokerService.sendMessage(m2);
-	}
-	
-	public void setRoomsManager(ChatRoomsManager r) {
-		log.debug("Setting room manager");
-		roomsManager = r;
-	}
-	
-	private String getMeetingId(){
-		return Red5.getConnectionLocal().getScope().getName();
-	}
-	
-	private BigBlueButtonSession getBbbSession() {
-		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-	}
-	
-	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
-		this.connInvokerService = connInvokerService;
+	public void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message) {
+		bbbInGW.sendPrivateMessage(meetingID, requesterID, message);
 	}
 }

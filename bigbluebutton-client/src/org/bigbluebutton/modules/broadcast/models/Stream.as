@@ -110,6 +110,7 @@ package org.bigbluebutton.modules.broadcast.models
 		private function connect():void {
 			LogUtil.debug("Connecting " + uri);
 			nc = new NetConnection();
+			nc.proxyType = "best";
 			nc.connect(uri);
 			nc.client = this;
 			nc.addEventListener(NetStatusEvent.NET_STATUS, netStatus);

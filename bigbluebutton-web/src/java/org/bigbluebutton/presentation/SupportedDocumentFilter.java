@@ -65,7 +65,7 @@ public class SupportedDocumentFilter {
 			Gson gson= new Gson();
 			String updateMsg=gson.toJson(builder.build().getMessage());
 			log.debug("sending: "+updateMsg);
-			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
+			messagingService.send(MessagingConstants.TO_PRESENTATION_CHANNEL, updateMsg);
 		} else {
 			log.warn("MessagingService has not been set!");
 		}

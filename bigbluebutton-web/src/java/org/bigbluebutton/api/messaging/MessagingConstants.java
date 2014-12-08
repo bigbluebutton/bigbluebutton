@@ -20,19 +20,35 @@
 package org.bigbluebutton.api.messaging;
 
 public class MessagingConstants {
-	//BigBlueButton Pattern
-	public static final String BIGBLUEBUTTON_PATTERN = "bigbluebutton:meeting:*";
 	
-	//Messaging channels for each module
-	public static final String SYSTEM_CHANNEL = "bigbluebutton:meeting:system";
-	public static final String PARTICIPANTS_CHANNEL = "bigbluebutton:meeting:participants";
-	public static final String PRESENTATION_CHANNEL = "bigbluebutton:meeting:presentation";
+	public static final String FROM_BBB_APPS_CHANNEL       = "bigbluebutton:from-bbb-apps";
+	public static final String FROM_BBB_APPS_PATTERN       = FROM_BBB_APPS_CHANNEL + ":*";
+	public static final String FROM_SYSTEM_CHANNEL         = FROM_BBB_APPS_CHANNEL + ":system";
+	public static final String FROM_MEETING_CHANNEL        = FROM_BBB_APPS_CHANNEL + ":meeting";
+  public static final String FROM_PRESENTATION_CHANNEL   = FROM_BBB_APPS_CHANNEL + ":presentation";
+  public static final String FROM_POLLING_CHANNEL        = FROM_BBB_APPS_CHANNEL + ":polling";
+  public static final String FROM_USERS_CHANNEL          = FROM_BBB_APPS_CHANNEL + ":users";
+  public static final String FROM_CHAT_CHANNEL           = FROM_BBB_APPS_CHANNEL + ":chat"; 
+  
+  
+	public static final String TO_BBB_APPS_CHANNEL         = "bigbluebutton:to-bbb-apps";	
+	public static final String TO_BBB_APPS_PATTERN         = TO_BBB_APPS_CHANNEL + ":*";
+	public static final String TO_MEETING_CHANNEL          = TO_BBB_APPS_CHANNEL + ":meeting";	
+	public static final String TO_SYSTEM_CHANNEL           = TO_BBB_APPS_CHANNEL + ":system";
+  public static final String TO_PRESENTATION_CHANNEL     = TO_BBB_APPS_CHANNEL + ":presentation";
+  public static final String TO_POLLING_CHANNEL          = TO_BBB_APPS_CHANNEL + ":polling";
+  public static final String TO_USERS_CHANNEL            = TO_BBB_APPS_CHANNEL + ":users";
+  public static final String TO_CHAT_CHANNEL             = TO_BBB_APPS_CHANNEL + ":chat";   
+
 	
+	public static final String MEETING_STARTED_EVENT         = "meeting_created_message";
+	public static final String MEETING_ENDED_EVENT           = "meeting_ended_message";
+	public static final String MEETING_DESTROYED_EVENT       = "meeting_destroyed_event";
+	public static final String USER_JOINED_EVENT             = "user_joined_message";
+	public static final String USER_LEFT_EVENT               = "user_left_message";
+	public static final String USER_STATUS_CHANGE_EVENT      = "user_status_changed_message";
 	
-	public static final String END_MEETING_REQUEST_EVENT = "EndMeetingRequestEvent";
-	public static final String MEETING_STARTED_EVENT = "MeetingStartedEvent";
-	public static final String MEETING_ENDED_EVENT = "MeetingEndedEvent";
-	public static final String USER_JOINED_EVENT = "UserJoinedEvent";
-	public static final String USER_LEFT_EVENT = "UserLeftEvent";
-	public static final String USER_STATUS_CHANGE_EVENT = "UserStatusChangeEvent";
+			
+	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
+	public static final String KEEP_ALIVE_REPLY = "keep_alive_reply";
 }

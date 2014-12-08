@@ -498,7 +498,8 @@ module BigBlueButton
       "#{temp_dir}/#{meeting_id}")
     deskshare_edl = BigBlueButton::Events.create_deskshare_edl(
       "#{temp_dir}/#{meeting_id}")
-    video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
+    temporary_video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
+    video_edl = BigBlueButton::Events.edl_match_recording_marks_video(temporary_video_edl, "#{temp_dir}/#{meeting_id}")
     BigBlueButton::EDL::Video.dump(video_edl)
 
     layout = {
@@ -519,8 +520,11 @@ module BigBlueButton
         :parameters => [
           [ '-c:v', 'libvpx', '-crf', '34', '-b:v', '60M',
             '-threads', '2', '-deadline', 'good', '-cpu-used', '3',
-            '-c:a', 'libvorbis', '-b:a', '32K',
+            '-c:a', 'libvorbis', '-b:a', '48K',
             '-f', 'webm' ]
+        ],
+        :postprocess => [
+          [ 'mkclean', '--quiet', ':input', ':output' ]
         ]
       }
     ]

@@ -68,7 +68,10 @@
 		<echo message="Determining supported locales."/>
 		<foreach target="build-locale" param="supportedlocale">
 			<path id="locales.path.ref">
-		    	<dirset dir="${BASE_DIR}/locale"/>
+		    	<dirset dir="${BASE_DIR}/locale">
+                            <!-- ignore transifex folder -->
+                            <exclude name=".tx"/>
+                        </dirset>
 		  	</path>
 		</foreach>
 	</target>
@@ -244,8 +247,8 @@
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
-		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-unsigned-0.8.1.jar" todir="${OUTPUT_DIR}"/>		
-		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.8.1.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-unsigned-0.9.0.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.9.0.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
 	<target name="build-phone" description="Compile Phone Module">

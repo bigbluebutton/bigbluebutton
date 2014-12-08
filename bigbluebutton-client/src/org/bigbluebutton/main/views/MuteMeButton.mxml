@@ -37,41 +37,47 @@ $Id: $
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
-				   
+	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleJoinedVoiceConferenceEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleLeftVoiceConferenceEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleVoiceMutedEvent" />
+  
 	<mx:Script>
 		<![CDATA[
-			import mx.binding.utils.BindingUtils;
+      import mx.binding.utils.BindingUtils;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.events.LockControlEvent;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.EventConstants;
-			import org.bigbluebutton.core.events.CoreEvent;
-			import org.bigbluebutton.core.events.VoiceConfEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+      private static const LOG:String = "Main::View::MuteMeButton - ";
+      
 			private var muteMeRolled:Boolean = false;
 			
-			[Bindable]
-			private var images:Images = new Images();
+			[Bindable] private var images:Images = new Images();
 			
 			private function onCreationComplete():void {
-				BindingUtils.bindSetter(updateMuteMeBtn, UserManager.getInstance().getConference(), "voiceMuted"); 
-				BindingUtils.bindSetter(updateMuteMeBtn, UserManager.getInstance().getConference(), "voiceLocked");
-				BindingUtils.bindSetter(updateMuteMeBtn, UserManager.getInstance().getConference(), "voiceJoined");
-				
-				updateMuteMeBtn();
+        trace(LOG + " initialized");
 			}
 			
 			private function handleUserTalking(e:CoreEvent):void {
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (UserManager.getInstance().getConference().amIThisUser(e.message.userID)) {
-					if(e.message.talking){
-						muteMeBtnImg.filters = [new GlowFilter(0x898989)];
-					}else{
-						muteMeBtnImg.filters = [];
+					if (e.message.talking){
+						muteMeBtnImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
+					} else {
+						muteMeBtnImg.filters = [new GlowFilter(0x555555, 1, 6, 6, 2, BitmapFilterQuality.HIGH, true, true)];
 					}
 				}
 			}
@@ -80,8 +86,39 @@ $Id: $
 				updateMuteMeBtn();
 			}
 			
+			private function lockSettingsChanged(e:Event):void {
+        if (UsersUtil.amIModerator()  || UsersUtil.amIPresenter()){
+          // Ignore lock setting changes as 
+          // or presenter we are moderator.
+          return; 
+        }
+				updateMuteMeBtn();
+			}
+			
+      private function handleJoinedVoiceConferenceEvent(event:BBBEvent):void {
+        if (UsersUtil.isMe(event.payload.userID)) {
+          trace(LOG + "User has joined the conference using flash");
+          updateMuteMeBtn();          
+        }
+      }
+         
+      private function handleLeftVoiceConferenceEvent(event:BBBEvent):void {
+        if (UsersUtil.isMe(event.payload.userID)) {
+          trace(LOG + "User has left the conference using flash");
+          updateMuteMeBtn();          
+        }
+      }
+           
+			private function allowMuteUnmute():Boolean {
+				var userManager:UserManager = UserManager.getInstance();
+				var conference:Conference = userManager.getConference();
+				var me:BBBUser = conference.getMyUser();
+//        trace(LOG + "allowMuteUnmute [ voiceJoined=[" + conference.voiceJoined + "], disableMic=[" + me.disableMyMic + "]");
+				return (conference.voiceJoined && !me.disableMyMic);
+			}
+			
 			private function updateMuteMeBtn(placeholder:Boolean = false):void {
-				if (!UserManager.getInstance().getConference().voiceJoined || (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator())) {
+				if (!allowMuteUnmute()) {        
 					this.visible = this.includeInLayout = false;
 				} else {
 					this.visible = this.includeInLayout = true;
@@ -118,13 +155,48 @@ $Id: $
 				}
 			}
 			
+      private function handleVoiceMutedEvent(event:BBBEvent):void {
+        if (UsersUtil.isMe(event.payload.userID)) {
+          trace(LOG + "User has been muted/unmuted");
+          if (muteMeRolled) {
+            if (! event.payload.muted) {
+              muteMeBtnImg.source = images.audio;
+              muteMeBtnTxt.visible = true;
+              muteMeBtnTxt.includeInLayout = true;
+              muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.talk");
+              hboxMuteMe.setStyle("paddingTop",0);
+            } else {
+              muteMeBtnImg.source = images.audio_muted;
+              muteMeBtnTxt.visible = true;
+              muteMeBtnTxt.includeInLayout = true;
+              muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.mute");
+              hboxMuteMe.setStyle("paddingTop",0);
+            }
+          } else {
+            if (event.payload.muted) {
+              muteMeBtnImg.source = images.audio_muted;
+              muteMeBtnTxt.visible = true;
+              muteMeBtnTxt.includeInLayout = true;
+              muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
+              hboxMuteMe.setStyle("paddingTop",0);
+            } else {
+              muteMeBtnImg.source = images.audio;
+              muteMeBtnTxt.visible = false;
+              muteMeBtnTxt.includeInLayout = false;
+              hboxMuteMe.setStyle("paddingTop",2);
+              //muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.unmuted");
+            }
+          }
+        }        
+      }
+      
 			private function toggleMuteMeState(event:ShortcutEvent = null):void{
 				if (UserManager.getInstance().getConference().voiceJoined) {
 					this.setFocus();
-					if (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator()) return;
+					if (!allowMuteUnmute()) return;
 					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-					e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+					e.userid = UserManager.getInstance().getConference().getMyUserId();
 					e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
 					dispatchEvent(e);
 				}
@@ -142,7 +214,8 @@ $Id: $
 		]]>
 	</mx:Script>
 	
-	<mx:HBox id="hboxMuteMe" verticalAlign="middle" horizontalAlign="center" horizontalGap="0" paddingLeft="5" paddingTop="0" paddingRight="5" paddingBottom="0" width="100%">
+	<mx:HBox id="hboxMuteMe" verticalAlign="middle" horizontalAlign="center" horizontalGap="0" 
+           paddingLeft="5" paddingTop="0" paddingRight="5" paddingBottom="0" width="100%">
 		<mx:Image id="muteMeBtnImg" />
 		<mx:Label id="muteMeBtnTxt" />
 	</mx:HBox>

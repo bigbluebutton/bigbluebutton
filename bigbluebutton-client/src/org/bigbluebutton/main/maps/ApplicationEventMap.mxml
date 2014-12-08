@@ -24,12 +24,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<!--
 	This is the main event map for the application, think of it as the application controller.
 	-->
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}">
 		<!--
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
-		<ObjectBuilder generator="{UserService}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
 		<!--
 		Disabling temporarily the stream monitor
@@ -48,57 +47,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{PortTestEvent.PORT_TEST_FAILED}" >
 		<MethodInvoker generator="{ModulesProxy}" method="testRTMPT" arguments="{event.protocol}" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
+    <MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
+  </EventHandlers>
+  
 	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
-		<MethodInvoker generator="{UserService}" method="logoutUser" />
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
 	</EventHandlers>
-	
-	<EventHandlers type="{LogoutEvent.DISCONNECT_TEST}" >
-		<MethodInvoker generator="{UserService}" method="disconnectTest" />
-	</EventHandlers>
-	
-	<EventHandlers type="{UserServicesEvent.START_USER_SERVICES}" >
-		<MethodInvoker generator="{UserService}" method="startService" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
-		<MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
-		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
-	</EventHandlers>
-	
-	<!-- Viewers Stuff -->
-	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
-		<MethodInvoker generator="{UserService}" method="raiseHand" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{LowerHandEvent.LOWER_HAND_EVENT}" >
-		<MethodInvoker generator="{UserService}" method="lowerHand" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
-		<MethodInvoker generator="{UserService}" method="addStream" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
-		<MethodInvoker generator="{UserService}" method="removeStream" arguments="{event}" />
-	</EventHandlers>
-	<!-- End Viewers Stuff -->
-	
-	<EventHandlers type="{KickUserEvent.KICK_USER}" >
-		<MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
-	</EventHandlers>
-	
+		
 	<EventHandlers type="{ConfigEvent.CONFIG_EVENT}" >
 		<MethodInvoker generator="{ConfigManager}" method="setConfig" arguments="{event.config}" />
 		<MethodInvoker generator="{SkinningService}" method="loadSkins" arguments="{event.config.skinning}" />
-	</EventHandlers>
-
-	<EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
-		<MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
@@ -109,31 +69,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
   </EventHandlers>
 
+
+  
 	<mx:Script>
 	<![CDATA[
-		import mx.events.FlexEvent;
+    import mx.events.FlexEvent;
+    
+    import org.bigbluebutton.core.managers.ConfigManager;
+    import org.bigbluebutton.core.services.SkinningService;
+    import org.bigbluebutton.core.services.StreamMonitor;
+    import org.bigbluebutton.main.events.ConfigEvent;
+    import org.bigbluebutton.main.events.LogoutEvent;
+    import org.bigbluebutton.main.events.ModuleLoadEvent;
+    import org.bigbluebutton.main.events.PortTestEvent;
+    import org.bigbluebutton.main.events.ShortcutEvent;
+    import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+    import org.bigbluebutton.main.model.PortTestProxy;
+    import org.bigbluebutton.main.model.modules.ModulesProxy;
 		
-		import org.bigbluebutton.main.events.ShortcutEvent;
-		
-		import org.bigbluebutton.core.managers.ConfigManager;
-		import org.bigbluebutton.core.services.SkinningService;
-		import org.bigbluebutton.core.services.StreamMonitor;
-		import org.bigbluebutton.main.events.ConfigEvent;
-		import org.bigbluebutton.main.events.LogoutEvent;
-		import org.bigbluebutton.main.events.ModuleLoadEvent;
-		import org.bigbluebutton.main.events.PortTestEvent;
-		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-		import org.bigbluebutton.main.events.UserServicesEvent;
-		import org.bigbluebutton.main.model.PortTestProxy;
-		import org.bigbluebutton.main.model.modules.ModulesProxy;
-		import org.bigbluebutton.main.model.users.UserService;
-		import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
-		import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
-		import org.bigbluebutton.main.model.users.events.KickUserEvent;
-		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-		import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
-		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;		
 	]]>
 	</mx:Script>
 	

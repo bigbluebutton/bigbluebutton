@@ -22,6 +22,7 @@ import java.awt.Point;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -218,7 +219,11 @@ public class NetworkHttpStreamSender implements Runnable {
 
         // Post the multi-part form to the server
         chr.post();
-
+        HttpURLConnection httpConnection = (HttpURLConnection) chr.connection;
+        int status = httpConnection.getResponseCode();
+        
+        System.out.println("******* POST status = [" + status + "] ***************");
+        
         System.out.println(blockSize + "] total=" + totalBytes + " bytes");
         System.out.println(encodeTime + "] total=" + totalMillis + " ms");
         for (int i = 0; i < changedBlocks.length; i++) {

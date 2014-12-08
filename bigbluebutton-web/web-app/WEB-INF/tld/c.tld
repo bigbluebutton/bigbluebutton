@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
-    version="2.0">
-    
-  <description>JSTL 1.1 core library</description>
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+    version="2.1">
+
+  <description>JSTL 1.2 core library</description>
   <display-name>JSTL core</display-name>
-  <tlib-version>1.1</tlib-version>
+  <tlib-version>1.2</tlib-version>
   <short-name>c</short-name>
   <uri>http://java.sun.com/jsp/jstl/core</uri>
 
@@ -74,7 +74,7 @@ not the body content should be processed.
         <description>
 Name of the exported scoped variable for the
 resulting value of the test condition. The type
-of the scoped variable is Boolean.        
+of the scoped variable is Boolean.
         </description>
         <name>var</name>
         <required>false</required>
@@ -174,6 +174,9 @@ Collection of items to iterate over.
 	<required>false</required>
 	<rtexprvalue>true</rtexprvalue>
 	<type>java.lang.Object</type>
+        <deferred-value>
+	    <type>java.lang.Object</type>
+        </deferred-value>
     </attribute>
     <attribute>
         <description>
@@ -253,6 +256,9 @@ String of tokens to iterate over.
 	<required>true</required>
 	<rtexprvalue>true</rtexprvalue>
 	<type>java.lang.String</type>
+        <deferred-value>
+	    <type>java.lang.String</type>
+        </deferred-value>
     </attribute>
     <attribute>
         <description>
@@ -322,7 +328,7 @@ visibility.
   <tag>
     <description>
         Like &lt;%= ... &gt;, but for expressions.
-    </description> 
+    </description>
     <name>out</name>
     <tag-class>org.apache.taglibs.standard.tag.rt.core.OutTag</tag-class>
     <body-content>JSP</body-content>
@@ -467,6 +473,9 @@ Expression to be evaluated.
         <name>value</name>
         <required>false</required>
         <rtexprvalue>true</rtexprvalue>
+        <deferred-value>
+	    <type>java.lang.Object</type>
+        </deferred-value>
     </attribute>
     <attribute>
         <description>

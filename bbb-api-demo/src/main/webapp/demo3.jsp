@@ -253,7 +253,7 @@ Invalid Password, please <a href="javascript:history.go(-1)">try again</a>.
 		//
 		// Looks good, let's create the meeting
 		//
-		String meeting_ID = createMeeting( meetingID, welcomeMsg, moderatorPW, viewerPW, voiceBridge, logoutURL );
+		String meeting_ID = createMeeting( meetingID, welcomeMsg, moderatorPW, "Welcome moderator! (moderator only message)", viewerPW, voiceBridge, logoutURL );
 		
 		//
 		// Check if we have an error.

@@ -36,6 +36,8 @@ package org.bigbluebutton.modules.layout.model
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class LayoutLoader extends EventDispatcher {
+    private static const LOG:String = "Layout::LayoutLoader - ";
+    
 		private var _fileRef:FileReference;
 		
 		public function loadFromUrl(layoutUrl:String):void {
@@ -46,7 +48,7 @@ package org.bigbluebutton.modules.layout.model
 			try {
 				urlLoader.load(new URLRequest(layoutUrl + "?a=" + date.time));
 			} catch (e:Error) {
-				LogUtil.debug("LayoutsLoader: exception while loading the layout definition file (" + e + ")");
+				trace(LOG + " exception while loading the layout definition file (" + e + ")");
 			}
 		}
 		
@@ -60,7 +62,7 @@ package org.bigbluebutton.modules.layout.model
 		}
 		
 		private function onComplete(evt:Event):void {
-			LogUtil.debug("LayoutsLoader: completed, parsing...");
+			trace(LOG + " completed, parsing...");
 			var layouts:LayoutDefinitionFile = new LayoutDefinitionFile();
 			var event:LayoutsLoadedEvent = new LayoutsLoadedEvent();
 			try {
@@ -79,18 +81,18 @@ package org.bigbluebutton.modules.layout.model
 		}
 		
 		private function onFileSelected(evt:Event):void { 
-			LogUtil.debug("LayoutsLoader: file selected");
+			trace(LOG + " file selected");
 			_fileRef.addEventListener(ProgressEvent.PROGRESS, onProgress);
 			_fileRef.addEventListener(Event.COMPLETE, onComplete);
 			_fileRef.load();
 		} 
         
 		private function onProgress(evt:ProgressEvent):void {
-			LogUtil.debug("LayoutsLoader: loaded " + evt.bytesLoaded + " of " + evt.bytesTotal + " bytes"); 
+			trace(LOG + " loaded " + evt.bytesLoaded + " of " + evt.bytesTotal + " bytes"); 
 		} 
 
 		private function onCancel(evt:Event):void {
-			LogUtil.debug("LayoutsLoader: the browse request was canceled by the user"); 
+			trace(LOG + " the browse request was canceled by the user"); 
 		} 
 		
 		private function onIOError(evt:IOErrorEvent):void {

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
-    version="2.0">
-    
-  <description>JSTL 1.1 i18n-capable formatting library</description>
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+    version="2.1">
+
+  <description>JSTL 1.2 i18n-capable formatting library</description>
   <display-name>JSTL fmt</display-name>
-  <tlib-version>1.1</tlib-version>
+  <tlib-version>1.2</tlib-version>
   <short-name>fmt</short-name>
   <uri>http://java.sun.com/jsp/jstl/fmt</uri>
 
@@ -55,7 +55,7 @@ and may contain a two-letter (upper-case)
 country code (as defined by ISO-3166).
 Language and country codes must be
 separated by hyphen (-) or underscore
-(_).        
+(_).
 	</description>
         <name>value</name>
         <required>true</required>
@@ -496,7 +496,7 @@ Date and/or time to be formatted.
         <description>
 Specifies whether the time, the date, or both
 the time and date components of the given
-date are to be formatted. 
+date are to be formatted.
         </description>
         <name>type</name>
         <required>false</required>

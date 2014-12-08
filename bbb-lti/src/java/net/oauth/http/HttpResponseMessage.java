@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
+// TODO: move this class into oauth-core-consumer, together with HttpMessage.
+// The sticky part is deleting the method OAuthMessage.toHttpRequest.
 /**
  * An HTTP response.
  * 

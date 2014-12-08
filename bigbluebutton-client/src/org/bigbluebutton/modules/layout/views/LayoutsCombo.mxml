@@ -19,122 +19,132 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" 
-			creationComplete="init()" 
 			xmlns:mate="http://mate.asfusion.com/"
 			toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
 			prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
-			height="{LayoutButton.BUTTON_SIZE}"
+			height="{LayoutButton.BUTTON_SIZE}" creationComplete="init()"
 			change="onSelectedItemChanged(event)"
-			disabledColor="{getStyle('color')}"
-            rowCount="10" >
+			disabledColor="{getStyle('color')}" rowCount="10"
+			styleName="languageSelectorStyle" >
 	
-	<mate:Listener type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}" method="onApplyDefaultLayout" />
-	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" receive="{enabled=false || UserManager.getInstance().getConference().amIModerator()}" />
-	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" receive="{enabled=true}" />
-	<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidadeLayout" />
-	<mate:Listener type="{RedefineLayoutEvent.REDEFINE_LAYOUT_EVENT}" method="onRedefineLayout" />
-	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT}" method="populateLayoutsList"/>
-	
+	<mate:Listener type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" method="onLayoutChanged" />
+	<mate:Listener type="{LayoutsReadyEvent.LAYOUTS_READY}" method="populateLayoutsList"/>
+  <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+  
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import flash.events.Event;
-			import flash.events.ProgressEvent;
 			import flash.events.IOErrorEvent;
-			
-			import mx.controls.Alert;
-			import mx.events.ResizeEvent;
-			
+			import flash.events.ProgressEvent;
 			import flash.net.FileReference;
-
-			import flexlib.mdi.managers.MDIManager;
+			
 			import flexlib.mdi.containers.MDICanvas;
 			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.events.MDIManagerEvent;
 			import flexlib.mdi.events.MDIWindowEvent;
+			import flexlib.mdi.managers.MDIManager;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ResizeEvent;
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
 			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
+			import org.bigbluebutton.modules.layout.events.LayoutChangedEvent;
+			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
-			import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+			import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
-			import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
 			import org.bigbluebutton.modules.layout.model.LayoutDefinition;
+			import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
+			import org.bigbluebutton.modules.layout.model.LayoutModel;
 			import org.bigbluebutton.modules.layout.model.WindowLayout;
 			import org.bigbluebutton.modules.layout.views.LayoutButton;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+      private static const LOG:String = "Layout::LayoutsCombo - ";
+      
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			
-			private var _defaultLayout:Object = null;
-			
-			private function init():void {
-				LogUtil.debug("LayoutsCombo: view initialized");
-				var comboBoxCreated:ComboBoxCreatedEvent = new ComboBoxCreatedEvent();
-				_dispatcher.dispatchEvent(comboBoxCreated);
+      [Bindable] private var layoutNames:ArrayCollection = new ArrayCollection();
+      
+      private function init():void {
+        trace(LOG + "initing");
+        dataProvider = layoutNames;
+        populateComboBox();
+      }
+      
+      private function lockSettingsChanged(e:LockControlEvent):void {
+        var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return;
+        
+        this.enabled = ! lockSettings.getLockedLayout();
+      }
+      
+			private function populateLayoutsList(e:LayoutsReadyEvent):void {
+        trace(LOG + " handling layout ready event.");       
+        populateComboBox();
 			}
-			
-			private function populateLayoutsList(e:LayoutsLoadedEvent):void {
-				LogUtil.debug("LayoutsCombo: populating list");
-				_defaultLayout = null;
-				dataProvider.removeAll();
-				var idx:int = 0;
-				for each (var value:LayoutDefinition in e.layouts.list) {
-					var item:Object = {index:idx, label:value.name, layout:value};
-					if (value.defaultLayout)
-						_defaultLayout = item;
-					dataProvider.addItem(item);
-					idx++;
+      
+      private function populateComboBox():void {
+        trace(LOG + " populating layout combo.");  
+        layoutNames = new ArrayCollection();         
+        var layouts:Array = LayoutModel.getInstance().getLayoutNames();
+        
+        var idx:int = 0, currentLayoutIndex:int = -1;
+        for each (var lay:Object in layouts) {
+          var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
+          if (translatedName == "undefined") translatedName = lay.name;
+          var item:Object = {index: idx, label: translatedName, localeKey: lay.name, currentLayout: lay.currentLayout };
+          trace(LOG + " layout [" + lay.name + ", current=" + lay.currentLayout + "]");
+          layoutNames.addItem(item);
+          if (lay.currentLayout) {
+            currentLayoutIndex = idx;
+          }
+          idx++;
+        }
+        dataProvider = layoutNames;
+        selectedIndex = currentLayoutIndex;
+        invalidateDisplayList();        
+      }
+						
+			private function onLayoutChanged(e:SwitchedLayoutEvent):void {	
+        trace(LOG + " handling SwitchedLayoutEvent layout=[" + e.layoutID + "]");
+        populateComboBox();
+        trace(LOG + " selected layout coming in is: " + selectedIndex);
+				var idx:int = -1;					
+				for each (var obj:Object in dataProvider) {
+					if (obj.localeKey == e.layoutID)
+						idx = obj.index;
 				}
+				selectedIndex = idx;
 				invalidateDisplayList();
+				
+				trace(LOG + " selected layout afterwards is: " + selectedIndex);
 			}
 			
-			private function onApplyDefaultLayout(e:Event = null):void {
-				if (_defaultLayout != null)
-					selectedItem = _defaultLayout; 
-			}
-			
-			private function onRedefineLayout(e:RedefineLayoutEvent):void {
-				/*
-				 *	remote means that the this event wasn't dispatched by this class
-				 *	it will come tipically from LayoutService or LayoutManager
-				 */
-				LogUtil.debug("LayoutCombo::onRedefineLayout");
-				if (e.remote) {
-					LogUtil.debug("LayoutCombo::onRedefineLayout remote event");
-	
-					var idx:int = -1;
-					prompt = e.layout.name;
-					
-					for each (var obj:Object in dataProvider) {
-						if (obj.label == e.layout.name)
-							idx = obj.index;
-					}
-					selectedIndex = idx;
-				}
-				invalidateDisplayList();
-				LogUtil.debug("LayoutCombo::onRedefineLayout done");
+			private function localeChanged(e:LocaleChangeEvent):void {
+				trace(LOG + " locale change recieved");
+				populateComboBox();
 			}
 			
 			private function onSelectedItemChanged(e:Event):void {
-				LogUtil.debug("LayoutsCombo: different layout selected");
-				var redefineLayout:RedefineLayoutEvent = new RedefineLayoutEvent();
-				redefineLayout.layout = e.currentTarget.selectedItem.layout;
-				redefineLayout.remote = false;
-				_dispatcher.dispatchEvent(redefineLayout);
+				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.localeKey));
 			}
-			
-			private function invalidadeLayout(e:Event):void {
-				selectedIndex = -1;
-				prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.custom');
-			}
-			
+					
 		]]>
 	</mx:Script>
 </mx:ComboBox>

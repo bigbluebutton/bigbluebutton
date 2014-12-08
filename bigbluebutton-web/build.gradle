@@ -1,10 +1,10 @@
-usePlugin 'java'
-usePlugin 'eclipse'
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
-task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(type: Copy) {
     into('lib')
     from configurations.default
-    from configurations.default.allArtifacts*.file
+    from configurations.default.allArtifacts.file
 }
 
 repositories {
@@ -34,6 +34,10 @@ repositories {
             addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
         }  
     }
+		ivy {
+			// URL can refer to a local directory
+			url "./lib"
+		}
 }
 
 dependencies {   
@@ -41,8 +45,69 @@ dependencies {
 	compile 'redis.clients:jedis:2.0.0'
 	compile 'commons-pool:commons-pool:1.5.6'
 	compile 'commons-lang:commons-lang:2.5'
-        compile 'com.google.code.gson:gson:1.7.1'
+	compile 'commons-io:commons-io:2.4'
+  compile 'com.google.code.gson:gson:1.7.1'
+	compile 'commons-httpclient:commons-httpclient:3.1'
 	
+  // Logging
+  // Commenting out as it results in build failure (ralam - may 11, 2014)
+  //compile 'ch.qos.logback:logback-core:1.0.9@jar'
+  //compile 'ch.qos.logback:logback-classic:1.0.9@jar'
+  //compile 'org.slf4j:log4j-over-slf4j:1.7.2@jar'
+  //compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
+  //compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
+  //compile 'org.slf4j:slf4j-api:1.7.2@jar'
+
 	//junit
 	compile 'junit:junit:4.8.2'
+	
+	// Logging
+/**** UNCOMMENT WHEN you want to run gradle test
+	compile 'ch.qos.logback:logback-core:1.0.13@jar'
+	compile 'ch.qos.logback:logback-classic:1.0.13@jar'
+	compile 'org.slf4j:log4j-over-slf4j:1.7.5@jar'
+	compile 'org.slf4j:jcl-over-slf4j:1.7.5@jar'
+	compile 'org.slf4j:jul-to-slf4j:1.7.5@jar'
+	compile 'org.slf4j:slf4j-api:1.7.5@jar'
+	compile 'org.apache.commons:commons-lang3:3.1'
+	compile 'commons-codec:commons-codec:1.3'
+	compile 'commons-httpclient:commons-httpclient:3.1'
+	compile 'commons-io:commons-io:1.4'
+  compile 'com.artofsolving:jodconverter:2.2.1'
+
+	compile 'org.apache.geronimo.specs:geronimo-j2ee-connector_1.5_spec:1.0'
+  compile 'org.openoffice:unoil:3.2.1'
+  compile 'org.openoffice:ridl:3.2.1'
+  compile 'org.openoffice:juh:3.2.1'
+  compile 'org.openoffice:jurt:3.2.1'
+	compile 'org.codehaus.groovy:groovy-all:1.6.3'
+****/
+	
+	// Testing
+	testCompile 'org.testng:testng:5.8@jar'
+	testCompile 'org.easymock:easymock:2.4@jar'
 }
+
+sourceSets {
+	main {
+			java {
+					srcDir 'src/java'
+			}
+			resources {
+					srcDir 'src/resources'
+			}
+	}
+	test {
+		java {
+				srcDir 'test/unit'
+		}
+		resources {
+				srcDir 'test/resources'
+		}
+}
+}
+
+test {
+	useTestNG()
+}
+

@@ -24,9 +24,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
-      import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.modules.users.business.UsersProxy;
+			
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.LockSettingsEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.model.users.events.KickUserEvent;
+			import org.bigbluebutton.main.views.LockSettings;
 			import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
 			import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
 			import org.bigbluebutton.modules.users.managers.UsersManager;
@@ -35,47 +39,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}" >
-		<ObjectBuilder cache="global" generator="{UsersProxy}" />
 		<ObjectBuilder cache="global" generator="{UsersManager}" /> 
 	</EventHandlers>
 	
 	<EventHandlers type="{StartUsersModuleEvent.START_USERS_MODULE}" >
 		<MethodInvoker generator="{UsersManager}" method="moduleStarted" arguments="{event}" />
-		<MethodInvoker generator="{UsersProxy}" method="connect" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StopUsersModuleEvent.STOP_USERS_MODULE}" >
-		<MethodInvoker generator="{UsersProxy}" method="disconnect" />
 		<MethodInvoker generator="{UsersManager}" method="moduleEnded" />
 	</EventHandlers>
 
-  <EventHandlers type="{KickUserEvent.KICK_USER}" >
-    <MethodInvoker generator="{UsersProxy}" method="kickUser" arguments="{event}" />
-  </EventHandlers>
-
-  
-	<EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
-		<MethodInvoker generator="{UsersProxy}" method="ejectUser" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{VoiceConfEvent.MUTE_USER}" >
-		<MethodInvoker generator="{UsersProxy}" method="muteUnmuteUser" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{VoiceConfEvent.MUTE_ALL}" >
-		<MethodInvoker generator="{UsersProxy}" method="muteAllUsers" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{VoiceConfEvent.UNMUTE_ALL}" >
-		<MethodInvoker generator="{UsersProxy}" method="unmuteAllUsers" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{VoiceConfEvent.MUTE_ALMOST_ALL}" >
-		<MethodInvoker generator="{UsersProxy}" method="muteAlmostAllUsers" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{VoiceConfEvent.LOCK_MUTE_USER}" >
-		<MethodInvoker generator="{UsersProxy}" method="lockMuteUser" arguments="{event}" />
-	</EventHandlers>
-	
 </EventMap>

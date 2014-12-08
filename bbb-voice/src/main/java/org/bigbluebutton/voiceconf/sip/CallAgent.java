@@ -18,11 +18,14 @@
 */
 package org.bigbluebutton.voiceconf.sip;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.zoolu.sip.call.*;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.message.*;
 import org.zoolu.sdp.*;
+import org.bigbluebutton.voiceconf.messaging.IMessagingService;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
@@ -55,7 +58,11 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private ClientConnectionManager clientConnManager; 
     private final String clientId;
     private final AudioConferenceProvider portProvider;
-    private DatagramSocket localSocket;
+    private DatagramSocket localSocket = null;
+    private String _callerName;
+    private String _destination;
+    private Boolean listeningToGlobal = false;
+    private IMessagingService messagingService;
     
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
@@ -66,12 +73,18 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     private CallState callState;
 
-    public CallAgent(String sipClientRtpIp, SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
+    public String getDestination() {
+        return _destination;
+    }
+
+    public CallAgent(String sipClientRtpIp, SipProvider sipProvider, SipPeerProfile userProfile, 
+    		AudioConferenceProvider portProvider, String clientId, IMessagingService messagingService) {
         this.sipProvider = sipProvider;
         this.clientRtpIp = sipClientRtpIp;
         this.userProfile = userProfile;
         this.portProvider = portProvider;
         this.clientId = clientId;
+        this.messagingService = messagingService;
     }
     
     public String getCallId() {
@@ -87,7 +100,13 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         log.debug("localSession Descriptor = " + localSession );
     }
 
+    public Boolean isListeningToGlobal() {
+        return listeningToGlobal;
+    }
+
     public void call(String callerName, String destination) {
+    	_callerName = callerName;
+    	_destination = destination;
     	log.debug("{} making a call to {}", callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();
@@ -131,11 +150,15 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     
     /** Closes an ongoing, incoming, or pending call */
     public void hangup() {
+    	if (callState == CallState.UA_IDLE) return;
     	log.debug("hangup");
-    	
-    	if (callState == CallState.UA_IDLE) return;    	
-    	closeVoiceStreams();        
-    	if (call != null) call.hangup();    
+    	if (listeningToGlobal) {
+    		log.debug("Hanging up of a call connected to the global audio stream");
+    		notifyListenersOfOnCallClosed();
+    	} else {
+    		closeVoiceStreams();
+    		if (call != null) call.hangup();
+    	}
     	callState = CallState.UA_IDLE; 
     }
 
@@ -163,6 +186,10 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     	
     	return socket;
     }
+
+    private boolean isGlobalAudioStream() {
+        return (_callerName != null && _callerName.startsWith("GLOBAL_AUDIO_"));
+    }
     
     private void createVoiceStreams() {
         if (callStream != null) {            
@@ -187,7 +214,11 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
 						callStream.addCallStreamObserver(this);
 						callStream.start();
-						notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
+						if (isGlobalAudioStream()) {
+							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName(), sipCodec, connInfo);
+						} else {
+							notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
+						}
 					} catch (Exception e) {
 						log.error("Failed to create Call Stream.");
 						System.out.println(StackTraceUtil.getStackTrace(e));
@@ -212,17 +243,45 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     public void stopTalkStream(IBroadcastStream broadcastStream, IScope scope) {
     	if (callStream != null) {
     		callStream.stopTalkStream(broadcastStream, scope);   	
+    	} else {
+    		log.info("Can't stop talk stream as stream may have already stopped.");
     	}
+    }
+
+
+    
+    public void connectToGlobalStream(String clientId, String callerIdName, String voiceConf) {
+        listeningToGlobal = true;
+        _destination = voiceConf;
+
+        String globalAudioStreamName = GlobalCall.getGlobalAudioStream(voiceConf);
+        while (globalAudioStreamName.equals("reserved")) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+            }
+            globalAudioStreamName = GlobalCall.getGlobalAudioStream(voiceConf);
+        }
+
+
+		    
+        GlobalCall.addUser(clientId, callerIdName, _destination);
+        sipCodec = GlobalCall.getRoomCodec(voiceConf);
+        callState = CallState.UA_ONCALL;
+        notifyListenersOnCallConnected("", globalAudioStreamName);
+        log.info("User is has connected to global audio, user=[" + callerIdName + "] voiceConf = [" + voiceConf + "]");
+        messagingService.userConnectedToGlobalAudio(voiceConf, callerIdName);
+        
     }
     
     private void closeVoiceStreams() {        
     	log.debug("Shutting down the voice streams.");         
-        if (callStream != null) {
-        	callStream.stop();
-        	callStream = null;
-        } else {
-        	log.debug("Can't shutdown voice stream. callstream is NULL");
-        }
+      if (callStream != null) {
+      	callStream.stop();
+       	callStream = null;
+       } else {
+       	log.debug("Can't shutdown voice stream. callstream is NULL");
+      }
     }
 
     // ********************** Call callback functions **********************
@@ -260,10 +319,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     public void onCallAccepted(Call call, String sdp, Message resp) {        
     	log.debug("Received 200/OK. So user has successfully joined the conference.");        
     	if (!isCurrentCall(call)) return;
-        
-        log.debug("ACCEPTED/CALL.");
         callState = CallState.UA_ONCALL;
-
         setupSdpAndCodec(sdp);
 
         if (userProfile.noOffer) {
@@ -330,18 +386,20 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void notifyListenersOfOnCallClosed() {
+    	if (callState == CallState.UA_IDLE) return;
+
     	log.debug("notifyListenersOfOnCallClosed for {}", clientId);
     	clientConnManager.leaveConference(clientId);
     	cleanup();
     }
     
     private void cleanup() {
-    	log.debug("Closing local audio port {}", localSocket.getLocalPort());
-    	if (localSocket != null) {
-    		localSocket.close();
-    	} else {
-    		log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
-    	}
+        if (localSocket == null) return;
+
+        log.debug("Closing local audio port {}", localSocket.getLocalPort());
+        if (!listeningToGlobal) {
+            localSocket.close();
+        }
     }
     
     /** Callback function called when arriving a BYE request */

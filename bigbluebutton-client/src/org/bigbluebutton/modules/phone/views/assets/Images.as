@@ -21,15 +21,29 @@ package org.bigbluebutton.modules.phone.views.assets
 {
 	[Bindable]
 	public class Images
-	{             
-        [Embed(source="images/headset.png")]
-        public var headsetDefaultIcon:Class;  
+	{
+		[Embed(source="images/headset.png")]
+		public var headsetDefaultIcon:Class;
 
-	[Embed(source="images/headset_close.png")]
-	public var headsetInactiveIcon:Class;  
+		[Embed(source="images/headset_close.png")]
+		public var headsetInactiveIcon:Class;
 
-	[Embed(source="images/headset_open.png")]
-	public var headsetActiveIcon:Class;  
-       
+		[Embed(source="images/headset_open.png")]
+		public var headsetActiveIcon:Class;
+
+		[Embed(source="images/headset.png")]
+		public var listenOnlyDefaultIcon:Class;
+
+		[Embed(source="images/headset_close.png")]
+		public var listenOnlyInactiveIcon:Class;
+
+		[Embed(source="images/headset_open.png")]
+		public var listenOnlyActiveIcon:Class;
+
+		[Embed(source="images/sound.png")]
+		public var speakerActiveIcon:Class;
+
+		[Embed(source="images/sound_mute.png")]
+		public var speakerInactiveIcon:Class;
 	}
 }

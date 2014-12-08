@@ -22,8 +22,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:lang="http://www.springframework.org/schema/lang"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang 
+                           http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
 	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 	    <property name="locations">
@@ -67,8 +69,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="sipPeerManager" class="org.bigbluebutton.voiceconf.sip.SipPeerManager">
 		<property name="sipStackDebugLevel" value="${sipStackDebugLevel}"/>
 		<property name="sipRemotePort" value="${freeswitch.port}"/>
+		<property name="messagingService" ref="messagingService"/>
+		
 	</bean>
 	
 	<bean id="clientConnectionManager" class="org.bigbluebutton.voiceconf.red5.ClientConnectionManager"/>
-      
+
+  <import resource="bbb-redis-pool.xml"/>
+  <import resource="bbb-redis-messaging.xml"/>
+          
 </beans>

@@ -41,7 +41,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
-            import org.bigbluebutton.main.model.users.events.LowerHandEvent;
+      import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -90,32 +90,33 @@
   			
   			private function updateButton(unneeded:Object = null):void {
 	  			if (data != null) {
-	  				if (data.presenter) {
-	  					roleImg.source = images.presenter_new;
-	  					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
-	  					roleImg.visible = true;
-	  					roleBtn.visible = false;
-	  					roleBtn.enabled = false;
-	  				} else if (rolledOver) {
-	  					roleImg.visible = false;
-	  					roleBtn.visible = true;
-	  					roleBtn.enabled = true;
-                        if (data.raiseHand) {
-                            roleBtn.setStyle("icon", images.hand_new);
-                            roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand');
-                        } else {
-                            roleBtn.setStyle("icon", images.presenter_new);
-                            roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
-                        }
+	  				if (rolledOver && data.raiseHand) {
+						roleBtn.setStyle("icon", images.hand_new);
+						roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand') + " - " + data.raiseHandTime.hours + ":" + data.raiseHandTime.minutes + ":" + data.raiseHandTime.seconds;
+						roleImg.visible = false;
+						roleBtn.visible = true;
+						roleBtn.enabled = true;
+					} else if (rolledOver && !data.presenter && !data.phoneUser) {
+						roleBtn.setStyle("icon", images.presenter_new);
+						roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
+						roleImg.visible = false;
+						roleBtn.visible = true;
+						roleBtn.enabled = true;
+					} else if (data.raiseHand) {
+						roleImg.source = images.hand_new;
+						roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised') + " - " + data.raiseHandTime.hours + ":" + data.raiseHandTime.minutes + ":" + data.raiseHandTime.seconds;
+						roleImg.visible = true;
+						roleBtn.visible = false;
+						roleBtn.enabled = false;
+					} else if (data.presenter) {
+						roleImg.source = images.presenter_new;
+						roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
+						roleImg.visible = true;
+						roleBtn.visible = false;
+						roleBtn.enabled = false;
 	  				} else if (data.role == Role.MODERATOR) {
 	  					roleImg.source = images.moderator;
 	  					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-	  					roleImg.visible = true;
-	  					roleBtn.visible = false;
-	  					roleBtn.enabled = false;
-	  				} else if (data.raiseHand) {
-	  					roleImg.source = images.hand_new;
-	  					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
 	  					roleImg.visible = true;
 	  					roleBtn.visible = false;
 	  					roleBtn.enabled = false;
@@ -137,19 +138,16 @@
 			}
 			
 			private function onRollOut(e:UsersRollEvent):void{
-				if (moderator) {
+				if (moderator && rolledOver) {
 					rolledOver = false;
 					updateButton();
 				}
 			}
   			
   			private function roleBtnClicked():void {
-        		// Ignore if the selected user is already the presenter.
-        		if (data.presenter) return;
-        		
                 if (data.raiseHand) {
                     dispatchEvent(new LowerHandEvent(data.userID));
-                } else {
+                } else if (!data.presenter) {
     				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
     				e.userid = data.userID;
     				e.username = data.name;

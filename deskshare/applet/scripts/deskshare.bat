@@ -1,1 +1,1 @@
-java -cp bbb-deskshare-applet-0.71.jar org.bigbluebutton.deskshare.client.DeskshareMain %*
+java -cp bbb-deskshare-applet-0.9.0.jar org.bigbluebutton.deskshare.client.DeskshareMain %*

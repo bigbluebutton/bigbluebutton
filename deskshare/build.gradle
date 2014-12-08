@@ -1,11 +1,11 @@
-usePlugin 'scala'
-usePlugin 'java'
-usePlugin 'eclipse'
+apply plugin: 'scala'
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
-task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(type: Copy) {
     into('lib')
     from configurations.default
-    from configurations.default.allArtifacts*.file
+    from configurations.default.allArtifacts.file
 }
 
 /*
@@ -49,7 +49,13 @@ repositories {
             m2compatible = true
             addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
             addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-        }        
+        }    
+		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+			name = "Red5"
+			m2compatible = true
+			addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+			addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+		}
    	}
 }
 
@@ -58,50 +64,45 @@ repositories {
  *  1. You cannot use provideCompile here as gradle will complain. But you can use it in the sub-projects.
  */
 dependencies {
-	// Servlet
-	compile 'javax.servlet:servlet-api:2.5@jar'
+  // Servlet
+  compile 'javax.servlet:servlet-api:2.5@jar'
 	
-	// Mina
-	compile 'org.apache.mina:mina-core:2.0.7@jar'
-	compile 'org.apache.mina:mina-integration-beans:2.0.7@jar'
-	compile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
+  // Mina
+  compile 'org.apache.mina:mina-core:2.0.8@jar'
+  compile 'org.apache.mina:mina-integration-beans:2.0.8@jar'
+  compile 'org.apache.mina:mina-integration-jmx:2.0.8@jar'
 	
-	// Spring 
-	compile 'org.springframework:spring-web:3.1.1.RELEASE@jar' 
-	compile  'org.springframework:spring-beans:3.1.1.RELEASE@jar'
-	compile 'org.springframework:spring-context:3.1.1.RELEASE@jar'
-	compile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
+  // Spring 
+  compile 'org.springframework:spring-web:4.0.7.RELEASE@jar' 
+  compile  'org.springframework:spring-beans:4.0.7.RELEASE@jar'
+  compile 'org.springframework:spring-context:4.0.7.RELEASE@jar'
+  compile 'org.springframework:spring-core:4.0.7.RELEASE@jar'
 	
 	// Red5
-	compile 'org/red5:red5:1.0r4643@jar'
+	compile 'org/red5:red5-server:1.0.4-SNAPSHOT@jar'
+	compile 'org.red5:red5-io:1.0.4-SNAPSHOT@jar'
 	
 	// Logging
-	compile 'ch.qos.logback:logback-core:1.0.9@jar'
-	compile 'ch.qos.logback:logback-classic:1.0.9@jar'
-	compile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
-	compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
-	compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
-    compile 'org.slf4j:slf4j-api:1.7.2@jar'
+	compile 'ch.qos.logback:logback-core:1.1.2@jar'
+	compile 'ch.qos.logback:logback-classic:1.1.2@jar'
+	compile 'org.slf4j:log4j-over-slf4j:1.7.7@jar'
+	compile 'org.slf4j:jcl-over-slf4j:1.7.7@jar'
+	compile 'org.slf4j:jul-to-slf4j:1.7.7@jar'
+	compile 'org.slf4j:slf4j-api:1.7.7@jar'
 
 	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
 	// Otherwise we get exception on aop utils class not found.
-	compile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
+	compile 'org.springframework:spring-aop:4.0.7.RELEASE@jar'
 	compile 'aopalliance:aopalliance:1.0@jar'
-	
-    // Java Concurrency In Practice
-    compile 'net.jcip:jcip-annotations:1.0@jar'
-        
-    // Testing
-    compile 'org.testng:testng:5.8@jar' 
-    compile 'org.easymock:easymock:2.4@jar'
+	        
+  // Testing
+  compile 'org.testng:testng:5.8@jar' 
+  compile 'org.easymock:easymock:2.4@jar'
 	
 	compile project(':common')
-    compile 'commons-fileupload:commons-fileupload:1.2.2@jar'
+  compile 'commons-fileupload:commons-fileupload:1.2.2@jar'
 	compile 'commons-io:commons-io:2.1@jar' 
-	
-	// Java Concurrency In Practice
-	compile 'net.jcip:jcip-annotations:1.0@jar'
-	
+		
 	// Libraries needed to run the scala tools
 	scalaTools 'org.scala-lang:scala-compiler:2.9.2'
 	scalaTools 'org.scala-lang:scala-library:2.9.2'
@@ -121,8 +122,8 @@ test {
 }
 
 subprojects {
-    usePlugin 'java'
-    usePlugin 'eclipse'
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
 
 	repositories {
 	   	add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
@@ -166,7 +167,7 @@ subprojects {
 	}
         
     group = 'org.bigbluebutton'
-    version = '0.70'
+    version = '0.9.0'
     manifest.mainAttributes(provider: 'bigbluebutton')
 }
 

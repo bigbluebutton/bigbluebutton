@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:mate="http://mate.asfusion.com/"
+				showCloseButton="false"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off"
+				horizontalAlign="center" 
+				borderAlpha="0.0"
+				borderThicknessLeft="0" 
+				borderThicknessRight="0"
+				borderThicknessTop="0"
+				x="20"
+				y="-20">
+	
+	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCameraSettingsClosedEvent" />
+	<mate:Listener type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" method="handleBroadcastStartedEvent" />
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private function handleBroadcastStartedEvent(e:BroadcastStartedEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function handleCameraSettingsClosedEvent(e:BBBEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+		<mx:TextArea borderSkin="{null}"
+					 editable="false"
+					 text="{ResourceUtil.getInstance().getString('bbb.webcamPermissions.chrome.title')}"
+					 styleName="webcamSettingsWindowTitleStyle"
+					 width="400"
+					 left="0"/>
+		<mx:HBox width="100%">      
+			<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.webcamPermissions.chrome.message1')}"
+					 styleName="webcamPermissionSettingsTextStyle" />		
+			<mx:Image source="@Embed('assets/chrome-allow-mic-access.png')"/>	
+		</mx:HBox>
+	</mx:VBox>
+</mx:TitleWindow> 

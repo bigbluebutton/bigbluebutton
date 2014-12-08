@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="src" path="src/groovy"/>
+	<classpathentry excluding="spring/" kind="src" path="grails-app/conf"/>
+	<classpathentry kind="src" path="grails-app/conf/spring"/>
+	<classpathentry kind="src" path="grails-app/controllers"/>
+	<classpathentry kind="src" path="grails-app/domain"/>
+	<classpathentry kind="src" path="grails-app/i18n"/>
+	<classpathentry kind="src" path="grails-app/services"/>
+	<classpathentry kind="src" path="grails-app/taglib"/>
+	<classpathentry kind="src" path="grails-app/utils"/>
+	<classpathentry kind="src" path="grails-app/views"/>
+	<classpathentry kind="src" path="test/integration"/>
+	<classpathentry kind="src" path="test/unit"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.grails.ide.eclipse.core.CLASSPATH_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool-1.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/geronimo-j2ee-management_1.0_spec-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/gson-1.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jedis-2.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/jodconverter-2.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/juh-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/jurt-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/ridl-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/unoil-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/jul-to-slf4j-1.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.2.jar"/>
+	<classpathentry kind="output" path="target/eclipseclasses"/>
+</classpath>

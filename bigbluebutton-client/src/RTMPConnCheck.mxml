@@ -44,6 +44,7 @@
         rtmp = testRTMP;
         
         netConnection = new NetConnection();
+	netConnection.proxyType = "best";
         netConnection.client = this;
         
         netConnection.addEventListener(NetStatusEvent.NET_STATUS, connectionHandler);

@@ -45,33 +45,33 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       _parentHeight = height;
     }
     
-        public function get parentWidth():Number {
-            return _parentWidth;
-        }
+    public function get parentWidth():Number {
+      return _parentWidth;
+    }
         
-        public function get parentHeight():Number {
-            return _parentHeight;
-        }
+    public function get parentHeight():Number {
+      return _parentHeight;
+    }
         
-        public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{
-            if (a.type == DrawObject.PENCIL) {
-                return new Pencil(a.id, a.type, a.status);
-            } else if (a.type == DrawObject.RECTANGLE) {
-                return new Rectangle(a.id, a.type, a.status);
-            } else if (a.type == DrawObject.ELLIPSE) {
-                return new Ellipse(a.id, a.type, a.status);
-            }  else if (a.type == DrawObject.LINE) {
-                return new Line(a.id, a.type, a.status);
-            }  else if (a.type == DrawObject.TRIANGLE) {
-                return new Triangle(a.id, a.type, a.status);
-            } else if (a.type == DrawObject.TEXT) {
-                return new TextDrawObject(a.id, a.type, a.status);
-            }
+    public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{
+        if (a.type == DrawObject.PENCIL) {
+            return new Pencil(a.id, a.type, a.status);
+        } else if (a.type == DrawObject.RECTANGLE) {
+            return new Rectangle(a.id, a.type, a.status);
+        } else if (a.type == DrawObject.ELLIPSE) {
+            return new Ellipse(a.id, a.type, a.status);
+        }  else if (a.type == DrawObject.LINE) {
+            return new Line(a.id, a.type, a.status);
+        }  else if (a.type == DrawObject.TRIANGLE) {
+            return new Triangle(a.id, a.type, a.status);
+        } else if (a.type == DrawObject.TEXT) {
+            return new TextDrawObject(a.id, a.type, a.status);
+        }
             
-            return null;
-        }
+        return null;
+    }
         
-        private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
+    private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
             if (type == DrawObject.PENCIL){
                 return new PencilDrawAnnotation(shape, color, thickness, trans);
             } else if (type == DrawObject.RECTANGLE){

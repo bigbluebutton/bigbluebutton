@@ -46,11 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function get username():String {
 				return _attributes.username;
 			}
-			
-			public function get connection():NetConnection {
-				return _attributes.connection;
-			}
-			
+					
 			public function get mode():String {
 				return _attributes.mode;
 			}

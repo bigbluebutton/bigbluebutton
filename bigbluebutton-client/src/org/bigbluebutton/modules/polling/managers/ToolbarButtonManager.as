@@ -25,10 +25,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.views.ToolbarButton;
-
-	import mx.managers.IFocusManager;
-	
-	import flash.display.DisplayObjectContainer;
+	import mx.managers.IFocusManager;	
 		
 	public class ToolbarButtonManager {		
 		public var button:ToolbarButton;
@@ -37,10 +34,9 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public var appFM:IFocusManager;
 		
-		public static const LOGNAME:String = "[Polling :: ToolBarButtonManager] ";	
+		public static const LOG:String = "Poll::ToolbarButtonManager - ";	
 		
 		public function ToolbarButtonManager() {
-			//LogUtil.debug(LOGNAME + " initialized ***************************************************************** ")
 			globalDispatcher = new Dispatcher();
 			button = new ToolbarButton();
 		}
@@ -74,7 +70,6 @@ package org.bigbluebutton.modules.polling.managers
 
 		public function focusToolbarButton():void {
 			appFM.setFocus(button);
-			button.notifyPosition();
 		}
 		
 		public function disableToolbarButton():void {
@@ -82,16 +77,5 @@ package org.bigbluebutton.modules.polling.managers
 			button.enabled = false;
 		}
 		
-		public function openMenuRemotely():Boolean{
-			var rValue:Boolean = true;
-			if (button.enabled){
-				button.updateMenuByShortcut();
-			}
-			else{
-				rValue = false;
-			}
-			return rValue;
-		}
-		// _Button
 	}
 }

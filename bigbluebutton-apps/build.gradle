@@ -1,121 +1,130 @@
-usePlugin 'scala'
-usePlugin 'java'
-usePlugin 'war'
-usePlugin 'eclipse'
+apply plugin: 'scala'
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse'
 
-version = '0.8'
+version = '0.9.0'
 jar.enabled = true
 
 def appName = 'bigbluebutton'
 
 archivesBaseName = appName 
 
-task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(type: Copy) {
     into('lib')
     from configurations.default
-    from configurations.default.allArtifacts*.file
+    from configurations.default.allArtifacts.file
 }
 
 repositories {
-   	add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
-		 name = 'remote'
-       	returnFirst = true
-       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-       		name = "googlecode"
-       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
-       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
-		}
-		   add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-       		name = "blindside-repos"
-       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
-       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
-		}			 
+  add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
+    name = 'remote'
+    returnFirst = true
     add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-       		name = "maven2-central"
-       		m2compatible = true
-       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
-       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
-		}  
-    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-       		name = "testng_ibiblio_maven2"
-       		m2compatible = true
-       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
-       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
-		}  
-		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-            name = "netty-dependency"
-            m2compatible = true
-            addArtifactPattern "http://repository.jboss.org/nexus/content/groups/public-jboss/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
-            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+      name = "googlecode"
+      addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+      addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
     }
-		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-            name = "spring-bundles"
-            m2compatible = true
-            addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-            addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-        }        
-   	}
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = "blindside-repos"
+      addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+      addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+    }			 
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = "maven2-central"
+      m2compatible = true
+      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+    }  
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = "testng_ibiblio_maven2"
+      m2compatible = true
+      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+    }  
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = "netty-dependency"
+      m2compatible = true
+      addArtifactPattern "http://repository.jboss.org/nexus/content/groups/public-jboss/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+    }
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = "spring-bundles"
+      m2compatible = true
+      addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+      addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+    }        
+  }
 }
 
 dependencies {	 
-	// Servlet
-	providedCompile 'javax.servlet:servlet-api:2.5@jar'
-	
-	// Mina
-	providedCompile 'org.apache.mina:mina-core:2.0.7@jar'
-	providedCompile 'org.apache.mina:mina-integration-beans:2.0.7@jar'
-	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
-	
-	// Spring 
-	providedCompile 'org.springframework:spring-web:3.1.1.RELEASE@jar' 
-	providedCompile  'org.springframework:spring-beans:3.1.1.RELEASE@jar'
-	providedCompile 'org.springframework:spring-context:3.1.1.RELEASE@jar'
-	providedCompile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
-	
-	// Red5
-	providedCompile 'org/red5:red5:1.0r4643@jar'
-	
-	// Logging
-	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
-	providedCompile 'ch.qos.logback:logback-classic:1.0.9@jar'
-	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
-	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
-	providedCompile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
-    providedCompile 'org.slf4j:slf4j-api:1.7.2@jar'
+  // Servlet
+  providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
-	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
-	// Otherwise we get exception on aop utils class not found.
-	providedCompile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
-	compile 'aopalliance:aopalliance:1.0@jar'
-	
-    // Java Concurrency In Practice
-    providedCompile 'net.jcip:jcip-annotations:1.0@jar'
-        
-    // Testing
-    compile 'org.testng:testng:5.8@jar' 
-    compile 'org.easymock:easymock:2.4@jar'
+  // Mina
+  providedCompile 'org.apache.mina:mina-core:2.0.8@jar'
+  providedCompile 'org.apache.mina:mina-integration-beans:2.0.8@jar'
+  providedCompile 'org.apache.mina:mina-integration-jmx:2.0.8@jar'
+
+  // Spring 
+  providedCompile 'org.springframework:spring-web:4.0.7.RELEASE@jar' 
+  providedCompile  'org.springframework:spring-beans:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.0.7.RELEASE@jar'
+
+  // Red5
+  providedCompile 'org/red5:red5-server:1.0.4-SNAPSHOT@jar'
   
-	//redis
-	compile 'redis.clients:jedis:2.0.0'
-	providedCompile 'commons-pool:commons-pool:1.5.6'
+  // Logging
+  providedCompile 'ch.qos.logback:logback-core:1.1.2@jar'
+  providedCompile 'ch.qos.logback:logback-classic:1.1.2@jar'
+  providedCompile 'org.slf4j:log4j-over-slf4j:1.7.7@jar' 
+  providedCompile 'org.slf4j:jcl-over-slf4j:1.7.7@jar'
+  providedCompile 'org.slf4j:jul-to-slf4j:1.7.7@jar'
+  providedCompile 'org.slf4j:slf4j-api:1.7.7@jar'
+  	
+  compile "redis.clients:jedis:2.1.0"
+  compile "org.codehaus.jackson:jackson-core-asl:$jacksonVersion"
+  compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
+  compile "javax.servlet:com.springsource.javax.servlet.jsp.jstl:1.2.0"
+  compile ("org.springframework.data:spring-data-redis:$springRedisVersion") {
+    exclude group: 'commons-logging'
+  }
+   
+  // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
+  // Otherwise we get exception on aop utils class not found.
+  providedCompile 'org.springframework:spring-aop:4.0.7.RELEASE@jar'
+  compile 'aopalliance:aopalliance:1.0@jar'
+	     
+  // Testing
+  compile 'org.testng:testng:5.8@jar' 
+  compile 'org.easymock:easymock:2.4@jar'
+  
+  //redis
+  //compile 'redis.clients:jedis:2.0.0'
+  providedCompile 'commons-pool:commons-pool:1.5.6'
  
-	// Libraries needed to run the scala tools
-	scalaTools 'org.scala-lang:scala-compiler:2.9.2'
-	scalaTools 'org.scala-lang:scala-library:2.9.2'
+  // Libraries needed to run the scala tools
+  scalaTools 'org.scala-lang:scala-compiler:2.9.2'
+  scalaTools 'org.scala-lang:scala-library:2.9.2'
 
-	// Libraries needed for scala api
-	compile 'org.scala-lang:scala-library:2.9.2'
-  
+  // Libraries needed for scala api
+  compile 'org.scala-lang:scala-library:2.9.2'
+
+  // workaround for http://issues.gradle.org/browse/GRADLE-1273
+  //compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
+  //compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
+		  
    // Freeswitch ESL Client
    compile 'org/freeswitch:fs-esl-client:0.8.2@jar'
    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
    compile 'com.google.code.gson:gson:1.7.1'
-   providedCompile 'org.apache.commons:commons-lang3:3.1'
-   compile 'commons-lang:commons-lang:2.5'
+   providedCompile 'org.apache.commons:commons-lang3:3.2'
+
 }
 
 test {
-	useTestNG() 
+  useTestNG() 
 }
 
 war.doLast {
@@ -124,13 +133,12 @@ war.doLast {
 
 
 task deploy() << {
-	def red5AppsDir = '/usr/share/red5/webapps'
-	def bbbDir = new File("${red5AppsDir}/$appName")
-	println "Deleting $bbbDir"
-	ant.delete(dir: bbbDir)
-	ant.mkdir(dir: bbbDir)
-	ant.copy(todir: bbbDir) {
-    	fileset(dir: "$buildDir/$appName")
-    }
+  def red5AppsDir = '/usr/share/red5/webapps'
+  def bbbDir = new File("${red5AppsDir}/$appName")
+  ant.delete(dir: bbbDir)
+  ant.mkdir(dir: bbbDir)
+  ant.copy(todir: bbbDir) {
+    fileset(dir: "$buildDir/$appName")
+  }
 } 
         

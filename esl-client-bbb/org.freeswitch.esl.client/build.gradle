@@ -1,7 +1,7 @@
-usePlugin 'eclipse'
-usePlugin 'java'
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
-version = '0.8.2'
+version = '0.9.0'
 jar.enabled = true
 
 def appName = 'fs-esl-client'
@@ -21,6 +21,12 @@ sourceSets {
             	srcDir 'src/resources'
         	}
         }
+}
+
+task resolveDeps(type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts.file
 }
 
 repositories {
@@ -54,15 +60,18 @@ repositories {
 }
 
 dependencies {
-
     // Logging
-    compile ':slf4j-api:1.6.1@jar'
-    compile ':logback-core:0.9.18@jar'
-    compile ':logback-classic:0.9.18@jar'
-    compile ':jcl-over-slf4j:1.5.10@jar'
-    compile ':log4j-over-slf4j:1.5.10@jar'
+    compile 'ch.qos.logback:logback-core:1.0.9@jar'
+    compile 'ch.qos.logback:logback-classic:1.0.9@jar'
+    compile 'org.slf4j:log4j-over-slf4j:1.7.2@jar'
+    compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
+    compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
+    compile 'org.slf4j:slf4j-api:1.7.2@jar'
+
     testRuntime 'junit:junit:4.8.1.@jar'
-    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
+    compile 'org.jboss.netty:netty:3.2.9.Final@jar'
+
+
 }
 
 
@@ -73,8 +82,4 @@ uploadArchives {
     }
 }
 
-task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
-    into('lib')
-    from configurations.default
-    from configurations.default.allArtifacts*.file
-}
+

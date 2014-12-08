@@ -49,6 +49,7 @@ package org.red5.flash.bwcheck.app
 		public function connect():void
 		{
 			nc = new NetConnection();
+			nc.proxyType = "best";
 			nc.objectEncoding = flash.net.ObjectEncoding.AMF0;
 			nc.client = this;
 			nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);	

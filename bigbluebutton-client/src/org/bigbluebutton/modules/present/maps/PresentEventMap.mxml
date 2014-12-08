@@ -27,16 +27,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
       import org.bigbluebutton.modules.present.api.PresentationAPI;
       import org.bigbluebutton.modules.present.business.PresentProxy;
+      import org.bigbluebutton.modules.present.commands.ChangePageCommand;
+      import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
+      import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
+      import org.bigbluebutton.modules.present.commands.GoToPageCommand;
+      import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
+      import org.bigbluebutton.modules.present.commands.UploadFileCommand;
       import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+      import org.bigbluebutton.modules.present.events.GetListOfPresentationsRequest;
       import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+      import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
       import org.bigbluebutton.modules.present.events.PresentationEvent;
       import org.bigbluebutton.modules.present.events.PresenterCommands;
-      import org.bigbluebutton.modules.present.events.QueryPresentationsListEvent;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-      import org.bigbluebutton.modules.present.events.SlideEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.managers.PresentManager;
+      import org.bigbluebutton.modules.present.services.PageLoaderService;
+      import org.bigbluebutton.modules.present.services.PresentationService;
       import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+      import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
 
 			private var apiInstance:PresentationAPI;
 			
@@ -49,12 +58,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<ObjectBuilder generator="{PresentManager}" cache="global" />
 		<ObjectBuilder generator="{PresentProxy}" cache="global" />
+    
 		<InlineInvoker method="createAPI" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
 		<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
-		<MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
+    <MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
@@ -69,7 +79,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{PresentManager}" method="handleCloseUploadWindow" />
 	</EventHandlers>
 		
-	<EventHandlers type="{UploadEvent.START_UPLOAD}">
+	<EventHandlers type="{UploadFileCommand.UPLOAD_FILE}">
 		<MethodInvoker generator="{PresentProxy}" method="startUpload" arguments="{event}" />
 	</EventHandlers>
 	
@@ -92,7 +102,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{PresenterCommands.ZOOM}" >
 		<MethodInvoker generator="{PresentProxy}" method="zoomSlide" arguments="{event}" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{GetCurrentPresentationInfo.GET_CURRENT_PRESENTATION_INFO}" >
+    <MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
+  </EventHandlers>
+
+  <EventHandlers type="{GetListOfPresentationsRequest.GET_LIST_OF_PRESENTATIONS}" >
+    <MethodInvoker generator="{PresentProxy}" method="handleGetListOfPresentationsRequest" />
+  </EventHandlers>
+  
 	<EventHandlers type="{PresenterCommands.SEND_CURSOR_UPDATE}" >
 		<MethodInvoker generator="{PresentProxy}" method="sendCursorUpdate" arguments="{event}" />
 	</EventHandlers>
@@ -101,30 +119,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{PresentProxy}" method="resizeSlide" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{UploadEvent.PRESENTATION_READY}" >
-		<MethodInvoker generator="{PresentProxy}" method="loadPresentation" arguments="{event}" />
+	<EventHandlers type="{ChangePageCommand.CHANGE_PAGE_COMMAND}" >
+		<MethodInvoker generator="{PageLoaderService}" method="loadPage" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
 		<MethodInvoker generator="{PresentProxy}" method="removePresentation" arguments="{event}" />
 	</EventHandlers>
-
-  <EventHandlers type="{QueryPresentationsListEvent.QUERY_PRESENTATIONS_LIST}">
-    <MethodInvoker generator="{PresentManager}" method="queryPresentations"/>
+	
+  <EventHandlers type="{ChangePresentationCommand.CHANGE_PRESENTATION}">
+    <MethodInvoker generator="{PresentProxy}" method="handleChangePresentationCommand" arguments="{event}" />
   </EventHandlers>
   
-	<EventHandlers type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}">
-		<MethodInvoker generator="{PresentManager}" method="removePresentation" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{UploadEvent.CONVERT_SUCCESS}">
-		<MethodInvoker generator="{PresentManager}" method="updatePresentationNames" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{SlideEvent.LOAD_CURRENT_SLIDE}" >
-		<MethodInvoker generator="{PresentProxy}" method="loadCurrentSlideLocally" arguments="{event}" />
-	</EventHandlers>
-	
-	
-		
+  <EventHandlers type="{GoToPageCommand.GO_TO_PAGE}">
+    <MethodInvoker generator="{PresentProxy}" method="handleGoToPageCommand" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{GoToPrevPageCommand.GO_TO_PREV_PAGE}">
+    <MethodInvoker generator="{PresentProxy}" method="handleGoToPreviousPageCommand" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{GoToNextPageCommand.GO_TO_NEXT_PAGE}">
+    <MethodInvoker generator="{PresentProxy}" method="handleGoToNextPageCommand" arguments="{event}" />
+  </EventHandlers>
+  
 </EventMap>

@@ -19,12 +19,20 @@
 
 package org.bigbluebutton.api.messaging;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import javax.imageio.ImageIO;
+import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
+import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -36,173 +44,93 @@ import redis.clients.jedis.JedisPubSub;
 public class RedisMessagingService implements MessagingService {
 	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
 	
-	private JedisPool redisPool;
-	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
-
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable pubsubListener;
-
-	public RedisMessagingService(){
-		
-	}
+	private RedisStorageService storeService;
+	private MessageSender sender;
 	
- 	@Override
-	public void addListener(MessageListener listener) {
- 		listeners.add(listener);
-	}
- 	
-	public void removeListener(MessageListener listener) {
- 		listeners.remove(listener);
- 	}
-
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-		Jedis jedis = redisPool.getResource();
-		try {
-		    for (String key: info.keySet()) {
-				    	log.debug("Storing metadata {} = {}", key, info.get(key));
-				}   
-
-		    log.debug("Saving metadata in {}", meetingId);
-			jedis.hmset("meeting:info:" + meetingId, info);
-		} catch (Exception e){
-			log.warn("Cannot record the info meeting:"+meetingId,e);
-		} finally {
-			redisPool.returnResource(jedis);
-		}		
+		storeService.recordMeetingInfo(meetingId, info);	
 	}
 
+	public void destroyMeeting(String meetingID) {
+		DestroyMeetingMessage msg = new DestroyMeetingMessage(meetingID);
+		String json = MessageToJson.destroyMeetingMessageToJson(msg);
+		log.info("Sending destory meeting message to bbb-apps:[{}]", json);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
+	}
+	
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
+		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken);
+		String json = MessageToJson.registerUserToJson(msg);
+		log.info("Sending register user message to bbb-apps:[{}]", json);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
+	}
+	
+	public void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
+			                      String voiceBridge, Long duration, 
+			                      Boolean autoStartRecording, Boolean allowStartStopRecording) {
+		CreateMeetingMessage msg = new CreateMeetingMessage(meetingID, externalMeetingID, meetingName, 
+				                                  recorded, voiceBridge, duration, 
+				                                  autoStartRecording, allowStartStopRecording);
+		String json = MessageToJson.createMeetingMessageToJson(msg);
+		log.info("Sending create meeting message to bbb-apps:[{}]", json);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);			
+	}
+	
 	public void endMeeting(String meetingId) {
-		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("messageId", MessagingConstants.END_MEETING_REQUEST_EVENT);
-		map.put("meetingId", meetingId);
+		EndMeetingMessage msg = new EndMeetingMessage(meetingId);
+		String json = MessageToJson.endMeetingMessageToJson(msg);
+		log.info("Sending end meeting message to bbb-apps:[{}]", json);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
+	}
+
+  public void sendKeepAlive(String keepAliveId) {
+		KeepAliveMessage msg = new KeepAliveMessage(keepAliveId);
+		String json = MessageToJson.keepAliveMessageToJson(msg);
+		sender.send(MessagingConstants.TO_SYSTEM_CHANNEL, json);		
+  }
+	
+  public void send(String channel, String message) {
+		sender.send(channel, message);
+  }
+  
+	public void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers){
 		Gson gson = new Gson();
-		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
-	}
 
-	public void send(String channel, String message) {
-		Jedis jedis = redisPool.getResource();
-		try {
-			jedis.publish(channel, message);
-		} catch(Exception e){
-			log.warn("Cannot publish the message to redis",e);
-		}finally{
-			redisPool.returnResource(jedis);
-		}
-	}
-
-	public void start() {
-		log.debug("Starting redis pubsub...");		
-
-		final Jedis jedis = redisPool.getResource();
-		try {
-			pubsubListener = new Runnable() {
-			    public void run() {
-			    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
-			    }
-			};
-			exec.execute(pubsubListener);
-		} catch (Exception e) {
-			log.error("Error in subscribe: " + e.getMessage());
-		}
-	}
-
-	public void stop() {
-		try {
-			redisPool.destroy();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void setRedisPool(JedisPool redisPool){
-		this.redisPool=redisPool;
-	}
-	
-	private class PubSubListener extends JedisPubSub {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("messageId", MessagingConstants.SEND_POLLS_EVENT);
+		map.put("meetingId", meetingId);
+		map.put("title", title);
+		map.put("question", question);
+		map.put("questionType", questionType);
+		map.put("answers", answers);
 		
-		public PubSubListener() {
-			super();			
-		}
-
-		@Override
-		public void onMessage(String channel, String message) {
-			// Not used.
-		}
-
-		@Override
-		public void onPMessage(String pattern, String channel, String message) {
-			log.debug("Message Received in channel: " + channel);
-			log.debug("Message: " + message);
-			
-			Gson gson = new Gson();
-			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-			
-//			for (String key: map.keySet()) {
-//				log.debug("rx: {} = {}", key, map.get(key));
-//			}
-			
-			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
-				String meetingId = map.get("meetingId");
-				String messageId = map.get("messageId");
-				log.debug("*** Meeting {} Message {}", meetingId, messageId);
-				
-				for (MessageListener listener : listeners) {
-					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
-						listener.meetingStarted(meetingId);
-					} else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageId)) {
-						listener.meetingEnded(meetingId);
-					}
-				}
-			}
-			else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
-				String meetingId = map.get("meetingId");
-				String messageId = map.get("messageId");
-				if(MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserId");
-					String externalUserId = map.get("externalUserId");
-					String fullname = map.get("fullname");
-					String role = map.get("role");
-					
-					for (MessageListener listener : listeners) {
-						listener.userJoined(meetingId, internalUserId, externalUserId, fullname, role);
-					}
-				} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserId");
-					String status = map.get("status");
-					String value = map.get("value");
-					
-					for (MessageListener listener : listeners) {
-						listener.updatedStatus(meetingId, internalUserId, status, value);
-					}
-				} else if(MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageId)){
-					String internalUserId = map.get("internalUserId");
-					
-					for (MessageListener listener : listeners) {
-						listener.userLeft(meetingId, internalUserId);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void onPSubscribe(String pattern, int subscribedChannels) {
-			log.debug("Subscribed to the pattern:"+pattern);
-		}
-
-		@Override
-		public void onPUnsubscribe(String pattern, int subscribedChannels) {
-			// Not used.
-		}
-
-		@Override
-		public void onSubscribe(String channel, int subscribedChannels) {
-			// Not used.
-		}
-
-		@Override
-		public void onUnsubscribe(String channel, int subscribedChannels) {
-			// Not used.
-		}		
+		System.out.println(gson.toJson(map));
+		
+		sender.send(MessagingConstants.TO_POLLING_CHANNEL, gson.toJson(map));		
 	}
 
+	public void setMessageSender(MessageSender sender) {
+		this.sender = sender;
+	}
+	
+  public void setRedisStorageService(RedisStorageService storeService) {
+  	this.storeService = storeService;
+  }
+  
+	public String storeSubscription(String meetingId, String externalMeetingID, String callbackURL){
+		return storeService.storeSubscription(meetingId, externalMeetingID, callbackURL);
+	}
+
+	public boolean removeSubscription(String meetingId, String subscriptionId){
+		return storeService.removeSubscription(meetingId, subscriptionId);
+	}
+
+	public List<Map<String,String>> listSubscriptions(String meetingId){
+		return storeService.listSubscriptions(meetingId);	
+	}	
+	
+	public void removeMeeting(String meetingId){
+		storeService.removeMeeting(meetingId);
+	}
+	
 }

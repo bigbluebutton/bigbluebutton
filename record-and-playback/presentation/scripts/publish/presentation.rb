@@ -1,5 +1,3 @@
-#!/usr/bin/ruby1.9.1
-
 # Set encoding to utf-8
 # encoding: UTF-8
 
@@ -49,34 +47,35 @@ def processPanAndZooms
 			y_prev = nil
 			timestamp_orig_prev = nil
 			timestamp_prev = nil
-                        if $panzoom_events.empty?
-                          BigBlueButton.logger.info("No panzoom events; old recording?")
-                          BigBlueButton.logger.info("Synthesizing a panzoom event")
-                          if !$slides_events.empty?
-                            timestamp_orig = $slides_events.first[:timestamp].to_f
-                            # make sure this is scheduled *after* the slide is shown. Dunno if needed.
-                            timestamp_orig += 1000
-                            timestamp = ((timestamp_orig - $join_time) / 1000).round(1)
-                            $xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
-                              $xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
-                            end
-                            timestamp_orig_prev = timestamp_orig
-                            timestamp_prev = timestamp
-                            h_ratio_prev = 100
-                            w_ratio_prev = 100
-                            x_prev = 0
-                            y_prev = 0
-                          else
-                            BigBlueButton.logger.info("Couldn't find any slides! panzooms will be empty.")
-                          end
-                        else
-                          last_time = $panzoom_events.last[:timestamp].to_f
-                        end
+			last_time = nil
+			if $panzoom_events.empty?
+				BigBlueButton.logger.info("No panzoom events; old recording?")
+				BigBlueButton.logger.info("Synthesizing a panzoom event")
+				if !$slides_events.empty?
+					timestamp_orig = $slides_events.first[:timestamp].to_f
+					# make sure this is scheduled *after* the slide is shown. Dunno if needed.
+					timestamp_orig += 1000
+					timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
+					$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
+						$xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
+					end
+					timestamp_orig_prev = timestamp_orig
+					timestamp_prev = timestamp
+					h_ratio_prev = 100
+					w_ratio_prev = 100
+					x_prev = 0
+					y_prev = 0
+				else
+					BigBlueButton.logger.info("Couldn't find any slides! panzooms will be empty.")
+				end
+			else
+				last_time = $panzoom_events.last[:timestamp].to_f
+			end
 			$panzoom_events.each do |panZoomEvent|
 				# Get variables
 				timestamp_orig = panZoomEvent[:timestamp].to_f
 
-				timestamp = ((timestamp_orig-$join_time)/1000).round(1)
+				timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
 				h_ratio = panZoomEvent.xpath(".//heightRatio")[0].text()
 				w_ratio = panZoomEvent.xpath(".//widthRatio")[0].text()
 				x = panZoomEvent.xpath(".//xOffset")[0].text()
@@ -148,7 +147,7 @@ def processCursorEvents
 				last_time = $cursor_events.last[:timestamp].to_f
 				$cursor_events.each do |cursorEvent|
 					timestamp_orig = cursorEvent[:timestamp].to_f
-					timestamp = ((timestamp_orig-$join_time)/1000).round(1)
+					timestamp = ( translateTimestamp(timestamp_orig) / 1000 ).round(1)
 				
 					x = cursorEvent.xpath(".//xOffset")[0].text()
 					y = cursorEvent.xpath(".//yOffset")[0].text()
@@ -186,7 +185,9 @@ end
 def processClearEvents
 	# process all the cleared pages events.
 	$clear_page_events.each do |clearEvent|
-		clearTime = ((clearEvent[:timestamp].to_f - $join_time)/1000).round(1)
+		#Retrieve time, page and presentation.
+		clearTime = clearEvent[:timestamp].to_f
+		#clearTime = ( clearEvent[:timestamp].to_f / 1000 ).round(1)
 		$pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
 		slideFolder = clearEvent.xpath(".//presentation")[0].text()
 		#$clearPageTimes[clearTime] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i+1}.png", nil]
@@ -239,13 +240,13 @@ def processUndoEvents
 			end
 		end
 		if(closest_shape != nil)
-			$undos[closest_shape] = ((undo[:timestamp].to_f - $join_time)/1000).round(1)
+			$undos[closest_shape] = undo[:timestamp]
 		end
 	end
 
 	$undos_temp = {}
 	$undos.each do |un, val|
-		$undos_temp[((un[:timestamp].to_f - $join_time)/1000).round(1)] = val
+		$undos_temp[ un[:timestamp] ] = val
 	end
 	$undos = $undos_temp
 	BigBlueButton.logger.info("Undos: #{$undos}")
@@ -266,7 +267,8 @@ end
 
 def storePencilShape
 	$pencil_count = $pencil_count + 1 # always update the line count!
-	$xml.g(:class => :shape, :id=>"draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape =>"line#{$pencil_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; stroke-linecap: round; ") do
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id=>"draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape =>"line#{$pencil_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; stroke-linecap: round; ") do
 		for i in (0...($shapeDataPoints.length/2)-1) do
 			$xml.line(:x1 => (($shapeDataPoints[i*2].to_f)/100)*$vbox_width, :y1 => (($shapeDataPoints[(i*2)+1].to_f)/100)*$vbox_height, :x2 => (($shapeDataPoints[(i*2)+2].to_f)/100)*$vbox_width, :y2 => (($shapeDataPoints[(i*2)+3].to_f)/100)*$vbox_height)
 		end
@@ -274,180 +276,267 @@ def storePencilShape
 end
 
 def storeLineShape
-        if($shapeCreationTime != $prev_time)
-                if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-                        # do not update the line count
-                else
-                        $line_count = $line_count + 1
-                end
-                $xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+	if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+		# do not update the line count
+	else
+		$line_count = $line_count + 1
+	end
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
 
-                        $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-                        $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-                        endPointX = (($shapeDataPoints[2].to_f)/100)*$vbox_width
-                        endPointY = (($shapeDataPoints[3].to_f)/100)*$vbox_height
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		endPointX = (($shapeDataPoints[2].to_f)/100)*$vbox_width
+		endPointY = (($shapeDataPoints[3].to_f)/100)*$vbox_height
 
-                        $originalOriginX = $originX
-                        $originalOriginY = $originY
+		$originalOriginX = $originX
+		$originalOriginY = $originY
 
-                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointX, :y2 => endPointY )
-                        $prev_time = $shapeCreationTime
-                end
-        end
+		$xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointX, :y2 => endPointY )
+		$prev_time = $shapeCreationTime
+	end
 end
 
 def storeRectShape
-	if($shapeCreationTime != $prev_time)
-		if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-			# do not update the rectangle count
-		else
-			$rectangle_count = $rectangle_count + 1
-		end
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "rect#{$rectangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
-			$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-			$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-			$originalOriginX = $originX
-			$originalOriginY = $originY
-			rectWidth = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
-			rectHeight = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
+	if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+		# do not update the rectangle count
+	else
+		$rectangle_count = $rectangle_count + 1
+	end
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "rect#{$rectangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		$originalOriginX = $originX
+		$originalOriginY = $originY
+		rectWidth = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
+		rectHeight = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
 
-			# Cannot have a negative height or width so we adjust
-			if(rectHeight < 0)
-				$originY = $originY + rectHeight
-				rectHeight = rectHeight.abs
-			end
-			if(rectWidth < 0)
-				$originX = $originX + rectWidth
-				rectWidth = rectWidth.abs
-			end
-                        if $is_square == "true"
-				#width of the square as reference
-                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectWidth)
-                        else
-                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
-                        end
-			$prev_time = $shapeCreationTime
+		# Cannot have a negative height or width so we adjust
+		if(rectHeight < 0)
+			$originY = $originY + rectHeight
+			rectHeight = rectHeight.abs
 		end
+		if(rectWidth < 0)
+			$originX = $originX + rectWidth
+			rectWidth = rectWidth.abs
+		end
+		if $is_square == "true"
+			#width of the square as reference
+			$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectWidth)
+		else
+			$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+		end
+		$prev_time = $shapeCreationTime
 	end
 end
 
 def storeTriangleShape
-        if($shapeCreationTime != $prev_time)
-                if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-                        # do not update the triangle count
-                else
-                        $triangle_count = $triangle_count + 1
-                end
-                $xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "triangle#{$triangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+	if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+		# do not update the triangle count
+	else
+		$triangle_count = $triangle_count + 1
+	end
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "triangle#{$triangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
 
-                        $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-                        $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
 
-                        #3 points (p0, p1 and p2) to draw a triangle
+		#3 points (p0, p1 and p2) to draw a triangle
 
-                        base = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
+		base = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
 
-                        x0 = $originX + (base.to_f / 2.0)
-                        x1 = $originX
-                        x2 = $originX + base.to_f
+		x0 = $originX + (base.to_f / 2.0)
+		x1 = $originX
+		x2 = $originX + base.to_f
 
-                        height = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
+		height = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
 
-                        y0 = $originY
-                        y1 = $originY + height
-                        y2 = y1
+		y0 = $originY
+		y1 = $originY + height
+		y2 = y1
 
-                        p0 = "#{x0},#{y0}"
-                        p1 = "#{x1},#{y1}"
-                        p2 = "#{x2},#{y2}"
+		p0 = "#{x0},#{y0}"
+		p1 = "#{x1},#{y1}"
+		p2 = "#{x2},#{y2}"
 
-                        $originalOriginX = $originX
-                        $originalOriginY = $originY
+		$originalOriginX = $originX
+		$originalOriginY = $originY
 
-                        $xml.polyline(:points => "#{p0} #{p1} #{p2} #{p0}")
-                        $prev_time = $shapeCreationTime
-                end
-        end
+		$xml.polyline(:points => "#{p0} #{p1} #{p2} #{p0}")
+		$prev_time = $shapeCreationTime
+	end
 end
 
 def storeEllipseShape
-	if($shapeCreationTime != $prev_time)
-		if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-			# do not update the rectangle count
-		else
-			$ellipse_count = $ellipse_count + 1
-		end # end (($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "ellipse#{$ellipse_count}", :style =>"stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
-			$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
-			$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-			$originalOriginX = $originX
-			$originalOriginY = $originY
-			ellipseWidth = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
-			ellipseHeight = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
-			if(ellipseHeight < 0)
-				$originY = $originY + ellipseHeight
-				ellipseHeight = ellipseHeight.abs
-			end
-			if(ellipseWidth < 0)
-				$originX = $originX + ellipseWidth
-				ellipseWidth = ellipseWidth.abs
-			end
-                        if $is_circle == "true"
-                                #Use width as reference
-                                $xml.circle(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseWidth/2), :r => ellipseWidth/2)
-                        else
-                                $xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
-                        end
-			$prev_time = $shapeCreationTime
-		end # end xml.g
-	end # end if($shapeCreationTime != $prev_time)
-end
-
-def storeTextShape	
-	if($shapeCreationTime != $prev_time)
+	if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+		# do not update the rectangle count
+	else
+		$ellipse_count = $ellipse_count + 1
+	end # end (($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "ellipse#{$ellipse_count}", :style =>"stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
 		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
 		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
-		if(($originalOriginX == $originX) && ($originalOriginY == $originY))
-			# do not update the text count
-		else
-			$text_count = $text_count + 1
+		$originalOriginX = $originX
+		$originalOriginY = $originY
+		ellipseWidth = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
+		ellipseHeight = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
+		if(ellipseHeight < 0)
+			$originY = $originY + ellipseHeight
+			ellipseHeight = ellipseHeight.abs
 		end
-		font_size_factor = 1.7
-                width_extra_percent = -0.7
-                height_extra_percent = 1
-                width = ( ($textBoxWidth.to_f + width_extra_percent) / 100.0) * $vbox_width
-                height = ( ($textBoxHeight.to_f + height_extra_percent ) / 100.0) * $vbox_height
-		y_gap = -30.0 		
-		x_gap = 5.0
-		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "word-wrap: break-word; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
-			$xml.switch do 
-				$xml.foreignObject(  :color => "##{$colour_hex}", :width => width, :height => height, :x => "#{((($shapeDataPoints[0].to_f)/100)*$vbox_width) + x_gap}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
-					$xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
-						$xml.text($textValue)
-					end
+		if(ellipseWidth < 0)
+			$originX = $originX + ellipseWidth
+			ellipseWidth = ellipseWidth.abs
+		end
+		if $is_circle == "true"
+			#Use width as reference
+			$xml.circle(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseWidth/2), :r => ellipseWidth/2)
+		else
+			$xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
+		end
+		$prev_time = $shapeCreationTime
+	end # end xml.g
+end
+
+def storeTextShape
+	$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+	$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+	if(($originalOriginX == $originX) && ($originalOriginY == $originY))
+		# do not update the text count
+	else
+		$text_count = $text_count + 1
+	end
+	font_size_factor = 1.7
+	width_extra_percent = -0.7
+	height_extra_percent = 1
+	width = ( ($textBoxWidth.to_f + width_extra_percent) / 100.0) * $vbox_width
+	height = ( ($textBoxHeight.to_f + height_extra_percent ) / 100.0) * $vbox_height
+	y_gap = -30.0
+	x_gap = 5.0
+	$textFontSize_pixels = $textFontSize.to_f * font_size_factor
+	$global_shape_count += 1
+	$xml.g(:class => :shape, :id => "draw#{$global_shape_count}", :timestamp => $shapeCreationTime, :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "word-wrap: break-word; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
+		$xml.switch do
+			$xml.foreignObject(  :color => "##{$colour_hex}", :width => width, :height => height, :x => "#{((($shapeDataPoints[0].to_f)/100)*$vbox_width) + x_gap}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
+				$xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
+					$xml.text($textValue)
 				end
 			end
-			$prev_time = $shapeCreationTime
-		end # end xml.g		
-		$originalOriginX = $originX
-        $originalOriginY = $originY
-	end # end if($shapeCreationTime != $prev_time)
+		end
+		$prev_time = $shapeCreationTime
+	end # end xml.g
+	$originalOriginX = $originX
+	$originalOriginY = $originY
+end
+
+#
+# Calculate the offsets based on the start and stop recording events, so it's easier
+# to translate the timestamps later based on these offsets
+#
+def calculateRecordEventsOffset
+	accumulated_duration = 0
+	previous_stop_recording = $meeting_start.to_f
+	$rec_events.each do |event|
+		event[:offset] = event[:start_timestamp] - accumulated_duration
+		event[:duration] = event[:stop_timestamp] - event[:start_timestamp]
+		event[:accumulated_duration] = accumulated_duration
+
+		previous_stop_recording = event[:stop_timestamp]
+		accumulated_duration += event[:duration]
+	end
+end
+
+#
+# Translated an arbitrary Unix timestamp to the recording timestamp. This is the 
+# function that others will call
+#
+def translateTimestamp(timestamp)
+	new_timestamp = translateTimestamp_helper(timestamp.to_f).to_f
+#	BigBlueButton.logger.info("Translating #{timestamp}, old value=#{timestamp.to_f-$meeting_start.to_f}, new value=#{new_timestamp}")
+	new_timestamp
+end
+
+#
+# Translated an arbitrary Unix timestamp to the recording timestamp
+#
+def translateTimestamp_helper(timestamp)
+	$rec_events.each do |event|
+		# if the timestamp comes before the start recording event, then the timestamp is translated to the moment it starts recording
+		if timestamp <= event[:start_timestamp]
+			return event[:start_timestamp] - event[:offset]
+		# if the timestamp is during the recording period, it is just translated to the new one using the offset
+		elsif timestamp > event[:start_timestamp] and timestamp <= event[:stop_timestamp]
+			return timestamp - event[:offset]
+		end
+	end
+	# if the timestamp comes after the last stop recording event, then the timestamp is translated to the last stop recording event timestamp
+	return timestamp - $rec_events.last()[:offset] + $rec_events.last()[:duration]
+end
+#
+# Given an event timestamp, says whether it occurs during a recording period or not.
+#
+def occursDuringRecording(timestamp)
+	$rec_events.each do |event|
+		if timestamp >= event[:start_timestamp] and timestamp <= event[:stop_timestamp]
+			return true
+		end
+	end
+	return false
+end
+
+#
+# Calculates the length of a recording
+#
+def computeRecordingLength()
+	recordingLength = 0
+	$rec_events.each do |event|
+		recordingLength += event[:stop_timestamp] - event[:start_timestamp]
+	end
+	recordingLength
+end
+
+def preprocessSlideEvents
+	new_slides_events = []
+	$slides_events.each do |slide_event|
+		new_slide_event = slide_event.clone
+		$rec_events.each do |rec_event|
+			if new_slide_event[:timestamp] <= rec_event[:start_timestamp]
+				new_slide_event[:timestamp] = rec_event[:start_timestamp]
+				if not new_slides_events.empty? and new_slides_events.last()[:timestamp] == rec_event[:start_timestamp]
+					new_slides_events.pop()
+				end
+				new_slides_events << new_slide_event
+				break
+			elsif new_slide_event[:timestamp] > rec_event[:start_timestamp] and new_slide_event[:timestamp] <= rec_event[:stop_timestamp]
+				new_slides_events << new_slide_event
+			end
+		end
+	end
+	return new_slides_events
 end
 
 def processSlideEvents
 	BigBlueButton.logger.info("Slide events processing")
 	# For each slide (there is only one image per slide)
 	$slides_events.each do |node|
+		# Ignore slide events that happened after the last recording period.
+		if(node[:timestamp].to_f > $rec_events.last[:stop_timestamp].to_f)
+			next
+		end
 		eventname = node['eventname']
 		if eventname == "SharePresentationEvent"
 			$presentation_name = node.xpath(".//presentationName")[0].text()
 		else
 			slide_timestamp =  node[:timestamp]
-			slide_start = ((slide_timestamp.to_f - $meeting_start.to_f) / 1000).round(1)
-			slide_number = node.xpath(".//slide")[0].text()
-			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
-                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
+			slide_start = ( translateTimestamp(slide_timestamp) / 1000 ).round(1)
+			orig_slide_start = ( slide_timestamp.to_f / 1000 ).round(1)
+			slide_number = node.xpath(".//slide")[0].text().to_i
+                        slide_number = slide_number < 0 ? 0 : slide_number
+			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number + 1}.png"
+                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number + 1}.txt"
                         slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
 			image_url = "#{$process_dir}/#{slide_src}"
 
@@ -462,21 +551,37 @@ def processSlideEvents
 			slide_size = FastImage.size(image_url)
 			current_index = $slides_events.index(node)
 			if(current_index + 1 < $slides_events.length)
-				slide_end = (( $slides_events[current_index + 1][:timestamp].to_f - $meeting_start.to_f ) / 1000).round(1)
+				slide_end = ( translateTimestamp($slides_events[current_index + 1][:timestamp]) / 1000 ).round(1)
+				orig_slide_end = ( $slides_events[current_index + 1][:timestamp].to_f / 1000 ).round(1)
 			else
-				slide_end = (( $meeting_end.to_f - $meeting_start.to_f ) / 1000).round(1)
+				slide_end = ( translateTimestamp($meeting_end) / 1000 ).round(1)
+				orig_slide_end = ( $meeting_end.to_f / 1000 ).round(1)
+			end
+
+			if slide_start == slide_end
+				BigBlueButton.logger.info("#{slide_src} is never displayed (slide_start = slide_end), so it won't be included in the svg")
+				next
 			end
 
 			BigBlueButton.logger.info("Processing slide image")
 			# Is this a new image or one previously viewed?
 			if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
 				# If it is, add it to the list with all the data.
-				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text]
+				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text, [orig_slide_start], [orig_slide_end]]
 				$global_slide_count = $global_slide_count + 1
-			elsif
+			else
 				# If not, append new in and out times to the old entry
-				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
-				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+				# But if the previous slide_end is equal to the current slide_start, we just pop the previous slide_end and push the current one
+				# It will avoid the duplication of the thumbnails on the playback
+				if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].last == slide_start)
+					$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1].pop
+					$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+				else
+					$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
+					$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+				end
+				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][4] << orig_slide_start
+				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]][5] << orig_slide_end
 			end
 
 			$ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
@@ -495,7 +600,8 @@ def processShapesAndClears
 		processUndoEvents()
 		
 		# Put in the last clear events numbers (previous clear to the end of the slideshow)
-		endPresentationTime = (($end_time - $join_time)/1000).round(1)
+		#endPresentationTime = ( $end_time.to_f / 1000 ).round(1)
+		endPresentationTime = $end_time.to_f
 		$clearPageTimes[($prev_clear_time..endPresentationTime)] = [$pageCleared, $canvas_number, nil, nil]
 		
 		# Put the headers on the svg xml file.
@@ -518,26 +624,27 @@ def processShapesAndClears
 				$canvas_number+=1
 				$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
 					
-					BigBlueButton.logger.info("Processing shapes within the image")
+					BigBlueButton.logger.info("Processing shapes within the image #{$val[2].to_i}")
 					# Select and print the shapes within the current image
 					$shape_events.each do |shape|
 						$shapeTimestamp = shape[:timestamp].to_f
-						$shapeCreationTime = (($shapeTimestamp-$join_time)/1000).round(1)
+						$shapeCreationTime = ( translateTimestamp($shapeTimestamp) / 1000 ).round(1)
+						orig_shapeCreationTime = ( $shapeTimestamp.to_f / 1000 ).round(1)
 						in_this_image = false
 						index = 0
 						numOfTimes = $val[0].length
 
-						# Checks to see if the current shapes are to be drawn in this particular image
+						# Check if the current shape is to be drawn in this particular image
 						while((in_this_image == false) && (index < numOfTimes)) do
-							if((($val[0][index].to_f)..($val[1][index].to_f)) === $shapeCreationTime) # is the shape within the certain time of the image
+							if((($val[4][index].to_f)..($val[5][index].to_f)) === orig_shapeCreationTime) # is the shape within the certain time of the image
 								in_this_image = true
 							end
 							index+=1
 						end
-						
+
 						if(in_this_image)
                                                         # Get variables
-                                                        BigBlueButton.logger.info shape
+                                                        BigBlueButton.logger.info shape.to_xml(:indent => 2)
                                                         $shapeType = shape.xpath(".//type")[0].text()
                                                         $pageNumber = shape.xpath(".//pageNumber")[0].text()
                                                         $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
@@ -554,8 +661,8 @@ def processShapesAndClears
 							
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
-							if($undos.has_key? ((shape[:timestamp].to_f - $join_time)/1000).round(1))
-								$shapeUndoTime = $undos[((shape[:timestamp].to_f - $join_time)/1000).round(1)]
+							if($undos.has_key? ( shape[:timestamp] ))
+								$shapeUndoTime = ( translateTimestamp( $undos[ shape[:timestamp] ] ) / 1000).round(1)
 							else						
 								$shapeUndoTime = -1
 							end
@@ -564,9 +671,9 @@ def processShapesAndClears
 							$clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
 								$clearTimeInstance = clearTimeInstance
 								$pageAndCanvasNumbers = pageAndCanvasNumbers
-								if(($clearTimeInstance.last > $shapeCreationTime) && ($pageAndCanvasNumbers[3] == "image#{$val[2].to_i}"))
-									if((clear_time > $clearTimeInstance.last) || (clear_time == -1))
-										clear_time = $clearTimeInstance.last
+								if(($clearTimeInstance.last > $shapeTimestamp) && ($pageAndCanvasNumbers[3] == "image#{$val[2].to_i}"))
+									if((clear_time > ( translateTimestamp($clearTimeInstance.last) / 1000 ).round(1)) || (clear_time == -1))
+										clear_time = ( translateTimestamp($clearTimeInstance.last) / 1000 ).round(1)
 									end
 								end
 							end
@@ -638,7 +745,7 @@ def processShapesAndClears
 								$textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
 								storeTextShape()
 							end # end if pencil (and other shapes)
-						end # end if((in_this_image) && (in_this_canvas))
+						end # end if(in_this_image)
 					end # end shape_events.each do |shape|
 				end
 			end
@@ -653,12 +760,18 @@ def processChatMessages
 		$xml = xml
 		$xml.popcorn {
 			# Process chat events.
-			$chat_events.each do |node|
-				chat_timestamp =  node[:timestamp]
-				chat_sender = node.xpath(".//sender")[0].text()
-				chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
-				chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
-				$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message.to_s.gsub("event:",""), :target => :chat )
+			current_time = 0
+			$rec_events.each do |re|
+				$chat_events.each do |node|
+					if (node[:timestamp].to_i >= re[:start_timestamp] and node[:timestamp].to_i <= re[:stop_timestamp])
+						chat_timestamp =  node[:timestamp]
+						chat_sender = node.xpath(".//sender")[0].text()
+						chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
+						chat_start = ( translateTimestamp(chat_timestamp) / 1000).to_i
+						$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+					end
+				end
+				current_time += re[:stop_timestamp] - re[:start_timestamp]
 			end
 		}
 	end
@@ -683,6 +796,7 @@ $pencil_count = 0
 $line_count = 0
 $ellipse_count = 0
 $text_count = 0
+$global_shape_count = -1
 $global_slide_count = 1
 $global_page_count = 0
 $canvas_number = 0
@@ -696,6 +810,7 @@ $prev_time = "NaN"
 $ss = {}
 $clearPageTimes = {}
 $slides_compiled = {}
+$slides_raw = {}
 $undos = {}
 
 opts = Trollop::options do
@@ -710,12 +825,20 @@ $playback = match[2]
 
 puts $meeting_id
 puts $playback
+
+begin
+
 if ($playback == "presentation")
-	logger = Logger.new("/var/log/bigbluebutton/presentation/publish-#{$meeting_id}.log", 'daily' )
-	BigBlueButton.logger = logger
+
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 	simple_props = YAML::load(File.open('presentation.yml'))
+
+    log_dir = bbb_props['log_dir']
+
+	logger = Logger.new("#{log_dir}/presentation/publish-#{$meeting_id}.log", 'daily' )
+	BigBlueButton.logger = logger
+
 	BigBlueButton.logger.info("Setting recording dir")
 	recording_dir = bbb_props['recording_dir']
 	BigBlueButton.logger.info("Setting process dir")
@@ -737,27 +860,49 @@ if ($playback == "presentation")
 		begin	
 		
 		if File.exist?("#{$process_dir}/webcams.webm")
-  		  BigBlueButton.logger.info("Making video dir")
-  		  video_dir = "#{package_dir}/video"
-		  FileUtils.mkdir_p video_dir
-		  BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
-		  FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
-                  BigBlueButton.logger.info("Copied .webm file")
+			BigBlueButton.logger.info("Making video dir")
+			video_dir = "#{package_dir}/video"
+			FileUtils.mkdir_p video_dir
+			BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
+			FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
+			BigBlueButton.logger.info("Copied .webm file")
 		else
-		  audio_dir = "#{package_dir}/audio"
-   		  BigBlueButton.logger.info("Making audio dir")
-		  FileUtils.mkdir_p audio_dir
-		  BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
-                  FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
-		  BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
-                  FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
-                  BigBlueButton.logger.info("Copied audio.ogg file")
+			audio_dir = "#{package_dir}/audio"
+			BigBlueButton.logger.info("Making audio dir")
+			FileUtils.mkdir_p audio_dir
+			BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
+			FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
+			BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
+			FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
+			BigBlueButton.logger.info("Copied audio.ogg file")
 		end
 
 		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
 		BigBlueButton.logger.info("Copied files to package dir")
+
+		processing_time = File.read("#{$process_dir}/processing_time")
+
+		# Retrieve record events and calculate total recording duration.
+		$rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+				BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
+
+		recording_time = computeRecordingLength()
+
+		# presentation_url = "/slides/" + $meeting_id + "/presentation"
+		@doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+
+		$meeting_start = @doc.xpath("//event")[0][:timestamp]
+		$meeting_end = @doc.xpath("//event").last()[:timestamp]
+		
+		$version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
 		BigBlueButton.logger.info("Creating metadata.xml")
+
+                # Get the real-time start and end timestamp
+                match = /.*-(\d+)$/.match($meeting_id)
+                real_start_time = match[1]
+                real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
+
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
 
@@ -766,11 +911,13 @@ if ($playback == "presentation")
 			b.state("available")
 			b.published(true)
 			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-			b.start_time(BigBlueButton::Events.first_event_timestamp("#{$process_dir}/events.xml"))
-			b.end_time(BigBlueButton::Events.last_event_timestamp("#{$process_dir}/events.xml"))
+			b.start_time(real_start_time)
+			b.end_time(real_end_time)
 			b.playback {
 				b.format("presentation")
-				b.link("http://#{playback_host}/playback/presentation/playback.html?meetingId=#{$meeting_id}")
+				b.link("http://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
+				b.processing_time("#{processing_time}")
+				b.duration("#{recording_time}")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
@@ -782,19 +929,7 @@ if ($playback == "presentation")
 		BigBlueButton.logger.info("Generating xml for slides and chat")
 	
 		#Create slides.xml
-		# presentation_url = "/slides/" + $meeting_id + "/presentation"
-		@doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
 
-		$meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp]
-		$meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()[:timestamp]
-
-		first_presentation_start_node = @doc.xpath("//event[@eventname='SharePresentationEvent']")
-		first_presentation_start = $meeting_end
-		if not first_presentation_start_node.empty?
-			first_presentation_start = first_presentation_start_node[0][:timestamp]
-		end
-		$first_slide_start = ((first_presentation_start.to_f - $meeting_start.to_f) / 1000).round(1)
-	
 		# Gathering all the events from the events.xml
 		$slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		$chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
@@ -803,9 +938,18 @@ if ($playback == "presentation")
 		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
 		$clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
-		$join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp].to_f
-		$end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0][:timestamp].to_f
-	
+		$join_time = $meeting_start.to_f
+		$end_time = $meeting_end.to_f
+
+		calculateRecordEventsOffset()
+		
+		first_presentation_start_node = @doc.xpath("//event[@eventname='SharePresentationEvent']")
+		first_presentation_start = $meeting_end
+		if not first_presentation_start_node.empty?
+			first_presentation_start = first_presentation_start_node[0][:timestamp]
+		end
+		$first_slide_start = ( translateTimestamp(first_presentation_start) / 1000 ).round(1)
+		
 		processChatMessages()
 		
 		processShapesAndClears()
@@ -845,11 +989,25 @@ if ($playback == "presentation")
 			end
 			exit 1
 		end
+        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", "w")
+        publish_done.write("Published #{$meeting_id}")
+        publish_done.close
+
 	else
 		BigBlueButton.logger.info("#{target_dir} is already there")
 	end
 end
 
 
+rescue Exception => e
+        BigBlueButton.logger.error(e.message)
+        e.backtrace.each do |traceline|
+            BigBlueButton.logger.error(traceline)
+        end
+        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.fail", "w")
+        publish_done.write("Failed Publishing #{$meeting_id}")
+        publish_done.close
 
+        exit 1
+end
 

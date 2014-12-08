@@ -18,20 +18,24 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.adobe.protocols.dict.events.ErrorEvent;
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.*;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
+	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 		
 	public class NetConnectionDelegate
 	{
-		public static const NAME:String = "NetConnectionDelegate";
+		public static const LOG:String = "NetConnectionDelegate - ";
 		
 		private var _netConnection:NetConnection;	
 		private var connectionId:Number;
@@ -52,12 +56,15 @@ package org.bigbluebutton.main.model.users
 		
 		private var dispatcher:Dispatcher;    
     private var _messageListeners:Array = new Array();
-        
+    
+    private var authenticated: Boolean = false;
+    
 		public function NetConnectionDelegate():void
 		{
 			dispatcher = new Dispatcher();
 			
 			_netConnection = new NetConnection();				
+			_netConnection.proxyType = "best";
 			_netConnection.client = this;
 			_netConnection.addEventListener( NetStatusEvent.NET_STATUS, netStatus );
 			_netConnection.addEventListener( AsyncErrorEvent.ASYNC_ERROR, netASyncError );
@@ -97,13 +104,78 @@ package org.bigbluebutton.main.model.users
       }
     }   
         
-    public function onMessageFromServer(messageName:String, result:Object):void {
-      trace("Got message from server [" + messageName + "]");    
-      notifyListeners(messageName, result);
+    public function onMessageFromServer(messageName:String, msg:Object):void {
+      trace(LOG + "Got message from server [" + messageName + "]"); 
+      if (!authenticated && (messageName == "validateAuthTokenReply")) {
+        handleValidateAuthTokenReply(msg)
+      } else if (authenticated) {
+        notifyListeners(messageName, msg);
+      } else {
+        trace(LOG + "Ignoring message=[" + messageName + "] as our token hasn't been validated yet.");
+      }     
     }
 		
+    private function validateToken():void {
+      sendMessage(
+        "validateToken",// Remote function name
+        // result - On successful result
+        function(result:Object):void { 
+          trace(LOG + "validating token for [" + _conferenceParameters.internalUserID + "]"); 
+        },	
+        // status - On error occurred
+        function(status:Object):void { 
+          LogUtil.error("Error occurred:"); 
+          for (var x:Object in status) { 
+            LogUtil.error(x + " : " + status[x]); 
+          } 
+        },
+        _conferenceParameters.internalUserID
+      ); //_netConnection.call      
+    }
+    
+    private function joinMeeting():void {
+      sendMessage(
+        "joinMeeting",// Remote function name
+        // result - On successful result
+        function(result:Object):void { 
+          trace(LOG + "joining meeting for [" + _conferenceParameters.internalUserID + "]"); 
+        },	
+        // status - On error occurred
+        function(status:Object):void { 
+          LogUtil.error(LOG + "Error occurred:"); 
+          for (var x:Object in status) { 
+            LogUtil.error(x + " : " + status[x]); 
+          } 
+        },
+        _conferenceParameters.internalUserID
+      ); //_netConnection.call      
+    }
+    
+    private function handleValidateAuthTokenReply(msg: Object):void {
+      trace(LOG + "*** handleValidateAuthTokenReply " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);  
+      var tokenValid: Boolean = map.valid as Boolean;
+      var userId: String = map.userId as String;
+      
+      if (tokenValid) {
+        authenticated = true;
+        trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
+        joinMeeting();
+      } else {
+        trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
+        dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+      }
+    }
+    
+    private function sendConnectionSuccessEvent(userid:String):void{      
+      var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
+      e.userid = userid;
+      dispatcher.dispatchEvent(e);
+      
+    }
+    
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
-      trace("SENDING [" + service + "]");
+      trace(LOG + "SENDING [" + service + "]");
 			var responder:Responder =	new Responder(                    
 					function(result:Object):void { // On successful result
 						onSuccess("Successfully sent [" + service + "]."); 
@@ -140,12 +212,13 @@ package org.bigbluebutton.main.model.users
 			try {	
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
 				
-				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
+				trace(LOG + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
 					_conferenceParameters.conference + "," + _conferenceParameters.record + "," + _conferenceParameters.room + "]");	
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
-											_conferenceParameters.internalUserID);			
+											_conferenceParameters.internalUserID, _conferenceParameters.lockOnStart, 
+                      _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings);			
 			} catch(e:ArgumentError) {
 				// Invalid parameters.
 				switch (e.errorID) {
@@ -192,46 +265,29 @@ package org.bigbluebutton.main.model.users
 
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
-					LogUtil.debug(NAME + ":Connection to viewers application succeeded.");
+					trace(LOG + ":Connection to viewers application succeeded.");
           
 					// uncomment this to turn on the bandwidth check
 //					startMonitoringBandwidth();
-          
-					_netConnection.call(
-							"getMyUserId",// Remote function name
-							new Responder(
-	        					// result - On successful result
-								function(result:Object):void { 
-									LogUtil.debug("Userid [" + result + "]"); 
-									sendConnectionSuccessEvent(result);
-								},	
-								// status - On error occurred
-								function(status:Object):void { 
-									LogUtil.error("Error occurred:"); 
-									for (var x:Object in status) { 
-										LogUtil.error(x + " : " + status[x]); 
-									} 
-								}
-							)//new Responder
-					); //_netConnection.call
+          validateToken();
 			
 					break;
 			
 				case "NetConnection.Connect.Failed":					
 					if (tried_tunneling) {
-						LogUtil.debug(NAME + ":Connection to viewers application failed...even when tunneling");
+            trace(LOG + ":Connection to viewers application failed...even when tunneling");
 						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
 					} else {
 						disconnect(false);
-						LogUtil.debug(NAME + ":Connection to viewers application failed...try tunneling");
+            trace(LOG + ":Connection to viewers application failed...try tunneling");
 						var rtmptRetryTimer:Timer = new Timer(1000, 1);
-            			rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
-            			rtmptRetryTimer.start();						
+            rtmptRetryTimer.addEventListener("timer", rtmptRetryTimerHandler);
+            rtmptRetryTimer.start();						
 					}									
 					break;
 					
 				case "NetConnection.Connect.Closed":	
-					LogUtil.debug(NAME + ":Connection to viewers application closed");		
+          trace(LOG + "Connection to viewers application closed");
 //          if (logoutOnUserCommand) {
             sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
 //          } else {
@@ -242,84 +298,58 @@ package org.bigbluebutton.main.model.users
 					break;
 					
 				case "NetConnection.Connect.InvalidApp":	
-					LogUtil.debug(NAME + ":viewers application not found on server");			
+          trace(LOG + ":viewers application not found on server");			
 					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);				
 					break;
 					
 				case "NetConnection.Connect.AppShutDown":
-					LogUtil.debug(NAME + ":viewers application has been shutdown");
+          trace(LOG + ":viewers application has been shutdown");
 					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);	
 					break;
 					
 				case "NetConnection.Connect.Rejected":
-					LogUtil.debug(NAME + ":Connection to the server rejected. Uri: " + _applicationURI + ". Check if the red5 specified in the uri exists and is running" );
+          trace(LOG + ":Connection to the server rejected. Uri: " + _applicationURI + ". Check if the red5 specified in the uri exists and is running" );
 					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);		
 					break;
 				
 				case "NetConnection.Connect.NetworkChange":
-					LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+          trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 					
 				default :
-				   LogUtil.debug(NAME + ":Default status to the viewers application" );
+          trace(LOG + ":Default status to the viewers application" );
 				   sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 				   break;
 			}
 		}
 		
     private function autoReconnectTimerHandler(event:TimerEvent):void {
-      LogUtil.debug(NAME + "autoReconnectTimerHandler: " + event);
+      trace(LOG + "autoReconnectTimerHandler: " + event);
       connect(_conferenceParameters, tried_tunneling);
     }
         
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
-            LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);
-            connect(_conferenceParameters, true);
-        }
+      trace(LOG + "rtmptRetryTimerHandler: " + event);
+      connect(_conferenceParameters, true);
+    }
 			
-		protected function netSecurityError( event : SecurityErrorEvent ) : void 
-		{
-			LogUtil.debug("Security error - " + event.text);
+		protected function netSecurityError(event: SecurityErrorEvent):void {
+      trace(LOG + "Security error - " + event.text);
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
-		protected function netIOError( event : IOErrorEvent ) : void 
-		{
-			LogUtil.debug("Input/output error - " + event.text);
+		protected function netIOError(event: IOErrorEvent):void {
+      trace(LOG + "Input/output error - " + event.text);
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 			
-		protected function netASyncError( event : AsyncErrorEvent ) : void 
-		{
-			LogUtil.debug("Asynchronous code error - " + event.error );
+		protected function netASyncError(event: AsyncErrorEvent):void  {
+      trace(LOG + "Asynchronous code error - " + event.toString() );
+      
+			LogUtil.debug("Asynchronous code error - " + event.toString() );
 			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}	
-
-		/**
-	 	*  Callback from server
-	 	*/
-		public function setUserId(id:Number, role:String):String
-		{
-			LogUtil.debug( "ViewersNetDelegate::setConnectionId: id=[" + id + "," + role + "]");
-			if (isNaN(id)) return "FAILED";
 			
-			// We should be receiving authToken and room from the server here.
-			_userid = id;								
-			return "OK";
-		}
-		
-		private function sendConnectionSuccessEvent(userid:Object):void{
-			var useridString:String = userid as String;
-			var n:String = useridString;
-			
-			var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
-			e.connection = _netConnection;
-			e.userid = n;
-			dispatcher.dispatchEvent(e);
-			
-			backoff = 2000;
-		}
-		
 		private function sendConnectionFailedEvent(reason:String):void{
 			if (this.logoutOnUserCommand){
 				sendUserLoggedOutEvent();

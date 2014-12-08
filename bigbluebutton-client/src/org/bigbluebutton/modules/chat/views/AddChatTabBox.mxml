@@ -24,22 +24,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          xmlns:mate="http://mate.asfusion.com/"
          implements="org.bigbluebutton.modules.chat.views.IChatTab"
          creationComplete="init()">
-    
+  
+  <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+  
     <mx:Script>
         <![CDATA[
-            import com.asfusion.mate.events.Dispatcher;
-            
-            import flexlib.controls.textClasses.StringBoundaries;
-            
-            import mx.collections.ArrayCollection;
-            
-            import org.bigbluebutton.core.EventConstants;
-            import org.bigbluebutton.core.UsersUtil;
-            import org.bigbluebutton.core.events.CoreEvent;
-            import org.bigbluebutton.core.managers.UserManager;
-            import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-            import org.bigbluebutton.modules.chat.model.ChatOptions;
-            import org.bigbluebutton.util.i18n.ResourceUtil;
+          import com.asfusion.mate.events.Dispatcher;
+          
+          import flexlib.controls.textClasses.StringBoundaries;
+          
+          import mx.collections.ArrayCollection;
+          
+          import org.bigbluebutton.core.EventConstants;
+          import org.bigbluebutton.core.UsersUtil;
+          import org.bigbluebutton.core.events.CoreEvent;
+          import org.bigbluebutton.core.events.LockControlEvent;
+          import org.bigbluebutton.core.managers.UserManager;
+          import org.bigbluebutton.main.model.users.BBBUser;
+          import org.bigbluebutton.main.model.users.Conference;
+          import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+          import org.bigbluebutton.modules.chat.model.ChatOptions;
+          import org.bigbluebutton.util.i18n.ResourceUtil;
             
             [Bindable] public var users:ArrayCollection;
             [Bindable] public var chatView:ChatView;
@@ -87,14 +92,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 usersList.setFocus();
                 usersList.drawFocus(true);
             }
+          
+          private function lockSettingsChanged(e:Event):void {
+            
+            if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
+            
+            var userManager:UserManager = UserManager.getInstance();
+            var conference:Conference = userManager.getConference();
+            var me:BBBUser = conference.getMyUser();
+            
+            usersList.enabled = !me.disableMyPrivateChat;
+          }
             
         ]]>
     </mx:Script>
     
-    <mx:HBox width="100%" height="100%" >
-        <mx:VBox height="100%" width="50%" >
+    <mx:HBox width="100%" height="100%">
+        <mx:VBox  height="100%" width="50%" enabled="true">
             <mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
-            <mx:List id="usersList" height="100%" width="100%" dataProvider="{users}" dragEnabled="false"
+            <mx:List id="usersList" height="100%" width="100%" dataProvider="{users}" dragEnabled="false" 
                      visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
                      itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
                      itemClick="openPrivateChat(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"/>

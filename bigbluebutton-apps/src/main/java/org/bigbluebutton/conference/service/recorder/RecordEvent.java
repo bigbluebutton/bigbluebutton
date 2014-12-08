@@ -33,6 +33,10 @@ public abstract class RecordEvent {
 	protected final static String MEETING = "meetingId";
 	protected final static String EVENT = "eventName";
 	
+	public final String getMeetingID() {
+		return eventMap.get(MEETING);
+	}
+
 	/**
 	 * Set the module that generated the event.
 	 * @param module

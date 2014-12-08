@@ -22,8 +22,7 @@ package org.bigbluebutton.modules.layout.model {
 
 		import flash.utils.Dictionary;
 		import flexlib.mdi.containers.MDICanvas;
-		import flexlib.mdi.containers.MDIWindow;
-		
+		import flexlib.mdi.containers.MDIWindow;		
 		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.common.Role;
 		import org.bigbluebutton.core.managers.UserManager;
@@ -32,6 +31,9 @@ package org.bigbluebutton.modules.layout.model {
 		[Bindable] public var name:String;
 		// default is a reserved word in actionscript
 		[Bindable] public var defaultLayout:Boolean = false;
+    
+    public var currentLayout:Boolean = false;
+    
 		private var _layoutsPerRole:Dictionary = new Dictionary();
 		
 		static private var _ignoredWindows:Array = new Array("AvatarWindow", "PublishWindow", 

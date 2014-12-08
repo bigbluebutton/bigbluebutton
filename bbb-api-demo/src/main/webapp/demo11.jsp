@@ -91,7 +91,7 @@ if (request.getParameterMap().isEmpty()) {
 	
 	// String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, null);
 
-        String meeting_ID = createMeeting( "Demo Meeting", null, null, null, null, null);
+        String meeting_ID = createMeeting( "Demo Meeting", null, null, null, null, null, null);
 
 	String clientURL = BigBlueButtonURL.replace("bigbluebutton/","client/demo11.html");
         String joinURL = getJoinMeetingURL(request.getParameter("username"), "Demo Meeting", "mp", clientURL );

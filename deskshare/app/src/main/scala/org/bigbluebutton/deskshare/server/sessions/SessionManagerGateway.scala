@@ -30,7 +30,7 @@ class SessionManagerGateway(streamManager: StreamManager, keyFrameInterval: Int,
 
 	streamManager.start
 	val sessionManager: SessionManagerSVC = new SessionManagerSVC(streamManager, keyFrameInterval, interframeInterval, waitForAllBlocks)
-    sessionManager.start 
+  sessionManager.start 
   
 	def createSession(room: String, screenDim: org.bigbluebutton.deskshare.common.Dimension, blockDim: org.bigbluebutton.deskshare.common.Dimension, seqNum: Int, useSVC2: Boolean): Unit = {
 		log.info("SessionManagerGateway:createSession for %s", room)
@@ -56,4 +56,22 @@ class SessionManagerGateway(streamManager: StreamManager, keyFrameInterval: Int,
 	  log.info("SessionManagerGateway:sendKeyFrame for %s", room)
 	  sessionManager ! new SendKeyFrame(room)
 	}
+	
+	def stopSharingDesktop(meetingId: String, stream: String) {
+	  sessionManager ! new StopSharingDesktop(meetingId, stream)
+	}
+	
+	def isSharingStopped(meetingId: String): Boolean = {
+	  var stopped = false
+	  sessionManager !? (3000, IsSharingStopped(meetingId)) match {
+		  	case None => stopped = true
+		  	case Some(rep) => {
+		  		val reply = rep.asInstanceOf[IsSharingStoppedReply]
+		  		stopped = reply.stopped
+		  	}
+		}
+	  
+	  stopped
+	}
+	
 }

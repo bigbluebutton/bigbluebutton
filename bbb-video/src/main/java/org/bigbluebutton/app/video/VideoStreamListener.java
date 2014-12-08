@@ -20,6 +20,8 @@ package org.bigbluebutton.app.video;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -47,6 +49,10 @@ public class VideoStreamListener implements IStreamListener {
 	private EventRecordingService recordingService;
 	private volatile boolean firstPacketReceived = false;
 	
+  private Long genTimestamp() {
+  	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+  }
+  
 	@Override
 	public void packetReceived(IBroadcastStream stream, IStreamPacket packet) {
 	      IoBuffer buf = packet.getData();
@@ -63,7 +69,7 @@ public class VideoStreamListener implements IStreamListener {
 	    		  IConnection conn = Red5.getConnectionLocal(); 
 	    		  Map<String, String> event = new HashMap<String, String>();
 	    		  event.put("module", "WEBCAM");
-	    		  event.put("timestamp", new Long(System.currentTimeMillis()).toString());
+	    		  event.put("timestamp", genTimestamp().toString());
 	    		  event.put("meetingId", conn.getScope().getName());
 	    		  event.put("stream", stream.getPublishedName());
 	    		  event.put("eventName", "StartWebcamShareEvent");

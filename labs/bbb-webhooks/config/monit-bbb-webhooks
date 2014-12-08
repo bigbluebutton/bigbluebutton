@@ -1,0 +1,12 @@
+#!monit
+set logfile /var/log/monit.log
+
+check process bbb-webhooks with pidfile "/var/run/bbb-webhooks.pid"
+    start program = "/sbin/start bbb-webhooks"
+    stop program  = "/sbin/stop bbb-webhooks"
+
+    if failed port 3005 protocol HTTP
+        request /bigbluebutton/api/hooks/ping
+        with timeout 30 seconds
+        then restart
+    # if 5 restarts within 5 cycles then timeout

@@ -1,0 +1,56 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+task resolveDeps(type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts.file
+}
+
+repositories {
+    add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
+        name = 'remote'
+        returnFirst = true
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "googlecode"
+            addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+            addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+        }
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "blindside-repos"
+            addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+            addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+        }            
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "maven2-central"
+            m2compatible = true
+            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+        }  
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "testng_ibiblio_maven2"
+            m2compatible = true
+            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+        }  
+    }
+}
+
+dependencies {   
+    	//redis
+	compile 'redis.clients:jedis:2.0.0'
+	compile 'commons-pool:commons-pool:1.5.6'
+	compile 'commons-lang:commons-lang:2.5'
+        compile 'com.google.code.gson:gson:1.7.1'
+	
+       // Logging
+//        compile 'ch.qos.logback:logback-core:1.0.9@jar'
+//        compile 'ch.qos.logback:logback-classic:1.0.9@jar'
+//        compile 'org.slf4j:log4j-over-slf4j:1.7.2@jar'
+//        compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
+//        compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
+//        compile 'org.slf4j:slf4j-api:1.7.2@jar'
+
+	//junit
+	compile 'junit:junit:4.8.2'
+}

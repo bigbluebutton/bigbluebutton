@@ -1,1 +1,0 @@
-gradle resolveDeps && ant

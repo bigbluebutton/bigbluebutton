@@ -30,10 +30,10 @@ import net.oauth.OAuthException;
 /**
  * @author John Kristian
  */
-class HMAC_SHA1 extends OAuthSignatureMethod {
+public class HMAC_SHA1 extends OAuthSignatureMethod {
 
     @Override
-    protected String getSignature(String baseString) throws OAuthException {
+    public String getSignature(String baseString) throws OAuthException {
         try {
             String signature = base64Encode(computeSignature(baseString));
             return signature;
@@ -45,7 +45,7 @@ class HMAC_SHA1 extends OAuthSignatureMethod {
     }
 
     @Override
-    protected boolean isValid(String signature, String baseString)
+    public boolean isValid(String signature, String baseString)
     throws OAuthException {
         try {
             byte[] expected = computeSignature(baseString);

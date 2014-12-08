@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+
+<EventMap xmlns="http://mate.asfusion.com/"
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
+			import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
+			import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
+			import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
+			import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
+			import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
+			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
+			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
+			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
+			import org.bigbluebutton.modules.phone.managers.FlashCallManager;
+		]]>
+	</mx:Script>
+	
+	<!--
+	This is the main event map for the chat module, think of it as the application controller.
+	-->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+		<ObjectBuilder generator="{FlashCallManager}" />
+	</EventHandlers>
+	
+  <EventHandlers type="{StartPhoneModuleEvent.START_PHONE_MODULE_EVENT}">        
+    <MethodInvoker generator="{FlashCallManager}" method="initialize"/>
+  </EventHandlers>
+
+  <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
+    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{ConnectionFailedEvent.USER_LOGGED_OUT}">       
+    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{ConnectionFailedEvent.CONNECTION_CLOSED}">
+    <MethodInvoker generator="{FlashCallManager}" method="userRequestedHangup"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{FlashStartEchoTestCommand.START_FLASH_ECHO_TEST}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleFlashStartEchoTestCommand" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{FlashStopEchoTestCommand.FLASH_STOP_ECHO_TEST}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleFlashStopEchoTestCommand" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{FlashEchoTestHasAudioEvent.FLASH_ECHO_TEST_HAS_AUDIO}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleFlashEchoTestHasAudioEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{FlashEchoTestNoAudioEvent.FLASH_ECHO_TEST_NO_AUDIO}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleFlashEchoTestNoAudioEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{FlashCallConnectedEvent.CALL_CONNECTED_EVENT}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleFlashCallConnectedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{FlashCallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleFlashCallDisconnectedEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{FlashVoiceConnectionStatusEvent.CONN_STATUS}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleFlashVoiceConnectionStatusEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleJoinVoiceConferenceCommand" arguments="{event}"/>
+  </EventHandlers> 
+  
+  <EventHandlers type="{LeaveVoiceConferenceCommand.LEAVE_VOICE_CONF}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleLeaveVoiceConferenceCommand" arguments="{event}"/>
+  </EventHandlers>   
+  
+  <EventHandlers type="{UseFlashModeCommand.USE_FLASH_MODE}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleUseFlashModeCommand"/>
+  </EventHandlers>   
+  
+  <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">        
+    <MethodInvoker generator="{FlashCallManager}" method="handleBecomeViewer"/>
+  </EventHandlers>
+</EventMap>

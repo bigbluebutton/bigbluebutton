@@ -1,18 +1,18 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
 <suite name="BigBlueButton Test Suite">
   <test name="Conference tests">
-	  <!--groups>
+	  <groups>
 	    <run> 
 	      <exclude name="broken"/>
+	      <include name="unit"/>
 	    </run>
-	  </groups-->
+	  </groups>
   
     <packages>
-    	<package name="org.bigbluebutton.conference"/>
-    	<package name="org.bigbluebutton.conference.service.participants"/>
-    	<package name="org.bigbluebutton.conference.service.archive"/>
-    	<package name="org.bigbluebutton.conference.service.archive.playback"/>
-    	<package name="org.bigbluebutton.conference.service.archive.recorder"/>
+    	<package name="org.bigbluebutton.conference.service.poll"/>
+    	<package name="org.bigbluebutton.core.apps.poll"/>
+    	<package name="org.bigbluebutton.core.apps.users"/>
+    	
     </packages>
   </test>
 </suite>

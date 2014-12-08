@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:mate="http://mate.asfusion.com/" 
+				width="400"
+				horizontalAlign="center"
+				title="{ResourceUtil.getInstance().getString('bbb.micWarning.title')}" >
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			public var micsettings:MicSettings;
+			
+			private function joinAnyway():void {                          
+				PopUpManager.removePopUp(this);
+				micsettings.joinConference();
+			}
+		]]>
+	</mx:Script>
+	<mx:Text width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.micWarning.message')}" />  
+	<mx:HBox>      																		     
+		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.micWarning.joinBtn.label')}" click="joinAnyway();" /> 
+		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.micWarning.testAgain.label')}" click="PopUpManager.removePopUp(this);"/> 
+	</mx:HBox> 
+</mx:TitleWindow>

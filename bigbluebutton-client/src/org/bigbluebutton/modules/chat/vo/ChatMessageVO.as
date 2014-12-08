@@ -32,8 +32,6 @@ package org.bigbluebutton.modules.chat.vo
     // Stores the timezone offset (in minutes) when the message was
     // sent. This is used by the receiver to convert to locale time.
     public var fromTimezoneOffset:Number;
-       
-    public var fromLang:String; 
     
     // The receiver. 
     public var toUserID:String = "public_chat_userid";
@@ -49,7 +47,6 @@ package org.bigbluebutton.modules.chat.vo
       m.fromColor = fromColor;
       m.fromTime = fromTime;
       m.fromTimezoneOffset = fromTimezoneOffset;
-      m.fromLang = fromLang;
       m.message = message;
       m.toUserID = toUserID;
       m.toUsername = toUsername;

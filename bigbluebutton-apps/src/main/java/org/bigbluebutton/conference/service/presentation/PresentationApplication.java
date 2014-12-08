@@ -19,159 +19,79 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
-import org.bigbluebutton.conference.ClientMessage;
-import org.bigbluebutton.conference.ConnectionInvokerService;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class PresentationApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationApplication.class, "bigbluebutton" );	
 		
-	private PresentationRoomsManager roomsManager;
-	private ConnectionInvokerService connInvokerService;
+	private IBigBlueButtonInGW bbbInGW;
 	
-	public boolean createRoom(String name) {
-		roomsManager.addRoom(new PresentationRoom(name));
-		return true;
-	}
-	
-	public boolean destroyRoom(String name) {
-		if (roomsManager.hasRoom(name)) {
-			roomsManager.removeRoom(name);
-		}
-		return true;
-	}
-	
-	public boolean hasRoom(String name) {
-		return roomsManager.hasRoom(name);
-	}
-	
-	public boolean addRoomListener(String room, IPresentationRoomListener listener) {
-		if (roomsManager.hasRoom(room)){
-			roomsManager.addRoomListener(room, listener);
-			return true;
-		}
-		log.warn("Adding listener to a non-existant room " + room);
-		return false;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void sendUpdateMessage(Map message){
-	
-		String room = (String) message.get("room");
-		if (roomsManager.hasRoom(room)){
-			roomsManager.sendUpdateMessage(message);
-			return;
-		}
-		log.warn("Sending update message to a non-existant room " + room);	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
 	}
 		
-	public ArrayList<String> getPresentations(String room){
-	   if (roomsManager.hasRoom(room)){
-            return roomsManager.getPresentations(room);           
-        }
-        log.warn("Getting presentations on a non-existant room " + room);
-        return null;
-	}
-	
-	public void removePresentation(String room, String name){
-       if (roomsManager.hasRoom(room)){
-            roomsManager.removePresentation(room, name);           
-        } else {
-        	log.warn("Removing presentation from a non-existant room " + room);
-        }
-    }
-	
-	public int getCurrentSlide(String room){
-		if (roomsManager.hasRoom(room)){
-			return roomsManager.getCurrentSlide(room);			
-		}
-		log.warn("Getting slide on a non-existant room " + room);
-		return -1;
-	}
-	
-	public String getCurrentPresentation(String room){
-		if (roomsManager.hasRoom(room)){
-			return roomsManager.getCurrentPresentation(room);			
-		}
-		log.warn("Getting current presentation on a non-existant room " + room);
-		return null;
-	}
-	
-	public Map getPresenterSettings(String room){
-		if (roomsManager.hasRoom(room)){
-			return roomsManager.getPresenterSettings(room);			
-		}
-		log.warn("Getting settings information on a non-existant room " + room);
-		return null;
-	}
-	
-	public Boolean getSharingPresentation(String room){
-		if (roomsManager.hasRoom(room)){
-			return roomsManager.getSharingPresentation(room);			
-		}
-		log.warn("Getting share information on a non-existant room " + room);
-		return null;
-	}
-	
-	public void sendCursorUpdate(String room, Double xPercent, Double yPercent) {	
-		if (roomsManager.hasRoom(room)){
-			log.debug("Request to update cursor[" + xPercent + "," + yPercent + "]");
-			roomsManager.sendCursorUpdate(room, xPercent, yPercent);
-			
-			Map<String, Object> message = new HashMap<String, Object>();	
-			message.put("xPercent", xPercent);
-			message.put("yPercent", yPercent);
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "PresentationCursorUpdateCommand", message);
-			connInvokerService.sendMessage(m);
-			
-			return;
-		}
-				
-		log.warn("Sending cursor update on a non-existant room " + room);
-	}
-	
-	public void resizeAndMoveSlide(String room, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
-		if (roomsManager.hasRoom(room)){
-			log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio + "]");
-			roomsManager.resizeAndMoveSlide(room, xOffset, yOffset, widthRatio, heightRatio);
-			return;
-		}
-		log.warn("resizeAndMoveSlide on a non-existant room " + room);		
-	}
+	public void clear(String meetingID) {
 		
-	public void gotoSlide(String room, int slide){
-		if (roomsManager.hasRoom(room)){
-			log.debug("Request to go to slide " + slide + " for room " + room);
-			roomsManager.gotoSlide(room, slide);
-			return;
-		}
-		log.warn("Changing slide on a non-existant room " + room);	
-	}
-	
-	public void sharePresentation(String room, String presentationName, Boolean share){
-		if (roomsManager.hasRoom(room)){
-			log.debug("Request to share presentation " + presentationName + " " + share + " for room " + room);
-			roomsManager.sharePresentation(room, presentationName, share);
-			return;
-		}
-		log.warn("Sharing presentation on a non-existant room " + room);	
-	}
-	
-	public void setRoomsManager(PresentationRoomsManager r) {
-		log.debug("Setting room manager");
-		roomsManager = r;
-		log.debug("Done setting room manager");
 	}
 
-	private String getMeetingId(){
-		return Red5.getConnectionLocal().getScope().getName();
+	public void sendConversionUpdate(String messageKey, String meetingId, 
+            String code, String presentationId, String presName) {
+		bbbInGW.sendConversionUpdate(messageKey, meetingId, code, 
+				presentationId, presName);
+    }
+	
+	public void sendPageCountError(String messageKey, String meetingId, 
+            String code, String presentationId, int numberOfPages,
+            int maxNumberPages, String presName) {
+		bbbInGW.sendPageCountError(messageKey, meetingId, code, 
+				presentationId, numberOfPages, maxNumberPages, presName);
 	}
 	
+	public void sendSlideGenerated(String messageKey, String meetingId, 
+            String code, String presentationId, int numberOfPages,
+            int pagesCompleted, String presName) {
+		bbbInGW.sendSlideGenerated(messageKey, meetingId, code, 
+				presentationId, numberOfPages, pagesCompleted, presName);
+	}
+
+	public void sendConversionCompleted(String messageKey, String meetingId, 
+            String code, String presentation, int numberOfPages, 
+            String presName, String presBaseUrl) {
+		bbbInGW.sendConversionCompleted(messageKey, meetingId, 
+	            code, presentation, numberOfPages, presName, presBaseUrl);
+	}
+				
+	public void removePresentation(String meetingID, String presentationID){
+		bbbInGW.removePresentation(meetingID, presentationID);
+    }
 	
-	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
-		this.connInvokerService = connInvokerService;
-	}	
+	public void getPresentationInfo(String meetingID, String requesterID) {
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.getPresentationInfo(meetingID, requesterID, replyTo);
+	}
+		
+	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {	
+		bbbInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
+	}
+	
+	public void resizeAndMoveSlide(String meetingID, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
+		bbbInGW.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);
+	}
+		
+	public void gotoSlide(String meetingID, String pageId){		
+		bbbInGW.gotoSlide(meetingID, pageId);
+	}
+	
+	public void sharePresentation(String meetingID, String presentationID, Boolean share){		
+		bbbInGW.sharePresentation(meetingID, presentationID, share);
+	}
+	
+	public void getSlideInfo(String meetingID, String requesterID) {		
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.getSlideInfo(meetingID, requesterID,  replyTo);		
+	}
+		
 }

@@ -55,6 +55,7 @@ package org.bigbluebutton.modules.settings.connectors
 			this.mic = mic;
 			
 			connection = new NetConnection();
+			connection.proxyType = "best";
 			connection.client = this;
 			connection.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);

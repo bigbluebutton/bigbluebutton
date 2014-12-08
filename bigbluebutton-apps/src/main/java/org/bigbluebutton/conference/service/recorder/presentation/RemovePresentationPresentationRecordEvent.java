@@ -29,4 +29,5 @@ public class RemovePresentationPresentationRecordEvent extends
 	public void setPresentationName(String name) {
 		eventMap.put("presentationName", name);
 	}
+	
 }

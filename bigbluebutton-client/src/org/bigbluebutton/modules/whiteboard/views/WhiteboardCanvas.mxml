@@ -24,25 +24,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-            import com.asfusion.mate.events.Dispatcher;
-            
-            import mx.managers.CursorManager;
-            
-            import org.bigbluebutton.common.IBbbCanvas;
-            import org.bigbluebutton.common.Images;
-            import org.bigbluebutton.common.LogUtil;
-            import org.bigbluebutton.main.events.MadePresenterEvent;
-            import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
-            import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-            import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
-            import org.bigbluebutton.modules.whiteboard.models.Annotation;
+      import com.asfusion.mate.events.Dispatcher;      
+      import mx.managers.CursorManager;     
+      import org.bigbluebutton.common.IBbbCanvas;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
+      import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
+      import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+      import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+      import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
+      import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+      import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
+      import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
+      import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			
 			public var model:WhiteboardCanvasModel;	
             public var displayModel:WhiteboardCanvasDisplayModel;
@@ -70,34 +69,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 registerForMouseEvents();
 			}
             
-            public function queryForAnnotationHistory():void {
-                var dispatcher:Dispatcher = new Dispatcher();
-                dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.GET_ANNOTATION_HISTORY));
-            }
+      public function queryForAnnotationHistory(webId:String):void {
+         var dispatcher:Dispatcher = new Dispatcher();
+         dispatcher.dispatchEvent(new GetWhiteboardShapesCommand(webId));
+      }
 			
-            public function registerForMouseEvents():void {
-                addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
-                addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
-                addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
-                stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-                stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);               
-            }
+      public function registerForMouseEvents():void {
+          addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
+          stage.addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+          addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+//        stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+//        stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);               
+      }
             
-            public function unregisterForMouseEvents():void {
-                removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
-                removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
-                removeEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
-                stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
-                stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-            }
+      public function unregisterForMouseEvents():void {
+          removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
+          stage.removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+          removeEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+//        stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+//        stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+       }
             
-            private function onKeyDown(event:KeyboardEvent):void {
-                model.onKeyDown(event); 
-            }
+       private function onKeyDown(event:KeyboardEvent):void {
+          model.onKeyDown(event); 
+       }
             
-            private function onKeyUp(event:KeyboardEvent):void {
-                model.onKeyUp(event);
-            }
+       private function onKeyUp(event:KeyboardEvent):void {
+          model.onKeyUp(event);
+       }
             
 			private function doMouseUp(event:Event):void {
 				model.doMouseUp(this.mouseX, this.mouseY);
@@ -249,14 +248,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
                 
-                /**
-                * Check if this is the first time we overlayed the whiteboard canvas into the
-                * presentation canvas. If so, query for annotations history.
-                */
-                if (! displayModel.canvasInited) {
-                    displayModel.parentCanvasInitialized();
-                    queryForAnnotationHistory();
-                }
+        /**
+         * Check if this is the first time we overlayed the whiteboard canvas into the
+         * presentation canvas. If so, query for annotations history.
+         */
+        if (! displayModel.canvasInited) {
+          displayModel.parentCanvasInitialized();
+          var webId:String = model.whiteboardModel.getCurrentWhiteboardId();
+          if (webId != null) {
+            queryForAnnotationHistory(webId);
+          }        
+        }
                     
 			}
 			

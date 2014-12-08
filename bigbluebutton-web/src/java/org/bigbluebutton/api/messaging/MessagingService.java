@@ -19,14 +19,21 @@
 
 package org.bigbluebutton.api.messaging;
 
+import java.util.List;
 import java.util.Map;
 
 public interface MessagingService {	
-	public void start();
-	public void stop();
-	public void recordMeetingInfo(String meetingId, Map<String, String> info);
-	public void endMeeting(String meetingId);
-	public void send(String channel, String message);
-	public void addListener(MessageListener listener);
-	public void removeListener(MessageListener listener);
+	void recordMeetingInfo(String meetingId, Map<String, String> info);
+	void destroyMeeting(String meetingID);
+	void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
+			      String voiceBridge, Long duration, Boolean autoStartRecording,
+			      Boolean allowStartStopRecording);
+	void endMeeting(String meetingId);
+	void send(String channel, String message);
+	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);
+	String storeSubscription(String meetingId, String externalMeetingID, String callbackURL);
+	boolean removeSubscription(String meetingId, String subscriptionId);
+	List<Map<String,String>> listSubscriptions(String meetingId);
+	void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken);
+	void sendKeepAlive(String keepAliveId);
 }

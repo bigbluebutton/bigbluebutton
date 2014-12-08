@@ -207,7 +207,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.LOGIN_EVENT}" method="handleLoginEvent"/>
 	<mate:Listener type="{BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT}" method="handleReceivedPublicChatMessageEvent"/>
 	<mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleAddedListenerEvent"/>
-	<mate:Listener type="{BBBEvent.PRESENTATION_CONVERTED}" method="handlePresentationConversion"/>
 	<mate:Listener type="{BBBEvent.VIDEO_STARTED}" method="videoHasStarted"/>
 	
 </mx:Application>

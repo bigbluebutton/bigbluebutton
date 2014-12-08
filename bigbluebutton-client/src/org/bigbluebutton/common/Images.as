@@ -21,7 +21,10 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
-	
+
+    [Embed(source="assets/images/page_link.png")]
+    public var page_link:Class;
+    
 	[Embed(source="assets/images/users_settings.png")]
 	public var users_settings:Class;
 	

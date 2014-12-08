@@ -7,6 +7,7 @@
 </head>
 <body>
   <div class="body">
+<!-- tool.error  -->
   <g:if test="${ (resultMessageKey == 'InvalidEPortfolioUserId')}">
   ${resultMessage}
   </g:if>
@@ -14,12 +15,12 @@
   Connection could not be established.
   </g:else>
   </div>
-  <!-- { 
-            "error": { 
-                "messageKey": "${resultMessageKey}", 
-                "message": "${resultMessage}" 
-            } 
-        } 
+  <!-- {
+            "error": {
+                "messageKey": "${resultMessageKey}",
+                "message": "${resultMessage}"
+            }
+        }
   -->
   <br/><br/>
 </body>

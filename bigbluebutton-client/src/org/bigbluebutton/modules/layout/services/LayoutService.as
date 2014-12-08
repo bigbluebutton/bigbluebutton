@@ -18,41 +18,35 @@
 */
 package org.bigbluebutton.modules.layout.services
 {
-	import flash.events.IEventDispatcher;
+  import flash.events.IEventDispatcher;
+  
+  import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
+  import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
-	
-	public class LayoutService
-	{
-		private var _attributes:Object;
-		private var _layoutSOService:LayoutSharedObjectService;
+  public class LayoutService
+  {
+    private static const LOG:String = "Layout::LayoutService - ";
+    
+    public var sender:MessageSender;
+    public var receiver:MessageReceiver;
+    		
+    public function getCurrentLayout():void {
+      sender.getCurrentLayout();
+    }
 		
-		public function LayoutService(attributes:Object) {
-			_attributes = attributes;
-		}
+    public function broadcastLayout(layout:LayoutDefinition):void {
+      trace(LOG + " - broadcast layout");
+      sender.broadcastLayout(layout);
+    }
 		
-		public function join():void {
-			_layoutSOService = new LayoutSharedObjectService(_attributes.connection);
-			_layoutSOService.join(_attributes.uri + "/" + _attributes.room);
-		}
-		
-		public function leave():void {
-			_layoutSOService.leave();
-		}
-		
-		public function initLayout(success:Boolean):void {
-			if (success)
-				_layoutSOService.initLayout();
-		}
-		
-		public function lockLayout(layout:LayoutDefinition):void {
-      LogUtil.debug("Locking the layout [" + layout.name + "]");
-			_layoutSOService.lockLayout(layout);
-		}
-		
-		public function unlockLayout():void {
-			_layoutSOService.unlockLayout();
-		}
-	}
+    private function handleLockLayoutEvent(e: LockLayoutEvent):void {
+      
+    }
+    
+    private function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition=null):void {
+      trace(LOG + " - lock layout");
+      sender.lockLayout(lock, viewersOnly, layout);
+    }
+  }
 }

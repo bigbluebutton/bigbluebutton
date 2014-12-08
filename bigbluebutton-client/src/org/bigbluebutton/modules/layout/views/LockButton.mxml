@@ -27,9 +27,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   click="onClick(event)"
 		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
 	
-	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" method="onLockLayoutEvent" />
-	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" method="onUnlockLayoutEvent" />
-
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -58,11 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onClick(e:Event):void {
-				if (!this.selected) {
-					_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.LOCK_LAYOUT_EVENT));
-				} else {
-					_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.UNLOCK_LAYOUT_EVENT));
-				}
+				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SYNC_LAYOUT_EVENT));
 			}
 			
 			private function onLockLayoutEvent(e:Event):void {
@@ -80,18 +73,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.selected = false;
 				this.setStyle("icon", icon_unlocked);
 			}
-			
-            /* disabling this for new because it needs more work to work
-			private function loopToStart(e:FocusEvent):void {
-				if (e.target == this && !e.shiftKey)
-					_dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));
-			}
-			
-			private function loopToEnd(e:ShortcutEvent):void{
-				this.setFocus();
-			}
-            */
-			
 		]]>
 	</mx:Script>
 </views:LayoutButton>

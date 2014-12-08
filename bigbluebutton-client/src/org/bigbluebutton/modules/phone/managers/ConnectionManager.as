@@ -18,7 +18,8 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {	
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
@@ -26,115 +27,146 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.events.SecurityErrorEvent;
 	import flash.external.*;
 	import flash.net.NetConnection;
-	import flash.net.NetStream;	
+	import flash.net.NetStream;
+	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
-	import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
+	import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
+	import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
+	import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
 	import org.bigbluebutton.modules.phone.events.RegistrationFailedEvent;
 	import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
 	
 	public class ConnectionManager {
-			
+    private static const LOG:String = "Phone::ConnectionManager - ";
+    
 		private  var netConnection:NetConnection = null;
 		private var incomingNetStream:NetStream = null;
 		private var outgoingNetStream:NetStream = null;
 		private var username:String;
 		private var uri:String;
+    private var externUserId:String;
 		private var uid:String;
-		private var room:String;
+		private var meetingId:String;
 		
-		private var isConnected:Boolean = false;
 		private var registered:Boolean = false;
-
+    private var closedByUser:Boolean = false;
+    
 		private var dispatcher:Dispatcher;
 		
 		public function ConnectionManager():void {
 			dispatcher = new Dispatcher();
 		}
 		
+    public function isConnected():Boolean {
+      if (netConnection != null) {
+        return netConnection.connected;
+      }
+      return false;
+    }
+    
 		public function getConnection():NetConnection {
 			return netConnection;
 		}
 		
-		public function connect(uid:String, externUID:String, username:String, room:String, uri:String):void {
-			if (isConnected) return;
-			isConnected = true;
-			
-			this.uid = uid;	
-			this.username  = username;
-			this.room = room;
-			this.uri   = uri;
-			connectToServer(externUID, username);
-		}
-		
-		private function connectToServer(externUID:String, username:String):void {			
+    public function setup(uid:String, externUserId:String, username:String, meetingId:String, uri:String):void {	
+      trace(LOG + "Setup uid=[" + uid + "] extuid=[" + externUserId + "] name=[" + username + "] uri=[" + uri + "]");
+      this.uid = uid;	
+      this.username  = username;
+      this.meetingId = meetingId;
+      this.uri   = uri;
+      this.externUserId = externUserId;
+    }
+    
+		public function connect():void {				
+      closedByUser = false;
+      var isTunnelling:Boolean = BBB.initConnectionManager().isTunnelling;
+      if (isTunnelling) {
+        uri = uri.replace(/rtmp:/gi, "rtmpt:");
+      }
+      trace(LOG + "Connecting to uri=[" + uri + "]");
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
+			netConnection.proxyType = "best";
 			netConnection.client = this;
 			netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
 			netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-			netConnection.connect(uri, externUID, username);
+			netConnection.connect(uri, meetingId, externUserId, username);
 		}
 
-		public function disconnect():void {
-			netConnection.close();
+		public function disconnect(requestByUser:Boolean):void {
+      closedByUser = requestByUser;
+      if (netConnection != null) {
+        netConnection.close();
+      }			
 		}
 		
-		private function netStatus (evt:NetStatusEvent ):void {		 
-			if (evt.info.code == "NetConnection.Connect.Success") {
-				var event:ConnectionStatusEvent = new ConnectionStatusEvent();
-				LogUtil.debug("Successfully connected to voice application.");
-				event.status = ConnectionStatusEvent.SUCCESS;
-				LogUtil.debug("Dispatching " + event.status);
-				dispatcher.dispatchEvent(event); 				
-			} else if (evt.info.code == "NetConnection.Connect.NetworkChange") {
-				LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
-			} else {
-				LogUtil.info("Connection event info [" + evt.info.code + "]. Disconnecting.");
-				disconnect();
-			}
+    private function handleConnectionClosed():void {
+      if (!closedByUser) {
+        dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.DISCONNECTED));
+      }
+    }
+		private function netStatus (event:NetStatusEvent ):void {		 
+      var info : Object = event.info;
+      var statusCode : String = info.code;
+      
+      switch (statusCode) {
+        case "NetConnection.Connect.Success":
+          trace(LOG + "Connection success");
+          JSLog.debug(LOG + "Connection success");
+          dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));           
+          break;
+        case "NetConnection.Connect.Failed":
+          trace(LOG + "Connection failed");
+          JSLog.debug(LOG + "Connection failed");
+          dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED));
+          break;
+        case "NetConnection.Connect.NetworkChange":
+          trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+          JSLog.debug(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+          dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.NETWORK_CHANGE));
+          break;
+        case "NetConnection.Connect.Closed":
+          trace(LOG + "Connection closed");
+          JSLog.debug(LOG + "Connection closed");
+          handleConnectionClosed();
+          break;
+      }
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-           LogUtil.debug("AsyncErrorEvent: " + event);
-        }
+      JSLog.debug("AsyncErrorEvent: " + event);
+    }
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
-            LogUtil.debug("securityErrorHandler: " + event);
-        }
+      JSLog.debug("securityErrorHandler: " + event);
+    }
         
-     	public function call():void {
-     		LogUtil.debug("in call - Calling " + room);
-			doCall(room);
-     	}
-        
-        //********************************************************************************************
+    //********************************************************************************************
 		//			
 		//			CallBack Methods from Red5 
 		//
 		//********************************************************************************************		
 		public function failedToJoinVoiceConferenceCallback(msg:String):* {
-			LogUtil.debug("failedToJoinVoiceConferenceCallback " + msg);
-			var event:CallDisconnectedEvent = new CallDisconnectedEvent();
+			trace(LOG + "failedToJoinVoiceConferenceCallback " + msg);
+      JSLog.debug(LOG + "failedToJoinVoiceConferenceCallback " + msg);
+			var event:FlashCallDisconnectedEvent = new FlashCallDisconnectedEvent();
 			dispatcher.dispatchEvent(event);	
-			isConnected = false;
 		}
 		
 		public function disconnectedFromJoinVoiceConferenceCallback(msg:String):* {
-			LogUtil.debug("disconnectedFromJoinVoiceConferenceCallback " + msg);
-			var event:CallDisconnectedEvent = new CallDisconnectedEvent();
+			trace(LOG + "disconnectedFromJoinVoiceConferenceCallback " + msg);
+      JSLog.debug(LOG + "disconnectedFromJoinVoiceConferenceCallback " + msg);
+			var event:FlashCallDisconnectedEvent = new FlashCallDisconnectedEvent();
 			dispatcher.dispatchEvent(event);	
-			isConnected = false;
 		}	
 				
-        public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
-        	LogUtil.debug("successfullyJoinedVoiceConferenceCallback " + publishName + " : " + playName + " : " + codec);
-			isConnected = true;
-			var event:CallConnectedEvent = new CallConnectedEvent();
-			event.publishStreamName = publishName;
-			event.playStreamName = playName;
-			event.codec = codec;
+     public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
+      trace(LOG + "successfullyJoinedVoiceConferenceCallback [" + publishName + "] : [" + playName + "] : [" + codec + "]");
+      JSLog.debug(LOG + "successfullyJoinedVoiceConferenceCallback [" + publishName + "] : [" + playName + "] : [" + codec + "]");
+			var event:FlashCallConnectedEvent = new FlashCallConnectedEvent(publishName, playName, codec);
 			dispatcher.dispatchEvent(event);
 		}
 						
@@ -143,15 +175,17 @@ package org.bigbluebutton.modules.phone.managers {
 		//			SIP Actions
 		//
 		//********************************************************************************************		
-		public function doCall(dialStr:String):void {
-			LogUtil.debug("in doCall - Calling " + dialStr);
-			netConnection.call("voiceconf.call", null, "default", username, dialStr);
+		public function doCall(dialStr:String, listenOnly:Boolean = false):void {
+			trace(LOG + "in doCall - Calling " + dialStr + (listenOnly? " *listen only*": ""));
+      JSLog.debug(LOG + "in doCall - Calling " + dialStr + (listenOnly? " *listen only*": ""));
+			netConnection.call("voiceconf.call", null, "default", username, dialStr, listenOnly.toString());
 		}
 				
 		public function doHangUp():void {			
-			if (isConnected) {
+			if (isConnected()) {
+        trace(LOG + "hanging up call");
+        JSLog.debug(LOG + "hanging up call");
 				netConnection.call("voiceconf.hangup", null, "default");
-				isConnected = false;
 			}
 		}
 		

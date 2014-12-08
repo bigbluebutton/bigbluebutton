@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+BigBlueButton is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2.1 of the License, or (at your option) any later
+version.
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+$Id: $
+-->
+
+<!--
+Notes.mxml is the main view of the SharedNotes application
+-->
+<MDIWindow xmlns="flexlib.mdi.containers.*"
+           xmlns:mx="http://www.adobe.com/2006/mxml"
+           width="510" height="600"
+           xmlns:mate="http://mate.asfusion.com/"
+           implements="org.bigbluebutton.common.IBbbModuleWindow"
+           initialize="init()"
+           creationComplete="onCreationComplete()"
+           label="Create Poll" layout="absolute"
+           title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+  
+  <mx:Script>
+    <![CDATA[
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.collections.ArrayCollection;
+      import mx.containers.HBox;
+      import mx.controls.Alert;
+      import mx.controls.CheckBox;
+      import mx.controls.RadioButton;
+      import mx.controls.Text;
+      import mx.core.IUIComponent;
+      import mx.utils.ObjectUtil;
+      import mx.utils.StringUtil;
+      import mx.validators.Validator;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.polling.events.CreatePollEvent;
+      import org.bigbluebutton.modules.polling.events.GetPollsEvent;
+      import org.bigbluebutton.modules.polling.events.PollEvent;
+      import org.bigbluebutton.modules.polling.events.RespondEvent;
+      import org.bigbluebutton.modules.polling.events.SavePollEvent;
+      import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+      import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
+      import org.bigbluebutton.modules.polling.model.PollOptions;
+      import org.bigbluebutton.modules.polling.vo.CreatePollVO;
+      import org.bigbluebutton.modules.polling.vo.CreateQuestionVO;
+      import org.bigbluebutton.modules.polling.vo.PollResponseVO;
+      import org.bigbluebutton.modules.polling.vo.QuestionResponseVO;
+      import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
+      import org.bigbluebutton.modules.polling.vo.UpdateQuestionVO;
+      import org.bigbluebutton.modules.polling.vo.UpdateResponseVO;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      public static const LOGNAME:String = "[PollingInstructionsWindow] ";
+
+      [Bindable] public var invalidTitles:Array;
+      [Bindable] public var editing:Boolean;
+      [Bindable] public var pollOptions:PollOptions;
+      [Bindable] private var baseIndex:int;
+      
+      private var dispatcher:Dispatcher = new Dispatcher();
+      
+      public function getPrefferedPosition():String{
+        return MainCanvas.POPUP;
+      }
+      
+      private function init():void{
+        pollOptions = new PollOptions();
+        baseIndex = pollOptions.baseTabIndex;
+      }
+      
+      private function onCreationComplete():void{
+        titleBarOverlay.tabIndex = baseIndex;
+        minimizeBtn.tabIndex = baseIndex+1;
+        maximizeRestoreBtn.tabIndex = baseIndex+2;
+        closeBtn.tabIndex = baseIndex+3;
+        titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.createPoll.accessTitle');
+                
+        focusManager.setFocus(titleBarOverlay); 
+      }
+      
+      // Overwritting close to use custom function
+      override public function close(event:MouseEvent = null):void {
+        closeInstructionsWindow();
+      }
+      
+      // function invoked when close window
+      private function closeInstructionsWindow():void {
+        dispatcher.dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));
+      }
+                 
+      private function createPollTest():void {
+        var createPollVO:CreatePollVO = new CreatePollVO("My Sample Poll");
+        var questionType:String = "MULTI_CHOICE";
+        var question:CreateQuestionVO = new CreateQuestionVO(questionType, "What is my name?");
+        question.addResponse("Answer 1");
+        question.addResponse("Answer 2");
+        question.addResponse("Answer 3");
+        
+        createPollVO.addQuestion(question);
+        
+        dispatcher.dispatchEvent(new CreatePollEvent(createPollVO));        
+      }
+
+      private function updatePollTest():void {
+        var updatePollVO:UpdatePollVO = new UpdatePollVO("pollID", "My Sample Poll");
+        var questionType:String = "MULTI_CHOICE";
+        var question:UpdateQuestionVO = new UpdateQuestionVO("qID", questionType, "What is my name?");
+               
+        question.addResponse(new UpdateResponseVO("0", "Answer 0"));
+        question.addResponse(new UpdateResponseVO("1", "Answer 1"));
+        question.addResponse(new UpdateResponseVO("2", "Answer 2"));
+        
+        updatePollVO.addQuestion(question);
+        
+        dispatcher.dispatchEvent(new UpdatePollEvent(updatePollVO));        
+      }
+      
+      private function startPollTest():void {
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.START_POLL, "pollID"));
+      }
+      
+      private function stopPollTest():void {
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.STOP_POLL, "pollID"));
+      }
+      
+      private function remPollTest():void {
+        dispatcher.dispatchEvent(new PollEvent(PollEvent.REMOVE_POLL, "pollID"));
+      }
+
+      private function getPollsTest():void {
+        dispatcher.dispatchEvent(new GetPollsEvent());
+      }
+      
+      private function respondToPollTest():void {
+        var r:PollResponseVO = new PollResponseVO("pollID");
+//        r.addResponse(new QuestionResponseVO("0", ["0", "1"]));
+         
+        dispatcher.dispatchEvent(new RespondEvent(r));
+      }
+           
+    ]]>
+  </mx:Script>
+   
+    <mx:ControlBar>
+      <mx:Button id="createBtn" click="createPollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="Create" />
+      <mx:Button id="updateBtn" click="updatePollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="Update" />
+      <mx:Button id="startBtn" click="startPollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="start" />
+      <mx:Button id="stopBtn" click="stopPollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="stop" />
+      <mx:Button id="remBtn" click="remPollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="remove" />
+      <mx:Button id="respondBtn" click="respondToPollTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="Respond" />
+      <mx:Button id="back" click="getPollsTest()" width="100" height="30" visible="true" tabIndex="{baseIndex+5}"
+                 label="Get Polls" />
+      <mx:Button id="Cancel" click="closeInstructionsWindow()" width="100" height="30" tabIndex="{baseIndex+5}"
+                 label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" />
+    </mx:ControlBar>    
+	  
+</MDIWindow>

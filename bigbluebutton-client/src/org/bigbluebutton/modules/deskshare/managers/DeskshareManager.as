@@ -19,8 +19,10 @@
 
 package org.bigbluebutton.modules.deskshare.managers
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
@@ -46,6 +48,11 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("Deskshare Module starting");
 			this.module = module;			
 			service.handleStartModuleEvent(module);
+      
+      if (UsersUtil.amIPresenter()) {
+        initDeskshare();
+      }
+      
 		}
 		
 		public function handleStopModuleEvent():void {
@@ -54,7 +61,12 @@ package org.bigbluebutton.modules.deskshare.managers
 			viewWindowManager.stopViewing();		
 			service.disconnect();
 		}
-					
+		
+    public function handleStreamStoppedEvent():void {
+      LogUtil.debug("Sending deskshare stopped command");
+      service.stopSharingDesktop(module.getRoom(), module.getRoom());
+    }
+    
 		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void {
 			LogUtil.debug("Sending startViewing command");
 			service.sendStartViewingNotification(videoWidth, videoHeight);
@@ -64,18 +76,22 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("handleStartedViewingEvent [" + stream + "]");
 			service.sendStartedViewingNotification(stream);
 		}
-											
+		
+    private function initDeskshare():void {
+      sharing = false;
+      var option:DeskshareOptions = new DeskshareOptions();
+      option.parseOptions();
+      if (option.autoStart) {
+        handleStartSharingEvent(true);
+      }
+      if(option.showButton){
+        toolbarButtonManager.addToolbarButton();
+      }      
+    }
+    
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
 			LogUtil.debug("Got MadePresenterEvent ");
-			sharing = false;
-			var option:DeskshareOptions = new DeskshareOptions();
-			option.parseOptions();
-			if (option.autoStart) {
-				handleStartSharingEvent(true);
-			}
-			if(option.showButton){
-				toolbarButtonManager.addToolbarButton();
-			}
+      initDeskshare();
 		}
 		
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
@@ -114,5 +130,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("Received start vieweing command");
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
+    
+    
 	}
 }

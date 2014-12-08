@@ -1,5 +1,5 @@
 
-publish_dir: /var/bigbluebutton/published/presentation
+
 video_output_width: 640
 video_output_height: 480
 # Alternate output size to use when deskshare videos are present
@@ -10,3 +10,10 @@ deskshare_output_height: 720
 # audio_offset = 1200 means that the audio will be delayed by 1200ms
 audio_offset: 0
 include_deskshare: true
+
+# For PRODUCTION
+publish_dir: /var/bigbluebutton/published/presentation
+
+# For DEVELOPMENT
+#publish_dir: /home/ubuntu/temp/published/presentation
+

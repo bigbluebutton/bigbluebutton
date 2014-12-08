@@ -45,3 +45,42 @@ find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' 
 #
 find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' \;
 
+#
+# Delete old raw dirs from recordings properly published using 'presentation' scripts.
+#
+
+remove_raw_of_published_recordings(){
+    #TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
+    logger "Removing raw directory of old recordings:"
+    TYPES="presentation"
+    MIN_DAYS=10
+    old_meetings=$(find /var/bigbluebutton/recording/raw/*/events.xml  -mtime +$MIN_DAYS | cut -d"/" -f6 )
+    for meeting in $old_meetings
+    do
+        PROPERLY_PUBLISHED="true"
+        FAILED_TYPES=""
+        for type in $TYPES
+        do
+            file="/var/bigbluebutton/recording/status/published/$meeting-$type.done"
+            if ! [ -f "$file" ]; then
+                PROPERLY_PUBLISHED="false"
+                FAILED_TYPES="$FAILED_TYPES $type"
+            fi
+        done
+        if [ "$PROPERLY_PUBLISHED" == "true" ]; then
+            logger "$meeting properly published, removing raw dir."
+            rm -r /var/bigbluebutton/recording/raw/$meeting/
+        else
+            logger "$meeting was not properly published in [ $FAILED_TYPES ]"
+        fi
+    done 
+}
+
+#remove_raw_of_published_recordings
+
+#
+# Remove old *.afm and *.pfb files from /tmp directory (these were created by Ghostscript)
+#
+find /tmp -name "*.afm" -mtime +10 -exec rm '{}' \;
+find /tmp -name "*.pfb" -mtime +10 -exec rm '{}' \;
+

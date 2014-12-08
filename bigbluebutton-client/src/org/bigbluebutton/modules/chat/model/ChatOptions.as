@@ -18,17 +18,11 @@
  */
 package org.bigbluebutton.modules.chat.model
 {
-	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
 
 	public class ChatOptions
 	{
-		[Bindable]
-		public var translationOn:Boolean = true;
-		
-		[Bindable]
-		public var translationEnabled:Boolean = true;
-		
 		[Bindable]
 		public var privateEnabled:Boolean = true;
 		
@@ -36,6 +30,9 @@ package org.bigbluebutton.modules.chat.model
 		public var position:String = "top-right";
 		
 		[Bindable] public var baseTabIndex:int;
+		
+		[Bindable]
+		public var colorPickerIsVisible:Boolean = false;
 		
 		public function ChatOptions() {
 			var cxml:XML = 	BBB.getConfigForModule("ChatModule");
@@ -52,6 +49,9 @@ package org.bigbluebutton.modules.chat.model
 				else{
 					baseTabIndex = 701;
 				}
+				if(cxml.@colorPickerIsVisible != undefined) {
+					colorPickerIsVisible = (cxml.@colorPickerIsVisible.toString().toUpperCase() == "TRUE") ? true : false;
+				 }				
 			}
 		}
 		

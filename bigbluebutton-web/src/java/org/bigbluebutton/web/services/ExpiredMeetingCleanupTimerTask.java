@@ -19,15 +19,16 @@
 
 package org.bigbluebutton.web.services;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.api.MeetingService;
 
 public class ExpiredMeetingCleanupTimerTask {
 
 	private MeetingService service;
-	private Timer cleanupTimer;
+	private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 	private long runEvery = 60000;
 
 	public void setMeetingService(MeetingService svc) {
@@ -35,15 +36,18 @@ public class ExpiredMeetingCleanupTimerTask {
 	}
 	
 	public void start() {
-		cleanupTimer = new Timer("bbb-api-cleanup", true);
-		cleanupTimer.scheduleAtFixedRate(new CleanupTask(), 60000, runEvery);				
+		scheduledThreadPool.scheduleWithFixedDelay(new CleanupTask(), 60000, runEvery, TimeUnit.MILLISECONDS);		
+	}
+	
+	public void stop() {
+		scheduledThreadPool.shutdownNow();
 	}
 	
 	public void setRunEvery(long v) {
 		runEvery = v;
 	}
 	
-	private class CleanupTask extends TimerTask {
+	private class CleanupTask implements Runnable {
         public void run() {
         	service.removeExpiredMeetings();
         }

@@ -24,85 +24,78 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:local="*"
 	xmlns:fimage="org.bigbluebutton.common.model.*"
-    width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
+  width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
 	x="{slideModel.viewportX}" y="{slideModel.viewportY}"
-    creationComplete="onCreationComplete()" 
+  creationComplete="onCreationComplete()" 
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"      
-    rollOut="hideCursor()" styleName="presentationSlideViewStyle"
-    xmlns:views="org.bigbluebutton.modules.present.views.*"
-    implements="org.bigbluebutton.common.IBbbCanvas">
-    
-	<mate:Listener type="{MoveEvent.CUR_SLIDE_SETTING}" method="handleCurSlideSettingEvent" />
-    <mate:Listener type="{MoveEvent.MOVE}" method="handleMoveEvent" />
-    <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
-    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
-    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
-    <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
-    <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
+  rollOut="hideCursor()" styleName="presentationSlideViewStyle"
+  xmlns:views="org.bigbluebutton.modules.present.views.*"
+  implements="org.bigbluebutton.common.IBbbCanvas">
+     
+  <mate:Listener type="{PageChangedEvent.PRESENTATION_PAGE_CHANGED_EVENT}" method="handlePageChangedEvent" />
+  <mate:Listener type="{PageLoadedEvent.PAGE_LOADED_EVENT}" method="handlePageLoadedEvent" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
+  <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
+  <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.Button;
-			import mx.events.FlexEvent;
-			import mx.events.ListEvent;
-			
-			import org.bigbluebutton.common.IBbbCanvas;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.model.FocusableImage;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.present.events.CursorEvent;
-			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-			import org.bigbluebutton.modules.present.events.MoveEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
-			import org.bigbluebutton.modules.present.events.SlideEvent;
-			import org.bigbluebutton.modules.present.events.SlideResizedEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.present.events.ZoomEvent;
-			import org.bigbluebutton.modules.present.managers.Slide;
-			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
-			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-            
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.Event;
+      
+      import mx.binding.utils.BindingUtils;
+      import mx.collections.ArrayCollection;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
+      import mx.controls.Button;
+      import mx.events.FlexEvent;
+      import mx.events.ListEvent;
+      
+      import org.bigbluebutton.common.IBbbCanvas;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.model.FocusableImage;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.present.commands.ChangePageCommand;
+      import org.bigbluebutton.modules.present.commands.GoToPageCommand;
+      import org.bigbluebutton.modules.present.events.CursorEvent;
+      import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
+      import org.bigbluebutton.modules.present.events.PageChangedEvent;
+      import org.bigbluebutton.modules.present.events.PageLoadedEvent;
+      import org.bigbluebutton.modules.present.events.PresenterCommands;
+      import org.bigbluebutton.modules.present.events.UploadEvent;
+      import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+      import org.bigbluebutton.modules.present.managers.Slide;
+      import org.bigbluebutton.modules.present.model.Page;
+      import org.bigbluebutton.modules.present.model.Presentation;
+      import org.bigbluebutton.modules.present.model.PresentationModel;
+      import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
+      import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
+      import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      private static const LOG:String = "Present::SlideView - ";
+      
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
-			
-			
-			/**
-			 * Variables that stores the presenter's ratio between
-			 * loader and canvas. We need to size the slide with the
-			 * same scale as the presenter so that the cursor syncs
-			 * properly.
-			 */
-			private var presenterViewedRegionX:Number = 0;
-			private var presenterViewedRegionY:Number = 0;
-			private var presenterViewedRegionW:Number = 100;
-			private var presenterViewedRegionH:Number = 100;
-						
+									
 			private var cursor:Shape;
 			private var whiteboardCanvasHolder:Canvas = new Canvas();
 			private var whiteboardCanvas:IBbbCanvas;
-							
-      [Bindable] public var slides:ArrayCollection = new ArrayCollection();
-			[Bindable] public var selectedSlide:int=0;
-			[Bindable] private var lateComerSynched:Boolean = false;
-			
+										
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
 			[Bindable]
 			private var slideModel:SlideViewModel = new SlideViewModel();
 			
+      private var pageCache:ArrayCollection = new ArrayCollection();
+      
       // Send update of mouse location to other users.
       private var _sendCurrentMouseLocTimer:Timer = new Timer(100);
       private var _lastMouseXPosition:Number = 0;
@@ -123,23 +116,57 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				whiteboardCanvasHolder.x = 0;
 				whiteboardCanvasHolder.y = 0;
 				
-				this.setChildIndex(thumbnailView, this.numChildren - 1);
+				this.setChildIndex(thumbnailView, this.numChildren - 1);       
+        
+        if (UsersUtil.amIPresenter()) {
+          becomePresenter();
+        } else {
+          becomeViewer();
+        }
 			}
 						
-			public function setSlides(slides:ArrayCollection):void {
-				this.slides = slides;
-				thumbnailView.dataProvider = this.slides.toArray();
+			public function setSlides():void {
+        var pres: Presentation = PresentationModel.getInstance().getCurrentPresentation();
+        if (pres != null) {
+          pageCache = pres.getPages();
+          /* Create the SortField object for the "num" field in the ArrayCollection object, and make sure we do a numeric sort. */
+          var dataSortField:SortField = new SortField();
+          dataSortField.name = "num";
+          dataSortField.numeric = true;
+          
+          /* Create the Sort object and add the SortField object created earlier to the array of fields to sort on. */
+          var numericDataSort:Sort = new Sort();
+          numericDataSort.fields = [dataSortField];
+          
+          /* Set the ArrayCollection object's sort property to our custom sort, and refresh the ArrayCollection. */
+          pageCache.sort = numericDataSort;
+          pageCache.refresh();
+          thumbnailView.dataProvider = pageCache;
+        }				
 			}
 			
+      public function setSelectedSlide(slideNum:int):void {
+        if (slideNum > pageCache.length) {
+          trace("Page num [" + slideNum + "] > numPages[" + pageCache.length + "]");
+          return;
+        }
+        for (var idx:int = 0; idx < pageCache.length; idx++) {
+          var p:Page = pageCache.getItemAt(idx) as Page;
+          if (p.num == slideNum) {
+            thumbnailView.selectedIndex = idx;
+          }
+        }       
+      }
+            
 			private function changeSlide():void {
-                if (thumbnailView.selectedIndex != selectedSlide) {
-				    dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
-				    thumbnailView.visible = false;
-                }
-			}
-			
-			private function changeIndex(e:ListEvent):void {
-				dispatchEvent(e);
+        var data:Page = thumbnailView.selectedItem as Page;
+        trace(LOG + "Change page from thumbnail. Selected page [" + data.id + "]");
+        var selPage:Page = PresentationModel.getInstance().getPage(data.id);
+        if (selPage != null && !selPage.current) {
+          trace(LOG + "Dispatching change page from thumbnail. Selected page [" + data.id + "]");
+          dispatchEvent(new GoToPageCommand(selPage.id));
+          thumbnailView.visible = false;            
+        }
 			}
 			
 			private var prevMouseX:Number;
@@ -195,13 +222,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					slideModel.printViewedRegion();
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
-				} else {
-					slideModel.calculateViewportNeededForRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					slideModel.calculateViewportXY();
-					slideModel.displayPresenterView();
-					slideModel.printViewedRegion();
-					fitSlideToLoader();	
+				} else {          
+          var page:Page = PresentationModel.getInstance().getCurrentPage();
+          if (page != null) {
+            trace(LOG + "Parent window has resized. Reposition page [" + page.id + "]");
+            positionPage(page);
+          }
 				}				
 			}
 											
@@ -237,7 +263,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function onZoomSlide(zoom:Number):void {
 				if (slideLoader.content == null) return;
-				zoomSlide(zoom, slideLoader.content.width/2, slideLoader.content.height/2);
+				zoomSlide(zoom, (((slideLoader.content.width/2)*SlideViewModel.HUNDRED_PERCENT)/zoom), (((slideLoader.content.height/2)*SlideViewModel.HUNDRED_PERCENT)/zoom));
 			}
 			
 			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
@@ -267,77 +293,87 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// If delta is negative, the presenter is zooming-out of the presentation.
 				return delta < 0;
 			}
-			
+				
 			/**
 			 * Handles notification from presenter that the slide has moved.
 			 */
-			private function handleCurSlideSettingEvent(e:MoveEvent):void{
-				if (UserManager.getInstance().getConference().amIPresenter) {
-					return;
-				}
-
-				presenterViewedRegionX = e.xOffset;
-				presenterViewedRegionY = e.yOffset;
-				presenterViewedRegionW = e.slideToCanvasWidthRatio;
-				presenterViewedRegionH = e.slideToCanvasHeightRatio;
+			private function handlePageChangedEvent(e:PageChangedEvent):void {
+        trace(LOG + "Got a page changed event for page [" + e.pageId + "]");
+        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
+        if (page != null) {
+          if (! UsersUtil.amIPresenter()) {
+            // if we are presenter, we don't need to reposition our view of the page
+            positionPage(page);
+          }  
+        }       
 			}
 			
-			/**
-			 * Handles notification from presenter that the slide has moved.
-			 */
-			private function handleMoveEvent(e:MoveEvent):void{
-				if (UserManager.getInstance().getConference().amIPresenter) {
-					return;
-				}
-				
-				presenterViewedRegionX = e.xOffset;
-				presenterViewedRegionY = e.yOffset;
-				presenterViewedRegionW = e.slideToCanvasWidthRatio;
-				presenterViewedRegionH = e.slideToCanvasHeightRatio;
-				
-				slideModel.saveViewedRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				slideModel.calculateViewportNeededForRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				slideModel.displayViewerRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				slideModel.calculateViewportXY();
-				slideModel.displayPresenterView();
-				slideModel.printViewedRegion();
-				fitSlideToLoader();
-			}
-					
-			/**
-			 * Handle notification from loader that a slide has been loaded.
-			 */						
-			private function handleSlideLoadedEvent(e:SlideEvent):void{
-				slideLoader.source = e.slide;
-			    //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
-                slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-                slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + e.slideText + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-                LogUtil.debug(e.slideText);
+      private function positionPage(page:Page):void {
+        if (page != null && page.swfData != null) {   
+          trace(LOG + "Positioning page [" + page.id + "]");
+          slideModel.saveViewedRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
+          slideModel.calculateViewportNeededForRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
+          slideModel.displayViewerRegion(page.xOffset, page.yOffset, page.widthRatio, page.heightRatio);
+          slideModel.calculateViewportXY();
+          slideModel.displayPresenterView();
+          slideModel.printViewedRegion();
+          fitSlideToLoader();          
+        }        
+      }
+      
+			private function handlePageLoadedEvent(e:PageLoadedEvent):void {
+        trace(LOG + "Got a page loaded event for page [" + e.pageId + "]");
+        var page:Page = PresentationModel.getInstance().getPage(e.pageId);
+        if (page != null) {
+          setSelectedSlide(page.num);
+          slideLoader.source = page.swfData;
+          trace(LOG + "Displaying page [" + e.pageId + "]");
+//          positionPage(page);
+          
+          //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
+//          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+//          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+          
+          
+        }
 			}
 			
+      private function becomeViewer():void {
+        removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+        slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+        slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+        _sendCurrentMouseLocTimer.stop();
+        _sendCurrentMouseLocTimer.removeEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);        
+      }
+      
 			/**
 			 * Handle the event where this presenter becomes a viewer because another attendee became presenter.
 			 */			
 			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
-				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-				slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-        _sendCurrentMouseLocTimer.stop();
-        _sendCurrentMouseLocTimer.removeEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
+        becomeViewer();
 			}
 			
+      private function becomePresenter():void {
+        // need to calculate slide zoom percantage left by a previous presenter
+        zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionH) * SlideViewModel.HUNDRED_PERCENT;
+
+        addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
+        slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+        slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+        _sendCurrentMouseLocTimer.addEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
+        _sendCurrentMouseLocTimer.start();
+        notifyOthersOfZoomEvent();        
+      }
+      
 			/**
 			 * Makes the attendee the presenter.
 			 */
 			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void {
-				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-				slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-				slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-        _sendCurrentMouseLocTimer.addEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
-        _sendCurrentMouseLocTimer.start();
-				notifyOthersOfZoomEvent();
+        becomePresenter();
 			}
 			
 			
@@ -399,14 +435,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {
-				if (lateComerSynched) {
-					slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);					
-				} else {
-					lateComerSynched = true;
-					slideModel.reset(slideLoader.contentWidth, slideLoader.contentHeight);
-					slideModel.saveViewedRegion(presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);					
-				}
-				
+        trace(LOG + "Page has been loaded by swfLoader.");
+				slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);									
 				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);				
 			}
 					
@@ -454,6 +484,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				c.width = slideLoader.width;
 				c.height = slideLoader.height;
 				fitSlideToLoader();
+				c.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
+				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, handleWhiteboardCanvasClick);
+			}
+			
+			private function handleWhiteboardCanvasClick(e:MouseEvent):void {
+				if (thumbnailView.visible) thumbnailView.visible = false;
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void{
@@ -486,10 +522,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
-	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="false"
-		creationComplete="listenForSlideLoadedCompleteEvent()" styleName="presentationSlideViewStyle" scaleContent="false" showBusyCursor="true" completeEffect="Fade" />
+	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" 
+                         x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="false"
+		                     creationComplete="listenForSlideLoadedCompleteEvent()" 
+                         styleName="presentationSlideViewStyle" 
+                         scaleContent="false" 
+                         showBusyCursor="true" 
+                         completeEffect="Fade" />
    		
-    <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" itemRollOver="changeIndex(event)" 
-    	visible="false" width="100%" height="100" y="{this.height - 100}" change="changeSlide()" />
+   <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" 
+    	                 visible="false" width="100%" height="100" 
+                       y="{this.height - 100}" change="changeSlide()" />
 		      		 
 </mx:Canvas>

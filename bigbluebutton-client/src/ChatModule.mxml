@@ -28,8 +28,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<maps:ChatEventMap id="chatLocalEventMap"/>
 	
-	<mate:Listener type="{TranscriptEvent.TRANSCRIPT_EVENT}" method="handleTranscriptLoadedEvent"/>
-	
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
@@ -70,11 +68,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function get username():String {
 				return _attributes.username;
 			}
-			
-			public function get connection():NetConnection {
-				return _attributes.connection;
-			}
-			
+						
 			public function get mode():String {
 				if (_attributes.mode == null) {					
 					//_attributes.mode = "PLAYBACK"
@@ -93,16 +87,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.userrole as String;
 			}
 			
-			public function get traslationEnabled():Boolean{
-				if (_attributes.translationEnabled == "false") return false;
-				else return true;
-			}
-			
-			public function get translationOn():Boolean{
-				if (_attributes.translationOn == "false") return false;
-				else return true;
-			}
-			
 			public function start(attributes:Object):void {	
 				LogUtil.debug("chat attr: " + attributes.username);
 				_attributes = attributes;	
@@ -111,8 +95,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var event:StartChatModuleEvent = new StartChatModuleEvent(StartChatModuleEvent.START_CHAT_MODULE_EVENT)
 				event.start = true;
 				event.attributes = _attributes;
-				event.translationOn = translationOn;
-				event.translationEnabled = traslationEnabled;
 				dispatcher.dispatchEvent(event);
 			}
 		
@@ -126,24 +108,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				trace("Received PRIVATE CHAT MESSAGE EVENT");
 			}
 			
-			private function handleTranscriptLoadedEvent(event:Event):void {
-				LogUtil.debug("Handling TranscriptLoadedEvent");
-				var welcome:String = _attributes.welcome as String;
-				if (welcome != "") {
-//					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-//					var chatobj:ChatMessageVO = new ChatMessageVO();
-//					chatobj.message = welcome;
-//					chatobj.username = " ";
-//					chatobj.color = "0";
-//					chatobj.time = ChatUtil.getCurrentTime();
-//					chatobj.language = "en";
-//					chatobj.userid = "";
-					
-		//			welcomeEvent.chatobj = chatobj;
-//					var globalDispatcher:Dispatcher = new Dispatcher();
-		//			globalDispatcher.dispatchEvent(welcomeEvent);
-				}	
-			}
 		]]>
 	</mx:Script>
 </mx:Module>

@@ -23,8 +23,9 @@ package org.bigbluebutton.modules.users.events
 	public class UsersEvent extends Event
 	{
 		public static const ROOM_MUTE_STATE:String = "USERS_ROOM_MUTE_STATE";
+		public static const ROOM_LOCK_STATE:String = "USERS_ROOM_LOCK_STATE";
 		
-		public var mute_state:Boolean;
+		public var new_state:Boolean;
 		
 		public function UsersEvent(type:String)
 		{

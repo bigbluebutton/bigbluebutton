@@ -54,10 +54,6 @@
 				return _attributes.uri + "/" + _attributes.room;
 			}
 			
-			public function get connection():NetConnection {
-				return _attributes.connection;
-			}
-			
 			public function start(attributes:Object):void {		
 				_attributes = attributes;	
 				

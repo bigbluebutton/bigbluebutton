@@ -20,6 +20,7 @@ package org.bigbluebutton.voiceconf.sip;
 
 import org.slf4j.Logger;
 import org.zoolu.sip.provider.SipStack;
+import org.bigbluebutton.voiceconf.messaging.IMessagingService;
 import org.bigbluebutton.voiceconf.red5.CallStreamFactory;
 import org.bigbluebutton.voiceconf.red5.ClientConnectionManager;
 import org.red5.logging.Red5LoggerFactory;
@@ -38,6 +39,7 @@ public final class SipPeerManager {
 	
 	private ClientConnectionManager clientConnManager;
 	private CallStreamFactory callStreamFactory;
+	private IMessagingService messagingService;
 	
     private Map<String, SipPeer> sipPeers;
     private int sipStackDebugLevel = 8;
@@ -48,7 +50,7 @@ public final class SipPeerManager {
     }
 
     public void createSipPeer(String peerId, String clientRtpIp, String host, int sipPort, int startRtpPort, int stopRtpPort) {
-    	SipPeer sipPeer = new SipPeer(peerId, clientRtpIp, host, sipPort, startRtpPort, stopRtpPort);
+    	SipPeer sipPeer = new SipPeer(peerId, clientRtpIp, host, sipPort, startRtpPort, stopRtpPort, messagingService);
     	sipPeer.setClientConnectionManager(clientConnManager);
     	sipPeer.setCallStreamFactory(callStreamFactory);
     	sipPeers.put(peerId, sipPeer);    	
@@ -65,7 +67,7 @@ public final class SipPeerManager {
     	if (sipPeer == null) throw new PeerNotFoundException("Can't find sip peer " + peerId);
     	sipPeer.call(clientId, callerName, destination);
     }
-     
+
     public void unregister(String userid) {
     	SipPeer sipUser = sipPeers.get(userid);
     	if (sipUser != null) {
@@ -98,6 +100,13 @@ public final class SipPeerManager {
     private void remove(String userid) {
     	log.debug("Number of SipUsers in Manager before remove {}", sipPeers.size());
         sipPeers.remove(userid);
+    }
+
+    public void connectToGlobalStream(String peerId, String clientId, String callerIdName, String destination) {
+    	SipPeer sipUser = sipPeers.get(peerId);
+    	if (sipUser != null) {
+    		sipUser.connectToGlobalStream(clientId, callerIdName, destination);
+    	}
     }
 
     public void close(String userid) {
@@ -140,5 +149,9 @@ public final class SipPeerManager {
 	
 	public void setClientConnectionManager(ClientConnectionManager ccm) {
 		clientConnManager = ccm;
+	}
+	
+	public void setMessagingService(IMessagingService service) {
+		messagingService = service;
 	}
 }

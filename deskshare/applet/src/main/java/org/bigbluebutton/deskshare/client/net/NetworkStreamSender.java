@@ -36,19 +36,19 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	public static final String NAME = "NETWORKSTREAMSENDER: ";
 	
 	private ExecutorService executor;	
-    private final BlockingQueue<Message> blockDataQ = new LinkedBlockingQueue<Message>();
+  private final BlockingQueue<Message> blockDataQ = new LinkedBlockingQueue<Message>();
     
-    private final int numThreads;
-    private final String host;
-    private final int port;
-    private final String room;
-    private final boolean httpTunnel;
-    private final boolean useSVC2;
-    private NetworkSocketStreamSender[] socketSenders;
-    private NetworkHttpStreamSender[] httpSenders;
-    private boolean tunneling = false;
-    private boolean stopped = true;
-    private int numRunningThreads = 0;
+  private final int numThreads;
+  private final String host;
+  private final int port;
+  private final String room;
+  private final boolean httpTunnel;
+  private final boolean useSVC2;
+  private NetworkSocketStreamSender[] socketSenders;
+  private NetworkHttpStreamSender[] httpSenders;
+  private boolean tunneling = false;
+  private boolean stopped = true;
+  private int numRunningThreads = 0;
 	private Dimension screenDim;
 	private Dimension blockDim;
 	private BlockManager blockManager;
@@ -74,7 +74,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
       //numThreads = screenDim.getHeight() / blockDim.getHeight();
 
       // Use one single thread to save resources
-      numThreads = 1;
+    numThreads = 1;
 		System.out.println(NAME + "Starting up " + numThreads + " sender threads.");
 		executor = Executors.newFixedThreadPool(numThreads);
 	}

@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2014 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -20,121 +20,70 @@ package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import java.util.ArrayList;
-import java.util.Map;
-import org.bigbluebutton.conference.ConnectionInvokerService;
-import org.bigbluebutton.conference.RoomsManager;
-import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.User;import org.bigbluebutton.conference.IRoomListener;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
-	private ConnectionInvokerService connInvokerService;
-	
-	private RoomsManager roomsManager;
-	
-	public boolean createRoom(String name) {
-		if(!roomsManager.hasRoom(name)){
-			log.info("Creating room " + name);
-			roomsManager.addRoom(new Room(name));
-			return true;
-		}
-		return false;
+	private IBigBlueButtonInGW bbbInGW;
+
+	public void userRaiseHand(String meetingId, String userId) {
+		bbbInGW.userRaiseHand(meetingId, userId);
 	}
 	
-	public boolean destroyRoom(String name) {
-		if (roomsManager.hasRoom(name)) {
-			log.info("Destroying room " + name);
-			roomsManager.removeRoom(name);
-		} else {
-			log.warn("Destroying non-existing room " + name);
-		}
-		return true;
+	public void lowerHand(String meetingId, String userId, String loweredBy) {
+		bbbInGW.lowerHand(meetingId, userId, loweredBy);
 	}
 	
-	public void destroyAllRooms() {
-		roomsManager.destroyAllRooms();
+	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
+		bbbInGW.ejectUserFromMeeting(meetingId, userId, ejectedBy);
 	}
 	
-	public boolean hasRoom(String name) {
-		return roomsManager.hasRoom(name);
+	public void shareWebcam(String meetingId, String userId, String stream) {
+		bbbInGW.shareWebcam(meetingId, userId, stream);		
 	}
 	
-	public boolean addRoomListener(String room, IRoomListener listener) {
-		if (roomsManager.hasRoom(room)){
-			roomsManager.addRoomListener(room, listener);
-			return true;
-		}
-		log.warn("Adding listener to a non-existant room " + room);
-		return false;
+	public void unshareWebcam(String meetingId, String userId) {
+		bbbInGW.unshareWebcam(meetingId, userId);
 	}
 	
 	public void setParticipantStatus(String room, String userid, String status, Object value) {
-		roomsManager.changeParticipantStatus(room, userid, status, value);
+		bbbInGW.setUserStatus(room, userid, status, value);
 	}
-	
-	public Map getParticipants(String roomName) {
-		log.debug("getParticipants - " + roomName);
-		if (! roomsManager.hasRoom(roomName)) {
-			log.warn("Could not find room " + roomName + ". Total rooms " + roomsManager.numberOfRooms());
-			return null;
-		}
 
-		return roomsManager.getParticipants(roomName);
+	public boolean participantJoin(String roomName, String userid) { //is this used?!
+		log.debug("Participant " + userid + " joining room " + roomName);
+		bbbInGW.userJoin(roomName, userid);
+		return true;
 	}
-	
-	public boolean participantLeft(String roomName, String userid) {
+
+	public boolean participantLeft(String roomName, String userid) { //is this used?!
 		log.debug("Participant " + userid + " leaving room " + roomName);
-		if (roomsManager.hasRoom(roomName)) {
-			Room room = roomsManager.getRoom(roomName);
-			log.debug("Removing " + userid + " from room " + roomName);
-			room.removeParticipant(userid);
-			return true;
-		}
+		bbbInGW.userLeft(roomName, userid);
+		return true;
+	}
 
-		return false;
+	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID) {
+		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid);
+		return true;
+	}
+
+	public void assignPresenter(String room, String newPresenterID, String newPresenterName, String assignedBy){
+		bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
 	}
 	
-	@SuppressWarnings("unchecked")
-	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status) {
-		log.debug("participant joining room " + roomName);
-		if (roomsManager.hasRoom(roomName)) {
-			User p = new User(userid, username, role, externUserID, status);			
-			Room room = roomsManager.getRoom(roomName);
-			room.addParticipant(p);
-			log.debug("participant joined room " + roomName);
-			return true;
-		}
-		log.debug("participant failed to join room " + roomName);
-		return false;
+	public void getUsers(String meetingID, String requesterID) {
+		bbbInGW.getUsers(meetingID, requesterID);
 	}
 	
-	public ArrayList<String> getCurrentPresenter(String room){
-		if (roomsManager.hasRoom(room)){
-			return roomsManager.getCurrentPresenter(room);			
-		}
-		log.warn("Getting presenter on a non-existant room " + room);
-		return null;
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
 	}
 	
-	public void assignPresenter(String room, ArrayList presenter){
-		if (roomsManager.hasRoom(room)){
-			roomsManager.assignPresenter(room, presenter);
-			return;
-		}
-		log.warn("Assigning presenter on a non-existant room " + room);	
+	public void setRecordingStatus(String meetingId, String userId, Boolean recording) {
+		bbbInGW.setRecordingStatus(meetingId, userId, recording);
 	}
-	
-	public void setRoomsManager(RoomsManager r) {
-		log.debug("Setting room manager");
-		roomsManager = r;
-	}
-	
-	private String getMeetingId(){
-		return Red5.getConnectionLocal().getScope().getName();
-	}
-		
-	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
-		this.connInvokerService = connInvokerService;
+
+	public void getRecordingStatus(String meetingId, String userId) {
+		bbbInGW.getRecordingStatus(meetingId, userId);
 	}
 }

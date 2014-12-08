@@ -22,9 +22,9 @@ public abstract class FreeswitchCommand {
     public static final String SPACE = " ";
 
     protected final String room;
-    protected final Integer requesterId;
+    protected final String requesterId;
 
-    public FreeswitchCommand(String room, Integer requesterId) {
+    public FreeswitchCommand(String room, String requesterId) {
             this.room = room;
             this.requesterId = requesterId;
     }
@@ -39,7 +39,7 @@ public abstract class FreeswitchCommand {
             return room;
     }
 
-    public Integer getRequesterId() {
+    public String getRequesterId() {
             return requesterId;
     }
 }

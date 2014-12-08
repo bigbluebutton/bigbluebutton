@@ -1,4 +1,4 @@
-# Set encoding to utf-8
+#!/usr/bin/ruby
 # encoding: UTF-8
 #
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
@@ -41,10 +41,10 @@ def check_audio_files(raw_dir,meeting_id)
     	audioname = fs_audio_file.content.split("/").last
     	raw_audio_file = "#{raw_dir}/#{meeting_id}/audio/#{audioname}"
     	#checking that the audio file exists in raw directory
-    	raise Exception,  "Audio file doesn't exists in raw directory." if not File.exists?(raw_audio_file)
+    	raise Exception,  "Audio file #{raw_audio_file} doesn't exist in raw directory." if not File.exists?(raw_audio_file)
 
     	#checking length
-    	raise Exception,  "Audio file length is zero." if BigBlueButton::AudioEvents.determine_length_of_audio_from_file(raw_audio_file) <= 0 
+    	raise Exception,  "Audio file #{raw_audio_file} length is zero." if BigBlueButton::AudioEvents.determine_length_of_audio_from_file(raw_audio_file) <= 0 
     }
 
 end
@@ -94,7 +94,6 @@ def check_deskshare_files(raw_dir, meeting_id)
     end
 end
 
-BigBlueButton.logger = Logger.new('/var/log/bigbluebutton/sanity.log', 'daily' )
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -104,12 +103,14 @@ meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
 props = YAML::load(File.open('bigbluebutton.yml'))
-
+log_dir = props['log_dir']
 audio_dir = props['raw_audio_src']
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
 redis_host = props['redis_host']
 redis_port = props['redis_port']
+
+BigBlueButton.logger = Logger.new("#{log_dir}/sanity.log", 'daily' )
 
 begin
 	BigBlueButton.logger.info("Starting sanity check for recording #{meeting_id}.")
@@ -117,15 +118,15 @@ begin
 	check_events_xml(raw_archive_dir,meeting_id)
 	BigBlueButton.logger.info("Checking audio")
 	check_audio_files(raw_archive_dir,meeting_id)
-        BigBlueButton.logger.info("Checking webcam videos")
-        check_webcam_files(raw_archive_dir,meeting_id)
-        BigBlueButton.logger.info("Checking deskshare videos")
-        check_deskshare_files(raw_archive_dir,meeting_id)
+    BigBlueButton.logger.info("Checking webcam videos")
+    check_webcam_files(raw_archive_dir,meeting_id)
+    BigBlueButton.logger.info("Checking deskshare videos")
+    check_deskshare_files(raw_archive_dir,meeting_id)
 	#delete keys
 	BigBlueButton.logger.info("Deleting keys")
 	redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
 	events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
-        events_archiver.delete_events(meeting_id)
+    events_archiver.delete_events(meeting_id)
 
 	#create done files for sanity
 	BigBlueButton.logger.info("creating sanity done files")

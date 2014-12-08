@@ -30,12 +30,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.PdfToSwfSlide;
+import org.bigbluebutton.presentation.PngImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -45,13 +45,17 @@ import org.slf4j.LoggerFactory;
 
 public class PdfToSwfSlidesGenerationService {
 	private static Logger log = LoggerFactory.getLogger(PdfToSwfSlidesGenerationService.class);
-		
+	
+	private final ExecutorService executor = Executors.newFixedThreadPool(2);
+	
 	private SwfSlidesGenerationProgressNotifier notifier;
 	private PageCounterService counterService;
 	private PageConverter pdfToSwfConverter;
 	private PdfPageToImageConversionService imageConvertService;
+	
 	private ThumbnailCreator thumbnailCreator;
 	private TextFileCreator textFileCreator;
+	private PngImageCreator pngImageCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
 	private int MAX_SWF_FILE_SIZE;
@@ -59,10 +63,10 @@ public class PdfToSwfSlidesGenerationService {
 	public void generateSlides(UploadedPresentation pres) {
 		log.debug("Generating slides");		
 		determineNumberOfPages(pres);
-		log.debug("Determined number of pages " + pres.getNumberOfPages());
+		log.info("Determined number of pages. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], numPages=[" + pres.getNumberOfPages() + "]");
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
-			/* adding accessibility */
+//			createPngImages(pres);
 			createTextFiles(pres);
 			createThumbnails(pres);
 			notifier.sendConversionCompletedMessage(pres);
@@ -93,25 +97,29 @@ public class PdfToSwfSlidesGenerationService {
 	}
 	
 	private void createThumbnails(UploadedPresentation pres) {
-		log.debug("Creating thumbnails.");
+		log.info("Creating thumbnails. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
 		thumbnailCreator.createThumbnails(pres);
 	}
 	
 	private void createTextFiles(UploadedPresentation pres) {
-		log.debug("Creating textfiles for accessibility.");
+		log.info("Creating textfiles for accessibility. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingTextFilesUpdateMessage(pres);
 		textFileCreator.createTextFiles(pres);
+	}
+	
+	private void createPngImages(UploadedPresentation pres) {
+		log.info("Creating PNG images. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
+		notifier.sendCreatingPngImagesUpdateMessage(pres);
+		pngImageCreator.createPngImages(pres);
 	}
 	
 	private void convertPdfToSwf(UploadedPresentation pres) {
 		int numPages = pres.getNumberOfPages();				
 		List<PdfToSwfSlide> slides = setupSlides(pres, numPages);
-		
-		ExecutorService executor;
+			
 		CompletionService<PdfToSwfSlide> completionService;
-		int numThreads = Runtime.getRuntime().availableProcessors();
-		executor = Executors.newFixedThreadPool(numThreads);
+
 		completionService = new ExecutorCompletionService<PdfToSwfSlide>(executor);			
 		generateSlides(pres, slides, completionService);		
 	}
@@ -143,7 +151,7 @@ public class PdfToSwfSlidesGenerationService {
 					slidesCompleted++;
 					notifier.sendConversionUpdateMessage(slidesCompleted, pres);
 				} else {
-					log.info("Timedout waiting for page to finish conversion.");
+					log.warn("Timedout waiting for page to finish conversion. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 				}
 			} catch (InterruptedException e) {
 				log.error("InterruptedException while creating slide " + pres.getName());
@@ -154,7 +162,8 @@ public class PdfToSwfSlidesGenerationService {
 				
 		for (final PdfToSwfSlide slide : slides) {
 			if (! slide.isDone()){
-				log.warn("Creating blank slide for " + slide.getPageNumber());
+				log.warn("Creating blank slide. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], page=[" + slide.getPageNumber() + "]");
+
 				slide.generateBlankSlide();				
 				notifier.sendConversionUpdateMessage(slidesCompleted++, pres);
 			}	
@@ -205,7 +214,9 @@ public class PdfToSwfSlidesGenerationService {
 	public void setTextFileCreator(TextFileCreator textFileCreator) {
 		this.textFileCreator = textFileCreator;
 	}
-	
+	public void setPngImageCreator(PngImageCreator pngImageCreator) {
+		this.pngImageCreator = pngImageCreator;
+	}
 	public void setMaxConversionTime(int minutes) {
 		MAX_CONVERSION_TIME = minutes * 60 * 1000;
 	}
@@ -213,4 +224,5 @@ public class PdfToSwfSlidesGenerationService {
 	public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
 		this.notifier = notifier;
 	}
+	
 }

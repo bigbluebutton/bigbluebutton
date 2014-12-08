@@ -33,6 +33,9 @@ package org.bigbluebutton.modules.chat.services
   
   public class MessageReceiver implements IMessageListener
   {
+    
+    private static const LOG:String = "Chat::MessageReceiver - ";
+    
     public var dispatcher:IEventDispatcher;
     
     public function MessageReceiver()
@@ -58,23 +61,25 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleChatRequestMessageHistoryReply(message:Object):void {
-      var msgCount:Number = message.count as Number;
-      for (var i:int = 0; i < msgCount; i++) {
-        handleChatReceivePublicMessageCommand(message.messages[i]);
+      trace(LOG + "Handling chat history message [" + message.msg + "]");
+      var chats:Array = JSON.parse(message.msg) as Array;
+      
+      for (var i:int = 0; i < chats.length; i++) {
+        handleChatReceivePublicMessageCommand(chats[i]);
       }
-           
+         
       var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
       dispatcher.dispatchEvent(pcEvent);
     }
         
     private function handleChatReceivePublicMessageCommand(message:Object):void {
-      LogUtil.debug("Handling public chat message [" + message.message + "]");
+      trace(LOG + "Handling public chat message [" + message.message + "]");
+      
       var msg:ChatMessageVO = new ChatMessageVO();
       msg.chatType = message.chatType;
       msg.fromUserID = message.fromUserID;
       msg.fromUsername = message.fromUsername;
       msg.fromColor = message.fromColor;
-      msg.fromLang = message.fromLang;
       msg.fromTime = message.fromTime;
       msg.fromTimezoneOffset = message.fromTimezoneOffset;
       msg.toUserID = message.toUserID;
@@ -91,13 +96,13 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleChatReceivePrivateMessageCommand(message:Object):void {
-      LogUtil.debug("Handling private chat message");
+      trace(LOG + "Handling private chat message");
+      
       var msg:ChatMessageVO = new ChatMessageVO();
       msg.chatType = message.chatType;
       msg.fromUserID = message.fromUserID;
       msg.fromUsername = message.fromUsername;
       msg.fromColor = message.fromColor;
-      msg.fromLang = message.fromLang;
       msg.fromTime = message.fromTime;
       msg.fromTimezoneOffset = message.fromTimezoneOffset;
       msg.toUserID = message.toUserID;

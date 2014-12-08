@@ -1,0 +1,94 @@
+usePlugin 'scala'
+usePlugin 'java'
+usePlugin 'war'
+usePlugin 'eclipse'
+
+version = '0.1'
+jar.enabled = true
+
+def appName = 'bigbluebutton-recording-service'
+
+archivesBaseName = appName 
+
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+
+repositories {
+   	add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
+		 name = 'remote'
+       	returnFirst = true
+       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "googlecode"
+       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+		}
+		   add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "blindside-repos"
+       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+		}			 
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "maven2-central"
+       		m2compatible = true
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+		}  
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "testng_ibiblio_maven2"
+       		m2compatible = true
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+		}  
+		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "netty-dependency"
+            m2compatible = true
+            addArtifactPattern "http://repository.jboss.org/nexus/content/groups/public-jboss/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+    }
+		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "spring-bundles"
+            m2compatible = true
+            addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+            addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+        }        
+   	}
+}
+
+dependencies {	 
+	
+	// Logging
+	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
+	providedCompile 'ch.qos.logback:logback-classic:1.0.9@jar'
+	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
+	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
+	providedCompile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
+    providedCompile 'org.slf4j:slf4j-api:1.7.2@jar'
+
+    // Testing
+    compile 'org.testng:testng:5.8@jar' 
+    compile 'org.easymock:easymock:2.4@jar'
+  
+	//redis
+	compile 'redis.clients:jedis:2.0.0'
+	providedCompile 'commons-pool:commons-pool:1.5.6'
+ 
+	// Libraries needed to run the scala tools
+	scalaTools 'org.scala-lang:scala-compiler:2.9.2'
+	scalaTools 'org.scala-lang:scala-library:2.9.2'
+
+	// Libraries needed for scala api
+	compile 'org.scala-lang:scala-library:2.9.2'
+
+	// workaround for http://issues.gradle.org/browse/GRADLE-1273
+	compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
+	compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
+}
+
+test {
+	useTestNG() 
+}
+
+        

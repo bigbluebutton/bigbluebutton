@@ -20,9 +20,11 @@ package org.bigbluebutton.modules.present.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.display.DisplayObject;
+	import flash.geom.Point;
 	import mx.collections.ArrayCollection;
+	import mx.core.*;
 	import mx.managers.PopUpManager;
-	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -31,9 +33,9 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-	import org.bigbluebutton.modules.present.events.QueryListOfPresentationsReplyEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 	
@@ -42,9 +44,6 @@ package org.bigbluebutton.modules.present.managers
 		private var globalDispatcher:Dispatcher;
 		private var uploadWindow:FileUploadWindow;
 		private var presentWindow:PresentationWindow;
-		
-		//format: presentationNames = [{label:"00"}, {label:"11"}, {label:"22"} ];
-		[Bindable] public var presentationNames:ArrayCollection = new ArrayCollection();
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
@@ -72,45 +71,21 @@ package org.bigbluebutton.modules.present.managers
 	
 		public function handleOpenUploadWindow(e:UploadEvent):void{
 			if (uploadWindow != null) return;
-			
-			uploadWindow = new FileUploadWindow();
-			uploadWindow.presentationNamesAC = presentationNames;
+
+			uploadWindow = FileUploadWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileUploadWindow, true));
 			uploadWindow.maxFileSize = e.maxFileSize;
-			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, true);
+			
+			var point1:Point = new Point();
+			point1.x = FlexGlobals.topLevelApplication.width / 2;
+			point1.y = FlexGlobals.topLevelApplication.height / 2;  
+			
+			uploadWindow.x = point1.x - (uploadWindow.width/2);
+			uploadWindow.y = point1.y - (uploadWindow.height/2);
 		}
 		
 		public function handleCloseUploadWindow():void{
 			PopUpManager.removePopUp(uploadWindow);
 			uploadWindow = null;
 		}
-		
-		public function updatePresentationNames(e:UploadEvent):void{
-			LogUtil.debug("Adding presentation " + e.presentationName);
-			for (var i:int = 0; i < presentationNames.length; i++) {
-				if (presentationNames[i] == e.presentationName) return;
-			}
-			presentationNames.addItem(e.presentationName);
-		}
-
-		public function removePresentation(e:RemovePresentationEvent):void {
-			LogUtil.debug("Removing presentation " + e.presentationName);
-      var p:String;
-      
-      for (var i:int = 0; i < presentationNames.length; i++) {
-        p = presentationNames.getItemAt(i) as String;
-        if (p == e.presentationName) {
-          presentationNames.removeItemAt(i);
-        }
-      }
-		}
-    
-    public function queryPresentations():void {
-      var pArray:Array = new Array();
-      pArray = presentationNames.toArray();
-      
-      var qEvent:QueryListOfPresentationsReplyEvent = new QueryListOfPresentationsReplyEvent();
-      qEvent.presentations = pArray;
-      globalDispatcher.dispatchEvent(qEvent);
-    }
 	}
 }

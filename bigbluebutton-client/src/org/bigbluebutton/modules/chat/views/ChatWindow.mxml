@@ -53,10 +53,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.LogUtil;
 			
+      private static const LOG:String = "Chat::ChatWindow - ";
+      
 			private var _xPosition:int;
 			private var _yPosition:int;
 			private var keyCombos:Object;
-			private var disp:Dispatcher;
+			private var disp:Dispatcher = new Dispatcher();
 			private var dispState:String;
 			[Bindable] public var chatOptions:ChatOptions;
 			
@@ -74,10 +76,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = FlexGlobals.topLevelApplication.stage.displayState;
 				
-				// var disp:Dispatcher = new Dispatcher();
-				disp  = new Dispatcher();
-//				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
-
 				hotkeyCapture();
 				titleBarOverlay.tabIndex = baseIndex;
 				
