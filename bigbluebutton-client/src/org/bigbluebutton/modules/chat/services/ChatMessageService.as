@@ -102,6 +102,7 @@ package org.bigbluebutton.modules.chat.services
         
         var welcomeMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
         welcomeMsgEvent.message = welcomeMsg;
+        welcomeMsgEvent.history = false;
         dispatcher.dispatchEvent(welcomeMsgEvent);
       }	
       
@@ -120,6 +121,7 @@ package org.bigbluebutton.modules.chat.services
           
           var moderatorOnlyMsgEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
           moderatorOnlyMsgEvent.message = moderatorOnlyMsg;
+          moderatorOnlyMsgEvent.history = false;
           dispatcher.dispatchEvent(moderatorOnlyMsgEvent);
         }
       }
