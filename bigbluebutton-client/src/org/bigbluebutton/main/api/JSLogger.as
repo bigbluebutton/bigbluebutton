@@ -2,7 +2,7 @@ package org.bigbluebutton.main.api
 {
   import flash.external.ExternalInterface;
 
-  class JSLogger {
+  public class JSLogger {
     private static var instance:JSLogger = null;
     
     public function JSLogger(enforcer:JSLoggerSingletonEnforcer) {
