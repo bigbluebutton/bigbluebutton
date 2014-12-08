@@ -102,6 +102,7 @@ package org.bigbluebutton.modules.chat.services
         
         var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
         pcEvent.message = msg;
+        pcEvent.history = false;
         dispatcher.dispatchEvent(pcEvent);
       }	
       
@@ -120,6 +121,7 @@ package org.bigbluebutton.modules.chat.services
           
           var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
           pcEvent.message = msg;
+          pcEvent.history = false;
           dispatcher.dispatchEvent(pcEvent);          
         }
       }

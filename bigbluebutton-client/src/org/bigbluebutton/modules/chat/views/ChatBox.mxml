@@ -121,8 +121,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    private var chatMessages:ChatConversation = new ChatConversation();
       
 			private var lastCount:Number = 0;			
-			private var scrollTimer:Timer;			
-			private var autoScrollEnabled:Boolean = true;
+			private var scrollTimer:Timer;
 			private var currentMessage:int;
 			private var latestMessage:int; 
 			
@@ -221,13 +220,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function loadChatHistory(event:TimerEvent):void {
         if (publicChat) {
-          autoScrollEnabled = false;
           var disp:Dispatcher  = new Dispatcher();
           disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
-          
-          var tempListener:Listener = new Listener();
-          tempListener.method = function() { autoScrollEnabled = true; scrollToEndOfMessage(); };
-          tempListener.type = TranscriptEvent.TRANSCRIPT_EVENT;
         }
       }
       
@@ -264,7 +258,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
           chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage();
+          if (!event.history) {
+            scrollToEndOfMessage();
+          }
         }
       }
       
@@ -299,9 +295,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * New and improved scrollToBottom implemented (capilkey Dec 4, 2014)
 			 */
 			private function scrollToBottom():void {
-				if (autoScrollEnabled) {
-					chatMessagesList.scrollToBottom();
-				}
+				chatMessagesList.scrollToBottom();
 			}
 			
 			private function onScrollTimer(event:TimerEvent):void {
