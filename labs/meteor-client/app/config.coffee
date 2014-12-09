@@ -14,13 +14,6 @@ config.maxChatLength = 140
 ## Application configurations
 config.app = {}
 
-# Generate a new secret with:
-# $ npm install crypto
-# $ coffee
-# coffee> crypto = require 'crypto'
-# coffee> crypto.randomBytes(32).toString('base64')
-config.app.sessionSecret = "J7XSu96KC/B/UPyeGub3J6w6QFXWoUNABVgi9Q1LskE="
-
 # server ip
 config.app.serverIP = "http://192.168.0.119"
 
@@ -59,12 +52,5 @@ if Meteor.isServer
 
   Meteor.log = new winston.Logger
     transports: transports
-# else
-#   Meteor.log = Winston
-
-
-# Global instance of Modules, created by `app.coffee`
-config.modules = null
-
 
 Meteor.config = config

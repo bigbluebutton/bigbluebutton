@@ -118,6 +118,10 @@ class Meteor.RedisPubSub
           markUserOffline meetingId, userId
         return
 
+      if message.header.name is "disconnect_user_message"
+        Meteor.log.info "a user(#{message.payload.userid}) was kicked out from meeting(#{message.payload.meeting_id})"
+        return
+
       if message.header.name is "get_chat_history_reply" and message.payload.requester_id is "nodeJSapp"
         unless Meteor.Meetings.findOne({MeetingId: message.payload.meeting_id})?
           for chatMessage in message.payload.chat_history

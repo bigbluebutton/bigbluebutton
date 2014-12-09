@@ -114,6 +114,7 @@ Meteor.methods
 # params: meetingid, userid as defined in BBB-Apps
 @markUserOffline = (meetingId, userId) ->
   # mark the user as offline. remove from the collection on meeting_end #TODO
+  Meteor.log.info "marking user [#{userId}] as offline in meeting[#{meetingId}]"
   Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
 
 # Only callable from server
