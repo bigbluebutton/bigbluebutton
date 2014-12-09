@@ -1,6 +1,6 @@
 @import "../colors";
 
-@media all and (max-width: 768px) {
+@media all and (orientation: portrait) {
   .radius(@size: 4px) {
     -moz-border-radius: @size;
     -webkit-border-radius: @size;
@@ -61,7 +61,6 @@
 
   .myNavbar {
     margin-bottom: 0.5%;
-    min-width: 900px;
     &.gradientBar {
       .linear-gradient(rgb(72,76,85), rgb(65,68,77));
     }
@@ -92,12 +91,12 @@
   .navbar {min-height: 40px !important;}
 
   .navbarButton {
-    height: 50px;
-    width: 70px;
+    height: 100px;
+    min-width: 10%;
   }
 
   .navbarFiller {
-    height: 50px;
+    height: 100px;
     width: 100%;
   }
 
@@ -123,11 +122,6 @@
     width: 40px;
   }
 
-  .navbarSection {
-    min-width: 300px;
-    width: 33%;
-  }
-
   .navbarSettingsButtons {
     float: right;
 
@@ -141,10 +135,13 @@
     color: extract(@white, 1);
     display: block;
     float: left;
-    font-size: 16px;
+    font-size: 30px;
     font-weight: bold;
-    padding-top: 13px;
+    padding-top: 30px;
+    padding-left: 5px;
     text-align: center;
+    overflow: hidden;
+    height: 72px;
   }
 
   .navbarUserButtons {}
@@ -268,5 +265,9 @@
   .quarterScreen {
     width: 22% !important;
     height: 80% !important;
+  }
+
+  .glyphicon {
+    font-size: 35px;
   }
 }

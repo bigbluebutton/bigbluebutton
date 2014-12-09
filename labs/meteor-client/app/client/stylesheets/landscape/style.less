@@ -1,6 +1,6 @@
 @import "../colors";
 
-@media all and (min-width: 769px) {
+@media all and (orientation: landscape) {
   .radius(@size: 4px) {
     -moz-border-radius: @size;
     -webkit-border-radius: @size;
@@ -265,5 +265,9 @@
   .quarterScreen {
     width: 22% !important;
     height: 80% !important;
+  }
+
+  #collapseButtonSection {
+    display: none;
   }
 }
