@@ -52,12 +52,18 @@ class ToolController {
 
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
         ltiService.logParameters(params)
-
         if( request.post ){
-            def endPoint = (request.isSecure()?"https":"http") + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
+        // URL of request at this point
+        // is http://127.0.0.1:8080/lti/grails/tool.dispatch
+        // assuming the stock /etc/bigbluebutton/nginx/lti.nginx is in play 
+        // (nginx proxy_pass to tomcat7 on port 8080)
+        // this is fixed as http
+        // so, we need to examine nginx headers for original scheme from the refering LMS
+        	def protocol=request.getHeader("scheme");
+        	if (protocol == null || !(protocol == "http" || protocol == "https") ) protocol="http"; 
+            def endPoint = protocol + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
             Map<String, String> result = new HashMap<String, String>()
             ArrayList<String> missingParams = new ArrayList<String>()
-
             if (hasAllRequiredParams(params, missingParams)) {
                 def sanitizedParams = sanitizePrametersForBaseString(params)
                 def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
@@ -340,7 +346,6 @@ class ToolController {
      */
     private boolean checkValidSignature(String method, String url, String conSecret, Properties postProp, String signature) {
         def validSignature = false
-
         try {
             OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
             //log.debug "OAuthMessage oam = " + oam.toString()
@@ -387,7 +392,7 @@ class ToolController {
                 '    <blti:icon>' + icon + '</blti:icon>' +
                 (isSSLEnabled? '    <blti:secure_icon>' + secure_icon + '</blti:secure_icon>': '') +
                 '    <blti:vendor>' +
-                '        <lticp:code>bigbluebutton</lticp:code>' +
+                '        <lticp:code>BBB</lticp:code>' +
                 '        <lticp:name>BigBlueButton</lticp:name>' +
                 '        <lticp:description>Open source web conferencing system for distance learning.</lticp:description>' +
                 '        <lticp:url>http://www.bigbluebutton.org/</lticp:url>' +
