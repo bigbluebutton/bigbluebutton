@@ -5,13 +5,13 @@
 		<div id="user-contents">
 			{{#Layout template="scrollWindow" id="publicUserScrollWindow"}}
 				{{#contentFor region="scrollContents"}}
-					<ul class="userlist">
+					<div class="userlist">
 						{{#each getUsersInMeeting}}
 							<div id="content">
 								{{>userItem}}
 							</div>
 						{{/each}}
-					</ul>
+					</div>
 				{{/contentFor}}
 			{{/Layout}}
 		</div>
