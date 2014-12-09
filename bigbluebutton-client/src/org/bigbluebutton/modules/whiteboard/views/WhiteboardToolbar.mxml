@@ -29,7 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     creationComplete="onCreationComplete()"
     visible="{showWhiteboardToolbar}" 
     includeInLayout="{showWhiteboardToolbar}"
-    styleName="whiteboardToolbarStyle">
+    styleName="whiteboardToolbarStyle"
+    hideEffect="{fadeOut}" showEffect="{fadeIn}">
 
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
@@ -133,10 +134,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
-			
+
+			private var _hideToolbarTimer:Timer;
+
 			private function init():void{
 				wbOptions = new WhiteboardOptions();
 				baseIndex = wbOptions.baseTabIndex;
+
+				_hideToolbarTimer = new Timer(500, 1);
+				_hideToolbarTimer.addEventListener(TimerEvent.TIMER, onHideToolbarTimerComplete);
 			}
 			
       private function onCreationComplete():void {
@@ -267,14 +273,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver) && !presentationWindow.minimized) {
+                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver)) {
                     setPositionAndDepth();
-                    showWhiteboardToolbar = true;
+                    showToolbar();
                 } else {
-                    showWhiteboardToolbar = false;
+                    hideToolbar();
                 }
             }
-            
+
+			private function showToolbar():void {
+				_hideToolbarTimer.reset();
+				showWhiteboardToolbar = true;
+			}
+
+			private function hideToolbar():void {
+				_hideToolbarTimer.reset();
+				_hideToolbarTimer.start();
+			}
+
+			private function onHideToolbarTimerComplete(event:TimerEvent):void {
+				showWhiteboardToolbar = false;
+			}
+
 			private function setPositionAndDepth(e:Event = null):void {
 				this.x = presentationWindow.x + presentationWindow.width - 43;
 				this.y = presentationWindow.y + 30;
@@ -347,7 +367,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		           
 		]]>
 	</mx:Script>
-	
+
+	<mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0" />
+	<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0" />
+
 	<!-- Now, every 'tool' has two types of identifiers, one is found in WhiteboardConstants
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
