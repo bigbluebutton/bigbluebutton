@@ -37,8 +37,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
-      import be.boulevart.google.events.GoogleApiEvent;     
       import com.asfusion.mate.events.Dispatcher;
       import flash.accessibility.Accessibility;
       import flash.events.Event;
@@ -85,8 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    private var tabBox:AddChatTabBox;
 	    private var publicBox:ChatBox;
 	    private var focus:Boolean = true;			
-	    private var globalDispatcher:Dispatcher = new Dispatcher();			
-	    private var autoTranslation:Boolean=false;
+	    private var globalDispatcher:Dispatcher = new Dispatcher();
 			
       [Bindable] public var chatOptions:ChatOptions;
 	  

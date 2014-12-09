@@ -126,6 +126,13 @@ if not FileTest.directory?(target_dir)
   # we will abort the archiving if there's no marks to start and stop the recording
   if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
     BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, aborting the archive process")
+
+    # we need to delete the keys here because the sanity phase won't never happen for this recording
+    BigBlueButton.logger.info("Deleting keys")
+    redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
+    events_archiver = BigBlueButton::RedisEventsArchiver.new redis
+    events_archiver.delete_events(meeting_id)
+
     BigBlueButton.logger.info("Removing events.xml")
     FileUtils.rm_r target_dir
     BigBlueButton.logger.info("Removing the recorded flag")

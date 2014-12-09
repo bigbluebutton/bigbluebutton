@@ -1,0 +1,36 @@
+# Local configuration file
+
+config = {}
+
+# Shared secret of your BigBlueButton server.
+config.bbb = {}
+config.bbb.sharedSecret = "33e06642a13942004fd83b3ba6e4104a"
+
+# The port in which the API server will run.
+config.server = {}
+config.server.port = 3005
+
+# Callbacks will be triggered for all the events in this list and only for these events.
+config.hooks = {}
+config.hooks.events = [
+  { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_created_message" },
+  { channel: "bigbluebutton:from-bbb-apps:meeting", name: "meeting_destroyed_event" },
+  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_joined_message" },
+  { channel: "bigbluebutton:from-bbb-apps:users", name: "user_left_message" },
+  { channel: "bigbluebutton:from-rap", name: "sanity_started" },
+  { channel: "bigbluebutton:from-rap", name: "sanity_ended" },
+  { channel: "bigbluebutton:from-rap", name: "archive_started" },
+  { channel: "bigbluebutton:from-rap", name: "archive_ended" },
+  { channel: "bigbluebutton:from-rap", name: "post_archive_started" },
+  { channel: "bigbluebutton:from-rap", name: "post_archive_ended" },
+  { channel: "bigbluebutton:from-rap", name: "process_started" },
+  { channel: "bigbluebutton:from-rap", name: "process_ended" },
+  { channel: "bigbluebutton:from-rap", name: "post_process_started" },
+  { channel: "bigbluebutton:from-rap", name: "post_process_ended" },
+  { channel: "bigbluebutton:from-rap", name: "publish_started" },
+  { channel: "bigbluebutton:from-rap", name: "publish_ended" },
+  { channel: "bigbluebutton:from-rap", name: "post_publish_started" },
+  { channel: "bigbluebutton:from-rap", name: "post_publish_ended" }
+]
+
+module.exports = config

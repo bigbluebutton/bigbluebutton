@@ -10,7 +10,7 @@ public interface IBigBlueButtonInGW {
 	void statusMeetingAudit(String meetingID);
 	void endMeeting(String meetingID);
 	void endAllMeetings();
-	void createMeeting2(String meetingID, String meetingName, boolean recorded, 
+	void createMeeting2(String meetingID, String externalMeetingID, String meetingName, boolean recorded, 
 			    String voiceBridge, long duration, boolean autoStartRecording,
 			    boolean allowStartStopRecording);
 	void destroyMeeting(String meetingID);

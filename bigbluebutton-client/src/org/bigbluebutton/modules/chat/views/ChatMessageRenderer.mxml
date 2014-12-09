@@ -22,8 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
 		 verticalScrollPolicy="off" horizontalScrollPolicy="off" 
-		 xmlns:common="org.bigbluebutton.common.*"
-		 creationComplete="onCreationComplete()">
+		 xmlns:common="org.bigbluebutton.common.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -33,33 +32,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
-
-			[Bindable] private var rolledOver:Boolean = false;					
-			[Bindable] private var chatMsg:ChatMessage;
-			[Bindable] private var chatTime:String;
 			
 			private function onLinkClick(e:TextEvent):void{
         trace("Clicked on link[" + e.text + "] from chat");
         if (ExternalInterface.available) {
           ExternalInterface.call("chatLinkClicked", e.text);
         } 
-			}
-			
-			private function onCreationComplete():void{
-				/** Register a change handler as the renderer get recycled. If we don't
-				 * do this, we'll get a stale data which will display the chat 
-				 * message repeatedly. (ralam Nov 1, 2010)
-				 */
-				//ChangeWatcher.watch(this, "data", dataChangeHandler);
-				//dataChangeHandler(); // call to intialize
-				
-				/**
-				 * The next line will refresh the display so that chat history don't show up as
-				 * squished. Don't know fully hos this works but somehow when I put this in
-				 * it fixed the problem. So if you remove this, make sure you test that the
-				 * chat history shows up correctly. (ralam Nov 3, 2010)
-				 */
-				validateNow();
 			}
 			
 			//private function dataChangeHandler(e:Event = null):void{
@@ -74,8 +52,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (data == null) return;
 				
-				data.translateMessage();
-				
 				// The visibility check has to go here becasue ORs don't work with databinding
 				lblTime.visible = (!(data.lastTime == data.time) || !(data.senderId == data.lastSenderId));
 				// check the visibility of the name as well because events might fire in different order
@@ -87,15 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// adjust the name width so that "..." are added if it's too long
 				lblName.width = this.width - lblTime.width - 22;
 				
+				// If you remove this some of the chat messages will fail to render
 				validateNow();
-			}
-			
-			private function onRollOver():void{
-				rolledOver = true;
-			}
-			
-			private function onRollOut():void{
-				rolledOver = false;
 			}
 			
 			private function onKeyDown(event:KeyboardEvent):void{
@@ -108,11 +77,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
   <mx:Canvas width="100%" id="hbHeader">
-    <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" textAlign="left" left="0"/>
-    <mx:Text id="lblTime" htmlText="{data.translateLocale} {data.time}" textAlign="right"
+    <mx:Label id="lblName" text="{data.name}" visible="true" color="gray" textAlign="left" left="0"/>
+    <mx:Text id="lblTime" htmlText="{data.time}" textAlign="right"
              visible="true" 
              color="gray" right="0" />       
   </mx:Canvas>
-  <mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.translatedText}" link="onLinkClick(event)" color="{data.senderColor}"
-           rollOver="onRollOver()" rollOut="onRollOut()" keyDown="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>
+  <mx:Text id="txtMessage" htmlText="{data.text}" link="onLinkClick(event)" color="{data.senderColor}"
+           keyDown="onKeyDown(event)" paddingLeft="5" width="100%" selectable="true"/>
 </mx:VBox>

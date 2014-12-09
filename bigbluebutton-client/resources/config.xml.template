@@ -13,7 +13,8 @@
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="true" confirmLogout="true"/>
+            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="true" confirmLogout="true"
+            showRecordingNotification="true"/>
     <lock allowModeratorLocking="false" disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
           disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false"/>
             
@@ -22,8 +23,6 @@
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"	
-			translationOn="false"
-			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
 			baseTabIndex="701"
@@ -83,7 +82,7 @@
 			displayAvatar = "false"
 			focusTalking = "false"
 			glowColor = "0x4A931D"
-			glowBlurSize = "30.0"
+			glowBlurSize = "30.0"	
 			priorityRatio = "0.67"
 		/>
 		
@@ -128,7 +127,7 @@
 			baseTabIndex="401"
 		/>
 -->
-
+		
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
