@@ -140,7 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var saveEvent:ChatSaveEvent = new ChatSaveEvent(ChatSaveEvent.SAVE_CHAT_EVENT);
 				
 				if (chatBox.chatWithUsername == null || chatBox.chatWithUsername == "") {
-					saveEvent.filename = ResourceUtil.getInstance().getString('bbb.chat.publicChatUsername');
+					saveEvent.filename = ResourceUtil.getInstance().getString('bbb.chat.save.filename');
 				} else {
 					saveEvent.filename = chatBox.chatWithUsername;
 				}
