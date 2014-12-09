@@ -3,16 +3,31 @@
 @media all and (min-width: 769px) {
   #content {
     margin-top:10px;
-    padding-bottom:10px;
+    overflow: hidden;
   }
 
   #usericons {
     margin-left:10px;
     float:right;
+	    span { 
+			margin-left:3px;
+			padding:2px;
+			border:1px solid white;
+	    }
+		.raisedHandIcon, .muteIcon {
+			&:hover { 
+			cursor: pointer;
+			border:1px solid #f2f2f2;
+			background-color: #f2f2f2;
+			border-radius: 4px;
+			}
+		}
   }
 
   #username {
+    display:block;
     float:left;
+    width:70%;
   }
 
   #users {
@@ -28,6 +43,9 @@
   #user-contents {
     height: 95%;
     padding-bottom: 10px;
+    .userlist { 
+    	padding:10px;
+    }
   }
 
   .userCurrent {

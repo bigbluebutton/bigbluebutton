@@ -59,3 +59,33 @@ body {
     background: #4695c6;
     cursor: pointer;
 }
+
+
+/* Large desktop */
+@media (min-width: 1200px) { 
+    .login-form { 
+        width:20%;
+    }
+}
+ 
+/* Portrait tablet to landscape and desktop */
+@media (min-width: 768px) and (max-width: 979px) {
+
+
+
+}
+ 
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) { 
+    .login-form { 
+        width:45%;
+    }
+
+}
+ 
+/* Landscape phones and down */
+@media (max-width: 480px) { 
+    .login-form { 
+        width:65%;
+    }
+}
