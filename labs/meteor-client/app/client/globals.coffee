@@ -232,7 +232,7 @@ Handlebars.registerHelper "visibility", (section) ->
   document.location = Meteor.config.app.logOutUrl # navigate to logout
 
 # Clear the local user session
-@clearSessionVar = ->
+@clearSessionVar = (callback) ->
   delete SessionAmplify.keys['authToken']
   delete SessionAmplify.keys['bbbServerVersion']
   delete SessionAmplify.keys['chatTabs']
@@ -251,6 +251,7 @@ Handlebars.registerHelper "visibility", (section) ->
   delete SessionAmplify.keys['userId']
   delete SessionAmplify.keys['userName']
   console.log "clearSessionVar"
+  callback()
 
 # assign the default values for the Session vars
 @setDefaultSettings = ->
