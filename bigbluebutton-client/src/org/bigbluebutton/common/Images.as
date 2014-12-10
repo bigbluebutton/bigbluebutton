@@ -24,34 +24,7 @@ package org.bigbluebutton.common
 
     [Embed(source="assets/images/page_link.png")]
     public var page_link:Class;
-	
-	[Embed(source="assets/images/status/agree.png")]
-	public var agree:Class;
-	
-	[Embed(source="assets/images/status/disagree.png")]
-	public var disagree:Class;
-	
-	[Embed(source="assets/images/status/speak_faster.png")]
-	public var speak_faster:Class;
-	
-	[Embed(source="assets/images/status/speak_slower.png")]
-	public var speak_slower:Class;
-	
-	[Embed(source="assets/images/status/speak_louder.png")]
-	public var speak_louder:Class;
-	
-	[Embed(source="assets/images/status/speak_lower.png")]
-	public var speak_lower:Class;
-	
-	[Embed(source="assets/images/status/be_right_back.png")]
-	public var be_right_back:Class;
-	
-	[Embed(source="assets/images/status/laughter.png")]
-	public var laughter:Class;
-	
-	[Embed(source="assets/images/status/sad.png")]
-	public var sad:Class;
-	
+    
 	[Embed(source="assets/images/users_settings.png")]
 	public var users_settings:Class;
 	
@@ -333,5 +306,41 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/grid_icon.png")]
 		public var grid_icon:Class;	
+	
+		[Embed(source="assets/images/status/ic_mood_black_18dp.png")]
+		public var mood:Class;
+
+		[Embed(source="assets/images/status/ic_clear_black_18dp.png")]
+		public var mood_clear:Class;
+
+		[Embed(source="assets/images/status/icon-3-high-five.png")]
+		public var mood_raise_hand:Class;
+
+		[Embed(source="assets/images/status/icon-6-thumb-up.png")]
+		public var mood_agreed:Class;
+
+		[Embed(source="assets/images/status/icon-7-thumb-down.png")]
+		public var mood_disagreed:Class;
+
+		[Embed(source="assets/images/status/ic_fast_forward_black_18dp.png")]
+		public var mood_speak_faster:Class;
+
+		[Embed(source="assets/images/status/ic_fast_rewind_black_18dp.png")]
+		public var mood_speak_slower:Class;
+
+		[Embed(source="assets/images/status/ic_volume_up_black_18dp.png")]
+		public var mood_speak_louder:Class;
+
+		[Embed(source="assets/images/status/ic_volume_down_black_18dp.png")]
+		public var mood_speak_softer:Class;
+
+		[Embed(source="assets/images/status/ic_access_time_black_18dp.png")]
+		public var mood_be_right_back:Class;
+
+		[Embed(source="assets/images/status/icon-6-smiling-face.png")]
+		public var mood_happy:Class;
+
+		[Embed(source="assets/images/status/icon-7-sad-face.png")]
+		public var mood_sad:Class;
 	}
 }

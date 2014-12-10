@@ -227,17 +227,17 @@
 			private function openMoodMenu():void {
 				var myMenuData:Array = [];
 				if(partOptions.enableRaiseHand) {
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.delete_icon, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.hand_new, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.agree, callback: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.disagree, callback: function():void { changeStatus(ChangeStatusEvent.DISAGREE); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakLouder'), icon: images.speak_louder, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSofter'), icon: images.speak_lower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOWER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakFaster'), icon: images.speak_faster, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_FASTER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSlower'), icon: images.speak_slower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_SLOWER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.beRightBack'), icon: images.be_right_back, callback: function():void { changeStatus(ChangeStatusEvent.BE_RIGHT_BACK); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.laughter, callback: function():void { changeStatus(ChangeStatusEvent.LAUGHTER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.sad, callback: function():void { changeStatus(ChangeStatusEvent.SAD); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.mood_clear, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.mood_raise_hand, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.mood_agreed, callback: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.mood_disagreed, callback: function():void { changeStatus(ChangeStatusEvent.DISAGREE); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakLouder'), icon: images.mood_speak_louder, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSofter'), icon: images.mood_speak_softer, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakFaster'), icon: images.mood_speak_faster, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_FASTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSlower'), icon: images.mood_speak_slower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_SLOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.beRightBack'), icon: images.mood_be_right_back, callback: function():void { changeStatus(ChangeStatusEvent.BE_RIGHT_BACK); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.mood_happy, callback: function():void { changeStatus(ChangeStatusEvent.LAUGHTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.mood_sad, callback: function():void { changeStatus(ChangeStatusEvent.SAD); }} );
 				}
 				
 				// make sure the previous menu is closed before opening a new one
@@ -286,7 +286,7 @@
 				var myMenuData:Array = [];
 				
 				if(UserManager.getInstance().getConference().amIModerator()) {
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: images.delete_icon, callback: clearAllStatus} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: images.mood_clear, callback: clearAllStatus} );
 				if (!roomMuted) {
 						myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, callback: muteAll} );
 					if (UserManager.getInstance().getConference().getPresenter())
@@ -537,41 +537,38 @@
 				
 				if (e.userId == UserManager.getInstance().getConference().getMyUserId()) {
 					switch(icon) {
-						case "CLEAR_STATUS":
-							raiseHandBtn.setStyle("icon",images.hand_new);
-							break;
 						case "RAISE_HAND":
-							raiseHandBtn.setStyle("icon",images.hand_new);
+							raiseHandBtn.setStyle("icon",images.mood_raise_hand);
 							break;
 						case "AGREE":
-							raiseHandBtn.setStyle("icon",images.agree);
+							raiseHandBtn.setStyle("icon",images.mood_agreed);
 							break;
 						case "DISAGREE":
-							raiseHandBtn.setStyle("icon",images.disagree);
+							raiseHandBtn.setStyle("icon",images.mood_disagreed);
 							break;
 						case "SPEAK_LOUDER":
-							raiseHandBtn.setStyle("icon",images.speak_louder);
+							raiseHandBtn.setStyle("icon",images.mood_speak_louder);
 							break;
 						case "SPEAK_LOWER":
-							raiseHandBtn.setStyle("icon",images.speak_lower);
+							raiseHandBtn.setStyle("icon",images.mood_speak_softer);
 							break;
 						case "SPEAK_FASTER":
-							raiseHandBtn.setStyle("icon",images.speak_faster);
+							raiseHandBtn.setStyle("icon",images.mood_speak_faster);
 							break;
 						case "SPEAK_SLOWER":
-							raiseHandBtn.setStyle("icon",images.speak_slower);
+							raiseHandBtn.setStyle("icon",images.mood_speak_slower);
 							break;
 						case "BE_RIGHT_BACK":
-							raiseHandBtn.setStyle("icon",images.be_right_back);
+							raiseHandBtn.setStyle("icon",images.mood_be_right_back);
 							break;
 						case "LAUGHTER":
-							raiseHandBtn.setStyle("icon",images.laughter);
+							raiseHandBtn.setStyle("icon",images.mood_happy);
 							break;
 						case "SAD":
-							raiseHandBtn.setStyle("icon",images.sad);
+							raiseHandBtn.setStyle("icon",images.mood_sad);
 							break;
 						default:
-							raiseHandBtn.setStyle("icon",images.hand_new);
+							raiseHandBtn.setStyle("icon",images.mood);
 							break;
 					}
 				}
@@ -597,7 +594,7 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
-		<mx:Button id="raiseHandBtn" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
+		<mx:Button id="raiseHandBtn" icon="{images.mood}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
 				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="openMoodMenu()"
 				   visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"

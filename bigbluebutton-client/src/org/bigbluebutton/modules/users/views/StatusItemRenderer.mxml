@@ -93,7 +93,7 @@
 				if (data != null) {
 					if (rolledOver) { //if i'm moderator and I rolled the mouse
 						if (data.hasMood) {
-							statusBtn.setStyle("icon", images.delete_icon);
+							statusBtn.setStyle("icon", images.mood_clear);
 							if (data.raiseHand) {
 								statusBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand');
 							} else {
@@ -128,52 +128,52 @@
 						//updating which status	to show
 						switch(data.mood) {
 							case ChangeStatusEvent.RAISE_HAND:
-								statusImg.source = images.hand_new;
+								statusImg.source = images.mood_raise_hand;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
 								break;
 
 							case ChangeStatusEvent.AGREE:
-								statusImg.source = images.agree;
+								statusImg.source = images.mood_agreed;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.agree');
 								break;
 
 							case ChangeStatusEvent.DISAGREE:
-								statusImg.source = images.disagree;
+								statusImg.source = images.mood_disagreed;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.disagree');
 								break;
 
 							case ChangeStatusEvent.SPEAK_LOUDER:
-								statusImg.source = images.speak_louder;
+								statusImg.source = images.mood_speak_louder;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakLouder');
 								break;
 
 							case ChangeStatusEvent.SPEAK_LOWER:
-								statusImg.source = images.speak_lower;
+								statusImg.source = images.mood_speak_softer;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakSofter');
 								break;
 
 							case ChangeStatusEvent.SPEAK_FASTER:
-								statusImg.source = images.speak_faster;
+								statusImg.source = images.mood_speak_faster;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakFaster');
 								break;
 
 							case ChangeStatusEvent.SPEAK_SLOWER:
-								statusImg.source = images.speak_slower;
+								statusImg.source = images.mood_speak_slower;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakSlower');
 								break;
 
 							case ChangeStatusEvent.BE_RIGHT_BACK:
-								statusImg.source = images.be_right_back;
+								statusImg.source = images.mood_be_right_back;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.beRightBack');
 								break;
 
 							case ChangeStatusEvent.LAUGHTER:
-								statusImg.source = images.laughter;
+								statusImg.source = images.mood_happy;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.laughter');
 								break;
 
 							case ChangeStatusEvent.SAD:
-								statusImg.source = images.sad;
+								statusImg.source = images.mood_sad;
 								statusImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.sad');
 								break;
 
@@ -230,8 +230,8 @@
 	<mx:Image id="roleImg" visible="true" width="16" height="16" includeInLayout="{roleImg.visible}" />
 	<mx:Button id="roleBtn" visible="false" enabled="false" width="16" height="16" click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
 	
-	<mx:Image id="statusImg" visible="true" width="16" height="16" includeInLayout="{statusImg.visible}" />
-	<mx:Button id="statusBtn" visible="false" enabled="false" width="16" height="16" click="statusBtnClicked()" includeInLayout="{statusBtn.visible}" />
+	<mx:Image id="statusImg" visible="true" width="18" height="18" includeInLayout="{statusImg.visible}" />
+	<mx:Button id="statusBtn" visible="false" enabled="false" width="18" height="18" click="statusBtnClicked()" includeInLayout="{statusBtn.visible}" />
 	
 	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
 	<mx:Image id="presenterInd" includeInLayout="false" visible="{data.presenter}" />
