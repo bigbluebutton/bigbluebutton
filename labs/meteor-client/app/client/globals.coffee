@@ -228,7 +228,8 @@ Handlebars.registerHelper "visibility", (section) ->
 # the user's userId
 @userLogout = (meeting, user) ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
-  Router.go('logout') # navigate to logout
+  console.log "logging out #{Meteor.config.app.logOutUrl}"
+  document.location = Meteor.config.app.logOutUrl # navigate to logout
 
 # Clear the local user session
 @clearSessionVar = ->
@@ -280,3 +281,6 @@ Handlebars.registerHelper "visibility", (section) ->
     userid: getInSession "userId"
     authToken: getInSession "authToken"
 }
+
+@listSessionVars = ->
+  console.log SessionAmplify.keys

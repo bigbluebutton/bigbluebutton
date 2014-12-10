@@ -33,6 +33,3 @@
                   console.log "done subscribing"
                   setDefaultSettings()
       @render('main')
-
-  @route "logout",
-    path: "logout"

@@ -68,6 +68,12 @@ Meteor.startup ->
       return
   )
 
+  Meteor.Users.find().observeChanges({
+    removed: (id) ->
+      if id is Meteor.Users.findOne({'userId':getInSession('userId')})?._id
+        document.location = Meteor.config.app.logOutUrl
+    })
+
 Template.footer.helpers
   getFooterString: ->
     # info = Meteor.call('getServerInfo')
