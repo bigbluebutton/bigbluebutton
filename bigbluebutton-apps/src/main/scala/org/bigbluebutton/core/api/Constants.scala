@@ -64,7 +64,7 @@ object Constants {
   val ENABLE                          = "enable"
   val PRESENTER                       = "presenter"
   val USERS                           = "users"
-  val RAISE_HAND                      = "raise_hand"
+  val MOOD                            = "mood"
   val HAS_STREAM                      = "has_stream"
   val WEBCAM_STREAM                   = "webcam_stream"
   val PHONE_USER                      = "phone_user" 

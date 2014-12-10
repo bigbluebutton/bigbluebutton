@@ -3,7 +3,6 @@ package org.bigbluebutton.core.apps.users.red5
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService
 import org.bigbluebutton.conference.meeting.messaging.red5.SharedObjectClientMessage
 import java.util.ArrayList
-import java.util.List
 import java.util.Map
 import java.util.HashMap
 import org.bigbluebutton.core.api._
@@ -28,8 +27,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: UserLeft                               => handleUserLeft(msg)
 	    case msg: UserStatusChange                       => handleUserStatusChange(msg)
 	    case msg: UserRoleChange                         => handleUserRoleChange(msg)
-	    case msg: UserRaisedHand                         => handleUserRaisedHand(msg)
-	    case msg: UserLoweredHand                        => handleUserLoweredHand(msg)
 	    case msg: UserSharedWebcam                       => handleUserSharedWebcam(msg)
 	    case msg: UserUnsharedWebcam                     => handleUserUnshareWebcam(msg)	                
 	    case msg: GetUsersReply                          => handleGetUsersReply(msg)
@@ -84,7 +81,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("name", user.name)
 	  wuser.put("role", user.role.toString())
 	  wuser.put("guest", user.guest:java.lang.Boolean)
-	  wuser.put("raiseHand", user.raiseHand:java.lang.Boolean)
+	  wuser.put("mood", user.mood:java.lang.String)
 	  wuser.put("presenter", user.presenter:java.lang.Boolean)
 	  wuser.put("hasStream", user.hasStream:java.lang.Boolean)
 	  wuser.put("locked", user.locked:java.lang.Boolean)
@@ -389,35 +386,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	  var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
   	  service.sendMessage(m);
 	}
-
-    def handleUserRaisedHand(msg: UserRaisedHand) {
-	  	var args = new HashMap[String, Object]()	
-		args.put("userId", msg.userID)
-		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
-  	    
-//		println("UsersClientMessageSender - handleUserRaisedHand \n" + message.get("msg") + "\n")
-		
-		var m = new BroadcastClientMessage(msg.meetingID, "userRaisedHand", message);
-		service.sendMessage(m);      
-    }
-
-    def handleUserLoweredHand(msg: UserLoweredHand) {
-	  	var args = new HashMap[String, Object]();	
-		args.put("userId", msg.userID)
-		args.put("loweredBy", msg.loweredBy)
-		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
-  	    
-//		println("UsersClientMessageSender - handleUserLoweredHand \n" + message.get("msg") + "\n")
-		
-		var m = new BroadcastClientMessage(msg.meetingID, "userLoweredHand", message);
-		service.sendMessage(m);      
-    }
 
 	def handleUserSharedWebcam(msg: UserSharedWebcam) {
 	  	var args = new HashMap[String, Object]()	

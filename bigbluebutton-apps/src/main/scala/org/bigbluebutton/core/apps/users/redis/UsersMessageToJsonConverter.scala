@@ -17,7 +17,7 @@ object UsersMessageToJsonConverter {
 	  wuser += "name"                 -> user.name
 	  wuser += "role"                 -> user.role.toString()
 	  wuser += "guest"                -> user.guest
-	  wuser += "raise_hand"           -> user.raiseHand
+	  wuser += "mood"                 -> user.mood
 	  wuser += "presenter"            -> user.presenter
 	  wuser += "has_stream"           -> user.hasStream
 	  wuser += "locked"               -> user.locked
@@ -57,7 +57,7 @@ object UsersMessageToJsonConverter {
 	  wuser += "role"                 -> user.role.toString()	  
 	  wuser += "authToken"            -> user.authToken
 	  wuser += "guest"                -> user.guest
-
+	  
 	  mapAsJavaMap(wuser)
 	}
 
@@ -155,28 +155,6 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
     
-  
-  def userRaisedHandToJson(msg: UserRaisedHand):String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.recorded) 
-    payload.put(Constants.USER_ID, msg.userID)
-
-    val header = Util.buildHeader(MessageNames.USER_RAISED_HAND, msg.version, None)
-    Util.buildJson(header, payload)
-  }
-  
-  def userLoweredHandToJson(msg: UserLoweredHand):String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.recorded) 
-    payload.put(Constants.USER_ID, msg.userID)
-    payload.put(Constants.LOWERED_BY, msg.loweredBy)
-
-    val header = Util.buildHeader(MessageNames.USER_LOWERED_HAND, msg.version, None)
-    Util.buildJson(header, payload)
-  }
-
   def userStatusChangeToJson(msg: UserStatusChange):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)

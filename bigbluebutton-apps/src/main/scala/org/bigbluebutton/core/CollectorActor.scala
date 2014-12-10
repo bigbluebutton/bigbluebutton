@@ -40,8 +40,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UserJoining                   => handleUserJoining(msg)
         case msg: UserLeaving                   => handleUserLeaving(msg)
         case msg: GetUsers                      => handleGetUsers(msg)
-        case msg: UserRaiseHand                 => handleUserRaiseHand(msg)
-        case msg: UserLowerHand                 => handleUserLowerHand(msg)
         case msg: UserShareWebcam               => handleUserShareWebcam(msg)
         case msg: UserUnshareWebcam             => handleUserUnshareWebcam(msg)
         case msg: ChangeUserStatus              => handleChangeUserStatus(msg)
@@ -131,8 +129,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: GetUsersReply                 => handleGetUsersReply(msg)
         case msg: ValidateAuthTokenReply        => handleValidateAuthTokenReply(msg)
         case msg: UserJoined                    => handleUserJoined(msg)
-        case msg: UserRaisedHand                => handleUserRaisedHand(msg)
-        case msg: UserLoweredHand               => handleUserLoweredHand(msg)
         case msg: UserSharedWebcam              => handleUserSharedWebcam(msg)
         case msg: UserUnsharedWebcam            => handleUserUnsharedWebcam(msg)
         case msg: UserStatusChange              => handleUserStatusChange(msg)
@@ -215,7 +211,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 	wuser.put(Constants.EXT_USER_ID, user.externUserID)
 	wuser.put(Constants.NAME, user.name)
 	wuser.put(Constants.ROLE, user.role.toString())
-	wuser.put(Constants.RAISE_HAND, user.raiseHand:java.lang.Boolean)
+	wuser.put(Constants.MOOD, user.mood:java.lang.String)
 	wuser.put(Constants.PRESENTER, user.presenter:java.lang.Boolean)
 	wuser.put(Constants.HAS_STREAM, user.hasStream:java.lang.Boolean)
 	wuser.put(Constants.LOCKED, user.locked:java.lang.Boolean)
@@ -496,35 +492,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
 //    println("***** DISPATCHING HANDLE GET USERS *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
-  private def handleUserRaiseHand(msg: UserRaiseHand) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.userId)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.RAISE_HAND)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-    
-//    println("***** DISPATCHING USER RAISE HAND *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
-  private def handleUserLowerHand(msg: UserLowerHand) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.userId)
-    payload.put(Constants.LOWERED_BY, msg.loweredBy)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.LOWER_HAND)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-    
-//    println("***** DISPATCHING USER LOWER HAND *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1652,37 +1619,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleUserJoined(msg: UserJoined) {
     val json = UsersMessageToJsonConverter.userJoinedToJson(msg)
     dispatcher.dispatch(json)
-  }
-  
-  private def handleUserRaisedHand(msg: UserRaisedHand) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.recorded) 
-    payload.put(Constants.USER_ID, msg.userID)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_RAISED_HAND)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-    
-//    println("***** DISPATCHING USER RAISED HAND *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
-  private def handleUserLoweredHand(msg: UserLoweredHand) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.recorded) 
-    payload.put(Constants.USER_ID, msg.userID)
-    payload.put(Constants.LOWERED_BY, msg.loweredBy)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USER_LOWERED_HAND)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-    
-//    println("***** DISPATCHING USER LOWERED HAND *****************")
-    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserSharedWebcam(msg: UserSharedWebcam) {

@@ -899,3 +899,46 @@ Alert {
   icon:   Embed('assets/images/bandwidth.png');
 }
 
+.moodStyle {
+  icon:   Embed('assets/images/ic_mood_black_18dp.png');
+}
+
+.moodRaiseHandStyle {
+  icon:   Embed('assets/images/icon-3-high-five.png');
+}
+
+.moodAgreedStyle {
+  icon:   Embed('assets/images/icon-6-thumb-up.png');
+}
+
+.moodDisagreedStyle {
+  icon:   Embed('assets/images/icon-7-thumb-down.png');
+}
+
+.moodSpeakFasterStyle {
+  icon:   Embed('assets/images/ic_fast_forward_black_18dp.png');
+}
+
+.moodSpeakSlowerStyle {
+  icon:   Embed('assets/images/ic_fast_rewind_black_18dp.png');
+}
+
+.moodSpeakLouderStyle {
+  icon:   Embed('assets/images/ic_volume_up_black_18dp.png');
+}
+
+.moodSpeakSofterStyle {
+  icon:   Embed('assets/images/ic_volume_down_black_18dp.png');
+}
+
+.moodBeRightBackStyle {
+  icon:   Embed('assets/images/ic_access_time_black_18dp.png');
+}
+
+.moodHappyStyle {
+  icon:   Embed('assets/images/icon-6-smiling-face.png');
+}
+
+.moodSadStyle {
+  icon:   Embed('assets/images/icon-7-sad-face.png');
+}

@@ -72,7 +72,7 @@ case class UserVO(
   name: String, 
   role: Role.Role, 
   guest: Boolean,
-  raiseHand: Boolean, 
+  mood: String, 
   presenter: Boolean, 
   hasStream: Boolean, 
   locked: Boolean, 

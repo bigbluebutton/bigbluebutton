@@ -50,8 +50,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
-	import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
@@ -268,10 +267,10 @@ package org.bigbluebutton.main.model.users
       sender.removeStream(e.userid, e.stream);
 		}
 		
-		public function raiseHand(e:RaiseHandEvent):void {
-      sender.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
+		public function changeStatus(e:ChangeStatusEvent):void {
+			sender.changeStatus(e.userId, e.getStatusName());
 		}
-
+		
 		public function askToEnter(e:WaitModeratorEvent):void {
 			sender.askToEnter();
 		}
@@ -286,10 +285,6 @@ package org.bigbluebutton.main.model.users
 
 		public function kickGuest(e:BBBEvent):void {
 			sender.kickGuest(e.payload.userId);
-		}
-
-		public function lowerHand(e:LowerHandEvent):void {
-			if (this.isModerator()) sender.raiseHand(e.userid, false);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{

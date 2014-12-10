@@ -104,8 +104,8 @@ public class ParticipantsHandler implements IApplication{
 			Boolean guest = bbbSession.isGuest();
 			log.debug(APP + ":participantJoin - [" + room + "] [" + userid + ", " + username + ", " + role + ", " + guest + "]");
 			
-			Map<String, Boolean> status = new HashMap<String, Boolean>();
-			status.put("raiseHand", false);
+			Map<String, Object> status = new HashMap<String, Object>();
+			status.put("mood", "");
 			status.put("presenter", false);
 			status.put("hasStream", false);	
 

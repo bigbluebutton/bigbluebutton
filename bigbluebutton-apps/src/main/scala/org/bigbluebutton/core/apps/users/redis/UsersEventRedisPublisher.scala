@@ -25,8 +25,6 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
         case msg: GetUsersReply                 => handleGetUsersReply(msg)
         case msg: ValidateAuthTokenReply        => handleValidateAuthTokenReply(msg)
         case msg: UserJoined                    => handleUserJoined(msg)
-        case msg: UserRaisedHand                => handleUserRaisedHand(msg)
-        case msg: UserLoweredHand               => handleUserLoweredHand(msg)
         case msg: UserSharedWebcam              => handleUserSharedWebcam(msg)
         case msg: UserUnsharedWebcam            => handleUserUnsharedWebcam(msg)
         case msg: UserStatusChange              => handleUserStatusChange(msg)
@@ -98,16 +96,6 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
-  private def handleUserRaisedHand(msg: UserRaisedHand) {
-    val json = UsersMessageToJsonConverter.userRaisedHandToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)	
-  }
-  
-  private def handleUserLoweredHand(msg: UserLoweredHand) {
-    val json = UsersMessageToJsonConverter.userLoweredHandToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)	
-  }
-  
   private def handleUserSharedWebcam(msg: UserSharedWebcam) {
     val json = UsersMessageToJsonConverter.userSharedWebcamToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)

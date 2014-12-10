@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
+	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 	
 	public class Conference {		
     public var meetingName:String;
@@ -60,40 +61,35 @@ package org.bigbluebutton.main.model.users {
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
 		private function sortFunction(a:Object, b:Object, array:Array = null):int {
-			/*if (a.presenter)
-				return -1;
-			else if (b.presenter)
-				return 1;*/
-			if (a.role == Role.MODERATOR && b.role == Role.MODERATOR) {
-				if (a.raiseHand && b.raiseHand) {
-					if (a.raiseHandTime < b.raiseHandTime) 
-						return -1;
-					else
-						return 1;
-				} else if (a.raiseHand)
+			if (a.raiseHand && b.raiseHand) {
+				if (a.moodTimestamp == b.moodTimestamp) {
+					// do nothing go check moderators
+				} else if (a.moodTimestamp < b.moodTimestamp)
 					return -1;
-				else if (b.raiseHand)
-					return 1;
-			} else if (a.role == Role.MODERATOR)
-				return -1;
-			else if (b.role == Role.MODERATOR)
-				return 1;
-			else if (a.raiseHand && b.raiseHand) {
-				if (a.raiseHandTime < b.raiseHandTime) 
-					return -1;
-				else
+				else if (b.moodTimestamp < a.moodTimestamp)
 					return 1;
 			} else if (a.raiseHand)
 				return -1;
 			else if (b.raiseHand)
 				return 1;
-			else if (!a.phoneUser && !b.phoneUser) {
-				
-			} else if (!a.phoneUser)
+
+			/*if (a.presenter)
 				return -1;
-			else if (!b.phoneUser)
+			else if (b.presenter)
+				return 1;*/
+			if (a.role == Role.MODERATOR && b.role == Role.MODERATOR) {
+				// do nothing, go check names
+			} else if (a.role == Role.MODERATOR)
+				return -1;
+			else if (b.role == Role.MODERATOR)
 				return 1;
-			
+			else if (a.phoneUser && b.phoneUser) {
+				// do nothing, go check names
+			} else if (a.phoneUser)
+				return -1;
+			else if (b.phoneUser)
+				return 1;
+
 			/* 
 			 * Check name (case-insensitive) in the event of a tie up above. If the name 
 			 * is the same then use userID which should be unique making the order the same 
@@ -284,6 +280,10 @@ package org.bigbluebutton.main.model.users {
             me.raiseHand = raiseHand;
         }
         
+		public function getMyMood():String {
+			return me.mood;
+		}
+		
 		public function amIThisUser(userID:String):Boolean {
 			return me.userID == userID;
 		}
@@ -396,15 +396,6 @@ package org.bigbluebutton.main.model.users {
 			users.removeAll();
 		}		
 	
-    public function raiseHand(userId: String, raised: Boolean):void {
-      var aUser:BBBUser = getUser(userId);			
-      if (aUser != null) {
-        aUser.userRaiseHand(raised)
-      }	
-      
-      users.refresh();      
-    }
-    
     public function sharedWebcam(userId: String, stream: String):void {
       var aUser:BBBUser = getUser(userId);			
       if (aUser != null) {

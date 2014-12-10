@@ -327,5 +327,41 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/user_delete.png")]
 		public var user_delete:Class;
+	
+		[Embed(source="assets/images/status/ic_mood_black_18dp.png")]
+		public var mood:Class;
+
+		[Embed(source="assets/images/status/ic_clear_black_18dp.png")]
+		public var mood_clear:Class;
+
+		[Embed(source="assets/images/status/icon-3-high-five.png")]
+		public var mood_raise_hand:Class;
+
+		[Embed(source="assets/images/status/icon-6-thumb-up.png")]
+		public var mood_agreed:Class;
+
+		[Embed(source="assets/images/status/icon-7-thumb-down.png")]
+		public var mood_disagreed:Class;
+
+		[Embed(source="assets/images/status/ic_fast_forward_black_18dp.png")]
+		public var mood_speak_faster:Class;
+
+		[Embed(source="assets/images/status/ic_fast_rewind_black_18dp.png")]
+		public var mood_speak_slower:Class;
+
+		[Embed(source="assets/images/status/ic_volume_up_black_18dp.png")]
+		public var mood_speak_louder:Class;
+
+		[Embed(source="assets/images/status/ic_volume_down_black_18dp.png")]
+		public var mood_speak_softer:Class;
+
+		[Embed(source="assets/images/status/ic_access_time_black_18dp.png")]
+		public var mood_be_right_back:Class;
+
+		[Embed(source="assets/images/status/icon-6-smiling-face.png")]
+		public var mood_happy:Class;
+
+		[Embed(source="assets/images/status/icon-7-sad-face.png")]
+		public var mood_sad:Class;
 	}
 }

@@ -42,19 +42,6 @@ public class ParticipantsService {
 		application.getUsers(scope.getName(), getBbbSession().getInternalUserID());
 	}
 	
-	public void userRaiseHand() {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String userId = getBbbSession().getInternalUserID();
-		application.userRaiseHand(scope.getName(), userId);
-	}
-	
-	public void lowerHand(Map<String, String> msg) {
-		String userId = (String) msg.get("userId");
-		String loweredBy = (String) msg.get("loweredBy");
-		IScope scope = Red5.getConnectionLocal().getScope();
-		application.lowerHand(scope.getName(), userId, loweredBy);
-	}
-	
 	public void ejectUserFromMeeting(Map<String, String> msg) {
 		String userId = (String) msg.get("userId");
 		String ejectedBy = (String) msg.get("ejectedBy");
@@ -77,7 +64,15 @@ public class ParticipantsService {
 	public void setParticipantStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 
-		application.setParticipantStatus(roomName, (String) msg.get("userID"), (String) msg.get("status"), (Object) msg.get("value"));
+		String userid = (String) msg.get("userID");
+		String status = (String) msg.get("status");
+		Object value = (Object) msg.get("value");
+		if (status.equals("mood")) {
+			value = ((String) value) + "," + System.currentTimeMillis();
+		}
+
+		log.debug("Setting participant status " + roomName + " " + userid + " " + status + " " + value);
+		application.setParticipantStatus(roomName, userid, status, value);
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {

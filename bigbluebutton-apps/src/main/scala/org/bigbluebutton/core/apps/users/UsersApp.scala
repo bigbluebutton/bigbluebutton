@@ -20,9 +20,9 @@ trait UsersApp {
   private var meetingMuted = false
   
   private var currentPresenter = new Presenter("system", "system", "system")
-
+  
   private var guestsWaiting = new collection.immutable.ListSet[String]
-
+  
   def hasUser(userID: String):Boolean = {
     users.hasUser(userID)
   }
@@ -170,22 +170,6 @@ trait UsersApp {
     au.toArray
   }
   
-  def handleUserRaiseHand(msg: UserRaiseHand) {
-    users.getUser(msg.userId) foreach {user =>
-      val uvo = user.copy(raiseHand=true)
-      users.addUser(uvo)
-      outGW.send(new UserRaisedHand(meetingID, recorded, uvo.userID))
-    }
-  }
-
-  def handleUserLowerHand(msg: UserLowerHand) {
-    users.getUser(msg.userId) foreach {user =>
-      val uvo = user.copy(raiseHand=false)
-      users.addUser(uvo)
-      outGW.send(new UserLoweredHand(meetingID, recorded, uvo.userID, msg.loweredBy))
-    }    
-  }
-  
   def handleEjectUserFromMeeting(msg: EjectUserFromMeeting) {
     users.getUser(msg.userId) foreach {user =>
       if (user.voiceUser.joined) {
@@ -221,9 +205,15 @@ trait UsersApp {
   }
 	                         
   def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {    
-	if (users.hasUser(msg.userID)) {
-		  outGW.send(new UserStatusChange(meetingID, recorded, msg.userID, msg.status, msg.value))
-	}  
+    users.getUser(msg.userID) foreach {user =>
+      val uvo = msg.status match {
+        case "hasStream" =>  user.copy(hasStream=msg.value.asInstanceOf[Boolean])
+        case "mood" => user.copy( mood=msg.value.asInstanceOf[String])
+        case "presenter" =>  user.copy(presenter=msg.value.asInstanceOf[Boolean])
+      }
+      users.addUser(uvo)
+      outGW.send(new UserStatusChange(meetingID, recorded, msg.userID, msg.status, msg.value))
+    }  
   }
   
   def handleChangeUserRole(msg: ChangeUserRole) {
@@ -247,7 +237,7 @@ trait UsersApp {
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
-                  ru.role, ru.guest, raiseHand=false, presenter=false, 
+                  ru.role, ru.guest, mood="", presenter=false, 
                   hasStream=false, locked=false, webcamStreams=new ListSet[String](), 
                   phoneUser=false, vu, listenOnly=false, permissions)
 
@@ -298,7 +288,7 @@ trait UsersApp {
                                  msg.voiceUser.callerName, msg.voiceUser.callerNum,
                                  true, false, false, false)
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
-		                  Role.VIEWER, guest=false, raiseHand=false, presenter=false, 
+		                  Role.VIEWER, guest=false, mood="", presenter=false, 
 		                  hasStream=false, locked=false, webcamStreams=new ListSet[String](), 
 		                  phoneUser=true, vu, listenOnly=false, permissions)
 		  	
