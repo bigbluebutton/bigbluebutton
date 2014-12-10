@@ -262,7 +262,6 @@ package org.bigbluebutton.modules.layout.managers
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
-      _layoutModel.addLayout(layout);
 			applyLayout(layout);
 		}
 		
