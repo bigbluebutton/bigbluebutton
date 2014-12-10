@@ -181,13 +181,14 @@ Template.recordingStatus.rendered = ->
 
 Template.header.rendered = ->
   $('.collapseButton').on 'click', () ->
+    $(".tooltip").hide()
     if $('.collapseSection').css('display') is 'block'
       $('.collapseSection').css({'display': 'none'})
       $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
-      $('.collapseButton > i').removeClass('glyphicon-chevron-right')
-      $('.collapseButton > i').addClass('glyphicon-chevron-left')
+      $('.collapseButton > i').removeClass('glyphicon-chevron-left')
+      $('.collapseButton > i').addClass('glyphicon-chevron-right')
     else
       $('.collapseSection').css({'display': 'block'})
       $('.navbarTitle').css({ 'width': '30%' })
-      $('.collapseButton > i').removeClass('glyphicon-chevron-left')
-      $('.collapseButton > i').addClass('glyphicon-chevron-right')
+      $('.collapseButton > i').removeClass('glyphicon-chevron-right')
+      $('.collapseButton > i').addClass('glyphicon-chevron-left')

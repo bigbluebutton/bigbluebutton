@@ -34,6 +34,12 @@
       &:nth-child(even) {
         background-color: rgb(245,245,245);
       }
+      td {
+        font-size: 30px;
+      }
+      div {
+        font-size: 15px;
+      }
     }
   }
 
@@ -100,12 +106,13 @@
   #newMessageInput {
     display:block;
     float:left;
-    height: 40px;
+    height: 60px;
     width: 77%;
     resize: none;
     padding:5px;
     border-radius:4px;
     border:1px solid extract(@lightGrey, 3);
+    font-size: 25px;
   }
 
   .optionsBar {
@@ -145,9 +152,11 @@
 
   #sendMessageButton {
     background-color: extract(@azure, 1);
-    height: 40px;
+    height: 60px;
+    width: 100px;
     margin-left: 8px;
     color: extract(@white, 1);
+    font-size: 30px;
   }
 
   #tabsList {
@@ -165,7 +174,7 @@
       text-decoration: none;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-size:12px;
+      font-size: 25px;
       color: extract(@lightGrey, 4);
       margin: 0;
       border-top: 0;
