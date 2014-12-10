@@ -29,7 +29,7 @@ viewer =
     if authToken is user.authToken
       if user.user?.role is 'VIEWER' or user.user?.role is undefined
         return viewer[action] or false
-    Meteor.log.warn "in meetingId=#{meetingId} userId=#{userId} tried to perform #{action} without permission" +
+    Meteor.log.error "in meetingId=#{meetingId} userId=#{userId} tried to perform #{action} without permission" +
      "..while the authToken was #{user.authToken}    and the user's object is #{JSON.stringify user}"
 
     # the current version of the HTML5 client represents only VIEWER users

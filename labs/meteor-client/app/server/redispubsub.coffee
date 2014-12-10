@@ -68,7 +68,7 @@ class Meteor.RedisPubSub
 
     if message?.header? and message?.payload?
       unless message.header.name in ignoredEventTypes
-        Meteor.log.info "eventType=" + message.header.name,
+        Meteor.log.info "eventType=  #{message.header.name}  ",
           message: jsonMsg
 
       # handle voice events
