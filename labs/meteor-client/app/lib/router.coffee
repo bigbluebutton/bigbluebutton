@@ -35,5 +35,5 @@
               Meteor.subscribe 'presentations', meetingId, ->
                 Meteor.subscribe 'users', meetingId, userId, authToken, ->
                   console.log "done subscribing"
-                  setDefaultSettings()
+                  onLoadComplete()
       @render('main')

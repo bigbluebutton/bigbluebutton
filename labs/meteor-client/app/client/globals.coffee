@@ -268,6 +268,18 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "bbbServerVersion", Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
   setInSession "displayChatNotifications", true
 
+
+@onLoadComplete = ->
+  setDefaultSettings()
+  myDBID = BBB.getMyDBID()
+
+  Meteor.Users.find().observeChanges({
+  removed: (id) ->
+    console.log "removed user #{id}  #{getInSession('userId')}   #{myDBID}"
+    if id is myDBID
+      document.location = Meteor.config.app.logOutUrl
+  })
+
 # applies zooming to the stroke thickness
 @zoomStroke = (thickness) ->
   currentSlide = @getCurrentSlideDoc()

@@ -132,6 +132,11 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.getMyUserID = (callback) ->
     returnOrCallback getInSession("userId"), callback
 
+
+  BBB.getMyDBID = (callback) ->
+    returnOrCallback Meteor.Users.findOne({userId:getInSession("userId")})._id, callback
+
+
   BBB.getMyUserName = (callback) ->
     name = getInSession "userName" # check if we actually have one in the session
 
