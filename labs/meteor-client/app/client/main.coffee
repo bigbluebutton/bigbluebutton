@@ -180,6 +180,7 @@ Template.recordingStatus.rendered = ->
 
 Template.header.rendered = ->
   $('.collapseButton').on 'click', () ->
+    $(".tooltip").hide()
     if $('.collapseSection').css('display') is 'block'
       $('.collapseSection').css({'display': 'none'})
       $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
