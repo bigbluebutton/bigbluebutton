@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.main.model.users.events.ChangeStatusBtnEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -48,8 +49,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-  import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
-  import org.bigbluebutton.main.model.users.events.ChangeStatusBtnEvent;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -391,7 +390,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleGetUsersReply(msg:Object):void {
-      LogUtil.debug(LOG + "*** handleGetUsersReply " + msg.msg + " **** \n");
+      trace(LOG + "*** handleGetUsersReply " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       var users:Object = map.users as Array;
       
@@ -521,11 +520,8 @@ package org.bigbluebutton.modules.users.services
       }
       
       UserManager.getInstance().getConference().presenterStatusChanged(user.userID, joinedUser.presenter);
-
-      participantStatusChange(user.userID, "hasStream", joinedUser.hasStream);
-      participantStatusChange(user.userID, "presenter", joinedUser.presenter);
-      participantStatusChange(user.userID, "mood", joinedUser.mood);
-
+      UserManager.getInstance().getConference().newUserStatus(user.userID, "mood", joinedUser.mood);
+           
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
@@ -541,12 +537,11 @@ package org.bigbluebutton.modules.users.services
       
       trace(LOG + "Received status change [" + map.userID + "," + map.status + "," + map.value + "]")			
       UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
-
       var status:String = map.value;
       var statusArray:Array = status.split(",");
-
-      if(map.status == "mood")
-     		 dispatcher.dispatchEvent(new ChangeStatusBtnEvent(map.userID, statusArray[0]));
+      if(map.status == "mood") {
+          dispatcher.dispatchEvent(new ChangeStatusBtnEvent(map.userID, statusArray[0]));
+      }
 
       if (msg.status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);

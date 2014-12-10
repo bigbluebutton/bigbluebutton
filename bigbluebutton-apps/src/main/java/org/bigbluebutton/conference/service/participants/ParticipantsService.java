@@ -20,22 +20,15 @@
 package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
 
-public class ParticipantsService {
 
+public class ParticipantsService {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private ParticipantsApplication application;
 
@@ -72,8 +65,8 @@ public class ParticipantsService {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 
 		String userid = (String) msg.get("userID");
-        String status = (String) msg.get("status");
-        Object value = (Object) msg.get("value");
+		String status = (String) msg.get("status");
+		Object value = (Object) msg.get("value");
 		if (status.equals("mood")) {
 			value = ((String) value) + "," + System.currentTimeMillis();
 		}
@@ -83,7 +76,6 @@ public class ParticipantsService {
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
-		log.debug("Setting Participants Applications");
 		application = a;
 	}
 	

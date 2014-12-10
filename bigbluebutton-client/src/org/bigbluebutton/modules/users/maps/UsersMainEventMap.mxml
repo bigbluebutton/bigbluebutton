@@ -32,9 +32,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.model.users.UserService;
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
       import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+      import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-      import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
       import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 		]]>
 	</mx:Script>
@@ -61,6 +61,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
   
   <!-- Viewers Stuff -->
+  <EventHandlers type="{ChangeStatusEvent.CHANGE_STATUS}" >
+    <MethodInvoker generator="{UserService}" method="changeStatus" arguments="{event}" />
+  </EventHandlers>
   
   <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
     <MethodInvoker generator="{UserService}" method="addStream" arguments="{event}" />
@@ -69,10 +72,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
     <MethodInvoker generator="{UserService}" method="removeStream" arguments="{event}" />
   </EventHandlers>
-
-  <EventHandlers type="{ChangeStatusEvent.CHANGE_STATUS}" >
-		<MethodInvoker generator="{UserService}" method="changeStatus" arguments="{event}" />
-	</EventHandlers>
   <!-- End Viewers Stuff -->
   
   <EventHandlers type="{KickUserEvent.KICK_USER}" >
@@ -107,11 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{VoiceConfEvent.MUTE_ALMOST_ALL}" >
     <MethodInvoker generator="{UserService}" method="muteAllUsersExceptPresenter" arguments="{event}" />
   </EventHandlers>
- 
-  <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
-		<MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
-	</EventHandlers> 
-
+  
   <!-- Lock Events -->
   <EventHandlers type="{LockControlEvent.LOCK_ALL}" >
     <MethodInvoker generator="{UserService}" method="lockAllUsers" arguments="{event}" />

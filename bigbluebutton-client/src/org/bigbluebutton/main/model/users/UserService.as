@@ -59,6 +59,7 @@ package org.bigbluebutton.main.model.users
 		private var _conferenceParameters:ConferenceParameters;		
 		private var applicationURI:String;
 		private var hostURI:String;		
+		private var connection:NetConnection;
 		private var dispatcher:Dispatcher;
 		
     private var _connectionManager:ConnectionManager;
@@ -102,14 +103,6 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().record = (result.record != "false");
 				
         
-                UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
-                UserManager.getInstance().getConference().meetingName = result.conferenceName;
-                UserManager.getInstance().getConference().internalMeetingID = result.room;
-                UserManager.getInstance().getConference().externalUserID = result.externUserID;
-                UserManager.getInstance().getConference().avatarURL = result.avatarURL;
-                UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
-                UserManager.getInstance().getConference().dialNumber = result.dialnumber;
-		
         
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.meetingName = result.conferenceName;
@@ -158,7 +151,7 @@ package org.bigbluebutton.main.model.users
 				e.conference = UserManager.getInstance().getConference();
 				dispatcher.dispatchEvent(e);
 				
-				connect();
+        connect();
 			}
 		}
 		
@@ -189,18 +182,18 @@ package org.bigbluebutton.main.model.users
     }
        
 		public function userLoggedIn(e:UsersConnectionEvent):void{
-      		trace(LOG + "userLoggedIn - Setting my userid to [" + e.userid + "]");
+      trace(LOG + "userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
 			
-			sender.queryForParticipants();     
-			sender.queryForRecordingStatus();
+      sender.queryForParticipants();     
+      sender.queryForRecordingStatus();
 			
 			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 			loadCommand.conferenceParameters = _conferenceParameters;
 			dispatcher.dispatchEvent(loadCommand);		
 		}
-		
+					
 		public function isModerator():Boolean {
 			return UserManager.getInstance().getConference().amIModerator();
 		}
@@ -210,17 +203,17 @@ package org.bigbluebutton.main.model.users
 		}
 				
 		public function addStream(e:BroadcastStartedEvent):void {
-      		sender.addStream(e.userid, e.stream);
+      sender.addStream(e.userid, e.stream);
 		}
 		
 		public function removeStream(e:BroadcastStoppedEvent):void {			
-      		sender.removeStream(e.userid, e.stream);
+      sender.removeStream(e.userid, e.stream);
 		}
-	
-        public function changeStatus(e:ChangeStatusEvent):void {
-            sender.changeStatus(e.userId, e.getStatusName());
-        }
-	
+		
+		public function changeStatus(e:ChangeStatusEvent):void {
+			sender.changeStatus(e.userId, e.getStatusName());
+		}
+		
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) sender.kickUser(e.userid);
 		}
@@ -233,7 +226,7 @@ package org.bigbluebutton.main.model.users
 		public function assignPresenter(e:RoleChangeEvent):void{
 			var assignTo:String = e.userid;
 			var name:String = e.username;
-            sender.assignPresenter(assignTo, name, 1);
+      sender.assignPresenter(assignTo, name, 1);
 		}
 
     public function muteUnmuteUser(command:VoiceConfEvent):void {

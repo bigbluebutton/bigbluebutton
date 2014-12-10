@@ -58,7 +58,6 @@ case class Voice(
   talking: Boolean
 )
 
-
 case class UserVO(
   userID: String, 
   externUserID: String, 

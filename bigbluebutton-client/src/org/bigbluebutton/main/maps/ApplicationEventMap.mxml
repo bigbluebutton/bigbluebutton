@@ -55,7 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{LogoutEvent.USER_LOGGED_OUT}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
 	</EventHandlers>
-	
+		
 	<EventHandlers type="{ConfigEvent.CONFIG_EVENT}" >
 		<MethodInvoker generator="{ConfigManager}" method="setConfig" arguments="{event.config}" />
 		<MethodInvoker generator="{SkinningService}" method="loadSkins" arguments="{event.config.skinning}" />
@@ -69,6 +69,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
   </EventHandlers>
 
+
+  
 	<mx:Script>
 	<![CDATA[
     import mx.events.FlexEvent;
@@ -85,18 +87,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     import org.bigbluebutton.main.model.PortTestProxy;
     import org.bigbluebutton.main.model.modules.ModulesProxy;
 		
-		import org.bigbluebutton.main.events.ShortcutEvent;
-		
-		import org.bigbluebutton.core.managers.ConfigManager;
-		import org.bigbluebutton.core.services.SkinningService;
-		import org.bigbluebutton.core.services.StreamMonitor;
-		import org.bigbluebutton.main.events.ConfigEvent;
-		import org.bigbluebutton.main.events.LogoutEvent;
-		import org.bigbluebutton.main.events.ModuleLoadEvent;
-		import org.bigbluebutton.main.events.PortTestEvent;
-		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-		import org.bigbluebutton.main.model.PortTestProxy;
-		import org.bigbluebutton.main.model.modules.ModulesProxy;
 	]]>
 	</mx:Script>
 	

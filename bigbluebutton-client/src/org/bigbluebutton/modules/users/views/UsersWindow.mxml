@@ -60,8 +60,8 @@
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeStatusBtnEvent; 
+			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.LockSettings;
@@ -113,7 +113,6 @@
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
-				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
@@ -123,7 +122,6 @@
 				modifier = ExternalInterface.call("determineModifier");
 				loadKeyCombos(modifier);
 				
-				changeButtons(UserManager.getInstance().getConference().amIPresenter);
 				resourcesChanged();
 				
 				roomMuted = MeetingModel.getInstance().meetingMuted;
@@ -227,17 +225,17 @@
 			private function openMoodMenu():void {
 				var myMenuData:Array = [];
 				if(partOptions.enableRaiseHand) {
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.mood_clear, callback: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.mood_raise_hand, callback: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.mood_agreed, callback: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.mood_disagreed, callback: function():void { changeStatus(ChangeStatusEvent.DISAGREE); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakLouder'), icon: images.mood_speak_louder, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSofter'), icon: images.mood_speak_softer, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOWER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakFaster'), icon: images.mood_speak_faster, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_FASTER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSlower'), icon: images.mood_speak_slower, callback: function():void { changeStatus(ChangeStatusEvent.SPEAK_SLOWER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.beRightBack'), icon: images.mood_be_right_back, callback: function():void { changeStatus(ChangeStatusEvent.BE_RIGHT_BACK); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.mood_happy, callback: function():void { changeStatus(ChangeStatusEvent.LAUGHTER); }} );
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.mood_sad, callback: function():void { changeStatus(ChangeStatusEvent.SAD); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.clearStatus'), icon: images.mood_clear, handler: function():void { changeStatus(ChangeStatusEvent.CLEAR_STATUS); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.raiseHand'), icon: images.mood_raise_hand, handler: function():void { changeStatus(ChangeStatusEvent.RAISE_HAND); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.agree'), icon: images.mood_agreed, handler: function():void { changeStatus(ChangeStatusEvent.AGREE); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.disagree'), icon: images.mood_disagreed, handler: function():void { changeStatus(ChangeStatusEvent.DISAGREE); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakLouder'), icon: images.mood_speak_louder, handler: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOUDER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSofter'), icon: images.mood_speak_softer, handler: function():void { changeStatus(ChangeStatusEvent.SPEAK_LOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakFaster'), icon: images.mood_speak_faster, handler: function():void { changeStatus(ChangeStatusEvent.SPEAK_FASTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.speakSlower'), icon: images.mood_speak_slower, handler: function():void { changeStatus(ChangeStatusEvent.SPEAK_SLOWER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.beRightBack'), icon: images.mood_be_right_back, handler: function():void { changeStatus(ChangeStatusEvent.BE_RIGHT_BACK); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.laughter'), icon: images.mood_happy, handler: function():void { changeStatus(ChangeStatusEvent.LAUGHTER); }} );
+					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.status.sad'), icon: images.mood_sad, handler: function():void { changeStatus(ChangeStatusEvent.SAD); }} );
 				}
 				
 				// make sure the previous menu is closed before opening a new one
@@ -282,19 +280,15 @@
 			}
 
 			private function openPresenterSettings():void {
-				// everyone can see the audio settings
 				var myMenuData:Array = [];
+				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: images.mood_clear, handler:clearAllStatus});
 				
-				if(UserManager.getInstance().getConference().amIModerator()) {
-					myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), icon: images.mood_clear, callback: clearAllStatus} );
 				if (!roomMuted) {
-						myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, callback: muteAll} );
+					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
 					if (UserManager.getInstance().getConference().getPresenter())
-							myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, callback: muteAlmostAll} );
-					} else {
-						myMenuData.push( {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, callback: muteAll} );
-					}
-				}
+						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler:muteAlmostAll});
+				} else
+					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
 								
 				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
 				
@@ -313,7 +307,7 @@
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
-				e.item.callback();
+				e.item.handler();
 			}
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
@@ -326,7 +320,7 @@
 				var e:ChangeStatusEvent = new ChangeStatusEvent(UserManager.getInstance().getConference().getMyUserId(), status);
 				dispatchEvent(e);
 			}
-
+			
 			private function lockSettings():void {
 				LogUtil.traceObject("Action: lockSettings");
 				
