@@ -131,6 +131,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						idx = obj.index;
 				}
 				selectedIndex = idx;
+				if (idx == -1) {
+					prompt = e.layoutID;
+				} else {
+					prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.prompt');
+				}
 				invalidateDisplayList();
 				
 				trace(LOG + " selected layout afterwards is: " + selectedIndex);
