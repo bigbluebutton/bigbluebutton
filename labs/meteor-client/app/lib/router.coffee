@@ -10,9 +10,17 @@
 
       if meetingId? and userId? and authToken?
         Meteor.call("validateAuthToken", meetingId, userId, authToken)
-        setInSession("authToken", authToken)
-        setInSession("meetingId", meetingId)
-        setInSession("userId", userId)
+
+        clearOldSessionVars = (callback) ->
+          clearSessionVar()
+          callback()
+
+        applyNewSessionVars = ->
+          setInSession("authToken", authToken)
+          setInSession("meetingId", meetingId)
+          setInSession("userId", userId)
+
+        clearOldSessionVars(applyNewSessionVars)
 
         Router.go('/')
 
