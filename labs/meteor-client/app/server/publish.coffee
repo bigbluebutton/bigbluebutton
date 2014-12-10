@@ -26,7 +26,7 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
 
       #publish the users which are not offline
       Meteor.Users.find(
-        {meetingId: meetingId, 'user.connection_status':{$ne: "offline"}},
+        {meetingId: meetingId, 'user.connection_status':"online"},
         {fields:{'authToken': false}
         })
     else
@@ -36,7 +36,7 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
     Meteor.call "validateAuthToken", meetingId, userid, authToken
     Meteor.log.info "there was no such user #{userid}  in #{meetingId}"
     Meteor.Users.find(
-      {meetingId: meetingId, 'user.connection_status':{$ne: "offline"}},
+      {meetingId: meetingId, 'user.connection_status':"online"},
       {fields:{'authToken': false}
       })
 
