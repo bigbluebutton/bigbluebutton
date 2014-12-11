@@ -57,6 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
   <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
   <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
+  <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent"/>
   <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
   <mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
   <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
@@ -81,6 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
 			import org.bigbluebutton.main.events.UserLeftEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
@@ -233,6 +235,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           scrollToEndOfMessage();
         }
       }
+      private function handleUserJoinedEvent(event:UserJoinedEvent):void {
+        // Handle user joining so that the user can start to talk if the person rejoins
+        if (!publicChat && event.userID == chatWithUserID) {
+          displayUserHasJoinedMessage();
+          txtMsgArea.enabled = true;
+          scrollToEndOfMessage();
+        }
+      }
       
       private var SPACE:String = " ";
       private function displayUserHasLeftMessage():void {
@@ -245,11 +255,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
         msg.toUserID = SPACE;
         msg.toUsername = SPACE;
-        msg.message = ResourceUtil.getInstance().getString('bbb.chat.private.userLeft');
+        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
         chatMessages.newChatMessage(msg);
       }
-          
+      
+      private function displayUserHasJoinedMessage():void {
+        var msg:ChatMessageVO = new ChatMessageVO();
+        msg.chatType = ChatConstants.PUBLIC_CHAT;
+        msg.fromUserID = SPACE;
+        msg.fromUsername = SPACE;
+        msg.fromColor = "0";
+        msg.fromTime = new Date().getTime();
+        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
+        msg.toUserID = SPACE;
+        msg.toUsername = SPACE;
+        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
+        
+        chatMessages.newChatMessage(msg);
+      }
+      
       public function focusToTextMessageArea():void {
         txtMsgArea.setFocus();
         txtMsgArea.drawFocus(true);
