@@ -76,7 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-  <mx:Canvas width="100%" id="hbHeader">
+  <mx:Canvas width="100%" id="hbHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off">
     <mx:Label id="lblName" text="{data.name}" visible="true" color="gray" textAlign="left" left="0"/>
     <mx:Text id="lblTime" htmlText="{data.time}" textAlign="right"
              visible="true" 

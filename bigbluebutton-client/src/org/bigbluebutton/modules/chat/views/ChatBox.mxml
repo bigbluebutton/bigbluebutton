@@ -636,7 +636,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
     <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
-             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="auto" wordWrap="true"
+             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
              dataProvider="{chatMessages.messages}"
              tabIndex="{baseIndex}"
              accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
