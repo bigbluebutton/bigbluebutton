@@ -180,6 +180,16 @@ if (request.getParameterMap().isEmpty()) {
 			<tr>
 				<td>
 					&nbsp;</td>
+				<td style="text-align: right; ">
+					Guest:</td>
+				<td>
+					&nbsp;</td>
+				<td>
+					<input id="check_guest" type="checkbox" name="guest" value="guest" />&nbsp;&nbsp;&nbsp;(authorization required)</td>
+			</tr>
+			<tr>
+				<td>
+					&nbsp;</td>
 				<td>
 					&nbsp;</td>
 				<td>
@@ -345,6 +355,7 @@ if (request.getParameterMap().isEmpty()) {
 
 		String viewerPW = meeting.get( "viewerPW" );
 		String moderatorPW = meeting.get( "moderatorPW" );
+		Boolean guest = request.getParameter("guest") != null;
 		Boolean record = request.getParameter("record") != null;
 
 		//
@@ -400,7 +411,7 @@ Error: createMeeting() failed
 		//  
 
 		String join_parameters = "meetingID=" + urlEncode(meetingID)
-			+ "&fullName=" + urlEncode(username) + "&password=" + urlEncode(password);
+			+ "&fullName=" + urlEncode(username) + "&password=" + urlEncode(password) + "&guest="+ urlEncode(guest.toString());
 		String joinURL = base_url_join + join_parameters + "&checksum="
 			+ checksum("join" + join_parameters + salt);
 %>
