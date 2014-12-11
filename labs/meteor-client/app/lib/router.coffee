@@ -15,10 +15,9 @@
           setInSession("authToken", authToken)
           setInSession("meetingId", meetingId)
           setInSession("userId", userId)
+          Router.go('/')
 
         clearSessionVar(applyNewSessionVars)
-
-        Router.go('/')
 
   @route "main",
     path: "/"

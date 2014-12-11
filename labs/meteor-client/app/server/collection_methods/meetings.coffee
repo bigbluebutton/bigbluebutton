@@ -17,13 +17,12 @@
 @removeMeetingFromCollection = (meetingId) ->
 	if Meteor.Meetings.findOne({meetingId: meetingId})?
 		if Meteor.Users.find({meetingId: meetingId}).count() isnt 0
-			Meteor.log.info "\n!!!!!removing a meeting which has active users in it!!!!\n"
+			Meteor.log.info "!!removing a meeting which has users in it"
 			for user in Meteor.Users.find({meetingId: meetingId}).fetch()
 				Meteor.log.info "in meetings::removeMeetingFromCollection #{meetingId} #{user.userId}"
 				removeUserFromCollection meetingId, user.userId
 		id = Meteor.Meetings.findOne({meetingId: meetingId})
 		if id?
-
 			Meteor.Meetings.remove(id._id)
 			Meteor.log.info "removed from Meetings:#{meetingId} now there are only #{Meteor.Meetings.find().count()} meetings running"
 # --------------------------------------------------------------------------------------------
