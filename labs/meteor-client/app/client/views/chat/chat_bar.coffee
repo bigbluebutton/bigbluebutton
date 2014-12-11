@@ -313,7 +313,6 @@ Template.tabButtons.helpers
     safeString(string)
 
 Template.tabButtons.rendered = ->
-  $('.publicChatTab').addClass('active')
   Tracker.autorun (comp) ->
     setInSession 'tabsRenderedTime', TimeSync.serverTime()
     if getInSession('tabsRenderedTime') isnt undefined
