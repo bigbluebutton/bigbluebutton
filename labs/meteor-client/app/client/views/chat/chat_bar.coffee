@@ -231,8 +231,17 @@ Template.message.helpers
 
 Template.optionsBar.events
   'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
+    tabs = getInSession('chatTabs')
+    _this = @
+
+    # if you are starting a private chat
+    if tabs.filter((tab) -> tab.userId is _this.userId).length is 0
+      userName = Meteor.Users.findOne({userId: _this.userId})?.user?.name
+      tabs.push {userId: _this.userId, name: userName, gotMail: false, class: 'privateChatTab'}
+      setInSession 'chatTabs', tabs
+
     setInSession 'display_chatPane', true
-    setInSession "inChatWith", @userId
+    setInSession "inChatWith", _this.userId
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
@@ -276,7 +285,7 @@ Template.tabButtons.events
     setInSession 'display_chatPane', false
 
   'click .privateChatTab': (event) ->
-    console.log "private: @ "
+    console.log "private:"
     console.log @
     setInSession "inChatWith", @userId
     setInSession 'display_chatPane', true
@@ -297,7 +306,8 @@ Template.tabButtons.helpers
       return ""
 
   isTabActive: (userId) ->
-    getInSession("inChatWith") is userId ? "active" : ""
+    if getInSession("inChatWith") is userId
+      return "active"
 
   makeSafe: (string) ->
     safeString(string)
