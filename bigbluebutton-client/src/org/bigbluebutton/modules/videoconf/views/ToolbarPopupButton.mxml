@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" styleName="webcamDefaultButtonStyle"
 		   xmlns:mate="http://mate.asfusion.com/"
-		   click="openPublishWindow()" creationComplete="init()" 
+		   click="openPublishWindow()" initialize="init()"
 		   mouseOver = "mouseOverHandler(event)"
 		   mouseOut = "mouseOutHandler(event)"
            height="24"
@@ -259,6 +259,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(camIndex != -1) {
 					dp[camIndex].status = ON_STATE;
 					dataMenu.dataProvider = dp;
+					mouseOverHandler(null);
 				}
 			}
 		]]>
