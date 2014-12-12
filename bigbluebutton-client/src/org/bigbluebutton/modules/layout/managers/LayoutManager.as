@@ -262,6 +262,7 @@ package org.bigbluebutton.modules.layout.managers
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
+			UserManager.getInstance().getConference().numAdditionalSharedNotes = layout.numAdditionalSharedNotes;
       _layoutModel.addLayout(layout);
 			applyLayout(layout);
 		}

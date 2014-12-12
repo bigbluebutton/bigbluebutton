@@ -13,17 +13,24 @@ package org.bigbluebutton.modules.sharednotes.views
 
 	public class AdditionalSharedNotesWindow extends SharedNotesWindow
 	{
+		private var _windowName:String;
+
 		public function AdditionalSharedNotesWindow(n:String) {
 			super();
 
 			trace("AdditionalSharedNotesWindow: in-constructor additional notes " + n);
 			_notesId = n;
+			_windowName = "AdditionalSharedNotesWindow_" + _notesId;
 
 			showCloseButton = UsersUtil.amIModerator();
 			width = 240;
 			height = 240;
 
 			closeBtn.addEventListener(MouseEvent.CLICK, onCloseBtnClick);
+		}
+
+		public function get windowName():String {
+			return this._windowName;
 		}
 
 		override public function onCreationComplete():void {

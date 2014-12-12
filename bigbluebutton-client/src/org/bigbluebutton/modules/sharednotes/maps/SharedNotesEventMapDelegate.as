@@ -22,10 +22,12 @@ package org.bigbluebutton.modules.sharednotes.maps
 {
 	import com.asfusion.mate.events.Dispatcher;
 
+	import mx.binding.utils.BindingUtils;
 	import mx.utils.ObjectUtil;
 
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.sharednotes.views.SharedNotesWindow;
 	import org.bigbluebutton.modules.sharednotes.views.AdditionalSharedNotesWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -60,6 +62,14 @@ package org.bigbluebutton.modules.sharednotes.maps
                     windows[id].addRemoteDocument(e.document);
                 }
             }
+
+            BindingUtils.bindSetter(openAdditionalNotesSet, UserManager.getInstance().getConference(), "numAdditionalSharedNotes");
+        }
+
+        private function openAdditionalNotesSet(numAdditionalSharedNotes:Number):void {
+            var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT);
+            e.payload.numAdditionalSharedNotes = numAdditionalSharedNotes;
+            globalDispatcher.dispatchEvent(e);
         }
 
 		public function addMainWindow():void {
@@ -77,12 +87,14 @@ package org.bigbluebutton.modules.sharednotes.maps
 		public function createAdditionalNotes(notesId:String):void {
 			trace(NAME + ": creating additional notes " + notesId);
 
-			var newWindow:AdditionalSharedNotesWindow = new AdditionalSharedNotesWindow(notesId);
-			windows[notesId] = newWindow;
+			if(!windows.hasOwnProperty(notesId)) {
+				var newWindow:AdditionalSharedNotesWindow = new AdditionalSharedNotesWindow(notesId);
+				windows[notesId] = newWindow;
 
-			var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-			openEvent.window = newWindow;
-			globalDispatcher.dispatchEvent(openEvent);
+				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				openEvent.window = newWindow;
+				globalDispatcher.dispatchEvent(openEvent);
+			}
 		}
 
 		public function destroyAdditionalNotes(notesId:String):void {

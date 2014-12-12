@@ -17,7 +17,8 @@ trait SharedNotesApp {
   val notes = new scala.collection.mutable.HashMap[String, String]()
   notes += ("MAIN_WINDOW" -> "")
   val patcher = new diff_match_patch()
-  var notesCounter = 1;
+  var notesCounter = 0;
+  var removedNotes : Set[Int] = Set()
   
   def handlePatchDocumentRequest(msg: PatchDocumentRequest) {
     // meetingId, userId, noteId, patch, beginIndex, endIndex
@@ -37,22 +38,41 @@ trait SharedNotesApp {
     outGW.send(new GetCurrentDocumentReply(meetingID, recorded, msg.requesterID, copyNotes))
   }
     
-  def handleCreateAdditionalNotesRequest(msg: CreateAdditionalNotesRequest) {
-    var noteID = ""
-    notes.synchronized {
-      noteID = notesCounter.toString
-      notes += (noteID -> "")
+  private def createAdditionalNotesNonSync(requesterID:String) {
+    var noteID = 0
+    if (removedNotes.isEmpty()) {
       notesCounter += 1
+      noteID = notesCounter
+    } else {
+      noteID = removedNotes.min
+      removedNotes -= noteID
     }
+    notes += (noteID.toString -> "")
    
-    outGW.send(new CreateAdditionalNotesReply(meetingID, recorded, msg.requesterID, noteID))
+    outGW.send(new CreateAdditionalNotesReply(meetingID, recorded, requesterID, noteID.toString))
+  }
+
+  def handleCreateAdditionalNotesRequest(msg: CreateAdditionalNotesRequest) {
+    notes.synchronized {
+      createAdditionalNotesNonSync(msg.requesterID)
+    }
   }
     
   def handleDestroyAdditionalNotesRequest(msg: DestroyAdditionalNotesRequest) {
     notes.synchronized {
+      removedNotes += msg.noteID.toInt
       notes -= msg.noteID
     }
 
     outGW.send(new DestroyAdditionalNotesReply(meetingID, recorded, msg.requesterID, msg.noteID))
+  }
+    
+  def handleRequestAdditionalNotesSetRequest(msg: RequestAdditionalNotesSetRequest) {
+    notes.synchronized {
+      var num = msg.additionalNotesSetSize - notes.size
+      for (i <- 1 to num) {
+        createAdditionalNotesNonSync(msg.requesterID)
+      }
+    }
   }
 }

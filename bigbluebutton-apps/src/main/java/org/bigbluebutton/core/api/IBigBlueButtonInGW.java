@@ -123,5 +123,7 @@ public interface IBigBlueButtonInGW {
 	void createAdditionalNotes(String meetingID, String requesterID);
 	void destroyAdditionalNotes(String meetingID, String requesterID,
 			String noteID);
+	void requestAdditionalNotesSet(String meetingID, String requesterID,
+			int additionalNotesSetSize);
 	
 }

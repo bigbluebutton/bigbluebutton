@@ -90,5 +90,19 @@ package org.bigbluebutton.modules.sharednotes.services
         message
       );
     }
+
+    public function requestAdditionalNotesSet(additionalNotesSetSize:Number):void {
+      trace(LOG + "Sending [sharednotes.requestAdditionalNotesSet] to server.");
+      var message:Object = new Object();
+      message["additionalNotesSetSize"] = additionalNotesSetSize;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "sharednotes.requestAdditionalNotesSet",
+        onSuccessDebugger,
+        onErrorDebugger,
+        message
+      );
+    }
   }
 }

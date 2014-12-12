@@ -54,5 +54,12 @@ package org.bigbluebutton.modules.sharednotes.managers {
 			trace("SharedNotesManager: destroying notes " + notesId);
 			sender.destroyAdditionalNotes(notesId);
 		}
+
+		public function requestAdditionalNotesSet(e:SharedNotesEvent):void {
+			var notesSet:Number = e.payload.numAdditionalSharedNotes;
+			trace("SharedNotesManager: requested to open a new notes set");
+			trace("SharedNotesManager: set size: " + notesSet);
+			sender.requestAdditionalNotesSet(notesSet);
+		}
 	}
 }
