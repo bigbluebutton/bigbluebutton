@@ -272,14 +272,14 @@ package org.bigbluebutton.modules.layout.managers
 				_globalDispatcher.dispatchEvent(e);
 			}
 		}
-
+		
 		private function applyLayout(layout:LayoutDefinition):void {
 			_detectContainerChange = false;
-
 			if (layout != null) {
-				layout.applyToCanvas(_canvas);
-				dispatchSwitchedLayoutEvent(layout.name);
-			}
+        layout.applyToCanvas(_canvas);
+        dispatchSwitchedLayoutEvent(layout.name);
+      }
+				
 			updateCurrentLayout(layout);
 			_detectContainerChange = true;
 		}
