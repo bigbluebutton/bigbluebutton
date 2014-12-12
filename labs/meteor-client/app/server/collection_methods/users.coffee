@@ -179,6 +179,7 @@ Meteor.methods
         userid: user.userid
         presenter: user.presenter
         name: user.name
+        _sort_name: user.name.toLowerCase()
         phone_user: user.phone_user
         raise_hand: user.raise_hand
         has_stream: user.has_stream
@@ -216,6 +217,7 @@ Meteor.methods
         userid: user.userid
         presenter: user.presenter
         name: user.name
+        _sort_name: user.name.toLowerCase()
         phone_user: user.phone_user
         raise_hand: user.raise_hand
         has_stream: user.has_stream

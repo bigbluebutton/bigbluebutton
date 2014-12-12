@@ -243,14 +243,15 @@ class Meteor.RedisPubSub
         userId = message.payload.userid
         meetingId = message.payload.meeting_id
         if userId? and meetingId?
-          Meteor.Users.update({"user.userid": userId},{$set: {"user.raise_hand": true}})
+          last_raised = new Date()
+          Meteor.Users.update({"user.userid": userId},{$set: {"user.raise_hand": last_raised}})
         return
 
       if message.header.name is "user_lowered_hand_message"
         userId = message.payload.userid
         meetingId = message.payload.meeting_id
         if userId? and meetingId?
-          Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}})
+          Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": 0}})
         return
 
       if message.header.name is "recording_status_changed_message"
