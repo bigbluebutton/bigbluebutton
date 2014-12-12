@@ -79,7 +79,7 @@ Template.footer.helpers
 
 Template.header.events
   "click .audioFeedIcon": (event) ->
-    $(".tooltip").hide()
+    $('.audioFeedIcon').blur()
     toggleVoiceCall @
 
   "click .chatBarIcon": (event) ->
