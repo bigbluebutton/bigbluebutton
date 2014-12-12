@@ -55,7 +55,10 @@ package org.bigbluebutton.modules.sharednotes.managers {
 		}
 
 		public function requestAdditionalNotesSet(e:SharedNotesEvent):void {
-			connectionManager.requestAdditionalNotesSet(e.additionalNotesSetSize);
+			var notesSet:Number = e.payload.numAdditionalSharedNotes;
+			trace("SharedNotesManager: requested to open a new notes set");
+			trace("SharedNotesManager: set size: " + notesSet);
+			connectionManager.requestAdditionalNotesSet(notesSet);
 		}
 	}
 }

@@ -52,7 +52,6 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
-  import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class LayoutManager extends EventDispatcher {
@@ -274,17 +273,10 @@ package org.bigbluebutton.modules.layout.managers
 			}
 		}
 
-		private function checkSharedNotes(layout:LayoutDefinition):void {
-			var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT);
-			e.additionalNotesSetSize = layout.getNumberOfSharedNotes();
-			_globalDispatcher.dispatchEvent(e);
-		}
-		
 		private function applyLayout(layout:LayoutDefinition):void {
 			_detectContainerChange = false;
 
 			if (layout != null) {
-				checkSharedNotes(layout);
 				layout.applyToCanvas(_canvas);
 				dispatchSwitchedLayoutEvent(layout.name);
 			}
@@ -294,6 +286,7 @@ package org.bigbluebutton.modules.layout.managers
 
 		public function redefineLayout(e:RedefineLayoutEvent):void {
 			var layout:LayoutDefinition = e.layout;
+			UserManager.getInstance().getConference().numAdditionalSharedNotes = layout.numAdditionalSharedNotes;
 			applyLayout(layout);
 			if (!e.remote) {
         sendLayoutUpdate(layout);        

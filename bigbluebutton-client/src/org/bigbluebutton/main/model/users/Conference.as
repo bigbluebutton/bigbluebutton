@@ -33,6 +33,7 @@ package org.bigbluebutton.main.model.users {
     public var avatarURL:String;
 	public var voiceBridge:String;
 	public var dialNumber:String;
+	[Bindable] public var numAdditionalSharedNotes:Number = 0;
     
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
