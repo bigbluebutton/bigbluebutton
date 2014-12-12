@@ -242,6 +242,7 @@ Template.optionsBar.events
 
     setInSession 'display_chatPane', true
     setInSession "inChatWith", _this.userId
+    $("#newMessageInput").focus()
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
@@ -296,7 +297,9 @@ Template.tabButtons.events
     setInSession 'display_chatPane', true
 
   'click .tab': (event) ->
-    console.log "tab"
+    unless getInSession "inChatWith" is "OPTIONS"
+      $("#newMessageInput").focus()
+      console.log "tab"
 
 Template.tabButtons.helpers
   hasGotUnreadMailClass: (gotMail) ->
