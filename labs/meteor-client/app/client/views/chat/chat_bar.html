@@ -58,7 +58,7 @@
 
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<table style="width:100%">
+	<table>
 		<tr>
 			<td>
 				{{#if message.from_username}}
@@ -67,7 +67,7 @@
 					</div>
 				{{/if}}
 			</td>
-			<td style="text-align:right">
+			<td class="timestamp">
 				{{#if message.from_time}}<small class="pull-right">{{toClockTime message.from_time}} <span class="glyphicon glyphicon-time"></span></small>{{/if}}
 			</td>
 		</tr>
@@ -117,14 +117,14 @@
 </template>
 
 <template name="optionsFontSize">
-	<div class="dropdown" style="float:left">
+	<div class="dropdown">
 		<span {{messageFontSize}}>Chat Message Font Size: </span>
 		<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
 			Font Size ({{getInSession "messageFontSize"}})
 			<span class="caret"></span>
 		</button>
 
-		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" style="height:80px; overflow-y:scroll; right:0px;">
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 			<li role="presentation"><a class="fontSizeSelector" id="8" role="menuitem" tabindex="-1" href="#">8</a></li>
 			<li role="presentation"><a class="fontSizeSelector" id="10" role="menuitem" tabindex="-1" href="#">10</a></li>
 			<li role="presentation"><a class="fontSizeSelector" id="12" role="menuitem" tabindex="-1" href="#">12</a></li>
