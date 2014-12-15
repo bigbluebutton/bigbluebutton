@@ -60,7 +60,7 @@
   messages = (before.concat greeting).concat after
 
 @getGreeting = ->
-  "Welcome to #{window.getMeetingName()}!\r\r
+  "Welcome to #{Meteor.Meetings.findOne()?.meetingName or "BigBlueButton"}!\r\r
   For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\r\r
   To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
   This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
