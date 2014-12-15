@@ -64,7 +64,7 @@ Handlebars.registerHelper "getCurrentUser", =>
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
-  window.getMeetingName()
+  return Meteor.Meetings.findOne()?.meetingName or "BigBlueButton"
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
