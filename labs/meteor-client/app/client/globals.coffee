@@ -77,7 +77,7 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   Meteor.Users.find({})
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Whiteboard: " + getPresentationFilename()
+  "Whiteboard: " + (getPresentationFilename() or "Loading...")
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is BBB.getCurrentUser()?.userId
