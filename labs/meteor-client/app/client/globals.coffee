@@ -74,7 +74,8 @@ Handlebars.registerHelper "getShapesForSlide", ->
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
-  Meteor.Users.find({})
+  # Users with raised hand last go first, then sorted by name
+  Meteor.Users.find({}, {sort: {'user.raise_hand': -1, 'user._sort_name': 1} })
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
   "Whiteboard: " + getPresentationFilename()
