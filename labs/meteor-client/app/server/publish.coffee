@@ -6,7 +6,7 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
   if u?
     Meteor.log.info "found it from the first time #{userid}"
     if isAllowedTo('subscribeUsers', meetingId, userid, authToken)
-      Meteor.log.info "allowed to subscribe to 'users'"
+      Meteor.log.info "#{userid} was allowed to subscribe to 'users'"
       username = u?.user?.name or "UNKNOWN"
 
       # offline -> online
@@ -30,11 +30,11 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
         {fields:{'authToken': false}
         })
     else
-      Meteor.log.info "was not authorized to subscribe to 'users'"
+      Meteor.log.warn "was not authorized to subscribe to 'users'"
 
   else #subscribing before the user was added to the collection
     Meteor.call "validateAuthToken", meetingId, userid, authToken
-    Meteor.log.info "there was no such user #{userid}  in #{meetingId}"
+    Meteor.log.error "there was no such user #{userid}  in #{meetingId}"
     Meteor.Users.find(
       {meetingId: meetingId, 'user.connection_status':{$in: ["online", ""]}},
       {fields:{'authToken': false}
