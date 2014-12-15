@@ -23,6 +23,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="UsersModule"	
 			privateEnabled="true"  
+			fontSize="10"
 			position="top-right"
 			baseTabIndex="701"
 			colorPickerIsVisible="false"

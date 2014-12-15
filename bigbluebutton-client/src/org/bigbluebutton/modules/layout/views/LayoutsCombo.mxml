@@ -104,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         layoutNames = new ArrayCollection();         
         var layouts:Array = LayoutModel.getInstance().getLayoutNames();
         
-        var idx:int = 0, currentLayoutIndex = -1;
+        var idx:int = 0, currentLayoutIndex:int = -1;
         for each (var lay:Object in layouts) {
           var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
           if (translatedName == "undefined") translatedName = lay.name;
@@ -131,6 +131,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						idx = obj.index;
 				}
 				selectedIndex = idx;
+				if (idx == -1) {
+					prompt = e.layoutID;
+				} else {
+					prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.prompt');
+				}
 				invalidateDisplayList();
 				
 				trace(LOG + " selected layout afterwards is: " + selectedIndex);

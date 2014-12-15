@@ -1,3 +1,6 @@
+if (!window.console) window.console = {};
+if (!window.console.log) window.console.log = function () { };
+
 function startApplet(IP, roomNumber, fullScreen, useSVC2)
 {
         console.log("Starting deskshare applet.");

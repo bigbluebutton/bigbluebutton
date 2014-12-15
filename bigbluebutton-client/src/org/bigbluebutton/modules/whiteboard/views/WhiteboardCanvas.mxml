@@ -76,7 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       public function registerForMouseEvents():void {
           addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
-          addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+          stage.addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
           addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
 //        stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 //        stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);               
@@ -84,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
       public function unregisterForMouseEvents():void {
           removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
-          removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+          stage.removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
           removeEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
 //        stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 //        stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
