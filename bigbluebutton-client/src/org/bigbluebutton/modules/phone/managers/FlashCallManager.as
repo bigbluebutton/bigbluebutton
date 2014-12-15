@@ -100,6 +100,8 @@
         if (options.skipCheck) {
           JSLog.debug(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
           trace(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
+
+          streamManager.useDefaultMic();
           callIntoVoiceConference();
         } else {
           JSLog.debug(LOG + "Performing echo test. echoTestDone=[" + echoTestDone + "]");

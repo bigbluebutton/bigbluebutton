@@ -294,8 +294,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:VBox width="100%" height="100%" verticalAlign="top">
     <mx:Label text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}" styleName="presentationUploadTitleStyle" paddingBottom="0"/>
-    <mx:HBox width="100%" paddingLeft="5" paddingTop="0" verticalAlign="middle"> 
-      <mx:Label id="lblFileName" width="{lblFileName.parent.width-selectBtn.width-uploadBtn.width-30}" selectable="false" click="selectFile()" text="{ResourceUtil.getInstance().getString('bbb.fileupload.lblFileName.defaultText')}" />
+    <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingTop="0" verticalAlign="middle"> 
+      <mx:Label id="lblFileName" width="{fileUploadBox.width-selectBtn.width-uploadBtn.width-30}" selectable="false" click="selectFile()" text="{ResourceUtil.getInstance().getString('bbb.fileupload.lblFileName.defaultText')}" />
 	  <mx:Button id="selectBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
 				   click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>

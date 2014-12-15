@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.present.services
   public class PresentationService
   {
     private static const LOG:String = "Present::PresentationService - ";
-    
+    private static const NUM_PRELOAD:uint = 3;
     private var model:PresentationModel;
     private var sender:MessageSender;
     private var receiver:MessageReceiver;
@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.present.services
         np.widthRatio = page.widthRatio;
         np.heightRatio = page.heightRatio;
 //        trace(LOG + "Sending page changed event. page [" + np.id + "] oldpage current=[" + oldPage.current + "] newPage current=[" + np.current + "]");  
-        var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id);
+        var changePageCommand: ChangePageCommand = new ChangePageCommand(np.id, NUM_PRELOAD);
         dispatcher.dispatchEvent(changePageCommand);          
       }       
     }
@@ -101,7 +101,7 @@ package org.bigbluebutton.modules.present.services
         
         var curPage:Page = PresentationModel.getInstance().getCurrentPage();
         if (curPage != null) {
-          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id);
+          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
           dispatcher.dispatchEvent(changePageCommand);          
           
           trace(LOG + "Sending page moved event to position page [" + curPage.id + "] current=[" + curPage.current + "]");
@@ -143,7 +143,7 @@ package org.bigbluebutton.modules.present.services
         
         var curPage:Page = PresentationModel.getInstance().getCurrentPage();
         if (curPage != null) {
-          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id);
+          var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
           dispatcher.dispatchEvent(changePageCommand);   
           
         }        
