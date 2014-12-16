@@ -64,7 +64,7 @@ public class MeetingMessageHandler implements MessageHandler {
 					logData.put("description", "User connected to global audio.");
 					
 					Gson gson = new Gson();
-			    String logStr =  gson.toJson(logData);
+					String logStr =  gson.toJson(logData);
 					
 					log.info("User connected to global audio: data={}", logStr);
 					
@@ -80,7 +80,7 @@ public class MeetingMessageHandler implements MessageHandler {
 					logData.put("description", "User disconnected from global audio.");
 					
 					Gson gson = new Gson();
-			    String logStr =  gson.toJson(logData);
+			        String logStr =  gson.toJson(logData);
 					
 					log.info("User disconnected from global audio: data={}", logStr);
 					
