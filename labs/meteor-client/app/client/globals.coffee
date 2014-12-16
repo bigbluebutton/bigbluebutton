@@ -1,3 +1,15 @@
+@getBuildInformation = ->
+  copyrightYear = Meteor.config?.copyrightYear or "UNKNOWN DATE"
+  dateOfBuild = Meteor.config?.dateOfBuild or "UNKNOWN DATE"
+  version = Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
+  link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"
+  {
+    'copyrightYear': copyrightYear
+    'dateOfBuild': dateOfBuild
+    'version': version
+    'link': link
+  }
+
 # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
 @colourToHex = (value) ->
 	hex = parseInt(value).toString(16)
@@ -264,8 +276,6 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "joinedAt", getTime()
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
-  setInSession "dateOfBuild", Meteor.config?.dateOfBuild or "UNKNOWN DATE"
-  setInSession "bbbServerVersion", Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
   setInSession "displayChatNotifications", true
 
 
