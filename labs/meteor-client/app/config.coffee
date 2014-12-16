@@ -6,6 +6,7 @@ config = {}
 # Default global variables
 config.appName = 'BigBlueButton HTML5 Client'
 config.bbbServerVersion = '0.9.0'
+config.copyrightYear = '2014'
 config.dateOfBuild = 'Sept 25, 2014' #TODO
 
 config.maxUsernameLength = 30
