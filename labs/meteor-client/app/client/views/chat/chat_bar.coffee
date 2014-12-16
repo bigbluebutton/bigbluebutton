@@ -60,10 +60,10 @@
   messages = (before.concat greeting).concat after
 
 @getGreeting = ->
-  "Welcome to #{window.getMeetingName()}!\r\r
-  For help on using BigBlueButton see these (short) <a href='http://www.bigbluebutton.org/videos/' target='_blank'>tutorial videos</a>.\r\r
-  To join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r
-  This server is running BigBlueButton #{getInSession 'bbbServerVersion'}.\r\r"
+  info = getBuildInformation()
+  info.defaultWelcomeMessage = info.defaultWelcomeMessage.replace /%%CONFNAME%%/, (Meteor.Meetings.findOne()?.meetingName or "BigBlueButton")
+  greeting = info.defaultWelcomeMessage + info.defaultWelcomeMessageFooter
+  greeting
 
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
 Handlebars.registerHelper "autoscroll", ->
@@ -157,11 +157,15 @@ Template.chatInput.events
     sendMessage()
 
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
-    if event.shiftKey and event.which is 13
+    key = (if event.charCode then event.charCode else (if event.keyCode then event.keyCode else 0))
+
+    if event.shiftKey and (key is 13)
+      event.preventDefault()
       $("#newMessageInput").append("\r") # Change newline character
       return
 
-    if event.which is 13 # Check for pressing enter to submit message
+    if key is 13 # Check for pressing enter to submit message
+      event.preventDefault()
       sendMessage()
       $('#newMessageInput').val("")
       return false

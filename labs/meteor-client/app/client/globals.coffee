@@ -1,3 +1,22 @@
+@getBuildInformation = ->
+  appName = Meteor.config?.appName or "UNKNOWN NAME"
+  copyrightYear = Meteor.config?.copyrightYear or "UNKNOWN DATE"
+  dateOfBuild = Meteor.config?.dateOfBuild or "UNKNOWN DATE"
+  defaultWelcomeMessage = Meteor.config?.defaultWelcomeMessage or "UNKNOWN"
+  defaultWelcomeMessageFooter = Meteor.config?.defaultWelcomeMessageFooter or "UNKNOWN"
+  link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"
+  bbbServerVersion = Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
+
+  {
+    'appName': appName
+    'copyrightYear': copyrightYear
+    'dateOfBuild': dateOfBuild
+    'defaultWelcomeMessage': defaultWelcomeMessage
+    'defaultWelcomeMessageFooter': defaultWelcomeMessageFooter
+    'link': link
+    'bbbServerVersion': bbbServerVersion
+  }
+
 # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
 @colourToHex = (value) ->
 	hex = parseInt(value).toString(16)
@@ -64,7 +83,7 @@ Handlebars.registerHelper "getCurrentUser", =>
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
-  window.getMeetingName()
+  return Meteor.Meetings.findOne()?.meetingName or "BigBlueButton"
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
@@ -78,7 +97,7 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   Meteor.Users.find({}, {sort: {'user.raise_hand': -1, 'user._sort_name': 1} })
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Whiteboard: " + getPresentationFilename()
+  "Whiteboard: " + (getPresentationFilename() or "Loading...")
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is BBB.getCurrentUser()?.userId
@@ -210,7 +229,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_usersList", !getInSession "display_usersList"
 
 @toggleVoiceCall = (event) ->
-  if isSharingAudio()
+  if BBB.amISharingAudio()
     hangupCallback = ->
       console.log "left voice conference"
     BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
@@ -265,8 +284,6 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "joinedAt", getTime()
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
-  setInSession "dateOfBuild", Meteor.config?.dateOfBuild or "UNKNOWN DATE"
-  setInSession "bbbServerVersion", Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
   setInSession "displayChatNotifications", true
 
 
