@@ -3,14 +3,6 @@ Template.whiteboard.rendered = ->
     redrawWhiteboard()
   )
 
-  Tracker.autorun () ->
-    if getInSession('display_chatbar') isnt undefined
-      redrawWhiteboard()
-    if getInSession('display_usersList') isnt undefined
-      redrawWhiteboard()
-    if getInSession('display_whiteboard') isnt undefined
-      redrawWhiteboard()
-
 @redrawWhiteboard = () ->
   currentSlide = getCurrentSlideDoc()
   pic = new Image()
