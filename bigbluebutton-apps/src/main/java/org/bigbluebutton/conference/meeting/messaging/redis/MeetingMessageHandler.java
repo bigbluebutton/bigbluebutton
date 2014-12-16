@@ -2,7 +2,6 @@ package org.bigbluebutton.conference.meeting.messaging.redis;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bigbluebutton.conference.service.messaging.CreateMeetingMessage;
 import org.bigbluebutton.conference.service.messaging.DestroyMeetingMessage;
 import org.bigbluebutton.conference.service.messaging.EndMeetingMessage;
@@ -80,7 +79,7 @@ public class MeetingMessageHandler implements MessageHandler {
 					logData.put("description", "User disconnected from global audio.");
 					
 					Gson gson = new Gson();
-			        String logStr =  gson.toJson(logData);
+					String logStr =  gson.toJson(logData);
 					
 					log.info("User disconnected from global audio: data={}", logStr);
 					
