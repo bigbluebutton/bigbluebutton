@@ -157,13 +157,15 @@ Template.chatInput.events
     sendMessage()
 
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
-    key = event.keyCode ? event.charCode
+    key = (if event.charCode then event.charCode else (if event.keyCode then event.keyCode else 0))
 
     if event.shiftKey and (key is 13)
+      event.preventDefault()
       $("#newMessageInput").append("\r") # Change newline character
       return
 
     if key is 13 # Check for pressing enter to submit message
+      event.preventDefault()
       sendMessage()
       $('#newMessageInput').val("")
       return false
