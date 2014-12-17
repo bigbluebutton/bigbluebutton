@@ -62,7 +62,7 @@ bottomEntry {
 .chatNameSelector {
   font-size: 14px;
   &:hover {
-    color: black;
+    color: black !important;
     font-weight: bold;
   }
 }
@@ -78,15 +78,25 @@ bottomEntry {
 }
 
 .closeTab {
-  background: transparent;
-  border: 0;
-  color: @black;
+  background-color: red !important;
+  border-radius: 5px;
+  color: extract(@white, 1);
   cursor: pointer;
-  float: left;
+  font-size: 12px;
   font-weight: bold;
-  padding: 0;
+  margin-left: 5px;
+  margin-top: -3px;
+  opacity: 0.2 !important;
+  padding-left: 3px !important;
+  padding-right: 3px !important;
+  padding-top: 4px !important;
   text-shadow: 0 1px 0 extract(@white, 1);
   -webkit-appearance: none;
+
+  &:hover {
+    color: extract(@white, 1) !important;
+    opacity: 1 !important;
+  }
 }
 
 .gotUnreadMail {
@@ -181,8 +191,8 @@ bottomEntry {
   font-size: 14px;
   height:auto !important;
   &:hover {
-    padding-left: 10px;
-    padding-right: 10px;
+    border: 1px solid extract(@azure, 2);
+    border-bottom: none;
   }
 }
 
