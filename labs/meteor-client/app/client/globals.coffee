@@ -161,9 +161,6 @@ Handlebars.registerHelper "visibility", (section) ->
   else
     style: 'display:none;'
 
-@isSharingAudio = ->
-  return Meteor.Users.findOne({userId: getInSession "userId"})?.user?.voiceUser?.joined
-
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
   www = /(^|[^\/])(www\.[\S]+($|\b))/img
