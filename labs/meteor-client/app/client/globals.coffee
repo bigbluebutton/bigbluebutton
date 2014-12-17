@@ -215,6 +215,7 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @toggleChatbar = ->
   setInSession "display_chatbar", !getInSession "display_chatbar"
+  setTimeout(redrawWhiteboard, 0)
 
 @toggleMic = (event) ->
   u = Meteor.Users.findOne({userId:getInSession("userId")})
@@ -227,6 +228,7 @@ Handlebars.registerHelper "visibility", (section) ->
 # toggle state of session variable
 @toggleUsersList = ->
   setInSession "display_usersList", !getInSession "display_usersList"
+  setTimeout(redrawWhiteboard, 0)
 
 @toggleVoiceCall = (event) ->
   if BBB.amISharingAudio()
@@ -242,6 +244,7 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @toggleWhiteBoard = ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
+  setTimeout(redrawWhiteboard, 0)
 
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
