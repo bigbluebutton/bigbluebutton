@@ -94,17 +94,11 @@
 			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
 				{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
 					{{#contentFor region="scrollContents"}}
-						<table class="table table-hover">
-							<tbody class="private-chat-user-list">
-								{{#each getUsersInMeeting}}
-									<tr class="private-chat-user-entry">
-										{{#unless isCurrentUser userId}}
-									      {{user.name}}
-									    {{/unless}}
-									</tr>
-								{{/each}}
-							</tbody>
-						</table>
+                        <div class="private-chat-user-list">
+                            {{#each getUsersInMeeting}}
+                            <div class="private-chat-user-entry">{{#unless isCurrentUser userId}}{{user.name}}{{/unless}}</div>
+                            {{/each}}
+                        </div>
 					{{/contentFor}}
 				{{/Layout}}
 			</div>
