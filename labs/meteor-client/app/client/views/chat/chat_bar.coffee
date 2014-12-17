@@ -124,6 +124,12 @@ Template.chatbar.helpers
 
     msgs
 
+  userExists: ->
+    if getInSession('inChatWith') in ["PUBLIC_CHAT", "OPTIONS"]
+      return true
+    else
+      return Meteor.Users.findOne({userId: getInSession('inChatWith')})?
+
 # When chatbar gets rendered, scroll to the bottom
 Template.chatbar.rendered = ->
   detectUnreadChat()
