@@ -38,12 +38,9 @@
 @getFormattedMessagesForChat = ->
   chattingWith = getInSession('inChatWith')
   if chattingWith is 'PUBLIC_CHAT' # find all public and system messages
-    query = Meteor.Chat.find({'message.chat_type': $in: ["SYSTEM_MESSAGE","PUBLIC_CHAT"]},{sort: {'message.from_time': 1}})
-    console.log "query size = #{query.count()}"
-    return query.fetch()
+    return Meteor.Chat.find({'message.chat_type': $in: ["SYSTEM_MESSAGE","PUBLIC_CHAT"]},{sort: {'message.from_time': 1}}).fetch()
   else
     unless chattingWith is 'OPTIONS'
-      console.log "chattingWith is #{chattingWith}"
       return Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.to_userid': chattingWith},{'message.from_userid': chattingWith}]}).fetch()
 
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container

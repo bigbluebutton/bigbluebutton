@@ -218,7 +218,7 @@ Meteor.methods
         'message.from_username': ""
         'message.from_time': user.timeOfJoining.toString()
       }})
-    Meteor.log.info "added a system message in chat for user #{userId}   #{chatId}"
+    Meteor.log.info "added a system message in chat for user #{userId}"
 
   else
     # scenario: there are meetings running at the time when the meteor
