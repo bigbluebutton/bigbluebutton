@@ -292,12 +292,10 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @onLoadComplete = ->
   setDefaultSettings()
-  myDBID = BBB.getMyDBID()
 
-  Meteor.Users.find().observeChanges({
-  removed: (id) ->
-    console.log "removed user #{id}  #{getInSession('userId')}   #{myDBID}"
-    if id is myDBID
+  Meteor.Users.find().observe({
+  removed: (oldDocument) ->
+    if oldDocument.userId is getInSession 'userId'
       document.location = Meteor.config.app.logOutUrl
   })
 
