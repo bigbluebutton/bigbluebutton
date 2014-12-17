@@ -58,22 +58,22 @@
 
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<table>
-		<tr>
-			<td>
-				{{#if message.from_username}}
-					<div {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
-						<strong>{{message.from_username}}</strong>
-					</div>
-				{{/if}}
-			</td>
-			<td class="timestamp">
-				{{#if message.from_time}}<small class="pull-right">{{toClockTime message.from_time}} <span class="glyphicon glyphicon-time"></span></small>{{/if}}
-			</td>
-		</tr>
-	</table>
-	<div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
-	{{autoscroll}} <!-- Scroll to the bottom after inserting a new message -->
+    <span style="float:left;">
+        {{#if message.from_username}}
+            <span {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+                <strong>{{message.from_username}}</strong>
+            </span>
+        {{/if}}
+    </span>
+    <span style="float:right;">
+                {{#if message.from_time}}
+                {{toClockTime message.from_time}}
+                <span class="glyphicon glyphicon-time"></span>
+            {{/if}}
+    </span>
+    <br/>
+    <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
+    {{autoscroll}}
 </template>
 
 <template name="notificationSettings">
@@ -94,17 +94,11 @@
 			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
 				{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
 					{{#contentFor region="scrollContents"}}
-						<table class="table table-hover">
-							<tbody class="private-chat-user-list">
-								{{#each getUsersInMeeting}}
-									<tr class="private-chat-user-entry">
-										{{#unless isCurrentUser userId}}
-									      {{user.name}}
-									    {{/unless}}
-									</tr>
-								{{/each}}
-							</tbody>
-						</table>
+                        <div class="private-chat-user-list">
+                            {{#each getUsersInMeeting}}
+                            <div class="private-chat-user-entry">{{#unless isCurrentUser userId}}{{user.name}}{{/unless}}</div>
+                            {{/each}}
+                        </div>
 					{{/contentFor}}
 				{{/Layout}}
 			</div>
@@ -140,11 +134,11 @@
   <ul id="tabsList" class="nav nav-tabs">
     {{#each grabChatTabs}}
       <li class="{{isTabActive userId}} tab {{makeSafe class}}">
-        <a href='#' data-toggle='tab' id="#{{makeSafe name}}" class="{{hasGotUnreadMailClass gotMail}}">
+        <a href='#' data-toggle='tab' id="#{{makeSafe name}}" class="{{hasGotUnreadMailClass gotMail}} chatNameSelector">
+          {{makeSafe name}}
           {{#if equals class "privateChatTab"}}
             <button class="close closeTab" type="button"><sup><b>X</b></sup></button>
           {{/if}}
-          <span class="chatNameSelector">{{makeSafe name}}</span>
         </a>
       </li>
     {{/each}}

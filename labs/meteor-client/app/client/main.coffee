@@ -83,6 +83,19 @@ Template.header.events
     toggleChatbar()
     #recalculateLayout()
 
+  "click .collapseButton": (event) ->
+    $(".tooltip").hide()
+    if $('.collapseSection').css('display') is 'block'
+      $('.collapseSection').css({'display': 'none'})
+      $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
+      $('.collapseButton > i').removeClass('glyphicon-chevron-left')
+      $('.collapseButton > i').addClass('glyphicon-chevron-right')
+    else
+      $('.collapseSection').css({'display': 'block'})
+      $('.navbarTitle').css({ 'width': '30%' })
+      $('.collapseButton > i').removeClass('glyphicon-chevron-right')
+      $('.collapseButton > i').addClass('glyphicon-chevron-left')
+
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
     toggleNavbar()
@@ -173,17 +186,3 @@ Template.makeButton.rendered = ->
 
 Template.recordingStatus.rendered = ->
   $('button[rel=tooltip]').tooltip()
-
-Template.header.rendered = ->
-  $('.collapseButton').on 'click', () ->
-    $(".tooltip").hide()
-    if $('.collapseSection').css('display') is 'block'
-      $('.collapseSection').css({'display': 'none'})
-      $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
-      $('.collapseButton > i').removeClass('glyphicon-chevron-left')
-      $('.collapseButton > i').addClass('glyphicon-chevron-right')
-    else
-      $('.collapseSection').css({'display': 'block'})
-      $('.navbarTitle').css({ 'width': '30%' })
-      $('.collapseButton > i').removeClass('glyphicon-chevron-right')
-      $('.collapseButton > i').addClass('glyphicon-chevron-left')
