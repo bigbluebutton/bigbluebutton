@@ -36,34 +36,15 @@
 # This method returns all messages for the user. It looks at the session to determine whether the user is in
 # private or public chat. If true is passed, messages returned are from before the user joined. Else, the messages are from after the user joined
 @getFormattedMessagesForChat = ->
-  friend = chattingWith = getInSession('inChatWith') # the recipient(s) of the messages
-  after = before = greeting = []
-
-  if chattingWith is 'PUBLIC_CHAT' # find all public messages
-    before = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$lt: String(getTimeOfJoining())}}).fetch()
-    after = Meteor.Chat.find({'message.chat_type': chattingWith, 'message.from_time': {$gt: String(getTimeOfJoining())}}).fetch()
-
-    greeting = [
-      'message':
-        'message': getGreeting()
-        'from_username': 'System',
-        'from_time': getTimeOfJoining()
-        'from_color': '0x3399FF' # A nice blue in hex
-    ]
+  chattingWith = getInSession('inChatWith')
+  if chattingWith is 'PUBLIC_CHAT' # find all public and system messages
+    query = Meteor.Chat.find({'message.chat_type': $in: ["SYSTEM_MESSAGE","PUBLIC_CHAT"]},{sort: {'message.from_time': 1}})
+    console.log "query size = #{query.count()}"
+    return query.fetch()
   else
-    me = getInSession("userId")
-    after = Meteor.Chat.find({ # find all messages between current user and recipient
-      'message.chat_type': 'PRIVATE_CHAT',
-      $or: [{'message.from_userid': me, 'message.to_userid': friend},{'message.from_userid': friend, 'message.to_userid': me}]
-    }).fetch()
-
-  messages = (before.concat greeting).concat after
-
-@getGreeting = ->
-  info = getBuildInformation()
-  info.defaultWelcomeMessage = info.defaultWelcomeMessage.replace /%%CONFNAME%%/, (Meteor.Meetings.findOne()?.meetingName or "BigBlueButton")
-  greeting = info.defaultWelcomeMessage + info.defaultWelcomeMessageFooter
-  greeting
+    unless chattingWith is 'OPTIONS'
+      console.log "chattingWith is #{chattingWith}"
+      return Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.to_userid': chattingWith},{'message.from_userid': chattingWith}]}).fetch()
 
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
 Handlebars.registerHelper "autoscroll", ->
@@ -117,7 +98,7 @@ Handlebars.registerHelper "grabChatTabs", ->
 Template.chatbar.helpers
   getCombinedMessagesForChat: ->
     msgs = getFormattedMessagesForChat()
-    len = msgs.length # get length of messages
+    len = msgs?.length # get length of messages
     i = 0
     while i < len # Must be a do while, for loop compiles and stores the length of array which can change inside the loop!
       if msgs[i].message.from_userid isnt 'System' # skip system messages
