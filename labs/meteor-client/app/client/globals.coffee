@@ -308,11 +308,10 @@ Handlebars.registerHelper "visibility", (section) ->
 # TODO TEMPORARY!!
 # must not have this in production
 @whoami = ->
-  console.log JSON.stringify {
+  console.log JSON.stringify
     username: getInSession "userName"
     userid: getInSession "userId"
     authToken: getInSession "authToken"
-}
 
 @listSessionVars = ->
   console.log SessionAmplify.keys
