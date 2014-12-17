@@ -58,22 +58,22 @@
 
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<table>
-		<tr>
-			<td>
-				{{#if message.from_username}}
-					<div {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
-						<strong>{{message.from_username}}</strong>
-					</div>
-				{{/if}}
-			</td>
-			<td class="timestamp">
-				{{#if message.from_time}}<small class="pull-right">{{toClockTime message.from_time}} <span class="glyphicon glyphicon-time"></span></small>{{/if}}
-			</td>
-		</tr>
-	</table>
-	<div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
-	{{autoscroll}} <!-- Scroll to the bottom after inserting a new message -->
+    <span style="float:left;">
+        {{#if message.from_username}}
+            <span {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+                <strong>{{message.from_username}}</strong>
+            </span>
+        {{/if}}
+    </span>
+    <span style="float:right;">
+                {{#if message.from_time}}
+                {{toClockTime message.from_time}}
+                <span class="glyphicon glyphicon-time"></span>
+            {{/if}}
+    </span>
+    <br/>
+    <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
+    {{autoscroll}}
 </template>
 
 <template name="notificationSettings">
