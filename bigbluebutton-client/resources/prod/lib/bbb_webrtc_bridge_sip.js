@@ -238,7 +238,7 @@ function webrtc_call(username, voiceBridge, callback) {
 		return;
 	}
 	
-	var server = window.document.location.host;
+	var server = window.document.location.hostname;
 	console.log("user " + username + " calling to " +  voiceBridge);
 	
 	if (!userAgent) {
