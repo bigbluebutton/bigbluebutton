@@ -294,7 +294,7 @@ Template.tabButtons.events
 
 Template.tabButtons.helpers
   hasGotUnreadMailClass: (gotMail) ->
-    if gotMail and getInSession("displayChatNotifications")
+    if gotMail
       return "gotUnreadMail"
     else
       return ""
@@ -338,12 +338,3 @@ Template.message.helpers
       res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
       res = toClickable res
       res = activateBreakLines res
-
-Template.notificationSettings.events
-  "click #chatNotificationOff": (event) ->
-    console.log "off"
-    setInSession "displayChatNotifications", false
-
-  "click #chatNotificationOn": (event) ->
-    console.log "on"
-    setInSession "displayChatNotifications", true

@@ -257,7 +257,6 @@ Handlebars.registerHelper "visibility", (section) ->
   delete SessionAmplify.keys['bbbServerVersion']
   delete SessionAmplify.keys['chatTabs']
   delete SessionAmplify.keys['dateOfBuild']
-  delete SessionAmplify.keys['displayChatNotifications']
   delete SessionAmplify.keys['display_chatPane']
   delete SessionAmplify.keys['display_chatbar']
   delete SessionAmplify.keys['display_navbar']
@@ -270,7 +269,6 @@ Handlebars.registerHelper "visibility", (section) ->
   delete SessionAmplify.keys['tabsRenderedTime']
   delete SessionAmplify.keys['userId']
   delete SessionAmplify.keys['userName']
-  console.log "clearSessionVar"
   callback()
 
 # assign the default values for the Session vars
@@ -284,7 +282,6 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "joinedAt", getTime()
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
-  setInSession "displayChatNotifications", true
 
 
 @onLoadComplete = ->
