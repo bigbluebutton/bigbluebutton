@@ -117,6 +117,14 @@ Template.header.events
     #   alert "settings"
 
   "click .signOutIcon": (event) ->
+    if window.matchMedia('(orientation: portrait)').matches
+      if $('#dialog').dialog('option', 'height') isnt 450
+        $('#dialog').dialog('option', 'width', '100%')
+        $('#dialog').dialog('option', 'height', 450)
+    else
+      if $('#dialog').dialog('option', 'height') isnt 115
+        $('#dialog').dialog('option', 'width', 270)
+        $('#dialog').dialog('option', 'height', 115)
     $("#dialog").dialog("open")
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -156,8 +164,6 @@ Template.main.rendered = ->
     draggable: false
     resizable: false
     autoOpen: false
-    height: 115
-    width: 270
     dialogClass: 'no-close logout-dialog'
     buttons: [
       {
@@ -179,6 +185,10 @@ Template.main.rendered = ->
       my: 'right top'
       at: 'right bottom'
       of: '.signOutIcon'
+  )
+
+  $(window).resize( ->
+    $('#dialog').dialog('close')
   )
 
 Template.makeButton.rendered = ->
