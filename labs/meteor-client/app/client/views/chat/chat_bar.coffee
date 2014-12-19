@@ -21,16 +21,16 @@
         else
           chatMessage.message?.from_userid
       Tracker.autorun (comp) ->
-        if getInSession('tabsRenderedTime') isnt undefined
-          if chatMessage.message.from_time - getInSession('tabsRenderedTime') > 0
-            populateChatTabs(chatMessage) # check if we need to open a new tab
-            destinationTab = findDestinationTab()
-            if destinationTab isnt getInSession "inChatWith"
-              setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
-                tab.gotMail = true if tab.userId is destinationTab
-                tab
-              )
-          comp.stop()
+        tabsTime = getInSession('tabsRenderedTime')
+        if tabsTime? and chatMessage.message.from_userid isnt "SYSTEM_MESSAGE" and chatMessage.message.from_time - tabsTime > 0
+          populateChatTabs(chatMessage) # check if we need to open a new tab
+          destinationTab = findDestinationTab()
+          if destinationTab isnt getInSession "inChatWith"
+            setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
+              tab.gotMail = true if tab.userId is destinationTab
+              tab
+            )
+        comp.stop()
     })
 
 # This method returns all messages for the user. It looks at the session to determine whether the user is in
@@ -130,9 +130,12 @@ Template.chatbar.helpers
     else
       return Meteor.Users.findOne({userId: getInSession('inChatWith')})?
 
-# When chatbar gets rendered, scroll to the bottom
+# When chatbar gets rendered, launch the auto-check for unread chat
 Template.chatbar.rendered = ->
   detectUnreadChat()
+
+# When message gets rendered, scroll to the bottom
+Template.message.rendered = ->
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   false
 
