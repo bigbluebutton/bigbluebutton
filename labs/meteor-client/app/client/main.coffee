@@ -85,6 +85,7 @@ Template.header.events
 
   "click .collapseButton": (event) ->
     $(".tooltip").hide()
+    $('.collapseButton').blur()
     if $('.collapseSection').css('display') is 'block'
       $('.collapseSection').css({'display': 'none'})
       $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
@@ -117,6 +118,7 @@ Template.header.events
     #   alert "settings"
 
   "click .signOutIcon": (event) ->
+    $('.signOutIcon').blur()
     if window.matchMedia('(orientation: portrait)').matches
       if $('#dialog').dialog('option', 'height') isnt 450
         $('#dialog').dialog('option', 'width', '100%')
