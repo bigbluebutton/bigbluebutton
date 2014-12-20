@@ -91,11 +91,13 @@ Template.header.events
       $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
       $('.collapseButton > i').removeClass('glyphicon-chevron-left')
       $('.collapseButton > i').addClass('glyphicon-chevron-right')
+      $('.collapseButton').attr('data-original-title', 'Expand')
     else
       $('.collapseSection').css({'display': 'block'})
       $('.navbarTitle').css({ 'width': '30%' })
       $('.collapseButton > i').removeClass('glyphicon-chevron-right')
       $('.collapseButton > i').addClass('glyphicon-chevron-left')
+      $('.collapseButton').attr('data-original-title', 'Collapse')
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
