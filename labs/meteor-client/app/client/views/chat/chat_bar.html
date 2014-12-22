@@ -6,20 +6,33 @@
                 {{title}}
                 {{> extraConversations}}
             </h3>
-
 			{{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
 			{{#if getInSession "display_chatPane"}}
-				<div id="chatbody">
-					<ul class="chat">
-						{{#each getCombinedMessagesForChat}}
-							{{#if message}}
-								<li {{messageFontSize}}>{{> message}}</li>
-							{{/if}}
-						{{/each}}
-						<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue of last message being cut off while scrolling -->
-					</ul>
-				</div>
-				<div class="panel-footer">{{> chatInput}}</div>
+				{{#if userExists}}
+					<div id="chatbody">
+						<ul class="chat">
+							{{#each getCombinedMessagesForChat}}
+								{{#if message}}
+									<li {{messageFontSize}}>{{> message}}</li>
+								{{/if}}
+							{{/each}}
+							<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue of last message being cut off while scrolling -->
+						</ul>
+					</div>
+					<div class="panel-footer">{{> chatInput}}</div>
+				{{else}}
+					<div id="chatbody">
+						<ul class="chat">
+							{{#each getCombinedMessagesForChat}}
+								{{#if message}}
+									<li {{messageFontSize}}>{{> message}}</li>
+								{{/if}}
+							{{/each}}
+							<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue of last message being cut off while scrolling -->
+							<li>The user has left</li>
+						</ul>
+					</div>
+				{{/if}}
 			{{else}}
 				{{> optionsBar}}
 			{{/if}}
@@ -29,7 +42,7 @@
 
 <template name="chatInput">
 	<div class="chat-input-wrapper">
-		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
+		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" autofocus></textarea>
 		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
 		Send
 		</button>
@@ -39,8 +52,6 @@
 <template name="chatOptions">
 	<p>Chat Options:</p>
 	{{> optionsFontSize}}
-	<br/><br/>
-	{{> notificationSettings}}
 </template>
 
 <template name="extraConversations">
@@ -58,32 +69,22 @@
 
 <!-- Displays and styles an individual message in the chat -->
 <template name="message">
-	<table>
-		<tr>
-			<td>
-				{{#if message.from_username}}
-					<div {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
-						<strong>{{message.from_username}}</strong>
-					</div>
-				{{/if}}
-			</td>
-			<td class="timestamp">
-				{{#if message.from_time}}<small class="pull-right">{{toClockTime message.from_time}} <span class="glyphicon glyphicon-time"></span></small>{{/if}}
-			</td>
-		</tr>
-	</table>
-	<div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div> <!-- Messages must be safely filtered and stripped -->
-	{{autoscroll}} <!-- Scroll to the bottom after inserting a new message -->
-</template>
-
-<template name="notificationSettings">
-	New Message Notifications:
-	<form>
-		<input type="radio" name="chatNotification" id="chatNotificationOn" value="chatNotificationOn" checked="checked" />
-		<label for="chatNotificationOn">On</label>
-		<input type="radio" name="chatNotification" id="chatNotificationOff" value="chatNotificationOff" />
-		<label for="chatNotificationOff">Off</label>
-	</form>
+    <span style="float:left;">
+        {{#if message.from_username}}
+            <span {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+                <strong>{{message.from_username}}</strong>
+            </span>
+        {{/if}}
+    </span>
+    <span style="float:right;">
+                {{#if message.from_time}}
+                {{toClockTime message.from_time}}
+                <span class="glyphicon glyphicon-time"></span>
+            {{/if}}
+    </span>
+    <br/>
+    <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
+    {{autoscroll}}
 </template>
 
 <!-- Displays the list of options available -->
@@ -94,17 +95,11 @@
 			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
 				{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
 					{{#contentFor region="scrollContents"}}
-						<table class="table table-hover">
-							<tbody class="private-chat-user-list">
-								{{#each getUsersInMeeting}}
-									<tr class="private-chat-user-entry">
-										{{#unless isCurrentUser userId}}
-									      {{user.name}}
-									    {{/unless}}
-									</tr>
-								{{/each}}
-							</tbody>
-						</table>
+                        <div class="private-chat-user-list">
+                            {{#each getUsersInMeeting}}
+                            <div class="private-chat-user-entry">{{#unless isCurrentUser userId}}{{user.name}}{{/unless}}</div>
+                            {{/each}}
+                        </div>
 					{{/contentFor}}
 				{{/Layout}}
 			</div>
