@@ -62,6 +62,15 @@ Meteor.methods
 
 		id = Meteor.Chat.insert(entry)
 		Meteor.log.info "added chat id=[#{id}]:#{messageObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+
+
+# called on server start and meeting end
+@clearChatCollection = (meetingId) ->
+	if meetingId?
+		Meteor.Chat.remove({meetingId: meetingId}, Meteor.log.info "cleared Chat Collection (meetingId: #{meetingId}!")
+	else
+		Meteor.Chat.remove({}, Meteor.log.info "cleared Chat Collection (all meetings)!")
+
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------

@@ -4,3 +4,12 @@ Meteor.Meetings = new Meteor.Collection("meetings")
 Meteor.Presentations = new Meteor.Collection("presentations")
 Meteor.Shapes = new Meteor.Collection("shapes")
 Meteor.Slides = new Meteor.Collection("slides")
+
+# Clear all data in subcriptions
+@clearCollections = ->
+  clearUsersCollection()
+  clearChatCollection()
+  clearMeetingsCollection()
+  clearShapesCollection()
+  clearSlidesCollection()
+  clearPresentationsCollection()

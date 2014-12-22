@@ -76,6 +76,15 @@
     Meteor.Shapes.remove(shapeToRemove._id)
     Meteor.log.info "----removed shape[" + shapeId + "] from " + whiteboardId
     Meteor.log.info "remaining shapes on the slide:" + Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
+
+
+# called on server start and meeting end
+@clearShapesCollection = (meetingId) ->
+  if meetingId?
+    Meteor.Shapes.remove({meetingId: meetingId}, Meteor.log.info "cleared Shapes Collection (meetingId: #{meetingId}!")
+  else
+    Meteor.Shapes.remove({}, Meteor.log.info "cleared Shapes Collection (all meetings)!")
+
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------

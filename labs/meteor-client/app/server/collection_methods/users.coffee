@@ -272,3 +272,10 @@ Meteor.methods
     id = Meteor.Users.insert(entry)
     Meteor.log.info "added user dummy user id=[#{id}]:#{user.name}.
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+
+# called on server start and on meeting end
+@clearUsersCollection = (meetingId) ->
+  if meetingId?
+    Meteor.Users.remove({meetingId: meetingId}, Meteor.log.info "cleared Users Collection (meetingId: #{meetingId}!")
+  else
+    Meteor.Users.remove({}, Meteor.log.info "cleared Users Collection (all meetings)!")
