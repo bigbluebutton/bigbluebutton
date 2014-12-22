@@ -1,8 +1,13 @@
 Template.slide.rendered = ->
   currentSlide = getCurrentSlideDoc()
-  if currentSlide?.slide?.png_uri?
-    createWhiteboardPaper (wpm) ->
-      displaySlide wpm
+  pic = new Image()
+  pic.onload = ->
+    if window.matchMedia('(orientation: portrait)').matches
+      $('#whiteboard').height($('#whiteboard').width() * this.height / this.width + $('#whiteboard-navbar').height())
+    if currentSlide?.slide?.png_uri?
+      createWhiteboardPaper (wpm) ->
+        displaySlide wpm
+  pic.src = currentSlide?.slide?.png_uri
 
 @createWhiteboardPaper = (callback) =>
   @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper')
