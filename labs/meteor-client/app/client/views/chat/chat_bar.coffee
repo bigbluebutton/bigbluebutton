@@ -141,6 +141,7 @@ Template.message.rendered = ->
 
 Template.chatInput.events
   'click #sendMessageButton': (event) ->
+    $('#sendMessageButton').blur()
     sendMessage()
 
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox

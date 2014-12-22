@@ -85,16 +85,19 @@ Template.header.events
 
   "click .collapseButton": (event) ->
     $(".tooltip").hide()
+    $('.collapseButton').blur()
     if $('.collapseSection').css('display') is 'block'
       $('.collapseSection').css({'display': 'none'})
       $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
       $('.collapseButton > i').removeClass('glyphicon-chevron-left')
       $('.collapseButton > i').addClass('glyphicon-chevron-right')
+      $('.collapseButton').attr('data-original-title', 'Expand')
     else
       $('.collapseSection').css({'display': 'block'})
       $('.navbarTitle').css({ 'width': '30%' })
       $('.collapseButton > i').removeClass('glyphicon-chevron-right')
       $('.collapseButton > i').addClass('glyphicon-chevron-left')
+      $('.collapseButton').attr('data-original-title', 'Collapse')
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -117,6 +120,15 @@ Template.header.events
     #   alert "settings"
 
   "click .signOutIcon": (event) ->
+    $('.signOutIcon').blur()
+    if window.matchMedia('(orientation: portrait)').matches
+      if $('#dialog').dialog('option', 'height') isnt 450
+        $('#dialog').dialog('option', 'width', '100%')
+        $('#dialog').dialog('option', 'height', 450)
+    else
+      if $('#dialog').dialog('option', 'height') isnt 115
+        $('#dialog').dialog('option', 'width', 270)
+        $('#dialog').dialog('option', 'height', 115)
     $("#dialog").dialog("open")
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -156,8 +168,6 @@ Template.main.rendered = ->
     draggable: false
     resizable: false
     autoOpen: false
-    height: 115
-    width: 270
     dialogClass: 'no-close logout-dialog'
     buttons: [
       {
@@ -179,6 +189,10 @@ Template.main.rendered = ->
       my: 'right top'
       at: 'right bottom'
       of: '.signOutIcon'
+  )
+
+  $(window).resize( ->
+    $('#dialog').dialog('close')
   )
 
 Template.makeButton.rendered = ->

@@ -16,7 +16,6 @@
 
   body {
     position: relative;
-    height: 1440px;
     top: 15px;
   }
 
@@ -32,9 +31,11 @@
     padding-left: 5px;
     overflow: hidden;
     height: 72px;
-    width: 30%;
+    width: 80%;
     white-space: nowrap;
     text-overflow: ellipsis;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .title {
@@ -55,5 +56,29 @@
 
   .myNavbar {
     min-width: 630px;
+  }
+
+  .collapseSection {
+    display: none;
+  }
+
+  .logout-dialog.ui-dialog {
+    .ui-widget-header {
+      font-size: 40px;
+    }
+  }
+
+  .logout-dialog.ui-widget-content {
+    font-size: 280%;
+  }
+
+  .ui-dialog-buttonset {
+    width: 100%;
+  }
+
+  .ui-dialog-buttonset button {
+    width: 40%;
+    margin-left: 5% !important;
+    margin-right: 5% !important;
   }
 }
