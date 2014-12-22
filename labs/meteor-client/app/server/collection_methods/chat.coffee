@@ -61,7 +61,7 @@ Meteor.methods
 				from_lang: messageObject.from_lang
 
 		id = Meteor.Chat.insert(entry)
-		Meteor.log.info "added chat id=[#{id}]:#{messageObject.message}. Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+		Meteor.log.info "added chat id=[#{id}]:#{messageObject.message}." #" Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 
 
 # called on server start and meeting end
