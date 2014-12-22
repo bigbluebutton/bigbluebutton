@@ -24,12 +24,9 @@
 
 @removeMeetingFromCollection = (meetingId) ->
 	if Meteor.Meetings.findOne({meetingId: meetingId})?
+		Meteor.log.info "end of meeting #{meetingId}. Clear the meeting data from all collections"
 		# delete all users in the meeting
-		if Meteor.Users.find({meetingId: meetingId}).count() isnt 0
-			Meteor.log.info "on meeting end #{meetingId} deleting all users"
-			for user in Meteor.Users.find({meetingId: meetingId}).fetch()
-				Meteor.log.info "in meetings::removeMeetingFromCollection #{meetingId} #{user.userId}"
-				removeUserFromCollection meetingId, user.userId
+		clearUsersCollection(meetingId)
 
 		# delete all slides in the meeting
 		clearSlidesCollection(meetingId)
