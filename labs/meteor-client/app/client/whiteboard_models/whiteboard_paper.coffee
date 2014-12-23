@@ -832,7 +832,8 @@ class Meteor.WhiteboardPaperModel
 
         oldRatio = (oldDoc.slide.width_ratio + oldDoc.slide.height_ratio) / 2
         newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
-        _this?.currentShapes?.forEach (shape) ->
+
+        _this?.current?.shapes?.forEach (shape) ->
           shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
 
         _this.cursor.setRadius(6 * newDoc.slide.width_ratio / 100)
