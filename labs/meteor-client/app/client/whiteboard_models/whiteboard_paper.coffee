@@ -28,21 +28,7 @@ class Meteor.WhiteboardPaperModel
     @shiftPressed = false
     @currentPathCount = 0
 
-    # $container = $('#whiteboard-paper')
-    # @containerWidth = $container.innerWidth()
-    # @containerHeight = $container.innerHeight()
     @_updateContainerDimensions()
-
-    # $(window).on "resize.whiteboard_paper", _.bind(@_onWindowResize, @)
-    # $(document).on "keydown.whiteboard_paper", _.bind(@_onKeyDown, @)
-    # $(document).on "keyup.whiteboard_paper", _.bind(@_onKeyUp, @)
-
-    # Bind to the event triggered when the client connects to the server
-    # if globals.connection.isConnected()
-    #   @_registerEvents()
-    # else
-    #   globals.events.on "connection:connected", =>
-    #     @_registerEvents()
 
     @zoomObserver = null
 
@@ -71,16 +57,12 @@ class Meteor.WhiteboardPaperModel
     #console.log "h: #{h}"
     #console.log "w: #{w}"
 
-    # @raphaelObj ?= ScaleRaphael(@container, "900", "500")
     @raphaelObj ?= ScaleRaphael(@container, w, h)
-
-    # $container = $('#whiteboard-contents')
     @raphaelObj ?= ScaleRaphael(@container, $container.innerHeight(), $container.innerWidth())
 
     @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
     @createCursor()
-    #@cursor.on "cursor:mousewheel", _.bind(@_zoomSlide, @)
 
     if @slides
       @rebuild()
@@ -88,13 +70,6 @@ class Meteor.WhiteboardPaperModel
       @slides = {} # if previously loaded
     unless navigator.userAgent.indexOf("Firefox") is -1
       @raphaelObj.renderfix()
-
-    # initializing border around slide to cover up areas which shouldnt show
-    # @borders = {}
-    # for border in ['left', 'right', 'top', 'bottom']
-    #   @borders[border] = @raphaelObj.rect(0, 0, 0, 0)
-    #   @borders[border].attr("fill", "#ababab")
-    #   @borders[border].attr( {stroke:"#ababab"} )
 
     @raphaelObj
 
@@ -200,43 +175,6 @@ class Meteor.WhiteboardPaperModel
         @cursor.toFront()
       @current.slide = @slides[url]
 
-  # Updates the paper from the server values.
-  # @param  {number} cx_ the x-offset value as a percentage of the original width
-  # @param  {number} cy_ the y-offset value as a percentage of the original height
-  # @param  {number} sw_ the slide width value as a percentage of the original width
-  # @param  {number} sh_ the slide height value as a percentage of the original height
-  # TODO: not working as it should
-  updatePaperFromServer: (cx_, cy_, sw_, sh_) ->
-    # # if updating the slide size (zooming!)
-    # [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
-    # if sw_ and sh_
-    #   @raphaelObj.setViewBox cx_ * slideWidth, cy_ * slideHeight, sw_ * slideWidth, sh_ * slideHeight,
-    #   sw = slideWidth / sw_
-    #   sh = slideHeight / sh_
-    # # just panning, so use old slide size values
-    # else
-    #   [sw, sh] = @_currentSlideDimensions()
-    #   @raphaelObj.setViewBox cx_ * slideWidth, cy_ * slideHeight, @raphaelObj._viewBox[2], @raphaelObj._viewBox[3]
-
-    # # update corners
-    # cx = cx_ * sw
-    # cy = cy_ * sh
-    # # update position of svg object in the window
-    # sx = (@containerWidth - slideWidth) / 2
-    # sy = (@containerHeight - slideHeight) / 2
-    # sy = 0  if sy < 0
-    # @raphaelObj.canvas.style.left = sx + "px"
-    # @raphaelObj.canvas.style.top = sy + "px"
-    # @raphaelObj.setSize slideWidth - 2, slideHeight - 2
-
-    # # update zoom level and cursor position
-    # z = @raphaelObj._viewBox[2] / slideWidth
-    # @zoomLevel = z
-    # dcr = 1
-    # @cursor.setRadius(dcr * z)
-
-    # # force the slice attribute despite Raphael changing it
-    # @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
   # Switches the tool and thus the functions that get
   # called when certain events are fired from Raphael.
@@ -254,20 +192,6 @@ class Meteor.WhiteboardPaperModel
         @cursor.undrag()
         @current.rectangle = @_createTool(tool)
         @cursor.drag(@current.rectangle.dragOnMove, @current.rectangle.dragOnStart, @current.rectangle.dragOnEnd)
-
-      # TODO: the shapes below are still in the old format
-      # when "panzoom"
-      #   @cursor.undrag()
-      #   @cursor.drag _.bind(@_panDragging, @),
-      #     _.bind(@_panGo, @), _.bind(@_panStop, @)
-      # when "ellipse"
-      #   @cursor.undrag()
-      #   @cursor.drag _.bind(@_ellipseDragging, @),
-      #     _.bind(@_ellipseDragStart, @), _.bind(@_ellipseDragStop, @)
-      # when "text"
-      #   @cursor.undrag()
-      #   @cursor.drag _.bind(@_rectDragging, @),
-      #     _.bind(@_textStart, @), _.bind(@_textStop, @)
       else
         console.log "ERROR: Cannot set invalid tool:", tool
 
@@ -284,11 +208,6 @@ class Meteor.WhiteboardPaperModel
     @slides = temp
     # re-add all the images as they should fit differently
     @rebuild()
-
-    # set to default zoom level
-    #globals.connection.emitPaperUpdate 0, 0, 1, 1
-    # get the shapes to reprocess
-    #globals.connection.emitAllShapes()
 
   # Socket response - Update zoom variables and viewbox
   # @param {number} d the delta value from the scroll event
@@ -315,7 +234,6 @@ class Meteor.WhiteboardPaperModel
     zz = 1 - z
     x = (if x > zz then zz else x)
     y = (if y > zz then zz else y)
-    #globals.connection.emitPaperUpdate x, y, z, z # send update to all clients
 
   stopPanning: ->
     # nothing to do
@@ -337,11 +255,6 @@ class Meteor.WhiteboardPaperModel
 
     # make sure the cursor is still on top
     @cursor.toFront()
-
-  #Changes the currently displayed presentation (if any) with this one
-  #@param {object} containing the "presentation" object -id,name,pages[]
-  sharePresentation: (data) ->
-    #globals.events.trigger("connection:all_slides", data.payload)
 
   # Clear all shapes from this paper.
   clearShapes: ->
@@ -473,86 +386,6 @@ class Meteor.WhiteboardPaperModel
     @adjustedWidth = width
     @adjustedHeight = height
 
-  # Registers listeners for events in the gloval event bus
-  _registerEvents: ->
-
-    # globals.events.on "connection:whiteboardDrawPen", (startingData) =>
-    #   type = startingData.payload.shape_type
-    #   color = startingData.payload.data.line.color
-    #   thickness = startingData.payload.data.line.weight
-    #   points = startingData.shape.points
-    #   if type is "line"
-    #     for i in [0..points.length - 1]
-    #       if i is 0
-    #         #make these compatible with a line
-    #         console.log "points[i]: " + points[i]
-    #         lineObject = {
-    #           shape: {
-    #             type: "line",
-    #             coordinate: {
-    #               firstX : points[i].x/100,
-    #               firstY : points[i].y/100
-    #             },
-    #             color: startingData.payload.data.line.color,
-    #             thickness : startingData.payload.data.line.weight
-    #           }
-    #           adding : false #tell the line object that we are NOT adding points but creating a new line
-    #         }
-    #         console.log "lineObject: " + lineObject
-    #         @makeShape type, lineObject
-    #       else
-    #         console.log "points[i]: "+ points[i]
-    #         lineObject = {
-    #           shape: {
-    #             type: "line",
-    #             coordinate: {
-    #               firstX : points[i].x/100,
-    #               firstY : points[i].y/100
-    #             },
-    #             color: startingData.payload.data.line.color,
-    #             thickness : startingData.payload.data.line.weight
-    #           }
-    #           adding : true #tell the line object that we ARE adding points and NOT creating a new line
-    #         }
-    #         console.log "lineObject: " + lineObject
-    #         @updateShape type, lineObject
-
-
-    # globals.events.on "connection:move_and_zoom", (xOffset, yOffset, widthRatio, heightRatio) =>
-    #   @moveAndZoom(xOffset, yOffset, widthRatio, heightRatio)
-
-    # globals.events.on "connection:changeslide", (url) =>
-    #   @showImageFromPaper(url)
-
-    # globals.events.on "connection:viewBox", (xperc, yperc, wperc, hperc) =>
-    #   xperc = parseFloat(xperc, 10)
-    #   yperc = parseFloat(yperc, 10)
-    #   wperc = parseFloat(wperc, 10)
-    #   hperc = parseFloat(hperc, 10)
-    #   @updatePaperFromServer(xperc, yperc, wperc, hperc)
-
-    # globals.events.on "connection:fitToPage", (value) =>
-    #   @setFitToPage(value)
-
-    # globals.events.on "connection:zoom", (delta) =>
-    #   @setZoom(delta)
-
-    # globals.events.on "connection:paper", (cx, cy, sw, sh) =>
-    #   @updatePaperFromServer(cx, cy, sw, sh)
-
-    # globals.events.on "connection:panStop", =>
-    #   @stopPanning()
-
-    # globals.events.on "connection:toolChanged", (tool) =>
-    #   @setCurrentTool(tool)
-
-    # globals.events.on "connection:textDone", =>
-    #   @textDone()
-
-    # globals.events.on "connection:uploadStatus", (message, fade) =>
-    #   globals.events.trigger("whiteboard:paper:uploadStatus", message, fade)
-
-
   # Update the dimensions of the container.
   _updateContainerDimensions: ->
     #console.log "update Container Dimensions"
@@ -602,7 +435,6 @@ class Meteor.WhiteboardPaperModel
     [sw, sh] = @_currentSlideDimensions()
     xLocal = (e.pageX - @containerOffsetLeft) / sw
     yLocal = (e.pageY - @containerOffsetTop) / sh
-    #globals.connection.emitMoveCursor xLocal, yLocal
 
   # When the user is dragging the cursor (click + move)
   # @param  {number} dx the difference between the x value from panGo and now
@@ -647,60 +479,6 @@ class Meteor.WhiteboardPaperModel
   # @param  {Event} e the mouse event
   _panStop: (e) ->
     @stopPanning()
-
-  # Called when the application window is resized.
-  _onWindowResize: ->
-    @_updateContainerDimensions()
-    console.log "_onWindowResize"
-
-    #TODO: temporary hacked away fix so that the buttons resize correctly when the window resizes
-    $("#users-btn").click();
-    $("#users-btn").click();
-
-
-    #TODO: maybe find solution besides these global values..no conflicts however
-
-    [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
-    #console.log("xOffset: " + xOffset + ", yOffset: " + yOffset);
-    #console.log("@containerWidth: " + @containerWidth + " @containerHeight: " + @containerHeight);
-    #console.log("slideWidth: " + slideWidth + " slideHeight: " + slideHeight);
-    baseWidth = (@containerWidth - slideWidth) / 2
-    baseHeight = (@containerHeight - slideHeight) / 2
-
-
-    #get the actual size of the slide, depending on the limiting factor (container width or container height)
-    if(@containerWidth - slideWidth < @containerHeight - slideHeight)
-      actualHeight = @containerWidth * slideHeight / slideWidth
-      actualWidth = @containerWidth
-    else
-      actualWidth = @containerHeight * slideWidth / slideHeight
-      actualHeight = @containerHeight
-
-    #console.log("actualWidth:" + actualWidth + " actualHeight: " + actualHeight)
-
-    #calculate parameters to pass
-    newXPos = baseWidth
-    newyPos = baseHeight
-    newWidth = actualWidth
-    newHeight = actualHeight
-
-    #now the zooming will still be correct when the window is resized
-    #and hopefully when rotated on a mobile device
-    if @globalxOffset? && @globalyOffset? && @globalwidthRatio? && @globalheightRatio?
-      console.log "has zoomed in"
-      @moveAndZoom(@globalxOffset, @globalyOffset, @globalwidthRatio, @globalheightRatio)
-
-    else
-      obj =
-        globalxOffset : @globalxOffset
-        globalyOffset : @globalyOffset
-        globalwidthRatio : @globalwidthRatio
-        globalheightRatio : @globalheightRatio
-
-      console.log obj
-      console.log "not zoomed"
-      @raphaelObj.setViewBox(newXPos, newyPos, newWidth, newHeight,true)
-
 
   # when pressing down on a key at anytime
   _onKeyDown: (event) ->
@@ -774,24 +552,6 @@ class Meteor.WhiteboardPaperModel
   _displayPage: (data, originalWidth, originalHeight) ->
     @removeAllImagesFromPaper()
 
-    # get dimensions for available whiteboard space
-    # get where to start from the left -> either the end of the user's list or the left edge of the screen
-    # if getInSession "display_usersList" then xBegin = $("#userListContainer").width()
-    # else xBegin = 0
-    # # get where to start from the right -> either the beginning of the chat bar or the right edge of the screen
-    # if getInSession "display_chatbar" then xEnd = $("#chat").position().left
-    # else xEnd = $( document ).width();
-
-    # # find the height to start the top of the image at
-    # if getInSession "display_navbar" then yBegin = $("#navbar").height()
-    # else yBegin = 0
-    # yEnd = $( document ).height();
-
-    # # TODO: add some form of padding to the left, right, top, and bottom boundaries
-    # #
-    # boardWidth = xEnd - xBegin
-    # boardHeight = yEnd - yBegin
-
     @_updateContainerDimensions()
     boardWidth = @containerWidth
     boardHeight = @containerHeight
@@ -801,7 +561,7 @@ class Meteor.WhiteboardPaperModel
     # TODO currentSlide undefined in some cases - will check later why
     imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
     imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or boardHeight
-    #alert("_displayPage")
+
     # console.log "xBegin: #{xBegin}"
     # console.log "xEnd: #{xEnd}"
     # console.log "yBegin: #{yBegin}"
