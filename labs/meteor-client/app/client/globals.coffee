@@ -243,6 +243,18 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
   setTimeout(redrawWhiteboard, 0)
 
+@toggleSlidingMenu = ->
+  if $('#sliding-menu').hasClass('sliding-menu-opened')
+    $('.collapseButton > i').removeClass('glyphicon-chevron-left')
+    $('.collapseButton > i').addClass('glyphicon-chevron-right')
+    $('#sliding-menu').removeClass('sliding-menu-opened')
+    $('#darkened-screen').css('display', 'none')
+  else
+    $('.collapseButton > i').removeClass('glyphicon-chevron-right')
+    $('.collapseButton > i').addClass('glyphicon-chevron-left')
+    $('#sliding-menu').addClass('sliding-menu-opened')
+    $('#darkened-screen').css('display', 'block')
+
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId

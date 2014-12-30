@@ -76,28 +76,20 @@ Template.footer.helpers
 Template.header.events
   "click .audioFeedIcon": (event) ->
     $('.audioFeedIcon').blur()
+    toggleSlidingMenu()
     toggleVoiceCall @
 
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
+    toggleSlidingMenu()
     toggleChatbar()
     #recalculateLayout()
 
   "click .collapseButton": (event) ->
+    toggleSlidingMenu()
     $(".tooltip").hide()
     $('.collapseButton').blur()
-    if $('.collapseSection').css('display') is 'block'
-      $('.collapseSection').css({'display': 'none'})
-      $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
-      $('.collapseButton > i').removeClass('glyphicon-chevron-left')
-      $('.collapseButton > i').addClass('glyphicon-chevron-right')
-      $('.collapseButton').attr('data-original-title', 'Expand')
-    else
-      $('.collapseSection').css({'display': 'block'})
-      $('.navbarTitle').css({ 'width': '30%' })
-      $('.collapseButton > i').removeClass('glyphicon-chevron-right')
-      $('.collapseButton > i').addClass('glyphicon-chevron-left')
-      $('.collapseButton').attr('data-original-title', 'Collapse')
+    $('.myNavbar').css('z-index', 1032)
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -105,6 +97,7 @@ Template.header.events
 
   "click .lowerHand": (event) ->
     $(".tooltip").hide()
+    toggleSlidingMenu()
     Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   "click .muteIcon": (event) ->
@@ -115,6 +108,7 @@ Template.header.events
     #Meteor.log.info "navbar raise own hand from client"
     console.log "navbar raise own hand from client"
     $(".tooltip").hide()
+    toggleSlidingMenu()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
     # "click .settingsIcon": (event) ->
     #   alert "settings"
@@ -138,6 +132,7 @@ Template.header.events
 
   "click .usersListIcon": (event) ->
     $(".tooltip").hide()
+    toggleSlidingMenu
     toggleUsersList()
     #recalculateLayout()
 
@@ -147,6 +142,7 @@ Template.header.events
 
   "click .whiteboardIcon": (event) ->
     $(".tooltip").hide()
+    toggleSlidingMenu
     toggleWhiteBoard()
     #recalculateLayout()
 
@@ -157,6 +153,47 @@ Template.header.events
   "mouseover #navbarMinimizedButton": (event) ->
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")
     $("#navbarMinimizedButton").addClass("navbarMinimizedButtonLarge")
+
+Template.slidingMenu.events
+  'click .audioFeedIcon': (event) ->
+    $('.audioFeedIcon').blur()
+    toggleSlidingMenu()
+    toggleVoiceCall @
+    if BBB.amISharingAudio()
+      $('.navbarTitle').css('width', '70%')
+    else
+      $('.navbarTitle').css('width', '55%')
+
+  'click .chatBarIcon': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    toggleChatbar()
+
+  'click .lowerHand': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    Meteor.call('userLowerHand', getInSession('meetingId'), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+
+  'click .raiseHand': (event) ->
+    console.log 'navbar raise own hand from client'
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+
+  'click .usersListIcon': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    toggleUsersList()
+
+  'click .whiteboardIcon': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    toggleWhiteBoard()
+
+  'click .collapseButton': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    $('.collapseButton').blur()
 
 Template.main.helpers
 	setTitle: ->
