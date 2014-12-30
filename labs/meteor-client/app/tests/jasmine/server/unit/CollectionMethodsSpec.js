@@ -1,4 +1,4 @@
-xdescribe("Collections", function () {
+describe("Collections", function () {
   beforeEach(function () {
     MeteorStubs.install();
   });
@@ -19,7 +19,12 @@ xdescribe("Collections", function () {
     spyOn(Meteor.Slides, "remove");
     spyOn(Meteor.Presentations, "remove");
 
-    clearCollections();
+    clearUsersCollection();
+    clearChatCollection();
+    clearMeetingsCollection();
+    clearShapesCollection();
+    clearSlidesCollection();
+    clearPresentationsCollection();
 
     expect(Meteor.Users.remove).toHaveBeenCalled();
     expect(Meteor.Chat.remove).toHaveBeenCalled();
@@ -35,8 +40,8 @@ xdescribe("Collections", function () {
 
   it("should be handled correctly by insert() on calling addChatToCollection() in case of private chat", function () {
     spyOn(Meteor.Users, "findOne").and.callFake(function(doc) {
-      if(doc.userId == "user001") return { _id: "dbid001" };
-      else if(doc.userId == "user002") return { _id: "dbid002" };
+      if(doc.userId == "user001") return { userId: "user001" };
+      else if(doc.userId == "user002") return { userUd: "user002" };
     });
     spyOn(Meteor.Chat, "insert");
 
@@ -61,8 +66,8 @@ xdescribe("Collections", function () {
         to_username: "Anton",
         from_tz_offset: "240",
         from_color: "0x000000",
-        to_userid: "dbid002",//not "user002"
-        from_userid: "dbid001",//not "user001"
+        to_userid: "user002",//not "dbid002"
+        from_userid: "user001",//not "dbid001"
         from_time: "123",
         from_username: "Maxim",
         from_lang: "en"
@@ -99,7 +104,7 @@ xdescribe("Collections", function () {
         from_tz_offset: "240",
         from_color: "0x000000",
         to_userid: "public_chat_userid",
-        from_userid: "dbid001",
+        from_userid: "user001",
         from_time: "123",
         from_username: "Maxim",
         from_lang: "en"

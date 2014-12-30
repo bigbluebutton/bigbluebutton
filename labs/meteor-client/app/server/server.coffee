@@ -2,7 +2,12 @@ Meteor.startup ->
   Meteor.log.info "server start"
 
   #remove all data
-  clearCollections()
+  clearUsersCollection()
+  clearChatCollection()
+  clearMeetingsCollection()
+  clearShapesCollection()
+  clearSlidesCollection()
+  clearPresentationsCollection()
 
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->
