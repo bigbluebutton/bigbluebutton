@@ -9,6 +9,8 @@ Template.whiteboard.rendered = ->
   pic.onload = ->
     if window.matchMedia('(orientation: portrait)').matches
       $('#whiteboard').height($('#whiteboard').width() * this.height / this.width + $('#whiteboard-navbar').height() + 10)
+    else if $('#whiteboard').height() isnt $('#users').height() + 10
+      $('#whiteboard').height($('#users').height() + 10)
     adjustedDimensions = scaleSlide(this.width, this.height)
     wpm = whiteboardPaperModel
     wpm.setAdjustedDimensions(adjustedDimensions.width, adjustedDimensions.height)
