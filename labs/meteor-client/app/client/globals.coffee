@@ -249,11 +249,14 @@ Handlebars.registerHelper "visibility", (section) ->
     $('.collapseButton > i').addClass('glyphicon-chevron-right')
     $('#sliding-menu').removeClass('sliding-menu-opened')
     $('#darkened-screen').css('display', 'none')
+    $(document).unbind('scroll')
   else
     $('.collapseButton > i').removeClass('glyphicon-chevron-right')
     $('.collapseButton > i').addClass('glyphicon-chevron-left')
     $('#sliding-menu').addClass('sliding-menu-opened')
     $('#darkened-screen').css('display', 'block')
+    $(document).bind 'scroll', () ->
+      window.scrollTo(0, 0)
 
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
