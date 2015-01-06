@@ -2,6 +2,11 @@ Template.slide.rendered = ->
   currentSlide = getCurrentSlideDoc()
   pic = new Image()
   pic.onload = ->
+    setInSession 'slideOriginalWidth', this.width
+    setInSession 'slideOriginalHeight', this.height
+    $(window).resize( ->
+      redrawWhiteboard()
+    )
     if window.matchMedia('(orientation: portrait)').matches
       $('#whiteboard').height($('#whiteboard').width() * this.height / this.width + $('#whiteboard-navbar').height())
     if currentSlide?.slide?.png_uri?
@@ -16,14 +21,10 @@ Template.slide.rendered = ->
 @displaySlide = (wpm) ->
   currentSlide = getCurrentSlideDoc()
   wpm.create()
-  pic = new Image()
-  pic.onload = ->
-    adjustedDimensions = scaleSlide(this.width, this.height)
-    wpm._displayPage(currentSlide?.slide?.png_uri, this.width, this.height)
-    manuallyDisplayShapes()
-    wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
-
-  pic.src = currentSlide?.slide?.png_uri
+  adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
+  wpm._displayPage(currentSlide?.slide?.png_uri, getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
+  manuallyDisplayShapes()
+  wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
 
 @manuallyDisplayShapes = ->
   currentSlide = getCurrentSlideDoc()
