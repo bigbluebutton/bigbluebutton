@@ -8,7 +8,7 @@ Template.slide.rendered = ->
       redrawWhiteboard()
     )
     if window.matchMedia('(orientation: portrait)').matches
-      $('#whiteboard').height($('#whiteboard').width() * this.height / this.width + $('#whiteboard-navbar').height())
+      $('#whiteboard-paper').height($('#whiteboard-paper').width() * this.height / this.width)
     if currentSlide?.slide?.png_uri?
       createWhiteboardPaper (wpm) ->
         displaySlide wpm
