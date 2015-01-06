@@ -24,6 +24,7 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 	import mx.collections.ArrayCollection;
 	import mx.resources.ResourceManager;
+	import mx.utils.ObjectUtil;
 
 	import org.bigbluebutton.clientcheck.command.GetConfigXMLDataSignal;
 	import org.bigbluebutton.clientcheck.command.RequestBandwidthInfoSignal;
@@ -300,7 +301,13 @@ package org.bigbluebutton.clientcheck.view.mainview
 
 		private function browserChangedHandler():void
 		{
-			var status:Object = (systemConfiguration.browser.testSuccessfull == true) ? StatusENUM.SUCCEED : StatusENUM.FAILED;
+			var status:Object;
+			if (systemConfiguration.browser.testSuccessfull == true) {
+				status = StatusENUM.SUCCEED;
+			} else {
+				status = ObjectUtil.clone(StatusENUM.WARNING);
+				status.StatusMessage = systemConfiguration.browser.testMessage;
+			}
 			dp.updateData({Item: BrowserTest.BROWSER, Result: systemConfiguration.browser.testResult}, status);
 		}
 
