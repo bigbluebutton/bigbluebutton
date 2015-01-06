@@ -65,10 +65,8 @@ Template.slide.rendered = ->
 
   # the slide image is in portrait orientation
   if originalWidth <= originalHeight
-    console.log "portrait orientation"
     adjustedWidth = boardHeight * originalWidth / originalHeight
     if boardWidth < adjustedWidth
-      console.log "extra case"
       adjustedHeight = boardHeight * boardWidth / adjustedWidth
       adjustedWidth = boardWidth
     else
@@ -76,10 +74,8 @@ Template.slide.rendered = ->
 
   # ths slide image is in landscape orientation
   else
-    console.log "landscape orientation"
     adjustedHeight = boardWidth * originalHeight / originalWidth
     if boardHeight < adjustedHeight
-      console.log "extra case"
       adjustedWidth = boardWidth * boardHeight / adjustedHeight
       adjustedHeight = boardHeight
     else
