@@ -9,7 +9,11 @@
     <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="navbarUserButtons navbarSection">
         <div id="collapseButtonSection">
-          {{> makeButton btn_class="navbarButton collapseButton" i_class="chevron-right" rel="tooltip" data_placement="bottom" title="Expand"}}
+          {{#if getInSession "display_slidingMenu"}}
+            {{> makeButton btn_class="navbarButton collapseButton" i_class="chevron-left" rel="tooltip" data_placement="bottom" title="Collapse"}}
+          {{else}}
+            {{> makeButton btn_class="navbarButton collapseButton" i_class="chevron-right" rel="tooltip" data_placement="bottom" title="Expand"}}
+          {{/if}}
         </div>
         <div class='collapseSection'>
           <!-- display/hide users list toggle -->
