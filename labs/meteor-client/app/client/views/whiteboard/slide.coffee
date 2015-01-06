@@ -41,9 +41,16 @@ Template.slide.rendered = ->
     wpm?.makeShape(shapeType, shapeInfo)
     wpm?.updateShape(shapeType, shapeInfo)
 
-@scaleSlide = (originalWidth, originalHeight) ->
-  boardWidth = $("#whiteboard").width()
 
+# calculates and returns the best fitting {width, height} pair
+# based on the image's original width and height
+@scaleSlide = (originalWidth, originalHeight) ->
+
+  # the size of the whiteboard space (frame) where the slide will be displayed
+  boardWidth = $("#whiteboard").width()
+  boardHeight = null # see under
+
+  # calculate boardHeight
   whiteboardBottom = $("#whiteboard").offset().top + $("#whiteboard").height()
   footerTop = $(".myFooter").offset().top
   if footerTop < whiteboardBottom
@@ -51,24 +58,37 @@ Template.slide.rendered = ->
   else
     boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
 
+  # this is the best fitting pair
+  adjustedWidth = null
+  adjustedHeight = null
+
+
+  # the slide image is in portrait orientation
   if originalWidth <= originalHeight
+    console.log "portrait orientation"
     adjustedWidth = boardHeight * originalWidth / originalHeight
-    $('#whiteboard-paper').width(adjustedWidth)
     if boardWidth < adjustedWidth
+      console.log "extra case"
       adjustedHeight = boardHeight * boardWidth / adjustedWidth
       adjustedWidth = boardWidth
     else
       adjustedHeight = boardHeight
-    $("#whiteboard-paper").height(adjustedHeight)
+
+  # ths slide image is in landscape orientation
   else
+    console.log "landscape orientation"
     adjustedHeight = boardWidth * originalHeight / originalWidth
-    $('#whiteboard-paper').height(adjustedHeight)
     if boardHeight < adjustedHeight
+      console.log "extra case"
       adjustedWidth = boardWidth * boardHeight / adjustedHeight
       adjustedHeight = boardHeight
     else
       adjustedWidth = boardWidth
-    $("#whiteboard-paper").width(adjustedWidth)
+
+
+  # adjust accordingly
+  $("#whiteboard-paper").width(adjustedWidth)
+  $('#whiteboard-paper').height(adjustedHeight)
 
   { width: adjustedWidth, height: adjustedHeight }
 
