@@ -5,7 +5,6 @@
     $('#whiteboard').height($('#users').height() + 10)
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   wpm = whiteboardPaperModel
-  wpm.setAdjustedDimensions(adjustedDimensions.width, adjustedDimensions.height)
   wpm.clearShapes()
   wpm.clearCursor()
   manuallyDisplayShapes()

@@ -85,11 +85,6 @@ Template.slide.rendered = ->
     else
       adjustedWidth = boardWidth
 
-
-  # adjust accordingly
-  $("#whiteboard-paper").width(adjustedWidth)
-  $('#whiteboard-paper').height(adjustedHeight)
-
   { width: adjustedWidth, height: adjustedHeight }
 
 Template.slide.helpers
