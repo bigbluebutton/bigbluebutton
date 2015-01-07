@@ -52,8 +52,6 @@
 <template name="chatOptions">
 	<p>Chat Options:</p>
 	{{> optionsFontSize}}
-	<br/><br/>
-	{{> notificationSettings}}
 </template>
 
 <template name="extraConversations">
@@ -87,16 +85,6 @@
     <br/>
     <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
     {{autoscroll}}
-</template>
-
-<template name="notificationSettings">
-	New Message Notifications:
-	<form>
-		<input type="radio" name="chatNotification" id="chatNotificationOn" value="chatNotificationOn" checked="checked" />
-		<label for="chatNotificationOn">On</label>
-		<input type="radio" name="chatNotification" id="chatNotificationOff" value="chatNotificationOff" />
-		<label for="chatNotificationOff">Off</label>
-	</form>
 </template>
 
 <!-- Displays the list of options available -->

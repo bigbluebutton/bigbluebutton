@@ -117,17 +117,6 @@ Meteor.methods
   Meteor.log.info "marking user [#{userId}] as offline in meeting[#{meetingId}]"
   Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
 
-# Only callable from server
-# when the meeting ends
-@removeUserFromCollection = (meetingId, userId) ->
-  Meteor.log.info "in users::removeUserFromCollection, #{meetingId} #{userId}"
-  u = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
-  if u?
-    Meteor.Users.remove(u._id)
-    Meteor.log.info "----removed user[" + userId + "] from " + meetingId
-  else
-    Meteor.log.info "did not find a user [userId] to delete in meetingid:#{meetingId}"
-
 
 # Corresponds to a valid action on the HTML clientside
 # After authorization, publish a user_leaving_request in redis
@@ -272,3 +261,10 @@ Meteor.methods
     id = Meteor.Users.insert(entry)
     Meteor.log.info "added user dummy user id=[#{id}]:#{user.name}.
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+
+# called on server start and on meeting end
+@clearUsersCollection = (meetingId) ->
+  if meetingId?
+    Meteor.Users.remove({meetingId: meetingId}, Meteor.log.info "cleared Users Collection (meetingId: #{meetingId}!")
+  else
+    Meteor.Users.remove({}, Meteor.log.info "cleared Users Collection (all meetings)!")

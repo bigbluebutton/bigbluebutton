@@ -24,6 +24,15 @@
     if id?
       Meteor.Presentations.remove(id._id)
       Meteor.log.info "----removed presentation[" + presentationId + "] from " + meetingId
+
+
+# called on server start and meeting end
+@clearPresentationsCollection = (meetingId) ->
+  if meetingId?
+    Meteor.Presentations.remove({meetingId: meetingId}, Meteor.log.info "cleared Presentations Collection (meetingId: #{meetingId}!")
+  else
+    Meteor.Presentations.remove({}, Meteor.log.info "cleared Presentations Collection (all meetings)!")
+
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------

@@ -15,7 +15,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     y = startingData.y
     width = startingData.textBoxWidth
     height = startingData.textBoxHeight
-    colour = startingData.fontColor
+    colour = formatColor(startingData.fontColor)
     fontSize = startingData.fontSize
     calcFontSize = startingData.calcedFontSize
     text = startingData.text
@@ -28,11 +28,10 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     x = (x * @gw) + @xOffset
     y = (y * @gh) + @yOffset + calcFontSize
     width = width/100 * @gw
-    colour = Meteor.call("strokeAndThickness",colour, false)
 
     @obj = @paper.text(x/100, y/100, "")
     @obj.attr
-      fill: Meteor.call("strokeAndThickness",colour, false)
+      "fill": colour
       "font-family": "Arial" # TODO: make dynamic
       "font-size": calcFontSize
     @obj.node.style["text-anchor"] = "start" # force left align
@@ -48,7 +47,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     y = startingData.y
     maxWidth = startingData.textBoxWidth
     height = startingData.textBoxHeight
-    colour = startingData.fontColor
+    colour = formatColor(startingData.fontColor)
     fontSize = startingData.fontSize
     calcFontSize = startingData.calcedFontSize
     myText = startingData.text
@@ -61,7 +60,8 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       maxWidth = maxWidth/100 * @gw
 
       @obj.attr
-        fill: "#000"
+        "fill": colour
+        "font-family": "Arial" # TODO: make dynamic
         "font-size": calcFontSize
       cell = @obj.node
       while cell? and cell.hasChildNodes()

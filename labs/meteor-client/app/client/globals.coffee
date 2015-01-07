@@ -243,6 +243,19 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_whiteboard", !getInSession "display_whiteboard"
   setTimeout(redrawWhiteboard, 0)
 
+@toggleSlidingMenu = ->
+  if $('#sliding-menu').hasClass('sliding-menu-opened')
+    setInSession 'display_slidingMenu', false
+    $('#sliding-menu').removeClass('sliding-menu-opened')
+    $('#darkened-screen').css('display', 'none')
+    $(document).unbind('scroll')
+  else
+    setInSession 'display_slidingMenu', true
+    $('#sliding-menu').addClass('sliding-menu-opened')
+    $('#darkened-screen').css('display', 'block')
+    $(document).bind 'scroll', () ->
+      window.scrollTo(0, 0)
+
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
@@ -257,7 +270,6 @@ Handlebars.registerHelper "visibility", (section) ->
   delete SessionAmplify.keys['bbbServerVersion']
   delete SessionAmplify.keys['chatTabs']
   delete SessionAmplify.keys['dateOfBuild']
-  delete SessionAmplify.keys['displayChatNotifications']
   delete SessionAmplify.keys['display_chatPane']
   delete SessionAmplify.keys['display_chatbar']
   delete SessionAmplify.keys['display_navbar']
@@ -270,7 +282,6 @@ Handlebars.registerHelper "visibility", (section) ->
   delete SessionAmplify.keys['tabsRenderedTime']
   delete SessionAmplify.keys['userId']
   delete SessionAmplify.keys['userName']
-  console.log "clearSessionVar"
   callback()
 
 # assign the default values for the Session vars
@@ -284,7 +295,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "joinedAt", getTime()
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
-  setInSession "displayChatNotifications", true
+  setInSession 'display_slidingMenu', false
 
 
 @onLoadComplete = ->

@@ -8,46 +8,6 @@ loadLib = (libname) ->
 
   Meteor.Loader.loadJs("http://#{window.location.hostname}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
 
-recalculateLayout = ->
-  usersDisplayed = getInSession "display_usersList"
-  whiteboardDisplayed = getInSession "display_whiteboard"
-  chatDisplayed = getInSession "display_chatbar"
-  # If only one module is selected (presentation), it should take up
-  # the entire width of the screen. If it's two modules, each module
-  # should take up 50% of the screen. If it's 3 modules (25%, 50%, 25%)
-
-  console.log "recalculateLayout #{usersDisplayed} #{whiteboardDisplayed} #{chatDisplayed}"
-
-  # clear the default width
-  # $("#users").removeAttr('style')#.css("width","")
-  # $("#whiteboard").removeAttr('style')#.css("width","")
-  # $("#chat").removeAttr('style')#.css("width","")
-
-  if whiteboardDisplayed
-    if chatDisplayed and usersDisplayed
-      $("#users").removeClass("halfScreen").addClass("quarterScreen")
-      $("#whiteboard").removeClass("fullScreenPresentation").addClass("halfScreen")
-      $("#chat").removeClass("halfScreen").addClass("quarterScreen")
-      displaySlide @whiteboardPaperModel
-    else
-      if chatDisplayed or usersDisplayed
-        if chatDisplayed
-          $("#whiteboard").removeClass("fullScreenPresentation").addClass("halfScreen")
-          $("#chat").removeClass("quarterScreen").addClass("halfScreen")
-        if usersDisplayed
-          $("#whiteboard").removeClass("fullScreenPresentation").addClass("halfScreen")
-          $("#users").removeClass("quarterScreen").addClass("halfScreen")
-      else
-        console.log "fullscreen"
-        $("#whiteboard").removeClass("halfScreen").addClass("fullScreenPresentation")
-  else
-    if chatDisplayed
-      $("#chat").removeClass("quarterScreen").addClass("halfScreen")
-      return
-    if usersDisplayed
-      $("#users").removeClass("quarterScreen").addClass("halfScreen")
-      return
-
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
 
@@ -76,25 +36,19 @@ Template.footer.helpers
 Template.header.events
   "click .audioFeedIcon": (event) ->
     $('.audioFeedIcon').blur()
+    toggleSlidingMenu()
     toggleVoiceCall @
 
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
+    toggleSlidingMenu()
     toggleChatbar()
-    #recalculateLayout()
 
   "click .collapseButton": (event) ->
+    toggleSlidingMenu()
     $(".tooltip").hide()
-    if $('.collapseSection').css('display') is 'block'
-      $('.collapseSection').css({'display': 'none'})
-      $('.navbarTitle').css({ 'margin-left': 'auto', 'margin-right': 'auto', 'width': '80%' })
-      $('.collapseButton > i').removeClass('glyphicon-chevron-left')
-      $('.collapseButton > i').addClass('glyphicon-chevron-right')
-    else
-      $('.collapseSection').css({'display': 'block'})
-      $('.navbarTitle').css({ 'width': '30%' })
-      $('.collapseButton > i').removeClass('glyphicon-chevron-right')
-      $('.collapseButton > i').addClass('glyphicon-chevron-left')
+    $('.collapseButton').blur()
+    $('.myNavbar').css('z-index', 1032)
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -102,6 +56,7 @@ Template.header.events
 
   "click .lowerHand": (event) ->
     $(".tooltip").hide()
+    toggleSlidingMenu()
     Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   "click .muteIcon": (event) ->
@@ -112,11 +67,21 @@ Template.header.events
     #Meteor.log.info "navbar raise own hand from client"
     console.log "navbar raise own hand from client"
     $(".tooltip").hide()
+    toggleSlidingMenu()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
     # "click .settingsIcon": (event) ->
     #   alert "settings"
 
   "click .signOutIcon": (event) ->
+    $('.signOutIcon').blur()
+    if window.matchMedia('(orientation: portrait)').matches
+      if $('#dialog').dialog('option', 'height') isnt 450
+        $('#dialog').dialog('option', 'width', '100%')
+        $('#dialog').dialog('option', 'height', 450)
+    else
+      if $('#dialog').dialog('option', 'height') isnt 115
+        $('#dialog').dialog('option', 'width', 270)
+        $('#dialog').dialog('option', 'height', 115)
     $("#dialog").dialog("open")
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -126,8 +91,8 @@ Template.header.events
 
   "click .usersListIcon": (event) ->
     $(".tooltip").hide()
+    toggleSlidingMenu
     toggleUsersList()
-    #recalculateLayout()
 
   "click .videoFeedIcon": (event) ->
     $(".tooltip").hide()
@@ -135,8 +100,8 @@ Template.header.events
 
   "click .whiteboardIcon": (event) ->
     $(".tooltip").hide()
+    toggleSlidingMenu
     toggleWhiteBoard()
-    #recalculateLayout()
 
   "mouseout #navbarMinimizedButton": (event) ->
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonLarge")
@@ -145,6 +110,47 @@ Template.header.events
   "mouseover #navbarMinimizedButton": (event) ->
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")
     $("#navbarMinimizedButton").addClass("navbarMinimizedButtonLarge")
+
+Template.slidingMenu.events
+  'click .audioFeedIcon': (event) ->
+    $('.audioFeedIcon').blur()
+    toggleSlidingMenu()
+    toggleVoiceCall @
+    if BBB.amISharingAudio()
+      $('.navbarTitle').css('width', '70%')
+    else
+      $('.navbarTitle').css('width', '55%')
+
+  'click .chatBarIcon': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    toggleChatbar()
+
+  'click .lowerHand': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    Meteor.call('userLowerHand', getInSession('meetingId'), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+
+  'click .raiseHand': (event) ->
+    console.log 'navbar raise own hand from client'
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+
+  'click .usersListIcon': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    toggleUsersList()
+
+  'click .whiteboardIcon': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    toggleWhiteBoard()
+
+  'click .collapseButton': (event) ->
+    $('.tooltip').hide()
+    toggleSlidingMenu()
+    $('.collapseButton').blur()
 
 Template.main.helpers
 	setTitle: ->
@@ -156,8 +162,6 @@ Template.main.rendered = ->
     draggable: false
     resizable: false
     autoOpen: false
-    height: 115
-    width: 270
     dialogClass: 'no-close logout-dialog'
     buttons: [
       {
@@ -180,6 +184,13 @@ Template.main.rendered = ->
       at: 'right bottom'
       of: '.signOutIcon'
   )
+
+  $(window).resize( ->
+    $('#dialog').dialog('close')
+  )
+
+  $('#darkened-screen').click () ->
+    toggleSlidingMenu()
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
