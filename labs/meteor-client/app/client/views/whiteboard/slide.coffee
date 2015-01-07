@@ -9,6 +9,9 @@ Template.slide.rendered = ->
     )
     if window.matchMedia('(orientation: portrait)').matches
       $('#whiteboard-paper').height($('#whiteboard-paper').width() * this.height / this.width)
+    else
+      # set the slide height to the max available
+      $('#whiteboard-paper').height($('#whiteboard').height())
     if currentSlide?.slide?.png_uri?
       createWhiteboardPaper (wpm) ->
         displaySlide wpm
