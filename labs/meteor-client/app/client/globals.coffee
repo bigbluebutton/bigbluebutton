@@ -245,15 +245,16 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @toggleSlidingMenu = ->
   if $('#sliding-menu').hasClass('sliding-menu-opened')
-    $('.collapseButton > i').removeClass('glyphicon-chevron-left')
-    $('.collapseButton > i').addClass('glyphicon-chevron-right')
+    setInSession 'display_slidingMenu', false
     $('#sliding-menu').removeClass('sliding-menu-opened')
     $('#darkened-screen').css('display', 'none')
+    $(document).unbind('scroll')
   else
-    $('.collapseButton > i').removeClass('glyphicon-chevron-right')
-    $('.collapseButton > i').addClass('glyphicon-chevron-left')
+    setInSession 'display_slidingMenu', true
     $('#sliding-menu').addClass('sliding-menu-opened')
     $('#darkened-screen').css('display', 'block')
+    $(document).bind 'scroll', () ->
+      window.scrollTo(0, 0)
 
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
@@ -294,6 +295,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "joinedAt", getTime()
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
+  setInSession 'display_slidingMenu', false
 
 
 @onLoadComplete = ->
