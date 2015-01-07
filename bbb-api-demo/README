@@ -4,6 +4,8 @@ gradle resolveDeps
 
 gradle resolveDeps
 
+Víctor Manuel Bermejo - el Mejor - The Best
+
 sudo rm -rf /var/lib/tomcat6/webapps/demo*
 
 sudo cp build/libs/demo.war /var/lib/tomcat6/webapps/
