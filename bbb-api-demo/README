@@ -2,7 +2,7 @@ Steps:
 
 gradle resolveDeps
 
-gradle build
+
 
 sudo rm -rf /var/lib/tomcat6/webapps/demo*
 
