@@ -189,6 +189,9 @@ Template.main.rendered = ->
     $('#dialog').dialog('close')
   )
 
+  $('#darkened-screen').click () ->
+    toggleSlidingMenu()
+
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
 
