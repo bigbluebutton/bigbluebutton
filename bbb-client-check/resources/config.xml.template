@@ -2,6 +2,8 @@
 <config>
 	<version>VERSION</version>
 	<mail>MAIL</mail>
+	<chromeLatestVersion>CHROME_VERSION</chromeLatestVersion>
+	<firefoxLatestVersion>FIREFOX_VERSION</firefoxLatestVersion>
 	<downloadFilePath url="test_image.jpg"/>
 	<ports>
 		<port>

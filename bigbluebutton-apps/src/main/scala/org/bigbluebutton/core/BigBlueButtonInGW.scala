@@ -249,7 +249,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	}
 	
 	def getPresentationInfo(meetingID: String, requesterID: String, replyTo: String) {
-	  println("**** Forwarding GetPresentationInfo for meeting[" + meetingID + "] ****")
+//	  println("**** Forwarding GetPresentationInfo for meeting[" + meetingID + "] ****")
 	  bbbGW.accept(new GetPresentationInfo(meetingID, requesterID, replyTo))
 	}
 	
@@ -262,7 +262,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	}
 	
 	def gotoSlide(meetingID: String, pageId: String) {
-	  println("**** Forwarding GotoSlide for meeting[" + meetingID + "] ****")
+//	  println("**** Forwarding GotoSlide for meeting[" + meetingID + "] ****")
 	  bbbGW.accept(new GotoSlide(meetingID, pageId))
 	}
 	

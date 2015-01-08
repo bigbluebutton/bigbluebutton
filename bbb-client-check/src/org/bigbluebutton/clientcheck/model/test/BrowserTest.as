@@ -30,6 +30,7 @@ package org.bigbluebutton.clientcheck.model.test
 
 		private var _testSuccessfull:Boolean;
 		private var _testResult:String;
+		private var _testMessage:String = "";
 
 		private var _browserTestSuccessfullChangedSignal:ISignal=new Signal;
 
@@ -54,9 +55,35 @@ package org.bigbluebutton.clientcheck.model.test
 			_testResult=value;
 		}
 
+		public function get testMessage():String
+		{
+			return _testMessage;
+		}
+
+		public function set testMessage(value:String):void
+		{
+			_testMessage=value;
+		}
+
 		public function get browserTestSuccessfullChangedSignal():ISignal
 		{
 			return _browserTestSuccessfullChangedSignal;
+		}
+
+		public function isBrowserUpdated(thisVersion:String, latestVersion:String):Boolean
+		{
+			var tversion:Array = thisVersion.split(".");
+			var lversion:Array = latestVersion.split(".");
+
+			var size:int = (tversion.length <= lversion.length) ? tversion.length : lversion.length;
+
+			for (var i:int = 0; i < size; i++) {
+				if (Number(tversion[i]) < Number(lversion[i])) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 	}
 }

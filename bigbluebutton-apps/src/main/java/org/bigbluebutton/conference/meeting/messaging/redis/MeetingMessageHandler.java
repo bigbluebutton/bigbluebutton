@@ -35,22 +35,24 @@ public class MeetingMessageHandler implements MessageHandler {
 			if (msg != null) {
 				if (msg instanceof EndMeetingMessage) {
 					EndMeetingMessage emm = (EndMeetingMessage) msg;
-					log.debug("Received end meeting request. Meeting id [{}]", emm.meetingId);
+					log.info("Received end meeting request. Meeting id [{}]", emm.meetingId);
 					bbbGW.endMeeting(emm.meetingId);
 				} else if (msg instanceof CreateMeetingMessage) {
 					CreateMeetingMessage emm = (CreateMeetingMessage) msg;
+					log.info("Received create meeting request. Meeting id [{}]", emm.id);
 					bbbGW.createMeeting2(emm.id, emm.externalId, emm.name, emm.record, emm.voiceBridge, 
 							  emm.duration, emm.autoStartRecording, emm.allowStartStopRecording);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage emm = (RegisterUserMessage) msg;
+					log.info("Received register user request. Meeting id [{}], userid=[{}], token=[{}]", emm.meetingID, emm.internalUserId, emm.authToken);
 					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage emm = (DestroyMeetingMessage) msg;
-					log.debug("Received destroy meeting request. Meeting id [{}]", emm.meetingId);
+					log.info("Received destroy meeting request. Meeting id [{}]", emm.meetingId);
 					bbbGW.destroyMeeting(emm.meetingId);
 				} else if (msg instanceof ValidateAuthTokenMessage) {
 					ValidateAuthTokenMessage emm = (ValidateAuthTokenMessage) msg;
-					log.debug("Received ValidateAuthTokenMessage token request. Meeting id [{}]", emm.meetingId);
+					log.info("Received ValidateAuthTokenMessage token request. Meeting id [{}]", emm.meetingId);
 					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo);
 				} else if (msg instanceof UserConnectedToGlobalAudio) {
 					UserConnectedToGlobalAudio emm = (UserConnectedToGlobalAudio) msg;
@@ -82,7 +84,6 @@ public class MeetingMessageHandler implements MessageHandler {
 					String logStr =  gson.toJson(logData);
 					
 					log.info("User disconnected from global audio: data={}", logStr);
-					
 					bbbGW.userDisconnectedFromGlobalAudio(emm.voiceConf, emm.userid, emm.name);
 				}
 			}
