@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-WE MEET AGAIN MY FRIEND
 
-=======
-Does the cron job work??
->>>>>>> origin/master
+Does the cron job work ¿¿¿222???
+
 To build
 gradle copyToLib
 gradle eclipse
