@@ -25,22 +25,19 @@
         text: shapeObject.shape.text
         background: shapeObject.shape.background
 
-    if shapeObject.status is "textEdited"
-      # display as the prestenter is typing
-      id = Meteor.Shapes.insert(entry)
-    else 
-      if shapeObject.status is "textPublished"
-        # only keep the final version of the text shape
-        removeTempTextShape = (callback) ->
-          Meteor.Shapes.remove({'shape.id':shapeObject.shape.id})
-          # for s in Meteor.Shapes.find({'shape.id':shapeObject.shape.id}).fetch()
-          #   Meteor.log.info "there is this shape: #{s.shape.text}"
-          callback()
+    if shapeObject.status is "textEdited" or shapeObject.status is "textPublished"
+      # only keep the final version of the text shape
+      removeTempTextShape = (callback) ->
+        Meteor.Shapes.remove({'shape.id':shapeObject.shape.id})
+        # for s in Meteor.Shapes.find({'shape.id':shapeObject.shape.id}).fetch()
+        #   Meteor.log.info "there is this shape: #{s.shape.text}"
+        callback()
 
-        removeTempTextShape( ->
-          id = Meteor.Shapes.insert(entry)
-          Meteor.log.info "textPublished, substituting the temp shapes with the final one"
-        )
+      removeTempTextShape( ->
+        # display as the prestenter is typing
+        id = Meteor.Shapes.insert(entry)
+        Meteor.log.info "#{shapeObject.status} substituting the temp shapes with the newer one"
+      )
 
   else
     # the mouse button was released - the drawing is complete
