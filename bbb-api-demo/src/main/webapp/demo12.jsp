@@ -93,7 +93,7 @@ Author: Jesus Federico <jesus@123it.ca>
 		<label for="layout" >Layout:</label>
 	                <select id="layout" name="Layout">
         	            <option value="bbb.layout.name.defaultlayout" selected="selected">Default</option>
-                	    <option value="bbb.layout.name.defaultlayout">Video Chat</option>
+                	    <option value="bbb.layout.name.videochat">Video Chat</option>
 	                    <option value="bbb.layout.name.webcamsfocus">Meeting</option>
 			    <option value="bbb.layout.name.presentfocus">Webinar</option>
 	                </select><br><br>
