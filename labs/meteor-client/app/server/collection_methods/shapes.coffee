@@ -2,9 +2,8 @@
 # Private methods on server
 # --------------------------------------------------------------------------------------------
 @addShapeToCollection = (meetingId, whiteboardId, shapeObject) ->
-  #Meteor.log.info "shapeObject=" + JSON.stringify shapeObject
-  if shapeObject?.shape_type is "text" and shapeObject.status is "textPublished"
-    Meteor.log.info "we are dealing with a text shape"
+  if shapeObject?.shape_type is "text"
+    Meteor.log.info "we are dealing with a text shape and the event is:#{shapeObject.status}"
 
     entry =
       meetingId: meetingId
@@ -26,9 +25,22 @@
         text: shapeObject.shape.text
         background: shapeObject.shape.background
 
-    id = Meteor.Shapes.insert(entry)
-    numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
-    #Meteor.log.info "added textShape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
+    if shapeObject.status is "textEdited"
+      # display as the prestenter is typing
+      id = Meteor.Shapes.insert(entry)
+    else 
+      if shapeObject.status is "textPublished"
+        # only keep the final version of the text shape
+        removeTempTextShape = (callback) ->
+          Meteor.Shapes.remove({'shape.id':shapeObject.shape.id})
+          # for s in Meteor.Shapes.find({'shape.id':shapeObject.shape.id}).fetch()
+          #   Meteor.log.info "there is this shape: #{s.shape.text}"
+          callback()
+
+        removeTempTextShape( ->
+          id = Meteor.Shapes.insert(entry)
+          Meteor.log.info "textPublished, substituting the temp shapes with the final one"
+        )
 
   else
     # the mouse button was released - the drawing is complete
@@ -54,8 +66,6 @@
             color: shapeObject.shape.color
 
       id = Meteor.Shapes.insert(entry)
-      numShapesOnSlide = Meteor.Shapes.find({meetingId: meetingId, whiteboardId: whiteboardId}).count()
-      #Meteor.log.info "added shape id =[#{id}]:#{shapeObject.id} in #{meetingId} || now there are #{numShapesOnSlide} shapes on the slide"
 
 @removeAllShapesFromSlide = (meetingId, whiteboardId) ->
   Meteor.log.info "removeAllShapesFromSlide__" + whiteboardId
