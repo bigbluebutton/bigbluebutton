@@ -5,8 +5,8 @@
     
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <FileNamePattern>log/deskshare-slf.%d{yyyy-MM-dd}.log</FileNamePattern>
-      <!-- keep 5 days worth of history -->
-      <MaxHistory>5</MaxHistory>
+      <!-- keep 30 days worth of history -->
+      <MaxHistory>30</MaxHistory>
     </rollingPolicy>
 
     <encoder>
