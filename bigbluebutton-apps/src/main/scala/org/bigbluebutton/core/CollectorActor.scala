@@ -1254,7 +1254,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
-    println("***** DISPATCHING VOICE USER MUTED *****************")
+//    println("***** DISPATCHING VOICE USER MUTED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   

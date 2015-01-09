@@ -276,7 +276,6 @@ Handlebars.registerHelper "visibility", (section) ->
   delete SessionAmplify.keys['display_usersList']
   delete SessionAmplify.keys['display_whiteboard']
   delete SessionAmplify.keys['inChatWith']
-  delete SessionAmplify.keys['joinedAt']
   delete SessionAmplify.keys['meetingId']
   delete SessionAmplify.keys['messageFontSize']
   delete SessionAmplify.keys['tabsRenderedTime']
@@ -292,7 +291,6 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
-  setInSession "joinedAt", getTime()
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
   setInSession 'display_slidingMenu', false

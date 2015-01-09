@@ -75,27 +75,28 @@ dependencies {
   providedCompile 'org.apache.mina:mina-integration-jmx:2.0.8@jar'
 	
   // Spring 
-  providedCompile 'org.springframework:spring-web:4.0.7.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:4.0.7.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.0.7.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:4.0.8.RELEASE@jar' 
+  providedCompile  'org.springframework:spring-beans:4.0.8.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.0.8.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.0.8.RELEASE@jar'
   
 	// Red5
-	providedCompile 'org/red5:red5-server:1.0.4-SNAPSHOT@jar'
-	providedCompile 'org.red5:red5-io:1.0.4-SNAPSHOT@jar'
+	providedCompile 'org/red5:red5-server:1.0.4-RELEASE@jar'
+	providedCompile 'org.red5:red5-io:1.0.4-RELEASE@jar'
+	providedCompile 'org/red5:red5-server-common:1.0.4-RELEASE@jar'
 	
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.1.2@jar'
 	providedCompile 'ch.qos.logback:logback-classic:1.1.2@jar'
-	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:jul-to-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:slf4j-api:1.7.7@jar'
+	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:jul-to-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:slf4j-api:1.7.9@jar'
 
 
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
-  providedCompile 'org.springframework:spring-aop:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-aop:4.0.8.RELEASE@jar'
   providedCompile 'aopalliance:aopalliance:1.0@jar'
 	        
   // Testing
