@@ -22,6 +22,7 @@ package org.bigbluebutton.clientcheck.service
 	import flash.external.ExternalInterface;
 
 	import org.bigbluebutton.clientcheck.model.ISystemConfiguration;
+	import org.bigbluebutton.clientcheck.model.IXMLConfig;
 	import org.bigbluebutton.clientcheck.model.test.ITestable;
 
 	import mx.resources.ResourceManager;
@@ -30,6 +31,9 @@ package org.bigbluebutton.clientcheck.service
 	{
 		[Inject]
 		public var systemConfiguration:ISystemConfiguration;
+
+		[Inject]
+		public var config:IXMLConfig;
 
 		public function ExternalApiCallbacks()
 		{
@@ -114,9 +118,31 @@ package org.bigbluebutton.clientcheck.service
 			checkResult(value, systemConfiguration.screenSize);
 		}
 
-		private function browserCallbackHandler(value:String):void
+		private function browserCallbackHandler(value:Object):void
 		{
-			checkResult(value, systemConfiguration.browser);
+			systemConfiguration.browser.testResult = value.browser + " " + value.version;
+
+			switch (value.browser) {
+				case "Chrome":
+					if (systemConfiguration.browser.isBrowserUpdated(value.version, config.getChromeLatestVersion())) {
+						systemConfiguration.browser.testSuccessfull = true;
+					} else {
+						systemConfiguration.browser.testMessage = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.result.browser.browserOutOfDate');
+						systemConfiguration.browser.testSuccessfull = false;
+					}
+					break;
+				case "Firefox":
+					if (systemConfiguration.browser.isBrowserUpdated(value.version, config.getFirefoxLatestVersion())) {
+						systemConfiguration.browser.testSuccessfull = true;
+					} else {
+						systemConfiguration.browser.testMessage = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.result.browser.browserOutOfDate');
+						systemConfiguration.browser.testSuccessfull = false;
+					}
+					break;
+				default:
+					systemConfiguration.browser.testMessage = ResourceManager.getInstance().getString('resources', 'bbbsystemcheck.result.browser.changeBrowser');
+					systemConfiguration.browser.testSuccessfull = false;
+			}
 		}
 
 		public function userAgentCallbackHandler(value:String):void
