@@ -17,6 +17,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 	      case msg: CreateMeeting                 => handleCreateMeeting(msg)
 	      case msg: DestroyMeeting                => handleDestroyMeeting(msg)
 	      case msg: KeepAliveMessage              => handleKeepAliveMessage(msg)
+        case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
 	      case msg: InMessage                     => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
@@ -100,5 +101,45 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
       }
     }
   }
-  
+
+  private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
+    var len = meetings.keys.size
+    println("meetings.size=" + meetings.size)
+    println("len_=" + len)
+
+    val set = meetings.keySet
+    val arr : Array[String] = new Array[String](len)
+    set.copyToArray(arr)
+    val resultArray : Array[MeetingInfo] = new Array[MeetingInfo](len)
+
+    for(i <- 0 until arr.length) {
+      val id = arr(i)
+      val duration = meetings.get(arr(i)).head.getDuration()
+      val name = meetings.get(arr(i)).head.getMeetingName()
+      val recorded = meetings.get(arr(i)).head.getRecordedStatus()
+      val voiceBridge = meetings.get(arr(i)).head.getVoiceBridgeNumber()
+
+      var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
+      resultArray(i) = info
+
+      //remove later
+      println("for a meeting:" + id)
+      println("Meeting Name = " + meetings.get(id).head.getMeetingName())
+      println("isRecorded = " + meetings.get(id).head.getRecordedStatus())
+      println("voiceBridge = " + voiceBridge)
+      println("duration = " + duration)
+
+      //send the users
+      this ! (new GetUsers(id, "nodeJSapp"))
+
+      //send the presentation
+      this ! (new GetPresentationInfo(id, "nodeJSapp", "nodeJSapp"))
+
+      //send chat history
+      this ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
+    }
+
+    outGW.send(new GetAllMeetingsReply(resultArray))
+  }
+
 }

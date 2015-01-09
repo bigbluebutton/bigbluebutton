@@ -43,8 +43,7 @@ trait WhiteboardApp {
 	    wbModel.modifyText(wbId, shape)
 	} else {
 //	    println("Received UNKNOWN whiteboard shape!!!!. status=[" + status + "], shapeType=[" + shapeType + "]")
-	}
-      
+	}  
     wbModel.getWhiteboard(wbId) foreach {wb =>
 //        println("WhiteboardApp::handleSendWhiteboardAnnotationRequest - num shapes [" + wb.shapes.length + "]")
         outGW.send(new SendWhiteboardAnnotationEvent(meetingID, recorded, 
@@ -60,20 +59,20 @@ trait WhiteboardApp {
   }
   
   def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
-//    println("WB: Received page history [" + msg.whiteboardId + "]")
+      //println("WB: Received page history [" + msg.whiteboardId + "]")
       wbModel.history(msg.whiteboardId) foreach {wb =>
           outGW.send(new GetWhiteboardShapesReply(meetingID, recorded, 
-                       msg.requesterID, wb.id, wb.shapes.toArray, msg.replyTo))         
+                       msg.requesterID, wb.id, wb.shapes.toArray, msg.replyTo))
       }
-    }
-    
+  }
+
   def handleClearWhiteboardRequest(msg: ClearWhiteboardRequest) {
-//    println("WB: Received clear whiteboard")
+      //println("WB: Received clear whiteboard")
       wbModel.clearWhiteboard(msg.whiteboardId)
       wbModel.getWhiteboard(msg.whiteboardId) foreach {wb =>
           outGW.send(new ClearWhiteboardEvent(meetingID, recorded, 
-                       msg.requesterID, wb.id))        
-      }      
+                       msg.requesterID, wb.id))
+      }
     }
     
   def handleUndoWhiteboardRequest(msg: UndoWhiteboardRequest) {

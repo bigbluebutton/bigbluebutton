@@ -103,3 +103,5 @@ case class MeetingPasswords(moderatorPass: String, viewerPass: String)
     
 case class MeetingDuration(duration: Int = 0, createdTime: Long = 0, 
    startTime: Long = 0, endTime: Long = 0)
+
+case class MeetingInfo(meetingID: String, meetingName: String, recorded: Boolean, voiceBridge: String, duration: Long)

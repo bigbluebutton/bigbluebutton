@@ -3,7 +3,7 @@
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+Copyright (c) 2014 BigBlueButton Inc. and by respective authors (see below).
 
 This program is free software; you can redistribute it and/or modify it under the
 terms of the GNU Lesser General Public License as published by the Free Software
@@ -26,13 +26,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util 
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
-	
+
 	<bean id="whiteboardApplication" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
-        <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
-	
+
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
 		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
 	</bean>
-	
+
+	<bean id="whiteboardListener" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardListener">
+		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+	</bean>
+
 </beans>

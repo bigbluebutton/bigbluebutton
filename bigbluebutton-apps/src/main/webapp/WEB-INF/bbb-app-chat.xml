@@ -34,5 +34,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
 		<property name="chatApplication"> <ref local="chatApplication"/></property>
 	</bean>
-	
+
+	<bean id="chatMessageListener" class="org.bigbluebutton.conference.service.chat.ChatMessageListener">
+		<property name="bigBlueButtonInGW" ref="bbbInGW" />
+	</bean>
 </beans>

@@ -30,7 +30,12 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 //    println("******************** DESTROY MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new DestroyMeeting(meetingID))
   }
-  
+
+  def getAllMeetings(meetingID: String) {
+  	println("******************** GET ALL MEETINGS ***************************** ")
+  	bbbGW.accept(new GetAllMeetingsRequest("meetingId"))
+  }
+
   def isAliveAudit(aliveId:String) {
     bbbGW.acceptKeepAlive(new KeepAliveMessage(aliveId)); 
   }
@@ -221,10 +226,12 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	    val current = if (i == 1) true else false
 	    val thumbnail = presBaseUrl + "/thumbnail/" + i
 	    val swfUri = presBaseUrl + "/slide/" + i
-	    val txtUri = presBaseUrl + "/textfiles/" + i
-				
+
+        val txtUri = presBaseUrl + "/textfiles/slide-" + i + ".txt"
+        val pngUri = presBaseUrl + "/png/" + i
+
 	    val p = new Page(id=id, num=num, thumbUri=thumbnail, swfUri=swfUri,
-	                     txtUri=txtUri, pngUri=thumbnail,
+	                     txtUri=txtUri, pngUri=pngUri,
 	                     current=current)
 	    pages += (p.id -> p)
 	  }

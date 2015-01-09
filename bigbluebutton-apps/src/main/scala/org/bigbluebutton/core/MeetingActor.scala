@@ -30,11 +30,27 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   var recording = false;
   var muted = false;
   var meetingEnded = false
+
+  def getDuration():Long = {
+    duration
+  }
+
+  def getMeetingName():String = {
+    meetingName
+  }
+
+  def getRecordedStatus():Boolean = {
+    recorded
+  }
+
+  def getVoiceBridgeNumber():String = {
+    voiceBridge
+  }
   
   val TIMER_INTERVAL = 30000
   var hasLastWebUserLeft = false
   var lastWebUserLeftOn:Long = 0
-  
+
   class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
     def act {
         reactWithin(timeout) {
@@ -121,7 +137,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case _ => // do nothing
 	  }
 	}
-  }	
+  }
   
   def hasMeetingEnded():Boolean = {
     meetingEnded
@@ -143,7 +159,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   def webUserJoined() {
     if (users.numWebUsers > 0) {
       lastWebUserLeftOn = 0
-	  }      
+    }      
   }
   
   def startRecordingIfAutoStart() {
@@ -168,7 +184,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
       lastWebUserLeftOn = timeNowInMinutes
 	    logger.debug("MonitorNumberOfWebUsers started for meeting [" + meetingID + "]")
       scheduleEndVoiceConference()
-	  }
+    }
   }
   
   def handleMonitorNumberOfWebUsers() {

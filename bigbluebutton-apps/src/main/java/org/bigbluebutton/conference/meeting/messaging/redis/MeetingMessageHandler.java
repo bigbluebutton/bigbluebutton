@@ -13,6 +13,7 @@ import org.bigbluebutton.conference.service.messaging.RegisterUserMessage;
 import org.bigbluebutton.conference.service.messaging.UserConnectedToGlobalAudio;
 import org.bigbluebutton.conference.service.messaging.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
+import org.bigbluebutton.conference.service.messaging.GetAllMeetingsRequest;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
@@ -85,6 +86,11 @@ public class MeetingMessageHandler implements MessageHandler {
 					
 					log.info("User disconnected from global audio: data={}", logStr);
 					bbbGW.userDisconnectedFromGlobalAudio(emm.voiceConf, emm.userid, emm.name);
+				}
+				else if (msg instanceof GetAllMeetingsRequest) {
+					GetAllMeetingsRequest emm = (GetAllMeetingsRequest) msg;
+					log.info("Received GetAllMeetingsRequest");
+					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
 				}
 			}
 		} else if (channel.equalsIgnoreCase(MessagingConstants.TO_SYSTEM_CHANNEL)) {

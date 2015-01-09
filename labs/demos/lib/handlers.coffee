@@ -2,6 +2,7 @@ xml2js  = require 'xml2js'
 
 bbbapi  = require './bbbapi'
 testapi = require './testapi'
+configJson = require './../config.json'
 
 index = (request, response) ->
   response.sendfile('./views/index.html')
@@ -12,16 +13,27 @@ login = (req, resp) ->
   serverAndSecret = testapi.serverAndSecret
 
   #use the name from the textbox
-  console.log "\n\nThe Username passed was=" + JSON.stringify(req.body.name) + "\n\n"
-  joinParams.fullName = JSON.stringify req.body.name
-  joinParams.fullName = joinParams.fullName.replace(/['"]/g,'')
+  console.log "\n\nThe Username passed was=" + JSON.stringify(req.body.name) +
+  "The Meetingname passed was=" + JSON.stringify(req.body.meetingName) + "\n\n"
+
+  # grab the username and meeting name passed in. Strip the surrounding quotes
+  joinParams.fullName = (JSON.stringify req.body.name)?.replace(/['"]/g,'')
+  passedMeetingName = (JSON.stringify req.body.meetingName)?.replace(/["]/g,'')
+
+  # use the meeting name from the form to [create if not existing and] join
+  # the meeting with such name
+  joinParams.meetingID = passedMeetingName
+  createParams.name = passedMeetingName
+  createParams.meetingID = passedMeetingName
 
   #calling createapi
-  bbbapi.create(createParams, serverAndSecret, {}, (errorOuter, responseOuter, bodyOuter) ->
+  bbbapi.create(createParams, serverAndSecret, {}, (eo, ro, bodyOuter) ->
     #console.log JSON.stringify(response)
+    console.log "\n\nouterXML=" + ro.body
+    console.log "\neo=" + JSON.stringify eo
     bbbapi.join(joinParams, serverAndSecret, {}, (error, response, body) ->
       if error
-          console.log error
+        console.log error
       else
         xml = '' + response.body
         console.log "\n\nxml=" + xml
@@ -38,8 +50,8 @@ login = (req, resp) ->
             "\nuser_id = " + user_id +
             "\nauth_token = " + auth_token
 
-            url = "http://192.168.0.203:3000/html5.client?meeting_id=" + meeting_id + "&user_id=" +
-                  user_id + "&auth_token=" + auth_token + "&username=" + joinParams.fullName
+            url = "#{configJson.settings.IP}:3000/login?meeting_id=" + meeting_id +
+                  "&user_id=" + user_id + "&auth_token=" + auth_token
 
             json =
             resp.json({

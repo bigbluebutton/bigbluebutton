@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -59,6 +59,7 @@ public class PdfToSwfSlidesGenerationService {
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
 	private int MAX_SWF_FILE_SIZE;
+	private boolean pngImagesRequired;
 		
 	public void generateSlides(UploadedPresentation pres) {
 		log.debug("Generating slides");		
@@ -66,9 +67,14 @@ public class PdfToSwfSlidesGenerationService {
 		log.info("Determined number of pages. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], numPages=[" + pres.getNumberOfPages() + "]");
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
-//			createPngImages(pres);
 			createTextFiles(pres);
 			createThumbnails(pres);
+
+			// only create PNG images if the configuration requires it
+			if (pngImagesRequired) {
+				createPngImages(pres);
+			}
+
 			notifier.sendConversionCompletedMessage(pres);
 		}		
 	}
@@ -206,6 +212,10 @@ public class PdfToSwfSlidesGenerationService {
 	
 	public void setMaxSwfFileSize(int size) {
 		this.MAX_SWF_FILE_SIZE = size;
+	}
+
+	public void setPngImagesRequired(boolean png) {
+		this.pngImagesRequired = png;
 	}
 	
 	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
