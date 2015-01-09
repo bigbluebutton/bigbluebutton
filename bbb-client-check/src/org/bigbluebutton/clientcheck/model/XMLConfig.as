@@ -72,5 +72,17 @@ package org.bigbluebutton.clientcheck.model
 			var mail:String = _config.mail;
 			return mail;
 		}
+
+		public function getChromeLatestVersion():String
+		{
+			var version:String = _config.chromeLatestVersion;
+			return version;
+		}
+
+		public function getFirefoxLatestVersion():String
+		{
+			var version:String = _config.firefoxLatestVersion;
+			return version;
+		}
 	}
 }
