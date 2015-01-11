@@ -9,70 +9,80 @@
     <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="navbarUserButtons navbarSection">
         <div id="collapseButtonSection">
-          {{#if getInSession "display_slidingMenu"}}
-            {{> makeButton btn_class="navbarButton collapseButton" i_class="chevron-left" rel="tooltip" data_placement="bottom" title="Collapse"}}
-          {{else}}
-            {{> makeButton btn_class="navbarButton collapseButton" i_class="chevron-right" rel="tooltip" data_placement="bottom" title="Expand"}}
-          {{/if}}
-        </div>
-        <div class='collapseSection'>
-          <!-- display/hide users list toggle -->
-          {{#if getInSession "display_usersList"}}
-            {{> makeButton btn_class="navbarIconToggleActive usersListIcon navbarButton collapseSectionButton" i_class="user" rel="tooltip" data_placement="bottom" title="Hide List of Users"}}
-          {{else}}
-            {{> makeButton btn_class="usersListIcon navbarButton collapseSectionButton" i_class="user" rel="tooltip" data_placement="bottom" title="Show List of Users"}}
-          {{/if}}
-
-          <!-- display/hide whiteboard toggle -->
-          {{#if getInSession "display_whiteboard"}}
-            {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon navbarButton collapseSectionButton" i_class="pencil" rel="tooltip" data_placement="bottom" title="Hide Whiteboard"}}
-          {{else}}
-            {{> makeButton btn_class="whiteboardIcon navbarButton collapseSectionButton" i_class="pencil" rel="tooltip" data_placement="bottom" title="Show Whiteboard"}}
-          {{/if}}
-
-          <!-- display/hide chat bar toggle -->
-          {{#if getInSession "display_chatbar"}}
-            {{> makeButton btn_class="navbarIconToggleActive chatBarIcon navbarButton collapseSectionButton" i_class="comment" rel="tooltip" data_placement="bottom" title="Hide Message Pane"}}
-          {{else}}
-            {{> makeButton btn_class="chatBarIcon navbarButton collapseSectionButton" i_class="comment" rel="tooltip" data_placement="bottom" title="Show Message Pane"}}
-          {{/if}}
-
-          <!-- display/hide webcam streams toggle -->
-          <!-- {{#if isCurrentUserSharingVideo}}
-                 {{> makeButton btn_class="navbarIconToggleActive videoFeedIcon navbarButton" i_class="stop" sharingVideo=true rel="tooltip" data_placement="bottom" title="Hide Webcams"}}
-               {{else}}
-                 {{> makeButton btn_class="videoFeedIcon navbarButton" i_class="facetime-video" sharingVideo=false rel="tooltip" data_placement="bottom" title="Show Webcams"}}
-               {{/if}} -->
-        </div>
-        <div class='audioControllersSection'>
-          <!-- Join/hang up audio call -->
-          {{#if isCurrentUserSharingAudio}}
-            <div class='collapseSection'>
-              {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton audioButton" i_class="volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
-            </div>
-            {{#if isCurrentUserMuted}}
-              {{> makeButton btn_class="muteIcon navbarButton audioButton" i_class="volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
+          {{#if isPortraitMobile}}
+            {{#if getInSession "display_slidingMenu"}}
+              {{> makeButton btn_class="navbarButton collapseSlidingMenuButton" i_class="chevron-left" rel="tooltip" data_placement="bottom" title="Collapse"}}
             {{else}}
-              {{#if isCurrentUserTalking}}
-                {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
-              {{else}}
-                {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
-              {{/if}}
+              {{> makeButton btn_class="navbarButton collapseSlidingMenuButton" i_class="chevron-right" rel="tooltip" data_placement="bottom" title="Expand"}}
             {{/if}}
           {{else}}
-            <div class='collapseSection'>
-              {{> makeButton btn_class="audioFeedIcon navbarButton audioButton" i_class="headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
-            </div>
+            {{#if getInSession "display_hiddenNavbarSection"}}
+              {{> makeButton btn_class="navbarButton collapseNavbarButton" i_class="chevron-left" rel="tooltip" data_placement="bottom" title="Collapse"}}
+            {{else}}
+              {{> makeButton btn_class="navbarButton collapseNavbarButton" i_class="chevron-right" rel="tooltip" data_placement="bottom" title="Expand"}}
+            {{/if}}
           {{/if}}
         </div>
-        <div class='collapseSection'>
-          {{#if isCurrentUserRaisingHand}}
-            {{> makeButton btn_class="lowerHand navbarIconToggleActive navbarButton collapseSectionButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Lower your hand"}}
-          {{else}}
-            {{> makeButton btn_class="raiseHand navbarButton collapseSectionButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
-          {{/if}}
+        <div class="collapseNavbarSection">
+          <div class='hiddenNavbarSection'>
+            <!-- display/hide users list toggle -->
+            {{#if getInSession "display_usersList"}}
+              {{> makeButton btn_class="navbarIconToggleActive usersListIcon navbarButton collapseSectionButton" i_class="user" rel="tooltip" data_placement="bottom" title="Hide List of Users"}}
+            {{else}}
+              {{> makeButton btn_class="usersListIcon navbarButton collapseSectionButton" i_class="user" rel="tooltip" data_placement="bottom" title="Show List of Users"}}
+            {{/if}}
 
-          {{> recordingStatus}}
+            <!-- display/hide whiteboard toggle -->
+            {{#if getInSession "display_whiteboard"}}
+              {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon navbarButton collapseSectionButton" i_class="pencil" rel="tooltip" data_placement="bottom" title="Hide Whiteboard"}}
+            {{else}}
+              {{> makeButton btn_class="whiteboardIcon navbarButton collapseSectionButton" i_class="pencil" rel="tooltip" data_placement="bottom" title="Show Whiteboard"}}
+            {{/if}}
+
+            <!-- display/hide chat bar toggle -->
+            {{#if getInSession "display_chatbar"}}
+              {{> makeButton btn_class="navbarIconToggleActive chatBarIcon navbarButton collapseSectionButton" i_class="comment" rel="tooltip" data_placement="bottom" title="Hide Message Pane"}}
+            {{else}}
+              {{> makeButton btn_class="chatBarIcon navbarButton collapseSectionButton" i_class="comment" rel="tooltip" data_placement="bottom" title="Show Message Pane"}}
+            {{/if}}
+
+            <!-- display/hide webcam streams toggle -->
+            <!-- {{#if isCurrentUserSharingVideo}}
+                   {{> makeButton btn_class="navbarIconToggleActive videoFeedIcon navbarButton" i_class="stop" sharingVideo=true rel="tooltip" data_placement="bottom" title="Hide Webcams"}}
+                 {{else}}
+                   {{> makeButton btn_class="videoFeedIcon navbarButton" i_class="facetime-video" sharingVideo=false rel="tooltip" data_placement="bottom" title="Show Webcams"}}
+                 {{/if}} -->
+          </div>
+          <div class='audioControllersSection'>
+            <!-- Join/hang up audio call -->
+            {{#if isCurrentUserSharingAudio}}
+              <div class='hiddenNavbarSection'>
+                {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton audioButton leaveAudioButton" i_class="volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
+              </div>
+              {{#if isCurrentUserMuted}}
+                {{> makeButton btn_class="muteIcon navbarButton audioButton" i_class="volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
+              {{else}}
+                {{#if isCurrentUserTalking}}
+                  {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+                {{else}}
+                  {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+                {{/if}}
+              {{/if}}
+            {{else}}
+              <div class='hiddenNavbarSection'>
+                {{> makeButton btn_class="audioFeedIcon navbarButton audioButton joinAudioButton" i_class="headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
+              </div>
+            {{/if}}
+          </div>
+          <div class='hiddenNavbarSection'>
+            {{#if isCurrentUserRaisingHand}}
+              {{> makeButton btn_class="lowerHand navbarIconToggleActive navbarButton collapseSectionButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Lower your hand"}}
+            {{else}}
+              {{> makeButton btn_class="raiseHand navbarButton collapseSectionButton" i_class="hand-up" rel="tooltip" data_placement="bottom" title="Raise your hand"}}
+            {{/if}}
+
+            {{> recordingStatus}}
+          </div>
         </div>
       </div>
       <div class="navbarTitle navbarSection"><span>{{getMeetingName}}</span></div>

@@ -36,19 +36,28 @@ Template.footer.helpers
 Template.header.events
   "click .audioFeedIcon": (event) ->
     $('.audioFeedIcon').blur()
-    toggleSlidingMenu()
+    #toggleSlidingMenu()
     toggleVoiceCall @
+    if BBB.amISharingAudio()
+      $('.navbarTitle').css('width', $('#navbar').width() - 358.4)
+    else
+      $('.navbarTitle').css('width', $('#navbar').width() - 409.6)
 
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
     toggleSlidingMenu()
     toggleChatbar()
 
-  "click .collapseButton": (event) ->
+  "click .collapseSlidingMenuButton": (event) ->
     toggleSlidingMenu()
     $(".tooltip").hide()
-    $('.collapseButton').blur()
+    $('.collapseSlidingMenuButton').blur()
     $('.myNavbar').css('z-index', 1032)
+
+  'click .collapseNavbarButton': (event) ->
+    $(".tooltip").hide()
+    $('.collapseNavbarButton').blur()
+    toggleNavbarCollapse()
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()

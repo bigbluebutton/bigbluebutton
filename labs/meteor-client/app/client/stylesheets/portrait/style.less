@@ -47,7 +47,7 @@
       font-size: 35px;
     }
 
-    .collapseSection {
+    .hiddenNavbarSection {
       display: none;
     }
 
@@ -146,19 +146,10 @@
       width: 51.2px;
     }
 
-    .navbarSection {
-      min-width: 256px;
-      width: 33%;
-    }
-
     .navbarTitle {
       font-size: 16px;
       padding-top: 13px;
-      width: 30% !important;
-    }
-
-    .navbarUserButtons {
-      float: left;
+      width: calc(~'100% - 102.4px')
     }
 
     .title {
@@ -169,12 +160,12 @@
       padding-top: 0;
     }
 
-    .collapseSection {
-      display: block !important;
+    .collapseNavbarSection {
+      display: none;
     }
 
     #collapseButtonSection {
-      display: none;
+      display: block !important;
     }
 
     /* Logout dialog */
