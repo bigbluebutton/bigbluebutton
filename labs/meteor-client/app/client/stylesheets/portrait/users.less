@@ -6,11 +6,30 @@
     max-height: 20%;
   }
 
-  .userNameEntry {
-    height: 35px;
-    font-size: 30px;
-    strong {
-      font-size: 25px;
+  @media (max-device-width: 1279px) {
+    .userNameEntry {
+      height: 35px;
+      font-size: 30px;
+      strong {
+        font-size: 25px;
+      }
+    }
+  }
+
+  @media (min-device-width: 1280px) {
+    #username {
+      display:block;
+      width:70%;
+    }
+
+    #user-contents {
+      .userlist {
+        padding:10px;
+      }
+    }
+
+    .userNameEntry {
+      height: 20px;
     }
   }
 }

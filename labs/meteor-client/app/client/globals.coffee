@@ -137,6 +137,9 @@ Handlebars.registerHelper "isUserSharingVideo", (userId) ->
 Handlebars.registerHelper "isUserTalking", (userId) ->
   BBB.isUserTalking(userId)
 
+Handlebars.registerHelper 'isPortraitMobile', () ->
+  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-width: 1279px)').matches
+
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
@@ -256,6 +259,15 @@ Handlebars.registerHelper "visibility", (section) ->
     $(document).bind 'scroll', () ->
       window.scrollTo(0, 0)
 
+@toggleNavbarCollapse = ->
+  setInSession 'display_hiddenNavbarSection', !getInSession 'display_hiddenNavbarSection'
+  if getInSession 'display_hiddenNavbarSection'
+    $('.navbarTitle').css('width', $('#navbar').width() - 358.4)
+    $('.collapseNavbarSection').css('display', 'block')
+  else
+    $('.collapseNavbarSection').css('display', 'none')
+    $('.navbarTitle').css('width', $('#navbar').width() - 102.4)
+
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
@@ -294,6 +306,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
   setInSession 'display_slidingMenu', false
+  setInSession 'display_hiddenNavbarSection', false
 
 
 @onLoadComplete = ->
