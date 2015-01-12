@@ -116,7 +116,9 @@
 			{{> footer}}
 		{{/if}}
 		</div>
-        {{> slidingMenu}}
+        {{#if isPortraitMobile}}
+          {{> slidingMenu}}
+        {{/if}}
         <div id='darkened-screen'></div>
 	</body>
 </template>
