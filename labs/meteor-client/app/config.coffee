@@ -17,6 +17,9 @@ config.maxChatLength = 140
 ## Application configurations
 config.app = {}
 
+# server ip
+config.app.logOutUrl = "http://192.168.0.119:4000" # TODO temporary
+
 # Configs for redis
 config.redis = {}
 config.redis.host = "127.0.0.1"
