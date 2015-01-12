@@ -159,8 +159,9 @@ Template.chatInput.events
       return false
 
 Template.chatInput.rendered  = ->
-   $('input[rel=tooltip]').tooltip()
-   $('button[rel=tooltip]').tooltip()
+  $('input[rel=tooltip]').tooltip()
+  $('button[rel=tooltip]').tooltip()
+  $("#newMessageInput").focus()
 
 Template.extraConversations.events
 	"click .extraConversation": (event) ->
@@ -234,7 +235,6 @@ Template.optionsBar.events
 
     setInSession 'display_chatPane', true
     setInSession "inChatWith", _this.userId
-    $("#newMessageInput").focus()
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
