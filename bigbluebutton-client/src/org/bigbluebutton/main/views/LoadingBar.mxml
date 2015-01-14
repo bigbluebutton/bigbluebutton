@@ -41,13 +41,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var modules:Dictionary = new Dictionary();
 			private var numModules:int = 0;
 			private var portUpdateStr:String = 'Connecting to the server';
-			private function moduleLoadingStarted(e:ModuleLoadEvent):void{
+      
+      private function moduleLoadingStarted(e:ModuleLoadEvent):void{
 				var list:XMLList = e.modules;
 				var item:XML;
+        
+        numModules = 0;
+        trace("LoadingBar.mxml numModules=[" + numModules + "]");
 				for each(item in list){
 					modules[item.@name] = 0;
 					numModules++;
+          trace("LoadingBar.mxml numModules=[" + numModules + "] modulename=[" + item.@name + "]");
 				}
+
 				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
 			}
 			
