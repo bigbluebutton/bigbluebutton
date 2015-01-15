@@ -176,6 +176,7 @@ Template.chatInput.rendered  = ->
   $('input[rel=tooltip]').tooltip()
   $('button[rel=tooltip]').tooltip()
   $("#newMessageInput").focus()
+  resizeChatbar()
 
 Template.extraConversations.events
 	"click .extraConversation": (event) ->
