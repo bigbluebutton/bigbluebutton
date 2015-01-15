@@ -262,11 +262,11 @@ Handlebars.registerHelper "visibility", (section) ->
 @toggleNavbarCollapse = ->
   setInSession 'display_hiddenNavbarSection', !getInSession 'display_hiddenNavbarSection'
   if getInSession 'display_hiddenNavbarSection'
-    $('.navbarTitle').css('width', $('#navbar').width() - 358.4)
+    $('.navbarTitle').addClass('narrowedNavbarTitle');
     $('.collapseNavbarSection').css('display', 'block')
   else
     $('.collapseNavbarSection').css('display', 'none')
-    $('.navbarTitle').css('width', $('#navbar').width() - 102.4)
+    $('.navbarTitle').removeClass('narrowedNavbarTitle');
 
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
