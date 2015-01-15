@@ -207,16 +207,6 @@ Template.makeButton.rendered = ->
 Template.recordingStatus.rendered = ->
   $('button[rel=tooltip]').tooltip()
 
-
 $(window).resize( ->
-  chat = $('#chat')
-  navbarHeight = $('#navbar').height()
-  footerHeight = $('#footer').height()
-  bodyHeight = $('body').height()
-  margins = parseInt(chat.css('margin-top'))*2 # *2 for top & bottom
-  paddingSpace = 10
-  windowHeight = ( bodyHeight - ( navbarHeight + footerHeight + margins + paddingSpace ) )
-  
-  chat.height( windowHeight + 'px')
-  $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight()*2)) + 'px')
+  resizeChatbar()
 )
