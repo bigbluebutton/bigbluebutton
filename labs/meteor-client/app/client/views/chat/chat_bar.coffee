@@ -75,7 +75,7 @@ Handlebars.registerHelper "grabChatTabs", ->
       windowHeight = ( bodyHeight - ( navbarHeight + footerHeight + margins + paddingSpace ) )
 
       chat.height( windowHeight + 'px')
-      $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight()*2)) + 'px')
+      $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight())*2) + 'px')
 
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
