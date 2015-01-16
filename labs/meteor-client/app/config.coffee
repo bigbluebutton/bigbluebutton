@@ -18,11 +18,7 @@ config.maxChatLength = 140
 config.app = {}
 
 # server ip
-config.app.serverIP = "http://192.168.0.119"
 config.app.logOutUrl = "http://192.168.0.119:4000" # TODO temporary
-
-# port for the HTML5 client
-config.app.htmlClientPort = "3000"
 
 # Configs for redis
 config.redis = {}
