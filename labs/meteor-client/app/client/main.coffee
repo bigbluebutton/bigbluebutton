@@ -208,5 +208,5 @@ Template.recordingStatus.rendered = ->
   $('button[rel=tooltip]').tooltip()
 
 $(window).resize( ->
-  resizeChatbar()
+  resizeWindows()
 )

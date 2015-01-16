@@ -64,7 +64,7 @@ Handlebars.registerHelper "grabChatTabs", ->
     setInSession 'chatTabs', initTabs
   getInSession('chatTabs')[0..3]
 
-@resizeChatbar = ->
+@resizeWindows = ->
   if window.matchMedia('(orientation: landscape)').matches
       chat = $('#chat')
       navbarHeight = $('#navbar').height()
@@ -74,8 +74,11 @@ Handlebars.registerHelper "grabChatTabs", ->
       paddingSpace = 10
       windowHeight = ( bodyHeight - ( navbarHeight + footerHeight + margins + paddingSpace ) )
 
-      chat.height( windowHeight + 'px')
+      chat.height(windowHeight + 'px')
       $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight())*2) + 'px')
+
+      $("#users").height((windowHeight-paddingSpace) + 'px')
+      $("#user-contents").height((windowHeight-$("#users").find('h3').outerHeight()) + 'px')
 
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
@@ -146,7 +149,7 @@ Template.chatbar.helpers
 # When chatbar gets rendered, launch the auto-check for unread chat
 Template.chatbar.rendered = ->
   detectUnreadChat()
-  resizeChatbar()
+  resizeWindows()
 
 # When message gets rendered, scroll to the bottom
 Template.message.rendered = ->
@@ -176,7 +179,7 @@ Template.chatInput.rendered  = ->
   $('input[rel=tooltip]').tooltip()
   $('button[rel=tooltip]').tooltip()
   $("#newMessageInput").focus()
-  resizeChatbar()
+  resizeWindows()
 
 Template.extraConversations.events
 	"click .extraConversation": (event) ->
