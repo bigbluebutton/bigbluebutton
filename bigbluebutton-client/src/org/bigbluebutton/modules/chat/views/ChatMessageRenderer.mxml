@@ -20,8 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
-		 verticalScrollPolicy="off" horizontalScrollPolicy="off" 
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 verticalAlign="top" verticalGap="0" paddingTop="0" paddingBottom="0"
+		 verticalScrollPolicy="off" horizontalScrollPolicy="off"
 		 xmlns:common="org.bigbluebutton.common.*">
 	
 	<mx:Script>

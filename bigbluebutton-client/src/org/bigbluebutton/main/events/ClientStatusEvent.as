@@ -16,17 +16,25 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.settings.uihelpers
+
+package org.bigbluebutton.main.events
 {
 	import flash.events.Event;
-
-	public class JavaOKEvent extends Event
+	
+	public class ClientStatusEvent extends Event
 	{
-		public static const JAVA_A_OK:String = "Java is alright, sometimes";
+		public static const SUCCESS_MESSAGE_EVENT:String = "SUCCESS_MESSAGE_EVENT";
+		public static const WARNING_MESSAGE_EVENT:String = "WARNING_MESSAGE_EVENT";
+		public static const FAIL_MESSAGE_EVENT:String = "FAIL_MESSAGE_EVENT";
 		
-		public function JavaOKEvent(type:String)
+		public var title:String;
+		public var message:String;
+		
+		public function ClientStatusEvent(type:String, title:String, message:String)
 		{
-			super(type, true, false);
+			super(type);
+			this.title = title;
+			this.message = message;
 		}
 	}
 }
