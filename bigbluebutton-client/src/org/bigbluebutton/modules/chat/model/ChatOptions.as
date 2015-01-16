@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.chat.model
 		public var privateEnabled:Boolean = true;
 		
 		[Bindable]
-		public var fontSize:String = "10";
+		public var fontSize:String = "12";
 		
 		[Bindable]
 		public var position:String = "top-right";

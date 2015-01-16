@@ -16,19 +16,25 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+// Most of the source is adapted from the ToolTipBorder class and the functionality is replicated here for performance reasons
+
 package org.bigbluebutton.skins
 {
     import flash.display.Graphics;
     import flash.events.Event;
     import flash.geom.Point;
-
+    import mx.core.EdgeMetrics;
+    import flash.filters.DropShadowFilter;
+    import mx.graphics.RectangularDropShadow;
     import mx.managers.ToolTipManager;
-    import mx.skins.halo.ToolTipBorder;
+    import mx.skins.RectangularBorder;
 
-    public class ToolTipSkin extends ToolTipBorder
+    public class ToolTipSkin extends RectangularBorder
     {
-
-		private static const TOP : String = "top";
+        private static const LOG : String = "ToolTipSkin - ";
+        
+        private static const TOP : String = "top";
         private static const BOTTOM : String = "bottom";
 
         private var _arrowPosition : String = TOP;
@@ -38,11 +44,219 @@ package org.bigbluebutton.skins
             visible = false;
             addEventListener(Event.ENTER_FRAME, this.enterFrameHandler);
         }
-
+        
+        //--------------------------------------------------------------------------
+        //
+        //  Overridden properties
+        //
+        //--------------------------------------------------------------------------
+        
+        //----------------------------------
+        //  borderMetrics
+        //----------------------------------
+        
+        /**
+         *  @private
+         *  Storage for the borderMetrics property.
+         */
+        private var _borderMetrics:EdgeMetrics;
+        
+        /**
+         *  @private
+         */
+        override public function get borderMetrics():EdgeMetrics
+        {
+            if (_borderMetrics)
+                return _borderMetrics;
+            
+            var borderStyle:String = getStyle("borderStyle");
+            switch (borderStyle)
+            {
+                case "errorTipRight":
+                {
+                    _borderMetrics = new EdgeMetrics(15, 1, 3, 3);
+                    break;
+                }
+                
+                case "errorTipAbove":
+                {
+                    _borderMetrics = new EdgeMetrics(3, 1, 3, 15);
+                    break;
+                }
+                
+                case "errorTipBelow":
+                {
+                    _borderMetrics = new EdgeMetrics(3, 13, 3, 3);
+                    break;
+                }
+                
+                default: // "toolTip"
+                {
+                    _borderMetrics = new EdgeMetrics(3, 1, 3, 3);
+                    break;
+                }
+            }
+            
+            return _borderMetrics;
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        //  Overridden methods
+        //
+        //--------------------------------------------------------------------------
+        
+        /**
+         *  @private
+         *  If borderStyle may have changed, clear the cached border metrics.
+         */
+        override public function styleChanged(styleProp:String):void
+        {
+            super.styleChanged(styleProp);
+            
+            if (styleProp == "borderStyle" ||
+                styleProp == "styleName" ||
+                styleProp == null)
+            {
+                _borderMetrics = null;
+                
+                var borderStyle:String = getStyle("borderStyle");
+                switch (borderStyle)
+                {
+                    case "errorTipRight":
+                    case "errorTipAbove":
+                    case "errorTipBelow":
+                    {
+                        visible = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        /**
+         *  @private
+         *  Draw the background and border.
+         */
+        override protected function updateDisplayList(w:Number, h:Number):void
+        {
+            super.updateDisplayList(w, h);
+            
+            var borderStyle:String = getStyle("borderStyle");
+            var backgroundColor:uint = getStyle("backgroundColor");
+            var backgroundAlpha:Number= getStyle("backgroundAlpha");
+            var borderColor:uint = getStyle("borderColor");
+            var cornerRadius:Number = getStyle("cornerRadius");
+            
+            var g:Graphics = graphics;
+            g.clear();
+            
+            filters = [];
+            
+            switch (borderStyle)
+            {
+                case "none":
+                {
+                    // Don't draw anything
+                    break;
+                }
+                case "errorTipRight":
+                {
+                    // border
+                    drawRoundRect(
+                        11, 0, w - 11, h - 2, 3,
+                        borderColor, backgroundAlpha);
+                    
+                    // left pointer
+                    g.beginFill(borderColor, backgroundAlpha);
+                    g.moveTo(11, 7);
+                    g.lineTo(0, 13);
+                    g.lineTo(11, 19);
+                    g.moveTo(11, 7);
+                    g.endFill();
+                    
+                    filters = [ new DropShadowFilter(2, 90, 0, 0.4) ];
+                    break;
+                }
+                
+                case "errorTipAbove":
+                {
+                    // border
+                    drawRoundRect(
+                        0, 0, w, h - 13, 3,
+                        borderColor, backgroundAlpha);
+                    
+                    // bottom pointer
+                    g.beginFill(borderColor, backgroundAlpha);
+                    g.moveTo(w/2-6, h - 13);
+                    g.lineTo(w/2, h - 2);
+                    g.lineTo(w/2+6, h - 13);
+                    g.moveTo(w/2-6, h - 13);
+                    g.endFill();
+                    
+                    filters = [ new DropShadowFilter(2, 90, 0, 0.4) ];
+                    break;
+                }
+                
+                case "errorTipBelow":
+                {
+                    // border
+                    drawRoundRect(
+                        0, 11, w, h - 13, 3,
+                        borderColor, backgroundAlpha);
+                    
+                    // top pointer
+                    g.beginFill(borderColor, backgroundAlpha);
+                    g.moveTo(9, 11);
+                    g.lineTo(15, 0);
+                    g.lineTo(21, 11);
+                    g.moveTo(10, 11);
+                    g.endFill();
+                    
+                    filters = [ new DropShadowFilter(2, 90, 0, 0.4) ];
+                    break;
+                }
+                
+                default: //Tooltip
+                {
+                    // face
+                    drawRoundRect(
+                        3, 1, w - 6, h - 4, cornerRadius,
+                        backgroundColor, backgroundAlpha)
+                    
+                    // top pointer
+                    if (_arrowPosition == TOP) {
+                        g.beginFill(backgroundColor, backgroundAlpha);
+                        g.moveTo((w / 2) - 6, 1);
+                        g.lineTo((w / 2), -10);
+                        g.lineTo((w / 2) + 6, 1);
+                        g.moveTo((w / 2) - 5, -10);
+                        g.endFill();
+                    }
+                    else {
+                        g.beginFill(backgroundColor, backgroundAlpha);
+                        g.moveTo((w / 2) - 6, h - 3);
+                        g.lineTo((w / 2), h + 7);
+                        g.lineTo((w / 2) + 6, h - 3);
+                        g.moveTo((w / 2) - 5, h + 7);
+                        g.endFill();
+                    }
+                    
+                    break;
+                }
+            }
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        //  Methods
+        //
+        //--------------------------------------------------------------------------
+        
         private function enterFrameHandler( event : Event ) : void {
             this.position();
         }
-
+        
         private function position() : void {
             if (!stage || !ToolTipManager.currentToolTip || !ToolTipManager.currentTarget)
             {
@@ -54,11 +268,11 @@ package org.bigbluebutton.skins
             var globalPoint : Point = ToolTipManager.currentTarget.localToGlobal(parentCoords);
             var xp : Number = globalPoint.x + 5 - (ToolTipManager.currentToolTip.width / 2);
             var yp : Number = globalPoint.y + ToolTipManager.currentToolTip.height;
-
+            
             var overhangRight : Number = ToolTipManager.currentToolTip.width + xp;
             var overhangBottom : Number = ToolTipManager.currentToolTip.height + yp;
             updateArrowPosition(TOP);
-
+            
             if (overhangRight > stage.stageWidth) {
                 xp = stage.stageWidth - ToolTipManager.currentToolTip.width;
             }
@@ -81,61 +295,14 @@ package org.bigbluebutton.skins
                 ToolTipManager.currentToolTip.y = yp;
                 visible = true;
             }
-
+            
         }
-
-
+        
         private function updateArrowPosition( value : String ) : void {
             if (_arrowPosition != value) {
                 _arrowPosition = value;
                 validateDisplayList();
             }
-        }
-
-
-        //--------------------------------------------------------------------------
-        //
-        //  Overridden methods
-        //
-        //--------------------------------------------------------------------------
-
-
-        override protected function updateDisplayList( w : Number, h : Number ) : void {
-            super.updateDisplayList(w, h);
-
-            var backgroundColor : uint = getStyle("backgroundColor");
-            var backgroundAlpha : Number = getStyle("backgroundAlpha");
-            var borderColor : uint = getStyle("borderColor");
-            var cornerRadius : Number = getStyle("cornerRadius");
-
-            var g : Graphics = graphics;
-            g.clear();
-
-            filters = [];
-
-            // face
-            drawRoundRect(
-                3, 1, w - 6, h - 4, cornerRadius,
-                backgroundColor, backgroundAlpha)
-
-            // top pointer
-            if (_arrowPosition == TOP) {
-                g.beginFill(backgroundColor, backgroundAlpha);
-                g.moveTo((w / 2) - 6, 1);
-                g.lineTo((w / 2), -10);
-                g.lineTo((w / 2) + 6, 1);
-                g.moveTo((w / 2) - 5, -10);
-                g.endFill();
-            }
-            else {
-                g.beginFill(backgroundColor, backgroundAlpha);
-                g.moveTo((w / 2) - 6, h - 3);
-                g.lineTo((w / 2), h + 7);
-                g.lineTo((w / 2) + 6, h - 3);
-                g.moveTo((w / 2) - 5, h + 7);
-                g.endFill();
-            }
-
         }
     }
 }
