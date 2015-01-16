@@ -22,13 +22,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:chat="org.bigbluebutton.modules.chat.views.*"
 				width="500" height="400"
+				horizontalScrollPolicy="off"
 				title="{ResourceUtil.getInstance().getString('bbb.clientstatus.title')}"
-				horizontalAlign="center">
+				horizontalAlign="center"
+				creationComplete="onCreationComplete();">
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private function onCreationComplete():void {
+				messageList.height = this.height - closeBtn.height - 60;
+			}
+			
 			public function setMessages(messages:Array):void {
 				messageList.dataProvider = messages;
 			}
@@ -38,6 +45,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</mx:Script>
-	<chat:AdvancedList id="messageList" width="100%" height="100%" dragEnabled="false" variableRowHeight="true" wordWrap="true" alternatingItemColors="[#EFEFEF, #FEFEFE]" itemRenderer="org.bigbluebutton.main.views.ClientStatusItemRenderer"/>
-	<mx:Button label="Close" click="handleCloseButtonClick();" />
+	<chat:AdvancedList id="messageList" width="100%" dragEnabled="false" variableRowHeight="true" wordWrap="true" alternatingItemColors="[#EFEFEF, #FEFEFE]" itemRenderer="org.bigbluebutton.main.views.ClientStatusItemRenderer"/>
+	<mx:Button id="closeBtn" label="Close" click="handleCloseButtonClick();" />
 </mx:TitleWindow>
