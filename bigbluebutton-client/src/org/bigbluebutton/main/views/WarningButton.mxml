@@ -24,7 +24,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   styleName="warningButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.clientstatus.title')}"
 		   click="handleButtonClick();"
-		   move="handleMove();">
+		   move="handleMove();"
+		   creationComplete="onCreationComplete();"
+		   visible="false">
 	<mate:Listener type="{ClientStatusEvent.SUCCESS_MESSAGE_EVENT}" method="handleSuccessMessageEvent" />
 	<mate:Listener type="{ClientStatusEvent.WARNING_MESSAGE_EVENT}" method="handleWarningMessageEvent" />
 	<mate:Listener type="{ClientStatusEvent.FAIL_MESSAGE_EVENT}" method="handleFailMessageEvent" />
@@ -46,6 +48,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var messages:Array = new Array();
 			
 			private var notification:ToolTip;
+			
+			private var hideTimer:Timer;
+			
+			private function onCreationComplete():void {
+				hideTimer = new Timer(30000, 1); // 30 second timer
+				hideTimer.addEventListener(TimerEvent.TIMER, hideTimeEvent);
+			}
 			
 			private function handleSuccessMessageEvent(e:ClientStatusEvent):void {
 				if(isUniqueMessage("success", e.title, e.message)) {
@@ -69,6 +78,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showNotification():void {
+				visible = true;
+				
+				if (hideTimer.running) hideTimer.reset();
+				hideTimer.start()
+				
 				if (!notification) {
 					notification = ToolTipManager.createToolTip(ResourceUtil.getInstance().getString("bbb.clientstatus.notification"), 100, 100, "errorTipAbove", this) as ToolTip;
 					handleMove();
@@ -84,10 +98,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleButtonClick():void {
-				if (notification) {
-					ToolTipManager.destroyToolTip(notification);
-					notification = null;
-				}
+				hideNotification();
 				
 				var clientStatusWindow:ClientStatusWindow = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClientStatusWindow, true) as ClientStatusWindow;
 				clientStatusWindow.setMessages(messages);
@@ -99,6 +110,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var location:Point = localToGlobal(new Point(0,0));
 					notification.move(location.x - notification.width/2 + this.width/2, location.y - notification.height);
 				}
+			}
+			
+			private function hideNotification():void {
+				if (notification) {
+					ToolTipManager.destroyToolTip(notification);
+					notification = null;
+				}
+			}
+			
+			private function hideTimeEvent(e:TimerEvent):void {
+				hideNotification();
 			}
 		]]>
 	</mx:Script>

@@ -84,7 +84,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
       public function unregisterForMouseEvents():void {
           removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
-          stage.removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+          if (stage)
+              stage.removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
           removeEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
 //        stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 //        stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
