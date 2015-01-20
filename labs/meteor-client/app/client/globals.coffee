@@ -49,7 +49,7 @@
 @getInSession = (k) -> SessionAmplify.get k
 
 @getMeetingName = ->
-  return Meteor.Meetings.findOne()?.meetingName or "your meeting"
+  return Meteor.Meetings.findOne()?.meetingName or null
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
@@ -83,7 +83,7 @@ Handlebars.registerHelper "getCurrentUser", =>
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
-  return Meteor.Meetings.findOne()?.meetingName or "BigBlueButton"
+  return Meteor.Meetings.findOne()?.meetingName or null
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
