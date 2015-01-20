@@ -49,7 +49,7 @@
 @getInSession = (k) -> SessionAmplify.get k
 
 @getMeetingName = ->
-  return Meteor.Meetings.findOne()?.meetingName or "your meeting"
+  return Meteor.Meetings.findOne()?.meetingName or null
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
@@ -83,7 +83,7 @@ Handlebars.registerHelper "getCurrentUser", =>
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
-  return Meteor.Meetings.findOne()?.meetingName or "BigBlueButton"
+  return Meteor.Meetings.findOne()?.meetingName or null
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
@@ -274,25 +274,25 @@ Handlebars.registerHelper "visibility", (section) ->
 @userLogout = (meeting, user) ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
   console.log "logging out #{Meteor.config.app.logOutUrl}"
-  document.location = Meteor.config.app.logOutUrl # navigate to logout
+  clearSessionVar(document.location = Meteor.config.app.logOutUrl) # navigate to logout
 
 # Clear the local user session
 @clearSessionVar = (callback) ->
-  delete SessionAmplify.keys['authToken']
-  delete SessionAmplify.keys['bbbServerVersion']
-  delete SessionAmplify.keys['chatTabs']
-  delete SessionAmplify.keys['dateOfBuild']
-  delete SessionAmplify.keys['display_chatPane']
-  delete SessionAmplify.keys['display_chatbar']
-  delete SessionAmplify.keys['display_navbar']
-  delete SessionAmplify.keys['display_usersList']
-  delete SessionAmplify.keys['display_whiteboard']
-  delete SessionAmplify.keys['inChatWith']
-  delete SessionAmplify.keys['meetingId']
-  delete SessionAmplify.keys['messageFontSize']
-  delete SessionAmplify.keys['tabsRenderedTime']
-  delete SessionAmplify.keys['userId']
-  delete SessionAmplify.keys['userName']
+  amplify.store('authToken', null)
+  amplify.store('bbbServerVersion', null)
+  amplify.store('chatTabs', null)
+  amplify.store('dateOfBuild', null)
+  amplify.store('display_chatPane', null)
+  amplify.store('display_chatbar', null)
+  amplify.store('display_navbar', null)
+  amplify.store('display_usersList', null)
+  amplify.store('display_whiteboard', null)
+  amplify.store('inChatWith', null)
+  amplify.store('meetingId', null)
+  amplify.store('messageFontSize', null)
+  amplify.store('tabsRenderedTime', null)
+  amplify.store('userId', null)
+  amplify.store('userName', null)
   callback()
 
 # assign the default values for the Session vars
