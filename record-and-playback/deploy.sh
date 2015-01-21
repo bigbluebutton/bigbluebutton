@@ -38,7 +38,15 @@ function deploy_format() {
 	done
 }
 
-deploy_format "presentation"
+RECORDING_SERVER=false
+if $RECORDING_SERVER ; then
+	deploy_format "presentation"
+	deploy_format "mconf_decrypter"
+	sudo mv /usr/local/bigbluebutton/core/scripts/mconf-recording-decrypter.initd /etc/init.d/mconf-recording-decrypter
+	sudo mv /usr/local/bigbluebutton/core/scripts/mconf-recording-decrypter.monit /etc/monit/conf.d/mconf-recording-decrypter
+else
+	deploy_format "mconf_encrypted"
+fi
 
 sudo mkdir -p /var/bigbluebutton/playback/
 sudo mkdir -p /var/bigbluebutton/recording/raw/

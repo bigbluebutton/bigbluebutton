@@ -1517,6 +1517,17 @@ class ApiController {
 						  }
 					  }
                   }
+				  download() {
+					  r.getDownloads().each { item ->
+						  format{
+							  type(item.getFormat())
+							  url(item.getUrl())
+							  md5(item.getMd5())
+							  key(item.getKey())
+							  length(item.getLength())
+						  }
+					  }
+                  }
                   
                 }
               }
