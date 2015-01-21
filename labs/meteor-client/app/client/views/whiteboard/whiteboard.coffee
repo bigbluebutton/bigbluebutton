@@ -13,3 +13,6 @@
 
   # Shrink height of the slide by 10 pixels. 5 pixels for the above margins, 5 pixels for bottom padding for a total of 10 removed pixels
   $("#whiteboard-paper").height(($("#whiteboard-paper").height()-10) + 'px')
+
+Template.whiteboard.rendered = ->
+  $("#whiteboard").height(($("#chat").height()) + 'px')
