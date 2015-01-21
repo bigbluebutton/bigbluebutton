@@ -210,6 +210,22 @@ Handlebars.registerHelper "visibility", (section) ->
       tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
       setInSession 'chatTabs', tabs
 
+@resizeWindows = ->
+  if window.matchMedia('(orientation: landscape)').matches
+      chat = $('#chat')
+      navbarHeight = $('#navbar').height()
+      footerHeight = $('#footer').height()
+      bodyHeight = $('body').height()
+      margins = parseInt(chat.css('margin-top'))*2 # *2 for top & bottom
+      paddingSpace = 10
+      windowHeight = ( bodyHeight - ( navbarHeight + footerHeight + margins + paddingSpace ) )
+
+      chat.height(windowHeight + 'px')
+      $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight())*2) + 'px')
+
+      $("#users").height((windowHeight-paddingSpace) + 'px')
+      $("#user-contents").height((windowHeight-$("#users").find('h3').outerHeight()) + 'px')
+
 @setInSession = (k, v) -> SessionAmplify.set k, v
 
 @safeString = (str) ->
