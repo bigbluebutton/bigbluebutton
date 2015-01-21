@@ -93,8 +93,15 @@ Handlebars.registerHelper "getShapesForSlide", ->
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
-  # Users with raised hand last go first, then sorted by name
-  Meteor.Users.find({}, {sort: {'user.raise_hand': -1, 'user._sort_name': 1} })
+  # retrieve all users with raised hands
+  # raised hand is an object, so we can't simply search for true
+  # sort users by who has raised their hand first, place them at the top
+  raised = Meteor.Users.find({'user.raise_hand': {$not: {$in: [0, false, null]} }}, {sort: {'user.raise_hand': 1} }).fetch()
+  # find all users with a lowered hand
+  # when a hand is lowered, it is not always just false, it can be zero, or null
+  lowered = Meteor.Users.find({'user.raise_hand': $in: [0, false, null]}, {sort: {'user._sort_name': 1} }).fetch()
+  # add the users with lowered hands, to the list of people with raised hands
+  raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
   "Whiteboard: " + (getPresentationFilename() or "Loading...")
