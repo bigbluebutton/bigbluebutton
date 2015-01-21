@@ -25,25 +25,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;
-      
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
-      import org.bigbluebutton.modules.deskshare.events.ShareEvent;
-      import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
-      import org.bigbluebutton.modules.deskshare.events.StartedViewingEvent;
-      import org.bigbluebutton.modules.deskshare.events.StreamEvent;
-      import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-      import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
-      import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
+			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
+			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
+			import org.bigbluebutton.modules.deskshare.events.StartedViewingEvent;
+			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
+			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
+			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<!--
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
-		<ObjectBuilder generator="{DeskshareManager}"/>		
+		<ObjectBuilder generator="{DeskshareManager}"/>
+		<ObjectBuilder generator="{JavaCheck}"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{ShareEvent.START_SHARING}">
@@ -92,6 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<EventHandlers type="{ModuleEvent.START}">		
 		<MethodInvoker generator="{DeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
+		<MethodInvoker generator="{JavaCheck}" method="check" />
 	</EventHandlers>
 
   	

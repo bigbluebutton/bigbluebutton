@@ -178,6 +178,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  
         if (!showFooterOpt) {
           footerHeight = 0;
+          controlBar.visible = false;
         }        
       }
 		
@@ -637,11 +638,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ls.x = point1.x - (ls.width/2);
         ls.y = point1.y - (ls.height/2);	
 			}
-			
-			
 		]]>
 	</mx:Script>
-			
+
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
 					   width="100%" 
