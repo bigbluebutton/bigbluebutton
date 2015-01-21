@@ -259,6 +259,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				//        controls.btnStartPublish.enabled = true;
 				_waitingForActivation = false;
 				btnStartPublish.enabled = true;
+				_videoHolder.imgChromeHelp.visible = false;
 			}
 		}
 		
@@ -293,6 +294,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		private function activationTimeout(e:TimerEvent):void {
 			_videoHolder.showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
+			
+			//check for Chrome and show image
+			var browserType:Array = ExternalInterface.call('determineBrowser');
+			if (browserType[0] == "Chrome") {
+				_videoHolder.imgChromeHelp.visible = true;
+			}
 		} 
 		
 		private function showCameraSettings():void {
