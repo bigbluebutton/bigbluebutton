@@ -64,22 +64,6 @@ Handlebars.registerHelper "grabChatTabs", ->
     setInSession 'chatTabs', initTabs
   getInSession('chatTabs')[0..3]
 
-@resizeWindows = ->
-  if window.matchMedia('(orientation: landscape)').matches
-      chat = $('#chat')
-      navbarHeight = $('#navbar').height()
-      footerHeight = $('#footer').height()
-      bodyHeight = $('body').height()
-      margins = parseInt(chat.css('margin-top'))*2 # *2 for top & bottom
-      paddingSpace = 10
-      windowHeight = ( bodyHeight - ( navbarHeight + footerHeight + margins + paddingSpace ) )
-
-      chat.height(windowHeight + 'px')
-      $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight())*2) + 'px')
-
-      $("#users").height((windowHeight-paddingSpace) + 'px')
-      $("#user-contents").height((windowHeight-$("#users").find('h3').outerHeight()) + 'px')
-
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
   unless (message?.length > 0 and (/\S/.test(message))) # check the message has content and it is not whitespace
