@@ -83,6 +83,10 @@ package org.bigbluebutton.core.model
 			a.url = config.skinning.@url;
 			return a
 		}
+		
+		public function get browserVersions():XML {
+			return new XML(config.browserVersions.toXMLString());
+		}
 
 		public function get branding():Object{
 			var a:Object = new Object();

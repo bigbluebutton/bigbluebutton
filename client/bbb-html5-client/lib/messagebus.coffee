@@ -1,8 +1,8 @@
-postal = require('postal')
 crypto = require 'crypto'
+postal = require 'postal'
 
 config = require '../config'
-log = require './bbblogger'
+log    = require './bbblogger'
 
 moduleDeps = ["RedisPubSub"]
 

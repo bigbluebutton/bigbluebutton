@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.*;
+import org.bigbluebutton.api.domain.Download;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
@@ -365,22 +366,44 @@ public class MeetingService implements MessageListener {
 
 				ArrayList<Playback> plays = new ArrayList<Playback>();
 				
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
-						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime()),
-						r.getPlaybackExtensions()));
+				if (!r.getPlaybackFormat().isEmpty()) {
+					plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+							getDurationRecording(r.getPlaybackDuration(),
+									r.getEndTime(), r.getStartTime()),
+							r.getPlaybackExtensions()));
+				}
 				r.setPlaybacks(plays);
+
+				ArrayList<Download> downloads = new ArrayList<Download>();
+				if (!r.getDownloadFormat().isEmpty()) {
+					downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
+							r.getDownloadMd5(), r.getDownloadKey(),
+							getDurationRecording(r.getEndTime(), r.getStartTime())));
+				}
+				r.setDownloads(downloads);
+
 				map.put(r.getId(), r);
 			} else {
 				Recording rec = map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
-						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime()),
-						r.getPlaybackExtensions()));
+				if (!r.getPlaybackFormat().isEmpty()) {
+					rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
+							getDurationRecording(r.getPlaybackDuration(), 
+									r.getEndTime(), r.getStartTime()),
+							r.getPlaybackExtensions()));
+				}
+				if (!r.getDownloadFormat().isEmpty()) {
+					rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
+							r.getDownloadMd5(), r.getDownloadKey(),
+							getDurationRecording(r.getEndTime(), r.getStartTime())));
+				}
 			}
 		}
 		
 		return map;
+	}
+	
+	private int getDurationRecording(String end, String start) {
+		return getDurationRecording("", end, start);
 	}
 	
 	private int getDurationRecording(String playbackDuration, String end, String start) {

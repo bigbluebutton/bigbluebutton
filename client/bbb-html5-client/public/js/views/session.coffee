@@ -8,10 +8,11 @@ define [
   'cs!views/session_navbar_hidden',
   'cs!views/session_chat',
   'cs!views/session_users',
+  'cs!views/SingleUserView',
   'cs!views/session_video'
   'cs!views/session_whiteboard'
 ], ($, _, Backbone, globals, sessionTemplate, SessionNavbarView, SessionNavbarHiddenView,
-    SessionChatView, SessionUsersView, SessionVideoView, SessionWhiteboardView) ->
+    SessionChatView, SessionUsersView, SingleUserView, SessionVideoView, SessionWhiteboardView) ->
 
   SessionView = Backbone.View.extend
     tagName: 'section'
@@ -23,6 +24,7 @@ define [
       @navbarHiddenView = new SessionNavbarHiddenView()
       @navbarHiddenView.$parentEl = @$el
       @chatView = new SessionChatView()
+      @singleUserView = new SingleUserView()
       @usersView = new SessionUsersView()
       @videoView = new SessionVideoView()
       @whiteboardView = new SessionWhiteboardView()

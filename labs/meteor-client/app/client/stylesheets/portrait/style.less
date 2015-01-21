@@ -1,0 +1,146 @@
+@import "../colors";
+
+@media all and (orientation: portrait) {
+  .radius(@size: 4px) {
+    -moz-border-radius: @size;
+    -webkit-border-radius: @size;
+    border-radius: @size;
+  }
+
+  .linear-gradient(@color1, @color2) {
+    background: -moz-linear-gradient(@color1, @color2); /* For Firefox 3.6 to 15 */
+    background: -o-linear-gradient(@color1, @color2); /* For Opera 11.1 to 12.0 */
+    background: -webkit-linear-gradient(@color1, @color2); /* For Safari 5.1 to 6.0 */
+    background: linear-gradient(@color1, @color2); /* Standard syntax (must be last) */
+  }
+
+  body {
+    position: relative;
+    top: 15px;
+  }
+
+  .navbarButton {
+    height: 100px;
+    width: 15%;
+    min-width: 60px;
+  }
+
+  .navbarTitle {
+    font-size: 30px;
+    padding-top: 30px;
+    padding-left: 5px;
+    overflow: hidden;
+    height: 72px;
+    width: 70%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  #main {
+    -webkit-flex-flow: column;
+    flex-flow: column;
+    flex-direction: column;
+    min-height: 125%;
+    max-height: 125%;
+  }
+
+  .glyphicon {
+    font-size: 35px;
+  }
+
+  .myNavbar {
+    min-width: 630px;
+  }
+
+  .collapseSection {
+    display: none;
+  }
+
+  .logout-dialog.ui-dialog {
+    .ui-widget-header {
+      font-size: 40px;
+    }
+  }
+
+  .logout-dialog.ui-widget-content {
+    font-size: 280%;
+  }
+
+  .ui-dialog-buttonset {
+    width: 100%;
+  }
+
+  .ui-dialog-buttonset button {
+    width: 40%;
+    margin-left: 5% !important;
+    margin-right: 5% !important;
+  }
+
+  /* Sliding menu */
+
+  .sliding-menu {
+    width: 15%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: -15%;
+    z-index: 1031;
+    &.sliding-menu-opened {
+      left: 0px;
+    }
+    a {
+      border-bottom: 1px solid #258ecd;
+      padding: 1em;
+    }
+  }
+
+  .slideSection {
+    float: left;
+    margin-top: 101px;
+    height: 100%;
+    width: 100%;
+  }
+
+  .slideButton {
+    display: block;
+    width: 100%;
+    height: calc(~'20% - 20px');
+  }
+
+  .slideSection {
+    margin-bottom: 0.5%;
+    &.gradientBar {
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    }
+    .btn {
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+      border-left: 1px solid extract(@darkGrey, 2);
+      border-right: 1px solid extract(@darkGrey, 4);
+      &.navbarIconToggleActive {
+        background: extract(@darkGrey, 3);
+        border-bottom: 4px solid extract(@azure, 1);
+      }
+      i {
+        color: extract(@white, 1);
+      }
+    }
+  }
+
+  #darkened-screen {
+    display: none;
+    background: black;
+    opacity: 0.7;
+    z-index: 1030;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

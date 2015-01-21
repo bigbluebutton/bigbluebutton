@@ -663,6 +663,11 @@ case class IsWhiteboardEnabledReply(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class GetAllMeetingsReply(
+    meetings: Array[MeetingInfo],
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
 case class GuestRequestedToEnter (
     meetingID: String,
     recorded: Boolean,

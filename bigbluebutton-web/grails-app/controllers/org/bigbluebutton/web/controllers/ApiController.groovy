@@ -309,6 +309,8 @@ class ApiController {
     boolean redirectImm = parseBoolean(params.redirectImmediately)
     
 	String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+
+	String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 	
     String externUserID = params.userID
     if (StringUtils.isEmpty(externUserID)) {
@@ -352,6 +354,7 @@ class ApiController {
 	}
 	
 	UserSession us = new UserSession();
+	us.authToken = authToken;
 	us.internalUserId = internalUserID
   us.conferencename = meeting.getName()
   us.meetingID = meeting.getInternalId()
@@ -389,7 +392,7 @@ class ApiController {
 	meetingService.addUserSession(session['user-token'], us);
 	
 	// Register user into the meeting.
-	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.internalUserId /* authToken for now */, us.guest)
+	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.guest)
 	
 	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -428,7 +431,7 @@ class ApiController {
 				message("You have joined successfully.")
 				meeting_id(us.meetingID)
 				user_id(us.internalUserId)
-				auth_token(us.internalUserId)
+				auth_token(us.authToken)
 			  }
 			}
 		  }
@@ -1360,6 +1363,7 @@ class ApiController {
               externMeetingID = us.externMeetingID
               externUserID = us.externUserID
               internalUserID = us.internalUserId
+              authToken = us.authToken
               role = us.role
               guest = us.guest
               conference = us.conference
@@ -1518,6 +1522,17 @@ class ApiController {
 							  url(item.getUrl())
 							  length(item.getLength())
 							  mkp.yield(item.getExtensions())
+						  }
+					  }
+                  }
+				  download() {
+					  r.getDownloads().each { item ->
+						  format{
+							  type(item.getFormat())
+							  url(item.getUrl())
+							  md5(item.getMd5())
+							  key(item.getKey())
+							  length(item.getLength())
 						  }
 					  }
                   }

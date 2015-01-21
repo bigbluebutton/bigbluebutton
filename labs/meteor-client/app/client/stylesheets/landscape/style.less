@@ -1,0 +1,81 @@
+@import "../colors";
+
+@media all and (orientation: landscape) {
+  .radius(@size: 4px) {
+    -moz-border-radius: @size;
+    -webkit-border-radius: @size;
+    border-radius: @size;
+  }
+
+  .linear-gradient(@color1, @color2) {
+    background: -moz-linear-gradient(@color1, @color2); /* For Firefox 3.6 to 15 */
+    background: -o-linear-gradient(@color1, @color2); /* For Opera 11.1 to 12.0 */
+    background: -webkit-linear-gradient(@color1, @color2); /* For Safari 5.1 to 6.0 */
+    background: linear-gradient(@color1, @color2); /* Standard syntax (must be last) */
+  }
+
+  body {
+    height: 100%;
+    min-width: 768px;
+    position: absolute;
+    top: 0;
+  }
+
+  .myNavbar {
+    min-width: 768px;
+  }
+
+  .navbarButton {
+    height: 50px;
+    width: 51.2px;
+  }
+
+  .navbarFiller {
+    height: 50px;
+  }
+
+  .navbarSection {
+    min-width: 256px;
+    width: 33%;
+  }
+
+  .navbarTitle {
+    font-size: 16px;
+    padding-top: 13px;
+    width: 30% !important;
+  }
+
+  .navbarUserButtons {
+    float: left;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  #main {
+    -webkit-flex-flow: row;
+    flex-flow: row;
+  }
+
+  #collapseButtonSection {
+    display: none;
+  }
+
+  .collapseSection {
+    display: block !important;
+  }
+
+  .logout-dialog.ui-dialog {
+    .ui-widget-header {
+      font-size: 12px;
+    }
+    .ui-dialog-content {
+      font-size: 11px;
+    }
+  }
+
+  .logout-dialog.ui-widget-content {
+    font-size: 10px;
+  }
+}

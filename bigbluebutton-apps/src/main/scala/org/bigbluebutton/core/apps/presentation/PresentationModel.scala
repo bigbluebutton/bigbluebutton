@@ -91,11 +91,11 @@ class PresentationModel {
         val nPages = pres.pages + (page.id -> page)
         val newPres = pres.copy(pages= nPages)
         savePresentation(newPres)
-        println("Making page[" + page.id + "] not current[" + page.current + "]")  
-        println("After deact page. presentation id=[" + newPres.id + "] current=[" + newPres.current + "]")
-        newPres.pages.values foreach {page =>
-          println("page id=[" + page.id + "] current=[" + page.current + "]")
-        }   
+//        println("Making page[" + page.id + "] not current[" + page.current + "]")  
+//        println("After deact page. presentation id=[" + newPres.id + "] current=[" + newPres.current + "]")
+//        newPres.pages.values foreach {page =>
+//          println("page id=[" + page.id + "] current=[" + page.current + "]")
+//        }   
     }
   }
   
@@ -107,11 +107,11 @@ class PresentationModel {
         val newPages = pres.pages + (page.id -> page)
         val newPres = pres.copy(pages= newPages)
         savePresentation(newPres)
-        println("Making page[" + page.id + "] current[" + page.current + "]")
+//        println("Making page[" + page.id + "] current[" + page.current + "]")
         Some(page)
       }
       case None => {
-        println("Could not find page[" + page + "] in presentation [" + pres.id + "]")
+//        println("Could not find page[" + page + "] in presentation [" + pres.id + "]")
         None
       }
     }

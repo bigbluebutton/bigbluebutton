@@ -79,6 +79,7 @@ object MessageNames {
   val UNDO_WHITEBOARD                      = "undo_whiteboard_request"
   val ENABLE_WHITEBOARD                    = "enable_whiteboard_request"
   val IS_WHITEBOARD_ENABLED                = "is_whiteboard_enabled_request"
+  val GET_ALL_MEETINGS_REQUEST             = "get_all_meetings_request"
   val GET_STREAM_PATH                      = "get_stream_path_request"
   val USER_REQUEST_TO_ENTER                = "user_request_to_enter"
   var GET_GUEST_POLICY                     = "get_guest_policy"
@@ -168,6 +169,7 @@ object MessageNames {
   val MEETING_DESTROYED_EVENT              = "meeting_destroyed_event"
   val KEEP_ALIVE_REPLY                     = "keep_alive_reply"
   val USER_LISTEN_ONLY                     = "user_listening_only"
+  val GET_ALL_MEETINGS_REPLY               = "get_all_meetings_reply"
   val GET_STREAM_PATH_REPLY                = "get_stream_path_reply"
   val GUEST_REQUESTED_TO_ENTER             = "guest_requested_to_enter"
   var GET_GUEST_POLICY_REPLY               = "get_guest_policy_reply"
@@ -175,5 +177,4 @@ object MessageNames {
   val GET_GUESTS_WAITING_REPLY             = "get_guests_waiting_reply"
   val RESPONSE_TO_GUEST                    = "response_to_guest"
   val GUEST_KICKED                         = "guest_kicked"
-
 }

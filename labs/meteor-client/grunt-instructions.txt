@@ -1,0 +1,10 @@
+GRUNT
+
+Install all the dependencies (including grunt):
+$ npm install
+
+Running Grunt:
+-for the default:
+$ grunt
+
+

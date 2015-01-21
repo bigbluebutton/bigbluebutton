@@ -1,0 +1,241 @@
+@import "../colors";
+
+.radius(@size: 4px) {
+  -moz-border-radius: @size;
+  -webkit-border-radius: @size;
+  border-radius: @size;
+}
+
+.linear-gradient(@color1, @color2) {
+  background: -moz-linear-gradient(@color1, @color2); /* For Firefox 3.6 to 15 */
+  background: -o-linear-gradient(@color1, @color2); /* For Opera 11.1 to 12.0 */
+  background: -webkit-linear-gradient(@color1, @color2); /* For Safari 5.1 to 6.0 */
+  background: linear-gradient(@color1, @color2); /* Standard syntax (must be last) */
+}
+
+body {
+  background: extract(@white, 3);
+  bottom: 0;
+  color: extract(@darkGrey, 1);
+  left: 0;
+  right: 0;
+}
+
+.btn {
+  background-color: extract(@white, 2);
+}
+
+.component {
+  .radius;
+  background: extract(@white, 1);
+  border: 1px solid extract(@lightGrey, 3);
+  float: left;
+  height: 100%;
+  margin-top: 10px;
+}
+
+.extraConversationScrollableMenu {
+  height: auto;
+  max-height: 200px;
+  overflow-x: hidden;
+}
+
+.mainContainer {
+  height: 100%;
+}
+
+.myFooter {
+  color: black;
+  font-size: 10px;
+  max-height: 20px;
+  padding-top: 13px;
+  text-align: center;
+}
+
+.myNavbar {
+  margin-bottom: 0.5%;
+  &.gradientBar {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
+  .btn {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    border-left: 1px solid extract(@darkGrey, 2);
+    border-right: 1px solid extract(@darkGrey, 4);
+    &.navbarIconToggleActive {
+      background: extract(@darkGrey, 3);
+      border-bottom: 4px solid extract(@azure, 1);
+    }
+    i {
+      color: extract(@white, 1);
+    }
+  }
+}
+
+.myNavbarMinimized {
+  background: extract(@white, 3);
+  height: 20px;
+  margin-bottom: 0.2%;
+  margin-top: 0px;
+  min-width: 900px;
+  padding-top: 0px;
+  text-align: right;
+}
+
+.navbar {
+  min-height: 40px !important;
+}
+
+.navbarFiller {
+  width: 100%;
+}
+
+.navbarIconToggleActive i {
+  color: extract(@lightGrey, 2);
+}
+
+#navbarMinimizedButton {
+  margin-bottom: 0px;
+  margin-left: 2px;
+  margin-right: 20px;
+  margin-top: 0px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.navbarMinimizedButtonSmall {
+  height: 10px;
+  width: 40px;
+}
+
+.navbarMinimizedButtonLarge {
+  height: 50px;
+  width: 40px;
+}
+
+.navbarSettingsButtons {
+  float: right;
+  .btn {
+    display: block;
+    float: right;
+  }
+}
+
+.navbarTitle {
+  color: extract(@white, 1);
+  display: block;
+  float: left;
+  font-weight: bold;
+  text-align: center;
+}
+
+.navbarUserButtons .btn {
+  border-radius: 0;
+  display: block;
+  float: left;
+  &:hover {
+    background: extract(@darkGrey, 3);
+  }
+}
+
+.navbarSettingsButtons .btn:hover { 
+  background: extract(@darkGrey, 3);
+}
+
+.panel-footer {
+  padding: 0;
+}
+
+.recordingStatus {
+  background: none!important;
+  border: none;
+  margin-left: 10px;
+  padding: 0!important;
+}
+
+.recordingStatusFalse {
+  color: maroon;
+}
+
+.recordingStatusTrue {
+  color: green;
+}
+
+.ScrollableWindow {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.tab {
+  height: 40px;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  border-top: 0px;
+}
+
+.title {
+  border-bottom: 1px solid extract(@lightGrey, 1);
+  color: extract(@darkGrey, 1);
+  font-weight: bold;
+  line-height: 2em;
+  margin: 0;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-top: 5px;
+}
+
+#main {
+  padding-top: 50px;
+  padding-left: 0.25%;
+  padding-right: 0.25%;
+  display: -webkit-flex;
+  display: flex;
+}
+
+/* Custom alert box */
+
+.no-close .ui-dialog-titlebar-close {
+  display: none; /* no close button */
+}
+
+.logout-dialog.ui-dialog {
+  .ui-widget-header {
+    color: extract(@white, 1);
+    font-weight: bold;
+    background: extract(@darkGrey, 3);
+  }
+  .ui-dialog-content {
+    font-weight: bold;
+    text-align: center;
+  }
+}
+
+.logout-dialog.ui-widget-content {
+  background: extract(@white, 3);
+  border: 5px solid extract(@darkGrey, 3);
+}
+
+.custom-button {
+  background-color: extract(@yellow, 1);
+}
+
+.fullScreenPresentation {
+  width: 90% !important;
+  height: 90% !important;
+}
+
+.halfScreen {
+  width: 44% !important;
+  height: 80% !important;
+}
+
+.quarterScreen {
+  width: 22% !important;
+  height: 80% !important;
+}

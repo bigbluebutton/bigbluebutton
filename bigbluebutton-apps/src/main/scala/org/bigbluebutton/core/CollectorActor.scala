@@ -97,6 +97,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UndoWhiteboardRequest         => handleUndoWhiteboardRequest(msg)
         case msg: EnableWhiteboardRequest       => handleEnableWhiteboardRequest(msg)
         case msg: IsWhiteboardEnabledRequest    => handleIsWhiteboardEnabledRequest(msg)
+        case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
         case msg: GetStreamPath                 => handleGetStreamPath(msg)
         case msg: UserRequestToEnter            => handleUserRequestToEnter(msg)
         case msg: GetGuestPolicy                => handleGetGuestPolicy(msg)
@@ -182,6 +183,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UndoWhiteboardEvent           => handleUndoWhiteboardEvent(msg)
         case msg: WhiteboardEnabledEvent        => handleWhiteboardEnabledEvent(msg)
         case msg: IsWhiteboardEnabledReply      => handleIsWhiteboardEnabledReply(msg)
+        case msg: GetAllMeetingsReply           => handleGetAllMeetingsReply(msg)
         case msg: GuestRequestedToEnter         => handleGuestRequestedToEnter(msg)
         case msg: GetGuestPolicyReply           => handleGetGuestPolicyReply(msg)
         case msg: GuestPolicyChanged            => handleGuestPolicyChanged(msg)
@@ -215,7 +217,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 	wuser.put(Constants.PRESENTER, user.presenter:java.lang.Boolean)
 	wuser.put(Constants.HAS_STREAM, user.hasStream:java.lang.Boolean)
 	wuser.put(Constants.LOCKED, user.locked:java.lang.Boolean)
-	wuser.put("webcamStream", user.webcamStreams mkString("|"))
+	wuser.put(Constants.WEBCAM_STREAM, user.webcamStreams)
 	wuser.put(Constants.PHONE_USER, user.phoneUser:java.lang.Boolean)
 	wuser.put(Constants.VOICE_USER, vuser)	  
 	  
@@ -1250,7 +1252,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
-    println("***** DISPATCHING VOICE USER MUTED *****************")
+//    println("***** DISPATCHING VOICE USER MUTED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1373,6 +1375,12 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 //    println("***** DISPATCHING IS WHITEBOARD ENABLED REQUEST *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
+
+  private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
+    println("***** DISPATCHING GET ALL MEETINGS REQUEST *****************")
+  }
+
+
 
   // OUT MESSAGES
   private def handleMeetingCreated(msg: MeetingCreated) {
@@ -2177,6 +2185,11 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
   private def handleIsWhiteboardEnabledReply(msg: IsWhiteboardEnabledReply) {
     val json = WhiteboardMessageToJsonConverter.isWhiteboardEnabledReplyToJson(msg)
+    dispatcher.dispatch(json)
+  }
+  private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {
+    val json = MeetingMessageToJsonConverter.getAllMeetingsReplyToJson(msg)
+    println("*****  DISPATCHING GET ALL MEETINGS REPLY OUTMSG *****************")
     dispatcher.dispatch(json)
   }
 

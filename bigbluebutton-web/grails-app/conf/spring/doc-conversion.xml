@@ -96,6 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="maxSwfFileSize" value="${MAX_SWF_FILE_SIZE}"/>
 		<property name="maxConversionTime" value="${maxConversionTime}"/>
 		<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+		<property name="pngImagesRequired" value="${pngImagesRequired}"/>
 	</bean>	
 	
 	<bean id="imageToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService">

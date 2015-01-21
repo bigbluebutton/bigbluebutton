@@ -17,7 +17,11 @@
 *
 */
 package org.bigbluebutton.conference.service.voice;
-import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.slf4j.Logger;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.List;
 import java.util.Map;
@@ -70,16 +74,17 @@ public class VoiceService {
 		String requesterID = getBbbSession().getInternalUserID();		
 		bbbInGW.isMeetingMuted(meetingID, requesterID); 	
 	}
-	
+
+	// not sure if this is used
 	public void muteUnmuteUser(Map<String, Object> msg) {
-		Boolean mute = (Boolean) msg.get("mute");
-		String userid = (String) msg.get("userId");
+		Boolean mute = (Boolean) msg.get(VoiceKeyUtil.MUTE);
+		String userid = (String) msg.get(VoiceKeyUtil.USERID);
 
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		String requesterID = getBbbSession().getInternalUserID();		
+		String requesterID = getBbbSession().getInternalUserID();
 		bbbInGW.muteUser(meetingID, requesterID, userid, mute); 
 	}
-	
+
 	public void lockMuteUser(Map<String, Object> msg) { 			
 		Boolean lock = (Boolean) msg.get("lock");
 		String userid = (String) msg.get("userId");

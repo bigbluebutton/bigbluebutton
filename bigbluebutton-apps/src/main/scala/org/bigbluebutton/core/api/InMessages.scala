@@ -550,6 +550,10 @@ case class IsWhiteboardEnabledRequest(
     replyTo: String
 ) extends InMessage
 
+case class GetAllMeetingsRequest(
+    meetingID: String /** Not used. Just to satisfy trait **/
+    ) extends InMessage
+
 // Shared notes
 case class PatchDocumentRequest(
     meetingID: String, 
