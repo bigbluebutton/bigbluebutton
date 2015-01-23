@@ -26,6 +26,14 @@
       authToken = getInSession 'authToken'
       meetingId = getInSession 'meetingId'
       userId = getInSession 'userId'
+
+      # catch if any of the user's meeting data is invalid
+      if not authToken? or not meetingId? or not userId?
+        # if their data is invalid, redirect the user to the logout url
+        # logout url is the server ip address at port 4000, bringing the user back
+        # to the login page
+        document.location = Meteor.config.app.logOutUrl
+
       console.log "currently #{authToken} #{meetingId} #{userId}"
       Meteor.subscribe 'chat', meetingId, userId, authToken, ->
         Meteor.subscribe 'shapes', meetingId, ->
