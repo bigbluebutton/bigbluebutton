@@ -141,6 +141,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
+
+			[Bindable] private var copyrightText:String;
 			
 			public function get mode():String {
 				return _mode;
@@ -149,11 +151,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var layoutOptions:LayoutOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
-			[Bindable] private var toolbarHeight:Number = 32;
-			[Bindable] private var toolbarPaddingTop:Number = 4;
+			private const DEFAULT_TOOLBAR_HEIGHT:Number = 32;
+			[Bindable] private var toolbarHeight:Number = DEFAULT_TOOLBAR_HEIGHT;
+			[Bindable] private var toolbarPaddingTop:Number = 2;
 			[Bindable] private var showFooterOpt:Boolean = true;
-			[Bindable] private var footerHeight:Number = 24;
-			[Bindable] private var globalHeight:Number = 0;
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
@@ -161,6 +162,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var chromeBrowser:ChromeWebcamPermissionImage = null;
       
 			public function initOptions(e:Event):void {
+				updateCopyrightText();
+				loadBackground();
+
 				UserManager.getInstance().getConference().configLockSettings();
 				layoutOptions = new LayoutOptions();
 				layoutOptions.parseOptions();
@@ -177,11 +181,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         langSelector.visible = locale.userSelectionEnabled
  
         if (!showFooterOpt) {
-          footerHeight = 0;
+          controlBar.visible = controlBar.includeInLayout = false;
         }        
       }
+			
+			private function updateCopyrightText():void {
+				if (BBB.initConfigManager().config.branding.copyright == undefined) {
+					copyrightText = ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]);
+				} else {
+					copyrightText = String(BBB.initConfigManager().config.branding.copyright).replace("{0}", appVersion);
+				}
+			}
 		
 			protected function initializeShell():void {	
+				this.setStyle("verticalGap", 0);
+
 				globalDispatcher = new Dispatcher();
 
 				systemManager.addEventListener(Event.RESIZE, updateCopyrightLabelDimensions);
@@ -197,8 +211,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
 				}
-				
-				globalHeight = screenRect.height;
 			}
 		
 			protected function initFullScreen():void {				
@@ -217,7 +229,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					trace("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					trace("Received locale version fron locale file.");
+					trace("Received locale version from locale file.");
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
@@ -618,6 +630,56 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function closeNetworkStatsWindow(e:Event = null):void {
 				networkStatsWindow.disappear();
 			}
+
+			private function updateToolbarHeight():void {
+				if (toolbarHeight != 0) {
+					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + 10);
+				}
+			}
+
+			private function onCanvasResize():void {
+				var canvasAspectRatio:Number = mdiCanvas.width / mdiCanvas.height;
+
+				if (canvasAspectRatio >= canvasBackgroundAspectRatio) {
+					canvasBackground.width = Math.max(mdiCanvas.width, canvasBackgroundOriginalWidth);
+					canvasBackground.height = Math.ceil(canvasBackground.width / canvasBackgroundAspectRatio);
+				} else {
+					canvasBackground.height = Math.max(mdiCanvas.height, canvasBackgroundOriginalHeight);
+					canvasBackground.width = Math.ceil(canvasBackground.height * canvasBackgroundAspectRatio);
+				}
+			}
+
+			private var canvasBackgroundAspectRatio:Number = NaN;
+			private var canvasBackgroundOriginalWidth:Number;
+			private var canvasBackgroundOriginalHeight:Number;
+
+			private function onCanvasBackgroundLoaded():void {
+				if (isNaN(canvasBackgroundAspectRatio)) {
+					var candidate:Number = canvasBackground.width / canvasBackground.height;
+
+					if (isNaN(candidate))
+						return;
+
+					canvasBackgroundAspectRatio = candidate;
+					canvasBackgroundOriginalWidth = canvasBackground.width;
+					canvasBackgroundOriginalHeight = canvasBackground.height;
+
+					onCanvasResize();
+				}
+			}
+
+			private function loadBackground():void {
+				var backgroundCandidate:String = BBB.initConfigManager().config.branding.background;
+				if (backgroundCandidate == "") {
+					hideBackground();
+				} else {
+					canvasBackground.source = backgroundCandidate;
+				}
+			}
+
+			private function hideBackground():void {
+				canvasBackground.visible = canvasBackground.includeInLayout = false;
+			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
         var conference:Conference = UserManager.getInstance().getConference();
@@ -649,21 +711,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   visible="{showToolbarOpt}" 
 					   verticalAlign="middle" 
 					   toolbarOptions="{layoutOptions}" 
-					   paddingTop="{toolbarPaddingTop}"/>
+					   paddingTop="{toolbarPaddingTop}" 
+					   updateComplete="updateToolbarHeight()"
+					   paddingBottom="0" />
 					   
 	<views:MainCanvas id="mdiCanvas" 
 					  horizontalScrollPolicy="off" 
 					  verticalScrollPolicy="off" 
 					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
 					  width="100%" 
-					  height="{globalHeight - footerHeight - toolbarHeight - 12}">
+					  height="100%"
+					  resize="onCanvasResize()">
+		<mx:Image id="canvasBackground" updateComplete="onCanvasBackgroundLoaded()" ioError="hideBackground()" />
 		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
+	<mx:ControlBar width="100%" id="controlBar" paddingTop="2" paddingBottom="2" verticalAlign="middle">
 		<mx:Label
-				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
+				htmlText="{copyrightText}"
 				id="copyrightLabel2"
 				selectable="false" paddingRight="20"/>
 		<mx:Spacer width="100%" id="spacer" />

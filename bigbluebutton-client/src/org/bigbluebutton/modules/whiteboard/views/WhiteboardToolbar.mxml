@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xmlns:mate="http://mate.asfusion.com/" 
     creationComplete="onCreationComplete()"
     visible="{showWhiteboardToolbar}" 
+    includeInLayout="{showWhiteboardToolbar}"
     styleName="whiteboardToolbarStyle">
 
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
@@ -260,7 +261,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver)) {
+                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver) && !presentationWindow.minimized) {
                     setPositionAndDepth();
                     showWhiteboardToolbar = true;
                 } else {
