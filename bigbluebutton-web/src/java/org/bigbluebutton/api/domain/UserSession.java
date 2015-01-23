@@ -21,8 +21,8 @@ package org.bigbluebutton.api.domain;
 
 public class UserSession {
   public String authToken = null;
-	public String internalUserId = null;
-	public String conferencename = null;
+  public String internalUserId = null;
+  public String conferencename = null;
   public String meetingID = null;
   public String externMeetingID = null;
   public String externUserID = null;
@@ -39,4 +39,17 @@ public class UserSession {
   public String defaultLayout = "NOLAYOUT";
   public String avatarURL;
   public String configXML;
+  
+  private int connections = 0;
+  
+  public int getConnectionNum() {
+    return connections;
+  }
+  
+  public int incConnectionNum() {
+    connections += 1;
+    return connections;
+  }
+  
+  
 }
