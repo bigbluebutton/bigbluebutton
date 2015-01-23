@@ -130,6 +130,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: GetUsersReply                 => handleGetUsersReply(msg)
         case msg: ValidateAuthTokenReply        => handleValidateAuthTokenReply(msg)
         case msg: UserJoined                    => handleUserJoined(msg)
+        case msg: UserListeningOnly             => handleUserListeningOnly(msg)
         case msg: UserSharedWebcam              => handleUserSharedWebcam(msg)
         case msg: UserUnsharedWebcam            => handleUserUnsharedWebcam(msg)
         case msg: UserStatusChange              => handleUserStatusChange(msg)
@@ -1627,6 +1628,21 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleUserJoined(msg: UserJoined) {
     val json = UsersMessageToJsonConverter.userJoinedToJson(msg)
     dispatcher.dispatch(json)
+  }
+
+  private def handleUserListeningOnly(msg: UserListeningOnly) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.LISTEN_ONLY, msg.listenOnly)
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.USER_LISTEN_ONLY)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
+//    println("***** DISPATCHING USER LISTENING ONLY *****************")
+    dispatcher.dispatch(buildJson(header, payload))
   }
   
   private def handleUserSharedWebcam(msg: UserSharedWebcam) {

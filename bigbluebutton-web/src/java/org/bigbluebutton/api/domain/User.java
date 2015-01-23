@@ -19,6 +19,9 @@
 
 package org.bigbluebutton.api.domain;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,6 +32,9 @@ public class User {
 	private String role;
 	private Map<String,String> status;
 	private Boolean guest;
+	private Boolean listeningOnly = false;
+	private Boolean voiceJoined = false;
+	private List<String> streams;
 	
 	public User(String internalUserId, String externalUserId, String fullname, String role, Boolean guest) {
 		this.internalUserId = internalUserId;
@@ -37,6 +43,7 @@ public class User {
 		this.role = role;
 		this.guest = guest;
 		this.status = new ConcurrentHashMap<String, String>();
+		this.streams = Collections.synchronizedList(new ArrayList<String>());
 	}
 	
 	public String getInternalUserId() {
@@ -87,5 +94,41 @@ public class User {
 	}
 	public Map<String,String> getStatus(){
 		return this.status;
+	}
+
+	public boolean isPresenter() {
+		String isPresenter = this.status.get("presenter");
+		if (isPresenter != null) {
+			return isPresenter.equalsIgnoreCase("true");
+		}
+		return false;
+	}
+	
+	public void addStream(String stream) {
+		streams.add(stream);
+	}
+	
+	public void removeStream(String stream) {
+		streams.remove(stream);
+	}
+	
+	public List<String> getStreams() {
+		return streams;
+	}
+
+	public Boolean isListeningOnly() {
+		return listeningOnly;
+	}
+
+	public void setListeningOnly(Boolean listeningOnly) {
+		this.listeningOnly = listeningOnly;
+	}
+
+	public Boolean isVoiceJoined() {
+		return voiceJoined;
+	}
+
+	public void setVoiceJoined(Boolean voiceJoined) {
+		this.voiceJoined = voiceJoined;
 	}
 }
