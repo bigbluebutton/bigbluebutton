@@ -161,6 +161,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
   }
 
+  def setUserRole(meetingID: String, userID: String, role: String) {
+    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
+    bbbGW.accept(new ChangeUserRole(meetingID, userID, userRole));
+  }
+
   def getUsers(meetingID: String, requesterID: String):Unit = {
     bbbGW.accept(new GetUsers(meetingID, requesterID))
   }

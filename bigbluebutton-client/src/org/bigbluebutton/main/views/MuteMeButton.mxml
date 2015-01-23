@@ -38,6 +38,7 @@ $Id: $
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
   <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleJoinedVoiceConferenceEvent" />
   <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleLeftVoiceConferenceEvent" />
   <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleVoiceMutedEvent" />
@@ -59,6 +60,7 @@ $Id: $
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
       private static const LOG:String = "Main::View::MuteMeButton - ";
@@ -83,6 +85,10 @@ $Id: $
 			}
 			
 			private function localeChanged(e:Event):void {
+				updateMuteMeBtn();
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
 				updateMuteMeBtn();
 			}
 			
@@ -114,7 +120,7 @@ $Id: $
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
 //        trace(LOG + "allowMuteUnmute [ voiceJoined=[" + conference.voiceJoined + "], disableMic=[" + me.disableMyMic + "]");
-				return (conference.voiceJoined && !me.disableMyMic);
+				return (conference.voiceJoined && (!me.disableMyMic || me.moderator));
 			}
 			
 			private function updateMuteMeBtn(placeholder:Boolean = false):void {

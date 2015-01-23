@@ -255,6 +255,14 @@ case class UserStatusChange(
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
                       
+case class UserRoleChange(
+    meetingID: String,
+    recorded: Boolean,
+    userID: String,
+    role: String,
+  version:String = Versions.V_0_0_1
+) extends IOutMessage
+
 case class MuteVoiceUser(
     meetingID: String, 
     recorded: Boolean, 

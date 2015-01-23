@@ -48,6 +48,7 @@ import org.bigbluebutton.api.messaging.messages.RegisterUser;
 import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
+import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.bigbluebutton.web.services.KeepAliveService;
@@ -615,6 +616,21 @@ public class MeetingService implements MessageListener {
 		log.warn("The meeting " + message.meetingId + " doesn't exist");
 	}
 
+	private void userRoleChanged(UserRoleChanged message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setRole(message.role);
+				log.debug("Setting new role in meeting " + message.meetingId + " for participant:" + user.getFullname());
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
 	private void processMessage(final IMessage message) {
 		Runnable task = new Runnable() {
 	    public void run() {
@@ -633,6 +649,8 @@ public class MeetingService implements MessageListener {
 	  			userLeft((UserLeft)message);
 	  		} else if (message instanceof UserStatusChanged) {
 	  			updatedStatus((UserStatusChanged)message);
+	  		} else if (message instanceof UserRoleChanged) {
+	  			userRoleChanged((UserRoleChanged)message);
 	  		} else if (message instanceof RemoveExpiredMeetings) {
 	  			checkAndRemoveExpiredMeetings();
 	  		} else if (message instanceof CreateMeeting) {

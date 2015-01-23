@@ -28,6 +28,7 @@
 	
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -35,8 +36,10 @@
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
+			import mx.controls.Menu;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
+			import mx.events.MenuEvent;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -44,10 +47,11 @@
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
@@ -70,8 +74,10 @@
 			
 			private var options:UsersOptions;
 			
+			private var myMenu:Menu = null;
+
 			private function onCreationComplete():void{
-				lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
+				refreshRole(UserManager.getInstance().getConference().amIModerator());
 				
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
 				
@@ -105,7 +111,20 @@
 					updateButtons();
 				}
 			}
-			
+
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				rolledOver = false;
+				updateButtons();
+				// close the menu if it was opened
+				if (myMenu) myMenu.hide();
+
+				refreshRole(e.role == Role.MODERATOR);
+			}
+
+			private function refreshRole(amIModerator:Boolean):void {
+				lockBtn.enabled = muteBtn.enabled = settingsBtn.enabled = moderator = amIModerator;
+			}
+
 			private function muteMouseOverHandler():void {
 				rolledOverMute = true;
 				updateButtons();
@@ -159,8 +178,7 @@
 				muteImg.filters = null;
 				
 				if (data != null) {
-					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser;
-					
+					settingsBtn.visible = rolledOver && !data.me;
 					
 					if (!data.voiceJoined) {
 						if (data.listenOnly) {
@@ -258,10 +276,73 @@
 					}
 				}
 			}
-			
+
+			private function promoteUser():void {
+				changeUserRole(Role.MODERATOR);
+			}
+
+			private function demoteUser():void {
+				changeUserRole(Role.VIEWER);
+			}
+
+			private function changeUserRole(role:String):void {
+				var changeRoleEvent:ChangeRoleEvent = new ChangeRoleEvent(data.userID, role);
+				dispatchEvent(changeRoleEvent);
+			}
+
+			private function openSettings():void {
+				if (data != null) {
+					var myMenuData:Array = [];
+
+					if (data.role == Role.MODERATOR) {
+						myMenuData.push({
+							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.demoteUser',[data.name]),
+							icon: images.user_delete,
+							callback: demoteUser
+						});
+					} else {
+						myMenuData.push({
+							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.promoteUser',[data.name]),
+							icon: images.user_add,
+							callback: promoteUser
+						});
+					}
+
+					if (options.allowKickUser) {
+						myMenuData.push({
+							label: ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name]),
+							icon: images.eject_user_new,
+							callback: kickUser
+						});
+					}
+
+					// make sure the previous menu is closed before opening a new one
+					// This could be improved to include a flag that tells if the menu is open,
+					// but it would require an extra listener for the MenuCloseEvent.
+					if (myMenu) myMenu.hide();
+					
+					myMenu = Menu.createMenu(null, myMenuData, true);
+					myMenu.variableRowHeight = true;
+
+					var settingsBtnPos:Point = settingsBtn.localToGlobal(new Point(0,0));
+
+					var myMenuPos:Point = new Point();
+					myMenuPos.x = settingsBtnPos.x + settingsBtn.width;
+					myMenuPos.y = settingsBtnPos.y;
+
+					myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+					myMenu.show(myMenuPos.x, myMenuPos.y);
+					myMenu.setFocus();
+				}
+			}
+
+			private function menuClickHandler(e:MenuEvent):void {
+				e.item.callback();
+			}
+
 		]]>
 	</mx:Script>
-	
+
 	<!--mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" /-->
 	<mx:Image id="webcamImg" visible="false" source="{images.webcam_new_20}"
@@ -270,22 +351,22 @@
     <mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{images.webcam_new_20}"
               width="20" height="20" enabled="true" click="viewCamera()"
               toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcamBtn')}" />
-	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="20" height="20" />
+	<mx:Image id="muteImg" visible="false" width="20" height="20" />
 	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
 				width="20" height="20" click="toggleMuteState()"
 				mouseOver="muteMouseOverHandler()"
 				mouseOut="muteMouseOutHandler()"
 				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute',[data.name])}" />
-	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
-				width="20" height="20" visible="false"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser',[data.name])}"
-				click="kickUser()"/>
-	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="20" height="20" />
+	<mx:Image id="lockImg" visible="false" width="20" height="20" />
 	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
 				width="20" height="20" click="toggleLockState()"
 				mouseOver="lockMouseOverHandler()"
 				mouseOut="lockMouseOutHandler()"
 				toolTip="{data.userLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock',[data.name]) : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock',[data.name])}" />		
+	<mx:Button id="settingsBtn" visible="false"
+				width="20" height="20" click="openSettings()"
+				icon="{images.users_settings}" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" />
 	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />

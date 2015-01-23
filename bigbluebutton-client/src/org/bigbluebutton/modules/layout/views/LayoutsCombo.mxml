@@ -85,6 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace(LOG + "initing");
         dataProvider = layoutNames;
         populateComboBox();
+        refreshRole(UsersUtil.amIModerator());
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
@@ -149,7 +150,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onSelectedItemChanged(e:Event):void {
 				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.localeKey));
 			}
-					
+
+			public function refreshRole(amIModerator:Boolean):void {
+				var layoutLocked:Boolean = UserManager.getInstance().getConference().getLockSettings().getLockedLayout();
+				this.enabled = amIModerator || !layoutLocked;
+			}
 		]]>
 	</mx:Script>
 </mx:ComboBox>

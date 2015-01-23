@@ -95,9 +95,15 @@ package org.bigbluebutton.main.model.users
 		}
 		public function set role(r:String):void {
 			_role = r;
+			moderator = _role == MODERATOR;
 			verifyUserStatus();
+			if (me) {
+				applyLockSettings();
+			}
 		}
-		
+
+		[Bindable] public var moderator:Boolean = false;
+
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
@@ -284,7 +290,7 @@ package org.bigbluebutton.main.model.users
 			n.streamName = user.streamName;
 			n.presenter = user.presenter;
 			n.raiseHand = user.raiseHand;
-			n.role = user.role;	
+			n._role = user._role;
 			n.room = user.room;
 			n.customdata = user.customdata;
 			n.media = user.media;

@@ -25,6 +25,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: UserJoined                             => handleUserJoined(msg)
 	    case msg: UserLeft                               => handleUserLeft(msg)
 	    case msg: UserStatusChange                       => handleUserStatusChange(msg)
+	    case msg: UserRoleChange                         => handleUserRoleChange(msg)
 	    case msg: UserRaisedHand                         => handleUserRaisedHand(msg)
 	    case msg: UserLoweredHand                        => handleUserLoweredHand(msg)
 	    case msg: UserSharedWebcam                       => handleUserSharedWebcam(msg)
@@ -447,7 +448,22 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
 		service.sendMessage(m);
 	}
-	
+
+	private def handleUserRoleChange(msg: UserRoleChange) {
+	  var args = new HashMap[String, Object]();
+		args.put("userID", msg.userID);
+		args.put("role", msg.role);
+
+		val message = new java.util.HashMap[String, Object]()
+		val gson = new Gson();
+		message.put("msg", gson.toJson(args))
+
+//		println("UsersClientMessageSender - handleUserRoleChange \n" + message.get("msg") + "\n")
+
+		var m = new BroadcastClientMessage(msg.meetingID, "participantRoleChange", message);
+		service.sendMessage(m);
+	}
+
 	private def handleUserListeningOnly(msg: UserListeningOnly) {
 	  var args = new HashMap[String, Object]();	
 	  args.put("userId", msg.userID);

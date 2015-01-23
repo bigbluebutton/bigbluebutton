@@ -86,4 +86,8 @@ public class ParticipantsApplication {
 	public void getRecordingStatus(String meetingId, String userId) {
 		bbbInGW.getRecordingStatus(meetingId, userId);
 	}
+
+	public void setParticipantRole(String meetingId, String userId, String role) {
+		bbbInGW.setUserRole(meetingId, userId, role);
+	}
 }

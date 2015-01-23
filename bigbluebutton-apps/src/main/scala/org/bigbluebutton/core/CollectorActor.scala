@@ -45,6 +45,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UserShareWebcam               => handleUserShareWebcam(msg)
         case msg: UserUnshareWebcam             => handleUserUnshareWebcam(msg)
         case msg: ChangeUserStatus              => handleChangeUserStatus(msg)
+        case msg: ChangeUserRole                => handleChangeUserRole(msg)
         case msg: AssignPresenter               => handleAssignPresenter(msg)
         case msg: SetRecordingStatus            => handleSetRecordingStatus(msg)
         case msg: GetChatHistoryRequest         => handleGetChatHistoryRequest(msg)
@@ -129,6 +130,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: UserSharedWebcam              => handleUserSharedWebcam(msg)
         case msg: UserUnsharedWebcam            => handleUserUnsharedWebcam(msg)
         case msg: UserStatusChange              => handleUserStatusChange(msg)
+        case msg: UserRoleChange                => handleUserRoleChange(msg)
         case msg: MuteVoiceUser                 => handleMuteVoiceUser(msg)
         case msg: UserVoiceMuted                => handleUserVoiceMuted(msg)
         case msg: UserVoiceTalking              => handleUserVoiceTalking(msg)
@@ -559,6 +561,21 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
+  private def handleChangeUserRole(msg: ChangeUserRole) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.ROLE, msg.role)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.CHANGE_USER_ROLE)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING CHANGE USER ROLE *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
   private def handleAssignPresenter(msg: AssignPresenter) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -1711,6 +1728,22 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
+  private def handleUserRoleChange(msg: UserRoleChange) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.RECORDED, msg.recorded)
+    payload.put(Constants.USER_ID, msg.userID)
+    payload.put(Constants.ROLE, msg.role)
+
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.USER_ROLE_CHANGED)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+
+//    println("***** DISPATCHING USER ROLE CHANGE *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+
   private def handleMuteVoiceUser(msg: MuteVoiceUser) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
