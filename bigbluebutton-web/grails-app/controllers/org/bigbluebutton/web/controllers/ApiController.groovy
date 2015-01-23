@@ -745,10 +745,16 @@ class ApiController {
 				              meetingName(m.getName())
 				              createTime(m.getCreateTime())
 											createDate(formatPrettyDate(m.getCreateTime()))
+                      voiceBridge(m.getTelVoice())
+                      dialNumber(m.getDialNumber())
                       attendeePW(m.getViewerPassword())
                       moderatorPW(m.getModeratorPassword())
                       hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
                       running(m.isRunning() ? "true" : "false")
+                      participantCount(m.getNumUsers())
+                      listenerCount(m.getNumListenOnly())
+                      voiceParticipantCount(m.getNumVoiceJoined())
+                      videoCount(m.getNumVideos())
 											duration(m.duration)
 											hasUserJoined(m.hasUserJoined())
                     }
@@ -1802,6 +1808,7 @@ class ApiController {
             returncode(RESP_CODE_SUCCESS)
 			      meetingName(meeting.getName())
             meetingID(meeting.getExternalId())
+            internalMeetingID(meeting.getInternalId())
 			      createTime(meeting.getCreateTime())
 						createDate(formatPrettyDate(meeting.getCreateTime()))
 			      voiceBridge(meeting.getTelVoice())
@@ -1816,6 +1823,8 @@ class ApiController {
             startTime(meeting.getStartTime())
             endTime(meeting.getEndTime())
             participantCount(meeting.getNumUsers())
+            listenerCount(meeting.getNumListenOnly())
+            voiceParticipantCount(meeting.getNumVoiceJoined())
             maxUsers(meeting.getMaxUsers())
             moderatorCount(meeting.getNumModerators())
             attendees() {
@@ -1824,6 +1833,14 @@ class ApiController {
                   userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
+                  isPresenter("${att.isPresenter()}")
+                  isListeningOnly("${att.isListeningOnly()}")
+                  hasJoinedVoice("${att.isVoiceJoined()}")
+                  videoStreams(){
+                    att.getStreams().each { s ->
+                      streamName("${s}")
+                    }
+                  }
 				  customdata(){
 					  meeting.getUserCustomData(att.externalUserId).each{ k,v ->
 						  "$k"("$v")
@@ -1857,6 +1874,8 @@ class ApiController {
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             createTime(meeting.getCreateTime())
+            voiceBridge(meeting.getTelVoice())
+            dialNumber(meeting.getDialNumber())
 						createDate(formatPrettyDate(meeting.getCreateTime()))
 						hasUserJoined(meeting.hasUserJoined())
 						duration(meeting.duration)

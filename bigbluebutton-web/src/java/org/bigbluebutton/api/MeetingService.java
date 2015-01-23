@@ -21,6 +21,13 @@ package org.bigbluebutton.api;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -28,16 +35,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.*;
+
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
-import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
-import org.bigbluebutton.api.messaging.ReceivedMessage;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.IMessage;
@@ -47,10 +52,14 @@ import org.bigbluebutton.api.messaging.messages.MeetingStarted;
 import org.bigbluebutton.api.messaging.messages.RegisterUser;
 import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
+import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
+import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
+import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
+import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
-import org.bigbluebutton.web.services.KeepAliveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -615,6 +624,85 @@ public class MeetingService implements MessageListener {
 		log.warn("The meeting " + message.meetingId + " doesn't exist");
 	}
 
+	public void userJoinedVoice(UserJoinedVoice message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setVoiceJoined(true);
+				log.info("User {} joined the voice conference in the meeting {}", user.getFullname(), message.meetingId);
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	public void userLeftVoice(UserLeftVoice message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setVoiceJoined(false);
+				log.info("User {} left the voice conference in the meeting {}", user.getFullname(), message.meetingId);
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	public void userListeningOnly(UserListeningOnly message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setListeningOnly(message.listenOnly);
+				if (message.listenOnly) {
+					log.info("User {} started to listen only in the meeting {}", user.getFullname(), message.meetingId);
+				} else {
+					log.info("User {} stopped to listen only in the meeting {}", user.getFullname(), message.meetingId);
+				}
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	public void userSharedWebcam(UserSharedWebcam message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.addStream(message.stream);
+				log.info("User {} started to stream {} to the meeting {}", user.getFullname(), message.stream, message.meetingId);
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	public void userUnsharedWebcam(UserUnsharedWebcam message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.removeStream(message.stream);
+				log.info("User {} stopped to stream {} to the meeting {}", user.getFullname(), message.stream, message.meetingId);
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
 	private void processMessage(final IMessage message) {
 		Runnable task = new Runnable() {
 	    public void run() {
@@ -633,6 +721,21 @@ public class MeetingService implements MessageListener {
 	  			userLeft((UserLeft)message);
 	  		} else if (message instanceof UserStatusChanged) {
 	  			updatedStatus((UserStatusChanged)message);
+	  		} else if (message instanceof UserJoinedVoice) {
+	  			log.info("Processing voice user joined message.");
+	  			userJoinedVoice((UserJoinedVoice)message);
+	  		} else if (message instanceof UserLeftVoice) {
+	  			log.info("Processing voice user left message.");
+	  			userLeftVoice((UserLeftVoice)message);
+	  		} else if (message instanceof UserListeningOnly) {
+	  			log.info("Processing user listening only message.");
+	  			userListeningOnly((UserListeningOnly)message);
+	  		} else if (message instanceof UserSharedWebcam) {
+	  			log.info("Processing user shared webcam message.");
+	  			userSharedWebcam((UserSharedWebcam)message);
+	  		} else if (message instanceof UserUnsharedWebcam) {
+	  			log.info("Processing user unshared webcam message.");
+	  			userUnsharedWebcam((UserUnsharedWebcam)message);
 	  		} else if (message instanceof RemoveExpiredMeetings) {
 	  			checkAndRemoveExpiredMeetings();
 	  		} else if (message instanceof CreateMeeting) {
