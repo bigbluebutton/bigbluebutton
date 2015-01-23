@@ -271,7 +271,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
             private function checkVisibility(e:MadePresenterEvent = null):void {
-                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver)) {
+                if (toolbarAllowed() && slideLoaded && (wbOptions.keepToolbarVisible || mousedOver) && !presentationWindow.minimized) {
                     setPositionAndDepth();
                     showToolbar();
                 } else {
