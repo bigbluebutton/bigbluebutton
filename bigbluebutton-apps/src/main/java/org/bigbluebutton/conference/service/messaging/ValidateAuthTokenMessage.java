@@ -8,11 +8,13 @@ public class ValidateAuthTokenMessage implements IMessage {
 	public final String userId;
 	public final String token;
 	public final String replyTo;
+	public final String sessionId;
 	
-	public ValidateAuthTokenMessage(String meetingId, String userId, String token, String replyTo) {
+	public ValidateAuthTokenMessage(String meetingId, String userId, String token, String replyTo, String sessionId) {
 		this.meetingId = meetingId;
 		this.userId = userId;
 		this.token = token;
-		this.replyTo = replyTo;	
+		this.replyTo = replyTo;
+		this.sessionId = sessionId;
 	}
 }

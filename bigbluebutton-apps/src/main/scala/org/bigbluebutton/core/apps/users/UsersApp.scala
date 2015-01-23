@@ -73,7 +73,7 @@ trait UsersApp {
   
   def handleValidateAuthToken(msg: ValidateAuthToken) {
 //    println("*************** Got ValidateAuthToken message ********************" )
-    regUsers.get (msg.userId) match {
+    regUsers.get (msg.token) match {
       case Some(u) =>
       {
         val replyTo = meetingID + '/' + msg.userId
@@ -88,7 +88,7 @@ trait UsersApp {
         this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
 
         //join the user
-        handleUserJoin(new UserJoining(meetingID, msg.userId))
+        handleUserJoin(new UserJoining(meetingID, msg.userId, msg.sessionId))
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
@@ -108,7 +108,7 @@ trait UsersApp {
       sendMeetingHasEnded(msg.userID)
     } else {
       val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
-      regUsers += msg.userID -> regUser
+      regUsers += msg.authToken -> regUser
       logger.info("Register user success: mid=[" + meetingID + "] uid=[" + msg.userID + "]")
       outGW.send(new UserRegistered(meetingID, recorded, regUser))      
     }
@@ -276,7 +276,7 @@ trait UsersApp {
     regUser foreach { ru =>
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
-      val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
+      val uvo = new UserVO(msg.sessionId, msg.userID, ru.externId, ru.name, 
                   ru.role, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
                   phoneUser=false, vu, listenOnly=false, permissions)
@@ -300,20 +300,20 @@ trait UsersApp {
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
-	 if (users.hasUser(msg.userID)) {
+	if (users.hasUser(msg.userID)) {
 	  val user = users.removeUser(msg.userID)
 	  user foreach { u => 
 	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
 	    outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
 	  }
 	  
-    startCheckingIfWeNeedToEndVoiceConf()
-    stopAutoStartedRecording()
-	 }
+      startCheckingIfWeNeedToEndVoiceConf()
+      stopAutoStartedRecording()
+	}
   }
   
   def handleUserJoinedVoiceFromPhone(msg: VoiceUserJoined) = {
-      val user = users.getUserWithVoiceUserId(msg.voiceUser.userId) match {
+    val user = users.getUserWithVoiceUserId(msg.voiceUser.userId) match {
         case Some(user) => {
           logger.info("Voice user=[" + msg.voiceUser.userId + "] is already in conf=[" + voiceBridge + "]. Must be duplicate message.")
         }
@@ -325,7 +325,10 @@ trait UsersApp {
           val vu = new VoiceUser(msg.voiceUser.userId, webUserId, 
                                  msg.voiceUser.callerName, msg.voiceUser.callerNum,
                                  true, false, false, false)
-          val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
+          
+          val sessionId = "PHONE-" + webUserId;
+          
+          val uvo = new UserVO(sessionId, webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
 		                  phoneUser=true, vu, listenOnly=false, permissions)
@@ -339,7 +342,7 @@ trait UsersApp {
             outGW.send(new MuteVoiceUser(meetingID, recorded, uvo.userID, uvo.userID, meetingMuted))      
         
         }
-      }
+    }
   }
   
   def handleVoiceUserJoined(msg: VoiceUserJoined) = {
