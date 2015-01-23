@@ -37,8 +37,8 @@ $Id: $
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
-	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
   <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleJoinedVoiceConferenceEvent" />
   <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleLeftVoiceConferenceEvent" />
   <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleVoiceMutedEvent" />

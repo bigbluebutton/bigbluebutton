@@ -409,7 +409,7 @@ package org.bigbluebutton.main.model.users
 			n.presenter = user.presenter;
 			n.mood = user.mood;
 			n.moodTimestamp = user.moodTimestamp;
-			n.role = user.role;	
+			n._role = user._role;
 			n.room = user.room;
 			n.customdata = user.customdata;
 			n.media = user.media;

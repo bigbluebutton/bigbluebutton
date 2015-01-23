@@ -112,15 +112,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				trace("RecordButton:doChangeRecordingStatus changing record status to " + event.payload.recording);
 			}
 
+			private function updateButton(recording:Boolean):void {
+				this.selected = recording;
+
+				resourcesChanged();
+
+				this.enabled = UserManager.getInstance().getConference().amIModerator() && MeetingModel.getInstance().meeting.allowStartStopRecording;
+			}
+
 			private function onRecordingStatusChanged(event:BBBEvent):void {
 				if (event.payload.remote) {
-					this.selected = event.payload.recording;
-
-					resourcesChanged();
-
-					if (UserManager.getInstance().getConference().amIModerator() && MeetingModel.getInstance().meeting.allowStartStopRecording) {
-						this.enabled = true;
-					}
+					updateButton(event.payload.recording);
 
 					trace("RecordButton:onRecordingStatusChanged changing record status to " + event.payload.recording);
 				}
@@ -194,7 +196,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function refreshRole(e:ChangeMyRole):void {
-				resourcesChanged();
+				updateButton(this.selected);
 			}
 		]]>
 	</mx:Script>

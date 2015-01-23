@@ -78,6 +78,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher;
 
 			public function lockSettingsChanged(e:*):void{
+        if (UsersUtil.amIModerator()  || UsersUtil.amIPresenter()){
+          // Ignore lock setting changes as 
+          // or presenter we are moderator.
+          return; 
+        }
+        
 				updateButton();
 			}
 
