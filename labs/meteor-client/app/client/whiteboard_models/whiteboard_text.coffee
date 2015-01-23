@@ -101,7 +101,10 @@ class @WhiteboardTextModel extends WhiteboardToolModel
             tempText = tspanEl.firstChild.nodeValue
             tempText = tempText.slice(0, (tempText.length - words[i - 1].length - 2)) #the -2 is because we also strip off white space
             tspanEl.firstChild.nodeValue = tempText
-
+          #setting up coordinates for the first line of text      
+          if i is 0
+            dy = calcFontSize
+            cumulY += dy
           #alternatively one could use textLength and lengthAdjust, however, currently this is not too well supported in SVG UA's
           tspanEl = document.createElementNS(svgNS, "tspan")
           tspanEl.setAttributeNS null, "x", x
