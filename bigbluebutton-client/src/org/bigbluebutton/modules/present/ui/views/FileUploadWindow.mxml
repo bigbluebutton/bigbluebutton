@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	 layout="absolute" width="580" height="400" styleName="presentationFileUploadWindowStyle"
+	 layout="absolute" width="580" height="415" styleName="presentationFileUploadWindowStyle"
       initialize="initData();">
 
     <mate:Dispatcher id="globalDispatch" />
@@ -172,12 +172,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
           progBarLbl.visible = true;          
           lblFileName.enabled = false;
+
+          var isDownloadable:Boolean = new Boolean(letUserDownload.selected);
           
           var uploadCmd:UploadFileCommand = new UploadFileCommand();
           uploadCmd.filename = presentationName;
           uploadCmd.file = fileToUpload;
+          uploadCmd.isDownloadable = isDownloadable;
           globalDispatch.dispatchEvent(uploadCmd);
-
+          letUserDownload.visible = false;
         }       		
       }
 
@@ -258,6 +261,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         selectBtn.enabled = true;
         uploadBtn.enabled = true;
         lblFileName.enabled = true;			
+        letUserDownload.visible = true;
       }
 
       private function handleConvertUpdate(e:ConversionUpdateEvent):void{
@@ -303,7 +307,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
-    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingTop="5" paddingBottom="10" includeInLayout="true" visible="false">
+    <mx:HBox>
+      <mx:Spacer width="3"/>
+      <mx:CheckBox id="letUserDownload" label="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload')}" selected="true" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.letUserDownload.tooltip')}"/>
+    </mx:HBox>
+    <mx:HBox id="progressReportBox" width="100%" paddingLeft="10" paddingTop="0" paddingBottom="5" includeInLayout="true" visible="false">
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle" visible="false"/>
       <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"

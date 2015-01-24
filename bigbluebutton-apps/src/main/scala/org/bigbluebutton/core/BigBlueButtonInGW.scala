@@ -241,11 +241,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	
 	def sendConversionCompleted(messageKey: String, meetingId: String, 
             code: String, presentationId: String, numPages: Int, 
-            presName: String, presBaseUrl: String) {
+            presName: String, presBaseUrl: String, presDownloadable: Boolean) {
 //	  println("******************** PRESENTATION CONVERSION COMPLETED MESSAGE ***************************** ")
       val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
 	        
-	  val presentation = new Presentation(id=presentationId, name=presName, pages=pages)
+	  val presentation = new Presentation(id=presentationId, name=presName, pages=pages, downloadable=presDownloadable)
       bbbGW.accept(new PresentationConversionCompleted(meetingId, messageKey, 
                        code, presentation))	 
                        
