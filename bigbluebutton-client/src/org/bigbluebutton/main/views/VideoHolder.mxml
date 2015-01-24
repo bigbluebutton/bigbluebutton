@@ -71,7 +71,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
   
   <mx:UIComponent id="_videoHolder"/>
-  
+  <mx:Image id="imgChromeHelp" y="60" x="{this.width/2 - imgChromeHelp.width/2}" visible="false"
+			source="@Embed('assets/chrome-allow-mic-access.png')"/>
   <mx:Text id="lblWarning" width="100%" textAlign="center" fontSize="14" fontWeight="bold" 
            y="{this.height - lblWarning.height - 30}" 
            visible="true" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>

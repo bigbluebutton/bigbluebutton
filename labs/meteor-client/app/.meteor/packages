@@ -1,0 +1,24 @@
+# Meteor packages used by this project, one per line.
+#
+# 'meteor add' and 'meteor remove' will edit this file for you,
+# but you can also edit it by hand.
+
+standard-app-packages
+coffeescript
+mrt:redis@0.1.3
+arunoda:npm@0.2.6
+underscore
+amplify
+iron:router
+blaze
+less
+sanjo:jasmine
+francocatena:status
+mizzao:jquery-ui
+mrt:external-file-loader@0.1.4
+brentjanderson:winston-client@0.0.4
+mizzao:bootstrap-3
+duongthienduc:meteor-winston
+mizzao:timesync
+agnito:raphael
+

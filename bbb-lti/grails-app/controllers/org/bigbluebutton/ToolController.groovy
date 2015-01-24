@@ -54,7 +54,7 @@ class ToolController {
         ltiService.logParameters(params)
 
         if( request.post ){
-            def endPoint = (request.isSecure()?"https":"http") + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
+            def endPoint = getScheme() + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
             Map<String, String> result = new HashMap<String, String>()
             ArrayList<String> missingParams = new ArrayList<String>()
 
@@ -397,5 +397,19 @@ class ToolController {
                 '</cartridge_basiclti_link>'
 
         return cartridge
+    }
+
+    private String getScheme(){
+        def scheme
+        if ( request.isSecure() ) {
+            scheme = 'https'
+        } else {
+            scheme = request.getHeader("scheme")
+            if ( scheme == null || !(scheme == 'http' || scheme == 'https') ) {
+                scheme = 'http'
+            }
+        }
+
+        return scheme
     }
 }

@@ -132,25 +132,7 @@ package org.bigbluebutton.main.model.users
         _conferenceParameters.internalUserID
       ); //_netConnection.call      
     }
-    
-    private function joinMeeting():void {
-      sendMessage(
-        "joinMeeting",// Remote function name
-        // result - On successful result
-        function(result:Object):void { 
-          trace(LOG + "joining meeting for [" + _conferenceParameters.internalUserID + "]"); 
-        },	
-        // status - On error occurred
-        function(status:Object):void { 
-          LogUtil.error(LOG + "Error occurred:"); 
-          for (var x:Object in status) { 
-            LogUtil.error(x + " : " + status[x]); 
-          } 
-        },
-        _conferenceParameters.internalUserID
-      ); //_netConnection.call      
-    }
-    
+      
     private function handleValidateAuthTokenReply(msg: Object):void {
       trace(LOG + "*** handleValidateAuthTokenReply " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);  
@@ -160,7 +142,6 @@ package org.bigbluebutton.main.model.users
       if (tokenValid) {
         authenticated = true;
         trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
-        joinMeeting();
       } else {
         trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
         dispatcher.dispatchEvent(new InvalidAuthTokenEvent());

@@ -108,7 +108,7 @@ object MeetingMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-	def stopRecordingToJson(msg: StopRecording):String = {
+  def stopRecordingToJson(msg: StopRecording):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded) 
@@ -117,5 +117,12 @@ object MeetingMessageToJsonConverter {
     val header = Util.buildHeader(MessageNames.STOP_RECORDING, msg.version, None)
     Util.buildJson(header, payload)
   }
-	
+
+  def getAllMeetingsReplyToJson(msg: GetAllMeetingsReply):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put("meetings", msg.meetings)
+
+    val header = Util.buildHeader(MessageNames.GET_ALL_MEETINGS_REPLY, msg.version, None)
+    Util.buildJson(header, payload)
+  }
 }

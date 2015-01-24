@@ -31,5 +31,7 @@ package org.bigbluebutton.clientcheck.model
 		function getRTMPApps():XMLList;
 		function getVersion():String;
 		function getMail():String;
+		function getChromeLatestVersion():String;
+		function getFirefoxLatestVersion():String;
 	}
 }

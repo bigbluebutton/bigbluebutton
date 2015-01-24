@@ -5,7 +5,8 @@ myModule.controller('MainCtrl', function($scope, $http, $location, $window) {
 	$scope.postUsername = function() {
 		var account = {
 			"name": $scope.username,
-			"password": 'oOoOoO'
+			"password": 'oOoOoO',
+                        "meetingName": $scope.meetingName == undefined ? 'Demo Meeting' : $scope.meetingName
 		};
 		jQuery.getJSON("config.json", function (json) {
 			$http.post('/login', account).success(function(res) {
@@ -13,7 +14,7 @@ myModule.controller('MainCtrl', function($scope, $http, $location, $window) {
 				$window.location.href = res.success.url;
 			});
 		});
-	}
+	};
 });
 
 

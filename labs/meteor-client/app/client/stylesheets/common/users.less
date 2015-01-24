@@ -1,0 +1,55 @@
+#content {
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+#usericons {
+  margin-left: 10px;
+  float: right;
+  span {
+    margin-left: 3px;
+    padding: 2px;
+    border: 1px solid white;
+  }
+  .raisedHandIcon, .muteIcon {
+    &:hover { 
+      cursor: pointer;
+      border: 1px solid #f2f2f2;
+      background-color: #f2f2f2;
+      border-radius: 4px;
+    }
+  }
+}
+
+#username {
+  float:left;
+}
+
+#users {
+  margin-left: 0.25%;
+  margin-right: 0.25%;
+  padding-bottom: 10px; /*min-width:230px;*/
+  -webkit-flex: 1 6 20%;
+  flex: 1 6 20%;
+}
+
+#user-contents {
+  height: 95%;
+  padding-bottom: 10px;
+}
+
+.userCurrent {
+  font-weight: bold;
+}
+
+/*.userNameContainer {
+  border-right: 1px solid extract(@lightGrey, 3);
+  padding-right: 0px;
+}*/
+
+.userNameEntry {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100px;
+}

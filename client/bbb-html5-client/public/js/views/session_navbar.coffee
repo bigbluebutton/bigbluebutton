@@ -22,6 +22,7 @@ define [
 
     initialize: ->
       @$parentEl = null
+      @usersShown = true # Whether the user's pane is displayed, it is displayed be default 
 
     render: ->
       compiledTemplate = _.template(sessionNavbarTemplate)
@@ -41,9 +42,15 @@ define [
       @$parentEl.toggleClass('chat-on')
       @_setToggleButtonsStatus()
 
-    # Toggle the visibility of the users panel
+    # Toggle the visibility of the user's pane
     _toggleUsers: ->
-      @$parentEl.toggleClass('users-on')
+      if @usersShown # If the user's pane is displayed, hide it and mark flag as hidden
+        $("#users").hide()
+        @usersShown=false
+      else # Display the pane
+        $("#users").show()
+        @usersShown=true
+      #@$parentEl.toggleClass('users-on')
       @_setToggleButtonsStatus()
 
     _toggleVideo: ->
@@ -65,6 +72,7 @@ define [
     _scheduleResize: (id) ->
       attempts = 0
       before = $(id).is(':visible')
+      console.log "isvisible: "+before
       interval = setInterval( ->
         if $(id).is(':visible') != before or attempts > 20
           attempts += 1
@@ -77,6 +85,6 @@ define [
     # Log out of the session
     _logout: ->
       globals.connection.emitLogout()
-      globals.currentAuth = null
+      #globals.currentAuth = null
 
   SessionNavbarView

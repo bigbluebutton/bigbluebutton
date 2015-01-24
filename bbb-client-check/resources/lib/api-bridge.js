@@ -96,8 +96,12 @@
         if ((ix = version.indexOf(' ')) != -1) version = version.substring(0, ix);
         if ((ix = version.indexOf(')')) != -1) version = version.substring(0, ix);
 
-		browserInfo = browser + " " + version;
-		swfObj.browser(browserInfo);
+		var result = {
+			browser: browser,
+			version: version
+		};
+
+		swfObj.browser(result);
 	}
 	
 	BBBClientCheck.screenSize = function(){

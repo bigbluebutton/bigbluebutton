@@ -4,8 +4,9 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.util._
 
-class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
+class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper {
 
   private var meetings = new HashMap[String, MeetingActor]
   
@@ -16,6 +17,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
 	      case msg: CreateMeeting                 => handleCreateMeeting(msg)
 	      case msg: DestroyMeeting                => handleDestroyMeeting(msg)
 	      case msg: KeepAliveMessage              => handleKeepAliveMessage(msg)
+        case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
 	      case msg: InMessage                     => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
@@ -48,11 +50,11 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   private def handleMeetingNotFound(msg: InMessage) {
     msg match {
       case vat:ValidateAuthToken => {
-        println("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
+        logger.info("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
         outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
       }
       case _ => {
-        println("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")
+        logger.info("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")
         // do nothing
       }
     }
@@ -63,16 +65,16 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   }
     
   private def handleDestroyMeeting(msg: DestroyMeeting) {
-    println("****************** BBBActor received DestroyMeeting message for meeting id [" + msg.meetingID + "] **************")
+    logger.info("BBBActor received DestroyMeeting message for meeting id [" + msg.meetingID + "]")
     meetings.get(msg.meetingID) match {
       case None => println("Could not find meeting id[" + msg.meetingID + "] to destroy.")
       case Some(m) => {
         m ! StopMeetingActor
         meetings -= msg.meetingID    
-        println("Kinc everyone out on meeting id[" + msg.meetingID + "].")
+        logger.info("Kick everyone out on meeting id[" + msg.meetingID + "].")
         outGW.send(new EndAndKickAll(msg.meetingID, m.recorded))
         
-        println("Destroyed meeting id[" + msg.meetingID + "].")
+        logger.info("Destroyed meeting id[" + msg.meetingID + "].")
         outGW.send(new MeetingDestroyed(msg.meetingID))
       }
     }
@@ -81,7 +83,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
   private def handleCreateMeeting(msg: CreateMeeting):Unit = {
     meetings.get(msg.meetingID) match {
       case None => {
-        println("New meeting create request [" + msg.meetingName + "]")
+        logger.info("New meeting create request [" + msg.meetingName + "]")
     	  var m = new MeetingActor(msg.meetingID, msg.externalMeetingID, msg.meetingName, msg.recorded, 
     	                  msg.voiceBridge, msg.duration, 
     	                  msg.autoStartRecording, msg.allowStartStopRecording,
@@ -94,10 +96,50 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor {
     	  m ! "StartTimer"
       }
       case Some(m) => {
-        println("Meeting already created [" + msg.meetingName + "]")
+        logger.info("Meeting already created [" + msg.meetingName + "]")
         // do nothing
       }
     }
   }
-  
+
+  private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
+    var len = meetings.keys.size
+    println("meetings.size=" + meetings.size)
+    println("len_=" + len)
+
+    val set = meetings.keySet
+    val arr : Array[String] = new Array[String](len)
+    set.copyToArray(arr)
+    val resultArray : Array[MeetingInfo] = new Array[MeetingInfo](len)
+
+    for(i <- 0 until arr.length) {
+      val id = arr(i)
+      val duration = meetings.get(arr(i)).head.getDuration()
+      val name = meetings.get(arr(i)).head.getMeetingName()
+      val recorded = meetings.get(arr(i)).head.getRecordedStatus()
+      val voiceBridge = meetings.get(arr(i)).head.getVoiceBridgeNumber()
+
+      var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
+      resultArray(i) = info
+
+      //remove later
+      println("for a meeting:" + id)
+      println("Meeting Name = " + meetings.get(id).head.getMeetingName())
+      println("isRecorded = " + meetings.get(id).head.getRecordedStatus())
+      println("voiceBridge = " + voiceBridge)
+      println("duration = " + duration)
+
+      //send the users
+      this ! (new GetUsers(id, "nodeJSapp"))
+
+      //send the presentation
+      this ! (new GetPresentationInfo(id, "nodeJSapp", "nodeJSapp"))
+
+      //send chat history
+      this ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
+    }
+
+    outGW.send(new GetAllMeetingsReply(resultArray))
+  }
+
 }
