@@ -31,7 +31,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ModuleStartedEvent;
       import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
       import org.bigbluebutton.modules.chat.events.ChatEvent;
-      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
