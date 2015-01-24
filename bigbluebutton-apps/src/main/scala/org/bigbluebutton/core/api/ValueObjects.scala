@@ -63,7 +63,7 @@ case class UserVO(
   externUserID: String, 
   name: String, 
   role: Role.Role, 
-  raiseHand: Boolean, 
+  mood: String, 
   presenter: Boolean, 
   hasStream: Boolean, 
   locked: Boolean, 

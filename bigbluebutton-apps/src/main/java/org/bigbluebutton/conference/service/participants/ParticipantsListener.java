@@ -29,23 +29,12 @@ public class ParticipantsListener implements MessageHandler{
 
 			String eventName =  headerObject.get("name").toString().replace("\"", "");
 
-			if(eventName.equalsIgnoreCase("user_leaving_request") ||
-				eventName.equalsIgnoreCase("user_raised_hand_message") ||
-				eventName.equalsIgnoreCase("user_lowered_hand_message")){
+			if(eventName.equalsIgnoreCase("user_leaving_request")){
 
 				String roomName = payloadObject.get("meeting_id").toString().replace("\"", "");
 				String userID = payloadObject.get("userid").toString().replace("\"", "");
 
-				if(eventName.equalsIgnoreCase("user_leaving_request")){
-					bbbInGW.userLeft(roomName, userID);
-				}
-				else if(eventName.equalsIgnoreCase("user_raised_hand_message")){
-					bbbInGW.userRaiseHand(roomName, userID);
-				}
-				else if(eventName.equalsIgnoreCase("user_lowered_hand_message")){
-					String requesterID = payloadObject.get("lowered_by").toString().replace("\"", "");
-					bbbInGW.lowerHand(roomName, userID, requesterID);
-				}
+				bbbInGW.userLeft(roomName, userID);
 			}
 		}
 	}

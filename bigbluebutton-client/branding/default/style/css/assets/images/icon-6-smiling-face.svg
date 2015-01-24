@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="icon-6-smiling-face.svg"
+   inkscape:export-filename="/var/lib/lxc/bbb-dev090-14/rootfs/home/ubuntu/dev/bigbluebutton/bigbluebutton-client/branding/default/style/css/assets/images/icon-6-smiling-face.png"
+   inkscape:export-xdpi="50"
+   inkscape:export-ydpi="50">
+  <metadata
+     id="metadata15">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>icon 6 smiling face</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="753"
+     inkscape:window-height="480"
+     id="namedview13"
+     showgrid="false"
+     inkscape:zoom="7.375"
+     inkscape:cx="16"
+     inkscape:cy="16"
+     inkscape:window-x="75"
+     inkscape:window-y="34"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <!-- Generator: Sketch 3.0.3 (7891) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title4">icon 6 smiling face</title>
+  <desc
+     id="desc6">Created with Sketch.</desc>
+  <defs
+     id="defs8" />
+  <g
+     id="Page-1"
+     stroke="none"
+     stroke-width="1"
+     fill="none"
+     fill-rule="evenodd"
+     sketch:type="MSPage"
+     style="fill:#000000;stroke:#000000;stroke-opacity:1">
+    <g
+       id="icon-6-smiling-face"
+       sketch:type="MSArtboardGroup"
+       fill="#929292"
+       style="fill:#000000;stroke:#000000;stroke-opacity:1">
+      <path
+         d="M16.5,29 C23.4035597,29 29,23.4035597 29,16.5 C29,9.59644029 23.4035597,4 16.5,4 C9.59644029,4 4,9.59644029 4,16.5 C4,23.4035597 9.59644029,29 16.5,29 L16.5,29 Z M16.5,28 C22.8512749,28 28,22.8512749 28,16.5 C28,10.1487251 22.8512749,5 16.5,5 C10.1487251,5 5,10.1487251 5,16.5 C5,22.8512749 10.1487251,28 16.5,28 L16.5,28 Z M12,14 C12.5522848,14 13,13.5522848 13,13 C13,12.4477152 12.5522848,12 12,12 C11.4477152,12 11,12.4477152 11,13 C11,13.5522848 11.4477152,14 12,14 L12,14 Z M21,14 C21.5522848,14 22,13.5522848 22,13 C22,12.4477152 21.5522848,12 21,12 C20.4477152,12 20,12.4477152 20,13 C20,13.5522848 20.4477152,14 21,14 L21,14 Z M16.4813232,22 C13,22 11,20 11,20 L11,21 C11,21 13,23 16.4813232,23 C19.9626465,23 22,21 22,21 L22,20 C22,20 19.9626465,22 16.4813232,22 L16.4813232,22 Z"
+         id="smiling-face"
+         sketch:type="MSShapeGroup"
+         style="fill:#000000;stroke:#000000;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

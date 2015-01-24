@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.main.model.users.events.ChangeStatusBtnEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -105,12 +106,6 @@ package org.bigbluebutton.modules.users.services
           break;
         case "voiceUserTalking":
           handleVoiceUserTalking(message);
-          break;
-        case "userRaisedHand":
-          handleUserRaisedHand(message);
-          break;
-        case "userLoweredHand":
-          handleUserLoweredHand(message);
           break;
         case "userSharedWebcam":
           handleUserSharedWebcam(message);
@@ -479,18 +474,6 @@ package org.bigbluebutton.modules.users.services
       dispatcher.dispatchEvent(roleEvent);   
     }
 
-    private function handleUserRaisedHand(msg: Object): void {
-      trace(LOG + "*** handleUserRaisedHand " + msg.msg + " **** \n");      
-      var map:Object = JSON.parse(msg.msg);      
-      UserManager.getInstance().getConference().raiseHand(map.userId, true);
-    }
-
-    private function handleUserLoweredHand(msg: Object):void {
-      trace(LOG + "*** handleUserLoweredHand " + msg.msg + " **** \n");      
-      var map:Object = JSON.parse(msg.msg);      
-      UserManager.getInstance().getConference().raiseHand(map.userId, false);
-    }
-
     private function handleUserSharedWebcam(msg: Object):void {
       trace(LOG + "*** handleUserSharedWebcam " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
@@ -537,7 +520,7 @@ package org.bigbluebutton.modules.users.services
       }
       
       UserManager.getInstance().getConference().presenterStatusChanged(user.userID, joinedUser.presenter);
-      UserManager.getInstance().getConference().raiseHand(user.userID, joinedUser.raiseHand);
+      UserManager.getInstance().getConference().newUserStatus(user.userID, "mood", joinedUser.mood);
            
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user.userID;
@@ -554,7 +537,12 @@ package org.bigbluebutton.modules.users.services
       
       trace(LOG + "Received status change [" + map.userID + "," + map.status + "," + map.value + "]")			
       UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
-      
+      var status:String = map.value;
+      var statusArray:Array = status.split(",");
+      if(map.status == "mood") {
+          dispatcher.dispatchEvent(new ChangeStatusBtnEvent(map.userID, statusArray[0]));
+      }
+
       if (msg.status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
         e.userID = map.userID;
