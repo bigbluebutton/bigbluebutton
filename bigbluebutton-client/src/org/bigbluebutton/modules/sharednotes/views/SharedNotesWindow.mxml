@@ -104,8 +104,9 @@
 			private function updateRoleDependentProperties(role:String):void {
 				if(noteId == "MAIN_WINDOW"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
+				} else {
+					showCloseButton = role == Role.MODERATOR;
 				}
-				showCloseButton = role == Role.MODERATOR;
 			}
 
 			public function get noteId():String{
