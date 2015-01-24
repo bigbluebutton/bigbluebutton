@@ -249,7 +249,7 @@ trait UsersApp {
     }     
   }
 	                         
-  def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {    
+  def handleChangeUserStatus(msg: ChangeUserStatus):Unit = {
     users.getUser(msg.userID) foreach {user =>
       val uvo = msg.status match {
         case "mood" => user.copy( mood=msg.value.asInstanceOf[String])
@@ -260,7 +260,7 @@ trait UsersApp {
         users.addUser(uvo)
       }
       outGW.send(new UserStatusChange(meetingID, recorded, msg.userID, msg.status, msg.value))
-    }  
+    }
   }
   
   def handleChangeUserRole(msg: ChangeUserRole) {
