@@ -697,7 +697,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
     <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
-      <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
+      <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" paddingTop="0" paddingBottom="0"
                itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
                dataProvider="{chatMessages.messages}"
                tabIndex="{baseIndex}"
