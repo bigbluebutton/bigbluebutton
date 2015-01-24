@@ -270,23 +270,23 @@ DataGrid {
 }
 
 .presentationUploadButtonStyle {
-  icon:   Embed('assets/images/upload.png');   
+  icon:   Embed('assets/images/ic_file_upload_16px.png');
 }
 
 .presentationBackButtonStyle {
-  icon:   Embed('assets/images/left-arrow.png'); 
+  icon:   Embed('assets/images/ic_arrow_back_24px.png');
 }
 
 .presentationBackButtonDisabledStyle {
-	icon:   Embed('assets/images/left-arrow-disabled.png'); 
+	icon:   Embed('assets/images/ic_arrow_back_grey_24px.png');
 }
 
 .presentationForwardButtonStyle {
-  icon:   Embed('assets/images/right-arrow.png'); 
+  icon:   Embed('assets/images/ic_arrow_forward_24px.png');
 }
 
 .presentationForwardButtonDisabledStyle {
-	icon:   Embed('assets/images/right-arrow-disabled.png'); 
+	icon:   Embed('assets/images/ic_arrow_forward_grey_24px.png');
 }
 
 .presentationFitToWidthButtonStyle {
@@ -298,7 +298,7 @@ DataGrid {
 }
 
 .presentationDownloadButtonStyle {
-  icon:   Embed('assets/images/disk.png'); 
+  icon:   Embed('assets/images/ic_file_download_16px.png');
 }
 
 .presentationZoomSliderStyle{
