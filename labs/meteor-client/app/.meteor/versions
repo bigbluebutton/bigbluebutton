@@ -12,6 +12,7 @@ boilerplate-generator@1.0.2
 brentjanderson:winston-client@0.2.0
 callback-hook@1.0.2
 check@1.0.3
+clinical:nightwatch@1.5.0
 coffeescript@1.0.5
 ddp@1.0.13
 deps@1.0.6
