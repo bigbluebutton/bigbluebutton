@@ -512,6 +512,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   def destroyAdditionalNotes(meetingId: String, userId: String, noteId: String) {
     sharedNotesGW.destroyAdditionalNotes(meetingId, userId, noteId)
   }
+  def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
+    sharedNotesGW.requestAdditionalNotesSet(meetingId, userId, additionalNotesSetSize)
+  }
 
 	/*********************************************************************
 	 * Message Interface for Video

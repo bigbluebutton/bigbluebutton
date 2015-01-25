@@ -146,6 +146,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: GetCurrentDocumentRequest              => handleGetCurrentDocumentRequest(msg)
 	    case msg: CreateAdditionalNotesRequest           => handleCreateAdditionalNotesRequest(msg)
 	    case msg: DestroyAdditionalNotesRequest          => handleDestroyAdditionalNotesRequest(msg)
+	    case msg: RequestAdditionalNotesSetRequest       => handleRequestAdditionalNotesSetRequest(msg)
 	    
 	    case msg: EndMeeting                             => handleEndMeeting(msg)
 	    case StopMeetingActor                            => exit

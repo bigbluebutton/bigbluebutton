@@ -196,8 +196,8 @@
 		<components:PatchableTextArea width="100%" height="100%" paddingBottom="0" id="textArea" editable="true" verticalScrollPolicy="auto"/>
 
 		<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
-			<mx:Button id="btnNew" width="26" height="26" click="btnNew_clickHandler(event)" icon="@Embed(source='images/note_edit.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
-			<mx:Button width="26" height="26" click="btnSave_clickHandler(event)" icon="@Embed(source='images/disk.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+			<mx:Button id="btnNew" width="26" height="26" click="btnNew_clickHandler(event)" icon="@Embed(source='images/ic_note_add_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+			<mx:Button width="26" height="26" click="btnSave_clickHandler(event)" icon="@Embed(source='images/ic_save_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
 		</mx:HBox>
 	</mx:VBox>
 </containers:MDIWindow>

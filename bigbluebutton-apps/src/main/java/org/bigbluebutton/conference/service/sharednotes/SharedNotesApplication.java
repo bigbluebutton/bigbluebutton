@@ -47,4 +47,8 @@ public class SharedNotesApplication {
 	public void destroyAdditionalNotes(String meetingID, String requesterID, String noteID) {
 		bbbInGW.destroyAdditionalNotes(meetingID, requesterID, noteID);
 	}
+
+	public void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize) {
+		bbbInGW.requestAdditionalNotesSet(meetingID, requesterID, additionalNotesSetSize);
+	}
 }

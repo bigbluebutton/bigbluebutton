@@ -90,6 +90,10 @@
 		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAdditionalNotes" arguments="{event.payload.notesId}"/>
 	</EventHandlers>
 
+	<EventHandlers type="{SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT}">
+		<MethodInvoker generator="{SharedNotesManager}" method="requestAdditionalNotesSet" arguments="{event}"/>
+	</EventHandlers>
+
 	<Injectors target="{SharedNotesManager}">
 		<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
 		<PropertyInjector targetKey="sender" source="{MessageSender}"/>

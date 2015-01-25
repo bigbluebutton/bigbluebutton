@@ -580,6 +580,12 @@ case class DestroyAdditionalNotesRequest(
     noteID: String
 ) extends InMessage
 
+case class RequestAdditionalNotesSetRequest(
+    meetingID: String, 
+    requesterID: String,
+    additionalNotesSetSize: Int
+) extends InMessage
+
 // Video
 case class GetStreamPath(
     meetingID: String,
