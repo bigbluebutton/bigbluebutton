@@ -30,7 +30,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		width="100%" height="100%" 
 		backgroundColor="white" styleName="mainVBox"
 		creationComplete="initializeShell()" 
-		xmlns:common="org.bigbluebutton.common.*">
+		xmlns:common="org.bigbluebutton.common.*"
+		verticalGap="0">
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
@@ -225,8 +226,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		
 			protected function initializeShell():void {	
-				this.setStyle("verticalGap", 0);
-
 				globalDispatcher = new Dispatcher();
 
 				_hideToolbarsTimer = new Timer(HIDE_TOOLBARS_DELAY, 1);
@@ -390,9 +389,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function fullScreenHandler(evt:FullScreenEvent):void {
 				if (evt.fullScreen) {
 					LogUtil.debug("Switching to full screen");
+					fullscreen_icon = images.exit_full_screen;
 					hideToolbars();
 				} else {
 					LogUtil.debug("Switching to normal screen");
+					fullscreen_icon = images.full_screen;
 					showToolbars();
 				}
 			}
