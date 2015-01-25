@@ -6,6 +6,13 @@ object Role extends Enumeration {
 	val VIEWER = Value("VIEWER")
 }
 
+object GuestPolicy extends Enumeration {
+  type GuestPolicy = Value
+  val ALWAYS_ACCEPT = Value("ALWAYS_ACCEPT")
+  val ALWAYS_DENY = Value("ALWAYS_DENY")
+  val ASK_MODERATOR = Value("ASK_MODERATOR")
+}
+
 case class Presenter(
   presenterID: String, 
   presenterName: String, 
@@ -44,7 +51,8 @@ case class RegisteredUser (
     externId: String,
     name: String, 
     role: Role.Role,
-    authToken: String
+    authToken: String,
+    guest: Boolean
 )
 
 case class Voice(
@@ -63,6 +71,7 @@ case class UserVO(
   externUserID: String, 
   name: String, 
   role: Role.Role, 
+  guest: Boolean,
   raiseHand: Boolean, 
   presenter: Boolean, 
   hasStream: Boolean, 
@@ -91,7 +100,8 @@ case class MeetingConfig(name: String,
   record: Boolean=false, 
   duration: MeetingDuration,
   defaultAvatarURL: String, 
-  defaultConfigToken: String)
+  defaultConfigToken: String,
+  guestPolicy: GuestPolicy.GuestPolicy=GuestPolicy.ASK_MODERATOR)
 
 case class MeetingName(name: String)
     

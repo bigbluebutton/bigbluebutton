@@ -132,13 +132,18 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 				lsMap = new HashMap<String, Boolean>();
 			}
 		}
-    	   	    	
+
+		Boolean guest  = false;
+		if (params.length >= 10 && ((Boolean) params[10])) {
+			guest = true;
+		}
+
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
 			
 		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
-    			voiceBridge, record, externalUserID, muted);
+    			voiceBridge, record, externalUserID, muted, guest);
 		connection.setAttribute(Constants.SESSION, bbbSession);        
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
         

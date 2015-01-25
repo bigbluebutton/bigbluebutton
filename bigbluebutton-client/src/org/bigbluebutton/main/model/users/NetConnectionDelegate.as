@@ -52,6 +52,7 @@ package org.bigbluebutton.main.model.users
 		private var _room:String;
 		private var tried_tunneling:Boolean = false;
 		private var logoutOnUserCommand:Boolean = false;
+		private var guestKickedOutCommand:Boolean = false;
 		private var backoff:Number = 2000;
 		
 		private var dispatcher:Dispatcher;    
@@ -199,7 +200,8 @@ package org.bigbluebutton.main.model.users
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
 											_conferenceParameters.internalUserID, _conferenceParameters.lockOnStart, 
-                      _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings);			
+											_conferenceParameters.muteOnStart, _conferenceParameters.lockSettings,
+											_conferenceParameters.guest);
 			} catch(e:ArgumentError) {
 				// Invalid parameters.
 				switch (e.errorID) {
@@ -217,12 +219,17 @@ package org.bigbluebutton.main.model.users
 			this.logoutOnUserCommand = logoutOnUserCommand;
 			_netConnection.close();
 		}
-		
-    
-    public function forceClose():void {
-      _netConnection.close();
-    }
-    
+
+		public function guestDisconnect() : void
+		{
+			this.guestKickedOutCommand = true;
+			_netConnection.close();
+		}
+
+		public function forceClose():void {
+      		_netConnection.close();
+    	}
+					
 		protected function netStatus(event:NetStatusEvent):void {
 			handleResult( event );
 		}
@@ -332,11 +339,16 @@ package org.bigbluebutton.main.model.users
 		}	
 			
 		private function sendConnectionFailedEvent(reason:String):void{
+			if (this.guestKickedOutCommand) {
+				sendGuestUserKickedOutEvent();
+				return;
+			}
+
 			if (this.logoutOnUserCommand){
 				sendUserLoggedOutEvent();
 				return;
 			}
-			
+
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
 			dispatcher.dispatchEvent(e);
 			
@@ -345,6 +357,11 @@ package org.bigbluebutton.main.model.users
 		
 		private function sendUserLoggedOutEvent():void{
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
+			dispatcher.dispatchEvent(e);
+		}
+
+		private function sendGuestUserKickedOutEvent():void {
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.GUEST_KICKED_OUT);
 			dispatcher.dispatchEvent(e);
 		}
 		

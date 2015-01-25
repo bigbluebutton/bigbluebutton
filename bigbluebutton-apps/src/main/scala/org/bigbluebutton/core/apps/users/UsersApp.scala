@@ -6,6 +6,7 @@ import org.bigbluebutton.core.User
 import java.util.ArrayList
 import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ListSet
 
 trait UsersApp {
   this : MeetingActor =>
@@ -19,6 +20,8 @@ trait UsersApp {
   private var meetingMuted = false
   
   private var currentPresenter = new Presenter("system", "system", "system")
+
+  private var guestsWaiting = new collection.immutable.ListSet[String]
   
   def hasUser(userID: String):Boolean = {
     users.hasUser(userID)
@@ -107,7 +110,7 @@ trait UsersApp {
       logger.info("Register user failed: reason=[meeting has ended] mid=[" + meetingID + "] uid=[" + msg.userID + "]")
       sendMeetingHasEnded(msg.userID)
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
+      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.guest)
       regUsers += msg.userID -> regUser
       logger.info("Register user success: mid=[" + meetingID + "] uid=[" + msg.userID + "]")
       outGW.send(new UserRegistered(meetingID, recorded, regUser))      
@@ -268,7 +271,9 @@ trait UsersApp {
   }
   
   def handleGetUsers(msg: GetUsers):Unit = {
-	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, users.getUsers))
+	  // Filter out guests waiting
+	  val approvedUsers = users.getUsers.filter(x => !guestsWaiting.contains(x.userID))
+	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, approvedUsers))
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
@@ -277,23 +282,28 @@ trait UsersApp {
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
-                  ru.role, raiseHand=false, presenter=false, 
+                  ru.role, ru.guest, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
                   phoneUser=false, vu, listenOnly=false, permissions)
   	
-	    users.addUser(uvo)
-		
-	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
-	    outGW.send(new UserJoined(meetingID, recorded, uvo))
-	
-	    outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
-	    
-	    // Become presenter if the only moderator		
-	    if (users.numModerators == 1) {
-	      if (ru.role == Role.MODERATOR) {
-		      assignNewPresenter(msg.userID, ru.name, msg.userID)
-	      }	  
-	    }   
+      users.addUser(uvo)
+
+      // Send UserJoined only if is not a guest or guest policy is always accept
+      // For guests this message will be sent when they are accepted
+      if(!ru.guest || guestPolicy == GuestPolicy.ALWAYS_ACCEPT) {
+        logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
+        outGW.send(new UserJoined(meetingID, recorded, uvo))
+
+        outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
+
+        // Become presenter if the only moderator
+        if (users.numModerators == 1) {
+          if (ru.role == Role.MODERATOR) {
+              assignNewPresenter(msg.userID, ru.name, msg.userID)
+          }
+        }
+      }
+      outGW.send(new JoinMeetingReply(meetingID, recorded, uvo))
       webUserJoined
       startRecordingIfAutoStart()
     }
@@ -301,6 +311,7 @@ trait UsersApp {
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
 	 if (users.hasUser(msg.userID)) {
+	  guestsWaiting = guestsWaiting - msg.userID
 	  val user = users.removeUser(msg.userID)
 	  user foreach { u => 
 	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
@@ -326,13 +337,14 @@ trait UsersApp {
                                  msg.voiceUser.callerName, msg.voiceUser.callerNum,
                                  true, false, false, false)
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
-		                  Role.VIEWER, raiseHand=false, presenter=false, 
+		                  Role.VIEWER, guest=false, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
 		                  phoneUser=true, vu, listenOnly=false, permissions)
 		  	
 		      users.addUser(uvo)
 		      logger.info("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
 		      outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      outGW.send(new JoinMeetingReply(meetingID, recorded, uvo))
 		      
 		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
 		      if (meetingMuted)
@@ -426,5 +438,63 @@ trait UsersApp {
   	  }
 
     }
+  }
+
+  def handleUserRequestToEnter(msg: UserRequestToEnter) {
+    users.getUser(msg.userID) match {
+      case Some(user) => {
+        guestsWaiting = guestsWaiting + msg.userID;
+        outGW.send(new GuestRequestedToEnter(meetingID, recorded, msg.userID, user.name))
+      }
+      case None => {
+//      println("handleUserRequestToEnter user [" + msg.userId + "] not found.")
+      }
+    }
+  }
+
+  def handleGetGuestsWaiting(msg: GetGuestsWaiting) {
+    if(users.hasUser(msg.requesterID)) {
+      var message = "";
+      guestsWaiting foreach {guest => {
+        users.getUser(guest) match {
+          case Some(user) => message = message + user.userID + ":" + user.name + ","
+          case None => {}
+        }
+      }}
+      outGW.send(new GetGuestsWaitingReply(meetingID, recorded, msg.requesterID, message))
+    }
+  }
+
+  def handleRespondToGuest(msg: RespondToGuest) {
+    if(guestsWaiting.contains(msg.guestID)) {
+      guestsWaiting = guestsWaiting - msg.guestID
+      outGW.send(new ResponseToGuest(meetingID, recorded, msg.guestID, msg.response))
+      if(msg.response == true) {
+        users.getUser(msg.guestID) foreach {user =>
+          println("UsersApp - handleResponseToGuest sending userJoined["+user.userID+"]");
+          outGW.send(new UserJoined(meetingID, recorded, user))
+          outGW.send(new MeetingState(meetingID, recorded, user.userID, permissions, meetingMuted))
+        }
+      }
+    }
+  }
+
+  def handleRespondToAllGuests(msg: RespondToAllGuests) {
+    guestsWaiting foreach {guest =>
+      if(msg.response == true) {
+        users.getUser(guest) foreach {user =>
+          println("UsersApp - handleResponseToGuest sending userJoined["+user.userID+"]");
+          outGW.send(new UserJoined(meetingID, recorded, user))
+          outGW.send(new MeetingState(meetingID, recorded, user.userID, permissions, meetingMuted))
+        }
+      }
+      outGW.send(new ResponseToGuest(meetingID, recorded, guest, msg.response))
+    }
+    guestsWaiting = new collection.immutable.ListSet[String]
+  }
+
+  def handleKickGuest(msg: KickGuest) {
+    guestsWaiting = guestsWaiting - msg.guestID;
+    outGW.send(new GuestKicked(meetingID, recorded, msg.guestID))
   }
 }

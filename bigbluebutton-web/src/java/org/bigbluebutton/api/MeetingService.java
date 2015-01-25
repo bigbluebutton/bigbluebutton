@@ -87,8 +87,8 @@ public class MeetingService implements MessageListener {
 		sessions.put(token, user);
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
-		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken));
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String guest) {
+		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken, guest));
 	}
 	
 	public UserSession getUserSession(String token) {
@@ -543,7 +543,7 @@ public class MeetingService implements MessageListener {
 		log.debug("User joined in meeting[{}]", message.meetingId);
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
-			User user = new User(message.userId, message.externalUserId, message.name, message.role);
+			User user = new User(message.userId, message.externalUserId, message.name, message.role, message.guest);
 			m.userJoined(user);
 			log.info("New user in meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
 			

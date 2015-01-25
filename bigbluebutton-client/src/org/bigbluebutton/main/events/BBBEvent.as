@@ -31,7 +31,7 @@ package org.bigbluebutton.main.events {
 		public static const VIDEO_STARTED:String = 'BBB_VIDEO_STARTED';
 		public static const START_DESKSHARE:String = 'BBB_START_DESKSHARE';
 		public static const DESKSHARE_STARTED:String = 'BBB_DESKSHARE_STARTED';
-    public static const USER_VOICE_JOINED:String = 'user voice joined event';
+	    public static const USER_VOICE_JOINED:String = 'user voice joined event';
 		public static const USER_VOICE_MUTED:String = "user voice muted event";
     public static const USER_LOCKED:String = "user locked event";
     public static const USER_VOICE_LEFT:String = "user voice left event";
@@ -42,7 +42,21 @@ package org.bigbluebutton.main.events {
 	public static const CAM_SETTINGS_CLOSED:String = "CAM_SETTINGS_CLOSED";
 	public static const JOIN_VOICE_FOCUS_HEAD:String = "JOIN_VOICE_FOCUS_HEAD";
 	public static const CHANGE_RECORDING_STATUS:String = "CHANGE_RECORDING_STATUS";
-   
+
+		public static const SETTINGS_CONFIRMED:String = "BBB_SETTINGS_CONFIRMED";
+		public static const SETTINGS_CANCELLED:String = "BBB_SETTINGS_CANCELLED";
+		public static const ACCEPT_ALL_WAITING_GUESTS:String = "BBB_ACCEPT_ALL_WAITING_GUESTS";
+		public static const DENY_ALL_WAITING_GUESTS:String = "BBB_DENY_ALL_WAITING_GUESTS";
+		
+		public static const DENY_GUEST:String = "BBB_DENY_GUEST";
+		public static const ACCEPT_GUEST:String = "BBB_ACCEPT_GUEST";
+		public static const ASK_TO_ACCEPT_GUEST:String = "BBB_ASK_TO_ACCEPT_GUEST";
+
+		public static const BROADCAST_GUEST_POLICY:String = "BBB_BROADCAST_GUEST_POLICY";
+		public static const RETRIEVE_GUEST_POLICY:String = "BBB_RETRIEVE_GUEST_POLICY";
+
+		public static const KICK_GUEST:String = "KICK_GUEST";
+
 		public var message:String;
 		public var payload:Object = new Object();
 		

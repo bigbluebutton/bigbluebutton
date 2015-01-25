@@ -30,6 +30,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   var recording = false;
   var muted = false;
   var meetingEnded = false
+  var guestPolicy = GuestPolicy.ASK_MODERATOR
 
   def getDuration():Long = {
     duration
@@ -131,6 +132,13 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: SetRecordingStatus                     => handleSetRecordingStatus(msg)
 	    case msg: GetRecordingStatus                     => handleGetRecordingStatus(msg)
 	    case msg: VoiceRecording                         => handleVoiceRecording(msg)
+	    case msg: UserRequestToEnter                     => handleUserRequestToEnter(msg)
+	    case msg: GetGuestPolicy                         => handleGetGuestPolicy(msg)
+	    case msg: SetGuestPolicy                         => handleSetGuestPolicy(msg)
+	    case msg: GetGuestsWaiting                       => handleGetGuestsWaiting(msg)
+	    case msg: RespondToGuest                         => handleRespondToGuest(msg)
+	    case msg: RespondToAllGuests                     => handleRespondToAllGuests(msg)
+	    case msg: KickGuest                              => handleKickGuest(msg)
 	    
 	    case msg: EndMeeting                             => handleEndMeeting(msg)
 	    case StopMeetingActor                            => exit
@@ -241,6 +249,15 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {
      outGW.send(new GetRecordingStatusReply(meetingID, recorded, msg.userId, recording.booleanValue()))
+  }
+
+  private def handleGetGuestPolicy(msg: GetGuestPolicy) {
+    outGW.send(new GetGuestPolicyReply(msg.meetingID, recorded, msg.requesterID, guestPolicy.toString()))
+  }
+
+  private def handleSetGuestPolicy(msg: SetGuestPolicy) {
+    guestPolicy = msg.policy
+    outGW.send(new GuestPolicyChanged(msg.meetingID, recorded, guestPolicy.toString()))
   }
   
   def lockLayout(lock: Boolean) {

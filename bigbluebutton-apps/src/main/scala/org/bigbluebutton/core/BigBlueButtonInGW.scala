@@ -66,9 +66,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId))
   }
   
-  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String):Unit = {
+  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String, guest: java.lang.Boolean):Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken))
+    bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken, guest))
   }
   
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -188,7 +188,43 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   def userDisconnectedFromGlobalAudio(voiceConf: String, userid: String, name: String) {
     bbbGW.accept(new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name))
   }
-  
+
+  // Guest support
+  def userRequestToEnter(meetingID: String, userID: String) {
+    bbbGW.accept(new UserRequestToEnter(meetingID, userID))
+  }
+
+  def getGuestPolicy(meetingID: String, requesterID: String) {
+    bbbGW.accept(new GetGuestPolicy(meetingID, requesterID))
+  }
+
+  def setGuestPolicy(meetingID: String, guestPolicy: String) {
+    val policy = guestPolicy.toUpperCase() match {
+      case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
+      case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
+      case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
+      //default
+      case undef => GuestPolicy.ASK_MODERATOR
+    }
+    bbbGW.accept(new SetGuestPolicy(meetingID, policy))
+  }
+
+  def getGuestsWaiting(meetingID: String, requesterID: String) {
+    bbbGW.accept(new GetGuestsWaiting(meetingID, requesterID))
+  }
+
+  def responseToGuest(meetingID: String, guestID: String, response: java.lang.Boolean) {
+    bbbGW.accept(new RespondToGuest(meetingID, guestID, response))
+  }
+
+  def responseToAllGuests(meetingID: String, response: java.lang.Boolean) {
+    bbbGW.accept(new RespondToAllGuests(meetingID, response))
+  }
+
+  def kickGuest(meetingID: String, guestID: String) {
+    bbbGW.accept(new KickGuest(meetingID, guestID))
+  }
+
 	/**************************************************************************************
 	 * Message Interface for Presentation
 	 **************************************************************************************/

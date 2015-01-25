@@ -58,6 +58,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 	  
+	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
+	<mate:Listener type="{ConnectionFailedEvent.GUEST_KICKED_OUT}" method="handleLogout" />
+	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
+	<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
+	<mate:Listener type="{RemoveGuestRequestEvent.GUEST_EVENT}" method="removeGuestWindow" />
+	<mate:Listener type="{WaitModeratorEvent.USER_LOGGED_IN}" method="openWaitWindow" />
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -84,6 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -96,10 +104,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+			import org.bigbluebutton.main.events.ModeratorRespEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
+			import org.bigbluebutton.main.events.RefreshGuestEvent;
+			import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.events.WaitModeratorEvent;
+			import org.bigbluebutton.main.model.Guest;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -121,7 +134,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logs:Logger = new Logger();
+	
 			private var logWindow:LogWindow;
+			private var waitWindow:WaitingWindow = null;
+			private var guestWindow:GuestWindow = null;
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
@@ -141,6 +157,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
+			private var guestManagement:GuestManagement = null;
+			private var guest:Guest = new Guest();
+			private var guestPolicy:String = "ASK_MODERATOR";
 			
 			public function get mode():String {
 				return _mode;
@@ -187,6 +206,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				systemManager.addEventListener(Event.RESIZE, updateCopyrightLabelDimensions);
 				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
 				updateCopyrightLabelDimensions();
+			}
+
+			private function setGuestPolicy(event:BBBEvent):void {
+				guestPolicy = event.payload.guestPolicy;
+				if(guestManagement == null) {
+					LogUtil.debug("ADD Guest Event");
+					guestManagement = new GuestManagement();
+					guestManagement.setGuestPolicy(guestPolicy);
+					guestManagement.addToSettings();
+				}
 			}
 
 			private function updateCopyrightLabelDimensions(e:Event = null):void {
@@ -236,7 +265,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
-			
+
+			public function guestAllowed(evt:ModeratorRespEvent):void {
+				progressBar.visible = true;
+				waitWindow.guestAllowed();
+			}
+
 			private function fullScreenHandler(evt:FullScreenEvent):void {
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
@@ -247,6 +281,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					LogUtil.debug("Switching to normal screen");
 					/* Do something specific here if we switched to normal mode. */
 				}
+			}			
+			
+			private function closeGuestWindow(e:Event):void {
+				if(guestWindow != null) {
+					guestWindow.closeWindow();
+					guestWindow = null;
+				}
+			}
+				
+			private function refreshGuestView(evt:RefreshGuestEvent):void {
+				LogUtil.debug("REFRESH GUEST");
+				if(guestWindow == null) {
+					guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
+					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
+
+					guestWindow.x = systemManager.screen.width - guestWindow.width - 20;
+					guestWindow.y = 20;
+				}
+				guestWindow.refreshGuestView(evt.listOfGuests);
+			}
+
+			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
+				if(guestWindow != null)
+					guestWindow.remove(evt.userid);
+			}
+
+			private function openWaitWindow(evt:WaitModeratorEvent):void {
+				 progressBar.visible = false;
+				 waitWindow = PopUpManager.createPopUp( mdiCanvas, WaitingWindow, false) as WaitingWindow;
+				 waitWindow.conferenceParameters = evt.conferenceParameters;
+				 
+				 // Calculate position of TitleWindow in Application's coordinates. 
+				 waitWindow.x = (systemManager.screen.width - waitWindow.width) / 2;
+				 waitWindow.y = (systemManager.screen.height - waitWindow.height) / 2;
 			}			
 			
 			private function openLogWindow():void {
@@ -539,13 +607,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         return logoutUrl;
       }
       
-			private function handleLogout(e:ConnectionFailedEvent):void {
+      private function handleLogout(e:ConnectionFailedEvent):void {
+        if(progressBar != null)
+          progressBar.visible = false;
+
+        if(waitWindow != null)
+          waitWindow.removeWindow();
+
+        if(guestWindow != null) {
+          guestWindow.closeWindow();
+        }
+
         if (e is ConnectionFailedEvent) {
           showlogoutWindow((e as ConnectionFailedEvent).type);
         }
         else showlogoutWindow("You have logged out of the conference");	
-			}
-      
+      }
+
 			private function redirectToLogoutUrl ():void {
         var logoutURL:String = getLogoutUrl();
 				var request:URLRequest = new URLRequest(logoutURL);

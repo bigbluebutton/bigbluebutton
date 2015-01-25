@@ -32,9 +32,13 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.vo.LockSettings;
   import org.bigbluebutton.core.vo.LockSettingsVO;
+  import org.bigbluebutton.main.events.AddGuestEvent;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
+  import org.bigbluebutton.main.events.ModeratorRespEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
+  import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
@@ -132,6 +136,24 @@ package org.bigbluebutton.modules.users.services
           break;
         case "permissionsSettingsChanged":
           handlePermissionsSettingsChanged(message);
+          break;
+        case "user_requested_to_enter":
+          handleGuestRequestedToEnter(message);
+          break;
+        case "get_guest_policy_reply":
+          handleGetGuestPolicyReply(message);
+          break;
+        case "guest_policy_changed":
+          handleGuestPolicyChanged(message);
+          break;
+        case "get_guests_waiting_reply":
+          handleGetGuestsWaitingReply(message);
+          break;
+        case "response_to_guest":
+          handleResponseToGuest(message);
+          break;
+        case "guest_kicked":
+          handleGuestKicked(message);
           break;
       }
     }  
@@ -360,19 +382,27 @@ package org.bigbluebutton.modules.users.services
       
       UsersService.getInstance().userLeft(webUser);
       
+      if(webUser.guest) {
+        var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
+        e.userid = webUser.userId;
+        dispatcher.dispatchEvent(e);
+      }
+
       var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
-      
-      trace(LOG + "Notify others that user [" + user.userID + ", " + user.name + "] is leaving!!!!");
-      
-      // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
-      // around when the user already left.
-      user.isLeavingFlag = true;
-      
-      var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
-      joinEvent.userID = user.userID;
-      dispatcher.dispatchEvent(joinEvent);	
-      
-      UserManager.getInstance().getConference().removeUser(webUserId);	        
+      // If the user is null, it was a rejected guest
+      if(user != null) {
+        trace(LOG + "Notify others that user [" + user.userID + ", " + user.name + "] is leaving!!!!");
+
+        // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
+        // around when the user already left.
+        user.isLeavingFlag = true;
+
+        var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
+        joinEvent.userID = user.userID;
+        dispatcher.dispatchEvent(joinEvent);
+
+        UserManager.getInstance().getConference().removeUser(webUserId);
+      }
     }
     
     public function handleParticipantJoined(msg:Object):void {
@@ -521,6 +551,8 @@ package org.bigbluebutton.modules.users.services
       user.userID = joinedUser.userId;
       user.name = joinedUser.name;
       user.role = joinedUser.role;
+      user.guest = joinedUser.guest;
+      user.acceptedJoin = !user.guest;
       user.externUserID = joinedUser.externUserID;
       user.isLeavingFlag = false;
       user.listenOnly = joinedUser.listenOnly;
@@ -561,6 +593,99 @@ package org.bigbluebutton.modules.users.services
         
         dispatcher.dispatchEvent(e);
       }		
+    }
+
+    public function handleGuestRequestedToEnter(msg:Object):void {
+      trace(LOG + "*** handleRequestedToEnter " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+      if(UsersUtil.amIModerator() && UsersUtil.amIWaitForModerator() == false) {
+        var e:AddGuestEvent = new AddGuestEvent();
+        e.userid = map.userId;
+        e.name = map.name;
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(e);
+      }
+    }
+
+    public function handleGuestPolicyChanged(msg:Object):void {
+      trace(LOG + "*** handleGuestPolicyChanged " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+
+      var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
+      policy.payload['guestPolicy'] = map.guestPolicy;
+      dispatcher.dispatchEvent(policy);
+    }
+
+    public function handleGetGuestPolicyReply(msg:Object):void {
+      trace(LOG + "*** handleGetGuestPolicyReply " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+
+      var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
+      policy.payload['guestPolicy'] = map.guestPolicy;
+
+      if(UsersUtil.amIGuest()) {
+        if(map.guestPolicy == "ALWAYS_DENY")
+          dispatcher.dispatchEvent(new BBBEvent(BBBEvent.DENY_GUEST));
+        else if(map.guestPolicy == "ALWAYS_ACCEPT")
+          dispatcher.dispatchEvent(new BBBEvent(BBBEvent.ACCEPT_GUEST));
+        else
+          dispatcher.dispatchEvent(new BBBEvent(BBBEvent.ASK_TO_ACCEPT_GUEST));
+      }
+      dispatcher.dispatchEvent(policy);
+    }
+
+    public function handleResponseToGuest(msg:Object):void {
+      trace(LOG + "*** handleResponseToGuest " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+      var dispatcher:Dispatcher = new Dispatcher();
+
+      if(UsersUtil.getMyUserID() == map.userId && UsersUtil.amIWaitForModerator()) {
+        UsersUtil.setWaitForModerator(false);
+        if(map.response == false) {
+          var kickEvent:BBBEvent = new BBBEvent(BBBEvent.KICK_GUEST);
+          kickEvent.payload.userId = map.userId;
+          dispatcher.dispatchEvent(kickEvent);
+        }
+        else {
+          var allowCommand:ModeratorRespEvent = new ModeratorRespEvent(ModeratorRespEvent.GUEST_ALLOWED);
+          dispatcher.dispatchEvent(allowCommand);
+        }
+      }
+
+      if(UsersUtil.amIModerator()) {
+        var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
+        e.userid = map.userId;
+        dispatcher.dispatchEvent(e);
+      }
+    }
+
+    public function handleGetGuestsWaitingReply(msg:Object):void {
+      trace(LOG + "*** handleGetGuestsPolicyReply " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+
+      if(UsersUtil.amIModerator()) {
+        var guests:Array = map.guestsWaiting.split(",");
+        for each(var guest:String in guests) {
+          if(guest != "") {
+            var pairSplited:Array = guest.split(":");
+            var addGuestEvent:AddGuestEvent = new AddGuestEvent(AddGuestEvent.ADD_GUEST);
+            addGuestEvent.userid = pairSplited[0];
+            addGuestEvent.name = pairSplited[1];
+            var dispatcher:Dispatcher = new Dispatcher();
+            dispatcher.dispatchEvent(addGuestEvent);
+          }
+        }
+      }
+    }
+
+    public function handleGuestKicked(msg:Object):void {
+      trace(LOG + "*** handleGuestKicked " + msg.msg + " **** \n");
+      var map:Object = JSON.parse(msg.msg);
+
+      if (UsersUtil.getMyUserID() == map.guestId){
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.GUEST_KICKED_OUT));
+      }
     }
   }
 }

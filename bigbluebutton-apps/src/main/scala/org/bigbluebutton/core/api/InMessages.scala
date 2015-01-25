@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.api.Role._
+import org.bigbluebutton.core.api.GuestPolicy._
 import org.bigbluebutton.core.apps.poll._
 import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 import org.bigbluebutton.core.apps.presentation.Presentation
@@ -88,7 +89,8 @@ case class RegisterUser(
     name: String, 
     role: Role, 
     extUserID: String,
-    authToken: String
+    authToken: String,
+    guest: Boolean
 ) extends InMessage
                        
 case class UserJoining(
@@ -186,6 +188,43 @@ case class UserDisconnectedFromGlobalAudio(
     voiceConf: String,
     userid: String,
     name: String
+) extends InMessage
+
+// Guest support
+case class UserRequestToEnter(
+    meetingID: String,
+    userID: String
+) extends InMessage
+
+case class GetGuestPolicy(
+    meetingID: String,
+    requesterID: String
+) extends InMessage
+
+case class SetGuestPolicy(
+    meetingID: String,
+    policy: GuestPolicy
+) extends InMessage
+
+case class GetGuestsWaiting(
+    meetingID: String,
+    requesterID: String
+) extends InMessage
+
+case class RespondToGuest(
+    meetingID: String,
+    guestID: String,
+    response: Boolean
+) extends InMessage
+
+case class RespondToAllGuests(
+    meetingID: String,
+    response: Boolean
+) extends InMessage
+
+case class KickGuest(
+    meetingID: String,
+    guestID: String
 ) extends InMessage
 
 // Layout

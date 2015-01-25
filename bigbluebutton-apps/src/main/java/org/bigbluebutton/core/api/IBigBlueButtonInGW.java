@@ -29,7 +29,7 @@ public interface IBigBlueButtonInGW {
 	
 	// Users
 	void validateAuthToken(String meetingId, String userId, String token, String correlationId);
-	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken);
+	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken, Boolean guest);
 	void userRaiseHand(String meetingId, String userId);	
 	void lowerHand(String meetingId, String userId, String loweredBy);
 	void shareWebcam(String meetingId, String userId, String stream);
@@ -44,7 +44,14 @@ public interface IBigBlueButtonInGW {
 	void getRecordingStatus(String meetingId, String userId);
 	void userConnectedToGlobalAudio(String voiceConf, String userid, String name);
 	void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
-	
+	void userRequestToEnter(String meetingID, String userID);
+	void getGuestPolicy(String meetingID, String userID);
+	void setGuestPolicy(String meetingID, String guestPolicy);
+	void getGuestsWaiting(String meetingID, String requesterID);
+	void responseToGuest(String meetingID, String userID, Boolean response);
+	void responseToAllGuests(String meetingID, Boolean response);
+	void kickGuest(String meetingID, String guestID);
+
 	// Voice
 	void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute);
 	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
