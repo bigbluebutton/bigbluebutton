@@ -357,5 +357,15 @@ package org.bigbluebutton.modules.layout.model {
 			}
 			return layoutDefinition;
 		}
+
+		public function get numAdditionalSharedNotes():Number {
+			var sharedNotesCounter:int = 0;
+			for each (var window:WindowLayout in _layoutsPerRole[Role.VIEWER]) {
+				if (window.name.indexOf("AdditionalSharedNotesWindow") != -1) {
+					sharedNotesCounter++;
+				}
+			}
+			return sharedNotesCounter;
+		}
 	}
 }

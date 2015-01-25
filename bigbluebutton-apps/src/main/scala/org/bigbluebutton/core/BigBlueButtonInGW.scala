@@ -7,6 +7,7 @@ import org.bigbluebutton.core.apps.poll.PollInGateway
 import org.bigbluebutton.core.apps.layout.LayoutInGateway
 import org.bigbluebutton.core.apps.chat.ChatInGateway
 import scala.collection.JavaConversions._
+import org.bigbluebutton.core.apps.sharednotes.SharedNotesInGateway
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardInGateway
 import org.bigbluebutton.core.apps.voice.VoiceInGateway
 import java.util.ArrayList
@@ -452,4 +453,25 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	  voiceGW.voiceRecording(meetingId, recordingFile, 
 			            timestamp, recording)
 	}
+  
+  val sharedNotesGW = new SharedNotesInGateway(bbbGW)
+  
+  def patchDocument(meetingId: String, userId: String, noteId: String,
+      patch: String, beginIndex: Int, endIndex: Int) {
+    sharedNotesGW.patchDocument(meetingId, userId, noteId, patch, beginIndex, endIndex)
+  }
+  
+  def getCurrentDocument(meetingId: String, userId: String) {
+    sharedNotesGW.getCurrentDocument(meetingId, userId)
+  }
+  
+  def createAdditionalNotes(meetingId: String, userId: String) {
+    sharedNotesGW.createAdditionalNotes(meetingId, userId)
+  }
+  def destroyAdditionalNotes(meetingId: String, userId: String, noteId: String) {
+    sharedNotesGW.destroyAdditionalNotes(meetingId, userId, noteId)
+  }
+  def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
+    sharedNotesGW.requestAdditionalNotesSet(meetingId, userId, additionalNotesSetSize)
+  }
 }

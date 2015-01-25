@@ -36,6 +36,7 @@ package org.bigbluebutton.main.model.users {
 	  public var voiceBridge:String;
 	  public var dialNumber:String;
 	  [Bindable] public var record:Boolean;
+	  [Bindable] public var numAdditionalSharedNotes:Number = 0;
     
     private static const LOG:String = "main.model.users::Conference - ";
     

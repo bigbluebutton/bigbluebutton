@@ -653,6 +653,41 @@ case class GetAllMeetingsReply(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class PatchDocumentReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    noteID: String,
+    patch: String,
+    beginIndex: Int,
+    endIndex: Int,
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class GetCurrentDocumentReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    notes: Map[String, String],
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class CreateAdditionalNotesReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    noteID: String,
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class DestroyAdditionalNotesReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    noteID: String,
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
 // Value Objects
 case class MeetingVO(
     id: String, 

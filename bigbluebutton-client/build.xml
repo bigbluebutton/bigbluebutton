@@ -38,6 +38,7 @@
 	<property name="POLLING" value="PollingModule" />
 	<property name="LAYOUT" value="LayoutModule" />
 	<property name="USERS" value="UsersModule" />
+	<property name="SHAREDNOTES" value="SharedNotesModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -280,9 +281,21 @@
 			<build-module src="${SRC_DIR}" target="${USERS}" />
 	</target>
 	
+     <target name="build-sharednotes" description="Compile SharedNotes Module">
+                <build-module src="${SRC_DIR}" target="${SHAREDNOTES}" />
+
+		<echo message="Copying assets for SharedNotesModule" />
+                <copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/sharednotes/views/images/" >
+                        <fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/views/images/" />
+                </copy>
+		<copy file="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/util/shared_notes.js" todir="${OUTPUT_DIR}/lib/">
+			
+		</copy>
+    </target>
+
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-present" 
-			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users"
+			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users, build-sharednotes"
 			description="Compile main, chat, present modules">
 	</target>
 	

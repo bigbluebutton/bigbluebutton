@@ -507,3 +507,35 @@ case class IsWhiteboardEnabledRequest(
 case class GetAllMeetingsRequest(
     meetingID: String /** Not used. Just to satisfy trait **/
     ) extends InMessage
+
+// Shared notes
+case class PatchDocumentRequest(
+    meetingID: String, 
+    requesterID: String,
+    noteID: String,
+    patch: String,
+    beginIndex: Int,
+    endIndex: Int
+) extends InMessage
+
+case class GetCurrentDocumentRequest(
+    meetingID: String, 
+    requesterID: String
+) extends InMessage
+
+case class CreateAdditionalNotesRequest(
+    meetingID: String, 
+    requesterID: String
+) extends InMessage
+
+case class DestroyAdditionalNotesRequest(
+    meetingID: String, 
+    requesterID: String,
+    noteID: String
+) extends InMessage
+
+case class RequestAdditionalNotesSetRequest(
+    meetingID: String, 
+    requesterID: String,
+    additionalNotesSetSize: Int
+) extends InMessage
