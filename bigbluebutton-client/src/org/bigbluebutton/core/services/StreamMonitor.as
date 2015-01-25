@@ -130,6 +130,9 @@ package org.bigbluebutton.core.services
 
 			var download:Dictionary = new Dictionary();
 			var upload:Dictionary = new Dictionary();
+			
+			download["byteCount"] = upload["byteCount"] 
+					= download["currentBytesPerSecond"] = upload["currentBytesPerSecond"] = 0;
 			 
 			for (var i:int = 0; i < streams.length; i++) {
 				if (streams[i] == null || streams[i].info == null) {
@@ -137,13 +140,13 @@ package org.bigbluebutton.core.services
 					continue;
 				}
 				
-//				log("Heartbeat on " + streams[i].info);
+				//log("Heartbeat on " + streams[i].info);
 
 				var remote:Boolean = isRemoteStream(streams[i]);
 				var ref:Dictionary = (remote? download: upload);
 
 				if (streams[i].info.uri == null) {
-					log("Stream URI is null, returning");
+					//log("Stream URI is null, returning");
 					continue;
 				}
 				var uri:String = streams[i].info.uri.toLowerCase();
@@ -174,7 +177,7 @@ package org.bigbluebutton.core.services
 						var property:String = s.@name;
 						var num:Number = 0;
 						if (ref.hasOwnProperty(property))
-							num = ref[property] as Number;
+							num = (ref[property] as Number);
 						num += (streams[i].info[property] as Number);
 						ref[property] = num;
 					}
@@ -206,11 +209,6 @@ package org.bigbluebutton.core.services
 				//log(value.streamName + ": " + value.byteCount);
 			}
 
-//			var netstatsEvent:NetworkStatsEvent = new NetworkStatsEvent();
-//			netstatsEvent.downloadStats = download;
-//			netstatsEvent.uploadStats = upload;
-//			_globalDispatcher.dispatchEvent(netstatsEvent);
-
 			NetworkStatsData.getInstance().updateConsumedBW(download["currentBytesPerSecond"],
 					upload["currentBytesPerSecond"],
 					download["byteCount"],
@@ -224,8 +222,7 @@ package org.bigbluebutton.core.services
 		}
 		
 		private function log(s:String):void {
-			//LogUtil.debug("[StreamMonitor] " + s);
-      trace("[StreamMonitor] " + s);
+			LogUtil.debug("[StreamMonitor] " + s);
 		}
 	}
 }

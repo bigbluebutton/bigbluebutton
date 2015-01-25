@@ -57,6 +57,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
+
+	<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
 	  
 	<mx:Script>
 		<![CDATA[
@@ -95,6 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
@@ -137,8 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
-			[Bindable] private var statsIcon:Class = images.bandwidth;
-      
+
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
 			
@@ -599,26 +601,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					addedBtns.removeChild(event.button as UIComponent);
 			}
 
-			private var networkStatsWindow:NetworkStatsWindow = new NetworkStatsWindow();
+			private var networkStatsWindow:NetworkStatsWindow = null;
 
 			private function openNetworkStatsWindow(e:Event = null):void {
-				/*var btnPosition:Point = new Point(btnNetwork.x, btnNetwork.y);
-				var btnPositionOnGlobal:Point = btnNetwork.localToGlobal(btnPosition);
-				var windowPosition:Point = networkStatsWindow.globalToLocal(btnPositionOnGlobal);
-				
-				windowPosition.x += btnNetwork.width + 10;
-				windowPosition.y -= networkStatsWindow.height - 10;
+				if (networkStatsWindow == null) {
+					networkStatsWindow = new NetworkStatsWindow();
+				}
 
-				networkStatsWindow.x = windowPosition.x;
-				networkStatsWindow.y = windowPosition.y;*/
+				mdiCanvas.windowManager.add(networkStatsWindow);
+				mdiCanvas.windowManager.absPos(networkStatsWindow, mdiCanvas.width - networkStatsWindow.width, 0);
+				mdiCanvas.windowManager.bringToFront(networkStatsWindow);
+			}
 
-				networkStatsWindow.appear();
-			}
-			
-			private function closeNetworkStatsWindow(e:Event = null):void {
-				networkStatsWindow.disappear();
-			}
-			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
         var conference:Conference = UserManager.getInstance().getConference();
         var lsv:LockSettingsVO = conference.getLockSettings();

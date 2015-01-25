@@ -72,11 +72,14 @@ package org.bigbluebutton.main.model.users
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 		}
 		
-    public function setUri(uri:String):void {
-      _applicationURI = uri;
-    }
-       
-        
+		public function setUri(uri:String):void {
+			_applicationURI = uri;
+
+			var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+			var result:Array = pattern.exec(uri);
+			BandwidthMonitor.getInstance().serverURL = result.server;
+		}
+		
 		public function get connection():NetConnection {
 			return _netConnection;
 		}
@@ -227,19 +230,8 @@ package org.bigbluebutton.main.model.users
 			handleResult( event );
 		}
 		
-    private var _bwMon:BandwidthMonitor = new BandwidthMonitor();
-    
-    private function startMonitoringBandwidth():void {
-      trace("Start monitoring bandwidth.");
-      var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
-      var result:Array = pattern.exec(_applicationURI);
-      _bwMon.serverURL = result.server;
-      _bwMon.serverApplication = "video";
-      _bwMon.start();
-    }
-        
-    private var autoReconnectTimer:Timer = new Timer(1000, 1);
-    
+		private var autoReconnectTimer:Timer = new Timer(1000, 1);
+		
 		public function handleResult(event:Object):void {
 			var info : Object = event.info;
 			var statusCode : String = info.code;
@@ -247,11 +239,8 @@ package org.bigbluebutton.main.model.users
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					trace(LOG + ":Connection to viewers application succeeded.");
-          
-					// uncomment this to turn on the bandwidth check
-//					startMonitoringBandwidth();
+
           validateToken();
-			
 					break;
 			
 				case "NetConnection.Connect.Failed":					

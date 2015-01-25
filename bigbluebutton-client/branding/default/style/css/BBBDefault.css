@@ -64,7 +64,7 @@ ToolTip {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -830,6 +830,13 @@ Alert {
 
 .recordButtonStyleStop {
   icon:   Embed('assets/images/control-record-stop.png');
+}
+
+.bandwidthButtonStyle {
+  paddingTop: 0;
+  paddingBottom: 0;
+  height: 22;
+  icon:   Embed('assets/images/bandwidth.png');
 }
 
 .statusImageStyle {
