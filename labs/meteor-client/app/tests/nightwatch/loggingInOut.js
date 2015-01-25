@@ -41,5 +41,14 @@ module.exports = {
       .deleteCookies()
       .closeWindow()
       .end();
+  },
+  'Loading the presentation': function(browser) {
+    browser
+      .url('http://192.168.244.140:4000')
+      .waitForElementVisible('body', 1000)
+      .assert.visible('input[ng-model=username]')
+      .setValue('input[ng-model=username]', ['Maxim', browser.Keys.ENTER])
+      .waitForElementVisible('#whiteboard-paper', 10000)
+      .waitForElementVisible('#whiteboard-paper > #svggroup', 30000)
   }
 };
