@@ -213,7 +213,7 @@ case class JoinMeetingReply(
     user:UserVO,
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
-
+                      
 case class UserRaisedHand(
     meetingID: String, 
     recorded: Boolean, 
@@ -663,11 +663,6 @@ case class IsWhiteboardEnabledReply(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
-case class GetAllMeetingsReply(
-    meetings: Array[MeetingInfo],
-    version:String = Versions.V_0_0_1
-) extends IOutMessage
-
 case class GuestRequestedToEnter (
     meetingID: String,
     recorded: Boolean,
@@ -706,6 +701,11 @@ case class GuestKicked(
     meetingID: String,
     recorded: Boolean,
     guestID: String
+) extends IOutMessage
+
+case class GetAllMeetingsReply(
+    meetings: Array[MeetingInfo],
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class PatchDocumentReply(
@@ -756,3 +756,4 @@ case class GetStreamPathReply(
     streamName: String,
     streamPath: String
 ) extends IOutMessage
+

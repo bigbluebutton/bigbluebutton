@@ -20,7 +20,7 @@ trait UsersApp {
   private var meetingMuted = false
   
   private var currentPresenter = new Presenter("system", "system", "system")
-  
+
   private var guestsWaiting = new collection.immutable.ListSet[String]
   
   def hasUser(userID: String):Boolean = {
@@ -287,7 +287,7 @@ trait UsersApp {
                   ru.role, ru.guest, mood="", presenter=false, 
                   hasStream=false, locked=false, webcamStreams=new ListSet[String](), 
                   phoneUser=false, vu, listenOnly=false, permissions)
-
+  	
       users.addUser(uvo)
 
       // Send UserJoined only if is not a guest or guest policy is always accept

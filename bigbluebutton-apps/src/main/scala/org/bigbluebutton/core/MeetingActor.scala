@@ -267,7 +267,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
     guestPolicy = msg.policy
     outGW.send(new GuestPolicyChanged(msg.meetingID, recorded, guestPolicy.toString()))
   }
-
+  
   def lockLayout(lock: Boolean) {
     permissions = permissions.copy(lockedLayout=lock)
   }
