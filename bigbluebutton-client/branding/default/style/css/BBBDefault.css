@@ -896,6 +896,13 @@ Alert {
   icon:   Embed('assets/images/control-record-stop.png');
 }
 
+.bandwidthButtonStyle {
+  paddingTop: 0;
+  paddingBottom: 0;
+  height: 22;
+  icon:   Embed('assets/images/ic_swap_vert_16px.png');
+}
+
 .statusImageStyle {
   successImage:   Embed(source='assets/images/status_success.png');
   warningImage:   Embed(source='assets/images/status_warning.png');
@@ -915,13 +922,6 @@ Alert {
 .statusMessageStyle {
   fontSize: 12;
   paddingTop: 0;
-}
-
-.bandwidthButtonStyle {
-  paddingTop: 0;
-  paddingBottom: 0;
-  height: 22;
-  icon:   Embed('assets/images/bandwidth.png');
 }
 
 .moodStyle {
