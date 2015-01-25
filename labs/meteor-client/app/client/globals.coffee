@@ -93,8 +93,15 @@ Handlebars.registerHelper "getShapesForSlide", ->
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
-  # Users with raised hand last go first, then sorted by name
-  Meteor.Users.find({}, {sort: {'user.raise_hand': -1, 'user._sort_name': 1} })
+  # retrieve all users with raised hands
+  # raised hand is an object, so we can't simply search for true
+  # sort users by who has raised their hand first, place them at the top
+  raised = Meteor.Users.find({'user.raise_hand': {$not: {$in: [0, false, null]} }}, {sort: {'user.raise_hand': 1} }).fetch()
+  # find all users with a lowered hand
+  # when a hand is lowered, it is not always just false, it can be zero, or null
+  lowered = Meteor.Users.find({'user.raise_hand': $in: [0, false, null]}, {sort: {'user._sort_name': 1} }).fetch()
+  # add the users with lowered hands, to the list of people with raised hands
+  raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
   "Whiteboard: " + (getPresentationFilename() or "Loading...")
@@ -202,6 +209,22 @@ Handlebars.registerHelper "visibility", (section) ->
     if tabs.filter((tab) -> tab.userId == u.userId).length is 0 and u.userId is new_msg_userid
       tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
       setInSession 'chatTabs', tabs
+
+@resizeWindows = ->
+  if window.matchMedia('(orientation: landscape)').matches
+      chat = $('#chat')
+      navbarHeight = $('#navbar').height()
+      footerHeight = $('#footer').height()
+      bodyHeight = $('body').height()
+      margins = parseInt(chat.css('margin-top'))*2 # *2 for top & bottom
+      paddingSpace = 10
+      windowHeight = ( bodyHeight - ( navbarHeight + footerHeight + margins + paddingSpace ) )
+
+      chat.height(windowHeight + 'px')
+      $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight())*2) + 'px')
+
+      $("#users").height((windowHeight-paddingSpace) + 'px')
+      $("#user-contents").height((windowHeight-$("#users").find('h3').outerHeight()) + 'px')
 
 @setInSession = (k, v) -> SessionAmplify.set k, v
 
