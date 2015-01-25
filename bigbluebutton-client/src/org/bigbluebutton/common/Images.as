@@ -190,8 +190,11 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/ellipse.png")]
         public var circle_icon:Class; 
         
-        [Embed(source="assets/images/arrow_out.png")]
+        [Embed(source="assets/images/ic_fullscreen_16px.png")]
         public var full_screen:Class; 
+        
+        [Embed(source="assets/images/ic_fullscreen_exit_16px.png")]
+        public var exit_full_screen:Class; 
         
         [Embed(source="assets/images/BBBlogo.png")]
         public var bbb_logo:Class; 
