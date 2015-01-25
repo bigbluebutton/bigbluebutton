@@ -304,7 +304,7 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/grid_icon.png")]
 		public var grid_icon:Class;	
 		
-		[Embed(source="assets/images/arrow_refresh_small.png")]
+		[Embed(source="assets/images/ic_refresh_16px.png")]
 		public var refreshSmall:Class;
 	}
 }
