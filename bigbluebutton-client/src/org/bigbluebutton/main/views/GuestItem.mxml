@@ -41,9 +41,6 @@
 
             private var dispatcher:Dispatcher = new Dispatcher();
 
-            private var images:Images = new Images();
-            [Bindable] public var acceptUserIcon:Class = images.accept_user;
-            [Bindable] public var rejectUserIcon:Class = images.cancel_user;
             [Bindable] private var username:String = "";
             private var userid:String;
 
@@ -72,7 +69,7 @@
 
     <mx:Label text="{username}" maxWidth="150" />
     <mx:Spacer width="100%" />
-    <mx:Button icon="{rejectUserIcon}" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" click="onRejectUserBtnClick()" />
-    <mx:Button icon="{acceptUserIcon}" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" click="onAcceptUserBtnClick()" />
+    <mx:Button styleName="denyButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip')}" click="onRejectUserBtnClick()" />
+    <mx:Button styleName="acceptButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip')}" click="onAcceptUserBtnClick()" />
 
 </mx:HBox>

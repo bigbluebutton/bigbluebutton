@@ -64,7 +64,7 @@ ToolTip {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .settingsButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -135,7 +135,15 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
 }
 
 .settingsButtonStyle {
-  icon: Embed('assets/images/wrench.png');
+  icon: Embed('assets/images/ic_settings_16px.png');
+}
+
+.acceptButtonStyle {
+  icon: Embed('assets/images/ic_thumb_up_16px.png');
+}
+
+.denyButtonStyle {
+  icon: Embed('assets/images/ic_thumb_down_16px.png');
 }
 
 DataGrid {

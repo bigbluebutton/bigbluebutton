@@ -205,12 +205,6 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/control_play_blue.png")]
         public var control_play:Class;  
 
-        [Embed(source="assets/images/accept.png")]
-        public var accept_user:Class;    
-
-        [Embed(source="assets/images/cancel.png")]
-        public var cancel_user:Class; 
-
         [Embed(source="assets/images/shape_move_front.png")]
         public var layout:Class; 
 		
