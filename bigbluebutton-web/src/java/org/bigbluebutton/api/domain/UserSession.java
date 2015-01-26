@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.api.domain;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class UserSession {
   public String authToken = null;
   public String internalUserId = null;
@@ -40,15 +42,11 @@ public class UserSession {
   public String avatarURL;
   public String configXML;
   
-  private int connections = 0;
+  private AtomicInteger connections = new AtomicInteger(0);
   
-  public int getConnectionNum() {
-    return connections;
-  }
-  
-  public int incConnectionNum() {
-    connections += 1;
-    return connections;
+ 
+  public synchronized int incrementConnectionNum() {
+    return connections.incrementAndGet();
   }
   
   

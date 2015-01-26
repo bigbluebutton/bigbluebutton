@@ -1347,7 +1347,7 @@ class ApiController {
       // removing the user when the user reconnects after being disconnected. (ralam jan 22, 2015)
       // We use underscore (_) to associate userid with the user. We are also able to track
       // how many times a user reconnects or refresh the browser.
-      String newInternalUserID = us.internalUserId + "_" + us.incConnectionNum()
+      String newInternalUserID = us.internalUserId + "_" + us.incrementConnectionNum()
     
       log.info("Found conference for " + us.fullname)
       response.addHeader("Cache-Control", "no-cache")
