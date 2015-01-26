@@ -246,6 +246,8 @@ package org.bigbluebutton.modules.layout.managers
 			trace(LOG + " layout changed by me. Sync others to this new layout.");
 			var e:SyncLayoutEvent = new SyncLayoutEvent(_currentLayout);
 			_globalDispatcher.dispatchEvent(e);
+
+			Alert.show(ResourceUtil.getInstance().getString('bbb.layout.sync'), "", Alert.OK, _canvas);
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
