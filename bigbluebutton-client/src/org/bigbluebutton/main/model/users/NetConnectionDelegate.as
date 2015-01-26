@@ -116,6 +116,10 @@ package org.bigbluebutton.main.model.users
     }
 		
     private function validateToken():void {
+      var message:Object = new Object();
+      message["userId"] = _conferenceParameters.internalUserID;
+      message["authToken"] = _conferenceParameters.authToken;
+      
       sendMessage(
         "validateToken",// Remote function name
         // result - On successful result
@@ -129,7 +133,7 @@ package org.bigbluebutton.main.model.users
             LogUtil.error(x + " : " + status[x]); 
           } 
         },
-        _conferenceParameters.internalUserID
+        message
       ); //_netConnection.call      
     }
       

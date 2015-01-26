@@ -80,7 +80,8 @@ case class ValidateAuthToken(
   meetingID: String, 
   userId: String, 
   token: String,
-  correlationId: String) extends InMessage
+  correlationId: String,
+  sessionId: String) extends InMessage
 
 case class RegisterUser(
     meetingID: String, 
@@ -93,12 +94,14 @@ case class RegisterUser(
                        
 case class UserJoining(
     meetingID: String, 
-    userID: String
+    userID: String,
+    sessionId: String
 ) extends InMessage
                        
 case class UserLeaving(
     meetingID: String, 
-    userID: String
+    userID: String,
+    sessionId: String
 ) extends InMessage
                        
 case class GetUsers(

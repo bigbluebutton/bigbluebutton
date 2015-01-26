@@ -54,7 +54,9 @@ public class MeetingMessageHandler implements MessageHandler {
 				} else if (msg instanceof ValidateAuthTokenMessage) {
 					ValidateAuthTokenMessage emm = (ValidateAuthTokenMessage) msg;
 					log.info("Received ValidateAuthTokenMessage token request. Meeting id [{}]", emm.meetingId);
-					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo);
+					log.warn("TODO: Need to pass sessionId on ValidateAuthTokenMessage message.");
+					String sessionId = "tobeimplemented";
+					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo, sessionId);
 				} else if (msg instanceof UserConnectedToGlobalAudio) {
 					UserConnectedToGlobalAudio emm = (UserConnectedToGlobalAudio) msg;
 					
