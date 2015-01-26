@@ -23,7 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.broadcastButton.toolTip')}"
-		   icon="{_icon}"
+		   styleName="broadcastLayoutButtonStyle"
 		   click="onClick(event)"
 		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
 
@@ -41,12 +41,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.FocusEvent;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _images:Images = new Images();
-			[Bindable] private var _icon:Class = _images.page_link;
 			
 			private function init():void {
 				if (!UserManager.getInstance().getConference().amIModerator()) {
-					this.visible = false;
+					this.visible = this.includeInLayout = false;
 				}
 			}
 			
