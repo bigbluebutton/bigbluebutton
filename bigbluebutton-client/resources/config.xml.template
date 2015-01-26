@@ -9,7 +9,7 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
-    <branding logo="logo.png" copyright="Mconf rocks!" background="background.jpg" />
+    <branding logo="logo.png" copyright="&#169; 2015 &lt;a href=&quot;http://www.mconf.org&quot; target=&quot;_blank&quot;&gt;http://www.mconf.org&lt;/a&gt;" background="" />
     <shortcutKeys showButton="true" />
     <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="bbb.layout.name.defaultlayout"
