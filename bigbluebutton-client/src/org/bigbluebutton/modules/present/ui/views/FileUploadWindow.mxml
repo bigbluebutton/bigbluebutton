@@ -78,7 +78,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    [BIndable] public var maxFileSize:Number;
 
       private var images:Images = new Images();
-      [Bindable] private var addIcon : Class = images.add;
       [Bindable] private var bulletGoIcon : Class = images.bulletGo;
       [Bindable] private var deleteIcon : Class = images.cancel;
 

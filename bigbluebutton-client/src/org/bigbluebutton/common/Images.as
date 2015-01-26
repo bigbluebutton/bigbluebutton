@@ -22,9 +22,6 @@ package org.bigbluebutton.common
 	public class Images
 	{
 
-    [Embed(source="assets/images/page_link.png")]
-    public var page_link:Class;
-    
 	[Embed(source="assets/images/users_settings.png")]
 	public var users_settings:Class;
 	
@@ -223,9 +220,6 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/magnifier.png")]
         public var magnifier:Class;
         
-        [Embed(source="assets/images/add.png")]
-        public var add:Class;
-        
         [Embed(source="assets/images/bullet_go.png")]
         public var bulletGo:Class;
 
@@ -270,15 +264,9 @@ package org.bigbluebutton.common
 	[Embed(source="assets/images/poll_icon.png")]
 	public var pollIcon:Class;		
 
-		[Embed(source="assets/images/disk.png")]
-		public var disk:Class;
-
 		[Embed(source="assets/images/disk_grayscale.png")]
 		public var disk_grayscale:Class;		
 
-		[Embed(source="assets/images/folder.png")]
-		public var folder:Class;		
-	
 		// PLACE CUSTOM IMAGES BELOW
 		[Embed(source="assets/images/line.png")]
 		public var line_icon:Class;	

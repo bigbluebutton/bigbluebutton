@@ -133,7 +133,7 @@
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
-			enableEdit="false"
+			enableEdit="true"
 		/>
 
 		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 

@@ -12,7 +12,8 @@ trait LayoutApp {
   private var setByUser:String = "system";
   private var currentLayout = "";
 	private var layoutLocked = false
-  private var viewersOnly = true
+  // this is not being set by the client, and we need to apply the layouts to all users, not just viewers, so will keep the default value of this as false
+  private var viewersOnly = false
   
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
     outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID, currentLayout, permissions.lockedLayout, setByUser))

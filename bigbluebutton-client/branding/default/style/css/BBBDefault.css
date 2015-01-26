@@ -932,6 +932,22 @@ Alert {
   paddingTop: 0;
 }
 
+.addLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_add_circle_outline_16px.png');
+}
+
+.saveLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_file_download_16px.png');
+}
+
+.loadLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_file_upload_16px.png');
+}
+
+.broadcastLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_send_16px.png');
+}
+
 .moodStyle {
   icon:   Embed('assets/images/ic_mood_black_18dp.png');
 }
