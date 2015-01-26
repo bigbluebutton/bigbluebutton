@@ -69,7 +69,7 @@ trait SharedNotesApp {
     
   def handleRequestAdditionalNotesSetRequest(msg: RequestAdditionalNotesSetRequest) {
     notes.synchronized {
-      var num = msg.additionalNotesSetSize - notes.size
+      var num = msg.additionalNotesSetSize - notes.size + 1
       for (i <- 1 to num) {
         createAdditionalNotesNonSync(msg.requesterID)
       }

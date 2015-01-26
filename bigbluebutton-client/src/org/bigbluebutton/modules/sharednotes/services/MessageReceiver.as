@@ -82,7 +82,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
     
     private function handleCreateAdditionalNotesCommand(message:Object):void {
-      trace(LOG + "Handling private chat message [" + message + "]");
+      trace(LOG + "Handling create additional notes message [" + message + "]");
       
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = message.noteID;
