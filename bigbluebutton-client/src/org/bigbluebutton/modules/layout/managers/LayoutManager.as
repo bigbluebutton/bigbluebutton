@@ -263,6 +263,7 @@ package org.bigbluebutton.modules.layout.managers
 			if (layout != null) {
         layout.applyToCanvas(_canvas);
         dispatchSwitchedLayoutEvent(layout.name);
+        UserManager.getInstance().getConference().numAdditionalSharedNotes = layout.numAdditionalSharedNotes;
       }
 				
 			updateCurrentLayout(layout);
@@ -281,7 +282,6 @@ package org.bigbluebutton.modules.layout.managers
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
-			UserManager.getInstance().getConference().numAdditionalSharedNotes = layout.numAdditionalSharedNotes;
 			applyLayout(layout);
 		}
 		
