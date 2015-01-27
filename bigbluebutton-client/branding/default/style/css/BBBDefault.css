@@ -451,24 +451,15 @@ DataGrid {
 
 }
 
-.presentationUploadFileFormatHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .desktopShareUsingChromeOnMacHintBoxStyle {
 	backgroundColor: #D4D4D4;
 	dropShadowEnabled: false;
 	paddingLeft: 10;
 	paddingRight: 10
 }
 
-.presentationUploadFileFormatHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .desktopShareUsingChromeOnMacHintTextStyle {
 	fontWeight: bold;
-}
-
-.desktopShareTextStyle {
-	fontSize:	11;
-	fontWeight:	bold;	
-}
-
-.chromeJavaHelpImage {
-	imageSource: Embed(source='assets/images/chromePluginBlocked.png');
 }
 
 .cameraDisplaySettingsWindowStyle {
