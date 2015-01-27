@@ -41,7 +41,6 @@ function stopApplet(){
         removeFrame();
 }
 
-function checkForJava(){
-//      if (navigator.javaEnabled() || window.navigator.javaEnabled())
-                return 1;
+function appletStartupCallback() {
+        BBB.javaAppletLaunched();
 }

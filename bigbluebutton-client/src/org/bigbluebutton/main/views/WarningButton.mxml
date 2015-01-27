@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   click="handleButtonClick();"
 		   move="handleMove();"
 		   creationComplete="onCreationComplete();"
-		   visible="false">
+		   visible="false" includeInLayout="false">
 	<mate:Listener type="{ClientStatusEvent.SUCCESS_MESSAGE_EVENT}" method="handleSuccessMessageEvent" />
 	<mate:Listener type="{ClientStatusEvent.WARNING_MESSAGE_EVENT}" method="handleWarningMessageEvent" />
 	<mate:Listener type="{ClientStatusEvent.FAIL_MESSAGE_EVENT}" method="handleFailMessageEvent" />
@@ -78,14 +78,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function showNotification():void {
-				visible = true;
-				
-				if (hideTimer.running) hideTimer.reset();
-				hideTimer.start()
-				
-				if (!notification) {
-					notification = ToolTipManager.createToolTip(ResourceUtil.getInstance().getString("bbb.clientstatus.notification"), 100, 100, "errorTipAbove", this) as ToolTip;
-					handleMove();
+				if (parent.visible) {
+					visible = includeInLayout = true;
+					
+					if (hideTimer.running) hideTimer.reset();
+					hideTimer.start()
+					
+					if (!notification) {
+						notification = ToolTipManager.createToolTip(ResourceUtil.getInstance().getString("bbb.clientstatus.notification"), 100, 100, "errorTipAbove", this) as ToolTip;
+						handleMove();
+					}
 				}
 			}
 			
