@@ -50,5 +50,8 @@ module.exports = {
       .setValue('input[ng-model=username]', ['Maxim', browser.Keys.ENTER])
       .waitForElementVisible('#whiteboard-paper', 10000)
       .waitForElementVisible('#whiteboard-paper > #svggroup', 30000)
+      .deleteCookies()
+      .closeWindow()
+      .end();
   }
 };
