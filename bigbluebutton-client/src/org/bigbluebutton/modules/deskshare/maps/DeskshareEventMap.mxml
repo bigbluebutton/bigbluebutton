@@ -37,7 +37,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
-			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 		]]>
 	</mx:Script>
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
@@ -45,7 +44,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
 		-->
 		<ObjectBuilder generator="{DeskshareManager}"/>
-		<ObjectBuilder generator="{JavaCheck}"/>
 	</EventHandlers>
 		
 	<EventHandlers type="{ShareEvent.START_SHARING}">
@@ -94,7 +92,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<EventHandlers type="{ModuleEvent.START}">		
 		<MethodInvoker generator="{DeskshareManager}" method="handleStartModuleEvent" arguments="{event.module}"/>
-		<MethodInvoker generator="{JavaCheck}" method="check" />
 	</EventHandlers>
 
   	

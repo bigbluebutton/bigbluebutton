@@ -40,7 +40,7 @@
 
 		
 		<module name="DeskShareModule" 
-			url="http://HOST/client/DeskShareModule.swf?v=4105" 
+			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
 			showButton="true"
 			autoStart="false"

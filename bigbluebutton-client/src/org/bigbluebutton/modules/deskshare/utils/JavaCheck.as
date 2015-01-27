@@ -27,32 +27,26 @@ package org.bigbluebutton.modules.deskshare.utils
 	import org.bigbluebutton.main.events.ClientStatusEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
-	public class JavaCheck {
-		private var java_version:String = "1.7.0_51";
-		
-		private var dispatcher : Dispatcher = new Dispatcher();
-		
-		public function JavaCheck() {
+	public class JavaCheck {		
+		public static function checkJava():String {
+			var dispatcher : Dispatcher = new Dispatcher();
+			var java_version:String = "1.7.0_51";
+			
 			var xml:XML = BBB.initConfigManager().config.browserVersions;
 			if (xml.@java != undefined) {
 				java_version = xml.@java.toString();
 			}
-		}
-		
-		public function check():void {
-			setTimeout(checkJava, 800);
-		}
-		
-		public function checkJava():void {
+			
 			try {
 				var javas : Array = JavaCheck.getJREs();
 			} catch ( e : Error ) {
 				dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notdetected")));
-				return;
+				return ResourceUtil.getInstance().getString("bbb.clientstatus.java.notdetected");
 			}
 			
 			if (javas.length == 0) {
 				dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled")));
+				return ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled");
 			}
 			
 			var highestJava : String = javas[0];
@@ -92,12 +86,14 @@ package org.bigbluebutton.modules.deskshare.utils
 			
 			if (!passedJava) {
 				dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.oldversion")));
+				return ResourceUtil.getInstance().getString("bbb.clientstatus.java.oldversion");
 			} else {
 				// Java success
+				return null;
 			}
 		}
 		
-		public static function getJREs():Array{
+		private static function getJREs():Array{
 			var installedJREs:Array = ExternalInterface.call("deployJava.getJREs");
 			
 			if (installedJREs == null) throw new Error("Javascript files not found.");
