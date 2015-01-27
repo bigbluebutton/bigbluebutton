@@ -179,7 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnFSPublish.enabled = false;
 				btnRegionPublish.enabled = false;
 //				useSVC2Check.enabled = false;
-				javaTimer = new Timer(3000, 1);
+				javaTimer = new Timer(7000, 1);
 				javaTimer.addEventListener(TimerEvent.TIMER, onJavaTimer);
 				javaTimer.start();
 				startSharing(connection, uri, room, fullScreen);
