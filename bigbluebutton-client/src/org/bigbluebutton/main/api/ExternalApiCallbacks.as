@@ -37,6 +37,8 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+  import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
+  import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -111,6 +113,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCWebcamRequest", handleWebRTCWebcamRequest);
         ExternalInterface.addCallback("webRTCWebcamRequestSuccess", handleWebRTCWebcamRequestSuccess);
         ExternalInterface.addCallback("webRTCWebcamRequestFail", handleWebRTCWebcamRequestFail);
+        ExternalInterface.addCallback("javaAppletLaunched", handleJavaAppletLaunched);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -482,6 +485,12 @@ package org.bigbluebutton.main.api
 	{
 		trace(LOG + "handleWebRTCWebcamRequest: received");
 		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_REQUEST));
+	}
+	
+	private function handleJavaAppletLaunched():void
+	{
+		trace(LOG + "handleJavaAppletLaunched: received");
+		_dispatcher.dispatchEvent(new DeskshareAppletLaunchedEvent(DeskshareAppletLaunchedEvent.APPLET_LAUNCHED));
 	}
   }
 }
