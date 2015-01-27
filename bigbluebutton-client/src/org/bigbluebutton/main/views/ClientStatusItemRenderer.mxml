@@ -20,7 +20,7 @@
 						break
 				}
 				titleLbl.text = value.title;
-				messageTxt.htmlText = value.message;
+				messageTxt.text = value.message;
 				
 				validateNow();
 			}
