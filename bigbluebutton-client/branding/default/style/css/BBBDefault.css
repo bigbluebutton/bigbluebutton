@@ -60,6 +60,13 @@ ToolTip {
   color: #e1e2e5;
 }
 
+.videoMessageWarningLabelStyle {
+  fontWeight: bold;
+  fontSize: 18;
+  fontFamily: Arial;
+  color: #ffff26;
+}
+
 .videoMessageErrorLabelStyle {
   fontWeight: bold;
   fontSize: 18;
