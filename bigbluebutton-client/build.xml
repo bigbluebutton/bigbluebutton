@@ -34,7 +34,6 @@
 	<property name="NOTES" value="NotesModule" />
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
-	<property name="VIDEO_DOCK" value="VideodockModule" />
 	<property name="POLLING" value="PollingModule" />
 	<property name="LAYOUT" value="LayoutModule" />
 	<property name="USERS" value="UsersModule" />
@@ -264,10 +263,6 @@
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
 	</target>
 
-	<target name="build-videodock" description="Compile Video Dock Module">
-		<build-module src="${SRC_DIR}" target="${VIDEO_DOCK}" />
-	</target>
-		
 	<target name="build-whiteboard" description="Compile Whiteboard Module">
 		<build-module src="${SRC_DIR}" target="${WHITEBOARD}" />
 	</target>
@@ -288,7 +283,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes, build-polling"
+			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-notes, build-polling"
 			description="Compile deskshare, phone, video, whiteboard modules">
 	</target>
 	
