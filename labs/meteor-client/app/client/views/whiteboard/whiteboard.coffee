@@ -15,4 +15,5 @@
   $("#whiteboard-paper").height(($("#whiteboard-paper").height()-10) + 'px')
 
 Template.whiteboard.rendered = ->
-  $("#whiteboard").height(($("#chat").height()) + 'px')
+  if window.matchMedia('(orientation: landscape)').matches
+    $("#whiteboard").height(($("#chat").height()) + 'px')
