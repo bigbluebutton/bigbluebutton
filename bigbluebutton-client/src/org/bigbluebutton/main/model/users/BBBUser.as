@@ -113,14 +113,11 @@ package org.bigbluebutton.main.model.users
 			return streamNames.some(function(item:*, index:int, array:Array):Boolean { return item == streamName; });
 		}
 
-		public function set streamName(name:String):void {
-			if(name && name != "") {
-				var names:Array = name.split("|");
-				for each(var stream:String in names) {
-					if(stream != "" && !hasThisStream(name)) {
-						streamNames.push(name);
-						sendStreamStartedEvent(name);
-					}
+		public function set streamName(streamNames:String):void {
+			if(streamNames) {
+				var streamNamesList:Array = streamNames.split("|");
+				for each(var streamName:String in streamNamesList) {
+					sharedWebcam(streamName);
 				}
 			}
 		}
@@ -256,7 +253,7 @@ package org.bigbluebutton.main.model.users
     }
     
     public function sharedWebcam(stream: String):void {
-      if(stream && stream != "") {
+      if(stream && stream != "" && !hasThisStream(stream)) {
           streamNames.push(stream);
           sendStreamStartedEvent(stream);
       }
