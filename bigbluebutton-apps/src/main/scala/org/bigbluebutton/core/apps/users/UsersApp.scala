@@ -209,9 +209,8 @@ trait UsersApp {
 
   def handleUserunshareWebcam(msg: UserUnshareWebcam) {
     users.getUser(msg.userId) foreach {user =>
-	// TODO: Update user streams here
       val streams = user.webcamStreams - msg.stream
-      val uvo = user.copy(hasStream=false, webcamStreams=streams)
+      val uvo = user.copy(hasStream=(!streams.isEmpty), webcamStreams=streams)
       users.addUser(uvo)
       outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID, msg.stream))
     }     
