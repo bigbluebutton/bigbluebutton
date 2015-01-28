@@ -394,7 +394,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function openVideoPreviewWindow(event:BBBEvent):void {
         var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
-        camSettings.resolutions = (event.payload.resolutions as String).split(",");
+        camSettings.defaultCamera = event.payload.defaultCamera;
+        camSettings.camerasArray = event.payload.camerasArray;
         camSettings.publishInClient = event.payload.publishInClient;
         camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
         

@@ -6,6 +6,7 @@ import org.bigbluebutton.core.User
 import java.util.ArrayList
 import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ListSet
 
 trait UsersApp {
   this : MeetingActor =>
@@ -244,20 +245,21 @@ trait UsersApp {
 
   def handleUserShareWebcam(msg: UserShareWebcam) {
     users.getUser(msg.userId) foreach {user =>
-      val uvo = user.copy(hasStream=true, webcamStream=msg.stream)
+      val streams = user.webcamStreams + msg.stream
+      val uvo = user.copy(hasStream=true, webcamStreams=streams)
       users.addUser(uvo)
-      logger.info("User shared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
+      logger.info("User shared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] sharedStream=[" + msg.stream + "] streams=[" + streams + "]")
       outGW.send(new UserSharedWebcam(meetingID, recorded, uvo.userID, msg.stream))
     }     
   }
 
   def handleUserunshareWebcam(msg: UserUnshareWebcam) {
     users.getUser(msg.userId) foreach {user =>
-      val stream = user.webcamStream
-      val uvo = user.copy(hasStream=false, webcamStream="")
+      val streams = user.webcamStreams - msg.stream
+      val uvo = user.copy(hasStream=(!streams.isEmpty), webcamStreams=streams)
       users.addUser(uvo)
-      logger.info("User unshared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
-      outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID, stream))
+      logger.info("User unshared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] unsharedStream=[" + msg.stream + "] streams=[" + streams + "]")
+      outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID, msg.stream))
     }     
   }
 	                         
@@ -278,7 +280,7 @@ trait UsersApp {
                            false, false, false, false)
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
                   ru.role, raiseHand=false, presenter=false, 
-                  hasStream=false, locked=false, webcamStream="", 
+                  hasStream=false, locked=false, webcamStreams=new ListSet[String](), 
                   phoneUser=false, vu, listenOnly=false, permissions)
   	
 	    users.addUser(uvo)
@@ -327,7 +329,7 @@ trait UsersApp {
                                  true, false, false, false)
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
-		                  hasStream=false, locked=false, webcamStream="", 
+		                  hasStream=false, locked=false, webcamStreams=new ListSet[String](),
 		                  phoneUser=true, vu, listenOnly=false, permissions)
 		  	
 		      users.addUser(uvo)

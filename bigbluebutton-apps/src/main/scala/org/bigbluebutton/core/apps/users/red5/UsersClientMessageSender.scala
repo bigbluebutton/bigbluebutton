@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.users.red5
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService
 import org.bigbluebutton.conference.meeting.messaging.red5.SharedObjectClientMessage
 import java.util.ArrayList
+import java.util.List
 import java.util.Map
 import java.util.HashMap
 import org.bigbluebutton.core.api._
@@ -78,7 +79,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("presenter", user.presenter:java.lang.Boolean)
 	  wuser.put("hasStream", user.hasStream:java.lang.Boolean)
 	  wuser.put("locked", user.locked:java.lang.Boolean)
-	  wuser.put("webcamStream", user.webcamStream)
+	  wuser.put("webcamStream", user.webcamStreams mkString("|"))
 	  wuser.put("phoneUser", user.phoneUser:java.lang.Boolean)
 	  wuser.put("voiceUser", vuser)	  
 	  wuser.put("listenOnly", user.listenOnly:java.lang.Boolean)
@@ -421,6 +422,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	def handleUserUnshareWebcam(msg: UserUnsharedWebcam) {
 	  	var args = new HashMap[String, Object]()	
 		args.put("userId", msg.userID)
+		args.put("webcamStream", msg.stream)
 		
 	    val message = new java.util.HashMap[String, Object]() 
 	    val gson = new Gson();

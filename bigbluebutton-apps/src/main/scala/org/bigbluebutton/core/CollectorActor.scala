@@ -206,7 +206,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 	wuser.put(Constants.PRESENTER, user.presenter:java.lang.Boolean)
 	wuser.put(Constants.HAS_STREAM, user.hasStream:java.lang.Boolean)
 	wuser.put(Constants.LOCKED, user.locked:java.lang.Boolean)
-	wuser.put(Constants.WEBCAM_STREAM, user.webcamStream)
+	wuser.put("webcamStream", user.webcamStreams mkString("|"))
 	wuser.put(Constants.PHONE_USER, user.phoneUser:java.lang.Boolean)
 	wuser.put(Constants.VOICE_USER, vuser)	  
 	  

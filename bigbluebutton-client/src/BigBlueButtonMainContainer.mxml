@@ -72,6 +72,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         setupAPI();
         EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
         BBB.initConfigManager();
+        BBB.initVideoProfileManager();
         globalModifier = ExternalInterface.call("determineGlobalModifier");
       }
       

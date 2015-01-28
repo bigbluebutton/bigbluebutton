@@ -428,6 +428,7 @@
 		<copy file="${PROD_RESOURCES_DIR}/expressInstall.swf" todir="${OUTPUT_DIR}" overwrite="true"/>	
 		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/layout.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/profiles.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 		<if>
 			<equals arg1="${BUILD_ENV}" arg2="DEV"/>
 			<then>

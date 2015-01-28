@@ -64,7 +64,42 @@ ToolTip {
   color: #e1e2e5;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowChangeResolutionCombo, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
+.videoMessageWarningLabelStyle {
+  fontWeight: bold;
+  fontSize: 18;
+  fontFamily: Arial;
+  color: #ffff26;
+}
+
+.videoMessageErrorLabelStyle {
+  fontWeight: bold;
+  fontSize: 18;
+  fontFamily: Arial;
+  color: #ff2727;
+}
+
+.videoMessageBackgroundStyle {
+  backgroundAlpha: 0.6;
+  backgroundColor: #b9babc;
+}
+
+.videoToolbarBackgroundTalkingStyle {
+  backgroundColor: #20c600;
+  backgroundAlpha: 0.6;
+}
+
+.videoToolbarBackgroundNotTalkingStyle {
+  backgroundColor: #42444c;
+  backgroundAlpha: 0.6;
+}
+
+.videoToolbarLabelStyle {
+  textIndent: 0;
+  color: #ffffff;
+  fontFamily: Arial;
+}
+
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -767,6 +802,27 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   disabledSkin:  Embed('assets/images/3_minimizeButton.png');
 }
 
+/*
+https://www.iconfinder.com/icons/172512/mute_icon#size=128
+*/
+.muteOverlayBtn
+{
+  upSkin:        Embed('assets/images/audio_20_white.png');
+  overSkin:      Embed('assets/images/audio_20_white.png');
+  downSkin:      Embed('assets/images/audio_20_white.png');
+  disabledSkin:  Embed('assets/images/audio_20_white.png');
+}
+
+/*
+https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
+*/
+.unmuteOverlayBtn
+{
+  upSkin:        Embed('assets/images/audio_muted_20_white.png');
+  overSkin:      Embed('assets/images/audio_muted_20_white.png');
+  downSkin:      Embed('assets/images/audio_muted_20_white.png');
+  disabledSkin:  Embed('assets/images/audio_muted_20_white.png');
+}
 
 .resizeHndlr 
 {
@@ -782,12 +838,12 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 }
 
 Alert {
-  borderColor: #DFDFDF;
-  backgroundColor: #EFEFEF;
-  borderAlpha: 1;
-  shadowDistance: 1;
-  dropShadowColor: #FFFFFF;
-  color: #000000;
+	borderColor: #DFDFDF;
+	backgroundColor: #EFEFEF;
+	borderAlpha: 1;
+	shadowDistance: 1;
+	dropShadowColor: #FFFFFF;
+	color: #000000;
 }
 
 .lockSettingsDefaultLabelStyle {
