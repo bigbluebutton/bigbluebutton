@@ -135,11 +135,13 @@
   <ul id="tabsList" class="nav nav-tabs">
     {{#each grabChatTabs}}
       <li class="{{isTabActive userId}} tab {{makeSafe class}}">
-        <a href='#' data-toggle='tab' id="#{{makeSafe name}}" class="{{hasGotUnreadMailClass gotMail}} chatNameSelector">
-          {{makeSafe name}}
-          {{#if equals class "privateChatTab"}}
-            <button class="close closeTab" type="button"><sup><b>X</b></sup></button>
-          {{/if}}
+        <a href='#' data-toggle='tab' id="#{{makeSafe name}}" class="{{hasGotUnreadMailClass gotMail}} ">
+            {{#if equals class "privateChatTab"}}
+                <p class="chatNameSelectorPrivate">{{makeSafe name}}</p>
+                <button class="close closeTab" type="button"><sup><b>X</b></sup></button>
+            {{else}}
+                <p class="chatNameSelectorPublic">{{makeSafe name}}</p>
+            {{/if}}
         </a>
       </li>
     {{/each}}
