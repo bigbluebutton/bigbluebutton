@@ -26,21 +26,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 showCloseButton="false" close="onCancelClicked()" keyDown="handleKeyDown(event)">
   <mx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;     
-		import flash.ui.Keyboard;      
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import flash.ui.Keyboard;
+		
 		import mx.collections.ArrayCollection;
 		import mx.collections.ArrayList;
 		import mx.events.CloseEvent;
 		import mx.events.ItemClickEvent;
-		import mx.managers.PopUpManager;     
-		import mx.core.UIComponent;
+		import mx.managers.PopUpManager;
+		
 		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.core.BBB;
-		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
-
+		
 		static public var PADDING_HORIZONTAL:Number = 6;
 		static public var PADDING_VERTICAL:Number = 29;
 		
@@ -57,15 +59,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		public var defaultCamera:String = null;
 		public var camerasArray:Object;
 		[Bindable] private var camerasAvailable:ArrayList = new ArrayList();
+		public var chromePermissionDenied:Boolean = false;
 		public const OFF_STATE:Number = 0;
 		public const ON_STATE:Number = 1;
 
-		[Bindable] public var chromePermissionDenied:Boolean = false;
+		private var selectedCam:int;
+		private var aspectRatio:Number = 1;
 		
         [Bindable]private var baseIndex:int; 
-        private var selectedCam:int;
-
-        private var aspectRatio:Number = 1;
     override public function move(x:Number, y:Number):void
     {
        return;
@@ -128,6 +129,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		}
 		
+		private function updateCamera():void {
+			selectedVideoProfile = cmbVideoProfile.selectedItem.profile as VideoProfile;
+			if (camerasAvailable.length > cmbCameraSelector.selectedIndex) {
+				selectedCam = camerasAvailable.getItemAt(cmbCameraSelector.selectedIndex).index;
+			} else {
+				selectedCam = -1;
+			}
+			setAspectRatio(selectedVideoProfile.width,selectedVideoProfile.height);
+			_video.successCallback = function():void {
+				btnStartPublish.enabled = true;
+			}
+			_video.chromePermissionDenied = chromePermissionDenied;
+			_video.updateCamera(selectedCam,selectedVideoProfile,_canvas.width, _canvas.height,true);
+		}
+		
 		private function showResControls(show:Boolean):void {
 			if (show) cmbVideoProfile.visible = true;
 			else cmbVideoProfile.visible = false;
@@ -138,23 +154,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
 		}
 		
-        private function updateCamera():void{
-            selectedVideoProfile = cmbVideoProfile.selectedItem.profile as VideoProfile;
-            if (camerasAvailable.length > cmbCameraSelector.selectedIndex) {
-                selectedCam = camerasAvailable.getItemAt(cmbCameraSelector.selectedIndex).index;
-            } else {
-                selectedCam = -1;
-            }
-            setAspectRatio(selectedVideoProfile.width,selectedVideoProfile.height);
-            _video.successCallback = function():void {
-                btnStartPublish.enabled = true;
-            }
-            _video.updateCamera(selectedCam,selectedVideoProfile,_canvas.width, _canvas.height,true);
-        }
-
 		private function startPublishing():void {
 			updateCamera();
-            
+			
 			disableCamera();
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
@@ -173,10 +175,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function disableCamera():void {
-            if(_video){
-    		    _video.disableCamera();
-            }
-        }
+			if(_video != null){
+				_video.disableCamera();
+			}
+		}
 		
 		private function handleKeyDown(event:KeyboardEvent):void {
 			if (event.charCode == Keyboard.ESCAPE) {
@@ -210,8 +212,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:Spacer height="1"/>
     
 		<mx:Box id="_canvas" width="100%" height="75%" horizontalAlign="center" verticalAlign="middle">
-    	    <view:VideoWithWarnings id="_video" chromePermissionDenied="{chromePermissionDenied}" />
-        </mx:Box>
+			<view:VideoWithWarnings id="_video"/>
+		</mx:Box>
         
 		<mx:HBox width="100%" height="10%" horizontalAlign="center" horizontalGap="13" paddingRight="5"> 	
 			<mx:ComboBox id="cmbCameraSelector" styleName="cameraDisplaySettingsWindowCameraSelector" dataProvider="{camerasAvailable}" width="150" visible="true" labelField="label" change="updateCamera()" tabIndex="{baseIndex+1}" height="30"/>
@@ -225,7 +227,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:HBox width="100%" height="10%" horizontalAlign="right" horizontalGap="13" paddingRight="5" paddingBottom="5" paddingTop="1">
       <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
                  click="startPublishing()" enabled="false" styleName="cameraDisplaySettingsWindowStartBtn" 
-                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" tabIndex="{baseIndex+3}" />
+                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" tabIndex="{baseIndex+3}"  />
       <mx:Button id="btnClosePublish"   
                  click="onCancelClicked()" 
                  enabled="true" tabIndex="{baseIndex+4}"

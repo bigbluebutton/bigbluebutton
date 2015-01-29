@@ -234,7 +234,7 @@ trait UsersApp {
       val streams = user.webcamStreams + msg.stream
       val uvo = user.copy(hasStream=true, webcamStreams=streams)
       users.addUser(uvo)
-      logger.info("User shared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
+      logger.info("User shared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] sharedStream=[" + msg.stream + "] streams=[" + streams + "]")
       outGW.send(new UserSharedWebcam(meetingID, recorded, uvo.userID, msg.stream))
     }     
   }
@@ -242,9 +242,9 @@ trait UsersApp {
   def handleUserunshareWebcam(msg: UserUnshareWebcam) {
     users.getUser(msg.userId) foreach {user =>
       val streams = user.webcamStreams - msg.stream
-      val uvo = user.copy(hasStream=false, webcamStreams=streams)
+      val uvo = user.copy(hasStream=(!streams.isEmpty), webcamStreams=streams)
       users.addUser(uvo)
-      logger.info("User unshared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] streams=[" + streams + "]")
+      logger.info("User unshared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] unsharedStream=[" + msg.stream + "] streams=[" + streams + "]")
       outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID, msg.stream))
     }     
   }

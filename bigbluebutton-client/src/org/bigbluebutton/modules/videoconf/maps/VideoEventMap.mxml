@@ -31,6 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
       import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
+      import org.bigbluebutton.modules.users.events.ViewCameraEvent;
       import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
       import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
@@ -39,9 +40,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
-      import org.bigbluebutton.modules.users.events.ViewCameraEvent;
-	import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
-	import org.bigbluebutton.modules.videoconf.events.PlayConnectionClosedEvent;
+      import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
+      import org.bigbluebutton.modules.videoconf.events.PlayConnectionClosedEvent;
 		]]>
 	</mx:Script>
 	

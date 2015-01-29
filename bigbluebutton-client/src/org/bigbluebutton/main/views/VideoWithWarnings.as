@@ -26,11 +26,11 @@ package org.bigbluebutton.main.views
         private var _activationTimer:Timer = null;
         private var _waitingForActivation:Boolean = false;
         private var _cameraAccessDenied:Boolean = false;
+        private var _chromePermissionDenied:Boolean = false;
         private var _videoProfile:VideoProfile = null;
         private var _showPreviewMsg:Boolean = false;
         private var _video:Video = new Video();
         private var _creationCompleted:Boolean = false;
-        private var _chromePermissionDenied:Boolean = false;
 
         private var _successCallback:Function = null;
         private var _failCallback:Function = null;
@@ -39,10 +39,6 @@ package org.bigbluebutton.main.views
             super();
 
             this.addEventListener(FlexEvent.CREATION_COMPLETE , creationCompleteHandler);
-        }
-
-        public function set chromePermissionDenied(value:Boolean):void {
-            _chromePermissionDenied = value;
         }
 
         private function creationCompleteHandler(e:FlexEvent):void {
@@ -159,7 +155,7 @@ package org.bigbluebutton.main.views
             this.height = containerHeight;
             invalidateDisplayList();
         }
-        
+
         private function displayVideoPreview():void {
             trace("Using this video profile:: " + _videoProfile.toString());
             _camera.setMotionLevel(5, 1000);
@@ -250,6 +246,10 @@ package org.bigbluebutton.main.views
 
         private function activationTimeout(e:TimerEvent):void {
             onFailCallback('bbb.video.publish.hint.cameraIsBeingUsed');
+        }
+
+        public function set chromePermissionDenied(value:Boolean):void {
+            _chromePermissionDenied = value;
         }
     }
 }
