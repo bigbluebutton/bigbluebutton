@@ -16,7 +16,7 @@ package org.bigbluebutton.modules.present.services
       var page:Page = PresentationModel.getInstance().getPage(cmd.pageId);
       if (page != null) {
         trace(LOG + "Loading page [" + cmd.pageId + "]");
-        page.loadSwf(pageLoadedListener, cmd.preloadCount);
+        page.loadPage(pageLoadedListener, cmd.preloadCount);
       }
       
     }
