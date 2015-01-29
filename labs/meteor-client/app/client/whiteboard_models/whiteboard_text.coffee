@@ -93,6 +93,10 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       myTextNode = undefined
       tspanEl = undefined
       i = 0
+
+      #checking if any of the words exceed the width of a textBox
+      words = checkWidth(words, maxWidth, x, dy, cell)
+
       while i < words.length
         word = words[i]
         curNumChars += word.length + 1
@@ -125,7 +129,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
           else
             line += word + " "
         tspanEl.firstChild.nodeValue = line
-        computedTextLength = tspanEl.getComputedTextLength()
+        computedTextLength = tspanEl.getComputedTextLength()+10
         if i is words.length - 1
           if computedTextLength > maxWidth
             tempText = tspanEl.firstChild.nodeValue
@@ -148,104 +152,57 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       result = true  if dashArray[i] is pos
       i++
     result
+  #this function checks the width of the word and adds a " " if the width of the word exceeds the width of the textbox
+  #in order for the word to be split and shown properly
+  checkWidth = (words, maxWidth, x, dy, cell) ->
+    count = 0
+    temp = words
+    temp3 = []
+    str = ""
 
-
-  # Draw a text on the whiteboard
-  # @param  {string} colour    the colour of the object
-  # @param  {number} thickness the thickness of the object's line(s)
-  # draw: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
-  #   calcFontSize = (calcFontSize/100 * @gh)
-  #   x = x * @gw + @xOffset
-  #   y = (y * @gh) + @yOffset + calcFontSize
-  #   width = width/100 * @gw
-  #   #colour = Utils.strokeAndThickness(colour)["stroke"]
+    svgNSi = "http://www.w3.org/2000/svg"
+    tempSpanEl = document.createElementNS(svgNSi, "tspan")
+    tempSpanEl.setAttributeNS null, "x", x
+    tempSpanEl.setAttributeNS null, "dy", dy
+    tempTextNode = document.createTextNode(str)
+    tempSpanEl.appendChild tempTextNode
     
+    num = 0
+    while num < temp.length
+      #creating a textNode and adding it to the cell to check the width
+      tempSpanEl.firstChild.nodeValue = temp[num]
+      cell.appendChild tempSpanEl
+      console.log tempSpanEl.getComputedTextLength()
+      #if width is bigger than maxWidth + whitespace between textBox borders and a word
+      if tempSpanEl.getComputedTextLength()+10 > maxWidth
+        tempWord = temp[num]
+        cell.removeChild(cell.firstChild)
 
-  #   el = @paper.text(x, y, "")
-  #   el.attr
-  #     fill: Meteor.call("strokeAndThickness",colour, false)
-  #     "font-family": "Arial" # TODO: make dynamic
-  #     "font-size": calcFontSize
-  #   el.node.style["text-anchor"] = "start" # force left align
-  #   el.node.style["textAnchor"] = "start"  # for firefox, 'cause they like to be different
-  #   Meteor.call("textFlow", text, el.node, width, x, calcFontSize, false)
-  #   el
+        #initializing temp variables
+        count = 1
+        start = 0
+        partWord = "" + tempWord[0]
+        tempArray = []
+        #check the width by increasing the word character by character
+        while count < tempWord.length
+          partWord += tempWord[count]
+          tempSpanEl.firstChild.nodeValue = partWord
+          cell.appendChild tempSpanEl
+          if tempSpanEl.getComputedTextLength()+10 > maxWidth
+            temp3.push partWord.substring(0, partWord.length-1)
+            partWord = ""
+            partWord += tempWord[count]
+          if count is tempWord.length-1
+            temp3.push partWord
+          while cell? and cell.hasChildNodes()
+            cell.removeChild(cell.firstChild)
+          count++
+      else 
+        temp3.push temp[num]
+      while cell? and cell.hasChildNodes()
+        cell.removeChild(cell.firstChild)
+      num++
 
-  # When first dragging the mouse to create the textbox size
-  # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
-  # @param  {number} y the y value of cursor at the time in relation to the top of the browser
-  # TODO: moved here but not finished nor tested
-  # _textStart: (x, y) ->
-  #   [sw, sh] = @_currentSlideDimensions()
-  #   [cx, cy] = @_currentSlideOffsets()
-  #   if @currentText?
-  #     globals.connection.emitPublishShape "text",
-  #       [ @textbox.value, @currentText.attrs.x / @gw, @currentText.attrs.y / @gh,
-  #         @textbox.clientWidth, 16, @currentColour, "Arial", 14 ]
-  #     globals.connection.emitTextDone()
-  #   @textbox.value = ""
-  #   @textbox.style.visibility = "hidden"
-  #   @textX = x
-  #   @textY = y
-  #   sx = (@containerWidth - @gw) / 2
-  #   sy = (@containerHeight - @gh) / 2
-  #   @cx2 = (x - @containerOffsetLeft - sx + cx) / sw
-  #   @cy2 = (y - @containerOffsetTop - sy + cy) / sh
-  #   @_makeRect @cx2, @cy2, "#000", 1
-  #   globals.connection.emitMakeShape "rect", [ @cx2, @cy2, "#000", 1 ]
-
-  # Finished drawing the rectangle that the text will fit into
-  # @param  {Event} e the mouse event
-  # TODO: moved here but not finished nor tested
-  # _textStop: (e) ->
-  #   @currentRect.hide() if @currentRect?
-  #   [sw, sh] = @_currentSlideDimensions()
-  #   [cx, cy] = @_currentSlideOffsets()
-  #   tboxw = (e.pageX - @textX)
-  #   tboxh = (e.pageY - @textY)
-  #   if tboxw >= 14 or tboxh >= 14 # restrict size
-  #     @textbox.style.width = tboxw * (@gw / sw) + "px"
-  #     @textbox.style.visibility = "visible"
-  #     @textbox.style["font-size"] = 14 + "px"
-  #     @textbox.style["fontSize"] = 14 + "px" # firefox
-  #     @textbox.style.color = @currentColour
-  #     @textbox.value = ""
-  #     sx = (@containerWidth - @gw) / 2
-  #     sy = (@containerHeight - @gh) / 2
-  #     x = @textX - @containerOffsetLeft - sx + cx + 1 # 1px random padding
-  #     y = @textY - @containerOffsetTop - sy + cy
-  #     @textbox.focus()
-
-  #     # if you click outside, it will automatically sumbit
-  #     @textbox.onblur = (e) =>
-  #       if @currentText
-  #         globals.connection.emitPublishShape "text",
-  #           [ @value, @currentText.attrs.x / @gw, @currentText.attrs.y / @gh,
-  #             @textbox.clientWidth, 16, @currentColour, "Arial", 14 ]
-  #         globals.connection.emitTextDone()
-  #       @textbox.value = ""
-  #       @textbox.style.visibility = "hidden"
-
-  #     # if user presses enter key, then automatically submit
-  #     @textbox.onkeypress = (e) ->
-  #       if e.keyCode is "13"
-  #         e.preventDefault()
-  #         e.stopPropagation()
-  #         @onblur()
-
-  #     # update everyone with the new text at every change
-  #     _paper = @
-  #     @textbox.onkeyup = (e) ->
-  #       @style.color = _paper.currentColour
-  #       @value = @value.replace(/\n{1,}/g, " ").replace(/\s{2,}/g, " ")
-  #       globals.connection.emitUpdateShape "text",
-  #         [ @value, x / _paper.sw, (y + (14 * (_paper.sh / _paper.gh))) / _paper.sh,
-  #           tboxw * (_paper.gw / _paper.sw), 16, _paper.currentColour, "Arial", 14 ]
-
-  # The server has said the text is finished,
-  # so set it to null for the next text object
-  # TODO: moved here but not finished nor tested
-  # textDone: ->
-  #   if @currentText?
-  #     @currentText = null
-  #     @currentRect.hide() if @currentRect?
+    while cell? and cell.hasChildNodes()
+      cell.removeChild(cell.firstChild)
+    temp3
