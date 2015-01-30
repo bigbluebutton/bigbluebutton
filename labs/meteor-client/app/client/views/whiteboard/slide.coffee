@@ -27,7 +27,11 @@ Template.slide.rendered = ->
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   wpm._displayPage(currentSlide?.slide?.png_uri, getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   manuallyDisplayShapes()
-  wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
+  # Remove 10 pixels in height from the slide on startup so it gets displayed in the frame
+  # There is a border of 5 pixels of seperation of the top of the slide from the border
+  # We want 5 pixels at the bottom too
+  # Since the slide has been pushed down 5 pixels, and we want an extra 5 pixels at the bottom, we shrink it by 10 pixels
+  wpm.scale(adjustedDimensions.width, adjustedDimensions.height-10)
 
 @manuallyDisplayShapes = ->
   currentSlide = getCurrentSlideDoc()

@@ -36,19 +36,28 @@ Template.footer.helpers
 Template.header.events
   "click .audioFeedIcon": (event) ->
     $('.audioFeedIcon').blur()
-    toggleSlidingMenu()
+    #toggleSlidingMenu()
     toggleVoiceCall @
+    if BBB.amISharingAudio()
+      $('.navbarTitle').css('width', $('#navbar').width() - 358.4)
+    else
+      $('.navbarTitle').css('width', $('#navbar').width() - 409.6)
 
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
     toggleSlidingMenu()
     toggleChatbar()
 
-  "click .collapseButton": (event) ->
+  "click .collapseSlidingMenuButton": (event) ->
     toggleSlidingMenu()
     $(".tooltip").hide()
-    $('.collapseButton').blur()
+    $('.collapseSlidingMenuButton').blur()
     $('.myNavbar').css('z-index', 1032)
+
+  'click .collapseNavbarButton': (event) ->
+    $(".tooltip").hide()
+    $('.collapseNavbarButton').blur()
+    toggleNavbarCollapse()
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -74,7 +83,7 @@ Template.header.events
 
   "click .signOutIcon": (event) ->
     $('.signOutIcon').blur()
-    if window.matchMedia('(orientation: portrait)').matches
+    if window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-width: 1279px)').matches
       if $('#dialog').dialog('option', 'height') isnt 450
         $('#dialog').dialog('option', 'width', '100%')
         $('#dialog').dialog('option', 'height', 450)
@@ -197,3 +206,7 @@ Template.makeButton.rendered = ->
 
 Template.recordingStatus.rendered = ->
   $('button[rel=tooltip]').tooltip()
+
+$(window).resize( ->
+  resizeWindows()
+)

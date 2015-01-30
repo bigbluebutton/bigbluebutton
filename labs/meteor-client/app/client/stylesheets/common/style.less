@@ -41,7 +41,7 @@ body {
 }
 
 .mainContainer {
-  height: 100%;
+  height: 95%;
 }
 
 .myFooter {
@@ -54,6 +54,7 @@ body {
 
 .myNavbar {
   margin-bottom: 0.5%;
+  border-bottom: 0px;
   &.gradientBar {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
   }
@@ -127,6 +128,9 @@ body {
   float: left;
   font-weight: bold;
   text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navbarUserButtons .btn {

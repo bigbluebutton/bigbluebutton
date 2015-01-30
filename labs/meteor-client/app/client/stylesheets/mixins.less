@@ -1,0 +1,12 @@
+.radius(@size: 4px) {
+  -moz-border-radius: @size;
+  -webkit-border-radius: @size;
+  border-radius: @size;
+}
+
+.linear-gradient(@color1, @color2) {
+  background: -moz-linear-gradient(@color1, @color2); /* For Firefox 3.6 to 15 */
+  background: -o-linear-gradient(@color1, @color2); /* For Opera 11.1 to 12.0 */
+  background: -webkit-linear-gradient(@color1, @color2); /* For Safari 5.1 to 6.0 */
+  background: linear-gradient(@color1, @color2); /* Standard syntax (must be last) */
+}
