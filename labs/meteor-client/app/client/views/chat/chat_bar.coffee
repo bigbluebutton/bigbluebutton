@@ -194,6 +194,9 @@ Template.extraConversations.events
 				tabArray.splice(2, 0, selected)
 				# update collection
 				setInSession 'chatTabs', tabArray
+    # make the current conversation the selected tab
+    setInSession 'display_chatPane', true
+    setInSession "inChatWith", user.userId
 
 Template.extraConversations.helpers
   getExtraConversations: ->
