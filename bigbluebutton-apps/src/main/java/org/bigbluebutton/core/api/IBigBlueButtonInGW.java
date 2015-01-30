@@ -37,7 +37,7 @@ public interface IBigBlueButtonInGW {
 	void setUserStatus(String meetingID, String userID, String status, Object value);
 	void getUsers(String meetingID, String requesterID);
 	void userLeft(String meetingID, String userID, String sessionId);
-	void userJoin(String meetingID, String userID, String sessionId);
+	void userJoin(String meetingID, String userID, String token, String sessionId);
 	void getCurrentPresenter(String meetingID, String requesterID);
 	void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy);
 	void setRecordingStatus(String meetingId, String userId, Boolean recording);

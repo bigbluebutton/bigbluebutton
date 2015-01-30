@@ -287,7 +287,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	        String logStr =  gson.toJson(logData);
 	        
 	        log.info("User join bbb-aaps: data={}", logStr);
-			bbbGW.userJoin(meetingId, userid, sessionId);
+			bbbGW.userJoin(meetingId, userid, "FAKETOKEN", sessionId);
 		}
 		
 	}

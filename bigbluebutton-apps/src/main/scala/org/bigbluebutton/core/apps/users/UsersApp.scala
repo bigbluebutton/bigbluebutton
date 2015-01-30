@@ -88,7 +88,7 @@ trait UsersApp {
         this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
 
         //join the user
-        handleUserJoin(new UserJoining(meetingID, msg.userId, msg.sessionId))
+        handleUserJoin(new UserJoining(meetingID, msg.userId, msg.token, msg.sessionId))
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
@@ -272,7 +272,8 @@ trait UsersApp {
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
-    val regUser = regUsers.get(msg.userID)
+    val regUser = regUsers.get(msg.token)
+
     regUser foreach { ru =>
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)

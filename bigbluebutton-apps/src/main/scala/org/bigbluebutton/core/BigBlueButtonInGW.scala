@@ -169,8 +169,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new UserLeaving(meetingID, userID, sessionId))
   }
 
-  def userJoin(meetingID: String, userID: String, sessionId: String):Unit = {
-    bbbGW.accept(new UserJoining(meetingID, userID, sessionId))
+  def userJoin(meetingID: String, userID: String, token: String, sessionId: String):Unit = {
+    bbbGW.accept(new UserJoining(meetingID, userID, token, sessionId))
   }
 
   def assignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String):Unit = {

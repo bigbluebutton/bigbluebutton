@@ -95,6 +95,7 @@ case class RegisterUser(
 case class UserJoining(
     meetingID: String, 
     userID: String,
+    token: String,
     sessionId: String
 ) extends InMessage
                        
