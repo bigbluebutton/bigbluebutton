@@ -191,7 +191,7 @@ public class MeetingService implements MessageListener {
 	  		logData.put("description", "Meeting forcefully ended.");
 	  		
 	  		Gson gson = new Gson();
-	      String logStr =  gson.toJson(logData);
+	  	    String logStr =  gson.toJson(logData);
 	  		
 	  		log.info("Removing meeting: data={}", logStr);
 				processMeetingForRemoval(m);			
@@ -209,7 +209,7 @@ public class MeetingService implements MessageListener {
 	  		logData.put("description", "Meeting has not been joined.");
 	  		
 	  		Gson gson = new Gson();
-	      String logStr =  gson.toJson(logData);
+	  	    String logStr =  gson.toJson(logData);
 	  		
 	  		log.info("Removing meeting: data={}", logStr);
 	  		
@@ -229,7 +229,7 @@ public class MeetingService implements MessageListener {
 	  		logData.put("description", "Meeting exceeded duration.");
 	  		
 	  		Gson gson = new Gson();
-	      String logStr =  gson.toJson(logData);
+	  	    String logStr =  gson.toJson(logData);
 	  		
 	  		log.info("Removing meeting: data={}", logStr);
 	  		
@@ -278,7 +278,7 @@ public class MeetingService implements MessageListener {
 		logData.put("description", "Create meeting.");
 		
 		Gson gson = new Gson();
-    String logStr =  gson.toJson(logData);
+	    String logStr =  gson.toJson(logData);
 		
 		log.info("Create meeting: data={}", logStr);
 		
@@ -486,7 +486,7 @@ public class MeetingService implements MessageListener {
 				logData.put("description", "Meeting has started.");
 				
 				Gson gson = new Gson();
-		    String logStr =  gson.toJson(logData);
+			    String logStr =  gson.toJson(logData);
 				
 				log.info("Meeting started: data={}", logStr);
 				
@@ -501,9 +501,9 @@ public class MeetingService implements MessageListener {
 				logData.put("record", m.isRecord());
 				logData.put("event", "meeting_restarted");
 				logData.put("description", "Meeting has restarted.");
-				
+
 				Gson gson = new Gson();
-		    String logStr =  gson.toJson(logData);
+				String logStr =  gson.toJson(logData);
 				
 				log.info("Meeting restarted: data={}", logStr);
 			}
@@ -530,7 +530,7 @@ public class MeetingService implements MessageListener {
 			logData.put("description", "Meeting has ended.");
 			
 			Gson gson = new Gson();
-	    String logStr =  gson.toJson(logData);
+		    String logStr =  gson.toJson(logData);
 			
 			log.info("Meeting ended: data={}", logStr);
 			
@@ -559,7 +559,7 @@ public class MeetingService implements MessageListener {
 			logData.put("description", "User has joined the meeting.");
 			
 			Gson gson = new Gson();
-	    String logStr =  gson.toJson(logData);
+		    String logStr =  gson.toJson(logData);
 			
 			log.info("User joined meeting: data={}", logStr);
 			
@@ -588,7 +588,7 @@ public class MeetingService implements MessageListener {
 				logData.put("description", "User has left the meeting.");
 				
 				Gson gson = new Gson();
-		    String logStr =  gson.toJson(logData);
+		        String logStr =  gson.toJson(logData);
 				
 				log.info("User left meeting: data={}", logStr);
 				

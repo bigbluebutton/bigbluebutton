@@ -99,5 +99,8 @@ package org.bigbluebutton.main.model
 		 * Parameter used to send initial lock settings
 		 * */
 		public var lockSettings:Object;
+    
+    public var authToken:String;
+    
 	}
 }

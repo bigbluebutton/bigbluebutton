@@ -46,8 +46,9 @@ public class MessageFromJsonConverter {
 		String userid = payload.get(Constants.USER_ID).getAsString();
 		String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
 		String replyTo = header.get(Constants.REPLY_TO).getAsString();
-		
-		return new ValidateAuthTokenMessage(id, userid, authToken, replyTo);
+		String sessionId = "tobeimplemented";
+		return new ValidateAuthTokenMessage(id, userid, authToken, replyTo,
+		    sessionId);
 	}
 	
 	private static IMessage processCreateMeeting(JsonObject payload) {
