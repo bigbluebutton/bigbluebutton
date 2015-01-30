@@ -54,7 +54,7 @@ public class RedisMessagingService implements MessagingService {
 	public void destroyMeeting(String meetingID) {
 		DestroyMeetingMessage msg = new DestroyMeetingMessage(meetingID);
 		String json = MessageToJson.destroyMeetingMessageToJson(msg);
-		log.info("Sending destory meeting message to bbb-apps:[{}]", json);
+		log.info("Sending destroy meeting message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 	
