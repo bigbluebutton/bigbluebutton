@@ -309,12 +309,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
   
-	<mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
-    <mx:HBox width="100%" horizontalAlign="left">
-      <mx:TextArea width="100%" wordWrap="false" borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.webcamSettings')}" 
+  <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
+    <mx:TextArea width="100%" borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.webcamSettings')}" 
                    styleName="webcamSettingsWindowTitleStyle" tabIndex="{baseIndex}"/>
-    </mx:HBox>
- 
     <mx:HRule width="100%"/>
     <mx:Spacer height="1"/>
     
@@ -342,5 +339,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  label="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.label')}"
                  accessibilityName="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.accessName')}"/>
     </mx:HBox>
-	</mx:VBox>		
+  </mx:VBox>		
 </mx:TitleWindow>

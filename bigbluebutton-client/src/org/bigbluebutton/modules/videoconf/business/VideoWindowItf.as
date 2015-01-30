@@ -78,6 +78,13 @@ package org.bigbluebutton.modules.videoconf.business
 
 	protected var videoConfOptions:VideoConfOptions = new VideoConfOptions();
 
+    public function VideoWindowItf() {
+      super();
+      accessibilityEnabled = false;
+	  titleBarOverlay.accessibilityEnabled = false;
+	  closeBtn.accessibilityEnabled = false;
+    }
+	
     public function getWindowType():String {
       return windowType;
     }

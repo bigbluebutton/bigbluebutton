@@ -455,6 +455,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function displaySlideNumber(currentSlide:int):void {
         disableSlideNavigationButtons(currentSlide);
 				btnSlideNum.label = "" + currentSlide + '/' + PresentationModel.getInstance().getNumberOfPages();
+				btnSlideNum.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.accessibilityName', [currentSlide, PresentationModel.getInstance().getNumberOfPages()])
 			}
 			
       
