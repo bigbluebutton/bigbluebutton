@@ -137,10 +137,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
+  	  message.put("msg", gson.toJson(args))
   	  
 //  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-    val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+  	  val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message, msg.sessionId);
 	  service.sendMessage(m);	    
 	}
 	
@@ -154,7 +154,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	  message.put("msg", gson.toJson(args))
   	  
 //  	  println("UsersClientMessageSender - handleGetRecordingStatusReply \n" + message.get("msg") + "\n")
-      val m = new DirectClientMessage(msg.meetingID, msg.userId, "getRecordingStatusReply", message);
+      val m = new DirectClientMessage(msg.meetingID, msg.userId, "getRecordingStatusReply", message, msg.sessionId);
 	  service.sendMessage(m);	  
 	}
 	
@@ -253,7 +253,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		
 //      println("UsersClientMessageSender - handleGetUsersReply \n" + message.get("msg") + "\n")
 			
-      var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message)
+      var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message, msg.sessionId)
   	  service.sendMessage(m)
 	}
 
@@ -267,7 +267,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 //	  println("UsersClientMessageSender - handleMeetingHasEnded \n" + message.get("msg") + "\n")
 	  
-	  var m = new DirectClientMessage(msg.meetingID, msg.userId, "meetingHasEnded", message)
+	  var m = new DirectClientMessage(msg.meetingID, msg.userId, "meetingHasEnded", message, msg.sessionId)
 	  service.sendMessage(m);
 	}
 	
@@ -287,7 +287,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	message.put("msg", gson.toJson(args))
 
-  	var jmr = new DirectClientMessage(msg.meetingID, msg.userId, "meetingState", message);
+  	var jmr = new DirectClientMessage(msg.meetingID, msg.userId, "meetingState", message, msg.sessionId);
   	service.sendMessage(jmr);	  
 	}
 	
@@ -349,7 +349,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 
 //  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
 			
-  	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
+  	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message, msg.sessionId);
   	service.sendMessage(jmr);
   	  
 //  println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")

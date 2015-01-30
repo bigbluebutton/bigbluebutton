@@ -27,12 +27,14 @@ public class DirectClientMessage implements ClientMessage {
 	private Map<String, Object> message;
 	private String messageName;
 	private String sharedObjectName;
+	private String sessionId;
 	
-	public DirectClientMessage(String meetingID, String userID, String messageName, Map<String, Object> message) {
+	public DirectClientMessage(String meetingID, String userID, String messageName, Map<String, Object> message, String sessionId) {
 		this.meetingID = meetingID;
 		this.userID = userID;
 		this.message = message;
 		this.messageName = messageName;
+		this.sessionId = sessionId;
 	}
 	
 	public void setSharedObjectName(String name) {
@@ -53,6 +55,10 @@ public class DirectClientMessage implements ClientMessage {
 	
 	public String getMessageName() {
 		return messageName;
+	}
+	
+	public String getSessionId() {
+	    return sessionId;
 	}
 	
 	public Map<String, Object> getMessage() {

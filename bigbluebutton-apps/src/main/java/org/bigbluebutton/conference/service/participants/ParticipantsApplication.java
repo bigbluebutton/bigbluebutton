@@ -59,8 +59,8 @@ public class ParticipantsApplication {
 		bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
 	}
 	
-	public void getUsers(String meetingID, String requesterID) {
-		bbbInGW.getUsers(meetingID, requesterID);
+	public void getUsers(String meetingID, String requesterID, String sessionId) {
+		bbbInGW.getUsers(meetingID, requesterID, sessionId);
 	}
 	
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {

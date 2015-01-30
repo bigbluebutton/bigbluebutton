@@ -79,10 +79,10 @@ trait UsersApp {
         val replyTo = meetingID + '/' + msg.userId
 
         //send the reply
-        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId, msg.sessionId))
 
         //send the list of users in the meeting
-        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
+        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers, msg.sessionId))
 
         //send chat history
         this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
@@ -92,11 +92,11 @@ trait UsersApp {
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
-        this ! (new GetPresentationInfo(meetingID, msg.userId, replyTo))
+        this ! (new GetPresentationInfo(meetingID, msg.token, replyTo))
       }
       case None => {
         logger.info("ValidateToken failed: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
-        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
+        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId, msg.sessionId))
       }
     }
   }
@@ -268,7 +268,7 @@ trait UsersApp {
   }
   
   def handleGetUsers(msg: GetUsers):Unit = {
-	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, users.getUsers))
+	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, users.getUsers, msg.sessionId))
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
@@ -284,7 +284,7 @@ trait UsersApp {
 	    users.addUser(uvo)
 		
 	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
-	    outGW.send(new UserJoined(meetingID, recorded, uvo))
+	    outGW.send(new UserJoined(meetingID, recorded, uvo, msg.sessionId))
 	
 	    outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
 	    
@@ -335,7 +335,7 @@ trait UsersApp {
 		  	
 		      users.addUser(uvo)
 		      logger.info("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
-		      outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      outGW.send(new UserJoined(meetingID, recorded, uvo, sessionId))
 		      
 		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
 		      if (meetingMuted)

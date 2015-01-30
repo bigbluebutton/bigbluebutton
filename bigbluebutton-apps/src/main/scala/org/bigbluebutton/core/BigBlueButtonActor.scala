@@ -51,7 +51,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
     msg match {
       case vat:ValidateAuthToken => {
         logger.info("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
-        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
+        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId, msg.sessionId))
       }
       case _ => {
         logger.info("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")

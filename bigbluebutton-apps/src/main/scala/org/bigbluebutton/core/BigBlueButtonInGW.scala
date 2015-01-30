@@ -161,8 +161,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
   }
 
-  def getUsers(meetingID: String, requesterID: String):Unit = {
-    bbbGW.accept(new GetUsers(meetingID, requesterID))
+  def getUsers(meetingID: String, requesterID: String, sessionId: String):Unit = {
+    bbbGW.accept(new GetUsers(meetingID, requesterID, sessionId))
   }
 
   def userLeft(meetingID: String, userID: String, sessionId: String):Unit = {
