@@ -109,6 +109,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher = new Dispatcher();
 				hotkeyCapture();
 				
+				resourcesChanged();
+				
 				titleBarOverlay.tabIndex = baseIndex;
 				
 				minimizeBtn.tabIndex = baseIndex+1;

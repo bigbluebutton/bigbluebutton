@@ -331,12 +331,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 //          positionPage(page);
           
           //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
-//          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-//          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-          
-          
+          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
         }
 			}
 			
