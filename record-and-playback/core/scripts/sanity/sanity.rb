@@ -54,12 +54,14 @@ def check_webcam_files(raw_dir, meeting_id)
 
     BigBlueButton.logger.info("Repairing red5 serialized streams")
     cp="/usr/share/red5/red5-server.jar:/usr/share/red5/lib/*"
-    FileUtils.cd("#{meeting_dir}/video/#{meeting_id}") do
-      Dir.glob("*.flv.ser").each do |ser|
-        BigBlueButton.logger.info("Repairing #{ser}")
-        ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
-        if ret != 0
-          BigBlueButton.logger.warn("Failed to repair #{ser}")
+    if File.directory?("#{meeting_dir}/video/#{meeting_id}")
+      FileUtils.cd("#{meeting_dir}/video/#{meeting_id}") do
+        Dir.glob("*.flv.ser").each do |ser|
+          BigBlueButton.logger.info("Repairing #{ser}")
+          ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
+          if ret != 0
+            BigBlueButton.logger.warn("Failed to repair #{ser}")
+          end
         end
       end
     end
