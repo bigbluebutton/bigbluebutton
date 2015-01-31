@@ -38,7 +38,6 @@ case class GetRecordingStatusReply(
     meetingID: String, 
     recorded: Boolean,
     userId: String, 
-    sessionId: String,
     recording: Boolean,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
@@ -73,14 +72,12 @@ case class MeetingState(
     userId: String,
     permissions: Permissions,
     meetingMuted: Boolean,
-    sessionId: String,
     version:String = Versions.V_0_0_1    
 ) extends IOutMessage
 
 case class MeetingHasEnded(
   meetingID: String,
   userId: String,
-  sessionId: String,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
@@ -191,7 +188,6 @@ case class GetUsersReply(
     meetingID: String, 
     requesterID: String, 
     users: Array[UserVO],
-    sessionId: String,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
                          
@@ -201,7 +197,6 @@ case class ValidateAuthTokenReply(
   token: String,
   valid: Boolean,
   correlationId: String,
-  sessionId: String,
   version:String = Versions.V_0_0_1
   ) extends IOutMessage
 
@@ -209,7 +204,6 @@ case class UserJoined(
     meetingID: String, 
     recorded: Boolean, 
     user:UserVO,
-    sessionId: String,
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
                       

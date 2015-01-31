@@ -106,8 +106,7 @@ case class UserLeaving(
                        
 case class GetUsers(
     meetingID: String, 
-    requesterID: String,
-    sessionId: String
+    requesterID: String
 ) extends InMessage
  
 case class UserRaiseHand(

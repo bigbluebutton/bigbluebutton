@@ -88,7 +88,7 @@ trait UsersApp {
         this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
 
         //join the user
-        handleUserJoin(new UserJoining(meetingID, msg.userId, msg.sessionId))
+        handleUserJoin(new UserJoining(meetingID, msg.token, msg.sessionId))
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
@@ -268,7 +268,7 @@ trait UsersApp {
   }
   
   def handleGetUsers(msg: GetUsers):Unit = {
-	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, users.getUsers, msg.sessionId))
+	  outGW.send(new GetUsersReply(msg.meetingID, msg.requesterID, users.getUsers))
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
@@ -286,7 +286,7 @@ trait UsersApp {
 	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
 	    outGW.send(new UserJoined(meetingID, recorded, uvo, msg.sessionId))
 	
-	    outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
+	    outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted, msg.sessionId))
 	    
 	    // Become presenter if the only moderator		
 	    if (users.numModerators == 1) {

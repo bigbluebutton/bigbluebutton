@@ -60,7 +60,7 @@ public class ParticipantsApplication {
 	}
 	
 	public void getUsers(String meetingID, String requesterID, String sessionId) {
-		bbbInGW.getUsers(meetingID, requesterID, sessionId);
+		bbbInGW.getUsers(meetingID, requesterID);
 	}
 	
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {

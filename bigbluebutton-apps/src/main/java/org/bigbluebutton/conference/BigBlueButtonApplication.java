@@ -155,7 +155,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String userFullname = bbbSession.getUsername();
 	    String connId = Red5.getConnectionLocal().getSessionId();
 	        
-		String sessionId =  CONN + connId + "-" + userId;
+		String sessionId =  CONN + userId;
 		connInvokerService.addConnection(sessionId, connection);
 		
 		log.info("User connected: sessionId=[" + sessionId + "], encoding=[" + connType +
@@ -208,7 +208,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String userFullname = bbbSession.getUsername();
 	    String connId = Red5.getConnectionLocal().getSessionId();
 	    
-        String sessionId =  CONN + connId + "-" + userId;
+        String sessionId =  CONN + userId;
 	    
 	    log.info("User disconnected: sessionId=[" + sessionId + "], encoding=[" + connType +
 	                "], meetingId= [" + meetingId + "], userId=[" + userId + "] username=[" + userFullname +"]");
@@ -262,7 +262,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		bbbGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
 	}
 	
-	public void joinMeeting(String userId) {
+	public void joinMeeting2(String userId) {
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession != null) {
 			String userid = bbbSession.getInternalUserID();
@@ -272,7 +272,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 			log.debug(APP + ":joinMeeting - [" + meetingId + "] [" + userid + ", " + username + ", " + role + "]");
 		    
 			String connId = Red5.getConnectionLocal().getSessionId();    
-	        String sessionId =  CONN + connId + "-" + userId;
+	        String sessionId =  CONN + userId;
 	        
 	        Map<String, Object> logData = new HashMap<String, Object>();
 	        logData.put("meetingId", meetingId);

@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
@@ -39,6 +40,8 @@ import org.slf4j.Logger;
 
 public class ConnectionInvokerService {
 	private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
+	
+	private final String CONN = "RED5-";
 	
 	private static final int NTHREADS = 1;
 	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
@@ -150,7 +153,8 @@ public class ConnectionInvokerService {
 	private void handlDisconnectClientMessage(DisconnectClientMessage msg) {
 		IScope meetingScope = getScope(msg.getMeetingId());
 		if (meetingScope != null) {
-			IConnection conn = getConnection(meetingScope, msg.getUserId());
+			String sessionId = CONN + msg.getUserId();
+			IConnection conn = getConnection(meetingScope, sessionId);
 			if (conn != null) {
 				if (conn.isConnected()) {
 					log.info("Disconnecting user=[{}] from meeting=[{}]", msg.getUserId(), msg.getMeetingId());
@@ -186,7 +190,8 @@ public class ConnectionInvokerService {
 			public void run() {
 				IScope meetingScope = getScope(msg.getMeetingID());
 				if (meetingScope != null) {
-					IConnection conn = getConnection(meetingScope, msg.getUserID());
+					String sessionId = CONN + msg.getUserID();
+					IConnection conn = getConnection(meetingScope, sessionId);
 					if (conn != null) {
 						if (conn.isConnected()) {
 							List<Object> params = new ArrayList<Object>();

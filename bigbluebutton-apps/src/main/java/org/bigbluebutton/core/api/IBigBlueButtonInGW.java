@@ -35,7 +35,7 @@ public interface IBigBlueButtonInGW {
 	void shareWebcam(String meetingId, String userId, String stream);
 	void unshareWebcam(String meetingId, String userId);
 	void setUserStatus(String meetingID, String userID, String status, Object value);
-	void getUsers(String meetingID, String requesterID, String sessionId);
+	void getUsers(String meetingID, String requesterID);
 	void userLeft(String meetingID, String userID, String sessionId);
 	void userJoin(String meetingID, String userID, String sessionId);
 	void getCurrentPresenter(String meetingID, String requesterID);
