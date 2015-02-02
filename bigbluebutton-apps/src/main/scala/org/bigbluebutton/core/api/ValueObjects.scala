@@ -59,7 +59,6 @@ case class Voice(
 )
 
 case class UserVO(
-  sessionId: String,
   userID: String, 
   externUserID: String, 
   name: String, 
