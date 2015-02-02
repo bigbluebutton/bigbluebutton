@@ -203,6 +203,13 @@ def publish_processed_meeting(recording_dir)
       match2 = /([^\/]*).rb$/.match(publish_script)
       publish_type = match2[1]
 
+      # Do not try to publish a format that failed in the process phase
+      processed_done = "#{recording_dir}/status/processed/#{meeting_id}-#{publish_type}.done"
+      if !File.exists?(processed_done)
+        publish_succeeded = false
+        next
+      end
+
       published_done = "#{recording_dir}/status/published/#{meeting_id}-#{publish_type}.done"
       next if File.exists?(published_done)
 
