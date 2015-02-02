@@ -15,14 +15,16 @@ trait LayoutApp {
   private var viewersOnly = true
   
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
-    outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID, currentLayout, permissions.lockedLayout, setByUser))
+    outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID, 
+        currentLayout, permissions.lockedLayout, setByUser))
   }
   
 	def handleLockLayoutRequest(msg: LockLayoutRequest) {
 	  viewersOnly = msg.viewersOnly
 	  lockLayout(msg.lock)
 	  
-	  outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.setById, msg.lock, affectedUsers))
+	  outGW.send(new LockLayoutEvent(msg.meetingID, recorded, 
+	      msg.setById, msg.lock, affectedUsers))
 	  
 	  msg.layout foreach {l =>
 	    currentLayout = l
@@ -31,7 +33,8 @@ trait LayoutApp {
 	}
 		
 	private def broadcastSyncLayout(meetingId: String, setById: String) {
-	  outGW.send(new BroadcastLayoutEvent(meetingId, recorded, setById, currentLayout, permissions.lockedLayout, setByUser, affectedUsers))
+	  outGW.send(new BroadcastLayoutEvent(meetingId, recorded, setById, 
+	      currentLayout, permissions.lockedLayout, setByUser, affectedUsers))
 	}
 	
   def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {

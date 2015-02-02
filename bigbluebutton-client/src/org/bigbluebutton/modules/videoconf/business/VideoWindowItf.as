@@ -81,8 +81,9 @@ package org.bigbluebutton.modules.videoconf.business
     public function VideoWindowItf() {
       super();
       accessibilityEnabled = false;
-	  titleBarOverlay.accessibilityEnabled = false;
-	  closeBtn.accessibilityEnabled = false;
+      if (titleBarOverlay != null)
+	      titleBarOverlay.accessibilityEnabled = false;
+	    closeBtn.accessibilityEnabled = false;
     }
 	
     public function getWindowType():String {

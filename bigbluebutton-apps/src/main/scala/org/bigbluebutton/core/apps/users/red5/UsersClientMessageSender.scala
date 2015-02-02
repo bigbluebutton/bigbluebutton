@@ -137,10 +137,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
+  	  message.put("msg", gson.toJson(args))
   	  
 //  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-    val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+  	  val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
 	  service.sendMessage(m);	    
 	}
 	
