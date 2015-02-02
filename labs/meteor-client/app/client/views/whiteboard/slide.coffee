@@ -60,6 +60,8 @@ Template.slide.rendered = ->
     boardHeight = footerTop - $("#whiteboard").offset().top - $("#whiteboard-navbar").height() - 10
   else
     boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+  if window.matchMedia('(orientation: landscape)').matches
+    boardHeight -= 10; # add some bottom padding
 
   # this is the best fitting pair
   adjustedWidth = null
