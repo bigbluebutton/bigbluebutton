@@ -137,11 +137,14 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
-			
+		
+		String userId = internalUserID;
+		String sessionId =  CONN + userId;
 		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
-    			voiceBridge, record, externalUserID, muted);
+    			voiceBridge, record, externalUserID, muted, sessionId);
 		connection.setAttribute(Constants.SESSION, bbbSession);        
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
+		connection.setAttribute("USER_SESSION_ID", sessionId);
         
 		String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
@@ -150,12 +153,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		bbbGW.initLockSettings(room, locked, lsMap);
 
 	    String meetingId = bbbSession.getRoom();
-	    String userId = bbbSession.getInternalUserID();
+	    
 	    String connType = getConnectionType(Red5.getConnectionLocal().getType());
 	    String userFullname = bbbSession.getUsername();
 	    String connId = Red5.getConnectionLocal().getSessionId();
 	        
-		String sessionId =  CONN + userId;
 		connInvokerService.addConnection(sessionId, connection);
 		
 		log.info("User connected: sessionId=[" + sessionId + "], encoding=[" + connType +
@@ -176,7 +178,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		Gson gson = new Gson();
         String logStr =  gson.toJson(logData);
 		
-		log.info("User joining bbb-aaps: data={}", logStr);
+		log.info("User joining bbb-apps: data={}", logStr);
 		
 		return super.roomConnect(connection, params);
         
@@ -227,7 +229,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String logStr =  gson.toJson(logData);
 	        
 	    log.info("User leaving bbb-apps: data={}", logStr);
-	        
+	    
 		connInvokerService.removeConnection(sessionId);
     	        
 		bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
@@ -236,7 +238,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	}
 	
 	public void validateToken(Map<String, String> msg) {
-//	   String userId = (String) msg.get("userId");
 	   String token = (String) msg.get("authToken");
 	        
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
@@ -261,37 +262,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         log.info("User validate token bbb-apps: data={}", logStr);
 		bbbGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
 	}
-	
-	public void joinMeeting2(String userId) {
-		BigBlueButtonSession bbbSession = getBbbSession();
-		if (bbbSession != null) {
-			String userid = bbbSession.getInternalUserID();
-			String username = bbbSession.getUsername();
-			String role = bbbSession.getRole();
-			String meetingId = bbbSession.getRoom();
-			log.debug(APP + ":joinMeeting - [" + meetingId + "] [" + userid + ", " + username + ", " + role + "]");
-		    
-			String connId = Red5.getConnectionLocal().getSessionId();    
-	        String sessionId =  CONN + userId;
-	        
-	        Map<String, Object> logData = new HashMap<String, Object>();
-	        logData.put("meetingId", meetingId);
-	        logData.put("connId", connId);
-	        logData.put("userId", userId);
-	        logData.put("sessionId", sessionId);
-	        logData.put("username", username);
-	        logData.put("event", "user_join_bbb_apps");
-	        logData.put("description", "User join BBB Apps.");
-	        
-	        Gson gson = new Gson();
-	        String logStr =  gson.toJson(logData);
-	        
-	        log.info("User join bbb-aaps: data={}", logStr);
-			bbbGW.userJoin(meetingId, userid, sessionId);
-		}
 		
-	}
-	
 	public void setRecorderApplication(RecorderApplication a) {
 		recorderApplication = a;
 	}

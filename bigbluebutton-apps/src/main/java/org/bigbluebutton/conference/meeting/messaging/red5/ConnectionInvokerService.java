@@ -78,6 +78,7 @@ public class ConnectionInvokerService {
 		if (conn == null) {
 			System.out.println("CONN IS NULL");
 		}
+
 		connections.putIfAbsent(id, conn);
 	}
 	
@@ -186,20 +187,26 @@ public class ConnectionInvokerService {
 	}
 	
 	private void sendDirectMessage(final DirectClientMessage msg) {
+	  final String sessionId = CONN + msg.getUserID();
 		Runnable sender = new Runnable() {
 			public void run() {
 				IScope meetingScope = getScope(msg.getMeetingID());
 				if (meetingScope != null) {
-					String sessionId = CONN + msg.getUserID();
+					
 					IConnection conn = getConnection(meetingScope, sessionId);
 					if (conn != null) {
 						if (conn.isConnected()) {
+						  log.debug("Sending message=[" + msg.getMessageName() + "] to [" + sessionId 
+						      + "] session on meeting=[" + msg.getMeetingID() + "]");
 							List<Object> params = new ArrayList<Object>();
 							params.add(msg.getMessageName());
 							params.add(msg.getMessage());
 							ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
 						}
-					}				
+					} else {
+					  log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + sessionId 
+					      + "] as no such session on meeting=[" + msg.getMeetingID() + "]");
+					}
 				}	
 			}
 		};		
@@ -224,7 +231,7 @@ public class ConnectionInvokerService {
 	private IConnection getConnection(IScope scope, String userID) {
 		Set<IConnection> conns = scope.getClientConnections();
 		for (IConnection conn : conns) {
-			String connID = (String) conn.getAttribute("INTERNAL_USER_ID");
+			String connID = (String) conn.getAttribute("USER_SESSION_ID");
 			if (connID != null && connID.equals(userID)) {
 				return conn;
 			}
