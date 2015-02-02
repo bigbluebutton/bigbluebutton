@@ -1,6 +1,7 @@
 #content {
   margin-top: 10px;
   overflow: hidden;
+  width: 100%;
 }
 
 #usericons {
@@ -21,8 +22,12 @@
   }
 }
 
-#username {
+.usernameEntry {
   float:left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 70%;
 }
 
 #users {
@@ -38,16 +43,4 @@
 
 .userCurrent {
   font-weight: bold;
-}
-
-/*.userNameContainer {
-  border-right: 1px solid extract(@lightGrey, 3);
-  padding-right: 0px;
-}*/
-
-.userNameEntry {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100px;
 }
