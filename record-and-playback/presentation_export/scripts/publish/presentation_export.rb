@@ -84,6 +84,7 @@ if ($playback == "presentation_export")
         zipfile.add(file.sub(zipped_directory+'/', ''), file)
       end
     end
+    FileUtils.chmod 0644, zipped_file
 
     BigBlueButton.logger.info("Creating metadata.xml")
     presentation_metadata = "#{process_dir}/resources/metadata.xml"
