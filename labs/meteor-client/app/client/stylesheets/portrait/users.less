@@ -1,35 +1,35 @@
-@media all and (orientation: portrait) {
+@media all and (orientation: portrait), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
   #users {
     -webkit-order: 3;
     order: 3;
     min-height: 20%;
     max-height: 20%;
   }
+}
 
-  @media (max-device-aspect-ratio: 1/1) {
-    .userNameEntry {
-      height: 35px;
-      font-size: 30px;
-      strong {
-        font-size: 25px;
-      }
+@media all and (orientation: portrait) and (max-device-aspect-ratio: 1/1), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
+  .userNameEntry {
+    height: 35px;
+    font-size: 30px;
+    strong {
+      font-size: 25px;
+    }
+  }
+}
+
+@media all and (orientation: portrait) and (min-device-aspect-ratio: 1/1) {
+  #username {
+    display:block;
+    width:70%;
+  }
+
+  #user-contents {
+    .userlist {
+      padding:10px;
     }
   }
 
-  @media (min-device-aspect-ratio: 1/1) {
-    #username {
-      display:block;
-      width:70%;
-    }
-
-    #user-contents {
-      .userlist {
-        padding:10px;
-      }
-    }
-
-    .userNameEntry {
-      height: 20px;
-    }
+  .userNameEntry {
+    height: 20px;
   }
 }
