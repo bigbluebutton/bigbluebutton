@@ -31,12 +31,14 @@ package org.bigbluebutton.modules.whiteboard
   import flash.text.TextFieldAutoSize;
   import flash.text.TextFieldType;
   import flash.text.TextFormat;
-  import flash.ui.Keyboard;  
+  import flash.ui.Keyboard;
+  
   import mx.collections.ArrayCollection;
   import mx.controls.TextInput;
   import mx.core.Application;
   import mx.core.UIComponent;
-  import mx.managers.CursorManager; 
+  import mx.managers.CursorManager;
+  
   import org.bigbluebutton.common.IBbbCanvas;
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
@@ -475,7 +477,11 @@ package org.bigbluebutton.modules.whiteboard
         var sendStatus:String = TextObject.TEXT_UPDATED;
         var tobj:TextObject = event.target as TextObject;  
         sendTextToServer(sendStatus, tobj);  
-      }         
+      }
+      // stops stops page changing when trying to navigate the text box
+      if (event.keyCode == Keyboard.LEFT || event.keyCode == Keyboard.RIGHT) {
+        event.stopPropagation();
+      }
     }
     
         public function textObjTextChangeListener(event:Event):void {
