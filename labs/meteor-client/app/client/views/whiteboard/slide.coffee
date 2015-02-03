@@ -27,11 +27,7 @@ Template.slide.rendered = ->
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   wpm._displayPage(currentSlide?.slide?.png_uri, getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   manuallyDisplayShapes()
-  # Remove 10 pixels in height from the slide on startup so it gets displayed in the frame
-  # There is a border of 5 pixels of seperation of the top of the slide from the border
-  # We want 5 pixels at the bottom too
-  # Since the slide has been pushed down 5 pixels, and we want an extra 5 pixels at the bottom, we shrink it by 10 pixels
-  wpm.scale(adjustedDimensions.width, adjustedDimensions.height-10)
+  wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
 
 @manuallyDisplayShapes = ->
   currentSlide = getCurrentSlideDoc()
@@ -64,6 +60,8 @@ Template.slide.rendered = ->
     boardHeight = footerTop - $("#whiteboard").offset().top - $("#whiteboard-navbar").height() - 10
   else
     boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+  if window.matchMedia('(orientation: landscape)').matches
+    boardHeight -= 10; # add some bottom padding
 
   # this is the best fitting pair
   adjustedWidth = null
