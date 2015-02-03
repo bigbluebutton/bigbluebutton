@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import mx.containers.Panel;
 	import mx.controls.Button;
 	import mx.core.UIComponent;
+	import mx.events.FlexEvent;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.Images;
@@ -80,11 +81,16 @@ package org.bigbluebutton.modules.videoconf.business
 
     public function VideoWindowItf() {
       super();
-      accessibilityEnabled = false;
-	  titleBarOverlay.accessibilityEnabled = false;
-	  closeBtn.accessibilityEnabled = false;
+	  
+	  this.addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
     }
-	
+    
+    private function onCreationComplete(event:FlexEvent) {
+      accessibilityEnabled = false;
+      titleBarOverlay.accessibilityEnabled = false;
+      closeBtn.accessibilityEnabled = false;
+    }
+    
     public function getWindowType():String {
       return windowType;
     }
