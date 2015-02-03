@@ -49,7 +49,6 @@ var isJavaEnabled = function() {
 
 var isJavaVersionAppropriateForDeskshare = function() {
     var required = '1.7.0_51+';
-    deployJava.init();
     return deployJava.versionCheck(required);
 }
 
