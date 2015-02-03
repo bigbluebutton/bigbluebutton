@@ -85,10 +85,13 @@ package org.bigbluebutton.modules.videoconf.business
 	  this.addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
     }
     
-    private function onCreationComplete(event:FlexEvent) {
+    private function onCreationComplete(event:FlexEvent):void {
+      tabFocusEnabled = false;
       accessibilityEnabled = false;
       titleBarOverlay.accessibilityEnabled = false;
+      titleBarOverlay.tabFocusEnabled = false;
       closeBtn.accessibilityEnabled = false;
+      closeBtn.tabFocusEnabled = false;
     }
     
     public function getWindowType():String {

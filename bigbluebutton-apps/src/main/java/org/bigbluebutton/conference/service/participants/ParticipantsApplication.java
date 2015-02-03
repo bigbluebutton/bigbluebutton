@@ -59,7 +59,7 @@ public class ParticipantsApplication {
 		bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
 	}
 	
-	public void getUsers(String meetingID, String requesterID) {
+	public void getUsers(String meetingID, String requesterID, String sessionId) {
 		bbbInGW.getUsers(meetingID, requesterID);
 	}
 	
