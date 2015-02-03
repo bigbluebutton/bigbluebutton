@@ -79,20 +79,20 @@ trait UsersApp {
         val replyTo = meetingID + '/' + msg.userId
 
         //send the reply
-        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId, msg.sessionId))
 
         //send the list of users in the meeting
-        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
+        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers, msg.sessionId))
 
         //send chat history
-        this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
+        this ! (new GetChatHistoryRequest(meetingID, msg.userId, msg.userId))
 
         //join the user
-        handleUserJoin(new UserJoining(meetingID, msg.userId, msg.token, msg.sessionId))
+        handleUserJoin(new UserJoining(meetingID, msg.userId, msg.token))
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
-        this ! (new GetPresentationInfo(meetingID, msg.userId, replyTo))
+        this ! (new GetPresentationInfo(meetingID, msg.userId, msg.userId))
       }
       case None => {
         logger.info("ValidateToken failed: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
@@ -272,12 +272,12 @@ trait UsersApp {
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
-    val regUser = regUsers.get(msg.token)
+    val regUser = regUsers.get(msg.authToken)
 
     regUser foreach { ru =>
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
-      val uvo = new UserVO(msg.sessionId, msg.userID, ru.externId, ru.name, 
+      val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
                   ru.role, raiseHand=false, presenter=false, 
                   hasStream=false, locked=false, webcamStream="", 
                   phoneUser=false, vu, listenOnly=false, permissions)
@@ -329,14 +329,14 @@ trait UsersApp {
           
           val sessionId = "PHONE-" + webUserId;
           
-          val uvo = new UserVO(sessionId, webUserId, webUserId, msg.voiceUser.callerName, 
+          val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
 		                  phoneUser=true, vu, listenOnly=false, permissions)
 		  	
 		      users.addUser(uvo)
 		      logger.info("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
-		      outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      outGW.send(new UserJoined(meetingID, recorded, uvo, sessionId))
 		      
 		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
 		      if (meetingMuted)

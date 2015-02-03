@@ -17,7 +17,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 	      case msg: CreateMeeting                 => handleCreateMeeting(msg)
 	      case msg: DestroyMeeting                => handleDestroyMeeting(msg)
 	      case msg: KeepAliveMessage              => handleKeepAliveMessage(msg)
-        case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
+          case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
 	      case msg: InMessage                     => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
@@ -51,7 +51,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
     msg match {
       case vat:ValidateAuthToken => {
         logger.info("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
-        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
+        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId, vat.sessionId))
       }
       case _ => {
         logger.info("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")

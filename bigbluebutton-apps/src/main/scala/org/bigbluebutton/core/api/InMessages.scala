@@ -95,8 +95,7 @@ case class RegisterUser(
 case class UserJoining(
     meetingID: String, 
     userID: String,
-    token: String,
-    sessionId: String
+    authToken: String
 ) extends InMessage
                        
 case class UserLeaving(
