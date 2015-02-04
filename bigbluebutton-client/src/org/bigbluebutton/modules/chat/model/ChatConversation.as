@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.chat.model
 {
+  import flash.system.Capabilities;
+  
   import mx.collections.ArrayCollection;
   
   import org.bigbluebutton.common.LogUtil;
@@ -62,9 +64,10 @@ package org.bigbluebutton.modules.chat.model
     
     public function getAllMessageAsString():String{
       var allText:String = "";
+      var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\r");
       for (var i:int = 0; i < messages.length; i++){
         var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-        allText += "\n" + item.name + " - " + item.time + " : " + item.text;
+        allText += item.name + " - " + item.time + " : " + item.text + returnStr;
       }
       return allText;
     }

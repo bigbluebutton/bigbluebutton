@@ -135,12 +135,35 @@
 				
 				stage.addEventListener(MouseEvent.MOUSE_OVER, handleStageMouseOver);
 				usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
+				
+				addContextMenuItems();
 			}
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.TOP_LEFT;
 			}
 			
+			private function addContextMenuItems():void {
+				var contextMenu:ContextMenu = new ContextMenu();
+				contextMenu.hideBuiltInItems();
+				
+				var exportUsersItem:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.users.usersGrid.contextmenu.exportusers"));
+				exportUsersItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, exportUsersItemHandler);
+				contextMenu.customItems.push(exportUsersItem);
+				
+				this.contextMenu = contextMenu;
+			}
+			
+			private function exportUsersItemHandler(e:ContextMenuEvent):void{
+				if (e.target.caption == ResourceUtil.getInstance().getString("bbb.users.usersGrid.contextmenu.exportusers")) {
+					var userNames:String = "";
+					var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\r");
+					for (var i:int = 0; i < users.length; i++) {
+						userNames += users[i].name + returnStr;
+					}
+					System.setClipboard(userNames);
+				}
+			}
 			
 			private function updateNumberofUsers(numUsers:int):void {
 				if (numUsers > 8)
