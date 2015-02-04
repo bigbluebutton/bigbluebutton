@@ -256,6 +256,9 @@ Template.optionsFontSize.events
       setInSession "messageFontSize", selectedFontSize
     else setInSession "messageFontSize", 12
 
+Template.optionsFontSize.helpers
+  getFontsizes: -> (size for size in [8..30] by 2)
+
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
     setInSession 'inChatWith', 'PUBLIC_CHAT'

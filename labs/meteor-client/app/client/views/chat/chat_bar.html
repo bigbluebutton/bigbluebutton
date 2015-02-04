@@ -112,22 +112,19 @@
 </template>
 
 <template name="optionsFontSize">
-	<div class="dropdown">
-		<span {{messageFontSize}}>Chat Message Font Size: </span>
-		<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-			Font Size ({{getInSession "messageFontSize"}})
-			<span class="caret"></span>
-		</button>
+    <div class="dropdown">
+        <span {{messageFontSize}}>Chat Message Font Size: </span>
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+        Font Size ({{getInSession "messageFontSize"}})
+        <span class="caret"></span>
+        </button>
 
-		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-			<li role="presentation"><a class="fontSizeSelector" id="8" role="menuitem" tabindex="-1" href="#">8</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="10" role="menuitem" tabindex="-1" href="#">10</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="12" role="menuitem" tabindex="-1" href="#">12</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="14" role="menuitem" tabindex="-1" href="#">14</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="16" role="menuitem" tabindex="-1" href="#">16</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="18" role="menuitem" tabindex="-1" href="#">18</a></li>
-		</ul>
-	</div>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            {{#each getFontsizes}}
+                <li role="presentation"><a class="fontSizeSelector" id="{{this}}" role="menuitem" tabindex="-1" href="#">{{this}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
 </template>
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
