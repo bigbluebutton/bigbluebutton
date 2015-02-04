@@ -150,7 +150,7 @@ Template.chatInput.events
 
     if event.shiftKey and (key is 13)
       event.preventDefault()
-      $("#newMessageInput").append("\r") # Change newline character
+      document.getElementById("newMessageInput").value += '\r' # Change newline character
       return
 
     if key is 13 # Check for pressing enter to submit message
