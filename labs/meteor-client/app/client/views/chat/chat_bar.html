@@ -22,7 +22,7 @@
 					<div class="panel-footer">{{> chatInput}}</div>
 				{{else}}
 					<div id="chatbody">
-						<ul class="chat">
+						<ul class="chat" {{messageFontSize}}>
 							{{#each getCombinedMessagesForChat}}
 								{{#if message}}
 									<li {{messageFontSize}}>{{> message}}</li>
@@ -71,7 +71,7 @@
 <template name="message">
     <span style="float:left;">
         {{#if message.from_username}}
-            <span {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+            <span class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
                 <strong>{{message.from_username}}</strong>
             </span>
         {{/if}}
