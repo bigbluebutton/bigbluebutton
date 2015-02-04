@@ -77,10 +77,10 @@
         {{/if}}
     </span>
     <span style="float:right;">
-                {{#if message.from_time}}
-                {{toClockTime message.from_time}}
-                <span class="glyphicon glyphicon-time"></span>
-            {{/if}}
+        {{#if message.from_time}}
+            <span {{messageFontSize}}>{{toClockTime message.from_time}}</span>
+            <span class="glyphicon glyphicon-time"></span>
+        {{/if}}
     </span>
     <br/>
     <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
