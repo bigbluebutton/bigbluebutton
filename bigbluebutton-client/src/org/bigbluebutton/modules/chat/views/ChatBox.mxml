@@ -680,6 +680,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
 
+				// Force validation before evaluation of toolbar width
+				validateNow();
+
 				const paddingHeight:int = 5;
 				const paddingWidth:int = 5;
 
