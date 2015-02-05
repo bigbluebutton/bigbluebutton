@@ -163,4 +163,4 @@ def processGetRecordingsUrlInput(input)
   end
 end
 
-processGetRecordingsUrlInput $get_recordings_url
+processGetRecordingsUrlInput $get_recordings_url if !$get_recordings_url.nil? and !$get_recordings_url.empty?
