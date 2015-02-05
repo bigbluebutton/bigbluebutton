@@ -172,7 +172,6 @@ class @WhiteboardTextModel extends WhiteboardToolModel
       #creating a textNode and adding it to the cell to check the width
       tempSpanEl.firstChild.nodeValue = temp[num]
       cell.appendChild tempSpanEl
-      console.log tempSpanEl.getComputedTextLength()
       #if width is bigger than maxWidth + whitespace between textBox borders and a word
       if tempSpanEl.getComputedTextLength()+10 > maxWidth
         tempWord = temp[num]
