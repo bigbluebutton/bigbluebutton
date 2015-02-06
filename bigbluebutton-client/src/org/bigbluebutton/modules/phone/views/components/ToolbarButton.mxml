@@ -38,26 +38,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import flash.system.Security;
-      import flash.system.SecurityPanel;     
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.main.api.JSLog;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.views.MainToolbar;
-      import org.bigbluebutton.modules.phone.PhoneOptions;
-      import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-      import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
-      import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
-      import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
-      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-      import org.bigbluebutton.modules.phone.views.assets.Images;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.system.Security;
+			import flash.system.SecurityPanel;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.api.JSLog;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.modules.phone.PhoneOptions;
+			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
+			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+			import org.bigbluebutton.modules.phone.views.assets.Images;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
       private static const LOG:String = "Phone::ToolbarButton - ";
       
@@ -116,9 +119,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (phoneOptions.autoJoin) {
           if (phoneOptions.skipCheck) {
             var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-            command.mic = true;
-            if (phoneOptions.forceListenOnly) {
+            if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) {
               command.mic = false;
+            } else {
+              command.mic = true;
             }
             
             dispatcher.dispatchEvent(command);            

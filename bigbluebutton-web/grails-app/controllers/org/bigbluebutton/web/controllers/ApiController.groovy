@@ -379,7 +379,7 @@ class ApiController {
 	// Store the following into a session so we can handle
 	// logout, restarts properly.
 	session['meeting-id'] = us.meetingID
-	session['user-token'] = us.meetingID + "-" + us.internalUserId;
+	session['user-token'] = us.meetingID + "-" + us.authToken;
 	session['logout-url'] = us.logoutUrl
 	
 	meetingService.addUserSession(session['user-token'], us);
@@ -1342,7 +1342,13 @@ class ApiController {
     } else {
 		
 		Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
-		
+	
+      // Generate a new userId for this user. This prevents old connections from
+      // removing the user when the user reconnects after being disconnected. (ralam jan 22, 2015)
+      // We use underscore (_) to associate userid with the user. We are also able to track
+      // how many times a user reconnects or refresh the browser.
+      String newInternalUserID = us.internalUserId + "_" + us.incrementConnectionNum()
+    
       log.info("Found conference for " + us.fullname)
       response.addHeader("Cache-Control", "no-cache")
       withFormat {        
@@ -1355,7 +1361,7 @@ class ApiController {
               meetingID = us.meetingID
               externMeetingID = us.externMeetingID
               externUserID = us.externUserID
-              internalUserID = us.internalUserId
+              internalUserID = newInternalUserID
               authToken = us.authToken
               role = us.role
               conference = us.conference
@@ -1365,10 +1371,10 @@ class ApiController {
               webvoiceconf = us.webvoiceconf
               mode = us.mode
               record = us.record
-							allowStartStopRecording = meeting.getAllowStartStopRecording()
+              allowStartStopRecording = meeting.getAllowStartStopRecording()
               welcome = us.welcome
-							if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
-							  modOnlyMessage = meeting.moderatorOnlyMessage
+              if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
+                modOnlyMessage = meeting.moderatorOnlyMessage
               logoutUrl = us.logoutUrl
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL

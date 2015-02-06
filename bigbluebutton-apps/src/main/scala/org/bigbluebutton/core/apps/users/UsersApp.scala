@@ -73,26 +73,26 @@ trait UsersApp {
   
   def handleValidateAuthToken(msg: ValidateAuthToken) {
 //    println("*************** Got ValidateAuthToken message ********************" )
-    regUsers.get (msg.userId) match {
+    regUsers.get (msg.token) match {
       case Some(u) =>
       {
         val replyTo = meetingID + '/' + msg.userId
 
         //send the reply
-        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
+        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId, msg.sessionId))
 
         //send the list of users in the meeting
-        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
+        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers, msg.sessionId))
 
         //send chat history
-        this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
+        this ! (new GetChatHistoryRequest(meetingID, msg.userId, msg.userId))
 
         //join the user
-        handleUserJoin(new UserJoining(meetingID, msg.userId))
+        handleUserJoin(new UserJoining(meetingID, msg.userId, msg.token))
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
-        this ! (new GetPresentationInfo(meetingID, msg.userId, replyTo))
+        this ! (new GetPresentationInfo(meetingID, msg.userId, msg.userId))
       }
       case None => {
         logger.info("ValidateToken failed: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
@@ -108,7 +108,7 @@ trait UsersApp {
       sendMeetingHasEnded(msg.userID)
     } else {
       val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
-      regUsers += msg.userID -> regUser
+      regUsers += msg.authToken -> regUser
       logger.info("Register user success: mid=[" + meetingID + "] uid=[" + msg.userID + "]")
       outGW.send(new UserRegistered(meetingID, recorded, regUser))      
     }
@@ -272,7 +272,8 @@ trait UsersApp {
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
-    val regUser = regUsers.get(msg.userID)
+    val regUser = regUsers.get(msg.authToken)
+
     regUser foreach { ru =>
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
@@ -300,20 +301,20 @@ trait UsersApp {
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
-	 if (users.hasUser(msg.userID)) {
+	if (users.hasUser(msg.userID)) {
 	  val user = users.removeUser(msg.userID)
 	  user foreach { u => 
 	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
 	    outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
 	  }
 	  
-    startCheckingIfWeNeedToEndVoiceConf()
-    stopAutoStartedRecording()
-	 }
+      startCheckingIfWeNeedToEndVoiceConf()
+      stopAutoStartedRecording()
+	}
   }
   
   def handleUserJoinedVoiceFromPhone(msg: VoiceUserJoined) = {
-      val user = users.getUserWithVoiceUserId(msg.voiceUser.userId) match {
+    val user = users.getUserWithVoiceUserId(msg.voiceUser.userId) match {
         case Some(user) => {
           logger.info("Voice user=[" + msg.voiceUser.userId + "] is already in conf=[" + voiceBridge + "]. Must be duplicate message.")
         }
@@ -325,6 +326,9 @@ trait UsersApp {
           val vu = new VoiceUser(msg.voiceUser.userId, webUserId, 
                                  msg.voiceUser.callerName, msg.voiceUser.callerNum,
                                  true, false, false, false)
+          
+          val sessionId = "PHONE-" + webUserId;
+          
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
 		                  hasStream=false, locked=false, webcamStream="", 
@@ -332,14 +336,14 @@ trait UsersApp {
 		  	
 		      users.addUser(uvo)
 		      logger.info("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
-		      outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      outGW.send(new UserJoined(meetingID, recorded, uvo, sessionId))
 		      
 		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
 		      if (meetingMuted)
             outGW.send(new MuteVoiceUser(meetingID, recorded, uvo.userID, uvo.userID, meetingMuted))      
         
         }
-      }
+    }
   }
   
   def handleVoiceUserJoined(msg: VoiceUserJoined) = {

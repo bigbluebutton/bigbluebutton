@@ -269,7 +269,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatBox.id = chatWithUserID;
 		    chatBox.name = chatWithUserID;
 				chatBox.chatWithUserID = chatWithUserID;
-				chatBox.baseIndex = baseIndex;
+				chatBox.baseIndex = baseIndex+10;
 		        
 		    if (publicChat) {
 		      chatBox.label = PUBLIC_CHAT_USERNAME
@@ -301,7 +301,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				tabBox.label = OPTION_TAB_ID;
 				tabBox.name = OPTION_TAB_ID;
 				tabBox.chatOptions = chatOptions;
-				
+				tabBox.baseIndex = baseIndex + 10;
 				tabBox.addEventListener(KeyboardEvent.KEY_DOWN, tabBox.accessibleClick);
 				chatTabs.addChild(tabBox);
 				

@@ -31,60 +31,66 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
+      import mx.controls.Alert;
 			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.main.events.PortTestEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.main.events.ModuleLoadEvent;
+      import org.bigbluebutton.main.events.PortTestEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var modules:Dictionary = new Dictionary();
-			private var numModules:int = 0;
-			private var portUpdateStr:String = 'Connecting to the server';
-			private function moduleLoadingStarted(e:ModuleLoadEvent):void{
-				var list:XMLList = e.modules;
-				var item:XML;
-				for each(item in list){
-					modules[item.@name] = 0;
-					numModules++;
-				}
-				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
-			}
+      private var modules:Dictionary = new Dictionary();
+      private var numModules:int = 0;
+      private var portUpdateStr:String = 'Connecting to the server';
+      
+      private function moduleLoadingStarted(e:ModuleLoadEvent):void{
+        var list:XMLList = e.modules;
+        var item:XML;
+        
+        numModules = 0;
+        trace("LoadingBar.mxml numModules=[" + numModules + "]");
+        for each(item in list){
+          modules[item.@name] = 0;
+          numModules++;
+          trace("LoadingBar.mxml numModules=[" + numModules + "] modulename=[" + item.@name + "]");
+        }
+
+        this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
+      }
 			
-			private function moduleLoadProgress(e:ModuleLoadEvent):void{
-				modules[e.moduleName] = e.progress;
-				updateProgress();
-			}
+      private function moduleLoadProgress(e:ModuleLoadEvent):void{
+        modules[e.moduleName] = e.progress;
+        updateProgress();
+      }
 			
-			private function updateProgress():void{
-				var totalProgress:Number = 0;
-				for (var key:Object in modules) {
-					var progress:Number = modules[key] as Number;
-					totalProgress += progress;
-				}
-				//LogUtil.debug("Progress: " + totalProgress);
-				this.setProgress(totalProgress/numModules, 100);
-			}
+      private function updateProgress():void{
+        var totalProgress:Number = 0;
+        for (var key:Object in modules) {
+          var progress:Number = modules[key] as Number;
+          totalProgress += progress;
+        }
+        //LogUtil.debug("Progress: " + totalProgress);
+        this.setProgress(totalProgress/numModules, 100);
+      }
 			
-			private function allModulesLoaded(e:ModuleLoadEvent):void{
-				parent.removeChild(this);
-			}
+      private function allModulesLoaded(e:ModuleLoadEvent):void{
+        parent.removeChild(this);
+      }
 			
-			private function testRTMP(e:PortTestEvent):void{
-				//- Cannot get locale string this early in loading process
-				portUpdateStr += "."
-				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
-			}
+      private function testRTMP(e:PortTestEvent):void{
+        //- Cannot get locale string this early in loading process
+        portUpdateStr += "."
+        this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+      }
 			
-			private function testRTMPupdate(e:PortTestEvent):void{
-				//- Cannot get locale string this early in loading process
-				portUpdateStr += "...";
-				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
-			}
+      private function testRTMPupdate(e:PortTestEvent):void{
+        //- Cannot get locale string this early in loading process
+        portUpdateStr += "...";
+        this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+      }
 			
-			private function tunnelingFailed(e:PortTestEvent):void{
-				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
-			}
+      private function tunnelingFailed(e:PortTestEvent):void{
+        this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.cannotConnectServer');
+      }
 			
 			
 		]]>

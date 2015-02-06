@@ -1,5 +1,12 @@
 @import "../colors";
 
+.active {
+  border-bottom: none;
+  border-left: 1px solid extract(@azure, 2);
+  border-right: 1px solid extract(@azure, 2);
+  border-top: 1px solid extract(@azure, 2);
+}
+
 bottomEntry {
   border: none;
   padding-bottom: 0px;
@@ -54,16 +61,35 @@ bottomEntry {
   margin-top: 5px;
 }
 
-.chat-input-wrapper {
-  padding:10px;	
+.chatNameSelector {
+  clear:right;
+  float:left;
+  margin-bottom: 0px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.chatNameSelector {
-  font-size: 14px;
-  &:hover {
-    color: black !important;
-    font-weight: bold;
-  }
+.chatNameSelectorPrivate {
+  .chatNameSelector;
+  width:90%;
+}
+
+.chatNameSelectorPublic {
+  .chatNameSelector;
+  margin-bottom: 1px !important;
+  width:100%;
+}
+.close:hover {
+  background-color: red;
+}
+.closeTab {
+  float:left;
+  width:10%;
+  font-size: 1vw;
+}
+
+.chat-input-wrapper {
+  padding:10px;	
 }
 
 #chat-options-bar {
@@ -76,25 +102,12 @@ bottomEntry {
   padding: 5px;
 }
 
-.closeTab {
-  background-color: red !important;
-  border-radius: 5px;
-  color: extract(@white, 1);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: bold;
-  margin-left: 5px;
-  margin-top: -3px;
-  opacity: 0.2 !important;
-  padding-left: 3px !important;
-  padding-right: 3px !important;
-  padding-top: 4px !important;
-  text-shadow: 0 1px 0 extract(@white, 1);
-  -webkit-appearance: none;
-
-  &:hover {
-    color: extract(@white, 1) !important;
-    opacity: 1 !important;
+.dropdown {
+  float: left;
+  .dropdown-menu {
+    height: 80px;
+    overflow-y: scroll;
+    right: 0px;
   }
 }
 
@@ -167,17 +180,7 @@ bottomEntry {
   text-align: center;
   width: 100%;
   a {
-    display: block;
-    min-height: 100%;
-    /* overflow: hidden; */
-    padding: 4px 10px;
-    text-decoration: none;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: extract(@lightGrey, 4);
-    margin: 0;
-    border-top: 0;
-    border-radius: 0;
+    padding:0px;
   }
   li:first-child a {
     border-left: 0;
@@ -190,7 +193,10 @@ bottomEntry {
 .tab { 
   font-size: 14px;
   height:auto !important;
+  width: 25% !important;
+
   &:hover {
+    background-color: #ddd;
     border: 1px solid extract(@azure, 2);
     border-bottom: none;
   }
@@ -198,13 +204,4 @@ bottomEntry {
 
 .timestamp {
   text-align: right;
-}
-
-.dropdown {
-  float: left;
-  .dropdown-menu {
-    height: 80px;
-    overflow-y: scroll;
-    right: 0px;
-  }
 }

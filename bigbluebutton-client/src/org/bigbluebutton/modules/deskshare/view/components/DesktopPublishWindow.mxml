@@ -29,7 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	initialize="init()"
 	creationComplete="onCreationComplete()"	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	width="365" height="320"
+	width="365" height="350"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
 	
@@ -40,33 +40,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
-	
+	<mate:Listener type="{DeskshareAppletLaunchedEvent.APPLET_LAUNCHED}" method="handleDeskshareAppletLaunchedEvent" />
 	<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
 	
 	
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flexlib.mdi.events.MDIWindowEvent;
-      import flexlib.scheduling.scheduleClasses.BackgroundItem;   
-      import mx.core.UIComponent;     
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
-      import org.bigbluebutton.modules.deskshare.events.CursorEvent;
-      import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
-      import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
-      import org.bigbluebutton.modules.deskshare.events.StreamEvent;
-      import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-      import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			import flexlib.scheduling.scheduleClasses.BackgroundItem;
+			
+			import mx.core.UIComponent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
+			import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
+			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
+			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
+			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
+			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
+			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const SCALE:Number = 5;
 			private static const VID_HEIGHT_PAD:Number = 73;
@@ -92,6 +96,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var captureWidth:Number = Capabilities.screenResolutionX;
 			private var autoStart:Boolean = false;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
+			private var javaTimer:Timer;
 			
 			[Bindable] private var cursor:Sprite;
 			[Bindable] private var baseIndex:int;
@@ -108,12 +113,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
-					
+				
+				var javaIssue:String = JavaCheck.checkJava();
+				
 				if (isUsingLessThanChrome38OnMac()) {
-				   setCurrentState("chromeOnMacWarningState");
+					setCurrentState("chromeOnMacWarningState");
+				}
+				else if (javaIssue != null) {
+					setCurrentState("javaIssueWarningState");
+					javaIssueWarningStateLbl.htmlText = javaIssue;
 				}
 				else {
-				   setCurrentState("dispFullRegionControlBar");
+					setCurrentState("dispFullRegionControlBar");
 				}
 				resourcesChanged();
 				
@@ -168,6 +179,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnFSPublish.enabled = false;
 				btnRegionPublish.enabled = false;
 //				useSVC2Check.enabled = false;
+				javaTimer = new Timer(7000, 1);
+				javaTimer.addEventListener(TimerEvent.TIMER, onJavaTimer);
+				javaTimer.start();
 				startSharing(connection, uri, room, fullScreen);
 			}
 			
@@ -201,6 +215,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				streaming = false;
 									
 				closeWindow();
+			}
+			
+			private function onJavaTimer(e:TimerEvent):void {
+				var browser:Array = ExternalInterface.call("determineBrowser");
+				if (browser[0] == "Chrome")
+					javaHelpArea.visible = javaHelpArea.includeInLayout = true;
 			}
 			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
@@ -321,7 +341,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ExternalInterface.call("stopApplet");	
 				dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));				
 			}		
-				
+			
+			private function restartJava():void {
+				ExternalInterface.call("stopApplet");
+				shareScreen(sharingFullScreen);
+			}
+			
+			private function handleDeskshareAppletLaunchedEvent(e:DeskshareAppletLaunchedEvent):void {
+				if (javaTimer && javaTimer.running) {
+					javaTimer.stop();
+				}
+				javaHelpArea.visible = javaHelpArea.includeInLayout = false;
+			}
+			
 			/*
 			 * Override the close handler. We want the Event Map to send a message to
 			 * the MDIManager to close this window;
@@ -360,81 +392,67 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeWindow();
 			}
 			
-      private function onCheckYourJavaClicked():void {
-        var CHECK_JAVA_URL:String = BBB.initConfigManager().config.javaTest.url;        
-        navigateToURL(new URLRequest(CHECK_JAVA_URL));
-      }
 			private function isUsingLessThanChrome38OnMac():Boolean {
-        var browser:Array = ExternalInterface.call("determineBrowser");
-        
-				return ((browser[0] == "Chrome")
-          && (parseInt(browser[1]) <= 38)
-          && (Capabilities.os.indexOf("Mac") >= 0));
+				var browser:Array = ExternalInterface.call("determineBrowser");
+				return ((browser[0] == "Chrome") && (parseInt(browser[1]) <= 38) && (Capabilities.os.indexOf("Mac") >= 0));
 			}
 		]]>
 	</mx:Script>
 
 	<!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
+	<mx:VBox id="javaHelpArea" includeInLayout="false" visible="false" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+		<mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeHint.title')}" />
+		<mx:Image id="javaHelpImg" styleName="chromeJavaHelpImage" source="{javaHelpImg.getStyle('imageSource')}" />
+		<mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeHint.message')}" />
+		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeHint.button')}" click="restartJava()"/>
+	</mx:VBox>
 	<dspub:states>	    
         <mx:State name="dispFullRegionControlBar">   
             <mx:AddChild>
-              
-                <mx:ControlBar id="fullRegionBottomBar">
-                  <mx:VBox width="100%" height="100%" horizontalAlign="center">
-                    <mx:HBox horizontalAlign="center">
-                      <mx:Button id="btnFSPublish" 
-                                 toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" 
-                                 label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
-                                 visible="true" 
-                                 click="shareScreen(true)" 
-                                 tabIndex="{baseIndex+4}"/>
-                      <mx:Spacer width="100%"/>
-                      <mx:Button id="btnClosePublish" 
-                                 toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
-                                 label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" 
-                                 visible="true" 
-                                 enabled="false" 
-                                 click="stopSharing()" 
-                                 tabIndex="{baseIndex+5}"/>
-                      <mx:Spacer width="100%"/>
-                      <mx:Button id="btnRegionPublish"
-                                 toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
-                                 label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
-                                 visible="true" 
-                                 click="shareScreen(false)" 
-                                 tabIndex="{baseIndex+6}"
-                                 focusEnabled="false"
-                                 tabEnabled="false"/>
-                      <mx:Spacer width="100%"/>                      
-                    </mx:HBox>
-
-                    
-                    <mx:Label id="javaVersionLabel" styleName="javaVersionRequiredLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaRequiredLabel')}"/>
-                    <mx:LinkButton id="checkJavaBtn" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel')}" click="onCheckYourJavaClicked()" height="22" 
-                                   styleName="testJavaLinkButtonStyle" textDecoration="underline"
-                                   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel.tooltip')}" 
-                                   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel.tooltip.accessibility')}"/>
-                  </mx:VBox>
-                </mx:ControlBar>
+              <mx:ControlBar id="fullRegionBottomBar">
+                <mx:VBox width="100%" height="100%" horizontalAlign="center">
+                  <mx:HBox horizontalAlign="center">
+                    <mx:Button id="btnFSPublish" 
+                               toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" 
+                               label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
+                               visible="true" 
+                               click="shareScreen(true)" 
+                               tabIndex="{baseIndex+4}"/>
+                    <mx:Spacer width="100%"/>
+                    <mx:Button id="btnClosePublish" 
+                               toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
+                               label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" 
+                               visible="true" 
+                               enabled="false" 
+                               click="stopSharing()" 
+                               tabIndex="{baseIndex+5}"/>
+                    <mx:Spacer width="100%"/>
+                    <mx:Button id="btnRegionPublish"
+                               toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
+                               label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
+                               visible="true" 
+                               click="shareScreen(false)" 
+                               tabIndex="{baseIndex+6}"
+                               focusEnabled="false"
+                               tabEnabled="false"/>
+                    <mx:Spacer width="100%"/>                      
+                  </mx:HBox>
+                </mx:VBox>
+              </mx:ControlBar>
             </mx:AddChild>
         </mx:State>	
 		<mx:State name="chromeOnMacWarningState">
 			<mx:AddChild>
-				<mx:VBox id="chromeOnMacWarningBottomBar" horizontalAlign="center" width="100%" height="100%" verticalAlign="bottom">
-					<mx:HBox>
-						<mx:Button id="chromeOnMacWarningCloseButton"
-								   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}"
-								   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}"
-								   visible="true"
-								   enabled="true"
-								   click="stopSharing()"
-								   />
-						<mx:Spacer width="100%"/>
-					</mx:HBox>
-					<mx:HBox horizontalAlign="center" width="300" styleName="desktopShareUsingChromeOnMacHintBoxStyle">
-						<mx:Text id="chromeOnMacWarningLbl" width="100%" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeOnMacUnsupportedHint')}"
-								 styleName="desktopShareUsingChromeOnMacHintTextStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeOnMacUnsupportedHint')}" />
-					</mx:HBox>
+				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:Text id="chromeOnMacWarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
+							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeOnMacUnsupportedHint')}" />
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="javaIssueWarningState">
+			<mx:AddChild>
+				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:Text id="javaIssueWarningStateLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle" />
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>

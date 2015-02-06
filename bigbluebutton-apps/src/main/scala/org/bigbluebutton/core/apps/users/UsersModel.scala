@@ -26,7 +26,11 @@ class UsersModel {
     
     user
   }
-  
+
+  def hasSessionId(sessionId: String):Boolean = {
+    uservos.contains(sessionId)
+  }
+    
   def hasUser(userID: String):Boolean = {
     uservos.contains(userID)
   }

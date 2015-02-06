@@ -22,6 +22,7 @@ Meteor.methods
         "name": "validate_auth_token"
 
     if authToken? and userId? and meetingId?
+      createDummyUser meetingId, userId, authToken
       publish Meteor.config.redis.channels.toBBBApps.meeting, message
     else
       Meteor.log.info "did not have enough information to send a validate_auth_token message"
@@ -100,16 +101,30 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "validate_auth_token_reply"
+        user = Meteor.Users.findOne({userId:message.payload.userid, meetingId: message.payload.meeting_id})
+        validStatus = message.payload.valid
+
+        # if the user already exists in the db
+        if user?.clientType is "HTML5"
+          #if the html5 client user was validated successfully, add a flag
+          Meteor.Users.update({userId:message.payload.userid, meetingId:message.payload.meeting_id}, {$set:{validated: validStatus}})
+          Meteor.log.info "user.validated for user #{user.userId} in meeting #{user.meetingId} just
+           became #{Meteor.Users.findOne({userId:message.payload.userid, meetingId: message.payload.meeting_id})?.validated}"
+        else
+          Meteor.log.info "a non-html5 user got validate_auth_token_reply."
         return
 
       if message.header.name is "user_registered_message"
-        createDummyUser message.payload.meeting_id, message.payload.user
+        #createDummyUser message.payload.meeting_id, message.payload.user
         return
 
       if message.header.name is "user_joined_message"
-        user = message.payload.user
-        user.timeOfJoining = message.header.current_time
-        userJoined meetingId, user
+        userObj = message.payload.user
+        dbUser = Meteor.Users.findOne({userId: message.payload.user.userid, meetingId: message.payload.meeting_id})
+        if dbUser?.clientType is "HTML5" # typically html5 users will be in the db [as a dummy user] before the joining message
+          status = dbUser?.validated
+          Meteor.log.info "in user_joined_message the validStatus of the user was #{status}"
+        userJoined meetingId, userObj
         return
 
       if message.header.name is "user_left_message"

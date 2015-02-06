@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:mate="http://mate.asfusion.com/" 
+		   styleName="warningButtonStyle"
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.clientstatus.title')}"
+		   click="handleButtonClick();"
+		   move="handleMove();"
+		   creationComplete="onCreationComplete();"
+		   visible="false" includeInLayout="false">
+	<mate:Listener type="{ClientStatusEvent.SUCCESS_MESSAGE_EVENT}" method="handleSuccessMessageEvent" />
+	<mate:Listener type="{ClientStatusEvent.WARNING_MESSAGE_EVENT}" method="handleWarningMessageEvent" />
+	<mate:Listener type="{ClientStatusEvent.FAIL_MESSAGE_EVENT}" method="handleFailMessageEvent" />
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.ToolTip;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.managers.ToolTipManager;
+			
+			import org.bigbluebutton.main.events.ClientStatusEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private static const LOG:String = "WarningButton - ";
+			
+			[Bindable]
+			private var messages:Array = new Array();
+			
+			private var notification:ToolTip;
+			
+			private var hideTimer:Timer;
+			
+			private function onCreationComplete():void {
+				hideTimer = new Timer(30000, 1); // 30 second timer
+				hideTimer.addEventListener(TimerEvent.TIMER, hideTimeEvent);
+			}
+			
+			private function handleSuccessMessageEvent(e:ClientStatusEvent):void {
+				if(isUniqueMessage("success", e.title, e.message)) {
+					messages.push({type:"success",title:e.title,message:e.message});
+					showNotification();
+				}
+			}
+			
+			private function handleWarningMessageEvent(e:ClientStatusEvent):void {
+				if(isUniqueMessage("warning", e.title, e.message)) {
+					messages.push({type:"warning",title:e.title,message:e.message});
+					showNotification();
+				}
+			}
+			
+			private function handleFailMessageEvent(e:ClientStatusEvent):void {
+				if(isUniqueMessage("fail", e.title, e.message)) {
+					messages.push({type:"fail",title:e.title,message:e.message});
+					showNotification();
+				}
+			}
+			
+			private function showNotification():void {
+				if (parent.visible) {
+					visible = includeInLayout = true;
+					
+					if (hideTimer.running) hideTimer.reset();
+					hideTimer.start()
+					
+					if (!notification) {
+						notification = ToolTipManager.createToolTip(ResourceUtil.getInstance().getString("bbb.clientstatus.notification"), 100, 100, "errorTipAbove", this) as ToolTip;
+						handleMove();
+					}
+				}
+			}
+			
+			private function isUniqueMessage(type:String, title:String, message:String):Boolean {
+				for (var i:Number=0; i<messages.length; i++) {
+					if (messages[i].type == type && messages[i].title == title && messages[i].message == message)
+						return false;
+				}
+				return true;
+			}
+			
+			private function handleButtonClick():void {
+				hideNotification();
+				
+				var clientStatusWindow:ClientStatusWindow = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClientStatusWindow, true) as ClientStatusWindow;
+				clientStatusWindow.setMessages(messages);
+				PopUpManager.centerPopUp(clientStatusWindow);
+			}
+			
+			private function handleMove():void {
+				if (notification) {
+					var location:Point = localToGlobal(new Point(0,0));
+					notification.move(location.x - notification.width/2 + this.width/2, location.y - notification.height);
+				}
+			}
+			
+			private function hideNotification():void {
+				if (notification) {
+					ToolTipManager.destroyToolTip(notification);
+					notification = null;
+				}
+			}
+			
+			private function hideTimeEvent(e:TimerEvent):void {
+				hideNotification();
+			}
+		]]>
+	</mx:Script>
+</mx:Button>
