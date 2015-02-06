@@ -49,7 +49,7 @@
 @getInSession = (k) -> SessionAmplify.get k
 
 @getMeetingName = ->
-  return Meteor.Meetings.findOne()?.meetingName or "your meeting"
+  return Meteor.Meetings.findOne()?.meetingName or null
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
@@ -83,7 +83,7 @@ Handlebars.registerHelper "getCurrentUser", =>
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
-  return Meteor.Meetings.findOne()?.meetingName or "BigBlueButton"
+  return Meteor.Meetings.findOne()?.meetingName or null
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
@@ -93,8 +93,15 @@ Handlebars.registerHelper "getShapesForSlide", ->
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
-  # Users with raised hand last go first, then sorted by name
-  Meteor.Users.find({}, {sort: {'user.raise_hand': -1, 'user._sort_name': 1} })
+  # retrieve all users with raised hands
+  # raised hand is an object, so we can't simply search for true
+  # sort users by who has raised their hand first, place them at the top
+  raised = Meteor.Users.find({'user.raise_hand': {$not: {$in: [0, false, null]} }}, {sort: {'user.raise_hand': 1} }).fetch()
+  # find all users with a lowered hand
+  # when a hand is lowered, it is not always just false, it can be zero, or null
+  lowered = Meteor.Users.find({'user.raise_hand': $in: [0, false, null]}, {sort: {'user._sort_name': 1} }).fetch()
+  # add the users with lowered hands, to the list of people with raised hands
+  raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
   "Whiteboard: " + (getPresentationFilename() or "Loading...")
@@ -136,6 +143,9 @@ Handlebars.registerHelper "isUserSharingVideo", (userId) ->
 
 Handlebars.registerHelper "isUserTalking", (userId) ->
   BBB.isUserTalking(userId)
+
+Handlebars.registerHelper 'isPortraitMobile', () ->
+  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-width: 1279px)').matches
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -200,6 +210,22 @@ Handlebars.registerHelper "visibility", (section) ->
       tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
       setInSession 'chatTabs', tabs
 
+@resizeWindows = ->
+  if window.matchMedia('(orientation: landscape)').matches
+      chat = $('#chat')
+      navbarHeight = $('#navbar').height()
+      footerHeight = $('#footer').height()
+      bodyHeight = $('body').height()
+      margins = parseInt(chat.css('margin-top'))*2 # *2 for top & bottom
+      paddingSpace = 10
+      windowHeight = ( bodyHeight - ( navbarHeight + footerHeight + margins + paddingSpace ) )
+
+      chat.height(windowHeight + 'px')
+      $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight())*2) + 'px')
+
+      $("#users").height((windowHeight-paddingSpace) + 'px')
+      $("#user-contents").height((windowHeight-$("#users").find('h3').outerHeight()) + 'px')
+
 @setInSession = (k, v) -> SessionAmplify.set k, v
 
 @safeString = (str) ->
@@ -256,31 +282,40 @@ Handlebars.registerHelper "visibility", (section) ->
     $(document).bind 'scroll', () ->
       window.scrollTo(0, 0)
 
+@toggleNavbarCollapse = ->
+  setInSession 'display_hiddenNavbarSection', !getInSession 'display_hiddenNavbarSection'
+  if getInSession 'display_hiddenNavbarSection'
+    $('.navbarTitle').addClass('narrowedNavbarTitle');
+    $('.collapseNavbarSection').css('display', 'block')
+  else
+    $('.collapseNavbarSection').css('display', 'none')
+    $('.navbarTitle').removeClass('narrowedNavbarTitle');
+
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
 @userLogout = (meeting, user) ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
   console.log "logging out #{Meteor.config.app.logOutUrl}"
-  document.location = Meteor.config.app.logOutUrl # navigate to logout
+  clearSessionVar(document.location = Meteor.config.app.logOutUrl) # navigate to logout
 
 # Clear the local user session
 @clearSessionVar = (callback) ->
-  delete SessionAmplify.keys['authToken']
-  delete SessionAmplify.keys['bbbServerVersion']
-  delete SessionAmplify.keys['chatTabs']
-  delete SessionAmplify.keys['dateOfBuild']
-  delete SessionAmplify.keys['display_chatPane']
-  delete SessionAmplify.keys['display_chatbar']
-  delete SessionAmplify.keys['display_navbar']
-  delete SessionAmplify.keys['display_usersList']
-  delete SessionAmplify.keys['display_whiteboard']
-  delete SessionAmplify.keys['inChatWith']
-  delete SessionAmplify.keys['meetingId']
-  delete SessionAmplify.keys['messageFontSize']
-  delete SessionAmplify.keys['tabsRenderedTime']
-  delete SessionAmplify.keys['userId']
-  delete SessionAmplify.keys['userName']
+  amplify.store('authToken', null)
+  amplify.store('bbbServerVersion', null)
+  amplify.store('chatTabs', null)
+  amplify.store('dateOfBuild', null)
+  amplify.store('display_chatPane', null)
+  amplify.store('display_chatbar', null)
+  amplify.store('display_navbar', null)
+  amplify.store('display_usersList', null)
+  amplify.store('display_whiteboard', null)
+  amplify.store('inChatWith', null)
+  amplify.store('meetingId', null)
+  amplify.store('messageFontSize', null)
+  amplify.store('tabsRenderedTime', null)
+  amplify.store('userId', null)
+  amplify.store('userName', null)
   callback()
 
 # assign the default values for the Session vars
@@ -294,6 +329,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "inChatWith", 'PUBLIC_CHAT'
   setInSession "messageFontSize", 12
   setInSession 'display_slidingMenu', false
+  setInSession 'display_hiddenNavbarSection', false
 
 
 @onLoadComplete = ->

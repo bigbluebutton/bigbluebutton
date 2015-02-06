@@ -22,7 +22,7 @@ var removeUserFromCollection = function(id) {
 }
 
 // TODO: try to start with calling the app's methods instead of modifying the collection
-xdescribe("usersList template", function () {
+describe("usersList template", function () {
   beforeEach(function () {
     emptyUsersCollection();
   });

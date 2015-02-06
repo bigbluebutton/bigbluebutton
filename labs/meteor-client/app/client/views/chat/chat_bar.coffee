@@ -133,6 +133,7 @@ Template.chatbar.helpers
 # When chatbar gets rendered, launch the auto-check for unread chat
 Template.chatbar.rendered = ->
   detectUnreadChat()
+  resizeWindows()
 
 # When message gets rendered, scroll to the bottom
 Template.message.rendered = ->
@@ -159,8 +160,10 @@ Template.chatInput.events
       return false
 
 Template.chatInput.rendered  = ->
-   $('input[rel=tooltip]').tooltip()
-   $('button[rel=tooltip]').tooltip()
+  $('input[rel=tooltip]').tooltip()
+  $('button[rel=tooltip]').tooltip()
+  $("#newMessageInput").focus()
+  resizeWindows()
 
 Template.extraConversations.events
 	"click .extraConversation": (event) ->
@@ -234,7 +237,6 @@ Template.optionsBar.events
 
     setInSession 'display_chatPane', true
     setInSession "inChatWith", _this.userId
-    $("#newMessageInput").focus()
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
@@ -318,24 +320,3 @@ Template.tabButtons.rendered = ->
   if typeof str is 'string'
     res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
     res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
-
-Template.message.helpers
-  toClockTime: (epochTime) ->
-    if epochTime is null
-      return ""
-    local = new Date()
-    offset = local.getTimezoneOffset()
-    epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
-    dateObj = new Date(epochTime)
-    hours = dateObj.getUTCHours()
-    minutes = dateObj.getUTCMinutes()
-    if minutes < 10
-      minutes = "0" + minutes
-    hours + ":" + minutes
-
-  sanitizeAndFormat: (str) ->
-    if typeof str is 'string'
-      # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
-      res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
-      res = toClickable res
-      res = activateBreakLines res

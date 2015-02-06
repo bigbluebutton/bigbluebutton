@@ -273,6 +273,7 @@ trait UsersApp {
   
   def handleUserJoin(msg: UserJoining):Unit = {
     val regUser = regUsers.get(msg.authToken)
+
     regUser foreach { ru =>
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)

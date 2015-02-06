@@ -51,7 +51,8 @@ public class ChatMessageListener implements MessageHandler{
 					String fromTimezoneOffset = messageObject.get("from_tz_offset").toString().replace("\"", "");
 					String toUserID = messageObject.get("to_userid").toString().replace("\"", "");
 					String toUsername = messageObject.get("to_username").toString().replace("\"", "");
-					String chatText = messageObject.get("message").toString().replace("\"", "");
+					String tempChat = messageObject.get("message").toString();
+					String chatText = tempChat.substring(1, tempChat.length() - 1).replace("\\\"", "\"");
 
 					Map<String, String> map = new HashMap<String, String>();
 					map.put(ChatKeyUtil.CHAT_TYPE, chatType); 

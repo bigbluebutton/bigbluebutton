@@ -10,3 +10,7 @@
   manuallyDisplayShapes()
   wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
   wpm.createCursor()
+
+Template.whiteboard.rendered = ->
+  if window.matchMedia('(orientation: landscape)').matches
+    $("#whiteboard").height(($("#chat").height()) + 'px')

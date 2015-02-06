@@ -21,10 +21,11 @@ viewer =
   chatPrivate: true #should make this dynamically modifiable later on
 
 @isAllowedTo = (action, meetingId, userId, authToken) ->
-  Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken}"
+  validated = Meteor.Users.findOne({meetingId:meetingId, userId: userId})?.validated
+  Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken} validated:#{validated}"
 
   user = Meteor.Users.findOne({meetingId:meetingId, userId: userId})
-  if user?
+  if user? and user.validated and user.clientType is "HTML5"
     # we check if the user is who he claims to be
     if authToken is user.authToken
       if user.user?.role is 'VIEWER' or user.user?.role is undefined
@@ -33,4 +34,6 @@ viewer =
      "\n..while the authToken was #{user.authToken}    and the user's object is #{JSON.stringify user}"
 
     # the current version of the HTML5 client represents only VIEWER users
+  else
+    Meteor.log.warn "UNSUCCESSFULL ATTEMPT FROM userid=#{user.userId} to perform:#{action}"
   return false
