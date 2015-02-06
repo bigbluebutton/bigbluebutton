@@ -33,6 +33,8 @@ import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.web.services.turn.StunTurnService;
+import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.UploadedPresentation
 import java.security.MessageDigest;
@@ -58,8 +60,9 @@ class ApiController {
   MeetingService meetingService;
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
-	ClientConfigService configService
-	PresentationUrlDownloadService presDownloadService
+  ClientConfigService configService
+  PresentationUrlDownloadService presDownloadService
+  StunTurnService stunTurnService
 	
   /* general methods */
   def index = {
@@ -1390,6 +1393,95 @@ class ApiController {
       }
       }  
   }
+
+  /***********************************************
+   * STUN/TURN API
+   ***********************************************/
+  def stuns = {
+    boolean reject = false;
+
+    UserSession us = null;
+    Meeting meeting = null;
+
+    if (!session["user-token"]) {
+      reject = true;
+    } else {
+      if (meetingService.getUserSession(session['user-token']) == null)
+        reject = true;
+      else {
+        us = meetingService.getUserSession(session['user-token']);
+        meeting = meetingService.getMeeting(us.meetingID);
+        if (meeting == null || meeting.isForciblyEnded()) {
+          reject = true
+        }
+      }
+    }
+
+    if (reject) {
+      log.info("No session for user in conference.")
+
+      // Determine the logout url so we can send the user there.
+      String logoutUrl = session["logout-url"]
+
+      if (! session['meeting-id']) {
+        meeting = meetingService.getMeeting(session['meeting-id']);
+      }
+
+      // Log the user out of the application.
+      session.invalidate()
+
+      if (meeting != null) {
+        log.debug("Logging out from [" + meeting.getInternalId() + "]");
+        logoutUrl = meeting.getLogoutUrl();
+      }
+
+      if (StringUtils.isEmpty(logoutUrl)) {
+        logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+      }
+      
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          render(contentType: "application/json") {
+            response = {
+              returncode = "FAILED"
+              message = "Could not find conference."
+              logoutURL = logoutUrl
+            }
+          }
+        }
+      }
+    } else {
+      Set<String> stuns = stunTurnService.getStunServers()
+      Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(us.internalUserId)
+      
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          render(contentType: "application/json") {
+              stunServers = array {
+                stuns.each { stun ->
+                  stunData = {
+                    url = stun.url
+                  }
+                }
+              }
+              turnServers = array {
+                turns.each { turn -> 
+                  turnData = {
+                     username = turn.username
+                     password = turn.password
+                     url = turn.url
+                     ttl = turn.ttl 
+                   }
+                }
+              }
+            }
+          }
+        }
+      }
+  }
+
   
   /*************************************************
    * SIGNOUT API
