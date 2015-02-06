@@ -1453,7 +1453,7 @@ class ApiController {
       }
     } else {
       Set<String> stuns = stunTurnService.getStunServers()
-      Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor("richard")
+      Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(us.internalUserId)
       
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
