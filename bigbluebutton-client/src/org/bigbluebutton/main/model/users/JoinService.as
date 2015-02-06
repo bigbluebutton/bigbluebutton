@@ -149,9 +149,26 @@ package org.bigbluebutton.main.model.users
         
 				if (_resultListener != null) _resultListener(true, response);
 			}
-				
+			
+      loadStuns();
 		}
 		
+    private function loadStuns():void {
+      request = new URLRequest("http://192.168.23.3/bigbluebutton/api/stuns");
+      request.method = URLRequestMethod.GET;		
+      
+      urlLoader.removeEventListener(Event.COMPLETE, handleComplete);
+      urlLoader.addEventListener(Event.COMPLETE, handleCompleteStuns);
+      urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+      urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+      urlLoader.load(request);	      
+    }
+    
+    private function handleCompleteStuns(e:Event):void {			
+      var result:Object = JSON.parse(e.target.data);
+      trace(LOG + "Stun response = " + JSON.stringify(result));
+    }
+    
 		public function get loader():URLLoader{
 			return this.urlLoader;
 		}
