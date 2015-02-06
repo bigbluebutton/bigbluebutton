@@ -150,7 +150,7 @@ Template.chatInput.events
 
     if event.shiftKey and (key is 13)
       event.preventDefault()
-      $("#newMessageInput").append("\r") # Change newline character
+      document.getElementById("newMessageInput").value += '\r' # Change newline character
       return
 
     if key is 13 # Check for pressing enter to submit message
@@ -194,6 +194,9 @@ Template.extraConversations.events
 				tabArray.splice(2, 0, selected)
 				# update collection
 				setInSession 'chatTabs', tabArray
+    # make the current conversation the selected tab
+    setInSession 'display_chatPane', true
+    setInSession "inChatWith", user.userId
 
 Template.extraConversations.helpers
   getExtraConversations: ->
@@ -252,6 +255,9 @@ Template.optionsFontSize.events
     if selectedFontSize
       setInSession "messageFontSize", selectedFontSize
     else setInSession "messageFontSize", 12
+
+Template.optionsFontSize.helpers
+  getFontsizes: -> (size for size in [8..30] by 2)
 
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat

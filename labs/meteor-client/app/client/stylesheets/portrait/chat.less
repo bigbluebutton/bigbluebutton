@@ -9,14 +9,13 @@
   }
 }
 
-@media all and (orientation: portrait) and (max-device-aspect-ratio: 1/1), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
-  .chat {
-    li {
-      td {
-        font-size: 30px;
-      }
-      div {
-        font-size: 15px;
+  @media (max-device-aspect-ratio: 1/1) {
+    .chat {
+      /* height: Xpx; the value here will determine how tall we allow the chat */ 
+      li {
+        td {
+          font-size: 30px;
+        }
       }
     }
   }
@@ -39,10 +38,17 @@
   }
 }
 
-@media all and (orientation: portrait) and (min-device-aspect-ratio: 1/1) {
-  #newMessageInput {
-    height: 40px;
+  .closeTab {
+    font-size: 3vw;
   }
+  .active {
+    border: .2vh solid extract(@azure, 2) !important;
+  }
+
+  @media (min-device-aspect-ratio: 1/1) {
+    #newMessageInput {
+      height: 40px;
+    }
 
   #sendMessageButton {
     height: 40px;
