@@ -316,7 +316,8 @@ Handlebars.registerHelper "visibility", (section) ->
   amplify.store('tabsRenderedTime', null)
   amplify.store('userId', null)
   amplify.store('userName', null)
-  callback()
+  if callback?
+    callback()
 
 # assign the default values for the Session vars
 @setDefaultSettings = ->

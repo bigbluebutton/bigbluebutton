@@ -35,5 +35,5 @@ viewer =
 
     # the current version of the HTML5 client represents only VIEWER users
   else
-    Meteor.log.warn "UNSUCCESSFULL ATTEMPT FROM userid=#{user.userId} to perform:#{action}"
+    Meteor.log.warn "UNSUCCESSFULL ATTEMPT FROM userid=#{userId} to perform:#{action}"
   return false

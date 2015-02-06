@@ -41,12 +41,12 @@
           document.location = Meteor.config.app.logOutUrl
         return
 
-      Meteor.subscribe 'chat', meetingId, userId, authToken, onError: onErrorFunction, onReady: ->
-        Meteor.subscribe 'shapes', meetingId, onReady: ->
-          Meteor.subscribe 'slides', meetingId, onReady: ->
-            Meteor.subscribe 'meetings', meetingId, onReady: ->
-              Meteor.subscribe 'presentations', meetingId, onReady: ->
-                Meteor.subscribe 'users', meetingId, userId, authToken, onError: onErrorFunction, onReady: ->
+      Meteor.subscribe 'chat', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
+        Meteor.subscribe 'shapes', meetingId, onReady: =>
+          Meteor.subscribe 'slides', meetingId, onReady: =>
+            Meteor.subscribe 'meetings', meetingId, onReady: =>
+              Meteor.subscribe 'presentations', meetingId, onReady: =>
+                Meteor.subscribe 'users', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
                   # done subscribing
                   onLoadComplete()
-      @render('main')
+                  @render('main')
