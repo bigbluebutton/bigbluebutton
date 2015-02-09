@@ -27,12 +27,15 @@ package org.bigbluebutton.main.model.users
 	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
 	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.model.Me;
 	import org.bigbluebutton.core.model.MeBuilder;
 	import org.bigbluebutton.core.model.MeetingBuilder;
 	import org.bigbluebutton.core.model.MeetingModel;
+	import org.bigbluebutton.core.model.StunOption;
 	import org.bigbluebutton.core.model.users.User;
 	import org.bigbluebutton.core.model.users.UsersModel;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
@@ -149,9 +152,72 @@ package org.bigbluebutton.main.model.users
         
 				if (_resultListener != null) _resultListener(true, response);
 			}
-				
+			
+      loadStuns();
 		}
 		
+    private function loadStuns():void {
+      var stunOptions: StunOption = new StunOption();
+      stunOptions.parseOptions();
+      
+      request = new URLRequest(stunOptions.stuns);
+      request.method = URLRequestMethod.GET;		
+      
+      urlLoader.removeEventListener(Event.COMPLETE, handleComplete);
+      urlLoader.addEventListener(Event.COMPLETE, handleCompleteStuns);
+      urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+      urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+      urlLoader.load(request);	      
+    }
+    
+    private function handleCompleteStuns(e:Event):void {			
+      var result:Object = JSON.parse(e.target.data);
+      trace(LOG + "Stun response = " + JSON.stringify(result));
+      
+      var stunAndTurnServers: Object = new Object();
+      stunAndTurnServers.stuns = decodeStunServers(result);
+      stunAndTurnServers.turns = decodeTurnServers(result);
+      
+      MeetingModel.getInstance().stunAndTurnServers = stunAndTurnServers;
+      trace(LOG + "STUNS=[" + JSON.stringify(MeetingModel.getInstance().stunAndTurnServers) + "]");
+    }
+    
+    private function decodeStunServers(result: Object):Object {
+      var stunServers: ArrayCollection = new ArrayCollection();
+      
+      if (result.hasOwnProperty("stunServers")) {
+        var stunsArray:Array = result.stunServers as Array;
+        for each (var stun:Object in stunsArray) {
+          var stunData:Object = new Object();
+          for (var id:String in stun) {
+            var value:String = stun[id] as String;
+            stunData[id] = value;
+          }   
+          stunServers.addItem(stunData);
+        }        
+      }
+      
+      return stunServers;
+    }
+    
+    private function decodeTurnServers(result: Object):Object {
+      var turnServers: ArrayCollection = new ArrayCollection();
+      
+      if (result.hasOwnProperty("turnServers")) {
+        var turnsArray:Array = result.turnServers as Array;
+        for each (var turn:Object in turnsArray) {
+          var turnData:Object = new Object();
+          for (var id:String in turn) {
+            var value:Object = turn[id] as Object;
+            turnData[id] = value;
+          }        
+          turnServers.addItem(turnData);
+        }        
+      }  
+      
+      return turnServers;
+    }
+    
 		public function get loader():URLLoader{
 			return this.urlLoader;
 		}
