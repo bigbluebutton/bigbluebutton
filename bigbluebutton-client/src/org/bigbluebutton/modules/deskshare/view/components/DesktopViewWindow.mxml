@@ -22,6 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:views="org.bigbluebutton.modules.deskshare.view.components.*"
 	width="600" height="400"
 	initialize="init()"
 	creationComplete="onCreationComplete()"
@@ -107,6 +108,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
+
+				btnActualSize.registerListeners(this);
 			}
 			
 			private function onResizeStartEvent(event:MDIWindowEvent):void {
@@ -127,11 +130,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				resizer.onResize(this.width - horizontalBorder, this.height - verticalBorder, this.maximized, video.width, video.height, videoWidth / videoHeight, false, onResizeCallback);
+				updateButtonPosition();
+			}
+
+			private function updateButtonPosition():void {
+				if(btnActualSize) {
+					btnActualSize.x = this.width - btnActualSize.width - 10;
+					btnActualSize.y = this.height - btnActualSize.height - 10;
+					trace("x: " + btnActualSize.x + " y: " + btnActualSize.y);
+				}
 			}
 
 			private function onResizeCallback(externalWidth:int, externalHeight:int, internalWidth:int, internalHeight:int, internalOffsetX:int, internalOffsetY:int):void {
 				this.width = externalWidth + horizontalBorder;
 				this.height = externalHeight + verticalBorder;
+
+				/* Displaying actual size, do not resize video */
+				// TODO: These check null comparations are horrible.
+				if (btnActualSize && btnActualSize.selected) {
+					return;
+				}
+
 				videoHolder.width = video.width = internalWidth;
 				videoHolder.height = video.height = internalHeight;
 				videoHolder.x = internalOffsetX;
@@ -185,20 +204,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoHolder.addChild(video);
 				onResizeEvent();
 			}
-			
-      protected function updateButtonsPosition():void {
-        if (this.width < bottomBar.width) {
-          bottomBar.visible = false;
-        }
-        
-        if (bottomBar.visible == false) {
-          bottomBar.y = bottomBar.x = 0;
-        } else {
-          bottomBar.y = (this.height - bottomBar.height) / 2;
-          bottomBar.x = (this.width - bottomBar.width) / 2;
-        }
-      }
-      
+
 			public function stopViewing():void {
 				ns.close();
 				closeWindow();				
@@ -300,15 +306,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-		
-	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
-		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
-				   toggle="true" 
-				   click="determineHowToDisplayVideo()" 
-				   selected="false"
-				   height="90%" 
-				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-				   tabIndex="{baseIndex+4}"/>
-	</mx:HBox>
+
+	<views:DesktopViewButton id="btnActualSize"
+							 click="determineHowToDisplayVideo()" 
+							 toggle="true" 
+							 selected="false"
+							 label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
+							 toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
+							 depth="3" />
+
 </MDIWindow>

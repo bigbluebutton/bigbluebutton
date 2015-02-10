@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:mate="http://mate.asfusion.com/"
+		   initialize="init()"
+		   creationComplete="onCreationComplete()"
+		   visible="{buttonVisible}"
+		   hideEffect="{fadeOut}" showEffect="{fadeIn}"
+		   toolTip = "{ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
+		   label = "{ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
+		   height="20" width="20" >
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import com.asfusion.mate.events.Dispatcher;
+
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			[Bindable] private var buttonVisible:Boolean = false;
+
+			private var mousedOver:Boolean = false;
+			private var globalDispatcher:Dispatcher;
+			private var _buttonHideTimer:Timer;
+
+			public function init():void{
+				_buttonHideTimer = new Timer(500, 1);
+				_buttonHideTimer.addEventListener(TimerEvent.TIMER, hideButton);
+			}
+
+			private function onCreationComplete():void {
+				globalDispatcher = new Dispatcher();
+				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+			}
+
+			private function checkVisibility():void {
+				buttonVisible = (buttonAllowed() && mousedOver);
+			}
+
+			public function hideButton(e:TimerEvent = null):void {
+				mousedOver = false;
+				checkVisibility();
+			}
+
+			private function handleMouseIn(e:MouseEvent = null):void {
+				_buttonHideTimer.reset();
+				mousedOver = true;
+				checkVisibility();
+			}
+
+			private function handleMouseOut(e:MouseEvent = null):void {
+				_buttonHideTimer.reset();
+				_buttonHideTimer.start();
+			}
+
+			private function buttonAllowed():Boolean {
+				// Created to make possible to create rules to allow or not the button
+				return true;
+			}
+
+			public function registerListeners(component:UIComponent):void {
+				component.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
+				component.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Fade id="fadeOut" duration="200" alphaFrom="1.0" alphaTo="0.0" />
+	<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0" />
+</mx:Button>
