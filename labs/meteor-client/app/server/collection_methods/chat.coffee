@@ -19,6 +19,8 @@ Meteor.methods
 					return 'chatPrivate'
 
 		if isAllowedTo(action(), meetingId, requesterUserId, requesterToken) and chatObject.from_userid is requesterUserId
+			chatObject.message = translateHTML5ToFlash(chatObject.message)
+
 			message =
 				header :
 					timestamp: new Date().getTime()
@@ -46,6 +48,8 @@ Meteor.methods
 	messageObject.from_time = (messageObject.from_time).toString().split('.').join("").split("E")[0]
 
 	if messageObject.from_userid? and messageObject.to_userid?
+		messageObject.message = translateFlashToHTML5(messageObject.message)
+
 		entry =
 			meetingId: meetingId
 			message:
@@ -74,3 +78,11 @@ Meteor.methods
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
+
+# translate '\n' newline character to '<br/>' breakline character for Flash
+@translateHTML5ToFlash = (message) ->
+	message.replace '\n', '<br/>'
+
+# translate '<br/>' breakline character to '\n' newline character for HTML5
+@translateFlashToHTML5 = (message) ->
+	message.replace '<br/>', '\n'
