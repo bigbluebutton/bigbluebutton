@@ -77,14 +77,14 @@ Meteor.methods
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
 
-# translate '\n' newline character to '<br/>' breakline character for Flash
+# translate '\n' newline character and '\r' carriage returns to '<br/>' breakline character for Flash
 @translateHTML5ToFlash = (message) ->
 	result = message
 	result = result.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE)
 	result = result.replace(new RegExp(NEW_LINE, 'g'), BREAK_LINE)
 	result
 
-# translate '<br/>' breakline character to '\n' newline character for HTML5
+# translate '<br/>' breakline character to '\r' carriage return character for HTML5
 @translateFlashToHTML5 = (message) ->
 	result = message
 	result = result.replace(new RegExp(BREAK_LINE, 'g'), CARRIAGE_RETURN)

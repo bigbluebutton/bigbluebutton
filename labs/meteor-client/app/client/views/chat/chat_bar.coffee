@@ -8,6 +8,7 @@
 
 @activateBreakLines = (str) ->
   if typeof str is 'string'
+    # turn '\r' carriage return characters into '<br/>' break lines
     res = str.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE)
     res
 
@@ -109,6 +110,7 @@ Template.chatbar.helpers
               break # Messages are too far between, so them seperated and stop joining here
 
             if msgs[i].message.from_userid is msgs[j].message.from_userid # Both messages are from the same user
+              # insert a '\r' carriage return character between messages to put them on a new line
               msgs[i].message.message += "#{CARRIAGE_RETURN}#{msgs[j].message.message}" # Combine the messages
               msgs.splice(j,1) # Delete the message from the collection
               deleted = true
@@ -150,6 +152,7 @@ Template.chatInput.events
 
     if event.shiftKey and (key is 13)
       event.preventDefault()
+      # append a '\r' carriage return character to the input box dropping the cursor to a new line
       document.getElementById("newMessageInput").value += CARRIAGE_RETURN # Change newline character
       return
 
