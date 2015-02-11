@@ -1,7 +1,6 @@
 body { 
     margin:0;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: 14px;
     line-height: 1.42857143;
 }
 .login { }
@@ -35,7 +34,6 @@ body {
     display: block;
     width: 100%;
     padding: 12px 18px;
-    font-size: 14px;
     line-height: 1.42857143;
     background-image: none;
     border: 1px solid #c7cdd1;
@@ -60,32 +58,28 @@ body {
     cursor: pointer;
 }
 
-
-/* Large desktop */
-@media (min-width: 1200px) { 
-    .login-form { 
-        width:20%;
-    }
+@media all and (orientation: landscape), all and (orientation: portrait) and (min-device-aspect-ratio: 1/1) {
+  .login-form {
+    width: 300px;
+    height: 230px;
+  }
+  body {
+    font-size: 14px;
+  }
+  .login-form input {
+    font-size: 14px;
+  }
 }
- 
-/* Portrait tablet to landscape and desktop */
-@media (min-width: 768px) and (max-width: 979px) {
 
-
-
-}
- 
-/* Landscape phone to portrait tablet */
-@media (max-width: 767px) { 
-    .login-form { 
-        width:45%;
-    }
-
-}
- 
-/* Landscape phones and down */
-@media (max-width: 480px) { 
-    .login-form { 
-        width:65%;
-    }
+@media all and (orientation: portrait) and (max-device-aspect-ratio: 1/1) {
+  .login-form {
+    width: 80%;
+    height: 130%;
+  }
+  body {
+    font-size: 2em;
+  }
+  .login-form input {
+    font-size: 1.5em;
+  }
 }

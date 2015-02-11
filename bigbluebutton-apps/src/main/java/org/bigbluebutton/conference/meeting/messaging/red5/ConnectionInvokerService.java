@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
@@ -39,6 +40,8 @@ import org.slf4j.Logger;
 
 public class ConnectionInvokerService {
 	private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
+	
+	private final String CONN = "RED5-";
 	
 	private static final int NTHREADS = 1;
 	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
@@ -75,6 +78,7 @@ public class ConnectionInvokerService {
 		if (conn == null) {
 			System.out.println("CONN IS NULL");
 		}
+
 		connections.putIfAbsent(id, conn);
 	}
 	
@@ -150,7 +154,8 @@ public class ConnectionInvokerService {
 	private void handlDisconnectClientMessage(DisconnectClientMessage msg) {
 		IScope meetingScope = getScope(msg.getMeetingId());
 		if (meetingScope != null) {
-			IConnection conn = getConnection(meetingScope, msg.getUserId());
+			String sessionId = CONN + msg.getUserId();
+			IConnection conn = getConnection(meetingScope, sessionId);
 			if (conn != null) {
 				if (conn.isConnected()) {
 					log.info("Disconnecting user=[{}] from meeting=[{}]", msg.getUserId(), msg.getMeetingId());
@@ -182,19 +187,26 @@ public class ConnectionInvokerService {
 	}
 	
 	private void sendDirectMessage(final DirectClientMessage msg) {
+	  final String sessionId = CONN + msg.getUserID();
 		Runnable sender = new Runnable() {
 			public void run() {
 				IScope meetingScope = getScope(msg.getMeetingID());
 				if (meetingScope != null) {
-					IConnection conn = getConnection(meetingScope, msg.getUserID());
+					
+					IConnection conn = getConnection(meetingScope, sessionId);
 					if (conn != null) {
 						if (conn.isConnected()) {
+						  log.debug("Sending message=[" + msg.getMessageName() + "] to [" + sessionId 
+						      + "] session on meeting=[" + msg.getMeetingID() + "]");
 							List<Object> params = new ArrayList<Object>();
 							params.add(msg.getMessageName());
 							params.add(msg.getMessage());
 							ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
 						}
-					}				
+					} else {
+					  log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + sessionId 
+					      + "] as no such session on meeting=[" + msg.getMeetingID() + "]");
+					}
 				}	
 			}
 		};		
@@ -219,7 +231,7 @@ public class ConnectionInvokerService {
 	private IConnection getConnection(IScope scope, String userID) {
 		Set<IConnection> conns = scope.getClientConnections();
 		for (IConnection conn : conns) {
-			String connID = (String) conn.getAttribute("INTERNAL_USER_ID");
+			String connID = (String) conn.getAttribute("USER_SESSION_ID");
 			if (connID != null && connID.equals(userID)) {
 				return conn;
 			}

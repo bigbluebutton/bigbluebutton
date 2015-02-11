@@ -28,7 +28,7 @@ public interface IBigBlueButtonInGW {
 	
 	
 	// Users
-	void validateAuthToken(String meetingId, String userId, String token, String correlationId);
+	void validateAuthToken(String meetingId, String userId, String token, String correlationId, String sessionId);
 	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken);
 	void userRaiseHand(String meetingId, String userId);	
 	void lowerHand(String meetingId, String userId, String loweredBy);
@@ -36,8 +36,8 @@ public interface IBigBlueButtonInGW {
 	void unshareWebcam(String meetingId, String userId);
 	void setUserStatus(String meetingID, String userID, String status, Object value);
 	void getUsers(String meetingID, String requesterID);
-	void userLeft(String meetingID, String userID);
-	void userJoin(String meetingID, String userID);
+	void userLeft(String meetingID, String userID, String sessionId);
+	void userJoin(String meetingID, String userID, String authToken);
 	void getCurrentPresenter(String meetingID, String requesterID);
 	void assignPresenter(String meetingID, String newPresenterID, String newPresenterName, String assignedBy);
 	void setRecordingStatus(String meetingId, String userId, Boolean recording);

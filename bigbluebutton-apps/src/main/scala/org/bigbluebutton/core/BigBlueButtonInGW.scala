@@ -61,9 +61,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   /*************************************************************
    * Message Interface for Users
    *************************************************************/
-  def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String) {
+  def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String, sessionId: String) {
 //    println("******************** VALIDATE TOKEN [" + token + "] ***************************** ")
-    bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId))
+    bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId))
   }
   
   def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String):Unit = {
@@ -165,12 +165,13 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new GetUsers(meetingID, requesterID))
   }
 
-  def userLeft(meetingID: String, userID: String):Unit = {
-    bbbGW.accept(new UserLeaving(meetingID, userID))
+  def userLeft(meetingID: String, userID: String, sessionId: String):Unit = {
+    bbbGW.accept(new UserLeaving(meetingID, userID, sessionId))
   }
 
-  def userJoin(meetingID: String, userID: String):Unit = {
-    bbbGW.accept(new UserJoining(meetingID, userID))
+
+  def userJoin(meetingID: String, userID: String, authToken: String):Unit = {
+    bbbGW.accept(new UserJoining(meetingID, userID, authToken))
   }
 
   def assignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String):Unit = {
@@ -227,7 +228,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	    val thumbnail = presBaseUrl + "/thumbnail/" + i
 	    val swfUri = presBaseUrl + "/slide/" + i
 
-        val txtUri = presBaseUrl + "/textfiles/slide-" + i + ".txt"
+        val txtUri = presBaseUrl + "/textfiles/" + i
         val pngUri = presBaseUrl + "/png/" + i
 
 	    val p = new Page(id=id, num=num, thumbUri=thumbnail, swfUri=swfUri,

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalAlign="middle">
+	<mx:Script>
+		<![CDATA[
+			override public function set data(value:Object):void {
+				super.data = value;
+				
+				if (value == null) return;
+				
+				switch (value.type) {
+					case "success":
+						typeImg.source = typeImg.getStyle("successImage");
+						break;
+					case "warning":
+						typeImg.source = typeImg.getStyle("warningImage");
+						break;
+					case "fail":
+						typeImg.source = typeImg.getStyle("failImage");
+						break
+				}
+				titleLbl.text = value.title;
+				messageTxt.htmlText = value.message;
+				
+				validateNow();
+			}
+		]]>
+	</mx:Script>
+	<mx:Image id="typeImg" width="34" height="34" styleName="statusImageStyle" />
+	<mx:VBox width="100%" verticalGap="0">
+		<mx:Label id="titleLbl" width="100%" styleName="statusTitleStyle"/>
+		<mx:Text id="messageTxt" width="100%" styleName="statusMessageStyle"/>
+	</mx:VBox>
+</mx:HBox>

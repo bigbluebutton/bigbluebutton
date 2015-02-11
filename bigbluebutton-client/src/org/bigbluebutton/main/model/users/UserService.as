@@ -112,6 +112,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.username = result.username;
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
+        _conferenceParameters.authToken = result.authToken;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
 				_conferenceParameters.welcome = result.welcome;

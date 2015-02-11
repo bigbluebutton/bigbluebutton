@@ -29,6 +29,10 @@ ToolTip {
 	cornerRadius    : 3;
 }
 
+.errorTip {
+	borderColor		: #3b3b3b;
+}
+
 .mypanelTitle {
   color: #444444;
   fontFamily: Arial;
@@ -447,15 +451,24 @@ DataGrid {
 
 }
 
-.presentationUploadFileFormatHintBoxStyle, .desktopShareUsingChromeOnMacHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle {
 	backgroundColor: #D4D4D4;
 	dropShadowEnabled: false;
 	paddingLeft: 10;
 	paddingRight: 10
 }
 
-.presentationUploadFileFormatHintTextStyle, .desktopShareUsingChromeOnMacHintTextStyle {
+.presentationUploadFileFormatHintTextStyle {
 	fontWeight: bold;
+}
+
+.desktopShareTextStyle {
+	fontSize:	11;
+	fontWeight:	bold;	
+}
+
+.chromeJavaHelpImage {
+	imageSource: Embed(source='assets/images/chromePluginBlocked.png');
 }
 
 .cameraDisplaySettingsWindowStyle {
@@ -826,4 +839,25 @@ Alert {
 
 .recordButtonStyleStop {
   icon:   Embed('assets/images/control-record-stop.png');
+}
+
+.statusImageStyle {
+  successImage:   Embed(source='assets/images/status_success.png');
+  warningImage:   Embed(source='assets/images/status_warning.png');
+  failImage:      Embed(source='assets/images/status_fail.png');
+}
+
+.warningButtonStyle {
+  icon:   Embed('assets/images/status_warning_20.png');
+}
+
+.statusTitleStyle {
+  fontWeight: bold;
+  fontSize: 12;
+  paddingBottom: 0;
+}
+
+.statusMessageStyle {
+  fontSize: 12;
+  paddingTop: 0;
 }

@@ -191,7 +191,7 @@
 							if(data.talking && !rolledOver){
 								muteImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
 							}else{
-								muteImg.filters = [new GlowFilter(0x555555, 1, 6, 6, 2, BitmapFilterQuality.HIGH, true, true)];
+								muteImg.filters = [];
 							}
 						}
 					}

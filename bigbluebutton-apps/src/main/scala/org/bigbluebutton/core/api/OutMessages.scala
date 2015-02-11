@@ -204,7 +204,7 @@ case class UserJoined(
     meetingID: String, 
     recorded: Boolean, 
     user:UserVO,
-  version:String = Versions.V_0_0_1
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
                       
 case class UserRaisedHand(

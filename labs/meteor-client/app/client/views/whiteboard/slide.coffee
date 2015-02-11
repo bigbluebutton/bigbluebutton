@@ -8,7 +8,7 @@ Template.slide.rendered = ->
       redrawWhiteboard()
     )
     if window.matchMedia('(orientation: portrait)').matches
-      $('#whiteboard-paper').height($('#whiteboard-paper').width() * this.height / this.width)
+      $('#whiteboard').height($('#whiteboard').width() * this.height / this.width + $('#whiteboard-navbar').height() + 20)
     else
       # set the slide height to the max available
       $('#whiteboard-paper').height($('#whiteboard').height())

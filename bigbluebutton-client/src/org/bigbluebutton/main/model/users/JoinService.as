@@ -101,7 +101,7 @@ package org.bigbluebutton.main.model.users
         response.internalUserId = result.response.internalUserID;
         response.role = result.response.role;
         response.room = result.response.room;
-        response.authToken = result.response.room;
+        response.authToken = result.response.authToken;
         response.record = result.response.record;
         response.allowStartStopRecording = result.response.allowStartStopRecording;
         response.webvoiceconf = result.response.webvoiceconf;

@@ -1,7 +1,7 @@
 @import "../colors";
 @import "../mixins";
 
-@media all and (orientation: portrait) {
+@media all and (orientation: portrait), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
   body {
     position: relative;
     top: 15px;
@@ -15,184 +15,196 @@
     max-height: 125%;
   }
 
-  @media (max-device-aspect-ratio: 1/1) {
-    .myNavbar {
-      min-width: 630px;
-    }
+  .myFooter {
+    font-size: 18px;
+  }
+}
 
-    .navbarButton {
-      height: 100px;
-      width: 10%;
-      min-width: 60px;
-    }
+@media all and (orientation: portrait) and (max-device-aspect-ratio: 1/1), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
+  .myNavbar {
+    min-width: 630px;
+  }
 
-    .navbarTitle {
-      font-size: 30px;
-      padding-top: 30px;
-      padding-left: 5px;
-      overflow: hidden;
-      height: 72px;
-      width: 70%;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      margin-left: auto;
-      margin-right: auto;
-    }
+  .navbarButton {
+    height: 100px;
+    width: 10%;
+    min-width: 60px;
+  }
 
-    .title {
-      font-size: 30px;
-    }
+  .navbarTitle {
+    font-size: 30px;
+    padding-top: 30px;
+    padding-left: 5px;
+    overflow: hidden;
+    height: 72px;
+    width: 70%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-    .glyphicon, .ion-android-hand, .ion-volume-mute {
-      font-size: 35px;
-    }
+  .title {
+    font-size: 30px;
+  }
 
-    .ion-volume-mute {
-      font-size: 50px;
-    }
+  .glyphicon, .ion-android-hand, .ion-volume-mute {
+    font-size: 35px;
+  }
 
-    .hiddenNavbarSection {
-      display: none;
-    }
+  .ion-volume-mute {
+    font-size: 50px;
+  }
 
-    /* Logout dialog */
+  .hiddenNavbarSection {
+    display: none;
+  }
 
-    .logout-dialog.ui-dialog {
-      .ui-widget-header {
-        font-size: 40px;
-      }
-    }
+  /* Logout dialog */
 
-    .logout-dialog.ui-widget-content {
-      font-size: 280%;
-    }
-
-    .ui-dialog-buttonset {
-      width: 100%;
-    }
-
-    .ui-dialog-buttonset button {
-      width: 40%;
-      margin-left: 5% !important;
-      margin-right: 5% !important;
-    }
-
-    /* Sliding menu */
-
-    .sliding-menu {
-      width: 15%;
-      height: 100%;
-      position: fixed;
-      top: 0;
-      left: -15%;
-      z-index: 1031;
-      &.sliding-menu-opened {
-        left: 0px;
-      }
-      a {
-        border-bottom: 1px solid #258ecd;
-        padding: 1em;
-      }
-    }
-
-    .slideSection {
-      float: left;
-      margin-top: 100px;
-      height: 100%;
-      width: 100%;
-    }
-
-    .slideButton {
-      display: block;
-      width: 100%;
-      height: calc(~'20% - 20px');
-    }
-
-    .slideSection {
-      margin-bottom: 0.5%;
-      &.gradientBar {
-        .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-      }
-      .btn {
-        .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-        border-left: 1px solid extract(@darkGrey, 2);
-        border-right: 1px solid extract(@darkGrey, 4);
-        &.navbarIconToggleActive {
-          background: extract(@darkGrey, 3);
-          border-bottom: 4px solid extract(@azure, 1);
-        }
-        i {
-          color: extract(@white, 1);
-        }
-      }
-    }
-
-    #darkened-screen {
-      display: none;
-      background: black;
-      opacity: 0.7;
-      z-index: 1030;
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
+  .logout-dialog.ui-dialog {
+    .ui-widget-header {
+      font-size: 40px;
     }
   }
 
-  @media (min-device-aspect-ratio: 1/1) {
-    .myNavbar {
-      min-width: 400px;
+  .logout-dialog.ui-widget-content {
+    font-size: 280%;
+  }
+
+  .ui-dialog-buttonset {
+    width: 100%;
+  }
+
+  .ui-dialog-buttonset button {
+    width: 40%;
+    margin-left: 5% !important;
+    margin-right: 5% !important;
+  }
+
+  /* Sliding menu */
+
+  .sliding-menu {
+    width: 15%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: -15%;
+    z-index: 1031;
+    &.sliding-menu-opened {
+      left: 0px;
     }
-
-    .navbarButton {
-      height: 50px;
-      width: 51.2px;
+    a {
+      border-bottom: 1px solid #258ecd;
+      padding: 1em;
     }
+  }
 
-    .navbarTitle {
-      font-size: 16px;
-      padding-top: 13px;
-      width: calc(~'100% - 102.4px');
+  .slideSection {
+    float: left;
+    margin-top: 100px;
+    height: 100%;
+    width: 100%;
+  }
+
+  .slideButton {
+    display: block;
+    width: 100%;
+    height: calc(~'20% - 20px');
+  }
+
+  .slideSection {
+    margin-bottom: 0.5%;
+    &.gradientBar {
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
     }
-
-    .narrowedNavbarTitle {
-      width: calc(~'100% - 358.4px') !important;
-    }
-
-    .title {
-      font-size: 14px;
-    }
-
-    .ion-volume-mute {
-      font-size: 20px;
-    }
-
-    #main {
-      padding-top: 0;
-    }
-
-    .collapseNavbarSection {
-      display: none;
-    }
-
-    #collapseButtonSection {
-      display: block !important;
-    }
-
-    /* Logout dialog */
-
-    .logout-dialog.ui-dialog {
-      .ui-widget-header {
-        font-size: 12px;
+    .btn {
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+      border-left: 1px solid extract(@darkGrey, 2);
+      border-right: 1px solid extract(@darkGrey, 4);
+      &.navbarIconToggleActive {
+        background: extract(@darkGrey, 3);
+        border-bottom: 4px solid extract(@azure, 1);
       }
-      .ui-dialog-content {
-        font-size: 11px;
+      i {
+        color: extract(@white, 1);
       }
     }
+  }
 
-    .logout-dialog.ui-widget-content {
-      font-size: 10px;
+  #darkened-screen {
+    display: none;
+    background: black;
+    opacity: 0.7;
+    z-index: 1030;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .myFooter {
+    font-size: 18px;
+  }
+}
+
+@media all and (orientation: portrait) and (min-device-aspect-ratio: 1/1) {
+  .myNavbar {
+    min-width: 400px;
+  }
+
+  .navbarButton {
+    height: 50px;
+    width: 51.2px;
+  }
+
+  .navbarTitle {
+    font-size: 16px;
+    padding-top: 13px;
+    width: calc(~'100% - 102.4px');
+  }
+
+  .narrowedNavbarTitle {
+    width: calc(~'100% - 358.4px') !important;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  .ion-volume-mute {
+    font-size: 20px;
+  }
+
+  #main {
+    padding-top: 0;
+  }
+
+  .collapseNavbarSection {
+    display: none;
+  }
+
+  #collapseButtonSection {
+    display: block !important;
+  }
+
+  /* Logout dialog */
+
+  .logout-dialog.ui-dialog {
+    .ui-widget-header {
+      font-size: 12px;
     }
+    .ui-dialog-content {
+      font-size: 11px;
+    }
+  }
+
+  .logout-dialog.ui-widget-content {
+    font-size: 10px;
+  }
+
+  .myFooter {
+    font-size: 16px;
   }
 }
