@@ -7,12 +7,6 @@
   border-top: 1px solid extract(@azure, 2);
 }
 
-bottomEntry {
-  border: none;
-  padding-bottom: 0px;
-  padding-top: 0px;
-}
-
 #chat {
   background-color: extract(@white, 2);
   border: 1px solid extract(@lightGrey, 3);
@@ -23,6 +17,9 @@ bottomEntry {
   overflow: hidden;
   -webkit-flex: 1 6 25%;
   flex: 1 6 25%;
+  padding-left: 0px;
+  padding-right: 0px;
+  width: 100%;
 }
 
 .chat {
@@ -40,13 +37,6 @@ bottomEntry {
       width: 100%;
     }
   }
-}
-
-#chatbar-contents {
-  background-color: extract(@white, 1);
-  padding-left: 0px;
-  padding-right: 0px;
-  width: 100%;
 }
 
 #chatbody {
@@ -137,7 +127,8 @@ bottomEntry {
 }
 
 .optionsBar {
-  height: 100%;
+  height: 85%;
+  overflow-y: auto;
   padding-left: 15px;
   padding-top: 15px;
 }
@@ -150,14 +141,17 @@ bottomEntry {
 }
 
 .private-chat-user-box {
-  border: left 1px grey;
-  height: 60%;
+  border-left: 1px solid grey;
+  height: 300px;
   padding: 5px;
-  width: 90%;
+  width: 90%; 
 }
 
 .private-chat-user-list {
   font-size: 12px;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: scroll;
   :hover {
     background: extract(@azure, 2);
     font-size: 14px;

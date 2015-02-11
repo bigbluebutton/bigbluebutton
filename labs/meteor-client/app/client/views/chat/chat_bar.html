@@ -1,43 +1,29 @@
 <template name="chatbar">
-	<div id="{{id}}" {{visibility name}} class="component">
-		<div id="chatbar-contents">
-            <h3 class="title gradientBar">
-                <span class="glyphicon glyphicon-comment"></span>
-                {{title}}
-                {{> extraConversations}}
-            </h3>
-			{{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
-			{{#if getInSession "display_chatPane"}}
-				{{#if userExists}}
-					<div id="chatbody">
-						<ul class="chat">
-							{{#each getCombinedMessagesForChat}}
-								{{#if message}}
-									<li {{messageFontSize}}>{{> message}}</li>
-								{{/if}}
-							{{/each}}
-							<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue of last message being cut off while scrolling -->
-						</ul>
-					</div>
-					<div class="panel-footer">{{> chatInput}}</div>
-				{{else}}
-					<div id="chatbody">
-						<ul class="chat" {{messageFontSize}}>
-							{{#each getCombinedMessagesForChat}}
-								{{#if message}}
-									<li {{messageFontSize}}>{{> message}}</li>
-								{{/if}}
-							{{/each}}
-							<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue of last message being cut off while scrolling -->
-							<li>The user has left</li>
-						</ul>
-					</div>
-				{{/if}}
-			{{else}}
-				{{> optionsBar}}
-			{{/if}}
-		</div>
-	</div>
+    <div id="{{id}}" {{visibility name}} class="component">
+        <h3 class="title gradientBar">
+        <span class="glyphicon glyphicon-comment"></span>
+        {{title}}
+        {{> extraConversations}}
+        </h3>
+        {{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
+        {{#if getInSession "display_chatPane"}}
+            <div id="chatbody">
+                <ul class="chat" {{messageFontSize}}>
+                    {{#each getCombinedMessagesForChat}}
+                        {{#if message}}
+                            <li>{{> message}}</li>
+                        {{/if}}
+                    {{/each}}
+                    {{#unless userExists}}<li>The user has left</li>{{/unless}}
+                </ul>
+            </div>
+            {{#if userExists}}
+                <div class="panel-footer">{{> chatInput}}</div> 
+            {{/if}}
+        {{else}}
+            {{> optionsBar}}
+        {{/if}}
+    </div>
 </template>
 
 <template name="chatInput">
@@ -93,21 +79,22 @@
 		{{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
 			<p>Select a person to chat with privately</p>
 			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
-				{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
-					{{#contentFor region="scrollContents"}}
-                        <div class="private-chat-user-list">
-                            {{#each getUsersInMeeting}}
-                            <div class="private-chat-user-entry">{{#unless isCurrentUser userId}}{{user.name}}{{/unless}}</div>
-                            {{/each}}
+                <div class="private-chat-user-list">
+                    {{#each getUsersInMeeting}}
+                        <div class="private-chat-user-entry">
+                            {{#unless isCurrentUser userId}}
+                                {{user.name}}
+                            {{/unless}}
                         </div>
-					{{/contentFor}}
-				{{/Layout}}
-			</div>
+                    {{/each}}
+                </div>
+            </div>
 		{{else}}
 			<p>There are no participants to chat with right now.</p>
 		{{/if}}
 		<br/>
 		{{> chatOptions}}
+        <br/><br/><br/>
 	</div>
 </template>
 
