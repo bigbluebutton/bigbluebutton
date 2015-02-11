@@ -207,10 +207,12 @@ package org.bigbluebutton.modules.whiteboard
     
     private function removeText(id:String):void {
       var tobjData:Array = getGobjInfoWithID(id);
-      var removeIndex:int = tobjData[0];
-      var tobjToRemove:TextObject = tobjData[1] as TextObject;
-      wbCanvas.removeGraphic(tobjToRemove);
-            _annotationsList.splice(removeIndex, 1);
+      if (tobjData != null) {
+        var removeIndex:int = tobjData[0];
+        var tobjToRemove:TextObject = tobjData[1] as TextObject;
+        wbCanvas.removeGraphic(tobjToRemove);
+        _annotationsList.splice(removeIndex, 1);
+      }
     }  
     
     /* method to modify a TextObject that is already present on the whiteboard, as opposed to adding a new TextObject to the whiteboard */
@@ -293,6 +295,7 @@ package org.bigbluebutton.modules.whiteboard
       for (var i:Number = 0; i < numGraphics; i++){
         removeLastGraphic();
       }
+      wbCanvas.textToolbar.visible = false;
     }
     
     public function undoAnnotation(id:String):void {
@@ -399,7 +402,8 @@ package org.bigbluebutton.modules.whiteboard
       for (var i:int = 0; i < this._annotationsList.length; i++){
         trace(LOG + "Redrawing shape=[" + i + "]");
           redrawGraphic(this._annotationsList[i] as GraphicObject, i);
-      }      
+      }
+      wbCanvas.textToolbar.visible = false;
     }
         
     /* called when a user is made presenter, automatically make all the textfields currently on the page editable, so that they can edit it. */
