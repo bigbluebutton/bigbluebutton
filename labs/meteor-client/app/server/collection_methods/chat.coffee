@@ -79,16 +79,14 @@ Meteor.methods
 
 # translate '\n' newline character to '<br/>' breakline character for Flash
 @translateHTML5ToFlash = (message) ->
-	res = message
-	res = res.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE)
-	res = res.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE)
-	res = res.replace(new RegExp(NEW_LINE, 'g'), BREAK_LINE)
-	res
+	result = message
+	result = result.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE)
+	result = result.replace(new RegExp(NEW_LINE, 'g'), BREAK_LINE)
+	result
 
 # translate '<br/>' breakline character to '\n' newline character for HTML5
 @translateFlashToHTML5 = (message) ->
-	res= message
-	res = res.replace(new RegExp(CARRIAGE_RETURN, 'g'), CARRIAGE_RETURN)
-	res = res.replace(new RegExp(BREAK_LINE, 'g'), CARRIAGE_RETURN)
-	res
+	result = message
+	result = result.replace(new RegExp(BREAK_LINE, 'g'), CARRIAGE_RETURN)
+	result
 
