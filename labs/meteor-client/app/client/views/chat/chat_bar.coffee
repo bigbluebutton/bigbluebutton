@@ -8,8 +8,8 @@
 
 @activateBreakLines = (str) ->
   if typeof str is 'string'
-    res = str.replace /\\n/gim, '<br/>'
-    res = res.replace /\r/gim, '<br/>'
+    res = str.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE)
+    res
 
 @detectUnreadChat = ->
   #if the current tab is not the same as the tab we just published in
@@ -109,7 +109,7 @@ Template.chatbar.helpers
               break # Messages are too far between, so them seperated and stop joining here
 
             if msgs[i].message.from_userid is msgs[j].message.from_userid # Both messages are from the same user
-              msgs[i].message.message += "\r#{msgs[j].message.message}" # Combine the messages
+              msgs[i].message.message += "#{CARRIAGE_RETURN}#{msgs[j].message.message}" # Combine the messages
               msgs.splice(j,1) # Delete the message from the collection
               deleted = true
             else break # Messages are from different people, move on
@@ -150,7 +150,7 @@ Template.chatInput.events
 
     if event.shiftKey and (key is 13)
       event.preventDefault()
-      document.getElementById("newMessageInput").value += '\r' # Change newline character
+      document.getElementById("newMessageInput").value += CARRIAGE_RETURN # Change newline character
       return
 
     if key is 13 # Check for pressing enter to submit message
@@ -326,24 +326,3 @@ Template.tabButtons.rendered = ->
   if typeof str is 'string'
     res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
     res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
-
-Template.message.helpers
-  toClockTime: (epochTime) ->
-    if epochTime is null
-      return ""
-    local = new Date()
-    offset = local.getTimezoneOffset()
-    epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
-    dateObj = new Date(epochTime)
-    hours = dateObj.getUTCHours()
-    minutes = dateObj.getUTCMinutes()
-    if minutes < 10
-      minutes = "0" + minutes
-    hours + ":" + minutes
-
-  sanitizeAndFormat: (str) ->
-    if typeof str is 'string'
-      # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
-      res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
-      res = toClickable res
-      res = activateBreakLines res
