@@ -291,7 +291,7 @@ public class MeetingService implements MessageListener {
 	}
 	
 	private void processRegisterUser(RegisterUser message) {
-		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken);
+		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken, message.guest);
 	}
 	
 	public String addSubscription(String meetingId, String event, String callbackURL){
