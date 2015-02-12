@@ -9,9 +9,7 @@
   }
 }
 
-@media all and (orientation: portrait) and (max-device-aspect-ratio: 1/1), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
-}
-
+/*desktop portrait*/
 @media all and (orientation: portrait) and (min-device-aspect-ratio: 1/1) {
   #username {
     display:block;
@@ -26,11 +24,13 @@
 
   .usernameEntry {
     height: 20px;
+    font-size: 2vh;
   }
 }
 
+/*mobile*/
 @media all and (orientation: portrait) {
   .usernameEntry {
-    font-size: 1.5vh;
+    font-size: 2vh;
   }
 }
