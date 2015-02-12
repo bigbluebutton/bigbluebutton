@@ -8,6 +8,13 @@
     max-height: 40%;
   }
 
+  @media (orientation:portrait) {
+    #chatbody {
+      max-height: 50vh;
+      overflow-y: scroll;
+    }
+  }
+
   @media (max-device-aspect-ratio: 1/1) {
     .chat {
       /* height: Xpx; the value here will determine how tall we allow the chat */ 
