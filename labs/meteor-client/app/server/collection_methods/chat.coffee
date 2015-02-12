@@ -20,7 +20,6 @@ Meteor.methods
 
 		if isAllowedTo(action(), meetingId, requesterUserId, requesterToken) and chatObject.from_userid is requesterUserId
 			chatObject.message = translateHTML5ToFlash(chatObject.message)
-
 			message =
 				header :
 					timestamp: new Date().getTime()
@@ -67,7 +66,6 @@ Meteor.methods
 		id = Meteor.Chat.insert(entry)
 		Meteor.log.info "added chat id=[#{id}]:#{messageObject.message}." #" Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
 
-
 # called on server start and meeting end
 @clearChatCollection = (meetingId) ->
 	if meetingId?
@@ -79,10 +77,16 @@ Meteor.methods
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
 
-# translate '\n' newline character to '<br/>' breakline character for Flash
+# translate '\n' newline character and '\r' carriage returns to '<br/>' breakline character for Flash
 @translateHTML5ToFlash = (message) ->
-	message.replace '\n', '<br/>'
+	result = message
+	result = result.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE)
+	result = result.replace(new RegExp(NEW_LINE, 'g'), BREAK_LINE)
+	result
 
-# translate '<br/>' breakline character to '\n' newline character for HTML5
+# translate '<br/>' breakline character to '\r' carriage return character for HTML5
 @translateFlashToHTML5 = (message) ->
-	message.replace '<br/>', '\n'
+	result = message
+	result = result.replace(new RegExp(BREAK_LINE, 'g'), CARRIAGE_RETURN)
+	result
+
