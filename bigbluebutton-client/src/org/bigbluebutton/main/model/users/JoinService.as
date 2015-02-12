@@ -153,7 +153,6 @@ package org.bigbluebutton.main.model.users
 				if (_resultListener != null) _resultListener(true, response);
 			}
 			
-      loadStuns();
 		}
 		
     private function loadStuns():void {
