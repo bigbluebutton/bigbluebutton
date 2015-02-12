@@ -159,14 +159,16 @@ package org.bigbluebutton.main.model.users
       var stunOptions: StunOption = new StunOption();
       stunOptions.parseOptions();
       
-      request = new URLRequest(stunOptions.stuns);
-      request.method = URLRequestMethod.GET;		
-      
-      urlLoader.removeEventListener(Event.COMPLETE, handleComplete);
-      urlLoader.addEventListener(Event.COMPLETE, handleCompleteStuns);
-      urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
-      urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-      urlLoader.load(request);	      
+      if (stunOptions.stuns) {
+        request = new URLRequest(stunOptions.stuns);
+        request.method = URLRequestMethod.GET;		
+        
+        urlLoader.removeEventListener(Event.COMPLETE, handleComplete);
+        urlLoader.addEventListener(Event.COMPLETE, handleCompleteStuns);
+        urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+        urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+        urlLoader.load(request);
+      }
     }
     
     private function handleCompleteStuns(e:Event):void {			
@@ -178,7 +180,7 @@ package org.bigbluebutton.main.model.users
       stunAndTurnServers.turns = decodeTurnServers(result);
       
       MeetingModel.getInstance().stunAndTurnServers = stunAndTurnServers;
-      trace(LOG + "STUNS=[" + JSON.stringify(MeetingModel.getInstance().stunAndTurnServers) + "]");
+      //trace(LOG + "STUNS=[" + JSON.stringify(MeetingModel.getInstance().stunAndTurnServers) + "]");
     }
     
     private function decodeStunServers(result: Object):Object {

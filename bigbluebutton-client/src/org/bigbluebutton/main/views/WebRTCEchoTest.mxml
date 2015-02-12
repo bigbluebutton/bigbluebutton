@@ -31,6 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED}" method="handleWebRTCEchoTestEndedEvent" />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}" method="handleWebRTCEchoTestFailedEvent" />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_WAITING_FOR_ICE}" method="handleWebRTCEchoTestWaitingForICEEvent" />
+	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_TRANSFERRING}" method="handleWebRTCEchoTestTransferringEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_CONNECTING}" method="handleWebRTCCallConnectingEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}" method="handleWebRTCCallFailedEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_WAITING_FOR_ICE}" method="handleWebRTCCallWaitingForICEEvent" />
@@ -148,6 +149,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleWebRTCEchoTestWaitingForICEEvent(e:WebRTCEchoTestEvent):void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.waitingforice');
+				if (!dotTimer.running) dotTimer.start();
+			}
+			
+			private function handleWebRTCEchoTestTransferringEvent(e:WebRTCEchoTestEvent):void {
+				setCurrentState("connecting");
+				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.transferring');
 				if (!dotTimer.running) dotTimer.start();
 			}
 			
