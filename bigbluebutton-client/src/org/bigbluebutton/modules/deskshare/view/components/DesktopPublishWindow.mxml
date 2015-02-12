@@ -29,7 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	initialize="init()"
 	creationComplete="onCreationComplete()"	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	width="365"
+	width="365" height="320"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
 	
@@ -68,8 +68,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private const DEFAULT_PREVIEW_WIDTH:int = 320;
-			private const DEFAULT_PREVIEW_HEIGHT:int = 180; // 16x9 aspect ratio
+			public static const SCALE:Number = 5;
+			private static const VID_HEIGHT_PAD:Number = 73;
+			private static const VID_WIDTH_PAD:Number = 6;
 			
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -83,6 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var video:Video;
 			private var ns:NetStream;
+			[Bindable] private var videoHolder:UIComponent;
 			private var stream:String;
 			private var videoHeight:Number;
 			private var videoWidth:Number;
@@ -94,7 +96,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var cursor:Sprite;
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:DeskshareOptions;
-			[Bindable] private var javaRequiredString:String;
 			
 			private function init():void {
 				dsOptions = new DeskshareOptions();
@@ -102,19 +103,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				windowControls.maximizeRestoreBtn.visible = false;
+				windowControls.maximizeRestoreBtn.enabled = false;
 				
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
 					
-				if (ExternalInterface.available 
-						&& ExternalInterface.call("isJavaEnabled")
-						&& ExternalInterface.call("isJavaVersionAppropriateForDeskshare")) {
-					javaRequiredString = "bbb.desktopPublish.javaRequiredLabel.verified";
-				} else {
-					javaRequiredString = "bbb.desktopPublish.javaRequiredLabel.unknown";
-				}
 				if (isUsingLessThanChrome38OnMac()) {
 				   setCurrentState("chromeOnMacWarningState");
 				}
@@ -122,8 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   setCurrentState("dispFullRegionControlBar");
 				}
 				resourcesChanged();
-				validateNow();
-
+				
 				titleBarOverlay.tabIndex = baseIndex;
 				titleBarOverlay.focusEnabled = true;
 								
@@ -215,14 +208,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
 				cursor.x = video.x + ((event.x/captureWidth)) * video.width;
 				cursor.y = video.y + ((event.y/captureHeight)) * video.height;
+				cursorImg.visible = true;
 
 				// Do not display cursor if they are outside the capture area.
-				cursorImg.visible = !(cursor.x < video.x
-						|| cursor.y < video.y
-						|| cursor.x > video.x + video.width
-						|| cursor.y > video.y + video.height);
-				cursorImg.x =  cursor.x;
-				cursorImg.y = cursor.y;
+                if (cursor.x < video.x) cursor.x = video.x;
+                if (cursor.y < video.y) cursor.y = video.y;
+                if (cursor.x > video.x + video.width) cursor.x = video.x + video.width;
+                if (cursor.y > video.y + video.height) cursor.y = video.y + video.height;
+                cursorImg.x =  cursor.x;
+                cursorImg.y = cursor.y;
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
@@ -240,31 +234,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Store capture dimensions so we can position cursor properly.
 				captureWidth = capWidth;
 				captureHeight = capHeight;
-				var captureAspectRatio:Number = captureWidth / captureHeight;
-				var videoHolderAspectRatio:Number = DEFAULT_PREVIEW_WIDTH / DEFAULT_PREVIEW_HEIGHT;
 				
-				var vidW:Number;
-				var vidH:Number;
-				if (captureAspectRatio > videoHolderAspectRatio) {
-					vidW = DEFAULT_PREVIEW_WIDTH;
-					vidH = Math.floor(DEFAULT_PREVIEW_WIDTH / captureAspectRatio);
-				} else {
-					vidH = DEFAULT_PREVIEW_HEIGHT;
-					vidW = Math.floor(DEFAULT_PREVIEW_HEIGHT * captureAspectRatio);
+				videoHolder = new UIComponent();
+				
+				var vidW:Number = captureWidth;
+				var vidH:Number = captureHeight;
+				
+				// Don't scale if capture dimension is smaller than window.
+				if((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight < this.height - VID_HEIGHT_PAD)){
+					vidW = this.width - VID_WIDTH_PAD;
+					vidH = (captureHeight / captureWidth) * vidW;
+				}
+				else if( ((captureWidth < this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) 
+				|| ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) ){
+					vidH = this.height - VID_HEIGHT_PAD;
+					vidW = (captureWidth / captureHeight) * vidH;
+				}
+				else{
+					vidW = captureWidth;
+					vidH = captureHeight;
 				}
 
-				trace("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
+				LogUtil.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
 				video = new Video(vidW, vidH);
 				video.width = vidW;
 				video.height = vidH;
-				video.x = Math.floor((DEFAULT_PREVIEW_WIDTH - video.width) / 2);
-				video.y = Math.floor((DEFAULT_PREVIEW_HEIGHT - video.height) / 2);
+				videoHolder.width = vidW;
+				videoHolder.height = vidH;
+				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
+				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
 
 				
 				videoHolder.addChild(video);
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
+				this.addChild(videoHolder);
 											
 				ns = new NetStream(nc);
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -354,10 +359,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				stopStream();
 				closeWindow();
 			}
-
-			private function adjustWindowSize():void {
-				this.height = container.measuredHeight + this.borderMetrics.top + this.borderMetrics.bottom + checkJavaBtn.height;
-			}
 			
       private function onCheckYourJavaClicked():void {
         var CHECK_JAVA_URL:String = BBB.initConfigManager().config.javaTest.url;        
@@ -377,8 +378,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<dspub:states>	    
         <mx:State name="dispFullRegionControlBar">   
             <mx:AddChild>
-              <mx:VBox id="container" width="100%" horizontalAlign="center">
-                <mx:UIComponent id="videoHolder" width="{DEFAULT_PREVIEW_WIDTH}" height="{DEFAULT_PREVIEW_HEIGHT}" />
               
                 <mx:ControlBar id="fullRegionBottomBar">
                   <mx:VBox width="100%" height="100%" horizontalAlign="center">
@@ -410,14 +409,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                     </mx:HBox>
 
                     
-                    <mx:Text id="javaVersionLabel" styleName="javaVersionRequiredLabelStyle" width="100%" text="{ResourceUtil.getInstance().getString(javaRequiredString)}" resize="adjustWindowSize()" />
+                    <mx:Label id="javaVersionLabel" styleName="javaVersionRequiredLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaRequiredLabel')}"/>
                     <mx:LinkButton id="checkJavaBtn" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel')}" click="onCheckYourJavaClicked()" height="22" 
                                    styleName="testJavaLinkButtonStyle" textDecoration="underline"
                                    toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel.tooltip')}" 
                                    accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.desktopPublish.javaTestLinkLabel.tooltip.accessibility')}"/>
                   </mx:VBox>
                 </mx:ControlBar>
-              </mx:VBox>
             </mx:AddChild>
         </mx:State>	
 		<mx:State name="chromeOnMacWarningState">
