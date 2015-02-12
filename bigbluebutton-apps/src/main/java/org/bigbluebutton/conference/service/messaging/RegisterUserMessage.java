@@ -56,7 +56,8 @@ public class RegisterUserMessage implements IMessage {
 							&& payload.has(Constants.NAME)
 							&& payload.has(Constants.ROLE)
 							&& payload.has(Constants.EXT_USER_ID)
-							&& payload.has(Constants.AUTH_TOKEN)) {
+							&& payload.has(Constants.AUTH_TOKEN)
+							&& payload.has(Constants.GUEST)) {
 
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String fullname = payload.get(Constants.NAME).getAsString();

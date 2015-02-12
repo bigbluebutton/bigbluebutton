@@ -88,4 +88,5 @@ public class Constants {
   public static final String X_PERCENT                       = "x_percent";
   public static final String Y_PERCENT                       = "y_percent";
   public static final String KEEP_ALIVE_ID                   = "keep_alive_id"; 
+  public static final String GUEST                           = "guest";
 }
