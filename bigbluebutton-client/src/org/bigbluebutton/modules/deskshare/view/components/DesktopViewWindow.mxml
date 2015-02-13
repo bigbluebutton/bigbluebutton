@@ -86,12 +86,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:DeskshareOptions;
-			
+
 			private function init():void{
 				dsOptions = new DeskshareOptions();
 				baseIndex = dsOptions.baseTabIndex;
 			}
-			
+
 			private function onCreationComplete():void{
 				this.addChildAt(videoHolder, 0);
 				videoHolder.percentWidth = 100;
@@ -112,21 +112,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
 
-				btnActualSize.registerListeners(this);
+				bottomBar.registerListeners(this);
+				fitToActualSize();
 			}
-			
+
 			private function onResizeStartEvent(event:MDIWindowEvent):void {
 				if (event.window == this) {
 					resizer.onResizeStart();
 				}
 			}
-			
+
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
 				if (event.window == this) {
 					resizer.onResizeEnd();
 				}
 			}
-			
+
 			private function onResizeEvent():void {
 				if (this.minimized) {
 					return;
@@ -137,15 +138,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				else {
 					resizer.onResize(this.width - horizontalBorder, this.height - verticalBorder, this.maximized, video.width, video.height, videoWidth / videoHeight, false, onResizeCallback);
-				}
-				updateButtonPosition();
-			}
-
-			private function updateButtonPosition():void {
-				if(btnActualSize) {
-					btnActualSize.x = 0;// this.width - btnActualSize.width*2;
-					btnActualSize.y = 0;// this.height - btnActualSize.height*2;
-					trace("x: " + btnActualSize.x + " y: " + btnActualSize.y);
 				}
 			}
 
@@ -253,7 +245,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function fitWindowToVideo():void {
-				this.restore();
 				video.width = videoHolder.width = videoWidth;
 				video.height = videoHolder.height = videoHeight;
 				this.height = videoHeight + verticalBorder;
@@ -317,9 +308,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
-	<views:DesktopViewButton id="btnActualSize"
-							 click="determineHowToDisplayVideo()"
-							 label="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
-							 toolTip="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" />
+	<views:DesktopViewToolbar id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
+		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
+				   click="determineHowToDisplayVideo()" 
+				   height="90%" 
+				   label="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
+				   toolTip="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
+				   tabIndex="{baseIndex+4}"/>
+	</views:DesktopViewToolbar>
 
 </MDIWindow>
