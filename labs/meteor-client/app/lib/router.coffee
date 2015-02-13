@@ -50,3 +50,4 @@
                   # done subscribing
                   onLoadComplete()
                   @render('main')
+      @next()
