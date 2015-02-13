@@ -21,7 +21,6 @@
 	else
 		Meteor.Meetings.remove({}, Meteor.log.info "cleared Meetings Collection (all meetings)!")
 
-
 @removeMeetingFromCollection = (meetingId) ->
 	if Meteor.Meetings.findOne({meetingId: meetingId})?
 		Meteor.log.info "end of meeting #{meetingId}. Clear the meeting data from all collections"
