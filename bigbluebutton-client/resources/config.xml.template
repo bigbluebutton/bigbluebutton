@@ -50,9 +50,9 @@
 		
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
-			autoJoin="true"
+			autoJoin="false"
 			listenOnlyMode="true"
-			forceListenOnly="false"
+			forceListenOnly="true"
 			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"

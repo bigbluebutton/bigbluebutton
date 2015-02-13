@@ -97,7 +97,7 @@
       * after. (richard mar 28, 2014)
       */
       if (mic) {
-        if (options.skipCheck) {
+        if (options.skipCheck && PhoneOptions.firstAudioJoin) {
           JSLog.debug(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
           trace(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
 
@@ -380,6 +380,7 @@
         return;
       }
       hangup();
+      initialize();
     }
     
 	public function handleBecomeViewer():void {
