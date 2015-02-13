@@ -74,5 +74,16 @@ package org.bigbluebutton.modules.deskshare.managers {
 
             callback(externalWidth, externalHeight, internalWidthCandidate, internalHeightCandidate, internalOffsetX, internalOffsetY);
         }
+
+        public function onRepositionOnly(externalWidth:int, externalHeight:int, internalWidth:int, internalHeight:int, callback:Function):void {
+            var internalOffsetX:int;
+            var internalOffsetY:int;
+
+            // center the video in the window
+            internalOffsetX = Math.floor ((externalWidth - internalWidth) / 2);
+            internalOffsetY = Math.floor ((externalHeight - internalHeight) / 2);
+
+            callback(externalWidth, externalHeight, internalOffsetX, internalOffsetY);
+        }
     }
 }
