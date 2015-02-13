@@ -381,15 +381,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	   			
 	   		}
 
-			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void { 
-				var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
-				micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;
-					micSettings.x = point1.x - (micSettings.width/2);
-					micSettings.y = point1.y - (micSettings.height/2);
+			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
+				/**
+				 * There is a bug in Flex SDK 4.14 where the screen stays blurry if a 
+				 * pop-up is opened from another pop-up. I delayed the second open to 
+				 * avoid this case. - Chad
+				 */
+				this.callLater( function() {
+					var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
+					micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+						var point1:Point = new Point();
+						// Calculate position of TitleWindow in Application's coordinates. 
+						point1.x = width/2;
+						point1.y = height/2;
+						micSettings.x = point1.x - (micSettings.width/2);
+						micSettings.y = point1.y - (micSettings.height/2);
+					});
 				});
 			}
 			

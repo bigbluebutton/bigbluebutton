@@ -212,9 +212,19 @@ package org.bigbluebutton.modules.phone.managers
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
+    var popUpDelayTimer:Timer = new Timer(100, 1);
+    
     private function handleCallFailedUserResponse(e:CloseEvent):void {
       if (e.detail == Alert.YES){
-        dispatcher.dispatchEvent(new UseFlashModeCommand());
+        /**
+         * There is a bug in Flex SDK 4.14 where the screen stays blurry if a 
+         * pop-up is opened from another pop-up. I delayed the second open to 
+         * avoid this case. - Chad
+         */
+        popUpDelayTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent) {
+          dispatcher.dispatchEvent(new UseFlashModeCommand());
+        });
+        popUpDelayTimer.start();
       } else {
         dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
       }
