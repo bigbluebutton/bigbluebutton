@@ -37,6 +37,10 @@
         if error
           # Was unable to authorize the user. Redirect to the home page
           # alert error.reason
+
+          #make sure the user is not let through
+          Meteor.call("userLogout", meetingId, userId, authToken)
+
           clearSessionVar alert "Please sign in again"
           document.location = Meteor.config.app.logOutUrl
         return
