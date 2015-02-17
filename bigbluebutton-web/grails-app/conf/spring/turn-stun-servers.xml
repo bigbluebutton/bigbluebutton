@@ -19,43 +19,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-			">  
-				
-	<bean id="turn1" class="org.bigbluebutton.web.services.turn.TurnServer">
-      <constructor-arg index="0" value="${turn1.secret}"/>
-      <constructor-arg index="1" value="${turn1.url}"/>
-      <constructor-arg index="2" value="${turn1.ttl}"/>
-	</bean>	
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            ">
 
-  <bean id="turn2" class="org.bigbluebutton.web.services.turn.TurnServer">
-      <constructor-arg index="0" value="${turn2.secret}"/>
-      <constructor-arg index="1" value="${turn2.url}"/>
-      <constructor-arg index="2" value="${turn2.ttl}"/>
-  </bean> 
-  
-  <bean id="stun1" class="org.bigbluebutton.web.services.turn.StunServer">
-      <constructor-arg index="0" value="${stun1.url}"/>
-  </bean> 
-  
-  <bean id="stun2" class="org.bigbluebutton.web.services.turn.StunServer">
-      <constructor-arg index="0" value="${stun2.url}"/>
-  </bean> 
-  		
-	<bean id="stunTurnService" class="org.bigbluebutton.web.services.turn.StunTurnService">
-		<property name="stunServers">
-        <set>
-          <ref bean="stun1" />  
-          <ref bean="stun2" />       
-        </set>
-     </property> 
-     <property name="turnServers">
-        <set>
-          <ref bean="turn1" />  
-          <ref bean="turn2" />            
-        </set>
-     </property> 
-	</bean>	
+    <bean id="stun1" class="org.bigbluebutton.web.services.turn.StunServer">
+        <constructor-arg index="0" value="stun:stun.freeswitch.org"/>
+    </bean>
+
+    <!--bean id="stun2" class="org.bigbluebutton.web.services.turn.StunServer">
+        <constructor-arg index="0" value="stun:stun2.example.com"/>
+    </bean-->
+
+    <!-- Turn servers are configured with a secret that's compatible with
+         http://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
+         as supported by the coturn and rfc5766-turn-server turn servers -->
+
+    <!--bean id="turn1" class="org.bigbluebutton.web.services.turn.TurnServer">
+        Secret:
+        <constructor-arg index="0" value="secret"/>
+        TURN server URL, use turn: or turns:
+        <constructor-arg index="1" value="turn:turn1.example.com"/>
+        TTL in seconds for shared secret
+        <constructor-arg index="2" value="86400"/>
+    </bean-->
+
+    <!--bean id="turn2" class="org.bigbluebutton.web.services.turn.TurnServer">
+        <constructor-arg index="0" value="secret"/>
+        <constructor-arg index="1" value="turns:turn2.example.com:443"/>
+        <constructor-arg index="2" value="86400"/>
+    </bean-->
+
+    <bean id="stunTurnService" class="org.bigbluebutton.web.services.turn.StunTurnService">
+        <property name="stunServers">
+            <set>
+                <ref bean="stun1" />
+                <!--ref bean="stun2" /-->
+            </set>
+        </property>
+        <property name="turnServers">
+            <set>
+                <!--ref bean="turn1" /-->
+                <!--ref bean="turn2" /-->
+            </set>
+        </property>
+    </bean>
 </beans>
