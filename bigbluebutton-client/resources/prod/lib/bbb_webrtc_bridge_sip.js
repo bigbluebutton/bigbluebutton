@@ -120,9 +120,34 @@ function createUA(username, server, callback) {
 		console.log("User agent already created");
 		return;
 	}
-	
+
+	console.log("Fetching STUN/TURN server info for user agent");
+
+	$.ajax({
+		dataType: 'json',
+		url: '/bigbluebutton/api/stuns'
+	}).done(function(data) {
+		var stunsConfig = {};
+		stunsConfig['stunServers'] = data['stunServers'].map(function(data) {
+			return data['url'];
+		});
+		stunsConfig['turnServers'] = data['turnServers'].map(function(data) {
+			return {
+				'urls': data['url'],
+				'username': data['username'],
+				'password': data['password']
+			};
+		});
+		createUAWithStuns(username, server, callback, stunsConfig);
+	}).fail(function(data, textStatus, errorThrown) {
+		console.log("Could not fetch stun/turn servers: " + textStatus);
+		callback({'status':'failed', 'errorcode': 1009});
+	});
+}
+
+function createUAWithStuns(username, server, callback, stunsConfig) {
 	console.log("Creating new user agent");
-	
+
 	/* VERY IMPORTANT 
 	 *	- You must escape the username because spaces will cause the connection to fail
 	 *	- We are connecting to the websocket through an nginx redirect instead of directly to 5066
@@ -135,7 +160,8 @@ function createUA(username, server, callback) {
 		traceSip: true,
 		autostart: false,
 		userAgentString: "BigBlueButton",
-		stunServers: "stun:stun.freeswitch.org"
+		stunServers: stunsConfig['stunServers'],
+		turnServers: stunsConfig['turnServers']
 	};
 	
 	uaConnected = false;
