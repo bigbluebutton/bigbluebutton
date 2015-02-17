@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{FlashLeftVoiceConferenceEvent.LEFT_VOICE_CONFERENCE}" method="handleFlashLeftVoiceConferenceEvent" />
   <mate:Listener type="{FlashJoinedVoiceConferenceEvent.JOINED_VOICE_CONFERENCE}" method="handleFlashJoinedVoiceConferenceEvent" />
   <mate:Listener type="{FlashJoinedListenOnlyVoiceConferenceEvent.JOINED_LISTEN_ONLY_VOICE_CONFERENCE}" method="handleFlashJoinedListenOnlyConferenceEvent" />
+  <mate:Listener type="{FlashEchoTestStoppedEvent.ECHO_TEST_STOPPED}" method="handleStopEchoTestEvent" />
   <mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
   <mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
   <mate:Listener type="{AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION}" method="handleClosedAudioSelectionWindowEvent" />
@@ -49,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.views.MainToolbar;
       import org.bigbluebutton.modules.phone.PhoneOptions;
       import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
+      import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
       import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
@@ -79,7 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
         JSLog.debug(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
 				if (this.selected) {
-					if (defaultListenOnlyMode()) {
+					if (defaultListenOnlyMode) {
 						dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 
 						trace(LOG + "Sending Join Conference command");
@@ -99,7 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}				
 			}
 
-			private function defaultListenOnlyMode():Boolean {
+			private function get defaultListenOnlyMode():Boolean {
 				return (phoneOptions.listenOnlyMode && phoneOptions.forceListenOnly);
 			}
 			
@@ -126,7 +128,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCreationComplete():void {
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
-          if (defaultListenOnlyMode()) {
+          if (defaultListenOnlyMode) {
             var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
             command.mic = true;
             dispatcher.dispatchEvent(command);            
@@ -135,7 +137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             JSLog.debug(LOG + "Sending Show Audio Selection command");
             dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));            
           }
-				} else if (defaultListenOnlyMode()) {
+				} else {
 					joinDefaultListenOnlyMode();
 				}
 			}
@@ -154,15 +156,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onUserJoinedListenOnlyConference():void {
-        this.selected = false;
-        this.enabled = true;
-
+        JSLog.debug(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
         trace(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
-        JSLog.debug(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
-        _currentState = DEFAULT_STATE;
-        this.styleName = "voiceConfDefaultButtonStyle";
-        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');    
-        JSLog.debug(LOG + "onUserJoinedListenOnlyConference enabled=[" + enabled + "] selected=[" + selected + "]");
+
+        resetButtonState();
       }
       
       private function onUserLeftConference():void {
@@ -176,10 +173,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         JSLog.debug(LOG + "onUserLeftConference enabled=[" + enabled + "] selected=[" + selected + "]");
       }
 
-      private function joinDefaultListenOnlyMode():void {
-        var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-        command.mic = false;
-        dispatcher.dispatchEvent(command);
+      private function joinDefaultListenOnlyMode(micLeft:Boolean = true):void {
+        if (defaultListenOnlyMode && micLeft) {
+          var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+          command.mic = false;
+          dispatcher.dispatchEvent(command);
+        }
       }
       
       private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {
@@ -191,7 +190,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handleFlashJoinedListenOnlyConferenceEvent(event:FlashJoinedListenOnlyVoiceConferenceEvent):void {
         trace(LOG + "User has joined the listen only conference using flash");
         JSLog.debug(LOG + "User has joined the listen only conference using flash");
-        if (defaultListenOnlyMode()) {
+        if (defaultListenOnlyMode) {
           onUserJoinedListenOnlyConference();
         } else {
           onUserJoinedConference();
@@ -203,9 +202,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         JSLog.debug(LOG + "User has left the conference using flash");
         var micLeft:Boolean = (_currentState == ACTIVE_STATE);
         onUserLeftConference();
-        if (defaultListenOnlyMode() && micLeft) {
-          joinDefaultListenOnlyMode();
-        }
+        joinDefaultListenOnlyMode(micLeft);
       }
       
       private function handleWebRTCCallStartedEvent(event: WebRTCCallEvent):void {
@@ -218,10 +215,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         JSLog.debug(LOG + "User has left the conference using webrtc");
         trace(LOG + "User has left the conference using webrtc");
         onUserLeftConference();
-        if (defaultListenOnlyMode()) {
-          joinDefaultListenOnlyMode();
-        }
+        joinDefaultListenOnlyMode();
 			}
+      
+      private function handleStopEchoTestEvent(event:Event):void {
+        resetButtonState();
+        joinDefaultListenOnlyMode();
+      }
+      
+      private function resetButtonState():void {
+        this.selected = false;
+        this.enabled = true;
+        _currentState = DEFAULT_STATE;
+        this.styleName = "voiceConfDefaultButtonStyle";
+        this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+      }
 			
 			private function handleClosedAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
 				this.selected = false;
@@ -231,9 +239,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_currentState = DEFAULT_STATE;
         this.styleName = "voiceConfDefaultButtonStyle";
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
-				if (defaultListenOnlyMode()) {
-					joinDefaultListenOnlyMode();
-				}
+				joinDefaultListenOnlyMode();
 			}
 				
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
