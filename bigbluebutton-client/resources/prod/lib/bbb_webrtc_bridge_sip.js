@@ -1,5 +1,38 @@
 
-var callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected;
+var userID, callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
+var inEchoTest = true;
+
+function webRTCCallback(message) {
+	switch (message.status) {
+		case 'failed':
+			BBB.webRTCCallFailed(inEchoTest, message.errorcode);
+			break;
+		case 'ended':
+			BBB.webRTCCallEnded(inEchoTest);
+			break;
+		case 'started':
+			BBB.webRTCCallStarted(inEchoTest);
+			break;
+		case 'connecting':
+			BBB.webRTCCallConnecting(inEchoTest);
+			break;
+		case 'waitingforice':
+			BBB.webRTCCallWaitingForICE(inEchoTest);
+			break;
+		case 'transferring':
+			BBB.webRTCCallTransferring(inEchoTest);
+			break;
+		case 'mediarequest':
+			BBB.webRTCMediaRequest();
+			break;
+		case 'mediasuccess':
+			BBB.webRTCMediaSuccess();
+			break;
+		case 'mediafail':
+			BBB.webRTCMediaFail();
+			break;
+	}
+}
 
 function callIntoConference(voiceBridge, callback) {
 	if (!callerIdName) {
@@ -8,58 +41,31 @@ function callIntoConference(voiceBridge, callback) {
 				+ ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
 				+ ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
 				+ ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
-			
+			userID = userInfo.myUserID;
 			callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
 			conferenceVoiceBridge = userInfo.voiceBridge
-			voiceBridge = voiceBridge || conferenceVoiceBridge;
-			
+			if (voiceBridge === "9196") {
+				voiceBridge = voiceBridge + conferenceVoiceBridge;
+			} else {
+				voiceBridge = conferenceVoiceBridge;
+			}
 			console.log(callerIdName);
 			webrtc_call(callerIdName, voiceBridge, callback);
 		});
 	} else {
-		voiceBridge = voiceBridge || conferenceVoiceBridge;
+		if (voiceBridge === "9196") {
+			voiceBridge = voiceBridge + conferenceVoiceBridge;
+		} else {
+			voiceBridge = conferenceVoiceBridge;
+		}
 		webrtc_call(callerIdName, voiceBridge, callback);
 	}
 }
 
 function joinWebRTCVoiceConference() {
-	console.log("Joining to the voice conference");
-	var callback = function(message) {
-		switch (message.status) {
-			case 'failed':
-				BBB.webRTCConferenceCallFailed(message.errorcode);
-				break;
-			case 'ended':
-				BBB.webRTCConferenceCallEnded();
-				break;
-			case 'started':
-				BBB.webRTCConferenceCallStarted();
-				break;
-			case 'connecting':
-				BBB.webRTCConferenceCallConnecting();
-				break;
-			case 'waitingforice':
-				BBB.webRTCConferenceCallWaitingForICE();
-				break;
-			case 'mediarequest':
-				BBB.webRTCMediaRequest();
-				break;
-			case 'mediasuccess':
-				BBB.webRTCMediaSuccess();
-				break;
-			case 'mediafail':
-				BBB.webRTCMediaFail();
-				break;
-			case 'websocketSucceded':
-				BBB.webRTCConferenceCallWebsocketSucceeded();
-				break;
-			case 'websocketFailed':
-				BBB.webRTCConferenceCallWebsocketFailed(message.errorcode);
-				break;
-		}
-	}
-	
-	callIntoConference(conferenceVoiceBridge, callback);
+	console.log("Joining to the voice conference directly");
+	inEchoTest = false;
+	callIntoConference(conferenceVoiceBridge, webRTCCallback);
 }
 
 function leaveWebRTCVoiceConference() {
@@ -69,43 +75,9 @@ function leaveWebRTCVoiceConference() {
 }
 
 function startWebRTCAudioTest(){
-	console.log("Testing webrtc audio");
-	var callback = function(message) {
-		switch(message.status) {
-			case 'failed':
-				BBB.webRTCEchoTestFailed(message.errorcode);
-				break;
-			case 'ended':
-				BBB.webRTCEchoTestEnded();
-				break;
-			case 'started':
-				BBB.webRTCEchoTestStarted();
-				break;
-			case 'connecting':
-				BBB.webRTCEchoTestConnecting();
-				break;
-			case 'waitingforice':
-				BBB.webRTCEchoTestWaitingForICE();
-				break;
-			case 'mediarequest':
-				BBB.webRTCMediaRequest();
-				break;
-			case 'mediasuccess':
-				BBB.webRTCMediaSuccess();
-				break;
-			case 'mediafail':
-				BBB.webRTCMediaFail();
-				break;
-			case 'websocketSucceded':
-				BBB.webRTCEchoTestWebsocketSucceeded();
-				break;
-			case 'websocketFailed':
-				BBB.webRTCEchoTestWebsocketFailed(message.errorcode);
-				break;
-		}
-	}
-	
-	callIntoConference("9196", callback);
+	console.log("Joining the audio test first");
+	inEchoTest = true;
+	callIntoConference("9196", webRTCCallback);
 }
 
 function stopWebRTCAudioTest(){
@@ -115,47 +87,32 @@ function stopWebRTCAudioTest(){
 }
 
 function stopWebRTCAudioTestJoinConference(){
-	console.log("Stopping webrtc audio test and joining conference afterwards");
-	var callback = function(request) {
-		joinWebRTCVoiceConference();
-	}
+	console.log("Transferring from audio test to conference");
 	
-	webrtc_hangup(callback);
+	webRTCCallback({'status': 'transferring'});
+	
+	transferTimeout = setTimeout( function() {
+		console.log("Call transfer failed. No response after 3 seconds");
+		webRTCCallback({'status': 'failed', 'errorcode': 1008});
+		currentSession = null;
+		var userAgentTemp = userAgent;
+		userAgent = null;
+		userAgentTemp.stop();
+	}, 3000);
+	
+	BBB.listen("UserJoinedVoiceEvent", userJoinedVoiceHandler);
+	
+	currentSession.dtmf(1);
+	inEchoTest = false;
 }
 
-function requestWebRTCWebcam(){
-	var callback = function(message) {
-		switch(message.status) {
-			case 'mediarequest':
-				BBB.webRTCWebcamRequest();
-				break;
-			case 'mediasuccess':
-				BBB.webRTCWebcamRequestSuccess();
-				break;
-			case 'mediafail':
-				BBB.webRTCWebcamRequestFail(message.cause);
-				break;
-		}
+function userJoinedVoiceHandler(event) {
+	console.log("UserJoinedVoiceHandler - " + event);
+	if (inEchoTest === false && userID === event.userID) {
+		BBB.unlisten("UserJoinedVoiceEvent", userJoinedVoiceHandler);
+		clearTimeout(transferTimeout);
+		webRTCCallback({'status': 'started'});
 	}
-	
-	makeWebRTCWebcamRequest(callback);
-}
-
-function makeWebRTCWebcamRequest(callback)
-{
-	console.log("Requesting webcam permissions on Chrome ");
-	
-	callback({'status':'mediarequest'});
-	
-	getUserWebcamMedia(function(stream) {
-			console.log("getUserWebcamMedia: success");
-			userWebcamMedia = stream;
-			callback({'status':'mediasuccess'});
-		}, function(error) {
-		    console.error("getUserWebcamMedia: failure - " + error.name);
-			callback({'status':'mediafail', 'cause': error.name});
-		}
-	);	
 }
 
 function createUA(username, server, callback) {
@@ -163,9 +120,34 @@ function createUA(username, server, callback) {
 		console.log("User agent already created");
 		return;
 	}
-	
+
+	console.log("Fetching STUN/TURN server info for user agent");
+
+	$.ajax({
+		dataType: 'json',
+		url: '/bigbluebutton/api/stuns'
+	}).done(function(data) {
+		var stunsConfig = {};
+		stunsConfig['stunServers'] = data['stunServers'].map(function(data) {
+			return data['url'];
+		});
+		stunsConfig['turnServers'] = data['turnServers'].map(function(data) {
+			return {
+				'urls': data['url'],
+				'username': data['username'],
+				'password': data['password']
+			};
+		});
+		createUAWithStuns(username, server, callback, stunsConfig);
+	}).fail(function(data, textStatus, errorThrown) {
+		console.log("Could not fetch stun/turn servers: " + textStatus);
+		callback({'status':'failed', 'errorcode': 1009});
+	});
+}
+
+function createUAWithStuns(username, server, callback, stunsConfig) {
 	console.log("Creating new user agent");
-	
+
 	/* VERY IMPORTANT 
 	 *	- You must escape the username because spaces will cause the connection to fail
 	 *	- We are connecting to the websocket through an nginx redirect instead of directly to 5066
@@ -178,7 +160,8 @@ function createUA(username, server, callback) {
 		traceSip: true,
 		autostart: false,
 		userAgentString: "BigBlueButton",
-		stunServers: "stun:stun.freeswitch.org"
+		stunServers: stunsConfig['stunServers'],
+		turnServers: stunsConfig['turnServers']
 	};
 	
 	uaConnected = false;
@@ -186,7 +169,6 @@ function createUA(username, server, callback) {
 	userAgent = new SIP.UA(configuration);
 	userAgent.on('connected', function() {
 		uaConnected = true;
-		callback({'status':'websocketSucceded'});
 	});
 	userAgent.on('disconnected', function() {
 		if (userAgent) {
@@ -194,9 +176,9 @@ function createUA(username, server, callback) {
 			userAgent = null;
 			
 			if (uaConnected) {
-				callback({'status':'websocketFailed', 'errorcode': 1001}); // WebSocket disconnected
+				callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
 			} else {
-				callback({'status':'websocketFailed', 'errorcode': 1002}); // Could not make a WebSocket connection
+				callback({'status':'failed', 'errorcode': 1002}); // Could not make a WebSocket connection
 			}
 		}
 	});
