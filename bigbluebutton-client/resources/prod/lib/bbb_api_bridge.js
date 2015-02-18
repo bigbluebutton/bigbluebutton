@@ -441,10 +441,10 @@
       }
     }
 
-    BBB.webRTCCallFailed = function(inEchoTest, errorcode) {
+    BBB.webRTCCallFailed = function(inEchoTest, errorcode, cause) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCCallFailed(inEchoTest, errorcode);
+        swfObj.webRTCCallFailed(inEchoTest, errorcode, cause);
       }
     }
 
