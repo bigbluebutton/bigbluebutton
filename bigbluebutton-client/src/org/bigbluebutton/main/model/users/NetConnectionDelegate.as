@@ -27,7 +27,9 @@ package org.bigbluebutton.main.model.users
 	import flash.utils.Timer;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -248,12 +250,14 @@ package org.bigbluebutton.main.model.users
 			var info : Object = event.info;
 			var statusCode : String = info.code;
 
+      var logData:Object = new Object();
+      logData.user = UsersUtil.getUserData();
+      
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					trace(LOG + ":Connection to viewers application succeeded.");
+          JSLog.info("Successfully connected to BBB App.", logData);
           
-					// uncomment this to turn on the bandwidth check
-//					startMonitoringBandwidth();
           validateToken();
 			
 					break;
@@ -273,12 +277,7 @@ package org.bigbluebutton.main.model.users
 					
 				case "NetConnection.Connect.Closed":	
           trace(LOG + "Connection to viewers application closed");
-//          if (logoutOnUserCommand) {
-            sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
-//          } else {
-//            autoReconnectTimer.addEventListener("timer", autoReconnectTimerHandler);
-//            autoReconnectTimer.start();		
-//          }
+          sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
 											
 					break;
 					
@@ -298,6 +297,7 @@ package org.bigbluebutton.main.model.users
 					break;
 				
 				case "NetConnection.Connect.NetworkChange":
+          JSLog.warn("Detected network change to BBB App", logData);
           trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 					
@@ -336,15 +336,20 @@ package org.bigbluebutton.main.model.users
 		}	
 			
 		private function sendConnectionFailedEvent(reason:String):void{
-			if (this.logoutOnUserCommand){
+      var logData:Object = new Object();
+      
+			if (this.logoutOnUserCommand) {
+        logData.reason = "User requested.";
+        logData.user = UsersUtil.getUserData();
+        JSLog.info("User logged out from BBB App.", logData);
 				sendUserLoggedOutEvent();
-				return;
-			}
-			
-			var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-			dispatcher.dispatchEvent(e);
-			
-			//attemptReconnect(backoff);
+			} else {
+        logData.reason = reason;
+        logData.user = UsersUtil.getUserData();
+        JSLog.info("User disconnected from BBB App.", logData);
+        var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+        dispatcher.dispatchEvent(e);        
+      }
 		}
 		
 		private function sendUserLoggedOutEvent():void{

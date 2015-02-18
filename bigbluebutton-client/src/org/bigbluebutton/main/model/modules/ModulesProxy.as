@@ -71,7 +71,7 @@ package org.bigbluebutton.main.model.modules
 		
 		public function testRTMPT(protocol:String):void{
 			if (protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
-			else modulesDispatcher.sendTunnelingFailedEvent();
+			else modulesDispatcher.sendTunnelingFailedEvent(getPortTestHost(), getPortTestApplication());
 		}
 		
 		public function loadAllModules(params:ConferenceParameters):void{
