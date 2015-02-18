@@ -90,15 +90,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     
 	@Override
 	public boolean roomStart(IScope room) {
-		connInvokerService.addScope(room.getName(), room);
 		return super.roomStart(room);
 	}	
 	
 	@Override
 	public void roomStop(IScope room) {
-		recorderApplication.destroyRecordSession(room.getName());
-		connInvokerService.removeScope(room.getName());
-		
+		recorderApplication.destroyRecordSession(room.getName());	
 		super.roomStop(room);
 	}
     	
@@ -156,9 +153,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    
 	    String connType = getConnectionType(Red5.getConnectionLocal().getType());
 	    String userFullname = bbbSession.getUsername();
-	    String connId = Red5.getConnectionLocal().getSessionId();
-	        
-		connInvokerService.addConnection(sessionId, connection);
+	    String connId = Red5.getConnectionLocal().getSessionId();	        
 		
 		log.info("User connected: sessionId=[" + sessionId + "], encoding=[" + connType +
 				"], meetingId= [" + meetingId
@@ -229,9 +224,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String logStr =  gson.toJson(logData);
 	        
 	    log.info("User leaving bbb-apps: data={}", logStr);
-	    
-		connInvokerService.removeConnection(sessionId);
-    	        
+	      	        
 		bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
 		
 		super.roomDisconnect(conn);
