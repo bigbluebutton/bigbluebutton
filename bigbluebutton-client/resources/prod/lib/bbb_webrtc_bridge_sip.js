@@ -5,7 +5,10 @@ var inEchoTest = true;
 function webRTCCallback(message) {
 	switch (message.status) {
 		case 'failed':
-			BBB.webRTCCallFailed(inEchoTest, message.errorcode);
+			if (message.errorcode !== 1004) {
+				message.cause = null;
+			}
+			BBB.webRTCCallFailed(inEchoTest, message.errorcode, message.cause);
 			break;
 		case 'ended':
 			BBB.webRTCCallEnded(inEchoTest);
@@ -186,20 +189,6 @@ function createUAWithStuns(username, server, callback, stunsConfig) {
 	userAgent.start();
 };
 
-function getUserWebcamMedia(getUserWebcamMediaSuccess, getUserWebcamMediaFailure) {
-	if (userWebcamMedia == undefined) {
-		if (SIP.WebRTC.isSupported()) {
-			SIP.WebRTC.getUserMedia({audio:false, video:true}, getUserWebcamMediaSuccess, getUserWebcamMediaFailure);
-		} else {
-			console.log("getUserWebcamMedia: webrtc not supported");
-			getUserWebcamMediaFailure("WebRTC is not supported");
-		}
-	} else {
-		console.log("getUserWebcamMedia: webcam already set");
-		getUserWebcamMediaSuccess(userWebcamMedia);
-	}
-};
-
 function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {
 	if (userMicMedia == undefined) {
 		if (SIP.WebRTC.isSupported()) {
@@ -245,6 +234,13 @@ function webrtc_call(username, voiceBridge, callback) {
 }
 
 function make_call(username, voiceBridge, server, callback, recall) {
+	if (userAgent == null) {
+		console.log("userAgent is still null. Delaying call");
+		var callDelayTimeout = setTimeout( function() {
+			make_call(username, voiceBridge, server, callback, recall);
+		}, 100);
+	}
+
 	if (!userAgent.isConnected()) {
 		console.log("Trying to make call, but UserAgent hasn't connected yet. Delaying call");
 		userAgent.once('connected', function() {
@@ -309,7 +305,7 @@ function make_call(username, voiceBridge, server, callback, recall) {
 		
 		if (currentSession) {
 			if (callActive === false) {
-				callback({'status':'failed', 'errorcode': 1004}); // Failure on call
+				callback({'status':'failed', 'errorcode': 1004, 'cause': cause}); // Failure on call
 				currentSession = null;
 				var userAgentTemp = userAgent;
 				userAgent = null;
