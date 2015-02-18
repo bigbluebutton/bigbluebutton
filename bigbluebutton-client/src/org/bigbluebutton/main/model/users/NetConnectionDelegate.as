@@ -346,7 +346,7 @@ package org.bigbluebutton.main.model.users
 			} else {
         logData.reason = reason;
         logData.user = UsersUtil.getUserData();
-        JSLog.info("User disconnected from BBB App.", logData);
+        JSLog.warn("User disconnected from BBB App.", logData);
         var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
         dispatcher.dispatchEvent(e);        
       }
