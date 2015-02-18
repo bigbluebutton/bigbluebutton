@@ -3,17 +3,13 @@
 		<h3 class="title gradientBar"><span class="glyphicon glyphicon-user"></span> Participants: {{getMeetingSize}} User(s)</h3>
 
 		<div id="user-contents">
-			{{#Layout template="scrollWindow" id="publicUserScrollWindow"}}
-				{{#contentFor region="scrollContents"}}
-					<div class="userlist">
-						{{#each getUsersInMeeting}}
-							<div id="content">
-								{{>userItem}}
-							</div>
-						{{/each}}
+			<div class="userlist ScrollableWindowY">
+				{{#each getUsersInMeeting}}
+					<div id="content">
+						{{>userItem}}
 					</div>
-				{{/contentFor}}
-			{{/Layout}}
+				{{/each}}
+			</div>
 		</div>
 	</div>
 </template>

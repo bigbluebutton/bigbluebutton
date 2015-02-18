@@ -43,29 +43,27 @@
 
   {{#if user.raise_hand}}
     {{#if isCurrentUser userId}}
-      <span class="raisedHandIcon userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
+      <span class="raisedHandIcon userListSettingIcon ion-android-hand" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
     {{else}}
-      <span class="userListSettingIcon glyphicon glyphicon-hand-up" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
+      <span class="userListSettingIcon ion-android-hand" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
     {{/if}}
   {{/if}}
 </template>
 
 <template name="usernameEntry">
   {{#if isCurrentUser userId}}
-    <span class="userCurrent userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+    <span class="userCurrent usernameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
       {{user.name}} (you)
     </span>
   {{else}}
-    <span class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+    <span class="usernameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
       {{user.name}}
     </span>
   {{/if}}
 </template>
 
 <template name="userItem">
-  <div id="username">
-    {{> usernameEntry}}
-  </div>
+  {{> usernameEntry}}
   <div id="usericons">
     {{> displayUserIcons}}
   </div>

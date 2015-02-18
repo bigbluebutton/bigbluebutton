@@ -31,6 +31,7 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
         })
     else
       Meteor.log.warn "was not authorized to subscribe to 'users'"
+      @error(new Meteor.Error(402, "The user was not authorized to subscribe to 'users'"))
 
   else #subscribing before the user was added to the collection
     Meteor.call "validateAuthToken", meetingId, userid, authToken
@@ -43,12 +44,17 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
 
 Meteor.publish 'chat', (meetingId, userid, authToken) ->
   if isAllowedTo('subscribeChat', meetingId, userid, authToken)
+  
     Meteor.log.info "publishing chat for #{meetingId} #{userid} #{authToken}"
     return Meteor.Chat.find({$or: [
       {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
       {'message.from_userid': userid, 'meetingId': meetingId},
       {'message.to_userid': userid, 'meetingId': meetingId}
-      ]})
+    ]})
+
+  else
+    @error new Meteor.Error(402, "The user was not authorized to subscribe for 'chats'")
+    return
 
 Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})

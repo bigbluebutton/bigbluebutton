@@ -33,7 +33,7 @@ var renderWhiteboardTemplate = function(title) {
     return div;
 }
 
-xdescribe("whiteboard template", function () {
+describe("whiteboard template", function () {
   beforeEach(function () {
     emptyMeetingsCollection();
     emptyPresentationsCollection();
