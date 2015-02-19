@@ -423,10 +423,10 @@ package org.bigbluebutton.main.api
       }
     }
     
-    private function handleWebRTCCallFailed(inEchoTest:Boolean, errorCode:Number):void {
+    private function handleWebRTCCallFailed(inEchoTest:Boolean, errorCode:Number, cause:String):void {
       trace(LOG + "handleWebRTCCallFailed: received, inEchoTest: " + inEchoTest + ", errorCode=[" + errorCode + "]");
       if (inEchoTest) {
-        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED, errorCode));
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED, errorCode, cause));
       } else {
         _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_FAILED, errorCode));
       }

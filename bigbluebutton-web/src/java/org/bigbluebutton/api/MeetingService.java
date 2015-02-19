@@ -556,7 +556,7 @@ public class MeetingService implements MessageListener {
 			logData.put("username", user.getFullname());
 			logData.put("role", user.getRole());			
 			logData.put("event", "user_joined_message");
-			logData.put("description", "User has joined the meeting.");
+			logData.put("description", "User had joined the meeting.");
 			
 			Gson gson = new Gson();
 		    String logStr =  gson.toJson(logData);
@@ -585,7 +585,7 @@ public class MeetingService implements MessageListener {
 				logData.put("username", user.getFullname());
 				logData.put("role", user.getRole());			
 				logData.put("event", "user_left_message");
-				logData.put("description", "User has left the meeting.");
+				logData.put("description", "User had left the meeting.");
 				
 				Gson gson = new Gson();
 		        String logStr =  gson.toJson(logData);

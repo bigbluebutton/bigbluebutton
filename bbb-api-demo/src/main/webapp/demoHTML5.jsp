@@ -63,16 +63,6 @@ if (request.getParameterMap().isEmpty()) {
 		<tr>
 			<td>
 				&nbsp;</td>
-			<td style="text-align: right; ">
-				Meeting Name:</td>
-			<td style="width: 5px; ">
-				&nbsp;</td>
-			<td style="text-align: left ">
-				<input type="text" name="meetingName" /></td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;</td>
 			<td>
 				&nbsp;</td>
 			<td>
@@ -97,7 +87,7 @@ if (request.getParameterMap().isEmpty()) {
 	String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
 	// String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
 
-	String joinURL = getJoinURLHTML5(request.getParameter("username"), request.getParameter("meetingName"), "false", null, null, null);
+	String joinURL = getJoinURLHTML5(request.getParameter("username"), "Demo Meeting", "false", null, null, null);
 	Document doc = null;
 	doc = parseXml(getURL(joinURL));
 
