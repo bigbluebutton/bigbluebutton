@@ -20,6 +20,8 @@ case object StopMeetingActor
 class MeetingActor(val meetingID: String, val externalMeetingID: String, val meetingName: String, val recorded: Boolean, 
                    val voiceBridge: String, duration: Long, 
                    val autoStartRecording: Boolean, val allowStartStopRecording: Boolean,
+                   val moderatorPass: String, val viewerPass: String,
+                   val createTime: Long, val createDate: String,
                    val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp

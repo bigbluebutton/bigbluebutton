@@ -49,6 +49,10 @@ case class MeetingCreated(
     name: String,
     voiceBridge: String,
     duration: Long,
+    moderatorPass: String,
+    viewerPass: String,
+    createTime: Long,
+    createDate: String,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
