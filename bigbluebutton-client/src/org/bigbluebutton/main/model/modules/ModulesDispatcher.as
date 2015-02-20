@@ -24,6 +24,7 @@ package org.bigbluebutton.main.model.modules
   import flash.utils.Timer;
   
   import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.vo.Config;
   import org.bigbluebutton.core.vo.ConfigBuilder;
@@ -34,15 +35,20 @@ package org.bigbluebutton.main.model.modules
   import org.bigbluebutton.main.events.PortTestEvent;
   import org.bigbluebutton.main.events.UserServicesEvent;
   import org.bigbluebutton.main.model.ConfigParameters;
+  import org.bigbluebutton.main.model.modules.EnterApiService;
   
   public class ModulesDispatcher
   {
     private static const LOG:String = "Main::ModulesDispatcher - ";   
     private var dispatcher:Dispatcher;
+    private var enterApiService: EnterApiService;
+    private var meetingInfo:Object = new Object();
+    private var enterApiUrl:String;
     
     public function ModulesDispatcher()
     {
       dispatcher = new Dispatcher();
+      
     }
     
     public function sendLoadProgressEvent(moduleName:String, loadProgress:Number):void{
@@ -73,11 +79,38 @@ package org.bigbluebutton.main.model.modules
       dispatcher.dispatchEvent(e);
     }
     
-    public function sendPortTestEvent():void{     
+    public function sendPortTestEvent():void {     
+      getMeetingAndUserInfo();
+    }
+    
+    private function getMeetingAndUserInfo():void {
+      enterApiService = new EnterApiService();
+      enterApiService.addResultListener(resultListener);
+      enterApiService.load(enterApiUrl);
+    }
+      
+    private function resultListener(success:Boolean, result:Object):void {
+      if (success) {
+        trace(LOG + "Saving meeting and user info " + JSON.stringify(result)); 
+        
+        meetingInfo.username = result.username;
+        meetingInfo.userId = result.userId;
+        meetingInfo.meetingName = result.meetingName;
+        meetingInfo.meetingId = result.meetingId;
+        
+        doPortTesting();
+      } else {
+        var logData:Object = new Object();
+        JSLog.critical("Failed to get meeting and user info from Enter API", logData);
+        
+        dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
+      }
+    }
+    
+    private function doPortTesting():void {
       trace(LOG + "Sending TEST_RTMP Event");
       var e:PortTestEvent = new PortTestEvent(PortTestEvent.TEST_RTMP);
-      dispatcher.dispatchEvent(e);
-      
+      dispatcher.dispatchEvent(e);       
     }
     
     private function timerHandler(e:TimerEvent):void{
@@ -91,7 +124,12 @@ package org.bigbluebutton.main.model.modules
       var logData:Object = new Object();
       logData.server = server;
       logData.app = app;
-      JSLog.info("Failed RTMP and RTMPT test connection.", logData);
+      logData.userId = meetingInfo.userId;
+      logData.username = meetingInfo.username;
+      logData.meetingName = meetingInfo.meetingName;
+      logData.meetingId = meetingInfo.meetingId;
+      trace(LOG + "Cannot connect to Red5 using RTMP and RTMPT", JSON.stringify(logData));
+      JSLog.critical("Cannot connect to Red5 using RTMP and RTMPT", logData);
       
       dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
     }
@@ -103,6 +141,10 @@ package org.bigbluebutton.main.model.modules
       logData.server = host;
       logData.protocol = protocol;
       logData.app = app;      
+      logData.userId = meetingInfo.userId;
+      logData.username = meetingInfo.username;
+      logData.meetingName = meetingInfo.meetingName;
+      logData.meetingId = meetingInfo.meetingId;
       JSLog.info("Successfully connected on test connection.", logData);
       
       var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
@@ -132,6 +174,8 @@ package org.bigbluebutton.main.model.modules
     }
     
     public function sendConfigParameters(c:ConfigParameters):void{
+      enterApiUrl = c.host;
+      
       var event:ConfigEvent = new ConfigEvent(ConfigEvent.CONFIG_EVENT);
       var config:Config;
       config = new ConfigBuilder(c.version, c.localeVersion)
