@@ -1,7 +1,7 @@
-@import "../colors";
 @import "../mixins";
+@import "../variables";
 
-@media all and (orientation: portrait), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
+@media all and (orientation: portrait), @mobile-portrait-with-keyboard {
   body {
     position: relative;
     top: 15px;
@@ -20,7 +20,7 @@
   }
 }
 
-@media all and (orientation: portrait) and (max-device-aspect-ratio: 1/1), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
+@media @mobile-portrait, @mobile-portrait-with-keyboard {
   .myNavbar {
     min-width: 630px;
   }
@@ -149,7 +149,7 @@
   }
 }
 
-@media all and (orientation: portrait) and (min-device-aspect-ratio: 1/1) {
+@media @desktop-portrait {
   .myNavbar {
     min-width: 400px;
   }

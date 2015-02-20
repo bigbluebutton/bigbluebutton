@@ -1,4 +1,6 @@
-@media all and (orientation: portrait), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
+@import "../variables";
+
+@media all and (orientation: portrait), @mobile-portrait-with-keyboard {
   #users {
     -webkit-order: 3;
     order: 3;
@@ -10,7 +12,7 @@
 }
 
 /*desktop portrait*/
-@media all and (orientation: portrait) and (min-device-aspect-ratio: 1/1) {
+@media @desktop-portrait {
   #username {
     display:block;
     width:70%;
