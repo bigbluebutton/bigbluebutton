@@ -1,10 +1,11 @@
-@import "../variables";
+@import "variables";
 
 .active {
-  border-bottom: none;
+  /*border-bottom: none;
   border-left: 1px solid extract(@azure, 2);
   border-right: 1px solid extract(@azure, 2);
-  border-top: 1px solid extract(@azure, 2);
+  border-top: 1px solid extract(@azure, 2);*/
+  border: .2vh solid extract(@azure, 2) !important;
 }
 
 #chat {
@@ -20,6 +21,16 @@
   padding-left: 0px;
   padding-right: 0px;
   width: 100%;
+  @media @landscape {
+    -webkit-order: 3;
+    order: 3;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    -webkit-order: 2;
+    order: 2;
+    min-height: 40%;
+    max-height: 40%;
+  }
 }
 
 .chat {
@@ -37,6 +48,11 @@
       width: 100%;
     }
   }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    li {
+      font-size: 14px;
+    }
+  }
 }
 
 #chatbody {
@@ -44,6 +60,10 @@
   overflow-y: scroll;
   padding-left: 0px;
   padding-right: 0px;
+  @media @desktop-portrait, @mobile-portrait {
+    max-height: 50vh;
+    overflow-y: scroll;
+  }
 }
 
 .chatGreeting {
@@ -69,9 +89,11 @@
   margin-bottom: 1px !important;
   width:100%;
 }
+
 .close:hover {
   background-color: red;
 }
+
 .closeTab {
   float:left;
   width:10%;
@@ -124,6 +146,17 @@
   padding:5px;
   border-radius:4px;
   border:1px solid extract(@lightGrey, 3);
+  @media @landscape, @desktop-portrait {
+    height: 40px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 60px;
+  }
+  @media @mobile-portrait-with-keyboard,
+    @desktop-portrait,
+    @mobile-portrait {
+    font-size: 25px;
+  }
 }
 
 .optionsBar {
@@ -135,7 +168,7 @@
 
 .panel-footer {
   bottom: 0px;
-  padding: 10px;
+  /* padding: 10px; TODO: investigate (causes the overflow in the chat's title) */
   position: relative;
   background: extract(@white, 1);
 }
@@ -164,6 +197,21 @@
   width: 20%;
   margin-left: 5%;
   color: extract(@white, 1);
+  @media @mobile-portrait-with-keyboard,
+    @desktop-portrait,
+    @mobile-portrait {
+    width: 100px;
+    font-size: 30px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 60px;
+  }
+  @media @desktop-portrait, @landscape {
+    height: 40px;
+  }
+  @media @landscape {
+    padding: 0px;
+  }
 }
 
 #tabsList {
@@ -175,12 +223,28 @@
   width: 100%;
   a {
     padding:0px;
+    @media @mobile-portrait-with-keyboard,
+    @desktop-portrait,
+    @mobile-portrait {
+      font-size: 25px;
+    }
+    @media @landscape {
+      font-size: 12px;
+    }
   }
   li:first-child a {
     border-left: 0;
   }
   &:before, &:after {
     content: none;
+  }
+  @media @mobile-portrait-with-keyboard,
+    @desktop-portrait,
+    @mobile-portrait {
+    .userlist {
+      font-size: 30px;
+      padding-left: 10px;
+    }
   }
 }
 
@@ -198,4 +262,10 @@
 
 .timestamp {
   text-align: right;
+}
+
+#chatbar-contents {
+  @media @landscape {
+    min-width: 140px;
+  }
 }
