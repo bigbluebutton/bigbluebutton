@@ -1,0 +1,51 @@
+@import "variables";
+
+#whiteboard {
+  padding: 0 !important;
+  margin-left: 0.25%;
+  margin-right: 0.25%;
+  -webkit-flex: 2 2 50%;
+  -moz-flex: 2 2 50%;
+  -ms-flex: 2 2 50%;
+  flex: 2 2 50%;
+  min-width: 0;
+  @media @landscape {
+    -webkit-order: 2;
+    order: 2;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    -webkit-order: 1;
+    order: 1;
+  }
+}
+
+#whiteboard-paper {
+  background-color: white !important;
+  /*height: auto !important;*/
+  margin-left: auto;
+  margin-right: auto;
+  #svggroup {
+    display: block;
+    height: 100% !important;
+    width: 100% !important;
+  }
+  @media @landscape {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(calc(~'-50% - 19px'));
+    -ms-transform: translateY(calc(~'-50% - 19px'));
+    transform: translateY(calc(~'-50% - 19px'));
+  }
+}
+
+#whiteboard-navbar {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
