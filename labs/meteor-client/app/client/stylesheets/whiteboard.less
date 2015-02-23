@@ -12,11 +12,6 @@
   @media @landscape {
     -webkit-order: 2;
     order: 2;
-    display: -moz-flex;
-    display: -ms-flexbox;
-    display: -ms-flex;
-    display: -webkit-flex;
-    display: flex;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-order: 1;
@@ -29,17 +24,11 @@
   /*height: auto !important;*/
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
   #svggroup {
     display: block;
     height: 100% !important;
     width: 100% !important;
-  }
-  @media @landscape {
-    position: relative;
-    top: 50%;
-    -webkit-transform: translateY(calc(~'-50% - 19px'));
-    -ms-transform: translateY(calc(~'-50% - 19px'));
-    transform: translateY(calc(~'-50% - 19px'));
   }
 }
 
@@ -48,4 +37,18 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
+}
+
+#whiteboard-container {
+  @media @landscape {
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    -webkit-align-items: center;
+    -ms-align-items: center;
+    height: calc(~'100% - 39px');
+  }
 }
