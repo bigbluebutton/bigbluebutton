@@ -22,6 +22,7 @@
   padding-right: 0px;
   width: 100%;
   @media @landscape {
+    height:98%;
     -webkit-order: 3;
     order: 3;
   }
@@ -56,6 +57,10 @@
 }
 
 #chatbody {
+  @media @landscape {
+    height: 80%;
+  }
+
   height: 90%;
   overflow-y: scroll;
   padding-left: 0px;
@@ -147,7 +152,7 @@
   border-radius:4px;
   border:1px solid extract(@lightGrey, 3);
   @media @landscape, @desktop-portrait {
-    height: 40px;
+    height: 15%;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 60px;
@@ -206,7 +211,10 @@
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 60px;
   }
-  @media @desktop-portrait, @landscape {
+  @media @desktop-portrait {
+    height: 60px;
+  }
+  @media @landscape {
     height: 40px;
   }
   @media @landscape {
