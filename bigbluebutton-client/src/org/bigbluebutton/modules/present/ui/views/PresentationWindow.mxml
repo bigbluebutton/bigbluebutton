@@ -329,8 +329,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onResetZoom():void {
-				zoomSlider.value = 100;
-				slideView.onZoomSlide(zoomSlider.value);
+				slideView.onZoomSlide(100);
 			}
 
       private function handleBecomePresenter(e:MadePresenterEvent):void{
@@ -436,18 +435,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 										
 			private function disableSlideNavigationButtons(pageNumber:int):void {
 				if (pageNumber == 1) {
-					backButton.enabled = false;
+					backButton.mouseEnabled = false;
 					backButton.styleName = "presentationBackButtonDisabledStyle";
 				} else {
-					backButton.enabled = true;
+					backButton.mouseEnabled = true;
 					backButton.styleName = "presentationBackButtonStyle";
 				}
 				
 				if (pageNumber < PresentationModel.getInstance().getNumberOfPages()) {
-					forwardButton.enabled = true;
+					forwardButton.mouseEnabled = true;
 					forwardButton.styleName = "presentationForwardButtonStyle";
 				} else {
-					forwardButton.enabled = false;
+					forwardButton.mouseEnabled = false;
 					forwardButton.styleName = "presentationForwardButtonDisabledStyle";
 				}
 			}
@@ -560,7 +559,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function remotePrevious(e:ShortcutEvent):void{
 				if (backButton.visible && backButton.enabled){
-					backButton.setFocus();
+					//backButton.setFocus();
 					gotoPreviousSlide();
 				}
 			}
@@ -574,7 +573,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function remoteNext(e:ShortcutEvent):void{
 				if (forwardButton.visible && forwardButton.enabled){
-					forwardButton.setFocus();
+					//forwardButton.setFocus();
 					gotoNextSlide();
 				}
 			}

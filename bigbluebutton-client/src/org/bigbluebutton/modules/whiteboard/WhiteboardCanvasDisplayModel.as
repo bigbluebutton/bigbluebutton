@@ -31,12 +31,14 @@ package org.bigbluebutton.modules.whiteboard
   import flash.text.TextFieldAutoSize;
   import flash.text.TextFieldType;
   import flash.text.TextFormat;
-  import flash.ui.Keyboard;  
+  import flash.ui.Keyboard;
+  
   import mx.collections.ArrayCollection;
   import mx.controls.TextInput;
   import mx.core.Application;
   import mx.core.UIComponent;
-  import mx.managers.CursorManager; 
+  import mx.managers.CursorManager;
+  
   import org.bigbluebutton.common.IBbbCanvas;
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
@@ -205,10 +207,12 @@ package org.bigbluebutton.modules.whiteboard
     
     private function removeText(id:String):void {
       var tobjData:Array = getGobjInfoWithID(id);
-      var removeIndex:int = tobjData[0];
-      var tobjToRemove:TextObject = tobjData[1] as TextObject;
-      wbCanvas.removeGraphic(tobjToRemove);
-            _annotationsList.splice(removeIndex, 1);
+      if (tobjData != null) {
+        var removeIndex:int = tobjData[0];
+        var tobjToRemove:TextObject = tobjData[1] as TextObject;
+        wbCanvas.removeGraphic(tobjToRemove);
+        _annotationsList.splice(removeIndex, 1);
+      }
     }  
     
     /* method to modify a TextObject that is already present on the whiteboard, as opposed to adding a new TextObject to the whiteboard */
@@ -291,6 +295,7 @@ package org.bigbluebutton.modules.whiteboard
       for (var i:Number = 0; i < numGraphics; i++){
         removeLastGraphic();
       }
+      wbCanvas.textToolbar.visible = false;
     }
     
     public function undoAnnotation(id:String):void {
@@ -397,7 +402,8 @@ package org.bigbluebutton.modules.whiteboard
       for (var i:int = 0; i < this._annotationsList.length; i++){
         trace(LOG + "Redrawing shape=[" + i + "]");
           redrawGraphic(this._annotationsList[i] as GraphicObject, i);
-      }      
+      }
+      wbCanvas.textToolbar.visible = false;
     }
         
     /* called when a user is made presenter, automatically make all the textfields currently on the page editable, so that they can edit it. */
@@ -475,7 +481,11 @@ package org.bigbluebutton.modules.whiteboard
         var sendStatus:String = TextObject.TEXT_UPDATED;
         var tobj:TextObject = event.target as TextObject;  
         sendTextToServer(sendStatus, tobj);  
-      }         
+      }
+      // stops stops page changing when trying to navigate the text box
+      if (event.keyCode == Keyboard.LEFT || event.keyCode == Keyboard.RIGHT) {
+        event.stopPropagation();
+      }
     }
     
         public function textObjTextChangeListener(event:Event):void {

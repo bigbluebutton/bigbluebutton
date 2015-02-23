@@ -35,8 +35,8 @@ package org.bigbluebutton.main.model {
 		private var uri:String;
 		private var modulesDispatcher:ModulesDispatcher;
 		
-		public function PortTestProxy() {
-			modulesDispatcher = new ModulesDispatcher();
+		public function PortTestProxy(modulesDispatcher: ModulesDispatcher) {
+			this.modulesDispatcher = modulesDispatcher;
 		}
 		
 		public function connect(protocol:String = "", hostname:String = "", port:String = "", application:String = "", testTimeout:Number = 10000):void {

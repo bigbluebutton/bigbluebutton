@@ -178,5 +178,15 @@ package org.bigbluebutton.core
       return null;
     }
     
+    public static function getUserData():Object {
+      var userData:Object = new Object();
+      userData.meetingId = getInternalMeetingID();
+      userData.meetingName = UserManager.getInstance().getConference().meetingName;
+      userData.userId = getMyUserID();
+      userData.userName = getMyUsername();
+      
+      return userData;
+    }
+    
   }
 }
