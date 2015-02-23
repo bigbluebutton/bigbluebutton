@@ -1,19 +1,7 @@
 @import "../colors";
+@import "../mixins";
 
-@media all and (orientation: landscape) {
-  .radius(@size: 4px) {
-    -moz-border-radius: @size;
-    -webkit-border-radius: @size;
-    border-radius: @size;
-  }
-
-  .linear-gradient(@color1, @color2) {
-    background: -moz-linear-gradient(@color1, @color2); /* For Firefox 3.6 to 15 */
-    background: -o-linear-gradient(@color1, @color2); /* For Opera 11.1 to 12.0 */
-    background: -webkit-linear-gradient(@color1, @color2); /* For Safari 5.1 to 6.0 */
-    background: linear-gradient(@color1, @color2); /* Standard syntax (must be last) */
-  }
-
+@media all and (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
   body {
     height: 100%;
     min-width: 768px;
@@ -53,6 +41,10 @@
     font-size: 14px;
   }
 
+  .ion-volume-mute {
+    font-size: 20px;
+  }
+
   #main {
     -webkit-flex-flow: row;
     flex-flow: row;
@@ -62,7 +54,11 @@
     display: none;
   }
 
-  .collapseSection {
+  .hiddenNavbarSection {
+    display: block !important;
+  }
+
+  .collapseNavbarSection {
     display: block !important;
   }
 
@@ -78,4 +74,9 @@
   .logout-dialog.ui-widget-content {
     font-size: 10px;
   }
+
+  .myFooter {
+    font-size: 10px;
+  }
+
 }

@@ -1,12 +1,12 @@
-@media all and (orientation: landscape) {
+@media all and (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
   #username {
     display:block;
-    width:70%;
   }
 
   #users {
     -webkit-order: 1;
     order: 1;
+    min-width: 0;
   }
 
   #user-contents {
@@ -15,7 +15,7 @@
     }
   }
 
-  .userNameEntry {
+  .usernameEntry {
     height: 20px;
   }
 }

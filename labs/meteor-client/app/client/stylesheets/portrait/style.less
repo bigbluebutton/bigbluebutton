@@ -1,27 +1,33 @@
 @import "../colors";
+@import "../mixins";
 
-@media all and (orientation: portrait) {
-  .radius(@size: 4px) {
-    -moz-border-radius: @size;
-    -webkit-border-radius: @size;
-    border-radius: @size;
-  }
-
-  .linear-gradient(@color1, @color2) {
-    background: -moz-linear-gradient(@color1, @color2); /* For Firefox 3.6 to 15 */
-    background: -o-linear-gradient(@color1, @color2); /* For Opera 11.1 to 12.0 */
-    background: -webkit-linear-gradient(@color1, @color2); /* For Safari 5.1 to 6.0 */
-    background: linear-gradient(@color1, @color2); /* Standard syntax (must be last) */
-  }
-
+@media all and (orientation: portrait), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
   body {
     position: relative;
     top: 15px;
   }
 
+  #main {
+    -webkit-flex-flow: column;
+    flex-flow: column;
+    flex-direction: column;
+    min-height: 125%;
+    max-height: 125%;
+  }
+
+  .myFooter {
+    font-size: 18px;
+  }
+}
+
+@media all and (orientation: portrait) and (max-device-aspect-ratio: 1/1), all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) {
+  .myNavbar {
+    min-width: 630px;
+  }
+
   .navbarButton {
     height: 100px;
-    width: 15%;
+    width: 10%;
     min-width: 60px;
   }
 
@@ -42,25 +48,19 @@
     font-size: 30px;
   }
 
-  #main {
-    -webkit-flex-flow: column;
-    flex-flow: column;
-    flex-direction: column;
-    min-height: 125%;
-    max-height: 125%;
-  }
-
-  .glyphicon {
+  .glyphicon, .ion-android-hand, .ion-volume-mute {
     font-size: 35px;
   }
 
-  .myNavbar {
-    min-width: 630px;
+  .ion-volume-mute {
+    font-size: 50px;
   }
 
-  .collapseSection {
+  .hiddenNavbarSection {
     display: none;
   }
+
+  /* Logout dialog */
 
   .logout-dialog.ui-dialog {
     .ui-widget-header {
@@ -102,7 +102,7 @@
 
   .slideSection {
     float: left;
-    margin-top: 101px;
+    margin-top: 100px;
     height: 100%;
     width: 100%;
   }
@@ -142,5 +142,69 @@
     top: 0;
     width: 100%;
     height: 100%;
+  }
+
+  .myFooter {
+    font-size: 18px;
+  }
+}
+
+@media all and (orientation: portrait) and (min-device-aspect-ratio: 1/1) {
+  .myNavbar {
+    min-width: 400px;
+  }
+
+  .navbarButton {
+    height: 50px;
+    width: 51.2px;
+  }
+
+  .navbarTitle {
+    font-size: 16px;
+    padding-top: 13px;
+    width: calc(~'100% - 102.4px');
+  }
+
+  .narrowedNavbarTitle {
+    width: calc(~'100% - 358.4px') !important;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  .ion-volume-mute {
+    font-size: 20px;
+  }
+
+  #main {
+    padding-top: 0;
+  }
+
+  .collapseNavbarSection {
+    display: none;
+  }
+
+  #collapseButtonSection {
+    display: block !important;
+  }
+
+  /* Logout dialog */
+
+  .logout-dialog.ui-dialog {
+    .ui-widget-header {
+      font-size: 12px;
+    }
+    .ui-dialog-content {
+      font-size: 11px;
+    }
+  }
+
+  .logout-dialog.ui-widget-content {
+    font-size: 10px;
+  }
+
+  .myFooter {
+    font-size: 16px;
   }
 }

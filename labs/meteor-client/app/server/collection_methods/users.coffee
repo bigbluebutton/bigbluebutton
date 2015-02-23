@@ -153,7 +153,7 @@ Meteor.methods
     if voiceUserObject.listenOnly?
       Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listenOnly}}) # muted
   else
-    Meteor.log.info "ERROR! did not find such voiceUser!"
+    Meteor.log.error "ERROR! did not find such voiceUser!"
 
 @userJoined = (meetingId, user) ->
   userId = user.userid
@@ -205,7 +205,7 @@ Meteor.methods
         'message.to_userid': userId
         'message.from_userid': "SYSTEM_MESSAGE"
         'message.from_username': ""
-        'message.from_time': user.timeOfJoining.toString()
+        'message.from_time': user.timeOfJoining?.toString()
       }})
     Meteor.log.info "added a system message in chat for user #{userId}"
 
@@ -247,19 +247,21 @@ Meteor.methods
         webcam_stream: user.webcam_stream
 
     id = Meteor.Users.insert(entry)
-    Meteor.log.info "joining user id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+    Meteor.log.info "joining user userid=[#{userId}], id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
 
-@createDummyUser = (meetingId, user) ->
-  if Meteor.Users.findOne({userId:user.userid, meetingId: meetingId})?
-    Meteor.log.info "ERROR!! CAN'T REGISTER AN EXISTSING USER"
+@createDummyUser = (meetingId, userId, authToken) ->
+  if Meteor.Users.findOne({userId:userId, meetingId: meetingId, authToken:authToken})?
+    Meteor.log.info "html5 user userid:[#{userId}] from [#{meetingId}] tried to revalidate token"
   else
     entry =
       meetingId: meetingId
-      userId: user.userid
-      authToken: user.authToken
+      userId: userId
+      authToken: authToken
+      clientType: "HTML5"
+      validated: false #will be validated on validate_auth_token_reply
 
     id = Meteor.Users.insert(entry)
-    Meteor.log.info "added user dummy user id=[#{id}]:#{user.name}.
+    Meteor.log.info "added user dummy html5 user with: userid=[#{userId}], id=[#{id}]
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
 
 # called on server start and on meeting end

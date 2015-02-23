@@ -6,8 +6,8 @@ config = {}
 # Default global variables
 config.appName = 'BigBlueButton HTML5 Client'
 config.bbbServerVersion = '0.9.0'
-config.copyrightYear = '2014'
-config.dateOfBuild = 'Sept 25, 2014' #TODO
+config.copyrightYear = '2015'
+config.dateOfBuild = 'Feb 06, 2015' #TODO
 config.defaultWelcomeMessage = 'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial videos</u></a>.\r\rTo join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r'
 config.defaultWelcomeMessageFooter = "This server is running a build of <a href='https://code.google.com/p/bigbluebutton/wiki/090Overview' target='_blank'><u>BigBlueButton #{config.bbbServerVersion}</u></a>."
 
@@ -18,11 +18,7 @@ config.maxChatLength = 140
 config.app = {}
 
 # server ip
-config.app.serverIP = "http://192.168.0.119"
-config.app.logOutUrl = "http://192.168.0.119:4000" # TODO temporary
-
-# port for the HTML5 client
-config.app.htmlClientPort = "3000"
+config.app.logOutUrl = "http://192.168.0.119/demo/demoHTML5.jsp" # TODO temporary
 
 # Configs for redis
 config.redis = {}
