@@ -143,7 +143,7 @@ function createUA(username, server, callback, makeCallFunc) {
 		}) : {} );
 		createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc);
 	}).fail(function(data, textStatus, errorThrown) {
-		BBBLog.error("Could not fetch stun/turn servers: " + textStatus);
+		BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
 		callback({'status':'failed', 'errorcode': 1009});
 	});
 }
