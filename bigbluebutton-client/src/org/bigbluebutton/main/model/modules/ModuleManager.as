@@ -51,17 +51,15 @@ package org.bigbluebutton.main.model.modules
 		
 		private var modulesDispatcher:ModulesDispatcher;
 		
-		public function ModuleManager()
+		public function ModuleManager(modulesDispatcher: ModulesDispatcher)
 		{
-			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);	
-			modulesDispatcher = new ModulesDispatcher();
+      this.modulesDispatcher = modulesDispatcher;
+			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
 			configParameters = new ConfigParameters(handleComplete);
 		}
 				
 		private function handleComplete():void{	
-			var modules:Dictionary = configParameters.getModules();
-			modulesDispatcher.sendPortTestEvent();
-			
+			var modules:Dictionary = configParameters.getModules();	
 			for (var key:Object in modules) {
 				var m:ModuleDescriptor = modules[key] as ModuleDescriptor;
 				m.setApplicationDomain(_applicationDomain);
@@ -71,6 +69,8 @@ package org.bigbluebutton.main.model.modules
 			sorted = resolver.buildDependencyTree(modules);
 			
 			modulesDispatcher.sendConfigParameters(configParameters);
+      
+      modulesDispatcher.sendPortTestEvent();
 		}
 		
 		public function useProtocol(protocol:String):void {

@@ -62,7 +62,6 @@ package org.bigbluebutton.core.model
 			var a:Object = new Object();
 			a.uri = config.application.@uri;
 			a.host = config.application.@host;
-      a.stuns = config.application.@stuns;
 			return a;
 		}
 		

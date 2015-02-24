@@ -135,7 +135,6 @@ Template.chatbar.helpers
 # When chatbar gets rendered, launch the auto-check for unread chat
 Template.chatbar.rendered = ->
   detectUnreadChat()
-  resizeWindows()
 
 # When message gets rendered, scroll to the bottom
 Template.message.rendered = ->
@@ -166,7 +165,6 @@ Template.chatInput.rendered  = ->
   $('input[rel=tooltip]').tooltip()
   $('button[rel=tooltip]').tooltip()
   $("#newMessageInput").focus()
-  resizeWindows()
 
 Template.extraConversations.events
 	"click .extraConversation": (event) ->
