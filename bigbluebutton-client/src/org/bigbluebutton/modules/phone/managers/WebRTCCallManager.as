@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
   import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
+  import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
@@ -204,7 +205,7 @@ package org.bigbluebutton.modules.phone.managers
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
-    public function handleWebRTCCallFailedEvent(event:WebRTCEchoTestEvent):void {
+    public function handleWebRTCCallFailedEvent(event:WebRTCCallEvent):void {
       var errorString:String;
       model.state = Constants.INITED;
       
