@@ -428,7 +428,7 @@ package org.bigbluebutton.main.api
       if (inEchoTest) {
         _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED, errorCode, cause));
       } else {
-        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_FAILED, errorCode));
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_FAILED, errorCode, cause));
       }
     }
     
