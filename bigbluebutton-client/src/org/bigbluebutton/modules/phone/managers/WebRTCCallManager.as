@@ -235,6 +235,7 @@ package org.bigbluebutton.modules.phone.managers
          * pop-up is opened from another pop-up. I delayed the second open to 
          * avoid this case. - Chad
          */
+        popUpDelayTimer = new Timer(100, 1);
         popUpDelayTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
           dispatcher.dispatchEvent(new UseFlashModeCommand());
         });
@@ -250,6 +251,7 @@ package org.bigbluebutton.modules.phone.managers
        * pop-up is opened from another pop-up. I delayed the second open to 
        * avoid this case. - Chad
        */
+      popUpDelayTimer = new Timer(100, 1);
       popUpDelayTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
         Alert.show(message, title, Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
       });
