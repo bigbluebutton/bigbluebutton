@@ -1,11 +1,10 @@
 @import "variables";
 
 .active {
-  /*border-bottom: none;
-  border-left: 1px solid extract(@azure, 2);
-  border-right: 1px solid extract(@azure, 2);
-  border-top: 1px solid extract(@azure, 2);*/
   border: .2vh solid extract(@azure, 2) !important;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    border-left: .1vh solid extract(@azure, 2) !important;
+  }
 }
 
 #chat {
