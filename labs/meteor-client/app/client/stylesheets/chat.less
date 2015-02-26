@@ -101,7 +101,12 @@
 .closeTab {
   float:left;
   width:10%;
-  font-size: 1vw;
+  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 4vw;
+  }
+  @media @landscape {
+    font-size: 1vw;
+  }
 }
 
 .chat-input-wrapper {
