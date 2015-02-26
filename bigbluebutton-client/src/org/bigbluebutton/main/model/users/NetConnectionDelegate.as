@@ -110,6 +110,8 @@ package org.bigbluebutton.main.model.users
       trace(LOG + "Got message from server [" + messageName + "]"); 
       if (!authenticated && (messageName == "validateAuthTokenReply")) {
         handleValidateAuthTokenReply(msg)
+      } else if (messageName == "validateAuthTokenTimedOut") {
+        handleValidateAuthTokenTimedOut(msg)
       } else if (authenticated) {
         notifyListeners(messageName, msg);
       } else {
@@ -139,6 +141,25 @@ package org.bigbluebutton.main.model.users
       ); //_netConnection.call      
     }
       
+    private function handleValidateAuthTokenTimedOut(msg: Object):void {
+      trace(LOG + "*** handleValidateAuthTokenTimedOut " + msg.msg + " **** \n");      
+      var map:Object = JSON.parse(msg.msg);  
+      var tokenValid: Boolean = map.valid as Boolean;
+      var userId: String = map.userId as String;
+
+      var logData:Object = new Object();
+      logData.user = UsersUtil.getUserData();
+      JSLog.critical("Validate auth token timed out.", logData);
+      
+      if (tokenValid) {
+        authenticated = true;
+        trace(LOG + "*** handleValidateAuthTokenTimedOut. valid=[ " + tokenValid + "] **** \n");
+      } else {
+        trace(LOG + "*** handleValidateAuthTokenTimedOut. valid=[ " + tokenValid + "] **** \n");
+        dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
+      }
+    }
+    
     private function handleValidateAuthTokenReply(msg: Object):void {
       trace(LOG + "*** handleValidateAuthTokenReply " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);  
@@ -256,7 +277,7 @@ package org.bigbluebutton.main.model.users
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					trace(LOG + ":Connection to viewers application succeeded.");
-          JSLog.info("Successfully connected to BBB App.", logData);
+          JSLog.debug("Successfully connected to BBB App.", logData);
           
           validateToken();
 			
@@ -341,7 +362,7 @@ package org.bigbluebutton.main.model.users
 			if (this.logoutOnUserCommand) {
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
-        JSLog.info("User logged out from BBB App.", logData);
+        JSLog.debug("User logged out from BBB App.", logData);
 				sendUserLoggedOutEvent();
 			} else {
         logData.reason = reason;

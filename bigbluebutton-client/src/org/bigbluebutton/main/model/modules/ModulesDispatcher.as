@@ -18,11 +18,9 @@
  */
 package org.bigbluebutton.main.model.modules
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher; 
   import flash.events.TimerEvent;
-  import flash.utils.Timer;
-  
+  import flash.utils.Timer;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
@@ -145,7 +143,7 @@ package org.bigbluebutton.main.model.modules
       logData.username = meetingInfo.username;
       logData.meetingName = meetingInfo.meetingName;
       logData.meetingId = meetingInfo.meetingId;
-      JSLog.info("Successfully connected on test connection.", logData);
+      JSLog.debug("Successfully connected on test connection.", logData);
       
       var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
       portEvent.port = port;
