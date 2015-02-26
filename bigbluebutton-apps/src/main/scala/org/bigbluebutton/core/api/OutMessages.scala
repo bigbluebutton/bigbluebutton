@@ -190,7 +190,16 @@ case class GetUsersReply(
     users: Array[UserVO],
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
-                         
+
+case class ValidateAuthTokenTimedOut(
+  meetingID: String, 
+  requesterId: String,
+  token: String,
+  valid: Boolean,
+  correlationId: String,
+  version:String = Versions.V_0_0_1
+  ) extends IOutMessage
+  
 case class ValidateAuthTokenReply(
   meetingID: String, 
   requesterId: String,

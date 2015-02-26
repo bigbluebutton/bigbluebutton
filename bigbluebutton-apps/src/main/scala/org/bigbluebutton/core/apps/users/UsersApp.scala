@@ -99,6 +99,13 @@ trait UsersApp {
         outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
       }
     }
+    
+    /**
+     * Send a reply to BigBlueButtonActor to let it know this MeetingActor hasn't hung!
+     * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
+     * audit to check whether the actor is still alive. (ralam feb 25, 2015)
+     */
+    reply(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
   }
   
   def handleRegisterUser(msg: RegisterUser) {
