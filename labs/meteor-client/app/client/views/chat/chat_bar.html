@@ -28,7 +28,7 @@
 
 <template name="chatInput">
 	<div id="chatInput" class="chat-input-wrapper">
-		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" autofocus></textarea>
+		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
 		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
 		Send
 		</button>
@@ -58,7 +58,7 @@
     <span style="float:left;">
         {{#if message.from_username}}
             <span class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
-                <strong>{{message.from_username}}</strong>
+                {{message.from_username}}
             </span>
         {{/if}}
     </span>

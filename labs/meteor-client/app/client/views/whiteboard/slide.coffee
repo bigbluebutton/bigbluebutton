@@ -56,7 +56,7 @@ Template.slide.rendered = ->
     # for portrait orientation we want "fit to width" so that we can
     # minimize the empty space on the sides of the slide (for best readability)
     boardWidth = $("#whiteboard").width()
-    boardHeight = 1.4 * $("#whiteboard").width() # A4 ratio
+    boardHeight = 1.4 * $("#whiteboard").width() # A4 paper size
 
   # this is the best fitting pair
   adjustedWidth = null

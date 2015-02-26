@@ -28,8 +28,6 @@
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-order: 2;
     order: 2;
-    min-height: 40%;
-    max-height: 40%;
   }
 }
 
@@ -59,13 +57,11 @@
   @media @landscape {
     height: 80%;
   }
-
-  height: 90%;
   overflow-y: scroll;
   padding-left: 0px;
   padding-right: 0px;
   @media @desktop-portrait, @mobile-portrait {
-    max-height: 50vh;
+    max-height: 40vh; // for longer chatbody a scrollbar appears
     overflow-y: scroll;
   }
 }
