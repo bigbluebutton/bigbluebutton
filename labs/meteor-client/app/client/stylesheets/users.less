@@ -57,8 +57,6 @@
     order: 3;
     margin-bottom: 0px;
     padding-bottom: 55px; /*so that the footer does not overlap */
-    max-height: 20%;
-    min-height: 20%;
   }
 }
 
@@ -66,11 +64,15 @@
   .userlist {
     @media @landscape { 
       padding:10px;
+      max-height:83vh;
     }
     @media @desktop-portrait {
       padding-top: 10px;
       padding-left: 10px;
       padding-right: 10px;
+    }
+    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+      max-height: 40vh; //for longer userlist a scrollbar appears
     }
   }
 }

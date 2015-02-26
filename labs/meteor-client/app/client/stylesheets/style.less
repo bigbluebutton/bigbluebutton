@@ -47,14 +47,24 @@ body {
   padding-top: 13px;
   text-align: center;
   @media @landscape {
+    position:fixed;
+    bottom:0;
+    margin-bottom: 0;
+    border-width: 1px 0 0;
+    width: 100%;
+  }  
+  @media @landscape, @desktop-portrait {
     font-size: 10px;
     max-height: 20px;
   }
-  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-    font-size: 18px;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    font-size: 26px;
   }
-  @media @desktop-portrait {
-    font-size: 16px;
+
+  // the footer should be visible only at the very bottom of a portrait page
+  @media @desktop-portrait, @mobile-portrait-with-keyboard, @mobile-portrait {
+    order: 4;
+    -webkit-order: 4;
   }
 }
 
@@ -213,9 +223,8 @@ body {
 }
 
 .ScrollableWindowY {
-  height: 100%;
   overflow-y: scroll;
-  overflow:auto;
+  overflow-y:auto;
 }
 
 .tab {

@@ -1,5 +1,5 @@
 <template name="footer">
-   <div id="footer" class="myFooter gradientBar navbar navbar-default navbar-fixed-bottom" role="navigation">
+   <div id="footer" class="myFooter gradientBar navbar navbar-default">
       {{{getFooterString}}}
    </div>
 </template>
@@ -99,28 +99,28 @@
 </template>
 
 <template name="main">
-	{{setTitle}}
-	<body>
-        <div id="dialog" title="Confirm Logout">
-            <p>Are you sure you want to log out?</p>
-        </div>
-		<div id="main" class="mainContainer row-fluid">
- 		{{#if isDisconnected}}
-			{{>status}}
-		{{else}}
-			<div>{{> header}}</div>
-			{{> whiteboard id="whiteboard" title=getWhiteboardTitle name="whiteboard"}}
-			{{> chatbar id="chat" title="Chat" name="chatbar"}}
-			{{> usersList id="users" name="usersList"}}
-			<audio id="remote-media" autoplay="autoplay"></audio>
-			{{> footer}}
-		{{/if}}
-		</div>
-        {{#if isPortraitMobile}}
-          {{> slidingMenu}}
-        {{/if}}
-        <div id='darkened-screen'></div>
-	</body>
+{{setTitle}}
+<body>
+  <div id="dialog" title="Confirm Logout">
+      <p>Are you sure you want to log out?</p>
+  </div>
+  <div id="main" class="mainContainer row-fluid">
+    {{#if isDisconnected}}
+      {{>status}}
+    {{else}}
+      <div>{{> header}}</div>
+      {{> whiteboard id="whiteboard" title=getWhiteboardTitle name="whiteboard"}}
+      {{> chatbar id="chat" title="Chat" name="chatbar"}}
+      {{> usersList id="users" name="usersList"}}
+      <audio id="remote-media" autoplay="autoplay"></audio>
+      {{> footer}}
+    {{/if}}
+  </div>
+  {{#if isPortraitMobile}}
+    {{> slidingMenu}}
+  {{/if}}
+  <div id='darkened-screen'></div>
+</body>
 </template>
 
 <template name="recordingStatus">
