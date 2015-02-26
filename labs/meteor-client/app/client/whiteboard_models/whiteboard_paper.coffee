@@ -195,7 +195,7 @@ class Meteor.WhiteboardPaperModel
       @cursor.setPosition( @viewBoxXpos + x * @viewBoxWidth, @viewBoxYPos + y * @viewBoxHeight )
 
   zoomAndPan: (widthRatio, heightRatio, xOffset, yOffset) ->
-    console.log "zoomAndPan #{widthRatio} #{heightRatio} #{xOffset} #{yOffset}"
+    # console.log "zoomAndPan #{widthRatio} #{heightRatio} #{xOffset} #{yOffset}"
     newX = - xOffset * 2 * @adjustedWidth / 100
     newY = - yOffset * 2 * @adjustedHeight / 100
     newWidth = @adjustedWidth * widthRatio / 100
