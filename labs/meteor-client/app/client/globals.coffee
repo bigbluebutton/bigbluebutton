@@ -305,7 +305,7 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # assign the default values for the Session vars
 @setDefaultSettings = ->
-  console.log "in setDefaultSettings"
+  # console.log "in setDefaultSettings"
   setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
