@@ -167,10 +167,10 @@ Template.chatInput.rendered  = ->
 
 Template.extraConversations.events
 	"click .extraConversation": (event) ->
-		console.log "extra conversation"
+		# console.log "extra conversation"
 		user = @
-		console.log user
-		console.log "#{user.name} #{user.userId}"
+		# console.log user
+		# console.log "#{user.name} #{user.userId}"
 		# put this conversation in the 3rd position in the chat tabs collection (after public and options)
 		# Take all the tabs and turn into an array
 		tabArray = getInSession('chatTabs')
@@ -281,25 +281,26 @@ Template.tabButtons.events
     )
 
   'click .optionsChatTab': (event) ->
-    console.log "options"
+    # console.log "options"
     setInSession "inChatWith", "OPTIONS"
     setInSession 'display_chatPane', false
 
   'click .privateChatTab': (event) ->
-    console.log "private:"
-    console.log @
+    # console.log "private:"
+    # console.log @
     setInSession "inChatWith", @userId
     setInSession 'display_chatPane', true
 
   'click .publicChatTab': (event) ->
-    console.log "public"
+    # console.log "public"
     setInSession "inChatWith", "PUBLIC_CHAT"
     setInSession 'display_chatPane', true
 
   'click .tab': (event) ->
     unless getInSession "inChatWith" is "OPTIONS"
-      $("#newMessageInput").focus()
-      console.log "tab"
+      if window.matchMedia('(orientation: landscape)').matches
+        $("#newMessageInput").focus()
+        # console.log "tab"
 
 Template.tabButtons.helpers
   hasGotUnreadMailClass: (gotMail) ->

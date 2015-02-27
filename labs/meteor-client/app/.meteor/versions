@@ -14,7 +14,7 @@ brentjanderson:winston-client@0.2.0
 callback-hook@1.0.2
 cfs:http-methods@0.0.27
 check@1.0.4
-clinical:nightwatch@1.5.1
+clinical:nightwatch@1.6.0
 coffeescript@1.0.5
 ddp@1.0.14
 deps@1.0.6
@@ -50,14 +50,14 @@ minimongo@1.0.6
 mizzao:bootstrap-3@3.3.1_1
 mizzao:build-fetcher@0.2.0
 mizzao:jquery-ui@1.11.2
-mizzao:timesync@0.2.2
+mizzao:timesync@0.3.0
 mobile-status-bar@1.0.2
 mongo@1.0.11
 mrt:external-file-loader@0.1.4
-mrt:ionicons@1.4.1
 mrt:redis@0.1.3
 observe-sequence@1.0.4
 ordered-dict@1.0.2
+pagebakers:ionicons@2.0.0
 practicalmeteor:chai@1.9.2_3
 practicalmeteor:loglevel@1.1.0_3
 random@1.0.2
@@ -66,7 +66,7 @@ reactive-var@1.0.4
 reload@1.1.2
 retry@1.0.2
 routepolicy@1.0.4
-sanjo:jasmine@0.12.1
+sanjo:jasmine@0.12.4
 sanjo:karma@1.4.1
 session@1.0.5
 spacebars@1.0.5
