@@ -71,9 +71,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var stream:String;
 			private var videoHeight:Number;
 			private var videoWidth:Number;
-
-			[Bindable]
-			private var actualSize:Boolean = true;
+			
+			[Bindable] private var actualSize:Boolean = true;
 
 			// The following code block is to deal with a bug in FLexLib 
 			// with MDI windows not responding well to being maximized
@@ -86,12 +85,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:DeskshareOptions;
-
+									
 			private function init():void{
 				dsOptions = new DeskshareOptions();
 				baseIndex = dsOptions.baseTabIndex;
 			}
-
+									
 			private function onCreationComplete():void{
 				this.addChildAt(videoHolder, 0);
 				videoHolder.percentWidth = 100;
@@ -115,7 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				bottomBar.registerListeners(this);
 				fitToActualSize();
 			}
-
+			
 			private function onResizeStartEvent(event:MDIWindowEvent):void {
 				if (event.window == this) {
 					resizer.onResizeStart();
@@ -173,7 +172,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				cursor.x = ((event.x/videoWidth)) * video.width;
 				cursor.y = ((event.y/videoHeight)) * video.height;
-				
+			
 				cursorImg.visible = true;
                 // DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
@@ -209,7 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoHolder.addChild(video);
 				onResizeEvent();
 			}
-
+			
 			public function stopViewing():void {
 				ns.close();
 				closeWindow();				
@@ -243,18 +242,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
-
+												
 			private function fitWindowToVideo():void {
 				video.width = videoHolder.width = videoWidth;
 				video.height = videoHolder.height = videoHeight;
 				this.height = videoHeight + verticalBorder;
 				this.width = videoWidth + horizontalBorder;
 			}
-
+			
 			private function videoIsSmallerThanWindow():Boolean {
 				return (videoHeight < this.height) && (videoWidth < this.width);
 			}
-
+			
 			/**
 			 * resizes the desktop sharing video to actual video resolution
 			 */
@@ -265,10 +264,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					video.width = videoWidth;
 					videoHolder.width = videoWidth;
 					video.height = videoHeight;
-					videoHolder.height = videoHeight;
+					videoHolder.height = videoHeight;					
 				}
 			}
-
+			
 			private function determineHowToDisplayVideo():void {
 				if (!actualSize) {
 					actualSize = true;
@@ -278,7 +277,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					onResizeEvent();
 				}
 			}
-
+			
 			private function closeWindow():void {
 				dispatchEvent(new ViewWindowEvent(ViewWindowEvent.CLOSE));
 			}
@@ -307,7 +306,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-
+		
 	<views:DesktopViewToolbar id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
 		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
 				   click="determineHowToDisplayVideo()" 
@@ -316,5 +315,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   toolTip="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
 				   tabIndex="{baseIndex+4}"/>
 	</views:DesktopViewToolbar>
-
 </MDIWindow>
