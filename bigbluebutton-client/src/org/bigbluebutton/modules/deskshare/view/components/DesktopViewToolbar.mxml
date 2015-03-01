@@ -6,6 +6,8 @@
 		   creationComplete="onCreationComplete()"
 		   visible="{toolbarVisible}"
 		   horizontalAlign="center"
+		   verticalAlign="middle"
+		   paddingTop="0" paddingBottom="0" 
 		   hideEffect="{fadeOut}" showEffect="{fadeIn}" >
 	<mx:Script>
 		<![CDATA[
@@ -17,49 +19,48 @@
 
 			[Bindable] private var toolbarVisible:Boolean = false;
 
-			private var mousedOver:Boolean = false;
 			private var globalDispatcher:Dispatcher;
 			private var _toolbarHideTimer:Timer;
 
 			public function init():void{
-				_toolbarHideTimer = new Timer(500, 1);
-				_toolbarHideTimer.addEventListener(TimerEvent.TIMER, hideToolbar);
+				_toolbarHideTimer = new Timer(1000, 1);
+				_toolbarHideTimer.addEventListener(TimerEvent.TIMER, onHideTimerComplete);
 			}
 
 			private function onCreationComplete():void {
 				globalDispatcher = new Dispatcher();
-				this.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
-				this.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
 			}
 
-			private function checkVisibility():void {
-				toolbarVisible = (toolbarAllowed() && mousedOver);
-			}
-
-			public function hideToolbar(e:TimerEvent = null):void {
-				mousedOver = false;
-				checkVisibility();
-			}
-
-			private function handleMouseIn(e:MouseEvent = null):void {
-				_toolbarHideTimer.reset();
-				mousedOver = true;
-				checkVisibility();
+			private function handleMouseOver(e:MouseEvent = null):void {
+				showToolbar();
 			}
 
 			private function handleMouseOut(e:MouseEvent = null):void {
+				hideToolbar();
+			}
+			
+			private function onHideTimerComplete(event:TimerEvent):void {
+				toolbarVisible = false;
+			}
+			
+			private function showToolbar():void {
+				_toolbarHideTimer.reset();
+				toolbarVisible = toolbarAllowed;
+			}
+			
+			private function hideToolbar():void {
 				_toolbarHideTimer.reset();
 				_toolbarHideTimer.start();
 			}
 
-			private function toolbarAllowed():Boolean {
+			private function get toolbarAllowed():Boolean {
 				// Created to make possible to create rules to allow or not the toolbar
 				return true;
 			}
 
 			public function registerListeners(component:UIComponent):void {
-				component.addEventListener(MouseEvent.ROLL_OVER, handleMouseIn);
-				component.addEventListener(MouseEvent.ROLL_OUT, handleMouseOut);
+				component.addEventListener(MouseEvent.MOUSE_OVER, handleMouseOver);
+				component.addEventListener(MouseEvent.MOUSE_OUT, handleMouseOut);
 			}
 		]]>
 	</mx:Script>

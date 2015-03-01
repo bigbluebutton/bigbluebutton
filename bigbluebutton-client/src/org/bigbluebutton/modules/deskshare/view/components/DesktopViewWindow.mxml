@@ -56,12 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.managers.SmartWindowResizer;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private var screenHeight:Number = Capabilities.screenResolutionY;
-			private var screenWidth:Number = Capabilities.screenResolutionX;
-						
 			private var images:Images = new Images();
-			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
-			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 			
 			private var cursor:Shape;
 			
@@ -72,7 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoHeight:Number;
 			private var videoWidth:Number;
 			
-			[Bindable] private var actualSize:Boolean = true;
+			[Bindable] private var actualSize:Boolean = false;
 
 			// The following code block is to deal with a bug in FLexLib 
 			// with MDI windows not responding well to being maximized
@@ -92,7 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 									
 			private function onCreationComplete():void{
-				this.addChildAt(videoHolder, 0);
+				videoHolderCanvas.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
 				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStartEvent);
@@ -112,7 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeBtn.tabIndex = baseIndex+3;
 
 				bottomBar.registerListeners(this);
-				fitToActualSize();
+				onResizeEvent();
 			}
 			
 			private function onResizeStartEvent(event:MDIWindowEvent):void {
@@ -132,10 +127,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					return;
 				}
 
-				if(actualSize) {
-					resizer.onRepositionOnly(this.width - horizontalBorder, this.height - verticalBorder, video.width, video.height, onRepositionOnlyCallback);
-				}
-				else {
+				if (actualSize) {
+					onResizeCallback(this.width - horizontalBorder, this.height - verticalBorder, videoWidth, videoHeight, Math.max((this.width - horizontalBorder - videoWidth) / 2, 0), Math.max((this.height - verticalBorder - videoHeight) / 2, 0));
+				} else {
 					resizer.onResize(this.width - horizontalBorder, this.height - verticalBorder, this.maximized, video.width, video.height, videoWidth / videoHeight, false, onResizeCallback);
 				}
 			}
@@ -150,15 +144,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				videoHolder.width = video.width = internalWidth;
 				videoHolder.height = video.height = internalHeight;
-			}
-
-			private function onRepositionOnlyCallback(externalWidth:int, externalHeight:int, internalOffsetX:int, internalOffsetY:int):void {
-				this.width = externalWidth + horizontalBorder;
-				this.height = externalHeight + verticalBorder;
-
-				/* Reposition video within window */
-				videoHolder.x = internalOffsetX;
-				videoHolder.y = internalOffsetY;
 			}
 
 			protected function get verticalBorder():Number {
@@ -180,8 +165,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 if (cursor.y < video.y) cursor.y = video.y;
                 if (cursor.x > video.x + video.width) cursor.x = video.x + video.width;
                 if (cursor.y > video.y + video.height) cursor.y = video.y + video.height;
-                cursorImg.x = cursor.x;
-                cursorImg.y = cursor.y;
+                cursorImg.move(cursor.x, cursor.y);
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
@@ -242,40 +226,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
-												
-			private function fitWindowToVideo():void {
-				video.width = videoHolder.width = videoWidth;
-				video.height = videoHolder.height = videoHeight;
-				this.height = videoHeight + verticalBorder;
-				this.width = videoWidth + horizontalBorder;
-			}
 			
-			private function videoIsSmallerThanWindow():Boolean {
-				return (videoHeight < this.height) && (videoWidth < this.width);
-			}
-			
-			/**
-			 * resizes the desktop sharing video to actual video resolution
-			 */
-			private function fitToActualSize():void{
-				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
-				} else {
-					video.width = videoWidth;
-					videoHolder.width = videoWidth;
-					video.height = videoHeight;
-					videoHolder.height = videoHeight;					
-				}
-			}
-			
-			private function determineHowToDisplayVideo():void {
-				if (!actualSize) {
-					actualSize = true;
-					fitToActualSize();
-				} else {
-					actualSize = false;
-					onResizeEvent();
-				}
+			private function toggleActualSize():void {
+				actualSize = !actualSize;
+				onResizeEvent();
 			}
 			
 			private function closeWindow():void {
@@ -304,13 +258,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
-	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-		
-	<views:DesktopViewToolbar id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
+	
+	<mx:Canvas width="100%" height="100%" id="videoHolderCanvas" />
+
+	<views:DesktopViewToolbar x="0" y="{videoHolderCanvas.height - bottomBar.height - 16}" id="bottomBar" height="28" width="100%" >
 		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
-				   click="determineHowToDisplayVideo()" 
-				   height="90%" 
+				   click="toggleActualSize()" 
+				   height="28" 
 				   label="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
 				   toolTip="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
 				   tabIndex="{baseIndex+4}"/>
