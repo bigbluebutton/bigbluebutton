@@ -109,12 +109,6 @@
   padding:10px;	
 }
 
-#chat-options-bar {
-  border-bottom: 1px solid extract(@lightGrey, 3);
-  position: relative;
-  width: 100%;
-}
-
 #chat-user-list {
   padding: 5px;
 }
@@ -172,6 +166,13 @@
   overflow-y: auto;
   padding-left: 15px;
   padding-top: 15px;
+  p {
+    @media @mobile-portrait, 
+    @mobile-portrait-with-keyboard
+    {
+      font-size: 45px;
+    }
+  }
 }
 
 .panel-footer {
@@ -197,6 +198,15 @@
     background: extract(@azure, 2);
     font-size: 14px;
     font-style: italic;
+  }
+
+  .private-chat-user-entry
+  {
+     @media @mobile-portrait-with-keyboard, @mobile-portrait
+     {
+       height: 60px;
+       font-size: 45px;
+     }
   }
 }
 
