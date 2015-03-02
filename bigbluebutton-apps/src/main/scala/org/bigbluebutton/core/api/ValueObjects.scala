@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.api
 
+import java.lang.Boolean
+
 object Role extends Enumeration {
 	type Role = Value
 	val MODERATOR = Value("MODERATOR")
@@ -36,7 +38,8 @@ case class Permissions(
   disableMic: Boolean = false,
   disablePrivChat: Boolean = false,
   disablePubChat: Boolean = false,
-  lockedLayout:Boolean = false
+  lockedLayout:Boolean = false,
+  lockOnJoin:Boolean = false
 )
 
 case class RegisteredUser (

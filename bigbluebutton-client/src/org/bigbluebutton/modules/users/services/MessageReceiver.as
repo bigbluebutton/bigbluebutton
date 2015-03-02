@@ -147,7 +147,8 @@ package org.bigbluebutton.modules.users.services
                                                            map.disableMic,
                                                            map.disablePrivChat,
                                                            map.disablePubChat,
-                                                           map.lockedLayout);
+                                                           map.lockedLayout,
+														   map.lockOnJoin);
       UserManager.getInstance().getConference().setLockSettings(lockSettings);
     }
     
@@ -185,7 +186,7 @@ package org.bigbluebutton.modules.users.services
       var perm:Object = map.permissions;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
-                                                 perm.disablePrivChat, perm.disablePubChat, perm.lockedLayout);
+                                                 perm.disablePrivChat, perm.disablePubChat, perm.lockedLayout, perm.lockOnJoin);
       UserManager.getInstance().getConference().setLockSettings(lockSettings);
       MeetingModel.getInstance().meetingMuted = map.meetingMuted;
       

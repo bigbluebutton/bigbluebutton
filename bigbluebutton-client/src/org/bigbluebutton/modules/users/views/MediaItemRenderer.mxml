@@ -161,7 +161,6 @@
 				if (data != null) {
 					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser;
 					
-					
 					if (!data.voiceJoined) {
 						if (data.listenOnly) {
 							muteImg.source = images.sound;
@@ -173,9 +172,8 @@
 							muteImg.visible = false;
 							muteImg.includeInLayout = false;
 							muteBtn.visible = false;
-							muteBtn.includeInLayout = true;               
+							muteBtn.includeInLayout = true;
 						}
-						
 					} else {
 						if (data.userLocked && UserManager.getInstance().getConference().getLockSettings().getDisableMic()) {
 							muteImg.visible = true;
@@ -240,11 +238,16 @@
 						}
 						
 						
-						if ((data.role != Role.MODERATOR && !data.presenter) && 
-                (data.disableMyCam || data.disableMyMic || data.disableMyPrivateChat || data.disableMyPublicChat))
+						if (	(data.role != Role.MODERATOR && !data.presenter) && 
+								//(data.disableMyCam || data.disableMyMic || data.disableMyPrivateChat || data.disableMyPublicChat)
+								data.userLocked
+						) {
 							lockImg.source = images.locked_20;
-						else
+							//lockImg.source = images.audio_20;
+						}
+						else {
 							lockImg.source = null;
+						}
 					} else {
 						if (data.voiceMuted == rolledOverMute)
 							muteBtn.setStyle("icon", images.audio);

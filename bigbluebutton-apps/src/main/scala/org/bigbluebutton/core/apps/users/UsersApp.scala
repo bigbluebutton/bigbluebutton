@@ -151,18 +151,10 @@ trait UsersApp {
     
   }
   
-  def handleLockAllUsers(msg: LockAllUsers) {
-    
-  }
-  
   def handleGetLockSettings(msg: GetLockSettings) {
     
   }
   
-  def handleIsMeetingLocked(msg: IsMeetingLocked) {
-    
-  }
-
   def handleSetLockSettings(msg: SetLockSettings) {
 //    println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {
@@ -177,12 +169,20 @@ trait UsersApp {
   def handleInitLockSettings(msg: InitLockSettings) {
     if (! permissionsInited) {
       permissionsInited = true
-      if (permissions != msg.settings || locked != msg.locked) {
+      if (permissions != msg.settings) {
 	      permissions = msg.settings   
-	      locked = msg.locked	    
 	      val au = affectedUsers(msg.settings)
-	      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings, au))
+	      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings, au))
       }      
+    }
+  }
+  
+  def handleInitAudioSettings(msg: InitAudioSettings) {
+    if (! audioSettingsInited) {
+      audioSettingsInited = true
+      if(meetingMuted != msg.muted) {
+        handleMuteAllExceptPresenterRequest(new MuteAllExceptPresenterRequest(meetingID, msg.requesterID, msg.muted));
+      }
     }
   }  
 
@@ -384,7 +384,7 @@ trait UsersApp {
   
   def handleVoiceUserMuted(msg: VoiceUserMuted) {
     users.getUser(msg.userId) foreach {user =>
-      val talking = if (msg.muted) false else user.voiceUser.talking
+      val talking:Boolean = if (msg.muted) false else user.voiceUser.talking
       val nv = user.voiceUser.copy(muted=msg.muted, talking=talking)
       val nu = user.copy(voiceUser=nv)
       users.addUser(nu)

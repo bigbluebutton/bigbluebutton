@@ -67,15 +67,6 @@ public class LockService {
 	}
 	
 	/**
-	 * Method called from client on connect to know if the room is locked or not 
-	 * */
-	public void isRoomLocked(){
-		String meetingId = getBbbSession().getRoom();
-		String userId = getMyUserId();
-		bbbInGW.isMeetingLocked(meetingId, userId);
-	}
-	
-	/**
 	 * This method locks (or unlocks), based on lock parameter  
 	 * all users but the users listed in array dontLockTheseUsers
 	 * */

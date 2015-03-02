@@ -215,6 +215,7 @@ package org.bigbluebutton.main.model.users
     }
     
     public function lockStatusChanged(locked: Boolean):void {
+		trace("lockStatusChanged -> " + locked);
       userLocked = locked;
       if(me)
         applyLockSettings();
@@ -222,6 +223,7 @@ package org.bigbluebutton.main.model.users
     }
     
 		public function changeStatus(status:Status):void {
+			trace("changeStatus -> " + status.name);
 			//_status.changeStatus(status);
 			if (status.name == "presenter") {
 				presenter = status.value
@@ -314,7 +316,7 @@ package org.bigbluebutton.main.model.users
 			disableMyMic = lockSettings.getDisableMic();
 			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
 			disableMyPublicChat = lockSettings.getDisablePublicChat();
-      lockedLayout = lockSettings.getLockedLayout();
+			lockedLayout = lockSettings.getLockedLayout();
       
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));

@@ -25,6 +25,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
                    with PollApp with LayoutApp with ChatApp
                    with WhiteboardApp with LogHelper {  
 
+  var audioSettingsInited = false
   var permissionsInited = false
   var permissions = new Permissions()
   var recording = false;
@@ -88,6 +89,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: EjectUserFromVoiceRequest              => handleEjectUserRequest(msg)
 	    case msg: SetLockSettings                        => handleSetLockSettings(msg)
 	    case msg: InitLockSettings                       => handleInitLockSettings(msg)
+      case msg: InitAudioSettings                      => handleInitAudioSettings(msg)
 	    case msg: GetChatHistoryRequest                  => handleGetChatHistoryRequest(msg) 
 	    case msg: SendPublicMessageRequest               => handleSendPublicMessageRequest(msg)
 	    case msg: SendPrivateMessageRequest              => handleSendPrivateMessageRequest(msg)

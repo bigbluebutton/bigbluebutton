@@ -54,6 +54,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  args.put("disablePrivChat", perms.disablePrivChat:java.lang.Boolean);
 	  args.put("disablePubChat", perms.disablePubChat:java.lang.Boolean);
     args.put("lockedLayout", perms.lockedLayout:java.lang.Boolean);
+    args.put("lockOnJoin", perms.lockOnJoin:java.lang.Boolean);
     args
 	}
 	
