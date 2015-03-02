@@ -420,38 +420,45 @@
      *
      */
      
-    BBB.webRTCConferenceCallStarted = function() {
+    BBB.webRTCCallStarted = function(inEchoTest) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallStarted();
+        swfObj.webRTCCallStarted(inEchoTest);
       }
     }
     
-    BBB.webRTCConferenceCallConnecting = function() {
+    BBB.webRTCCallConnecting = function(inEchoTest) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallConnecting();
+        swfObj.webRTCCallConnecting(inEchoTest);
       }
     }
      
-    BBB.webRTCConferenceCallEnded = function() {
+    BBB.webRTCCallEnded = function(inEchoTest) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallEnded();
+        swfObj.webRTCCallEnded(inEchoTest);
       }
     }
 
-    BBB.webRTCConferenceCallFailed = function(errorcode) {
+    BBB.webRTCCallFailed = function(inEchoTest, errorcode, cause) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallFailed(errorcode);
+        swfObj.webRTCCallFailed(inEchoTest, errorcode, cause);
       }
     }
 
-    BBB.webRTCConferenceCallWaitingForICE = function() {
+    BBB.webRTCCallWaitingForICE = function(inEchoTest) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCConferenceCallWaitingForICE();
+        swfObj.webRTCCallWaitingForICE(inEchoTest);
+      }
+    }
+    
+    BBB.webRTCCallTransferring = function(inEchoTest) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCCallTransferring(inEchoTest);
       }
     }
 
@@ -459,62 +466,6 @@
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.webRTCCallProgressCallback(progress);
-      }
-    }
-
-    BBB.webRTCConferenceCallWebsocketSucceeded = function() {
-    }
-
-    BBB.webRTCConferenceCallWebsocketFailed = function(errorcode) {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCConferenceCallFailed(errorcode);
-      }
-    }
-
-    BBB.webRTCEchoTestStarted = function() {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCEchoTestStarted();
-      }
-    }
-    
-    BBB.webRTCEchoTestConnecting = function() {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCEchoTestConnecting();
-      }
-    }
-
-    BBB.webRTCEchoTestFailed = function(reason) {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCEchoTestFailed(reason);
-      }
-    }
-    
-    BBB.webRTCEchoTestWaitingForICE = function() {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCEchoTestWaitingForICE();
-      }
-    }
-    
-
-    BBB.webRTCEchoTestEnded = function() {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCEchoTestEnded();
-      }
-    }
-    
-    BBB.webRTCEchoTestWebsocketSucceeded = function() {
-    }
-
-    BBB.webRTCEchoTestWebsocketFailed = function(reason) {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCEchoTestFailed(reason);
       }
     }
 
@@ -536,27 +487,6 @@
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.webRTCMediaFail();
-      }
-    }
-    
-    BBB.webRTCWebcamRequest = function() {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCWebcamRequest();
-      }
-    }
-
-    BBB.webRTCWebcamRequestSuccess = function() {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCWebcamRequestSuccess();
-      }
-    }
-    
-    BBB.webRTCWebcamRequestFail = function(reason) {
-      var swfObj = getSwfObj();
-      if (swfObj) {
-        swfObj.webRTCWebcamRequestFail(reason);
       }
     }
     
@@ -598,7 +528,7 @@
         
         for (var i = 0; i < listeners[eventName].length; i++) {
             if (listeners[eventName][i] === handler) {
-                listeners.splice(i, 1);
+                listeners[eventName].splice(i, 1);
                 break;
             }
         }

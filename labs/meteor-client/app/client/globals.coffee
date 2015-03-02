@@ -210,31 +210,6 @@ Handlebars.registerHelper "visibility", (section) ->
       tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
       setInSession 'chatTabs', tabs
 
-@resizeWindows = ->
-
-  chat = $('#chat')
-  navbarHeight = $('#navbar').height()
-  footerHeight = $('#footer').height()
-  bodyHeight = $('body').height()
-  margins = parseInt(chat.css('margin-top'))*2 # *2 for top & bottom
-  paddingSpace = 10
-  windowHeight = ( bodyHeight - ( navbarHeight + footerHeight + margins + paddingSpace ) )
-
-  if window.matchMedia('(orientation: landscape)').matches
-    chat.height(windowHeight + 'px') #TODO move to stylesheets
-    $("#chatbody").height( (windowHeight- ($("#chatInput").outerHeight())*2) + 'px') #TODO move to stylesheets
-
-    $("#users").height((windowHeight-paddingSpace) + 'px') #TODO move to stylesheets
-    $("#user-contents").height((windowHeight-$("#users").find('h3').outerHeight()) + 'px') #TODO move to stylesheets
-
-  else # the orientation is portrait. The values seem fine for a handheld but not for a narrow browser window
-    $('#chat').height('700px') #TODO move to stylesheets
-    $("#chatbody").height('470px') #TODO move to stylesheets
-
-    $("#users").height('400px') #TODO move to stylesheets
-    $("#user-contents").height('300px') #TODO move to stylesheets
-
-
 @setInSession = (k, v) -> SessionAmplify.set k, v
 
 @safeString = (str) ->

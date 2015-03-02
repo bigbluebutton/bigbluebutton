@@ -5,6 +5,7 @@ import scala.actors.Actor._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.util._
+import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper {
 
@@ -17,6 +18,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 	      case msg: CreateMeeting                 => handleCreateMeeting(msg)
 	      case msg: DestroyMeeting                => handleDestroyMeeting(msg)
 	      case msg: KeepAliveMessage              => handleKeepAliveMessage(msg)
+	      case msg: ValidateAuthToken             => handleValidateAuthToken(msg)
           case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
 	      case msg: InMessage                     => handleMeetingMessage(msg)
 	      case _ => // do nothing
@@ -24,7 +26,24 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 	  }
   }
   
-
+  private def handleValidateAuthToken(msg: ValidateAuthToken) {
+    meetings.get(msg.meetingID) foreach { m =>
+      m !? (3000, msg) match {
+        case None => {
+          logger.warn("Failed to get response to from meeting=" + msg.meetingID + "]. Meeting has probably hung.")
+          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId, msg.sessionId))
+        }
+        case Some(rep) => {
+        /**
+         * Received a reply from MeetingActor which means hasn't hung!
+         * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
+         * audit to check whether the actor is still alive. (ralam feb 25, 2015)
+         */
+        }
+      }   
+    }      
+  }
+  
   private def handleMeetingMessage(msg: InMessage):Unit = {
     msg match {
       case ucm: UserConnectedToGlobalAudio => {

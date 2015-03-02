@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
   import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
+  import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
@@ -180,12 +181,19 @@ package org.bigbluebutton.modules.phone.managers
       usingWebRTC = false;
     }
 
-    public function handleWebRTCEchoTestFailedEvent(errorCode:Number):void {
+    public function handleWebRTCEchoTestFailedEvent(event:WebRTCEchoTestEvent):void {
+      var errorString:String;
       model.state = Constants.INITED;
       endEchoTest();
-      var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
+
+      if (event.errorCode == 1004) {
+        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode, [event.cause]);
+      } else {
+        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode);
+      }
+      
       if (!errorString) {
-        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [errorCode]);
+        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
       }
       
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
@@ -197,11 +205,18 @@ package org.bigbluebutton.modules.phone.managers
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
-    public function handleWebRTCCallFailedEvent(errorCode:Number):void {
+    public function handleWebRTCCallFailedEvent(event:WebRTCCallEvent):void {
+      var errorString:String;
       model.state = Constants.INITED;
-      var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + errorCode);
+      
+      if (event.errorCode == 1004) {
+        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode, [event.cause]);
+      } else {
+        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode);
+      }
+      
       if (!errorString) {
-        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [errorCode]);
+        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
       }
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
@@ -212,16 +227,36 @@ package org.bigbluebutton.modules.phone.managers
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
+    private var popUpDelayTimer:Timer = new Timer(100, 1);
+    
     private function handleCallFailedUserResponse(e:CloseEvent):void {
       if (e.detail == Alert.YES){
-        dispatcher.dispatchEvent(new UseFlashModeCommand());
+        /**
+         * There is a bug in Flex SDK 4.14 where the screen stays blurry if a 
+         * pop-up is opened from another pop-up. I delayed the second open to 
+         * avoid this case. - Chad
+         */
+        popUpDelayTimer = new Timer(100, 1);
+        popUpDelayTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+          dispatcher.dispatchEvent(new UseFlashModeCommand());
+        });
+        popUpDelayTimer.start();
       } else {
         dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
       }
     }
     
     private function sendWebRTCAlert(title:String, message:String, error:String):void {
-      Alert.show(message, title, Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+      /**
+       * There is a bug in Flex SDK 4.14 where the screen stays blurry if a 
+       * pop-up is opened from another pop-up. I delayed the second open to 
+       * avoid this case. - Chad
+       */
+      popUpDelayTimer = new Timer(100, 1);
+      popUpDelayTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+        Alert.show(message, title, Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
+      });
+      popUpDelayTimer.start();
       dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, title, error));
     }
   }

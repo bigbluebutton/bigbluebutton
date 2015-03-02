@@ -1,0 +1,92 @@
+@import "variables";
+
+#content {
+  margin-top: 10px;
+  overflow: hidden;
+  width: 100%;
+}
+
+#usericons {
+  float: right;
+  span {
+    margin-left: 3px;
+    padding: 2px;
+    border: 1px solid white;
+  }
+  .raisedHandIcon, .muteIcon {
+    &:hover { 
+      cursor: pointer;
+      border: 1px solid #f2f2f2;
+      background-color: #f2f2f2;
+      border-radius: 4px;
+    }
+  }
+}
+
+.usernameEntry {
+  float:left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 60%;
+  @media @landscape {
+    height: 20px;
+  }
+  @media @desktop-portrait {
+    height: 25px;
+  }
+  @media @desktop-portrait, @mobile-portrait {
+    font-size: 2vh;
+  }
+}
+
+#users {
+  margin-left: 0.25%;
+  margin-right: 0.25%;
+  padding-bottom: 10px; /*min-width:230px;*/
+  -webkit-flex: 1 1 25%;
+  flex: 1 1 25%;
+  @media @landscape {
+    height:98%;
+    -webkit-order: 1;
+    order: 1;
+    min-width: 0;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    -webkit-order: 3;
+    order: 3;
+    margin-bottom: 0px;
+    padding-bottom: 55px; /*so that the footer does not overlap */
+  }
+}
+
+#user-contents {
+  .userlist {
+    @media @landscape { 
+      padding:10px;
+      max-height:83vh;
+    }
+    @media @desktop-portrait {
+      padding-top: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+      max-height: 40vh; //for longer userlist a scrollbar appears
+    }
+  }
+}
+
+.userCurrent {
+  font-weight: bold;
+}
+
+#username {
+  @media @landscape {
+    display:block;
+  }
+  @media @desktop-portrait {
+    display:block;
+    width:70%;
+  }
+}

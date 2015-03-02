@@ -613,6 +613,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}     
 	  }
       
+      private function handleTextAreaKeyDownEvent(e:KeyboardEvent):void {
+        // stops window moving when trying to navigate the text box
+        if (e.keyCode == Keyboard.LEFT || e.keyCode == Keyboard.RIGHT) {
+          e.stopPropagation();
+        }
+      }
+      
       private function sendMessages():void {
 		  if(!sendBtn.enabled) {
 			  txtMsgArea.text = StringUtil.trim(txtMsgArea.text);

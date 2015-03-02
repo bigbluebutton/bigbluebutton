@@ -26,13 +26,14 @@ package org.bigbluebutton.main.model.users
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
-	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.model.Me;
 	import org.bigbluebutton.core.model.MeBuilder;
 	import org.bigbluebutton.core.model.MeetingBuilder;
 	import org.bigbluebutton.core.model.MeetingModel;
+	import org.bigbluebutton.core.model.StunOption;
 	import org.bigbluebutton.core.model.users.User;
 	import org.bigbluebutton.core.model.users.UsersModel;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
@@ -149,9 +150,9 @@ package org.bigbluebutton.main.model.users
         
 				if (_resultListener != null) _resultListener(true, response);
 			}
-				
+			
 		}
-		
+		 
 		public function get loader():URLLoader{
 			return this.urlLoader;
 		}

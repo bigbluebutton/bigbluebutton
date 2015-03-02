@@ -50,7 +50,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-  import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCallbacks {
@@ -97,22 +96,15 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("deletePresentationRequest", handleDeletePresentationRequest);
         ExternalInterface.addCallback("queryListsOfPresentationsRequest", handleQueryListsOfPresentationsRequest);
 
-		ExternalInterface.addCallback("webRTCConferenceCallStarted", handleWebRTCConferenceCallStarted);
-		ExternalInterface.addCallback("webRTCConferenceCallConnecting", handleWebRTCConferenceCallConnecting);
-        ExternalInterface.addCallback("webRTCConferenceCallEnded", handleWebRTCConferenceCallEnded);
-        ExternalInterface.addCallback("webRTCConferenceCallFailed", handleWebRTCConferenceCallFailed);
-		ExternalInterface.addCallback("webRTCConferenceCallWaitingForICE", handleWebRTCConferenceCallWaitingForICE);
-        ExternalInterface.addCallback("webRTCEchoTestStarted", handleWebRTCEchoTestStarted);
-        ExternalInterface.addCallback("webRTCEchoTestConnecting", handleWebRTCEchoTestConnecting);
-        ExternalInterface.addCallback("webRTCEchoTestFailed", handleWebRTCEchoTestFailed);
-        ExternalInterface.addCallback("webRTCEchoTestEnded", handleWebRTCEchoTestEnded);
-		ExternalInterface.addCallback("webRTCEchoTestWaitingForICE", handleWebRTCEchoTestWaitingForICE);
+        ExternalInterface.addCallback("webRTCCallStarted", handleWebRTCCallStarted);
+        ExternalInterface.addCallback("webRTCCallConnecting", handleWebRTCCallConnecting);
+        ExternalInterface.addCallback("webRTCCallEnded", handleWebRTCCallEnded);
+        ExternalInterface.addCallback("webRTCCallFailed", handleWebRTCCallFailed);
+        ExternalInterface.addCallback("webRTCCallWaitingForICE", handleWebRTCCallWaitingForICE);
+        ExternalInterface.addCallback("webRTCCallTransferring", handleWebRTCCallTransferring);
         ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
         ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
-        ExternalInterface.addCallback("webRTCWebcamRequest", handleWebRTCWebcamRequest);
-        ExternalInterface.addCallback("webRTCWebcamRequestSuccess", handleWebRTCWebcamRequestSuccess);
-        ExternalInterface.addCallback("webRTCWebcamRequestFail", handleWebRTCWebcamRequestFail);
         ExternalInterface.addCallback("javaAppletLaunched", handleJavaAppletLaunched);
       }
       
@@ -404,55 +396,57 @@ package org.bigbluebutton.main.api
       _dispatcher.dispatchEvent(event);
     }
     
-    private function handleWebRTCConferenceCallStarted():void {
-      trace(LOG + "handleWebRTCConferenceCallStarted: recieved");
-      _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_STARTED));
-    }
-	
-	private function handleWebRTCConferenceCallConnecting():void {
-		trace(LOG + "handleWebRTCConferenceCallConnecting: recieved");
-		_dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_CONNECTING));
-	}
-
-    private function handleWebRTCConferenceCallEnded():void {
-      trace(LOG + "handleWebRTCConferenceCallEnded: received");
-      _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_ENDED));
+    private function handleWebRTCCallStarted(inEchoTest:Boolean):void {
+      trace(LOG + "handleWebRTCCallStarted: received, inEchoTest: " + inEchoTest);
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_STARTED));
+      }
     }
     
-    private function handleWebRTCConferenceCallFailed(errorCode:Number):void {
-      trace(LOG + "handleWebRTCConferenceCallFailed: errorCode=[" + errorCode + "]");
-      _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_FAILED, errorCode));
-    }
-	
-	private function handleWebRTCConferenceCallWaitingForICE():void {
-		trace(LOG + "handleWebRTCConferenceCallWaitingForICE: received");
-		_dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_WAITING_FOR_ICE));
-	}
-    
-    private function handleWebRTCEchoTestStarted():void {
-      trace(LOG + "handleWebRTCEchoTestStarted: recieved");
-      _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED));
-    }
-	
-	private function handleWebRTCEchoTestConnecting():void {
-		trace(LOG + "handleWebRTCEchoTestConnecting: recieved");
-		_dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING));
-	}
-    
-    private function handleWebRTCEchoTestFailed(errorCode:Number):void {
-      trace(LOG + "handleWebRTCEchoTestFailed: errorCode=[" + errorCode + "]");
-      _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED, errorCode));
+    private function handleWebRTCCallConnecting(inEchoTest:Boolean):void {
+      trace(LOG + "handleWebRTCCallConnecting: received, inEchoTest: " + inEchoTest);
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_CONNECTING));
+      }
     }
     
-    private function handleWebRTCEchoTestEnded():void {
-      trace(LOG + "handleWebRTCEchoTestEnded: received");
-      _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED));
+    private function handleWebRTCCallEnded(inEchoTest:Boolean):void {
+      trace(LOG + "handleWebRTCCallEnded: received, inEchoTest: " + inEchoTest);
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_ENDED));
+      }
     }
-	
-	private function handleWebRTCEchoTestWaitingForICE():void {
-		trace(LOG + "handleWebRTCEchoTestWaitingForICE: received");
-		_dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_WAITING_FOR_ICE));
-	}
+    
+    private function handleWebRTCCallFailed(inEchoTest:Boolean, errorCode:Number, cause:String):void {
+      trace(LOG + "handleWebRTCCallFailed: received, inEchoTest: " + inEchoTest + ", errorCode=[" + errorCode + "]");
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED, errorCode, cause));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_FAILED, errorCode, cause));
+      }
+    }
+    
+    private function handleWebRTCCallWaitingForICE(inEchoTest:Boolean):void {
+      trace(LOG + "handleWebRTCCallWaitingForICE: received, inEchoTest: " + inEchoTest);
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_WAITING_FOR_ICE));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_WAITING_FOR_ICE));
+      }
+    }
+    
+    private function handleWebRTCCallTransferring(inEchoTest:Boolean):void {
+      trace(LOG + "handleWebRTCCallTransferring: received, inEchoTest: " + inEchoTest);
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_TRANSFERRING));
+      }
+    }
     
     private function handleWebRTCMediaRequest():void {
       trace(LOG + "handleWebRTCMediaRequest: received");
@@ -468,24 +462,6 @@ package org.bigbluebutton.main.api
       trace(LOG + "handleWebRTCMediaFail: received");
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
-
-	private function handleWebRTCWebcamRequestFail(cause:String):void
-	{
-		trace(LOG + "handleWebRTCWebcamFail: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_FAIL, cause));
-	}
-
-	private function handleWebRTCWebcamRequestSuccess():void
-	{
-		trace(LOG + "handleWebRTCWebcamSuccess: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_SUCCESS));
-	}
-
-	private function handleWebRTCWebcamRequest():void
-	{
-		trace(LOG + "handleWebRTCWebcamRequest: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_REQUEST));
-	}
 	
 	private function handleJavaAppletLaunched():void
 	{
