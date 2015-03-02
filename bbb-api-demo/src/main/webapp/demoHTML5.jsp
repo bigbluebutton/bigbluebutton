@@ -98,7 +98,7 @@ if (request.getParameterMap().isEmpty()) {
 	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
 
 	// redirect towards the html5 client which is waiting for the following parameters
-	String html5url = ip + "/html5client?meeting_id=" + meetingId + "&user_id=" + userId + "&auth_token=" + authToken;
+	String html5url = ip + "/html5client/" + meetingId + "/" + userId + "/" + authToken;
 
 	if (joinURL.startsWith("http://")) {
 %>
