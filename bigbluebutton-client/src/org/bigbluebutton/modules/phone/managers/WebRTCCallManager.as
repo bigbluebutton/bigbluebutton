@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
   import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
+  import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
@@ -204,7 +205,7 @@ package org.bigbluebutton.modules.phone.managers
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
-    public function handleWebRTCCallFailedEvent(event:WebRTCEchoTestEvent):void {
+    public function handleWebRTCCallFailedEvent(event:WebRTCCallEvent):void {
       var errorString:String;
       model.state = Constants.INITED;
       
@@ -235,6 +236,7 @@ package org.bigbluebutton.modules.phone.managers
          * pop-up is opened from another pop-up. I delayed the second open to 
          * avoid this case. - Chad
          */
+        popUpDelayTimer = new Timer(100, 1);
         popUpDelayTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
           dispatcher.dispatchEvent(new UseFlashModeCommand());
         });
@@ -250,6 +252,7 @@ package org.bigbluebutton.modules.phone.managers
        * pop-up is opened from another pop-up. I delayed the second open to 
        * avoid this case. - Chad
        */
+      popUpDelayTimer = new Timer(100, 1);
       popUpDelayTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
         Alert.show(message, title, Alert.YES | Alert.NO, null, handleCallFailedUserResponse, null, Alert.YES);
       });

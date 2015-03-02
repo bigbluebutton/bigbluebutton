@@ -1,11 +1,10 @@
 @import "variables";
 
 .active {
-  /*border-bottom: none;
-  border-left: 1px solid extract(@azure, 2);
-  border-right: 1px solid extract(@azure, 2);
-  border-top: 1px solid extract(@azure, 2);*/
   border: .2vh solid extract(@azure, 2) !important;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    border-left: .1vh solid extract(@azure, 2) !important;
+  }
 }
 
 #chat {
@@ -29,8 +28,6 @@
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-order: 2;
     order: 2;
-    min-height: 40%;
-    max-height: 40%;
   }
 }
 
@@ -60,13 +57,11 @@
   @media @landscape {
     height: 80%;
   }
-
-  height: 90%;
   overflow-y: scroll;
   padding-left: 0px;
   padding-right: 0px;
   @media @desktop-portrait, @mobile-portrait {
-    max-height: 50vh;
+    max-height: 40vh; // for longer chatbody a scrollbar appears
     overflow-y: scroll;
   }
 }
@@ -102,7 +97,12 @@
 .closeTab {
   float:left;
   width:10%;
-  font-size: 1vw;
+  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 4vw;
+  }
+  @media @landscape {
+    font-size: 1vw;
+  }
 }
 
 .chat-input-wrapper {
