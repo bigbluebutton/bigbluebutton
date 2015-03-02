@@ -11,7 +11,7 @@
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
     <branding logo="logo.png" copyright="&#169; 2015 &lt;a href=&quot;http://www.mconf.org&quot; target=&quot;_blank&quot;&gt;http://www.mconf.org&lt;/a&gt;" background="" />
     <shortcutKeys showButton="true" />
-    <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" />
+    <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
             showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="true" confirmLogout="true"
@@ -41,7 +41,7 @@
 
 		
 		<module name="DeskShareModule" 
-			url="http://HOST/client/DeskShareModule.swf?v=4105" 
+			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
 			showButton="true"
 			autoStart="false"
