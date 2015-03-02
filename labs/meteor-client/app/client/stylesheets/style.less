@@ -52,7 +52,7 @@ body {
     margin-bottom: 0;
     border-width: 1px 0 0;
     width: 100%;
-  }  
+  }
   @media @landscape, @desktop-portrait {
     font-size: 10px;
     max-height: 20px;
@@ -194,7 +194,7 @@ body {
   }
 }
 
-.navbarSettingsButtons .btn:hover { 
+.navbarSettingsButtons .btn:hover {
   background: extract(@darkGrey, 3);
 }
 
@@ -272,6 +272,7 @@ body {
   @media @landscape {
     -webkit-flex-flow: row;
     flex-flow: row;
+    height: calc(~'100% - 40px');
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-flex-flow: column;
