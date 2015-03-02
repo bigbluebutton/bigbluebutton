@@ -18,7 +18,7 @@ config.maxChatLength = 140
 config.app = {}
 
 # server ip
-config.app.logOutUrl = "http://23.253.43.151/demo/demoHTML5.jsp" # TODO temporary
+config.app.logOutUrl = "http://192.168.0.119/demo/demoHTML5.jsp" # TODO temporary
 
 # Configs for redis
 config.redis = {}
