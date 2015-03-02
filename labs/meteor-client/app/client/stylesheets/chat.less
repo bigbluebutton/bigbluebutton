@@ -235,9 +235,11 @@
   a {
     padding:0px;
     @media @mobile-portrait-with-keyboard,
-    @desktop-portrait,
     @mobile-portrait {
-      font-size: 25px;
+      font-size: 35px;
+    }
+    @media @desktop-portrait {
+      font-size: 20px;
     }
     @media @landscape {
       font-size: 12px;
@@ -248,14 +250,6 @@
   }
   &:before, &:after {
     content: none;
-  }
-  @media @mobile-portrait-with-keyboard,
-    @desktop-portrait,
-    @mobile-portrait {
-    .userlist {
-      font-size: 30px;
-      padding-left: 10px;
-    }
   }
 }
 
