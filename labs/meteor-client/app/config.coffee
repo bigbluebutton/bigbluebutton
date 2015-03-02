@@ -18,7 +18,7 @@ config.maxChatLength = 140
 config.app = {}
 
 # server ip
-config.app.logOutUrl = "http://192.168.0.119/demo/demoHTML5.jsp" # TODO temporary
+config.app.logOutUrl = "http://23.253.43.151/demo/demoHTML5.jsp" # TODO temporary
 
 # Configs for redis
 config.redis = {}
@@ -54,3 +54,15 @@ if Meteor.isServer
     transports: transports
 
 Meteor.config = config
+
+
+# NGINX configuration:
+#file: /etc/bigbluebutton/nginx/html5client.nginx
+#location /html5client {
+#   root    /var/www/bigbluebutton;
+#   proxy_pass http://23.253.43.151:3000;
+#   proxy_http_version 1.1;
+#   proxy_set_header Upgrade $http_upgrade;
+#   proxy_set_header Connection "Upgrade";
+#}
+
