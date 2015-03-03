@@ -35,21 +35,39 @@
   list-style: none;
   margin: 0px;
   padding: 0px;
-  li {
-    margin: 0px;
-    padding: 15px;
-    word-wrap: break-word;
-    &:nth-child(even) {
-      background-color: rgb(245,245,245);
-    }
-    table {
-      width: 100%;
+  @media @desktop-portrait, @landscape {
+    li {
+      margin: 0px;
+      padding: 15px;
+      word-wrap: break-word;
+      &:nth-child(even) {
+        background-color: rgb(245,245,245);
+      }
+      table {
+        width: 100%;
+      }
     }
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     li {
       font-size: 14px;
+      padding: 15px;
+      word-wrap: break-word;
+      span {
+        .userNameEntry
+        {
+           font-size: 2.5vw !important;
+           font-style: italic;
+        }
+        .glyphicon-time {
+          font-size: 2.5vw;
+        }
+        .messageTime {
+          font-size: 2.5vw !important;
+        }
+      }
     }
+
   }
 }
 
@@ -170,7 +188,8 @@
     @media @mobile-portrait, 
     @mobile-portrait-with-keyboard
     {
-      font-size: 45px;
+      font-size: 2vh;
+      font-style: italic;
     }
   }
 }
