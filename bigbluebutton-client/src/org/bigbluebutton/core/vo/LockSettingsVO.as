@@ -73,5 +73,9 @@ package org.bigbluebutton.core.vo
 		public function getLockOnJoin():Boolean {
 			return lockOnJoin;
 		}
+		
+		public function isAnythingLocked():Boolean {
+			return lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat;
+		}
 	}
 }
