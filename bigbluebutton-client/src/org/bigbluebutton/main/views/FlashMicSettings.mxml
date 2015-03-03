@@ -335,15 +335,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           </mx:HBox>
           <mx:HRule width="100%"/>
           <mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
-            <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
-                     styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
+            <mx:TextArea editable="false" textAlign="left" borderSkin="{null}"
+                         width="100%" height="{yesButton.height}" tabIndex="{baseIndex+5}"
+                         text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
+                         styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
             <mx:Button id="yesButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioYes')}" 
                      click="yesButtonClicked()" styleName="micSettingsWindowPlaySoundButtonStyle"
-                     toolTip=""/>
+                     toolTip="" tabIndex="{baseIndex+6}"/>
             <mx:Button id="noButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioNo')}" 
                      styleName="micSettingsWindowPlaySoundButtonStyle"
                      click="noButtonClicked()" 
-                     toolTip=""/>
+                     toolTip="" tabIndex="{baseIndex+7}"/>
           </mx:HBox>
         </mx:VBox> 
       </mx:AddChild>
@@ -379,7 +381,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:State name="{FLASH_MIC_TEST_FAILED_STATE}">
 		<mx:AddChild relativeTo="displayMicNextToThis" position="after" >
 			<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				<mx:Label width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.connectingtoecho.error')}" textAlign="center" styleName="micSettingsWindowHearFromHeadsetLabelStyle" /> 		  
+				<mx:TextArea editable="false" textAlign="center" borderSkin="{null}"
+							 width="100%" height="{txtErrorMessageMock.height}"
+							 text="{ResourceUtil.getInstance().getString('bbb.micSettings.connectingtoecho.error')}" 
+							 styleName="micSettingsWindowHearFromHeadsetLabelStyle" />
+				<mx:Text id="txtErrorMessageMock" width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.connectingtoecho.error')}" 
+						  textAlign="center" styleName="micSettingsWindowHearFromHeadsetLabelStyle" 
+						  visible="false" includeInLayout="false" /> 		  
 			</mx:HBox>
 		</mx:AddChild>
 	</mx:State>
@@ -401,7 +409,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			    <mx:TextArea borderSkin="{null}"
                    text="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}"
 	                 editable="false" styleName="micSettingsWindowTitleStyle" tabIndex="{baseIndex}"
-      						 width="400" left="0"/>
+      						 width="400" left="0" />
 			    <mx:LinkButton toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
     						   label="?" styleName="micSettingsWindowHelpButtonStyle" right="0"
           			   height="22" click="onHelpButtonClicked()" tabIndex="{baseIndex+1}"
@@ -419,18 +427,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
           <mx:Button id="echoTestButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.nextButton')}" 
                  click="echoTestButtonClickHandler()" styleName="micSettingsWindowPlaySoundButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.nextButton')}"/>
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.nextButton')}"
+				 tabIndex="{baseIndex+8}"/>
           <mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
                  click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound.toolTip')}"
-                 tabIndex="{baseIndex+7}" />
+                 tabIndex="{baseIndex+9}" />
           <mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" 
                  styleName="micSettingsWindowCancelButtonStyle"
-                 click="onCancelClicked()" tabIndex="{baseIndex+9}"
+                 click="onCancelClicked()" tabIndex="{baseIndex+10}"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}"/>
         </mx:HBox> 
 
-		</mx:VBox>		
+	</mx:VBox>		
 
 		
 </mx:TitleWindow>

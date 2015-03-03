@@ -28,7 +28,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   width="100%" height="100%"
   horizontalScrollPolicy="off"
   verticalScrollPolicy="off"
-  creationComplete="init()">
+  creationComplete="init()"
+  addedToStage="onAddedToStage()">
   
   <mx:Script>
     <![CDATA[
@@ -81,10 +82,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ShortcutOptions.initialize();
       }
       
-      private function appComplete():void{
-        hotkeyCapture();
-      }
-      
       private var api:ExternalApiCallbacks;
       
       private function setupAPI():void {
@@ -124,6 +121,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        * Shortcut Keys
        */
       
+		private function onAddedToStage():void {
+			hotkeyCapture();
+		}
+		
       private function localeChanged(e:Event):void{
         loadKeyCombos(globalModifier);
       }

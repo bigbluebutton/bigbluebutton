@@ -8,8 +8,9 @@
 
 @activateBreakLines = (str) ->
   if typeof str is 'string'
-    res = str.replace /\\n/gim, '<br/>'
-    res = res.replace /\r/gim, '<br/>'
+    # turn '\r' carriage return characters into '<br/>' break lines
+    res = str.replace(new RegExp(CARRIAGE_RETURN, 'g'), BREAK_LINE)
+    res
 
 @detectUnreadChat = ->
   #if the current tab is not the same as the tab we just published in
@@ -109,7 +110,8 @@ Template.chatbar.helpers
               break # Messages are too far between, so them seperated and stop joining here
 
             if msgs[i].message.from_userid is msgs[j].message.from_userid # Both messages are from the same user
-              msgs[i].message.message += "\r#{msgs[j].message.message}" # Combine the messages
+              # insert a '\r' carriage return character between messages to put them on a new line
+              msgs[i].message.message += "#{CARRIAGE_RETURN}#{msgs[j].message.message}" # Combine the messages
               msgs.splice(j,1) # Delete the message from the collection
               deleted = true
             else break # Messages are from different people, move on
@@ -149,7 +151,8 @@ Template.chatInput.events
 
     if event.shiftKey and (key is 13)
       event.preventDefault()
-      $("#newMessageInput").append("\r") # Change newline character
+      # append a '\r' carriage return character to the input box dropping the cursor to a new line
+      document.getElementById("newMessageInput").value += CARRIAGE_RETURN # Change newline character
       return
 
     if key is 13 # Check for pressing enter to submit message
@@ -159,15 +162,15 @@ Template.chatInput.events
       return false
 
 Template.chatInput.rendered  = ->
-   $('input[rel=tooltip]').tooltip()
-   $('button[rel=tooltip]').tooltip()
+  $('input[rel=tooltip]').tooltip()
+  $('button[rel=tooltip]').tooltip()
 
 Template.extraConversations.events
 	"click .extraConversation": (event) ->
-		console.log "extra conversation"
+		# console.log "extra conversation"
 		user = @
-		console.log user
-		console.log "#{user.name} #{user.userId}"
+		# console.log user
+		# console.log "#{user.name} #{user.userId}"
 		# put this conversation in the 3rd position in the chat tabs collection (after public and options)
 		# Take all the tabs and turn into an array
 		tabArray = getInSession('chatTabs')
@@ -191,6 +194,9 @@ Template.extraConversations.events
 				tabArray.splice(2, 0, selected)
 				# update collection
 				setInSession 'chatTabs', tabArray
+    # make the current conversation the selected tab
+    setInSession 'display_chatPane', true
+    setInSession "inChatWith", user.userId
 
 Template.extraConversations.helpers
   getExtraConversations: ->
@@ -234,7 +240,6 @@ Template.optionsBar.events
 
     setInSession 'display_chatPane', true
     setInSession "inChatWith", _this.userId
-    $("#newMessageInput").focus()
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
@@ -250,6 +255,9 @@ Template.optionsFontSize.events
     if selectedFontSize
       setInSession "messageFontSize", selectedFontSize
     else setInSession "messageFontSize", 12
+
+Template.optionsFontSize.helpers
+  getFontsizes: -> (size for size in [8..30] by 2)
 
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
@@ -273,25 +281,26 @@ Template.tabButtons.events
     )
 
   'click .optionsChatTab': (event) ->
-    console.log "options"
+    # console.log "options"
     setInSession "inChatWith", "OPTIONS"
     setInSession 'display_chatPane', false
 
   'click .privateChatTab': (event) ->
-    console.log "private:"
-    console.log @
+    # console.log "private:"
+    # console.log @
     setInSession "inChatWith", @userId
     setInSession 'display_chatPane', true
 
   'click .publicChatTab': (event) ->
-    console.log "public"
+    # console.log "public"
     setInSession "inChatWith", "PUBLIC_CHAT"
     setInSession 'display_chatPane', true
 
   'click .tab': (event) ->
     unless getInSession "inChatWith" is "OPTIONS"
-      $("#newMessageInput").focus()
-      console.log "tab"
+      if window.matchMedia('(orientation: landscape)').matches
+        $("#newMessageInput").focus()
+        # console.log "tab"
 
 Template.tabButtons.helpers
   hasGotUnreadMailClass: (gotMail) ->
@@ -318,24 +327,3 @@ Template.tabButtons.rendered = ->
   if typeof str is 'string'
     res = str.replace /<a href='event:/gim, "<a target='_blank' href='"
     res = res.replace /<a href="event:/gim, '<a target="_blank" href="'
-
-Template.message.helpers
-  toClockTime: (epochTime) ->
-    if epochTime is null
-      return ""
-    local = new Date()
-    offset = local.getTimezoneOffset()
-    epochTime = epochTime - offset * 60000 # 1 min = 60 s = 60,000 ms
-    dateObj = new Date(epochTime)
-    hours = dateObj.getUTCHours()
-    minutes = dateObj.getUTCMinutes()
-    if minutes < 10
-      minutes = "0" + minutes
-    hours + ":" + minutes
-
-  sanitizeAndFormat: (str) ->
-    if typeof str is 'string'
-      # First, replace replace all tags with the ascii equivalent (excluding those involved in anchor tags)
-      res = str.replace(/&/g, '&amp;').replace(/<(?![au\/])/g, '&lt;').replace(/\/([^au])>/g, '$1&gt;').replace(/([^=])"(?!>)/g, '$1&quot;');
-      res = toClickable res
-      res = activateBreakLines res

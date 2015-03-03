@@ -49,9 +49,7 @@ package org.bigbluebutton.modules.phone
 		
 		[Bindable]
 		public var showPhoneOption:Boolean = false;
-
-    public var forceListenOnly:Boolean = false;
-    
+		
 		public function PhoneOptions() {
 			parseOptions();
 		}
@@ -83,10 +81,7 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@listenOnlyMode != undefined) {
 					listenOnlyMode = (vxml.@listenOnlyMode.toString().toUpperCase() == "TRUE");
 				}
-        if (vxml.@forceListenOnly != undefined) {
-          forceListenOnly = (vxml.@forceListenOnly.toString().toUpperCase() == "TRUE");
-        }
-        if (vxml.@presenterShareOnly != undefined) {
+				if (vxml.@presenterShareOnly != undefined) {
 					presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE");
 				}
 				if (vxml.@showPhoneOption != undefined) {

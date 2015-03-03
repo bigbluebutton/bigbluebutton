@@ -12,7 +12,6 @@ amplify
 iron:router
 blaze
 less
-sanjo:jasmine
 francocatena:status
 mizzao:jquery-ui
 mrt:external-file-loader@0.1.4
@@ -22,3 +21,6 @@ duongthienduc:meteor-winston
 mizzao:timesync
 agnito:raphael
 
+clinical:nightwatch
+sanjo:jasmine
+pagebakers:ionicons

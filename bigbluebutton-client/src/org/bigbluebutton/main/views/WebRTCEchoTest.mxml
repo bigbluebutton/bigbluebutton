@@ -31,6 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED}" method="handleWebRTCEchoTestEndedEvent" />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}" method="handleWebRTCEchoTestFailedEvent" />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_WAITING_FOR_ICE}" method="handleWebRTCEchoTestWaitingForICEEvent" />
+	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_TRANSFERRING}" method="handleWebRTCEchoTestTransferringEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_CONNECTING}" method="handleWebRTCCallConnectingEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}" method="handleWebRTCCallFailedEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_WAITING_FOR_ICE}" method="handleWebRTCCallWaitingForICEEvent" />
@@ -38,10 +39,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.managers.PopUpManager;
-      
+      import com.asfusion.mate.events.Dispatcher;      
+      import mx.managers.PopUpManager;     
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.main.api.JSAPI;
       import org.bigbluebutton.main.api.JSLog;
@@ -54,7 +53,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
       import org.bigbluebutton.modules.phone.models.Constants;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+      import org.bigbluebutton.core.UsersUtil;
+      
 			private static const LOG:String = "Phone::WebRTCEchoTest - ";
 			private static var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
@@ -66,7 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCancelClicked():void {
-        JSLog.debug(LOG + "onCancelClicked .");
+
 				if (dotTimer) dotTimer.stop();
 				PopUpManager.removePopUp(this);
 			}
@@ -99,7 +99,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function yesButtonClicked():void {
 				userClosed = true;
 				trace(LOG + "Echo test passed.");
-				JSLog.debug(LOG + "Echo test passed.");
+        
+        var logData:Object = new Object();       
+        logData.reason = "User requested.";
+        logData.user = UsersUtil.getUserData();
+        JSLog.info("WebRtc Echo test passed.", logData);
+
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endingecho');
 				
@@ -110,7 +115,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function noButtonClicked():void {
 				userClosed = true;
 				trace(LOG + "Echo test failed.");
-				JSLog.debug(LOG + "Echo test failed.");
+        
+        var logData:Object = new Object();       
+        logData.reason = "User requested.";
+        logData.user = UsersUtil.getUserData();
+        JSLog.info("WebRtc Echo test failed.", logData);
+        
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO));
 				onCancelClicked();
@@ -136,8 +146,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         if (!userClosed) {
           onCancelClicked();
-		  var dispatcher:Dispatcher = new Dispatcher();
-		  dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED_UNEXPECTEDLY));
+		      var dispatcher:Dispatcher = new Dispatcher();
+		      dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED_UNEXPECTEDLY));
         }
       }
 			
@@ -148,6 +158,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function handleWebRTCEchoTestWaitingForICEEvent(e:WebRTCEchoTestEvent):void {
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.waitingforice');
+				if (!dotTimer.running) dotTimer.start();
+			}
+			
+			private function handleWebRTCEchoTestTransferringEvent(e:WebRTCEchoTestEvent):void {
+				setCurrentState("connecting");
+				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.transferring');
 				if (!dotTimer.running) dotTimer.start();
 			}
 			
@@ -168,12 +184,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function webRTCCallStarted():void {
-        JSLog.debug(LOG + "webRTCCallStarted.");
+        var logData:Object = new Object();       
+        logData.reason = "User requested.";
+        logData.user = UsersUtil.getUserData();
+        JSLog.info("WebRtc call started.", logData);
+        
         onCancelClicked();
       }
 			
 			private function handleWebRTCCallStartedEvent(e:WebRTCJoinedVoiceConferenceEvent):void {
-        JSLog.debug(LOG + "handleWebRTCCallStartedEvent .");
         webRTCCallStarted();
 			}
 			
@@ -225,14 +244,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
 						<mx:Image source="@Embed('assets/headset-earbuds.png')"/>          
 					</mx:HBox>
-					<mx:HBox width="100%">      
+					<mx:HBox width="100%">
 						<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
 								 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
 					</mx:HBox>
 					<mx:HRule width="100%"/>
 					<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
-						<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
-								 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
+						<mx:TextArea editable="false" textAlign="left" borderSkin="{null}"
+									 width="100%" height="{yesButton.height}"
+									 text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
+									 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
 						<mx:Button id="yesButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioYes')}" 
 								   click="yesButtonClicked()" styleName="micSettingsWindowPlaySoundButtonStyle"
 								   toolTip=""/>

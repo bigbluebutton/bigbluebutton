@@ -36,6 +36,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: UserLeftVoice                          => handleUserLeftVoice(msg)
 	    case msg: RecordingStatusChanged                 => handleRecordingStatusChanged(msg)
 	    case msg: GetRecordingStatusReply                => handleGetRecordingStatusReply(msg)
+	    case msg: ValidateAuthTokenTimedOut              => handleValidateAuthTokenTimedOut(msg)
 	    case msg: ValidateAuthTokenReply                 => handleValidateAuthTokenReply(msg)
 	    case msg: UserRegistered                         => handleRegisteredUser(msg)
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
@@ -138,6 +139,22 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
  // 	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
 	}
 	
+    private def handleValidateAuthTokenTimedOut(msg: ValidateAuthTokenTimedOut) {
+      val args = new java.util.HashMap[String, Object]();  
+      args.put("userId", msg.requesterId);
+      args.put("valid", msg.valid:java.lang.Boolean);       
+      
+      val message = new java.util.HashMap[String, Object]() 
+      val gson = new Gson();
+      message.put("msg", gson.toJson(args))
+      
+//        println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
+      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenTimedOut", message);
+      service.sendMessage(m);       
+    }
+    
+	
+	
 	private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
 	  val args = new java.util.HashMap[String, Object]();  
 	  args.put("userId", msg.requesterId);
@@ -145,10 +162,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  
 	  val message = new java.util.HashMap[String, Object]() 
 	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
+  	  message.put("msg", gson.toJson(args))
   	  
 //  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-    val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+  	  val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
 	  service.sendMessage(m);	    
 	}
 	

@@ -7,6 +7,10 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 
 trait InMessage {val meetingID: String}
 
+case class IsMeetingActorAliveMessage ( 
+    meetingId:String
+)
+
 case class KeepAliveMessage
 ( 
     aliveID:String
@@ -83,7 +87,7 @@ case class RegisterUser(
 case class UserJoining(
     meetingID: String, 
     userID: String,
-    sessionId: String
+    authToken: String
 ) extends InMessage
                        
 case class UserLeaving(

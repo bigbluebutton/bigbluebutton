@@ -1,48 +1,34 @@
 <template name="chatbar">
-	<div id="{{id}}" {{visibility name}} class="component">
-		<div id="chatbar-contents">
-            <h3 class="title gradientBar">
-                <span class="glyphicon glyphicon-comment"></span>
-                {{title}}
-                {{> extraConversations}}
-            </h3>
-			{{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
-			{{#if getInSession "display_chatPane"}}
-				{{#if userExists}}
-					<div id="chatbody">
-						<ul class="chat">
-							{{#each getCombinedMessagesForChat}}
-								{{#if message}}
-									<li {{messageFontSize}}>{{> message}}</li>
-								{{/if}}
-							{{/each}}
-							<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue of last message being cut off while scrolling -->
-						</ul>
-					</div>
-					<div class="panel-footer">{{> chatInput}}</div>
-				{{else}}
-					<div id="chatbody">
-						<ul class="chat">
-							{{#each getCombinedMessagesForChat}}
-								{{#if message}}
-									<li {{messageFontSize}}>{{> message}}</li>
-								{{/if}}
-							{{/each}}
-							<bottomEntry></bottomEntry> <!-- Intentionally blank, fixes issue of last message being cut off while scrolling -->
-							<li>The user has left</li>
-						</ul>
-					</div>
-				{{/if}}
-			{{else}}
-				{{> optionsBar}}
-			{{/if}}
-		</div>
-	</div>
+    <div id="{{id}}" {{visibility name}} class="component">
+        <h3 class="title gradientBar">
+        <span class="glyphicon glyphicon-comment"></span>
+        {{title}}
+        {{> extraConversations}}
+        </h3>
+        {{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
+        {{#if getInSession "display_chatPane"}}
+            <div id="chatbody">
+                <ul class="chat" {{messageFontSize}}>
+                    {{#each getCombinedMessagesForChat}}
+                        {{#if message}}
+                            <li>{{> message}}</li>
+                        {{/if}}
+                    {{/each}}
+                    {{#unless userExists}}<li>The user has left</li>{{/unless}}
+                </ul>
+            </div>
+            {{#if userExists}}
+                <div class="panel-footer">{{> chatInput}}</div> 
+            {{/if}}
+        {{else}}
+            {{> optionsBar}}
+        {{/if}}
+    </div>
 </template>
 
 <template name="chatInput">
-	<div class="chat-input-wrapper">
-		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message" autofocus></textarea>
+	<div id="chatInput" class="chat-input-wrapper">
+		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
 		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
 		Send
 		</button>
@@ -71,16 +57,16 @@
 <template name="message">
     <span style="float:left;">
         {{#if message.from_username}}
-            <span {{messageFontSize}} class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
-                <strong>{{message.from_username}}</strong>
+            <span class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+                {{message.from_username}}
             </span>
         {{/if}}
     </span>
     <span style="float:right;">
-                {{#if message.from_time}}
-                {{toClockTime message.from_time}}
-                <span class="glyphicon glyphicon-time"></span>
-            {{/if}}
+        {{#if message.from_time}}
+            <span {{messageFontSize}}>{{toClockTime message.from_time}}</span>
+            <span class="glyphicon glyphicon-time"></span>
+        {{/if}}
     </span>
     <br/>
     <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
@@ -93,53 +79,53 @@
 		{{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
 			<p>Select a person to chat with privately</p>
 			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
-				{{#Layout template="scrollWindow" id="privateChatUserScrollWindow"}}
-					{{#contentFor region="scrollContents"}}
-                        <div class="private-chat-user-list">
-                            {{#each getUsersInMeeting}}
-                            <div class="private-chat-user-entry">{{#unless isCurrentUser userId}}{{user.name}}{{/unless}}</div>
-                            {{/each}}
+                <div class="private-chat-user-list">
+                    {{#each getUsersInMeeting}}
+                        <div class="private-chat-user-entry">
+                            {{#unless isCurrentUser userId}}
+                                {{user.name}}
+                            {{/unless}}
                         </div>
-					{{/contentFor}}
-				{{/Layout}}
-			</div>
+                    {{/each}}
+                </div>
+            </div>
 		{{else}}
 			<p>There are no participants to chat with right now.</p>
 		{{/if}}
 		<br/>
 		{{> chatOptions}}
+        <br/><br/><br/>
 	</div>
 </template>
 
 <template name="optionsFontSize">
-	<div class="dropdown">
-		<span {{messageFontSize}}>Chat Message Font Size: </span>
-		<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-			Font Size ({{getInSession "messageFontSize"}})
-			<span class="caret"></span>
-		</button>
+    <div class="dropdown">
+        <span {{messageFontSize}}>Chat Message Font Size: </span>
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+        Font Size ({{getInSession "messageFontSize"}})
+        <span class="caret"></span>
+        </button>
 
-		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-			<li role="presentation"><a class="fontSizeSelector" id="8" role="menuitem" tabindex="-1" href="#">8</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="10" role="menuitem" tabindex="-1" href="#">10</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="12" role="menuitem" tabindex="-1" href="#">12</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="14" role="menuitem" tabindex="-1" href="#">14</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="16" role="menuitem" tabindex="-1" href="#">16</a></li>
-			<li role="presentation"><a class="fontSizeSelector" id="18" role="menuitem" tabindex="-1" href="#">18</a></li>
-		</ul>
-	</div>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            {{#each getFontsizes}}
+                <li role="presentation"><a class="fontSizeSelector" id="{{this}}" role="menuitem" tabindex="-1" href="#">{{this}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
 </template>
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
 <template name="tabButtons">
   <ul id="tabsList" class="nav nav-tabs">
     {{#each grabChatTabs}}
-      <li class="{{isTabActive userId}} tab {{makeSafe class}}">
-        <a href='#' data-toggle='tab' id="#{{makeSafe name}}" class="{{hasGotUnreadMailClass gotMail}} chatNameSelector">
-          {{makeSafe name}}
-          {{#if equals class "privateChatTab"}}
-            <button class="close closeTab" type="button"><sup><b>X</b></sup></button>
-          {{/if}}
+      <li class="{{isTabActive userId}} tab {{makeSafe class}} {{hasGotUnreadMailClass gotMail}}">
+        <a href='#' data-toggle='tab' id="#{{makeSafe name}}">
+            {{#if equals class "privateChatTab"}}
+                <p class="chatNameSelectorPrivate">{{makeSafe name}}</p>
+                <button type="button" class="close closeTab">X</button>
+            {{else}}
+                <p class="chatNameSelectorPublic">{{makeSafe name}}</p>
+            {{/if}}
         </a>
       </li>
     {{/each}}

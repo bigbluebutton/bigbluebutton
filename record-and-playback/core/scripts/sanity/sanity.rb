@@ -50,6 +50,21 @@ def check_audio_files(raw_dir,meeting_id)
 end
 
 def check_webcam_files(raw_dir, meeting_id)
+    meeting_dir = "#{raw_dir}/#{meeting_id}"
+
+    BigBlueButton.logger.info("Repairing red5 serialized streams")
+    cp="/usr/share/red5/red5-server.jar:/usr/share/red5/lib/*"
+    if File.directory?("#{meeting_dir}/video/#{meeting_id}")
+      FileUtils.cd("#{meeting_dir}/video/#{meeting_id}") do
+        Dir.glob("*.flv.ser").each do |ser|
+          BigBlueButton.logger.info("Repairing #{ser}")
+          ret = BigBlueButton.exec_ret('java', '-cp', cp, 'org.red5.io.flv.impl.FLVWriter', ser, '0', '7')
+          if ret != 0
+            BigBlueButton.logger.warn("Failed to repair #{ser}")
+          end
+        end
+      end
+    end
 	
     BigBlueButton.logger.info "Checking all webcam recorded streams from events were archived."
     webcams = BigBlueButton::Events.get_start_video_events("#{raw_dir}/#{meeting_id}/events.xml")
@@ -59,7 +74,6 @@ def check_webcam_files(raw_dir, meeting_id)
     end
 
     BigBlueButton.logger.info "Checking the length of webcam streams is not zero."
-    meeting_dir = "#{raw_dir}/#{meeting_id}"
     events_file = "#{meeting_dir}/events.xml"
     events_xml = Nokogiri::XML(File.open(events_file))
     original_num_events = events_xml.xpath("//event").size

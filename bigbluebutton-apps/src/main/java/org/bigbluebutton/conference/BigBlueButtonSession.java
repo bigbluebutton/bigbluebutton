@@ -28,10 +28,11 @@ public class BigBlueButtonSession {
 	private final Boolean record;
 	private final String externalUserID;
 	private final Boolean startAsMuted;
+	private final String sessionId;
 	
 	public BigBlueButtonSession(String room, String internalUserID, String username, 
 				String role, String voiceBridge, Boolean record, 
-				String externalUserID, Boolean startAsMuted){
+				String externalUserID, Boolean startAsMuted, String sessionId){
 		this.internalUserID = internalUserID;
 		this.username = username;
 		this.role = role;
@@ -40,6 +41,7 @@ public class BigBlueButtonSession {
 		this.record = record;
 		this.externalUserID = externalUserID;
 		this.startAsMuted = startAsMuted;
+		this.sessionId = sessionId;
 	}
 
 	public String getUsername() {
@@ -72,5 +74,9 @@ public class BigBlueButtonSession {
 
 	public Boolean getStartAsMuted() {
 		return startAsMuted;
+	}
+	
+	public String getSessionId() {
+	  return sessionId;
 	}
 }

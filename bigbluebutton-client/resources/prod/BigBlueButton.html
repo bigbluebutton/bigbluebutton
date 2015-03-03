@@ -17,9 +17,14 @@
         width: 1px !important;
         overflow: hidden;
       }
+      
+      #deployJavaPlugin {
+        display : none;
+      }
     </style>
     
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
+    <script src="lib/deployJava.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript">
       //swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
       var flashvars = {};
@@ -35,7 +40,29 @@
       attributes.name = "BigBlueButton";
       attributes.align = "middle";
       attributes.tabIndex = 0;
-      swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes);
+      swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes, embedCallback);
+      
+      function embedCallback(e) {
+        // Work around pixel alignment bug with Chrome 21 on Mac.
+        // See: http://code.google.com/p/bigbluebutton/issues/detail?id=1294
+        var objs = $('object');
+        objs.each(function(i, o) {
+          var o = $(o);
+          var top = o.offset().top;
+          var left = o.offset().left;
+          var roundtop = Math.round(top);
+          var roundleft = Math.round(left);
+          o.css("position", "relative");
+          if (roundtop === top) {
+          } else {
+            o.css("top", roundtop - top);
+          }
+          if (roundleft === left) {
+          } else {
+            o.css("left", roundleft - left);
+          }
+        });
+      }
     </script>
     <script src="lib/jquery-1.5.1.min.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbblogger.js?v=VERSION" language="javascript"></script>
@@ -69,26 +96,4 @@
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();" value="Click to focus the client"/>
     <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
   </body>
-  
-  <script type="text/javascript">
-    // Work around pixel alignment bug with Chrome 21 on Mac.
-    // See: http://code.google.com/p/bigbluebutton/issues/detail?id=1294
-    var objs = $('object');
-    objs.each(function(i, o) {
-            var o = $(o);
-            var top = o.offset().top;
-            var left = o.offset().left;
-            var roundtop = Math.round(top);
-            var roundleft = Math.round(left);
-            o.css("position", "relative");
-            if (roundtop === top) {
-            } else {
-                    o.css("top", roundtop - top);
-            }
-            if (roundleft === left) {
-            } else {
-                    o.css("left", roundleft - left);
-            }
-    });
-  </script>
 </html>

@@ -66,6 +66,7 @@ mark_for_rebuild() {
 
 	# Clear out all the done files
 	rm -vf $STATUS/sanity/$MEETING_ID.done
+	rm -vf $STATUS/sanity/$MEETING_ID.fail
 	for type in $TYPES; do
 		rm -vf $STATUS/published/$MEETING_ID-$type.fail
 		rm -vf $STATUS/published/$MEETING_ID-$type.done

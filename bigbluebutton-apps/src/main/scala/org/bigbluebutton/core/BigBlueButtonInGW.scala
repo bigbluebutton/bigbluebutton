@@ -172,8 +172,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new UserLeaving(meetingID, userID, sessionId))
   }
 
-  def userJoin(meetingID: String, userID: String, sessionId: String):Unit = {
-    bbbGW.accept(new UserJoining(meetingID, userID, sessionId))
+  def userJoin(meetingID: String, userID: String, authToken: String):Unit = {
+    bbbGW.accept(new UserJoining(meetingID, userID, authToken))
   }
 
   def assignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String):Unit = {
@@ -230,7 +230,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	    val thumbnail = presBaseUrl + "/thumbnail/" + i
 	    val swfUri = presBaseUrl + "/slide/" + i
 
-        val txtUri = presBaseUrl + "/textfiles/slide-" + i + ".txt"
+        val txtUri = presBaseUrl + "/textfiles/" + i
         val pngUri = presBaseUrl + "/png/" + i
 
 	    val p = new Page(id=id, num=num, thumbUri=thumbnail, swfUri=swfUri,
