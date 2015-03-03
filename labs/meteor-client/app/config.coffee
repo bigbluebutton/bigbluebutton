@@ -54,15 +54,3 @@ if Meteor.isServer
     transports: transports
 
 Meteor.config = config
-
-
-# NGINX configuration:
-#file: /etc/bigbluebutton/nginx/html5client.nginx
-#location /html5client {
-#   root    /var/www/bigbluebutton;
-#   proxy_pass http://23.253.43.151:3000;
-#   proxy_http_version 1.1;
-#   proxy_set_header Upgrade $http_upgrade;
-#   proxy_set_header Connection "Upgrade";
-#}
-
