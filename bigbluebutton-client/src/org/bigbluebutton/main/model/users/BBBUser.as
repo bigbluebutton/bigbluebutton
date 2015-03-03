@@ -216,10 +216,10 @@ package org.bigbluebutton.main.model.users
     
     public function lockStatusChanged(locked: Boolean):void {
 		trace("lockStatusChanged -> " + locked);
-      userLocked = locked;
-      if(me)
-        applyLockSettings();
-      buildStatus();
+		userLocked = locked;
+		if(me)
+			applyLockSettings();
+		buildStatus();
     }
     
 		public function changeStatus(status:Status):void {
@@ -229,11 +229,11 @@ package org.bigbluebutton.main.model.users
 				presenter = status.value
 			}
 			switch (status.name) {
-				case "locked":
+				/*case "locked":
 					userLocked = status.value as Boolean;
 					if(me)
 						applyLockSettings();
-					break;
+					break;*/
 				case "presenter":
 					presenter = status.value;
 					break;

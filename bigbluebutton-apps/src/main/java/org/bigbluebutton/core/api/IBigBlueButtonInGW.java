@@ -21,7 +21,7 @@ public interface IBigBlueButtonInGW {
 	void initLockSettings(String meetingID, Map<String, Boolean> settings);
 	void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings);
 	void getLockSettings(String meetingId, String userId);
-	void lockUser(String meetingId, boolean lock, String internalUserID);
+	void lockUser(String meetingId, String requesterID, boolean lock, String internalUserID);
 	
 	
 	// Users
@@ -48,7 +48,7 @@ public interface IBigBlueButtonInGW {
 	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
 	void isMeetingMuted(String meetingID, String requesterID);
 	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
-	void lockUser(String meetingID, String requesterID, String userID, Boolean lock);
+	void lockMuteUser(String meetingID, String requesterID, String userID, Boolean lock);
 	void ejectUserFromVoice(String meetingID, String userId, String ejectedBy);
 	void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy);
 	void voiceUserJoined(String meetingId, String userId, String webUserId, String conference, 

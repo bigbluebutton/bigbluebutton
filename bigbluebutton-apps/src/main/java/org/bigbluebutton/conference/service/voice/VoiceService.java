@@ -91,7 +91,7 @@ public class VoiceService {
 		
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();		
-		bbbInGW.lockUser(meetingID, requesterID, userid, lock); 
+		bbbInGW.lockMuteUser(meetingID, requesterID, userid, lock); 
 	}
 	
 	public void ejectUserFromVoice(Map<String, Object> msg) {

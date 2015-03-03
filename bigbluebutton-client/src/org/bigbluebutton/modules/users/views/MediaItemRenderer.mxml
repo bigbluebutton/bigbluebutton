@@ -195,7 +195,7 @@
 					}
 					
 					//If it's not a moderator, it always can be locked.
-					if(	data.role != BBBUser.MODERATOR  && data.userLocked == true){
+					if(	data.role != BBBUser.MODERATOR ){ //TDJ: Se nao tiver nenhuma funcionalidade bloqueada, nao permitir lockar o usuario
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;

@@ -126,8 +126,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new GetLockSettings(meetingId, userId))
   }
   
-  def lockUser(meetingId: String, lock: Boolean, userId: String) {
-    bbbGW.accept(new LockUser(meetingId, userId, lock))
+  def lockUser(meetingId: String, requesterID: String, lock: Boolean, userId: String) {
+    bbbGW.accept(new LockUserRequest(meetingId, requesterID, userId, lock))
   }
 	
   def setRecordingStatus(meetingId: String, userId: String, recording: java.lang.Boolean) {
@@ -416,7 +416,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	  voiceGW.muteUser(meetingID, requesterID, userID, mute)
 	}
 	
-	def lockUser(meetingID: String, requesterID: String, userID: String, lock: java.lang.Boolean) {
+	def lockMuteUser(meetingID: String, requesterID: String, userID: String, lock: java.lang.Boolean) {
 	  voiceGW.lockUser(meetingID, requesterID, userID, lock)
 	}
 	

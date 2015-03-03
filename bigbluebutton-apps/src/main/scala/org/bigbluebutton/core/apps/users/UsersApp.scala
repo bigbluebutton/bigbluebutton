@@ -146,13 +146,9 @@ trait UsersApp {
       case None => // do nothing
     }
   }
-
-  def handleLockUser(msg: LockUser) {
-    
-  }
   
   def handleGetLockSettings(msg: GetLockSettings) {
-    
+    logger.info("Not implemented: handleGetLockSettings")
   }
   
   def handleSetLockSettings(msg: SetLockSettings) {
@@ -164,6 +160,21 @@ trait UsersApp {
       
       handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }    
+  }
+  
+  def handleLockUserRequest(msg: LockUserRequest) {
+    users.getUser(msg.userID) match {
+      case Some(u) => {
+        val uvo = u.copy(locked=msg.lock)
+        users.addUser(uvo)
+        
+        logger.info("Lock user:  mid=[" + meetingID + "] uid=[" + u.userID + "] lock=[" + msg.lock + "]")
+        outGW.send(new UserLocked(meetingID, u.userID, msg.lock))
+      }
+      case None => {
+        logger.info("Could not find user to lock:  mid=[" + meetingID + "] uid=[" + msg.userID + "] lock=[" + msg.lock + "]")
+      }
+    }
   }
     
   def handleInitLockSettings(msg: InitLockSettings) {
