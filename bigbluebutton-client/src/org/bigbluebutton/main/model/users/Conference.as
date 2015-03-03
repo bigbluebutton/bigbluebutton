@@ -513,7 +513,7 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setLockSettings(lockSettings:LockSettingsVO):void {
 			this.lockSettings = lockSettings;
-      applyLockSettings();
+			applyLockSettings();
 		}
     
     public function applyLockSettings():void {

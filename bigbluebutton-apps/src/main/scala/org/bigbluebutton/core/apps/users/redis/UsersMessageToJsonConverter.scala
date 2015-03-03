@@ -24,16 +24,6 @@ object UsersMessageToJsonConverter {
 	  wuser += "phone_user"           -> user.phoneUser	  
 	  wuser += "listenOnly"           -> user.listenOnly
 
-	  val permissions = new scala.collection.mutable.HashMap[String, Any]
-	  permissions.put("disableCam", user.permissions.disableCam)
-	  permissions.put("disableMic", user.permissions.disableMic)
-	  permissions.put("disablePrivChat", user.permissions.disablePrivChat)
-	  permissions.put("disablePubChat", user.permissions.disablePubChat)	  
-	  permissions.put("lockedLayout", user.permissions.lockedLayout)
-    permissions.put("lockOnJoin", user.permissions.lockOnJoin)
-	  
-      wuser.put("permissions", permissions)
-      
 	  val vuser = new scala.collection.mutable.HashMap[String, Any]	  	  
 	  vuser += "userid"               -> user.voiceUser.userId
 	  vuser += "web_userid"           -> user.voiceUser.webUserId

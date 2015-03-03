@@ -84,16 +84,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("phoneUser", user.phoneUser:java.lang.Boolean)
 	  wuser.put("voiceUser", vuser)	  
 	  wuser.put("listenOnly", user.listenOnly:java.lang.Boolean)
-	  
-	  val permissions = new HashMap[String, Object]()
-	  permissions.put("disableCam", user.permissions.disableCam:java.lang.Boolean)
-	  permissions.put("disableMic", user.permissions.disableMic:java.lang.Boolean)
-	  permissions.put("disablePrivChat", user.permissions.disablePrivChat:java.lang.Boolean)
-	  permissions.put("disablePubChat", user.permissions.disablePubChat:java.lang.Boolean)	  
-	  permissions.put("lockedLayout", user.permissions.lockedLayout:java.lang.Boolean)
-    
-    wuser.put("permissions", permissions)
-  
+   
 	  wuser
 	}
 	
@@ -104,6 +95,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  args.put("disablePrivChat", msg.permissions.disablePrivChat:java.lang.Boolean);
 	  args.put("disablePubChat", msg.permissions.disablePubChat:java.lang.Boolean);
     args.put("lockedLayout", msg.permissions.lockedLayout:java.lang.Boolean);
+    args.put("lockOnJoin", msg.permissions.lockOnJoin:java.lang.Boolean);
     
 	  var users = new ArrayList[java.util.HashMap[String, Object]];
       msg.applyTo.foreach(uvo => {		

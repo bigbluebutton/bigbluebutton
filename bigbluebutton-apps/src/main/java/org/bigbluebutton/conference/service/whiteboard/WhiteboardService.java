@@ -18,8 +18,8 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
-import java.util.ArrayList;
 import java.util.Map;
+
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
 import org.red5.logging.Red5LoggerFactory;
@@ -68,7 +68,7 @@ public class WhiteboardService {
 		}		
 	}
 	
-	private String pointsToString(ArrayList<Double> points){
+	/*private String pointsToString(ArrayList<Double> points){
     	String datapoints = "";
     	for (Double i : points) {
     		datapoints += i + ",";
@@ -79,7 +79,7 @@ public class WhiteboardService {
 
 //		application.sendShape(shape, type, color, thickness, fill, fillColor, transparency, id, status);
 
-	}
+	}*/
 	
 	public void requestAnnotationHistory(Map<String, Object> message) {
 		log.info("WhiteboardApplication - requestAnnotationHistory");

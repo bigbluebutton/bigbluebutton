@@ -74,8 +74,7 @@ case class UserVO(
   webcamStream: String, 
   phoneUser: Boolean,
   voiceUser: VoiceUser,
-  listenOnly: Boolean,
-  permissions: Permissions = new Permissions())
+  listenOnly: Boolean)
 
 case class VoiceUser(userId: String, 
   webUserId: String, 
