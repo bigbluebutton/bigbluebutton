@@ -69,7 +69,7 @@
         {{/if}}
     </span>
     <br/>
-    <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
+    <div class="chatMessage" style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
     {{autoscroll}}
 </template>
 
@@ -100,7 +100,7 @@
 
 <template name="optionsFontSize">
     <div class="dropdown">
-        <span {{messageFontSize}}>Chat Message Font Size: </span>
+        <span class="dropdownMessage" {{messageFontSize}}>Chat Message Font Size: </span>
         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
         Font Size ({{getInSession "messageFontSize"}})
         <span class="caret"></span>
