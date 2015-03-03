@@ -14,7 +14,7 @@
     border: 1px solid white;
   }
   .raisedHandIcon, .muteIcon {
-    &:hover { 
+    &:hover {
       cursor: pointer;
       border: 1px solid #f2f2f2;
       background-color: #f2f2f2;
@@ -47,10 +47,11 @@
   -webkit-flex: 1 1 25%;
   flex: 1 1 25%;
   @media @landscape {
-    height:98%;
+    height: calc(~'100% - 15px');
     -webkit-order: 1;
     order: 1;
     min-width: 0;
+    overflow-y: auto;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-order: 3;
@@ -62,7 +63,7 @@
 
 #user-contents {
   .userlist {
-    @media @landscape { 
+    @media @landscape {
       padding:10px;
       max-height:83vh;
     }
