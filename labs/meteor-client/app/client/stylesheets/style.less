@@ -57,14 +57,17 @@ body {
     font-size: 10px;
     max-height: 20px;
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+  @media @mobile-portrait {
     font-size: 26px;
   }
 
   // the footer should be visible only at the very bottom of a portrait page
-  @media @desktop-portrait, @mobile-portrait-with-keyboard, @mobile-portrait {
+  @media @desktop-portrait, @mobile-portrait {
     order: 4;
     -webkit-order: 4;
+  }
+  @media @mobile-portrait-with-keyboard {
+    display: none; //hide when typing
   }
 }
 
@@ -253,7 +256,7 @@ body {
     font-size: 14px;
   }
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 30px;
+    font-size: 3vh;
   }
 }
 

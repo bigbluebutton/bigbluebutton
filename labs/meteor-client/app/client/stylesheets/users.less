@@ -4,6 +4,9 @@
   margin-top: 10px;
   overflow: hidden;
   width: 100%;
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    background: #E6F0FA;
+  }
 }
 
 #usericons {
@@ -12,6 +15,12 @@
     margin-left: 3px;
     padding: 2px;
     border: 1px solid white;
+    @media @desktop-portrait {
+      font-size: 25px;
+    }
+    @media @mobile-portrait, @mobile-portrait-with-keyboard{
+      font-size: 3vh;
+    }
   }
   .raisedHandIcon, .muteIcon {
     &:hover {
@@ -34,9 +43,10 @@
   }
   @media @desktop-portrait {
     height: 25px;
-  }
-  @media @desktop-portrait, @mobile-portrait {
     font-size: 2vh;
+  }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 3vh;
   }
 }
 
@@ -53,11 +63,14 @@
     min-width: 0;
     overflow-y: auto;
   }
-  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+  @media @desktop-portrait, @mobile-portrait {
     -webkit-order: 3;
     order: 3;
     margin-bottom: 0px;
     padding-bottom: 55px; /*so that the footer does not overlap */
+  }
+  @media @mobile-portrait-with-keyboard {
+    display: none; //hide when typing
   }
 }
 
@@ -72,7 +85,8 @@
       padding-left: 10px;
       padding-right: 10px;
     }
-    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+
+    @media @desktop-portrait, @mobile-portrait {
       max-height: 40vh; //for longer userlist a scrollbar appears
     }
   }

@@ -35,21 +35,42 @@
   list-style: none;
   margin: 0px;
   padding: 0px;
-  li {
-    margin: 0px;
-    padding: 15px;
-    word-wrap: break-word;
-    &:nth-child(even) {
-      background-color: rgb(245,245,245);
-    }
-    table {
-      width: 100%;
+  @media @desktop-portrait, @landscape {
+    li {
+      margin: 0px;
+      padding: 15px;
+      word-wrap: break-word;
+      &:nth-child(even) {
+        background-color: rgb(245,245,245);
+      }
+      table {
+        width: 100%;
+      }
     }
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     li {
       font-size: 14px;
+      padding: 15px;
+      word-wrap: break-word;
+      span {
+        .userNameEntry
+        {
+           font-size: 2.8vw !important;
+           font-style: italic;
+        }
+        .glyphicon-time {
+          font-size: 2.5vw;
+        }
+        .messageTime {
+          font-size: 2.5vw !important;
+        }
+      }
+      .chatMessage {
+          font-size: 2vw !important;
+        }
     }
+
   }
 }
 
@@ -109,18 +130,18 @@
   padding:10px;
 }
 
-#chat-options-bar {
-  border-bottom: 1px solid extract(@lightGrey, 3);
-  position: relative;
-  width: 100%;
-}
-
 #chat-user-list {
   padding: 5px;
 }
 
 .dropdown {
   float: left;
+  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
+    .dropdownMessage {
+      font-size: 2.5vw !important;
+      font-style: italic;
+    }
+  }
   .dropdown-menu {
     height: 80px;
     overflow-y: scroll;
@@ -154,12 +175,15 @@
   @media @landscape, @desktop-portrait {
     height: 15%;
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    height: 60px;
+  @media @mobile-portrait {
+    font-size: 3vh;
+    height: 6vh;
   }
-  @media @mobile-portrait-with-keyboard,
-    @desktop-portrait,
-    @mobile-portrait {
+  @media @mobile-portrait-with-keyboard {
+    font-size: 4.5vh;
+    height: 25vh;
+  }
+  @media @desktop-portrait {
     font-size: 25px;
   }
 }
@@ -169,6 +193,14 @@
   overflow-y: auto;
   padding-left: 15px;
   padding-top: 15px;
+  p {
+    @media @mobile-portrait, 
+    @mobile-portrait-with-keyboard
+    {
+      font-size: 2vh;
+      font-style: italic;
+    }
+  }
 }
 
 .panel-footer {
@@ -195,30 +227,46 @@
     font-size: 14px;
     font-style: italic;
   }
+
+  .private-chat-user-entry
+  {
+     @media @mobile-portrait-with-keyboard, @mobile-portrait
+     {
+       height: 4vh;
+       font-size: 3vh;
+     }
+  }
 }
 
 #sendMessageButton {
   background-color: extract(@azure, 1);
   width: 20%;
-  margin-left: 5%;
   color: extract(@white, 1);
-  @media @mobile-portrait-with-keyboard,
-    @desktop-portrait,
-    @mobile-portrait {
+  @media @desktop-portrait {
     width: 100px;
     font-size: 30px;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 60px;
+    margin-left: 5%;
   }
-  @media @desktop-portrait {
-    height: 60px;
+  @media @mobile-portrait {
+    width: 15vw;
+    height: 6vh;
+    font-size: 3vh;
+    margin-left: 5%;
+  }
+  @media @mobile-portrait-with-keyboard {
+    width: 19vw;
+    height: 21vh;
+    font-size: 3vh;
+    margin-left: 1%;
+    margin-right: 1%;
+    marigin-top: 2vh;
+    margin-bottom: 2vh;
   }
   @media @landscape {
     height: 40px;
-  }
-  @media @landscape {
     padding: 0px;
+    margin-left: 5%;
   }
 }
 
@@ -232,9 +280,11 @@
   a {
     padding:0px;
     @media @mobile-portrait-with-keyboard,
-    @desktop-portrait,
     @mobile-portrait {
-      font-size: 25px;
+      font-size: 35px;
+    }
+    @media @desktop-portrait {
+      font-size: 20px;
     }
     @media @landscape {
       font-size: 12px;
@@ -245,14 +295,6 @@
   }
   &:before, &:after {
     content: none;
-  }
-  @media @mobile-portrait-with-keyboard,
-    @desktop-portrait,
-    @mobile-portrait {
-    .userlist {
-      font-size: 30px;
-      padding-left: 10px;
-    }
   }
 }
 
