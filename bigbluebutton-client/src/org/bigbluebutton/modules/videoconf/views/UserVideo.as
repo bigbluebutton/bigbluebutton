@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.videoconf.views
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 
   public class UserVideo extends UserGraphic {
+    private static const LOG:String = "Videoconf::UserVideo - ";
 
     protected var _camIndex:int = -1;
 
@@ -187,7 +188,11 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     private function onAsyncError(e:AsyncErrorEvent):void{
-      trace(ObjectUtil.toString(e));
+      trace(LOG + e.text);
+    }
+    
+    private function onMetaData(info:Object):void {
+      trace(LOG + " width=" + info.width + " height=" + info.height);
     }
 
     override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
