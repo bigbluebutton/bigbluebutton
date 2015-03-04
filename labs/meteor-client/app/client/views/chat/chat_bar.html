@@ -64,12 +64,12 @@
     </span>
     <span style="float:right;">
         {{#if message.from_time}}
-            <span {{messageFontSize}}>{{toClockTime message.from_time}}</span>
+            <span class="messageTime" {{messageFontSize}}>{{toClockTime message.from_time}}</span>
             <span class="glyphicon glyphicon-time"></span>
         {{/if}}
     </span>
     <br/>
-    <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
+    <div class="chatMessage" style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
     {{autoscroll}}
 </template>
 
@@ -77,7 +77,7 @@
 <template name="optionsBar">
 	<div class="optionsBar">
 		{{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
-			<p>Select a person to chat with privately</p>
+			<p>Select a person to chat with privately:</p>
 			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
                 <div class="private-chat-user-list">
                     {{#each getUsersInMeeting}}
@@ -100,7 +100,7 @@
 
 <template name="optionsFontSize">
     <div class="dropdown">
-        <span {{messageFontSize}}>Chat Message Font Size: </span>
+        <span class="dropdownMessage" {{messageFontSize}}>Chat Message Font Size: </span>
         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
         Font Size ({{getInSession "messageFontSize"}})
         <span class="caret"></span>
