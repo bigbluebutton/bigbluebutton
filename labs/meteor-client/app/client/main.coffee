@@ -11,9 +11,11 @@ loadLib = (libname) ->
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
 
+
   # Load SIP libraries before the application starts
   loadLib('sip.js')
   loadLib('bbb_webrtc_bridge_sip.js')
+  loadLib('bbblogger.js')
 
   @SessionAmplify = _.extend({}, Session,
     keys: _.object(_.map(amplify.store(), (value, key) ->

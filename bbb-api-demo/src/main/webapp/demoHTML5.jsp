@@ -97,8 +97,8 @@ if (request.getParameterMap().isEmpty()) {
 	String authToken = doc.getElementsByTagName("auth_token").item(0).getTextContent();
 	String ip = BigBlueButtonURL.split("\\/bigbluebutton")[0];
 
-	// redirect towards the html5 client which is waing on :3000 for the following parameters
-	String html5url = ip + ":3000/login?meeting_id=" + meetingId + "&user_id=" + userId + "&auth_token=" + authToken;
+	// redirect towards the html5 client which is waiting for the following parameters
+	String html5url = ip + "/html5client/" + meetingId + "/" + userId + "/" + authToken;
 
 	if (joinURL.startsWith("http://")) {
 %>

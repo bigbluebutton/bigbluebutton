@@ -21,7 +21,7 @@
   padding-right: 0px;
   width: 100%;
   @media @landscape {
-    height:98%;
+    height: calc(~'100% - 15px');
     -webkit-order: 3;
     order: 3;
   }
@@ -76,7 +76,7 @@
 
 #chatbody {
   @media @landscape {
-    height: 80%;
+    height: calc(~'100% - 121px');
   }
   overflow-y: scroll;
   padding-left: 0px;
@@ -127,7 +127,7 @@
 }
 
 .chat-input-wrapper {
-  padding:10px;	
+  padding:10px;
 }
 
 #chat-user-list {
@@ -214,7 +214,7 @@
   border-left: 1px solid grey;
   height: 300px;
   padding: 5px;
-  width: 90%; 
+  width: 90%;
 }
 
 .private-chat-user-list {
@@ -298,7 +298,7 @@
   }
 }
 
-.tab { 
+.tab {
   font-size: 14px;
   height:auto !important;
   width: 25% !important;
