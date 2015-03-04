@@ -313,9 +313,9 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_chatPane", true
   setInSession "inChatWith", 'PUBLIC_CHAT'
   if isPortraitMobile()
-    setInSession "messageFontSize", 24
+    setInSession "messageFontSize", Meteor.config.app.mobileFont
   else
-    setInSession "messageFontSize", 12
+    setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
 
