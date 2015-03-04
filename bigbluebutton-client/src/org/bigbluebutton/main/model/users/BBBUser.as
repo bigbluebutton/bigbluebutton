@@ -74,6 +74,10 @@ package org.bigbluebutton.main.model.users
 		public function set presenter(p:Boolean):void {
 			_presenter = p;
 			verifyUserStatus();
+			
+			//As the lock settings are now not applied to presenters, when the presenter flag is changed, we need to apply the lock settings
+			if(me)
+				applyLockSettings();
 		}
 		
 		public var raiseHandTime:Date;
@@ -215,23 +219,20 @@ package org.bigbluebutton.main.model.users
     }
     
     public function lockStatusChanged(locked: Boolean):void {
-      userLocked = locked;
-      if(me)
-        applyLockSettings();
-      buildStatus();
+		trace("lockStatusChanged -> " + locked);
+		userLocked = locked;
+		if(me)
+			applyLockSettings();
+		buildStatus();
     }
     
 		public function changeStatus(status:Status):void {
+			trace("changeStatus -> " + status.name);
 			//_status.changeStatus(status);
 			if (status.name == "presenter") {
 				presenter = status.value
 			}
 			switch (status.name) {
-				case "locked":
-					userLocked = status.value as Boolean;
-					if(me)
-						applyLockSettings();
-					break;
 				case "presenter":
 					presenter = status.value;
 					break;
@@ -307,32 +308,31 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function applyLockSettings():void {
-       
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+			var lockAppliesToMe:Boolean = me && role != MODERATOR && !presenter && userLocked;
 			
-			disableMyCam = lockSettings.getDisableCam();
-			disableMyMic = lockSettings.getDisableMic();
-			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
-			disableMyPublicChat = lockSettings.getDisablePublicChat();
-      lockedLayout = lockSettings.getLockedLayout();
-      
+			disableMyCam = lockAppliesToMe && lockSettings.getDisableCam();
+			disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
+			disableMyPrivateChat = lockAppliesToMe && lockSettings.getDisablePrivateChat();
+			disableMyPublicChat = lockAppliesToMe && lockSettings.getDisablePublicChat();
+			lockedLayout = lockAppliesToMe && lockSettings.getLockedLayout();
+			
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
-      if (me && role != MODERATOR && !presenter) {
-  			//If it's sharing webcam, stop it
-  			if (disableMyCam && hasStream){
-  				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
-  			}
-  			
-  			//If it's sharing microphone, mute it
-  			if (disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
-  				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-  				e.userid = UserManager.getInstance().getConference().getMyUserId();
-  				e.mute = true;
-  				dispatcher.dispatchEvent(e);
-  			}
-      }
+			if (lockAppliesToMe) {
+				//If it's sharing webcam, stop it
+				if (disableMyCam && hasStream){
+					dispatcher.dispatchEvent(new ClosePublishWindowEvent());
+				}
+				//If it's sharing microphone, mute it
+				if (disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
+					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+					e.userid = UserManager.getInstance().getConference().getMyUserId();
+					e.mute = true;
+					dispatcher.dispatchEvent(e);
+				}
+			}
 		}
 	}
 }

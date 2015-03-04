@@ -31,25 +31,17 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
 			import mx.binding.utils.BindingUtils;
-			import mx.controls.Alert;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
@@ -158,9 +150,10 @@
 				// reset the mute image filter so the talking indicator doesn't stick
 				muteImg.filters = null;
 				
+				var ls:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+				
 				if (data != null) {
 					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser;
-					
 					
 					if (!data.voiceJoined) {
 						if (data.listenOnly) {
@@ -173,11 +166,10 @@
 							muteImg.visible = false;
 							muteImg.includeInLayout = false;
 							muteBtn.visible = false;
-							muteBtn.includeInLayout = true;               
+							muteBtn.includeInLayout = true;
 						}
-						
 					} else {
-						if (data.userLocked && UserManager.getInstance().getConference().getLockSettings().getDisableMic()) {
+						if (data.userLocked && ls.getDisableMic()) {
 							muteImg.visible = true;
 							muteImg.includeInLayout = true;
 							muteBtn.visible = false;
@@ -197,7 +189,7 @@
 					}
 					
 					//If it's not a moderator, it always can be locked.
-					if(	data.role != BBBUser.MODERATOR  && data.userLocked == true){
+					if(	data.role != BBBUser.MODERATOR && ls.isAnythingLocked() ){
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;
@@ -240,11 +232,12 @@
 						}
 						
 						
-						if ((data.role != Role.MODERATOR && !data.presenter) && 
-                (data.disableMyCam || data.disableMyMic || data.disableMyPrivateChat || data.disableMyPublicChat))
+						if ( data.userLocked && !data.presenter && ls.isAnythingLocked() ) {
 							lockImg.source = images.locked_20;
-						else
+						}
+						else {
 							lockImg.source = null;
+						}
 					} else {
 						if (data.voiceMuted == rolledOverMute)
 							muteBtn.setStyle("icon", images.audio);

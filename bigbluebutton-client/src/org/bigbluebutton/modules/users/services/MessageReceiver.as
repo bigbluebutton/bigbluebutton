@@ -133,9 +133,23 @@ package org.bigbluebutton.modules.users.services
         case "permissionsSettingsChanged":
           handlePermissionsSettingsChanged(message);
           break;
+		case "userLocked":
+          handleUserLocked(message);
+          break;
       }
     }  
     
+	private function handleUserLocked(msg:Object):void {
+		trace(LOG + "*** handleUserLocked " + msg.msg + " **** \n");
+		var map:Object = JSON.parse(msg.msg);
+		var user:BBBUser = UsersUtil.getUser(map.user);
+		
+		if(user.userLocked != map.lock)
+			user.lockStatusChanged(map.lock);
+		
+		return;
+	}
+	
     private function handleMeetingHasEnded(msg: Object):void {
       trace(LOG + "*** handleMeetingHasEnded " + msg.msg + " **** \n"); 
     }
@@ -147,7 +161,8 @@ package org.bigbluebutton.modules.users.services
                                                            map.disableMic,
                                                            map.disablePrivChat,
                                                            map.disablePubChat,
-                                                           map.lockedLayout);
+                                                           map.lockedLayout,
+														   map.lockOnJoin);
       UserManager.getInstance().getConference().setLockSettings(lockSettings);
     }
     
@@ -185,7 +200,7 @@ package org.bigbluebutton.modules.users.services
       var perm:Object = map.permissions;
       
       var lockSettings:LockSettingsVO = new LockSettingsVO(perm.disableCam, perm.disableMic,
-                                                 perm.disablePrivChat, perm.disablePubChat, perm.lockedLayout);
+                                                 perm.disablePrivChat, perm.disablePubChat, perm.lockedLayout, perm.lockOnJoin);
       UserManager.getInstance().getConference().setLockSettings(lockSettings);
       MeetingModel.getInstance().meetingMuted = map.meetingMuted;
       
@@ -296,7 +311,7 @@ package org.bigbluebutton.modules.users.services
         l.voiceMuted = false;
         l.voiceJoined = false;
         l.talking = false;
-        l.userLocked = false;
+        //l.userLocked = false;
         
         trace(LOG + "notifying views that user has left voice. id[" + voiceUser.userId + "]");
         var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
@@ -429,7 +444,7 @@ package org.bigbluebutton.modules.users.services
         bu.voiceMuted = voiceUser.muted;
         bu.voiceJoined = voiceUser.joined;
         bu.talking = voiceUser.talking;
-        bu.userLocked = voiceUser.locked;
+        //bu.userLocked = voiceUser.locked;
       }       
     }
     
@@ -524,7 +539,8 @@ package org.bigbluebutton.modules.users.services
       user.externUserID = joinedUser.externUserID;
       user.isLeavingFlag = false;
       user.listenOnly = joinedUser.listenOnly;
-      
+      user.userLocked = joinedUser.locked;
+	  
       trace(LOG + "User status: hasStream " + joinedUser.hasStream);
       
       trace(LOG + "Joined as [" + user.userID + "," + user.name + "," + user.role + "," + joinedUser.hasStream + "]");
