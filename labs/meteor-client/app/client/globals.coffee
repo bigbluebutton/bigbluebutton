@@ -306,7 +306,10 @@ Handlebars.registerHelper "visibility", (section) ->
 # assign the default values for the Session vars
 @setDefaultSettings = ->
   # console.log "in setDefaultSettings"
-  setInSession "display_usersList", true
+  if isLandscapeMobile()
+    setInSession "display_usersList", false
+  else
+    setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
@@ -342,3 +345,15 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @listSessionVars = ->
   console.log SessionAmplify.keys
+
+# Checks if the view is landscape and mobile device is being used
+@isLandscapeMobile = () ->
+  window.matchMedia('(orientation: landscape)').matches and # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches and # device is landscape
+  (navigator.userAgent.match(/Android/i) or # device is one of the mobile gadgets
+  navigator.userAgent.match(/iPad/i) or
+  navigator.userAgent.match(/iPhone/i) or
+  navigator.userAgent.match(/iPod/i) or
+  navigator.userAgent.match(/Windows Phone/i) or
+  navigator.userAgent.match(/BlackBerry/i) or
+  navigator.userAgent.match(/webOS/i))
