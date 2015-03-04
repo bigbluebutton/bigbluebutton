@@ -129,15 +129,21 @@ package org.bigbluebutton.main.model.users
 					muteOnStart = false;
 				}
 				
+				var lockOnStart:Boolean;
+				try {
+					lockOnStart = (config.meeting.@lockOnStart.toUpperCase() == "TRUE");
+				} catch(e:Error) {
+					lockOnStart = false;
+				}
+				
 				_conferenceParameters.muteOnStart = muteOnStart;
+				_conferenceParameters.lockOnStart = lockOnStart;
 				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
 				
-				trace("_conferenceParameters.muteOnStart = " + _conferenceParameters.muteOnStart);
-				
-				// assign the meeting name to the document title
-				ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
-				
-				trace(LOG + " Got the user info from web api.");       
+        // assign the meeting name to the document title
+        ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
+        
+        trace(LOG + " Got the user info from web api.");       
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
 				 */
@@ -147,7 +153,7 @@ package org.bigbluebutton.main.model.users
 				e.conference = UserManager.getInstance().getConference();
 				dispatcher.dispatchEvent(e);
 				
-				connect();
+        connect();
 			}
 		}
 		

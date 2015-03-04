@@ -20,10 +20,9 @@
 package org.bigbluebutton.conference.service.chat;
 
 import java.util.Map;
-
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.red5.logging.Red5LoggerFactory;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 
 public class ChatApplication {
