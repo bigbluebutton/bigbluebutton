@@ -118,7 +118,7 @@ function userJoinedVoiceHandler(event) {
 	}
 }
 
-function createUA(username, server, callback) {
+function createUA(username, server, callback, makeCallFunc) {
 	if (userAgent) {
 		console.log("User agent already created");
 		return;
@@ -131,24 +131,24 @@ function createUA(username, server, callback) {
 		url: '/bigbluebutton/api/stuns'
 	}).done(function(data) {
 		var stunsConfig = {};
-		stunsConfig['stunServers'] = data['stunServers'].map(function(data) {
+		stunsConfig['stunServers'] = ( data['stunServers'] ? data['stunServers'].map(function(data) {
 			return data['url'];
-		});
-		stunsConfig['turnServers'] = data['turnServers'].map(function(data) {
+		}) : {} );
+		stunsConfig['turnServers'] = ( data['turnServers'] ? data['turnServers'].map(function(data) {
 			return {
 				'urls': data['url'],
 				'username': data['username'],
 				'password': data['password']
 			};
-		});
-		createUAWithStuns(username, server, callback, stunsConfig);
+		}) : {} );
+		createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc);
 	}).fail(function(data, textStatus, errorThrown) {
-		console.log("Could not fetch stun/turn servers: " + textStatus);
+		BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
 		callback({'status':'failed', 'errorcode': 1009});
 	});
 }
 
-function createUAWithStuns(username, server, callback, stunsConfig) {
+function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc) {
 	console.log("Creating new user agent");
 
 	/* VERY IMPORTANT 
@@ -172,6 +172,7 @@ function createUAWithStuns(username, server, callback, stunsConfig) {
 	userAgent = new SIP.UA(configuration);
 	userAgent.on('connected', function() {
 		uaConnected = true;
+		makeCallFunc();
 	});
 	userAgent.on('disconnected', function() {
 		if (userAgent) {
@@ -212,19 +213,24 @@ function webrtc_call(username, voiceBridge, callback) {
 	var server = window.document.location.hostname;
 	console.log("user " + username + " calling to " +  voiceBridge);
 	
+	var makeCallFunc = function() {
+		if (userMicMedia && userAgent) // only make the call when both microphone and useragent have been created
+			make_call(username, voiceBridge, server, callback, false);
+	};
+	
 	if (!userAgent) {
-		createUA(username, server, callback);
+		createUA(username, server, callback, makeCallFunc);
 	}
 	
 	if (userMicMedia !== undefined) {
-		make_call(username, voiceBridge, server, callback, false);
+		makeCallFunc();
 	} else {
 		callback({'status':'mediarequest'});
 		getUserMicMedia(function(stream) {
 				console.log("getUserMicMedia: success");
 				userMicMedia = stream;
 				callback({'status':'mediasuccess'});
-				make_call(username, voiceBridge, server, callback, false);
+				makeCallFunc();
 			}, function(e) {
 				console.error("getUserMicMedia: failure - " + e);
 				callback({'status':'mediafail', 'cause': e});
@@ -239,6 +245,7 @@ function make_call(username, voiceBridge, server, callback, recall) {
 		var callDelayTimeout = setTimeout( function() {
 			make_call(username, voiceBridge, server, callback, recall);
 		}, 100);
+		return;
 	}
 
 	if (!userAgent.isConnected()) {

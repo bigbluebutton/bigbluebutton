@@ -119,7 +119,7 @@ package org.bigbluebutton.modules.phone.managers {
       switch (statusCode) {
         case "NetConnection.Connect.Success":
           trace(LOG + "Connection success");
-          JSLog.info("Successfully connected to BBB Voice", logData);
+          JSLog.debug("Successfully connected to BBB Voice", logData);
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));           
           break;
         case "NetConnection.Connect.Failed":
@@ -133,7 +133,7 @@ package org.bigbluebutton.modules.phone.managers {
           break;
         case "NetConnection.Connect.Closed":
           trace(LOG + "Connection closed");
-          JSLog.info("Disconnected from BBB Voice", logData);
+          JSLog.debug("Disconnected from BBB Voice", logData);
           handleConnectionClosed();
           break;
       }

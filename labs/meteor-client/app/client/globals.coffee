@@ -145,7 +145,7 @@ Handlebars.registerHelper "isUserTalking", (userId) ->
   BBB.isUserTalking(userId)
 
 Handlebars.registerHelper 'isPortraitMobile', () ->
-  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-width: 1279px)').matches
+  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-aspect-ratio: 1/1)').matches
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -305,7 +305,7 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # assign the default values for the Session vars
 @setDefaultSettings = ->
-  console.log "in setDefaultSettings"
+  # console.log "in setDefaultSettings"
   setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true

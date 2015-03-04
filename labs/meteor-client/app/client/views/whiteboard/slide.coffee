@@ -5,13 +5,9 @@ Template.slide.rendered = ->
     setInSession 'slideOriginalWidth', this.width
     setInSession 'slideOriginalHeight', this.height
     $(window).resize( ->
+      # redraw the whiteboard to adapt to the resized window
       redrawWhiteboard()
     )
-    if window.matchMedia('(orientation: portrait)').matches
-      $('#whiteboard').height($('#whiteboard').width() * this.height / this.width + $('#whiteboard-navbar').height() + 20)
-    else
-      # set the slide height to the max available
-      $('#whiteboard-paper').height($('#whiteboard').height())
     if currentSlide?.slide?.png_uri?
       createWhiteboardPaper (wpm) ->
         displaySlide wpm
@@ -49,19 +45,18 @@ Template.slide.rendered = ->
 # based on the image's original width and height
 @scaleSlide = (originalWidth, originalHeight) ->
 
-  # the size of the whiteboard space (frame) where the slide will be displayed
-  boardWidth = $("#whiteboard").width()
-  boardHeight = null # see under
-
-  # calculate boardHeight
-  whiteboardBottom = $("#whiteboard").offset().top + $("#whiteboard").height()
-  footerTop = $(".myFooter").offset().top
-  if footerTop < whiteboardBottom
-    boardHeight = footerTop - $("#whiteboard").offset().top - $("#whiteboard-navbar").height() - 10
-  else
-    boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+  # set the size of the whiteboard space (frame) where the slide will be displayed
   if window.matchMedia('(orientation: landscape)').matches
-    boardHeight -= 10; # add some bottom padding
+    # for landscape orientation we want "fit to height" so that we can
+    # minimize the empty space above and below the slide (for best readability)
+    boardWidth = $("#whiteboard").width()
+    # the slide area is under the whiteboard navbar. -10 so that the slide stays within
+    boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+  else
+    # for portrait orientation we want "fit to width" so that we can
+    # minimize the empty space on the sides of the slide (for best readability)
+    boardWidth = $("#whiteboard").width()
+    boardHeight = 1.4 * $("#whiteboard").width() # A4 paper size
 
   # this is the best fitting pair
   adjustedWidth = null
