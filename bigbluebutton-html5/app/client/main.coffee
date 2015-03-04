@@ -29,7 +29,7 @@ Meteor.startup ->
       amplify.store key, value
       return
   )
-# 
+#
 Template.footer.helpers
   getFooterString: ->
     info = getBuildInformation()
@@ -199,9 +199,6 @@ Template.main.rendered = ->
   $(window).resize( ->
     $('#dialog').dialog('close')
   )
-
-  $('#darkened-screen').click () ->
-    toggleSlidingMenu()
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()

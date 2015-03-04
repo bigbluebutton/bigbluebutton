@@ -119,14 +119,13 @@
   {{#if isPortraitMobile}}
     {{> slidingMenu}}
   {{/if}}
-  <div id='darkened-screen'></div>
 </body>
 </template>
 
 <template name="recordingStatus">
 	<!-- Recording status of the meeting -->
 	{{#with getCurrentMeeting}}
-		{{#if intendedForRecording}} 
+		{{#if intendedForRecording}}
 			{{#if currentlyBeingRecorded}}
 				<button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
 			{{else}}

@@ -272,12 +272,10 @@ Handlebars.registerHelper "visibility", (section) ->
   if $('#sliding-menu').hasClass('sliding-menu-opened')
     setInSession 'display_slidingMenu', false
     $('#sliding-menu').removeClass('sliding-menu-opened')
-    $('#darkened-screen').css('display', 'none')
     $(document).unbind('scroll')
   else
     setInSession 'display_slidingMenu', true
     $('#sliding-menu').addClass('sliding-menu-opened')
-    $('#darkened-screen').css('display', 'block')
     $(document).bind 'scroll', () ->
       window.scrollTo(0, 0)
 
