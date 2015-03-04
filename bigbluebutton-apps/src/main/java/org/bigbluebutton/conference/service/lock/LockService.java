@@ -20,6 +20,7 @@ package org.bigbluebutton.conference.service.lock;
 
 import java.util.ArrayList;
 import java.util.Map;
+
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
@@ -67,15 +68,6 @@ public class LockService {
 	}
 	
 	/**
-	 * Method called from client on connect to know if the room is locked or not 
-	 * */
-	public void isRoomLocked(){
-		String meetingId = getBbbSession().getRoom();
-		String userId = getMyUserId();
-		bbbInGW.isMeetingLocked(meetingId, userId);
-	}
-	
-	/**
 	 * This method locks (or unlocks), based on lock parameter  
 	 * all users but the users listed in array dontLockTheseUsers
 	 * */
@@ -87,10 +79,15 @@ public class LockService {
 	/**
 	 * This method locks or unlocks a specific user
 	 * */
-	public void setUserLock(Boolean lock, String internalUserID){
-		log.debug("setUserLock ({}, {}, {})", new Object[] { lock, internalUserID });
-		String meetingId = getBbbSession().getRoom();
-		bbbInGW.lockUser(meetingId, lock, internalUserID);
+	public void setUserLock(Map<String, Object> msg) {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String requesterID = getBbbSession().getInternalUserID();
+		
+		Boolean lock = (Boolean) msg.get("lock");
+		String userId = (String) msg.get("userId");
+		
+		log.info("setUserLock ({}, {})", new Object[] { lock, userId });
+		bbbInGW.lockUser(meetingID, requesterID, lock, userId);
 	}
 	
 	public String getMyUserId() {

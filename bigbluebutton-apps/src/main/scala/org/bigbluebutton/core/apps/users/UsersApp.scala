@@ -153,43 +153,50 @@ trait UsersApp {
       case None => // do nothing
     }
   }
-
-  def handleLockUser(msg: LockUser) {
-    
-  }
-  
-  def handleLockAllUsers(msg: LockAllUsers) {
-    
-  }
   
   def handleGetLockSettings(msg: GetLockSettings) {
-    
+    logger.info("Not implemented: handleGetLockSettings")
   }
   
-  def handleIsMeetingLocked(msg: IsMeetingLocked) {
-    
-  }
-
   def handleSetLockSettings(msg: SetLockSettings) {
 //    println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {
       newPermissions(msg.settings)
-      val au = affectedUsers(msg.settings)
-      outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, au))
+      outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, users.getUsers))
       
       handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }    
+  }
+  
+  def handleLockUserRequest(msg: LockUserRequest) {
+    users.getUser(msg.userID) match {
+      case Some(u) => {
+        val uvo = u.copy(locked=msg.lock)
+        users.addUser(uvo)
+        
+        logger.info("Lock user:  mid=[" + meetingID + "] uid=[" + u.userID + "] lock=[" + msg.lock + "]")
+        outGW.send(new UserLocked(meetingID, u.userID, msg.lock))
+      }
+      case None => {
+        logger.info("Could not find user to lock:  mid=[" + meetingID + "] uid=[" + msg.userID + "] lock=[" + msg.lock + "]")
+      }
+    }
   }
     
   def handleInitLockSettings(msg: InitLockSettings) {
     if (! permissionsInited) {
       permissionsInited = true
-      if (permissions != msg.settings || locked != msg.locked) {
-	      permissions = msg.settings   
-	      locked = msg.locked	    
-	      val au = affectedUsers(msg.settings)
-	      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings, au))
-      }      
+      newPermissions(msg.settings)
+	    outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings, users.getUsers))
+    }
+  }
+  
+  def handleInitAudioSettings(msg: InitAudioSettings) {
+    if (! audioSettingsInited) {
+      audioSettingsInited = true
+      if(meetingMuted != msg.muted) {
+        handleMuteAllExceptPresenterRequest(new MuteAllExceptPresenterRequest(meetingID, msg.requesterID, msg.muted));
+      }
     }
   }  
 
@@ -202,19 +209,6 @@ trait UsersApp {
         }
     }
     au.toArray    
-  }
-  
-  def affectedUsers(settings: Permissions):Array[UserVO] = {
-    val au = ArrayBuffer[UserVO]()
-    
-    users.getUsers foreach {u =>
-      val nu = u.copy(permissions=permissions)
-      users.addUser(nu)
-        if (! u.presenter && u.role != Role.MODERATOR) {
-          au += nu
-        }
-    }
-    au.toArray
   }
   
   def handleUserRaiseHand(msg: UserRaiseHand) {
@@ -285,12 +279,12 @@ trait UsersApp {
                            false, false, false, false)
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
                   ru.role, raiseHand=false, presenter=false, 
-                  hasStream=false, locked=false, webcamStream="", 
-                  phoneUser=false, vu, listenOnly=false, permissions)
+                  hasStream=false, locked=getInitialLockStatus(ru.role), 
+                  webcamStream="", phoneUser=false, vu, listenOnly=false)
   	
 	    users.addUser(uvo)
 		
-	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
+	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] role=[" + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + permissions.lockOnJoin + "] ")
 	    outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
 	    outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
@@ -319,6 +313,10 @@ trait UsersApp {
 	}
   }
   
+  def getInitialLockStatus(role: Role.Role):Boolean = {
+    permissions.lockOnJoin && !role.equals(Role.MODERATOR)
+  }
+  
   def handleUserJoinedVoiceFromPhone(msg: VoiceUserJoined) = {
     val user = users.getUserWithVoiceUserId(msg.voiceUser.userId) match {
         case Some(user) => {
@@ -337,8 +335,8 @@ trait UsersApp {
           
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
-		                  hasStream=false, locked=false, webcamStream="", 
-		                  phoneUser=true, vu, listenOnly=false, permissions)
+		                  hasStream=false, locked=getInitialLockStatus(Role.VIEWER), webcamStream="", 
+		                  phoneUser=true, vu, listenOnly=false)
 		  	
 		      users.addUser(uvo)
 		      logger.info("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
@@ -391,7 +389,7 @@ trait UsersApp {
   
   def handleVoiceUserMuted(msg: VoiceUserMuted) {
     users.getUser(msg.userId) foreach {user =>
-      val talking = if (msg.muted) false else user.voiceUser.talking
+      val talking:Boolean = if (msg.muted) false else user.voiceUser.talking
       val nv = user.voiceUser.copy(muted=msg.muted, talking=talking)
       val nu = user.copy(voiceUser=nv)
       users.addUser(nu)
