@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
@@ -113,20 +112,25 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		String externalUserID = ((String) params[5]).toString();
 		String internalUserID = ((String) params[6]).toString();
     	
-		Boolean muted  = false;
+		Boolean locked = false;
 		if (params.length >= 7 && ((Boolean) params[7])) {
+			locked = true;
+		}
+    	
+		Boolean muted  = false;
+		if (params.length >= 8 && ((Boolean) params[8])) {
 			muted = true;
 		}
     	
 		Map<String, Boolean> lsMap = null;
-		if (params.length >= 8) {
+		if (params.length >= 9) {
 			try {
-				lsMap = (Map<String, Boolean> ) params[8];
+				lsMap = (Map<String, Boolean> ) params[9];
 			} catch(Exception e){
 				lsMap = new HashMap<String, Boolean>();
 			}
 		}
-		   	    	
+    	   	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
@@ -140,12 +144,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		connection.setAttribute("USER_SESSION_ID", sessionId);
         
 		String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
-        					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID + ", muted =" + muted;
+        					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 
-		bbbGW.initLockSettings(room, lsMap);
-		
-		bbbGW.initAudioSettings(room, internalUserID, muted);
+		bbbGW.initLockSettings(room, locked, lsMap);
 
 	    String meetingId = bbbSession.getRoom();
 	    

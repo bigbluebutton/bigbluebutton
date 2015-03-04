@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.api
 
-import java.lang.Boolean
-
 object Role extends Enumeration {
 	type Role = Value
 	val MODERATOR = Value("MODERATOR")
@@ -38,8 +36,7 @@ case class Permissions(
   disableMic: Boolean = false,
   disablePrivChat: Boolean = false,
   disablePubChat: Boolean = false,
-  lockedLayout:Boolean = false,
-  lockOnJoin:Boolean = false
+  lockedLayout:Boolean = false
 )
 
 case class RegisteredUser (
@@ -73,7 +70,8 @@ case class UserVO(
   webcamStream: String, 
   phoneUser: Boolean,
   voiceUser: VoiceUser,
-  listenOnly: Boolean)
+  listenOnly: Boolean,
+  permissions: Permissions = new Permissions())
 
 case class VoiceUser(userId: String, 
   webUserId: String, 

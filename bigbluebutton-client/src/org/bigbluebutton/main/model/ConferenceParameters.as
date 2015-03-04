@@ -86,6 +86,11 @@ package org.bigbluebutton.main.model
 		public var record:Boolean;
 		
 		/**
+		 * Flag used to start room as locked
+		 * */
+		public var lockOnStart:Boolean;
+		
+		/**
 		 * Flag used to start room as muted
 		 * */
 		public var muteOnStart:Boolean;

@@ -17,14 +17,14 @@
 *
 */
 package org.bigbluebutton.conference.service.voice;
-import java.util.Map;
-
+import org.slf4j.Logger;
+import org.red5.server.api.Red5;
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import org.slf4j.Logger;
+import java.util.List;
+import java.util.Map;
 
 public class VoiceService {
 	
@@ -91,7 +91,7 @@ public class VoiceService {
 		
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();		
-		bbbInGW.lockMuteUser(meetingID, requesterID, userid, lock); 
+		bbbInGW.lockUser(meetingID, requesterID, userid, lock); 
 	}
 	
 	public void ejectUserFromVoice(Map<String, Object> msg) {
