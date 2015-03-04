@@ -18,21 +18,10 @@
 */
 package org.bigbluebutton.webconference.voice.freeswitch.actions;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
-import org.bigbluebutton.webconference.voice.events.VoiceUserJoinedEvent;
-import org.bigbluebutton.webconference.voice.freeswitch.response.ConferenceMember;
-import org.bigbluebutton.webconference.voice.freeswitch.response.XMLResponseConferenceListParser;
 import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-import org.xml.sax.SAXException;
 
 public class BroadcastConferenceCommand extends FreeswitchCommand {
 

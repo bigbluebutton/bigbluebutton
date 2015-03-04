@@ -125,8 +125,7 @@
 				
 				roomMuted = MeetingModel.getInstance().meetingMuted;
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
-					|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
+				roomLocked = lockSettings.isAnythingLocked();
 				
 				titleBarOverlay.tabIndex = partOptions.baseTabIndex;
 				minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
@@ -275,8 +274,7 @@
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
-								|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
+				roomLocked = lockSettings.isAnythingLocked();
 			}
 			
 			private function lockSettings():void {
@@ -286,7 +284,7 @@
 				dispatcher.dispatchEvent(event);
 			}
 			
-			private function unlockAll():void {
+			/*private function unlockAll():void {
 				LogUtil.traceObject("Action: unlockAll");
 				if (amIModerator) {
 					if (roomLocked) {
@@ -325,6 +323,7 @@
 					}
 				}
 			}
+			*/
 			
 			private function handleMeetingMuted(e:MeetingMutedEvent):void {
 				roomMuted = MeetingModel.getInstance().meetingMuted;

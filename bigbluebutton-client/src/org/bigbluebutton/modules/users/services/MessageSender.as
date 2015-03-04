@@ -298,8 +298,22 @@ package org.bigbluebutton.modules.users.services
      * Set lock state of all users in the room, except the users listed in second parameter
      * */
     public function setUserLock(internalUserID:String, lock:Boolean):void {
-      
-      return;
+		var message:Object = new Object();
+		message["userId"] = internalUserID;
+		message["lock"] = lock;
+		
+		trace("Sending lockRequest");
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage(
+			"lock.setUserLock",
+			function(result:String):void { // On successful result
+				LogUtil.debug(result); 
+			},	                   
+			function(status:String):void { // status - On error occurred
+				LogUtil.error(status); 
+			},
+			message
+		);
 /*      
       var nc:NetConnection = _module.connection;
       nc.call(
