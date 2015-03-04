@@ -79,18 +79,51 @@
         window.focus();
       }
     </script>
+    <script type="text/javascript">
+      function html5() {
+        // no Flash detected on the client
+        // use the enter api to detect the meetingid, userid and authToken
+        // for the attempted joining of the meeting
+        // and reuse them to join via the HTML5 client
+        var request = $.ajax({
+           dataType: 'json',
+           url: '/bigbluebutton/api/enter'
+        });
+
+        request.done(function(data) {
+            var authToken, meetingId, userId;
+
+            meetingId = data.response.meetingID;
+            userId = data.response.externUserID;
+            authToken = data.response.authToken;
+
+            if ((meetingId != null) && (userId != null) && (authToken != null)) {
+              // redirect to the html5 client with the received info
+              // format <IP>/html5client/<meetingId>/<userId>/<authToken>
+              document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
+            } else {
+              // redirect to the logout URL
+              document.location=data.response.logoutUrl;
+            }
+        });
+
+        request.fail(function(data, textStatus, errorThrown){
+          BBBLog.error("Could not redirect to html5client (Flash not detected)");
+        });
+      }
+    </script>
   </head>
 
   <body>
-<div>
-<audio id="remote-media" autoplay="autoplay"></audio>
-</div>
+    <div>
+      <audio id="remote-media" autoplay="autoplay"></audio>
+    </div>
 
     <div id="content">
       <div id="altFlash">
-        <a href="http://www.adobe.com/go/getflashplayer">
-          <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
-        </a>
+        <h2>You need Flash installed and enabled in order to use the Flash client.</h2>
+        <br/>
+        <a onclick="html5();"><h2>Try the HTML5 client instead</h2></a>
       </div>
     </div>
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();" value="Click to focus the client"/>
