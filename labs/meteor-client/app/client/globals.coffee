@@ -312,7 +312,10 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
   setInSession "inChatWith", 'PUBLIC_CHAT'
-  setInSession "messageFontSize", 12
+  if isPortraitMobile()
+    setInSession "messageFontSize", 24
+  else
+    setInSession "messageFontSize", 12
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
 
@@ -342,3 +345,14 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @listSessionVars = ->
   console.log SessionAmplify.keys
+
+# Checks if the view is portrait and a mobile device is being used
+@isPortraitMobile = () ->
+ window.matchMedia('(orientation: portrait)').matches and        # browser is portrait
+ window.matchMedia('(max-device-aspect-ratio: 1/1)').matches and # device is portrait
+ (navigator.userAgent.match(/Android/i) or                       # device is one of the following mobile devices:
+ navigator.userAgent.match(/iPhone|iPad|iPod/i) or  
+ navigator.userAgent.match(/BlackBerry/i) or
+ navigator.userAgent.match(/Opera Mini/i) or
+ navigator.userAgent.match(/IEMobile/i) or
+ navigator.userAgent.match(/webOS/i))

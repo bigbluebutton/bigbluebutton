@@ -254,7 +254,10 @@ Template.optionsFontSize.events
     selectedFontSize = parseInt(event.target.id)
     if selectedFontSize
       setInSession "messageFontSize", selectedFontSize
-    else setInSession "messageFontSize", 12
+    else if isPortraitMobile()
+        setInSession "messageFontSize", 20
+    else
+        setInSession "messageFontSize", 12
 
 Template.optionsFontSize.helpers
   getFontsizes: -> (size for size in [8..30] by 2)
