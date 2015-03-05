@@ -200,6 +200,9 @@ Template.main.rendered = ->
     $('#dialog').dialog('close')
   )
 
+  $('#shield').click () ->
+    toggleSlidingMenu()
+
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
 

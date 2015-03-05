@@ -490,3 +490,17 @@ body {
     height: calc(~'20% - 20px');
   }
 }
+
+#shield {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    display: none;
+    background: black;
+    opacity: 0;
+    z-index: 1030;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

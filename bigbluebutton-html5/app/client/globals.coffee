@@ -277,6 +277,7 @@ Handlebars.registerHelper "visibility", (section) ->
 
     setInSession 'display_slidingMenu', false
     $('#sliding-menu').removeClass('sliding-menu-opened')
+    $('#shield').css('display', 'none')
     $(document).unbind('scroll')
   else
     # pusing the rest of the page right
@@ -286,6 +287,7 @@ Handlebars.registerHelper "visibility", (section) ->
 
     setInSession 'display_slidingMenu', true
     $('#sliding-menu').addClass('sliding-menu-opened')
+    $('#shield').css('display', 'block')
     $(document).bind 'scroll', () ->
       window.scrollTo(0, 0)
 
