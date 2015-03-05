@@ -81,11 +81,11 @@
 			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
                 <div class="private-chat-user-list">
                     {{#each getUsersInMeeting}}
-                        <div class="private-chat-user-entry">
-                            {{#unless isCurrentUser userId}}
+                        {{#unless isCurrentUser userId}}
+                            <div class="private-chat-user-entry">
                                 {{user.name}}
-                            {{/unless}}
-                        </div>
+                            </div>
+                        {{/unless}}                         
                     {{/each}}
                 </div>
             </div>
