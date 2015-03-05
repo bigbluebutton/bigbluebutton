@@ -387,7 +387,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 * pop-up is opened from another pop-up. I delayed the second open to 
 				 * avoid this case. - Chad
 				 */
-				this.callLater( function() {
+				this.callLater( function():void {
 					var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
 					micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
 						var point1:Point = new Point();
@@ -628,22 +628,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
-        var conference:Conference = UserManager.getInstance().getConference();
-        var lsv:LockSettingsVO = conference.getLockSettings();
+				var conference:Conference = UserManager.getInstance().getConference();
+				var lsv:LockSettingsVO = conference.getLockSettings();
         
 				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, LockSettings, true);
 				var ls:LockSettings = LockSettings(popUp);
-        ls.disableCam = lsv.getDisableCam();
-        ls.disableMic = lsv.getDisableMic();
-        ls.disablePrivChat = lsv.getDisablePrivateChat();
-        ls.disablePubChat = lsv.getDisablePublicChat();
-        ls.lockedLayout = lsv.getLockedLayout();
+				ls.disableCam = lsv.getDisableCam();
+				ls.disableMic = lsv.getDisableMic();
+				ls.disablePrivChat = lsv.getDisablePrivateChat();
+				ls.disablePubChat = lsv.getDisablePublicChat();
+				ls.lockedLayout = lsv.getLockedLayout();
+				ls.lockOnJoin = lsv.getLockOnJoin();
         
 				var point1:Point = new Point();
 				point1.x = width/2;
-				point1.y = height/2;                
-        ls.x = point1.x - (ls.width/2);
-        ls.y = point1.y - (ls.height/2);	
+				point1.y = height/2;
+				ls.x = point1.x - (ls.width/2);
+				ls.y = point1.y - (ls.height/2);	
 			}
 		]]>
 	</mx:Script>

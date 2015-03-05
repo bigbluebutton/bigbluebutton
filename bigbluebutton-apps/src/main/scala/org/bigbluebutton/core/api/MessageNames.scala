@@ -9,6 +9,7 @@ object MessageNames {
   val LOCK_SETTING                         = "lock_setting_request"
   val LOCK_USER                            = "lock_user_request"
   val INIT_LOCK_SETTINGS                   = "init_lock_settings"
+  val INIT_AUDIO_SETTINGS                   = "init_audio_settings"
   val SET_LOCK_SETTINGS                    = "set_lock_settings"
   val GET_LOCK_SETTINGS                    = "get_lock_settings"
   val IS_MEETING_LOCKED                    = "is_meeting_locked"     

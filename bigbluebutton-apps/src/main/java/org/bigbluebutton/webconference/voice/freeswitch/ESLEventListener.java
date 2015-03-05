@@ -5,12 +5,13 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
+import org.bigbluebutton.webconference.voice.events.VoiceStartRecordingEvent;
 import org.bigbluebutton.webconference.voice.events.VoiceUserJoinedEvent;
 import org.bigbluebutton.webconference.voice.events.VoiceUserLeftEvent;
 import org.bigbluebutton.webconference.voice.events.VoiceUserMutedEvent;
 import org.bigbluebutton.webconference.voice.events.VoiceUserTalkingEvent;
-import org.bigbluebutton.webconference.voice.events.VoiceStartRecordingEvent;
 import org.freeswitch.esl.client.IEslEventListener;
 import org.freeswitch.esl.client.transport.event.EslEvent;
 import org.jboss.netty.channel.ExceptionEvent;
@@ -197,9 +198,9 @@ public class ESLEventListener implements IEslEventListener {
     	return e.getEventHeaders().get("Path");
     }
     
-    private String getRecordTimestampFromEvent(EslEvent e) {
+    /*private String getRecordTimestampFromEvent(EslEvent e) {
     	return e.getEventHeaders().get("Event-Date-Timestamp");
-    }
+    }*/
 	
     public void setConferenceEventListener(ConferenceEventListener listener) {
         this.conferenceEventListener = listener;
