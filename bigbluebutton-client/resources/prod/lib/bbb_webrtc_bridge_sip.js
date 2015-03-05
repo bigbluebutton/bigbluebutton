@@ -133,14 +133,14 @@ function createUA(username, server, callback, makeCallFunc) {
 		var stunsConfig = {};
 		stunsConfig['stunServers'] = ( data['stunServers'] ? data['stunServers'].map(function(data) {
 			return data['url'];
-		}) : {} );
+		}) : [] );
 		stunsConfig['turnServers'] = ( data['turnServers'] ? data['turnServers'].map(function(data) {
 			return {
 				'urls': data['url'],
 				'username': data['username'],
 				'password': data['password']
 			};
-		}) : {} );
+		}) : [] );
 		createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc);
 	}).fail(function(data, textStatus, errorThrown) {
 		BBBLog.error("Could not fetch stun/turn servers", {error: textStatus, user: callerIdName, voiceBridge: conferenceVoiceBridge});
