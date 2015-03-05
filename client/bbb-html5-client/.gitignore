@@ -1,7 +1,0 @@
-node_modules/
-.DS_Store
-*.rdb
-public/images/presentation*
-public/js/main-dist.js
-docs/*
-log/*
