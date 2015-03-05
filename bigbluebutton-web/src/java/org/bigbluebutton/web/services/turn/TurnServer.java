@@ -24,7 +24,7 @@ public class TurnServer {
     TurnEntry turn = null;
     
     try {
-      Long timestamp = System.currentTimeMillis();
+      Long timestamp = System.currentTimeMillis() / 1000;
       String username = timestamp + COLON + userId;
       String password = calculateRFC2104HMAC(username, secretKey);
       turn = new TurnEntry(username, password, ttl, url);
