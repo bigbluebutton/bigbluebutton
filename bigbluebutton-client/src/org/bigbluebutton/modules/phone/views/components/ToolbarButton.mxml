@@ -38,25 +38,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.system.Security;
-			import flash.system.SecurityPanel;		
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.BBB;
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
       private static const LOG:String = "Phone::ToolbarButton - ";
@@ -71,16 +69,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var phoneOptions:PhoneOptions = new PhoneOptions();
 			
 			private function startPhone():void {
+				var conference:Conference = UserManager.getInstance().getConference();
+				var thisUser:BBBUser = conference.getMyUser();
+				
 				trace(LOG + "startPhone 1 enabled=[" + enabled + "] selected=[" + selected + "]");
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
 				trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
 				if (this.selected) {
-					//trace(LOG + "Sending Join Conference command");
-					//dispatcher.dispatchEvent(new JoinVoiceConferenceCommand());
-					trace(LOG + "Sending Show Audio Selection command");
-					dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
+					if(thisUser.disableMyMic){
+						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+						command.mic = false;
+						dispatcher.dispatchEvent(command);
+					} else {
+						//trace(LOG + "Sending Join Conference command");
+						//dispatcher.dispatchEvent(new JoinVoiceConferenceCommand());
+						trace(LOG + "Sending Show Audio Selection command");
+						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
+					}
 				} else {
 					trace(LOG + "Sending Leave Conference command");
 					dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
@@ -108,21 +115,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
+				var conference:Conference = UserManager.getInstance().getConference();
+				var thisUser:BBBUser = conference.getMyUser();
+				
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
-          if (phoneOptions.skipCheck) {
-            var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-            if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) {
-              command.mic = false;
-            } else {
-              command.mic = true;
-            }
-            
-            dispatcher.dispatchEvent(command);            
-          } else {
-            trace(LOG + "Sending Show Audio Selection command");
-            dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));            
-          }
+					if (phoneOptions.skipCheck || thisUser.disableMyMic) {
+						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+						if (
+							(phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
+							|| thisUser.disableMyMic
+						) {
+							command.mic = false;
+						} else {
+							command.mic = true;
+						}
+						
+						dispatcher.dispatchEvent(command);
+					} else {
+						trace(LOG + "Sending Show Audio Selection command");
+						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
+					}
 				}
 			}
 

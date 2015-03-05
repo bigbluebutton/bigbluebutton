@@ -30,11 +30,10 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: EndMeeting                    => handleEndMeeting(msg)
         case msg: LockSetting                   => handleLockSetting(msg)
         case msg: LockUser                      => handleLockUser(msg)
-        case msg: LockAllUsers                  => handleLockAllUsers(msg)
         case msg: InitLockSettings              => handleInitLockSettings(msg)
+        case msg: InitAudioSettings             => handleInitAudioSettings(msg)
         case msg: SetLockSettings               => handleSetLockSettings(msg)
         case msg: GetLockSettings               => handleGetLockSettings(msg)
-        case msg: IsMeetingLocked               => handleIsMeetingLocked(msg)
         case msg: ValidateAuthToken             => handleValidateAuthToken(msg)
         case msg: RegisterUser                  => handleRegisterUser(msg)
         case msg: UserJoining                   => handleUserJoining(msg)
@@ -114,9 +113,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: PermissionsSettingInitialized => handlePermissionsSettingInitialized(msg)
         case msg: NewPermissionsSetting         => handleNewPermissionsSetting(msg)
         case msg: UserLocked                    => handleUserLocked(msg)
-        case msg: UsersLocked                   => handleUsersLocked(msg)
         case msg: GetPermissionsSettingReply    => handleGetPermissionsSettingReply(msg)
-        case msg: IsMeetingLockedReply          => handleIsMeetingLockedReply(msg)
         case msg: UserRegistered                => handleUserRegistered(msg)
         case msg: UserLeft                      => handleUserLeft(msg)
         case msg: PresenterAssigned             => handlePresenterAssigned(msg)
@@ -333,29 +330,27 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleLockAllUsers(msg: LockAllUsers) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.EXCEPT_USERS, msg.exceptUsers.toString())
-    payload.put(Constants.LOCK, msg.lock)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.END_MEETING)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-    
-//    println("***** DISPATCHING LOCK ALL USERS *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
   private def handleInitLockSettings(msg: InitLockSettings) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.SETTINGS, msg.settings.toString())
-    payload.put(Constants.LOCKED, msg.locked)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.INIT_LOCK_SETTINGS)
+    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
+    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
+    
+//    println("***** DISPATCHING INIT LOCK SETTINGS *****************")
+    dispatcher.dispatch(buildJson(header, payload))
+  }
+  
+  private def handleInitAudioSettings(msg: InitAudioSettings) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.MUTED, msg.muted.toString())
+    
+    val header = new java.util.HashMap[String, Any]()
+    header.put(Constants.NAME, MessageNames.INIT_AUDIO_SETTINGS)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)    
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
@@ -388,20 +383,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
       
 //    println("***** DISPATCHING GET LOCK SETTINGS *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
-  private def handleIsMeetingLocked(msg: IsMeetingLocked) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.userId)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.IS_MEETING_LOCKED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)     
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-    
-//    println("***** DISPATCHING IS MEETING LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   
@@ -1455,7 +1436,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handlePermissionsSettingInitialized(msg: PermissionsSettingInitialized) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.LOCKED, msg.locked)
     payload.put(Constants.SETTINGS, msg.permissions.toString()) //#todo not tested
 
     val header = new java.util.HashMap[String, Any]()
@@ -1496,21 +1476,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
   
-  private def handleUsersLocked(msg: UsersLocked) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.EXCEPT_USERS, msg.exceptUsers.toString()) 
-    payload.put(Constants.LOCKED, msg.lock)
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.USERS_LOCKED)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-    
-//    println("***** DISPATCHING USERS LOCKED *****************")
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
   private def handleGetPermissionsSettingReply(msg: GetPermissionsSettingReply) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -1521,20 +1486,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     
-    dispatcher.dispatch(buildJson(header, payload))
-  }
-  
-  private def handleIsMeetingLockedReply(msg: IsMeetingLockedReply) {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.userId) 
-    
-    val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.IS_MEETING_LOCKED_REPLY)
-    header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
-    header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
-    
-//    println("***** DISPATCHING IS MEETING LOCKED REPLY *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
   

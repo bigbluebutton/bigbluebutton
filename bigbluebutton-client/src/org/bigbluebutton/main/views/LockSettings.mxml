@@ -42,20 +42,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
+			
 			[Bindable] private var cancelIcon:Class = images.cancel;
-            
-      [Bindable] private var baseIndex:int = 1;
-      
-      [Bindable] public var disableCam:Boolean = false;
-      [Bindable] public var disableMic:Boolean = false;
-      [Bindable] public var disablePubChat:Boolean = false;
-      [Bindable] public var disablePrivChat:Boolean = false;
-      [Bindable] public var lockedLayout:Boolean = false;
-      
+			
+			[Bindable] private var baseIndex:int = 1;
+			  
+			[Bindable] public var disableCam:Boolean = false;
+			[Bindable] public var disableMic:Boolean = false;
+			[Bindable] public var disablePubChat:Boolean = false;
+			[Bindable] public var disablePrivChat:Boolean = false;
+			[Bindable] public var lockedLayout:Boolean = false;
+			[Bindable] public var lockOnJoin:Boolean = false;
+			  
 			override public function move(x:Number, y:Number):void {
 				return;
 			}
-      
+			
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
 					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
@@ -65,15 +67,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onSaveClicked():void {
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.SAVE_LOCK_SETTINGS);
-				
-				var lockSettings:LockSettingsVO = new LockSettingsVO(enableWebcam.selected,
-					                                                   enableMicrophone.selected, 
-					                                                   enablePrivateChat.selected,
-					                                                   enablePublicChat.selected,
-                                                             enableLayout.selected);
-				
+				var lockSettings:LockSettingsVO = new LockSettingsVO(chkDisableWebcam.selected, chkDisableMicrophone.selected, chkDisablePrivateChat.selected, chkDisablePublicChat.selected, chkDisableLayout.selected, chkLockOnJoin.selected);
 				event.payload = lockSettings.toMap();
-				
 				dispatchEvent(event);
 				
 				PopUpManager.removePopUp(this);
@@ -85,9 +80,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			protected function creationCompleteHandler(event:FlexEvent):void
 			{
-
-			}
 			
+			}
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
@@ -97,14 +91,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<mx:HBox verticalAlign="top" width="100%" paddingTop="20">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.feature')}" fontWeight="bold" />
-			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.enabled')}" fontWeight="bold" />
+			<mx:Label styleName="lockSettingsDefaultLabelStyle" text="{ResourceUtil.getInstance().getString('bbb.lockSettings.locked')}" fontWeight="bold" />
 		</mx:HBox>
 		<mx:HBox verticalAlign="top" width="100%">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.webcam')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="enableWebcam" selected="{disableCam}" />
+				<mx:CheckBox id="chkDisableWebcam" selected="{disableCam}" />
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
@@ -113,7 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.microphone')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="enableMicrophone" selected="{disableMic}"/>
+				<mx:CheckBox id="chkDisableMicrophone" selected="{disableMic}"/>
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
@@ -122,7 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.publicChat')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="enablePublicChat" selected="{disablePubChat}"/>
+				<mx:CheckBox id="chkDisablePublicChat" selected="{disablePubChat}"/>
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
@@ -131,19 +125,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 text="{ResourceUtil.getInstance().getString('bbb.lockSettings.privateChat')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="enablePrivateChat" selected="{disablePrivChat}"/>
+				<mx:CheckBox id="chkDisablePrivateChat" selected="{disablePrivChat}"/>
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
-    <mx:HBox verticalAlign="top" width="100%">
-      <mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle" 
-                text="{ResourceUtil.getInstance().getString('bbb.lockSettings.layout')}" />
-      <mx:HBox width="30%">
-        <mx:Spacer width="50%" />
-        <mx:CheckBox id="enableLayout" selected="{lockedLayout}"/>
-        <mx:Spacer width="50%" />
-      </mx:HBox>
-    </mx:HBox>		
+		
+		<mx:HBox verticalAlign="top" width="100%">
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle"
+					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.layout')}" />
+			<mx:HBox width="30%">
+				<mx:Spacer width="50%" />
+				<mx:CheckBox id="chkDisableLayout" selected="{lockedLayout}"/>
+				<mx:Spacer width="50%" />
+			</mx:HBox>
+		</mx:HBox>
+		
+		<mx:HRule width="100%"/>
+		
+		<mx:HBox verticalAlign="top" width="100%">
+			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle"
+					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.lockOnJoin')}" />
+			<mx:HBox width="30%">
+				<mx:Spacer width="50%" />
+				<mx:CheckBox id="chkLockOnJoin" selected="{lockOnJoin}"/>
+				<mx:Spacer width="50%" />
+			</mx:HBox>
+		</mx:HBox>
+		
 		<mx:HRule width="100%"/>
 		
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="20">

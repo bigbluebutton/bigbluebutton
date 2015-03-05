@@ -63,36 +63,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			
 			private var dispatcher:Dispatcher;
+			private var _this:Button ;
 			
 			public function lockSettingsChanged(e:*):void{
-        if (UsersUtil.amIModerator()  || UsersUtil.amIPresenter()){
-          // Ignore lock setting changes as 
-          // or presenter we are moderator.
-          return; 
-        }
-        
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
 				
-				this.visible = !me.disableMyCam;
-				this.includeInLayout = !me.disableMyCam;
+				_this.visible = !me.disableMyCam;
+				_this.includeInLayout = !me.disableMyCam;
 			}
 			
 			private function init():void{
+				_this = this;
 				dispatcher = new Dispatcher();
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
-        this.styleName = "webcamDefaultButtonStyle";
+				this.styleName = "webcamDefaultButtonStyle";
 				this.enabled = true;
 				this.selected = false;
 				_currentState = OFF_STATE;
 				lockSettingsChanged(null);
 			}
 			
-      public function set isPresenter(presenter:Boolean):void {
-        visible = presenter;
-      }
-      
 			public function remoteClick(e:ShortcutEvent):void{
 				openPublishWindow();
 				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
@@ -114,6 +106,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
+			public function set isPresenter (presenter:Boolean):void{
+				//Nothing
+			}
 
 			private function openPublishWindow():void{
 				if(_currentState == ON_STATE) {

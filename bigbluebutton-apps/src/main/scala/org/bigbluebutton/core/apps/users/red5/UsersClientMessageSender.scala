@@ -41,6 +41,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: UserRegistered                         => handleRegisteredUser(msg)
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
+      case msg: UserLocked                             => handleUserLocked(msg)
 	    case msg: MeetingMuted                           => handleMeetingMuted(msg)
 	    case msg: MeetingState                           => handleMeetingState(msg)
 	    
@@ -55,6 +56,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  args.put("disablePrivChat", perms.disablePrivChat:java.lang.Boolean);
 	  args.put("disablePubChat", perms.disablePubChat:java.lang.Boolean);
     args.put("lockedLayout", perms.lockedLayout:java.lang.Boolean);
+    args.put("lockOnJoin", perms.lockOnJoin:java.lang.Boolean);
     args
 	}
 	
@@ -83,16 +85,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("phoneUser", user.phoneUser:java.lang.Boolean)
 	  wuser.put("voiceUser", vuser)	  
 	  wuser.put("listenOnly", user.listenOnly:java.lang.Boolean)
-	  
-	  val permissions = new HashMap[String, Object]()
-	  permissions.put("disableCam", user.permissions.disableCam:java.lang.Boolean)
-	  permissions.put("disableMic", user.permissions.disableMic:java.lang.Boolean)
-	  permissions.put("disablePrivChat", user.permissions.disablePrivChat:java.lang.Boolean)
-	  permissions.put("disablePubChat", user.permissions.disablePubChat:java.lang.Boolean)	  
-	  permissions.put("lockedLayout", user.permissions.lockedLayout:java.lang.Boolean)
-	  
-      wuser.put("permissions", permissions)
-  
+   
 	  wuser
 	}
 	
@@ -103,6 +96,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  args.put("disablePrivChat", msg.permissions.disablePrivChat:java.lang.Boolean);
 	  args.put("disablePubChat", msg.permissions.disablePubChat:java.lang.Boolean);
     args.put("lockedLayout", msg.permissions.lockedLayout:java.lang.Boolean);
+    args.put("lockOnJoin", msg.permissions.lockOnJoin:java.lang.Boolean);
     
 	  var users = new ArrayList[java.util.HashMap[String, Object]];
       msg.applyTo.foreach(uvo => {		
@@ -120,6 +114,20 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  service.sendMessage(m);	    
 	}
 	
+  private def handleUserLocked(msg: UserLocked) {
+     val args = new java.util.HashMap[String, Object]();
+     args.put("meetingID", msg.meetingID);
+     args.put("user", msg.userId)
+     args.put("lock", msg.lock:java.lang.Boolean)
+     
+     val message = new java.util.HashMap[String, Object]()
+     val gson = new Gson();
+     message.put("msg", gson.toJson(args))
+     
+     val m = new BroadcastClientMessage(msg.meetingID, "userLocked", message);
+     service.sendMessage(m);   
+  }
+  
 	private def handleRegisteredUser(msg: UserRegistered) {
 	  val args = new java.util.HashMap[String, Object]();  
 	  args.put("userId", msg.user.id);

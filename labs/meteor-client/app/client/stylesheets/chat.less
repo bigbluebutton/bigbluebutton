@@ -48,30 +48,6 @@
       }
     }
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    li {
-      font-size: 14px;
-      padding: 15px;
-      word-wrap: break-word;
-      span {
-        .userNameEntry
-        {
-           font-size: 2.8vw !important;
-           font-style: italic;
-        }
-        .glyphicon-time {
-          font-size: 2.5vw;
-        }
-        .messageTime {
-          font-size: 2.5vw !important;
-        }
-      }
-      .chatMessage {
-          font-size: 2vw !important;
-        }
-    }
-
-  }
 }
 
 #chatbody {
@@ -82,7 +58,7 @@
   padding-left: 0px;
   padding-right: 0px;
   @media @desktop-portrait, @mobile-portrait {
-    max-height: 40vh; // for longer chatbody a scrollbar appears
+    max-height: 46vw; // for longer chatbody a scrollbar appears
     overflow-y: scroll;
   }
 }
@@ -176,8 +152,8 @@
     height: 15%;
   }
   @media @mobile-portrait {
-    font-size: 3vh;
-    height: 6vh;
+    font-size: 4vw;
+    height: 8vw;
   }
   @media @mobile-portrait-with-keyboard {
     font-size: 4.5vh;
@@ -197,7 +173,7 @@
     @media @mobile-portrait, 
     @mobile-portrait-with-keyboard
     {
-      font-size: 2vh;
+      font-size: 3vw;
       font-style: italic;
     }
   }
@@ -232,8 +208,8 @@
   {
      @media @mobile-portrait-with-keyboard, @mobile-portrait
      {
-       height: 4vh;
-       font-size: 3vh;
+       height: 5vw;
+       font-size: 4vw;
      }
   }
 }
@@ -250,8 +226,8 @@
   }
   @media @mobile-portrait {
     width: 15vw;
-    height: 6vh;
-    font-size: 3vh;
+    height: 8vw;
+    font-size: 4vw;
     margin-left: 5%;
   }
   @media @mobile-portrait-with-keyboard {
