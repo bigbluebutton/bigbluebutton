@@ -24,8 +24,8 @@ public class TurnServer {
     TurnEntry turn = null;
     
     try {
-      Long timestamp = System.currentTimeMillis();
-      String username = timestamp + COLON + userId;
+      long expiryTime = System.currentTimeMillis() / 1000 + ttl;
+      String username = expiryTime + COLON + userId;
       String password = calculateRFC2104HMAC(username, secretKey);
       turn = new TurnEntry(username, password, ttl, url);
     } catch (SignatureException e) {
