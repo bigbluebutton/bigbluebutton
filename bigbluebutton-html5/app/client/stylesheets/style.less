@@ -280,6 +280,14 @@ body {
     -webkit-flex-flow: row;
     flex-flow: row;
     height: calc(~'100% - 40px');
+
+    /**
+     * Making sure these properties can't be overriden in landscape orientation
+     * (landscape view can't be shifted by the sliding menu).
+     */
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-flex-flow: column;
