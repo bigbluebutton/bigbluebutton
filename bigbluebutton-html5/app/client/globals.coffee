@@ -270,10 +270,20 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @toggleSlidingMenu = ->
   if $('#sliding-menu').hasClass('sliding-menu-opened')
+    # pushing the view back
+    $('#main').css('position', 'relative')
+    $('#main').css('top', '0')
+    $('#main').css('left', '0')
+
     setInSession 'display_slidingMenu', false
     $('#sliding-menu').removeClass('sliding-menu-opened')
     $(document).unbind('scroll')
   else
+    # pusing the rest of the page right
+    $('#main').css('position', 'fixed')
+    $('#main').css('top', '50px')
+    $('#main').css('left', '15%')
+
     setInSession 'display_slidingMenu', true
     $('#sliding-menu').addClass('sliding-menu-opened')
     $(document).bind 'scroll', () ->

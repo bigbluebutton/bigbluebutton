@@ -17,6 +17,9 @@ body {
     position: relative;
     top: 15px;
   }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    overflow-x: hidden;
+  }
 }
 
 .btn {
@@ -285,6 +288,12 @@ body {
     min-height: 125%;
     max-height: 125%;
   }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    transition: left 0.1s;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
 }
 
 /* Custom alert box */
@@ -429,10 +438,11 @@ body {
 
 .sliding-menu {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    transition: left 0.1s;
     width: 15%;
     height: 100%;
     position: fixed;
-    top: 0;
+    top: 100px;
     left: -15%;
     z-index: 1031;
     &.sliding-menu-opened {
@@ -451,7 +461,7 @@ body {
 .slideSection {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     float: left;
-    margin-top: 100px;
+    margin-top: 0;
     height: 100%;
     width: 100%;
     margin-bottom: 0.5%;
