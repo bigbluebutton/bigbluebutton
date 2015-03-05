@@ -20,6 +20,10 @@ config.app = {}
 # server ip
 config.app.logOutUrl = "http://192.168.0.119/demo/demoHTML5.jsp" # TODO temporary
 
+#default font sizes for mobile / desktop
+config.app.mobileFont = 24
+config.app.desktopFont = 12
+
 # Configs for redis
 config.redis = {}
 config.redis.host = "127.0.0.1"

@@ -64,12 +64,12 @@
     </span>
     <span style="float:right;">
         {{#if message.from_time}}
-            <span class="messageTime" {{messageFontSize}}>{{toClockTime message.from_time}}</span>
-            <span class="glyphicon glyphicon-time"></span>
+            <span {{messageFontSize}}>{{toClockTime message.from_time}}</span>
+            <span {{messageFontSize}} class="glyphicon glyphicon-time"></span>
         {{/if}}
     </span>
     <br/>
-    <div class="chatMessage" style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
+    <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
     {{autoscroll}}
 </template>
 
