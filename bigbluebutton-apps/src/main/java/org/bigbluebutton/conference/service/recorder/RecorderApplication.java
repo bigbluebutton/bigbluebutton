@@ -18,15 +18,14 @@
 */
 package org.bigbluebutton.conference.service.recorder;
 
-import org.slf4j.Logger;
-import org.bigbluebutton.service.recording.RedisListRecorder;
-import org.red5.logging.Red5LoggerFactory;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.bigbluebutton.service.recording.RedisListRecorder;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * 

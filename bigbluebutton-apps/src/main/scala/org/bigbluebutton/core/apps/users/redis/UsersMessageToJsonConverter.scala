@@ -24,15 +24,6 @@ object UsersMessageToJsonConverter {
 	  wuser += "phone_user"           -> user.phoneUser	  
 	  wuser += "listenOnly"           -> user.listenOnly
 
-	  val permissions = new scala.collection.mutable.HashMap[String, Any]
-	  permissions.put("disableCam", user.permissions.disableCam)
-	  permissions.put("disableMic", user.permissions.disableMic)
-	  permissions.put("disablePrivChat", user.permissions.disablePrivChat)
-	  permissions.put("disablePubChat", user.permissions.disablePubChat)	  
-	  permissions.put("lockedLayout", user.permissions.lockedLayout)
-	  
-      wuser.put("permissions", permissions)
-      
 	  val vuser = new scala.collection.mutable.HashMap[String, Any]	  	  
 	  vuser += "userid"               -> user.voiceUser.userId
 	  vuser += "web_userid"           -> user.voiceUser.webUserId
@@ -79,7 +70,6 @@ object UsersMessageToJsonConverter {
   def permissionsSettingInitializedToJson(msg: PermissionsSettingInitialized):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.LOCKED, msg.locked)
     payload.put(Constants.SETTINGS, msg.permissions.toString()) //#todo not tested
  
     val header = Util.buildHeader(MessageNames.PERMISSION_SETTING_INITIALIZED, msg.version, None)
@@ -90,10 +80,12 @@ object UsersMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put("disableCam", msg.permissions.disableCam)
-	payload.put("disableMic", msg.permissions.disableMic)
-	payload.put("disablePrivChat", msg.permissions.disablePrivChat)
-	payload.put("disablePubChat", msg.permissions.disablePubChat)
-
+    payload.put("disableMic", msg.permissions.disableMic)
+    payload.put("disablePrivChat", msg.permissions.disablePrivChat)
+    payload.put("disablePubChat", msg.permissions.disablePubChat)
+    payload.put("lockedLayout", msg.permissions.lockedLayout)
+    payload.put("lockOnJoin", msg.permissions.lockOnJoin)
+    
     val users = new java.util.ArrayList[java.util.Map[String, Any]]
     msg.applyTo.foreach(uvo => {    
       users.add(userToMap(uvo))
@@ -115,31 +107,12 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
   
-  def usersLockedToJson(msg: UsersLocked):String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.EXCEPT_USERS, msg.exceptUsers.toString()) 
-    payload.put(Constants.LOCKED, msg.lock)
-
-    val header = Util.buildHeader(MessageNames.USERS_LOCKED, msg.version, None)
-    Util.buildJson(header, payload)
-  }
-  
   def getPermissionsSettingReplyToJson(msg: GetPermissionsSettingReply):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userId) 
 
     val header = Util.buildHeader(MessageNames.GET_PERMISSION_SETTINGS_REPLY, msg.version, None)
-    Util.buildJson(header, payload)
-  }
-  
-  def isMeetingLockedReplyToJson(msg: IsMeetingLockedReply):String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.userId) 
-    
-    val header = Util.buildHeader(MessageNames.IS_MEETING_LOCKED_REPLY, msg.version, None)
     Util.buildJson(header, payload)
   }
 

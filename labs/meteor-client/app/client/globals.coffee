@@ -221,7 +221,12 @@ Handlebars.registerHelper "visibility", (section) ->
   # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
 @toggleChatbar = ->
-  setInSession "display_chatbar", !getInSession "display_chatbar"
+  if getInSession("display_chatbar") and isOnlyOnePanelOpen()
+    setInSession "display_usersList", true
+    setInSession "display_whiteboard", true
+    setInSession "display_chatbar", true
+  else
+    setInSession "display_chatbar", !getInSession "display_chatbar"
   setTimeout(redrawWhiteboard, 0)
 
 @toggleMic = (event) ->
@@ -234,7 +239,12 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # toggle state of session variable
 @toggleUsersList = ->
-  setInSession "display_usersList", !getInSession "display_usersList"
+  if getInSession("display_usersList") and isOnlyOnePanelOpen()
+    setInSession "display_usersList", true
+    setInSession "display_whiteboard", true
+    setInSession "display_chatbar", true
+  else
+    setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
 @toggleVoiceCall = (event) ->
@@ -250,7 +260,12 @@ Handlebars.registerHelper "visibility", (section) ->
   return false
 
 @toggleWhiteBoard = ->
-  setInSession "display_whiteboard", !getInSession "display_whiteboard"
+  if getInSession("display_whiteboard") and isOnlyOnePanelOpen()
+    setInSession "display_usersList", true
+    setInSession "display_whiteboard", true
+    setInSession "display_chatbar", true
+  else
+    setInSession "display_whiteboard", !getInSession "display_whiteboard"
   setTimeout(redrawWhiteboard, 0)
 
 @toggleSlidingMenu = ->
@@ -306,7 +321,10 @@ Handlebars.registerHelper "visibility", (section) ->
 # assign the default values for the Session vars
 @setDefaultSettings = ->
   # console.log "in setDefaultSettings"
-  setInSession "display_usersList", true
+  if isLandscapeMobile()
+    setInSession "display_usersList", false
+  else
+    setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
@@ -346,6 +364,7 @@ Handlebars.registerHelper "visibility", (section) ->
 @listSessionVars = ->
   console.log SessionAmplify.keys
 
+
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
  window.matchMedia('(orientation: portrait)').matches and        # browser is portrait
@@ -356,3 +375,20 @@ Handlebars.registerHelper "visibility", (section) ->
  navigator.userAgent.match(/Opera Mini/i) or
  navigator.userAgent.match(/IEMobile/i) or
  navigator.userAgent.match(/webOS/i))
+
+# Checks if the view is landscape and mobile device is being used
+@isLandscapeMobile = () ->
+  window.matchMedia('(orientation: landscape)').matches and # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches and # device is landscape
+  (navigator.userAgent.match(/Android/i) or # device is one of the mobile gadgets
+  navigator.userAgent.match(/iPad/i) or
+  navigator.userAgent.match(/iPhone/i) or
+  navigator.userAgent.match(/iPod/i) or
+  navigator.userAgent.match(/Windows Phone/i) or
+  navigator.userAgent.match(/BlackBerry/i) or
+  navigator.userAgent.match(/webOS/i))
+
+# Checks if only one panel (userlist/whiteboard/chatbar) is currently open
+@isOnlyOnePanelOpen = () ->
+  #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1
+  getInSession("display_usersList") + getInSession("display_whiteboard") + getInSession("display_chatbar") is 1

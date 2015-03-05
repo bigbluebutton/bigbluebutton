@@ -51,15 +51,9 @@ case class LockUser(
   meetingID: String, 
   userId: String, 
   lock: Boolean) extends InMessage
-                    
-case class LockAllUsers(
-  meetingID: String, 
-  lock: Boolean, 
-  exceptUsers: Seq[String]) extends InMessage
                         
 case class InitLockSettings(
   meetingID: String, 
-  locked: Boolean, 
   settings: Permissions) extends InMessage
                             
 case class SetLockSettings(
@@ -73,12 +67,6 @@ case class GetLockSettings(
     userId: String
 ) extends InMessage
                            
-case class IsMeetingLocked(
-    meetingID: String, 
-    userId: String
-) extends InMessage
-                           
-
 // Users
 case class ValidateAuthToken(
   meetingID: String, 
@@ -393,6 +381,11 @@ case class PresentationConversionCompleted(
 ) extends InMessage                       
                        
 // Voice
+case class InitAudioSettings(
+  meetingID: String, 
+  requesterID: String,
+  muted: Boolean) extends InMessage
+  
 case class SendVoiceUsersRequest(
     meetingID: String, 
     requesterID: String) extends InMessage

@@ -107,7 +107,6 @@ case object IsAliveMessage extends IOutMessage
 // Permissions
 case class PermissionsSettingInitialized(
   meetingID: String, 
-  locked: Boolean, 
   permissions: Permissions,
   applyTo: Array[UserVO],
   version:String = Versions.V_0_0_1
@@ -128,24 +127,12 @@ case class UserLocked(
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
                            
-case class UsersLocked(
-    meetingID: String, 
-    lock: Boolean, 
-    exceptUsers: Seq[String],
-  version:String = Versions.V_0_0_1
-) extends IOutMessage
-                           
 case class GetPermissionsSettingReply(
     meetingID: String, 
     userId: String,
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
                            
-case class IsMeetingLockedReply(
-    meetingID: String, 
-    userId: String,
-  version:String = Versions.V_0_0_1
-) extends IOutMessage
 
 // Users
 case class UserRegistered(

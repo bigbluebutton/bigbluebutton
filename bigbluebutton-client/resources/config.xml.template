@@ -94,7 +94,7 @@
 			glowBlurSize = "30.0"	
 		/>
 		
-		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=4105" 
+		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 			baseTabIndex="601"

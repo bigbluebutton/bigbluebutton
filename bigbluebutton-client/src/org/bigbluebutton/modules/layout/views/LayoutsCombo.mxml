@@ -61,6 +61,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
 			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
@@ -88,10 +90,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
-        var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return;
-        
-        this.enabled = ! lockSettings.getLockedLayout();
+		  var conference:Conference = UserManager.getInstance().getConference();
+		  var thisUser:BBBUser = conference.getMyUser();
+		  this.enabled = ! thisUser.lockedLayout;
       }
       
 			private function populateLayoutsList(e:LayoutsReadyEvent):void {

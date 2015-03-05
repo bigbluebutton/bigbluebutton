@@ -24,15 +24,17 @@ package org.bigbluebutton.core.vo
 		private var disableMic:Boolean;
 		private var disablePrivateChat:Boolean;
 		private var disablePublicChat:Boolean;
-    private var lockedLayout:Boolean;
+		private var lockedLayout:Boolean;
+		private var lockOnJoin:Boolean;
 
-		public function LockSettingsVO(pDisableCam:Boolean, pDisableMic:Boolean, pDisablePrivateChat:Boolean, pDisablePublicChat:Boolean, pLockLayout: Boolean)
+		public function LockSettingsVO(pDisableCam:Boolean, pDisableMic:Boolean, pDisablePrivateChat:Boolean, pDisablePublicChat:Boolean, pLockLayout: Boolean, pLockOnJoin:Boolean)
 		{
 			this.disableCam = pDisableCam;
 			this.disableMic = pDisableMic;
 			this.disablePrivateChat = pDisablePrivateChat;
 			this.disablePublicChat = pDisablePublicChat;
-      this.lockedLayout = pLockLayout;
+			this.lockedLayout = pLockLayout;
+			this.lockOnJoin = pLockOnJoin;
 		}
 		
 		public function toMap():Object {
@@ -41,7 +43,8 @@ package org.bigbluebutton.core.vo
 				disableMic: this.disableMic,
 				disablePrivateChat: this.disablePrivateChat,
 				disablePublicChat: this.disablePublicChat,
-        lockedLayout: this.lockedLayout
+				lockedLayout: this.lockedLayout,
+				lockOnJoin: this.lockOnJoin
 			};
 			
 			return map;
@@ -62,9 +65,17 @@ package org.bigbluebutton.core.vo
 		public function getDisablePublicChat():Boolean {
 			return disablePublicChat;
 		}
-    
-    public function getLockedLayout():Boolean {
-      return lockedLayout;
-    }
+		
+		public function getLockedLayout():Boolean {
+			return lockedLayout;
+		}
+		
+		public function getLockOnJoin():Boolean {
+			return lockOnJoin;
+		}
+		
+		public function isAnythingLocked():Boolean {
+			return lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat;
+		}
 	}
 }

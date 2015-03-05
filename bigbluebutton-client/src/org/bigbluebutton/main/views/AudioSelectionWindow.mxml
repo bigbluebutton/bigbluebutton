@@ -37,7 +37,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
@@ -48,11 +51,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var baseIndex:int = 1;
 			
 			private function init():void {
+				var conference:Conference = UserManager.getInstance().getConference();
+				
 				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
-				if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
+				if (
+					(phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
+				) {
+					btnMicrophone.enabled = false;
+				}
 				
 				if (phoneOptions.showPhoneOption) {
-					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [UserManager.getInstance().getConference().dialNumber, UserManager.getInstance().getConference().voiceBridge]);
+					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [conference.dialNumber, conference.voiceBridge]);
 				} else {
 					vrulePhone.visible = vrulePhone.includeInLayout = false;
 					vboxPhone.visible = vboxPhone.includeInLayout = false;
