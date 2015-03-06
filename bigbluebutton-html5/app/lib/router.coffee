@@ -55,29 +55,30 @@
             Meteor.subscribe 'meetings', meetingId, onReady: =>
               Meteor.subscribe 'presentations', meetingId, onReady: =>
                 Meteor.subscribe 'users', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
-                  # done subscribing
-                  onLoadComplete()
+                  Meteor.subscribe 'whiteboard-clean-status', meetingId, onReady: =>
+                    # done subscribing
+                    onLoadComplete()
 
-                  handleLogourUrlError = () ->
-                    alert "Error: could not find the logoutURL"
-                    setInSession("logoutURL", document.location.hostname)
-                    return
-
-                  # obtain the logoutURL
-                  a = $.ajax({dataType: 'json', url: '/bigbluebutton/api/enter'})
-                  a.done (data) ->
-                    if data.response.logoutURL? # for a meeting with 0 users
-                      setInSession("logoutURL", data.response.logoutURL)
+                    handleLogourUrlError = () ->
+                      alert "Error: could not find the logoutURL"
+                      setInSession("logoutURL", document.location.hostname)
                       return
-                    else
-                      if data.response.logoutUrl? # for a running meeting
-                        setInSession("logoutURL", data.response.logoutUrl)
+
+                    # obtain the logoutURL
+                    a = $.ajax({dataType: 'json', url: '/bigbluebutton/api/enter'})
+                    a.done (data) ->
+                      if data.response.logoutURL? # for a meeting with 0 users
+                        setInSession("logoutURL", data.response.logoutURL)
                         return
                       else
-                        handleLogourUrlError()
+                        if data.response.logoutUrl? # for a running meeting
+                          setInSession("logoutURL", data.response.logoutUrl)
+                          return
+                        else
+                          handleLogourUrlError()
 
-                  a.fail (data, textStatus, errorThrown) ->
-                    handleLogourUrlError()
+                    a.fail (data, textStatus, errorThrown) ->
+                      handleLogourUrlError()
 
       @render('main')
 
