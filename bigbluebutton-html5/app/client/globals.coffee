@@ -57,10 +57,6 @@
 @getTimeOfJoining = ->
   Meteor.Users.findOne(userId: getInSession "userId")?.user?.time_of_joining
 
-@getPresentationFilename = ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  currentPresentation?.presentation?.name
-
 Handlebars.registerHelper "colourToHex", (value) =>
   @window.colourToHex(value)
 
@@ -104,7 +100,7 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Whiteboard: " + (getPresentationFilename() or "Loading...")
+  "Presentation"
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is BBB.getCurrentUser()?.userId
