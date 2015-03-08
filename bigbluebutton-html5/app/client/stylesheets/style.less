@@ -92,6 +92,27 @@ body {
     i {
       color: extract(@white, 1);
     }
+    .push-menu-icon {
+      .icon-bar {
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 8px;
+        margin-top: 8px;
+        display: block;
+        border-radius: 1px;
+        background-color: extract(@white, 1);
+        width: 50px;
+        height: 10px;
+      }
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    &.navbar-toggle {
+      height: 100px;
+      margin-bottom: 0px;
+      margin-top: 0px;
+      border: 0px;
+    }
   }
   @media @landscape {
     min-width: 768px;
