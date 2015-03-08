@@ -17,6 +17,9 @@ body {
     position: relative;
     top: 15px;
   }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    overflow-x: hidden;
+  }
 }
 
 .btn {
@@ -88,6 +91,27 @@ body {
     }
     i {
       color: extract(@white, 1);
+    }
+    .push-menu-icon {
+      .icon-bar {
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 8px;
+        margin-top: 8px;
+        display: block;
+        border-radius: 1px;
+        background-color: extract(@white, 1);
+        width: 50px;
+        height: 10px;
+      }
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    &.navbar-toggle {
+      height: 100px;
+      margin-bottom: 0px;
+      margin-top: 0px;
+      border: 0px;
     }
   }
   @media @landscape {
@@ -277,6 +301,14 @@ body {
     -webkit-flex-flow: row;
     flex-flow: row;
     height: calc(~'100% - 40px');
+
+    /**
+     * Making sure these properties can't be overriden in landscape orientation
+     * (landscape view can't be shifted by the sliding menu).
+     */
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-flex-flow: column;
@@ -284,6 +316,12 @@ body {
     flex-direction: column;
     min-height: 125%;
     max-height: 125%;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    transition: left 0.1s;
+    position: relative;
+    top: 0;
+    left: 0;
   }
 }
 
@@ -429,10 +467,11 @@ body {
 
 .sliding-menu {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    transition: left 0.1s;
     width: 15%;
     height: 100%;
     position: fixed;
-    top: 0;
+    top: 100px;
     left: -15%;
     z-index: 1031;
     &.sliding-menu-opened {
@@ -451,7 +490,7 @@ body {
 .slideSection {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     float: left;
-    margin-top: 100px;
+    margin-top: 0;
     height: 100%;
     width: 100%;
     margin-bottom: 0.5%;
@@ -481,11 +520,11 @@ body {
   }
 }
 
-#darkened-screen {
+#shield {
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
     display: none;
     background: black;
-    opacity: 0.7;
+    opacity: 0.2;
     z-index: 1030;
     position: fixed;
     left: 0;
