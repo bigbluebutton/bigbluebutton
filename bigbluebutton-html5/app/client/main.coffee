@@ -85,14 +85,10 @@ Template.header.events
 
   "click .signOutIcon": (event) ->
     $('.signOutIcon').blur()
-    if window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-width: 1279px)').matches
-      if $('#dialog').dialog('option', 'height') isnt 450
-        $('#dialog').dialog('option', 'width', '100%')
-        $('#dialog').dialog('option', 'height', 450)
+    if isLandscapeMobile()
+      $('.logout-dialog').addClass('landscape-mobile-logout-dialog')
     else
-      if $('#dialog').dialog('option', 'height') isnt 115
-        $('#dialog').dialog('option', 'width', 270)
-        $('#dialog').dialog('option', 'height', 115)
+      $('.logout-dialog').addClass('desktop-logout-dialog')
     $("#dialog").dialog("open")
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
