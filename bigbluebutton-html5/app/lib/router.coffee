@@ -18,7 +18,7 @@
         Meteor.call("userLogout", meetingId, userId, authToken)
 
         clearSessionVar (alert "Please sign in again")
-        document.location = Meteor.config.app.logOutUrl
+        document.location.pathname = '/'
         return
 
       Meteor.subscribe 'chat', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
@@ -41,10 +41,8 @@
 
       # catch if any of the user's meeting data is invalid
       if not authToken? or not meetingId? or not userId?
-        # if their data is invalid, redirect the user to the logout url
-        # logout url is the server ip address at port 4000, bringing the user back
-        # to the login page
-        document.location = Meteor.config.app.logOutUrl
+        # if their data is invalid, redirect the user to the login page
+        document.location.pathname = '/'
 
       else
         Meteor.call("validateAuthToken", meetingId, userId, authToken)
