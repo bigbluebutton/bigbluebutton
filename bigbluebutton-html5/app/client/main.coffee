@@ -186,6 +186,10 @@ Template.main.rendered = ->
         class: 'btn btn-xs btn-default'
       }
     ]
+    open: (event, ui) ->
+      $('.ui-widget-overlay').bind 'click', () ->
+        if isMobile()
+          $("#dialog").dialog('close')
     position:
       my: 'right top'
       at: 'right bottom'

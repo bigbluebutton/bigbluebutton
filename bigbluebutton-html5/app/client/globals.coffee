@@ -366,6 +366,15 @@ Handlebars.registerHelper "visibility", (section) ->
 @listSessionVars = ->
   console.log SessionAmplify.keys
 
+# Detects a mobile device
+@isMobile = ->
+  navigator.userAgent.match(/Android/i) or
+  navigator.userAgent.match(/iPad/i) or
+  navigator.userAgent.match(/iPhone/i) or
+  navigator.userAgent.match(/iPod/i) or
+  navigator.userAgent.match(/Windows Phone/i) or
+  navigator.userAgent.match(/BlackBerry/i) or
+  navigator.userAgent.match(/webOS/i)
 
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
