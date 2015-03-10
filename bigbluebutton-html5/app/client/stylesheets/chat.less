@@ -1,0 +1,294 @@
+@import "variables";
+
+.active {
+  border: .2vh solid extract(@azure, 2) !important;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    border-left: .1vh solid extract(@azure, 2) !important;
+  }
+}
+
+#chat {
+  background-color: extract(@white, 2);
+  border: 1px solid extract(@lightGrey, 3);
+  float: left;
+  background: extract(@white, 1);
+  margin-left: 0.25%;
+  margin-right: 0.25%;
+  overflow: hidden;
+  -webkit-flex: 1 1 25%;
+  flex: 1 1 25%;
+  padding-left: 0px;
+  padding-right: 0px;
+  width: 100%;
+  @media @landscape {
+    height: calc(~'100% - 15px');
+    -webkit-order: 3;
+    order: 3;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    -webkit-order: 2;
+    order: 2;
+  }
+}
+
+.chat {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+  
+  @media @desktop-portrait, @landscape {
+    li {
+      margin: 0px;
+      padding: 15px;
+      word-wrap: break-word;
+      &:nth-child(even) {
+        background-color: rgb(245,245,245);
+      }
+      table {
+        width: 100%;
+      }
+    }
+  }
+
+}
+
+#chatbody {
+  @media @landscape {
+    height: calc(~'100% - 121px');
+  }
+  overflow-y: scroll;
+  padding-left: 0px;
+  padding-right: 0px;
+  @media @desktop-portrait, @mobile-portrait {
+    max-height: 46vw; // for longer chatbody a scrollbar appears
+    overflow-y: scroll;
+  }
+}
+
+.chatNameSelector {
+  clear:right;
+  float:left;
+  margin-bottom: 0px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chatNameSelectorPrivate {
+  .chatNameSelector;
+  width:90%;
+}
+
+.chatNameSelectorPublic {
+  .chatNameSelector;
+  margin-bottom: 1px !important;
+  width:100%;
+}
+
+.close:hover {
+  background-color: red;
+}
+
+.closeTab {
+  float:left;
+  width:10%;
+  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 4vw;
+  }
+  @media @landscape {
+    font-size: 1vw;
+  }
+}
+
+.chat-input-wrapper {
+  padding:10px;
+}
+
+#chat-user-list {
+  padding: 5px;
+}
+
+.dropdown {
+  float: left;
+  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
+    .dropdownMessage {
+      font-size: 3vw;
+      font-style: italic;
+    }
+  }
+  .dropdown-menu {
+    height: 80px;
+    overflow-y: scroll;
+    right: 0px;
+  }
+}
+
+.gotUnreadMail {
+  background: extract(@yellow, 2) !important;
+}
+
+#MoreChatsDrop {
+  float: right;
+}
+
+#MoreChatsbutton {
+  margin-right: 10px;
+  margin-top: 5px;
+  padding-bottom: 0px;
+  padding-top: 0px;
+}
+
+#newMessageInput {
+  display: block;
+  float: left;
+  width: 75%;
+  resize: none;
+  padding:5px;
+  border-radius:4px;
+  border:1px solid extract(@lightGrey, 3);
+  @media @landscape, @desktop-portrait {
+    height: 15%;
+  }
+  @media @mobile-portrait {
+    font-size: 4vw;
+    height: 8vw;
+  }
+  @media @mobile-portrait-with-keyboard {
+    font-size: 4.5vh;
+    height: 25vh;
+  }
+  @media @desktop-portrait {
+    font-size: 25px;
+  }
+}
+
+.optionsBar {
+  height: 85%;
+  overflow-y: auto;
+  padding-left: 15px;
+  padding-top: 15px;
+  p {
+    @media @mobile-portrait, 
+    @mobile-portrait-with-keyboard
+    {
+      font-size: 3vw;
+      font-style: italic;
+    }
+  }
+}
+
+.panel-footer {
+  bottom: 0px;
+  /* padding: 10px; TODO: investigate (causes the overflow in the chat's title) */
+  position: relative;
+  background: extract(@white, 1);
+}
+
+.private-chat-user-box {
+  border-left: 1px solid grey;
+  height: 300px;
+  padding: 5px;
+  width: 90%;
+}
+
+.private-chat-user-list {
+  font-size: 12px;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: scroll;
+  :hover {
+    background: extract(@azure, 2);
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  .private-chat-user-entry
+  {
+     @media @mobile-portrait-with-keyboard, @mobile-portrait
+     {
+       height: 5vw;
+       font-size: 4vw;
+     }
+  }
+}
+
+#sendMessageButton {
+  background-color: extract(@azure, 1);
+  width: 20%;
+  color: extract(@white, 1);
+  @media @desktop-portrait {
+    width: 100px;
+    font-size: 30px;
+    height: 60px;
+    margin-left: 5%;
+  }
+  @media @mobile-portrait {
+    width: 15vw;
+    height: 8vw;
+    font-size: 4vw;
+    margin-left: 5%;
+  }
+  @media @mobile-portrait-with-keyboard {
+    width: 19vw;
+    height: 21vh;
+    font-size: 3vh;
+    margin-left: 1%;
+    margin-right: 1%;
+    marigin-top: 2vh;
+    margin-bottom: 2vh;
+  }
+  @media @landscape {
+    height: 40px;
+    padding: 0px;
+    margin-left: 5%;
+  }
+}
+
+#tabsList {
+  display: table;
+  margin: 0;
+  padding: 0;
+  table-layout: fixed;
+  text-align: center;
+  width: 100%;
+  a {
+    padding:0px;
+    @media @mobile-portrait-with-keyboard,
+    @mobile-portrait {
+      font-size: 35px;
+    }
+    @media @desktop-portrait {
+      font-size: 20px;
+    }
+    @media @landscape {
+      font-size: 12px;
+    }
+  }
+  li:first-child a {
+    border-left: 0;
+  }
+  &:before, &:after {
+    content: none;
+  }
+}
+
+.tab {
+  font-size: 14px;
+  height:auto !important;
+  width: 25% !important;
+
+  &:hover {
+    background-color: #ddd;
+    border: 1px solid extract(@azure, 2);
+    border-bottom: none;
+  }
+}
+
+.timestamp {
+  text-align: right;
+}
+
+#chatbar-contents {
+  @media @landscape {
+    min-width: 140px;
+  }
+}

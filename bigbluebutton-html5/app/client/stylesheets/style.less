@@ -1,0 +1,571 @@
+@import "variables";
+@import "mixins";
+
+body {
+  background: extract(@white, 3);
+  bottom: 0;
+  color: extract(@darkGrey, 1);
+  left: 0;
+  right: 0;
+  @media @landscape {
+    height: 100%;
+    min-width: 768px;
+    position: absolute;
+    top: 0;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    position: relative;
+    top: 15px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    overflow-x: hidden;
+  }
+}
+
+.btn {
+  background-color: extract(@white, 2);
+}
+
+.component {
+  .radius;
+  background: extract(@white, 1);
+  border: 1px solid extract(@lightGrey, 3);
+  float: left;
+  height: 100%;
+  margin-top: 10px;
+}
+
+.extraConversationScrollableMenu {
+  height: auto;
+  max-height: 200px;
+  overflow-x: hidden;
+}
+
+.mainContainer {
+  height: 95%;
+}
+
+.myFooter {
+  min-height: 40px !important;
+  color: black;
+  padding-top: 13px;
+  text-align: center;
+  @media @landscape {
+    position:fixed;
+    bottom:0;
+    margin-bottom: 0;
+    border-width: 1px 0 0;
+    width: 100%;
+  }
+  @media @landscape, @desktop-portrait {
+    font-size: 10px;
+    max-height: 20px;
+  }
+  @media @mobile-portrait {
+    font-size: 2vw;
+  }
+
+  // the footer should be visible only at the very bottom of a portrait page
+  @media @desktop-portrait, @mobile-portrait {
+    order: 4;
+    -webkit-order: 4;
+  }
+  @media @mobile-portrait-with-keyboard {
+    display: none; //hide when typing
+  }
+}
+
+.myNavbar {
+  margin-bottom: 0.5%;
+  border-bottom: 0px;
+  &.gradientBar {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
+  .btn {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    border-left: 1px solid extract(@darkGrey, 2);
+    border-right: 1px solid extract(@darkGrey, 4);
+    &.navbarIconToggleActive {
+      background: extract(@darkGrey, 3);
+      border-bottom: 4px solid extract(@azure, 1);
+    }
+    i {
+      color: extract(@white, 1);
+    }
+    .push-menu-icon {
+      .icon-bar {
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 8px;
+        margin-top: 8px;
+        display: block;
+        border-radius: 1px;
+        background-color: extract(@white, 1);
+        width: 50px;
+        height: 10px;
+      }
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    &.navbar-toggle {
+      height: 100px;
+      margin-bottom: 0px;
+      margin-top: 0px;
+      border: 0px;
+    }
+  }
+  @media @landscape {
+    min-width: 768px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    min-width: 630px;
+  }
+  @media @desktop-portrait {
+    min-width: 400px;
+  }
+}
+
+.myNavbarMinimized {
+  background: extract(@white, 3);
+  height: 20px;
+  margin-bottom: 0.2%;
+  margin-top: 0px;
+  min-width: 900px;
+  padding-top: 0px;
+  text-align: right;
+}
+
+.navbar {
+  min-height: 40px !important;
+}
+
+.navbarFiller {
+  width: 100%;
+  @media @landscape {
+    height: 50px;
+  }
+}
+
+.navbarIconToggleActive i {
+  color: extract(@lightGrey, 2);
+}
+
+#navbarMinimizedButton {
+  margin-bottom: 0px;
+  margin-left: 2px;
+  margin-right: 20px;
+  margin-top: 0px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.navbarMinimizedButtonSmall {
+  height: 10px;
+  width: 40px;
+}
+
+.navbarMinimizedButtonLarge {
+  height: 50px;
+  width: 40px;
+}
+
+.navbarSettingsButtons {
+  float: right;
+  .btn {
+    display: block;
+    float: right;
+  }
+}
+
+.navbarTitle {
+  color: extract(@white, 1);
+  display: block;
+  float: left;
+  font-weight: bold;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  @media @landscape {
+    font-size: 16px;
+    padding-top: 13px;
+    width: 30% !important;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    font-size: 30px;
+    padding-top: 30px;
+    padding-left: 5px;
+    height: 72px;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  @media @desktop-portrait {
+    font-size: 16px;
+    padding-top: 13px;
+    width: calc(~'100% - 102.4px');
+  }
+}
+
+.navbarUserButtons {
+  .btn {
+    border-radius: 0;
+    display: block;
+    float: left;
+    &:hover {
+      background: extract(@darkGrey, 3);
+    }
+  }
+  @media @landscape {
+    float: left;
+  }
+}
+
+.navbarSettingsButtons .btn:hover {
+  background: extract(@darkGrey, 3);
+}
+
+.panel-footer {
+  padding: 0;
+}
+
+.recordingStatus {
+  background: none!important;
+  border: none;
+  margin-left: 10px;
+  padding: 0!important;
+}
+
+.recordingStatusFalse {
+  color: maroon;
+}
+
+.recordingStatusTrue {
+  color: green;
+}
+
+.ScrollableWindowX {
+  width: 100%;
+  overflow-x: scroll;
+}
+
+.ScrollableWindowY {
+  overflow-y: scroll;
+  overflow-y:auto;
+}
+
+.tab {
+  height: 40px;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  border-top: 0px;
+}
+
+.title {
+  border-bottom: 1px solid extract(@lightGrey, 1);
+  color: extract(@darkGrey, 1);
+  font-weight: bold;
+  line-height: 2em;
+  margin: 0;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-top: 5px;
+  @media @desktop-portrait, @landscape {
+    font-size: 14px;
+  }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 4vw;
+  }
+}
+
+#main {
+  padding-top: 50px;
+  padding-left: 0.25%;
+  padding-right: 0.25%;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: -ms-flex;
+  display: -webkit-flex;
+  display: flex;
+  @media @desktop-portrait {
+    padding-top: 0;
+  }
+  @media @landscape {
+    -webkit-flex-flow: row;
+    flex-flow: row;
+    height: calc(~'100% - 40px');
+
+    /**
+     * Making sure these properties can't be overriden in landscape orientation
+     * (landscape view can't be shifted by the sliding menu).
+     */
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    -webkit-flex-flow: column;
+    flex-flow: column;
+    flex-direction: column;
+    min-height: 125%;
+    max-height: 125%;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    transition: left 0.1s;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+}
+
+/* Custom alert box */
+
+/* Logout menu's properties on mobile devices in landscape orientation */
+.landscape-mobile-logout-dialog {
+  @media @landscape {
+    .ui-widget-header {
+      font-size: 100% !important;
+    }
+    width: 55% !important; /* overriding "width: auto;" */
+    font-size: 3vh !important; /* overriding "font-size: 11px;" */
+    .ui-dialog-content {
+      height: 30% !important; /* overriding "height: auto;" */
+    }
+    .ui-dialog-buttonset {
+      width: 100%;
+      font-size: 4vh;
+      button {
+        width: 40%;
+        margin-left: 5% !important;
+        margin-right: 5% !important;
+      }
+    }
+    height: 32% !important;
+  }
+}
+
+/* Logout menu's properties on desktop */
+.desktop-logout-dialog {
+  @media @desktop-portrait, @landscape {
+    .ui-dialog-content {
+      height: 36px !important; /* overriding "height: auto;" */
+    }
+  }
+}
+
+.no-close .ui-dialog-titlebar-close {
+  display: none; /* no close button */
+}
+
+.logout-dialog.ui-dialog {
+  .ui-widget-header {
+    color: extract(@white, 1);
+    font-weight: bold;
+    background: extract(@darkGrey, 3);
+    @media @desktop-portrait, @landscape {
+      font-size: 12px;
+    }
+  }
+  .ui-dialog-content {
+    font-weight: bold;
+    text-align: center;
+    @media @desktop-portrait, @landscape {
+      min-height: 0px !important; /* overriding "min-height: 47px;"*/
+    }
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 100% !important;
+  }
+}
+
+.logout-dialog.ui-widget-content {
+  background: extract(@white, 3);
+  border: 5px solid extract(@darkGrey, 3);
+  @media @desktop-portrait, @landscape {
+    font-size: 11px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    font-size: 280%;
+  }
+}
+
+.ui-widget-overlay {
+  z-index: 1031;
+}
+
+.custom-button {
+  background-color: extract(@yellow, 1);
+}
+
+.fullScreenPresentation {
+  width: 90% !important;
+  height: 90% !important;
+}
+
+.halfScreen {
+  width: 44% !important;
+  height: 80% !important;
+}
+
+.quarterScreen {
+  width: 22% !important;
+  height: 80% !important;
+}
+
+.navbarButton {
+  @media @desktop-portrait, @landscape {
+    height: 50px;
+    width: 51.2px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 100px;
+    width: 10%;
+    min-width: 60px;
+  }
+}
+
+.navbarSection {
+  @media @landscape {
+    min-width: 256px;
+    width: 33%;
+  }
+}
+
+.ion-volume-mute {
+  @media @desktop-portrait, @landscape {
+    font-size: 20px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    font-size: 35px;
+  }
+}
+
+.glyphicon, .ion-android-hand {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    font-size: 35px;
+  }
+}
+
+.hiddenNavbarSection {
+  @media @landscape {
+    display: block !important;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    display: none;
+  }
+}
+
+.narrowedNavbarTitle {
+  @media @desktop-portrait {
+    width: calc(~'100% - 358.4px') !important;
+  }
+}
+
+.collapseNavbarSection {
+  @media @landscape {
+    display: block !important;
+  }
+  @media @desktop-portrait {
+    display: none;
+  }
+}
+
+#collapseButtonSection {
+  @media @landscape {
+    display: none;
+  }
+  @media @desktop-portrait {
+    display: block !important;
+  }
+}
+
+.ui-dialog-buttonset {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 100%;
+  }
+  button {
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      width: 40%;
+      margin-left: 5% !important;
+      margin-right: 5% !important;
+    }
+  }
+}
+
+/* Sliding menu */
+
+.sliding-menu {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    transition: left 0.1s;
+    width: 15%;
+    height: 100%;
+    position: fixed;
+    top: 100px;
+    left: -15%;
+    z-index: 1031;
+    &.sliding-menu-opened {
+      left: 0px;
+    }
+    a {
+      border-bottom: 1px solid #258ecd;
+      padding: 1em;
+    }
+  }
+  @media @landscape, @desktop-portrait {
+      display: none;
+  }
+}
+
+.slideSection {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    float: left;
+    margin-top: 0;
+    height: 100%;
+    width: 100%;
+    margin-bottom: 0.5%;
+    &.gradientBar {
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    }
+    .btn {
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+      border-left: 1px solid extract(@darkGrey, 2);
+      border-right: 1px solid extract(@darkGrey, 4);
+      &.navbarIconToggleActive {
+        background: extract(@darkGrey, 3);
+        border-bottom: 4px solid extract(@azure, 1);
+      }
+      i {
+        color: extract(@white, 1);
+      }
+    }
+  }
+}
+
+.slideButton {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    display: block;
+    width: 100%;
+    height: calc(~'20% - 20px');
+  }
+}
+
+#shield {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    display: none;
+    background: black;
+    opacity: 0.2;
+    z-index: 1030;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

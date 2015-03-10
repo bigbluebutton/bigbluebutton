@@ -221,12 +221,11 @@ package org.bigbluebutton.main.model.users
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
 				
 				trace(LOG + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
-					_conferenceParameters.conference + "," + _conferenceParameters.record + "," + _conferenceParameters.room + "]");	
+					_conferenceParameters.conference + "," + _conferenceParameters.record + "," + _conferenceParameters.room + ", " + _conferenceParameters.lockSettings.lockOnJoin + "]");	
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
-											_conferenceParameters.internalUserID, _conferenceParameters.lockOnStart, 
-                      _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings);			
+											_conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings);			
 			} catch(e:ArgumentError) {
 				// Invalid parameters.
 				switch (e.errorID) {

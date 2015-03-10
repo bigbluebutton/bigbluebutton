@@ -1,0 +1,133 @@
+<template name="chatbar">
+    <div id="{{id}}" {{visibility name}} class="component">
+        <h3 class="title gradientBar">
+        <span class="glyphicon glyphicon-comment"></span>
+        {{title}}
+        {{> extraConversations}}
+        </h3>
+        {{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
+        {{#if getInSession "display_chatPane"}}
+            <div id="chatbody">
+                <ul class="chat" {{messageFontSize}}>
+                    {{#each getCombinedMessagesForChat}}
+                        {{#if message}}
+                            <li>{{> message}}</li>
+                        {{/if}}
+                    {{/each}}
+                    {{#unless userExists}}<li>The user has left</li>{{/unless}}
+                </ul>
+            </div>
+            {{#if userExists}}
+                <div class="panel-footer">{{> chatInput}}</div> 
+            {{/if}}
+        {{else}}
+            {{> optionsBar}}
+        {{/if}}
+    </div>
+</template>
+
+<template name="chatInput">
+	<div id="chatInput" class="chat-input-wrapper">
+		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
+		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
+		Send
+		</button>
+	</div>
+</template>
+
+<template name="chatOptions">
+	<p>Chat Options:</p>
+	{{> optionsFontSize}}
+</template>
+
+<template name="extraConversations">
+    {{#if tooManyConversations}}
+        <div id="MoreChatsDrop" class="btn-group">
+            <button type="button" id="MoreChatsbutton" class="btn btn-default dropdown-toggle" data-toggle="dropdown">More Chats<span class="caret"></span></button>
+            <ul class="dropdown-menu extraConversationScrollableMenu" role="menu">
+                {{#each getExtraConversations}}
+                    <li class="extraConversation" id="{{safeName name}}"><a href="#">{{safeName name}}</a></li>
+                {{/each}}
+            </ul>
+        </div>
+    {{/if}}
+</template>
+
+<!-- Displays and styles an individual message in the chat -->
+<template name="message">
+    <span style="float:left;">
+        {{#if message.from_username}}
+            <span class="userNameEntry" rel="tooltip" data-placement="bottom" title="{{message.from_username}}">
+                {{message.from_username}}
+            </span>
+        {{/if}}
+    </span>
+    <span style="float:right;">
+        {{#if message.from_time}}
+            <span {{messageFontSize}}>{{toClockTime message.from_time}}</span>
+            <span {{messageFontSize}} class="glyphicon glyphicon-time"></span>
+        {{/if}}
+    </span>
+    <br/>
+    <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
+    {{autoscroll}}
+</template>
+
+<!-- Displays the list of options available -->
+<template name="optionsBar">
+    <div class="optionsBar">
+        {{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
+            <p>Select a person to chat with privately:</p>
+            <div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
+                <div class="private-chat-user-list">
+                    {{#each getUsersInMeeting}}
+                        {{#unless isCurrentUser userId}}
+                            <div class="private-chat-user-entry">
+                                {{user.name}}
+                            </div>
+                        {{/unless}}
+                    {{/each}}
+                </div>
+            </div>
+        {{else}}
+            <p>There are no participants to chat with right now.</p>
+        {{/if}}
+        <br/>
+        {{> chatOptions}}
+        <br/><br/><br/>
+    </div>
+</template>
+
+<template name="optionsFontSize">
+    <div class="dropdown">
+        <span class="dropdownMessage">Chat Message Font Size: </span>
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+        Font Size ({{getInSession "messageFontSize"}})
+        <span class="caret"></span>
+        </button>
+
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            {{#each getFontsizes}}
+                <li role="presentation"><a class="fontSizeSelector" id="{{this}}" role="menuitem" tabindex="-1" href="#">{{this}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
+</template>
+
+<!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
+<template name="tabButtons">
+  <ul id="tabsList" class="nav nav-tabs">
+    {{#each grabChatTabs}}
+      <li class="{{isTabActive userId}} tab {{makeSafe class}} {{hasGotUnreadMailClass gotMail}}">
+        <a href='#' data-toggle='tab' id="#{{makeSafe name}}">
+            {{#if equals class "privateChatTab"}}
+                <p class="chatNameSelectorPrivate">{{makeSafe name}}</p>
+                <button type="button" class="close closeTab">X</button>
+            {{else}}
+                <p class="chatNameSelectorPublic">{{makeSafe name}}</p>
+            {{/if}}
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+</template>

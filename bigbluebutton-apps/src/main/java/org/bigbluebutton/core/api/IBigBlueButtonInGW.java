@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.api;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 
@@ -19,12 +18,10 @@ public interface IBigBlueButtonInGW {
 	
 	
 	// Lock
-	void initLockSettings(String meetingID, boolean locked, Map<String, Boolean> settings);
+	void initLockSettings(String meetingID, Map<String, Boolean> settings);
 	void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings);
 	void getLockSettings(String meetingId, String userId);
-	void isMeetingLocked(String meetingId, String userId);
-	void lockAllUsers(String meetingId, boolean lock, ArrayList<String> dontLockTheseUsers);
-	void lockUser(String meetingId, boolean lock, String internalUserID);
+	void lockUser(String meetingId, String requesterID, boolean lock, String internalUserID);
 	
 	
 	// Users
@@ -46,11 +43,12 @@ public interface IBigBlueButtonInGW {
 	void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
 	
 	// Voice
+	void initAudioSettings(String meetingID, String requesterID, Boolean muted);
 	void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute);
 	void muteAllUsers(String meetingID, String requesterID, Boolean mute);
 	void isMeetingMuted(String meetingID, String requesterID);
 	void muteUser(String meetingID, String requesterID, String userID, Boolean mute);
-	void lockUser(String meetingID, String requesterID, String userID, Boolean lock);
+	void lockMuteUser(String meetingID, String requesterID, String userID, Boolean lock);
 	void ejectUserFromVoice(String meetingID, String userId, String ejectedBy);
 	void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy);
 	void voiceUserJoined(String meetingId, String userId, String webUserId, String conference, 

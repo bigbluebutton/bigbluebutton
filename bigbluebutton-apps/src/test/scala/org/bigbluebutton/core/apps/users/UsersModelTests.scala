@@ -14,14 +14,13 @@ class UsersModelTests {
                       "Asyong Aksaya", "+639175558624",
                       joined = true, locked = false, 
                       muted = false, talking = false)
-  val perm = new Permissions
-    
-  val  userVo = new UserVO("user1", "euser1", name = "Asyong Aksaya", 
+
+  val  userVo = new UserVO("user1", userID="user1", externUserID = "euser1", name = "Asyong Aksaya", 
                    role = MODERATOR, raiseHand = false, 
                    presenter = true, hasStream = false, 
                    locked = false, webcamStream = "", 
                    phoneUser = false, voiceUser = voiceUser,
-                   listenOnly = false, permissions = perm)
+                   listenOnly = false)
   
   @BeforeClass
   def setUp() {

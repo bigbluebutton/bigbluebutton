@@ -15,7 +15,7 @@ import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
 
 class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresentationsUtil) extends IBigBlueButtonInGW {
-   
+  
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID:String, meetingName: String, record: Boolean, 
           voiceBridge: String, duration: Long, autoStartRecording: Boolean, 
@@ -82,18 +82,21 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     val disablePrivChat = s.getOrElse("disablePrivateChat", false)
     val disablePubChat = s.getOrElse("disablePublicChat", false)
     val lockedLayout = s.getOrElse("lockedLayout", false)
+    var lockOnJoin = s.getOrElse("lockOnJoin", false)
+    
     val permissions = new Permissions(disableCam = disableCam,
                                       disableMic = disableMic,
                                       disablePrivChat = disablePrivChat,
                                       disablePubChat = disablePubChat,
-                                      lockedLayout = lockedLayout)
+                                      lockedLayout = lockedLayout,
+                                      lockOnJoin = lockOnJoin)
 
     bbbGW.accept(new SetLockSettings(meetingID, userId, permissions))
   }
   
-  def initLockSettings(meetingID: String, locked: Boolean, settings: java.util.Map[String, java.lang.Boolean]) {
+  def initLockSettings(meetingID: String, settings: java.util.Map[String, java.lang.Boolean]) {
     // Convert java.util.Map to scala.collection.immutable.Map
-    // settings.mapValues -> convaert java Map to scala mutable Map
+    // settings.mapValues -> convert java Map to scala mutable Map
     // v => v.booleanValue() -> convert java Boolean to Scala Boolean
     // toMap -> converts from scala mutable map to scala immutable map
     val s = settings.mapValues (v => v.booleanValue() /* convert java Boolean to Scala Boolean */).toMap  
@@ -102,29 +105,29 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     val disablePrivChat = s.getOrElse("disablePrivateChat", false)
     val disablePubChat = s.getOrElse("disablePublicChat", false)
     val lockedLayout = s.getOrElse("lockedLayout", false)
+    val lockOnJoin = s.getOrElse("lockOnJoin", false)
     val permissions = new Permissions(disableCam = disableCam,
                                       disableMic = disableMic,
                                       disablePrivChat = disablePrivChat,
                                       disablePubChat = disablePubChat,
-                                      lockedLayout = lockedLayout)
+                                      lockedLayout = lockedLayout,
+                                      lockOnJoin = lockOnJoin)
 
-    bbbGW.accept(new InitLockSettings(meetingID, locked, permissions))
+    bbbGW.accept(new InitLockSettings(meetingID, permissions))
+  }
+  
+  
+  
+  def initAudioSettings(meetingID: String, requesterID: String, muted: java.lang.Boolean) {
+    bbbGW.accept(new InitAudioSettings(meetingID, requesterID, muted.booleanValue()))
   }
   
   def getLockSettings(meetingId: String, userId: String) {
     bbbGW.accept(new GetLockSettings(meetingId, userId))
   }
   
-  def isMeetingLocked(meetingId: String, userId: String) {
-    bbbGW.accept(new IsMeetingLocked(meetingId, userId))
-  }
-  
-  def lockAllUsers(meetingId: String, lock: Boolean, dontLockTheseUsers: ArrayList[String]) {
-    bbbGW.accept(new LockAllUsers(meetingId, lock, dontLockTheseUsers.toSeq))
-  }
-  
-  def lockUser(meetingId: String, lock: Boolean, userId: String) {
-    bbbGW.accept(new LockUser(meetingId, userId, lock))
+  def lockUser(meetingId: String, requesterID: String, lock: Boolean, userId: String) {
+    bbbGW.accept(new LockUserRequest(meetingId, requesterID, userId, lock))
   }
 	
   def setRecordingStatus(meetingId: String, userId: String, recording: java.lang.Boolean) {
@@ -413,7 +416,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	  voiceGW.muteUser(meetingID, requesterID, userID, mute)
 	}
 	
-	def lockUser(meetingID: String, requesterID: String, userID: String, lock: java.lang.Boolean) {
+	def lockMuteUser(meetingID: String, requesterID: String, userID: String, lock: java.lang.Boolean) {
 	  voiceGW.lockUser(meetingID, requesterID, userID, lock)
 	}
 	

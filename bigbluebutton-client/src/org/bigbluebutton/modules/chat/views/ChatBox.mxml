@@ -645,24 +645,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 			
 		private function lockSettingsChanged(e:Event):void {
-      applyLockSettings();
-    }
-      
-    private function applyLockSettings():void {  
-      
-        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
-        
-				var userManager:UserManager = UserManager.getInstance();
-				var conference:Conference = userManager.getConference();
-				var me:BBBUser = conference.getMyUser();
-				
-				if (publicChat) {
-          txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
-				} else {
-          txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
-				}
+			applyLockSettings();
+		}
+		
+		private function applyLockSettings():void {
+			var userManager:UserManager = UserManager.getInstance();
+			var conference:Conference = userManager.getConference();
+			var me:BBBUser = conference.getMyUser();
+			
+			if (publicChat) {
+				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
+			} else {
+				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
 			}
-		]]>
+		}
+	]]>
 		
 	</mx:Script>
 
