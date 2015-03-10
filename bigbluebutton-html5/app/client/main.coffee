@@ -29,7 +29,7 @@ Meteor.startup ->
       amplify.store key, value
       return
   )
-# 
+#
 Template.footer.helpers
   getFooterString: ->
     info = getBuildInformation()
@@ -47,7 +47,6 @@ Template.header.events
 
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
-    toggleSlidingMenu()
     toggleChatbar()
 
   "click .collapseSlidingMenuButton": (event) ->
@@ -67,7 +66,6 @@ Template.header.events
 
   "click .lowerHand": (event) ->
     $(".tooltip").hide()
-    toggleSlidingMenu()
     Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   "click .muteIcon": (event) ->
@@ -78,21 +76,16 @@ Template.header.events
     #Meteor.log.info "navbar raise own hand from client"
     console.log "navbar raise own hand from client"
     $(".tooltip").hide()
-    toggleSlidingMenu()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
     # "click .settingsIcon": (event) ->
     #   alert "settings"
 
   "click .signOutIcon": (event) ->
     $('.signOutIcon').blur()
-    if window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-width: 1279px)').matches
-      if $('#dialog').dialog('option', 'height') isnt 450
-        $('#dialog').dialog('option', 'width', '100%')
-        $('#dialog').dialog('option', 'height', 450)
+    if isLandscapeMobile()
+      $('.logout-dialog').addClass('landscape-mobile-logout-dialog')
     else
-      if $('#dialog').dialog('option', 'height') isnt 115
-        $('#dialog').dialog('option', 'width', 270)
-        $('#dialog').dialog('option', 'height', 115)
+      $('.logout-dialog').addClass('desktop-logout-dialog')
     $("#dialog").dialog("open")
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
@@ -102,7 +95,6 @@ Template.header.events
 
   "click .usersListIcon": (event) ->
     $(".tooltip").hide()
-    toggleSlidingMenu
     toggleUsersList()
 
   "click .videoFeedIcon": (event) ->
@@ -111,7 +103,6 @@ Template.header.events
 
   "click .whiteboardIcon": (event) ->
     $(".tooltip").hide()
-    toggleSlidingMenu
     toggleWhiteBoard()
 
   "mouseout #navbarMinimizedButton": (event) ->
@@ -190,6 +181,10 @@ Template.main.rendered = ->
         class: 'btn btn-xs btn-default'
       }
     ]
+    open: (event, ui) ->
+      $('.ui-widget-overlay').bind 'click', () ->
+        if isMobile()
+          $("#dialog").dialog('close')
     position:
       my: 'right top'
       at: 'right bottom'
@@ -200,7 +195,7 @@ Template.main.rendered = ->
     $('#dialog').dialog('close')
   )
 
-  $('#darkened-screen').click () ->
+  $('#shield').click () ->
     toggleSlidingMenu()
 
 Template.makeButton.rendered = ->

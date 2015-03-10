@@ -35,6 +35,7 @@
   list-style: none;
   margin: 0px;
   padding: 0px;
+  
   @media @desktop-portrait, @landscape {
     li {
       margin: 0px;
@@ -48,6 +49,7 @@
       }
     }
   }
+
 }
 
 #chatbody {
@@ -61,11 +63,6 @@
     max-height: 46vw; // for longer chatbody a scrollbar appears
     overflow-y: scroll;
   }
-}
-
-.chatGreeting {
-  color: blue;
-  margin-top: 5px;
 }
 
 .chatNameSelector {
@@ -114,7 +111,7 @@
   float: left;
   @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
     .dropdownMessage {
-      font-size: 2.5vw !important;
+      font-size: 3vw;
       font-style: italic;
     }
   }

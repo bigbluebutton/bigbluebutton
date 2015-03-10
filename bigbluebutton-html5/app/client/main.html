@@ -10,11 +10,13 @@
       <div class="navbarUserButtons navbarSection">
         <div id="collapseButtonSection">
           {{#if isPortraitMobile}}
-            {{#if getInSession "display_slidingMenu"}}
-              {{> makeButton btn_class="navbarButton collapseSlidingMenuButton" i_class="glyphicon glyphicon-chevron-left" rel="tooltip" data_placement="bottom" title="Collapse"}}
-            {{else}}
-              {{> makeButton btn_class="navbarButton collapseSlidingMenuButton" i_class="glyphicon glyphicon-chevron-right" rel="tooltip" data_placement="bottom" title="Expand"}}
-            {{/if}}
+            <button class="navbar-toggle btn navbarButton collapseSlidingMenuButton">
+              <div class="push-menu-icon">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </div>
+            </button>
           {{else}}
             {{#if getInSession "display_hiddenNavbarSection"}}
               {{> makeButton btn_class="navbarButton collapseNavbarButton" i_class="glyphicon glyphicon-chevron-left" rel="tooltip" data_placement="bottom" title="Collapse"}}
@@ -115,18 +117,18 @@
       <audio id="remote-media" autoplay="autoplay"></audio>
       {{> footer}}
     {{/if}}
+    <div id='shield'></div>
   </div>
   {{#if isPortraitMobile}}
     {{> slidingMenu}}
   {{/if}}
-  <div id='darkened-screen'></div>
 </body>
 </template>
 
 <template name="recordingStatus">
 	<!-- Recording status of the meeting -->
 	{{#with getCurrentMeeting}}
-		{{#if intendedForRecording}} 
+		{{#if intendedForRecording}}
 			{{#if currentlyBeingRecorded}}
 				<button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
 			{{else}}

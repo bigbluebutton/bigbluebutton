@@ -75,32 +75,32 @@
 
 <!-- Displays the list of options available -->
 <template name="optionsBar">
-	<div class="optionsBar">
-		{{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
-			<p>Select a person to chat with privately:</p>
-			<div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
+    <div class="optionsBar">
+        {{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
+            <p>Select a person to chat with privately:</p>
+            <div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
                 <div class="private-chat-user-list">
                     {{#each getUsersInMeeting}}
-                        <div class="private-chat-user-entry">
-                            {{#unless isCurrentUser userId}}
+                        {{#unless isCurrentUser userId}}
+                            <div class="private-chat-user-entry">
                                 {{user.name}}
-                            {{/unless}}
-                        </div>
+                            </div>
+                        {{/unless}}
                     {{/each}}
                 </div>
             </div>
-		{{else}}
-			<p>There are no participants to chat with right now.</p>
-		{{/if}}
-		<br/>
-		{{> chatOptions}}
+        {{else}}
+            <p>There are no participants to chat with right now.</p>
+        {{/if}}
+        <br/>
+        {{> chatOptions}}
         <br/><br/><br/>
-	</div>
+    </div>
 </template>
 
 <template name="optionsFontSize">
     <div class="dropdown">
-        <span class="dropdownMessage" {{messageFontSize}}>Chat Message Font Size: </span>
+        <span class="dropdownMessage">Chat Message Font Size: </span>
         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
         Font Size ({{getInSession "messageFontSize"}})
         <span class="caret"></span>
