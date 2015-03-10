@@ -47,7 +47,6 @@ Template.header.events
 
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
-    toggleSlidingMenu()
     toggleChatbar()
 
   "click .collapseSlidingMenuButton": (event) ->
@@ -67,7 +66,6 @@ Template.header.events
 
   "click .lowerHand": (event) ->
     $(".tooltip").hide()
-    toggleSlidingMenu()
     Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   "click .muteIcon": (event) ->
@@ -78,7 +76,6 @@ Template.header.events
     #Meteor.log.info "navbar raise own hand from client"
     console.log "navbar raise own hand from client"
     $(".tooltip").hide()
-    toggleSlidingMenu()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
     # "click .settingsIcon": (event) ->
     #   alert "settings"
@@ -98,7 +95,6 @@ Template.header.events
 
   "click .usersListIcon": (event) ->
     $(".tooltip").hide()
-    toggleSlidingMenu
     toggleUsersList()
 
   "click .videoFeedIcon": (event) ->
@@ -107,7 +103,6 @@ Template.header.events
 
   "click .whiteboardIcon": (event) ->
     $(".tooltip").hide()
-    toggleSlidingMenu
     toggleWhiteBoard()
 
   "mouseout #navbarMinimizedButton": (event) ->
