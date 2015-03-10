@@ -103,7 +103,7 @@ Handlebars.registerHelper "getWhiteboardTitle", ->
   "Presentation"
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
-  userId is BBB.getCurrentUser()?.userId
+  userId is null or userId is BBB.getCurrentUser()?.userId
 
 Handlebars.registerHelper "isCurrentUserMuted", ->
   BBB.amIMuted()
