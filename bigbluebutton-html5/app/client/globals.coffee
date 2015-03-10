@@ -442,7 +442,6 @@ Handlebars.registerHelper "visibility", (section) ->
   # positioning the whiteboard
 
   if getInSession 'display_whiteboard'
-    console.log 'display_whiteboard'
     whiteboardHeight = $('#whiteboard').height()
     $('#whiteboard').css('position', 'fixed')
     $('#whiteboard').css('left', '15%')
@@ -452,7 +451,6 @@ Handlebars.registerHelper "visibility", (section) ->
   # positioning the chatbar
 
   if getInSession 'display_chatbar'
-    console.log 'display_chatbar'
     chatHeight = $('#chat').height()
     $('#chat').css('position', 'fixed')
     $('#chat').css('left', '15%')
@@ -465,7 +463,6 @@ Handlebars.registerHelper "visibility", (section) ->
   # positioning the userlist
 
   if getInSession 'display_usersList'
-    console.log 'display_usersList'
     chatHeight = $('#chat').height()
     usersHeight = $('#users').height()
     usersWidth = $('#users').width()
