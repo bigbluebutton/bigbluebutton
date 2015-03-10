@@ -327,6 +327,39 @@ body {
 
 /* Custom alert box */
 
+/* Logout menu's properties on mobile devices in landscape orientation */
+.landscape-mobile-logout-dialog {
+  @media @landscape {
+    .ui-widget-header {
+      font-size: 100% !important;
+    }
+    width: 55% !important; /* overriding "width: auto;" */
+    font-size: 3vh !important; /* overriding "font-size: 11px;" */
+    .ui-dialog-content {
+      height: 30% !important; /* overriding "height: auto;" */
+    }
+    .ui-dialog-buttonset {
+      width: 100%;
+      font-size: 4vh;
+      button {
+        width: 40%;
+        margin-left: 5% !important;
+        margin-right: 5% !important;
+      }
+    }
+    height: 32% !important;
+  }
+}
+
+/* Logout menu's properties on desktop */
+.desktop-logout-dialog {
+  @media @desktop-portrait, @landscape {
+    .ui-dialog-content {
+      height: 36px !important; /* overriding "height: auto;" */
+    }
+  }
+}
+
 .no-close .ui-dialog-titlebar-close {
   display: none; /* no close button */
 }
@@ -344,8 +377,11 @@ body {
     font-weight: bold;
     text-align: center;
     @media @desktop-portrait, @landscape {
-      font-size: 11px;
+      min-height: 0px !important; /* overriding "min-height: 47px;"*/
     }
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 100% !important;
   }
 }
 
@@ -353,7 +389,7 @@ body {
   background: extract(@white, 3);
   border: 5px solid extract(@darkGrey, 3);
   @media @desktop-portrait, @landscape {
-    font-size: 10px;
+    font-size: 11px;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     font-size: 280%;
