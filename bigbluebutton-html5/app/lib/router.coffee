@@ -18,7 +18,7 @@
         Meteor.call("userLogout", meetingId, userId, authToken)
 
         clearSessionVar (alert "Please sign in again")
-        document.location.pathname = '/'
+        document.location = getInSession 'logoutURL'
         return
 
       Meteor.subscribe 'chat', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
@@ -29,6 +29,15 @@
                 Meteor.subscribe 'users', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
                   # done subscribing
                   onLoadComplete()
+
+                  # obtain the logoutURL
+                  a = $.ajax({dataType: 'json', url: '/bigbluebutton/api/enter'})
+                  a.done (data) ->
+                    setInSession("logoutURL", data.response.logoutURL)
+
+                  a.fail (data, textStatus, errorThrown) ->
+                    alert "Error: could not find the logoutURL"
+                    setInSession("logoutURL", document.location.hostname)
 
       @render('main')
 
@@ -41,8 +50,8 @@
 
       # catch if any of the user's meeting data is invalid
       if not authToken? or not meetingId? or not userId?
-        # if their data is invalid, redirect the user to the login page
-        document.location.pathname = '/'
+        # if their data is invalid, redirect the user to the logout page
+        document.location = getInSession 'logoutURL'
 
       else
         Meteor.call("validateAuthToken", meetingId, userId, authToken)
