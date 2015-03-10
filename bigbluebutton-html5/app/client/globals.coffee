@@ -312,6 +312,7 @@ Handlebars.registerHelper "visibility", (section) ->
   amplify.store('display_usersList', null)
   amplify.store('display_whiteboard', null)
   amplify.store('inChatWith', null)
+  amplify.store('logoutURL', null)
   amplify.store('meetingId', null)
   amplify.store('messageFontSize', null)
   amplify.store('tabsRenderedTime', null)
@@ -354,17 +355,6 @@ Handlebars.registerHelper "visibility", (section) ->
   currentSlide = @getCurrentSlideDoc()
   ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
   thickness * 100 / ratio
-
-# TODO TEMPORARY!!
-# must not have this in production
-@whoami = ->
-  console.log JSON.stringify
-    username: getInSession "userName"
-    userid: getInSession "userId"
-    authToken: getInSession "authToken"
-
-@listSessionVars = ->
-  console.log SessionAmplify.keys
 
 # Detects a mobile device
 @isMobile = ->
