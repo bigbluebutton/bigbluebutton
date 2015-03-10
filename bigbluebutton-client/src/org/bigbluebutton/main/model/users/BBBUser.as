@@ -74,10 +74,6 @@ package org.bigbluebutton.main.model.users
 		public function set presenter(p:Boolean):void {
 			_presenter = p;
 			verifyUserStatus();
-			
-			//As the lock settings are now not applied to presenters, when the presenter flag is changed, we need to apply the lock settings
-			if(me)
-				applyLockSettings();
 		}
 		
 		public var raiseHandTime:Date;
@@ -230,7 +226,11 @@ package org.bigbluebutton.main.model.users
 			trace("changeStatus -> " + status.name);
 			//_status.changeStatus(status);
 			if (status.name == "presenter") {
-				presenter = status.value
+				presenter = status.value;
+				
+				//As the lock settings are now not applied to presenters, when the presenter flag is changed, we need to apply the lock settings
+				if(me)
+					applyLockSettings();
 			}
 			switch (status.name) {
 				case "presenter":
