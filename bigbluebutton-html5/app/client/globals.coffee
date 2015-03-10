@@ -104,10 +104,10 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Whiteboard: " + (getPresentationFilename() or "Loading...")
+  "Presentation: " + (getPresentationFilename() or "Loading...")
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
-  userId is BBB.getCurrentUser()?.userId
+  userId is null or userId is BBB.getCurrentUser()?.userId
 
 Handlebars.registerHelper "isCurrentUserMuted", ->
   BBB.amIMuted()
@@ -366,6 +366,15 @@ Handlebars.registerHelper "visibility", (section) ->
 @listSessionVars = ->
   console.log SessionAmplify.keys
 
+# Detects a mobile device
+@isMobile = ->
+  navigator.userAgent.match(/Android/i) or
+  navigator.userAgent.match(/iPad/i) or
+  navigator.userAgent.match(/iPhone/i) or
+  navigator.userAgent.match(/iPod/i) or
+  navigator.userAgent.match(/Windows Phone/i) or
+  navigator.userAgent.match(/BlackBerry/i) or
+  navigator.userAgent.match(/webOS/i)
 
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
@@ -433,7 +442,6 @@ Handlebars.registerHelper "visibility", (section) ->
   # positioning the whiteboard
 
   if getInSession 'display_whiteboard'
-    console.log 'display_whiteboard'
     whiteboardHeight = $('#whiteboard').height()
     $('#whiteboard').css('position', 'fixed')
     $('#whiteboard').css('left', '15%')
@@ -443,7 +451,6 @@ Handlebars.registerHelper "visibility", (section) ->
   # positioning the chatbar
 
   if getInSession 'display_chatbar'
-    console.log 'display_chatbar'
     chatHeight = $('#chat').height()
     $('#chat').css('position', 'fixed')
     $('#chat').css('left', '15%')
@@ -456,7 +463,6 @@ Handlebars.registerHelper "visibility", (section) ->
   # positioning the userlist
 
   if getInSession 'display_usersList'
-    console.log 'display_usersList'
     chatHeight = $('#chat').height()
     usersHeight = $('#users').height()
     usersWidth = $('#users').width()

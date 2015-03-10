@@ -1,6 +1,27 @@
 
-moderator = null
 presenter = null
+
+#for the time being moderators have the same permissions that viewers do
+moderator =
+  # raising/lowering hand
+  raiseOwnHand : true
+  lowerOwnHand : true
+
+  # muting
+  muteSelf : true
+  unmuteSelf : true
+
+  logoutSelf : true
+
+  #subscribing
+  subscribeUsers: true
+  subscribeChat: true
+
+  #chat
+  chatPublic: true #should make this dynamically modifiable later on
+  chatPrivate: true #should make this dynamically modifiable later on
+
+
 viewer =
   # raising/lowering hand
   raiseOwnHand : true
@@ -30,7 +51,7 @@ viewer =
 
   if user? and authToken is user.authToken # check if the user is who he claims to be
     if user.validated and user.clientType is "HTML5"
-      if user.user?.role is 'VIEWER' or user.user?.role is undefined
+      if user.user?.role is 'VIEWER' or user.user?.role is 'MODERATOR' or user.user?.role is undefined
         return viewer[action] or false
       else
         Meteor.log.warn "UNSUCCESSFULL ATTEMPT FROM userid=#{userId} to perform:#{action}"

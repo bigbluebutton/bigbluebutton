@@ -79,18 +79,86 @@
         window.focus();
       }
     </script>
+    <script type="text/javascript">
+      function html5() {
+        // no Flash detected on the client
+
+        var originalPath, request;
+        originalPath = document.location.pathname;
+
+        checkRequest = $.ajax({
+           dataType: 'json',
+           url: '/html5client/check'
+        });
+
+        checkRequest.done(function(data) {
+          // Currently the request always fails but with different error
+          // depending on whether the meteor process is running or not
+          // see how we handle the failing case:
+        });
+
+        checkRequest.fail(function(data, textStatus, errorThrown){
+          // if the errorThrown is "Not Found" -> the meteor process is not running
+          // [else] if the errorThrown is "parseError" - it is running.
+          if(errorThrown != "Not Found") {
+
+            // use the enter api to detect the meetingid, userid and authToken
+            // for the attempted joining of the meeting
+            // and reuse them to join via the HTML5 client
+            enterRequest = $.ajax({
+               dataType: 'json',
+               url: '/bigbluebutton/api/enter'
+            });
+
+            enterRequest.done(function(data) {
+              var authToken, meetingId, userId;
+
+              meetingId = data.response.meetingID;
+              userId = data.response.externUserID;
+              authToken = data.response.authToken;
+
+              if ((meetingId != null) && (userId != null) && (authToken != null)) {
+                // redirect to the html5 client with the received info
+                // format <IP>/html5client/<meetingId>/<userId>/<authToken>
+                document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
+              } else {
+                // go back to the redirection page
+                document.location.pathname = originalPath;
+              }
+            });
+
+            enterRequest.fail(function(data, textStatus, errorThrown){
+              BBBLog.error("Could not redirect to html5client (Flash not detected)");
+            });
+
+          }
+
+          else {
+            alert("Unable to load the HTML5 client!");
+            BBBLog.error("Could not redirect to html5client (the server side does not seem to be running)");
+          }
+        });
+
+      }
+    </script>
   </head>
 
   <body>
-<div>
-<audio id="remote-media" autoplay="autoplay"></audio>
-</div>
+    <div>
+      <audio id="remote-media" autoplay="autoplay"></audio>
+    </div>
 
     <div id="content">
-      <div id="altFlash">
-        <a href="http://www.adobe.com/go/getflashplayer">
-          <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
-        </a>
+      <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
+        <h2>You need Flash installed and enabled in order to use the Flash client.</h2>
+        <br/>
+        <div style="width:50%; margin-left: auto; margin-right: auto; ">
+          <a href="http://www.adobe.com/go/getflashplayer">
+            <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+          </a>
+          <p style="margin-left:50px;" >OR</p>
+          <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
+        </div>
       </div>
     </div>
     <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();" value="Click to focus the client"/>
