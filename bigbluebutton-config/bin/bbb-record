@@ -94,6 +94,7 @@ mark_for_republish() {
                         rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
                 fi
 	done
+	touch $STATUS/processed/$MEETING_ID.done
 }
 
 need_root() {
