@@ -80,20 +80,23 @@ mark_for_rebuild() {
 
 mark_for_republish() { 
 	MEETING_ID=$1
-	#set -x
-	for type in $TYPES; do                
-                if [ -d $BASE/publish/$type/$MEETING_ID ]; then
-			rm -rf $BASE/publish/$type/$MEETING_ID
-		fi
-              
-                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
-                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
-                fi
+	echo "Marking for republish $MEETING_ID"
+	if [[ ! -d $BASE/process/$MEETING_ID ]]; then
+		echo "Processed files for $MEETING_ID do not exist, can't republish"
+		echo "Try rebuilding the recording instead."
+		exit 1
+	fi
 
-                if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
-                        rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
-                fi
+	# Clear out the publish done files
+	rm -vf $STATUS/published/$MEETING_ID*
+
+	# Remove the existing 'published' recording files
+	for type in $TYPES; do
+		rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+		rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
 	done
+
+	# Restart processing at the 'processed' step
 	touch $STATUS/processed/$MEETING_ID.done
 }
 
