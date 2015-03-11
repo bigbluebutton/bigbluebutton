@@ -254,7 +254,7 @@ Template.optionsFontSize.events
     selectedFontSize = parseInt(event.target.id)
     if selectedFontSize
       setInSession "messageFontSize", selectedFontSize
-    else if isPortraitMobile()
+    else if isMobilePortrait() or isLandscapePortrait()
         setInSession "messageFontSize", Meteor.config.app.mobileFont
     else
         setInSession "messageFontSize", Meteor.config.app.desktopFont

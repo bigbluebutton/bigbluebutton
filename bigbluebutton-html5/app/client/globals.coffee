@@ -330,7 +330,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
   setInSession "inChatWith", 'PUBLIC_CHAT'
-  if isPortraitMobile()
+  if isPortraitMobile() or isLandscapeMobile()
     setInSession "messageFontSize", Meteor.config.app.mobileFont
   else
     setInSession "messageFontSize", Meteor.config.app.desktopFont
