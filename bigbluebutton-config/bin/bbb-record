@@ -60,18 +60,16 @@ mark_for_rebuild() {
 		exit 1
 	fi
 
-	# Remove the existing 'published' recording files
-	rm -rvf /var/bigbluebutton/published/$type/$MEETING_ID
-	rm -rvf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+	# Clear out the relevant done files
+	rm -vf $STATUS/archived/$MEETING_ID.norecord
+	rm -vf $STATUS/sanity/$MEETING_ID*
+	rm -vf $STATUS/processed/$MEETING_ID*
+	rm -vf $STATUS/published/$MEETING_ID*
 
-	# Clear out all the done files
-	rm -vf $STATUS/sanity/$MEETING_ID.done
-	rm -vf $STATUS/sanity/$MEETING_ID.fail
+	# Remove the existing 'published' recording files
 	for type in $TYPES; do
-		rm -vf $STATUS/published/$MEETING_ID-$type.fail
-		rm -vf $STATUS/published/$MEETING_ID-$type.done
-		rm -vf $STATUS/processed/$MEETING_ID-$type.fail
-		rm -vf $STATUS/processed/$MEETING_ID-$type.done
+		rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+		rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
 	done
 
 	# Restart processing at the 'archived' step
