@@ -48,7 +48,7 @@
 #   2013-11-07 FFD  Finished 0.81
 #   2014-01-13 FFD  Working on updates for 0.9.0 
 #   2014-03-10 GUG  Enable Webrtc
-#   2015-03-12 FFD  Assed start/stop of HTML5 server
+#   2015-03-12 FFD  Added start/stop of HTML5 server
 
 #set -x
 #set -e
