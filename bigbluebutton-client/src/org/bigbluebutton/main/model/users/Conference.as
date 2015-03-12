@@ -442,7 +442,8 @@ package org.bigbluebutton.main.model.users {
 			disablePrivateChat:Boolean,
 			disablePublicChat:Boolean,
 			lockedLayout:Boolean,
-			lockOnJoin:Boolean;
+			lockOnJoin:Boolean,
+			lockOnJoinConfigurable:Boolean;
 			
 			var lockConfig:XML;
 			
@@ -485,12 +486,18 @@ package org.bigbluebutton.main.model.users {
 			} catch(e:Error) {
 				lockOnJoin = true; //If not set, default to true
 			}
+			
+			try {
+				lockOnJoinConfigurable = (lockConfig.@lockOnJoinConfigurable.toUpperCase() == "TRUE");
+			} catch(e:Error) {
+				lockOnJoinConfigurable = false; //If not set, default to false
+			}
+			
+			trace(LOG + " init lock settings from config");
       
-      trace(LOG + " init lock settings from config");
-      
-			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout, lockOnJoin);
-      
-      setLockSettings(lockSettings);
+			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout, lockOnJoin, lockOnJoinConfigurable);
+			
+			setLockSettings(lockSettings);
 		}
 		
 		public function getMyUser():BBBUser {
