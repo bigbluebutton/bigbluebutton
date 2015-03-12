@@ -61,7 +61,6 @@
     -webkit-order: 1;
     order: 1;
     min-width: 0;
-    overflow-y: auto;
   }
   @media @desktop-portrait, @mobile-portrait {
     -webkit-order: 3;
@@ -75,7 +74,11 @@
 }
 
 #user-contents {
+  height: 100%; /* for the inside scrolling list to utilize as much room as possible, this surrounding window must also take up as much room as possible */
+
   .userlist {
+    height: calc(~'100% - 29px'); /* height of user contents - user list */
+
     @media @landscape {
       padding:10px;
       max-height:83vh;
