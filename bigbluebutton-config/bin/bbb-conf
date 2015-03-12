@@ -50,7 +50,7 @@
 #   2014-03-10 GUG  Enable Webrtc
 #   2015-03-12 FFD  Assed start/stop of HTML5 server
 
-set -x
+#set -x
 #set -e
 
 PATH=$PATH:/sbin
