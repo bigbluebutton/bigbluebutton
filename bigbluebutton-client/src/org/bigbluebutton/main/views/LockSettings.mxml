@@ -29,10 +29,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;		
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;			
+			import mx.managers.PopUpManager;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -53,6 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var disablePrivChat:Boolean = false;
 			[Bindable] public var lockedLayout:Boolean = false;
 			[Bindable] public var lockOnJoin:Boolean = false;
+			[Bindable] public var lockOnJoinConfigurable:Boolean = false;
 			  
 			override public function move(x:Number, y:Number):void {
 				return;
@@ -67,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onSaveClicked():void {
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.SAVE_LOCK_SETTINGS);
-				var lockSettings:LockSettingsVO = new LockSettingsVO(chkDisableWebcam.selected, chkDisableMicrophone.selected, chkDisablePrivateChat.selected, chkDisablePublicChat.selected, chkDisableLayout.selected, chkLockOnJoin.selected);
+				var lockSettings:LockSettingsVO = new LockSettingsVO(chkDisableWebcam.selected, chkDisableMicrophone.selected, chkDisablePrivateChat.selected, chkDisablePublicChat.selected, chkDisableLayout.selected, chkLockOnJoin.selected, lockOnJoinConfigurable);
 				event.payload = lockSettings.toMap();
 				dispatchEvent(event);
 				
@@ -147,7 +150,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.lockOnJoin')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="chkLockOnJoin" selected="{lockOnJoin}"/>
+				<mx:CheckBox id="chkLockOnJoin" selected="{lockOnJoin}" visible="{lockOnJoinConfigurable}"/>
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
