@@ -39,7 +39,8 @@ case class Permissions(
   disablePrivChat: Boolean = false,
   disablePubChat: Boolean = false,
   lockedLayout:Boolean = false,
-  lockOnJoin:Boolean = false
+  lockOnJoin:Boolean = false,
+  lockOnJoinConfigurable:Boolean = false
 )
 
 case class RegisteredUser (
