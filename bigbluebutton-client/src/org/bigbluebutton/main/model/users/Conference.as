@@ -515,12 +515,11 @@ package org.bigbluebutton.main.model.users {
 			this.lockSettings = lockSettings;
 			applyLockSettings();
 		}
-    
-    public function applyLockSettings():void {
-      for (var i:int = 0; i < users.length; i++) {
-        var eachUser:BBBUser = users.getItemAt(i) as BBBUser;
-        eachUser.applyLockSettings();
-      }      
-    }
+		
+		public function applyLockSettings():void {
+			var myUser:BBBUser = getMyUser();
+			if(myUser != null)
+				myUser.applyLockSettings();
+		}
 	}
 }

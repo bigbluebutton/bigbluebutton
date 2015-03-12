@@ -19,3 +19,12 @@
 
 /* mobile device in portrait orientation: portrait browser window + portrait device screen */
 @mobile-portrait: ~"all and (orientation: portrait) and (max-device-aspect-ratio: 1/1)";
+
+/* Fix for FireFox - some ionicons did not display properly */
+@font-face {
+  font-family: 'ionicons';
+  src: url('html5client/packages/ionicons/fonts/ionicons.woff') format('woff'),
+       url('html5client/packages/ionicons/fonts/ionicons.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

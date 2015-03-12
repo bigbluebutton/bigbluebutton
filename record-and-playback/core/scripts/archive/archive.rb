@@ -123,29 +123,28 @@ target_dir = "#{raw_archive_dir}/#{meeting_id}"
 if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p target_dir
   archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
-  # we will abort the archiving if there's no marks to start and stop the recording
-  if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
-    BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, aborting the archive process")
+  archive_audio(meeting_id, audio_dir, raw_archive_dir)
+  archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
+  archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
+  archive_video(meeting_id, video_dir, raw_archive_dir)
 
-    # we need to delete the keys here because the sanity phase won't never happen for this recording
-    BigBlueButton.logger.info("Deleting keys")
+  if not archive_has_recording_marks?(meeting_id, raw_archive_dir)
+    BigBlueButton.logger.info("There's no recording marks for #{meeting_id}, not processing recording.")
+
+    # we need to delete the keys here because the sanity phase won't
+    # automatically happen for this recording
+    BigBlueButton.logger.info("Deleting redis keys")
     redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
     events_archiver = BigBlueButton::RedisEventsArchiver.new redis
     events_archiver.delete_events(meeting_id)
 
-    BigBlueButton.logger.info("Removing events.xml")
-    FileUtils.rm_r target_dir
-    BigBlueButton.logger.info("Removing the recorded flag")
-    FileUtils.rm("#{recording_dir}/status/recorded/#{meeting_id}.done")
+    File.open("#{recording_dir}/status/archived/#{meeting_id}.norecord", "w") do |archive_norecord|
+      archive_norecord.write("Archived #{meeting_id} (no recording marks")
+    end
+
   else
-    archive_audio(meeting_id, audio_dir, raw_archive_dir)
-    archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
-    archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
-    archive_video(meeting_id, video_dir, raw_archive_dir)
-    archive_done = File.new("#{recording_dir}/status/archived/#{meeting_id}.done", "w")
-    archive_done.write("Archived #{meeting_id}")
-    archive_done.close
+    File.open("#{recording_dir}/status/archived/#{meeting_id}.done", "w") do |archive_done|
+      archive_done.write("Archived #{meeting_id}")
+    end
   end
-#else
-#	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been archived.")
 end
