@@ -143,14 +143,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:HBox>
 		</mx:HBox>
 		
-		<mx:HRule width="100%"/>
+		<mx:HRule width="100%" visible="{lockOnJoinConfigurable}" includeInLayout="{lockOnJoinConfigurable}"/>
 		
-		<mx:HBox verticalAlign="top" width="100%">
+		<mx:HBox verticalAlign="top" width="100%" visible="{lockOnJoinConfigurable}" includeInLayout="{lockOnJoinConfigurable}">
 			<mx:Label width="70%" styleName="lockSettingsDefaultLabelStyle"
 					  text="{ResourceUtil.getInstance().getString('bbb.lockSettings.lockOnJoin')}" />
 			<mx:HBox width="30%">
 				<mx:Spacer width="50%" />
-				<mx:CheckBox id="chkLockOnJoin" selected="{lockOnJoin}" visible="{lockOnJoinConfigurable}"/>
+				<mx:CheckBox id="chkLockOnJoin" selected="{lockOnJoin}" />
 				<mx:Spacer width="50%" />
 			</mx:HBox>
 		</mx:HBox>
