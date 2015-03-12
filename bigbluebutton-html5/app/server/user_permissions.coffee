@@ -66,5 +66,5 @@ viewer =
 
   else
     Meteor.log.error "in meetingId=#{meetingId} userId=#{userId} tried to perform #{action} without permission" +
-     "\n..while the authToken was #{user.authToken}    and the user's object is #{JSON.stringify user}"
+     "\n..while the authToken was #{user?.authToken}    and the user's object is #{JSON.stringify user}"
     return false
