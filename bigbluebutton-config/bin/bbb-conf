@@ -236,7 +236,7 @@ uncomment () {
 stop_bigbluebutton () {
 	/etc/init.d/monit stop
 
-	if [ -f /etc/init/bbb-html5 ]; then
+	if [ -f /etc/init/bbb-html5.conf ]; then
 		stop bbb-html5
 	fi
 
@@ -285,7 +285,7 @@ start_bigbluebutton () {
 	echo
 
 	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-	if [ -f /etc/init/bbb-html5 ]; then
+	if [ -f /etc/init/bbb-html5.conf ]; then
 		echo -n "Waiting for Meteor (HTML5 server) to finish starting up (this may take a minute): "
 		start bbb-html5
 
