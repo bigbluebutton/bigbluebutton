@@ -639,6 +639,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ls.disablePubChat = lsv.getDisablePublicChat();
 				ls.lockedLayout = lsv.getLockedLayout();
 				ls.lockOnJoin = lsv.getLockOnJoin();
+				ls.lockOnJoinConfigurable = lsv.getLockOnJoinConfigurable();
         
 				var point1:Point = new Point();
 				point1.x = width/2;

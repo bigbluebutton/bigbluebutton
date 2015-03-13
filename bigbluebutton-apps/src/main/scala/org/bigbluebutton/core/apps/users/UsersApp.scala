@@ -284,7 +284,7 @@ trait UsersApp {
   	
 	    users.addUser(uvo)
 		
-	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] role=[" + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + permissions.lockOnJoin + "] ")
+	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] role=[" + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + permissions.lockOnJoin + "] permissions.lockOnJoinConfigurable=[" + permissions.lockOnJoinConfigurable + "]")
 	    outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
 	    outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
