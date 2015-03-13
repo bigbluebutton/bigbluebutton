@@ -58,14 +58,26 @@
                   # done subscribing
                   onLoadComplete()
 
+                  handleLogourUrlError = () ->
+                    alert "Error: could not find the logoutURL"
+                    setInSession("logoutURL", document.location.hostname)
+                    return
+
                   # obtain the logoutURL
                   a = $.ajax({dataType: 'json', url: '/bigbluebutton/api/enter'})
                   a.done (data) ->
-                    setInSession("logoutURL", data.response.logoutURL)
+                    if data.response.logoutURL? # for a meeting with 0 users
+                      setInSession("logoutURL", data.response.logoutURL)
+                      return
+                    else
+                      if data.response.logoutUrl? # for a running meeting
+                        setInSession("logoutURL", data.response.logoutUrl)
+                        return
+                      else
+                        handleLogourUrlError()
 
                   a.fail (data, textStatus, errorThrown) ->
-                    alert "Error: could not find the logoutURL"
-                    setInSession("logoutURL", document.location.hostname)
+                    handleLogourUrlError()
 
       @render('main')
 
