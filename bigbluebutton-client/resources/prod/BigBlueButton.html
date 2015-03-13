@@ -86,59 +86,61 @@
         var originalPath, request;
         originalPath = document.location.pathname;
 
-        checkRequest = $.ajax({
+        // reuse code in a function to log an error when needed
+        var reportError = function() {
+          alert("Unable to load the HTML5 client!");
+          BBBLog.error("Could not redirect to html5client (the server side does not seem to be running)");
+        }
+
+        var checkRequest = $.ajax({
            dataType: 'json',
            url: '/html5client/check'
         });
 
         checkRequest.done(function(data) {
-          // Currently the request always fails but with different error
-          // depending on whether the meteor process is running or not
-          // see how we handle the failing case:
+          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus !== null) {
+            if(data.html5clientStatus === "running") {
+              // use the enter api to detect the meetingid, userid and authToken
+              // for the attempted joining of the meeting
+              // and reuse them to join via the HTML5 client
+              var enterRequest = $.ajax({
+                 dataType: 'json',
+                 url: '/bigbluebutton/api/enter'
+              });
+
+              enterRequest.done(function(enterData) {
+                var authToken, meetingId, userId;
+
+                meetingId = enterData.response.meetingID;
+                userId = enterData.response.externUserID;
+                authToken = enterData.response.authToken;
+
+                if ((meetingId != null) && (userId != null) && (authToken != null)) {
+                  // redirect to the html5 client with the received info
+                  // format <IP>/html5client/<meetingId>/<userId>/<authToken>
+                  document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
+                } else {
+                  // go back to the redirection page
+                  document.location.pathname = originalPath;
+                }
+              });
+
+              enterRequest.fail(function(enterData, textStatus, errorThrown){
+                reportError();
+              });
+            }
+            else {
+              reportError();
+            }
+          }
+          else {
+            reportError();
+          }
         });
 
         checkRequest.fail(function(data, textStatus, errorThrown){
-          // if the errorThrown is "Not Found" -> the meteor process is not running
-          // [else] if the errorThrown is "parseError" - it is running.
-          if(errorThrown != "Not Found") {
-
-            // use the enter api to detect the meetingid, userid and authToken
-            // for the attempted joining of the meeting
-            // and reuse them to join via the HTML5 client
-            enterRequest = $.ajax({
-               dataType: 'json',
-               url: '/bigbluebutton/api/enter'
-            });
-
-            enterRequest.done(function(data) {
-              var authToken, meetingId, userId;
-
-              meetingId = data.response.meetingID;
-              userId = data.response.externUserID;
-              authToken = data.response.authToken;
-
-              if ((meetingId != null) && (userId != null) && (authToken != null)) {
-                // redirect to the html5 client with the received info
-                // format <IP>/html5client/<meetingId>/<userId>/<authToken>
-                document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
-              } else {
-                // go back to the redirection page
-                document.location.pathname = originalPath;
-              }
-            });
-
-            enterRequest.fail(function(data, textStatus, errorThrown){
-              BBBLog.error("Could not redirect to html5client (Flash not detected)");
-            });
-
-          }
-
-          else {
-            alert("Unable to load the HTML5 client!");
-            BBBLog.error("Could not redirect to html5client (the server side does not seem to be running)");
-          }
+          reportError();
         });
-
       }
     </script>
   </head>
