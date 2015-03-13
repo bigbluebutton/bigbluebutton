@@ -289,8 +289,8 @@ start_bigbluebutton () {
 		echo -n "Waiting for Meteor (HTML5 server) to finish starting up (this may take a minute): "
 		start bbb-html5
 
-        	if ! wget -q -O - http://10.0.3.96/html5client/check | grep __meteor-css__ > /dev/null; then
-                    while ! wget -q -O - http://10.0.3.96/html5client/check | grep __meteor-css__ > /dev/null; do
+        	if ! wget -q -O - http://$BBB_WEB/html5client/check | grep __meteor-css__ > /dev/null; then
+                    while ! wget -q -O - http://$BBB_WEB/html5client/check | grep __meteor-css__ > /dev/null; do
                         echo -n "."
                         sleep 1
                     done
