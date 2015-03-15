@@ -495,3 +495,12 @@ Handlebars.registerHelper "visibility", (section) ->
   $('#main').css('position', 'fixed')
   $('#main').css('top', '50px')
   $('#main').css('left', '15%')
+
+# determines which browser is being used
+@getBrowserName = () ->
+  if navigator.userAgent.match(/Safari/i)
+    return 'Safari'
+  else if navigator.userAgent.match(/Trident/i)
+    return 'IE'
+  else
+    return null
