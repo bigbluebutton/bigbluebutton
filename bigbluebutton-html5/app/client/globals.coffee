@@ -339,7 +339,7 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
-
+  setInSession 'webrtc_notification_is_displayed', false
 
 @onLoadComplete = ->
   setDefaultSettings()
