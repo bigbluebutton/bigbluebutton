@@ -274,14 +274,11 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession 'display_slidingMenu', false
     $('#sliding-menu').removeClass('sliding-menu-opened')
     $('#shield').css('display', 'none')
-    $(document).unbind('scroll')
   else
     CreateFixedView()
     setInSession 'display_slidingMenu', true
     $('#sliding-menu').addClass('sliding-menu-opened')
     $('#shield').css('display', 'block')
-    $(document).bind 'scroll', () ->
-      window.scrollTo(0, 0)
 
 @toggleNavbarCollapse = ->
   setInSession 'display_hiddenNavbarSection', !getInSession 'display_hiddenNavbarSection'
@@ -339,7 +336,7 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
-
+  setInSession 'webrtc_notification_is_displayed', false
 
 @onLoadComplete = ->
   setDefaultSettings()
@@ -495,3 +492,12 @@ Handlebars.registerHelper "visibility", (section) ->
   $('#main').css('position', 'fixed')
   $('#main').css('top', '50px')
   $('#main').css('left', '15%')
+
+# determines which browser is being used
+@getBrowserName = () ->
+  if navigator.userAgent.match(/Safari/i)
+    return 'Safari'
+  else if navigator.userAgent.match(/Trident/i)
+    return 'IE'
+  else
+    return null
