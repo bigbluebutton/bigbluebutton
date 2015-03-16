@@ -83,13 +83,15 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     val disablePubChat = s.getOrElse("disablePublicChat", false)
     val lockedLayout = s.getOrElse("lockedLayout", false)
     var lockOnJoin = s.getOrElse("lockOnJoin", false)
+    var lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
     
     val permissions = new Permissions(disableCam = disableCam,
                                       disableMic = disableMic,
                                       disablePrivChat = disablePrivChat,
                                       disablePubChat = disablePubChat,
                                       lockedLayout = lockedLayout,
-                                      lockOnJoin = lockOnJoin)
+                                      lockOnJoin = lockOnJoin,
+                                      lockOnJoinConfigurable = lockOnJoinConfigurable)
 
     bbbGW.accept(new SetLockSettings(meetingID, userId, permissions))
   }
@@ -106,12 +108,14 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     val disablePubChat = s.getOrElse("disablePublicChat", false)
     val lockedLayout = s.getOrElse("lockedLayout", false)
     val lockOnJoin = s.getOrElse("lockOnJoin", false)
+    val lockOnJoinConfigurable = s.getOrElse("lockOnJoinConfigurable", false)
     val permissions = new Permissions(disableCam = disableCam,
                                       disableMic = disableMic,
                                       disablePrivChat = disablePrivChat,
                                       disablePubChat = disablePubChat,
                                       lockedLayout = lockedLayout,
-                                      lockOnJoin = lockOnJoin)
+                                      lockOnJoin = lockOnJoin,
+                                      lockOnJoinConfigurable = lockOnJoinConfigurable)
 
     bbbGW.accept(new InitLockSettings(meetingID, permissions))
   }

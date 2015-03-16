@@ -57,6 +57,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  args.put("disablePubChat", perms.disablePubChat:java.lang.Boolean);
     args.put("lockedLayout", perms.lockedLayout:java.lang.Boolean);
     args.put("lockOnJoin", perms.lockOnJoin:java.lang.Boolean);
+    args.put("lockOnJoinConfigurable", perms.lockOnJoinConfigurable:java.lang.Boolean);
     args
 	}
 	
@@ -97,6 +98,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  args.put("disablePubChat", msg.permissions.disablePubChat:java.lang.Boolean);
     args.put("lockedLayout", msg.permissions.lockedLayout:java.lang.Boolean);
     args.put("lockOnJoin", msg.permissions.lockOnJoin:java.lang.Boolean);
+    args.put("lockOnJoinConfigurable", msg.permissions.lockOnJoinConfigurable:java.lang.Boolean);
     
 	  var users = new ArrayList[java.util.HashMap[String, Object]];
       msg.applyTo.foreach(uvo => {		

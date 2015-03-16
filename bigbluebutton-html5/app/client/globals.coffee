@@ -274,14 +274,11 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession 'display_slidingMenu', false
     $('#sliding-menu').removeClass('sliding-menu-opened')
     $('#shield').css('display', 'none')
-    $(document).unbind('scroll')
   else
     CreateFixedView()
     setInSession 'display_slidingMenu', true
     $('#sliding-menu').addClass('sliding-menu-opened')
     $('#shield').css('display', 'block')
-    $(document).bind 'scroll', () ->
-      window.scrollTo(0, 0)
 
 @toggleNavbarCollapse = ->
   setInSession 'display_hiddenNavbarSection', !getInSession 'display_hiddenNavbarSection'
@@ -297,8 +294,8 @@ Handlebars.registerHelper "visibility", (section) ->
 # the user's userId
 @userLogout = (meeting, user) ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
-  console.log "logging out #{Meteor.config.app.logOutUrl}"
-  clearSessionVar(document.location = Meteor.config.app.logOutUrl) # navigate to logout
+  console.log "logging out"
+  clearSessionVar(document.location = getInSession 'logoutURL') # navigate to logout
 
 # Clear the local user session
 @clearSessionVar = (callback) ->
@@ -312,6 +309,7 @@ Handlebars.registerHelper "visibility", (section) ->
   amplify.store('display_usersList', null)
   amplify.store('display_whiteboard', null)
   amplify.store('inChatWith', null)
+  amplify.store('logoutURL', null)
   amplify.store('meetingId', null)
   amplify.store('messageFontSize', null)
   amplify.store('tabsRenderedTime', null)
@@ -338,7 +336,7 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
-
+  setInSession 'webrtc_notification_is_displayed', false
 
 @onLoadComplete = ->
   setDefaultSettings()
@@ -346,7 +344,7 @@ Handlebars.registerHelper "visibility", (section) ->
   Meteor.Users.find().observe({
   removed: (oldDocument) ->
     if oldDocument.userId is getInSession 'userId'
-      document.location = Meteor.config.app.logOutUrl
+      document.location = getInSession 'logoutURL'
   })
 
 # applies zooming to the stroke thickness
@@ -354,17 +352,6 @@ Handlebars.registerHelper "visibility", (section) ->
   currentSlide = @getCurrentSlideDoc()
   ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
   thickness * 100 / ratio
-
-# TODO TEMPORARY!!
-# must not have this in production
-@whoami = ->
-  console.log JSON.stringify
-    username: getInSession "userName"
-    userid: getInSession "userId"
-    authToken: getInSession "authToken"
-
-@listSessionVars = ->
-  console.log SessionAmplify.keys
 
 # Detects a mobile device
 @isMobile = ->
@@ -496,3 +483,12 @@ Handlebars.registerHelper "visibility", (section) ->
   $('#main').css('position', 'fixed')
   $('#main').css('top', '50px')
   $('#main').css('left', '15%')
+
+# determines which browser is being used
+@getBrowserName = () ->
+  if navigator.userAgent.match(/Safari/i)
+    return 'Safari'
+  else if navigator.userAgent.match(/Trident/i)
+    return 'IE'
+  else
+    return null

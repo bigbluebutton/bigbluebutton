@@ -48,6 +48,7 @@
 #   2013-11-07 FFD  Finished 0.81
 #   2014-01-13 FFD  Working on updates for 0.9.0 
 #   2014-03-10 GUG  Enable Webrtc
+#   2015-03-12 FFD  Added start/stop of HTML5 server
 
 #set -x
 #set -e
@@ -235,6 +236,10 @@ uncomment () {
 stop_bigbluebutton () {
 	/etc/init.d/monit stop
 
+	if [ -f /etc/init/bbb-html5.conf ]; then
+		stop bbb-html5
+	fi
+
 	/etc/init.d/bbb-red5 stop
 	/etc/init.d/${SERVLET_CONTAINER} stop
 	/etc/init.d/nginx stop
@@ -279,6 +284,20 @@ start_bigbluebutton () {
 	echo "Note: monit will automatically start bbb-record-core and LibreOffice within 60 seconds."
 	echo
 
+	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+	if [ -f /etc/init/bbb-html5.conf ]; then
+		echo -n "Waiting for Meteor (HTML5 server) to finish starting up (this may take a minute): "
+		start bbb-html5
+
+        	if ! wget -q -O - http://$BBB_WEB/html5client/check | grep running > /dev/null; then
+                    while ! wget -q -O - http://$BBB_WEB/html5client/check | grep running > /dev/null; do
+                        echo -n "."
+                        sleep 1
+                    done
+		fi
+        fi
+
+
 	#
 	# At this point the red5 and servlet container applications are starting up.
 	#
@@ -296,12 +315,10 @@ start_bigbluebutton () {
 
 	sleep 2
 
-	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
         if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then
                 echo "Startup unsuccessful: could not connect to http://$BBB_WEB/bigbluebutton/api"
                 exit 1
 	fi
-
 
         echo " done"
 }
