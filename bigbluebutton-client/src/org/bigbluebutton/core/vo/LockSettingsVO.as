@@ -18,6 +18,9 @@
  */
 package org.bigbluebutton.core.vo
 {
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.main.model.users.BBBUser;
+
 	public class LockSettingsVO
 	{
 		private var lockOnJoinConfigurable:Boolean;
@@ -82,7 +85,7 @@ package org.bigbluebutton.core.vo
 		}
 		
 		public function isAnythingLocked():Boolean {
-			return lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat;
+			return ( lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat ) && ( lockOnJoin || UsersUtil.isAnyoneLocked() );
 		}
 	}
 }
