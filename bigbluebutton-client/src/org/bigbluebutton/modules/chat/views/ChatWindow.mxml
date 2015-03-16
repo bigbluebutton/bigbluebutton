@@ -187,6 +187,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			override protected function showAllChildren():void {
 				chatView.includeInLayout=true;
 			}
+
+			public function handleDraggableStatus(value:Boolean):void {
+				this.draggable = value;
+			}
 			
 		]]>
 	</mx:Script>

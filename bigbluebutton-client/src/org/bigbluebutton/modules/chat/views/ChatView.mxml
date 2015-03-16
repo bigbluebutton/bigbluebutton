@@ -362,6 +362,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onUserClosedTab(e:SuperTabEvent):void{
 				var name:String = chatTabs.getChildAt(e.tabIndex).name;
 			}
+
+			// This message comes from the chat box and must get to the chat window
+			public function handleDraggableStatus(value:Boolean):void {
+				parentDocument.handleDraggableStatus(value);
+			}
 			
 		]]>
 	</mx:Script>

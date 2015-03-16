@@ -150,6 +150,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		      private var chatListHeight:Number = 100;
 			
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
+
+			private var shiftPressed:Boolean = false;
       
 			private function onCreationComplete():void {    
         		bindToHeightToDetermineHeightOfMessageList();
@@ -170,6 +172,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		        // Listen for the ENTER key to send the message.
 		        txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
+
+		        // Listen for the SHIFT key to avoid moving the chat box while text selection
+		        chatMessagesList.addEventListener(KeyboardEvent.KEY_DOWN, handleShiftDown);
+		        chatMessagesList.addEventListener(KeyboardEvent.KEY_UP, handleShiftUp);
 		        
 		        queryForChatHistory();
 
@@ -184,7 +190,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace(LOG + " onCreationComplete. Apply lock settings");
         applyLockSettings();
 			}
-			
+
+			private function handleShiftDown(e:KeyboardEvent):void {
+				if (e.shiftKey && !shiftPressed) {
+					shiftPressed = true;
+					parentDocument.handleDraggableStatus(false);
+				}
+			}
+
+			private function handleShiftUp(e:KeyboardEvent):void {
+				if (!e.shiftKey && shiftPressed) {
+					shiftPressed = false;
+					parentDocument.handleDraggableStatus(true);
+				}
+			}
+
 			private function focusChatBox(e:ShortcutEvent):void{
 				focusManager.setFocus(chatMessagesList);
 			}
