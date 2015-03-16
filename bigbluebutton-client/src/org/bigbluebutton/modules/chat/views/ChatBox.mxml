@@ -178,6 +178,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleShiftUp);
 		        chatMessagesList.addEventListener(KeyboardEvent.KEY_DOWN, handleShiftDown);
 		        chatMessagesList.addEventListener(KeyboardEvent.KEY_UP, handleShiftUp);
+
+		        this.addEventListener(FocusEvent.FOCUS_OUT, releaseShift);
 		        
 		        queryForChatHistory();
 
@@ -202,6 +204,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function handleShiftUp(e:KeyboardEvent):void {
 				if (!e.shiftKey && shiftPressed) {
+					shiftPressed = false;
+					parentDocument.handleDraggableStatus(true);
+				}
+			}
+
+			private function releaseShift(focus:FocusEvent):void {
+				if (shiftPressed) {
 					shiftPressed = false;
 					parentDocument.handleDraggableStatus(true);
 				}
