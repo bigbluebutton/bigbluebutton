@@ -85,7 +85,7 @@ package org.bigbluebutton.core.vo
 		}
 		
 		public function isAnythingLocked():Boolean {
-			return ( lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat ) && ( lockOnJoin || UsersUtil.isAnyoneLocked() );
+			return ( lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat );
 		}
 	}
 }

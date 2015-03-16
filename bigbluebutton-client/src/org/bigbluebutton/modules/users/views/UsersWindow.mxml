@@ -52,6 +52,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -125,7 +126,7 @@
 				
 				roomMuted = MeetingModel.getInstance().meetingMuted;
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-				roomLocked = lockSettings.isAnythingLocked();
+				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 				
 				titleBarOverlay.tabIndex = partOptions.baseTabIndex;
 				minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
@@ -274,7 +275,7 @@
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-				roomLocked = lockSettings.isAnythingLocked();
+				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 			}
 			
 			private function lockSettings():void {

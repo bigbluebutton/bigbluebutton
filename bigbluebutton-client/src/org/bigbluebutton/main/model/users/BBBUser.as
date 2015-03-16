@@ -217,8 +217,7 @@ package org.bigbluebutton.main.model.users
     public function lockStatusChanged(locked: Boolean):void {
 		trace("lockStatusChanged -> " + locked);
 		userLocked = locked;
-		if(me)
-			applyLockSettings();
+		applyLockSettings();
 		buildStatus();
     }
     
@@ -229,8 +228,7 @@ package org.bigbluebutton.main.model.users
 				presenter = status.value;
 				
 				//As the lock settings are now not applied to presenters, when the presenter flag is changed, we need to apply the lock settings
-				if(me)
-					applyLockSettings();
+				applyLockSettings();
 			}
 			switch (status.name) {
 				case "presenter":
