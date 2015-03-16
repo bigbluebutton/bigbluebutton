@@ -47,7 +47,7 @@ Template.footer.helpers
 Template.header.events
   "click .audioFeedIcon": (event) ->
     if getInSession('webrtc_notification_is_displayed') is false # prevents the notification from displaying until the previous one is hidden
-      if !navigator.webkitGetUserMedia # verifies if the browser supports WebRTC
+      if !isWebRTCAvailable() # verifies if the browser supports WebRTC
         setInSession 'webrtc_notification_is_displayed', true
         pp = new Raphael('browser-icon-container', 35, 35)
         if getBrowserName() is 'Safari'
