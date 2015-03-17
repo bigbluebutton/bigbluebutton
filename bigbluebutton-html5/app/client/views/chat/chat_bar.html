@@ -99,19 +99,12 @@
 </template>
 
 <template name="optionsFontSize">
-    <div class="dropdown">
-        <span class="dropdownMessage">Chat Message Font Size: </span>
-        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-        Font Size ({{getInSession "messageFontSize"}})
-        <span class="caret"></span>
-        </button>
-
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-            {{#each getFontsizes}}
-                <li role="presentation"><a class="fontSizeSelector" id="{{this}}" role="menuitem" tabindex="-1" href="#">{{this}}</a></li>
-            {{/each}}
-        </ul>
-    </div>
+  <div id="fontSizeControl">
+    <span >Chat Message Font Size: </span><br>
+    <button id="decreaseFontSize" class="glyphicon glyphicon-minus" ></button>
+    <label class="fontSizeLabel" >{{getInSession "messageFontSize"}}</label>
+    <button id="increaseFontSize" class="glyphicon glyphicon-plus"></button>
+  </div>
 </template>
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->

@@ -250,17 +250,28 @@ Template.optionsBar.rendered = ->
   $('div[rel=tooltip]').tooltip()
 
 Template.optionsFontSize.events
-  "click .fontSizeSelector": (event) ->
-    selectedFontSize = parseInt(event.target.id)
-    if selectedFontSize
-      setInSession "messageFontSize", selectedFontSize
-    else if isMobilePortrait() or isLandscapeMobile()
-        setInSession "messageFontSize", Meteor.config.app.mobileFont
+  "click #decreaseFontSize": (event) ->
+    if getInSession("messageFontSize") is 8 # min
+      $('#decreaseFontSize').disabled = true
+      $('#decreaseFontSize').removeClass('glyphicon-minus')
+      $('#decreaseFontSize').html('MIN')
     else
-        setInSession "messageFontSize", Meteor.config.app.desktopFont
+      setInSession "messageFontSize", getInSession("messageFontSize") - 2
+      if $('#increaseFontSize').html() is 'MAX'
+        $('#increaseFontSize').html('')
+        $('#increaseFontSize').addClass('glyphicon-plus')
 
-Template.optionsFontSize.helpers
-  getFontsizes: -> (size for size in [8..30] by 2)
+  "click #increaseFontSize": (event) ->
+    if getInSession("messageFontSize") is 40 # max
+      $('#increaseFontSize').disabled = true
+      $('#increaseFontSize').removeClass('glyphicon-plus')
+      $('#increaseFontSize').html('MAX')
+    else
+      setInSession "messageFontSize", getInSession("messageFontSize") + 2
+      if $('#decreaseFontSize').html() is 'MIN'
+        $('#decreaseFontSize').html('')
+        $('#decreaseFontSize').addClass('glyphicon-minus')
+
 
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat

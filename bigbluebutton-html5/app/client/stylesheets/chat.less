@@ -111,14 +111,25 @@
   float: left;
   @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
     .dropdownMessage {
-      font-size: 3vw;
-      font-style: italic;
+      font-size: 3vw; //might be obsolete
+      font-style: italic; //might be obsolete
     }
   }
   .dropdown-menu {
     height: 80px;
     overflow-y: scroll;
     right: 0px;
+  }
+}
+
+#fontSizeControl {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size:24px;
+  }
+  .fontSizeLabel {
+    height:30px;
+    width:40px;
+    text-align:center;
   }
 }
 
