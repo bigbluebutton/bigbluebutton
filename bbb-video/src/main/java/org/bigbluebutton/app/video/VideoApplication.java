@@ -27,8 +27,10 @@ import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.server.api.stream.IPlayItem;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
+import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
 import com.google.gson.Gson;
@@ -187,7 +189,19 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private Long genTimestamp() {
     	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
     }
-    
+
+	@Override
+	public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
+		String streamName = item.getName();
+		// Trim streamName
+		streamName = streamName.replaceAll("^/", "");
+
+		if(streamName.startsWith("h263/")) {
+			log.info("Spawn FFMpeg to convert H264 to H263 for stream [{}]", streamName);
+			//TODO: spawn ffmpeg
+		}
+	}
+
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
       super.streamBroadcastClose(stream);   	
