@@ -228,18 +228,19 @@ Template.message.helpers
     hours + ":" + minutes
 
 Template.optionsBar.events
-  'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
+  'change #privateChatSelector': (event, template) -> # clicked a user's name to begin private chat
+    userIdSelected = event.currentTarget.value
+    console.log "will chat with userId:" + userIdSelected
     tabs = getInSession('chatTabs')
-    _this = @
 
     # if you are starting a private chat
-    if tabs.filter((tab) -> tab.userId is _this.userId).length is 0
-      userName = Meteor.Users.findOne({userId: _this.userId})?.user?.name
-      tabs.push {userId: _this.userId, name: userName, gotMail: false, class: 'privateChatTab'}
+    if tabs.filter((tab) -> tab.userId is userIdSelected).length is 0
+      userName = Meteor.Users.findOne({userId: userIdSelected})?.user?.name
+      tabs.push {userId: userIdSelected, name: userName, gotMail: false, class: 'privateChatTab'}
       setInSession 'chatTabs', tabs
 
     setInSession 'display_chatPane', true
-    setInSession "inChatWith", _this.userId
+    setInSession "inChatWith", userIdSelected
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
@@ -250,17 +251,28 @@ Template.optionsBar.rendered = ->
   $('div[rel=tooltip]').tooltip()
 
 Template.optionsFontSize.events
-  "click .fontSizeSelector": (event) ->
-    selectedFontSize = parseInt(event.target.id)
-    if selectedFontSize
-      setInSession "messageFontSize", selectedFontSize
-    else if isPortraitMobile()
-        setInSession "messageFontSize", Meteor.config.app.mobileFont
+  "click #decreaseFontSize": (event) ->
+    if getInSession("messageFontSize") is 8 # min
+      $('#decreaseFontSize').disabled = true
+      $('#decreaseFontSize').removeClass('glyphicon-minus')
+      $('#decreaseFontSize').html('MIN')
     else
-        setInSession "messageFontSize", Meteor.config.app.desktopFont
+      setInSession "messageFontSize", getInSession("messageFontSize") - 2
+      if $('#increaseFontSize').html() is 'MAX'
+        $('#increaseFontSize').html('')
+        $('#increaseFontSize').addClass('glyphicon-plus')
 
-Template.optionsFontSize.helpers
-  getFontsizes: -> (size for size in [8..30] by 2)
+  "click #increaseFontSize": (event) ->
+    if getInSession("messageFontSize") is 40 # max
+      $('#increaseFontSize').disabled = true
+      $('#increaseFontSize').removeClass('glyphicon-plus')
+      $('#increaseFontSize').html('MAX')
+    else
+      setInSession "messageFontSize", getInSession("messageFontSize") + 2
+      if $('#decreaseFontSize').html() is 'MIN'
+        $('#decreaseFontSize').html('')
+        $('#decreaseFontSize').addClass('glyphicon-minus')
+
 
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat

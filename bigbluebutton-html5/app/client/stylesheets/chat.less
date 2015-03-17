@@ -84,6 +84,12 @@
   width:100%;
 }
 
+.chatOptionsText {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 5vw;
+  }
+}
+
 .close:hover {
   background-color: red;
 }
@@ -111,8 +117,8 @@
   float: left;
   @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
     .dropdownMessage {
-      font-size: 3vw;
-      font-style: italic;
+      font-size: 3vw; //might be obsolete
+      font-style: italic; //might be obsolete
     }
   }
   .dropdown-menu {
@@ -122,8 +128,25 @@
   }
 }
 
+#fontSizeControl {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size:7vw;
+  }
+  .fontSizeLabel {
+    height:30px;
+    text-align:center;
+  }
+}
+
 .gotUnreadMail {
   background: extract(@yellow, 2) !important;
+}
+
+#increaseFontSize, #decreaseFontSize {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    height: 100px;
+    width: 100px;
+  }
 }
 
 #MoreChatsDrop {
@@ -169,10 +192,8 @@
   padding-left: 15px;
   padding-top: 15px;
   p {
-    @media @mobile-portrait, 
-    @mobile-portrait-with-keyboard
-    {
-      font-size: 3vw;
+    @media @mobile-portrait, @mobile-portrait-with-keyboard {
+      font-size: 6vw;
       font-style: italic;
     }
   }
@@ -187,29 +208,14 @@
 
 .private-chat-user-box {
   border-left: 1px solid grey;
-  height: 300px;
+  min-width: 50%;
+  height: 40px;
   padding: 5px;
-  width: 90%;
-}
-
-.private-chat-user-list {
-  font-size: 12px;
-  height: 100%;
-  overflow-y: scroll;
-  overflow-x: scroll;
-  :hover {
-    background: extract(@azure, 2);
-    font-size: 14px;
-    font-style: italic;
-  }
-
-  .private-chat-user-entry
-  {
-     @media @mobile-portrait-with-keyboard, @mobile-portrait
-     {
-       height: 5vw;
-       font-size: 4vw;
-     }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 60%;
+    height: 100px;
+    font-size: 40px;
+    padding-left: 25px;
   }
 }
 
@@ -254,8 +260,7 @@
   width: 100%;
   a {
     padding:0px;
-    @media @mobile-portrait-with-keyboard,
-    @mobile-portrait {
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
       font-size: 35px;
     }
     @media @desktop-portrait {
@@ -275,7 +280,7 @@
 
 .tab {
   font-size: 14px;
-  height:auto !important;
+  height:auto;
   width: 25% !important;
 
   &:hover {

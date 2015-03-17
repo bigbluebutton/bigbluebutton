@@ -330,7 +330,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
   setInSession "inChatWith", 'PUBLIC_CHAT'
-  if isPortraitMobile()
+  if isPortraitMobile() or isLandscapeMobile()
     setInSession "messageFontSize", Meteor.config.app.mobileFont
   else
     setInSession "messageFontSize", Meteor.config.app.desktopFont
@@ -356,35 +356,26 @@ Handlebars.registerHelper "visibility", (section) ->
 # Detects a mobile device
 @isMobile = ->
   navigator.userAgent.match(/Android/i) or
-  navigator.userAgent.match(/iPad/i) or
-  navigator.userAgent.match(/iPhone/i) or
-  navigator.userAgent.match(/iPod/i) or
+  navigator.userAgent.match(/iPhone|iPad|iPod/i) or
+  navigator.userAgent.match(/BlackBerry/i) or
   navigator.userAgent.match(/Windows Phone/i) or
+  navigator.userAgent.match(/IEMobile/i) or
   navigator.userAgent.match(/BlackBerry/i) or
   navigator.userAgent.match(/webOS/i)
 
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
+ isMobile() and
  window.matchMedia('(orientation: portrait)').matches and        # browser is portrait
- window.matchMedia('(max-device-aspect-ratio: 1/1)').matches and # device is portrait
- (navigator.userAgent.match(/Android/i) or                       # device is one of the following mobile devices:
- navigator.userAgent.match(/iPhone|iPad|iPod/i) or  
- navigator.userAgent.match(/BlackBerry/i) or
- navigator.userAgent.match(/Opera Mini/i) or
- navigator.userAgent.match(/IEMobile/i) or
- navigator.userAgent.match(/webOS/i))
+ window.matchMedia('(max-device-aspect-ratio: 1/1)').matches     # device is portrait
+
 
 # Checks if the view is landscape and mobile device is being used
 @isLandscapeMobile = () ->
-  window.matchMedia('(orientation: landscape)').matches and # browser is landscape
-  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches and # device is landscape
-  (navigator.userAgent.match(/Android/i) or # device is one of the mobile gadgets
-  navigator.userAgent.match(/iPad/i) or
-  navigator.userAgent.match(/iPhone/i) or
-  navigator.userAgent.match(/iPod/i) or
-  navigator.userAgent.match(/Windows Phone/i) or
-  navigator.userAgent.match(/BlackBerry/i) or
-  navigator.userAgent.match(/webOS/i))
+  isMobile() and
+  window.matchMedia('(orientation: landscape)').matches and     # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches   # device is landscape
+
 
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
