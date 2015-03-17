@@ -84,6 +84,12 @@
   width:100%;
 }
 
+.chatOptionsText {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 5vw;
+  }
+}
+
 .close:hover {
   background-color: red;
 }
@@ -124,7 +130,7 @@
 
 #fontSizeControl {
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size:24px;
+    font-size:7vw;
   }
   .fontSizeLabel {
     height:30px;
@@ -134,6 +140,13 @@
 
 .gotUnreadMail {
   background: extract(@yellow, 2) !important;
+}
+
+#increaseFontSize, #decreaseFontSize {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    height: 100px;
+    width: 100px;
+  }
 }
 
 #MoreChatsDrop {
@@ -179,10 +192,8 @@
   padding-left: 15px;
   padding-top: 15px;
   p {
-    @media @mobile-portrait, 
-    @mobile-portrait-with-keyboard
-    {
-      font-size: 3vw;
+    @media @mobile-portrait, @mobile-portrait-with-keyboard {
+      font-size: 6vw;
       font-style: italic;
     }
   }
@@ -198,11 +209,11 @@
 .private-chat-user-box {
   border-left: 1px solid grey;
   min-width: 50%;
-  height: 30px;
+  height: 40px;
   padding: 5px;
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     width: 60%;
-    height: 60px;
+    height: 100px;
     font-size: 40px;
     padding-left: 25px;
   }
@@ -249,8 +260,7 @@
   width: 100%;
   a {
     padding:0px;
-    @media @mobile-portrait-with-keyboard,
-    @mobile-portrait {
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
       font-size: 35px;
     }
     @media @desktop-portrait {
