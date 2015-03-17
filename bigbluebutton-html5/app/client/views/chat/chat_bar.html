@@ -102,7 +102,7 @@
   <div id="fontSizeControl">
     <span >Chat Message Font Size: </span><br>
     <button id="decreaseFontSize" class="glyphicon glyphicon-minus" ></button>
-    <label class="fontSizeLabel" >{{getInSession "messageFontSize"}}</label>
+    <label class="fontSizeLabel" style="font-size:{{getInSession 'messageFontSize'}}px" >Size({{getInSession "messageFontSize"}})</label>
     <button id="increaseFontSize" class="glyphicon glyphicon-plus"></button>
   </div>
 </template>
