@@ -197,29 +197,14 @@
 
 .private-chat-user-box {
   border-left: 1px solid grey;
-  height: 300px;
+  min-width: 50%;
+  height: 30px;
   padding: 5px;
-  width: 90%;
-}
-
-.private-chat-user-list {
-  font-size: 12px;
-  height: 100%;
-  overflow-y: scroll;
-  overflow-x: scroll;
-  :hover {
-    background: extract(@azure, 2);
-    font-size: 14px;
-    font-style: italic;
-  }
-
-  .private-chat-user-entry
-  {
-     @media @mobile-portrait-with-keyboard, @mobile-portrait
-     {
-       height: 5vw;
-       font-size: 4vw;
-     }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 60%;
+    height: 60px;
+    font-size: 40px;
+    padding-left: 25px;
   }
 }
 

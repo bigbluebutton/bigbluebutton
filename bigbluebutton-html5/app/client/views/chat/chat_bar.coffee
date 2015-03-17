@@ -228,18 +228,19 @@ Template.message.helpers
     hours + ":" + minutes
 
 Template.optionsBar.events
-  'click .private-chat-user-entry': (event) -> # clicked a user's name to begin private chat
+  'change #privateChatSelector': (event, template) -> # clicked a user's name to begin private chat
+    userIdSelected = event.currentTarget.value
+    console.log "will chat with userId:" + userIdSelected
     tabs = getInSession('chatTabs')
-    _this = @
 
     # if you are starting a private chat
-    if tabs.filter((tab) -> tab.userId is _this.userId).length is 0
-      userName = Meteor.Users.findOne({userId: _this.userId})?.user?.name
-      tabs.push {userId: _this.userId, name: userName, gotMail: false, class: 'privateChatTab'}
+    if tabs.filter((tab) -> tab.userId is userIdSelected).length is 0
+      userName = Meteor.Users.findOne({userId: userIdSelected})?.user?.name
+      tabs.push {userId: userIdSelected, name: userName, gotMail: false, class: 'privateChatTab'}
       setInSession 'chatTabs', tabs
 
     setInSession 'display_chatPane', true
-    setInSession "inChatWith", _this.userId
+    setInSession "inChatWith", userIdSelected
 
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat

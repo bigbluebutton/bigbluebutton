@@ -75,34 +75,31 @@
 
 <!-- Displays the list of options available -->
 <template name="optionsBar">
-    <div class="optionsBar">
-        {{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
-            <p>Select a person to chat with privately:</p>
-            <div class="private-chat-user-box" rel="tooltip" data-placement="top" title="Select a participant to open a private chat">
-                <div class="private-chat-user-list">
-                    {{#each getUsersInMeeting}}
-                        {{#unless isCurrentUser userId}}
-                            <div class="private-chat-user-entry">
-                                {{user.name}}
-                            </div>
-                        {{/unless}}
-                    {{/each}}
-                </div>
-            </div>
-        {{else}}
-            <p>There are no participants to chat with right now.</p>
-        {{/if}}
-        <br/>
-        {{> chatOptions}}
-        <br/><br/><br/>
-    </div>
+  <div class="optionsBar">
+    {{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
+      <p>Select a person to chat with privately:</p>
+      <select id="privateChatSelector" title="Select a participant to open a private chat" class="private-chat-user-box " >
+        {{#each getUsersInMeeting}}
+          {{#unless isCurrentUser userId}}
+            <option value={{userId}} >{{user.name}}</option>
+            <!-- <option value={{user.userId}} data-id={{user.userId}} >{{user.name}}aa</option> -->
+          {{/unless}}
+        {{/each}}
+      </select>
+    {{else}}
+      <p>There are no participants to chat with right now.</p>
+    {{/if}}
+    <br/><br/><br/>
+    {{> chatOptions}}
+    <br/>
+  </div>
 </template>
 
 <template name="optionsFontSize">
   <div id="fontSizeControl">
     <span >Chat Message Font Size: </span><br>
     <button id="decreaseFontSize" class="glyphicon glyphicon-minus" ></button>
-    <label class="fontSizeLabel" style="font-size:{{getInSession 'messageFontSize'}}px" >Size({{getInSession "messageFontSize"}})</label>
+    <label class="fontSizeLabel" {{messageFontSize}} >Size({{getInSession "messageFontSize"}})</label>
     <button id="increaseFontSize" class="glyphicon glyphicon-plus"></button>
   </div>
 </template>
