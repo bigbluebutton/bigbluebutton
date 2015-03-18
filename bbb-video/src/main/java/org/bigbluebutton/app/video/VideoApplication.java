@@ -61,6 +61,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   @Override
 	public boolean roomConnect(IConnection conn, Object[] params) {
 		log.info("BBB Video roomConnect"); 
+
+		if(params.length == 0) {
+			params = new Object[2];
+			params[0] = "UNKNOWN-MEETING-ID";
+			params[1] = "UNKNOWN-USER-ID";
+		}
+
   	String meetingId = ((String) params[0]).toString();
   	String userId = ((String) params[1]).toString();
   	
