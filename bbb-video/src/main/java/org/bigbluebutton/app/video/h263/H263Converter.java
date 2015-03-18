@@ -48,6 +48,7 @@ public class H263Converter {
 		ffmpeg.setCodec("flv1"); // Sorensen H263
 		ffmpeg.setFormat("flv");
 		ffmpeg.setOutput(output);
+		ffmpeg.setLoglevel("warning");
 
 		this.addListener();
 	}
