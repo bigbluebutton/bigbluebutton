@@ -1,5 +1,5 @@
 
-var userID, callerIdName, conferenceVoiceBridge, userAgent, userMicMedia, userWebcamMedia, currentSession, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
+var userID, callerIdName, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
 var inEchoTest = true;
 
 function webRTCCallback(message) {
@@ -98,9 +98,11 @@ function stopWebRTCAudioTestJoinConference(){
 		console.log("Call transfer failed. No response after 3 seconds");
 		webRTCCallback({'status': 'failed', 'errorcode': 1008});
 		currentSession = null;
-		var userAgentTemp = userAgent;
-		userAgent = null;
-		userAgentTemp.stop();
+		if (userAgent != null) {
+			var userAgentTemp = userAgent;
+			userAgent = null;
+			userAgentTemp.stop();
+		}
 	}, 3000);
 	
 	BBB.listen("UserJoinedVoiceEvent", userJoinedVoiceHandler);
@@ -176,8 +178,11 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 	});
 	userAgent.on('disconnected', function() {
 		if (userAgent) {
-			userAgent.stop();
-			userAgent = null;
+			if (userAgent != null) {
+				var userAgentTemp = userAgent;
+				userAgent = null;
+				userAgentTemp.stop();
+			}
 			
 			if (uaConnected) {
 				callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
@@ -279,9 +284,11 @@ function make_call(username, voiceBridge, server, callback, recall) {
 		console.log('Ten seconds without updates sending timeout code');
 		callback({'status':'failed', 'errorcode': 1006}); // Failure on call
 		currentSession = null;
-		var userAgentTemp = userAgent;
-		userAgent = null;
-		userAgentTemp.stop();
+		if (userAgent != null) {
+			var userAgentTemp = userAgent;
+			userAgent = null;
+			userAgentTemp.stop();
+		}
 	}, 10000);
 	
 	callActive = false;
@@ -314,14 +321,18 @@ function make_call(username, voiceBridge, server, callback, recall) {
 			if (callActive === false) {
 				callback({'status':'failed', 'errorcode': 1004, 'cause': cause}); // Failure on call
 				currentSession = null;
-				var userAgentTemp = userAgent;
-				userAgent = null;
-				userAgentTemp.stop();
+				if (userAgent != null) {
+					var userAgentTemp = userAgent;
+					userAgent = null;
+					userAgentTemp.stop();
+				}
 			} else {
 				callActive = false;
 				//currentSession.bye();
 				currentSession = null;
-				userAgent.stop();
+				if (userAgent != null) {
+					userAgent.stop();
+				}
 			}
 		}
 		clearTimeout(callTimeout);
@@ -358,9 +369,11 @@ function make_call(username, voiceBridge, server, callback, recall) {
 		console.log('received ice negotiation failed');
 		callback({'status':'failed', 'errorcode': 1007}); // Failure on call
 		currentSession = null;
-		var userAgentTemp = userAgent;
-		userAgent = null;
-		userAgentTemp.stop();
+		if (userAgent != null) {
+			var userAgentTemp = userAgent;
+			userAgent = null;
+			userAgentTemp.stop();
+		}
 		
 		clearTimeout(callTimeout);
 	});
