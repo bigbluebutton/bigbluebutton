@@ -21,6 +21,8 @@ package org.bigbluebutton.app.video;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import org.bigbluebutton.app.video.h263.H263Converter;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
@@ -44,7 +46,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
-	
+
+	private final Map<String, H263Converter> h263Converters = new HashMap<String, H263Converter>();
+
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
@@ -177,7 +181,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
-        if (recordVideoStream) {
+        if (recordVideoStream && stream.getPublishedName().contains("/") == false) {
 	    	recordStream(stream);
 	    	VideoStreamListener listener = new VideoStreamListener(); 
 	        listener.setEventRecordingService(recordingService);
@@ -190,15 +194,51 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
     }
 
+	private boolean isH263Stream(ISubscriberStream stream) {
+		String streamName = stream.getBroadcastStreamPublishName();
+		if(streamName.startsWith(H263Converter.H263PREFIX)) {
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
 		String streamName = item.getName();
-		// Trim streamName
-		streamName = streamName.replaceAll("^/", "");
 
-		if(streamName.startsWith("h263/")) {
-			log.info("Spawn FFMpeg to convert H264 to H263 for stream [{}]", streamName);
-			//TODO: spawn ffmpeg
+		log.debug("Stream requested [{}]", streamName);
+		if(isH263Stream(stream)) {
+			String origin = streamName.replaceAll(H263Converter.H263PREFIX, "");
+
+			synchronized (h263Converters) {
+				// Check if a new stream converter is necessary
+				if(!h263Converters.containsKey(origin)) {
+					H263Converter converter = new H263Converter(origin);
+					h263Converters.put(origin, converter);
+				}
+				else {
+					H263Converter converter = h263Converters.get(origin);
+					converter.addListener();
+				}
+			}
+		}
+	}
+
+	@Override
+	public void streamSubscriberClose(ISubscriberStream stream) {
+		if(isH263Stream(stream)) {
+			synchronized (h263Converters) {
+				String streamName = stream.getBroadcastStreamPublishName();
+				// Remove prefix
+				String origin = streamName.replaceAll(H263Converter.H263PREFIX, "");
+				if(h263Converters.containsKey(origin)) {
+					H263Converter converter = h263Converters.get(origin);
+					converter.removeListener();
+				}
+				else {
+					log.warn("Converter not found for H263 stream [{}]", streamName);
+				}
+			}
 		}
 	}
 
@@ -230,6 +270,11 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         event.put("eventName", "StopWebcamShareEvent");
         recordingService.record(scopeName, event);    		
       }
+
+		if(h263Converters.containsKey(stream.getName())) {
+			// Stop converter
+			h263Converters.remove(stream.getName()).stopConverter();
+		}
     }
     
     /**
