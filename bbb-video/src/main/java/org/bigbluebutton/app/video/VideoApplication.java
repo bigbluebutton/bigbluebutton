@@ -298,27 +298,22 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
         // log w3c connect event
         String streamName = item.getName();
+        streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
 
 		if(isH263Stream(stream)) {
-			String origin = streamName.replaceAll(H263Converter.H263PREFIX, "");
 			log.trace("Detected H263 stream request [{}]", streamName);
 
 			synchronized (h263Converters) {
 				// Check if a new stream converter is necessary
-				if(!h263Converters.containsKey(origin)) {
-					H263Converter converter = new H263Converter(origin);
-					h263Converters.put(origin, converter);
+				if(!h263Converters.containsKey(streamName)) {
+					H263Converter converter = new H263Converter(streamName);
+					h263Converters.put(streamName, converter);
 				}
 				else {
-					H263Converter converter = h263Converters.get(origin);
+					H263Converter converter = h263Converters.get(streamName);
 					converter.addListener();
 				}
 			}
-			/* To enable support of both multivideo and H263 conversion
-			 * we must remove the h263 from the beginning of the streamName
-			 * before the next check is performed.
-			 */
-			streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
 		}
         if(streamName.contains("/")) {
 			synchronized(remoteStreams) {
@@ -353,24 +348,21 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     @Override
     public void streamSubscriberClose(ISubscriberStream stream) {
+
 		String streamName = stream.getBroadcastStreamPublishName();
+		streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+
 		if(isH263Stream(stream)) {
 			synchronized (h263Converters) {
 				// Remove prefix
-				String origin = streamName.replaceAll(H263Converter.H263PREFIX, "");
-				if(h263Converters.containsKey(origin)) {
-					H263Converter converter = h263Converters.get(origin);
+				if(h263Converters.containsKey(streamName)) {
+					H263Converter converter = h263Converters.get(streamName);
 					converter.removeListener();
 				}
 				else {
 					log.warn("Converter not found for H263 stream [{}]", streamName);
 				}
 			}
-			/* To enable support of both multivideo and H263 conversion
-			 * we must remove the h263 from the beginning of the streamName
-			 * before the next check is performed.
-			 */
-			streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
 		}
 		synchronized(remoteStreams) {
 			super.streamSubscriberClose(stream);
