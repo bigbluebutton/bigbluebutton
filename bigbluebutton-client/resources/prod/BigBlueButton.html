@@ -89,7 +89,7 @@
         // reuse code in a function to log an error when needed
         var reportError = function() {
           alert("Unable to load the HTML5 client!");
-          BBBLog.error("Could not redirect to html5client (the server side does not seem to be running)");
+          BBBLog.debug("Could not redirect to html5client (the server side does not seem to be running)");
         }
 
         var checkRequest = $.ajax({
