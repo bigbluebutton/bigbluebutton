@@ -10,7 +10,7 @@ import org.red5.logging.Red5LoggerFactory;
 import java.io.IOException;
 
 public class ProcessStream implements Runnable {
-    private static Logger log = Red5LoggerFactory.getLogger(ProcessStream.class, "sip");
+    private static Logger log = Red5LoggerFactory.getLogger(ProcessStream.class, "video");
     private InputStream stream;
     private Thread thread;
 
