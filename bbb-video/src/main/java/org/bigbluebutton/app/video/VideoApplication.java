@@ -206,9 +206,9 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
 		String streamName = item.getName();
 
-		log.debug("Stream requested [{}]", streamName);
 		if(isH263Stream(stream)) {
 			String origin = streamName.replaceAll(H263Converter.H263PREFIX, "");
+			log.trace("Detected H263 stream request [{}]", streamName);
 
 			synchronized (h263Converters) {
 				// Check if a new stream converter is necessary
