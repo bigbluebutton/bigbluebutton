@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.bigbluebutton.app.video.h263.H263Converter;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
@@ -60,6 +62,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	// Proxy disconnection timeout
 	private long relayTimeout;
 
+	private final Map<String, H263Converter> h263Converters = new HashMap<String, H263Converter>();
+
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
@@ -79,6 +83,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   @Override
 	public boolean roomConnect(IConnection conn, Object[] params) {
 		log.info("BBB Video roomConnect"); 
+
+		if(params.length == 0) {
+			params = new Object[2];
+			params[0] = "UNKNOWN-MEETING-ID";
+			params[1] = "UNKNOWN-USER-ID";
+		}
+
   	String meetingId = ((String) params[0]).toString();
   	String userId = ((String) params[1]).toString();
   	
@@ -209,7 +220,15 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private Long genTimestamp() {
     	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
     }
-    
+
+	private boolean isH263Stream(ISubscriberStream stream) {
+		String streamName = stream.getBroadcastStreamPublishName();
+		if(streamName.startsWith(H263Converter.H263PREFIX)) {
+			return true;
+		}
+		return false;
+	}
+
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
       super.streamBroadcastClose(stream);   	
@@ -238,6 +257,11 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         event.put("eventName", "StopWebcamShareEvent");
         recordingService.record(scopeName, event);    		
       }
+
+		if(h263Converters.containsKey(stream.getName())) {
+			// Stop converter
+			h263Converters.remove(stream.getName()).stopConverter();
+		}
     }
     
     /**
@@ -274,7 +298,28 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
         // log w3c connect event
         String streamName = item.getName();
-        
+
+		if(isH263Stream(stream)) {
+			String origin = streamName.replaceAll(H263Converter.H263PREFIX, "");
+			log.trace("Detected H263 stream request [{}]", streamName);
+
+			synchronized (h263Converters) {
+				// Check if a new stream converter is necessary
+				if(!h263Converters.containsKey(origin)) {
+					H263Converter converter = new H263Converter(origin);
+					h263Converters.put(origin, converter);
+				}
+				else {
+					H263Converter converter = h263Converters.get(origin);
+					converter.addListener();
+				}
+			}
+			/* To enable support of both multivideo and H263 conversion
+			 * we must remove the h263 from the beginning of the streamName
+			 * before the next check is performed.
+			 */
+			streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+		}
         if(streamName.contains("/")) {
 			synchronized(remoteStreams) {
 				if(remoteStreams.containsKey(streamName) == false) {
@@ -308,9 +353,27 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     @Override
     public void streamSubscriberClose(ISubscriberStream stream) {
+		String streamName = stream.getBroadcastStreamPublishName();
+		if(isH263Stream(stream)) {
+			synchronized (h263Converters) {
+				// Remove prefix
+				String origin = streamName.replaceAll(H263Converter.H263PREFIX, "");
+				if(h263Converters.containsKey(origin)) {
+					H263Converter converter = h263Converters.get(origin);
+					converter.removeListener();
+				}
+				else {
+					log.warn("Converter not found for H263 stream [{}]", streamName);
+				}
+			}
+			/* To enable support of both multivideo and H263 conversion
+			 * we must remove the h263 from the beginning of the streamName
+			 * before the next check is performed.
+			 */
+			streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+		}
 		synchronized(remoteStreams) {
 			super.streamSubscriberClose(stream);
-			String streamName = stream.getBroadcastStreamPublishName();
 			log.trace("Subscriber close for stream [{}]", streamName);
 			if(streamName.contains("/")) {
 				if(remoteStreams.containsKey(streamName)) {
