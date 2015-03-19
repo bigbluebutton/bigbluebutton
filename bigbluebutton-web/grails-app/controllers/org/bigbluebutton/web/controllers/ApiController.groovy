@@ -180,11 +180,21 @@ class ApiController {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
-
-	if (StringUtils.isEmpty(params.fullName)) {
-		invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
+    
+    //checking for an empty username or for a username containing whitespaces only
+    if(!StringUtils.isEmpty(params.fullName))
+    {
+    	params.fullName = StringUtils.strip(params.fullName);
+    	if (StringUtils.isEmpty(params.fullName))
+    	{
+    		invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
+		    return
+    	}
+    }
+    else {
+    	invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
 		return
-	}
+    }
 	
 	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
