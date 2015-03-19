@@ -9,7 +9,7 @@
     <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="navbarUserButtons navbarSection">
         <div id="collapseButtonSection">
-          {{#if isPortraitMobile}}
+          {{#if isMobile}}
             <button class="navbar-toggle btn navbarButton collapseSlidingMenuButton">
               <div class="push-menu-icon">
                 <span class="icon-bar"></span>
@@ -123,7 +123,7 @@
     {{/if}}
     <div id='shield'></div>
   </div>
-  {{#if isPortraitMobile}}
+  {{#if isMobile}}
     {{> slidingMenu}}
   {{/if}}
 </body>
