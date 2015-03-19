@@ -144,9 +144,6 @@ Handlebars.registerHelper "isUserSharingVideo", (userId) ->
 Handlebars.registerHelper "isUserTalking", (userId) ->
   BBB.isUserTalking(userId)
 
-Handlebars.registerHelper 'isPortraitMobile', () ->
-  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-aspect-ratio: 1/1)').matches
-
 Handlebars.registerHelper 'isMobile', () ->
   isMobile()
 
