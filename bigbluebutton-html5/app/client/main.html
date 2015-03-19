@@ -145,12 +145,6 @@
 <template name='slidingMenu'>
   <div class="sliding-menu" id="sliding-menu">
     <div class="slideSection">
-      {{#if getInSession "display_usersList"}}
-        {{> makeButton btn_class="navbarIconToggleActive usersListIcon slideButton" i_class="glyphicon glyphicon-user" rel="tooltip" data_placement="right" title="Hide List of Users"}}
-      {{else}}
-        {{> makeButton btn_class="usersListIcon slideButton" i_class="glyphicon glyphicon-user" rel="tooltip" data_placement="right" title="Show List of Users"}}
-      {{/if}}
-
       {{#if getInSession "display_whiteboard"}}
         {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon slideButton" i_class="glyphicon glyphicon-pencil" rel="tooltip" data_placement="right" title="Hide Whiteboard"}}
       {{else}}
@@ -161,6 +155,12 @@
         {{> makeButton btn_class="navbarIconToggleActive chatBarIcon slideButton" i_class="glyphicon glyphicon-comment" rel="tooltip" data_placement="right" title="Hide Message Pane"}}
       {{else}}
         {{> makeButton btn_class="chatBarIcon slideButton" i_class="glyphicon glyphicon-comment" rel="tooltip" data_placement="right" title="Show Message Pane"}}
+      {{/if}}
+
+      {{#if getInSession "display_usersList"}}
+        {{> makeButton btn_class="navbarIconToggleActive usersListIcon slideButton" i_class="glyphicon glyphicon-user" rel="tooltip" data_placement="right" title="Hide List of Users"}}
+      {{else}}
+        {{> makeButton btn_class="usersListIcon slideButton" i_class="glyphicon glyphicon-user" rel="tooltip" data_placement="right" title="Show List of Users"}}
       {{/if}}
 
       {{#if isCurrentUserSharingAudio}}
