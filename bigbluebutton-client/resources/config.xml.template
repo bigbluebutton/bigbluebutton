@@ -15,6 +15,7 @@
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
             showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="false" confirmLogout="true"
             showRecordingNotification="true"/>
+    <meeting muteOnStart="false" />
     <lock disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
           disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
             

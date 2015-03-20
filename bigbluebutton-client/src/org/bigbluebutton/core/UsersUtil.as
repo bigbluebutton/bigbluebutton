@@ -187,6 +187,16 @@ package org.bigbluebutton.core
       
       return userData;
     }
+	
+	public static function isAnyoneLocked():Boolean {
+		var users:ArrayCollection = UserManager.getInstance().getConference().users;
+		for(var i:uint = 0; i<users.length; i++) {
+			var user:BBBUser = users.getItemAt(i) as BBBUser;
+			if(user.userLocked)
+				return true;
+		}
+		return false;
+	}
     
   }
 }
