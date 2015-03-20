@@ -30,6 +30,10 @@ object MeetingMessageToJsonConverter {
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.VOICE_CONF, msg.voiceBridge)
     payload.put(Constants.DURATION, msg.duration)
+    payload.put(Constants.MODERATOR_PASS, msg.moderatorPass)
+    payload.put(Constants.VIEWER_PASS, msg.viewerPass)
+    payload.put(Constants.CREATE_TIME, msg.createTime)
+    payload.put(Constants.CREATE_DATE, msg.createDate)
 
     val header = Util.buildHeader(MessageNames.MEETING_CREATED, msg.version, None)
     Util.buildJson(header, payload) 
