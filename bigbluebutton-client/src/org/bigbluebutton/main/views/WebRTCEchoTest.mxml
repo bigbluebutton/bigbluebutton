@@ -58,8 +58,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private static const LOG:String = "Phone::WebRTCEchoTest - ";
 			private static var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 
-			private static const TIMEOUT:Number = 30;
-			private static const CANCEL_BUTTON:Number = Math.round(TIMEOUT * 2 / 3);
+			private static const TIMEOUT:Number = 60;
+			private static const CANCEL_BUTTON:Number = 55;
 			
 			private var dotTimer:Timer;
 
