@@ -8,6 +8,7 @@
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.main.api.JSLog;
+  import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -377,6 +378,24 @@
         case CALL_TO_LISTEN_ONLY_STREAM:
           callToListenOnlyStream();
           break;
+        case ON_LISTEN_ONLY_STREAM:
+          // Disable automatic reconnection of listen only
+          // We MUST be sure that bbb-apps connection is restablished before reconnecting this
+/*          dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT,
+            "Connection reestablished",
+            "Listen only connection has been reestablished successfully"));
+          callToListenOnlyStream();
+          break;
+*/
+          // XXX: Remove this code if listen only connection is used
+          trace("Reconnected while listen only.");
+          state = INITED;
+          break;
+        case IN_CONFERENCE:
+          trace("Reconnected while transmiting mic. Automatic retransmission not implemented.");
+          state = INITED;
+          break;
+
         default:
           trace(LOG + "unhandled state: " + state);
           break;
@@ -392,7 +411,10 @@
 
         case FlashVoiceConnectionStatusEvent.FAILED:
         case FlashVoiceConnectionStatusEvent.DISCONNECTED:
-          state = INITED;
+          // If reconnection is under way the state should de kept
+          if(!event.reconnecting) {
+            state = INITED;
+          }
           dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
           break;
 
