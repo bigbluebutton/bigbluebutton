@@ -103,12 +103,21 @@ package org.bigbluebutton.modules.phone.managers {
         netConnection.close();
       }			
 		}
-		
+
+    private function handleConnectionSuccess():void {
+      dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));
+    }
+
+    private function handleConnectionFailed():void {
+      dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED));
+    }
+
     private function handleConnectionClosed():void {
       if (!closedByUser) {
         dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.DISCONNECTED));
       }
     }
+
 		private function netStatus (event:NetStatusEvent ):void {		 
       var info : Object = event.info;
       var statusCode : String = info.code;
@@ -120,12 +129,12 @@ package org.bigbluebutton.modules.phone.managers {
         case "NetConnection.Connect.Success":
           trace(LOG + "Connection success");
           JSLog.debug("Successfully connected to BBB Voice", logData);
-          dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));           
+          handleConnectionSuccess();
           break;
         case "NetConnection.Connect.Failed":
           trace(LOG + "Connection failed");
           JSLog.error("Failed to connect to BBB Voice", logData);
-          dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED));
+          handleConnectionFailed();
           break;
         case "NetConnection.Connect.NetworkChange":
           trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");

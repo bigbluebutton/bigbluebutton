@@ -282,8 +282,6 @@
           trace(LOG + "Successfully called into the echo test application.  [" + event.publishStreamName + "] : [" + event.playStreamName + "] : [" + event.codec + "]");
           JSLog.info("Successfully called into the echo test application.", logData);
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
-          
-          trace(LOG + "Successfully called into the echo test application.");
           dispatcher.dispatchEvent(new FlashEchoTestStartedEvent());
           break;
         default:
@@ -367,27 +365,42 @@
 			dispatcher.dispatchEvent(command);
 		}
 	}
-	
-    public function handleFlashVoiceConnectionStatusEvent(event:FlashVoiceConnectionStatusEvent):void {
-      trace(LOG + "Connection status event. status=[" + event.status + "]");
-      if (event.status == FlashVoiceConnectionStatusEvent.CONNECTED) {
-        switch (state) {
-          case JOIN_VOICE_CONFERENCE:
-            callIntoVoiceConference();
-            break;
-          case DO_ECHO_TEST:
-            callIntoEchoTest();
-            break;
-          case CALL_TO_LISTEN_ONLY_STREAM:
-            callToListenOnlyStream();
-            break;
-          default:
-            trace(LOG + "unhandled state: " + state);
-            break;
-        }
+
+    public function handleFlashVoiceConnected():void {
+      switch (state) {
+        case JOIN_VOICE_CONFERENCE:
+          callIntoVoiceConference();
+          break;
+        case DO_ECHO_TEST:
+          callIntoEchoTest();
+          break;
+        case CALL_TO_LISTEN_ONLY_STREAM:
+          callToListenOnlyStream();
+          break;
+        default:
+          trace(LOG + "unhandled state: " + state);
+          break;
       }
     }
-    
+
+    public function handleFlashVoiceConnectionStatusEvent(event:FlashVoiceConnectionStatusEvent):void {
+      trace(LOG + "Connection status event. status=[" + event.status + "]");
+      switch (event.status) {
+        case FlashVoiceConnectionStatusEvent.CONNECTED:
+          handleFlashVoiceConnected();
+          break;
+
+        case FlashVoiceConnectionStatusEvent.FAILED:
+        case FlashVoiceConnectionStatusEvent.DISCONNECTED:
+          state = INITED;
+          dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
+          break;
+
+        default:
+          trace(LOG + "Unhandled connection status [" + event.status + "]");
+      }
+    }
+
     public function handleUseFlashModeCommand():void {
       usingFlash = true;
       startCall(true);
