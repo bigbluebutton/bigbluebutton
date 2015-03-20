@@ -11,7 +11,8 @@ public interface IBigBlueButtonInGW {
 	void endAllMeetings();
 	void createMeeting2(String meetingID, String externalMeetingID, String meetingName, boolean recorded, 
 			    String voiceBridge, long duration, boolean autoStartRecording,
-			    boolean allowStartStopRecording);
+			    boolean allowStartStopRecording, String moderatorPass, String viewerPass,
+			    long createTime, String createDate);
 	void destroyMeeting(String meetingID);
 	void getAllMeetings(String meetingID);
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
