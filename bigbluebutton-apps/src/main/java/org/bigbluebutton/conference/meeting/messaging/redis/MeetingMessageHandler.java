@@ -42,7 +42,8 @@ public class MeetingMessageHandler implements MessageHandler {
 					CreateMeetingMessage emm = (CreateMeetingMessage) msg;
 					log.info("Received create meeting request. Meeting id [{}]", emm.id);
 					bbbGW.createMeeting2(emm.id, emm.externalId, emm.name, emm.record, emm.voiceBridge, 
-							  emm.duration, emm.autoStartRecording, emm.allowStartStopRecording);
+							  emm.duration, emm.autoStartRecording, emm.allowStartStopRecording,
+							  emm.moderatorPass, emm.viewerPass, emm.createTime, emm.createDate);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage emm = (RegisterUserMessage) msg;
 					log.info("Received register user request. Meeting id [{}], userid=[{}], token=[{}], guest=[{}]", emm.meetingID, emm.internalUserId, emm.authToken, emm.guest);

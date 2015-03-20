@@ -89,5 +89,9 @@ public class Constants {
   public static final String Y_PERCENT                       = "y_percent";
   public static final String KEEP_ALIVE_ID                   = "keep_alive_id";
   public static final String INTERNAL_USER_ID                = "internal_user_id";
+  public static final String MODERATOR_PASS                  = "moderator_pass";
+  public static final String VIEWER_PASS                     = "viewer_pass";
+  public static final String CREATE_TIME                     = "create_time";
+  public static final String CREATE_DATE                     = "create_date";
   public static final String GUEST                           = "guest";
 }

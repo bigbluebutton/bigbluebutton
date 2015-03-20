@@ -59,9 +59,14 @@ public class MessageFromJsonConverter {
 		Long duration = payload.get(Constants.DURATION).getAsLong();
 		Boolean autoStartRecording = payload.get(Constants.AUTO_START_RECORDING).getAsBoolean();
 		Boolean allowStartStopRecording = payload.get(Constants.ALLOW_START_STOP_RECORDING).getAsBoolean();
+		String moderatorPassword = payload.get(Constants.MODERATOR_PASS).getAsString();
+		String viewerPassword = payload.get(Constants.VIEWER_PASS).getAsString();
+		Long createTime = payload.get(Constants.CREATE_TIME).getAsLong();
+		String createDate = payload.get(Constants.CREATE_DATE).getAsString();
 		
 		return new CreateMeetingMessage(id, externalId, name, record, voiceBridge, 
-				          duration, autoStartRecording, allowStartStopRecording);
+				          duration, autoStartRecording, allowStartStopRecording,
+				          moderatorPassword, viewerPassword, createTime, createDate);
 	}
 	
 	private static IMessage processDestroyMeeting(JsonObject payload) {

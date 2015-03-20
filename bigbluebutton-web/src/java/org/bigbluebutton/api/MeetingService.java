@@ -297,7 +297,13 @@ public class MeetingService implements MessageListener {
 		log.info("Create meeting: data={}", logStr);
 		
 		messagingService.createMeeting(m.getInternalId(), m.getExternalId(), m.getName(), m.isRecord(), 
-				 m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording());			
+				 m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
+				 m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
+				 formatPrettyDate(m.getCreateTime()));
+	}
+
+	private String formatPrettyDate(Long timestamp) {
+		return new Date(timestamp).toString();
 	}
 	
 	private void processCreateMeeting(CreateMeeting message) {

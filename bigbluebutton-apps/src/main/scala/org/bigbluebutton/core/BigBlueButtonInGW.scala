@@ -20,11 +20,13 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID:String, meetingName: String, record: Boolean, 
           voiceBridge: String, duration: Long, autoStartRecording: Boolean, 
-          allowStartStopRecording: Boolean) {
+          allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String,
+          createTime: Long, createDate: String) {
 //    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
   	bbbGW.accept(new CreateMeeting(meetingID, externalMeetingID, meetingName, record, 
 	                   voiceBridge, duration, autoStartRecording,
-	                   allowStartStopRecording))
+	                   allowStartStopRecording, moderatorPass, viewerPass,
+	                   createTime, createDate))
   }
   
   def destroyMeeting(meetingID: String) {

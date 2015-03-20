@@ -35,6 +35,10 @@ public class MessageToJson {
 		payload.put(Constants.DURATION, msg.duration);
 		payload.put(Constants.AUTO_START_RECORDING, msg.autoStartRecording);
 		payload.put(Constants.ALLOW_START_STOP_RECORDING, msg.allowStartStopRecording);
+		payload.put(Constants.MODERATOR_PASS, msg.moderatorPass);
+		payload.put(Constants.VIEWER_PASS, msg.viewerPass);
+		payload.put(Constants.CREATE_TIME, msg.createTime);
+		payload.put(Constants.CREATE_DATE, msg.createDate);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(CreateMeetingMessage.CREATE_MEETING_REQUEST_EVENT, CreateMeetingMessage.VERSION, null);
 		return MessageBuilder.buildJson(header, payload);				
