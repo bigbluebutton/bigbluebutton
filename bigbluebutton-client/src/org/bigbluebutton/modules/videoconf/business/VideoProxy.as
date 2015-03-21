@@ -107,17 +107,11 @@ package org.bigbluebutton.modules.videoconf.business
 							"Video connection has been reestablished successfully"));
 							reconnecting = false;
 					}
-					ns = new NetStream(nc);
           onConnectedToVideoApp();
 					break;
 				
 				case "NetConnection.Connect.Closed":
 					if (!logoutOnUserCommand) {
-						if (ns != null) {
-							ns.attachCamera(null);
-							ns.close();
-							ns = null;
-						}
 						dispatcher.dispatchEvent(new StopBroadcastEvent());
 
 						dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
@@ -144,6 +138,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function startPublishing(e:StartBroadcastEvent):void{
+			ns = new NetStream(nc);
 			ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 			ns.addEventListener( IOErrorEvent.IO_ERROR, onIOError );
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
@@ -210,7 +205,6 @@ package org.bigbluebutton.modules.videoconf.business
 				ns.attachCamera(null);
 				ns.close();
 				ns = null;
-				ns = new NetStream(nc);
 			}			
 		}
 		

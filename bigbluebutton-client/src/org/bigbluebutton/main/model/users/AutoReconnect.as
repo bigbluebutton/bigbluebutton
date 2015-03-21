@@ -1,13 +1,13 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
 * Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-* 
+*
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -18,31 +18,31 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
+  import flash.events.TimerEvent;
+  import flash.utils.Timer;
 
   public class AutoReconnect
   {
-		public static const LOG:String = "AutoReconnect - ";
+    public static const LOG:String = "AutoReconnect - ";
 
     private var _backoff:Number = 2000;
     private var _reconnectCallback:Function;
     private var _reconnectParameters:Array;
-    
+
     public function onDisconnect(callback:Function, ...parameters):void {
       trace(LOG + "onDisconnect, parameters=" + parameters.toString());
       _reconnectCallback = callback;
       _reconnectParameters = parameters;
       attemptReconnect(1000);
     }
-		
-		public function onConnectionAttemptFailed():void {
-			trace(LOG + "onConnectionAttemptFailed");
-			attemptReconnect(_backoff);
-		}
-    
-    private function attemptReconnect(backoff:Number):void{
-			trace(LOG + "attemptReconnect backoff=" + backoff);
+
+    public function onConnectionAttemptFailed():void {
+      trace(LOG + "onConnectionAttemptFailed");
+      attemptReconnect(_backoff);
+    }
+
+    private function attemptReconnect(backoff:Number):void {
+      trace(LOG + "attemptReconnect backoff=" + backoff);
       var retryTimer:Timer = new Timer(backoff, 1);
       retryTimer.addEventListener(TimerEvent.TIMER, function():void {
         trace(LOG + "Reconnecting");

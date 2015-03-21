@@ -12,11 +12,13 @@ package org.bigbluebutton.modules.phone.events
     public static const NETWORK_CHANGE:String = "flash voice connection status network change event";
     
     public var status:String;
+    public var reconnecting:Boolean;
     
-    public function FlashVoiceConnectionStatusEvent(connStatus:String)
+    public function FlashVoiceConnectionStatusEvent(connStatus:String, isReconnecting:Boolean = false)
     {
       super(CONN_STATUS, true, false);
       status = connStatus;
+      reconnecting = isReconnecting;
     }
   }
 }
