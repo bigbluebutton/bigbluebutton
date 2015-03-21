@@ -103,6 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function startTimers():void {
+				cancelButton.visible = false;
 				if (!dotTimer.running) dotTimer.start();
 				if (!cancelTimer.running) {
 					countdown = TIMEOUT;
@@ -254,7 +255,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						<mx:Label id="lblConnectDots" width="20" textAlign="left" styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="" />
 					</mx:HBox>
 					<mx:HBox width="100%" verticalAlign="bottom" horizontalAlign="right">
-						<mx:Button id="cancelButton" visible="false" 
+						<mx:Button id="cancelButton" 
 								   label="{cancelButtonLabel}" 
 								   styleName="micSettingsWindowPlaySoundButtonStyle" 
 								   click="noButtonClicked()" 
