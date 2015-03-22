@@ -48,6 +48,7 @@ Template.header.events
   "click .audioFeedIcon": (event) ->
     if getInSession('webrtc_notification_is_displayed') is false # prevents the notification from displaying until the previous one is hidden
       if !isWebRTCAvailable() # verifies if the browser supports WebRTC
+        $('.notification').addClass('webrtc-support-notification')
         setInSession 'webrtc_notification_is_displayed', true
         pp = new Raphael('browser-icon-container', 35, 35)
         if getBrowserName() is 'Safari'
@@ -66,9 +67,27 @@ Template.header.events
           $('.audioFeedIcon').blur()
           setTimeout () -> # waits 0.5 sec (time to hide the notification), then removes the icons
             pp.remove()
+            $('.notification').removeClass('webrtc-support-notification')
             setInSession 'webrtc_notification_is_displayed', false
           , 500
         , 2000
+      else
+        if !BBB.amISharingAudio()
+          Tracker.autorun (comp) ->
+            if BBB.amISharingAudio()
+              $('.notification').addClass('joined-audio-notification')
+              setInSession 'webrtc_notification_is_displayed', true
+              $('#notification-text').html("You've joined the audio")
+              $('#notification').dialog('open')
+              setTimeout () ->
+                $('#notification').dialog('close')
+                $('.audioFeedIcon').blur()
+                setTimeout () ->
+                  $('.notification').removeClass('joined-audio-notification')
+                  setInSession 'webrtc_notification_is_displayed', false
+                , 500
+              , 2000
+              comp.stop()
     $('.audioFeedIcon').blur()
     toggleVoiceCall @
     if BBB.amISharingAudio()
