@@ -580,8 +580,20 @@ body {
   opacity: 0.85;
 
   background: grey;
-  width: 300px !important;
-  height: 50px !important;
+  &.webrtc-support-notification {
+    width: 300px !important;
+    height: 50px !important;
+  }
+  &.joined-audio-notification {
+    width: 200px !important;
+    height: 32px !important;
+    #browser-icon-container {
+      display: none;
+    }
+    #notification-text {
+      height: 100% !important;
+    }
+  }
   min-height: 0px !important;
   font-weight: 900;
   &.ui-widget-content p {
@@ -589,7 +601,7 @@ body {
     font-size: 14px;
     height: 35px;
     margin: 0;
-    padding: 0;
+    padding: 1px;
   }
 }
 
