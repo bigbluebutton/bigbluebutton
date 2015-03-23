@@ -51,7 +51,6 @@ package org.bigbluebutton.modules.whiteboard
   import org.bigbluebutton.modules.whiteboard.business.shapes.Pencil;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.TextDrawAnnotation;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.TextDrawObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
   import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
