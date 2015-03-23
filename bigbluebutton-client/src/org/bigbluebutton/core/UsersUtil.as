@@ -181,6 +181,7 @@ package org.bigbluebutton.core
     public static function getUserData():Object {
       var userData:Object = new Object();
       userData.meetingId = getInternalMeetingID();
+      userData.externalMeetingId = getExternalMeetingID();
       userData.meetingName = UserManager.getInstance().getConference().meetingName;
       userData.userId = getMyUserID();
       userData.userName = getMyUsername();
