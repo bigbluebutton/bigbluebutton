@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class ChatMessageService
   {
@@ -108,7 +109,7 @@ package org.bigbluebutton.modules.chat.services
         dispatcher.dispatchEvent(welcomeMsgEvent);
         
         //Say that client is ready when sending the welcome message
-        ExternalInterface.call("clientReady", "Ready");
+        ExternalInterface.call("clientReady", ResourceUtil.getInstance().getString('bbb.accessibility.clientReady'));
       }	
       
       if (UsersUtil.amIModerator()) {
