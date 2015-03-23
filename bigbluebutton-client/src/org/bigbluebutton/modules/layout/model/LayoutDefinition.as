@@ -92,7 +92,7 @@ package org.bigbluebutton.modules.layout.model {
 				return _layoutsPerRole[Role.PRESENTER];
 			} else {
 				LogUtil.error("There's no layout that fits the participants profile");
-        trace(LOG + "getMyLayout There's no layout that fits the participants profile");
+        //trace(LOG + "getMyLayout There's no layout that fits the participants profile");
 				return null;
 			}
 		}
@@ -190,12 +190,12 @@ package org.bigbluebutton.modules.layout.model {
 			var type:String;
 			for each (var window:MDIWindow in windows) {
 			  type = WindowLayout.getType(window);
-	      trace(LOG + "Determine if we need to apply layout [" + name + "] for window [" + type + "]");
+	      //trace(LOG + "Determine if we need to apply layout [" + name + "] for window [" + type + "]");
 				if (!ignoreWindowByType(type)) {
-          trace(LOG + "Applying layout [" + name + "] to window [" + type + "]");
+          //trace(LOG + "Applying layout [" + name + "] to window [" + type + "]");
 					WindowLayout.setLayout(canvas, window, transformedLayout[type]);
         } else {
-          trace(LOG + "Ignoring layout [" + name + "] to window [" + type + "]");
+          //trace(LOG + "Ignoring layout [" + name + "] to window [" + type + "]");
         }
 			}
 		}
