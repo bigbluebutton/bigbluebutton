@@ -89,13 +89,15 @@ package org.bigbluebutton.modules.layout.managers
 
     public function LayoutManager() {
       _applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+        trace(LOG + " timerEvent layout [" + _currentLayout.name +  "]");
         applyLayout(_currentLayout);
         trace(LOG + "Applied layout after user resized browser");
       });
       _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
         trace(LOG + "Applying layout due to window resize");
         if (_autoSync)
-          sendLayoutUpdate(updateCurrentLayout());
+          trace(LOG + "Applying layout on autoSync");
+          sendLayoutUpdate(updateCurrentLayout(_currentLayout));
       });
     }
     
@@ -162,6 +164,7 @@ package org.bigbluebutton.modules.layout.managers
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_RESTORE, onActionOverWindowFinished);
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_ADD, function(e:MDIManagerEvent):void {
 				checkPermissionsOverWindow(e.window);
+        trace(LOG + " setCanvas layout [" + _currentLayout.name +  "]");
 				applyLayout(_currentLayout);
 			});
 			
@@ -200,14 +203,14 @@ package org.bigbluebutton.modules.layout.managers
         defaultLayout = _layoutModel.getDefaultLayout();
       }
       
-      trace("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
+      trace(LOG + " Using [" + defaultLayout.name + "] as default LAYOUT.");
 			applyLayout(defaultLayout);
 		}
 		
     private function dispatchSwitchedLayoutEvent(layoutID:String):void {
       if (_currentLayout != null && _currentLayout.name == layoutID) return;
       
-      trace("************** DISPATCHING [" + layoutID + "] as new LAYOUT ***************************");
+      trace(LOG + " Dispatch [" + layoutID + "] as new LAYOUT");
       var layoutEvent:SwitchedLayoutEvent = new SwitchedLayoutEvent();
       layoutEvent.layoutID = layoutID;
       _globalDispatcher.dispatchEvent(layoutEvent);      
@@ -245,7 +248,7 @@ package org.bigbluebutton.modules.layout.managers
         layout.applyToCanvas(_canvas);
         dispatchSwitchedLayoutEvent(layout.name);
       }
-				
+      trace(LOG + " applyLayout layout [" + layout.name +  "]");	
 			updateCurrentLayout(layout);
 			_detectContainerChange = true;
 		}
@@ -262,6 +265,7 @@ package org.bigbluebutton.modules.layout.managers
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
+      trace(LOG + " applyRemoteLayout layout [" + layout.name +  "]");
 			applyLayout(layout);
 		}
 		
@@ -317,7 +321,7 @@ package org.bigbluebutton.modules.layout.managers
       
       checkPermissionsOverWindow(e.window);
       trace(LOG + "Window is being resized. Event=[" + e.type + "]");
-      updateCurrentLayout();
+      updateCurrentLayout(_currentLayout);
         /*
         * 	some events related to animated actions must be delayed because if it's not, the 
         * 	current layout doesn't get properly updated
@@ -328,13 +332,16 @@ package org.bigbluebutton.modules.layout.managers
         } 
 		}
 		
-		private function updateCurrentLayout(layout:LayoutDefinition=null):LayoutDefinition {
+		private function updateCurrentLayout(layout:LayoutDefinition):LayoutDefinition {
+      trace(LOG + "updateCurrentLayout");
       if (layout != null) {
         if (_currentLayout) _currentLayout.currentLayout = false;
         _currentLayout = layout;
+        trace(LOG + "updateCurrentLayout - currentLayout = [" + layout.name + "]");
         layout.currentLayout = true;
       } else {
         _currentLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
+        trace(LOG + "updateCurrentLayout - layout is NULL! Setting currentLayout = [" + _currentLayout.name + "]");
       }
 
 			return _currentLayout;
@@ -345,8 +352,11 @@ package org.bigbluebutton.modules.layout.managers
 		 * on the role of the participant
 		 */ 
 		public function presenterChanged():void {
-			if (_canvas != null)
-				applyLayout(_currentLayout);
+			if (_canvas != null) {
+        trace(LOG + " presenterChanged layout [" + _currentLayout.name +  "]");
+        applyLayout(_currentLayout);
+      }
+				
 		}
 	}
 }
