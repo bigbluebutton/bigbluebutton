@@ -3,7 +3,7 @@
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+Copyright (c) 2014 BigBlueButton Inc. and by respective authors (see below).
 
 This program is free software; you can redistribute it and/or modify it under the
 terms of the GNU Lesser General Public License as published by the Free Software
@@ -84,7 +84,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               
     <bean id="bbbGW" class="org.bigbluebutton.core.BigBlueButtonGateway">
         <constructor-arg index="0" ref="outMsgGW"/>
-        <constructor-arg index="1" ref="collectorGW"/>
     </bean>
     
     <bean id="collectorGW" class="org.bigbluebutton.core.CollectorGateway">
@@ -120,8 +119,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <ref bean="chatRedisRecorder"/>
                 <ref bean="chatRedisPublisher"/>
                 <ref bean="fsConfService"/>                    
-                <ref bean="whiteboardEventRedisPublisher"/>
-                <ref bean="collectorGW"/>                   
+                <ref bean="whiteboardEventRedisPublisher"/>             
             </set>        
          </property> 
     </bean>

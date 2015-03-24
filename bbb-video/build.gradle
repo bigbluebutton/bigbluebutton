@@ -13,49 +13,36 @@ task resolveDeps(type: Copy) {
 }
 
 repositories {
-   	add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
-		 name = 'remote'
-       	returnFirst = true
-       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-       		name = "googlecode"
-       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
-       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
-		}
-		   add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-       		name = "blindside-repos"
-       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
-       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
-		}			 
+  mavenCentral()
+  add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
+    name = 'remote'
+    returnFirst = true
     add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-       		name = "maven2-central"
-       		m2compatible = true
-       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
-       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
-		}  
+      name = "googlecode"
+      addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+      addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+    }
     add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-       		name = "testng_ibiblio_maven2"
-       		m2compatible = true
-       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
-       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
-		}  
-		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-            name = "netty-dependency"
-            m2compatible = true
-            addArtifactPattern "http://repository.jboss.org/nexus/content/groups/public-jboss/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
-            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
-    }
-		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-            name = "spring-bundles"
-            m2compatible = true
-            addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-            addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-    }
-		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-			name = "Red5"
-			m2compatible = true
-			addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-			addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-		}
+      name = "blindside-repos"
+      addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+      addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+    }             
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = "testng_ibiblio_maven2"
+      m2compatible = true
+      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+    }  
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = "spring-bundles"
+      m2compatible = true
+      addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+      addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+    }        
+    mavenRepo name: "jboss", urls: "http://repository.jboss.org/nexus/content/groups/public-jboss"
+    mavenRepo name: "sonatype-snapshot", urls: "http://oss.sonatype.org/content/repositories/snapshots"
+    mavenRepo name: "sonatype-releases", urls: "http://oss.sonatype.org/content/repositories/releases"
+
   }
 }
 
@@ -69,33 +56,34 @@ dependencies {
 	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.8@jar'
 	
 	// Spring 
-	providedCompile 'org.springframework:spring-web:4.0.7.RELEASE@jar' 
+	providedCompile 'org.springframework:spring-web:4.0.8.RELEASE@jar' 
 	providedCompile  'org.springframework:spring-beans:4.0.7.RELEASE@jar'
 	providedCompile 'org.springframework:spring-context:4.0.7.RELEASE@jar'
 	providedCompile 'org.springframework:spring-core:4.0.7.RELEASE@jar'
 	
 	// Red5
-	providedCompile 'org/red5:red5-server:1.0.4-SNAPSHOT@jar'
-	providedCompile 'org.red5:red5-io:1.0.4-SNAPSHOT@jar'
-	
+    providedCompile 'org/red5:red5-server:1.0.5-RELEASE@jar'
+    providedCompile 'org.red5:red5-server-common:1.0.5-RELEASE@jar'
+    providedCompile 'org.red5:red5-io:1.0.5-RELEASE@jar'
+  
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.1.2@jar'
 	providedCompile 'ch.qos.logback:logback-classic:1.1.2@jar'
-	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:jul-to-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:slf4j-api:1.7.7@jar'
+	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:jul-to-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:slf4j-api:1.7.9@jar'
 	
 	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
 	// Otherwise we get exception on aop utils class not found.
-	providedCompile 'org.springframework:spring-aop:4.0.7.RELEASE@jar'
+	providedCompile 'org.springframework:spring-aop:4.0.8.RELEASE@jar'
 	compile 'aopalliance:aopalliance:1.0@jar'
 	
     // Java Concurrency In Practice
     providedCompile 'net.jcip:jcip-annotations:1.0@jar'
         
     // Testing
-    compile 'org.testng:testng:5.8@jar' 
+//    compile 'org.testng:testng:5.8@jar' 
     compile 'org.easymock:easymock:2.4@jar'
   
 	//redis

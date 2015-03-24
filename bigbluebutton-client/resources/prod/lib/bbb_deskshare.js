@@ -1,3 +1,6 @@
+if (!window.console) window.console = {};
+if (!window.console.log) window.console.log = function () { };
+
 function startApplet(IP, roomNumber, fullScreen, useSVC2)
 {
         console.log("Starting deskshare applet.");
@@ -38,7 +41,6 @@ function stopApplet(){
         removeFrame();
 }
 
-function checkForJava(){
-//      if (navigator.javaEnabled() || window.navigator.javaEnabled())
-                return 1;
+function appletStartupCallback() {
+        BBB.javaAppletLaunched();
 }

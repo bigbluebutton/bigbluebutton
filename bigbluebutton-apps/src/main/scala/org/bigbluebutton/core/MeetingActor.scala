@@ -20,21 +20,40 @@ case object StopMeetingActor
 class MeetingActor(val meetingID: String, val externalMeetingID: String, val meetingName: String, val recorded: Boolean, 
                    val voiceBridge: String, duration: Long, 
                    val autoStartRecording: Boolean, val allowStartStopRecording: Boolean,
+                   val moderatorPass: String, val viewerPass: String,
+                   val createTime: Long, val createDate: String,
                    val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
                    with WhiteboardApp with LogHelper {  
 
+  var audioSettingsInited = false
   var permissionsInited = false
   var permissions = new Permissions()
   var recording = false;
   var muted = false;
   var meetingEnded = false
+
+  def getDuration():Long = {
+    duration
+  }
+
+  def getMeetingName():String = {
+    meetingName
+  }
+
+  def getRecordedStatus():Boolean = {
+    recorded
+  }
+
+  def getVoiceBridgeNumber():String = {
+    voiceBridge
+  }
   
   val TIMER_INTERVAL = 30000
   var hasLastWebUserLeft = false
   var lastWebUserLeftOn:Long = 0
-  
+
   class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
     def act {
         reactWithin(timeout) {
@@ -71,7 +90,9 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: MuteUserRequest                        => handleMuteUserRequest(msg)
 	    case msg: EjectUserFromVoiceRequest              => handleEjectUserRequest(msg)
 	    case msg: SetLockSettings                        => handleSetLockSettings(msg)
+      case msg: LockUserRequest                        => handleLockUserRequest(msg)
 	    case msg: InitLockSettings                       => handleInitLockSettings(msg)
+      case msg: InitAudioSettings                      => handleInitAudioSettings(msg)
 	    case msg: GetChatHistoryRequest                  => handleGetChatHistoryRequest(msg) 
 	    case msg: SendPublicMessageRequest               => handleSendPublicMessageRequest(msg)
 	    case msg: SendPrivateMessageRequest              => handleSendPrivateMessageRequest(msg)
@@ -121,7 +142,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case _ => // do nothing
 	  }
 	}
-  }	
+  }
   
   def hasMeetingEnded():Boolean = {
     meetingEnded
@@ -143,11 +164,11 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   def webUserJoined() {
     if (users.numWebUsers > 0) {
       lastWebUserLeftOn = 0
-	  }      
+    }      
   }
   
   def startRecordingIfAutoStart() {
-    if (!recording && autoStartRecording && users.numWebUsers == 1) {
+    if (recorded && !recording && autoStartRecording && users.numWebUsers == 1) {
       logger.info("Auto start recording for meeting=[" + meetingID + "]")
      recording = true
      outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))          
@@ -155,7 +176,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   }
   
   def stopAutoStartedRecording() {
-    if (recording && autoStartRecording 
+    if (recorded && recording && autoStartRecording 
         && users.numWebUsers == 0) {
       logger.info("Last web user left. Auto stopping recording for meeting=[{}", meetingID)
       recording = false
@@ -168,7 +189,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
       lastWebUserLeftOn = timeNowInMinutes
 	    logger.debug("MonitorNumberOfWebUsers started for meeting [" + meetingID + "]")
       scheduleEndVoiceConference()
-	  }
+    }
   }
   
   def handleMonitorNumberOfWebUsers() {

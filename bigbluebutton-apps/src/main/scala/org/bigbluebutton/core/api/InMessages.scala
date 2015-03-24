@@ -7,6 +7,10 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 
 trait InMessage {val meetingID: String}
 
+case class IsMeetingActorAliveMessage ( 
+    meetingId:String
+)
+
 case class KeepAliveMessage
 ( 
     aliveID:String
@@ -21,7 +25,11 @@ case class CreateMeeting
   voiceBridge: String,
   duration: Long,
   autoStartRecording: Boolean,
-  allowStartStopRecording: Boolean
+  allowStartStopRecording: Boolean,
+  moderatorPass: String,
+  viewerPass: String,
+  createTime: Long,
+  createDate: String
 ) extends InMessage
                          
 case class InitializeMeeting(
@@ -47,15 +55,9 @@ case class LockUser(
   meetingID: String, 
   userId: String, 
   lock: Boolean) extends InMessage
-                    
-case class LockAllUsers(
-  meetingID: String, 
-  lock: Boolean, 
-  exceptUsers: Seq[String]) extends InMessage
                         
 case class InitLockSettings(
   meetingID: String, 
-  locked: Boolean, 
   settings: Permissions) extends InMessage
                             
 case class SetLockSettings(
@@ -69,18 +71,13 @@ case class GetLockSettings(
     userId: String
 ) extends InMessage
                            
-case class IsMeetingLocked(
-    meetingID: String, 
-    userId: String
-) extends InMessage
-                           
-
 // Users
 case class ValidateAuthToken(
   meetingID: String, 
   userId: String, 
   token: String,
-  correlationId: String) extends InMessage
+  correlationId: String,
+  sessionId: String) extends InMessage
 
 case class RegisterUser(
     meetingID: String, 
@@ -93,12 +90,14 @@ case class RegisterUser(
                        
 case class UserJoining(
     meetingID: String, 
-    userID: String
+    userID: String,
+    authToken: String
 ) extends InMessage
                        
 case class UserLeaving(
     meetingID: String, 
-    userID: String
+    userID: String,
+    sessionId: String
 ) extends InMessage
                        
 case class GetUsers(
@@ -386,6 +385,11 @@ case class PresentationConversionCompleted(
 ) extends InMessage                       
                        
 // Voice
+case class InitAudioSettings(
+  meetingID: String, 
+  requesterID: String,
+  muted: Boolean) extends InMessage
+  
 case class SendVoiceUsersRequest(
     meetingID: String, 
     requesterID: String) extends InMessage
@@ -503,3 +507,7 @@ case class IsWhiteboardEnabledRequest(
     requesterID: String,
     replyTo: String
 ) extends InMessage
+
+case class GetAllMeetingsRequest(
+    meetingID: String /** Not used. Just to satisfy trait **/
+    ) extends InMessage

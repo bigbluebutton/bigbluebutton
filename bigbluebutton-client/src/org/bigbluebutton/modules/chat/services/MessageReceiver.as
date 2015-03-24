@@ -65,14 +65,14 @@ package org.bigbluebutton.modules.chat.services
       var chats:Array = JSON.parse(message.msg) as Array;
       
       for (var i:int = 0; i < chats.length; i++) {
-        handleChatReceivePublicMessageCommand(chats[i]);
+        handleChatReceivePublicMessageCommand(chats[i], true);
       }
          
       var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
       dispatcher.dispatchEvent(pcEvent);
     }
         
-    private function handleChatReceivePublicMessageCommand(message:Object):void {
+    private function handleChatReceivePublicMessageCommand(message:Object, history:Boolean = false):void {
       trace(LOG + "Handling public chat message [" + message.message + "]");
       
       var msg:ChatMessageVO = new ChatMessageVO();
@@ -88,6 +88,7 @@ package org.bigbluebutton.modules.chat.services
       
       var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
       pcEvent.message = msg;
+      pcEvent.history = history;
       dispatcher.dispatchEvent(pcEvent);
       
       var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PUBLIC_CHAT);

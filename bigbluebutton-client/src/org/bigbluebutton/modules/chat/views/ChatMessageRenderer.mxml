@@ -20,10 +20,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
-		 verticalScrollPolicy="off" horizontalScrollPolicy="off" 
-		 xmlns:common="org.bigbluebutton.common.*"
-		 creationComplete="onCreationComplete()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 verticalAlign="top" verticalGap="0" paddingTop="0" paddingBottom="0"
+		 verticalScrollPolicy="off" horizontalScrollPolicy="off"
+		 xmlns:common="org.bigbluebutton.common.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -39,23 +39,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (ExternalInterface.available) {
           ExternalInterface.call("chatLinkClicked", e.text);
         } 
-			}
-			
-			private function onCreationComplete():void{
-				/** Register a change handler as the renderer get recycled. If we don't
-				 * do this, we'll get a stale data which will display the chat 
-				 * message repeatedly. (ralam Nov 1, 2010)
-				 */
-				//ChangeWatcher.watch(this, "data", dataChangeHandler);
-				//dataChangeHandler(); // call to intialize
-				
-				/**
-				 * The next line will refresh the display so that chat history don't show up as
-				 * squished. Don't know fully hos this works but somehow when I put this in
-				 * it fixed the problem. So if you remove this, make sure you test that the
-				 * chat history shows up correctly. (ralam Nov 3, 2010)
-				 */
-				validateNow();
 			}
 			
 			//private function dataChangeHandler(e:Event = null):void{
@@ -81,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// adjust the name width so that "..." are added if it's too long
 				lblName.width = this.width - lblTime.width - 22;
 				
+				// If you remove this some of the chat messages will fail to render
 				validateNow();
 			}
 			
@@ -93,7 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-  <mx:Canvas width="100%" id="hbHeader">
+  <mx:Canvas width="100%" id="hbHeader" verticalScrollPolicy="off" horizontalScrollPolicy="off">
     <mx:Label id="lblName" text="{data.name}" visible="true" color="gray" textAlign="left" left="0"/>
     <mx:Text id="lblTime" htmlText="{data.time}" textAlign="right"
              visible="true" 

@@ -23,7 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
          xmlns:mate="http://mate.asfusion.com/"
          implements="org.bigbluebutton.modules.chat.views.IChatTab"
-         creationComplete="init()">
+         creationComplete="onCreationComplete()">
   
   <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
   
@@ -46,14 +46,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           import org.bigbluebutton.modules.chat.model.ChatOptions;
           import org.bigbluebutton.util.i18n.ResourceUtil;
             
+            private static var LOG:String = "Chat::AddChatTabBox - ";
+			
             [Bindable] public var users:ArrayCollection;
             [Bindable] public var chatView:ChatView;
             [Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
             
             [Bindable] public var chatOptions:ChatOptions = new ChatOptions();		
             
-            private function init():void{
+			[Bindable]
+			public var baseIndex:int;
+			
+            private function onCreationComplete():void{
                 users = UserManager.getInstance().getConference().users;
+                if (fontSizes.indexOf(chatOptions.fontSize) != -1) {
+                    cmbFontSize.selectedItem = chatOptions.fontSize;
+                    changeFontSize(); // have to manually call it because the change event doesn't fire
+                } else {
+                    trace(LOG + "fontSize in config.xml not found: " + chatOptions.fontSize);
+                }
             }
             
             public function accessibleClick(event:KeyboardEvent):void{
@@ -63,6 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
             
             private function changeFontSize():void {
+                trace(LOG + "sending change font size")
                 var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_FONT_SIZE);
                 e.fontSize = int(cmbFontSize.selectedItem);
                 dispatchEvent(e);
@@ -113,12 +125,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             <mx:List id="usersList" height="100%" width="100%" dataProvider="{users}" dragEnabled="false" 
                      visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
                      itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
-                     itemClick="openPrivateChat(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"/>
+                     itemClick="openPrivateChat(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"
+					 tabIndex="{baseIndex}"/>
             <mx:VBox id="optionsBox" height="100%" width="50%" >
                 <mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
                 <mx:HBox width="100%">
                     <mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
-                    <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}"/>
+                    <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
+								 selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" 
+								 tabIndex="{baseIndex+1}"/>
                 </mx:HBox>
             </mx:VBox>
         </mx:VBox>

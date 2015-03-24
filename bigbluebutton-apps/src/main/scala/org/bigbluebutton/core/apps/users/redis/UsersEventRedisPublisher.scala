@@ -15,9 +15,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
         case msg: PermissionsSettingInitialized => handlePermissionsSettingInitialized(msg)
         case msg: NewPermissionsSetting         => handleNewPermissionsSetting(msg)
         case msg: UserLocked                    => handleUserLocked(msg)
-        case msg: UsersLocked                   => handleUsersLocked(msg)
         case msg: GetPermissionsSettingReply    => handleGetPermissionsSettingReply(msg)
-        case msg: IsMeetingLockedReply          => handleIsMeetingLockedReply(msg)
         case msg: UserRegistered                => handleUserRegistered(msg)
         case msg: UserLeft                      => handleUserLeft(msg)
         case msg: PresenterAssigned             => handlePresenterAssigned(msg)
@@ -66,19 +64,9 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
     val json = UsersMessageToJsonConverter.userLockedToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)  
   }
-    
-  private def handleUsersLocked(msg: UsersLocked) {
-    val json = UsersMessageToJsonConverter.usersLockedToJson(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)  
-  }
   
   private def handleGetPermissionsSettingReply(msg: GetPermissionsSettingReply) {
     val json = UsersMessageToJsonConverter.getPermissionsSettingReplyToJson(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json) 
-  }
-  
-  private def handleIsMeetingLockedReply(msg: IsMeetingLockedReply) {
-    val json = UsersMessageToJsonConverter.isMeetingLockedReplyToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json) 
   }
 

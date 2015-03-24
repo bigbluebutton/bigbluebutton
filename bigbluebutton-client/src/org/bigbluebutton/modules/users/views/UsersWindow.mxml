@@ -52,6 +52,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -125,8 +126,7 @@
 				
 				roomMuted = MeetingModel.getInstance().meetingMuted;
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
-					|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
+				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 				
 				titleBarOverlay.tabIndex = partOptions.baseTabIndex;
 				minimizeBtn.tabIndex = partOptions.baseTabIndex+1;
@@ -135,12 +135,35 @@
 				
 				stage.addEventListener(MouseEvent.MOUSE_OVER, handleStageMouseOver);
 				usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
+				
+				addContextMenuItems();
 			}
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.TOP_LEFT;
 			}
 			
+			private function addContextMenuItems():void {
+				var contextMenu:ContextMenu = new ContextMenu();
+				contextMenu.hideBuiltInItems();
+				
+				var exportUsersItem:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.users.usersGrid.contextmenu.exportusers"));
+				exportUsersItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, exportUsersItemHandler);
+				contextMenu.customItems.push(exportUsersItem);
+				
+				this.contextMenu = contextMenu;
+			}
+			
+			private function exportUsersItemHandler(e:ContextMenuEvent):void{
+				if (e.target.caption == ResourceUtil.getInstance().getString("bbb.users.usersGrid.contextmenu.exportusers")) {
+					var userNames:String = "";
+					var returnStr:String = (Capabilities.os.indexOf("Windows") >= 0 ? "\r\n" : "\r");
+					for (var i:int = 0; i < users.length; i++) {
+						userNames += users[i].name + returnStr;
+					}
+					System.setClipboard(userNames);
+				}
+			}
 			
 			private function updateNumberofUsers(numUsers:int):void {
 				if (numUsers > 8)
@@ -203,7 +226,13 @@
 			
 			private function raiseHand():void{
 				var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-				e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
+				if (UserManager.getInstance().getConference().isMyHandRaised) {
+					e.raised = false;
+					raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip2');
+				} else {
+					e.raised = true;
+					raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip');
+				}
 				dispatchEvent(e);
 			}
 			
@@ -231,7 +260,7 @@
 				myMenu.variableRowHeight = true;
 				myMenu.show(this.x + settingsBtn.x + settingsBtn.width + 2, this.y + this.height);
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-				myMenu.setFocus();
+				myMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
@@ -240,10 +269,13 @@
 				}
 			}
 			
+			private function menuShowHandler(e:MenuEvent):void {
+				myMenu.setFocus();
+			}
+			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-				roomLocked = lockSettings.getDisableCam() || lockSettings.getDisableMic() || lockSettings.getDisablePrivateChat() 
-								|| lockSettings.getDisablePublicChat() || lockSettings.getLockedLayout();
+				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 			}
 			
 			private function lockSettings():void {
@@ -253,7 +285,7 @@
 				dispatcher.dispatchEvent(event);
 			}
 			
-			private function unlockAll():void {
+			/*private function unlockAll():void {
 				LogUtil.traceObject("Action: unlockAll");
 				if (amIModerator) {
 					if (roomLocked) {
@@ -292,6 +324,7 @@
 					}
 				}
 			}
+			*/
 			
 			private function handleMeetingMuted(e:MeetingMutedEvent):void {
 				roomMuted = MeetingModel.getInstance().meetingMuted;
@@ -345,6 +378,14 @@
 					
 					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
 					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.users.maximizeRestoreBtn.accessibilityName");
+				}
+				
+				if (raiseHandBtn) {
+					if (UserManager.getInstance().getConference().isMyHandRaised) {
+						raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip2');
+					} else {
+						raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip');
+					}
 				}
 			}
 			
@@ -454,7 +495,7 @@
 				usersGrid.drawFocus(true);
 			}
 			
-			private function remoteMuteAllButPres():void{
+			private function remoteMuteAllButPres(e:ShortcutEvent):void{
 				muteAlmostAll();
 			}
 			
@@ -480,9 +521,9 @@
 	<mx:ControlBar width="100%">
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
 				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
-				   visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
+				   visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
+					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:VBox>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomMuted.text')}" visible="{roomMuted}" includeInLayout="{roomMuted}" />
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.roomLocked.text')}" visible="{roomLocked}" includeInLayout="{roomLocked}" />

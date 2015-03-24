@@ -18,21 +18,28 @@
  */
 package org.bigbluebutton.core.vo
 {
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.main.model.users.BBBUser;
+
 	public class LockSettingsVO
 	{
+		private var lockOnJoinConfigurable:Boolean;
 		private var disableCam:Boolean;
 		private var disableMic:Boolean;
 		private var disablePrivateChat:Boolean;
 		private var disablePublicChat:Boolean;
-    private var lockedLayout:Boolean;
+		private var lockedLayout:Boolean;
+		private var lockOnJoin:Boolean;
 
-		public function LockSettingsVO(pDisableCam:Boolean, pDisableMic:Boolean, pDisablePrivateChat:Boolean, pDisablePublicChat:Boolean, pLockLayout: Boolean)
+		public function LockSettingsVO(pDisableCam:Boolean, pDisableMic:Boolean, pDisablePrivateChat:Boolean, pDisablePublicChat:Boolean, pLockLayout: Boolean, pLockOnJoin:Boolean, pLockOnJoinConfigurable:Boolean)
 		{
 			this.disableCam = pDisableCam;
 			this.disableMic = pDisableMic;
 			this.disablePrivateChat = pDisablePrivateChat;
 			this.disablePublicChat = pDisablePublicChat;
-      this.lockedLayout = pLockLayout;
+			this.lockedLayout = pLockLayout;
+			this.lockOnJoin = pLockOnJoin;
+			this.lockOnJoinConfigurable = pLockOnJoinConfigurable;
 		}
 		
 		public function toMap():Object {
@@ -41,7 +48,9 @@ package org.bigbluebutton.core.vo
 				disableMic: this.disableMic,
 				disablePrivateChat: this.disablePrivateChat,
 				disablePublicChat: this.disablePublicChat,
-        lockedLayout: this.lockedLayout
+				lockedLayout: this.lockedLayout,
+				lockOnJoin: this.lockOnJoin,
+				lockOnJoinConfigurable:  this.lockOnJoinConfigurable
 			};
 			
 			return map;
@@ -62,9 +71,21 @@ package org.bigbluebutton.core.vo
 		public function getDisablePublicChat():Boolean {
 			return disablePublicChat;
 		}
-    
-    public function getLockedLayout():Boolean {
-      return lockedLayout;
-    }
+		
+		public function getLockedLayout():Boolean {
+			return lockedLayout;
+		}
+		
+		public function getLockOnJoin():Boolean {
+			return lockOnJoin;
+		}
+		
+		public function getLockOnJoinConfigurable():Boolean {
+			return lockOnJoinConfigurable;
+		}
+		
+		public function isAnythingLocked():Boolean {
+			return ( lockedLayout || disableCam || disableMic || disablePrivateChat || disablePublicChat );
+		}
 	}
 }

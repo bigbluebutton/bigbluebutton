@@ -91,6 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
@@ -177,6 +178,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  
         if (!showFooterOpt) {
           footerHeight = 0;
+          controlBar.visible = false;
         }        
       }
 		
@@ -299,8 +301,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   		}	
 	   		
 	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
-				isTunneling = BBB.initConnectionManager().isTunnelling;
-	   			var window:IBbbModuleWindow = event.window;
+				// this is a terrible place for these checks because this function runs 4 times on startup
+				if (BBB.initConnectionManager().isTunnelling) {
+					isTunneling = true;
+					globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.tunneling.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.tunneling.message")));
+				}
+				versionCheck();
+				
+				var window:IBbbModuleWindow = event.window;
 	   			mdiCanvas.addWindow(window);
 	   		}
 	   		
@@ -309,6 +317,49 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				  mdiCanvas.removeWindow(window);
 	   		}
 	   		
+			private function versionCheck():void {
+				var xml:XML = BBB.initConfigManager().config.browserVersions;
+				if (xml.@chrome != undefined && xml.@firefox != undefined && xml.@flash != undefined) {
+					//find browser version
+					var browserVersion:Array = ExternalInterface.call("determineBrowser");
+					//check browser version
+					if ((browserVersion[0].toString().toLowerCase() == "chrome" && browserVersion[1] < xml.@chrome) || browserVersion[0].toString().toLowerCase() == "firefox" && browserVersion[1] < xml.@firefox) {
+						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
+							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.title"), 
+							ResourceUtil.getInstance().getString("bbb.clientstatus.browser.message", [browserVersion[0]+" "+browserVersion[1]])));
+					}
+					
+					//find flash version
+					var flashVersion:Object = getFlashVersion(); 
+					//check flash version
+					if ((flashVersion.os == 'LNX' && browserVersion[0].toString().toLowerCase() != "chrome" && flashVersion.major < 11) || 
+						((flashVersion.os != 'LNX' || browserVersion[0].toString().toLowerCase() == "chrome") && flashVersion.major < xml.@flash)) {
+						globalDispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
+							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.title"), 
+							ResourceUtil.getInstance().getString("bbb.clientstatus.flash.message", [flashVersion.major+"."+flashVersion.minor+"."+flashVersion.build])));
+					}
+				}
+
+				//Alert.show(LOG + "version check- os: "+flashVersion.os+" major:"+flashVersion.major+" minor:"+flashVersion.minor+" build:"+flashVersion.build+" browser:"+browserVersion[0]+" version:"+browserVersion[1]);
+				
+				//find java version
+				//check flash version
+			}
+			
+			//function found here, http://www.mediacollege.com/adobe/flash/actionscript/3/player-version.html
+			private function getFlashVersion():Object {
+				var flashVersion:Object = new Object();
+				var versionNumber:String = Capabilities.version;// Get the whole version string
+				var versionArray:Array = versionNumber.split(",");// Split it up
+				var osPlusVersion:Array = versionArray[0].split(" ");// The main version contains the OS (e.g. WIN), so we split that off as well.
+				// Populate the version object (the OS is a string, others are numbers):
+				flashVersion["os"] = osPlusVersion[0];
+				flashVersion["major"] = parseInt(osPlusVersion[1]);
+				flashVersion["minor"] = parseInt(versionArray[1]);
+				flashVersion["build"] = parseInt(versionArray[2]);
+				return flashVersion;
+			}
+			
 	   		private function resetLayout():void{
 	   			mdiCanvas.resetWindowLayout();
 	   		}
@@ -330,15 +381,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	   			
 	   		}
 
-			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void { 
-				var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
-				micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;
-					micSettings.x = point1.x - (micSettings.width/2);
-					micSettings.y = point1.y - (micSettings.height/2);
+			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
+				/**
+				 * There is a bug in Flex SDK 4.14 where the screen stays blurry if a 
+				 * pop-up is opened from another pop-up. I delayed the second open to 
+				 * avoid this case. - Chad
+				 */
+				this.callLater( function():void {
+					var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
+					micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+						var point1:Point = new Point();
+						// Calculate position of TitleWindow in Application's coordinates. 
+						point1.x = width/2;
+						point1.y = height/2;
+						micSettings.x = point1.x - (micSettings.width/2);
+						micSettings.y = point1.y - (micSettings.height/2);
+					});
 				});
 			}
 			
@@ -570,28 +628,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
-        var conference:Conference = UserManager.getInstance().getConference();
-        var lsv:LockSettingsVO = conference.getLockSettings();
+				var conference:Conference = UserManager.getInstance().getConference();
+				var lsv:LockSettingsVO = conference.getLockSettings();
         
 				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, LockSettings, true);
 				var ls:LockSettings = LockSettings(popUp);
-        ls.disableCam = lsv.getDisableCam();
-        ls.disableMic = lsv.getDisableMic();
-        ls.disablePrivChat = lsv.getDisablePrivateChat();
-        ls.disablePubChat = lsv.getDisablePublicChat();
-        ls.lockedLayout = lsv.getLockedLayout();
+				ls.disableCam = lsv.getDisableCam();
+				ls.disableMic = lsv.getDisableMic();
+				ls.disablePrivChat = lsv.getDisablePrivateChat();
+				ls.disablePubChat = lsv.getDisablePublicChat();
+				ls.lockedLayout = lsv.getLockedLayout();
+				ls.lockOnJoin = lsv.getLockOnJoin();
+				ls.lockOnJoinConfigurable = lsv.getLockOnJoinConfigurable();
         
 				var point1:Point = new Point();
 				point1.x = width/2;
-				point1.y = height/2;                
-        ls.x = point1.x - (ls.width/2);
-        ls.y = point1.y - (ls.height/2);	
+				point1.y = height/2;
+				ls.x = point1.x - (ls.width/2);
+				ls.y = point1.y - (ls.height/2);	
 			}
-			
-			
 		]]>
 	</mx:Script>
-			
+
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
 					   width="100%" 
@@ -627,6 +685,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="isTunnellingLbl"
 				visible="{isTunneling}"
 				includeInLayout="{isTunneling}" />
+		<views:WarningButton id="warningBtn" 
+				width="23"
+				height="20"/>
 		<views:LanguageSelector id="langSelector" 
 				visible="false" 
 				height="20"

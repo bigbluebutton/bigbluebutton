@@ -57,6 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
   <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
   <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
+  <mate:Listener type="{UserJoinedEvent.JOINED}" method="handleUserJoinedEvent"/>
   <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
   <mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
   <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
@@ -67,17 +68,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.adobe.utils.StringUtil;
-			import com.asfusion.mate.events.Dispatcher;		
-			import flash.accessibility.AccessibilityProperties;			
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.accessibility.AccessibilityProperties;
+			import flash.events.TextEvent;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
-			import mx.core.ScrollPolicy;			
+			import mx.core.ScrollPolicy;
+			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
 			import org.bigbluebutton.main.events.UserLeftEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
@@ -118,8 +124,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	    private var chatMessages:ChatConversation = new ChatConversation();
       
 			private var lastCount:Number = 0;			
-			private var scrollTimer:Timer;			
-			private var scrollBarWorkaround:Boolean = false;
+			private var scrollTimer:Timer;
 			private var currentMessage:int;
 			private var latestMessage:int; 
 			
@@ -150,15 +155,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         		bindToHeightToDetermineHeightOfMessageList();
         						
 				addContextMenuItems();
-				scrollTimer = new Timer(750, 2);
+				scrollTimer = new Timer(750, 1);
 				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
-				
-				/**
-				 * The next two lines will force the scrollbar to the end of the message when displaying the
-				 * chat history.
-				 */
-				callLater(scrollToBottom);	
-				scrollTimer.start();	
 				
 				// Initialize the indicator for the position in the message history, and add the listener for message history navigation
 				currentMessage = -1;
@@ -171,7 +169,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		        hotkeyCapture();
 			
 		        // Listen for the ENTER key to send the message.
-		        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+		        txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
 		        
 		        queryForChatHistory();
 
@@ -218,7 +216,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         // (ralam Oct 17, 2012)
         historyTimer = new Timer(5000, 1);
         historyTimer.addEventListener(TimerEvent.TIMER, loadChatHistory);
-        historyTimer.start();        
+        historyTimer.start();
       }
       
       private var historyTimer:Timer;
@@ -226,7 +224,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function loadChatHistory(event:TimerEvent):void {
         if (publicChat) {
           var disp:Dispatcher  = new Dispatcher();
-          disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));	
+          disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
         }
       }
       
@@ -235,6 +233,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (!publicChat && event.userID == chatWithUserID) {
           displayUserHasLeftMessage();
           txtMsgArea.enabled = false;
+          scrollToEndOfMessage();
+        }
+      }
+      private function handleUserJoinedEvent(event:UserJoinedEvent):void {
+        // Handle user joining so that the user can start to talk if the person rejoins
+        if (!publicChat && event.userID == chatWithUserID) {
+          displayUserHasJoinedMessage();
+          txtMsgArea.enabled = true;
           scrollToEndOfMessage();
         }
       }
@@ -250,11 +256,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         msg.fromTimezoneOffset = new Date().getTimezoneOffset();
         msg.toUserID = SPACE;
         msg.toUsername = SPACE;
-        msg.message = ResourceUtil.getInstance().getString('bbb.chat.private.userLeft');
+        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userLeft')+"</b></i>";
         
         chatMessages.newChatMessage(msg);
       }
-          
+      
+      private function displayUserHasJoinedMessage():void {
+        var msg:ChatMessageVO = new ChatMessageVO();
+        msg.chatType = ChatConstants.PUBLIC_CHAT;
+        msg.fromUserID = SPACE;
+        msg.fromUsername = SPACE;
+        msg.fromColor = "0";
+        msg.fromTime = new Date().getTime();
+        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
+        msg.toUserID = SPACE;
+        msg.toUsername = SPACE;
+        msg.message = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.private.userJoined')+"</b></i>";
+        
+        chatMessages.newChatMessage(msg);
+      }
+      
       public function focusToTextMessageArea():void {
         txtMsgArea.setFocus();
         txtMsgArea.drawFocus(true);
@@ -263,7 +284,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
           chatMessages.newChatMessage(event.message);
-          scrollToEndOfMessage();
+          if (!event.history) {
+            scrollToEndOfMessage();
+          }
         }
       }
       
@@ -294,13 +317,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Magic sauce to force scrollbar to the bottom message. This took a lot
 			 * of trial and error. If you change this, make sure you know what you are
 			 * doing as I don't know why it works, but it does. (ralam Nov 3, 2010)
+			 * 
+			 * New and improved scrollToBottom implemented (capilkey Dec 4, 2014)
 			 */
 			private function scrollToBottom():void {
-				chatMessagesList.invalidateSize();
-				chatMessagesList.invalidateDisplayList();
-				chatMessagesList.validateDisplayList();
-				chatMessagesList.validateNow();		
-        		chatMessagesList.scrollToIndex(chatMessages.numMessages());
+				chatMessagesList.scrollToBottom();
 			}
 			
 			private function onScrollTimer(event:TimerEvent):void {
@@ -587,11 +608,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         globalDispatcher.dispatchEvent(privateEvent);
       }
 
-      private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
-		if (e.keyCode == Keyboard.ENTER) {
+      private function handleTextInput(e:TextEvent):void {
+		if ((e.text.length == 1) && (e.text.charCodeAt(0) == 10) /*ENTER-KEY*/) {
 			sendMessages();
 		}     
 	  }
+      
+      private function handleTextAreaKeyDownEvent(e:KeyboardEvent):void {
+        // stops window moving when trying to navigate the text box
+        if (e.keyCode == Keyboard.LEFT || e.keyCode == Keyboard.RIGHT) {
+          e.stopPropagation();
+        }
+      }
       
       private function sendMessages():void {
 		  if(!sendBtn.enabled) {
@@ -611,6 +639,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
         }
         txtMsgArea.text = "";
+        txtMsgArea.validateNow();
+        txtMsgArea.setSelection(0, 0);
       }	
 	  
 		private function focusChatInput(e:ShortcutEvent):void{
@@ -618,30 +648,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 			
 		private function lockSettingsChanged(e:Event):void {
-      applyLockSettings();
-    }
-      
-    private function applyLockSettings():void {  
-      
-        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
-        
-				var userManager:UserManager = UserManager.getInstance();
-				var conference:Conference = userManager.getConference();
-				var me:BBBUser = conference.getMyUser();
-				
-				if (publicChat) {
-          txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
-				} else {
-          txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
-				}
+			applyLockSettings();
+		}
+		
+		private function applyLockSettings():void {
+			var userManager:UserManager = UserManager.getInstance();
+			var conference:Conference = userManager.getConference();
+			var me:BBBUser = conference.getMyUser();
+			
+			if (publicChat) {
+				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
+			} else {
+				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
 			}
-		]]>
+		}
+	]]>
 		
 	</mx:Script>
 
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
     <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
-             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="auto" wordWrap="true"
+             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
              dataProvider="{chatMessages.messages}"
              tabIndex="{baseIndex}"
              accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    

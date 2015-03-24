@@ -1,0 +1,7 @@
+{
+  "packages": {
+    "raphaeljs-package": {
+      "git": "https://github.com/tomconnors/raphaeljs-package.git"
+    }
+  }
+}

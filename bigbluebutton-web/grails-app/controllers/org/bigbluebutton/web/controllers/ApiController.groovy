@@ -33,6 +33,8 @@ import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.web.services.turn.StunTurnService;
+import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.UploadedPresentation
 import java.security.MessageDigest;
@@ -58,8 +60,9 @@ class ApiController {
   MeetingService meetingService;
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
-	ClientConfigService configService
-	PresentationUrlDownloadService presDownloadService
+  ClientConfigService configService
+  PresentationUrlDownloadService presDownloadService
+  StunTurnService stunTurnService
 	
   /* general methods */
   def index = {
@@ -303,6 +306,8 @@ class ApiController {
     boolean redirectImm = parseBoolean(params.redirectImmediately)
     
 	String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+
+	String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 	
     String externUserID = params.userID
     if (StringUtils.isEmpty(externUserID)) {
@@ -346,6 +351,7 @@ class ApiController {
 	}
 	
 	UserSession us = new UserSession();
+	us.authToken = authToken;
 	us.internalUserId = internalUserID
   us.conferencename = meeting.getName()
   us.meetingID = meeting.getInternalId()
@@ -376,13 +382,13 @@ class ApiController {
 	// Store the following into a session so we can handle
 	// logout, restarts properly.
 	session['meeting-id'] = us.meetingID
-	session['user-token'] = us.meetingID + "-" + us.internalUserId;
+	session['user-token'] = us.meetingID + "-" + us.authToken;
 	session['logout-url'] = us.logoutUrl
 	
 	meetingService.addUserSession(session['user-token'], us);
 	
 	// Register user into the meeting.
-	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.internalUserId /* authToken for now */)
+	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
 	
 	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -421,7 +427,7 @@ class ApiController {
 				message("You have joined successfully.")
 				meeting_id(us.meetingID)
 				user_id(us.internalUserId)
-				auth_token(us.internalUserId)
+				auth_token(us.authToken)
 			  }
 			}
 		  }
@@ -1339,7 +1345,13 @@ class ApiController {
     } else {
 		
 		Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
-		
+	
+      // Generate a new userId for this user. This prevents old connections from
+      // removing the user when the user reconnects after being disconnected. (ralam jan 22, 2015)
+      // We use underscore (_) to associate userid with the user. We are also able to track
+      // how many times a user reconnects or refresh the browser.
+      String newInternalUserID = us.internalUserId + "_" + us.incrementConnectionNum()
+    
       log.info("Found conference for " + us.fullname)
       response.addHeader("Cache-Control", "no-cache")
       withFormat {        
@@ -1352,7 +1364,8 @@ class ApiController {
               meetingID = us.meetingID
               externMeetingID = us.externMeetingID
               externUserID = us.externUserID
-              internalUserID = us.internalUserId
+              internalUserID = newInternalUserID
+              authToken = us.authToken
               role = us.role
               conference = us.conference
               room = us.room 
@@ -1361,10 +1374,10 @@ class ApiController {
               webvoiceconf = us.webvoiceconf
               mode = us.mode
               record = us.record
-							allowStartStopRecording = meeting.getAllowStartStopRecording()
+              allowStartStopRecording = meeting.getAllowStartStopRecording()
               welcome = us.welcome
-							if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
-							  modOnlyMessage = meeting.moderatorOnlyMessage
+              if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
+                modOnlyMessage = meeting.moderatorOnlyMessage
               logoutUrl = us.logoutUrl
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL
@@ -1380,6 +1393,95 @@ class ApiController {
       }
       }  
   }
+
+  /***********************************************
+   * STUN/TURN API
+   ***********************************************/
+  def stuns = {
+    boolean reject = false;
+
+    UserSession us = null;
+    Meeting meeting = null;
+
+    if (!session["user-token"]) {
+      reject = true;
+    } else {
+      if (meetingService.getUserSession(session['user-token']) == null)
+        reject = true;
+      else {
+        us = meetingService.getUserSession(session['user-token']);
+        meeting = meetingService.getMeeting(us.meetingID);
+        if (meeting == null || meeting.isForciblyEnded()) {
+          reject = true
+        }
+      }
+    }
+
+    if (reject) {
+      log.info("No session for user in conference.")
+
+      // Determine the logout url so we can send the user there.
+      String logoutUrl = session["logout-url"]
+
+      if (! session['meeting-id']) {
+        meeting = meetingService.getMeeting(session['meeting-id']);
+      }
+
+      // Log the user out of the application.
+      session.invalidate()
+
+      if (meeting != null) {
+        log.debug("Logging out from [" + meeting.getInternalId() + "]");
+        logoutUrl = meeting.getLogoutUrl();
+      }
+
+      if (StringUtils.isEmpty(logoutUrl)) {
+        logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+      }
+      
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          render(contentType: "application/json") {
+            response = {
+              returncode = "FAILED"
+              message = "Could not find conference."
+              logoutURL = logoutUrl
+            }
+          }
+        }
+      }
+    } else {
+      Set<String> stuns = stunTurnService.getStunServers()
+      Set<TurnEntry> turns = stunTurnService.getStunAndTurnServersFor(us.internalUserId)
+      
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          render(contentType: "application/json") {
+              stunServers = array {
+                stuns.each { stun ->
+                  stunData = {
+                    url = stun.url
+                  }
+                }
+              }
+              turnServers = array {
+                turns.each { turn -> 
+                  turnData = {
+                     username = turn.username
+                     password = turn.password
+                     url = turn.url
+                     ttl = turn.ttl 
+                   }
+                }
+              }
+            }
+          }
+        }
+      }
+  }
+
   
   /*************************************************
    * SIGNOUT API

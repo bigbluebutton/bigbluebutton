@@ -161,9 +161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			  // to the chatbox. Succeeding messages will be handled by that chatbox.
 			  if (! userHasChatBox(event.message.fromUserID)) {
 			  	// Open a private chat tab.
-			  	openChatBoxFor(event.message.fromUserID, false);
-			  	// Forward the message to the private chat
-				  getChatBoxForUser(event.message.fromUserID).handleFirstPrivateMessage(event);          
+			  	openChatBoxFor(event.message.fromUserID, false).handleFirstPrivateMessage(event);         
 			  }
 			
 			  // See if the chatbox is not in focus and notify user about the message.
@@ -254,20 +252,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		      
 		  private function handleStartPrivateChatMessageEvent(event:CoreEvent):void {
 		    var userID:String = event.message.chatWith;
-		    openChatBoxFor(userID);
-		    var chatBox:ChatBox = getChatBoxForUser(userID);
-		    var tabIndex:int = getTabIndexFor(chatBox);
+		    var tabIndex:int = getTabIndexFor(openChatBoxFor(userID));
 		    chatTabs.selectedIndex = tabIndex;
 		  }
       
-			public function openChatBoxFor(chatWithUserID:String, publicChat:Boolean=false):void {
-				var chatBox:ChatBox;
-				
+			public function openChatBoxFor(chatWithUserID:String, publicChat:Boolean=false):ChatBox {
 				if (userHasChatBox(chatWithUserID)) {
-					chatBox = getChatBoxForUser(chatWithUserID);
+					return getChatBoxForUser(chatWithUserID);
 				} else {
-					chatBox = createChatBoxFor(chatWithUserID, publicChat);
-					chatBox.chatWithUserID = chatWithUserID;
+					return createChatBoxFor(chatWithUserID, publicChat);
 				}				
 			}
 			
@@ -275,7 +268,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chatBox:ChatBox = new ChatBox();
 				chatBox.id = chatWithUserID;
 		    chatBox.name = chatWithUserID;
-				chatBox.baseIndex = baseIndex;
+				chatBox.chatWithUserID = chatWithUserID;
+				chatBox.baseIndex = baseIndex+10;
 		        
 		    if (publicChat) {
 		      chatBox.label = PUBLIC_CHAT_USERNAME
@@ -294,6 +288,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					chatTabs.addChild(chatBox);
 				}
          
+				// set the font size on tab opening
+				if (tabBox) chatBox.setStyle("fontSize", int(tabBox.cmbFontSize.selectedItem));
+				
 				return chatBox;
 			}
 			     
@@ -304,7 +301,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				tabBox.label = OPTION_TAB_ID;
 				tabBox.name = OPTION_TAB_ID;
 				tabBox.chatOptions = chatOptions;
-				
+				tabBox.baseIndex = baseIndex + 10;
 				tabBox.addEventListener(KeyboardEvent.KEY_DOWN, tabBox.accessibleClick);
 				chatTabs.addChild(tabBox);
 				

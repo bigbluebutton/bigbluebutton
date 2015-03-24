@@ -27,6 +27,9 @@ package org.bigbluebutton.modules.chat.model
 		public var privateEnabled:Boolean = true;
 		
 		[Bindable]
+		public var fontSize:String = "12";
+		
+		[Bindable]
 		public var position:String = "top-right";
 		
 		[Bindable] public var baseTabIndex:int;
@@ -39,6 +42,9 @@ package org.bigbluebutton.modules.chat.model
 			if (cxml != null) {
 				if (cxml.@privateEnabled != undefined) {
 					privateEnabled = (cxml.@privateEnabled.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (cxml.@fontSize != undefined) {
+					fontSize = cxml.@fontSize.toString();
 				}
 				if (cxml.@position != undefined) {
 					position = cxml.@position.toString();

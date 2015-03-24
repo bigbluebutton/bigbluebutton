@@ -3,7 +3,7 @@
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+Copyright (c) 2014 BigBlueButton Inc. and by respective authors (see below).
 
 This program is free software; you can redistribute it and/or modify it under the
 terms of the GNU Lesser General Public License as published by the Free Software
@@ -23,13 +23,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xmlns:beans="http://www.springframework.org/schema/beans"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
-	
+
 	<beans:bean id="voiceEventRecorder" class="org.bigbluebutton.webconference.voice.VoiceEventRecorder">
 		<beans:property name="recorderApplication" ref="recorderApplication"/>
 	</beans:bean>
-				
+
 	<beans:bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
 		<beans:property name="bigBlueButtonInGW" ref="bbbInGW"/>
 	</beans:bean>
-	
+
+	<beans:bean id="voiceMessageListener" class="org.bigbluebutton.conference.service.voice.VoiceMessageListener">
+		<beans:property name="bigBlueButtonInGW" ref="bbbInGW" />
+	</beans:bean>
+
 </beans:beans>

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.*;
 import java.awt.Image;
+import netscape.javascript.*;
 
 public class DeskShareApplet extends JApplet implements ClientListener {
 	public static final String NAME = "DESKSHAREAPPLET: ";
@@ -94,8 +95,16 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 			icon = ImageIO.read(url);
 		} catch (IOException e) {
 		}
+		
+		// Callback to JavaScript
+		try {
+			JSObject window = JSObject.getWindow(this);
+			window.call("appletStartupCallback", new Object[]{});
+		} catch (JSException jse) {
+			jse.printStackTrace();
+		}
 	}
-	 
+	
 	private String getJavaVersionRuntime() {
 		return System.getProperty("java.version");
 	}

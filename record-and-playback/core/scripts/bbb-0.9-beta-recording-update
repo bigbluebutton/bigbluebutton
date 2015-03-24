@@ -18,7 +18,7 @@ opts = Trollop::options do
 end
 
 log_file = "#{log_dir}/bbb-0.9-beta-recording-update.log"
-done_file = "#{props['recording_dir']}/status/bbb-0.9-beta-recording-update.done"
+done_file = "#{props['recording_dir']}/status/bbb-0.9-beta-recording-update-v2.done"
 
 logger = Logger.new(log_file)
 logger.level = Logger::INFO
@@ -96,7 +96,6 @@ Dir.glob("#{published_dir}/presentation/*-*").each do |recording_dir|
   print '.' if num_recordings % 10 == 0
   num_recordings += 1
   do_recording_update(recording_dir, raw_recording_dir)
-  break if num_recordings > 10
 end
 
 BigBlueButton.logger.info("Checking recordings in #{unpublished_dir}")
@@ -104,7 +103,6 @@ Dir.glob("#{unpublished_dir}/presentation/*-*").each do |recording_dir|
   print '.' if num_recordings % 10 == 0
   num_recordings += 1
   do_recording_update(recording_dir, raw_recording_dir)
-  break if num_recordings > 20
 end
 
 puts "done"

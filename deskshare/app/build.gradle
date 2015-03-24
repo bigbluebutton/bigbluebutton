@@ -19,6 +19,7 @@ task resolveDeps(type: Copy) {
  * (ralam Oct 4, 2009)
  */
 repositories {
+  mavenCentral()
 	   add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
 		 name = 'remote'
 		   returnFirst = true
@@ -62,6 +63,8 @@ repositories {
 			addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
 			addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
 		}
+    mavenRepo name: "sonatype-snapshot", urls: "http://oss.sonatype.org/content/repositories/snapshots"
+    mavenRepo name: "sonatype-releases", urls: "http://oss.sonatype.org/content/repositories/releases"
 	   }
 }
 
@@ -75,35 +78,36 @@ dependencies {
   providedCompile 'org.apache.mina:mina-integration-jmx:2.0.8@jar'
 	
   // Spring 
-  providedCompile 'org.springframework:spring-web:4.0.7.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:4.0.7.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:4.0.7.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:4.0.8.RELEASE@jar' 
+  providedCompile  'org.springframework:spring-beans:4.0.8.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:4.0.8.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:4.0.8.RELEASE@jar'
   
 	// Red5
-	providedCompile 'org/red5:red5-server:1.0.4-SNAPSHOT@jar'
-	providedCompile 'org.red5:red5-io:1.0.4-SNAPSHOT@jar'
+    providedCompile 'org/red5:red5-server:1.0.5-RELEASE@jar'
+    providedCompile 'org.red5:red5-server-common:1.0.5-RELEASE@jar'
+    providedCompile 'org.red5:red5-io:1.0.5-RELEASE@jar'
 	
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.1.2@jar'
 	providedCompile 'ch.qos.logback:logback-classic:1.1.2@jar'
-	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:jul-to-slf4j:1.7.7@jar'
-	providedCompile 'org.slf4j:slf4j-api:1.7.7@jar'
+	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:jul-to-slf4j:1.7.9@jar'
+	providedCompile 'org.slf4j:slf4j-api:1.7.9@jar'
 
 
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
-  providedCompile 'org.springframework:spring-aop:4.0.7.RELEASE@jar'
+  providedCompile 'org.springframework:spring-aop:4.0.8.RELEASE@jar'
   providedCompile 'aopalliance:aopalliance:1.0@jar'
 	        
   // Testing
-  compile 'org.testng:testng:5.8@jar' 
+  //compile 'org.testng:testng:5.8@jar' 
   compile 'org.easymock:easymock:2.4@jar'
 	
   // Testing
-  testRuntime 'org/testng:testng:5.8@jar'
+  //testRuntime 'org/testng:testng:5.8@jar'
   testRuntime 'org.easymock:easymock:2.4@jar'
 	
   // Tunnelling servlet
@@ -128,7 +132,7 @@ dependencies {
 	
   // Libraries needed for scala api
   compile 'org.scala-lang:scala-library:2.9.2'   
-  compile 'net.lag:configgy:2.0.0'
+  compile 'net.lag:configgy:2.0.0@jar'
     
   //redis
   compile 'redis.clients:jedis:1.5.1'

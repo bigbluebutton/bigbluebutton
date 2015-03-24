@@ -46,6 +46,21 @@ find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' 
 find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' \;
 
 #
+# Delete raw files of recordings without recording marks older than N days
+#
+remove_raw_of_recordings_without_marks() {
+	logger "Removing old raw directory of recordings without marks"
+	find /var/bigbluebutton/recording/status -name '*.norecord' -mtime +$history | while read archived_norecord; do
+		recording_id=${archived_norecord%.norecord}
+		recording_id=${recording_id##*/}
+		bbb-record --delete $recording_id 2>&1 | logger
+	done
+}
+
+# Enabled by default; comment to disable.
+remove_raw_of_recordings_without_marks
+
+#
 # Delete old raw dirs from recordings properly published using 'presentation' scripts.
 #
 
@@ -77,4 +92,10 @@ remove_raw_of_published_recordings(){
 }
 
 #remove_raw_of_published_recordings
+
+#
+# Remove old *.afm and *.pfb files from /tmp directory (these were created by Ghostscript)
+#
+find /tmp -name "*.afm" -mtime +10 -exec rm '{}' \;
+find /tmp -name "*.pfb" -mtime +10 -exec rm '{}' \;
 

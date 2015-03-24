@@ -12,14 +12,17 @@ package org.bigbluebutton.modules.phone.events
 		public static const WEBRTC_ECHO_TEST_NO_AUDIO:String = "WEBRTC_ECHO_TEST_NO_AUDIO";
 		public static const WEBRTC_ECHO_TEST_ENDED_UNEXPECTEDLY:String = "WEBRTC_ECHO_TEST_ENDED_UNEXPECTEDLY";
 		public static const WEBRTC_ECHO_TEST_WAITING_FOR_ICE:String = "WEBRTC_ECHO_TEST_WAITING_FOR_ICE";
+		public static const WEBRTC_ECHO_TEST_TRANSFERRING:String = "WEBRTC_ECHO_TEST_TRANSFERRING";
 		
 		public var errorCode:Number;
+		public var cause:String;
 		
-		public function WebRTCEchoTestEvent(type:String, errorCode:Number=0, bubbles:Boolean=false, cancelable:Boolean=false)
+		public function WebRTCEchoTestEvent(type:String, errorCode:Number=0, cause:String=null, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 			
 			this.errorCode = errorCode;
+			this.cause = cause;
 		}
 	}
 }

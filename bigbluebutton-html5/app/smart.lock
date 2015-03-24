@@ -1,0 +1,18 @@
+{
+  "meteor": {},
+  "dependencies": {
+    "basePackages": {
+      "raphaeljs-package": {
+        "git": "https://github.com/tomconnors/raphaeljs-package.git",
+        "branch": "master"
+      }
+    },
+    "packages": {
+      "raphaeljs-package": {
+        "git": "https://github.com/tomconnors/raphaeljs-package.git",
+        "branch": "master",
+        "commit": "85eaef3664ec063e4bcb81be1226d126d4d20539"
+      }
+    }
+  }
+}

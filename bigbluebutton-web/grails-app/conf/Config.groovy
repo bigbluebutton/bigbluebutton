@@ -97,19 +97,20 @@ environments {
 // log4j configuration
 log4j = {
    appenders {
-      rollingFile name:'logfileAppender', 
-                  maxFileSize:5000000, 
-                  maxBackupIndex:20, 
-                  file:"/var/log/bigbluebutton/bbb-web.log", 
-                  threshold:org.apache.log4j.Level.toLevel( config.appLogLevel ), 
-                  layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+     appender new org.apache.log4j.DailyRollingFileAppender(
+                   name: "dailyRollingFileAppender",
+                   datePattern: "'.'yyyy-MM-dd",
+                   file: "/var/log/bigbluebutton/bbb-web.log",
+                   encoding:"utf-8",
+                   threshold:org.apache.log4j.Level.toLevel( config.appLogLevel ),
+                   layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSSXXX} %-5p %c %x - %m%n'))
       console     name:'consoleAppender', 
                   threshold:org.apache.log4j.Level.toLevel( config.appLogLevel ), 
-                  layout:pattern(conversionPattern: '%d{[dd.MM.yy HH:mm:ss.SSS]} %-5p %c %x - %m%n')
+                  layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSSXXX} %-5p %c %x - %m%n')
   }
 
   root {
-    warn 'logfileAppender', 'consoleAppender'
+    warn 'dailyRollingFileAppender', 'consoleAppender'
     additivity = true
   }
 

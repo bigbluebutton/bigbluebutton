@@ -297,7 +297,28 @@ class PresentationController {
         }
       }		
   }
-  
+
+  def numberOfPngs = {
+    def filename = params.presentation_name
+    def f = confInfo()
+    def numPngs = presentationService.numberOfPngs(f.conference, f.room, filename)
+      withFormat {
+        xml {
+          render(contentType:"text/xml") {
+            conference(id:f.conference, room:f.room) {
+              presentation(name:filename) {
+                pngs(count:numPngs) {
+                  for (def i=0;i<numPngs;i++) {
+                      png(name:"pngs/${i}")
+                    }
+                }
+              }
+            }
+          }
+        }
+      }
+  }
+
   def numberOfTextfiles = {
 	  def filename = params.presentation_name
 	  def f = confInfo()
