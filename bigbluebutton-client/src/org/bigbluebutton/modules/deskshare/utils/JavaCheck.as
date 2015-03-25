@@ -27,78 +27,36 @@ package org.bigbluebutton.modules.deskshare.utils
 	import org.bigbluebutton.main.events.ClientStatusEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
-	public class JavaCheck {		
-		public static function checkJava():String {
-			var dispatcher : Dispatcher = new Dispatcher();
-			var java_version:String = "1.7.0_51";
-			
-			var xml:XML = BBB.initConfigManager().config.browserVersions;
-			if (xml.@java != undefined) {
-				java_version = xml.@java.toString();
-			}
-			
-			try {
-				var javas : Array = JavaCheck.getJREs();
-			} catch ( e : Error ) {
-				dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notdetected")));
-				return ResourceUtil.getInstance().getString("bbb.clientstatus.java.notdetected");
-			}
-			
-			if (javas.length == 0) {
-				dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled")));
-				return ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled");
-			}
-			
-			var highestJava : String = javas[0];
-			for each (var java : String in javas) {
-				var highest : Array = highestJava.split(".");
-				var iter : Array = java.split(".");
-				
-				if (Number(iter[0]) > Number(highest[0])) {
-					highestJava = java;
-				} else if (Number(iter[0]) == Number(highest[0]) && Number(iter[1]) > Number(highest[1])) {
-					highestJava = java;
-				} else if (Number(iter[0]) == Number(highest[0]) && Number(iter[1]) == Number(highest[1])) {
-					var iterMinor : Number = Number((iter[2] as String).split("_")[1]);
-					var highestMinor : Number = Number((highest[2] as String).split("_")[1]);
-					if (iterMinor > highestMinor)
-					{
-						highestJava = java;
-					}
-				}
-			}
-			
-			var passedJava : Boolean = true;
-			var required : Array = java_version.split(".");
-			highest = highestJava.split(".");
-			if (Number(required[0]) > Number(highest[0])) {
-				passedJava = false;
-			} else if (Number(required[0]) == Number(highest[0]) && Number(required[1]) > Number(highest[1])) {
-				passedJava = false;
-			} else if (Number(required[0]) == Number(highest[0]) && Number(required[1]) == Number(highest[1])) {
-				var requiredMinor : Number = Number((required[2] as String).split("_")[1]);
-				var highestJavaMinor : Number = Number((highest[2] as String).split("_")[1]);
-				if (requiredMinor > highestJavaMinor)
-				{
-					passedJava = false;
-				}
-			}
-			
-			if (!passedJava) {
-				dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.oldversion")));
-				return ResourceUtil.getInstance().getString("bbb.clientstatus.java.oldversion");
-			} else {
-				// Java success
-				return null;
-			}
-		}
-		
-		private static function getJREs():Array{
-			var installedJREs:Array = ExternalInterface.call("deployJava.getJREs");
-			
-			if (installedJREs == null) throw new Error("Javascript files not found.");
-			
-			return installedJREs;
-		}
+	public class JavaCheck {
+    public static function checkJava():String {
+      var dispatcher : Dispatcher = new Dispatcher();
+      var java_version:String = "1.7.0_51";
+      
+      var xml:XML = BBB.initConfigManager().config.browserVersions;
+      if (xml.@java != undefined) {
+        java_version = xml.@java.toString();
+      }
+      
+      var isJavaOk: Object = checkJavaVersion(java_version);
+      
+      if (isJavaOk.result == "JAVA_OK") {
+        // Java success
+        return null;        
+     
+      } else if (isJavaOk.result == "JAVA_NOT_INSTALLED") {
+        dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled")));
+        return ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled");        
+      } else if (isJavaOk.result == "JAVA_OLDER") {
+        dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.oldversion")));
+        return ResourceUtil.getInstance().getString("bbb.clientstatus.java.oldversion");        
+      } else {
+        dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notdetected")));
+        return ResourceUtil.getInstance().getString("bbb.clientstatus.java.notdetected");   
+      }     
+    }
+       
+    private static function checkJavaVersion(minVersion: String):Object {
+      return ExternalInterface.call("checkJavaVersion", minVersion);
+    }
 	}
 }
