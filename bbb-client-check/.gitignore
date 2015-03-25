@@ -9,3 +9,4 @@ index.template.html
 conf/config.xml
 resources/lib/bbb_webrtc_bridge_sip.js
 resources/lib/sip.js
+resources/lib/bbb_localization.js
