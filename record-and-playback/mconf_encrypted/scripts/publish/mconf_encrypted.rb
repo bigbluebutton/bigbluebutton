@@ -111,6 +111,13 @@ done_files.each do |df|
 
         BigBlueButton.logger.info("Creating metadata.xml")
 
+        # Get the real-time start and end timestamp
+        meeting_start = BigBlueButton::Events.first_event_timestamp("#{meeting_process_dir}/events.xml")
+        meeting_end = BigBlueButton::Events.last_event_timestamp("#{meeting_process_dir}/events.xml")
+        match = /.*-(\d+)$/.match(meeting_id)
+        real_start_time = match[1]
+        real_end_time = (real_start_time.to_i + (meeting_end.to_i - meeting_start.to_i)).to_s
+
         # Create metadata.xml
         b = Builder::XmlMarkup.new(:indent => 2)
         metaxml = b.recording {
@@ -118,8 +125,8 @@ done_files.each do |df|
           b.state("available")
           b.published(true)
           # Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-          b.start_time(BigBlueButton::Events.first_event_timestamp("#{meeting_process_dir}/events.xml"))
-          b.end_time(BigBlueButton::Events.last_event_timestamp("#{meeting_process_dir}/events.xml"))
+          b.start_time(real_start_time)
+          b.end_time(real_end_time)
           b.download {
             b.format("encrypted")
             b.link("http://#{playback_host}/mconf_encrypted/#{meeting_id}/#{meeting_id}.dat")
