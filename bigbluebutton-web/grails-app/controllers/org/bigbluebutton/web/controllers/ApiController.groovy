@@ -95,7 +95,7 @@ class ApiController {
 	  return
 	}
 
-	if(!StringUtils.isEmpty(params.meetingID)) {
+    if(!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
         invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
@@ -143,7 +143,7 @@ class ApiController {
       } else {
           // BEGIN - backward compatibility
           invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
-	      return;
+          return;
           // END - backward compatibility
 
           // enforce meetingID unique-ness
@@ -157,7 +157,7 @@ class ApiController {
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);      
 		
     if (! StringUtils.isEmpty(params.moderatorOnlyMessage)) {
-	  newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
+      newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
     }
 		
     meetingService.createMeeting(newMeeting);
@@ -189,8 +189,8 @@ class ApiController {
         return
       }
     } else {
-        invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
-        return
+      invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
+      return
     }
 	
     if(!StringUtils.isEmpty(params.meetingID)) {
@@ -200,8 +200,8 @@ class ApiController {
         return
       }
     } else {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
 	
     if (StringUtils.isEmpty(params.password)) {
@@ -285,22 +285,22 @@ class ApiController {
       try{
         createTime=Long.parseLong(params.createTime);
       } catch(Exception e){
-          log.warn("could not parse createTime param");
-          createTime = -1;
+        log.warn("could not parse createTime param");
+        createTime = -1;
       }
       if(createTime != meeting.getCreateTime()) {
-      errors.mismatchCreateTimeParam();
-      respondWithErrors(errors);
-      return;
+        errors.mismatchCreateTimeParam();
+        respondWithErrors(errors);
+        return;
       }
     }
     
     // Is this user joining a meeting that has been ended. If so, complain.
     if (meeting.isForciblyEnded()) {
-        // BEGIN - backward compatibility
-        invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
-        return;
-        // END - backward compatibility
+      // BEGIN - backward compatibility
+      invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
+      return;
+      // END - backward compatibility
 		
       errors.meetingForciblyEndedError();
       respondWithErrors(errors)
@@ -358,7 +358,7 @@ class ApiController {
           configxml = conf.config;
         }
       } else {
-      configxml = conf.config;
+        configxml = conf.config;
       }
 	} else {
 		Config conf = meeting.getDefaultConfig();
@@ -374,7 +374,7 @@ class ApiController {
 		errors.noConfigFound();
 		respondWithErrors(errors);
 	}
-	
+    UserSession us = new UserSession();
     us.authToken = authToken;
     us.internalUserId = internalUserID
     us.conferencename = meeting.getName()
@@ -479,8 +479,8 @@ class ApiController {
         return
       }
     } else {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
 	
     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
@@ -561,8 +561,8 @@ class ApiController {
         return
       }
     } else {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
 	
 	if (StringUtils.isEmpty(params.password)) {
@@ -590,7 +590,7 @@ class ApiController {
         errors.missingParamError("meetingID");
       }
     } else {
-        errors.missingParamError("meetingID");
+      errors.missingParamError("meetingID");
     }
     String externalMeetingId = params.meetingID
 
@@ -668,15 +668,15 @@ class ApiController {
   		return
   	}
 
-  	if(!StringUtils.isEmpty(params.meetingID)) {
+    if(!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
         invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
         return
       }
     } else {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
   	
  	
@@ -700,7 +700,7 @@ class ApiController {
         errors.missingParamError("meetingID");
       }
     } else {
-        errors.missingParamError("meetingID");
+      errors.missingParamError("meetingID");
     }
     String externalMeetingId = params.meetingID
 
@@ -825,7 +825,6 @@ class ApiController {
   def getDefaultConfigXML = {
  
     String API_CALL = "getDefaultConfigXML"
-    
     ApiErrors errors = new ApiErrors();
     
     if (StringUtils.isEmpty(params.checksum)) {
@@ -986,15 +985,15 @@ class ApiController {
   		return
   	}
 
-  	if(!StringUtils.isEmpty(params.meetingID)) {
+    if(!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
         invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
         return
       }
     } else {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
 	
     // Translate the external meeting id into an internal meeting id.
@@ -1092,8 +1091,8 @@ class ApiController {
         return
       }
     } else {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
 
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
@@ -1179,8 +1178,8 @@ class ApiController {
         return
       }
     } else {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
 
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
@@ -1257,12 +1256,12 @@ class ApiController {
     if(!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
-      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-       return
-      }
-    } else {
         invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
         return
+      }
+    } else {
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
 
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);

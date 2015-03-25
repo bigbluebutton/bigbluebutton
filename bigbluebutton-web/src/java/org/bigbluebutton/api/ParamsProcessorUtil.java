@@ -95,23 +95,19 @@ public class ParamsProcessorUtil {
 	
 	public void processRequiredCreateParams(Map<String, String> params, ApiErrors errors) {
 	    // Do we have a checksum? If not, complain.
-	    if (StringUtils.isEmpty(params.get("checksum"))) {
-	      errors.missingParamError("checksum");
-	    }
+        if (StringUtils.isEmpty(params.get("checksum"))) {
+          errors.missingParamError("checksum");
+        }
         
-	    // Do we have a meeting id? If not, complain.
-	    if(!StringUtils.isEmpty(params.get("meetingID")))
-        {
-    	  if (StringUtils.isEmpty(StringUtils.strip(params.get("meetingID"))))
-    	  {
-    		errors.missingParamError("meetingID");
-		    
-    	  }
+        // Do we have a meeting id? If not, complain.
+        if(!StringUtils.isEmpty(params.get("meetingID"))) {
+          if (StringUtils.isEmpty(StringUtils.strip(params.get("meetingID")))) {
+          errors.missingParamError("meetingID");
+       	  }
+        } else {
+          errors.missingParamError("meetingID");
         }
-        else {
-    	errors.missingParamError("meetingID");
-        }
-	}
+    }
 
 	public void updateMeeting(Map<String, Object> updateParams, Meeting existing) {
 		// TODO: Assign new values to meeting.
