@@ -106,6 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function doMouseDown(event:Event):void {
                 displayModel.doMouseDown(this.mouseX, this.mouseY);
 				model.doMouseDown(this.mouseX, this.mouseY);
+				event.stopPropagation(); // we want to stop the bubbling so slide doesn't move
 			}
 						
 			private function doMouseMove(event:Event):void {
