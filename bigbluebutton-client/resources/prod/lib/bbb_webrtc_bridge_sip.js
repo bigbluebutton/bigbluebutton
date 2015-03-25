@@ -58,7 +58,12 @@ function joinWebRTCVoiceConference() {
 				break;
 		}
 	}
-	
+
+	// Set proper callbacks to previously created user agent
+	if(userAgent) {
+		setUserAgentListeners(callback);
+	}
+
 	callIntoConference(conferenceVoiceBridge, callback);
 }
 
@@ -184,10 +189,20 @@ function createUA(username, server, callback) {
 	uaConnected = false;
 	
 	userAgent = new SIP.UA(configuration);
+
+	setUserAgentListeners(callback);
+
+	userAgent.start();
+};
+
+function setUserAgentListeners(callback) {
+	console.log("reseting UA CALLBACKS");
+	userAgent.off('connected');
 	userAgent.on('connected', function() {
 		uaConnected = true;
 		callback({'status':'websocketSucceded'});
 	});
+	userAgent.off('disconnected');
 	userAgent.on('disconnected', function() {
 		if (userAgent) {
 			userAgent.stop();
@@ -200,9 +215,7 @@ function createUA(username, server, callback) {
 			}
 		}
 	});
-	
-	userAgent.start();
-};
+}
 
 function getUserWebcamMedia(getUserWebcamMediaSuccess, getUserWebcamMediaFailure) {
 	if (userWebcamMedia == undefined) {
