@@ -6,7 +6,7 @@ ApplicationControlBar {
   highlightAlphas: 0.1, 0;
   fillAlphas: 0, 0;
   fillColors: #32343b, #32343b;
-  backgroundColor: #42444c;
+  backgroundColor: #4dac26;
   backgroundAlpha: 1;
   cornerRadius: 0;
   dropShadowEnabled: true;
@@ -27,10 +27,6 @@ ToolTip {
 	borderSkin      : ClassReference("org.bigbluebutton.skins.ToolTipSkin");
 	backgroundAlpha : 0.9;
 	cornerRadius    : 3;
-}
-
-.errorTip {
-	borderColor		: #3b3b3b;
 }
 
 .mypanelTitle {
@@ -54,7 +50,7 @@ ToolTip {
   fontWeight: bold;
   fontSize: 15;
   fontFamily: Arial;
-  color: #e1e2e5;
+  color: #ffffff;
 }
 
 .recordingLabelStyle {
@@ -77,7 +73,7 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: haloBlue;
+  themeColor: haloGreen;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -170,7 +166,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: haloBlue;
+  themeColor: haloGreen;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -264,7 +260,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: haloBlue;
+  themeColor: haloGreen;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -309,7 +305,7 @@ DataGrid {
   invertThumbDirection: false;
   borderColor: #b9babc;
   trackColors: #aaaaaa, #aaaaaa;
-  themeColor: haloBlue;
+  themeColor: haloGreen;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   labelStyleName: "presentationZoomSliderLabelStyle";
@@ -451,24 +447,15 @@ DataGrid {
 
 }
 
-.presentationUploadFileFormatHintBoxStyle {
+.presentationUploadFileFormatHintBoxStyle, .desktopShareUsingChromeOnMacHintBoxStyle {
 	backgroundColor: #D4D4D4;
 	dropShadowEnabled: false;
 	paddingLeft: 10;
 	paddingRight: 10
 }
 
-.presentationUploadFileFormatHintTextStyle {
+.presentationUploadFileFormatHintTextStyle, .desktopShareUsingChromeOnMacHintTextStyle {
 	fontWeight: bold;
-}
-
-.desktopShareTextStyle {
-	fontSize:	11;
-	fontWeight:	bold;	
-}
-
-.chromeJavaHelpImage {
-	imageSource: Embed(source='assets/images/chromePluginBlocked.png');
 }
 
 .cameraDisplaySettingsWindowStyle {
@@ -598,11 +585,11 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 {
   headerHeight: 26;
   roundedBottomCorners: true;
-  backgroundColor: #b9babc;
+  backgroundColor: #d3d4d5;
   backgroundAlpha: 1;
   
   borderStyle: solid;
-  borderColor: #b9babc;
+  borderColor: #d3d4d5;
   borderAlpha: 1;
   borderThicknessLeft: 3;
   borderThicknessTop: 0;
@@ -614,11 +601,11 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 {
   headerHeight: 26;
   roundedBottomCorners: true;
-  backgroundColor: #b9babc;
+  backgroundColor: #d3d4d5;
   backgroundAlpha: 0.5;
 	
   borderStyle: solid;
-  borderColor: #b9babc;
+  borderColor: #d3d4d5;
   borderAlpha: 0.5;
   borderThicknessLeft: 3;
   borderThicknessTop: 0;
@@ -627,7 +614,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 }
 
 .presentationSlideViewStyle {
-  backgroundColor: #b9babc;
+  backgroundColor: #d3d4d5;
 }
 
 .presentationWindowControlsStyle {
@@ -648,7 +635,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   backgroundAlpha: 0.5;
   
   borderStyle: solid;
-  borderColor: #b9babc;
+  borderColor: #d3d4d5;
   borderAlpha: 0.5;
   borderThicknessLeft: 3;
   borderThicknessTop: 0;
@@ -664,7 +651,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
   backgroundAlpha: 1;
 	
   borderStyle: solid;
-  borderColor: #b9babc;
+  borderColor: #d3d4d5;
   borderAlpha: 1;
   borderThicknessLeft: 3;
   borderThicknessTop: 0;
@@ -680,7 +667,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	backgroundAlpha: 0.5;
 	
 	borderStyle: solid;
-	borderColor: #b9babc;
+	borderColor: #d3d4d5;
 	borderAlpha: 0.5;
 	borderThicknessLeft: 3;
 	borderThicknessTop: 0;
@@ -696,7 +683,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	backgroundAlpha: 1;
 	
 	borderStyle: solid;
-	borderColor: #b9babc;
+	borderColor: #d3d4d5;
 	borderAlpha: 1;
 	borderThicknessLeft: 3;
 	borderThicknessTop: 0;
@@ -712,7 +699,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	backgroundAlpha: 0.5;
 	
 	borderStyle: solid;
-	borderColor: #b9babc;
+	borderColor: #d3d4d5;
 	borderAlpha: 0.5;
 	borderThicknessLeft: 3;
 	borderThicknessTop: 0;
@@ -728,7 +715,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	backgroundAlpha: 1;
 	
 	borderStyle: solid;
-	borderColor: #b9babc;
+	borderColor: #d3d4d5;
 	borderAlpha: 1;
 	borderThicknessLeft: 3;
 	borderThicknessTop: 0;
@@ -839,25 +826,4 @@ Alert {
 
 .recordButtonStyleStop {
   icon:   Embed('assets/images/control-record-stop.png');
-}
-
-.statusImageStyle {
-  successImage:   Embed(source='assets/images/status_success.png');
-  warningImage:   Embed(source='assets/images/status_warning.png');
-  failImage:      Embed(source='assets/images/status_fail.png');
-}
-
-.warningButtonStyle {
-  icon:   Embed('assets/images/status_warning_20.png');
-}
-
-.statusTitleStyle {
-  fontWeight: bold;
-  fontSize: 12;
-  paddingBottom: 0;
-}
-
-.statusMessageStyle {
-  fontSize: 12;
-  paddingTop: 0;
 }
