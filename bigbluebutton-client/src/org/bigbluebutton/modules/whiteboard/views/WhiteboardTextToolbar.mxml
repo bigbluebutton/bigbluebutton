@@ -38,7 +38,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.MenuEvent;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.FocusManager;			
+			import mx.managers.FocusManager;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -65,6 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var normalAlpha:Number = 0.55;
 			private var focusedAlpha:Number = 1.0;
 			private var hasFocus:Boolean;
+			private var fontSizes:Array = ["12", "14", "16", "18", "22", "24", "32", "36"];
 			
 			public function init():void {
 				this.alpha = normalAlpha;
@@ -92,23 +94,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.alpha = focusedAlpha;
 			}
 			
-			private function initTextSizeMenu(): void {
-				var m:Menu = new Menu();
-				m.variableRowHeight = true;
-				var textSizeMenuData:Object = [{label: "12"}, {label: "14"}, {label: "16"},
-					{label: "18"}, {label: "22"}, {label: "24"}, {label: "32"}, {label: "36"}];  
-				m.dataProvider = textSizeMenuData;
-				m.addEventListener(MenuEvent.CHANGE, textSizeMenuClick);
-				m.showRoot = false;
-				textSizeMenu.popUp = m;
-			}
-			
-			// Define the event listener for the Menu control's change event. 
-			private function textSizeMenuClick(event:MenuEvent):void {
-				enableTextToolbar();
-				textSizeMenu.displayPopUp();
-				var newTextSize:Number = Number(event.label);    
-				setTextSize(newTextSize);
+			private function onFontSizeChange():void {
+				setTextSize(Number(textSizeMenu.selectedItem));
 			}
 			
 			/**
@@ -156,7 +143,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				enableTextToolbar();
 				this.textSize = size;
 				LogUtil.debug("Text size set to: " + size);
-				textSizeMenu.label = String(this.textSize);
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 			}
 						
@@ -182,7 +168,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.textColor = ctextpik.selectedColor = tobj.textColor;
 //				this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
 //				this.backgroundVisible = btnToggleBackground.selected = tobj.background;
-				this.textSizeMenu.label = String(tobj.textSize);
+				this.textSizeMenu.selectedItem = String(tobj.textSize);
 				this.textSize = tobj.textSize;
 			}
 			
@@ -210,12 +196,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// translate TextObject's coords to stage coords because TextToolbar is added to stage
               
                 if (tobj == null)  tobj = currentlySelectedTextObject;
-                            
-				if (textSizeMenu.isOpen) {
-					LogUtil.debug("Text size menu is open...trying to close");
-					textSizeMenu.displayPopUp();
-				}
-                              
+				
 				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
 				this.x = loc.x;
 				this.y = loc.y - this.height - 45;
@@ -272,7 +253,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ColorPicker width="20" height="20"  change="setTextColor(event)" id="ctextpik" selectedColor="0x000000"
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textColorPicker')}"/>
 
-	<views:PopUpCombo id="textSizeMenu" creationComplete="initTextSizeMenu()" 
-					  toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}" 
-					   openAlways="true" specificOpenDirection="{PopUpCombo.OPEN_UP}" />
+	<views:CustomComboBox id="textSizeMenu" dataProvider="{fontSizes}" change="onFontSizeChange()" rowCount="8"
+				 toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}" />
 </mx:HBox>

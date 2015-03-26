@@ -600,7 +600,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.fromTime = now.valueOf();
         cm.fromTimezoneOffset = now.getTimezoneOffset();
                 
-        cm.message = ChatUtil.cleanup(message);
+        cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
         cm.toUserID = chatWithUserID;
         cm.toUsername = chatWithUsername;
         

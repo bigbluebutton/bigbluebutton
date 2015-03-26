@@ -87,6 +87,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       _textBoxHeight = boxHeight;
       this.textSize = textSize;
       _calcedFontSize = calcedFontSize;
+	  
+	  this.mouseEnabled = false;
+	  this.mouseWheelEnabled = false;
     }  
     
     public function get id():String {
