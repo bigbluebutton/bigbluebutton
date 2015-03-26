@@ -33,6 +33,7 @@
 
 			private static var robotlegsContext:IContext;
 
+			private static var DEFAULT_LOCALE:String = "en_US";
 			private var language:String;
 
 			protected function preinitializeHandler(event:FlexEvent):void
@@ -47,7 +48,7 @@
 				language = ExternalInterface.call("getLanguage");
 				if (resourceManager.getLocales().indexOf(language) != -1)
 				{
-					resourceManager.localeChain = [language];
+					resourceManager.localeChain = [language, DEFAULT_LOCALE];
 				}
 			}
 
