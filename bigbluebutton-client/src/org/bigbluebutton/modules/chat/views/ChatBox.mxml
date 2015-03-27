@@ -579,7 +579,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.fromTime = now.valueOf();
         cm.fromTimezoneOffset = now.getTimezoneOffset();
         
-        cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
         
         publicEvent.chatMessage = cm;
         globalDispatcher.dispatchEvent(publicEvent);
@@ -600,7 +601,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.fromTime = now.valueOf();
         cm.fromTimezoneOffset = now.getTimezoneOffset();
                 
-        cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
         cm.toUserID = chatWithUserID;
         cm.toUsername = chatWithUsername;
         
