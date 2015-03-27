@@ -144,8 +144,8 @@ Handlebars.registerHelper "isUserSharingVideo", (userId) ->
 Handlebars.registerHelper "isUserTalking", (userId) ->
   BBB.isUserTalking(userId)
 
-Handlebars.registerHelper 'isPortraitMobile', () ->
-  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-aspect-ratio: 1/1)').matches
+Handlebars.registerHelper 'isMobile', () ->
+  isMobile()
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
