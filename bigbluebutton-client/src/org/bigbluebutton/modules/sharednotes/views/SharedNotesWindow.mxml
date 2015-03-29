@@ -83,12 +83,18 @@
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
 				});
 
-				textArea.addEventListener(TextEvent.TEXT_INPUT, function(e:Event):void {
+				textArea.addEventListener(Event.CHANGE, function(e:Event):void {
 					if (!sendUpdateTimer.running) {
 						sendUpdateTimer.reset();
 						sendUpdateTimer.start();
 					}
 				});
+				// the following code was used to decide which event to listen for updates in the text area
+				//textArea.addEventListener(flash.events.Event.CHANGE, onTextAreaEvent);
+				//textArea.addEventListener(KeyboardEvent.KEY_DOWN, onTextAreaEvent);
+				//textArea.addEventListener(TextEvent.TEXT_INPUT, onTextAreaEvent);
+				//textArea.addEventListener(mx.events.FlexEvent.DATA_CHANGE, onTextAreaEvent);
+				//textArea.addEventListener(mx.events.FlexEvent.UPDATE_COMPLETE, onTextAreaEvent);
 
 				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
 					sendPatch();
@@ -98,6 +104,10 @@
 				}
 
 				updateTitle();
+			}
+
+			private function onTextAreaEvent(e:Event):void {
+				trace("Text area event " + e.type + " on user " + UsersUtil.getMyUserID());
 			}
 
 			public function get noteId():String{
