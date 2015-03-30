@@ -188,8 +188,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   ###
   Join the voice conference.
   ###
-  BBB.joinVoiceConference = (callback) ->
-    callIntoConference(BBB.getMyVoiceBridge(), callback)
+  BBB.joinVoiceConference = (callback, isListenOnly) ->
+    callIntoConference(BBB.getMyVoiceBridge(), callback, isListenOnly)
 
   ###
   Leave the voice conference.
