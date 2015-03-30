@@ -21,6 +21,7 @@
   &:-webkit-full-screen {
     width: 100%;
     height: 100%;
+    margin-top: 0px;
     #whiteboard-navbar {
       display: none;
     }
@@ -34,6 +35,7 @@
   &:-moz-full-screen {
     width: 100%;
     height: 100%;
+    margin-top: 0px;
     #whiteboard-navbar {
       display: none;
     }
@@ -47,6 +49,7 @@
   &:fullscreen {
     width: 100%;
     height: 100%;
+    margin-top: 0px;
     #whiteboard-navbar {
       display: none;
     }
@@ -112,4 +115,10 @@
       font-size: 28px;
     }
   }
+}
+
+.vertically-centered {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
 }
