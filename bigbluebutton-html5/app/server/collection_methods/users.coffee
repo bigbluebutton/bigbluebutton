@@ -264,6 +264,16 @@ Meteor.methods
     Meteor.log.info "added user dummy html5 user with: userid=[#{userId}], id=[#{id}]
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
 
+
+# change the locked status of a user (lock settings)
+@setUserLockedStatus = (meetingId, userId, isLocked) ->
+  if Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
+    Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.locked': isLocked}})
+    Meteor.log.info "setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
+  else
+    Meteor.log.error "(unsuccessful-no such user) setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
+
+
 # called on server start and on meeting end
 @clearUsersCollection = (meetingId) ->
   if meetingId?

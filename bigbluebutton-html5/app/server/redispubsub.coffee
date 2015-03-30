@@ -60,15 +60,20 @@ class Meteor.RedisPubSub
     correlationId = message.payload?.reply_to or message.header?.reply_to
     meetingId = message.payload?.meeting_id
 
-    ignoredEventTypes = [
+    # just because it's common. we handle it anyway
+    notLoggedEventTypes = [
       "keep_alive_reply"
       "page_resized_message"
       "presentation_page_resized_message"
-      "presentation_cursor_updated_message" # just because it's common. we handle it anyway
+      "presentation_cursor_updated_message"
+      "get_presentation_info_reply"
+      # "get_users_reply"
+      "get_chat_history_reply"
+      "get_all_meetings_reply"
     ]
 
     if message?.header? and message?.payload?
-      unless message.header.name in ignoredEventTypes
+      unless message.header.name in notLoggedEventTypes
         Meteor.log.info "eventType=  #{message.header.name}  ",
           message: jsonMsg
 
@@ -275,6 +280,34 @@ class Meteor.RedisPubSub
         Meteor.Meetings.update({meetingId: meetingId, intendedForRecording: intendedForRecording}, {$set: {currentlyBeingRecorded: currentlyBeingRecorded}})
         return
 
+      # --------------------------------------------------
+      # lock settings ------------------------------------
+      if message.header.name is "eject_voice_user_message"
+        console.log "\n111111111"
+        return
+
+      if message.header.name is "new_permission_settings"
+        console.log "\n22222"
+        # meetingId = message.payload.meeting_id
+
+        # substitute with the new lock settings
+        Meteor.Meetings.update({meetingId: meetingId}, {$set: {
+          'roomLockSettings.disablePrivChat': message.payload.disablePrivChat
+          'roomLockSettings.disableCam': message.payload.disableCam
+          'roomLockSettings.disableMic': message.payload.disableMic
+          'roomLockSettings.lockOnJoin': message.payload.lockOnJoin
+          'roomLockSettings.lockedLayout': message.payload.lockedLayout
+          'roomLockSettings.disablePubChat': message.payload.disablePubChat
+        }})
+        return
+
+      if message.header.name is "user_locked_message" or message.header.name is "user_unlocked_message"
+        console.log "\n33333333"
+        userId = message.payload.userid
+        isLocked = message.payload.locked
+        setUserLockedStatus(meetingId, userId, isLocked)
+        return
+
       if message.header.name in ["meeting_ended_message", "meeting_destroyed_event",
         "end_and_kick_all_message", "disconnect_all_users_message"]
         if Meteor.Meetings.findOne({meetingId: meetingId})?
@@ -292,9 +325,9 @@ class Meteor.RedisPubSub
 
 # message should be an object
 @publish = (channel, message) ->
-  Meteor.log.info "Publishing",
-    channel: channel
-    message: message
+  # Meteor.log.info "Publishing",
+  #   channel: channel
+  #   message: message
 
   if Meteor.redisPubSub?
     Meteor.redisPubSub.pubClient.publish channel, JSON.stringify(message), (err, res) ->
