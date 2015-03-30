@@ -1,8 +1,4 @@
 Meteor.methods
-  #
-  # I dont know if this is okay to be server side. We need to call it from the router, but I don't know if any harm can be caused
-  # by the client calling this
-  #
 
   # Construct and send a message to bbb-web to validate the user
   validateAuthToken: (meetingId, userId, authToken) ->
@@ -70,6 +66,11 @@ class Meteor.RedisPubSub
       # "get_users_reply"
       "get_chat_history_reply"
       "get_all_meetings_reply"
+      "presentation_shared_message"
+      "presentation_conversion_done_message"
+      "presentation_conversion_progress_message"
+      "presentation_page_generated_message"
+      "presentation_page_changed_message"
     ]
 
     if message?.header? and message?.payload?
@@ -287,8 +288,6 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "new_permission_settings"
-        console.log "\n22222"
-        # meetingId = message.payload.meeting_id
 
         # substitute with the new lock settings
         Meteor.Meetings.update({meetingId: meetingId}, {$set: {
@@ -302,7 +301,6 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "user_locked_message" or message.header.name is "user_unlocked_message"
-        console.log "\n33333333"
         userId = message.payload.userid
         isLocked = message.payload.locked
         setUserLockedStatus(meetingId, userId, isLocked)

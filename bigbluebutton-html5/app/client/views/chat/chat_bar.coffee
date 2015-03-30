@@ -65,6 +65,14 @@ Handlebars.registerHelper "grabChatTabs", ->
     setInSession 'chatTabs', initTabs
   getInSession('chatTabs')[0..3]
 
+
+Handlebars.registerHelper "publicChatDisabled", ->
+  userIsLocked = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.locked
+  console.log "userIsLocked=" + userIsLocked
+  publicChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePubChat
+  console.log "publicChatIsDisabled=" + publicChatIsDisabled
+  return userIsLocked and publicChatIsDisabled
+
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
   unless (message?.length > 0 and (/\S/.test(message))) # check the message has content and it is not whitespace
