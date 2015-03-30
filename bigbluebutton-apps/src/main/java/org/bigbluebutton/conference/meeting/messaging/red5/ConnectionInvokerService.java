@@ -63,10 +63,10 @@ public class ConnectionInvokerService {
 		bbbAppScope = scope;
 	}
 
-	public void addConnection(String id, IConnection conn) {
+	public boolean addConnection(String id, IConnection conn) {
 		if (connections == null) {
 			System.out.println("Connections is null!!!!");
-			return;
+			return false;
 		}
 		if (id == null) {
 			System.out.println("CONN ID IS NULL!!!");
@@ -75,7 +75,7 @@ public class ConnectionInvokerService {
 		if (conn == null) {
 			System.out.println("CONN IS NULL");
 		}
-		connections.putIfAbsent(id, conn);
+		return connections.putIfAbsent(id, conn) == null;
 	}
 	
 	public void start() {

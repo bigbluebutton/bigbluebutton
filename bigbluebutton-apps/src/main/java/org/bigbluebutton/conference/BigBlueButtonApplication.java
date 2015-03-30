@@ -148,7 +148,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 		bbbGW.initLockSettings(room, locked, lsMap);
 		
-		connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
+		boolean success = connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
 
 		String meetingId = bbbSession.getRoom();
 		String userId = bbbSession.getInternalUserID();
@@ -175,7 +175,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		
 		log.info("User joining bbbb-aps: data={}", logStr);
 		
-		return super.roomConnect(connection, params);
+		return success && super.roomConnect(connection, params);
         
 	}
 
