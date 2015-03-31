@@ -1,4 +1,4 @@
-package org.bigbluebutton.app.video.h263;
+package org.bigbluebutton.app.video.ffmpeg;
 
 import java.util.ArrayList;
 import java.util.List;
