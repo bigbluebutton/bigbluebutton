@@ -9,7 +9,7 @@
     <div id="navbar" class="myNavbar gradientBar navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="navbarUserButtons navbarSection">
         <div id="collapseButtonSection">
-          {{#if isMobile}}
+          {{#if isPortraitMobile}}
             <button class="navbar-toggle btn navbarButton collapseSlidingMenuButton">
               <div class="push-menu-icon">
                 <span class="icon-bar"></span>
@@ -58,21 +58,31 @@
           <div class='audioControllersSection'>
             <!-- Join/hang up audio call -->
             {{#if isCurrentUserSharingAudio}}
+              <!-- This button is for leaving audio -->
               <div class='hiddenNavbarSection'>
                 {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton audioButton leaveAudioButton" i_class="ion-volume-mute" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
               </div>
-              {{#if isCurrentUserMuted}}
-                {{> makeButton btn_class="muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
+              {{#if isCurrentUserListenOnly}}
+                {{> makeButton btn_class="navbarButton audioButton" i_class="glyphicon ion-speakerphone" sharingAudio=true rel="tooltip" data_placement="bottom" title="Listen Only" isDisabled="disabled"}}
               {{else}}
-                {{#if isCurrentUserTalking}}
-                  {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+                {{#if isCurrentUserMuted}}
+                  <!-- if you are muted the button representing your status will show volume off -->
+                  {{> makeButton btn_class="muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
                 {{else}}
-                  {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+                  {{#if isCurrentUserTalking}}
+                    <!-- you are talking. Display a high volume/volume up representing voice activity -->
+                    {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+                  {{else}}
+                    <!-- you are not talking. Display low volume/volume down representing no voice activity -->
+                    {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+                  {{/if}}
                 {{/if}}
               {{/if}}
             {{else}}
               <div class='hiddenNavbarSection'>
-                {{> makeButton btn_class="audioFeedIcon navbarButton audioButton joinAudioButton" i_class="glyphicon glyphicon-headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
+                <div id="shareMicrophonePanel">
+                    {{> makeButton btn_class="audioFeedIcon navbarButton audioButton joinAudioButton" i_class="glyphicon glyphicon-headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
+                </div>
               </div>
             {{/if}}
           </div>
@@ -100,12 +110,31 @@
   {{/if}}
 </template>
 
+<template name="joinAudioDialog">
+  <div id="joinAudioDialog" title="How do you want to join the audio?">
+    <hr class="joinAudioDialogHr"/>
+    <div style="float:left; border-right: 2px solid darkgrey; width: 50%; height: 100%">
+      <i class="icon ion-mic-a joinAudioDialogIcon"></i>
+      <br/>
+      <button id="microphone" class="joinAudioDialogButton">Microphone</button>
+    </div>
+    <div style="float:left; width: 50%">
+      <i class="icon ion-volume-high joinAudioDialogIcon"></i>
+      <br/>
+      <button id="listen_only" class="joinAudioDialogButton">Listen Only</button>
+    </div>
+    <br style="clear:both;"/><br/>
+    <hr style="margin: 10px; border: 1px solid darkgrey;" />
+  </div>
+</template>
+
 <template name="main">
 {{setTitle}}
 <body>
   <div id="dialog" title="Confirm Logout">
       <p>Are you sure you want to log out?</p>
   </div>
+  {{> joinAudioDialog}}
   <div id="notification">
       <div id="browser-icon-container"></div>
       <p id="notification-text"></p>
@@ -119,32 +148,39 @@
       {{> chatbar id="chat" title="Chat" name="chatbar"}}
       {{> usersList id="users" name="usersList"}}
       <audio id="remote-media" autoplay="autoplay"></audio>
+      <video style="display:none"></video>
       {{> footer}}
     {{/if}}
     <div id='shield'></div>
   </div>
-  {{#if isMobile}}
+  {{#if isPortraitMobile}}
     {{> slidingMenu}}
   {{/if}}
 </body>
 </template>
 
 <template name="recordingStatus">
-	<!-- Recording status of the meeting -->
-	{{#with getCurrentMeeting}}
-		{{#if intendedForRecording}}
-			{{#if currentlyBeingRecorded}}
-				<button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
-			{{else}}
-				<button class="recordingStatus recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Currently Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
-			{{/if}}
-		{{/if}}
-	{{/with}}
+    <!-- Recording status of the meeting -->
+    {{#with getCurrentMeeting}}
+        {{#if intendedForRecording}}
+            {{#if currentlyBeingRecorded}}
+                <button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
+            {{else}}
+                <button class="recordingStatus recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Currently Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
+            {{/if}}
+        {{/if}}
+    {{/with}}
 </template>
 
 <template name='slidingMenu'>
   <div class="sliding-menu" id="sliding-menu">
     <div class="slideSection">
+      {{#if getInSession "display_usersList"}}
+        {{> makeButton btn_class="navbarIconToggleActive usersListIcon slideButton" i_class="glyphicon glyphicon-user" rel="tooltip" data_placement="right" title="Hide List of Users"}}
+      {{else}}
+        {{> makeButton btn_class="usersListIcon slideButton" i_class="glyphicon glyphicon-user" rel="tooltip" data_placement="right" title="Show List of Users"}}
+      {{/if}}
+
       {{#if getInSession "display_whiteboard"}}
         {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon slideButton" i_class="glyphicon glyphicon-pencil" rel="tooltip" data_placement="right" title="Hide Whiteboard"}}
       {{else}}
@@ -155,12 +191,6 @@
         {{> makeButton btn_class="navbarIconToggleActive chatBarIcon slideButton" i_class="glyphicon glyphicon-comment" rel="tooltip" data_placement="right" title="Hide Message Pane"}}
       {{else}}
         {{> makeButton btn_class="chatBarIcon slideButton" i_class="glyphicon glyphicon-comment" rel="tooltip" data_placement="right" title="Show Message Pane"}}
-      {{/if}}
-
-      {{#if getInSession "display_usersList"}}
-        {{> makeButton btn_class="navbarIconToggleActive usersListIcon slideButton" i_class="glyphicon glyphicon-user" rel="tooltip" data_placement="right" title="Hide List of Users"}}
-      {{else}}
-        {{> makeButton btn_class="usersListIcon slideButton" i_class="glyphicon glyphicon-user" rel="tooltip" data_placement="right" title="Show List of Users"}}
       {{/if}}
 
       {{#if isCurrentUserSharingAudio}}
