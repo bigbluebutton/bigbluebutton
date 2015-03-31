@@ -509,8 +509,8 @@ package org.bigbluebutton.modules.whiteboard
     
         private function maintainFocusToTextBox(event:FocusEvent):void {
             var tf:TextObject = event.currentTarget as TextObject;
-            wbCanvas.stage.focus = tf;
-            tf.stage.focus = tf;
+            if (wbCanvas.stage.focus != tf) wbCanvas.stage.focus = tf;
+            if (tf.stage.focus != tf) tf.stage.focus = tf;
             currentlySelectedTextObject = tf;
             var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
             e.data = tf;
