@@ -87,7 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable] private var cancelIcon:Class = images.cancel;
 
-			[Bindable] private var microphoneList:Array = Microphone.names;      
+			[Bindable] private var microphoneList:Array;      
 			[Bindable] private var baseIndex:int = 1;
       private var doingEchoTest:Boolean = false;
       
@@ -146,7 +146,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             //http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
             //http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
             mic.gain = micRecordVolume.value;
-            
+            microphoneList = Microphone.names;
             break;
           default:
             LogUtil.debug("unknown micStatusHandler event: " + event);
@@ -161,6 +161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private function onCreationComplete():void {
         trace(LOG + "onCreationComplete. Seeting state to [flashMicSettingsTest]");
+        microphoneList = Microphone.names;
         setupForMicLoopbackTest();
 			}						
 
