@@ -37,13 +37,19 @@ function webRTCCallback(message) {
 	}
 }
 
-function callIntoConference(voiceBridge, callback) {
+function callIntoConference(voiceBridge, callback, isListenOnly) {
+	if (isListenOnly == null) {
+		isListenOnly = false;
+	}
+	console.log("inside callIntoConference: isListenOnly is "+isListenOnly+"-----------------------------");
+
 	if (!callerIdName) {
 		BBB.getMyUserInfo(function(userInfo) {
 			console.log("User info callback [myUserID=" + userInfo.myUserID
 				+ ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
 				+ ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
-				+ ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
+				+ ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge
+				+ ",isListenOnly=" + isListenOnly + "].");
 			userID = userInfo.myUserID;
 			callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
 			conferenceVoiceBridge = userInfo.voiceBridge
@@ -53,7 +59,7 @@ function callIntoConference(voiceBridge, callback) {
 				voiceBridge = conferenceVoiceBridge;
 			}
 			console.log(callerIdName);
-			webrtc_call(callerIdName, voiceBridge, callback);
+			webrtc_call(callerIdName, voiceBridge, callback, isListenOnly);
 		});
 	} else {
 		if (voiceBridge === "9196") {
@@ -61,7 +67,7 @@ function callIntoConference(voiceBridge, callback) {
 		} else {
 			voiceBridge = conferenceVoiceBridge;
 		}
-		webrtc_call(callerIdName, voiceBridge, callback);
+		webrtc_call(callerIdName, voiceBridge, callback, isListenOnly);
 	}
 }
 
@@ -209,25 +215,29 @@ function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {
 	}
 };
 
-function webrtc_call(username, voiceBridge, callback) {
+function webrtc_call(username, voiceBridge, callback, isListenOnly) {
 	if (!isWebRTCAvailable()) {
 		callback({'status': 'failed', 'errorcode': 1003}); // Browser version not supported
 		return;
 	}
-	
+	if (isListenOnly == null) {
+		isListenOnly = false;
+	}
+	console.log("inside webrtc_call: isListenOnly is "+isListenOnly+"-----------------------------");
+
 	var server = window.document.location.hostname;
 	console.log("user " + username + " calling to " +  voiceBridge);
-	
+
 	var makeCallFunc = function() {
-		if (userMicMedia && userAgent) // only make the call when both microphone and useragent have been created
-			make_call(username, voiceBridge, server, callback, false);
+		if ((isListenOnly||userMicMedia) && userAgent) // only make the call when both microphone and useragent have been created
+			make_call(username, voiceBridge, server, callback, false, isListenOnly);
 	};
-	
+	console.log("inside webrtc_call: 1-----------------------------");
 	if (!userAgent) {
 		createUA(username, server, callback, makeCallFunc);
 	}
-	
-	if (userMicMedia !== undefined) {
+	console.log("inside webrtc_call: isListenOnly is 2-----------------------------");
+	if (isListenOnly || userMicMedia !== undefined) {
 		makeCallFunc();
 	} else {
 		callback({'status':'mediarequest'});
@@ -244,11 +254,17 @@ function webrtc_call(username, voiceBridge, callback) {
 	}
 }
 
-function make_call(username, voiceBridge, server, callback, recall) {
+function make_call(username, voiceBridge, server, callback, recall, isListenOnly) {
+	if (isListenOnly == null) {
+		isListenOnly = false;
+	}
+	console.log("inside make_call: isListenOnly is "+isListenOnly+"-----------------------------");
+	// return;
+
 	if (userAgent == null) {
 		console.log("userAgent is still null. Delaying call");
 		var callDelayTimeout = setTimeout( function() {
-			make_call(username, voiceBridge, server, callback, recall);
+			make_call(username, voiceBridge, server, callback, recall, isListenOnly);
 		}, 100);
 		return;
 	}
@@ -257,7 +273,7 @@ function make_call(username, voiceBridge, server, callback, recall) {
 		console.log("Trying to make call, but UserAgent hasn't connected yet. Delaying call");
 		userAgent.once('connected', function() {
 			console.log("UserAgent has now connected, retrying the call");
-			make_call(username, voiceBridge, server, callback, recall);
+			make_call(username, voiceBridge, server, callback, recall, isListenOnly);
 		});
 		return;
 	}
@@ -269,16 +285,57 @@ function make_call(username, voiceBridge, server, callback, recall) {
 
 	// Make an audio/video call:
 	console.log("Setting options.. ");
-	var options = {
-		media: {
-			stream: userMicMedia,
-			render: {
-				remote: {
-					audio: document.getElementById('remote-media')
+	// var options = {
+	// 	media: {
+	// 		stream: userMicMedia,
+	// 		render: {
+	// 			remote: {
+	// 				audio: document.getElementById('remote-media')
+	// 			}
+	// 		}
+	// 	}
+	// };
+	var options = {};
+	if (isListenOnly) {
+		var stream = null;
+		if (typeof webkitMediaStream !== 'undefined') {
+			// Google Chrome
+			stream = new webkitMediaStream;
+		} else {
+			// Firefox
+			audioContext = new window.AudioContext;
+			stream = audioContext.createMediaStreamDestination().stream;
+		}
+
+		console.log("insisde islistenonly when creating options");
+		options = {
+			media: {
+				stream: stream,
+				render: {
+					remote: {
+						audio: document.getElementById('remote-media')
+					}
+				}
+			},
+			RTCConstraints: {
+				mandatory: {
+					OfferToReceiveAudio: true,
+					OfferToReceiveVideo: false
 				}
 			}
-		}
-	};
+		};
+	} else {
+		options = {
+			media: {
+				stream: userMicMedia,
+				render: {
+					remote: {
+						audio: document.getElementById('remote-media')
+					}
+				}
+			}
+		};
+	}
 	
 	callTimeout = setTimeout(function() {
 		console.log('Ten seconds without updates sending timeout code');
