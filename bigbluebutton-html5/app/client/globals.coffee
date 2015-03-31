@@ -230,6 +230,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setTimeout(redrawWhiteboard, 0)
 
 @toggleMic = (event) ->
+  console.log "mute"
   u = Meteor.Users.findOne({userId:getInSession("userId")})
   if u?
     Meteor.call('muteUser', getInSession("meetingId"), u.userId, getInSession("userId"), getInSession("authToken"), not u.user.voiceUser.muted)
@@ -247,18 +248,24 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
-@toggleVoiceCall = (event, {isListenOnly} = {}) ->
-  isListenOnly ?= true
-  if BBB.amISharingAudio()
-    hangupCallback = ->
-      console.log "left voice conference"
-    BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
-  else
-    # create voice call params
-    joinCallback = (message) ->
-      console.log "started webrtc_call"
-    BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
+@exitVoiceCall = (event) ->
+  hangupCallback = ->
+    console.log "left voice conference"
+  BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
   return false
+
+@joinVoiceCall = (event, {isListenOnly} = {}) ->
+  isListenOnly ?= true
+  
+  # if !BBB.amISharingAudio()
+  #   # animate
+    
+  #   # create voice call params
+  #   joinCallback = (message) ->
+  #     console.log "started webrtc_call"
+  #   BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
+  # return false
+
 
 @toggleWhiteBoard = ->
   if getInSession("display_whiteboard") and isOnlyOnePanelOpen()
