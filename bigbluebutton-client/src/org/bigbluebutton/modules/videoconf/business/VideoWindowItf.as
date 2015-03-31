@@ -103,7 +103,7 @@ package org.bigbluebutton.modules.videoconf.business
     }
     
 		protected function getVideoResolution(stream:String):Array {
-			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
+			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+_\\d+)-\\d+", "");
 			if (pattern.test(stream)) {
 				LogUtil.debug("The stream name is well formatted [" + stream + "]");
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
