@@ -46,7 +46,7 @@ viewer = (meetingId, userId) ->
 @isAllowedTo = (action, meetingId, userId, authToken) ->
   # Disclaimer:the current version of the HTML5 client represents only VIEWER users
 
-  Meteor.log.error "#{action} :  " + viewer(meetingId, userId)[action]
+  Meteor.log.error "#{action} :  #{viewer(meetingId, userId)[action]} #{JSON.stringify viewer(meetingId, userId)}"
 
   validated = Meteor.Users.findOne({meetingId:meetingId, userId: userId})?.validated
   Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken} validated:#{validated}"
@@ -56,7 +56,7 @@ viewer = (meetingId, userId) ->
   if user? and authToken is user.authToken # check if the user is who he claims to be
     if user.validated and user.clientType is "HTML5"
       if user.user?.role is 'VIEWER' or user.user?.role is 'MODERATOR' or user.user?.role is undefined
-        return viewer(meetingId)[action] or false
+        return viewer(meetingId, userId)[action] or false
       else
         Meteor.log.warn "UNSUCCESSFULL ATTEMPT FROM userid=#{userId} to perform:#{action}"
         return false

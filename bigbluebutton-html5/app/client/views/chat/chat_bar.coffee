@@ -65,13 +65,25 @@ Handlebars.registerHelper "grabChatTabs", ->
     setInSession 'chatTabs', initTabs
   getInSession('chatTabs')[0..3]
 
-
+# true if the lock settings limit public chat and the current user is locked
 Handlebars.registerHelper "publicChatDisabled", ->
   userIsLocked = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.locked
   console.log "userIsLocked=" + userIsLocked
   publicChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePubChat
   console.log "publicChatIsDisabled=" + publicChatIsDisabled
   return userIsLocked and publicChatIsDisabled
+
+# true if the lock settings limit private chat and the current user is locked
+Handlebars.registerHelper "privateChatDisabled", ->
+  userIsLocked = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.locked
+  console.log "userIsLocked=" + userIsLocked
+  privateChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePrivChat
+  console.log "privateChatIsDisabled=" + privateChatIsDisabled
+  return userIsLocked and privateChatIsDisabled
+
+# return whether the user's chat pane is open in Private chat (vs Public chat or Options)
+Handlebars.registerHelper "inPrivateChat", ->
+  return !((getInSession 'inChatWith') in ['PUBLIC_CHAT', 'OPTIONS'])
 
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
