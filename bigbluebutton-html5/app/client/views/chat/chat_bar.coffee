@@ -71,7 +71,8 @@ Handlebars.registerHelper "publicChatDisabled", ->
   console.log "userIsLocked=" + userIsLocked
   publicChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePubChat
   console.log "publicChatIsDisabled=" + publicChatIsDisabled
-  return userIsLocked and publicChatIsDisabled
+  presenter = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.presenter
+  return userIsLocked and publicChatIsDisabled and !presenter
 
 # true if the lock settings limit private chat and the current user is locked
 Handlebars.registerHelper "privateChatDisabled", ->
@@ -79,7 +80,8 @@ Handlebars.registerHelper "privateChatDisabled", ->
   console.log "userIsLocked=" + userIsLocked
   privateChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePrivChat
   console.log "privateChatIsDisabled=" + privateChatIsDisabled
-  return userIsLocked and privateChatIsDisabled
+  presenter = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.presenter
+  return userIsLocked and privateChatIsDisabled and !presenter
 
 # return whether the user's chat pane is open in Private chat (vs Public chat or Options)
 Handlebars.registerHelper "inPrivateChat", ->

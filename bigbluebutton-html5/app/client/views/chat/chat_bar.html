@@ -30,7 +30,7 @@
   <div id="chatInput" class="chat-input-wrapper">
     {{#if inPrivateChat}}
       {{#if privateChatDisabled}}
-        <textarea id="newMessageInput" class="disabledChat" placeholder="Private chat is temporarily locked (disabled)" rel="tooltip" data-placement="top" title="Private chat is temporarily locked"></textarea>
+        <textarea id="newMessageInput" class="disabledChat" placeholder="Private chat is temporarily locked (disabled)" rel="tooltip" data-placement="top" title="Private chat is temporarily locked" disabled></textarea>
       {{else}}
         <textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
         <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
@@ -39,7 +39,7 @@
       {{/if}}
     {{else}}
       {{#if publicChatDisabled}}
-        <textarea id="newMessageInput" class="disabledChat" placeholder="Public chat is temporarily locked (disabled)" rel="tooltip" data-placement="top" title="Public chat is temporarily locked"></textarea>
+        <textarea id="newMessageInput" class="disabledChat" placeholder="Public chat is temporarily locked (disabled)" rel="tooltip" data-placement="top" title="Public chat is temporarily locked" disabled></textarea>
       {{else}}
         <textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
         <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">

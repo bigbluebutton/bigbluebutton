@@ -39,9 +39,11 @@ viewer = (meetingId, userId) ->
 
   #chat
   chatPublic: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePubChat) or
-                !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked)
+                !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
+                Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
   chatPrivate: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePrivChat) or
-                !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked)
+                !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
+                Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
 
 @isAllowedTo = (action, meetingId, userId, authToken) ->
   # Disclaimer:the current version of the HTML5 client represents only VIEWER users
