@@ -320,77 +320,6 @@ body {
   }
 }
 
-/* Custom alert box */
-
-/* Logout menu's properties on mobile devices in landscape orientation */
-.landscape-mobile-logout-dialog {
-  @media @landscape {
-    .ui-widget-header {
-      font-size: 100% !important;
-    }
-    width: 55% !important; /* overriding "width: auto;" */
-    font-size: 3vh !important; /* overriding "font-size: 11px;" */
-    .ui-dialog-content {
-      height: 30% !important; /* overriding "height: auto;" */
-    }
-    .ui-dialog-buttonset {
-      width: 100%;
-      font-size: 4vh;
-      button {
-        width: 40%;
-        margin-left: 5% !important;
-        margin-right: 5% !important;
-      }
-    }
-    height: 32% !important;
-  }
-}
-
-/* Logout menu's properties on desktop */
-.desktop-logout-dialog {
-  @media @desktop-portrait, @landscape {
-    .ui-dialog-content {
-      height: 36px !important; /* overriding "height: auto;" */
-    }
-  }
-}
-
-.no-close .ui-dialog-titlebar-close {
-  display: none; /* no close button */
-}
-
-.logout-dialog.ui-dialog {
-  .ui-widget-header {
-    color: extract(@white, 1);
-    font-weight: bold;
-    background: extract(@darkGrey, 3);
-    @media @desktop-portrait, @landscape {
-      font-size: 12px;
-    }
-  }
-  .ui-dialog-content {
-    font-weight: bold;
-    text-align: center;
-    @media @desktop-portrait, @landscape {
-      min-height: 0px !important; /* overriding "min-height: 47px;"*/
-    }
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    width: 100% !important;
-  }
-}
-
-.logout-dialog.ui-widget-content {
-  background: extract(@white, 3);
-  border: 5px solid extract(@darkGrey, 3);
-  @media @desktop-portrait, @landscape {
-    font-size: 11px;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    font-size: 280%;
-  }
-}
-
 .ui-widget-overlay {
   z-index: 1031;
 }
@@ -624,4 +553,110 @@ body {
 
 #notification-text {
   float: left;
+}
+
+
+/*-------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------------*/
+
+/* Custom alert box */
+
+/* Logout menu's properties on mobile devices in landscape orientation */
+.landscape-mobile-logout-dialog {
+  @media @landscape {
+    .ui-widget-header {
+      font-size: 100% !important;
+    }
+    width: 55% !important; /* overriding "width: auto;" */
+    font-size: 3vh !important; /* overriding "font-size: 11px;" */
+    .ui-dialog-content {
+      height: 30% !important; /* overriding "height: auto;" */
+    }
+    .ui-dialog-buttonset {
+      width: 100%;
+      font-size: 4vh;
+      button {
+        width: 40%;
+        margin-left: 5% !important;
+        margin-right: 5% !important;
+      }
+    }
+    height: 32% !important;
+  }
+}
+
+/* Logout menu's properties on desktop */
+.desktop-logout-dialog {
+  @media @desktop-portrait, @landscape {
+    .ui-dialog-content {
+      height: 36px !important; /* overriding "height: auto;" */
+    }
+  }
+}
+
+.no-close .ui-dialog-titlebar-close {
+  display: none; /* no close button */
+}
+
+.logout-dialog.ui-dialog {
+  .ui-widget-header {
+    color: extract(@white, 1);
+    font-weight: bold;
+    background: extract(@darkGrey, 3);
+    @media @desktop-portrait, @landscape {
+      font-size: 12px;
+    }
+  }
+  .ui-dialog-content {
+    font-weight: bold;
+    text-align: center;
+    @media @desktop-portrait, @landscape {
+      min-height: 0px !important; /* overriding "min-height: 47px;"*/
+    }
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 100% !important;
+  }
+}
+
+.logout-dialog.ui-widget-content {
+  background: extract(@white, 3);
+  border: 5px solid extract(@darkGrey, 3);
+  @media @desktop-portrait, @landscape {
+    font-size: 11px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    font-size: 280%;
+  }
+}
+/*-------------------------------------------------------------------------------------*/
+.joinAudioDialog {
+  min-width: 500px;
+  width: 25% !important;
+}
+#joinAudioDialog {
+  background-color: rgb(239, 239, 239);
+  display: none;
+}
+.joinAudioDialogButton {
+  background: -webkit-linear-gradient(rgb(255,255,255), rgb(225,226,229)); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(rgb(255,255,255), rgb(225,226,229)); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(rgb(255,255,255), rgb(225,226,229)); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(rgb(255,255,255), rgb(225,226,229)); /* Standard syntax (must be last) */
+  border-radius: 5px;
+  color: rgb(94,95,99);
+  font-weight: bold;
+  padding: 10px;
+}
+.joinAudioDialogHr {
+  border: 1px solid darkgrey;
+  margin: 10px; 
+  margin-bottom:5px; 
+}
+.joinAudioDialogIcon {
+  font-size: 100px;
+}
+.ui-dialog-titlebar {
+  text-align: center;
 }
