@@ -7,6 +7,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class FFmpegCommand {
+
+    /**
+     * Indicate the direction to rotate the video
+     */
+    public enum ROTATE { LEFT, RIGHT };
+
     private HashMap args;
     private HashMap x264Params;
 
@@ -120,5 +126,20 @@ public class FFmpegCommand {
     
     public void setResolution(String arg) {
         this.args.put("-s", arg);
+    }
+
+    /**
+     * Set the direction to rotate the video
+     * @param arg Rotate direction
+     */
+    public void setRotation(ROTATE arg) {
+        switch (arg) {
+            case LEFT:
+                this.args.put("-vf", "transpose=2");
+                break;
+            case RIGHT:
+                this.args.put("-vf", "transpose=1");
+                break;
+        }
     }
 }
