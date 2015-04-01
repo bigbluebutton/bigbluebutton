@@ -51,6 +51,7 @@ public class VideoRotator {
 		ffmpeg.setOutput(output);
 		ffmpeg.setLoglevel("warning");
 		ffmpeg.setRotation(direction);
+		ffmpeg.setAnalyzeDuration("10000"); // 10ms
 
 		start();
 	}

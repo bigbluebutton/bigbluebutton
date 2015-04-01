@@ -51,6 +51,7 @@ public class H263Converter {
 		ffmpeg.setFormat("flv");
 		ffmpeg.setOutput(output);
 		ffmpeg.setLoglevel("warning");
+		ffmpeg.setAnalyzeDuration("10000"); // 10ms
 
 		this.addListener();
 	}

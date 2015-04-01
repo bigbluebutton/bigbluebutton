@@ -22,6 +22,9 @@ public class FFmpegCommand {
     private String input;
     private String output;
 
+    /* Analyze duration is a special parameter that MUST come before the input */
+    private String analyzeDuration;
+
     public FFmpegCommand() {
         this.args = new HashMap();
         this.x264Params = new HashMap();
@@ -43,6 +46,12 @@ public class FFmpegCommand {
             this.ffmpegPath = "/usr/local/bin/ffmpeg";
 
         comm.add(this.ffmpegPath);
+
+        /* Analyze duration MUST come before the input */
+        if(analyzeDuration != null && !analyzeDuration.isEmpty()) {
+            comm.add("-analyzeduration");
+            comm.add(analyzeDuration);
+        }
 
         comm.add("-i");
         comm.add(input);
@@ -141,5 +150,16 @@ public class FFmpegCommand {
                 this.args.put("-vf", "transpose=1");
                 break;
         }
+    }
+
+    /**
+     * Set how much time FFmpeg should  analyze stream
+     * data to get stream information. Note that this
+     * affects directly the delay to start the stream.
+     *
+     * @param duration Rotate direction
+     */
+    public void setAnalyzeDuration(String duration) {
+        this.analyzeDuration = duration;
     }
 }
