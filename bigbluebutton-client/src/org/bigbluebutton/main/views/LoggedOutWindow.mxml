@@ -103,7 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 					case ConnectionFailedEvent.CONNECTION_REJECTED:
 						message = ResourceUtil.getInstance().getString('bbb.logout.rejected');
-						setCurrentState(DISPLAY_RECONNECT_BUTTON_STATE);
+						setCurrentState(DISPLAY_MESSAGE_ONLY_STATE);
 						break;
 					case ConnectionFailedEvent.INVALID_APP:
 						message = ResourceUtil.getInstance().getString('bbb.logout.invalidapp');
@@ -121,7 +121,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case ConnectionFailedEvent.GUEST_KICKED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.guestkickedout');
 						setCurrentState(DISPLAY_MESSAGE_ONLY_STATE);
-//						setCurrentState(DISPLAY_RECONNECT_BUTTON_STATE);
 						break;
 				}
 			}
@@ -133,7 +132,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	<mx:states>
 		<mx:State name="{DISPLAY_MESSAGE_ONLY_STATE}">
-			<mx:SetProperty target="{this}" name="height" value="{110}"/>
+			<mx:SetProperty target="{this}" name="height" value="100%"/>
 		</mx:State>
 		<mx:State name="{DISPLAY_RECONNECT_BUTTON_STATE}">
 			<mx:AddChild relativeTo="okBtn" position="after">
@@ -146,7 +145,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:State>
 	</mx:states>
 	<mx:VBox id="mainContainer" width="100%" height="100%" horizontalAlign="center">
-		<mx:Text text="{message}"/>
+		<mx:Text text="{message}" textAlign="center" width="100%"/>
 		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="redirect()"/>
 	</mx:VBox>
 </mx:TitleWindow> 
