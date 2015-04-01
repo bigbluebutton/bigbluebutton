@@ -160,7 +160,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var confirmingLogout:Boolean = false;
 			private var chromeBrowser:ChromeWebcamPermissionImage = null;
-
+      
 			public function initOptions(e:Event):void {
 				UserManager.getInstance().getConference().configLockSettings();
 				layoutOptions = new LayoutOptions();
@@ -452,21 +452,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          
       private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
         var options:PhoneOptions = new PhoneOptions();
-        if (options.showMicrophoneHint) {
-          var browser:String = ExternalInterface.call("determineBrowser")[0];
-          if (browser == "Firefox") {
-            var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
-            ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-              ffBrowser.x = 100;
-              ffBrowser.y = 150;
-            });
-          } else if (browser == "Chrome") {
-            var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
-            chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-              chromeBrowser.x = 20;
-              chromeBrowser.y = 80;
-            });
-          }
+        if (!options.showMicrophoneHint) {
+          return;
+        }
+
+        var browser:String = ExternalInterface.call("determineBrowser")[0];
+        if (browser == "Firefox") {
+          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
+          ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            ffBrowser.x = 100;
+            ffBrowser.y = 150;
+          }); 
+        } else if (browser == "Chrome") {
+          var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            chromeBrowser.x = 20;
+            chromeBrowser.y = 80;
+          });          
         }
       }
       
