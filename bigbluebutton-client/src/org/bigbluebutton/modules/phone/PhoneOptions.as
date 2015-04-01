@@ -52,6 +52,9 @@ package org.bigbluebutton.modules.phone
 		[Bindable]
 		public var showPhoneOption:Boolean = false;
 
+		[Bindable]
+		public var showMicrophoneHint:Boolean = true;
+
     public var forceListenOnly:Boolean = false;
     
 		public function PhoneOptions() {
@@ -93,6 +96,9 @@ package org.bigbluebutton.modules.phone
 				}
 				if (vxml.@showPhoneOption != undefined) {
 					showPhoneOption = (vxml.@showPhoneOption.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@showMicrophoneHint != undefined) {
+					showMicrophoneHint = (vxml.@showMicrophoneHint.toString().toUpperCase() == "TRUE");
 				}
 			}
 		}		

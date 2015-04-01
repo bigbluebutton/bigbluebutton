@@ -128,6 +128,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
+			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
@@ -640,6 +641,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
          
       private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
+        var options:PhoneOptions = new PhoneOptions();
+        if (!options.showMicrophoneHint) {
+          return;
+        }
+
         var browser:String = ExternalInterface.call("determineBrowser")[0];
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;

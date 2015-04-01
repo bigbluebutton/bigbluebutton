@@ -60,6 +60,7 @@
 			enabledEchoCancel="true"
 			useWebRTCIfAvailable="true"
 			showPhoneOption="false"
+			showMicrophoneHint="true"
 			echoTestApp="9196"
 			dependsOn="UsersModule"
 		/>
