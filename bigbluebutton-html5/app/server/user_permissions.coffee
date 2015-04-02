@@ -41,6 +41,9 @@ viewer =
   chatPublic: true #should make this dynamically modifiable later on
   chatPrivate: true #should make this dynamically modifiable later on
 
+  # set self to listen only
+  toggleSelfListenOnly: true
+
 @isAllowedTo = (action, meetingId, userId, authToken) ->
   # Disclaimer:the current version of the HTML5 client represents only VIEWER users
 
