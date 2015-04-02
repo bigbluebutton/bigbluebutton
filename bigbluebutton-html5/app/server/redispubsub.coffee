@@ -80,9 +80,9 @@ class Meteor.RedisPubSub
 
       # listen only
       if message.header.name is 'user_listening_only'
-        updateVoiceUser meetingId, {'web_userid': message.payload.userid, 'listenOnly': message.payload.listen_only}
+        updateVoiceUser meetingId, {'web_userid': message.payload.userid, 'listen_only': message.payload.listen_only}
         # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
-        return
+        return 
 
       if message.header.name is "get_all_meetings_reply"
         Meteor.log.info "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
