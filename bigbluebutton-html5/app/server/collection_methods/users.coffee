@@ -10,30 +10,43 @@ Meteor.methods
   # toSetUserId: the userId of the user joining
   # requesterUserId: the userId of the requester
   # requesterToken: the authToken of the requester
-  listenOnlyRequestToggle: (meetingId, toSetUserId, requesterUserId, requesterToken, listenOnlyState=true) ->
-    if !listenOnlyState
-      listenOnlyState = !(Meteor.Users.findOne({'meetingId': meetingId, userId: requesterUserId})?.user?.listenOnly)
+  listenOnlyRequestToggle: (meetingId, userId, authToken, isJoining) ->
+    voiceConf = Meteor.Meetings.findOne({meetingId:meetingId})?.voiceConf
+    username = Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.name
+    if isJoining
+      if isAllowedTo('joinListenOnly', meetingId, userId, authToken)
+        message =
+          payload:
+            userid: userId
+            meeting_id: meetingId
+            voiceConf: voiceConf
+            name: username
+          header:
+            timestamp: new Date().getTime()
+            name: "user_connected_to_global_audio"
+            version: "0.0.1"
 
-    action = ->
-        if toSetUserId is requesterUserId
-          return 'toggleSelfListenOnly'
+        Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
 
-    if isAllowedTo(action(), meetingId, requesterUserId, requesterToken)
-      message =
-        payload:
-          userid: toSetUserId
-          meeting_id: meetingId
-          listen_only: listenOnlyState
-          requester_id: requesterUserId
-        header:
-          timestamp: new Date().getTime()
-          name: "user_listening_only"
-          version: "0.0.1"
+        publish Meteor.config.redis.channels.toBBBApps.voice, message
+        # updateVoiceUser meetingId, {'web_userid': toSetUserId, talking:false, muted: true, locked: false, muted: true, listen_only: true}
+    else
+      if isAllowedTo('leaveListenOnly', meetingId, userId, authToken)
+        message =
+          payload:
+            userid: userId
+            meeting_id: meetingId
+            voiceConf: voiceConf
+            name: username
+          header:
+            timestamp: new Date().getTime()
+            name: "user_disconnected_from_global_audio"
+            version: "0.0.1"
 
-      Meteor.log.info "publishing a user listenOnly toggleRequest #{listenOnlyState} request for #{toSetUserId}"
+        Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
 
-      publish Meteor.config.redis.channels.toBBBApps.voice, message
-      updateVoiceUser meetingId, {'web_userid': toSetUserId, talking:false, muted: true, locked: false, muted: true, listen_only: true}
+        publish Meteor.config.redis.channels.toBBBApps.voice, message
+        # updateVoiceUser meetingId, {'web_userid': toSetUserId, talking:false, muted: true, locked: false, muted: true, listen_only: true}
     return
 
   # meetingId: the meetingId of the meeting the user[s] is in

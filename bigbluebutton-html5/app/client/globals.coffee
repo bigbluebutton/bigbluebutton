@@ -270,7 +270,11 @@ Handlebars.registerHelper "visibility", (section) ->
   # create voice call params
   joinCallback = (message) ->
     console.log "started webrtc_call"
-    Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    Meteor.call('listenOnlyRequestToggle',
+      getInSession("meetingId"),
+      getInSession("userId"),
+      getInSession("authToken"),
+      true)
   BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
 
   return false
