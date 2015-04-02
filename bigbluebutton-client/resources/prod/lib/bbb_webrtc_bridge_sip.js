@@ -41,7 +41,6 @@ function callIntoConference(voiceBridge, callback, isListenOnly) {
 	if (isListenOnly == null) {
 		isListenOnly = false;
 	}
-	console.log("inside callIntoConference: isListenOnly is "+isListenOnly+"-----------------------------");
 
 	if (!callerIdName) {
 		BBB.getMyUserInfo(function(userInfo) {
@@ -223,7 +222,6 @@ function webrtc_call(username, voiceBridge, callback, isListenOnly) {
 	if (isListenOnly == null) {
 		isListenOnly = false;
 	}
-	console.log("inside webrtc_call: isListenOnly is "+isListenOnly+"-----------------------------");
 
 	var server = window.document.location.hostname;
 	console.log("user " + username + " calling to " +  voiceBridge);
@@ -232,11 +230,9 @@ function webrtc_call(username, voiceBridge, callback, isListenOnly) {
 		if ((isListenOnly||userMicMedia) && userAgent) // only make the call when both microphone and useragent have been created
 			make_call(username, voiceBridge, server, callback, false, isListenOnly);
 	};
-	console.log("inside webrtc_call: 1-----------------------------");
 	if (!userAgent) {
 		createUA(username, server, callback, makeCallFunc);
 	}
-	console.log("inside webrtc_call: isListenOnly is 2-----------------------------");
 	if (isListenOnly || userMicMedia !== undefined) {
 		makeCallFunc();
 	} else {
@@ -258,8 +254,6 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 	if (isListenOnly == null) {
 		isListenOnly = false;
 	}
-	console.log("inside make_call: isListenOnly is "+isListenOnly+"-----------------------------");
-	// return;
 
 	if (userAgent == null) {
 		console.log("userAgent is still null. Delaying call");
@@ -285,16 +279,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 
 	// Make an audio/video call:
 	console.log("Setting options.. ");
-	// var options = {
-	// 	media: {
-	// 		stream: userMicMedia,
-	// 		render: {
-	// 			remote: {
-	// 				audio: document.getElementById('remote-media')
-	// 			}
-	// 		}
-	// 	}
-	// };
+
 	var options = {};
 	if (isListenOnly) {
 		var stream = null;
@@ -307,7 +292,6 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			stream = audioContext.createMediaStreamDestination().stream;
 		}
 
-		console.log("insisde islistenonly when creating options");
 		options = {
 			media: {
 				stream: stream,
