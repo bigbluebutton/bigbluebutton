@@ -63,7 +63,7 @@
                 {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton audioButton leaveAudioButton" i_class="ion-volume-mute" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
               </div>
               {{#if isCurrentUserListenOnly}}
-                {{> makeButton btn_class="navbarButton audioButton" i_class="glyphicon ion-speakerphone" sharingAudio=true rel="tooltip" data_placement="bottom" title="Listen Only" isDisabled="disabled"}}
+                <i class="icon ion-speakerphone btn navbarButton audioButton listenOnlyIcon" rel="tooltip" data-placement="bottom" title="Listen Only"></i>
               {{else}}
                 {{#if isCurrentUserMuted}}
                   <!-- if you are muted the button representing your status will show volume off -->
