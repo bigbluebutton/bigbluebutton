@@ -255,6 +255,7 @@ Handlebars.registerHelper "visibility", (section) ->
   hangupCallback = ->
     console.log "left voice conference"
   BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
+  Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"), false)
   return false
 
 @joinVoiceCall = (event, {isListenOnly} = {}) ->
