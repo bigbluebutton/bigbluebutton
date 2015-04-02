@@ -41,6 +41,15 @@ body {
   overflow-x: hidden;
 }
 
+.listenOnlyIcon {
+  color: white;
+  font-size: 20px;
+  padding-top: 10px;
+  &:hover {
+    color: white !important;
+  }
+}
+
 .mainContainer {
   height: 95%;
 }
@@ -65,13 +74,13 @@ body {
     font-size: 2vw;
   }
 
-  // the footer should be visible only at the very bottom of a portrait page
+  /*the footer should be visible only at the very bottom of a portrait page*/
   @media @desktop-portrait, @mobile-portrait {
     order: 4;
     -webkit-order: 4;
   }
   @media @mobile-portrait-with-keyboard {
-    display: none; //hide when typing
+    display: none; /*hide when typing*/
   }
 }
 
@@ -555,11 +564,6 @@ body {
   float: left;
 }
 
-
-/*-------------------------------------------------------------------------------------*/
-/*-------------------------------------------------------------------------------------*/
-/*-------------------------------------------------------------------------------------*/
-
 /* Custom alert box */
 
 /* Logout menu's properties on mobile devices in landscape orientation */
@@ -630,7 +634,7 @@ body {
     font-size: 280%;
   }
 }
-/*-------------------------------------------------------------------------------------*/
+
 .joinAudioDialog {
   min-width: 500px;
   width: 25% !important;
