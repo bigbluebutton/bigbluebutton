@@ -42,8 +42,6 @@ loadLib = (libname) ->
 
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
-
-
   # Load SIP libraries before the application starts
   loadLib('sip.js')
   loadLib('bbb_webrtc_bridge_sip.js')
@@ -85,7 +83,6 @@ Template.header.events
           $('.notification.ui-widget-content p').css('font-size', '11px') # to make sure the text fits the dialog box
           $('#notification-text').html("Sorry,<br/>your browser doesn't support WebRTC")
         $('#notification').dialog('open')
-        $('#joinAudioDialog').dialog('close')
         setTimeout () -> # waits 2 sec, then hides the notification
           $('#notification').dialog('close')
           $('.joinAudioButton').blur()
@@ -99,7 +96,6 @@ Template.header.events
         if !BBB.amISharingAudio()
           Tracker.autorun (comp) ->
             if BBB.amISharingAudio()
-              $('#joinAudioDialog').dialog('close')
               $('.notification').addClass('joined-audio-notification')
               setInSession 'webrtc_notification_is_displayed', true
               $('#notification-text').html("You've joined the audio")
