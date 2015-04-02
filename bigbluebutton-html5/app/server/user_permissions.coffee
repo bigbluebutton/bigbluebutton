@@ -1,7 +1,6 @@
 
 presenter = null
 
-#for the time being moderators have the same permissions that viewers do
 moderator =
   # raising/lowering hand
   raiseOwnHand : true
@@ -18,10 +17,11 @@ moderator =
   subscribeChat: true
 
   #chat
-  chatPublic: true #should make this dynamically modifiable later on
-  chatPrivate: true #should make this dynamically modifiable later on
+  chatPublic: true
+  chatPrivate: true
 
-
+# holds the values for whether the viewer user is allowed to perform an action (true)
+# or false if not allowed. Some actions have dynamic values depending on the current lock settings
 viewer = (meetingId, userId) ->
   # raising/lowering hand
   raiseOwnHand : true
@@ -45,10 +45,10 @@ viewer = (meetingId, userId) ->
                 !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
                 Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
 
-@isAllowedTo = (action, meetingId, userId, authToken) ->
-  # Disclaimer:the current version of the HTML5 client represents only VIEWER users
 
-  Meteor.log.error "#{action} :  #{viewer(meetingId, userId)[action]} #{JSON.stringify viewer(meetingId, userId)}"
+# carries out the decision making for actions affecting users. For the list of
+# actions and the default value - see 'viewer' and 'moderator' in the beginning of the file
+@isAllowedTo = (action, meetingId, userId, authToken) ->
 
   validated = Meteor.Users.findOne({meetingId:meetingId, userId: userId})?.validated
   Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken} validated:#{validated}"
