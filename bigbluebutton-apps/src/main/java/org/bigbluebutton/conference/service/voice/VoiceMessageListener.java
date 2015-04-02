@@ -45,6 +45,24 @@ public class VoiceMessageListener implements MessageHandler{
 				System.out.println("handling user_left_voice_request");
 				bbbGW.voiceUserLeft(meetingID, userID);
 			}
+			else if (eventName.equalsIgnoreCase(MessagingConstants.USER_CONNECTED_TO_GLOBAL_AUDIO)){
+
+				// String meetingID = payloadObject.get("meeting_id").toString().replace("\"", "");
+				String userID = payloadObject.get("userid").toString().replace("\"", "");
+				String voiceConf = payloadObject.get("voiceConf").toString().replace("\"", "");
+				String userName = payloadObject.get("name").toString().replace("\"", "");
+
+				bbbGW.userConnectedToGlobalAudio(voiceConf, userID, userName);
+			}
+			else if (eventName.equalsIgnoreCase(MessagingConstants.USER_DISCONNECTED_FROM_GLOBAL_AUDIO)){
+
+				// String meetingID = payloadObject.get("meeting_id").toString().replace("\"", "");
+				String userID = payloadObject.get("userid").toString().replace("\"", "");
+				String voiceConf = payloadObject.get("voiceConf").toString().replace("\"", "");
+				String userName = payloadObject.get("name").toString().replace("\"", "");
+
+				bbbGW.userDisconnectedFromGlobalAudio(voiceConf, userID, userName);
+			}
 		}
 	}
 }

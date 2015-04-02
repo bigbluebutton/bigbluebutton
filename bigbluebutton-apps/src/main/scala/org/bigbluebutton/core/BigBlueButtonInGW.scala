@@ -191,10 +191,14 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   }
 
   def userConnectedToGlobalAudio(voiceConf: String, userid: String, name: String) {
+    // we are required to pass the meeting_id as first parameter (just to satisfy trait)
+    // but it's not used anywhere. That's why we pass voiceConf twice instead
     bbbGW.accept(new UserConnectedToGlobalAudio(voiceConf, voiceConf, userid, name))
   }
   
   def userDisconnectedFromGlobalAudio(voiceConf: String, userid: String, name: String) {
+    // we are required to pass the meeting_id as first parameter (just to satisfy trait)
+    // but it's not used anywhere. That's why we pass voiceConf twice instead
     bbbGW.accept(new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name))
   }
   

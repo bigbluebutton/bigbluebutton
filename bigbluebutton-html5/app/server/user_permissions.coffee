@@ -21,6 +21,9 @@ moderator =
   chatPublic: true #should make this dynamically modifiable later on
   chatPrivate: true #should make this dynamically modifiable later on
 
+  # listen only
+  joinListenOnly: true #should make this dynamically modifiable later on
+  leaveListenOnly: true #should make this dynamically modifiable later on
 
 viewer =
   # raising/lowering hand
@@ -41,8 +44,9 @@ viewer =
   chatPublic: true #should make this dynamically modifiable later on
   chatPrivate: true #should make this dynamically modifiable later on
 
-  # set self to listen only
-  toggleSelfListenOnly: true
+  # listen only
+  joinListenOnly: true #should make this dynamically modifiable later on
+  leaveListenOnly: true #should make this dynamically modifiable later on
 
 @isAllowedTo = (action, meetingId, userId, authToken) ->
   # Disclaimer:the current version of the HTML5 client represents only VIEWER users
