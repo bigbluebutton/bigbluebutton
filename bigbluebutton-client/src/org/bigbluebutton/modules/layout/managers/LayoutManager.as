@@ -346,17 +346,5 @@ package org.bigbluebutton.modules.layout.managers
 
 			return _currentLayout;
 		}
-		
-		/*
-		 * this is because a unique layout may have multiple definitions depending
-		 * on the role of the participant
-		 */ 
-		public function presenterChanged():void {
-			if (_canvas != null) {
-        //trace(LOG + " presenterChanged layout [" + _currentLayout.name +  "]");
-        applyLayout(_currentLayout);
-      }
-				
-		}
 	}
 }

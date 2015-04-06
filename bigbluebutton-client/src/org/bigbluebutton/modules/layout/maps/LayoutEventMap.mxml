@@ -127,14 +127,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{RemoteSyncLayoutEvent.REMOTE_SYNC_LAYOUT_EVENT}">
     <MethodInvoker generator="{LayoutManager}" method="remoteSyncLayout" arguments="{event}"/>
   </EventHandlers>
-  	
-    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-   		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
-    </EventHandlers>
-
-    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
-   		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
-    </EventHandlers>
 
   <Injectors target="{LayoutService}">
     <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
