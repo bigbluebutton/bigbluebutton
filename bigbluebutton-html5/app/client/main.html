@@ -60,9 +60,11 @@
             {{#if isCurrentUserSharingAudio}}
               <!-- This button is for leaving audio -->
               <div class='hiddenNavbarSection'>
+                <!-- display the button for leaving audio -->
                 {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton audioButton leaveAudioButton" i_class="ion-volume-mute" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
               </div>
               {{#if isCurrentUserListenOnly}}
+                <!-- shows you are listen only. Will not handle clicks. Only for display -->
                 <i class="icon ion-speakerphone btn navbarButton audioButton listenOnlyIcon" rel="tooltip" data-placement="bottom" title="Listen Only"></i>
               {{else}}
                 {{#if isCurrentUserMuted}}
@@ -109,7 +111,8 @@
     {{> makeButton id="navbarMinimizedButton" btn_class="hideNavbarIcon navbarMinimizedButtonSmall" i_class="glyphicon glyphicon-chevron-down" rel="tooltip" data_placement="bottom" title="Display Navbar"}}
   {{/if}}
 </template>
-
+<!-- dialog that presents user with audio options
+     contains microphone and listen only with icons -->
 <template name="joinAudioDialog">
   <div id="joinAudioDialog" title="How do you want to join the audio?">
     <hr class="joinAudioDialogHr"/>

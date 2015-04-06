@@ -38,6 +38,8 @@ function webRTCCallback(message) {
 }
 
 function callIntoConference(voiceBridge, callback, isListenOnly) {
+	// root of the call initiation process from the html5 client
+	// Flash will not pass in the listen only field. For html5 it is optional. Assume NOT listen only if no state passed
 	if (isListenOnly == null) {
 		isListenOnly = false;
 	}
@@ -219,7 +221,7 @@ function webrtc_call(username, voiceBridge, callback, isListenOnly) {
 		callback({'status': 'failed', 'errorcode': 1003}); // Browser version not supported
 		return;
 	}
-	if (isListenOnly == null) {
+	if (isListenOnly == null) { // assume NOT listen only unless otherwise stated
 		isListenOnly = false;
 	}
 
@@ -227,12 +229,16 @@ function webrtc_call(username, voiceBridge, callback, isListenOnly) {
 	console.log("user " + username + " calling to " +  voiceBridge);
 
 	var makeCallFunc = function() {
-		if ((isListenOnly||userMicMedia) && userAgent) // only make the call when both microphone and useragent have been created
+		// only make the call when both microphone and useragent have been created
+		// for listen only, stating listen only is a viable substitute for acquiring user media control
+		if ((isListenOnly||userMicMedia) && userAgent)
 			make_call(username, voiceBridge, server, callback, false, isListenOnly);
 	};
 	if (!userAgent) {
 		createUA(username, server, callback, makeCallFunc);
 	}
+	// if the user requests to proceed as listen only (does not require media) or media is already acquired,
+	// proceed with making the call
 	if (isListenOnly || userMicMedia !== undefined) {
 		makeCallFunc();
 	} else {
@@ -282,7 +288,10 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 
 	var options = {};
 	if (isListenOnly) {
+		// create necessary options for a listen only stream
 		var stream = null;
+		// handle the web browser
+		// create a stream object through the browser separated from user media
 		if (typeof webkitMediaStream !== 'undefined') {
 			// Google Chrome
 			stream = new webkitMediaStream;
@@ -294,14 +303,17 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 
 		options = {
 			media: {
-				stream: stream,
+				stream: stream, // use the stream created above
 				render: {
 					remote: {
+						// select an element to render the incoming stream data
 						audio: document.getElementById('remote-media')
 					}
 				}
 			},
+			// a list of our RTC Connection constraints
 			RTCConstraints: {
+				// our constraints are mandatory. We must received audio and must not receive audio
 				mandatory: {
 					OfferToReceiveAudio: true,
 					OfferToReceiveVideo: false

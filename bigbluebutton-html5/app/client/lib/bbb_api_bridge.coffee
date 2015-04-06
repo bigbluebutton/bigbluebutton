@@ -187,6 +187,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
 
   ###
   Join the voice conference.
+  isListenOnly: signifies whether the user joining the conference audio requests to join the listen only stream
   ###
   BBB.joinVoiceConference = (callback, isListenOnly) ->
     callIntoConference(BBB.getMyVoiceBridge(), callback, isListenOnly)

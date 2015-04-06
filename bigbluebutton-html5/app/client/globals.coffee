@@ -251,6 +251,7 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
+# Sign the user out of listen only mode, the send the leave voice conference message to BBB
 @exitVoiceCall = (event) ->
   hangupCallback = ->
     console.log "left voice conference"
@@ -258,6 +259,7 @@ Handlebars.registerHelper "visibility", (section) ->
   Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"), false)
   return false
 
+# close the daudio UI, then join the conference. If listen only send the request to the server
 @joinVoiceCall = (event, {isListenOnly} = {}) ->
   $('#joinAudioDialog').dialog('close')
   isListenOnly ?= true
@@ -266,13 +268,13 @@ Handlebars.registerHelper "visibility", (section) ->
   joinCallback = (message) ->
     console.log "started webrtc_call"
 
+  BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
+  if isListenOnly
     Meteor.call('listenOnlyRequestToggle',
       getInSession("meetingId"),
       getInSession("userId"),
       getInSession("authToken"),
       true)
-
-  BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
 
   return false
 
