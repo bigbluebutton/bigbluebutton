@@ -67,7 +67,9 @@ def fetchRecordings(url)
 
         encrypted_file = file_url.split("/").last
         decrypted_file = File.basename(encrypted_file, '.*') + ".zip"
-        if not File.exist?("#{$archived_dir}/#{meeting_id}.done") then
+        # can't check only for archived.done because when the file is published, the archived flag is removed
+        # so we check for any .done file
+        if not Dir.glob("#{$recording_dir}/status/**/#{record_id}*.done").empty? then
           Dir.chdir($raw_dir) do
             BigBlueButton.logger.info("Next recording to be processed is #{meeting_id}")
 
