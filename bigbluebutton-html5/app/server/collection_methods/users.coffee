@@ -115,7 +115,7 @@ Meteor.methods
 @markUserOffline = (meetingId, userId) ->
   # mark the user as offline. remove from the collection on meeting_end #TODO
   Meteor.log.info "marking user [#{userId}] as offline in meeting[#{meetingId}]"
-  Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{user:{connection_status:'offline'}}})
+  Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
 
 
 # Corresponds to a valid action on the HTML clientside
@@ -191,13 +191,14 @@ Meteor.methods
         webcam_stream: user.webcam_stream
       }})
 
-    welcomeMessage = Meteor.config.defaultWelcomeMessage
-    .replace /%%CONFNAME%%/, Meteor.Meetings.findOne({meetingId: meetingId})?.meetingName
-    welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter
+    # only add the welcome message if it's not there already
+    unless Meteor.Chat.findOne({"message.chat_type":'SYSTEM_MESSAGE', "message.to_userid": userId})?
+      welcomeMessage = Meteor.config.defaultWelcomeMessage
+      .replace /%%CONFNAME%%/, Meteor.Meetings.findOne({meetingId: meetingId})?.meetingName
+      welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter
 
-    # store the welcome message in chat for easy display on the client side
-    chatId = Meteor.Chat.upsert({message:{chat_type:'SYSTEM_MESSAGE', to_userid: userId}, meetingId: meetingId},
-      {$set:{
+      # store the welcome message in chat for easy display on the client side
+      Meteor.Chat.insert(
         meetingId: meetingId
         message:
           chat_type: "SYSTEM_MESSAGE"
@@ -207,8 +208,8 @@ Meteor.methods
           from_userid: "SYSTEM_MESSAGE"
           from_username: ""
           from_time: user.timeOfJoining?.toString()
-      }})
-    Meteor.log.info "added a system message in chat for user #{userId}"
+        )
+      Meteor.log.info "added a system message in chat for user #{userId}"
 
   else
     # scenario: there are meetings running at the time when the meteor
