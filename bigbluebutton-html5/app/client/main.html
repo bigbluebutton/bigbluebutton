@@ -1,7 +1,7 @@
 <template name="footer">
-   <div id="footer" class="myFooter gradientBar navbar-default">
-      {{{getFooterString}}}
-   </div>
+  <div id="footer" class="myFooter gradientBar navbar-default">
+    {{{getFooterString}}}
+  </div>
 </template>
 
 <template name="header">
@@ -132,47 +132,47 @@
 </template>
 
 <template name="main">
-{{setTitle}}
-<body>
-  <div id="dialog" title="Confirm Logout">
+  {{setTitle}}
+  <body>
+    <div id="dialog" title="Confirm Logout">
       <p>Are you sure you want to log out?</p>
-  </div>
-  {{> joinAudioDialog}}
-  <div id="notification">
+    </div>
+    {{> joinAudioDialog}}
+    <div id="notification">
       <div id="browser-icon-container"></div>
       <p id="notification-text"></p>
-  </div>
-  <div id="main" class="mainContainer row-fluid">
-    {{#if isDisconnected}}
-      {{>status}}
-    {{else}}
-      <div>{{> header}}</div>
-      {{> whiteboard id="whiteboard" title=getWhiteboardTitle name="whiteboard"}}
-      {{> chatbar id="chat" title="Chat" name="chatbar"}}
-      {{> usersList id="users" name="usersList"}}
-      <audio id="remote-media" autoplay="autoplay"></audio>
-      <video style="display:none"></video>
-      {{> footer}}
+    </div>
+    <div id="main" class="mainContainer row-fluid">
+      {{#if isDisconnected}}
+        {{>status}}
+      {{else}}
+        <div>{{> header}}</div>
+        {{> whiteboard id="whiteboard" title=getWhiteboardTitle name="whiteboard"}}
+        {{> chatbar id="chat" title="Chat" name="chatbar"}}
+        {{> usersList id="users" name="usersList"}}
+        <audio id="remote-media" autoplay="autoplay"></audio>
+        <video style="display:none"></video>
+        {{> footer}}
+      {{/if}}
+      <div id='shield'></div>
+    </div>
+    {{#if isPortraitMobile}}
+      {{> slidingMenu}}
     {{/if}}
-    <div id='shield'></div>
-  </div>
-  {{#if isPortraitMobile}}
-    {{> slidingMenu}}
-  {{/if}}
-</body>
+  </body>
 </template>
 
 <template name="recordingStatus">
-    <!-- Recording status of the meeting -->
-    {{#with getCurrentMeeting}}
-        {{#if intendedForRecording}}
-            {{#if currentlyBeingRecorded}}
-                <button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
-            {{else}}
-                <button class="recordingStatus recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Currently Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
-            {{/if}}
-        {{/if}}
-    {{/with}}
+  <!-- Recording status of the meeting -->
+  {{#with getCurrentMeeting}}
+    {{#if intendedForRecording}}
+      {{#if currentlyBeingRecorded}}
+        <button class="recordingStatus recordingStatusTrue" rel="tooltip" data-placement="bottom" title="This Meeting is Being Recorded"><span class="glyphicon glyphicon-record"></span> Recording</button>
+      {{else}}
+        <button class="recordingStatus recordingStatusFalse" rel="tooltip" data-placement="bottom" title="This Meeting is Not Currently Being Recorded"><span class="glyphicon glyphicon-record"></span></button>
+      {{/if}}
+    {{/if}}
+  {{/with}}
 </template>
 
 <template name='slidingMenu'>
