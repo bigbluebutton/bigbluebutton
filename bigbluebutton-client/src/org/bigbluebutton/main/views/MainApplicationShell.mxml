@@ -647,6 +647,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ls.x = point1.x - (ls.width/2);
 				ls.y = point1.y - (ls.height/2);	
 			}
+			
+			private function onFooterLinkClicked(e:TextEvent):void{
+				trace("Clicked on link[" + e.text + "] from footer");
+				if (ExternalInterface.available) {
+					ExternalInterface.call("chatLinkClicked", e.text);
+				}
+			}
 		]]>
 	</mx:Script>
 
@@ -672,8 +679,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
 		<mx:Label
 				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
-				id="copyrightLabel2"
-				selectable="false" paddingRight="20"/>
+				link="onFooterLinkClicked(event)"
+				id="copyrightLabel2" truncateToFit="true"
+				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
 		<mx:Label 
 				id="lblWebRTC"
