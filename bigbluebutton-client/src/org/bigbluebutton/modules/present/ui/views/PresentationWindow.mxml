@@ -30,7 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
-	showControls="true" resize="maximizeHandler()"
+	showControls="true" resize="resizeHandler()"
   styleNameFocus="presentationWindowStyleFocus"
   styleNameNoFocus="presentationWindowStyleNoFocus"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -239,11 +239,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				focusManager.setFocus(titleBarOverlay);
 			}
 			
-			private function maximizeHandler():void {
+			private function resizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
-				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
-				stage.focus = this; 
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
