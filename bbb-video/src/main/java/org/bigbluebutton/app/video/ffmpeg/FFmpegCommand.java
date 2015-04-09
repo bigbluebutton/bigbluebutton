@@ -1,5 +1,6 @@
 package org.bigbluebutton.app.video.ffmpeg;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,14 @@ public class FFmpegCommand {
     public FFmpegCommand() {
         this.args = new HashMap();
         this.x264Params = new HashMap();
+
+        /* Prevent quality loss by default */
+        try {
+            this.setVideoQualityScale(1);
+        } catch (InvalidParameterException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        };
 
         this.ffmpegPath = null;
     }
@@ -161,5 +170,22 @@ public class FFmpegCommand {
      */
     public void setAnalyzeDuration(String duration) {
         this.analyzeDuration = duration;
+    }
+
+    /**
+     * Set video quality scale to a value (1-31).
+     * 1 is the highest quality and 31 the lowest.
+     * <p>
+     * <b> Note: Does NOT apply to h264 encoder. </b>
+     * </p>
+     *
+     * @param scale Scale value (1-31)
+     * @throws InvalidParameterException
+     */
+    public void setVideoQualityScale(Integer scale) throws InvalidParameterException {
+        if(scale < 1 || scale > 31)
+            throw new InvalidParameterException("Scale must be a value in 1-31 range");
+
+        this.args.put("-q:v", scale.toString());
     }
 }
