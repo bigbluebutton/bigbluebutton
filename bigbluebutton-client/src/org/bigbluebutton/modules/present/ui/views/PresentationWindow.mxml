@@ -103,8 +103,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private static const LOG:String = "Present::PresentationWindow - ";
       
       public static const TITLE:String = "Presentation";
-			private static const NEXT_BUTTON:String = "Next";
-			private static const PREVIOUS_BUTTON:String = "Previous";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
 						
 			[Bindable] 
@@ -403,28 +401,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function addContextMenuItems():void{
 				var contextMenuItems:Array = new Array();
 				
-				var nextButton:ContextMenuItem = new ContextMenuItem(NEXT_BUTTON);
-				nextButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				var nextButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip'));
+				nextButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { gotoNextSlide(); });
 				contextMenuItems.push(nextButton);
 				
-				var previousButton:ContextMenuItem = new ContextMenuItem(PREVIOUS_BUTTON);
-				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
+				var previousButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip'));
+				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { gotoPreviousSlide(); });
 				contextMenuItems.push(previousButton);
 								
 				this.customContextMenuItems = contextMenuItems;
 			}
 			
-			private function menuItemHandler(e:ContextMenuEvent):void{
-				switch(e.target.caption){
-					case NEXT_BUTTON:
-						gotoNextSlide();
-						break;
-					case PREVIOUS_BUTTON:
-						gotoPreviousSlide();
-						break;
-				}
-			}
-						
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
 				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = presentationName;
@@ -528,6 +515,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
+
+				addContextMenuItems();
 			}
 			
 			private function localeChanged(e:Event):void{
