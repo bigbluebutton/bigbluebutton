@@ -18,7 +18,7 @@ $Id: $
 <!--
 Notes.mxml is the main view of the SharedNotes application
 -->
-<MDIWindow xmlns="flexlib.mdi.containers.*"
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*"
            xmlns:mx="http://www.adobe.com/2006/mxml"
            width="510" height="600"
            xmlns:mate="http://mate.asfusion.com/"
@@ -31,8 +31,6 @@ Notes.mxml is the main view of the SharedNotes application
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
-      
-      import flexlib.mdi.events.MDIWindowEvent;
       
       import mx.collections.ArrayCollection;
       import mx.containers.HBox;
@@ -179,4 +177,4 @@ Notes.mxml is the main view of the SharedNotes application
                  label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" />
     </mx:ControlBar>    
 	  
-</MDIWindow>
+</CustomMdiWindow>

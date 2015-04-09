@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
 	       showCloseButton="false"
@@ -40,7 +40,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import com.asfusion.mate.events.Dispatcher;			
-			import flexlib.mdi.events.MDIWindowEvent;			
 			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.core.FlexGlobals;
@@ -192,4 +191,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	
 	<views:ChatView id="chatView" chatOptions="{chatOptions}" includeInLayout="false"/>
-</MDIWindow>
+</CustomMdiWindow>
