@@ -17,7 +17,7 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<containers:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:containers="flexlib.mdi.containers.*" 
+<containers:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:containers="org.bigbluebutton.common.*" 
 					 layout="absolute" width="508" height="494" implements="org.bigbluebutton.common.IBbbModuleWindow" 
 					 title="Notes" creationComplete="init()" xmlns:components="org.bigbluebutton.modules.sharednotes.components.*">
 	<mx:Script>
@@ -216,4 +216,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Label x="211.5" y="186" text="Connecting..." id="lblConnecting"/>
 		
 	</mx:Canvas>
-</containers:MDIWindow>
+</containers:CustomMdiWindow>
