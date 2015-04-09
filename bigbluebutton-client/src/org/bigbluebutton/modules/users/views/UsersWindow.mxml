@@ -20,8 +20,8 @@
   $Id: $
 --> 
 
-<mdi:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:mdi="flexlib.mdi.containers.*" 
+<mdi:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mdi="org.bigbluebutton.common.*" 
 	xmlns:flc="flexlib.controls.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
@@ -614,4 +614,4 @@
 		</mx:VBox>
 	</mx:ControlBar>
 	
-</mdi:MDIWindow>
+</mdi:CustomMdiWindow>

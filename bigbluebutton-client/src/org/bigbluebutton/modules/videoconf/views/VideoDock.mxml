@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 		xmlns:mx="http://www.adobe.com/2006/mxml" 
 		initialize="init()" 
 		horizontalScrollPolicy="off"
@@ -51,4 +51,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</mx:Script>
-</MDIWindow>
+</CustomMdiWindow>

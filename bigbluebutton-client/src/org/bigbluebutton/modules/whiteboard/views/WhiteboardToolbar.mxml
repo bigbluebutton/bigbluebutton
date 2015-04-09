@@ -67,7 +67,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
       import com.asfusion.mate.events.Listener;            
       import flash.ui.Keyboard;		
-      import flexlib.mdi.events.MDIWindowEvent;			
       import mx.containers.ControlBar;
       import mx.events.MoveEvent;
       import mx.events.ResizeEvent;

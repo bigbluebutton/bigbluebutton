@@ -30,8 +30,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flexlib.mdi.containers.MDIWindow;
-			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.CloseWindowEvent;

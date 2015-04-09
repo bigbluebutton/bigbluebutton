@@ -76,7 +76,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.MouseEvent;
 			import flash.geom.Point;
 			
-			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import mx.collections.ArrayCollection;

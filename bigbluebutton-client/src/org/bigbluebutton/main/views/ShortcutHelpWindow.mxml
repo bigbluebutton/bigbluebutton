@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       showCloseButton="true"
 		   initialize="init()"
@@ -289,4 +289,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:DataGridColumn dataField="func" headerText="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.headers.function')}"/>
 		</mx:columns>
 	</mx:DataGrid>
-</MDIWindow>
+</CustomMdiWindow>
