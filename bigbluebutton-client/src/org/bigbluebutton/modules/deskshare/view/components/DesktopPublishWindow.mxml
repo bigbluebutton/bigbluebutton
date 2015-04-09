@@ -20,11 +20,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<dspub:MDIWindow 
+<dspub:CustomMdiWindow 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	xmlns:dspub="flexlib.mdi.containers.*"
+	xmlns:dspub="org.bigbluebutton.common.*"
 	backgroundColor="#C0C0C0"
 	initialize="init()"
 	creationComplete="onCreationComplete()"	
@@ -48,7 +48,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
-      import flexlib.mdi.events.MDIWindowEvent;
       import flexlib.scheduling.scheduleClasses.BackgroundItem;   
       import mx.core.UIComponent;     
       import org.bigbluebutton.common.Images;
@@ -441,4 +440,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</dspub:states>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
-</dspub:MDIWindow>
+</dspub:CustomMdiWindow>

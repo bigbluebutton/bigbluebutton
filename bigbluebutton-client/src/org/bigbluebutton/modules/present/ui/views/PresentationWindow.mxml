@@ -21,9 +21,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 
-<pres:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<pres:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:thumb="org.bigbluebutton.modules.present.views.*"
-	xmlns:pres="flexlib.mdi.containers.*"
+	xmlns:pres="org.bigbluebutton.common.*"
 	xmlns:code="http://code.google.com/p/flexlib/" 
 	xmlns:containers="flexlib.containers.*"
 	xmlns:mate="http://mate.asfusion.com/"
@@ -349,8 +349,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function becomeViewer():void{
 				setupPresenter(false);
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-				this.contextMenu = new ContextMenu();
-				this.contextMenu.hideBuiltInItems();
+				this.customContextMenuItems = new Array();
 				if (slideView.thumbnailView.visible)
 					showThumbnails();
 			}
@@ -402,18 +401,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function addContextMenuItems():void{
-				var contextMenu:ContextMenu = new ContextMenu();
-				contextMenu.hideBuiltInItems();
+				var contextMenuItems:Array = new Array();
 				
 				var nextButton:ContextMenuItem = new ContextMenuItem(NEXT_BUTTON);
 				nextButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
-				contextMenu.customItems.push(nextButton);
+				contextMenuItems.push(nextButton);
 				
 				var previousButton:ContextMenuItem = new ContextMenuItem(PREVIOUS_BUTTON);
 				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
-				contextMenu.customItems.push(previousButton);
+				contextMenuItems.push(previousButton);
 								
-				this.contextMenu = contextMenu;
+				this.customContextMenuItems = contextMenuItems;
 			}
 			
 			private function menuItemHandler(e:ContextMenuEvent):void{
@@ -648,4 +646,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
     <mx:Spacer width="30" height="30" id="spacer4"/>	
     </mx:ControlBar>
-</pres:MDIWindow>
+</pres:CustomMdiWindow>

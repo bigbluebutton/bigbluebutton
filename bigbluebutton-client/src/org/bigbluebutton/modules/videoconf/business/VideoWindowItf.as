@@ -25,13 +25,13 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.geom.Point;
 	import flash.media.Video;
 	
-	import flexlib.mdi.containers.MDIWindow;
 	import flexlib.mdi.events.MDIWindowEvent;
 	
 	import mx.containers.Panel;
 	import mx.controls.Button;
 	import mx.core.UIComponent;
 	
+	import org.bigbluebutton.common.CustomMdiWindow;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.common.LogUtil;
@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.modules.videoconf.views.ControlButtons;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
-	public class VideoWindowItf extends MDIWindow implements IBbbModuleWindow
+	public class VideoWindowItf extends CustomMdiWindow implements IBbbModuleWindow
 	{
 		protected var _video:Video;
 		protected var _videoHolder:UIComponent;

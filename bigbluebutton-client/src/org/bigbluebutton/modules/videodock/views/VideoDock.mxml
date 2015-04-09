@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 		   xmlns:mx="http://www.adobe.com/2006/mxml" 
 		   initialize="init()" 
        horizontalScrollPolicy="off"
@@ -43,6 +43,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  import org.bigbluebutton.main.events.ShortcutEvent;
       import com.asfusion.mate.events.Dispatcher;
       
+      import flexlib.mdi.containers.MDIWindow;
+
       import mx.events.ChildExistenceChangedEvent;
       
       import org.bigbluebutton.common.Images;
@@ -486,4 +488,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />
-</MDIWindow>
+</CustomMdiWindow>
