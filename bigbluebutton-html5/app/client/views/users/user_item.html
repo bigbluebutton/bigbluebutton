@@ -6,31 +6,31 @@
   {{/if}}
 
   {{#if isUserSharingAudio userId}}
-    {{#if isCurrentUser userId}}
-      {{#if isUserMuted userId}}
-        <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
-      {{else}}
-        {{#if isCurrentUserTalking}}
-          <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
-        {{else}}
-          <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="is not talking"></span>
-        {{/if}}
-      {{/if}}
+    {{#if isUserListenOnly userId}}
+      <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
     {{else}}
-      {{#if isUserMuted userId}}
-        <span class="userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="{{user.name}} is muted"></span>
-      {{else}}
-        {{#if isUserTalking userId}}
-          <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
+      {{#if isCurrentUser userId}}
+        {{#if isUserMuted userId}}
+          <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
         {{else}}
-          <span class="userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking"></span>
+          {{#if isCurrentUserTalking}}
+            <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
+          {{else}}
+            <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="is not talking"></span>
+          {{/if}}
+        {{/if}}
+      {{else}}
+        {{#if isUserMuted userId}}
+          <span class="userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="{{user.name}} is muted"></span>
+        {{else}}
+          {{#if isUserTalking userId}}
+            <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
+          {{else}}
+            <span class="userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking"></span>
+          {{/if}}
         {{/if}}
       {{/if}}
     {{/if}}
-  {{/if}}
-
-  {{#if isUserListenOnly userId}}
-    <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
   {{/if}}
 
   {{#if user.presenter}}

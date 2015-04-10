@@ -14,21 +14,22 @@ introToAudio = ({isMobile} = {}) ->
   if isMobile
     toggleSlidingMenu()
 
-  if isMobile and BBB.amISharingAudio()
-    $('.navbarTitle').css('width', '70%')
+  if isMobile
+    if BBB.amISharingAudio()
+      $('.navbarTitle').css('width', '70%')
+    else
+      $('.navbarTitle').css('width', '55%')
   else
-    $('.navbarTitle').css('width', '55%')
+    if BBB.amISharingAudio()
+      $('.navbarTitle').css('width', $('#navbar').width() - 358.4)
+    else
+      $('.navbarTitle').css('width', $('#navbar').width() - 409.6)
 
   if isLandscapeMobile()
     $('.joinAudio-dialog').addClass('landscape-mobile-joinAudio-dialog')
   else
     $('.joinAudio-dialog').addClass('desktop-joinAudio-dialog')
   $("#joinAudioDialog").dialog("open")
-
-  if BBB.amISharingAudio()
-    $('.navbarTitle').css('width', $('#navbar').width() - 358.4)
-  else
-    $('.navbarTitle').css('width', $('#navbar').width() - 409.6)
 
 # Helper to load javascript libraries from the BBB server
 loadLib = (libname) ->
