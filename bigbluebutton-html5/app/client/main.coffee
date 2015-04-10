@@ -142,21 +142,10 @@ Template.header.events
     toggleMic @
 
   "click .raiseHand": (event) ->
-    #Meteor.log.info "navbar raise own hand from client"
-    console.log "navbar raise own hand from client"
     $(".tooltip").hide()
-
-    # TEMPORARY
-    Meteor.call('listenOnlyRequestToggle',
-      getInSession("meetingId"),
-      getInSession("userId"),
-      getInSession("authToken"),
-      true)
-    joinCallback = (message) ->
-      console.log "started webrtc_call LISTEN ONLY"
-    BBB.joinVoiceConference joinCallback, true
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-    # "click .settingsIcon": (event) ->
+
+  # "click .settingsIcon": (event) ->
     #   alert "settings"
 
   "click .signOutIcon": (event) ->
