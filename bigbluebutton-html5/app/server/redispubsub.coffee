@@ -74,8 +74,14 @@ class Meteor.RedisPubSub
 
       # handle voice events
       if message.header.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
-        voiceUser = message.payload.user?.voiceUser
-        updateVoiceUser meetingId, voiceUser
+        if message.payload.user?
+          updateVoiceUser meetingId,
+            'web_userid': message.payload.user.voiceUser.web_userid
+            'listen_only': message.payload.listen_only
+            'talking': message.payload.user.voiceUser.talking
+            'joined': message.payload.user.voiceUser.joined
+            'locked': message.payload.user.voiceUser.locked
+            'muted': message.payload.user.voiceUser.muted
         return
 
       # listen only

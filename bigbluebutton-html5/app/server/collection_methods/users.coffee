@@ -29,7 +29,6 @@ Meteor.methods
         Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
 
         publish Meteor.config.redis.channels.toBBBApps.voice, message
-        # updateVoiceUser meetingId, {'web_userid': toSetUserId, talking:false, muted: true, locked: false, muted: true, listen_only: true}
     else
       if isAllowedTo('leaveListenOnly', meetingId, userId, authToken)
         message =
@@ -46,7 +45,6 @@ Meteor.methods
         Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
 
         publish Meteor.config.redis.channels.toBBBApps.voice, message
-        # updateVoiceUser meetingId, {'web_userid': toSetUserId, talking:false, muted: true, locked: false, muted: true, listen_only: true}
     return
 
   # meetingId: the meetingId of the meeting the user[s] is in

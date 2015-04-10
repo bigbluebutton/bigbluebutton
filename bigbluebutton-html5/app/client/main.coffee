@@ -152,6 +152,9 @@ Template.header.events
       getInSession("userId"),
       getInSession("authToken"),
       true)
+    joinCallback = (message) ->
+      console.log "started webrtc_call LISTEN ONLY"
+    BBB.joinVoiceConference joinCallback, true
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
     # "click .settingsIcon": (event) ->
     #   alert "settings"
