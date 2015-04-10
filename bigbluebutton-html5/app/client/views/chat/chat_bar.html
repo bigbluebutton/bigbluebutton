@@ -77,8 +77,9 @@
 <template name="optionsBar">
   <div class="optionsBar">
     {{#if thereArePeopletoChatWith}} <!-- There are people we can chat with, display the user list -->
-      <p>Select a person to chat with privately:</p>
+      <p>Chat privately with:</p>
       <select id="privateChatSelector" title="Select a participant to open a private chat" class="private-chat-user-box " >
+        <option value="default" >Select a person</option>
         {{#each getUsersInMeeting}}
           {{#unless isCurrentUser userId}}
             <option value={{userId}} >{{user.name}}</option>

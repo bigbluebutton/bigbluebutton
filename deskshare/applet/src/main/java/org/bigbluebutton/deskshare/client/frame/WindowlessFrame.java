@@ -47,8 +47,7 @@ class WindowlessFrame implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private CaptureRegionListener captureRegionListener;
-	private MouseAdapter resizingAdapter;
-	private MouseAdapter movingAdapter;
+	private FrameMouseListener mouseAdapter;
 
 	private static interface PropertyChanger {
 		void changeOn(Component component);
@@ -245,7 +244,7 @@ class WindowlessFrame implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private final OffsetLocator mOffsetLocator;
-		private MouseAdapter moveMouseAdapter = null;
+		private FrameMouseListener mouseAdapter = null;
 
 		public MoveBarFrame(JFrame frame, OffsetLocator ol, JPanel content) {
 			super(frame);
@@ -255,13 +254,13 @@ class WindowlessFrame implements Serializable {
 			add(content);
 			pack();
 
-			moveMouseAdapter = createMoveBarMovingMouseListener();
+			mouseAdapter = createMoveBarMouseListener();
 
 			changeMovingBarFrame(new PropertyChanger() {
 				@Override
 				public void changeOn(Component component) {
-					component.addMouseListener(moveMouseAdapter);
-					component.addMouseMotionListener(moveMouseAdapter);
+					component.addMouseListener(mouseAdapter);
+					component.addMouseMotionListener(mouseAdapter);
 				}
 			});
 		}
@@ -270,10 +269,15 @@ class WindowlessFrame implements Serializable {
 			pc.changeOn(this);
 		}
 
-		private MouseAdapter createMoveBarMovingMouseListener() {
-			return new FrameMovingMouseListener(false);
+		private FrameMouseListener createMoveBarMouseListener() {
+			return new FrameMouseListener(false, true, false);
 		}
-
+		
+		public void removeListeners() {
+			this.removeMouseListener(mouseAdapter);
+			this.removeMouseMotionListener(mouseAdapter);
+		}
+		
 		@Override
 		public void updateLocationAndSize() {
 			setLocation(getLocation());
@@ -289,7 +293,7 @@ class WindowlessFrame implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 		private final OffsetLocator mOffsetLocator;
-		private MouseAdapter resizeMouseAdapter = null;
+		private FrameMouseListener mouseAdapter = null;
 
 		public ResizeBarFrame(JFrame frame, OffsetLocator ol, JPanel content) {
 			super(frame);
@@ -300,25 +304,30 @@ class WindowlessFrame implements Serializable {
 			add(content);
 			pack();
 
-			resizeMouseAdapter = createResizeBarResizingMouseListener();
+			mouseAdapter = createResizeBarMouseListener();
 
 			changeResizeBarFrame(new PropertyChanger() {
 				@Override
 				public void changeOn(Component component) {
-					component.addMouseListener(resizeMouseAdapter);
-					component.addMouseMotionListener(resizeMouseAdapter);
+					component.addMouseListener(mouseAdapter);
+					component.addMouseMotionListener(mouseAdapter);
 				}
 			});
 		}
 
-		private MouseAdapter createResizeBarResizingMouseListener() {
-			return new FrameResizingMouseListener(false);
+		private FrameMouseListener createResizeBarMouseListener() {
+			return new FrameMouseListener(false, false, true);
 		}
 
 		public void updateLocationAndSize() {
 			setLocation(getLocation());
 		}
-
+		
+		public void removeListeners() {
+			this.removeMouseListener(mouseAdapter);
+			this.removeMouseMotionListener(mouseAdapter);
+		}
+		
 		@Override
 		public Point getLocation() {
 			return new Point(mTopLeft.x + mOffsetLocator.getLeftOffset(), mTopLeft.y + mOffsetLocator.getTopOffset());
@@ -329,14 +338,24 @@ class WindowlessFrame implements Serializable {
 		}
 	}
 
-	private class FrameMovingMouseListener extends MouseAdapter {
-
+	private class FrameMouseListener extends MouseAdapter {
+		private static final int CORNER_SIZE = 150;
+		
 		private AtomicBoolean mMoving = new AtomicBoolean(false);
+		private AtomicBoolean mResizing = new AtomicBoolean(false);
+		
+		private Dimension mOriginalSize = null;
 		private Point mActionOffset = null;
+		private Corner mCorner;
 		private Boolean isBorder = false;
+		private Boolean isMoveBar = false;
+		private Boolean isResizeBar = false;
+		private Boolean isResizable = true;
 
-		public FrameMovingMouseListener(Boolean isBorder) {
+		public FrameMouseListener(Boolean isBorder, Boolean isMoveBar, Boolean isResizeBar) {
 			this.isBorder = isBorder;
+			this.isMoveBar = isMoveBar;
+			this.isResizeBar = isResizeBar;
 		}
 
 		@Override
@@ -346,98 +365,51 @@ class WindowlessFrame implements Serializable {
 			Toolkit tk 	= Toolkit.getDefaultToolkit();
 			Dimension d = tk.getScreenSize();
 
-			// check if multiscreen
-			if ( false == mScreen.isMultiScreen() ){
-				// case one screen only
-				if (mTopLeft.x < 1 && changeInX < 0) {
-					mTopLeft.x = 0;
-					changeInX = 0;				
+			if (mMoving.get()) {
+				// check if multiscreen
+				if ( false == mScreen.isMultiScreen() ){
+					// case one screen only
+					if (mTopLeft.x < 1 && changeInX < 0) {
+						mTopLeft.x = 0;
+						changeInX = 0;
+					}
+					if (mTopLeft.y < 1 && changeInY < 0) {
+						mTopLeft.y = 0;
+						changeInY = 0;
+					}
+					if (mTopLeft.x + mOverallSize.width > (d.width-6) && changeInX > 0) {
+						mTopLeft.x = d.width - mOverallSize.width-5;
+						changeInX = 0;
+
+					}
+					if (mTopLeft.y + mOverallSize.height > (d.height-6) && changeInY > 0) {
+						mTopLeft.y = d.height - mOverallSize.height-5;
+						changeInY = 0;
+					}
+				}else{
+					// case multiple screen
+					if (mTopLeft.x < mScreen.minX+1 && changeInX < 0) {
+						mTopLeft.x = mScreen.minX;
+						changeInX = 0;
+					}
+					if (mTopLeft.y < 1 && changeInY < 0) {
+						mTopLeft.y = 0;
+						changeInY = 0;
+					}
+
+					if (mTopLeft.x + mOverallSize.width > (mScreen.totalWidth-6) && changeInX > 0) {
+						mTopLeft.x = mScreen.totalWidth - mOverallSize.width-5;
+						changeInX = 0;
+					}
+					if (mTopLeft.y + mOverallSize.height > (d.height-6) && changeInY > 0) {
+						mTopLeft.y = d.height - mOverallSize.height-5;
+						changeInY = 0;
+					}
 				}
-				if (mTopLeft.y < 1 && changeInY < 0) {
-					mTopLeft.y = 0;
-					changeInY = 0;
+				if (mMoving.get() && !e.isConsumed()) {
+					WindowlessFrame.this.setLocation(changeInX + mTopLeft.x, changeInY + mTopLeft.y);
 				}
-				if (mTopLeft.x + mOverallSize.width > (d.width-6) && changeInX > 0) {
-					mTopLeft.x = d.width - mOverallSize.width-5;
-					changeInX = 0;
-
-				}
-				if (mTopLeft.y + mOverallSize.height > (d.height-6) && changeInY > 0) {
-					mTopLeft.y = d.height - mOverallSize.height-5;
-					changeInY = 0;
-				}
-			}else{
-				// case multiple screen
-				if (mTopLeft.x < mScreen.minX+1 && changeInX < 0) {
-					mTopLeft.x = mScreen.minX;
-					changeInX = 0;				
-				}
-				if (mTopLeft.y < 1 && changeInY < 0) {
-					mTopLeft.y = 0;
-					changeInY = 0;
-				}
-
-				if (mTopLeft.x + mOverallSize.width > (mScreen.totalWidth-6) && changeInX > 0) {
-					mTopLeft.x = mScreen.totalWidth - mOverallSize.width-5;
-					changeInX = 0;
-				}
-				if (mTopLeft.y + mOverallSize.height > (d.height-6) && changeInY > 0) {
-					mTopLeft.y = d.height - mOverallSize.height-5;
-					changeInY = 0;
-				}
-			}
-			if (mMoving.get() && !e.isConsumed()) {
-				WindowlessFrame.this.setLocation(changeInX + mTopLeft.x, changeInY + mTopLeft.y);
-			}
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			final Point mouse = e.getLocationOnScreen();
-			mActionOffset = new Point(mouse.x - mTopLeft.x, mouse.y - mTopLeft.y);
-			mMoving.set(true);
-			e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			mMoving.set(false);
-			mActionOffset = null;
-			e.getComponent().setCursor(Cursor.getDefaultCursor());
-		}
-		
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			if (!isBorder) {
-				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-			}
-		}
-	}
-
-	private class FrameResizingMouseListener extends MouseAdapter {
-
-		private static final int CORNER_SIZE = 150;
-
-		private AtomicBoolean mResizing = new AtomicBoolean(false);
-
-		private Point mActionOffset = null;
-		private Dimension mOriginalSize = null;
-		private Corner mCorner;
-		private Boolean isBorder = false;
-
-		public FrameResizingMouseListener(Boolean isBorder) {
-			this.isBorder = isBorder;
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			int changeInX = e.getLocationOnScreen().x - mActionOffset.x - mTopLeft.x;
-			final int changeInY = e.getLocationOnScreen().y - mActionOffset.y - mTopLeft.y;
-
-			Toolkit tk = Toolkit.getDefaultToolkit();
-			Dimension d = tk.getScreenSize();
-
-			if (mResizing.get()) {
+			} else if (mResizing.get()) {
 				int newH = mOriginalSize.height;
 				int newW = mOriginalSize.width;
 				if (isBorder && Corner.SOUTHEAST != mCorner) {
@@ -512,26 +484,56 @@ class WindowlessFrame implements Serializable {
 			final Point mouse = e.getLocationOnScreen();
 			mActionOffset = new Point(mouse.x - mTopLeft.x, mouse.y - mTopLeft.y);
 			mOriginalSize = new Dimension(mOverallSize);
-
-			if (isBorder) {
-				mCorner = nearCorner(mouse);
-				if (mCorner != null ) {
-					mResizing.set(true);
-				}
-			}
-			else {
+			mCorner = nearCorner(mouse);
+			
+			if (isResizable && (isResizeBar || (isBorder && mCorner != null))) {
+				mMoving.set(false);
 				mResizing.set(true);
+				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
+			} else if (!isResizable || isMoveBar || (isBorder && mCorner == null)) {
+				mMoving.set(true);
+				mResizing.set(false);
+				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+			} else {
+				e.getComponent().setCursor(Cursor.getDefaultCursor());
 			}
+			
 		}
-
+		
 		@Override
 		public void mouseReleased(MouseEvent e) {
+			mMoving.set(false);
 			mResizing.set(false);
 			mActionOffset = null;
 			mOriginalSize = null;
 			mCorner = null;
 		}
-
+		
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			if (!isBorder) {
+				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+			}
+			
+			final Point mouse = e.getLocationOnScreen();
+			
+			if (isBorder) {
+				if (isResizable && isNearBottomRightCorner(mouse)) {
+					e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
+				} else {
+					e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+				}
+			} else if (isMoveBar) {
+				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+			} else {
+				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
+			}
+		}
+		
+		public void setResizable(Boolean isResizable) {
+			this.isResizable = isResizable;
+		}
+		
 		private Corner nearCorner(Point mouse) {
 			if (isNearBottomRightCorner(mouse)) {
 				return Corner.SOUTHEAST;
@@ -570,30 +572,6 @@ class WindowlessFrame implements Serializable {
 			return xToTopLeft < CORNER_SIZE && yToTopLeft < CORNER_SIZE;
 		}
 		 */
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			final Point mouse = e.getLocationOnScreen();
-
-			/*
-			if (isNearTopLeftCorner(mouse)) {
-				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
-			} else if (isNearBottomLeftCorner(mouse)) {
-				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR));
-			} else if (isNearTopRightCorner(mouse)) {
-				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
-			} else 
-			 */
-			if (isBorder) {
-				if (isNearBottomRightCorner(mouse)) {
-					e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
-				} else {
-					e.getComponent().setCursor(Cursor.getDefaultCursor());
-				}
-			} else {
-				e.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
-			}
-		}
 	}
 
 	private class BarFrame extends Window implements LocationAndSizeUpdateable {
@@ -706,25 +684,18 @@ class WindowlessFrame implements Serializable {
 		});
 		mLeftBorder = new VerticalBarFrame(mWindowFrame, new StaticOffsetLocator(0, 0));
 
-		movingAdapter = createMovingMouseListener();
-		resizingAdapter = createResizingMouseListener();
+		mouseAdapter = createMouseListener();
 		changeBarFrames(new PropertyChanger() {
 			@Override
 			public void changeOn(Component component) {
-				component.addMouseListener(resizingAdapter);
-				component.addMouseMotionListener(resizingAdapter);
-				component.addMouseListener(movingAdapter);
-				component.addMouseMotionListener(movingAdapter);
+				component.addMouseListener(mouseAdapter);
+				component.addMouseMotionListener(mouseAdapter);
 			}
 		}, false);	
 	}
 
-	public final MouseAdapter createMovingMouseListener() {
-		return new FrameMovingMouseListener(true);
-	}
-
-	public final MouseAdapter createResizingMouseListener() {
-		return new FrameResizingMouseListener(true);
+	public final FrameMouseListener createMouseListener() {
+		return new FrameMouseListener(true, false, false);
 	}
 
 	public void setToolbar(final JPanel toolbar) {
@@ -885,18 +856,9 @@ class WindowlessFrame implements Serializable {
 	}
 
 	public void removeResizeListeners() {
-		mRightBorder.removeMouseListener(resizingAdapter);
-		mRightBorder.removeMouseMotionListener(resizingAdapter);
-		mLeftBorder.removeMouseListener(resizingAdapter);
-		mLeftBorder.removeMouseMotionListener(resizingAdapter);
-		mTopBorder.removeMouseListener(resizingAdapter);
-		mTopBorder.removeMouseMotionListener(resizingAdapter);
-		mBottomBorder.removeMouseListener(resizingAdapter);
-		mBottomBorder.removeMouseMotionListener(resizingAdapter);
-		mResizeBarFrame.removeMouseListener(resizingAdapter);
-		mResizeBarFrame.removeMouseMotionListener(resizingAdapter);
-		mMoveBarFrame.removeMouseListener(movingAdapter);
-		mMoveBarFrame.removeMouseMotionListener(movingAdapter);
+		mResizeBarFrame.removeListeners();
+		mMoveBarFrame.removeListeners();
+		mouseAdapter.setResizable(false);
 		repaint();
 
 		System.out.println("Removing listeners......................");

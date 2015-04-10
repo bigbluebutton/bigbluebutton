@@ -103,7 +103,7 @@ function stopWebRTCAudioTestJoinConference(){
 			userAgent = null;
 			userAgentTemp.stop();
 		}
-	}, 3000);
+	}, 5000);
 	
 	BBB.listen("UserJoinedVoiceEvent", userJoinedVoiceHandler);
 	

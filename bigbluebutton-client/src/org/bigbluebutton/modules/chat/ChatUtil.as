@@ -18,6 +18,7 @@
  */
 package org.bigbluebutton.modules.chat
 {
+  import flash.external.ExternalInterface;
   import flash.xml.XMLNode;
   import flash.xml.XMLNodeType;
   
@@ -26,6 +27,8 @@ package org.bigbluebutton.modules.chat
 
   public class ChatUtil
   {
+    private static var urlPattern : RegExp = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/gi;
+    
     public static function getUserLang():String {
       return ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
     }
@@ -54,10 +57,10 @@ package org.bigbluebutton.modules.chat
     }
     
 	public static function parseURLs( message : String ) : String{
-      var urlPattern : RegExp = /(http|ftp|https|www)(:\/\/[^\s\-_]+)?(\.[^\s\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[^\s\-\@?^=%&\/~\+#\(\)])?/g;
-		
+      //var urlPattern : RegExp = /(http|ftp|https|www)(:\/\/[^\s\-_]+)?(\.[^\s\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[^\s\-\@?^=%&\/~\+#\(\)])?/g;
+      
       var resultArray : Array = [];
-      var result : Object;
+      var result : Object = ExternalInterface.call("checkURLRegex", message);
       while (result = urlPattern.exec(message)){
         var item : Object = new Object();
         item.foundValue = result[0];
