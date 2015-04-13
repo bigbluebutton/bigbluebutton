@@ -341,7 +341,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   listeners = {}
 
   ###
-  3rd-party apps should user this method to register to listen for events.
+  3rd-party apps should use this method to register to listen for events.
   ###
   BBB.listen = (eventName, handler) ->
 
