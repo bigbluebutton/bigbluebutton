@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.layout.managers
       });
       _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
         //trace(LOG + "Applying layout due to window resize");
-        sendLayoutUpdate(updateCurrentLayout(null));
+        updateCurrentLayout(null);
       });
     }
     
@@ -201,12 +201,6 @@ package org.bigbluebutton.modules.layout.managers
       var layoutEvent:SwitchedLayoutEvent = new SwitchedLayoutEvent();
       layoutEvent.layoutID = layoutID;
       _globalDispatcher.dispatchEvent(layoutEvent);      
-    }
-
-    public function syncLayout():void {
-      if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
-        _globalDispatcher.dispatchEvent(new SyncLayoutEvent(_currentLayout));
-      }
     }
       
 		public function lockLayout():void {
