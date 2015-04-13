@@ -53,6 +53,10 @@ function callIntoConference(voiceBridge, callback, isListenOnly) {
 				+ ",isListenOnly=" + isListenOnly + "].");
 			userID = userInfo.myUserID;
 			callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
+			if (isListenOnly) {
+				//prepend the callerIdName so it is recognized as a global audio user
+				callerIdName = "GLOBAL_AUDIO_" + callerIdName;
+			}
 			conferenceVoiceBridge = userInfo.voiceBridge
 			if (voiceBridge === "9196") {
 				voiceBridge = voiceBridge + conferenceVoiceBridge;

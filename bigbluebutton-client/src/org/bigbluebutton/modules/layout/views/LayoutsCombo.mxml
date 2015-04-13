@@ -23,7 +23,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
 			prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
 			height="{LayoutButton.BUTTON_SIZE}" creationComplete="init()"
-			change="onSelectedItemChanged(event)"
 			disabledColor="{getStyle('color')}" rowCount="10"
 			styleName="languageSelectorStyle" >
 	
@@ -49,6 +48,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.controls.listClasses.ListBase;
+			import mx.events.DropdownEvent;
+			import mx.events.ListEvent;
 			import mx.events.ResizeEvent;
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -87,6 +89,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         //trace(LOG + "initing");
         dataProvider = layoutNames;
         populateComboBox();
+        this.addEventListener(DropdownEvent.OPEN, openDropdownHandler);
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
@@ -147,7 +150,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				populateComboBox();
 			}
 			
-			private function onSelectedItemChanged(e:Event):void {
+			private function openDropdownHandler(e:DropdownEvent):void {
+				// a new dropdown object is created everytime the menu is opened
+				this.dropdown.addEventListener(ListEvent.ITEM_CLICK, itemClickHandler);
+			}
+			
+			private function itemClickHandler(e:ListEvent):void {
 				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.localeKey));
 			}
 					

@@ -151,6 +151,12 @@ Handlebars.registerHelper "isUserTalking", (userId) ->
 Handlebars.registerHelper 'isMobile', () ->
   isMobile()
 
+Handlebars.registerHelper 'isMobile', () ->
+  isMobile()
+
+Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
+  isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
+
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
@@ -256,7 +262,8 @@ Handlebars.registerHelper "visibility", (section) ->
   hangupCallback = ->
     console.log "left voice conference"
   BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
-  Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"), false)
+  if isListenOnly
+    Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), false)
   return false
 
 # close the daudio UI, then join the conference. If listen only send the request to the server
@@ -268,13 +275,10 @@ Handlebars.registerHelper "visibility", (section) ->
   joinCallback = (message) ->
     console.log "started webrtc_call"
 
+    if isListenOnly
+      Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), true)
+
   BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
-  if isListenOnly
-    Meteor.call('listenOnlyRequestToggle',
-      getInSession("meetingId"),
-      getInSession("userId"),
-      getInSession("authToken"),
-      true)
 
   return false
 
@@ -505,7 +509,11 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # determines which browser is being used
 @getBrowserName = () ->
-  if navigator.userAgent.match(/Safari/i)
+  if navigator.userAgent.match(/Chrome/i)
+    return 'Chrome'
+  else if navigator.userAgent.match(/Firefox/i)
+    return 'Firefox'
+  else if navigator.userAgent.match(/Safari/i)
     return 'Safari'
   else if navigator.userAgent.match(/Trident/i)
     return 'IE'

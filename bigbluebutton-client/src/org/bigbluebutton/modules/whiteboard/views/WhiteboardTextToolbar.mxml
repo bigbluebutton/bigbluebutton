@@ -152,6 +152,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function enableTextToolbar():void{
 				this.visible = true;
+				callLater(repositionToolbarByWindow);
 			}
 			
 			private function disableTextToolbar(evt:Event=null):void{
@@ -186,21 +187,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			/* required for repositioning the TextToolbar when an event occurs on the presentation window */
 			public function repositionToolbarByWindow(event:Event = null):void {
-                if (currentlySelectedTextObject == null)  {
-                    return;
-                }
-				repositionToolbar();
+				if (this.visible) {
+					if (currentlySelectedTextObject == null)  {
+						return;
+					}
+					repositionToolbar();
+				}
 			}
 			
 			public function repositionToolbar(tobj:TextObject = null):void {
-				// translate TextObject's coords to stage coords because TextToolbar is added to stage
-              
-                if (tobj == null)  tobj = currentlySelectedTextObject;
-				
-				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
-				this.x = loc.x;
-				this.y = loc.y - this.height - 45;
-				parent.setChildIndex(this, parent.numChildren-1);
+				if (this.visible) {
+					// translate TextObject's coords to stage coords because TextToolbar is added to stage
+					
+					if (tobj == null)  tobj = currentlySelectedTextObject;
+					
+					var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
+					this.x = loc.x;
+					this.y = loc.y - this.height - 45;
+					parent.setChildIndex(this, parent.numChildren-1);
+				}
 			}
 			
 			// repositions the toolbar when canvas is zoomed			

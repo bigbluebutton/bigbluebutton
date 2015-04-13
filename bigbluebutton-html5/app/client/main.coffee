@@ -16,10 +16,16 @@ introToAudio = ({isMobile} = {}) ->
   if isMobile
     toggleSlidingMenu()
 
-  if isMobile and BBB.amISharingAudio()
-    $('.navbarTitle').css('width', '70%')
+  if isMobile
+    if BBB.amISharingAudio()
+      $('.navbarTitle').css('width', '70%')
+    else
+      $('.navbarTitle').css('width', '55%')
   else
-    $('.navbarTitle').css('width', '55%')
+    if BBB.amISharingAudio()
+      $('.navbarTitle').css('width', $('#navbar').width() - 358.4)
+    else
+      $('.navbarTitle').css('width', $('#navbar').width() - 409.6)
 
   # pop open the dialog allowing users to choose the audio options
   if isLandscapeMobile()
@@ -27,11 +33,6 @@ introToAudio = ({isMobile} = {}) ->
   else
     $('.joinAudio-dialog').addClass('desktop-joinAudio-dialog')
   $("#joinAudioDialog").dialog("open")
-
-  if BBB.amISharingAudio()
-    $('.navbarTitle').css('width', $('#navbar').width() - 358.4)
-  else
-    $('.navbarTitle').css('width', $('#navbar').width() - 409.6)
 
 # Helper to load javascript libraries from the BBB server
 loadLib = (libname) ->
@@ -145,11 +146,10 @@ Template.header.events
     toggleMic @
 
   "click .raiseHand": (event) ->
-    #Meteor.log.info "navbar raise own hand from client"
-    console.log "navbar raise own hand from client"
     $(".tooltip").hide()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-    # "click .settingsIcon": (event) ->
+
+  # "click .settingsIcon": (event) ->
     #   alert "settings"
 
   "click .signOutIcon": (event) ->
