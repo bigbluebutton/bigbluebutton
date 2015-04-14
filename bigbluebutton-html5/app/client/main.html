@@ -56,14 +56,13 @@
                  {{/if}} -->
           </div>
           <div class='audioControllersSection'>
-            <!-- Join/hang up audio call -->
-            {{#if isCurrentUserSharingAudio}}
-              <!-- This button is for leaving audio -->
+            <!-- We are in a form of audio -->
+            {{#if amIInAudio}}
               <div class='hiddenNavbarSection'>
                 <!-- display the button for leaving audio -->
                 {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton audioButton leaveAudioButton" i_class="ion-volume-mute" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
               </div>
-              {{#if isCurrentUserListenOnly}}
+              {{#if amIListenOnlyAudio}}
                 <!-- shows you are listen only. Will not handle clicks. Only for display -->
                 <i class="icon ion-speakerphone btn navbarButton audioButton listenOnlyIcon" rel="tooltip" data-placement="bottom" title="Listen Only"></i>
               {{else}}
@@ -82,9 +81,7 @@
               {{/if}}
             {{else}}
               <div class='hiddenNavbarSection'>
-                <div id="shareMicrophonePanel">
-                    {{> makeButton btn_class="audioFeedIcon navbarButton audioButton joinAudioButton" i_class="glyphicon glyphicon-headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
-                </div>
+                {{> makeButton btn_class="audioFeedIcon navbarButton audioButton joinAudioButton" i_class="glyphicon glyphicon-headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
               </div>
             {{/if}}
           </div>
@@ -102,7 +99,6 @@
       <div class="navbarTitle navbarSection"><span>{{getMeetingName}}</span></div>
       <div class="navbarSettingsButtons navbarSection">
         <!-- {{> makeButton id="userId" btn_class="settingsIcon navbarButton" i_class="glyphicon glyphicon-cog" rel="tooltip" data_placement="bottom" title="Settings"}} -->
-        <!-- {{> makeButton btn_class="hideNavbarIcon navbarButton" i_class="glyphicon glyphicon-chevron-up" rel="tooltip" data_placement="bottom" title="Hide Navbar"}} -->
         {{> makeButton btn_class="signOutIcon navbarButton" i_class="glyphicon glyphicon-log-out" rel="tooltip" data_placement="bottom" title="Logout"}}
       </div>
     </div>
@@ -196,10 +192,35 @@
         {{> makeButton btn_class="chatBarIcon slideButton" i_class="glyphicon glyphicon-comment" rel="tooltip" data_placement="right" title="Show Message Pane"}}
       {{/if}}
 
-      {{#if isCurrentUserSharingAudio}}
-        {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon slideButton" i_class="ion-volume-mute" sharingAudio=true rel="tooltip" data_placement="right" title="Leave Audio Call"}}
+      {{#if amIInAudio}}
+        <!-- This button is for leaving audio -->
+        <div class='hiddenNavbarSection'>
+          <!-- display the button for leaving audio -->
+          {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton audioButton leaveAudioButton" i_class="ion-volume-mute" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
+        </div>
+        {{#if amIListenOnlyAudio}}
+          <!-- shows you are listen only. Will not handle clicks. Only for display -->
+          <i class="icon ion-speakerphone btn navbarButton audioButton listenOnlyIcon" rel="tooltip" data-placement="bottom" title="Listen Only"></i>
+        {{else}}
+          {{#if isCurrentUserMuted}}
+            <!-- if you are muted the button representing your status will show volume off -->
+            {{> makeButton btn_class="muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
+          {{else}}
+            {{#if isCurrentUserTalking}}
+              <!-- you are talking. Display a high volume/volume up representing voice activity -->
+              {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+            {{else}}
+              <!-- you are not talking. Display low volume/volume down representing no voice activity -->
+              {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+            {{/if}}
+          {{/if}}
+        {{/if}}
       {{else}}
-        {{> makeButton btn_class="audioFeedIcon slideButton" i_class="glyphicon glyphicon-headphones" sharingAudio=false rel="tooltip" data_placement="right" title="Join Audio Call"}}
+        <div class='hiddenNavbarSection'>
+          <div id="shareMicrophonePanel">
+              {{> makeButton btn_class="audioFeedIcon navbarButton audioButton joinAudioButton" i_class="glyphicon glyphicon-headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
+          </div>
+        </div>
       {{/if}}
 
       {{#if isCurrentUserRaisingHand}}

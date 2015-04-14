@@ -3,9 +3,9 @@
     <span class="userListSettingIcon glyphicon glyphicon-facetime-video" rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam"></span>
   {{/if}}
 
-  {{#if isUserSharingAudio userId}}
+  {{#if isUserInAudio userId}}
     <!-- if the user is listen only, only display the one icon -->
-    {{#if isUserListenOnly userId}}
+    {{#if isUserListenOnlyAudio userId}}
       <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
     {{else}}
       {{#if isCurrentUser userId}}

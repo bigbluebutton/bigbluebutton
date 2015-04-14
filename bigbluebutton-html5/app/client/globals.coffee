@@ -61,6 +61,14 @@
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   currentPresentation?.presentation?.name
 
+# helper to determine whether user has joined any type of audio
+Handlebars.registerHelper "amIInAudio", ->
+  BBB.amIInAudio()
+
+# helper to determine whether the user is in the listen only audio stream
+Handlebars.registerHelper "amIListenOnlyAudio", ->
+  BBB.amIListenOnlyAudio()
+
 Handlebars.registerHelper "colourToHex", (value) =>
   @window.colourToHex(value)
 
@@ -109,19 +117,12 @@ Handlebars.registerHelper "getWhiteboardTitle", ->
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
 
-Handlebars.registerHelper "isCurrentUserListenOnly", ->
-  user = BBB.getCurrentUser()
-  user?.user?.listenOnly
-
 Handlebars.registerHelper "isCurrentUserMuted", ->
   BBB.amIMuted()
 
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
   user = BBB.getCurrentUser()
   user?.user?.raise_hand
-
-Handlebars.registerHelper "isCurrentUserSharingAudio", ->
-  BBB.amISharingAudio()
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
   BBB.amISharingVideo()
@@ -132,15 +133,14 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
-Handlebars.registerHelper "isUserListenOnly", (userId) ->
-  user = Meteor.Users.findOne({userId:userId})
-  return user?.user?.listenOnly
+Handlebars.registerHelper "isUserInAudio", (userId) ->
+  BBB.isUserInAudio(userId)
+
+Handlebars.registerHelper "isUserListenOnlyAudio", (userId) ->
+  BBB.isUserListenOnlyAudio(userId)
 
 Handlebars.registerHelper "isUserMuted", (userId) ->
   BBB.isUserMuted(userId)
-
-Handlebars.registerHelper "isUserSharingAudio", (userId) ->
-  BBB.isUserSharingAudio(userId)
 
 Handlebars.registerHelper "isUserSharingVideo", (userId) ->
   BBB.isUserSharingWebcam(userId)
@@ -260,10 +260,14 @@ Handlebars.registerHelper "visibility", (section) ->
 # Sign the user out of listen only mode, the send the leave voice conference message to BBB
 @exitVoiceCall = (event) ->
   hangupCallback = ->
-    console.log "left voice conference"
-  BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
-  if isListenOnly
+    console.log "Exiting Voice Conference"
+
+  if BBB.amIListenOnlyAudio()
+    # notify BBB-apps we are leaving the call call if we are listen only
     Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), false)
+  # perform the hang up
+  BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
+
   return false
 
 # close the daudio UI, then join the conference. If listen only send the request to the server
@@ -273,11 +277,10 @@ Handlebars.registerHelper "visibility", (section) ->
 
   # create voice call params
   joinCallback = (message) ->
-    console.log "started webrtc_call"
+    console.log "Beginning WebRTC Conference Call"
 
-    if isListenOnly
-      Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), true)
-
+  if isListenOnly
+    Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), true)
   BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
 
   return false

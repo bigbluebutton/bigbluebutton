@@ -57,17 +57,35 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.isUserSharingWebcam = (userId, callback) ->
     BBB.getUser(userId)?.user?.webcam_stream?.length isnt 0
 
-  BBB.amITalking = (callback) ->
-    BBB.isUserTalking BBB.getCurrentUser()?.userId
+  # returns whether the user has joined any type of audio
+  BBB.amIInAudio = (callback) ->
+    user = BBB.getCurrentUser()
+    user?.user?.listenOnly or user?.user?.voiceUser?.joined
 
-  BBB.isUserTalking = (userId, callback) ->
-    BBB.getUser(userId)?.user?.voiceUser?.talking
+  # returns true if the user has joined the listen only audio stream
+  BBB.amIListenOnlyAudio = (callback) ->
+    BBB.isUserListenOnlyAudio BBB.getCurrentUser()?.userId
 
+  # returns whether the user has joined the voice conference and is sharing audio through a microphone
   BBB.amISharingAudio = (callback) ->
     BBB.isUserSharingAudio BBB.getCurrentUser()?.userId
 
-  BBB.isUserSharingAudio = (userId) ->
+  # returns whether the user is currently talking
+  BBB.amITalking = (callback) ->
+    BBB.isUserTalking BBB.getCurrentUser()?.userId
+
+  BBB.isUserInAudio = (userId, callback) ->
+    user = BBB.getUser(userId)
+    user?.user?.listenOnly or user?.user?.voiceUser?.joined
+
+  BBB.isUserListenOnlyAudio = (userId, callback) ->
+    BBB.getUser(userId)?.user?.listenOnly
+
+  BBB.isUserSharingAudio = (userId, callback) ->
     BBB.getUser(userId)?.user?.voiceUser?.joined
+
+  BBB.isUserTalking = (userId, callback) ->
+    BBB.getUser(userId)?.user?.voiceUser?.talking
 
   ###
   Raise user's hand.
