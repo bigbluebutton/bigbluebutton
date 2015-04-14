@@ -314,7 +314,8 @@ Template.main.rendered = ->
   $('#shield').click () ->
     toggleSlidingMenu()
 
-  displayAudioSelectionMenu(isMobile:isMobile())
+  if Meteor.config.app.joinListenOnlyOnLogin
+    displayAudioSelectionMenu(isMobile:isMobile())
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
