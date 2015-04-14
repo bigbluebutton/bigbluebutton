@@ -111,7 +111,7 @@ class Meteor.WhiteboardPaperModel
     @_updateContainerDimensions()
 
     @_updateZoomRatios()
-    if @raphaelObj.w is 100
+    if @raphaelObj.w is 100 # on first load: Raphael object is initially tiny
       @cursor.setRadius(0.65 * @widthRatio / 100)
     else
       @cursor.setRadius(6 * @widthRatio / 100)
@@ -161,7 +161,7 @@ class Meteor.WhiteboardPaperModel
     @cursor?.remove()
 
   createCursor: ->
-    if @raphaelObj.w is 100
+    if @raphaelObj.w is 100 # on first load: Raphael object is initially tiny
       @cursor = new WhiteboardCursorModel(@raphaelObj, 0.65)
       @cursor.setRadius(0.65 * @widthRatio / 100)
     else
@@ -335,7 +335,7 @@ class Meteor.WhiteboardPaperModel
         _this?.current?.shapes?.forEach (shape) ->
           shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
 
-        if _this.raphaelObj is 100
+        if _this.raphaelObj is 100 # on first load: Raphael object is initially tiny
           _this.cursor.setRadius(0.65 * newDoc.slide.width_ratio / 100)
         else
           _this.cursor.setRadius(6 * newDoc.slide.width_ratio / 100)
