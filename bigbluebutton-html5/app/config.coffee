@@ -21,6 +21,9 @@ config.app = {}
 config.app.mobileFont = 24
 config.app.desktopFont = 12
 
+# Will join the user into the listen only stream whenn the meeting has begun
+config.app.joinListenOnlyOnLogin = true
+
 # Configs for redis
 config.redis = {}
 config.redis.host = "127.0.0.1"

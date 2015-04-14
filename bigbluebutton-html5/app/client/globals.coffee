@@ -188,6 +188,11 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
+@introToAudio = (event, {isListenOnly} = {}) ->
+  isListenOnly ?= true
+  joinVoiceCall event, isListenOnly: isListenOnly
+  displayWebRTCNotification()
+
 # check the chat history of the user and add tabs for the private chats
 @populateChatTabs = (msg) ->
   myUserId = getInSession "userId"
