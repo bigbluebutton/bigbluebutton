@@ -18,7 +18,7 @@ $Id: $
 <!--
 Notes.mxml is the main view of the SharedNotes application
 -->
-<MDIWindow xmlns="flexlib.mdi.containers.*"
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*"
            xmlns:mx="http://www.adobe.com/2006/mxml"
            width="510" height="450"
            xmlns:mate="http://mate.asfusion.com/"
@@ -49,4 +49,4 @@ Notes.mxml is the main view of the SharedNotes application
 
   
   <poll:TakePollPanel id="takePollPanel" width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}"/>  
-</MDIWindow>
+</CustomMdiWindow>

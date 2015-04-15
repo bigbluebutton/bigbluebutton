@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="600" height="400"
 	initialize="init()"
@@ -321,4 +321,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
 				   tabIndex="{baseIndex+4}"/>
 	</mx:HBox>
-</MDIWindow>
+</CustomMdiWindow>

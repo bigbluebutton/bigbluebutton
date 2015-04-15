@@ -41,9 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.net.FileReference;
 			
 			import flexlib.mdi.containers.MDICanvas;
-			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.events.MDIManagerEvent;
-			import flexlib.mdi.events.MDIWindowEvent;
 			import flexlib.mdi.managers.MDIManager;
 			
 			import mx.collections.ArrayCollection;
