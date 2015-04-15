@@ -262,9 +262,10 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
-# Periodically check the status of the call, when a call has been established attempt to hangup,
+# Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
 @exitVoiceCall = (event) ->
+  # To be called when the hangup is initiated
   hangupCallback = ->
     console.log "Exiting Voice Conference"
 
@@ -272,19 +273,20 @@ Handlebars.registerHelper "visibility", (section) ->
   # clean state
   getInSession("triedHangup", false)
   # function to initiate call
-  (checkToHangupCall = ->
+  (checkToHangupCall = (context) ->
     # if an attempt to hang up the call is made when the current session is not yet finished, the request has no effect
-    # keep track in the session
+    # keep track in the session if we haven't tried a hangup
+    # currentsession: defined in bigbluebutton/bigbluebutton-client/client/lib/bbb_webrtc_bridge_sip.js
     if currentSession isnt null and !getInSession("triedHangup")
-      console.log "Attempting to hangup call"
+      console.log "Attempting to hangup on WebRTC call"
       if BBB.amIListenOnlyAudio() # notify BBB-apps we are leaving the call call if we are listen only
         Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), false)
       BBB.leaveVoiceConference hangupCallback
       getInSession("triedHangup", true) # we have hung up, prevent retries
     else
-      console.log "RETRYING"
+      console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
       setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
-  )(@)
+  )(@) # automatically run function
   return false
 
 # close the daudio UI, then join the conference. If listen only send the request to the server
