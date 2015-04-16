@@ -20,8 +20,8 @@
   $Id: $
 --> 
 
-<mdi:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:mdi="flexlib.mdi.containers.*" 
+<mdi:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mdi="org.bigbluebutton.common.*" 
 	xmlns:flc="flexlib.controls.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
@@ -144,14 +144,13 @@
 			}
 			
 			private function addContextMenuItems():void {
-				var contextMenu:ContextMenu = new ContextMenu();
-				contextMenu.hideBuiltInItems();
+				var contextMenuItems:Array = new Array();
 				
 				var exportUsersItem:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString("bbb.users.usersGrid.contextmenu.exportusers"));
 				exportUsersItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, exportUsersItemHandler);
-				contextMenu.customItems.push(exportUsersItem);
+				contextMenuItems.push(exportUsersItem);
 				
-				this.contextMenu = contextMenu;
+				this.customContextMenuItems = contextMenuItems;
 			}
 			
 			private function exportUsersItemHandler(e:ContextMenuEvent):void{
@@ -387,6 +386,8 @@
 						raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip');
 					}
 				}
+				
+				addContextMenuItems();
 			}
 			
 			private function loadKeyCombos(modifier:String):void {
@@ -530,4 +531,4 @@
 		</mx:VBox>
 	</mx:ControlBar>
 	
-</mdi:MDIWindow>
+</mdi:CustomMdiWindow>

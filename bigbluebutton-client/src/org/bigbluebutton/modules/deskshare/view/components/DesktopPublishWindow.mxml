@@ -20,11 +20,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<dspub:MDIWindow 
+<dspub:CustomMdiWindow 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	xmlns:dspub="flexlib.mdi.containers.*"
+	xmlns:dspub="org.bigbluebutton.common.*"
 	backgroundColor="#C0C0C0"
 	initialize="init()"
 	creationComplete="onCreationComplete()"	
@@ -48,7 +48,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flexlib.mdi.events.MDIWindowEvent;
 			import flexlib.scheduling.scheduleClasses.BackgroundItem;
 			
 			import mx.core.UIComponent;
@@ -114,17 +113,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
 				
-				var javaIssue:String = JavaCheck.checkJava();
-				
 				if (isUsingLessThanChrome38OnMac()) {
 					setCurrentState("chromeOnMacWarningState");
-				}
-				else if (javaIssue != null) {
-					setCurrentState("javaIssueWarningState");
-					javaIssueWarningStateLbl.htmlText = javaIssue;
-				}
-				else {
-					setCurrentState("dispFullRegionControlBar");
+				} else if (isChrome42OrHigher()) {
+					setCurrentState("chrome42WarningState");
+				} else {
+					var javaIssue:String = JavaCheck.checkJava();
+					
+					if (javaIssue != null) {
+						setCurrentState("javaIssueWarningState");
+						javaIssueWarningStateLbl.htmlText = javaIssue;
+					} else {
+						setCurrentState("dispFullRegionControlBar");
+					}
 				}
 				resourcesChanged();
 				
@@ -396,6 +397,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var browser:Array = ExternalInterface.call("determineBrowser");
 				return ((browser[0] == "Chrome") && (parseInt(browser[1]) <= 38) && (Capabilities.os.indexOf("Mac") >= 0));
 			}
+			
+			private function isChrome42OrHigher():Boolean {
+				var browser:Array = ExternalInterface.call("determineBrowser");
+				return ((browser[0] == "Chrome") && (parseInt(browser[1]) >= 42));
+			}
 		]]>
 	</mx:Script>
 
@@ -449,6 +455,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="chrome42WarningState">
+			<mx:AddChild>
+				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:Text id="chrome42WarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
+							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chrome42UnsupportedHint')}" />
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
 		<mx:State name="javaIssueWarningState">
 			<mx:AddChild>
 				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
@@ -459,4 +473,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</dspub:states>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
-</dspub:MDIWindow>
+</dspub:CustomMdiWindow>

@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       title="Log Window" creationComplete="displayLogMessages();"
 	       showCloseButton="true" xmlns:text="flash.text.*">
@@ -88,4 +88,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Button label="Refresh" click="displayLogMessages()"/>
 	</mx:HBox>			    
 	</mx:ApplicationControlBar>
-</MDIWindow>
+</CustomMdiWindow>

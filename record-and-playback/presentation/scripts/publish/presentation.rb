@@ -190,8 +190,13 @@ def processClearEvents
 		#clearTime = ( clearEvent[:timestamp].to_f / 1000 ).round(1)
 		$pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
 		slideFolder = clearEvent.xpath(".//presentation")[0].text()
-		#$clearPageTimes[clearTime] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i+1}.png", nil]
-		$clearPageTimes[($prev_clear_time..clearTime)] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared}.png", nil]
+		if $version_atleast_0_9_0
+			$clearPageTimes[($prev_clear_time..clearTime)] =
+				[$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i + 1}.png", nil]
+		else
+			$clearPageTimes[($prev_clear_time..clearTime)] =
+				[$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared}.png", nil]
+		end
 		$prev_clear_time = clearTime
 		$canvas_number+=1
 	end
@@ -896,6 +901,7 @@ if ($playback == "presentation")
 		$meeting_end = @doc.xpath("//event").last()[:timestamp]
 		
 		$version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
+		$version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
 		BigBlueButton.logger.info("Creating metadata.xml")
 
                 # Get the real-time start and end timestamp

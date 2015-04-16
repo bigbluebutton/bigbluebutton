@@ -23,6 +23,8 @@ config.app.desktopFont = 12
 
 # Will join the user into the listen only stream whenn the meeting has begun
 config.app.joinListenOnlyOnLogin = false
+# The amount of time the client will wait before making another call to successfully hangup the WebRTC conference call
+config.app.WebRTCHangupRetryInterval = 2000
 
 # Configs for redis
 config.redis = {}
