@@ -314,7 +314,7 @@ Template.main.rendered = ->
   $('#shield').click () ->
     toggleSlidingMenu()
 
-  if Meteor.config.app.joinListenOnlyOnLogin
+  if Meteor.config.app.autoJoinAudio
     displayAudioSelectionMenu(isMobile:isMobile())
 
 Template.makeButton.rendered = ->
