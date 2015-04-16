@@ -473,3 +473,7 @@ function webrtc_hangup(callback) {
 function isWebRTCAvailable() {
 	return SIP.WebRTC.isSupported();
 }
+
+function getCallStatus() {
+	return currentSession;
+}
