@@ -56,6 +56,4 @@ public class MessagingConstants {
 	public static final String SEND_PUBLIC_CHAT_MESSAGE_REQUEST = "send_public_chat_message_request";
 	public static final String SEND_PRIVATE_CHAT_MESSAGE_REQUEST = "send_private_chat_message_request";
 	public static final String MUTE_USER_REQUEST = "mute_user_request";
-	public static final String USER_CONNECTED_TO_GLOBAL_AUDIO = "user_connected_to_global_audio";
-	public static final String USER_DISCONNECTED_FROM_GLOBAL_AUDIO = "user_disconnected_from_global_audio";
 }
