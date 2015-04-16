@@ -151,8 +151,8 @@ Handlebars.registerHelper "isUserTalking", (userId) ->
 Handlebars.registerHelper 'isMobile', () ->
   isMobile()
 
-Handlebars.registerHelper 'isMobile', () ->
-  isMobile()
+Handlebars.registerHelper 'isPortraitMobile', () ->    
+  isPortraitMobile()
 
 Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
   isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
