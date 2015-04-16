@@ -27,17 +27,17 @@
 </template>
 
 <template name="chatInput">
-	<div id="chatInput" class="chat-input-wrapper">
-		<textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
-		<button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
-		Send
-		</button>
-	</div>
+    <div id="chatInput" class="chat-input-wrapper">
+        <textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
+        <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
+        Send
+        </button>
+    </div>
 </template>
 
 <template name="chatOptions">
-	<p>Chat Options:</p>
-	{{> optionsFontSize}}
+    <p>Chat Options:</p>
+    {{> optionsFontSize}}
 </template>
 
 <template name="extraConversations">
@@ -96,12 +96,16 @@
 </template>
 
 <template name="optionsFontSize">
-  <div id="fontSizeControl">
-    <span class="chatOptionsText" >Chat Message Font Size: </span><br>
-    <button id="decreaseFontSize" class="glyphicon glyphicon-minus" ></button>
-    <label class="fontSizeLabel" {{messageFontSize}} >Size({{getInSession "messageFontSize"}})</label>
-    <button id="increaseFontSize" class="glyphicon glyphicon-plus"></button>
-  </div>
+  <span class="chatOptionsText" >Chat Message Font Size: </span><br/>
+  <table id="fontSizeTable">
+    <tr>
+      <td id="displayButtons">
+        <button id="decreaseFontSize" class="glyphicon glyphicon-minus"></button>
+        <button id="increaseFontSize" class="glyphicon glyphicon-plus"></button>
+      </td >
+      <td id="displayLabel"><label class="fontSizeLabel" {{messageFontSize}} >Size({{getInSession "messageFontSize"}})</label></td>
+    </tr>
+  </table>
 </template>
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->
