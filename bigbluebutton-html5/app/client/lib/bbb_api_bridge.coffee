@@ -57,17 +57,35 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.isUserSharingWebcam = (userId, callback) ->
     BBB.getUser(userId)?.user?.webcam_stream?.length isnt 0
 
-  BBB.amITalking = (callback) ->
-    BBB.isUserTalking BBB.getCurrentUser()?.userId
+  # returns whether the user has joined any type of audio
+  BBB.amIInAudio = (callback) ->
+    user = BBB.getCurrentUser()
+    user?.user?.listenOnly or user?.user?.voiceUser?.joined
 
-  BBB.isUserTalking = (userId, callback) ->
-    BBB.getUser(userId)?.user?.voiceUser?.talking
+  # returns true if the user has joined the listen only audio stream
+  BBB.amIListenOnlyAudio = (callback) ->
+    BBB.isUserListenOnlyAudio BBB.getCurrentUser()?.userId
 
+  # returns whether the user has joined the voice conference and is sharing audio through a microphone
   BBB.amISharingAudio = (callback) ->
     BBB.isUserSharingAudio BBB.getCurrentUser()?.userId
 
-  BBB.isUserSharingAudio = (userId) ->
+  # returns whether the user is currently talking
+  BBB.amITalking = (callback) ->
+    BBB.isUserTalking BBB.getCurrentUser()?.userId
+
+  BBB.isUserInAudio = (userId, callback) ->
+    user = BBB.getUser(userId)
+    user?.user?.listenOnly or user?.user?.voiceUser?.joined
+
+  BBB.isUserListenOnlyAudio = (userId, callback) ->
+    BBB.getUser(userId)?.user?.listenOnly
+
+  BBB.isUserSharingAudio = (userId, callback) ->
     BBB.getUser(userId)?.user?.voiceUser?.joined
+
+  BBB.isUserTalking = (userId, callback) ->
+    BBB.getUser(userId)?.user?.voiceUser?.talking
 
   ###
   Raise user's hand.
@@ -187,15 +205,22 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
 
   ###
   Join the voice conference.
+  isListenOnly: signifies whether the user joining the conference audio requests to join the listen only stream
   ###
-  BBB.joinVoiceConference = (callback) ->
-    callIntoConference(BBB.getMyVoiceBridge(), callback)
+  BBB.joinVoiceConference = (callback, isListenOnly) ->
+    callIntoConference(BBB.getMyVoiceBridge(), callback, isListenOnly)
 
   ###
   Leave the voice conference.
   ###
   BBB.leaveVoiceConference = (callback) ->
     webrtc_hangup callback # sign out of call
+
+  ###
+  Get a hold of the object containing the call information
+  ###
+  BBB.getCallStatus = ->
+    getCallStatus()
 
   ###
   Share user's webcam.
@@ -340,7 +365,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   listeners = {}
 
   ###
-  3rd-party apps should user this method to register to listen for events.
+  3rd-party apps should use this method to register to listen for events.
   ###
   BBB.listen = (eventName, handler) ->
 
