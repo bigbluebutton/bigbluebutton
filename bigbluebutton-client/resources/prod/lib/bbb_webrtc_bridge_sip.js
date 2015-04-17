@@ -362,7 +362,7 @@ function make_call(username, voiceBridge, server, callback, recall) {
 		callActive = false;
 		
 		if (currentSession) {
-			console.log('call canceled ' + currentSession.endTime);
+			console.log('call canceled');
 			clearTimeout(callTimeout);
 			currentSession = null;
 		} else {
