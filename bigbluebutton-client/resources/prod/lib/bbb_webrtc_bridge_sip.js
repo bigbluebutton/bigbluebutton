@@ -363,12 +363,6 @@ function make_call(username, voiceBridge, server, callback, recall) {
 		
 		if (currentSession) {
 			console.log('call canceled ' + currentSession.endTime);
-			
-			if (callPurposefullyEnded === true) {
-				callback({'status':'ended'});
-			} else {
-				callback({'status':'failed', 'errorcode': 1005}); // Call ended unexpectedly
-			}
 			clearTimeout(callTimeout);
 			currentSession = null;
 		} else {
