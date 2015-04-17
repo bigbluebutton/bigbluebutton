@@ -358,6 +358,17 @@ function make_call(username, voiceBridge, server, callback, recall) {
 			console.log('bye event already received');
 		}
 	});
+	currentSession.on('cancel', function(request){
+		callActive = false;
+		
+		if (currentSession) {
+			console.log('call canceled ' + currentSession.endTime);
+			clearTimeout(callTimeout);
+			currentSession = null;
+		} else {
+			console.log('cancel event already received');
+		}
+	});
 	currentSession.on('accepted', function(data){
 		callActive = true;
 		console.log('BigBlueButton call accepted');
@@ -412,7 +423,12 @@ function webrtc_hangup(callback) {
 	if (callback) {
 	  currentSession.on('bye', callback);
 	}
-	currentSession.bye();
+	try {
+		currentSession.bye();
+	} catch (err) {
+		console.log("Forcing to cancel current session");
+		currentSession.cancel();
+	}
 }
 
 function isWebRTCAvailable() {
