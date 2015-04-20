@@ -144,8 +144,14 @@ Handlebars.registerHelper "isUserSharingVideo", (userId) ->
 Handlebars.registerHelper "isUserTalking", (userId) ->
   BBB.isUserTalking(userId)
 
+Handlebars.registerHelper 'isMobile', () ->
+  isMobile()
+
 Handlebars.registerHelper 'isPortraitMobile', () ->
-  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-aspect-ratio: 1/1)').matches
+  isPortraitMobile()
+
+Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
+  isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -486,7 +492,11 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # determines which browser is being used
 @getBrowserName = () ->
-  if navigator.userAgent.match(/Safari/i)
+  if navigator.userAgent.match(/Chrome/i)
+    return 'Chrome'
+  else if navigator.userAgent.match(/Firefox/i)
+    return 'Firefox'
+  else if navigator.userAgent.match(/Safari/i)
     return 'Safari'
   else if navigator.userAgent.match(/Trident/i)
     return 'IE'

@@ -18,8 +18,8 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<ns:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-              xmlns:ns="http://code.google.com/p/flexlib/" 
+<ns:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+              xmlns:ns="org.bigbluebutton.common.*" 
               xmlns:views="org.bigbluebutton.modules.notes.views.*"
               implements="org.bigbluebutton.common.IBbbModuleWindow" 
               title="Notes"
@@ -46,4 +46,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Script>
   
   <views:NotesView id="notesView" notesArray="{notesModel}"/>
-</ns:MDIWindow>
+</ns:CustomMdiWindow>

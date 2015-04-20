@@ -251,7 +251,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					<mx:HRule width="100%"/>
 					<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="10">
 						<mx:TextArea editable="false" textAlign="left" borderSkin="{null}"
-									 width="100%" height="{yesButton.height}"
+									 width="100%" height="60"
 									 text="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestMicPrompt')}"
 									 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
 						<mx:Button id="yesButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.echoTestAudioYes')}" 

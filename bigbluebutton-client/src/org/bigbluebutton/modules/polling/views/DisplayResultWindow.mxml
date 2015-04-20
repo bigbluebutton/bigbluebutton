@@ -20,7 +20,7 @@
   $Id: $
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
            xmlns:mx="http://www.adobe.com/2006/mxml" 
            xmlns:poll="org.bigbluebutton.modules.polling.views.*"
 		   height="510"
@@ -54,4 +54,4 @@
 	</mx:Script>
   
   <poll:PollResultPanel width="100%" height="100%" viewModel="{viewModel}" pollID="{pollID}"/>
-</MDIWindow>
+</CustomMdiWindow>
