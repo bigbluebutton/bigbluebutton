@@ -155,7 +155,6 @@ need_root() {
 
 usage() {
 	echo "BigBlueButton Configuration Utility - Version $BIGBLUEBUTTON_RELEASE"
-        echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "   bbb-conf [options]"
         echo
@@ -172,9 +171,9 @@ usage() {
         echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
         echo "Administration:"
-        echo "   --restart                        Restart BigBueButton"
-        echo "   --stop                           Stop BigBueButton"
-        echo "   --start                          Start BigBueButton"
+        echo "   --restart                        Restart BigBlueButton"
+        echo "   --stop                           Stop BigBlueButton"
+        echo "   --start                          Start BigBlueButton"
         echo "   --clean                          Restart and clean all log files"
         echo "   --zip                            Zip up log files for reporting an error"
         echo
@@ -441,16 +440,6 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
-	if [ "$1" = "--reset-dev" -o "$1" = "-reset-dev" -o "$1" = "-r" ]; then
-		echo 
-		echo "This option is depreciated.  See "
-		echo 
-		echo "   https://code.google.com/p/bigbluebutton/wiki/081DevelopingBigBlueButton "
-		echo 
-		echo "for instructions on how to setup a development environment."
-		exit 0
-	fi
-
 	if [ "$1" = "--restart" -o "$1" = "-restart" ]; then
                 RESTART=1
                 shift
@@ -485,16 +474,6 @@ while [ $# -gt 0 ]; do
 		shift; shift
 		continue
 	fi		
-
-        if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
-		echo 
-		echo "This option is depreciated.  See "
-		echo 
-		echo "   https://code.google.com/p/bigbluebutton/wiki/081DevelopingBigBlueButton "
-		echo 
-		echo "for instructions on how to setup a development environment."
-		exit 0
-        fi
 	
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" ]; then
 		SALT="${2}"
@@ -1029,11 +1008,7 @@ check_state() {
 		echo "#"
 		echo "#    http://$BBB_WEB/"
 		echo "#"
-		echo "# If your BigBlueButton server is behind a firewall, see FAQ:"
-		echo "#"
-		echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ"
-		echo "#"
-		echo "# (See entry for setting up BigBlueButton behind a firewall.)"
+		echo "# If your BigBlueButton server is behind a firewall, see FAQ."
 		echo 
 	fi
 
@@ -1075,10 +1050,6 @@ check_state() {
                                 echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
                                 echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
                                 echo "#"
-                                echo "# If your audio is not working (users click the  headset icon "
-                                echo "# and don't appear in the Listeners window, ensure FreeSWITCH uses"
-                                echo "# the local loopback 127.0.0.1 address.  See"
-                                echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ#Users_do_not_appear_in_the_listeners_window"
                                 echo 
                             fi
                         fi

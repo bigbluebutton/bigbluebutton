@@ -50,8 +50,11 @@ Template.slide.rendered = ->
     # for landscape orientation we want "fit to height" so that we can
     # minimize the empty space above and below the slide (for best readability)
     boardWidth = $("#whiteboard").width()
-    # the slide area is under the whiteboard navbar. -10 so that the slide stays within
-    boardHeight = $("#whiteboard-container").height()
+    if $('#whiteboard-paper').css('display') is 'none'
+      boardHeight = $("#whiteboard").height()
+    else
+      # the slide area is under the whiteboard navbar. -10 so that the slide stays within
+      boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
   else
     # for portrait orientation we want "fit to width" so that we can
     # minimize the empty space on the sides of the slide (for best readability)

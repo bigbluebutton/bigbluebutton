@@ -111,7 +111,10 @@ class Meteor.WhiteboardPaperModel
     @_updateContainerDimensions()
 
     @_updateZoomRatios()
-    @cursor.setRadius(6 * @widthRatio / 100)
+    if @raphaelObj.w is 100 # on first load: Raphael object is initially tiny
+      @cursor.setRadius(0.65 * @widthRatio / 100)
+    else
+      @cursor.setRadius(6 * @widthRatio / 100)
 
     img
 
@@ -158,8 +161,12 @@ class Meteor.WhiteboardPaperModel
     @cursor?.remove()
 
   createCursor: ->
-    @cursor = new WhiteboardCursorModel(@raphaelObj)
-    @cursor.setRadius(6 * @widthRatio / 100)
+    if @raphaelObj.w is 100 # on first load: Raphael object is initially tiny
+      @cursor = new WhiteboardCursorModel(@raphaelObj, 0.65)
+      @cursor.setRadius(0.65 * @widthRatio / 100)
+    else
+      @cursor = new WhiteboardCursorModel(@raphaelObj)
+      @cursor.setRadius(6 * @widthRatio / 100)
     @cursor.draw()
 
   # Updated a shape `shape` with the data in `data`.
@@ -328,7 +335,10 @@ class Meteor.WhiteboardPaperModel
         _this?.current?.shapes?.forEach (shape) ->
           shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
 
-        _this.cursor.setRadius(6 * newDoc.slide.width_ratio / 100)
+        if _this.raphaelObj is 100 # on first load: Raphael object is initially tiny
+          _this.cursor.setRadius(0.65 * newDoc.slide.width_ratio / 100)
+        else
+          _this.cursor.setRadius(6 * newDoc.slide.width_ratio / 100)
 
     if originalWidth <= originalHeight
       # square => boardHeight is the shortest side
