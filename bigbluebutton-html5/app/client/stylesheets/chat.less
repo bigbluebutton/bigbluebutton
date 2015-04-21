@@ -76,6 +76,19 @@
 .chatNameSelectorPrivate {
   .chatNameSelector;
   width:90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  @media @landscape {
+    height: 20px;
+  }
+  @media @desktop-portrait {
+    height: 25px;
+    font-size: 2vh;
+  }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 4vw;
+  }
 }
 
 .chatNameSelectorPublic {
