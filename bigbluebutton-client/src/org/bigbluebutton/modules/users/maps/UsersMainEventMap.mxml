@@ -92,6 +92,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{UserService}" method="changeRecordingStatus" arguments="{event}" />
   </EventHandlers>
   
+  <EventHandlers type="{KickUserEvent.KICK_USER}" >
+    <MethodInvoker generator="{UserService}" method="kickUser" arguments="{event}" />
+  </EventHandlers>
+  
+  
   <EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
     <MethodInvoker generator="{UserService}" method="ejectUser" arguments="{event}" />
   </EventHandlers>

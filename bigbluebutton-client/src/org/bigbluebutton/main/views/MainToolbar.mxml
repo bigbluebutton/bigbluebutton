@@ -42,7 +42,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
   <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
 	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
-
+  
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;     
@@ -82,7 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var showToolbar:Boolean = false;
 			[Bindable] private var showGuestSettingsButton:Boolean = false;
 			[Bindable] private var showRecordButton:Boolean = false;
-			[Bindable] public var toolbarOptions:LayoutOptions = new LayoutOptions();
+			[Bindable] public var toolbarOptions:LayoutOptions = new LayoutOptions();		
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var numButtons:int;
       
@@ -97,7 +97,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var xml:XML;
 			private var settingsComponents:Array = new Array();
 			private var settingsPopup:BBBSettings = null;
-
+			
 			private function init():void{
 				if (Capabilities.hasAccessibility) {
 					AlertAccImpl.enableAccessibility();
@@ -166,13 +166,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					showHelpBtn = false;
 				}
 			}
-
+			
       private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
          if (toolbarOptions.showMeetingName) {
-              var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();
+              var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
               if (meetingTitle != null) {
                   meetingNameLbl.text = meetingTitle;
-               }
+               } 
           }
       }
 
@@ -183,7 +183,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
           showRecordButton = showGuestSettingsButton && UserManager.getInstance().getConference().record;
       }
-
+            
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
 				btn.id = name;

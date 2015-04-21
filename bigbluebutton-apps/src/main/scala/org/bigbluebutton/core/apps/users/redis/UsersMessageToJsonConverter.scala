@@ -58,7 +58,7 @@ object UsersMessageToJsonConverter {
 	  wuser += "role"                 -> user.role.toString()	  
 	  wuser += "authToken"            -> user.authToken
 	  wuser += "guest"                -> user.guest
-
+	  
 	  mapAsJavaMap(wuser)
 	}
 

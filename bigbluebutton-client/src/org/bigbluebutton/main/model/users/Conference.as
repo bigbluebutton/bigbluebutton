@@ -44,7 +44,7 @@ package org.bigbluebutton.main.model.users {
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
 		[Bindable] private var me:BBBUser = null;		
-		[Bindable] public var users:ArrayCollection = null;
+		[Bindable] public var users:ArrayCollection = null;			
 		private var sort:Sort;
 		
 	  private var defaultLayout:String;
@@ -141,7 +141,7 @@ package org.bigbluebutton.main.model.users {
 		public function getDefaultLayout():String {
 			return defaultLayout;
 		}
-
+    
 		public function hasUser(userID:String):Boolean {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {

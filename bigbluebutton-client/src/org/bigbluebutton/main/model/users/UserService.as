@@ -36,12 +36,11 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.core.model.Config
-	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.events.ResponseModeratorEvent;
-	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
@@ -212,7 +211,7 @@ package org.bigbluebutton.main.model.users
 		public function guestDisconnect():void {
 			_connectionManager.guestDisconnect();
 		}
-
+					
 		public function isModerator():Boolean {
 			return UserManager.getInstance().getConference().amIModerator();
 		}
@@ -236,7 +235,7 @@ package org.bigbluebutton.main.model.users
 		public function responseToGuest(e:ResponseModeratorEvent):void {
 			sender.responseToGuest(e.userid, e.resp);
 		}
-
+		
 		public function lowerHand(e:LowerHandEvent):void {
 			if (this.isModerator()) sender.raiseHand(e.userid, false);
 		}

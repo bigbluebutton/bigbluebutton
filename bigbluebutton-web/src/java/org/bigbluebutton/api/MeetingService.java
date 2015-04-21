@@ -554,7 +554,7 @@ public class MeetingService implements MessageListener {
 			logData.put("userId", message.userId);
 			logData.put("externalUserId", user.getExternalUserId());
 			logData.put("username", user.getFullname());
-			logData.put("role", user.getRole());
+			logData.put("role", user.getRole());			
 			logData.put("guest", user.isGuest());
 			logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
 			logData.put("event", MessagingConstants.USER_JOINED_EVENT);

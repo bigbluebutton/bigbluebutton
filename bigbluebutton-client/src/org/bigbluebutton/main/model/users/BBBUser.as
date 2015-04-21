@@ -40,7 +40,7 @@ package org.bigbluebutton.main.model.users
     
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userID:String = "UNKNOWN USER";
-   		[Bindable] public var externUserID:String = "UNKNOWN USER";
+    [Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
 		[Bindable] public var talking:Boolean = false;
 		[Bindable] public var phoneUser:Boolean = false;

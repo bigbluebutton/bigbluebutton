@@ -225,11 +225,12 @@ package org.bigbluebutton.main.model.users
 			this.guestKickedOutCommand = true;
 			_netConnection.close();
 		}
-
-		public function forceClose():void {
-      		_netConnection.close();
-    	}
-					
+		
+    
+    public function forceClose():void {
+      _netConnection.close();
+    }
+    
 		protected function netStatus(event:NetStatusEvent):void {
 			handleResult( event );
 		}
@@ -348,7 +349,7 @@ package org.bigbluebutton.main.model.users
 				sendUserLoggedOutEvent();
 				return;
 			}
-
+			
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
 			dispatcher.dispatchEvent(e);
 			

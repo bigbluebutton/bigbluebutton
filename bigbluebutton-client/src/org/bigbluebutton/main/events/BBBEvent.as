@@ -31,7 +31,7 @@ package org.bigbluebutton.main.events {
 		public static const VIDEO_STARTED:String = 'BBB_VIDEO_STARTED';
 		public static const START_DESKSHARE:String = 'BBB_START_DESKSHARE';
 		public static const DESKSHARE_STARTED:String = 'BBB_DESKSHARE_STARTED';
-	    public static const USER_VOICE_JOINED:String = 'user voice joined event';
+    public static const USER_VOICE_JOINED:String = 'user voice joined event';
 		public static const USER_VOICE_MUTED:String = "user voice muted event";
     public static const USER_LOCKED:String = "user locked event";
     public static const USER_VOICE_LEFT:String = "user voice left event";
@@ -54,7 +54,7 @@ package org.bigbluebutton.main.events {
 		public static const WAITING_FOR_MODERATOR_ACCEPTANCE:String = "WAITING_FOR_MODERATOR_ACCEPTANCE";
 		public static const ADD_GUEST_TO_LIST:String = "ADD_GUEST_TO_LIST";
 		public static const REMOVE_GUEST_FROM_LIST:String = "REMOVE_GUEST_FROM_LIST";
-
+   
 		public var message:String;
 		public var payload:Object = new Object();
 		

@@ -71,7 +71,7 @@ public class User {
 	public Boolean isWaitingForAcceptance() {
 		return this.waitingForAcceptance;
 	}
-
+	
 	public String getFullname() {
 		return fullname;
 	}

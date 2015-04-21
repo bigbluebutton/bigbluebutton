@@ -47,7 +47,7 @@ package org.bigbluebutton.core.model.users
     public function withGuest(value: Boolean):UserBuilder {
       return this;
     }
-
+    
     public function withCustomData(value: String):UserBuilder {
       return this;  
     }

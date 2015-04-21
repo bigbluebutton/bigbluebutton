@@ -72,6 +72,7 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 	if ((moderatorWelcomeMsg != null) && !moderatorWelcomeMsg.equals("")) {
 		moderatorWelcomeMsg_param = "&moderatorOnlyMessage=" + urlEncode(moderatorWelcomeMsg);
 	}
+
 	if ((viewerPassword != null) && !viewerPassword.equals("")) {
 		attendee_password_param = "&attendeePW=" + urlEncode(viewerPassword);
 	}
@@ -156,7 +157,7 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 
 	String join_parameters = "meetingID=" + urlEncode(meetingID)
 		+ "&fullName=" + urlEncode(username) + "&password="
-		+ urlEncode(password) + clientURL_param;
+		+ urlEncode(password) +  clientURL_param;
 
 	return base_url_join + join_parameters + "&checksum="
 		+ checksum("join" + join_parameters + salt);

@@ -356,13 +356,15 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 			
   	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
   	service.sendMessage(jmr);
-				
+  	  
 //  println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
   	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
   	service.sendMessage(m);
 	}
 
+	
+	
 	private def handleUserLeft(msg: UserLeft):Unit = {
 	  var args = new HashMap[String, Object]();	
 	  args.put("user", buildUserHashMap(msg.user));

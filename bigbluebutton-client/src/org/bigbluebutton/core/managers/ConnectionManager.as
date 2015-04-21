@@ -64,13 +64,13 @@ package org.bigbluebutton.core.managers
 			connDelegate.sendMessage(service, onSuccess, onFailure, message);
 		}
     
-        public function forceClose():void {
-            connDelegate.forceClose(); 
-        }
+    public function forceClose():void {
+      connDelegate.forceClose(); 
+    }
 
-        public function guestDisconnect():void {
-            connDelegate.guestDisconnect();
-        }
+    public function guestDisconnect():void {
+      connDelegate.guestDisconnect();
+    }
             
 	}
 }
