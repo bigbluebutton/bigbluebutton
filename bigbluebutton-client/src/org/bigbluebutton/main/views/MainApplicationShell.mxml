@@ -59,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
 	  
 	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
-	<mate:Listener type="{ConnectionFailedEvent.GUEST_KICKED_OUT}" method="handleLogout" />
+	<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
 	<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
 	<mate:Listener type="{RemoveGuestRequestEvent.GUEST_EVENT}" method="removeGuestWindow" />
@@ -94,6 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
@@ -268,7 +269,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function guestAllowed(evt:ModeratorRespEvent):void {
 				progressBar.visible = true;
-				waitWindow.guestAllowed();
+				if (waitWindow != null) {
+					PopUpManager.removePopUp(waitWindow);
+					waitWindow = null;
+				}
 			}
 
 			private function fullScreenHandler(evt:FullScreenEvent):void {
@@ -291,8 +295,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 				
 			private function refreshGuestView(evt:RefreshGuestEvent):void {
-				LogUtil.debug("REFRESH GUEST");
-				if(guestWindow == null) {
+				// do not show the guest window if the user isn't moderator or if he's moderator but is still waiting for acceptance
+				if ( ! (
+						UsersUtil.amIModerator() 
+						&& UserManager.getInstance().getConference().getMyUser() != null
+						&& !UserManager.getInstance().getConference().getMyUser().waitingForAcceptance) ) {
+					return;
+				}
+				
+				if (guestWindow == null) {
 					guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
 					guestWindow.addEventListener(Event.CLOSE, closeGuestWindow);
 
@@ -303,14 +314,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
-				if(guestWindow != null)
+				if (guestWindow != null) {
 					guestWindow.remove(evt.userid);
+				}
 			}
 
 			private function openWaitWindow(evt:WaitModeratorEvent):void {
 				 progressBar.visible = false;
 				 waitWindow = PopUpManager.createPopUp( mdiCanvas, WaitingWindow, false) as WaitingWindow;
-				 waitWindow.conferenceParameters = evt.conferenceParameters;
 				 
 				 // Calculate position of TitleWindow in Application's coordinates. 
 				 waitWindow.x = (systemManager.screen.width - waitWindow.width) / 2;

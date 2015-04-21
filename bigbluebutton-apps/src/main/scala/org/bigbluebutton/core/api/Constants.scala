@@ -90,6 +90,7 @@ object Constants {
   val KEEP_ALIVE_ID                   = "keep_alive_id"  
   val LISTEN_ONLY                     = "listen_only"
   val GUEST                           = "guest"
+  val WAITING_FOR_ACCEPTANCE          = "waiting_for_acceptance"
   val GUEST_POLICY                    = "guest_policy"
   val GUESTS_WAITING                  = "guests_waiting"
 }

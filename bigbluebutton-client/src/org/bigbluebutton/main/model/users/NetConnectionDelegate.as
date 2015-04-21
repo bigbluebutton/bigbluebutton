@@ -361,7 +361,7 @@ package org.bigbluebutton.main.model.users
 		}
 
 		private function sendGuestUserKickedOutEvent():void {
-			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.GUEST_KICKED_OUT);
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.MODERATOR_DENIED_ME);
 			dispatcher.dispatchEvent(e);
 		}
 		

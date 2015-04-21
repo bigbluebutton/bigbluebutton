@@ -191,11 +191,6 @@ case class UserDisconnectedFromGlobalAudio(
 ) extends InMessage
 
 // Guest support
-case class UserRequestToEnter(
-    meetingID: String,
-    userID: String
-) extends InMessage
-
 case class GetGuestPolicy(
     meetingID: String,
     requesterID: String
@@ -203,28 +198,15 @@ case class GetGuestPolicy(
 
 case class SetGuestPolicy(
     meetingID: String,
-    policy: GuestPolicy
-) extends InMessage
-
-case class GetGuestsWaiting(
-    meetingID: String,
-    requesterID: String
+    policy: GuestPolicy,
+    setBy: String
 ) extends InMessage
 
 case class RespondToGuest(
     meetingID: String,
     guestID: String,
-    response: Boolean
-) extends InMessage
-
-case class RespondToAllGuests(
-    meetingID: String,
-    response: Boolean
-) extends InMessage
-
-case class KickGuest(
-    meetingID: String,
-    guestID: String
+    response: Boolean,
+    requesterID: String
 ) extends InMessage
 
 // Layout

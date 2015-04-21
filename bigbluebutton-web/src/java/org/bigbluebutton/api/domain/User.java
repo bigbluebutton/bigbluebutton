@@ -29,13 +29,15 @@ public class User {
 	private String role;
 	private Map<String,String> status;
 	private Boolean guest;
+	private Boolean waitingForAcceptance;
 	
-	public User(String internalUserId, String externalUserId, String fullname, String role, Boolean guest) {
+	public User(String internalUserId, String externalUserId, String fullname, String role, Boolean guest, Boolean waitingForAcceptance) {
 		this.internalUserId = internalUserId;
 		this.externalUserId = externalUserId;
 		this.fullname = fullname;
 		this.role = role;
 		this.guest = guest;
+		this.waitingForAcceptance = waitingForAcceptance;
 		this.status = new ConcurrentHashMap<String, String>();
 	}
 	
@@ -61,7 +63,15 @@ public class User {
 	public Boolean isGuest() {
 		return this.guest;
 	}
-	
+
+	public void setWaitingForAcceptance(Boolean waitingForAcceptance) {
+		this.waitingForAcceptance = waitingForAcceptance;
+	}
+
+	public Boolean isWaitingForAcceptance() {
+		return this.waitingForAcceptance;
+	}
+
 	public String getFullname() {
 		return fullname;
 	}

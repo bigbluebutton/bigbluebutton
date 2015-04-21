@@ -177,17 +177,5 @@ package org.bigbluebutton.core
       }
       return null;
     }
-
-    public static function amIGuest(): Boolean {
-      return UserManager.getInstance().getConference().amIGuest();
-    }
-
-    public static function amIWaitForModerator(): Boolean {
-      return UserManager.getInstance().getConference().amIWaitForModerator();
-    }
-
-    public static function setWaitForModerator(state: Boolean): void {
-      UserManager.getInstance().getConference().setWaitForModerator(state);
-    }
   }
 }

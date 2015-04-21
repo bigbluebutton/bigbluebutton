@@ -87,31 +87,15 @@ public class ParticipantsApplication {
 		bbbInGW.getRecordingStatus(meetingId, userId);
 	}
 
-	public void askingToEnter(String meetingId, String userId) {
-		bbbInGW.userRequestToEnter(meetingId, userId);
-	}
-
 	public void getGuestPolicy(String meetingId, String requesterId) {
 		bbbInGW.getGuestPolicy(meetingId, requesterId);
 	}
 
-	public void newGuestPolicy(String meetingId, String guestPolicy) {
-		bbbInGW.setGuestPolicy(meetingId, guestPolicy);
+	public void newGuestPolicy(String meetingId, String guestPolicy, String setBy) {
+		bbbInGW.setGuestPolicy(meetingId, guestPolicy, setBy);
 	}
 
-	public void askingForGuestWaiting(String meetingId, String requesterId) {
-		bbbInGW.getGuestsWaiting(meetingId, requesterId);
-	}
-
-	public void responseToGuest(String meetingId, String userId, Boolean resp) {
-		bbbInGW.responseToGuest(meetingId, userId, resp);
-	}
-
-	public void responseToAllGuests(String meetingId, Boolean resp) {
-		bbbInGW.responseToAllGuests(meetingId, resp);
-	}
-
-	public void kickGuest(String meetingId, String guestId) {
-		bbbInGW.kickGuest(meetingId, guestId);
+	public void responseToGuest(String meetingId, String userId, Boolean response, String requesterId) {
+		bbbInGW.responseToGuest(meetingId, userId, response, requesterId);
 	}
 }

@@ -387,53 +387,6 @@ package org.bigbluebutton.modules.users.services
        );
     }
 
-    public function queryForGuestsWaiting():void {
-      trace(LOG + "queryForGuestsWaiting");
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.getGuestsWaiting",
-         function(result:String):void { // On successful result
-           LogUtil.debug(result);
-         },
-         function(status:String):void { // status - On error occurred
-           LogUtil.error(status);
-         }
-       );
-    }
-
-    public function kickGuest(userId:String):void {
-      trace(LOG + "kickGuest userID:[" + userId + "]");
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.kickGuest",
-         function(result:String):void { // On successful result
-           LogUtil.debug(result);
-         },
-         function(status:String):void { // status - On error occurred
-           LogUtil.error(status);
-         },
-         userId
-      );
-    }
-
-    public function guestDisconnect():void {
-        //TODO: Still need this?
-    }
-
-    public function askToEnter():void {
-      trace(LOG + "askToEnter - userID:[" + UsersUtil.getMyUserID() + "]");
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.askingToEnter",
-         function(result:String):void { // On successful result
-           LogUtil.debug(result);
-         },
-         function(status:String):void { // status - On error occurred
-           LogUtil.error(status);
-         }
-       );
-    }
-
     public function responseToGuest(userId:String, response:Boolean):void {
       trace(LOG + "responseToGuest - guestID:[" + userId + "] response:[" + response + "]");
 
@@ -455,18 +408,7 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function responseToAllGuests(response:Boolean):void {
-      trace(LOG + "responseToAllGuests - response:[" + response + "]");
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage(
-        "participants.responseToAllGuests",
-         function(result:String):void { // On successful result
-           LogUtil.debug(result);
-         },
-         function(status:String):void { // status - On error occurred
-           LogUtil.error(status);
-         },
-         response
-       );
+      responseToGuest(null, response);
     }
   }
 }

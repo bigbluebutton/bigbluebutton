@@ -44,7 +44,7 @@ package org.bigbluebutton.main.model.users {
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
 		[Bindable] private var me:BBBUser = null;		
-		[Bindable] public var users:ArrayCollection = null;			
+		[Bindable] public var users:ArrayCollection = null;
 		private var sort:Sort;
 		
 	  private var defaultLayout:String;
@@ -113,15 +113,13 @@ package org.bigbluebutton.main.model.users {
 
 		public function addUser(newuser:BBBUser):void {
 			trace("Adding new user [" + newuser.userID + "]");
-			if (! hasUser(newuser.userID)) {
-				trace("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
-				if (newuser.userID == me.userID) {
-					newuser.me = true;
-				}						
-				
-				users.addItem(newuser);
-				users.refresh();
-			}					
+			removeUserHelper(newuser.userID);
+			if (newuser.userID == me.userID) {
+				newuser.me = true;
+			}
+			
+			users.addItem(newuser);
+			users.refresh();
 		}
 		
 		public function setCamPublishing(publishing:Boolean):void {
@@ -144,14 +142,6 @@ package org.bigbluebutton.main.model.users {
 			return defaultLayout;
 		}
 
-		public function amIWaitForModerator():Boolean {
-			return me.waitingForMod;		
-		}
-		
-		public function setWaitForModerator(state:Boolean):void {
-			me.waitingForMod = state;
-		}
-    
 		public function hasUser(userID:String):Boolean {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
@@ -230,15 +220,23 @@ package org.bigbluebutton.main.model.users {
 			var a:BBBUser = user.participant as BBBUser;
 			return a.presenter;
 		}
-			
-		public function removeUser(userID:String):void {
+		
+		private function removeUserHelper(userID:String):BBBUser {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
-				trace("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
 				users.removeItemAt(p.index);
-				//sort();
+				return p.participant as BBBUser;
+			} else {
+				return null;
+			}
+		}
+		
+		public function removeUser(userID:String):void {
+			var p:Object = removeUserHelper(userID);
+			if (p != null) {
+				trace("removing user[" + p.name + "," + p.userID + "]");
 				users.refresh();
-			}							
+			}
 		}
 		
 		/**

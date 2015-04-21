@@ -190,15 +190,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   }
 
   // Guest support
-  def userRequestToEnter(meetingID: String, userID: String) {
-    bbbGW.accept(new UserRequestToEnter(meetingID, userID))
-  }
-
   def getGuestPolicy(meetingID: String, requesterID: String) {
     bbbGW.accept(new GetGuestPolicy(meetingID, requesterID))
   }
 
-  def setGuestPolicy(meetingID: String, guestPolicy: String) {
+  def setGuestPolicy(meetingID: String, guestPolicy: String, setBy: String) {
     val policy = guestPolicy.toUpperCase() match {
       case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
       case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
@@ -206,23 +202,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
       //default
       case undef => GuestPolicy.ASK_MODERATOR
     }
-    bbbGW.accept(new SetGuestPolicy(meetingID, policy))
+    bbbGW.accept(new SetGuestPolicy(meetingID, policy, setBy))
   }
 
-  def getGuestsWaiting(meetingID: String, requesterID: String) {
-    bbbGW.accept(new GetGuestsWaiting(meetingID, requesterID))
-  }
-
-  def responseToGuest(meetingID: String, guestID: String, response: java.lang.Boolean) {
-    bbbGW.accept(new RespondToGuest(meetingID, guestID, response))
-  }
-
-  def responseToAllGuests(meetingID: String, response: java.lang.Boolean) {
-    bbbGW.accept(new RespondToAllGuests(meetingID, response))
-  }
-
-  def kickGuest(meetingID: String, guestID: String) {
-    bbbGW.accept(new KickGuest(meetingID, guestID))
+  def responseToGuest(meetingID: String, guestID: String, response: java.lang.Boolean, requesterID: String) {
+    bbbGW.accept(new RespondToGuest(meetingID, guestID, response, requesterID))
   }
 
 	/**************************************************************************************

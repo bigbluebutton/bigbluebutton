@@ -26,8 +26,6 @@ package org.bigbluebutton.main.events
 	{
 		public static const USER_LOGGED_IN:String = "UserLoggedIn";
 		
-		public var conferenceParameters:ConferenceParameters;
-		
 		public function WaitModeratorEvent(type:String)
 		{
 			super(type, true, false);

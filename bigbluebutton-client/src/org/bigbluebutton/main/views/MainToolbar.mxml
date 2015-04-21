@@ -37,17 +37,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
-	<mate:Listener type="{ConnectionFailedEvent.GUEST_KICKED_OUT}" method="hideToolbar" />
+	<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="hideToolbar" />
 	<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
 	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
   <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
-	<mate:Listener type="{WaitModeratorEvent.USER_LOGGED_IN}" method="refreshSettingsBtn" />
-	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="refreshSettingsBtn" />
+	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
 
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;     
       import mx.accessibility.AlertAccImpl;
+      import mx.binding.utils.BindingUtils;
       import mx.controls.Alert;
       import mx.core.UIComponent;
       import mx.events.CloseEvent;
@@ -82,7 +82,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showHelpBtn:Boolean = false;
 			[Bindable] private var showToolbar:Boolean = false;
-			[Bindable] private var showConfigurationsButton:Boolean = false;
+			[Bindable] private var showGuestSettingsButton:Boolean = false;
+			[Bindable] private var showRecordButton:Boolean = false;
 			[Bindable] public var toolbarOptions:LayoutOptions = new LayoutOptions();
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var numButtons:int;
@@ -112,8 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 timer.addEventListener(TimerEvent.TIMER, checkAccessiblity);
                 timer.start();
 
-
-
+				BindingUtils.bindSetter(refreshModeratorButtonsVisibility, UserManager.getInstance().getConference(), "record");
 			}
       
       private function onCreationComplete():void {
@@ -176,13 +176,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                   meetingNameLbl.text = meetingTitle;
                }
           }
-          // need to put it here because on init() the conference object 
-          // still doesn't have the updated information
-          refreshSettingsBtn(null);
       }
 
-      private function refreshSettingsBtn(e:*):void {
-          showConfigurationsButton = UsersUtil.amIModerator() && !UsersUtil.amIWaitForModerator();
+      private function refreshModeratorButtonsVisibility(e:*):void {
+          showGuestSettingsButton = UsersUtil.amIModerator() 
+              && UserManager.getInstance().getConference().getMyUser() != null
+              && !UserManager.getInstance().getConference().getMyUser().waitingForAcceptance;
+
+          showRecordButton = showGuestSettingsButton && UserManager.getInstance().getConference().record;
       }
 
 			public function addButton(name:String):Button{
@@ -388,7 +389,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        tabIndex="{baseIndex+4}" height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
-	<views:RecordButton id="recordBtn" tabIndex="{baseIndex+numButtons+10}" />
+	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}" tabIndex="{baseIndex+numButtons+10}" />
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+11}"/>
 	<mx:Spacer width="50%"/>
@@ -397,8 +398,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Button
 			id="bbbSettings"
-			visible="{showConfigurationsButton}"
-			includeInLayout="{showConfigurationsButton}"
+			visible="{showGuestSettingsButton}"
+			includeInLayout="{showGuestSettingsButton}"
 			toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
 			click="onSettingsButtonClick()"
 			styleName="settingsButtonStyle"
