@@ -32,17 +32,13 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.vo.LockSettings;
   import org.bigbluebutton.core.vo.LockSettingsVO;
-  import org.bigbluebutton.main.events.AddGuestEvent;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
-  import org.bigbluebutton.main.events.ModeratorRespEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
-  import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
-  import org.bigbluebutton.main.events.WaitModeratorEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
@@ -145,8 +141,8 @@ package org.bigbluebutton.modules.users.services
         case "guest_policy_changed":
           handleGuestPolicyChanged(message);
           break;
-        case "response_to_guest":
-          handleResponseToGuest(message);
+        case "guest_access_denied":
+          handleGuestAccessDenied(message);
           break;
       }
     }  
@@ -376,8 +372,8 @@ package org.bigbluebutton.modules.users.services
       UsersService.getInstance().userLeft(webUser);
       
       if(webUser.waitingForAcceptance) {
-        var removeGuest:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
-        removeGuest.userid = webUser.userId;
+        var removeGuest:BBBEvent = new BBBEvent(BBBEvent.REMOVE_GUEST_FROM_LIST);
+        removeGuest.payload.userId = webUser.userId;
         dispatcher.dispatchEvent(removeGuest);
       }
 
@@ -572,21 +568,21 @@ package org.bigbluebutton.modules.users.services
       if (user.guest) {
         if (user.waitingForAcceptance) {
           if (user.me) {
-            var waitCommand:WaitModeratorEvent = new WaitModeratorEvent(WaitModeratorEvent.USER_LOGGED_IN);
+            var waitCommand:BBBEvent = new BBBEvent(BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE);
             dispatcher.dispatchEvent(waitCommand);
           } else {
-            var e:AddGuestEvent = new AddGuestEvent(AddGuestEvent.ADD_GUEST);
-            e.userid = user.userID;
-            e.name = user.name;
+            var e:BBBEvent = new BBBEvent(BBBEvent.ADD_GUEST_TO_LIST);
+            e.payload.userId = user.userID;
+            e.payload.name = user.name;
             dispatcher.dispatchEvent(e);
           }
         } else {
           if (user.me) {
-            var allowedCommand:ModeratorRespEvent = new ModeratorRespEvent(ModeratorRespEvent.GUEST_ALLOWED);
+            var allowedCommand:BBBEvent = new BBBEvent(BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN);
             dispatcher.dispatchEvent(allowedCommand);
           } else {
-            var removeGuest:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
-            removeGuest.userid = user.userID;
+            var removeGuest:BBBEvent = new BBBEvent(BBBEvent.REMOVE_GUEST_FROM_LIST);
+            removeGuest.payload.userId = user.userID;
             dispatcher.dispatchEvent(removeGuest);
           }
         }
@@ -636,34 +632,12 @@ package org.bigbluebutton.modules.users.services
       dispatcher.dispatchEvent(policy);
     }
 
-    public function handleResponseToGuest(msg:Object):void {
-      trace(LOG + "*** handleResponseToGuest " + msg.msg + " ****");
+    public function handleGuestAccessDenied(msg:Object):void {
+      trace(LOG + "*** handleGuestAccessDenied " + msg.msg + " ****");
       var map:Object = JSON.parse(msg.msg);
       
-      if (map.response == false && UsersUtil.getMyUserID() == map.userId) {
+      if (UsersUtil.getMyUserID() == map.userId) {
         dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
-      } else {
-        var user:BBBUser = UsersUtil.getUser(map.userId);
-        if (user == null) {
-          trace(LOG + "handleResponseToGuest: couldn't find the user " + map.userId + ", skipping it");
-        } else {
-          user.waitingForAcceptance = !map.response;
-          if (user.me) {
-            var allowedCommand:ModeratorRespEvent = new ModeratorRespEvent(ModeratorRespEvent.GUEST_ALLOWED);
-            dispatcher.dispatchEvent(allowedCommand);
-          }
-
-          var removeGuest:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
-          removeGuest.userid = user.userID;
-          dispatcher.dispatchEvent(removeGuest);
-
-          if (user.me && !user.waitingForAcceptance) {
-            if (onAllowedToJoin != null) {
-              onAllowedToJoin();
-              onAllowedToJoin = null;
-            }
-          }
-        }
       }
     }
   }

@@ -29,12 +29,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.LogoutEvent;
 	  <!--TODO: Move guest events to user events? -->
-      import org.bigbluebutton.main.events.AddGuestEvent;
-      import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
       import org.bigbluebutton.main.events.ResponseModeratorEvent;
       import org.bigbluebutton.main.events.SuccessfulLoginEvent;
       import org.bigbluebutton.main.events.UserServicesEvent;
-      import org.bigbluebutton.main.events.WaitModeratorEvent;
       import org.bigbluebutton.main.model.GuestManager;
       import org.bigbluebutton.main.model.users.UserService;
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
@@ -146,12 +143,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <!-- End Lock Events -->
 
   <!-- Guest Events -->
-  <EventHandlers type="{AddGuestEvent.ADD_GUEST}" >
+  <EventHandlers type="{BBBEvent.ADD_GUEST_TO_LIST}" >
     <MethodInvoker generator="{GuestManager}" method="addGuest" arguments="{event}" />
   </EventHandlers>
 
-  <EventHandlers type="{RemoveGuestRequestEvent.GUEST_EVENT}" >
-    <MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.userid}" />
+  <EventHandlers type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" >
+    <MethodInvoker generator="{GuestManager}" method="removeGuest" arguments="{event.payload.userId}" />
   </EventHandlers>
 
   <EventHandlers type="{LogoutEvent.MODERATOR_DENIED_ME}" >

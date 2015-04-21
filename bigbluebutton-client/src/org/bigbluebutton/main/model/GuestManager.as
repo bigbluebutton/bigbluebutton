@@ -21,8 +21,8 @@ package org.bigbluebutton.main.model
 {
 
 	import com.asfusion.mate.events.Dispatcher;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.RefreshGuestEvent;
-	import org.bigbluebutton.main.events.AddGuestEvent;
 	import org.bigbluebutton.main.events.RemoveGuestFromViewEvent;
 
 	public class GuestManager
@@ -35,8 +35,8 @@ package org.bigbluebutton.main.model
 			this.guest = new Guest();
 		}
 
-		public function addGuest(evt:AddGuestEvent):void {
-			guest.addGuest(evt.userid, evt.name);
+		public function addGuest(evt:BBBEvent):void {
+			guest.addGuest(evt.payload.userId, evt.payload.name);
 			refreshGuestView();
 		}
 

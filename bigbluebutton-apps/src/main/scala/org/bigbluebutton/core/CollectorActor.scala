@@ -183,7 +183,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: IsWhiteboardEnabledReply      => handleIsWhiteboardEnabledReply(msg)
         case msg: GetGuestPolicyReply           => handleGetGuestPolicyReply(msg)
         case msg: GuestPolicyChanged            => handleGuestPolicyChanged(msg)
-        case msg: ResponseToGuest               => handleResponseToGuest(msg)
+        case msg: GuestAccessDenied             => handleGuestAccessDenied(msg)
         case msg: GetAllMeetingsReply           => handleGetAllMeetingsReply(msg)
 
         case _ => // do nothing
@@ -2245,7 +2245,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleRespondToGuest(msg: RespondToGuest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.guestID)
+    payload.put(Constants.USER_ID, msg.userId)
     payload.put(Constants.RESPONSE, msg.response.toString())
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
 
@@ -2287,14 +2287,13 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
 
-  private def handleResponseToGuest(msg: ResponseToGuest) {
+  private def handleGuestAccessDenied(msg: GuestAccessDenied) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.USER_ID, msg.guestID)
-    payload.put(Constants.RESPONSE, msg.response)
+    payload.put(Constants.USER_ID, msg.userId)
 
     val header = new java.util.HashMap[String, Any]()
-    header.put(Constants.NAME, MessageNames.RESPONSE_TO_GUEST)
+    header.put(Constants.NAME, MessageNames.GUEST_ACCESS_DENIED)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
 

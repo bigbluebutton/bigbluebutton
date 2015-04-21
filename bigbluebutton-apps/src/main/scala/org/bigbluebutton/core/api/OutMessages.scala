@@ -661,11 +661,10 @@ case class GuestPolicyChanged(
     policy: String
 ) extends IOutMessage
 
-case class ResponseToGuest(
+case class GuestAccessDenied(
     meetingID: String,
     recorded: Boolean,
-    guestID: String,
-    response: Boolean
+    userId: String
 ) extends IOutMessage
 
 case class GetAllMeetingsReply(

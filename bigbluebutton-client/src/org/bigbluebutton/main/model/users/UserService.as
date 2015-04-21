@@ -39,7 +39,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.model.Config
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-	import org.bigbluebutton.main.events.WaitModeratorEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.events.ResponseModeratorEvent;
 	import org.bigbluebutton.main.events.BBBEvent;

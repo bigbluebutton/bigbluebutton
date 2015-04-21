@@ -388,10 +388,10 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function responseToGuest(userId:String, response:Boolean):void {
-      trace(LOG + "responseToGuest - guestID:[" + userId + "] response:[" + response + "]");
+      trace(LOG + "responseToGuest - userId:[" + userId + "] response:[" + response + "]");
 
       var message:Object = new Object();
-      message["guestID"] = userId;
+      message["userId"] = userId;
       message["response"] = response;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();

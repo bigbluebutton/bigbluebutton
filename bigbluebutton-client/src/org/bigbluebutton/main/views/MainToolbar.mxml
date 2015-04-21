@@ -65,11 +65,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ConfigEvent;
       import org.bigbluebutton.main.events.LogoutEvent;
-      import org.bigbluebutton.main.events.ModeratorRespEvent;
       import org.bigbluebutton.main.events.SettingsEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-      import org.bigbluebutton.main.events.WaitModeratorEvent;
       import org.bigbluebutton.main.model.LayoutOptions;
       import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
       import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;

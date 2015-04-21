@@ -119,6 +119,6 @@ public class ParticipantsService {
 	public void responseToGuest(Map<String, Object> msg) {
 		String requesterId = getBbbSession().getInternalUserID();
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.responseToGuest(roomName, (String) msg.get("guestID"), (Boolean) msg.get("response"), requesterId);
+		application.responseToGuest(roomName, (String) msg.get("userId"), (Boolean) msg.get("response"), requesterId);
 	}
 }

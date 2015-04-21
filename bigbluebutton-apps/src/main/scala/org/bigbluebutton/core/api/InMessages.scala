@@ -204,7 +204,7 @@ case class SetGuestPolicy(
 
 case class RespondToGuest(
     meetingID: String,
-    guestID: String,
+    userId: String,
     response: Boolean,
     requesterID: String
 ) extends InMessage

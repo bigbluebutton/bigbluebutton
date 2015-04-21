@@ -205,8 +205,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new SetGuestPolicy(meetingID, policy, setBy))
   }
 
-  def responseToGuest(meetingID: String, guestID: String, response: java.lang.Boolean, requesterID: String) {
-    bbbGW.accept(new RespondToGuest(meetingID, guestID, response, requesterID))
+  def responseToGuest(meetingID: String, userId: String, response: java.lang.Boolean, requesterID: String) {
+    bbbGW.accept(new RespondToGuest(meetingID, userId, response, requesterID))
   }
 
 	/**************************************************************************************

@@ -288,7 +288,7 @@ trait UsersApp {
       logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
 
       if (uvo.guest && guestPolicy == GuestPolicy.ALWAYS_DENY) {
-        outGW.send(new ResponseToGuest(meetingID, recorded, uvo.userID, false))
+        outGW.send(new GuestAccessDenied(meetingID, recorded, uvo.userID))
       } else {
         outGW.send(new UserJoined(meetingID, recorded, uvo))
 
@@ -446,19 +446,19 @@ trait UsersApp {
   def handleRespondToGuest(msg: RespondToGuest) {
     if (isModerator(msg.requesterID)) {
       var usersToAnswer:Array[UserVO] = null;
-      if (msg.guestID == null) {
+      if (msg.userId == null) {
         usersToAnswer = users.getUsers.filter(u => u.waitingForAcceptance == true)
       } else {
-        usersToAnswer = users.getUsers.filter(u => u.waitingForAcceptance == true && u.userID == msg.guestID)
+        usersToAnswer = users.getUsers.filter(u => u.waitingForAcceptance == true && u.userID == msg.userId)
       }
       usersToAnswer foreach {user =>
-        println("UsersApp - handleResponseToGuest for user [" + user.userID + "]");
+        println("UsersApp - handleGuestAccessDenied for user [" + user.userID + "]");
         if (msg.response == true) {
           val nu = user.copy(waitingForAcceptance=false)
           users.addUser(nu)
           outGW.send(new UserJoined(meetingID, recorded, nu))
         } else {
-          outGW.send(new ResponseToGuest(meetingID, recorded, user.userID, msg.response))
+          outGW.send(new GuestAccessDenied(meetingID, recorded, user.userID))
         }
       }
     }

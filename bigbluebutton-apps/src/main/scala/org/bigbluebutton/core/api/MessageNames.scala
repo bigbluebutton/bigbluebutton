@@ -164,6 +164,6 @@ object MessageNames {
   val USER_LISTEN_ONLY                     = "user_listening_only"
   var GET_GUEST_POLICY_REPLY               = "get_guest_policy_reply"
   val GUEST_POLICY_CHANGED                 = "guest_policy_changed"
-  val RESPONSE_TO_GUEST                    = "response_to_guest"
+  val GUEST_ACCESS_DENIED                  = "guest_access_denied"
   val GET_ALL_MEETINGS_REPLY               = "get_all_meetings_reply"
 }

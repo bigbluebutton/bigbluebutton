@@ -44,7 +44,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: MeetingState                           => handleMeetingState(msg)
 	    case msg: GetGuestPolicyReply                    => handleGetGuestPolicyReply(msg)
 	    case msg: GuestPolicyChanged                     => handleGuestPolicyChanged(msg)
-	    case msg: ResponseToGuest                        => handleResponseToGuest(msg)
+	    case msg: GuestAccessDenied                      => handleGuestAccessDenied(msg)
 	    
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
@@ -494,18 +494,17 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
     service.sendMessage(m);
   }
 
-  private def handleResponseToGuest(msg: ResponseToGuest) {
+  private def handleGuestAccessDenied(msg: GuestAccessDenied) {
     var args = new HashMap[String, Object]();
-    args.put("userId", msg.guestID);
-    args.put("response", msg.response:java.lang.Boolean);
+    args.put("userId", msg.userId);
 
     val message = new java.util.HashMap[String, Object]()
     val gson = new Gson();
     message.put("msg", gson.toJson(args))
 
-//    println("UsersClientMessageSender - handleResponseToGuest \n" + message.get("msg") + "\n")
+//    println("UsersClientMessageSender - handleGuestAccessDenied \n" + message.get("msg") + "\n")
 
-    val m = new DirectClientMessage(msg.meetingID, msg.guestID, "response_to_guest", message);
+    val m = new DirectClientMessage(msg.meetingID, msg.userId, "guest_access_denied", message);
     service.sendMessage(m);
   }
 }
