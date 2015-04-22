@@ -19,7 +19,7 @@ Meteor.methods
           payload:
             userid: userId
             meeting_id: meetingId
-            voiceConf: voiceConf
+            voice_conf: voiceConf
             name: username
           header:
             timestamp: new Date().getTime()
@@ -28,7 +28,7 @@ Meteor.methods
 
         Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
 
-        publish Meteor.config.redis.channels.toBBBApps.voice, message
+        publish Meteor.config.redis.channels.toBBBApps.meeting, message
 
     else
       if isAllowedTo('leaveListenOnly', meetingId, userId, authToken)
@@ -36,7 +36,7 @@ Meteor.methods
           payload:
             userid: userId
             meeting_id: meetingId
-            voiceConf: voiceConf
+            voice_conf: voiceConf
             name: username
           header:
             timestamp: new Date().getTime()
@@ -45,7 +45,7 @@ Meteor.methods
 
         Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
 
-        publish Meteor.config.redis.channels.toBBBApps.voice, message
+        publish Meteor.config.redis.channels.toBBBApps.meeting, message
 
     return
 
