@@ -64,8 +64,6 @@ displayAudioSelectionMenu = ({isMobile} = {}) ->
 
   if isMobile
     toggleSlidingMenu()
-
-  if isMobile
     $('.navbarTitle').css('width', '55%')
 
   # pop open the dialog allowing users to choose the audio options
@@ -73,7 +71,13 @@ displayAudioSelectionMenu = ({isMobile} = {}) ->
     $('.joinAudio-dialog').addClass('landscape-mobile-joinAudio-dialog')
   else
     $('.joinAudio-dialog').addClass('desktop-joinAudio-dialog')
+
   $("#joinAudioDialog").dialog("open")
+
+
+# helper function to reuse some code for the handling of audio join
+onAudioHelper = () ->
+  displayAudioSelectionMenu(isMobile: isMobile())
 
 
 # Helper to load javascript libraries from the BBB server
@@ -113,7 +117,7 @@ Template.footer.helpers
 
 Template.header.events
   "click .joinAudioButton": (event) ->
-    displayAudioSelectionMenu(isMobile: false)
+    onAudioHelper()
 
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
@@ -186,7 +190,7 @@ Template.header.events
 
 Template.slidingMenu.events
   'click .joinAudioButton': (event) ->
-    displayAudioSelectionMenu(isMobile: true)
+    onAudioHelper()
 
   'click .chatBarIcon': (event) ->
     $('.tooltip').hide()
@@ -315,7 +319,7 @@ Template.main.rendered = ->
     toggleSlidingMenu()
 
   if Meteor.config.app.autoJoinAudio
-    displayAudioSelectionMenu(isMobile:isMobile())
+    onAudioHelper()
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()

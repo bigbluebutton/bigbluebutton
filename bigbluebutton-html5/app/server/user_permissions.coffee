@@ -4,9 +4,13 @@ presenter = null
 # holds the values for whether the moderator user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
 moderator =
-  # listen only
-  joinListenOnly: true #should make this dynamically modifiable later on
-  leaveListenOnly: true #should make this dynamically modifiable later on
+  # audio listen only
+  joinListenOnly: true
+  leaveListenOnly: true
+
+  # audio listen and speak
+  joinAudioWithMic: true
+  leaveAudioWithMic: true
 
   # raising/lowering hand
   raiseOwnHand : true
@@ -32,8 +36,12 @@ moderator =
 viewer = (meetingId, userId) ->
 
   # listen only
-  joinListenOnly: true #should make this dynamically modifiable later on
-  leaveListenOnly: true #should make this dynamically modifiable later on
+  joinListenOnly: true
+  leaveListenOnly: true
+
+  # audio listen and speak
+  joinAudioWithMic: false
+  leaveAudioWithMic: false
 
   # raising/lowering hand
   raiseOwnHand : true
