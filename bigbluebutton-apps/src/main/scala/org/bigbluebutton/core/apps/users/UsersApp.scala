@@ -306,6 +306,18 @@ trait UsersApp {
 	  user foreach { u => 
 	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
 	    outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
+	    
+	    if (u.presenter) {
+	      /* The current presenter has left the meeting. Find a moderator and make
+	       * him presenter. This way, if there is a moderator in the meeting, there
+	       * will always be a presenter.
+	       */
+	      val moderator = users.findAModerator()
+	      moderator.foreach { mod =>
+	        logger.info("Presenter left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]. Making user=[" + mod.userID + "] presenter.")
+	        assignNewPresenter(mod.userID, mod.name, mod.userID)
+	      }
+	    }
 	  }
 	  
       startCheckingIfWeNeedToEndVoiceConf()

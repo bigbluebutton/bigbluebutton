@@ -112,7 +112,7 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Presentation: " + (getPresentationFilename() or "Loading...")
+  (getPresentationFilename() or "Loading presentaion...")
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
@@ -151,8 +151,8 @@ Handlebars.registerHelper "isUserTalking", (userId) ->
 Handlebars.registerHelper 'isMobile', () ->
   isMobile()
 
-Handlebars.registerHelper 'isMobile', () ->
-  isMobile()
+Handlebars.registerHelper 'isPortraitMobile', () ->
+  isPortraitMobile()
 
 Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
   isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
@@ -276,8 +276,7 @@ Handlebars.registerHelper "visibility", (section) ->
   (checkToHangupCall = (context) ->
     # if an attempt to hang up the call is made when the current session is not yet finished, the request has no effect
     # keep track in the session if we haven't tried a hangup
-    # currentsession: defined in bigbluebutton/bigbluebutton-client/client/lib/bbb_webrtc_bridge_sip.js
-    if currentSession isnt null and !getInSession("triedHangup")
+    if BBB.getCallStatus() isnt null and !getInSession("triedHangup")
       console.log "Attempting to hangup on WebRTC call"
       if BBB.amIListenOnlyAudio() # notify BBB-apps we are leaving the call call if we are listen only
         Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), false)

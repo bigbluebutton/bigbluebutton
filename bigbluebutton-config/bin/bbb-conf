@@ -171,9 +171,9 @@ usage() {
         echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
         echo "Administration:"
-        echo "   --restart                        Restart BigBueButton"
-        echo "   --stop                           Stop BigBueButton"
-        echo "   --start                          Start BigBueButton"
+        echo "   --restart                        Restart BigBlueButton"
+        echo "   --stop                           Stop BigBlueButton"
+        echo "   --start                          Start BigBlueButton"
         echo "   --clean                          Restart and clean all log files"
         echo "   --zip                            Zip up log files for reporting an error"
         echo

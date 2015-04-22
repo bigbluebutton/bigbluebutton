@@ -1,6 +1,10 @@
 <template name="chatbar">
   <div id="{{id}}" {{visibility name}} class="component">
-    <h3 class="title gradientBar"><span class="glyphicon glyphicon-comment"></span>{{title}}{{> extraConversations}}</h3>
+    <h3 class="title gradientBar">
+    <span class="glyphicon glyphicon-comment heading"></span>
+    {{title}}
+    {{> extraConversations}}
+    </h3>
     {{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
     {{#if getInSession "display_chatPane"}}
       <div id="chatbody">
@@ -25,7 +29,7 @@
 <template name="chatInput">
   <div id="chatInput" class="chat-input-wrapper">
     <textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
-    <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top" title="Click to send your message">
+    <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top">
       Send
     </button>
   </div>

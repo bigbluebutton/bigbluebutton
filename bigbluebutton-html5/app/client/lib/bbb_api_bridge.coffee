@@ -217,6 +217,12 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     webrtc_hangup callback # sign out of call
 
   ###
+  Get a hold of the object containing the call information
+  ###
+  BBB.getCallStatus = ->
+    getCallStatus()
+
+  ###
   Share user's webcam.
 
   Params:

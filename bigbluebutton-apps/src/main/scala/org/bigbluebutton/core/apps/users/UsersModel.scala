@@ -63,7 +63,7 @@ class UsersModel {
 	  getModerators.length
   }
 
-  def getLoneModerator():Option[UserVO] = {
+  def findAModerator():Option[UserVO] = {
     uservos.values find (u => u.role == MODERATOR)
   }
     

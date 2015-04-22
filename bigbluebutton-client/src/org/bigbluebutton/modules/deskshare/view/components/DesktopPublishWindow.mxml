@@ -115,14 +115,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (isUsingLessThanChrome38OnMac()) {
 					setCurrentState("chromeOnMacWarningState");
-				} else if (isChrome42OrHigher()) {
-					setCurrentState("chrome42WarningState");
 				} else {
 					var javaIssue:String = JavaCheck.checkJava();
 					
 					if (javaIssue != null) {
-						setCurrentState("javaIssueWarningState");
-						javaIssueWarningStateLbl.htmlText = javaIssue;
+						if (isChrome42OrHigher()) {
+							setCurrentState("chrome42WarningState");
+						} else {
+							setCurrentState("javaIssueWarningState");
+							javaIssueWarningStateLbl.htmlText = javaIssue;
+						}
 					} else {
 						setCurrentState("dispFullRegionControlBar");
 					}
