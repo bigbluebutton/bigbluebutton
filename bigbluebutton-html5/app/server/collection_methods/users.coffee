@@ -6,6 +6,49 @@
 # immediately, since they do not require permission for things such as muting themsevles. 
 # --------------------------------------------------------------------------------------------
 Meteor.methods
+  # meetingId: the meetingId of the meeting the user is in
+  # toSetUserId: the userId of the user joining
+  # requesterUserId: the userId of the requester
+  # requesterToken: the authToken of the requester
+  listenOnlyRequestToggle: (meetingId, userId, authToken, isJoining) ->
+    voiceConf = Meteor.Meetings.findOne({meetingId:meetingId})?.voiceConf
+    username = Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.name
+    if isJoining
+      if isAllowedTo('joinListenOnly', meetingId, userId, authToken)
+        message =
+          payload:
+            userid: userId
+            meeting_id: meetingId
+            voice_conf: voiceConf
+            name: username
+          header:
+            timestamp: new Date().getTime()
+            name: "user_connected_to_global_audio"
+            version: "0.0.1"
+
+        Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
+
+        publish Meteor.config.redis.channels.toBBBApps.meeting, message
+
+    else
+      if isAllowedTo('leaveListenOnly', meetingId, userId, authToken)
+        message =
+          payload:
+            userid: userId
+            meeting_id: meetingId
+            voice_conf: voiceConf
+            name: username
+          header:
+            timestamp: new Date().getTime()
+            name: "user_disconnected_from_global_audio"
+            version: "0.0.1"
+
+        Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
+
+        publish Meteor.config.redis.channels.toBBBApps.meeting, message
+
+    return
+
   # meetingId: the meetingId of the meeting the user[s] is in
   # toMuteUserId: the userId of the user to be [un]muted
   # requesterUserId: the userId of the requester
@@ -117,7 +160,6 @@ Meteor.methods
   Meteor.log.info "marking user [#{userId}] as offline in meeting[#{meetingId}]"
   Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
 
-
 # Corresponds to a valid action on the HTML clientside
 # After authorization, publish a user_leaving_request in redis
 # params: meetingid, userid as defined in BBB-App
@@ -150,8 +192,8 @@ Meteor.methods
       Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.locked':voiceUserObject.locked}}) # locked
     if voiceUserObject.muted?
       Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}}) # muted
-    if voiceUserObject.listenOnly?
-      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listenOnly}}) # muted
+    if voiceUserObject.listen_only?
+      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listen_only}}) # listenOnly
   else
     Meteor.log.error "ERROR! did not find such voiceUser!"
 
@@ -191,23 +233,25 @@ Meteor.methods
         webcam_stream: user.webcam_stream
       }})
 
-    welcomeMessage = Meteor.config.defaultWelcomeMessage
-    .replace /%%CONFNAME%%/, Meteor.Meetings.findOne({meetingId: meetingId})?.meetingName
-    welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter
+    # only add the welcome message if it's not there already
+    unless Meteor.Chat.findOne({"message.chat_type":'SYSTEM_MESSAGE', "message.to_userid": userId})?
+      welcomeMessage = Meteor.config.defaultWelcomeMessage
+      .replace /%%CONFNAME%%/, Meteor.Meetings.findOne({meetingId: meetingId})?.meetingName
+      welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter
 
-    # store the welcome message in chat for easy display on the client side
-    chatId = Meteor.Chat.upsert({'message.chat_type':"SYSTEM_MESSAGE", 'message.to_userid': userId, meetingId: meetingId},
-      {$set:{
+      # store the welcome message in chat for easy display on the client side
+      Meteor.Chat.insert(
         meetingId: meetingId
-        'message.chat_type': "SYSTEM_MESSAGE"
-        'message.message': welcomeMessage
-        'message.from_color': '0x3399FF'
-        'message.to_userid': userId
-        'message.from_userid': "SYSTEM_MESSAGE"
-        'message.from_username': ""
-        'message.from_time': user.timeOfJoining?.toString()
-      }})
-    Meteor.log.info "added a system message in chat for user #{userId}"
+        message:
+          chat_type: "SYSTEM_MESSAGE"
+          message: welcomeMessage
+          from_color: '0x3399FF'
+          to_userid: userId
+          from_userid: "SYSTEM_MESSAGE"
+          from_username: ""
+          from_time: user.timeOfJoining?.toString()
+        )
+      Meteor.log.info "added a system message in chat for user #{userId}"
 
   else
     # scenario: there are meetings running at the time when the meteor

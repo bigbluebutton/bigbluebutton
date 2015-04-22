@@ -71,17 +71,6 @@ package org.bigbluebutton.modules.layout.managers
     
     private var _layoutModel:LayoutModel = LayoutModel.getInstance();
     
-    /**
-    * If (sync) affects viewers only. 
-    */
-    private var _viewersOnly:Boolean = false;
-    
-    /**
-    * If we sync automatically with other users while the action (move, resize) is done on the
-    * window.
-    */
-    private var _autoSync:Boolean = false;
-    
 		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
 				MDIManagerEvent.WINDOW_MINIMIZE,
 				MDIManagerEvent.WINDOW_MAXIMIZE);
@@ -95,9 +84,7 @@ package org.bigbluebutton.modules.layout.managers
       });
       _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
         //trace(LOG + "Applying layout due to window resize");
-        if (_autoSync)
-          //trace(LOG + "Applying layout on autoSync");
-          sendLayoutUpdate(updateCurrentLayout(_currentLayout));
+        updateCurrentLayout(null);
       });
     }
     
@@ -215,12 +202,6 @@ package org.bigbluebutton.modules.layout.managers
       layoutEvent.layoutID = layoutID;
       _globalDispatcher.dispatchEvent(layoutEvent);      
     }
-
-    public function syncLayout():void {
-      if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
-        _globalDispatcher.dispatchEvent(new SyncLayoutEvent(_currentLayout));
-      }
-    }
       
 		public function lockLayout():void {
 			_locked = true;
@@ -315,22 +296,20 @@ package org.bigbluebutton.modules.layout.managers
       _applyCurrentLayoutTimer.start();
 		}
 			
-		private function onActionOverWindowFinished(e:MDIManagerEvent):void {
+    private function onActionOverWindowFinished(e:MDIManagerEvent):void {
       if (LayoutDefinition.ignoreWindow(e.window))
         return;
       
       checkPermissionsOverWindow(e.window);
       //trace(LOG + "Window is being resized. Event=[" + e.type + "]");
-      updateCurrentLayout(_currentLayout);
-        /*
-        * 	some events related to animated actions must be delayed because if it's not, the 
-        * 	current layout doesn't get properly updated
-        */
-        if (_eventsToDelay.indexOf(e.type) != -1) {
-          _sendCurrentLayoutUpdateTimer.reset();
-          _sendCurrentLayoutUpdateTimer.start();
-        } 
-		}
+      //updateCurrentLayout(null);
+      /*
+       * 	All events must be delayed because the window doesn't actually 
+	   *    change size until after the animation has finished.
+       */
+      _sendCurrentLayoutUpdateTimer.reset();
+      _sendCurrentLayoutUpdateTimer.start();
+    }
 		
 		private function updateCurrentLayout(layout:LayoutDefinition):LayoutDefinition {
       //trace(LOG + "updateCurrentLayout");
@@ -345,18 +324,6 @@ package org.bigbluebutton.modules.layout.managers
       }
 
 			return _currentLayout;
-		}
-		
-		/*
-		 * this is because a unique layout may have multiple definitions depending
-		 * on the role of the participant
-		 */ 
-		public function presenterChanged():void {
-			if (_canvas != null) {
-        //trace(LOG + " presenterChanged layout [" + _currentLayout.name +  "]");
-        applyLayout(_currentLayout);
-      }
-				
 		}
 	}
 }

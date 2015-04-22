@@ -1,9 +1,9 @@
 @import "variables";
 
 .active {
-  border: .2vh solid extract(@azure, 2) !important;
+  border: .2vh solid !important;
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    border-left: .1vh solid extract(@azure, 2) !important;
+    border-left: .1vh solid !important;
   }
 }
 
@@ -76,18 +76,24 @@
 .chatNameSelectorPrivate {
   .chatNameSelector;
   width:90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  @media @landscape {
+    height: 20px;
+  }
+  @media @desktop-portrait {
+    height: 25px;
+  }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 4vw;
+  }
 }
 
 .chatNameSelectorPublic {
   .chatNameSelector;
   margin-bottom: 1px !important;
   width:100%;
-}
-
-.chatOptionsText {
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 5vw;
-  }
 }
 
 .close:hover {
@@ -134,25 +140,20 @@
   }
 }
 
-#fontSizeControl {
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size:7vw;
-  }
-  .fontSizeLabel {
-    height:30px;
+#fontSizeTable {
+  /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
+  height: 64px;
+  #displayButtons {
     text-align:center;
+    width:84px;
+  }
+  #displayLabel {
+    width: 154px;
   }
 }
 
 .gotUnreadMail {
   background: extract(@yellow, 2) !important;
-}
-
-#increaseFontSize, #decreaseFontSize {
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    height: 100px;
-    width: 100px;
-  }
 }
 
 #MoreChatsDrop {
@@ -291,7 +292,7 @@
 
   &:hover {
     background-color: #ddd;
-    border: 1px solid extract(@azure, 2);
+    border: 1px solid;
     border-bottom: none;
   }
 }

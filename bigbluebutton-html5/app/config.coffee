@@ -21,6 +21,11 @@ config.app = {}
 config.app.mobileFont = 24
 config.app.desktopFont = 12
 
+# Will offer the user to join the audio when entering the meeting
+config.app.autoJoinAudio = false
+# The amount of time the client will wait before making another call to successfully hangup the WebRTC conference call
+config.app.WebRTCHangupRetryInterval = 2000
+
 # Configs for redis
 config.redis = {}
 config.redis.host = "127.0.0.1"

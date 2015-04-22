@@ -61,6 +61,14 @@
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   currentPresentation?.presentation?.name
 
+# helper to determine whether user has joined any type of audio
+Handlebars.registerHelper "amIInAudio", ->
+  BBB.amIInAudio()
+
+# helper to determine whether the user is in the listen only audio stream
+Handlebars.registerHelper "amIListenOnlyAudio", ->
+  BBB.amIListenOnlyAudio()
+
 Handlebars.registerHelper "colourToHex", (value) =>
   @window.colourToHex(value)
 
@@ -104,7 +112,7 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Presentation: " + (getPresentationFilename() or "Loading...")
+  (getPresentationFilename() or "Loading presentaion...")
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
@@ -116,9 +124,6 @@ Handlebars.registerHelper "isCurrentUserRaisingHand", ->
   user = BBB.getCurrentUser()
   user?.user?.raise_hand
 
-Handlebars.registerHelper "isCurrentUserSharingAudio", ->
-  BBB.amISharingAudio()
-
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
   BBB.amISharingVideo()
 
@@ -128,15 +133,14 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
-Handlebars.registerHelper "isUserListenOnly", (userId) ->
-  user = Meteor.Users.findOne({userId:userId})
-  return user?.user?.listenOnly
+Handlebars.registerHelper "isUserInAudio", (userId) ->
+  BBB.isUserInAudio(userId)
+
+Handlebars.registerHelper "isUserListenOnlyAudio", (userId) ->
+  BBB.isUserListenOnlyAudio(userId)
 
 Handlebars.registerHelper "isUserMuted", (userId) ->
   BBB.isUserMuted(userId)
-
-Handlebars.registerHelper "isUserSharingAudio", (userId) ->
-  BBB.isUserSharingAudio(userId)
 
 Handlebars.registerHelper "isUserSharingVideo", (userId) ->
   BBB.isUserSharingWebcam(userId)
@@ -144,8 +148,14 @@ Handlebars.registerHelper "isUserSharingVideo", (userId) ->
 Handlebars.registerHelper "isUserTalking", (userId) ->
   BBB.isUserTalking(userId)
 
+Handlebars.registerHelper 'isMobile', () ->
+  isMobile()
+
 Handlebars.registerHelper 'isPortraitMobile', () ->
-  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-aspect-ratio: 1/1)').matches
+  isPortraitMobile()
+
+Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
+  isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
 
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
@@ -177,6 +187,11 @@ Handlebars.registerHelper "visibility", (section) ->
   http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
+
+@introToAudio = (event, {isListenOnly} = {}) ->
+  isListenOnly ?= true
+  joinVoiceCall event, isListenOnly: isListenOnly
+  displayWebRTCNotification()
 
 # check the chat history of the user and add tabs for the private chats
 @populateChatTabs = (msg) ->
@@ -247,16 +262,45 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
-@toggleVoiceCall = (event) ->
-  if BBB.amISharingAudio()
-    hangupCallback = ->
-      console.log "left voice conference"
-    BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
-  else
-    # create voice call params
-    joinCallback = (message) ->
-      console.log "started webrtc_call"
-    BBB.joinVoiceConference joinCallback # make the call #TODO should we apply role permissions to this action?
+# Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
+# retry if a call is in progress, send the leave voice conference message to BBB
+@exitVoiceCall = (event) ->
+  # To be called when the hangup is initiated
+  hangupCallback = ->
+    console.log "Exiting Voice Conference"
+
+  # Checks periodically until a call is established so we can successfully end the call
+  # clean state
+  getInSession("triedHangup", false)
+  # function to initiate call
+  (checkToHangupCall = (context) ->
+    # if an attempt to hang up the call is made when the current session is not yet finished, the request has no effect
+    # keep track in the session if we haven't tried a hangup
+    if BBB.getCallStatus() isnt null and !getInSession("triedHangup")
+      console.log "Attempting to hangup on WebRTC call"
+      if BBB.amIListenOnlyAudio() # notify BBB-apps we are leaving the call call if we are listen only
+        Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), false)
+      BBB.leaveVoiceConference hangupCallback
+      getInSession("triedHangup", true) # we have hung up, prevent retries
+    else
+      console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
+      setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
+  )(@) # automatically run function
+  return false
+
+# close the daudio UI, then join the conference. If listen only send the request to the server
+@joinVoiceCall = (event, {isListenOnly} = {}) ->
+  $('#joinAudioDialog').dialog('close')
+  isListenOnly ?= true
+
+  # create voice call params
+  joinCallback = (message) ->
+    console.log "Beginning WebRTC Conference Call"
+
+  if isListenOnly
+    Meteor.call('listenOnlyRequestToggle', getInSession("meetingId"), getInSession("userId"), getInSession("authToken"), true)
+  BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
+
   return false
 
 @toggleWhiteBoard = ->
@@ -486,7 +530,11 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # determines which browser is being used
 @getBrowserName = () ->
-  if navigator.userAgent.match(/Safari/i)
+  if navigator.userAgent.match(/Chrome/i)
+    return 'Chrome'
+  else if navigator.userAgent.match(/Firefox/i)
+    return 'Firefox'
+  else if navigator.userAgent.match(/Safari/i)
     return 'Safari'
   else if navigator.userAgent.match(/Trident/i)
     return 'IE'

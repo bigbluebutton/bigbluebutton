@@ -1,7 +1,13 @@
 
 presenter = null
 
+# holds the values for whether the moderator user is allowed to perform an action (true)
+# or false if not allowed. Some actions have dynamic values depending on the current lock settings
 moderator =
+  # listen only
+  joinListenOnly: true #should make this dynamically modifiable later on
+  leaveListenOnly: true #should make this dynamically modifiable later on
+
   # raising/lowering hand
   raiseOwnHand : true
   lowerOwnHand : true
@@ -20,9 +26,15 @@ moderator =
   chatPublic: true
   chatPrivate: true
 
+
 # holds the values for whether the viewer user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
 viewer = (meetingId, userId) ->
+
+  # listen only
+  joinListenOnly: true #should make this dynamically modifiable later on
+  leaveListenOnly: true #should make this dynamically modifiable later on
+
   # raising/lowering hand
   raiseOwnHand : true
   lowerOwnHand : true
@@ -44,6 +56,7 @@ viewer = (meetingId, userId) ->
   chatPrivate: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePrivChat) or
                 !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
                 Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
+
 
 
 # carries out the decision making for actions affecting users. For the list of

@@ -25,7 +25,6 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.geom.Point;
 	import flash.media.Video;
 	
-	import flexlib.mdi.containers.MDIWindow;
 	import flexlib.mdi.events.MDIWindowEvent;
 	
 	import mx.containers.Panel;
@@ -33,6 +32,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	
+	import org.bigbluebutton.common.CustomMdiWindow;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.common.LogUtil;
@@ -51,7 +51,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.modules.videoconf.views.ControlButtons;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
-	public class VideoWindowItf extends MDIWindow implements IBbbModuleWindow
+	public class VideoWindowItf extends CustomMdiWindow implements IBbbModuleWindow
 	{
 		protected var _video:Video;
 		protected var _videoHolder:UIComponent;
@@ -103,7 +103,7 @@ package org.bigbluebutton.modules.videoconf.business
     }
     
 		protected function getVideoResolution(stream:String):Array {
-			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
+			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+_\\d+)-\\d+", "");
 			if (pattern.test(stream)) {
 				LogUtil.debug("The stream name is well formatted [" + stream + "]");
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
