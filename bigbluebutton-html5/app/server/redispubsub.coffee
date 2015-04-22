@@ -74,15 +74,21 @@ class Meteor.RedisPubSub
 
       # handle voice events
       if message.header.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
-        voiceUser = message.payload.user?.voiceUser
-        updateVoiceUser meetingId, voiceUser
+        if message.payload.user?
+          updateVoiceUser meetingId,
+            'web_userid': message.payload.user.voiceUser.web_userid
+            'listen_only': message.payload.listen_only
+            'talking': message.payload.user.voiceUser.talking
+            'joined': message.payload.user.voiceUser.joined
+            'locked': message.payload.user.voiceUser.locked
+            'muted': message.payload.user.voiceUser.muted
         return
 
       # listen only
       if message.header.name is 'user_listening_only'
-        updateVoiceUser meetingId, {'web_userid': message.payload.userid, 'listenOnly': message.payload.listen_only}
+        updateVoiceUser meetingId, {'web_userid': message.payload.userid, 'listen_only': message.payload.listen_only}
         # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
-        return
+        return 
 
       if message.header.name is "get_all_meetings_reply"
         Meteor.log.info "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"

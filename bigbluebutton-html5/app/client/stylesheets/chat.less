@@ -96,12 +96,6 @@
   width:100%;
 }
 
-.chatOptionsText {
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 5vw;
-  }
-}
-
 .close:hover {
   background-color: red;
 }
@@ -140,25 +134,20 @@
   }
 }
 
-#fontSizeControl {
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size:7vw;
-  }
-  .fontSizeLabel {
-    height:30px;
+#fontSizeTable {
+  /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
+  height: 64px;
+  #displayButtons {
     text-align:center;
+    width:84px;
+  }
+  #displayLabel {
+    width: 154px;
   }
 }
 
 .gotUnreadMail {
   background: extract(@yellow, 2) !important;
-}
-
-#increaseFontSize, #decreaseFontSize {
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    height: 100px;
-    width: 100px;
-  }
 }
 
 #MoreChatsDrop {
