@@ -16,7 +16,7 @@
         disablePrivChat: false
         disableCam: false
         disableMic: false
-        lockOnJoin: true #TODO grab from settings
+        lockOnJoin: Meteor.config.lockOnJoin
         lockedLayout: false
         disablePubChat: false
 

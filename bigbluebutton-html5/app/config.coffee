@@ -14,6 +14,8 @@ config.defaultWelcomeMessageFooter = "This server is running a build of <a href=
 config.maxUsernameLength = 30
 config.maxChatLength = 140
 
+config.lockOnJoin = true
+
 ## Application configurations
 config.app = {}
 
