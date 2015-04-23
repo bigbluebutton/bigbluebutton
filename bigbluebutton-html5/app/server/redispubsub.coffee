@@ -294,6 +294,12 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "new_permission_settings"
+        oldSettings = Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings
+        newSettings = message.payload
+
+        # if the disableMic setting was turned on
+        if !oldSettings.disableMic and newSettings.disableMic
+          handleLockingMic(meetingId, newSettings)
 
         # substitute with the new lock settings
         Meteor.Meetings.update({meetingId: meetingId}, {$set: {
