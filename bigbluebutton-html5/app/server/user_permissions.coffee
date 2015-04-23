@@ -47,7 +47,8 @@ viewer = (meetingId, userId) ->
 
   # muting
   muteSelf : true
-  unmuteSelf : true
+  unmuteSelf : !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disableMic) or
+                !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked)
 
   logoutSelf : true
 
