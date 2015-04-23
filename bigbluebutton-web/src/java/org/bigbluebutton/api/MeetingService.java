@@ -589,7 +589,7 @@ public class MeetingService implements MessageListener {
 		log.debug("User joined in meeting[{}]", message.meetingId);
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
-			User user = new User(message.userId, message.externalUserId, message.name, message.role, message.guest);
+			User user = new User(message.userId, message.externalUserId, message.name, message.role, message.guest, message.waitingForAcceptance);
 			m.userJoined(user);
 			log.info("New user in meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
 			
@@ -601,8 +601,10 @@ public class MeetingService implements MessageListener {
 			logData.put("externalUserId", user.getExternalUserId());
 			logData.put("username", user.getFullname());
 			logData.put("role", user.getRole());			
-			logData.put("event", "user_joined_meeting");
-			logData.put("description", "User had joined the meeting.");
+			logData.put("guest", user.isGuest());
+			logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+			logData.put("event", MessagingConstants.USER_JOINED_EVENT);
+			logData.put("description", "User has joined the meeting.");
 			
 			Gson gson = new Gson();
 	    String logStr =  gson.toJson(logData);
@@ -630,8 +632,10 @@ public class MeetingService implements MessageListener {
 				logData.put("externalUserId", user.getExternalUserId());
 				logData.put("username", user.getFullname());
 				logData.put("role", user.getRole());			
-				logData.put("event", "user_joined_meeting");
-				logData.put("description", "User had joined the meeting.");
+				logData.put("guest", user.isGuest());
+				logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+				logData.put("event", MessagingConstants.USER_LEFT_EVENT);
+				logData.put("description", "User left the meeting.");
 				
 				Gson gson = new Gson();
 		    String logStr =  gson.toJson(logData);

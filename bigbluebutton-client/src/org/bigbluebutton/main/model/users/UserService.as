@@ -36,13 +36,12 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.core.model.Config
+	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-	import org.bigbluebutton.main.events.WaitModeratorEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.events.ResponseModeratorEvent;
-	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
@@ -72,6 +71,15 @@ package org.bigbluebutton.main.model.users
     
 		public function UserService() {
 			dispatcher = new Dispatcher();
+			msgReceiver.onAllowedToJoin = function():void {
+				sender.queryForParticipants();
+				sender.queryForRecordingStatus();
+				sender.queryForGuestPolicy();
+
+				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
+				loadCommand.conferenceParameters = _conferenceParameters;
+				dispatcher.dispatchEvent(loadCommand);
+			}
 		}
 		
 		public function startService(e:UserServicesEvent):void {
@@ -207,50 +215,20 @@ package org.bigbluebutton.main.model.users
       trace(LOG + "userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
-			
-      sender.queryForParticipants();     
-      sender.queryForRecordingStatus();
-      sender.queryForGuestPolicy();
-
-			if(UsersUtil.amIGuest() == false) {
-				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
-				loadCommand.conferenceParameters = _conferenceParameters;
-				dispatcher.dispatchEvent(loadCommand);		
-			}
 		}
 		
-		public function askToAccept():void {
-			UserManager.getInstance().getConference().setWaitForModerator(true);
-			var guestCommand:WaitModeratorEvent = new WaitModeratorEvent(WaitModeratorEvent.USER_LOGGED_IN);
-			guestCommand.conferenceParameters = _conferenceParameters;
-			dispatcher.dispatchEvent(guestCommand);  
-			
-		}
-
-		public function acceptGuest():void {
-			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
-			loadCommand.conferenceParameters = _conferenceParameters;
-			dispatcher.dispatchEvent(loadCommand);
-		}
-
 		public function denyGuest():void {
-			dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.GUEST_KICKED_OUT));
+			dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.MODERATOR_DENIED_ME));
 		}
 
-		public function newGuestPolicy(event:BBBEvent):void {
+		public function setGuestPolicy(event:BBBEvent):void {
 			sender.setGuestPolicy(event.payload['guestPolicy']);
-		}
-
-		public function getAllGuests(e:SuccessfulLoginEvent):void {
-			if(UserManager.getInstance().getConference().amIModerator()) {
-				sender.queryForGuestsWaiting();
-			}
 		}
 
 		public function guestDisconnect():void {
 			_connectionManager.guestDisconnect();
 		}
-
+					
 		public function isModerator():Boolean {
 			return UserManager.getInstance().getConference().amIModerator();
 		}
@@ -270,21 +248,9 @@ package org.bigbluebutton.main.model.users
 		public function changeStatus(e:ChangeStatusEvent):void {
 			sender.changeStatus(e.userId, e.getStatusName());
 		}
-		
-		public function askToEnter(e:WaitModeratorEvent):void {
-			sender.askToEnter();
-		}
 
 		public function responseToGuest(e:ResponseModeratorEvent):void {
 			sender.responseToGuest(e.userid, e.resp);
-		}
-
-		public function responseToAllGuests(e:ResponseModeratorEvent):void {
-			sender.responseToAllGuests(e.resp);
-		}
-
-		public function kickGuest(e:BBBEvent):void {
-			sender.kickGuest(e.payload.userId);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{

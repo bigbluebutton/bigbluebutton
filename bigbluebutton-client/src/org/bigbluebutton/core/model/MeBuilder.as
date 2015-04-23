@@ -64,7 +64,7 @@ package org.bigbluebutton.core.model
       guest = value;
       return this;
     }
-
+    
     public function withCustomData(value: Object):MeBuilder {
       customData = value;
       return this;

@@ -1853,6 +1853,8 @@ class ApiController {
                   userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
+                  guest("${att.guest}")
+                  waitingForAcceptance("${att.waitingForAcceptance}")
                   isPresenter("${att.isPresenter()}")
                   isListeningOnly("${att.isListeningOnly()}")
                   hasJoinedVoice("${att.isVoiceJoined()}")

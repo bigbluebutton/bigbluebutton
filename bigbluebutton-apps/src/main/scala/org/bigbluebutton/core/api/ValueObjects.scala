@@ -72,6 +72,7 @@ case class UserVO(
   name: String, 
   role: Role.Role, 
   guest: Boolean,
+  waitingForAcceptance: Boolean,
   mood: String, 
   presenter: Boolean, 
   hasStream: Boolean, 

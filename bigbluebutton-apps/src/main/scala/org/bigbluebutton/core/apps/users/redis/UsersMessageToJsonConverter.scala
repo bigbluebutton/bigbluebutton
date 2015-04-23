@@ -17,6 +17,7 @@ object UsersMessageToJsonConverter {
 	  wuser += "name"                 -> user.name
 	  wuser += "role"                 -> user.role.toString()
 	  wuser += "guest"                -> user.guest
+	  wuser += "waiting_for_acceptance" -> user.waitingForAcceptance
 	  wuser += "mood"                 -> user.mood
 	  wuser += "presenter"            -> user.presenter
 	  wuser += "has_stream"           -> user.hasStream

@@ -210,13 +210,6 @@ case class UserJoined(
     user:UserVO,
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
-
-case class JoinMeetingReply(
-    meetingID: String,
-    recorded: Boolean,
-    user:UserVO,
-  version:String = Versions.V_0_0_1
-) extends IOutMessage
                       
 case class UserRaisedHand(
     meetingID: String, 
@@ -667,13 +660,6 @@ case class IsWhiteboardEnabledReply(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
-case class GuestRequestedToEnter (
-    meetingID: String,
-    recorded: Boolean,
-    userID: String,
-    name: String
-) extends IOutMessage
-
 case class GetGuestPolicyReply(
     meetingID: String,
     recorded: Boolean,
@@ -687,24 +673,10 @@ case class GuestPolicyChanged(
     policy: String
 ) extends IOutMessage
 
-case class GetGuestsWaitingReply(
+case class GuestAccessDenied(
     meetingID: String,
     recorded: Boolean,
-    requesterID: String,
-    guestsWaiting: String
-) extends IOutMessage
-
-case class ResponseToGuest(
-    meetingID: String,
-    recorded: Boolean,
-    guestID: String,
-    response: Boolean
-) extends IOutMessage
-
-case class GuestKicked(
-    meetingID: String,
-    recorded: Boolean,
-    guestID: String
+    userId: String
 ) extends IOutMessage
 
 case class GetAllMeetingsReply(

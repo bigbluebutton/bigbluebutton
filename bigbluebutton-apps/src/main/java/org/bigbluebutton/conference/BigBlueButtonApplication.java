@@ -137,7 +137,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		if (params.length >= 10 && ((Boolean) params[10])) {
 			guest = true;
 		}
-
+    	   	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}

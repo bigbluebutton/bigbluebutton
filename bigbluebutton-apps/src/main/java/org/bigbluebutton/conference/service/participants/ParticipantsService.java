@@ -99,12 +99,6 @@ public class ParticipantsService {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
     }
 
-	public void askingToEnter() {
-		String userId = getBbbSession().getInternalUserID();
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.askingToEnter(roomName, userId);
-	}
-
 	public void getGuestPolicy() {
 		String requesterId = getBbbSession().getInternalUserID();
 		String roomName = Red5.getConnectionLocal().getScope().getName();
@@ -112,29 +106,15 @@ public class ParticipantsService {
 	}
 
 	public void setGuestPolicy(String guestPolicy) {
+		String requesterId = getBbbSession().getInternalUserID();
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.newGuestPolicy(roomName, guestPolicy);
-	}
-
-	public void getGuestsWaiting() {
-		String userId = getBbbSession().getInternalUserID();
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.askingForGuestWaiting(roomName, userId);
-	}
-
-	public void responseToAllGuests(Boolean resp) {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.responseToAllGuests(roomName, resp);
+		application.newGuestPolicy(roomName, guestPolicy, requesterId);
 	}
 
 	public void responseToGuest(Map<String, Object> msg) {
+		String requesterId = getBbbSession().getInternalUserID();
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.responseToGuest(roomName, (String) msg.get("guestID"), (Boolean) msg.get("response"));
-	}
-
-	public void kickGuest(String guestId) {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.kickGuest(roomName, guestId);
+		application.responseToGuest(roomName, (String) msg.get("userId"), (Boolean) msg.get("response"), requesterId);
 	}
 
 	public void setParticipantRole(Map<String, String> msg) {

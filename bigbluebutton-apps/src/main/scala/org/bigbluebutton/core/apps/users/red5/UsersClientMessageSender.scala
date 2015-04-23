@@ -23,7 +23,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: DisconnectUser                         => handleDisconnectUser(msg)
 	    case msg: PresenterAssigned                      => handleAssignPresenter(msg)
 	    case msg: UserJoined                             => handleUserJoined(msg)
-	    case msg: JoinMeetingReply                       => handleJoinMeetingReply(msg)
 	    case msg: UserLeft                               => handleUserLeft(msg)
 	    case msg: UserStatusChange                       => handleUserStatusChange(msg)
 	    case msg: UserRoleChange                         => handleUserRoleChange(msg)
@@ -42,12 +41,9 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
 	    case msg: MeetingMuted                           => handleMeetingMuted(msg)
 	    case msg: MeetingState                           => handleMeetingState(msg)
-	    case msg: GuestRequestedToEnter                  => handleGuestRequestedToEnter(msg)
 	    case msg: GetGuestPolicyReply                    => handleGetGuestPolicyReply(msg)
 	    case msg: GuestPolicyChanged                     => handleGuestPolicyChanged(msg)
-	    case msg: GetGuestsWaitingReply                  => handleGetGuestsWaitingReply(msg)
-	    case msg: ResponseToGuest                        => handleResponseToGuest(msg)
-	    case msg: GuestKicked                            => handleGuestKicked(msg)
+	    case msg: GuestAccessDenied                      => handleGuestAccessDenied(msg)
 	    
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
@@ -81,6 +77,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  wuser.put("name", user.name)
 	  wuser.put("role", user.role.toString())
 	  wuser.put("guest", user.guest:java.lang.Boolean)
+	  wuser.put("waitingForAcceptance", user.waitingForAcceptance:java.lang.Boolean)
 	  wuser.put("mood", user.mood:java.lang.String)
 	  wuser.put("presenter", user.presenter:java.lang.Boolean)
 	  wuser.put("hasStream", user.hasStream:java.lang.Boolean)
@@ -354,25 +351,19 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	message.put("msg", gson.toJson(args))
 
+//  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
+			
+  	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
+  	service.sendMessage(jmr);
+  	  
 //  println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
   	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
   	service.sendMessage(m);
 	}
 
-	private def handleJoinMeetingReply(msg: JoinMeetingReply):Unit = {
-		var args = new HashMap[String, Object]();
-		args.put("user", buildUserHashMap(msg.user));
-
-		val message = new java.util.HashMap[String, Object]()
-		val gson = new Gson();
-		message.put("msg", gson.toJson(args))
-
-//  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
-		var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
-		service.sendMessage(jmr);
-	}
-
+	
+	
 	private def handleUserLeft(msg: UserLeft):Unit = {
 	  var args = new HashMap[String, Object]();	
 	  args.put("user", buildUserHashMap(msg.user));
@@ -463,21 +454,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
  	  service.sendMessage(m);	  
 	}
 
-  private def handleGuestRequestedToEnter(msg: GuestRequestedToEnter) {
-    var args = new HashMap[String, Object]();
-    args.put("userId", msg.userID);
-    args.put("name", msg.name);
-
-    val message = new java.util.HashMap[String, Object]()
-    val gson = new Gson();
-    message.put("msg", gson.toJson(args))
-
-//    println("UsersClientMessageSender - handleGuestRequestedToEnter \n" + message.get("msg") + "\n")
-
-    var m = new BroadcastClientMessage(msg.meetingID, "user_requested_to_enter", message);
-    service.sendMessage(m);
-  }
-
   private def handleGetGuestPolicyReply(msg: GetGuestPolicyReply) {
     var args = new HashMap[String, Object]();
     args.put("guestPolicy", msg.policy.toString());
@@ -506,46 +482,17 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
     service.sendMessage(m);
   }
 
-  private def handleGetGuestsWaitingReply(msg: GetGuestsWaitingReply) {
+  private def handleGuestAccessDenied(msg: GuestAccessDenied) {
     var args = new HashMap[String, Object]();
-    args.put("guestsWaiting", msg.guestsWaiting);
+    args.put("userId", msg.userId);
 
     val message = new java.util.HashMap[String, Object]()
     val gson = new Gson();
     message.put("msg", gson.toJson(args))
 
-//    println("UsersClientMessageSender - handleGetGuestsWaitingReply \n" + message.get("msg") + "\n")
+//    println("UsersClientMessageSender - handleGuestAccessDenied \n" + message.get("msg") + "\n")
 
-    val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "get_guests_waiting_reply", message);
-    service.sendMessage(m);
-  }
-
-  private def handleResponseToGuest(msg: ResponseToGuest) {
-    var args = new HashMap[String, Object]();
-    args.put("userId", msg.guestID);
-    args.put("response", msg.response:java.lang.Boolean);
-
-    val message = new java.util.HashMap[String, Object]()
-    val gson = new Gson();
-    message.put("msg", gson.toJson(args))
-
-//    println("UsersClientMessageSender - handleResponseToGuest \n" + message.get("msg") + "\n")
-
-    val m = new BroadcastClientMessage(msg.meetingID, "response_to_guest", message);
-    service.sendMessage(m);
-  }
-
-  private def handleGuestKicked(msg: GuestKicked) {
-    var args = new HashMap[String, Object]();
-    args.put("guestId", msg.guestID);
-
-    val message = new java.util.HashMap[String, Object]()
-    val gson = new Gson();
-    message.put("msg", gson.toJson(args))
-
-//    println("UsersClientMessageSender - handleGuestKicked \n" + message.get("msg") + "\n")
-
-    val m = new BroadcastClientMessage(msg.meetingID, "guest_kicked", message);
+    val m = new DirectClientMessage(msg.meetingID, msg.userId, "guest_access_denied", message);
     service.sendMessage(m);
   }
 }

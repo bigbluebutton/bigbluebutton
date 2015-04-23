@@ -31,8 +31,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               : ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.toolTip.notRecording')}"
 	enabled="false"
 	creationComplete="onCreationComplete()"
-	visible="{UserManager.getInstance().getConference().record}"
-	includeInLayout="{UserManager.getInstance().getConference().record}" 
 	mouseOver="onRecordButtonMouseOver(event)"
 	mouseOut="onRecordButtonMouseOut(event)" >
 

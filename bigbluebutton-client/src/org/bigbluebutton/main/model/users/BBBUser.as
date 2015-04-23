@@ -54,9 +54,8 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var disableMyPublicChat:Boolean = false;
     [Bindable] public var lockedLayout:Boolean = false;
     
-		[Bindable] public var waitingForMod:Boolean = false;
-		[Bindable] public var guest:Boolean;
-		[Bindable] public var acceptedJoin:Boolean = false;
+		[Bindable] public var guest:Boolean = false;
+		[Bindable] public var waitingForAcceptance:Boolean = false;
 
 		[Bindable]
 		public function get hasStream():Boolean {
