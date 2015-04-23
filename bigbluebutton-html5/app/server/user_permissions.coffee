@@ -8,9 +8,8 @@ moderator =
   joinListenOnly: true
   leaveListenOnly: true
 
-  # audio listen and speak
-  joinAudioWithMic: true
-  leaveAudioWithMic: true
+  # join audio with mic cannot be controlled on the server side as it is
+  # a client side only functionality
 
   # raising/lowering hand
   raiseOwnHand : true
@@ -39,9 +38,8 @@ viewer = (meetingId, userId) ->
   joinListenOnly: true
   leaveListenOnly: true
 
-  # audio listen and speak
-  joinAudioWithMic: false
-  leaveAudioWithMic: false
+  # join audio with mic cannot be controlled on the server side as it is
+  # a client side only functionality
 
   # raising/lowering hand
   raiseOwnHand : true
