@@ -219,6 +219,10 @@ Template.slidingMenu.events
     toggleSlidingMenu()
     $('.collapseButton').blur()
 
+  "click .leaveAudioButton": (event) ->
+    exitVoiceCall event
+    toggleSlidingMenu()
+
 Template.main.helpers
   setTitle: ->
     document.title = "BigBlueButton #{window.getMeetingName() ? 'HTML5'}"
