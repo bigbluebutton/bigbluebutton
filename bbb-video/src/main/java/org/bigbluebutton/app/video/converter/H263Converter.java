@@ -1,5 +1,7 @@
-package org.bigbluebutton.app.video.h263;
+package org.bigbluebutton.app.video.converter;
 
+import org.bigbluebutton.app.video.ffmpeg.FFmpegCommand;
+import org.bigbluebutton.app.video.ffmpeg.ProcessMonitor;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -22,8 +24,8 @@ public class H263Converter {
 	private String origin;
 	private Integer numListeners = 0;
 
-	FFmpegCommand ffmpeg;
-	ProcessMonitor processMonitor;
+	private FFmpegCommand ffmpeg;
+	private ProcessMonitor processMonitor;
 	
 	/**
 	 * Creates a H263Converter from a given streamName. It is assumed
@@ -49,6 +51,7 @@ public class H263Converter {
 		ffmpeg.setFormat("flv");
 		ffmpeg.setOutput(output);
 		ffmpeg.setLoglevel("warning");
+		ffmpeg.setAnalyzeDuration("10000"); // 10ms
 
 		this.addListener();
 	}

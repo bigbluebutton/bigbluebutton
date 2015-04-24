@@ -1,5 +1,6 @@
-package org.bigbluebutton.app.video.h263;
+package org.bigbluebutton.app.video.ffmpeg;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class FFmpegCommand {
+
+    /**
+     * Indicate the direction to rotate the video
+     */
+    public enum ROTATE { LEFT, RIGHT };
+
     private HashMap args;
     private HashMap x264Params;
 
@@ -16,9 +23,20 @@ public class FFmpegCommand {
     private String input;
     private String output;
 
+    /* Analyze duration is a special parameter that MUST come before the input */
+    private String analyzeDuration;
+
     public FFmpegCommand() {
         this.args = new HashMap();
         this.x264Params = new HashMap();
+
+        /* Prevent quality loss by default */
+        try {
+            this.setVideoQualityScale(1);
+        } catch (InvalidParameterException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        };
 
         this.ffmpegPath = null;
     }
@@ -37,6 +55,12 @@ public class FFmpegCommand {
             this.ffmpegPath = "/usr/local/bin/ffmpeg";
 
         comm.add(this.ffmpegPath);
+
+        /* Analyze duration MUST come before the input */
+        if(analyzeDuration != null && !analyzeDuration.isEmpty()) {
+            comm.add("-analyzeduration");
+            comm.add(analyzeDuration);
+        }
 
         comm.add("-i");
         comm.add(input);
@@ -120,5 +144,48 @@ public class FFmpegCommand {
     
     public void setResolution(String arg) {
         this.args.put("-s", arg);
+    }
+
+    /**
+     * Set the direction to rotate the video
+     * @param arg Rotate direction
+     */
+    public void setRotation(ROTATE arg) {
+        switch (arg) {
+            case LEFT:
+                this.args.put("-vf", "transpose=2");
+                break;
+            case RIGHT:
+                this.args.put("-vf", "transpose=1");
+                break;
+        }
+    }
+
+    /**
+     * Set how much time FFmpeg should  analyze stream
+     * data to get stream information. Note that this
+     * affects directly the delay to start the stream.
+     *
+     * @param duration Rotate direction
+     */
+    public void setAnalyzeDuration(String duration) {
+        this.analyzeDuration = duration;
+    }
+
+    /**
+     * Set video quality scale to a value (1-31).
+     * 1 is the highest quality and 31 the lowest.
+     * <p>
+     * <b> Note: Does NOT apply to h264 encoder. </b>
+     * </p>
+     *
+     * @param scale Scale value (1-31)
+     * @throws InvalidParameterException
+     */
+    public void setVideoQualityScale(Integer scale) throws InvalidParameterException {
+        if(scale < 1 || scale > 31)
+            throw new InvalidParameterException("Scale must be a value in 1-31 range");
+
+        this.args.put("-q:v", scale.toString());
     }
 }

@@ -1,4 +1,4 @@
-package org.bigbluebutton.app.video.h263;
+package org.bigbluebutton.app.video.ffmpeg;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
