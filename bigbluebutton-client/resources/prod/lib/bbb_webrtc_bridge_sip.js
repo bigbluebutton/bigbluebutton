@@ -178,6 +178,7 @@ function createUA(username, server, callback) {
 		traceSip: true,
 		autostart: false,
 		userAgentString: "BigBlueButton",
+		iceGatheringTimeout: 5000,
 		stunServers: "stun:stun.freeswitch.org"
 	};
 	
