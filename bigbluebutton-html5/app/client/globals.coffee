@@ -154,9 +154,6 @@ Handlebars.registerHelper 'isMobile', () ->
 Handlebars.registerHelper 'isPortraitMobile', () ->
   isPortraitMobile()
 
-Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
-  isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
-
 Handlebars.registerHelper "meetingIsRecording", ->
   Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
 
