@@ -204,7 +204,7 @@ Meteor.methods
   # the collection already contains an entry for this user because
   # we added a dummy user on register_user_message (to save authToken)
   if u?
-    Meteor.log.info "UPDATING USER #{user.userid}, authToken=#{u.authToken}"
+    Meteor.log.info "UPDATING USER #{user.userid}, authToken=#{u.authToken}, locked=#{user.locked}"
     Meteor.Users.update({userId:user.userid, meetingId: meetingId}, {$set:{
       user:
         userid: user.userid
@@ -307,6 +307,36 @@ Meteor.methods
     id = Meteor.Users.insert(entry)
     Meteor.log.info "added user dummy html5 user with: userid=[#{userId}], id=[#{id}]
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+
+
+# when new lock settings including disableMic are set,
+# all viewers that are in the audio bridge with a mic should be muted and locked
+@handleLockingMic = (meetingId, newSettings) ->
+  # send mute requests for the viewer users joined with mic
+  for u in Meteor.Users.find({
+                              meetingId:meetingId
+                              'user.role':'VIEWER'
+                              'user.listenOnly':false
+                              'user.locked':true
+                              'user.voiceUser.joined':true
+                              'user.voiceUser.muted':false})?.fetch()
+    Meteor.log.error u.user.name #
+    Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true) #true for muted
+
+# change the locked status of a user (lock settings)
+@setUserLockedStatus = (meetingId, userId, isLocked) ->
+  if Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
+    Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.locked': isLocked}})
+
+    # if the user is sharing audio, he should be muted upon locking involving disableMic
+    u = Meteor.Users.findOne({meetingId:meetingId, userId:userId})
+    if u.user.role is 'VIEWER' and !u.user.listenOnly and u.user.voiceUser.joined and !u.user.voiceUser.muted and isLocked
+      Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true) #true for muted
+
+    Meteor.log.info "setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
+  else
+    Meteor.log.error "(unsuccessful-no such user) setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
+
 
 # called on server start and on meeting end
 @clearUsersCollection = (meetingId) ->

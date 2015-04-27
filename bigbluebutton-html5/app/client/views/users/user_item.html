@@ -32,6 +32,10 @@
     {{/if}}
   {{/if}}
 
+  {{#if userLockedIconApplicable userId}}
+    <span class="userListSettingIcon glyphicon ion-locked" rel="tooltip" data-placement="bottom" title="The viewer is locked"></span>
+  {{/if}}
+
   {{#if user.presenter}}
     <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
   {{else}}

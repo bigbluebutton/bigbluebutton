@@ -2,17 +2,27 @@
 # Private methods on server
 # --------------------------------------------------------------------------------------------
 @addMeetingToCollection = (meetingId, name, intendedForRecording, voiceConf, duration) ->
-	#check if the meeting is already in the collection
-	unless Meteor.Meetings.findOne({meetingId: meetingId})?
-		currentlyBeingRecorded = false # defaut value
-		id = Meteor.Meetings.insert(
-			meetingId: meetingId,
-			meetingName: name,
-			intendedForRecording: intendedForRecording,
-			currentlyBeingRecorded: currentlyBeingRecorded,
-			voiceConf: voiceConf,
-			duration: duration)
-		Meteor.log.info "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}]:duration=[#{duration}]:voiceConf=[#{voiceConf}]."
+  #check if the meeting is already in the collection
+  unless Meteor.Meetings.findOne({meetingId: meetingId})?
+    entry =
+      meetingId: meetingId
+      meetingName: name
+      intendedForRecording: intendedForRecording
+      currentlyBeingRecorded: false # defaut value
+      voiceConf: voiceConf
+      duration: duration
+      roomLockSettings:
+        # by default the lock settings will be disabled on meeting create
+        disablePrivChat: false
+        disableCam: false
+        disableMic: false
+        lockOnJoin: Meteor.config.lockOnJoin
+        lockedLayout: false
+        disablePubChat: false
+
+    id = Meteor.Meetings.insert(entry)
+    Meteor.log.info "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}]:duration=[#{duration}]:voiceConf=[#{voiceConf}]
+    roomLockSettings:[#{JSON.stringify entry.roomLockSettings}]."
 
 
 @clearMeetingsCollection = (meetingId) ->
@@ -22,6 +32,7 @@
 		Meteor.Meetings.remove({}, Meteor.log.info "cleared Meetings Collection (all meetings)!")
 
 
+#clean up upon a meeting's end
 @removeMeetingFromCollection = (meetingId) ->
 	if Meteor.Meetings.findOne({meetingId: meetingId})?
 		Meteor.log.info "end of meeting #{meetingId}. Clear the meeting data from all collections"

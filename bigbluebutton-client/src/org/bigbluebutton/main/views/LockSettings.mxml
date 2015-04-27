@@ -160,7 +160,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="18" paddingTop="20">
 			<mx:Button id="saveBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.save')}" 
 					   click="onSaveClicked()" tabIndex="{baseIndex+8}"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.lockSettings.save.toolTip')}"/>
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.lockSettings.save.tooltip')}"/>
 			
 			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.lockSettings.cancel')}" 
 					   click="onCancelClicked()" tabIndex="{baseIndex+9}"

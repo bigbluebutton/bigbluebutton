@@ -64,8 +64,6 @@ displayAudioSelectionMenu = ({isMobile} = {}) ->
 
   if isMobile
     toggleSlidingMenu()
-
-  if isMobile
     $('.navbarTitle').css('width', '55%')
 
   # pop open the dialog allowing users to choose the audio options
@@ -73,7 +71,18 @@ displayAudioSelectionMenu = ({isMobile} = {}) ->
     $('.joinAudio-dialog').addClass('landscape-mobile-joinAudio-dialog')
   else
     $('.joinAudio-dialog').addClass('desktop-joinAudio-dialog')
+
   $("#joinAudioDialog").dialog("open")
+
+
+# helper function to reuse some code for the handling of audio join
+onAudioJoinHelper = () ->
+  # if the microphone is locked (lock settings), the viewer is only
+  # allowed to join the audio as listenOnly.
+  if BBB.isMyMicLocked()
+    introToAudio(null, isListenOnly: true)
+  else
+    displayAudioSelectionMenu(isMobile: isMobile())
 
 
 # Helper to load javascript libraries from the BBB server
@@ -113,7 +122,7 @@ Template.footer.helpers
 
 Template.header.events
   "click .joinAudioButton": (event) ->
-    displayAudioSelectionMenu(isMobile: false)
+    onAudioJoinHelper()
 
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
@@ -186,7 +195,7 @@ Template.header.events
 
 Template.slidingMenu.events
   'click .joinAudioButton': (event) ->
-    displayAudioSelectionMenu(isMobile: true)
+    onAudioJoinHelper()
 
   'click .chatBarIcon': (event) ->
     $('.tooltip').hide()
@@ -319,7 +328,7 @@ Template.main.rendered = ->
     toggleSlidingMenu()
 
   if Meteor.config.app.autoJoinAudio
-    displayAudioSelectionMenu(isMobile:isMobile())
+    onAudioJoinHelper()
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
