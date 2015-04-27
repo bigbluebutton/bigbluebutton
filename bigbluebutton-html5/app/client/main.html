@@ -36,9 +36,9 @@
 
             <!-- display/hide whiteboard toggle -->
             {{#if getInSession "display_whiteboard"}}
-              {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon navbarButton collapseSectionButton" i_class="glyphicon glyphicon-pencil" rel="tooltip" data_placement="bottom" title="Hide Whiteboard"}}
+              {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon navbarButton collapseSectionButton" i_class="ion-easel" rel="tooltip" data_placement="bottom" title="Hide Whiteboard"}}
             {{else}}
-              {{> makeButton btn_class="whiteboardIcon navbarButton collapseSectionButton" i_class="glyphicon glyphicon-pencil" rel="tooltip" data_placement="bottom" title="Show Whiteboard"}}
+              {{> makeButton btn_class="whiteboardIcon navbarButton collapseSectionButton" i_class="ion-easel" rel="tooltip" data_placement="bottom" title="Show Whiteboard"}}
             {{/if}}
 
             <!-- display/hide chat bar toggle -->
@@ -135,6 +135,7 @@
       <div id="browser-icon-container"></div>
       <p id="notification-text"></p>
     </div>
+
     <div id="main" class="mainContainer row-fluid">
       {{#if isDisconnected}}
         {{>status}}
@@ -144,7 +145,6 @@
         {{> chatbar id="chat" title="Chat" name="chatbar"}}
         {{> usersList id="users" name="usersList"}}
         <audio id="remote-media" autoplay="autoplay"></audio>
-        <video style="display:none"></video>
         {{> footer}}
       {{/if}}
       <div id='shield'></div>
@@ -178,9 +178,9 @@
       {{/if}}
 
       {{#if getInSession "display_whiteboard"}}
-        {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon slideButton" i_class="glyphicon glyphicon-pencil" rel="tooltip" data_placement="right" title="Hide Whiteboard"}}
+        {{> makeButton btn_class="navbarIconToggleActive whiteboardIcon slideButton" i_class="ion-easel" rel="tooltip" data_placement="right" title="Hide Whiteboard"}}
       {{else}}
-        {{> makeButton btn_class="whiteboardIcon slideButton" i_class="glyphicon glyphicon-pencil" rel="tooltip" data_placement="right" title="Show Whiteboard"}}
+        {{> makeButton btn_class="whiteboardIcon slideButton" i_class="ion-easel" rel="tooltip" data_placement="right" title="Show Whiteboard"}}
       {{/if}}
 
       {{#if getInSession "display_chatbar"}}
@@ -190,31 +190,9 @@
       {{/if}}
 
       {{#if amIInAudio}}
-        <!-- This button is for leaving audio -->
-        <div class='hiddenNavbarSection'>
-          <!-- display the button for leaving audio -->
-          {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon navbarButton audioButton leaveAudioButton" i_class="ion-volume-mute" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
-        </div>
-        {{#unless amIListenOnlyAudio}}
-          {{#if isCurrentUserMuted}}
-            <!-- if you are muted the button representing your status will show volume off -->
-            {{> makeButton btn_class="muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
-          {{else}}
-            {{#if isCurrentUserTalking}}
-              <!-- you are talking. Display a high volume/volume up representing voice activity -->
-              {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
-            {{else}}
-              <!-- you are not talking. Display low volume/volume down representing no voice activity -->
-              {{> makeButton btn_class="navbarIconToggleActive muteIcon navbarButton audioButton" i_class="glyphicon glyphicon-volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
-            {{/if}}
-          {{/if}}
-        {{/unless}}
+        {{> makeButton btn_class="navbarIconToggleActive audioFeedIcon slideButton audioButton leaveAudioButton" i_class="ion-volume-mute" sharingAudio=true rel="tooltip" data_placement="bottom" title="Leave Audio Call"}}
       {{else}}
-        <div class='hiddenNavbarSection'>
-          <div id="shareMicrophonePanel">
-              {{> makeButton btn_class="audioFeedIcon navbarButton audioButton joinAudioButton" i_class="glyphicon glyphicon-headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
-          </div>
-        </div>
+        {{> makeButton btn_class="audioFeedIcon slideButton audioButton joinAudioButton" i_class="glyphicon glyphicon-headphones" sharingAudio=false rel="tooltip" data_placement="bottom" title="Join Audio Call"}}
       {{/if}}
 
       {{#if isCurrentUserRaisingHand}}

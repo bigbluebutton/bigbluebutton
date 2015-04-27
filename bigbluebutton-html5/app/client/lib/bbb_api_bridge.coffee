@@ -87,6 +87,19 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.isUserTalking = (userId, callback) ->
     BBB.getUser(userId)?.user?.voiceUser?.talking
 
+  # returns true if the current user is marked as locked
+  BBB.amILocked = () ->
+    return BBB.getCurrentUser()?.user.locked
+
+  # check whether the user is locked AND the current lock settings for the room
+  # includes locking the microphone of viewers (listenOnly is still alowed)
+  BBB.isMyMicLocked = () ->
+    lockedMicForRoom = Meteor.Meetings.findOne()?.roomLockSettings.disableMic
+    # note that voiceUser.locked is not used in BigBlueButton at this stage (April 2015)
+
+    return lockedMicForRoom and BBB.amILocked()
+
+
   ###
   Raise user's hand.
 
@@ -208,6 +221,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   isListenOnly: signifies whether the user joining the conference audio requests to join the listen only stream
   ###
   BBB.joinVoiceConference = (callback, isListenOnly) ->
+    if BBB.isMyMicLocked()
+      callIntoConference(BBB.getMyVoiceBridge(), callback, true) #true because we force isListenOnly mode
     callIntoConference(BBB.getMyVoiceBridge(), callback, isListenOnly)
 
   ###

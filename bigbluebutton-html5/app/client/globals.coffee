@@ -112,7 +112,7 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Presentation: " + (getPresentationFilename() or "Loading...")
+  (getPresentationFilename() or "Loading presentaion...")
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
@@ -151,8 +151,8 @@ Handlebars.registerHelper "isUserTalking", (userId) ->
 Handlebars.registerHelper 'isMobile', () ->
   isMobile()
 
-Handlebars.registerHelper 'isMobile', () ->
-  isMobile()
+Handlebars.registerHelper 'isPortraitMobile', () ->
+  isPortraitMobile()
 
 Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
   isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
@@ -225,7 +225,7 @@ Handlebars.registerHelper "visibility", (section) ->
 @introToAudio = (event, {isListenOnly} = {}) ->
   isListenOnly ?= true
   joinVoiceCall event, isListenOnly: isListenOnly
-  displayWebRTCNotification()
+  notification_WebRTCAudioJoined()
 
 # check the chat history of the user and add tabs for the private chats
 @populateChatTabs = (msg) ->

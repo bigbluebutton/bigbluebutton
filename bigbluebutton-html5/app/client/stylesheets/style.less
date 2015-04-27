@@ -41,13 +41,8 @@ body {
   overflow-x: hidden;
 }
 
-.listenOnlyIcon {
-  color: white;
-  font-size: 20px;
-  padding-top: 10px;
-  &:hover {
-    color: white !important;
-  }
+.heading {
+  margin-left:5px 
 }
 
 .mainContainer {
@@ -59,6 +54,7 @@ body {
   color: black;
   padding-top: 13px;
   text-align: center;
+  background-color: #EEEEEE;
   @media @landscape {
     position:fixed;
     bottom:0;
@@ -92,8 +88,6 @@ body {
   }
   .btn {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-    border-left: 1px solid extract(@darkGrey, 2);
-    border-right: 1px solid extract(@darkGrey, 4);
     &.navbarIconToggleActive {
       background: extract(@darkGrey, 3);
       border-bottom: 4px solid extract(@azure, 1);
@@ -223,7 +217,7 @@ body {
     display: block;
     float: left;
     &:hover {
-      background: extract(@darkGrey, 3);
+      background: extract(@darkGrey, 4);
     }
   }
   @media @landscape {
@@ -232,7 +226,7 @@ body {
 }
 
 .navbarSettingsButtons .btn:hover {
-  background: extract(@darkGrey, 3);
+  background: extract(@darkGrey, 4);
 }
 
 .panel-footer {
@@ -384,7 +378,7 @@ body {
   }
 }
 
-.glyphicon, .ion-android-hand {
+.glyphicon, .ion-android-hand, .ion-easel {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     font-size: 35px;
   }
@@ -472,8 +466,6 @@ body {
     }
     .btn {
       .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-      border-left: 1px solid extract(@darkGrey, 2);
-      border-right: 1px solid extract(@darkGrey, 4);
       &.navbarIconToggleActive {
         background: extract(@darkGrey, 3);
         border-bottom: 4px solid extract(@azure, 1);

@@ -20,7 +20,6 @@ public class WhiteboardListener implements MessageHandler{
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_WHITEBOARD_CHANNEL)) {
-			System.out.println("AntonChannel=(whiteboard)" + channel);
 
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
@@ -44,7 +43,7 @@ public class WhiteboardListener implements MessageHandler{
 					else {
 						System.out.println("\n DID NOT FIND A whiteboardID \n");
 					}
-					System.out.println("\n\n\n user<" + requesterID + "> requested the shapes.\n\n");
+					System.out.println("\n user<" + requesterID + "> requested the shapes.\n");
 				}
 			}
 		}
