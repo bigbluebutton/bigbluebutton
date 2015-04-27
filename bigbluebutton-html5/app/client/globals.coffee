@@ -188,6 +188,40 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
+@notification_WebRTCNotSupported = () -> # shown when the user's browser does not support WebRTC
+  # create a new notification at the audio button they clicked to trigger the event
+  Meteor.NotificationControl.makeNewNotification("#notification", 'webrtc_notification_is_displayed', {nMy: 'left top', nAt: 'left bottom', nOf: '.joinAudioButton'})
+  Meteor.NotificationControl.registerShow () ->
+    $('#notification').addClass('joined-audio-notification webrtc-support-notification')
+    Meteor.NotificationControl.icon = new Raphael('browser-icon-container', 35, 35)
+    if ((browserName=getBrowserName()) in ['Safari', 'IE']) or browserName="settings" # show either the browser icon or cog gears
+      Meteor.NotificationControl.icon.path(NotificationControl.icons["#{browserName}_IconPath"]).attr({fill: "#000", stroke: "none"})
+      $('#notification-text').html("Sorry,<br/>#{if browserName isnt 'settings' then browserName else 'your browser'} doesn't support WebRTC")
+      $('.notification.ui-widget-content p').css('font-size', '11px') if browserName is 'settings' # to make sure the text fits the dialog box
+  , 3000
+  Meteor.NotificationControl.registerHide () ->
+    $('.joinAudioButton').blur()
+    setTimeout () -> # waits to hide the notification, then removes the icons. Looks cleaner than text shifting left before closing
+      Meteor.NotificationControl.icon.remove()
+      $('.notification').removeClass('webrtc-support-notification')
+    , Meteor.NotificationControl.getNotifcationTime().hideTime
+  Meteor.NotificationControl.display()
+
+@notification_WebRTCAudioJoined = () -> # used when the user can join audio
+  if !BBB.amIInAudio()
+    Tracker.autorun (comp) -> # wait until user is in
+      if BBB.amIInAudio() # display notification when you are in audio
+        Meteor.NotificationControl.makeNewNotification("#notification", 'webrtc_notification_is_displayed', {nMy: 'left top', nAt: 'left bottom', nOf: '.joinAudioButton'})
+        Meteor.NotificationControl.registerShow () ->
+          $('#notification').addClass('joined-audio-notification')
+          $("#browser-icon-container").remove() # remove the space taken up by the unused icon
+          # notify the type of audio joined
+          $('#notification-text').html("You've joined the #{if BBB.amIListenOnlyAudio() then 'Listen Only' else ''} audio")
+        , 3000
+        Meteor.NotificationControl.registerHide () ->
+          $('.joinAudioButton').blur()
+        Meteor.NotificationControl.display()
+
 @introToAudio = (event, {isListenOnly} = {}) ->
   isListenOnly ?= true
   joinVoiceCall event, isListenOnly: isListenOnly

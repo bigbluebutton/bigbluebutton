@@ -508,8 +508,26 @@ body {
 }
 
 /* Notifications */
+#browser-icon-container {
+  float: left;
+  max-height: 35px !important;
+  max-width: 35px !important;
+  path {
+    margin: auto;
+  }
+}
+
+#notification {
+  height: 100% !important;
+  margin: 0;
+  min-height: 0px !important;
+  overflow: hidden;
+  padding: 0;
+  width: 100% !important;
+}
 
 .notification {
+  background: grey;
   /* sets the opacity of the background */
   filter:alpha(opacity=85);
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=85)";
@@ -517,49 +535,26 @@ body {
   -khtml-opacity: 0.85;
   opacity: 0.85;
 
-  background: grey;
-  &.webrtc-support-notification {
-    width: 500px !important;
-    height: 50px !important;
-  }
   &.joined-audio-notification {
-    width: 500px !important;
     #browser-icon-container {
       display: none;
     }
     #notification-text {
       height: 100% !important;
     }
+    width: 500px !important;
   }
-  min-height: 0px !important;
-  font-weight: 900;
   &.ui-widget-content p {
     color: black;
     font-size: 14px;
-    margin: 0;
     padding: 1px;
   }
-}
-
-#notification {
-  min-height: 0px !important;
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0;
-  padding: 0;
-}
-
-#browser-icon-container {
-  width: 35px !important;
-  height: 35px !important;
-  float: left;
-  path {
-    margin: auto;
+  &.webrtc-support-notification {
+    height: 50px !important;
+    width: 500px !important;
   }
-}
-
-#notification-text {
-  float: left;
+  font-weight: 900;
+  min-height: 0px !important;
 }
 
 .invisible {
