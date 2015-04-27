@@ -298,7 +298,7 @@ class Meteor.RedisPubSub
         newSettings = message.payload
 
         # if the disableMic setting was turned on
-        if !oldSettings.disableMic and newSettings.disableMic
+        if !oldSettings?.disableMic and newSettings.disableMic
           handleLockingMic(meetingId, newSettings)
 
         # substitute with the new lock settings
