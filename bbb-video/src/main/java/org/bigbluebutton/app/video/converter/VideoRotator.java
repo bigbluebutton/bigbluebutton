@@ -1,5 +1,6 @@
 package org.bigbluebutton.app.video.converter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.app.video.ffmpeg.FFmpegCommand;
 import org.bigbluebutton.app.video.ffmpeg.ProcessMonitor;
 import org.red5.logging.Red5LoggerFactory;
@@ -64,7 +65,7 @@ public class VideoRotator {
 	private String getStreamName(String streamName) {
 		String parts[] = streamName.split("/");
 		if(parts.length > 1)
-			return parts[1];
+			return StringUtils.join(parts, '/', 1, parts.length);
 		return "";
 	}
 
