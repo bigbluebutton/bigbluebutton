@@ -116,6 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 _me = user.me;
 
                 updateButtons();
+                updateTalkingStatus();
             }
 
             public function get visibleComponent():UserGraphic {
@@ -225,14 +226,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
             }
 
+            private function updateTalkingStatus() {
+                if (user.talking) {
+                    titleBox.setStyle("styleName", "videoToolbarBackgroundTalkingStyle");
+                } else {
+                    titleBox.setStyle("styleName", "videoToolbarBackgroundNotTalkingStyle");
+                }
+            }
+
             private function handleUserTalkingEvent(event:CoreEvent):void {
                 if (user && event.message.userID ==  user.userID) {
                     updateButtons();
-                    if (event.message.talking) {
-                        titleBox.setStyle("styleName", "videoToolbarBackgroundTalkingStyle");
-                    } else {
-                        titleBox.setStyle("styleName", "videoToolbarBackgroundNotTalkingStyle");
-                    }
+                    updateTalkingStatus();
                 }
             }
 
