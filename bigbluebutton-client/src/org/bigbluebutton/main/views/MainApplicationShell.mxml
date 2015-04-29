@@ -173,7 +173,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         showFooterOpt = layoutOptions.showFooter;
         
         var locale:Object = BBB.initConfigManager().config.language;
-        langSelector.visible = locale.userSelectionEnabled
+        langSelector.visible = false
  
         if (!showFooterOpt) {
           footerHeight = 0;
@@ -297,8 +297,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} catch (err:SecurityError) {
 					// ignore
 				}
-	   		}	
-	   		
+	   		}	 	
+   		
 	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
 				// this is a terrible place for these checks because this function runs 4 times on startup
 				if (BBB.initConnectionManager().isTunnelling) {
@@ -590,7 +590,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleWebRTCCallStartedEvent(e:WebRTCCallEvent):void {
-				lblWebRTC.visible = lblWebRTC.includeInLayout = true;
+				lblWebRTC.visible = lblWebRTC.includeInLayout = false;
 			}
 			
 			private function handleWebRTCCallEndedEvent(e:WebRTCCallEvent):void {
@@ -682,26 +682,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				id="copyrightLabel2" truncateToFit="true"
 				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
-		<mx:Label 
-				id="lblWebRTC"
-				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"
-				visible="false"
-				includeInLayout="false" />
+		<mx:Label 
+                                id="lblWebRTC"
+                                text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"
+                                visible="false"
+                                includeInLayout="false" />
 		<mx:Label
 				text="{'['+ResourceUtil.getInstance().getString('bbb.mainshell.notification.tunnelling')+']'}"
 				id="isTunnellingLbl"
 				visible="{isTunneling}"
 				includeInLayout="{isTunneling}" />
-		<views:WarningButton id="warningBtn" 
-				width="23"
+		<views:WarningButton id="warningBtn" 			width="23"
 				height="20"/>
-		<views:LanguageSelector id="langSelector" 
-				visible="false" 
-				height="20"
-				width="180"
-				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle"
-				tabIndex="{baseIndex}"/>
+		 <views:LanguageSelector id="langSelector" 
+                                visible="false" 
+                                height="20"
+                                width="180"
+                                accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
+                                styleName="languageSelectorStyle"
+                                tabIndex="{baseIndex}"/>		
 		<mx:Button
 				width="20"
 				height="20"
