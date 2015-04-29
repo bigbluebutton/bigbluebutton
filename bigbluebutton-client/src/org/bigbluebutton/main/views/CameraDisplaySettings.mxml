@@ -237,4 +237,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  accessibilityName="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.accessName')}"/>
     </mx:HBox>
 	</mx:VBox>		
-</mx:TitleWindow>
+</mx:TitleWindow>
