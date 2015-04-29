@@ -50,18 +50,6 @@ public class ParticipantsApplication {
 		bbbInGW.setUserStatus(room, userid, status, value);
 	}
 
-	public boolean participantJoin(String roomName, String userid) { //is this used?!
-		log.debug("Participant " + userid + " joining room " + roomName);
-		bbbInGW.userJoin(roomName, userid);
-		return true;
-	}
-
-	public boolean participantLeft(String roomName, String userid) { //is this used?!
-		log.debug("Participant " + userid + " leaving room " + roomName);
-		bbbInGW.userLeft(roomName, userid);
-		return true;
-	}
-
 	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID) {
 		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid);
 		return true;
@@ -71,7 +59,7 @@ public class ParticipantsApplication {
 		bbbInGW.assignPresenter(room, newPresenterID, newPresenterName, assignedBy);			
 	}
 	
-	public void getUsers(String meetingID, String requesterID) {
+	public void getUsers(String meetingID, String requesterID, String sessionId) {
 		bbbInGW.getUsers(meetingID, requesterID);
 	}
 	

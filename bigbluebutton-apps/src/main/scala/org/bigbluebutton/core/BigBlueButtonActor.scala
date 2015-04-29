@@ -5,6 +5,7 @@ import scala.actors.Actor._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.util._
+import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
 
 class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper {
 
@@ -17,14 +18,32 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 	      case msg: CreateMeeting                 => handleCreateMeeting(msg)
 	      case msg: DestroyMeeting                => handleDestroyMeeting(msg)
 	      case msg: KeepAliveMessage              => handleKeepAliveMessage(msg)
-        case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
+	      case msg: ValidateAuthToken             => handleValidateAuthToken(msg)
+          case msg: GetAllMeetingsRequest         => handleGetAllMeetingsRequest(msg)
 	      case msg: InMessage                     => handleMeetingMessage(msg)
 	      case _ => // do nothing
 	    }
 	  }
   }
   
-
+  private def handleValidateAuthToken(msg: ValidateAuthToken) {
+    meetings.get(msg.meetingID) foreach { m =>
+      m !? (3000, msg) match {
+        case None => {
+          logger.warn("Failed to get response to from meeting=" + msg.meetingID + "]. Meeting has probably hung.")
+          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId, msg.sessionId))
+        }
+        case Some(rep) => {
+        /**
+         * Received a reply from MeetingActor which means hasn't hung!
+         * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
+         * audit to check whether the actor is still alive. (ralam feb 25, 2015)
+         */
+        }
+      }   
+    }      
+  }
+  
   private def handleMeetingMessage(msg: InMessage):Unit = {
     msg match {
       case ucm: UserConnectedToGlobalAudio => {
@@ -51,7 +70,7 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
     msg match {
       case vat:ValidateAuthToken => {
         logger.info("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
-        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
+        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId, vat.sessionId))
       }
       case _ => {
         logger.info("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")
@@ -86,11 +105,13 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
         logger.info("New meeting create request [" + msg.meetingName + "]")
     	  var m = new MeetingActor(msg.meetingID, msg.externalMeetingID, msg.meetingName, msg.recorded, 
     	                  msg.voiceBridge, msg.duration, 
-    	                  msg.autoStartRecording, msg.allowStartStopRecording,
+    	                  msg.autoStartRecording, msg.allowStartStopRecording, msg.moderatorPass,
+    	                  msg.viewerPass, msg.createTime, msg.createDate,
     	                  outGW)
     	  m.start
     	  meetings += m.meetingID -> m
-    	  outGW.send(new MeetingCreated(m.meetingID, m.externalMeetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration))
+    	  outGW.send(new MeetingCreated(m.meetingID, m.externalMeetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration,
+    	                     msg.moderatorPass, msg.viewerPass, msg.createTime, msg.createDate))
     	  
     	  m ! new InitializeMeeting(m.meetingID, m.recorded)
     	  m ! "StartTimer"
@@ -137,6 +158,9 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 
       //send chat history
       this ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
+
+      //send lock settings
+      this ! (new GetLockSettings(id, "nodeJSapp"))
     }
 
     outGW.send(new GetAllMeetingsReply(resultArray))

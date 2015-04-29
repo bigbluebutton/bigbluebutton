@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
@@ -43,7 +44,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private ConnectionInvokerService connInvokerService;
 	private IBigBlueButtonInGW bbbGW;
 	
-	private static final String APP = "BBB";
+	private final String APP = "BBB";
+	private final String CONN = "RED5-";
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -89,15 +91,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     
 	@Override
 	public boolean roomStart(IScope room) {
-		connInvokerService.addScope(room.getName(), room);
 		return super.roomStart(room);
 	}	
 	
 	@Override
 	public void roomStop(IScope room) {
-		recorderApplication.destroyRecordSession(room.getName());
-		connInvokerService.removeScope(room.getName());
-		
+		recorderApplication.destroyRecordSession(room.getName());	
 		super.roomStop(room);
 	}
     	
@@ -114,49 +113,47 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		String externalUserID = ((String) params[5]).toString();
 		String internalUserID = ((String) params[6]).toString();
     	
-		Boolean locked = false;
-		if (params.length >= 7 && ((Boolean) params[7])) {
-			locked = true;
-		}
-    	
 		Boolean muted  = false;
-		if (params.length >= 8 && ((Boolean) params[8])) {
+		if (params.length >= 7 && ((Boolean) params[7])) {
 			muted = true;
 		}
     	
 		Map<String, Boolean> lsMap = null;
-		if (params.length >= 9) {
+		if (params.length >= 8) {
 			try {
-				lsMap = (Map<String, Boolean> ) params[9];
+				lsMap = (Map<String, Boolean> ) params[8];
 			} catch(Exception e){
 				lsMap = new HashMap<String, Boolean>();
 			}
 		}
-    	   	    	
+		   	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
-			
+		
+		String userId = internalUserID;
+		String sessionId =  CONN + userId;
 		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
-    			voiceBridge, record, externalUserID, muted);
+    			voiceBridge, record, externalUserID, muted, sessionId);
 		connection.setAttribute(Constants.SESSION, bbbSession);        
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
+		connection.setAttribute("USER_SESSION_ID", sessionId);
         
 		String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
-        					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
+        					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID + ", muted =" + muted;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 
-		bbbGW.initLockSettings(room, locked, lsMap);
+		bbbGW.initLockSettings(room, lsMap);
 		
-		connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
+		bbbGW.initAudioSettings(room, internalUserID, muted);
 
-		String meetingId = bbbSession.getRoom();
-		String userId = bbbSession.getInternalUserID();
-		String connType = getConnectionType(Red5.getConnectionLocal().getType());
-		String userFullname = bbbSession.getUsername();
-		String connId = Red5.getConnectionLocal().getSessionId();
+	    String meetingId = bbbSession.getRoom();
+	    
+	    String connType = getConnectionType(Red5.getConnectionLocal().getType());
+	    String userFullname = bbbSession.getUsername();
+	    String connId = Red5.getConnectionLocal().getSessionId();	        
 		
-		log.info("User connected: sessionId=[" + connId + "], encoding=[" + connType +
+		log.info("User connected: sessionId=[" + sessionId + "], encoding=[" + connType +
 				"], meetingId= [" + meetingId
 				+ "], userId=[" + userId + "] username=[" + userFullname +"]");
 
@@ -166,14 +163,15 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		logData.put("connType", connType);
 		logData.put("connId", connId);
 		logData.put("userId", userId);
+		logData.put("sessionId", sessionId);
 		logData.put("username", userFullname);
 		logData.put("event", "user_joining_bbb_apps");
 		logData.put("description", "User joining BBB Apps.");
 		
 		Gson gson = new Gson();
-    String logStr =  gson.toJson(logData);
+        String logStr =  gson.toJson(logData);
 		
-		log.info("User joining bbbb-aps: data={}", logStr);
+		log.info("User joining bbb-apps: data={}", logStr);
 		
 		return super.roomConnect(connection, params);
         
@@ -196,56 +194,66 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		int remotePort = Red5.getConnectionLocal().getRemotePort();    	
 		String clientId = Red5.getConnectionLocal().getClient().getId();
 		log.info("***** " + APP + "[clientid=" + clientId + "] disconnnected from " + remoteHost + ":" + remotePort + ".");
-    	
-		connInvokerService.removeConnection(getBbbSession().getInternalUserID());
-    	
-		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-		
-		String meetingId = bbbSession.getRoom();
-		String userId = bbbSession.getInternalUserID();
-		String connType = getConnectionType(Red5.getConnectionLocal().getType());
-		String userFullname = bbbSession.getUsername();
-		String connId = Red5.getConnectionLocal().getSessionId();
-		
-		log.info("User disconnected: sessionId=[" + connId + "], encoding=[" + connType +
-				"], meetingId= [" + meetingId + "], userId=[" + userId + "] username=[" + userFullname +"]");
-	
-		Map<String, Object> logData = new HashMap<String, Object>();
-		logData.put("meetingId", meetingId);
-		logData.put("connType", connType);
-		logData.put("connId", connId);
-		logData.put("userId", userId);
-		logData.put("username", userFullname);
-		logData.put("event", "user_leaving_bbb_apps");
-		logData.put("description", "User leaving BBB Apps.");
-		
-		bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID());
+
+	    BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	          
+	    String meetingId = bbbSession.getRoom();
+	    String userId = bbbSession.getInternalUserID();
+	    String connType = getConnectionType(Red5.getConnectionLocal().getType());
+	    String userFullname = bbbSession.getUsername();
+	    String connId = Red5.getConnectionLocal().getSessionId();
+	    
+        String sessionId =  CONN + userId;
+	    
+	    log.info("User disconnected: sessionId=[" + sessionId + "], encoding=[" + connType +
+	                "], meetingId= [" + meetingId + "], userId=[" + userId + "] username=[" + userFullname +"]");
+	    
+	    Map<String, Object> logData = new HashMap<String, Object>();
+	    logData.put("meetingId", meetingId);
+	    logData.put("connType", connType);
+	    logData.put("connId", connId);
+	    logData.put("sessionId", sessionId);
+	    logData.put("userId", userId);
+	    logData.put("username", userFullname);
+	    logData.put("event", "user_leaving_bbb_apps");
+	    logData.put("description", "User leaving BBB Apps.");
+	    
+	    Gson gson = new Gson();
+	    String logStr =  gson.toJson(logData);
+	        
+	    log.info("User leaving bbb-apps: data={}", logStr);
+	      	        
+		bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
 		
 		super.roomDisconnect(conn);
 	}
 	
-	public void validateToken(String token) {
+	public void validateToken(Map<String, String> msg) {
+	   String token = (String) msg.get("authToken");
+	        
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		assert bbbSession != null;
 		String userId = bbbSession.getInternalUserID();
 		String meetingId = Red5.getConnectionLocal().getScope().getName();
-		bbbGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId);
+        String connId = Red5.getConnectionLocal().getSessionId();    
+        String sessionId =  CONN + connId + "-" + userId;
+        
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingId", meetingId);
+        logData.put("connId", connId);
+        logData.put("sessionId", sessionId);
+        logData.put("userId", userId);
+        logData.put("token", token);
+        logData.put("event", "user_validate_token_bbb_apps");
+        logData.put("description", "User validate token BBB Apps.");
+        
+        Gson gson = new Gson();
+        String logStr =  gson.toJson(logData);
+            
+        log.info("User validate token bbb-apps: data={}", logStr);
+		bbbGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
 	}
-	
-	public void joinMeeting(String userId) {
-		BigBlueButtonSession bbbSession = getBbbSession();
-		if (bbbSession != null) {
-			String userid = bbbSession.getInternalUserID();
-			String username = bbbSession.getUsername();
-			String role = bbbSession.getRole();
-			String meetingId = bbbSession.getRoom();
-			log.debug(APP + ":joinMeeting - [" + meetingId + "] [" + userid + ", " + username + ", " + role + "]");
-			
-			bbbGW.userJoin(meetingId, userid);
-		}
 		
-	}
-	
 	public void setRecorderApplication(RecorderApplication a) {
 		recorderApplication = a;
 	}

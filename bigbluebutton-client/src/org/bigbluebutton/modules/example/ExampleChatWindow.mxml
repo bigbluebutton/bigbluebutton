@@ -23,15 +23,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <!--
 Notes.mxml is the main view of the SharedNotes application
 -->
-<MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="400" height="300" xmlns:mate="http://mate.asfusion.com/" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" creationComplete="onCreationComplete()"
 	label="Example Chat Window" layout="vertical">
 	
 	<mx:Script>
 		<![CDATA[
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import org.bigbluebutton.main.views.MainCanvas;
 
 			private var proxy:ExampleChatProxy;
@@ -65,4 +63,4 @@ Notes.mxml is the main view of the SharedNotes application
 		<mx:TextInput id="txtInput" width="90%" />
 		<mx:Button id="btnSendMessage" label="Send Message" click="sendNewMessage()" />
 	</mx:HBox>
-</MDIWindow>
+</CustomMdiWindow>

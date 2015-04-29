@@ -71,6 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.accessibility.AccessibilityProperties;
+			import flash.events.TextEvent;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
@@ -168,7 +169,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		        hotkeyCapture();
 			
 		        // Listen for the ENTER key to send the message.
-		        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+		        txtMsgArea.addEventListener(TextEvent.TEXT_INPUT, handleTextInput);
 		        
 		        queryForChatHistory();
 
@@ -578,7 +579,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.fromTime = now.valueOf();
         cm.fromTimezoneOffset = now.getTimezoneOffset();
         
-        cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
         
         publicEvent.chatMessage = cm;
         globalDispatcher.dispatchEvent(publicEvent);
@@ -599,7 +601,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.fromTime = now.valueOf();
         cm.fromTimezoneOffset = now.getTimezoneOffset();
                 
-        cm.message = ChatUtil.cleanup(message);
+        //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+        cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
         cm.toUserID = chatWithUserID;
         cm.toUsername = chatWithUsername;
         
@@ -607,11 +610,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         globalDispatcher.dispatchEvent(privateEvent);
       }
 
-      private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
-		if (e.keyCode == Keyboard.ENTER) {
+      private function handleTextInput(e:TextEvent):void {
+		if ((e.text.length == 1) && (e.text.charCodeAt(0) == 10) /*ENTER-KEY*/) {
 			sendMessages();
+			e.preventDefault();
 		}     
 	  }
+      
+      private function handleTextAreaKeyDownEvent(e:KeyboardEvent):void {
+        // stops window moving when trying to navigate the text box
+        if (e.keyCode == Keyboard.LEFT || e.keyCode == Keyboard.RIGHT) {
+          e.stopPropagation();
+        }
+      }
       
       private function sendMessages():void {
 		  if(!sendBtn.enabled) {
@@ -631,6 +642,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
         }
         txtMsgArea.text = "";
+        txtMsgArea.validateNow();
+        txtMsgArea.setSelection(0, 0);
       }	
 	  
 		private function focusChatInput(e:ShortcutEvent):void{
@@ -638,24 +651,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 			
 		private function lockSettingsChanged(e:Event):void {
-      applyLockSettings();
-    }
-      
-    private function applyLockSettings():void {  
-      
-        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
-        
-				var userManager:UserManager = UserManager.getInstance();
-				var conference:Conference = userManager.getConference();
-				var me:BBBUser = conference.getMyUser();
-				
-				if (publicChat) {
-          txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
-				} else {
-          txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
-				}
+			applyLockSettings();
+		}
+		
+		private function applyLockSettings():void {
+			var userManager:UserManager = UserManager.getInstance();
+			var conference:Conference = userManager.getConference();
+			var me:BBBUser = conference.getMyUser();
+			
+			if (publicChat) {
+				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
+			} else {
+				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
 			}
-		]]>
+		}
+	]]>
 		
 	</mx:Script>
 

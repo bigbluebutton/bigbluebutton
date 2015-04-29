@@ -21,16 +21,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 
-<pres:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<pres:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:thumb="org.bigbluebutton.modules.present.views.*"
-	xmlns:pres="flexlib.mdi.containers.*"
+	xmlns:pres="org.bigbluebutton.common.*"
 	xmlns:code="http://code.google.com/p/flexlib/" 
 	xmlns:containers="flexlib.containers.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
-	showControls="true" resize="maximizeHandler()"
+	showControls="true" resize="resizeHandler()"
   styleNameFocus="presentationWindowStyleFocus"
   styleNameNoFocus="presentationWindowStyleNoFocus"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -103,8 +103,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private static const LOG:String = "Present::PresentationWindow - ";
       
       public static const TITLE:String = "Presentation";
-			private static const NEXT_BUTTON:String = "Next";
-			private static const PREVIOUS_BUTTON:String = "Previous";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
 						
 			[Bindable] 
@@ -239,11 +237,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				focusManager.setFocus(titleBarOverlay);
 			}
 			
-			private function maximizeHandler():void {
+			private function resizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
-				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
-				stage.focus = this; 
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -329,8 +325,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onResetZoom():void {
-				zoomSlider.value = 100;
-				slideView.onZoomSlide(zoomSlider.value);
+				slideView.onZoomSlide(100);
 			}
 
       private function handleBecomePresenter(e:MadePresenterEvent):void{
@@ -349,8 +344,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function becomeViewer():void{
 				setupPresenter(false);
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-				this.contextMenu = new ContextMenu();
-				this.contextMenu.hideBuiltInItems();
+				this.customContextMenuItems = new Array();
 				if (slideView.thumbnailView.visible)
 					showThumbnails();
 			}
@@ -402,31 +396,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function addContextMenuItems():void{
-				var contextMenu:ContextMenu = new ContextMenu();
-				contextMenu.hideBuiltInItems();
+				var contextMenuItems:Array = new Array();
 				
-				var nextButton:ContextMenuItem = new ContextMenuItem(NEXT_BUTTON);
-				nextButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
-				contextMenu.customItems.push(nextButton);
+				var nextButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip'));
+				nextButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { gotoNextSlide(); });
+				contextMenuItems.push(nextButton);
 				
-				var previousButton:ContextMenuItem = new ContextMenuItem(PREVIOUS_BUTTON);
-				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuItemHandler);
-				contextMenu.customItems.push(previousButton);
+				var previousButton:ContextMenuItem = new ContextMenuItem(ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip'));
+				previousButton.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(e:ContextMenuEvent):void { gotoPreviousSlide(); });
+				contextMenuItems.push(previousButton);
 								
-				this.contextMenu = contextMenu;
+				this.customContextMenuItems = contextMenuItems;
 			}
 			
-			private function menuItemHandler(e:ContextMenuEvent):void{
-				switch(e.target.caption){
-					case NEXT_BUTTON:
-						gotoNextSlide();
-						break;
-					case PREVIOUS_BUTTON:
-						gotoPreviousSlide();
-						break;
-				}
-			}
-						
 			private function notifyOthersOfSharingPresentation(presentationName:String):void {
 				var shareEvent:PresenterCommands = new PresenterCommands(PresenterCommands.SHARE_PRESENTATION_COMMAND);
 					shareEvent.presentationName = presentationName;
@@ -436,18 +418,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 										
 			private function disableSlideNavigationButtons(pageNumber:int):void {
 				if (pageNumber == 1) {
-					backButton.enabled = false;
+					backButton.mouseEnabled = false;
 					backButton.styleName = "presentationBackButtonDisabledStyle";
 				} else {
-					backButton.enabled = true;
+					backButton.mouseEnabled = true;
 					backButton.styleName = "presentationBackButtonStyle";
 				}
 				
 				if (pageNumber < PresentationModel.getInstance().getNumberOfPages()) {
-					forwardButton.enabled = true;
+					forwardButton.mouseEnabled = true;
 					forwardButton.styleName = "presentationForwardButtonStyle";
 				} else {
-					forwardButton.enabled = false;
+					forwardButton.mouseEnabled = false;
 					forwardButton.styleName = "presentationForwardButtonDisabledStyle";
 				}
 			}
@@ -455,6 +437,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function displaySlideNumber(currentSlide:int):void {
         disableSlideNavigationButtons(currentSlide);
 				btnSlideNum.label = "" + currentSlide + '/' + PresentationModel.getInstance().getNumberOfPages();
+				btnSlideNum.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.accessibilityName', [currentSlide, PresentationModel.getInstance().getNumberOfPages()])
 			}
 			
       
@@ -530,6 +513,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
+
+				addContextMenuItems();
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -559,7 +544,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function remotePrevious(e:ShortcutEvent):void{
 				if (backButton.visible && backButton.enabled){
-					backButton.setFocus();
+					//backButton.setFocus();
 					gotoPreviousSlide();
 				}
 			}
@@ -573,7 +558,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function remoteNext(e:ShortcutEvent):void{
 				if (forwardButton.visible && forwardButton.enabled){
-					forwardButton.setFocus();
+					//forwardButton.setFocus();
 					gotoNextSlide();
 				}
 			}
@@ -648,4 +633,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
     <mx:Spacer width="30" height="30" id="spacer4"/>	
     </mx:ControlBar>
-</pres:MDIWindow>
+</pres:CustomMdiWindow>

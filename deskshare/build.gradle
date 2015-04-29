@@ -82,9 +82,9 @@ dependencies {
   compile 'org.springframework:spring-core:4.0.8.RELEASE@jar'
 	
 	// Red5
-    compile 'org/red5:red5-server:1.0.5-jan122015-SNAPSHOT@jar'
-    compile 'org.red5:red5-server-common:1.0.5-SNAPSHOT@jar'
-    compile 'org.red5:red5-io:1.0.5-SNAPSHOT@jar'
+    compile 'org/red5:red5-server:1.0.5-RELEASE@jar'
+    compile 'org.red5:red5-server-common:1.0.5-RELEASE@jar'
+    compile 'org.red5:red5-io:1.0.5-RELEASE@jar'
 	
 	// Logging
 	compile 'ch.qos.logback:logback-core:1.1.2@jar'

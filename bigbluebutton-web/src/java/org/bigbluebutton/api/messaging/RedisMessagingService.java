@@ -54,7 +54,7 @@ public class RedisMessagingService implements MessagingService {
 	public void destroyMeeting(String meetingID) {
 		DestroyMeetingMessage msg = new DestroyMeetingMessage(meetingID);
 		String json = MessageToJson.destroyMeetingMessageToJson(msg);
-		log.info("Sending destory meeting message to bbb-apps:[{}]", json);
+		log.info("Sending destroy meeting message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 	
@@ -67,10 +67,13 @@ public class RedisMessagingService implements MessagingService {
 	
 	public void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
 			                      String voiceBridge, Long duration, 
-			                      Boolean autoStartRecording, Boolean allowStartStopRecording) {
+			                      Boolean autoStartRecording, Boolean allowStartStopRecording,
+			                      String moderatorPass, String viewerPass, Long createTime,
+			                      String createDate) {
 		CreateMeetingMessage msg = new CreateMeetingMessage(meetingID, externalMeetingID, meetingName, 
 				                                  recorded, voiceBridge, duration, 
-				                                  autoStartRecording, allowStartStopRecording);
+				                                  autoStartRecording, allowStartStopRecording,
+				                                  moderatorPass, viewerPass, createTime, createDate);
 		String json = MessageToJson.createMeetingMessageToJson(msg);
 		log.info("Sending create meeting message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);			

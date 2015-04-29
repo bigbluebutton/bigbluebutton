@@ -178,5 +178,26 @@ package org.bigbluebutton.core
       return null;
     }
     
+    public static function getUserData():Object {
+      var userData:Object = new Object();
+      userData.meetingId = getInternalMeetingID();
+      userData.externalMeetingId = getExternalMeetingID();
+      userData.meetingName = UserManager.getInstance().getConference().meetingName;
+      userData.userId = getMyUserID();
+      userData.userName = getMyUsername();
+      
+      return userData;
+    }
+	
+	public static function isAnyoneLocked():Boolean {
+		var users:ArrayCollection = UserManager.getInstance().getConference().users;
+		for(var i:uint = 0; i<users.length; i++) {
+			var user:BBBUser = users.getItemAt(i) as BBBUser;
+			if(user.userLocked)
+				return true;
+		}
+		return false;
+	}
+    
   }
 }

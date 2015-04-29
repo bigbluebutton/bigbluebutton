@@ -120,6 +120,7 @@ package org.bigbluebutton.main.views
             if (_failCallback != null) {
                 _failCallback();
             }
+            imgChromeHelp.visible = false;
         }
 
         public function updateCamera(camIndex:int, vp:VideoProfile, containerWidth:int, containerHeight:int, showPreviewMsg:Boolean=false):void {
@@ -210,6 +211,7 @@ package org.bigbluebutton.main.views
                 _waitingForActivation = false;
 
                 onSuccessCallback();
+                imgChromeHelp.visible = false;
             }
         }
 

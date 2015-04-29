@@ -366,10 +366,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
              tabIndex="{baseIndex+numButtons+13}" />
-	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
+	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
                    styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+14}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
-				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
+                   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"
                  tabIndex="{baseIndex+numButtons+15}" />

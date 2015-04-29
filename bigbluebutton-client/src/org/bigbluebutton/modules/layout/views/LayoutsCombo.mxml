@@ -23,7 +23,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
 			prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
 			height="{LayoutButton.BUTTON_SIZE}" creationComplete="init()"
-			change="onSelectedItemChanged(event)"
 			disabledColor="{getStyle('color')}" rowCount="10"
 			styleName="languageSelectorStyle" >
 	
@@ -42,13 +41,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.net.FileReference;
 			
 			import flexlib.mdi.containers.MDICanvas;
-			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.events.MDIManagerEvent;
-			import flexlib.mdi.events.MDIWindowEvent;
 			import flexlib.mdi.managers.MDIManager;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.controls.listClasses.ListBase;
+			import mx.events.DropdownEvent;
+			import mx.events.ListEvent;
 			import mx.events.ResizeEvent;
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -61,6 +61,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
 			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
@@ -82,25 +84,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       [Bindable] private var layoutNames:ArrayCollection = new ArrayCollection();
       
       private function init():void {
-        trace(LOG + "initing");
+        //trace(LOG + "initing");
         dataProvider = layoutNames;
         populateComboBox();
+        this.addEventListener(DropdownEvent.OPEN, openDropdownHandler);
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
-        var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-        if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return;
-        
-        this.enabled = ! lockSettings.getLockedLayout();
+		  var conference:Conference = UserManager.getInstance().getConference();
+		  var thisUser:BBBUser = conference.getMyUser();
+		  this.enabled = ! thisUser.lockedLayout;
       }
       
 			private function populateLayoutsList(e:LayoutsReadyEvent):void {
-        trace(LOG + " handling layout ready event.");       
+        //trace(LOG + " handling layout ready event.");       
         populateComboBox();
 			}
       
       private function populateComboBox():void {
-        trace(LOG + " populating layout combo.");  
+        //trace(LOG + " populating layout combo.");  
         layoutNames = new ArrayCollection();         
         var layouts:Array = LayoutModel.getInstance().getLayoutNames();
         
@@ -109,7 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
           if (translatedName == "undefined") translatedName = lay.name;
           var item:Object = {index: idx, label: translatedName, localeKey: lay.name, currentLayout: lay.currentLayout };
-          trace(LOG + " layout [" + lay.name + ", current=" + lay.currentLayout + "]");
+          //trace(LOG + " layout [" + lay.name + ", current=" + lay.currentLayout + "]");
           layoutNames.addItem(item);
           if (lay.currentLayout) {
             currentLayoutIndex = idx;
@@ -122,9 +124,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 						
 			private function onLayoutChanged(e:SwitchedLayoutEvent):void {	
-        trace(LOG + " handling SwitchedLayoutEvent layout=[" + e.layoutID + "]");
+        //trace(LOG + " handling SwitchedLayoutEvent layout=[" + e.layoutID + "]");
         populateComboBox();
-        trace(LOG + " selected layout coming in is: " + selectedIndex);
+        //trace(LOG + " selected layout coming in is: " + selectedIndex);
 				var idx:int = -1;					
 				for each (var obj:Object in dataProvider) {
 					if (obj.localeKey == e.layoutID)
@@ -138,15 +140,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				invalidateDisplayList();
 				
-				trace(LOG + " selected layout afterwards is: " + selectedIndex);
+				//trace(LOG + " selected layout afterwards is: " + selectedIndex);
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void {
-				trace(LOG + " locale change recieved");
+				//trace(LOG + " locale change recieved");
 				populateComboBox();
 			}
 			
-			private function onSelectedItemChanged(e:Event):void {
+			private function openDropdownHandler(e:DropdownEvent):void {
+				// a new dropdown object is created everytime the menu is opened
+				this.dropdown.addEventListener(ListEvent.ITEM_CLICK, itemClickHandler);
+			}
+			
+			private function itemClickHandler(e:ListEvent):void {
 				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.localeKey));
 			}
 					

@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	 layout="absolute" width="580" height="400" styleName="presentationFileUploadWindowStyle"
+	 layout="absolute" width="580" height="410" styleName="presentationFileUploadWindowStyle"
       initialize="initData();">
 
     <mate:Dispatcher id="globalDispatch" />
@@ -293,7 +293,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Script>
 
   <mx:VBox width="100%" height="100%" verticalAlign="top">
-    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}" styleName="presentationUploadTitleStyle" paddingBottom="0"/>
+    <mx:TextArea borderSkin="{null}"
+				 text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
+                 editable="false" styleName="presentationUploadTitleStyle"
+                 width="400" left="0"/>
     <mx:HBox id="fileUploadBox" width="100%" paddingLeft="5" paddingTop="0" verticalAlign="middle"> 
       <mx:Label id="lblFileName" width="{fileUploadBox.width-selectBtn.width-uploadBtn.width-30}" selectable="false" click="selectFile()" text="{ResourceUtil.getInstance().getString('bbb.fileupload.lblFileName.defaultText')}" />
 	  <mx:Button id="selectBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" 

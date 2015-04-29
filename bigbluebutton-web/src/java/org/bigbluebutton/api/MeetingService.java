@@ -191,7 +191,7 @@ public class MeetingService implements MessageListener {
 	  		logData.put("description", "Meeting forcefully ended.");
 	  		
 	  		Gson gson = new Gson();
-	      String logStr =  gson.toJson(logData);
+	  	    String logStr =  gson.toJson(logData);
 	  		
 	  		log.info("Removing meeting: data={}", logStr);
 				processMeetingForRemoval(m);			
@@ -209,7 +209,7 @@ public class MeetingService implements MessageListener {
 	  		logData.put("description", "Meeting has not been joined.");
 	  		
 	  		Gson gson = new Gson();
-	      String logStr =  gson.toJson(logData);
+	  	    String logStr =  gson.toJson(logData);
 	  		
 	  		log.info("Removing meeting: data={}", logStr);
 	  		
@@ -229,7 +229,7 @@ public class MeetingService implements MessageListener {
 	  		logData.put("description", "Meeting exceeded duration.");
 	  		
 	  		Gson gson = new Gson();
-	      String logStr =  gson.toJson(logData);
+	  	    String logStr =  gson.toJson(logData);
 	  		
 	  		log.info("Removing meeting: data={}", logStr);
 	  		
@@ -278,12 +278,18 @@ public class MeetingService implements MessageListener {
 		logData.put("description", "Create meeting.");
 		
 		Gson gson = new Gson();
-    String logStr =  gson.toJson(logData);
+	    String logStr =  gson.toJson(logData);
 		
 		log.info("Create meeting: data={}", logStr);
 		
 		messagingService.createMeeting(m.getInternalId(), m.getExternalId(), m.getName(), m.isRecord(), 
-				 m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording());			
+				 m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
+				 m.getModeratorPassword(), m.getViewerPassword(), m.getCreateTime(),
+				 formatPrettyDate(m.getCreateTime()));
+	}
+
+	private String formatPrettyDate(Long timestamp) {
+		return new Date(timestamp).toString();
 	}
 	
 	private void processCreateMeeting(CreateMeeting message) {
@@ -486,7 +492,7 @@ public class MeetingService implements MessageListener {
 				logData.put("description", "Meeting has started.");
 				
 				Gson gson = new Gson();
-		    String logStr =  gson.toJson(logData);
+			    String logStr =  gson.toJson(logData);
 				
 				log.info("Meeting started: data={}", logStr);
 				
@@ -501,9 +507,9 @@ public class MeetingService implements MessageListener {
 				logData.put("record", m.isRecord());
 				logData.put("event", "meeting_restarted");
 				logData.put("description", "Meeting has restarted.");
-				
+
 				Gson gson = new Gson();
-		    String logStr =  gson.toJson(logData);
+				String logStr =  gson.toJson(logData);
 				
 				log.info("Meeting restarted: data={}", logStr);
 			}
@@ -530,7 +536,7 @@ public class MeetingService implements MessageListener {
 			logData.put("description", "Meeting has ended.");
 			
 			Gson gson = new Gson();
-	    String logStr =  gson.toJson(logData);
+		    String logStr =  gson.toJson(logData);
 			
 			log.info("Meeting ended: data={}", logStr);
 			
@@ -555,11 +561,11 @@ public class MeetingService implements MessageListener {
 			logData.put("externalUserId", user.getExternalUserId());
 			logData.put("username", user.getFullname());
 			logData.put("role", user.getRole());			
-			logData.put("event", "user_joined_meeting");
+			logData.put("event", "user_joined_message");
 			logData.put("description", "User had joined the meeting.");
 			
 			Gson gson = new Gson();
-	    String logStr =  gson.toJson(logData);
+		    String logStr =  gson.toJson(logData);
 			
 			log.info("User joined meeting: data={}", logStr);
 			
@@ -584,11 +590,11 @@ public class MeetingService implements MessageListener {
 				logData.put("externalUserId", user.getExternalUserId());
 				logData.put("username", user.getFullname());
 				logData.put("role", user.getRole());			
-				logData.put("event", "user_joined_meeting");
-				logData.put("description", "User had joined the meeting.");
+				logData.put("event", "user_left_message");
+				logData.put("description", "User had left the meeting.");
 				
 				Gson gson = new Gson();
-		    String logStr =  gson.toJson(logData);
+		        String logStr =  gson.toJson(logData);
 				
 				log.info("User left meeting: data={}", logStr);
 				

@@ -31,7 +31,8 @@ import org.bigbluebutton.conference.Constants;
 public class ParticipantsService {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private ParticipantsApplication application;
-
+    private final String CONN = "RED5-";
+    
 	public void assignPresenter(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		application.assignPresenter(scope.getName(), (String) msg.get("newPresenterID"), (String) msg.get("newPresenterName"), (String) msg.get("assignedBy"));
@@ -39,7 +40,9 @@ public class ParticipantsService {
 	
 	public void getParticipants() {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		application.getUsers(scope.getName(), getBbbSession().getInternalUserID());
+        String connId = Red5.getConnectionLocal().getSessionId();    
+        String sessionId =  CONN + connId + "-" + getBbbSession().getInternalUserID();
+		application.getUsers(scope.getName(), getBbbSession().getInternalUserID(), sessionId);
 	}
 	
 	public void userRaiseHand() {

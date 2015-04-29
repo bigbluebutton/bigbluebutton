@@ -20,13 +20,11 @@ package org.bigbluebutton.modules.present.model
     public var widthRatio: Number;
     public var heightRatio: Number
     
+	private var _pageLoadedListener:Function;
     private var _swfLoader:URLLoader;
     private var _swfLoaded:Boolean = false;
-    private var _swfLoadedListener:Function;
-    
     private var _txtLoader:URLLoader;
     private var _txtLoaded:Boolean = false;
-    private var _txtLoadedListener:Function;
     
 	private var _preloadCount:uint = 0;
 	
@@ -75,50 +73,59 @@ package org.bigbluebutton.modules.present.model
       return _txtUri;
     }
     
+    public function loadPage(pageLoadedListener:Function, preloadCount:uint):void {
+      if (_swfLoaded && _txtLoaded) {
+		  pageLoadedListener(_id, preloadCount);
+		  return;
+	  }
+	  
+	  _pageLoadedListener = pageLoadedListener;
+	  _preloadCount = preloadCount;
+	  
+	  if (!_swfLoaded) loadSwf();
+	  if (!_txtLoaded) loadTxt();
+    }
+    
     public function get swfData():ByteArray {
       if (_swfLoaded) return _swfLoader.data;
       return null;
     }
-    
-    public function loadSwf(swfLoadedListener:Function, preloadCount:uint):void {
-      if (_swfLoaded) {
-        swfLoadedListener(_id, preloadCount);
-      } else {
-        _swfLoadedListener = swfLoadedListener;
-		_preloadCount = preloadCount;
+	
+    private function loadSwf():void {
+      if (!_swfLoaded) {
         _swfLoader.load(new URLRequest(_swfUri));
       }
     }
     
     private function handleSwfLoadingComplete(e:Event):void{
       _swfLoaded = true;
-      if (_swfLoadedListener != null) {
-        _swfLoadedListener(_id, _preloadCount);
-      }
-	  _preloadCount = 0;
+      if (_txtLoaded) {
+        if (_pageLoadedListener != null) {
+          _pageLoadedListener(_id, _preloadCount);
+        }
+        _preloadCount = 0;
+	  }
     }
 
     public function get txtData():String {
-      if (_txtLoaded) {
-        return _txtLoader.data;
-      }
+      if (_txtLoaded) return _txtLoader.data;
       return null;
     }
     
-    public function loadTxt(txtLoadedListener:Function):void {
-      if (_txtLoaded) {
-        txtLoadedListener(_id);
-      } else {
-        _txtLoadedListener = txtLoadedListener;
+    private function loadTxt():void {
+      if (!_txtLoaded) {
         _txtLoader.load(new URLRequest(_txtUri));
       }
     }
     
     private function handleTextLoadingComplete(e:Event):void{
       _txtLoaded = true;
-      if (_txtLoadedListener != null) {
-        _txtLoadedListener(_id);
-      }		
+      if (_swfLoaded) {
+        if (_pageLoadedListener != null) {
+          _pageLoadedListener(_id, _preloadCount);
+        }
+        _preloadCount = 0;
+      }
     }    
     
   }

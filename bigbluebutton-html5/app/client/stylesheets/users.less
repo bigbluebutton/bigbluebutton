@@ -1,0 +1,113 @@
+@import "variables";
+
+#content {
+  margin-top: 10px;
+  &:first-child {
+    margin-top: 0px;
+  }
+  overflow: hidden;
+  width: 100%;
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    background: #E6F0FA;
+  }
+}
+
+#usericons {
+  float: right;
+  span {
+    margin-left: 3px;
+    padding: 2px;
+    border: 1px solid white;
+    @media @desktop-portrait {
+      font-size: 25px;
+    }
+    @media @mobile-portrait, @mobile-portrait-with-keyboard{
+      font-size: 3vh;
+    }
+  }
+  .raisedHandIcon, .muteIcon {
+    &:hover {
+      cursor: pointer;
+      border: 1px solid #f2f2f2;
+      background-color: #f2f2f2;
+      border-radius: 4px;
+    }
+  }
+}
+
+.usernameEntry {
+  float:left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 60%;
+  @media @landscape {
+    height: 20px;
+  }
+  @media @desktop-portrait {
+    height: 25px;
+    font-size: 2vh;
+  }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 4vw;
+  }
+}
+
+#users {
+  margin-left: 0.25%;
+  margin-right: 0.25%;
+  padding-bottom: 10px; /*min-width:230px;*/
+  -webkit-flex: 1 1 25%;
+  flex: 1 1 25%;
+  @media @landscape {
+    height: calc(~'100% - 15px');
+    -webkit-order: 1;
+    order: 1;
+    min-width: 0;
+  }
+  @media @desktop-portrait, @mobile-portrait {
+    -webkit-order: 3;
+    order: 3;
+    margin-bottom: 0px;
+    padding-bottom: 10x; /*so that the footer does not overlap */
+  }
+  @media @mobile-portrait-with-keyboard {
+    display: none; //hide when typing
+  }
+}
+
+#user-contents {
+  height: 100%; /* for the inside scrolling list to utilize as much room as possible, this surrounding window must also take up as much room as possible */
+
+  .userlist {
+    height: calc(~'100% - 29px'); /* height of user contents - user list */
+
+    @media @landscape {
+      padding:10px;
+      max-height:83vh;
+    }
+    @media @desktop-portrait {
+      padding-top: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    @media @desktop-portrait, @mobile-portrait {
+      max-height: 58vw; //for longer userlist a scrollbar appears
+    }
+  }
+}
+
+.userCurrent {
+  font-weight: bold;
+}
+
+#username {
+  @media @landscape {
+    display:block;
+  }
+  @media @desktop-portrait {
+    display:block;
+    width:70%;
+  }
+}

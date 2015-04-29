@@ -65,7 +65,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.MouseEvent;
 			import flash.geom.Point;
 			
-			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import mx.collections.ArrayCollection;
@@ -178,6 +177,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  
         if (!showFooterOpt) {
           footerHeight = 0;
+          controlBar.visible = false;
         }        
       }
 		
@@ -380,15 +380,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}	   			
 	   		}
 
-			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void { 
-				var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
-				micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;
-					micSettings.x = point1.x - (micSettings.width/2);
-					micSettings.y = point1.y - (micSettings.height/2);
+			private function handleFlashMicSettingsEvent(event:FlashMicSettingsEvent):void {
+				/**
+				 * There is a bug in Flex SDK 4.14 where the screen stays blurry if a 
+				 * pop-up is opened from another pop-up. I delayed the second open to 
+				 * avoid this case. - Chad
+				 */
+				this.callLater( function():void {
+					var micSettings:FlashMicSettings = PopUpManager.createPopUp(mdiCanvas, FlashMicSettings, true) as FlashMicSettings;
+					micSettings.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+						var point1:Point = new Point();
+						// Calculate position of TitleWindow in Application's coordinates. 
+						point1.x = width/2;
+						point1.y = height/2;
+						micSettings.x = point1.x - (micSettings.width/2);
+						micSettings.y = point1.y - (micSettings.height/2);
+					});
 				});
 			}
 			
@@ -621,28 +628,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
-        var conference:Conference = UserManager.getInstance().getConference();
-        var lsv:LockSettingsVO = conference.getLockSettings();
+				var conference:Conference = UserManager.getInstance().getConference();
+				var lsv:LockSettingsVO = conference.getLockSettings();
         
 				var popUp:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, LockSettings, true);
 				var ls:LockSettings = LockSettings(popUp);
-        ls.disableCam = lsv.getDisableCam();
-        ls.disableMic = lsv.getDisableMic();
-        ls.disablePrivChat = lsv.getDisablePrivateChat();
-        ls.disablePubChat = lsv.getDisablePublicChat();
-        ls.lockedLayout = lsv.getLockedLayout();
+				ls.disableCam = lsv.getDisableCam();
+				ls.disableMic = lsv.getDisableMic();
+				ls.disablePrivChat = lsv.getDisablePrivateChat();
+				ls.disablePubChat = lsv.getDisablePublicChat();
+				ls.lockedLayout = lsv.getLockedLayout();
+				ls.lockOnJoin = lsv.getLockOnJoin();
+				ls.lockOnJoinConfigurable = lsv.getLockOnJoinConfigurable();
         
 				var point1:Point = new Point();
 				point1.x = width/2;
-				point1.y = height/2;                
-        ls.x = point1.x - (ls.width/2);
-        ls.y = point1.y - (ls.height/2);	
+				point1.y = height/2;
+				ls.x = point1.x - (ls.width/2);
+				ls.y = point1.y - (ls.height/2);	
 			}
 			
-			
+			private function onFooterLinkClicked(e:TextEvent):void{
+				trace("Clicked on link[" + e.text + "] from footer");
+				if (ExternalInterface.available) {
+					ExternalInterface.call("chatLinkClicked", e.text);
+				}
+			}
 		]]>
 	</mx:Script>
-			
+
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
 					   width="100%" 
@@ -665,8 +679,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
 		<mx:Label
 				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
-				id="copyrightLabel2"
-				selectable="false" paddingRight="20"/>
+				link="onFooterLinkClicked(event)"
+				id="copyrightLabel2" truncateToFit="true"
+				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
 		<mx:Label 
 				id="lblWebRTC"

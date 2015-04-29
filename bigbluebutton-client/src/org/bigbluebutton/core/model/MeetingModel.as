@@ -11,6 +11,7 @@ package org.bigbluebutton.core.model
     private var _meetingMuted:Boolean = false;
     private var _lockSettings:LockSettingsVO;
     private var _modOnlyMessage:String = null;
+    private var _stunAndTurnServers: Object = new Object();
     
     public function MeetingModel(enforcer: MeetingModelSingletonEnforcer)
     {
@@ -28,6 +29,14 @@ package org.bigbluebutton.core.model
     
     public function set meeting(value: Meeting):void {
       _meeting = value;
+    }
+    
+    public function set stunAndTurnServers(value: Object):void {
+      _stunAndTurnServers = value;
+    }
+    
+    public function get stunAndTurnServers():Object {
+      return _stunAndTurnServers;
     }
     
     public function get meeting():Meeting {

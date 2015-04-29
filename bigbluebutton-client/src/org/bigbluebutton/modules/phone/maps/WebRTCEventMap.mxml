@@ -73,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
 	
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestFailedEvent" arguments="{event.errorCode}"/>
+    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCEchoTestFailedEvent" arguments="{event}"/>
   </EventHandlers>
 
   <EventHandlers type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_HAS_AUDIO}">        
@@ -105,7 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
 
   <EventHandlers type="{WebRTCCallEvent.WEBRTC_CALL_FAILED}">
-    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallFailedEvent" arguments="{event.errorCode}"/>
+    <MethodInvoker generator="{WebRTCCallManager}" method="handleWebRTCCallFailedEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{JoinVoiceConferenceCommand.JOIN_VOICE_CONF}">        

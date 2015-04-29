@@ -175,10 +175,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			/**
 			 * Triggered when the presenter clicks on the slides with the intent of moving it.
 			 */		
-			private function onMouseDown(e:MouseEvent):void {				
+			private function onMouseDown(e:MouseEvent):void {
 				prevMouseX = this.mouseX;
-				prevMouseY = this.mouseY;			
-				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				prevMouseY = this.mouseY;
+				stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			}
 			
 			/**
@@ -201,14 +202,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Triggered when the presenter releases the mouse button.
 			 */		
 			private function onMouseUp(e:MouseEvent):void{		
-				removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-			}
-			
-			/**
-			 * Triggered when the presenter has dragged the cursor outside the presetation window.
-			 */
-			private function onMouseOut(e:MouseEvent):void{
-				removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			}
 						
 			public function onParentResized(parentWidth:Number, parentHeight:Number):void {
@@ -218,6 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				if (UserManager.getInstance().getConference().amIPresenter) {
 					slideModel.adjustSlideAfterParentResized();
+					slideModel.onMove(0, 0); // fake a move to reset some values
 					slideModel.displayPresenterView();
 					slideModel.printViewedRegion();
 					fitSlideToLoader();
@@ -331,20 +327,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 //          positionPage(page);
           
           //slideLoader.accessibilityProperties.description = "Slide text start:  " + e.slideText + "    Slide text end";
-//          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-//          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
-//                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
-          
-          
+          slideLoader.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
+          slideLoader.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.slideloader.starttext") + 
+                                                 page.txtData + ResourceUtil.getInstance().getString("bbb.presentation.slideloader.endtext");
         }
 			}
 			
       private function becomeViewer():void {
         removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-        slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-        slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-        slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+        this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
         _sendCurrentMouseLocTimer.stop();
         _sendCurrentMouseLocTimer.removeEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);        
       }
@@ -358,12 +350,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function becomePresenter():void {
         // need to calculate slide zoom percantage left by a previous presenter
-        zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionH) * SlideViewModel.HUNDRED_PERCENT;
+        /**
+          * We use width for the calculation because of fit-to-width mode. If you change between 
+          * presenters rapidly the presentation drifts upwards slightly. - Chad
+          */
+        zoomPercentage = (SlideViewModel.HUNDRED_PERCENT / slideModel.viewedRegionW) * SlideViewModel.HUNDRED_PERCENT;
 
         addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
-        slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-        slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-        slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+        this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
         _sendCurrentMouseLocTimer.addEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
         _sendCurrentMouseLocTimer.start();
         notifyOthersOfZoomEvent();        

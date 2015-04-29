@@ -74,32 +74,32 @@ trait UsersApp {
   
   def handleValidateAuthToken(msg: ValidateAuthToken) {
 //    println("*************** Got ValidateAuthToken message ********************" )
-    regUsers.get (msg.userId) match {
+    regUsers.get (msg.token) match {
       case Some(u) =>
       {
         val replyTo = meetingID + '/' + msg.userId
 
         //send the reply
-        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
-
-        //send the list of users in the meeting
-        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers))
-
-        //send chat history
-        this ! (new GetChatHistoryRequest(meetingID, msg.userId, replyTo))
+        outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId, msg.sessionId))
 
         //join the user
-        handleUserJoin(new UserJoining(meetingID, msg.userId))
+        handleUserJoin(new UserJoining(meetingID, msg.userId, msg.token))
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
-        this ! (new GetPresentationInfo(meetingID, msg.userId, replyTo))
       }
       case None => {
         logger.info("ValidateToken failed: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
         outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
       }
     }
+    
+    /**
+     * Send a reply to BigBlueButtonActor to let it know this MeetingActor hasn't hung!
+     * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
+     * audit to check whether the actor is still alive. (ralam feb 25, 2015)
+     */
+    reply(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, false, msg.correlationId))
   }
   
   def handleRegisterUser(msg: RegisterUser) {
@@ -109,7 +109,7 @@ trait UsersApp {
       sendMeetingHasEnded(msg.userID)
     } else {
       val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
-      regUsers += msg.userID -> regUser
+      regUsers += msg.authToken -> regUser
       logger.info("Register user success: mid=[" + meetingID + "] uid=[" + msg.userID + "]")
       outGW.send(new UserRegistered(meetingID, recorded, regUser))      
     }
@@ -148,42 +148,52 @@ trait UsersApp {
     }
   }
 
-  def handleLockUser(msg: LockUser) {
-    
-  }
-  
-  def handleLockAllUsers(msg: LockAllUsers) {
-    
-  }
-  
   def handleGetLockSettings(msg: GetLockSettings) {
-    
-  }
-  
-  def handleIsMeetingLocked(msg: IsMeetingLocked) {
-    
+    //println("*************** Reply with current lock settings ********************")
+
+    //reusing the existing handle for NewPermissionsSettings to reply to the GetLockSettings request
+    outGW.send(new NewPermissionsSetting(meetingID, msg.userId, permissions, users.getUsers))
   }
 
   def handleSetLockSettings(msg: SetLockSettings) {
 //    println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {
       newPermissions(msg.settings)
-      val au = affectedUsers(msg.settings)
-      outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, au))
+      outGW.send(new NewPermissionsSetting(meetingID, msg.setByUser, permissions, users.getUsers))
       
       handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }    
+  }
+  
+  def handleLockUserRequest(msg: LockUserRequest) {
+    users.getUser(msg.userID) match {
+      case Some(u) => {
+        val uvo = u.copy(locked=msg.lock)
+        users.addUser(uvo)
+        
+        logger.info("Lock user:  mid=[" + meetingID + "] uid=[" + u.userID + "] lock=[" + msg.lock + "]")
+        outGW.send(new UserLocked(meetingID, u.userID, msg.lock))
+      }
+      case None => {
+        logger.info("Could not find user to lock:  mid=[" + meetingID + "] uid=[" + msg.userID + "] lock=[" + msg.lock + "]")
+      }
+    }
   }
     
   def handleInitLockSettings(msg: InitLockSettings) {
     if (! permissionsInited) {
       permissionsInited = true
-      if (permissions != msg.settings || locked != msg.locked) {
-	      permissions = msg.settings   
-	      locked = msg.locked	    
-	      val au = affectedUsers(msg.settings)
-	      outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.locked, msg.settings, au))
-      }      
+      newPermissions(msg.settings)
+	    outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings, users.getUsers))
+    }
+  }
+  
+  def handleInitAudioSettings(msg: InitAudioSettings) {
+    if (! audioSettingsInited) {
+      audioSettingsInited = true
+      if(meetingMuted != msg.muted) {
+        handleMuteAllExceptPresenterRequest(new MuteAllExceptPresenterRequest(meetingID, msg.requesterID, msg.muted));
+      }
     }
   }  
 
@@ -196,19 +206,6 @@ trait UsersApp {
         }
     }
     au.toArray    
-  }
-  
-  def affectedUsers(settings: Permissions):Array[UserVO] = {
-    val au = ArrayBuffer[UserVO]()
-    
-    users.getUsers foreach {u =>
-      val nu = u.copy(permissions=permissions)
-      users.addUser(nu)
-        if (! u.presenter && u.role != Role.MODERATOR) {
-          au += nu
-        }
-    }
-    au.toArray
   }
   
   def handleUserRaiseHand(msg: UserRaiseHand) {
@@ -274,18 +271,18 @@ trait UsersApp {
   }
   
   def handleUserJoin(msg: UserJoining):Unit = {
-    val regUser = regUsers.get(msg.userID)
+    val regUser = regUsers.get(msg.authToken)
     regUser foreach { ru =>
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
                            false, false, false, false)
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
                   ru.role, raiseHand=false, presenter=false, 
-                  hasStream=false, locked=false, webcamStreams=new ListSet[String](), 
-                  phoneUser=false, vu, listenOnly=false, permissions)
+                  hasStream=false, locked=getInitialLockStatus(ru.role), 
+                  webcamStreams=new ListSet[String](), phoneUser=false, vu, listenOnly=false)
   	
 	    users.addUser(uvo)
 		
-	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
+	    logger.info("User joined meeting:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] role=[" + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + permissions.lockOnJoin + "] permissions.lockOnJoinConfigurable=[" + permissions.lockOnJoinConfigurable + "]")
 	    outGW.send(new UserJoined(meetingID, recorded, uvo))
 	
 	    outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
@@ -302,20 +299,36 @@ trait UsersApp {
   }
 			
   def handleUserLeft(msg: UserLeaving):Unit = {
-	 if (users.hasUser(msg.userID)) {
+	if (users.hasUser(msg.userID)) {
 	  val user = users.removeUser(msg.userID)
 	  user foreach { u => 
 	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
 	    outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
+	    
+	    if (u.presenter) {
+	      /* The current presenter has left the meeting. Find a moderator and make
+	       * him presenter. This way, if there is a moderator in the meeting, there
+	       * will always be a presenter.
+	       */
+	      val moderator = users.findAModerator()
+	      moderator.foreach { mod =>
+	        logger.info("Presenter left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]. Making user=[" + mod.userID + "] presenter.")
+	        assignNewPresenter(mod.userID, mod.name, mod.userID)
+	      }
+	    }
 	  }
 	  
-    startCheckingIfWeNeedToEndVoiceConf()
-    stopAutoStartedRecording()
-	 }
+      startCheckingIfWeNeedToEndVoiceConf()
+      stopAutoStartedRecording()
+	}
+  }
+  
+  def getInitialLockStatus(role: Role.Role):Boolean = {
+    permissions.lockOnJoin && !role.equals(Role.MODERATOR)
   }
   
   def handleUserJoinedVoiceFromPhone(msg: VoiceUserJoined) = {
-      val user = users.getUserWithVoiceUserId(msg.voiceUser.userId) match {
+    val user = users.getUserWithVoiceUserId(msg.voiceUser.userId) match {
         case Some(user) => {
           logger.info("Voice user=[" + msg.voiceUser.userId + "] is already in conf=[" + voiceBridge + "]. Must be duplicate message.")
         }
@@ -327,21 +340,24 @@ trait UsersApp {
           val vu = new VoiceUser(msg.voiceUser.userId, webUserId, 
                                  msg.voiceUser.callerName, msg.voiceUser.callerNum,
                                  true, false, false, false)
+          
+          val sessionId = "PHONE-" + webUserId;
+          
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
-		                  hasStream=false, locked=false, webcamStreams=new ListSet[String](),
-		                  phoneUser=true, vu, listenOnly=false, permissions)
+		                  hasStream=false, locked=getInitialLockStatus(Role.VIEWER), webcamStreams=new ListSet[String](),
+		                  phoneUser=true, vu, listenOnly=false)
 		  	
 		      users.addUser(uvo)
 		      logger.info("New user joined voice for user [" + uvo.name + "] userid=[" + msg.voiceUser.webUserId + "]")
-		      outGW.send(new UserJoined(meetingID, recorded, uvo))
+		      outGW.send(new UserJoined(meetingID, recorded, uvo, sessionId))
 		      
 		      outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
 		      if (meetingMuted)
             outGW.send(new MuteVoiceUser(meetingID, recorded, uvo.userID, uvo.userID, meetingMuted))      
         
         }
-      }
+    }
   }
   
   def handleVoiceUserJoined(msg: VoiceUserJoined) = {
@@ -383,7 +399,7 @@ trait UsersApp {
   
   def handleVoiceUserMuted(msg: VoiceUserMuted) {
     users.getUser(msg.userId) foreach {user =>
-      val talking = if (msg.muted) false else user.voiceUser.talking
+      val talking:Boolean = if (msg.muted) false else user.voiceUser.talking
       val nv = user.voiceUser.copy(muted=msg.muted, talking=talking)
       val nu = user.copy(voiceUser=nv)
       users.addUser(nu)
@@ -429,4 +445,4 @@ trait UsersApp {
 
     }
   }
-}
+}
