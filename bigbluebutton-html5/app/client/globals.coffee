@@ -112,7 +112,7 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  (getPresentationFilename() or "Loading presentaion...")
+  (getPresentationFilename() or "Loading presentation...")
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
