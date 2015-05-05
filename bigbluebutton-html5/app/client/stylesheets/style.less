@@ -81,7 +81,6 @@ body {
 }
 
 .myNavbar {
-  margin-bottom: 0.5%;
   border-bottom: 0px;
   &.gradientBar {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
@@ -119,12 +118,15 @@ body {
   }
   @media @landscape {
     min-width: 768px;
+    height: 50px;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     min-width: 630px;
+    height: 110px;
   }
   @media @desktop-portrait {
     min-width: 400px;
+    height: 50px;
   }
 }
 
@@ -136,10 +138,6 @@ body {
   min-width: 900px;
   padding-top: 0px;
   text-align: right;
-}
-
-.navbar {
-  min-height: 40px !important;
 }
 
 .navbarFiller {
@@ -192,7 +190,6 @@ body {
   white-space: nowrap;
   @media @landscape {
     font-size: 16px;
-    padding-top: 13px;
     width: 30% !important;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
@@ -206,7 +203,6 @@ body {
   }
   @media @desktop-portrait {
     font-size: 16px;
-    padding-top: 13px;
     width: calc(~'100% - 102.4px');
   }
 }
@@ -352,11 +348,12 @@ body {
 
 .navbarButton {
   @media @desktop-portrait, @landscape {
-    height: 50px;
+    height: 50px !important;
     width: 51.2px;
+    top: 0 !important;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    height: 100px;
+    height: 100px !important;
     width: 10%;
     min-width: 60px;
   }
