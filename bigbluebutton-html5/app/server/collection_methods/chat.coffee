@@ -24,7 +24,7 @@ Meteor.methods
 				header :
 					timestamp: new Date().getTime()
 					name: eventName
-				payload: 
+				payload:
 					message: chatObject
 					meeting_id: meetingId
 					requester_id: chatObject.from_userid
@@ -89,4 +89,3 @@ Meteor.methods
 	result = message
 	result = result.replace(new RegExp(BREAK_LINE, 'g'), CARRIAGE_RETURN)
 	result
-

@@ -23,3 +23,16 @@ Meteor.methods
 
     $('body').append form
     form.submit()
+
+# thickness can be a number (e.g. "2") or a string (e.g. "2px")
+@formatThickness = (thickness) ->
+  thickness ?= "1" # default value
+  if !thickness.toString().match(/.*px$/)
+    "#" + thickness + "px" # leading "#" - to be compatible with Firefox
+  thickness
+
+# applies zooming to the stroke thickness
+@zoomStroke = (thickness) ->
+  currentSlide = @getCurrentSlideDoc()
+  ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
+  thickness * 100 / ratio
