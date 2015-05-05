@@ -18,6 +18,7 @@ ddp@1.1.0
 deps@1.0.7
 duongthienduc:meteor-winston@1.0.0
 ejson@1.0.6
+ewall:foundation@5.5.2
 fastclick@1.0.3
 francocatena:status@1.1.2
 geojson-utils@1.0.3
