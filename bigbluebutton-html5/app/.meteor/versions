@@ -45,7 +45,6 @@ meteor@1.1.6
 meteor-platform@1.2.2
 minifiers@1.1.5
 minimongo@1.0.8
-mizzao:bootstrap-3@3.3.1_1
 mizzao:build-fetcher@0.2.0
 mizzao:jquery-ui@1.11.2
 mizzao:timesync@0.3.1
