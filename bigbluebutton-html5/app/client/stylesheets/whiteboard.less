@@ -1,6 +1,6 @@
 @import "variables";
 
-#whiteboard {
+/*#whiteboard {
   padding: 0 !important;
   margin-left: 0.25%;
   margin-right: 0.25%;
@@ -19,7 +19,7 @@
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-order: 1;
     order: 1;
-    min-width: 99%; /* 100% - (2 #whileboard margins 0.25% each + 2 #main paddings 0.25% each) */
+    min-width: 99%;
   }
   &:-webkit-full-screen {
     width: 100%;
@@ -63,6 +63,17 @@
       height: 100%;
     }
   }
+}*/
+
+#whiteboard {
+  -webkit-flex: 7 7 70%;
+  -moz-flex: 7 7 70%;
+  -ms-flex: 7 7 70%;
+  flex: 7 7 70%;
+  height: 100%;
+  margin-left: 4px;
+  margin-right: 2px;
+  margin-top: 5px;
 }
 
 #whiteboard-paper {

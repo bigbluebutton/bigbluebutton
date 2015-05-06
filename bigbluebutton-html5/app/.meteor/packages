@@ -16,7 +16,6 @@ francocatena:status
 mizzao:jquery-ui
 mrt:external-file-loader@0.1.4
 brentjanderson:winston-client@0.0.4
-mizzao:bootstrap-3
 duongthienduc:meteor-winston
 mizzao:timesync
 agnito:raphael

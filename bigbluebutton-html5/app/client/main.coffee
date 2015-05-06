@@ -193,6 +193,9 @@ Template.header.events
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")
     $("#navbarMinimizedButton").addClass("navbarMinimizedButtonLarge")
 
+  "click .toggleUserlist": (event) ->
+    toggleUsersList()
+
 Template.slidingMenu.events
   'click .joinAudioButton': (event) ->
     onAudioJoinHelper()
