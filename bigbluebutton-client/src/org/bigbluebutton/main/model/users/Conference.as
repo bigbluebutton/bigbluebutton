@@ -371,11 +371,11 @@ package org.bigbluebutton.main.model.users {
 		public function setMyAuthToken(token:String):void {
 			me.authToken = token;
 		}
-
-		public function removeAllUsers():void {
+		
+		public function removeAllParticipants():void {
 			users.removeAll();
-		}
-
+		}		
+	
     public function raiseHand(userId: String, raised: Boolean):void {
       var aUser:BBBUser = getUser(userId);			
       if (aUser != null) {

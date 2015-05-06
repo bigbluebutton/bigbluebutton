@@ -108,7 +108,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
           onConnectedToVideoApp();
 					break;
-				
+					
 				case "NetConnection.Connect.Closed":
 					if (!logoutOnUserCommand) {
 						dispatcher.dispatchEvent(new StopBroadcastEvent());

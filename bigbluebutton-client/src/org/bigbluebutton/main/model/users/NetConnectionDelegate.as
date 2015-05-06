@@ -409,9 +409,6 @@ package org.bigbluebutton.main.model.users
           authenticated = false;
           reconnect.onDisconnect(connect, _conferenceParameters, tried_tunneling);
         }
-
-        //var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-        //dispatcher.dispatchEvent(e);        
       }
 		}
 		

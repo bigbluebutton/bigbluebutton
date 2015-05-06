@@ -108,7 +108,7 @@ package org.bigbluebutton.modules.phone.managers {
         netConnection.close();
       }			
 		}
-
+		
     private function handleConnectionSuccess():void {
       if (reconnecting) {
         dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT,

@@ -121,12 +121,6 @@ package org.bigbluebutton.modules.deskshare.services.red5
       }
    
 			nc.connect(getURI(), UsersUtil.getInternalMeetingID());
-      
-      //if (!retry) {
-      //  retryTimer = new Timer(connectionTimeout, 1);
-      //  retryTimer.addEventListener(TimerEvent.TIMER_COMPLETE, connectTimeoutHandler);
-      //  retryTimer.start();
-      //}
 		}
 		
     private function connectTimeoutHandler(e:TimerEvent):void {

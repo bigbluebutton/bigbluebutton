@@ -283,6 +283,8 @@
           trace(LOG + "Successfully called into the echo test application.  [" + event.publishStreamName + "] : [" + event.playStreamName + "] : [" + event.codec + "]");
           JSLog.info("Successfully called into the echo test application.", logData);
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
+          
+          trace(LOG + "Successfully called into the echo test application.");
           dispatcher.dispatchEvent(new FlashEchoTestStartedEvent());
           break;
         default:
@@ -366,7 +368,7 @@
 			dispatcher.dispatchEvent(command);
 		}
 	}
-
+	
     public function handleFlashVoiceConnected():void {
       switch (state) {
         case JOIN_VOICE_CONFERENCE:
@@ -422,7 +424,7 @@
           trace(LOG + "Unhandled connection status [" + event.status + "]");
       }
     }
-
+    
     public function handleUseFlashModeCommand():void {
       usingFlash = true;
       startCall(true);
