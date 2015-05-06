@@ -20,16 +20,13 @@ package org.bigbluebutton.modules.videoconf.events
 {
 	import flash.events.Event;
 	
-	public class ShareCameraRequestEvent extends Event
+	public class StopShareCameraRequestEvent extends Event
 	{
-		public static const SHARE_CAMERA_REQUEST:String = "ShareCameraRequestEvent";
-		
-    public var publishInClient:Boolean = true;
-
-		public var defaultCamera:String = "0";
-		public var camerasArray:Object = null;
+		public static const STOP_SHARE_CAMERA_REQUEST:String = "StopShareCameraRequestEvent";
+		public static const STOP_SHARE_ALL_CAMERA_REQUEST:String = "StopShareAllCameraRequestEvent";		
+    		public var camId:int;
     
-		public function ShareCameraRequestEvent(type:String = SHARE_CAMERA_REQUEST)
+		public function StopShareCameraRequestEvent(type:String = STOP_SHARE_CAMERA_REQUEST)
 		{
 			super(type, true, false);
 		}
