@@ -1,6 +1,6 @@
 
 Meteor.methods
-  publishSwitchToPreviousSlideMessage: (meetingId) ->
+  publishSwitchToPreviousSlideMessage: (meetingId, userId, authToken) ->
     currentPresentationDoc = Meteor.Presentations.findOne({
       "meetingId": meetingId
       "presentation.current" : true})
@@ -13,7 +13,7 @@ Meteor.methods
       "presentationId": currentPresentationDoc?.presentation.id
       "slide.num" : currentSlideDoc?.slide.num-1})
 
-    if previousSlideDoc?
+    if previousSlideDoc? and isAllowedTo('switchSlide', meetingId, userId, authToken)
       newPage = previousSlideDoc.slide.id
       message =
         "payload":
@@ -26,11 +26,8 @@ Meteor.methods
 
       publish Meteor.config.redis.channels.toBBBApps.presentation, message
 
-    else
-      Meteor.log.error('there was no previous slide')
 
-
-  publishSwitchToNextSlideMessage: (meetingId) ->
+  publishSwitchToNextSlideMessage: (meetingId, userId, authToken) ->
     currentPresentationDoc = Meteor.Presentations.findOne({
       "meetingId": meetingId
       "presentation.current" : true})
@@ -43,7 +40,7 @@ Meteor.methods
       "presentationId": currentPresentationDoc?.presentation.id
       "slide.num" : currentSlideDoc?.slide.num+1})
 
-    if nextSlideDoc?
+    if nextSlideDoc? and isAllowedTo('switchSlide', meetingId, userId, authToken)
       newPage = nextSlideDoc.slide.id
       message =
         "payload":
@@ -56,8 +53,6 @@ Meteor.methods
 
       publish Meteor.config.redis.channels.toBBBApps.presentation, message
 
-    else
-      Meteor.log.error('there was no next slide')
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server
