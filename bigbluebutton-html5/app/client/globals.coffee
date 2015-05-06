@@ -130,6 +130,9 @@ Handlebars.registerHelper "isCurrentUserSharingVideo", ->
 Handlebars.registerHelper "isCurrentUserTalking", ->
   BBB.amITalking()
 
+Handlebars.registerHelper "isCurrentUserPresenter", ->
+  BBB.isUserPresenter(getInSession('userId'))
+
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 

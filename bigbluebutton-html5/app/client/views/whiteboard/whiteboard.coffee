@@ -11,6 +11,12 @@
     callback()
 
 Template.whiteboard.events
+  "click .previousSlide":(event) ->
+    BBB.goToPreviousPage()
+
+  "click .nextSlide":(event) ->
+    BBB.goToNextPage()
+
   "click .fullscreenWhiteboardButton": (event, template) ->
     elem = document.getElementById("whiteboard")
     if elem.requestFullscreen

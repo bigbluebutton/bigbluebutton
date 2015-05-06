@@ -41,5 +41,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<bean id="presentationMessageListener" class="org.bigbluebutton.conference.service.presentation.PresentationMessageListener">
 		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
-	</bean>
+                <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+        </bean>
 </beans>

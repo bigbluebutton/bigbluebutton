@@ -1,5 +1,6 @@
 
-presenter = null
+presenter =
+  switchSlide: true
 
 # holds the values for whether the moderator user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
@@ -74,11 +75,26 @@ viewer = (meetingId, userId) ->
   Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken} validated:#{validated}"
 
   user = Meteor.Users.findOne({meetingId:meetingId, userId: userId})
-
+  Meteor.log.info "user=" + JSON.stringify user
   if user? and authToken is user.authToken # check if the user is who he claims to be
     if user.validated and user.clientType is "HTML5"
-      if user.user?.role is 'VIEWER' or user.user?.role is 'MODERATOR' or user.user?.role is undefined
+
+      # PRESENTER
+      # check presenter specific actions or fallback to regular viewer actions
+      if user.user?.presenter
+        Meteor.log.info "user permissions presenter case"
+        return presenter[action] or viewer(meetingId, userId)[action] or false
+
+      # VIEWER
+      else if user.user?.role is 'VIEWER'
+        Meteor.log.info "user permissions viewer case"
         return viewer(meetingId, userId)[action] or false
+
+      # MODERATOR
+      else if user.user?.role is 'MODERATOR'
+        Meteor.log.info "user permissions moderator case"
+        return moderator[action] or false
+      
       else
         Meteor.log.warn "UNSUCCESSFULL ATTEMPT FROM userid=#{userId} to perform:#{action}"
         return false
