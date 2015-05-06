@@ -87,6 +87,9 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.isUserTalking = (userId, callback) ->
     BBB.getUser(userId)?.user?.voiceUser?.talking
 
+  BBB.isUserPresenter = (userId, callback) ->
+    BBB.getUser(userId)?.user?.presenter
+
   # returns true if the current user is marked as locked
   BBB.amILocked = () ->
     return BBB.getCurrentUser()?.user.locked
@@ -333,6 +336,20 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   presentationID - the presentation to delete
   ###
   BBB.deletePresentation = (presentationID) ->
+
+  # Request to switch the presentation to the previous slide
+  BBB.goToPreviousPage = () ->
+    Meteor.call('publishSwitchToPreviousSlideMessage',
+      getInSession('meetingId'),
+      getInSession('userId'),
+      getInSession('authToken'))
+
+  # Request to switch the presentation to the next slide
+  BBB.goToNextPage = () ->
+    Meteor.call('publishSwitchToNextSlideMessage',
+      getInSession('meetingId'),
+      getInSession('userId'),
+      getInSession('authToken'))
 
   BBB.webRTCConferenceCallStarted = ->
 

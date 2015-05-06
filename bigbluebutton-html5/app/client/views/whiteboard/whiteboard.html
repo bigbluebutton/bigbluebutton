@@ -6,6 +6,12 @@
             {{/if}}
             <span class="ion-easel heading"></span>
             {{title}}
+            {{#if isCurrentUserPresenter}}
+                <span class="presentationNavigationControls">
+                    <button class="previousSlide ion-arrow-left-a"></button>
+                    <button class="nextSlide ion-arrow-right-a"></button>
+                </span>
+            {{/if}}
         </h3>
         {{#each getCurrentSlide}}
             {{> slide}}
