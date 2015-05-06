@@ -2011,6 +2011,7 @@ class ApiController {
             participantCount(meeting.getNumUsers())
             listenerCount(meeting.getNumListenOnly())
             voiceParticipantCount(meeting.getNumVoiceJoined())
+            videoCount(meeting.getNumVideos())
             maxUsers(meeting.getMaxUsers())
             moderatorCount(meeting.getNumModerators())
             attendees() {
@@ -2022,11 +2023,7 @@ class ApiController {
                   isPresenter("${att.isPresenter()}")
                   isListeningOnly("${att.isListeningOnly()}")
                   hasJoinedVoice("${att.isVoiceJoined()}")
-                  videoStreams(){
-                    att.getStreams().each { s ->
-                      streamName("${s}")
-                    }
-                  }
+                  hasVideo("${att.hasVideo()}")
 				  customdata(){
 					  meeting.getUserCustomData(att.externalUserId).each{ k,v ->
 						  "$k"("$v")
