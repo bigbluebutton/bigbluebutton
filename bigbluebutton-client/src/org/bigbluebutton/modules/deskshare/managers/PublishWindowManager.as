@@ -53,10 +53,10 @@ package org.bigbluebutton.modules.deskshare.managers
 			if (shareWindow != null) shareWindow.stopSharing();
 		}
 																			
-		public function startSharing(uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
+		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 			LogUtil.debug("DS:PublishWindowManager::opening desk share window, autostart=" + autoStart + " autoFullScreen=" + autoFullScreen);
 			shareWindow = new DesktopPublishWindow();
-			shareWindow.initWindow(service.getConnection(), uri, room, autoStart, autoFullScreen);
+			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);
 			shareWindow.visible = true;
 			openWindow(shareWindow);
 			if (autoStart || autoFullScreen) {

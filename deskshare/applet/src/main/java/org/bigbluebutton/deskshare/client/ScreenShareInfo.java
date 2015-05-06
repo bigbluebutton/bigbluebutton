@@ -23,6 +23,7 @@ import java.awt.Image;
 public class ScreenShareInfo {
    	public String host;
    	public int port;
+	public boolean useTLS;
    	public String room;
    	public int captureWidth;
    	public int captureHeight;
