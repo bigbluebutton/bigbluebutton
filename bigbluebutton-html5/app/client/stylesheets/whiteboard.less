@@ -66,11 +66,13 @@
 }*/
 
 #whiteboard {
-  -webkit-flex: 7 7 70%;
-  -moz-flex: 7 7 70%;
-  -ms-flex: 7 7 70%;
-  flex: 7 7 70%;
-  height: 100%;
+  @media @landscape {
+    -webkit-flex: 7 7 70%;
+    -moz-flex: 7 7 70%;
+    -ms-flex: 7 7 70%;
+    flex: 7 7 70%;
+    height: 100%;
+  }
   margin-left: 4px;
   margin-right: 2px;
   margin-top: 5px;
