@@ -22,7 +22,9 @@ package org.bigbluebutton.core
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.managers.VideoProfileManager;
 	import org.bigbluebutton.core.model.Session;
+	import org.bigbluebutton.core.model.VideoProfile;
 	import flash.system.Capabilities;
 	
 	public class BBB {
@@ -30,6 +32,7 @@ package org.bigbluebutton.core
 		private static var connectionManager:ConnectionManager = null;
 		private static var session:Session = null;
 		private static var userConfigManager:UserConfigManager = null;
+		private static var videoProfileManager:VideoProfileManager = null;
 			
 		public static function initUserConfigManager():UserConfigManager {
 			if (userConfigManager == null) {
@@ -46,10 +49,34 @@ package org.bigbluebutton.core
 			return configManager;
 		}
 
+		public static function initVideoProfileManager():VideoProfileManager {
+			if (videoProfileManager == null) {
+				videoProfileManager = new VideoProfileManager();
+				videoProfileManager.loadProfiles();
+			}
+			return videoProfileManager;
+		}
+
 		public static function getConfigForModule(module:String):XML {
 			return initConfigManager().config.getConfigFor(module);
 		}
+
+		public static function get videoProfiles():Array {
+			return initVideoProfileManager().profiles;
+		}
+
+		public static function getVideoProfileById(id:String):VideoProfile {
+			return initVideoProfileManager().getVideoProfileById(id);
+		}
+
+		public static function get defaultVideoProfile():VideoProfile {
+			return initVideoProfileManager().defaultVideoProfile;
+		}
 		
+		public static function get fallbackVideoProfile():VideoProfile {
+			return initVideoProfileManager().fallbackVideoProfile;
+		}
+
 		public static function initConnectionManager():ConnectionManager {
 			if (connectionManager == null) {
 				connectionManager = new ConnectionManager();

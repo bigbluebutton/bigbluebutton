@@ -18,11 +18,12 @@
  */
 package org.bigbluebutton.core.vo
 {
+  import org.bigbluebutton.core.model.VideoProfile;
+  
   public class CameraSettingsVO
   {
     public var camIndex:int = 0;
-    public var camWidth:int = 0;
-    public var camHeight:int = 0;
+    public var videoProfile:VideoProfile = null;
     public var isPublishing:Boolean = false;
     
   }
