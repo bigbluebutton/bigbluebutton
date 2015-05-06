@@ -41,6 +41,7 @@ launch-screen@1.0.2
 less@1.0.14
 livedata@1.0.13
 logging@1.0.7
+maibaum:foundation-icons@0.0.1
 meteor@1.1.6
 meteor-platform@1.2.2
 minifiers@1.1.5
