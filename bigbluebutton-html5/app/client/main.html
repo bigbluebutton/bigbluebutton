@@ -1,9 +1,3 @@
-<template name="footer">
-  <div id="footer" class="myFooter gradientBar navbar-default">
-    {{{getFooterString}}}
-  </div>
-</template>
-
 <template name="header">
   {{#if getInSession "display_navbar"}}
     <nav id="navbar" class="myNavbar gradientBar top-bar" role="navigation">
@@ -95,7 +89,7 @@
       </div>
       <div class="navbarTitle navbarSection"><span>{{getMeetingName}}</span></div>
       <div class="navbarSettingsButtons navbarSection">
-        <!-- {{> makeButton id="userId" btn_class="settingsIcon navbarButton" i_class="glyphicon glyphicon-cog" rel="tooltip" data_placement="bottom" title="Settings"}} -->
+        {{> makeButton id="userId" btn_class="settingsIcon navbarButton" i_class="glyphicon glyphicon-cog" rel="tooltip" data_placement="bottom" title="Settings"}}
         {{> makeButton btn_class="signOutIcon navbarButton" i_class="glyphicon glyphicon-log-out" rel="tooltip" data_placement="bottom" title="Logout"}}
       </div>
     </nav>
@@ -127,6 +121,8 @@
 <template name="main">
   {{setTitle}}
   <body>
+    {{> modals}}
+
     <div id="dialog" title="Confirm Logout">
       <p>Are you sure you want to log out?</p>
     </div>
@@ -145,7 +141,6 @@
         {{> chatbar id="chat" title="Chat" name="chatbar"}}
         {{> usersList id="users" name="usersList"}}
         <audio id="remote-media" autoplay="autoplay"></audio>
-        {{> footer}}
       {{/if}}
       <div id='shield'></div>
     </div>
@@ -153,6 +148,10 @@
       {{> slidingMenu}}
     {{/if}}
   </body>
+</template>
+
+<template name="modals">
+  {{> settingsModal}}
 </template>
 
 <template name="recordingStatus">

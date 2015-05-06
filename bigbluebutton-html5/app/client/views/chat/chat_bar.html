@@ -17,7 +17,7 @@
         </ul>
       </div>
       {{#if userExists}}
-        <div class="panel-footer">{{> chatInput}}</div> 
+        <div class="panel-footer">{{> chatInput}}</div>
       {{/if}}
     {{else}}
       {{> optionsBar}}
@@ -111,13 +111,17 @@
 
 <template name="optionsFontSize">
   <span class="chatOptionsText" >Chat Message Font Size: </span><br/>
-  <table id="fontSizeTable">
+  <table id="fontSizeTable" align="center">
     <tr>
-      <td id="displayButtons">
-        <button id="decreaseFontSize" class="glyphicon glyphicon-minus"></button>
-        <button id="increaseFontSize" class="glyphicon glyphicon-plus"></button>
-      </td >
+      <td>
+        {{> makeButton id="decreaseFontSize" btn_class="displayButtons"
+        i_class="minus" rel="tooltip" title="Decrease Font Size"}}
+      </td>
       <td id="displayLabel"><label class="fontSizeLabel" {{messageFontSize}} >Size({{getInSession "messageFontSize"}})</label></td>
+      <td>
+        {{> makeButton id="increaseFontSize" btn_class="displayButtons"
+        i_class="plus" rel="tooltip" title="Increase Font Size"}}
+      </td>
     </tr>
   </table>
 </template>

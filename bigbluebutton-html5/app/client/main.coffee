@@ -45,7 +45,7 @@ ieIconPath = 'M27.998,2.266c-2.12-1.91-6.925,0.382-9.575,1.93c-0.76-0.12-1.557-0
               $('#notification-text').html("You've joined the Listen Only Audio")
             else
               $('#notification-text').html("You've joined the audio")
-            
+
             $('#notification').dialog('open')
             setTimeout () ->
               $('#notification').dialog('close') # close the entire notification
@@ -115,11 +115,6 @@ Meteor.startup ->
       return
   )
 #
-Template.footer.helpers
-  getFooterString: ->
-    info = getBuildInformation()
-    foot = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.bbbServerVersion} - #{info.dateOfBuild}] - For more information visit #{info.link}"
-
 Template.header.events
   "click .joinAudioButton": (event) ->
     onAudioJoinHelper()
@@ -158,8 +153,8 @@ Template.header.events
     $(".tooltip").hide()
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
-  # "click .settingsIcon": (event) ->
-    #   alert "settings"
+  "click .settingsIcon": (event) ->
+      $("#settingsModal").foundation('reveal', 'open');
 
   "click .signOutIcon": (event) ->
     $('.signOutIcon').blur()
@@ -262,11 +257,11 @@ Template.main.rendered = ->
 
   # jQuery click events are handled here. Meteor click handlers don't get called.
   # we pass in a named boolean parameter the whether we wish to join audio as listen only or not
-  $("#microphone").click ->
-    introToAudio @, isListenOnly: false
+  # $("#microphone").click ->
+    # introToAudio @, isListenOnly: false
 
-  $("#listen_only").click ->
-    introToAudio @, isListenOnly: true
+  # $("#listen_only").click ->
+    # introToAudio @, isListenOnly: true
 
   $("#dialog").dialog(
     modal: true

@@ -35,7 +35,7 @@
   list-style: none;
   margin: 0px;
   padding: 0px;
-  
+
   @media @desktop-portrait, @landscape {
     li {
       margin: 0px;
@@ -142,13 +142,19 @@
 
 #fontSizeTable {
   /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
-  height: 64px;
-  #displayButtons {
+  height: 80px;
+  width: 379px;
+  overflow: hidden;
+  .displayButtons {
     text-align:center;
     width:84px;
+    margin: 0px;
+    height: 35px;
+    padding:0px;
   }
   #displayLabel {
-    width: 154px;
+    width: 169px;
+    text-align: center;
   }
 }
 

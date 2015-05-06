@@ -272,25 +272,24 @@ Template.optionsFontSize.events
   "click #decreaseFontSize": (event) ->
     if getInSession("messageFontSize") is 8 # min
       $('#decreaseFontSize').disabled = true
-      $('#decreaseFontSize').removeClass('glyphicon-minus')
+      $('#decreaseFontSize').removeClass('icon fi-minus')
       $('#decreaseFontSize').html('MIN')
     else
       setInSession "messageFontSize", getInSession("messageFontSize") - 2
       if $('#increaseFontSize').html() is 'MAX'
         $('#increaseFontSize').html('')
-        $('#increaseFontSize').addClass('glyphicon-plus')
+        $('#increaseFontSize').addClass('icon fi-plus')
 
   "click #increaseFontSize": (event) ->
     if getInSession("messageFontSize") is 40 # max
       $('#increaseFontSize').disabled = true
-      $('#increaseFontSize').removeClass('glyphicon-plus')
+      $('#increaseFontSize').removeClass('icon fi-plus')
       $('#increaseFontSize').html('MAX')
     else
       setInSession "messageFontSize", getInSession("messageFontSize") + 2
       if $('#decreaseFontSize').html() is 'MIN'
         $('#decreaseFontSize').html('')
-        $('#decreaseFontSize').addClass('glyphicon-minus')
-
+        $('#decreaseFontSize').addClass('icon fi-minus')
 
 Template.tabButtons.events
   'click .close': (event) -> # user closes private chat
