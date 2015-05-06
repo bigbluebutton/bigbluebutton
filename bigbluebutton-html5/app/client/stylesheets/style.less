@@ -44,41 +44,6 @@ body {
   margin-left:5px 
 }
 
-.mainContainer {
-  height: 95%;
-}
-
-.myFooter {
-  min-height: 40px !important;
-  color: black;
-  padding-top: 13px;
-  text-align: center;
-  background-color: #EEEEEE;
-  @media @landscape {
-    position:fixed;
-    bottom:0;
-    margin-bottom: 0;
-    border-width: 1px 0 0;
-    width: 100%;
-  }
-  @media @landscape, @desktop-portrait {
-    font-size: 10px;
-    max-height: 20px;
-  }
-  @media @mobile-portrait {
-    font-size: 2vw;
-  }
-
-  /*the footer should be visible only at the very bottom of a portrait page*/
-  @media @desktop-portrait, @mobile-portrait {
-    order: 4;
-    -webkit-order: 4;
-  }
-  @media @mobile-portrait-with-keyboard {
-    display: none; /*hide when typing*/
-  }
-}
-
 .myNavbar {
   border-bottom: 0px;
   &.gradientBar {
