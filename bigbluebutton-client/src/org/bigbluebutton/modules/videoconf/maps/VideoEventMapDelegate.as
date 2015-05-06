@@ -297,6 +297,10 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function openViewWindowFor(userID:String):void {
+      if (!proxy.connection.connected) {
+        return;
+      }
+      
       trace("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       
       var window:VideoWindow = new VideoWindow();
@@ -334,7 +338,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function startPublishing(e:StartBroadcastEvent):void{
-	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
+	  trace("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
       streamName = e.stream;
       proxy.startPublishing(e);
       

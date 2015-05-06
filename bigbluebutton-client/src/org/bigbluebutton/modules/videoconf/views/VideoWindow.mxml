@@ -64,6 +64,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 			
+			public static const LOG:String = "VideoWindow - ";
+
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
 			
@@ -172,8 +174,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
+			private function onConnectionNetStatus(e:NetStatusEvent):void {
+				trace(LOG + "onNetStatus code=" + e.info.code);
+			
+				if (e.info.code == "NetConnection.Connect.Closed") {
+					close();
+				}
+			}
 			
 			public function startVideo(connection:NetConnection, stream:String):void{
+				connection.addEventListener(NetStatusEvent.NET_STATUS, onConnectionNetStatus);
+			
 				ns = new NetStream(connection);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
