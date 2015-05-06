@@ -23,6 +23,9 @@
     {{else}}
       {{> makeButton btn_class="toggleUserlist navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Open Userlist"}}
     {{/if}}
+    <span class="navbarTitle">
+      {{getWhiteboardTitle}}
+    </span>
   </nav>
 </template>
 
@@ -40,7 +43,7 @@
       <div id="main">
         {{> header}}
         <div id="panels">
-          {{> whiteboard id="whiteboard" title=getWhiteboardTitle name="whiteboard"}}
+          {{> whiteboard id="whiteboard" name="whiteboard"}}
           {{> chatbar id="chat" title="Chat" name="chatbar"}}
         </div>
       </div>
