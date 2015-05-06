@@ -1,3 +1,64 @@
+
+Meteor.methods
+  publishSwitchToPreviousSlideMessage: (meetingId) ->
+    currentPresentationDoc = Meteor.Presentations.findOne({
+      "meetingId": meetingId
+      "presentation.current" : true})
+    currentSlideDoc = Meteor.Slides.findOne({
+      "meetingId": meetingId
+      "presentationId": currentPresentationDoc?.presentation.id
+      "slide.current" : true})
+    previousSlideDoc = Meteor.Slides.findOne({
+      "meetingId": meetingId
+      "presentationId": currentPresentationDoc?.presentation.id
+      "slide.num" : currentSlideDoc?.slide.num-1})
+
+    if previousSlideDoc?
+      newPage = previousSlideDoc.slide.id
+      message =
+        "payload":
+          "page":
+            "id": previousSlideDoc.slide.id
+          "meeting_id": meetingId
+        "header":
+          "timestamp": new Date().getTime()
+          "name": "presentation_page_changed_message"
+
+      publish Meteor.config.redis.channels.toBBBApps.presentation, message
+
+    else
+      Meteor.log.error('there was no previous slide')
+
+
+  publishSwitchToNextSlideMessage: (meetingId) ->
+    currentPresentationDoc = Meteor.Presentations.findOne({
+      "meetingId": meetingId
+      "presentation.current" : true})
+    currentSlideDoc = Meteor.Slides.findOne({
+      "meetingId": meetingId
+      "presentationId": currentPresentationDoc?.presentation.id
+      "slide.current" : true})
+    nextSlideDoc = Meteor.Slides.findOne({
+      "meetingId": meetingId
+      "presentationId": currentPresentationDoc?.presentation.id
+      "slide.num" : currentSlideDoc?.slide.num+1})
+
+    if nextSlideDoc?
+      newPage = nextSlideDoc.slide.id
+      message =
+        "payload":
+          "page":
+            "id": nextSlideDoc.slide.id
+          "meeting_id": meetingId
+        "header":
+          "timestamp": new Date().getTime()
+          "name": "presentation_page_changed_message"
+
+      publish Meteor.config.redis.channels.toBBBApps.presentation, message
+
+    else
+      Meteor.log.error('there was no next slide')
+
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
