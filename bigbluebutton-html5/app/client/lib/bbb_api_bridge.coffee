@@ -42,7 +42,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   for AM_I_SHARING_CAM_RESP (see below).
   ###
   BBB.amISharingWebcam = (callback) ->
-    BBB.isUserSharingWebcam BBB.getCurrentUser()?.userId
+    # BBB.isUserSharingWebcam BBB.getCurrentUser()?.userId
+    return false
 
   ###
 
@@ -55,7 +56,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   IS_USER_PUBLISHING_CAM_RESP (see below).
   ###
   BBB.isUserSharingWebcam = (userId, callback) ->
-    BBB.getUser(userId)?.user?.webcam_stream?.length isnt 0
+    # BBB.getUser(userId)?.user?.webcam_stream?.length isnt 0
+    return false
 
   # returns whether the user has joined any type of audio
   BBB.amIInAudio = (callback) ->
