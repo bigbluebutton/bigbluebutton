@@ -54,11 +54,16 @@
 }
 
 #users {
-  -webkit-flex: 1 1 20%;
-  -moz-flex: 1 1 20%;
-  -ms-flex: 1 1 20%;
-  flex: 1 1 20%;
-  height: 100%;
+  @media @landscape {
+    -webkit-flex: 1 1 20%;
+    -moz-flex: 1 1 20%;
+    -ms-flex: 1 1 20%;
+    flex: 1 1 20%;
+    height: 100%;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    display: none !important;
+  }
 }
 
 #user-contents {
