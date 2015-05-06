@@ -114,11 +114,8 @@ Meteor.startup ->
       amplify.store key, value
       return
   )
-#
-Template.footer.helpers
-  getFooterString: ->
-    info = getBuildInformation()
-    foot = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.bbbServerVersion} - #{info.dateOfBuild}] - For more information visit #{info.link}"
+
+
 
 Template.header.events
   "click .joinAudioButton": (event) ->
