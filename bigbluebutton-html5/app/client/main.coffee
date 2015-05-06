@@ -114,7 +114,7 @@ Meteor.startup ->
       amplify.store key, value
       return
   )
-#
+
 Template.header.events
   "click .joinAudioButton": (event) ->
     onAudioJoinHelper()
@@ -188,6 +188,9 @@ Template.header.events
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")
     $("#navbarMinimizedButton").addClass("navbarMinimizedButtonLarge")
 
+  "click .toggleUserlist": (event) ->
+    toggleUsersList()
+
 Template.slidingMenu.events
   'click .joinAudioButton': (event) ->
     onAudioJoinHelper()
@@ -226,10 +229,6 @@ Template.slidingMenu.events
   "click .leaveAudioButton": (event) ->
     exitVoiceCall event
     toggleSlidingMenu()
-
-Template.main.helpers
-  setTitle: ->
-    document.title = "BigBlueButton #{window.getMeetingName() ? 'HTML5'}"
 
 Template.main.rendered = ->
   # the initialization code for the dialog presenting the user with microphone+listen only options

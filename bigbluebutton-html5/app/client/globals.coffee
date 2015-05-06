@@ -383,6 +383,7 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession 'webrtc_notification_is_displayed', false
 
 @onLoadComplete = ->
+  document.title = "BigBlueButton #{window.getMeetingName() ? 'HTML5'}"
   setDefaultSettings()
 
   Meteor.Users.find().observe({

@@ -1,10 +1,9 @@
 <template name="chatbar">
   <div id="{{id}}" {{visibility name}} class="component">
     <h3 class="title gradientBar">
-    <span class="glyphicon glyphicon-comment heading"></span>
-    {{> extraConversations}}
+      <span class="ion-ios-chatbubble"></span>
+      {{> extraConversations}}
     </h3>
-    {{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
     {{#if getInSession "display_chatPane"}}
       <div id="chatbody">
         <ul class="chat" {{messageFontSize}}>
