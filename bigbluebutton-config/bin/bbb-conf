@@ -550,6 +550,16 @@ fi
 if [ $SALT ]; then
 	need_root
 	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
+
+	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
+		sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
+	fi
+
+	if [ -f /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js ]; then
+		sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
+	fi
+
+	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
 	echo "Changed BigBlueButton's shared secret to $SALT"
 	echo
 fi
@@ -727,6 +737,30 @@ check_configuration() {
 			echo "#"
 			echo "#                                IP from ifconfig: $IP"
 			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp: $API_IP"
+			echo
+		fi
+	fi
+
+	BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+
+	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
+		WEBHOOKS_SALT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
+		
+		if [ "$BBB_SALT" != "$WEBHOOKS_SALT" ]; then
+			echo "# Warning: Webhooks API Salt mismatch: "
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties = $BBB_SALT"
+			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee                       = $WEBHOOKS_SALT"
+			echo
+		fi
+		
+		WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+		WEBHOOKS_APP_PORT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.server.port[ =]*' | cut -d '=' -f2 | xargs)
+
+		if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
+			echo "# Warning: Webhooks port mismatch: "
+			echo "#  /etc/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
+			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee = $WEBHOOKS_APP_PORT"
 			echo
 		fi
 	fi
@@ -1574,4 +1608,3 @@ if [ $WATCH ]; then
 	need_root
 	watch -n 2 "top -n 1 -b | head -n 5; echo; bbb-conf --network; bbb-conf --debug"
 fi
-

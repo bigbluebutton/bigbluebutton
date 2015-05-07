@@ -1,7 +1,7 @@
 Template.bbbSettingsInfo.helpers
   getBBBSettingsInfo: ->
     info = getBuildInformation()
-    result = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.bbbServerVersion} - #{info.dateOfBuild}] - For more information visit #{info.link}"
+    result = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.html5ClientBuild}] - For more information visit #{info.link}"
 
 Template.settingsAudio.events
   "click #joinMicrophone": (event) ->

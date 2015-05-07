@@ -71,7 +71,7 @@ case class UserVO(
   presenter: Boolean, 
   hasStream: Boolean, 
   locked: Boolean, 
-  webcamStream: String, 
+  webcamStreams: Set[String], 
   phoneUser: Boolean,
   voiceUser: VoiceUser,
   listenOnly: Boolean)

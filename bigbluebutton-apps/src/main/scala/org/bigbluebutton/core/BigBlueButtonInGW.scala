@@ -162,8 +162,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new UserShareWebcam(meetingId, userId, stream))
   }
   
-  def unshareWebcam(meetingId: String, userId: String) {
-    bbbGW.accept(new UserUnshareWebcam(meetingId, userId))
+  def unshareWebcam(meetingId: String, userId: String, stream:String) {
+    bbbGW.accept(new UserUnshareWebcam(meetingId, userId, stream))
   }
 	
   def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {

@@ -126,7 +126,8 @@ case class UserShareWebcam(
 
 case class UserUnshareWebcam(
     meetingID: String, 
-    userId: String
+    userId: String,
+    stream: String
 ) extends InMessage
                          
 case class ChangeUserStatus(

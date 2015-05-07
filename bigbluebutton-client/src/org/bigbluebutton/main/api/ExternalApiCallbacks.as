@@ -156,8 +156,8 @@ package org.bigbluebutton.main.api
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;
       
-      var streamName:String = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
-      if (streamName != null) {
+      var streamNames:Array = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
+      if (streamNames && streamNames.length > 0) {
         isUserPublishing = true; 
       }
       
@@ -165,7 +165,7 @@ package org.bigbluebutton.main.api
       obj.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
-      obj.streamName = streamName;
+      obj.streamNames = streamNames;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
@@ -195,15 +195,12 @@ package org.bigbluebutton.main.api
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
       obj.isPublishing = camSettings.isPublishing;
       obj.camIndex = camSettings.camIndex;
-      obj.camWidth = camSettings.camWidth;
-      obj.camHeight = camSettings.camHeight;
-      
-      var vidConf:VideoConfOptions = new VideoConfOptions();
-      
-      obj.camKeyFrameInterval = vidConf.camKeyFrameInterval;
-      obj.camModeFps = vidConf.camModeFps;
-      obj.camQualityBandwidth = vidConf.camQualityBandwidth;
-      obj.camQualityPicture = vidConf.camQualityPicture;  
+      obj.camWidth = camSettings.videoProfile.width;
+      obj.camHeight = camSettings.videoProfile.height;
+      obj.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+      obj.camModeFps = camSettings.videoProfile.modeFps;
+      obj.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+      obj.camQualityPicture = camSettings.videoProfile.qualityPicture;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
