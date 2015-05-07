@@ -10,6 +10,13 @@
   if callback
     callback()
 
+Template.whiteboard.helpers
+  presentationProgress: ->
+    currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
+    currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
+    totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
+    return "#{currentSlideNum}/#{totalSlideNum}"
+
 Template.whiteboard.events
   "click .previousSlide":(event) ->
     BBB.goToPreviousPage()
