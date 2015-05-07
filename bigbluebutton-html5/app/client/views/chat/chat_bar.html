@@ -1,9 +1,5 @@
 <template name="chatbar">
   <div id="{{id}}" {{visibility name}} class="component">
-    <h3 class="title gradientBar">
-      <span class="ion-ios-chatbubble"></span>
-      {{> extraConversations}}
-    </h3>
     {{#if getInSession "display_chatPane"}}
       <div id="chatbody">
         <ul class="chat" {{messageFontSize}}>
