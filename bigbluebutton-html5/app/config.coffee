@@ -5,6 +5,7 @@ config = {}
 
 # Default global variables
 config.appName = 'BigBlueButton HTML5 Client'
+config.bbbServerVersion = '0.9.0'
 config.copyrightYear = '2015'
 config.html5ClientBuild = 'NNNN'
 config.defaultWelcomeMessage = 'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial videos</u></a>.\r\rTo join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r'
