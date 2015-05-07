@@ -238,6 +238,7 @@ body {
   }
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
     font-size: 4vw;
+    height: 110px;
   }
 }
 
@@ -253,6 +254,7 @@ body {
   }
   width: 100%;
   height: 100%;
+  background-color: extract(@white, 3);
 }
 
 .ui-widget-overlay {
@@ -626,4 +628,14 @@ body {
 .logoutIcon {
   height: 28px;
   width: 87px;
+}
+
+#background-menus {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: calc(~'100% + 500px');
+  height: 100%;
+  background-color: #484c55;
+  z-index: -1000;
 }
