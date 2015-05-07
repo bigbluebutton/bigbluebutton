@@ -9,33 +9,33 @@
     {{else}}
       {{#if isCurrentUser userId}}
         {{#if isUserMuted userId}}
-          <span rel="tooltip" class="strikethrough" data-placement="bottom" title="Unmute yourself">
-            <i class="icon fi-microphone usericon"></i>
+          <span rel="tooltip" data-placement="bottom" title="Unmute yourself">
+            <i class="ion-ios-mic-off usericon"></i>
           </span>
         {{else}}
           {{#if isCurrentUserTalking}}
-            <span rel="tooltip" class="flashingUserIcon" data-placement="bottom" title="you are talking">
-              <i class="icon fi-microphone usericon"></i>
+            <span rel="tooltip" data-placement="bottom" title="you are talking">
+              <i class="ion-ios-mic usericon"></i>
             </span>
           {{else}}
-          <span rel="tooltip" class="" data-placement="bottom" title="you are talking">
-            <i class="icon fi-microphone usericon"></i>
+          <span rel="tooltip" data-placement="bottom" title="you are talking">
+            <i class="ion-ios-mic-outline usericon"></i>
           </span>
           {{/if}}
         {{/if}}
       {{else}}
         {{#if isUserMuted userId}}
-          <span rel="tooltip" class="strikethrough" data-placement="bottom" title="{{user.name}} is muted">
-            <i class="icon fi-microphone usericon"></i>
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is muted">
+            <i class="ion-ios-mic-off usericon"></i>
           </span>
         {{else}}
           {{#if isUserTalking userId}}
-          <span rel="tooltip" class="flashingUserIcon" data-placement="bottom" title="{{user.name}} is talking">
-            <i class="icon fi-microphone usericon"></i>
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is talking">
+            <i class="ion-ios-mic usericon"></i>
           </span>
           {{else}}
-          <span rel="tooltip" class="" data-placement="bottom" title="{{user.name}} is not talking">
-            <i class="icon fi-microphone usericon"></i>
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking">
+            <i class="ion-ios-mic-outline usericon"></i>
           </span>
           {{/if}}
         {{/if}}
