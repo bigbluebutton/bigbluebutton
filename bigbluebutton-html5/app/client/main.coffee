@@ -190,7 +190,10 @@ Template.header.events
     $("#navbarMinimizedButton").addClass("navbarMinimizedButtonLarge")
 
   "click .toggleUserlist": (event) ->
-    toggleUsersList()
+    if isLandscape()
+      toggleUsersList()
+    else
+      toggleLeftHandSlidingMenu()
 
 Template.slidingMenu.events
   'click .joinAudioButton': (event) ->

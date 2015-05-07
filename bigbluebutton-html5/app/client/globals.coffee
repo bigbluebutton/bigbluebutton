@@ -262,6 +262,26 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
+@toggleLeftHandSlidingMenu = ->
+  if $('#container').css('position') is 'fixed'
+    $('#container').animate
+      left: '0'
+    , 500, () ->
+      $('#container').css('position', '')
+      $('#container').css('left', 0)
+    $('#background-menus').animate
+      left: '-250px'
+    , 500
+  else
+    $('#container').css('left', '0')
+    $('#container').css('position', 'fixed')
+    $('#container').animate
+      left: '500px'
+    , 500
+    $('#background-menus').animate
+      left: '0'
+    , 500
+
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
 @exitVoiceCall = (event) ->
@@ -407,6 +427,9 @@ Handlebars.registerHelper "visibility", (section) ->
   navigator.userAgent.match(/IEMobile/i) or
   navigator.userAgent.match(/BlackBerry/i) or
   navigator.userAgent.match(/webOS/i)
+
+@isLandscape = ->
+  window.matchMedia('(orientation: landscape)').matches
 
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
