@@ -26,22 +26,23 @@
       {{#if privateChatDisabled}}
         <textarea id="newMessageInput" class="disabledChat" placeholder="Private chat is temporarily locked (disabled)" rel="tooltip" data-placement="top" title="Private chat is temporarily locked" disabled></textarea>
       {{else}}
-        <textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
-        <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top">
-        Send
-        </button>
+        {{> chatInputControls}}
       {{/if}}
     {{else}}
       {{#if publicChatDisabled}}
         <textarea id="newMessageInput" class="disabledChat" placeholder="Public chat is temporarily locked (disabled)" rel="tooltip" data-placement="top" title="Public chat is temporarily locked" disabled></textarea>
       {{else}}
-        <textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
-        <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top">
-        Send
-        </button>
+        {{> chatInputControls}}
       {{/if}}
     {{/if}}
   </div>
+</template>
+
+<template name="chatInputControls">
+  <textarea id="newMessageInput" rel="tooltip" data-placement="top" title="Write a new message"></textarea>
+  <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top">
+  Send
+  </button>
 </template>
 
 <template name="chatOptions">
