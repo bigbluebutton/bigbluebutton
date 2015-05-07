@@ -114,7 +114,7 @@ Meteor.startup ->
       amplify.store key, value
       return
   )
-
+#
 Template.header.events
   "click .joinAudioButton": (event) ->
     onAudioJoinHelper()
@@ -141,17 +141,17 @@ Template.header.events
   "click .leaveAudioButton": (event) ->
     exitVoiceCall event
 
-  "click .lowerHand": (event) ->
-    $(".tooltip").hide()
-    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-
   "click .muteIcon": (event) ->
     $(".tooltip").hide()
     toggleMic @
 
+  "click .lowerHand": (event) ->
+    $(".tooltip").hide()
+    BBB.lowerHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+
   "click .raiseHand": (event) ->
     $(".tooltip").hide()
-    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   "click .settingsIcon": (event) ->
     setInSession("tempFontSize", getInSession("messageFontSize"))
@@ -201,16 +201,15 @@ Template.slidingMenu.events
     toggleSlidingMenu()
     toggleChatbar()
 
-  'click .lowerHand': (event) ->
-    $('.tooltip').hide()
+  "click .lowerHand": (event) ->
+    $(".tooltip").hide()
     toggleSlidingMenu()
-    Meteor.call('userLowerHand', getInSession('meetingId'), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+    BBB.lowerHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
-  'click .raiseHand': (event) ->
-    console.log 'navbar raise own hand from client'
-    $('.tooltip').hide()
+  "click .raiseHand": (event) ->
+    $(".tooltip").hide()
     toggleSlidingMenu()
-    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   'click .usersListIcon': (event) ->
     $('.tooltip').hide()
@@ -273,7 +272,7 @@ Template.main.rendered = ->
       {
         text: 'Yes'
         click: () ->
-          userLogout getInSession("meetingId"), getInSession("userId"), true
+          userLogout BBB.getMeetingId(), getInSession("userId"), true
           $(this).dialog("close")
         class: 'btn btn-xs btn-primary active'
       }
