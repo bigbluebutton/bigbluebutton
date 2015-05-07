@@ -154,7 +154,8 @@ Template.header.events
     Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   "click .settingsIcon": (event) ->
-      $("#settingsModal").foundation('reveal', 'open');
+    setInSession("tempFontSize", getInSession("messageFontSize"))
+    $("#settingsModal").foundation('reveal', 'open');
 
   "click .signOutIcon": (event) ->
     $('.signOutIcon').blur()

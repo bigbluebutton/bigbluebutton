@@ -1,54 +1,77 @@
 <template name="displayUserIcons">
-  {{#if isUserSharingVideo userId}}
-    <span class="userListSettingIcon glyphicon glyphicon-facetime-video" rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam"></span>
-  {{/if}}
-
+  <!-- audio, video, locking, presenter/moderator, hand raised -->
   {{#if isUserInAudio userId}}
     <!-- if the user is listen only, only display the one icon -->
     {{#if isUserListenOnlyAudio userId}}
-      <span class="userListSettingIcon glyphicon glyphicon-headphones" title="Listening only"></span>
+      <span rel="tooltip" data-placement="bottom" title="{{user.name}} is only listening">
+        <i class="icon fi-volume-none usericon"></i>
+      </span>
     {{else}}
       {{#if isCurrentUser userId}}
         {{#if isUserMuted userId}}
-          <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="Unmute yourself"></span>
+          <span rel="tooltip" data-placement="bottom" title="Unmute yourself">
+            <i class="ion-ios-mic-off usericon"></i>
+          </span>
         {{else}}
           {{#if isCurrentUserTalking}}
-            <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="is talking"></span>
+            <span rel="tooltip" data-placement="bottom" title="you are talking">
+              <i class="ion-ios-mic usericon"></i>
+            </span>
           {{else}}
-            <span class="muteIcon userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="is not talking"></span>
+          <span rel="tooltip" data-placement="bottom" title="you are talking">
+            <i class="ion-ios-mic-outline usericon"></i>
+          </span>
           {{/if}}
         {{/if}}
       {{else}}
         {{#if isUserMuted userId}}
-          <span class="userListSettingIcon glyphicon glyphicon-volume-off" rel="tooltip" data-placement="bottom" title="{{user.name}} is muted"></span>
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is muted">
+            <i class="ion-ios-mic-off usericon"></i>
+          </span>
         {{else}}
           {{#if isUserTalking userId}}
-            <span class="userListSettingIcon glyphicon glyphicon-volume-up" rel="tooltip" data-placement="bottom" title="{{user.name}} is talking"></span>
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is talking">
+            <i class="ion-ios-mic usericon"></i>
+          </span>
           {{else}}
-            <span class="userListSettingIcon glyphicon glyphicon-volume-down" rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking"></span>
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is not talking">
+            <i class="ion-ios-mic-outline usericon"></i>
+          </span>
           {{/if}}
         {{/if}}
       {{/if}}
     {{/if}}
   {{/if}}
 
+  {{#if isUserSharingVideo userId}}
+    <span rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam">
+      <i class="icon fi-video usericon"></i>
+    </span>
+  {{/if}}
+
   {{#if userLockedIconApplicable userId}}
-    <span class="userListSettingIcon glyphicon ion-locked" rel="tooltip" data-placement="bottom" title="The viewer is locked"></span>
+    <span rel="tooltip" data-placement="bottom" title="{{user.name}} is locked">
+      <i class="icon fi-lock usericon"></i>
+    </span>
   {{/if}}
 
   {{#if user.presenter}}
-    <span class="userListSettingIcon glyphicon glyphicon-picture" rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter"></span>
+    <span rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter">
+      <i class="icon fi-projection-screen usericon"></i>
+    </span>
   {{else}}
     {{#if equals user.role "MODERATOR"}}
-      <span class="userListSettingIcon glyphicon glyphicon-user" rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator"></span>
+      <span rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator">
+        <i class="icon fi-torso usericon"></i>
+      </span>
     {{/if}}
   {{/if}}
 
   {{#if user.raise_hand}}
     {{#if isCurrentUser userId}}
-      <span class="raisedHandIcon userListSettingIcon ion-android-hand" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
+      <span class="ion-android-hand usericon" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
     {{else}}
-      <span class="userListSettingIcon ion-android-hand" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
+      <span class="ion-android-hand usericon" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
     {{/if}}
   {{/if}}
 </template>
