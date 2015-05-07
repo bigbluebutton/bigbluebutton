@@ -1,18 +1,5 @@
 <template name="whiteboard">
-        <h3 id="whiteboard-navbar" class="title">
-            {{#if isMobileChromeOrFirefox}}
-                {{> makeButton btn_class="fullscreenWhiteboardButton" i_class="glyphicon glyphicon-fullscreen"}}
-            {{/if}}
-            <span class="ion-easel heading"></span>
-            {{title}}
-            {{#if isCurrentUserPresenter}}
-                <span class="presentationNavigationControls">
-                    <button class="previousSlide ion-arrow-left-a" title="Go to the previous slide"></button>
-                    {{presentationProgress}}
-                    <button class="nextSlide ion-arrow-right-a" title="Go to the next slide"></button>
-                </span>
-            {{/if}}
-        </h3>
+    <div id="{{id}}" {{visibility name}} class="component gradientBar">
         {{#each getCurrentSlide}}
             {{> slide}}
         {{/each}}
@@ -20,6 +7,12 @@
             <div id="whiteboard-paper">
             </div>
         </div>
+        <!-- {{#if isCurrentUserPresenter}}
+            <span class="presentationNavigationControls">
+                <button class="previousSlide ion-arrow-left-a" title="Go to the previous slide"></button>
+                {{presentationProgress}}
+                <button class="nextSlide ion-arrow-right-a" title="Go to the next slide"></button>
+            </span>
+        {{/if}} -->
     </div>
-  </div>
 </template>
