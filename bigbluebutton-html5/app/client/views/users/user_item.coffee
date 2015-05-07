@@ -7,8 +7,7 @@ Template.displayUserIcons.events
     # the meeting id
     # the _id of the person whose land is to be lowered
     # the userId of the person who is lowering the hand
-    console.log "lower hand- client click handler"
-    Meteor.call('userLowerHand', getInSession("meetingId"), @userId, getInSession("userId"), getInSession("authToken"))
+    BBB.lowerHand(getInSession("meetingId"), @userId, getInSession("userId"), getInSession("authToken"))
 
 Template.displayUserIcons.helpers
   userLockedIconApplicable: (userId) ->
