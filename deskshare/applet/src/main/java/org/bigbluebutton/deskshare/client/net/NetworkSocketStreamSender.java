@@ -45,8 +45,8 @@ public class NetworkSocketStreamSender implements Runnable {
 	private NetworkStreamListener listener;
 	private final SequenceNumberGenerator seqNumGenerator;
 	
-	private SSLSocket SSLsocket = null;
-	private SSLSocketFactory sslsocketfactory = null ;
+	private SSLSocket sslSocket = null;
+	private SSLSocketFactory sslSocketFactory = null ;
 	
 	private Boolean useTLS = false;
 	
@@ -81,9 +81,9 @@ public class NetworkSocketStreamSender implements Runnable {
             //Handling if TLS is enabled or not
             if(useTLS){   
 				System.out.println("Connecting over TLS");			
-                sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-                SSLsocket = (SSLSocket) sslsocketfactory.createSocket(host, port);
-                outstream = new DataOutputStream(SSLsocket.getOutputStream());
+                sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                sslSocket = (SSLSocket) sslSocketFactory.createSocket(host, port);
+                outstream = new DataOutputStream(sslSocket.getOutputStream());
             }
             else{
                 //If not use regular socket
@@ -224,7 +224,7 @@ public class NetworkSocketStreamSender implements Runnable {
 			outstream.close();
 			outstream = null;
 			if(this.useTLS){
-				SSLsocket.close();
+				sslSocket.close();
 			}else{
 				socket.close();		
 			}

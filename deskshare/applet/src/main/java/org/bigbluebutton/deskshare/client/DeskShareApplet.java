@@ -79,8 +79,8 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		if (port != null) portValue = Integer.parseInt(port);
 		roomValue = getParameter("ROOM");
 
-		String getUseTls = getParameter("useTLS");
-		if(getUseTls != null) useTLS = Boolean.parseBoolean(getUseTls);
+		String getUseTLS = getParameter("useTLS");
+		if(getUseTLS != null) useTLS = Boolean.parseBoolean(getUseTLS);
 		if(useTLS){
 			//Change port if useTLS is true
 			//Better to place it here than the client if we want to assure that TLS is forced
