@@ -25,9 +25,9 @@ package org.bigbluebutton.modules.deskshare.model
 		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var autoStart:Boolean = false;
 		[Bindable] public var autoFullScreen:Boolean = false;
-		[Bindable] public var useTLS:Boolean = false;
+		public var useTLS:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
-		[Bindable] public var uriTLS:String;
+		public var uriTLS:String;
 
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("DeskShareModule");

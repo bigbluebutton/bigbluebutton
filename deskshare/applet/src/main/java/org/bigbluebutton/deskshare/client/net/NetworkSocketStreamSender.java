@@ -79,7 +79,8 @@ public class NetworkSocketStreamSender implements Runnable {
 			//Creating the ssl socket
             //Host and port should point to Stunnel or the TLS terminating service
             //Handling if TLS is enabled or not
-            if(useTLS){                
+            if(useTLS){   
+				System.out.println("Connecting over TLS");			
                 sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
                 SSLsocket = (SSLSocket) sslsocketfactory.createSocket(host, port);
                 outstream = new DataOutputStream(SSLsocket.getOutputStream());
@@ -89,10 +90,6 @@ public class NetworkSocketStreamSender implements Runnable {
                 socket = new Socket(host, port);
                 outstream = new DataOutputStream(socket.getOutputStream());
             }
-		
-		
-			socket = new Socket(host, port);
-			outstream = new DataOutputStream(socket.getOutputStream());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			throw new ConnectionException("UnknownHostException: " + host);
