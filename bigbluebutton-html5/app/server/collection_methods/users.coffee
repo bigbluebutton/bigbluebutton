@@ -3,7 +3,7 @@
 # All these method must first authenticate the user before it calls the private function counterpart below
 # which sends the request to bbbApps. If the method is modifying the media the current user is sharing,
 # you should perform the request before sending the request to bbbApps. This allows the user request to be performed
-# immediately, since they do not require permission for things such as muting themsevles. 
+# immediately, since they do not require permission for things such as muting themsevles.
 # --------------------------------------------------------------------------------------------
 Meteor.methods
   # meetingId: the meetingId of the meeting the user is in
@@ -50,42 +50,64 @@ Meteor.methods
     return
 
   # meetingId: the meetingId of the meeting the user[s] is in
-  # toMuteUserId: the userId of the user to be [un]muted
+  # toMuteUserId: the userId of the user to be muted
   # requesterUserId: the userId of the requester
   # requesterToken: the authToken of the requester
-  # mutedBoolean: true for muting, false for unmuting
-  muteUser: (meetingId, toMuteUserId, requesterUserId, requesterToken, mutedBoolean) ->
+  muteUser: (meetingId, toMuteUserId, requesterUserId, requesterToken) ->
     action = ->
-      if mutedBoolean
-        if toMuteUserId is requesterUserId
-          return 'muteSelf'
-        else
-          return 'muteOther'
+      if toMuteUserId is requesterUserId
+        return 'muteSelf'
       else
-        if toMuteUserId is requesterUserId
-          return 'unmuteSelf'
-        else
-          return 'unmuteOther'
+        return 'muteOther'
 
     if isAllowedTo(action(), meetingId, requesterUserId, requesterToken)
       message =
         payload:
           userid: toMuteUserId
           meeting_id: meetingId
-          mute: mutedBoolean
+          mute: true
           requester_id: requesterUserId
         header:
           timestamp: new Date().getTime()
           name: "mute_user_request"
           version: "0.0.1"
 
-      Meteor.log.info "publishing a user mute #{mutedBoolean} request for #{toMuteUserId}"
+      Meteor.log.info "publishing a user mute request for #{toMuteUserId}"
 
       publish Meteor.config.redis.channels.toBBBApps.voice, message
-      updateVoiceUser meetingId, {'web_userid': toMuteUserId, talking:false, muted:mutedBoolean}
+      updateVoiceUser meetingId, {'web_userid': toMuteUserId, talking:false, muted:true}
     return
 
-  # meetingId: the meetingId which both users are in 
+  # meetingId: the meetingId of the meeting the user[s] is in
+  # toMuteUserId: the userId of the user to be unmuted
+  # requesterUserId: the userId of the requester
+  # requesterToken: the authToken of the requester
+  unmuteUser: (meetingId, toMuteUserId, requesterUserId, requesterToken) ->
+    action = ->
+      if toMuteUserId is requesterUserId
+        return 'unmuteSelf'
+      else
+        return 'unmuteOther'
+
+    if isAllowedTo(action(), meetingId, requesterUserId, requesterToken)
+      message =
+        payload:
+          userid: toMuteUserId
+          meeting_id: meetingId
+          mute: false
+          requester_id: requesterUserId
+        header:
+          timestamp: new Date().getTime()
+          name: "mute_user_request"
+          version: "0.0.1"
+
+      Meteor.log.info "publishing a user unmute request for #{toMuteUserId}"
+
+      publish Meteor.config.redis.channels.toBBBApps.voice, message
+      updateVoiceUser meetingId, {'web_userid': toMuteUserId, talking:false, muted:false}
+    return
+
+  # meetingId: the meetingId which both users are in
   # toLowerUserId: the userid of the user to have their hand lowered
   # loweredByUserId: userId of person lowering
   # loweredByToken: the authToken of the requestor
@@ -112,7 +134,7 @@ Meteor.methods
       publish Meteor.config.redis.channels.toBBBApps.users, message
     return
 
-  # meetingId: the meetingId which both users are in 
+  # meetingId: the meetingId which both users are in
   # toRaiseUserId: the userid of the user to have their hand lowered
   # raisedByUserId: userId of person lowering
   # raisedByToken: the authToken of the requestor

@@ -23,6 +23,11 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     else
       res
 
+  BBB.getMeetingId = ->
+    Meteor.Meetings.findOne()?.meetingId
+
+  BBB.getInternalMeetingId = (callback) ->
+
   ###
     Queryies the user object via it's id
   ###
@@ -42,7 +47,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   for AM_I_SHARING_CAM_RESP (see below).
   ###
   BBB.amISharingWebcam = (callback) ->
-    BBB.isUserSharingWebcam BBB.getCurrentUser()?.userId
+    # BBB.isUserSharingWebcam BBB.getCurrentUser()?.userId
+    return false
 
   ###
 
@@ -55,7 +61,9 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   IS_USER_PUBLISHING_CAM_RESP (see below).
   ###
   BBB.isUserSharingWebcam = (userId, callback) ->
-    BBB.getUser(userId)?.user?.webcam_stream?.length isnt 0
+    # BBB.getUser(userId)?.user?.webcam_stream?.length isnt 0
+    return false
+
 
   # returns whether the user has joined any type of audio
   BBB.amIInAudio = (callback) ->
@@ -87,26 +95,55 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.isUserTalking = (userId, callback) ->
     BBB.getUser(userId)?.user?.voiceUser?.talking
 
+  BBB.isUserPresenter = (userId, callback) ->
+    BBB.getUser(userId)?.user?.presenter
+
   # returns true if the current user is marked as locked
-  BBB.amILocked = () ->
+  BBB.amILocked = ->
     return BBB.getCurrentUser()?.user.locked
 
   # check whether the user is locked AND the current lock settings for the room
   # includes locking the microphone of viewers (listenOnly is still alowed)
-  BBB.isMyMicLocked = () ->
+  BBB.isMyMicLocked = ->
     lockedMicForRoom = Meteor.Meetings.findOne()?.roomLockSettings.disableMic
     # note that voiceUser.locked is not used in BigBlueButton at this stage (April 2015)
 
     return lockedMicForRoom and BBB.amILocked()
 
+  BBB.getCurrentSlide = ->
+    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
+    currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+
+  BBB.getMeetingName = ->
+    Meteor.Meetings.findOne()?.meetingName or null
+
+  BBB.getNumberOfUsers = ->
+    Meteor.Users.find().count()
+
+  BBB.currentPresentationName = ->
+    Meteor.Presentations.findOne({"presentation.current": true})?.presentation?.name
 
   ###
   Raise user's hand.
-
   Param:
-  raiseHand - [true/false]
+
   ###
-  BBB.raiseHand = (raiseHand) ->
+  BBB.lowerHand = (meetingId, toUserId, byUserId, byAuthToken) ->
+    Meteor.call('userLowerHand', meetingId, toUserId, byUserId, byAuthToken)
+
+  BBB.raiseHand = (meetingId, toUserId, byUserId, byAuthToken) ->
+    Meteor.call('userRaiseHand', meetingId, toUserId, byUserId, byAuthToken)
+
+  BBB.isUserRaisingHand = (userId) ->
+    BBB.getUser(userId)?.user?.raise_hand
+
+  BBB.isCurrentUserRaisingHand = ->
+    BBB.isUserRaisingHand(BBB.getCurrentUser()?.userId)
+
+  BBB.isMeetingRecording = ->
+    MEteor.Meetings.findOne()?.recorded
+
 
   ###
   Issue a switch presenter command.
@@ -212,9 +249,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   Params:
   callback - function that gets executed for the response.
   ###
-  BBB.getMeetingID = (callback) ->
 
-  BBB.getInternalMeetingID = (callback) ->
 
   ###
   Join the voice conference.
@@ -266,11 +301,22 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   Mute the current user.
   ###
   BBB.muteMe = ->
-
+    BBB.muteUser(getInSession("userId"), getInSession("userId"), getInSession("authToken"))
   ###
   Unmute the current user.
   ###
   BBB.unmuteMe = ->
+    BBB.unmuteUser(getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+
+  BBB.muteUser = (meetingId, userId, toMuteId, requesterId, requestToken) ->
+    Meteor.call('muteUser', meetingId, toMuteId, requesterId, getInSession("authToken"))
+
+  BBB.unmuteUser = (meetingId, userId, toMuteId, requesterId, requestToken) ->
+    Meteor.call('unmuteUser', meetingId, toMuteId, requesterId, getInSession("authToken"))
+
+  BBB.toggleMyMic = ->
+    request = if BBB.amIMuted() then "unmuteUser" else "muteUser"
+    Meteor.call(request, BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   ###
   Mute all the users.
@@ -306,6 +352,20 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   message    - the message to send
   ###
   BBB.sendPublicChatMessage = (fontColor, localeLang, message) ->
+    messageForServer = { # construct message for server
+      "message": message
+      "chat_type": "PUBLIC_CHAT"
+      "from_userid": getInSession("userId")
+      "from_username": BBB.getMyUserName()
+      "from_tz_offset": "240"
+      "to_username": "public_chat_username"
+      "to_userid": "public_chat_userid"
+      "from_lang": localeLang
+      "from_time": getTime()
+      "from_color": fontColor
+    }
+
+    Meteor.call "sendChatMessagetoServer", BBB.getMeetingId(), messageForServer, getInSession("userId"), getInSession("authToken")
 
   ###
   Request to send a private chat
@@ -315,7 +375,21 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   message    - the message to send
   toUserID   - the external user id of the receiver
   ###
-  BBB.sendPrivateChatMessage = (fontColor, localeLang, message, toUserID) ->
+  BBB.sendPrivateChatMessage = (fontColor, localeLang, message, toUserID, toUserName) ->
+    messageForServer = { # construct message for server
+      "message": message
+      "chat_type": "PRIVATE_CHAT"
+      "from_userid": getInSession("userId")
+      "from_username": BBB.getMyUserName()
+      "from_tz_offset": "240"
+      "to_username": toUserName
+      "to_userid": toUserID
+      "from_lang": localeLang
+      "from_time": getTime()
+      "from_color": fontColor
+    }
+
+    Meteor.call "sendChatMessagetoServer", BBB.getMeetingId(), messageForServer, getInSession("userId"), getInSession("authToken")
 
   ###
   Request to display a presentation.
@@ -333,6 +407,20 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   presentationID - the presentation to delete
   ###
   BBB.deletePresentation = (presentationID) ->
+
+  # Request to switch the presentation to the previous slide
+  BBB.goToPreviousPage = () ->
+    Meteor.call('publishSwitchToPreviousSlideMessage',
+      getInSession('meetingId'),
+      getInSession('userId'),
+      getInSession('authToken'))
+
+  # Request to switch the presentation to the next slide
+  BBB.goToNextPage = () ->
+    Meteor.call('publishSwitchToNextSlideMessage',
+      getInSession('meetingId'),
+      getInSession('userId'),
+      getInSession('authToken'))
 
   BBB.webRTCConferenceCallStarted = ->
 

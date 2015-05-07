@@ -11,8 +11,8 @@ var bodyParser = require('body-parser');
 // server configs
 var port = 3006;                                        // port in which to run this app
 var shared_secret = "33e06642a13942004fd83b3ba6e4104a"; // shared secret of your server
-var domain = "10.0.3.36";                               // address of your server
-var target_domain = "10.0.3.36:3005";                   // address of the webhooks app
+var domain = "127.0.0.1";                               // address of your server
+var target_domain = "127.0.0.1:3005";                   // address of the webhooks app
 
 var encodeForUrl = function(value) {
   return encodeURIComponent(value)

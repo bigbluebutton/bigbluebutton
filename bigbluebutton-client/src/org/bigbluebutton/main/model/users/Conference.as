@@ -394,10 +394,10 @@ package org.bigbluebutton.main.model.users {
       users.refresh();      
     }
     
-    public function unsharedWebcam(userId: String):void {
-      var aUser:BBBUser = getUser(userId);			
+    public function unsharedWebcam(userId: String, stream:String):void {
+      var aUser:BBBUser = getUser(userId);
       if (aUser != null) {
-        aUser.unsharedWebcam()
+        aUser.unsharedWebcam(stream);
       }	
       
       users.refresh();       

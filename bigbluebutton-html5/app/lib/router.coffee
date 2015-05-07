@@ -46,7 +46,7 @@
         Meteor.call("userLogout", meetingId, userId, authToken)
 
         clearSessionVar (alert "Please sign in again")
-        document.location = getInSession 'logoutURL'
+        document.location = getInSession('logoutURL') or '/'
         return
 
       Meteor.subscribe 'chat', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
