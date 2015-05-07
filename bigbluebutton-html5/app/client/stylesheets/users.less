@@ -12,27 +12,15 @@
   }
 }
 
-#usericons {
-  float: right;
-  span {
-    margin-left: 3px;
-    padding: 2px;
-    border: 1px solid white;
-    @media @desktop-portrait {
-      font-size: 25px;
-    }
-    @media @mobile-portrait, @mobile-portrait-with-keyboard{
-      font-size: 3vh;
-    }
-  }
-  .raisedHandIcon, .muteIcon {
-    &:hover {
-      cursor: pointer;
-      border: 1px solid #f2f2f2;
-      background-color: #f2f2f2;
-      border-radius: 4px;
-    }
-  }
+.usericon {
+  font-size: 16px;
+}
+
+.flashingUserIcon {
+  border-radius: 6px;
+  padding: 5px;
+  padding-right: 0px;
+  background-color: rgba(174, 173, 173, 0.5);
 }
 
 .usernameEntry {
