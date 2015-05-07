@@ -1,20 +1,16 @@
 @getBuildInformation = ->
-  appName = Meteor.config?.appName or "UNKNOWN NAME"
-  copyrightYear = Meteor.config?.copyrightYear or "UNKNOWN DATE"
-  dateOfBuild = Meteor.config?.dateOfBuild or "UNKNOWN DATE"
-  defaultWelcomeMessage = Meteor.config?.defaultWelcomeMessage or "UNKNOWN"
-  defaultWelcomeMessageFooter = Meteor.config?.defaultWelcomeMessageFooter or "UNKNOWN"
+  copyrightYear = Meteor.config?.copyrightYear or "DATE"
+  html5ClientBuild = Meteor.config?.html5ClientBuild or "VERSION"
+  defaultWelcomeMessage = Meteor.config?.defaultWelcomeMessage or "WELCOME MESSAGE"
+  defaultWelcomeMessageFooter = Meteor.config?.defaultWelcomeMessageFooter or "WELCOME MESSAGE"
   link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"
-  bbbServerVersion = Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
 
   {
-    'appName': appName
     'copyrightYear': copyrightYear
-    'dateOfBuild': dateOfBuild
+    'html5ClientBuild': html5ClientBuild
     'defaultWelcomeMessage': defaultWelcomeMessage
     'defaultWelcomeMessageFooter': defaultWelcomeMessageFooter
     'link': link
-    'bbbServerVersion': bbbServerVersion
   }
 
 # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
