@@ -706,7 +706,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				width="20"
 				height="20"
 				visible="{layoutOptions.showLogButton}"
-				includeInLayout="{layoutOptions.showLogButton}"
+				includeInLayout="false"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
 				id="logBtn"
 				icon="{logs_icon}"
