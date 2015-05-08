@@ -32,6 +32,7 @@ package org.bigbluebutton.core.managers
   import mx.managers.PopUpManager;
   import mx.utils.ObjectUtil;
 
+  import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.main.views.ReconnectionPopup;
@@ -100,9 +101,26 @@ package org.bigbluebutton.core.managers
       }
       return true;
     }
+    
+    private function dispatchReconnectionSucceededEvent(type:String):void {
+      var map:Object = {
+        BIGBLUEBUTTON_CONNECTION: BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT,
+        SIP_CONNECTION: BBBEvent.RECONNECT_SIP_SUCCEEDED_EVENT,
+        VIDEO_CONNECTION: BBBEvent.RECONNECT_VIDEO_SUCCEEDED_EVENT,
+        DESKSHARE_CONNECTION: BBBEvent.RECONNECT_DESKSHARE_SUCCEEDED_EVENT
+      };
+      
+      if (map.hasOwnProperty(type)) {
+        trace(LOG + "dispatchReconnectionSucceededEvent, type=" + type);
+        _dispatcher.dispatchEvent(new BBBEvent(map[type]));
+      } else {
+        trace(LOG + "dispatchReconnectionSucceededEvent, couldn't find a map value for type " + type);
+      }
+    }
 
     public function onConnectionAttemptSucceeded(type:String):void {
       trace(LOG + "onConnectionAttemptSucceeded, type=" + type);
+      dispatchReconnectionSucceededEvent(type);
 
       delete _connections[type];
       if (type == BIGBLUEBUTTON_CONNECTION) {

@@ -102,7 +102,7 @@ package org.bigbluebutton.modules.videoconf.business
 					if (reconnecting) {
 						reconnecting = false;
 
-						var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED);
+						var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
 						attemptSucceeded.payload.type = ReconnectionManager.VIDEO_CONNECTION;
 						dispatcher.dispatchEvent(attemptSucceeded);
 					}
@@ -125,7 +125,7 @@ package org.bigbluebutton.modules.videoconf.business
 					
 				case "NetConnection.Connect.Failed":
 					if (reconnecting) {
-						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED);
+						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
 						attemptFailedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
 						dispatcher.dispatchEvent(attemptFailedEvent);
 					}

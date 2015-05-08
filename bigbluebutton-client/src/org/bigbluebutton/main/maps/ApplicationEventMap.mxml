@@ -74,11 +74,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ReconnectionManager}" method="onDisconnected" arguments="{[event.payload.type, event.payload.callback, event.payload.callbackParameters]}"/>
   </EventHandlers>
 
-  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED}">
+  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT}">
     <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptFailed" arguments="{event.payload.type}"/>
   </EventHandlers>
 
-  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED}">
+  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT}">
     <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptSucceeded" arguments="{event.payload.type}"/>
   </EventHandlers>
 

@@ -195,7 +195,7 @@ package org.bigbluebutton.main.model.users
     }
 
     private function onReconnectSuccess():void {
-      var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED);
+      var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
       attemptSucceeded.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
       dispatcher.dispatchEvent(attemptSucceeded);
     }
@@ -380,19 +380,19 @@ package org.bigbluebutton.main.model.users
 		private function sendConnectionFailedEvent(reason:String):void{
       var logData:Object = new Object();
       
-      // do not try to reconnect if the connection failed is different than CONNECTION_CLOSED
-			if (this.logoutOnUserCommand || reason != ConnectionFailedEvent.CONNECTION_CLOSED) {
+			if (this.logoutOnUserCommand) {
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
         JSLog.debug("User logged out from BBB App.", logData);
-				sendUserLoggedOutEvent();
-			} else {
+        sendUserLoggedOutEvent();
+      } else if (reason == ConnectionFailedEvent.CONNECTION_CLOSED) {
+        // do not try to reconnect if the connection failed is different than CONNECTION_CLOSED
         logData.reason = reason;
         logData.user = UsersUtil.getUserData();
         JSLog.warn("User disconnected from BBB App.", logData);
 
         if (reconnecting) {
-          var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED);
+          var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
           attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
           dispatcher.dispatchEvent(attemptFailedEvent);
         } else {
@@ -405,6 +405,9 @@ package org.bigbluebutton.main.model.users
           disconnectedEvent.payload.callbackParameters = new Array(_conferenceParameters, tried_tunneling);
           dispatcher.dispatchEvent(disconnectedEvent);
         }
+      } else {
+        var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
+        dispatcher.dispatchEvent(e);
       }
 		}
 		

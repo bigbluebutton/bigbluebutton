@@ -110,7 +110,7 @@ package org.bigbluebutton.modules.phone.managers {
 		
     private function handleConnectionSuccess():void {
       if (reconnecting) {
-        var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED);
+        var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
         attemptSucceeded.payload.type = ReconnectionManager.SIP_CONNECTION;
         dispatcher.dispatchEvent(attemptSucceeded);
       }
@@ -120,7 +120,7 @@ package org.bigbluebutton.modules.phone.managers {
 
     private function handleConnectionFailed():void {
       if (reconnecting) {
-        var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED);
+        var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
         attemptFailedEvent.payload.type = ReconnectionManager.SIP_CONNECTION;
         dispatcher.dispatchEvent(attemptFailedEvent);
       }
