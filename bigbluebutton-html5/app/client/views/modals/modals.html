@@ -10,17 +10,17 @@
       {{#if amIInAudio}}
         {{#if amIListenOnlyAudio}}
           <!-- display listen only with exit -->
-          {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton" i_class="prohibited" rel="tooltip"
+          {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton" i_class="fi-prohibited" rel="tooltip"
           data_placement="bottom" title="Leave Audio Call"}}
           <!-- display microphone with join -->
-          {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton" i_class="microphone" rel="tooltip"
+          {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton" i_class="fi-microphone" rel="tooltip"
           data_placement="bottom" title="Join Microphone"}}
         {{else}}
           <!-- display join listen only -->
-          {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton" i_class="megaphone" rel="tooltip"
+          {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton" i_class="fi-megaphone" rel="tooltip"
           data_placement="bottom" title="Join Listen only"}}
           <!-- display microphone with exit -->
-          {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton" i_class="prohibited" rel="tooltip"
+          {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton" i_class="fi-prohibited" rel="tooltip"
           data_placement="bottom" title="exit"}}
 
           <!-- to be inserted back into the navbar -->
@@ -40,9 +40,9 @@
         {{/if}}
       {{else}}
         <!-- display both with join -->
-        {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton" i_class="megaphone"
+        {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton" i_class="fi-megaphone"
         rel="tooltip" data_placement="bottom" title="Join Listen only"}}
-        {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton" i_class="microphone"
+        {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton" i_class="fi-microphone"
         rel="tooltip" data_placement="bottom" title="Join Microphone"}}
       {{/if}}
     </div>
