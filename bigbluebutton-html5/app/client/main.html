@@ -9,11 +9,13 @@
       {{getWhiteboardTitle}}
     </span>
 
-    {{> makeButton id="settingsIcon" btn_class="settingsIcon" i_class="widget" rel="tooltip"
-    title="BigBlueButton Settings"}}
+    <div class="rightNavbarSection">
+      {{> makeButton id="settingsIcon" btn_class="settingsIcon navbarButton" i_class="ion-gear-b" rel="tooltip"
+      title="BigBlueButton Settings"}}
 
-    {{> makeButton id="logout" btn_class="logoutIcon" i_class="arrow-right" rel="tooltip"
-    title="Logout"}}
+      {{> makeButton id="logout" btn_class="logoutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
+      title="Logout"}}
+    </div>
   </nav>
 </template>
 
