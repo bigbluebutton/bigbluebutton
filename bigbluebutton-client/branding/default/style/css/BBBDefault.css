@@ -917,3 +917,8 @@ Alert {
   fontSize: 12;
   paddingTop: 0;
 }
+
+.statusTimeStyle {
+  fontSize: 10;
+  paddingTop: 0;
+}
