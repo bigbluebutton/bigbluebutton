@@ -250,7 +250,7 @@ trait UsersApp {
     }     
   }
 
-  def handleUserunshareWebcam(msg: UserUnshareWebcam) {
+  def handleUserUnshareWebcam(msg: UserUnshareWebcam) {
     users.getUser(msg.userId) foreach {user =>
       val streams = user.webcamStreams - msg.stream
       val uvo = user.copy(hasStream=(!streams.isEmpty), webcamStreams=streams)
