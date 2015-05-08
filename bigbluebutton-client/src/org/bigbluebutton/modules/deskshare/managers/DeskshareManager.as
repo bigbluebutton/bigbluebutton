@@ -109,7 +109,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			toolbarButtonManager.startedSharing();
 			var option:DeskshareOptions = new DeskshareOptions();
 			option.parseOptions();
-			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart, option.autoFullScreen);
+			publishWindowManager.startSharing(option.publishURI , option.useTLS , module.getRoom(), autoStart, option.autoFullScreen);
 			sharing = true;
 		}
 		

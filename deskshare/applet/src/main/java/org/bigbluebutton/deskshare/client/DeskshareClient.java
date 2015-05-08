@@ -80,6 +80,7 @@ public class DeskshareClient {
     public static class NewBuilder {
        	private String host = "localhost";
        	private int port = 9123;
+		private boolean useTLS = false;
        	private String room = "default-room";
        	private int captureWidth = 0;
        	private int captureHeight = 0;
@@ -105,6 +106,11 @@ public class DeskshareClient {
 	    	return this;
 	    }
     	
+		public NewBuilder useTLS(boolean useTLS) {
+			this.useTLS = useTLS;
+			return this;
+		}
+		
     	public NewBuilder room(String room) {
     		this.room = room;
     		return this;
@@ -187,6 +193,7 @@ public class DeskshareClient {
     		ScreenShareInfo ssi = new ScreenShareInfo();
     		ssi.host = host;
     		ssi.port = port;
+			ssi.useTLS = useTLS;
     		ssi.room = room;
     		ssi.captureWidth = captureWidth;
     		ssi.captureHeight = captureHeight;
