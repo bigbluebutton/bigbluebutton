@@ -381,17 +381,7 @@
           callToListenOnlyStream();
           break;
         case ON_LISTEN_ONLY_STREAM:
-          // Disable automatic reconnection of listen only
-          // We MUST be sure that bbb-apps connection is restablished before reconnecting this
-/*          dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT,
-            "Connection reestablished",
-            "Listen only connection has been reestablished successfully"));
           callToListenOnlyStream();
-          break;
-*/
-          // XXX: Remove this code if listen only connection is used
-          trace("Reconnected while listen only.");
-          state = INITED;
           break;
         case IN_CONFERENCE:
           trace("Reconnected while transmiting mic. Automatic retransmission not implemented.");
