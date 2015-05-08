@@ -18,6 +18,7 @@ ddp@1.1.0
 deps@1.0.7
 duongthienduc:meteor-winston@1.0.0
 ejson@1.0.6
+ewall:foundation@5.5.2
 fastclick@1.0.3
 francocatena:status@1.1.2
 geojson-utils@1.0.3
@@ -40,11 +41,11 @@ launch-screen@1.0.2
 less@1.0.14
 livedata@1.0.13
 logging@1.0.7
+maibaum:foundation-icons@0.0.1
 meteor@1.1.6
 meteor-platform@1.2.2
 minifiers@1.1.5
 minimongo@1.0.8
-mizzao:bootstrap-3@3.3.1_1
 mizzao:build-fetcher@0.2.0
 mizzao:jquery-ui@1.11.2
 mizzao:timesync@0.3.1

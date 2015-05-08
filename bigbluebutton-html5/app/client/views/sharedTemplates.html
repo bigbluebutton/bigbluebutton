@@ -1,11 +1,11 @@
 <template name="makeButton">
-  {{#if isMobile}}
+  <!-- {{#if isMobile}}
     <button type="submit" id="{{id}}" class="{{btn_class}} btn" {{isDisabled}}>
       <i class="{{i_class}}"></i>
     </button>
-  {{else}}
-    <button type="submit" id="{{id}}" class="{{btn_class}} btn" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}">
-      <i class="{{i_class}}"></i>
+  {{else}} -->
+    <button type="submit" id="{{id}}" class="btn {{btn_class}}" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}">
+      <i class="{{i_class}}" style="font-size:30px"></i>
     </button>
-  {{/if}}
+  <!-- {{/if}} -->
 </template>

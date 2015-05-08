@@ -1,10 +1,5 @@
 <template name="chatbar">
   <div id="{{id}}" {{visibility name}} class="component">
-    <h3 class="title gradientBar">
-    <span class="glyphicon glyphicon-comment heading"></span>
-    {{> extraConversations}}
-    </h3>
-    {{>tabButtons}} <!-- Display public/options tabs, and private chat tabs -->
     {{#if getInSession "display_chatPane"}}
       <div id="chatbody">
         <ul class="chat" {{messageFontSize}}>
@@ -17,7 +12,7 @@
         </ul>
       </div>
       {{#if userExists}}
-        <div class="panel-footer">{{> chatInput}}</div> 
+        <div class="panel-footer">{{> chatInput}}</div>
       {{/if}}
     {{else}}
       {{> optionsBar}}
@@ -31,22 +26,23 @@
       {{#if privateChatDisabled}}
         <textarea id="newMessageInput" class="disabledChat" placeholder="Private chat is temporarily locked (disabled)" rel="tooltip" data-placement="top" title="Private chat is temporarily locked" disabled></textarea>
       {{else}}
-        <textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
-        <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top">
-        Send
-        </button>
+        {{> chatInputControls}}
       {{/if}}
     {{else}}
       {{#if publicChatDisabled}}
         <textarea id="newMessageInput" class="disabledChat" placeholder="Public chat is temporarily locked (disabled)" rel="tooltip" data-placement="top" title="Public chat is temporarily locked" disabled></textarea>
       {{else}}
-        <textarea id="newMessageInput" placeholder="Write a message..." rel="tooltip" data-placement="top" title="Write a new message"></textarea>
-        <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top">
-        Send
-        </button>
+        {{> chatInputControls}}
       {{/if}}
     {{/if}}
   </div>
+</template>
+
+<template name="chatInputControls">
+  <textarea id="newMessageInput" rel="tooltip" data-placement="top" title="Write a new message"></textarea>
+  <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top">
+  Send
+  </button>
 </template>
 
 <template name="chatOptions">
@@ -110,16 +106,22 @@
 </template>
 
 <template name="optionsFontSize">
-  <span class="chatOptionsText" >Chat Message Font Size: </span><br/>
-  <table id="fontSizeTable">
-    <tr>
-      <td id="displayButtons">
-        <button id="decreaseFontSize" class="glyphicon glyphicon-minus"></button>
-        <button id="increaseFontSize" class="glyphicon glyphicon-plus"></button>
-      </td >
-      <td id="displayLabel"><label class="fontSizeLabel" {{messageFontSize}} >Size({{getInSession "messageFontSize"}})</label></td>
-    </tr>
-  </table>
+  <fieldset class="desktopSettingsFieldset">
+    <legend><span class="chatOptionsText" >Chat Message Font Size: </span><br/></legend>
+    <table id="fontSizeTable" align="center" style="border: 1px solid white;">
+      <tr>
+        <td>
+          {{> makeButton id="decreaseFontSize" btn_class="displayButtons"
+          i_class="minus" rel="tooltip" title="Decrease Font Size"}}
+        </td>
+        <td id="displayLabel"><label class="fontSizeLabel" {{messageFontSize}} >Size({{getInSession "messageFontSize"}})</label></td>
+        <td>
+          {{> makeButton id="increaseFontSize" btn_class="displayButtons"
+          i_class="plus" rel="tooltip" title="Increase Font Size"}}
+        </td>
+      </tr>
+    </table>
+  </fieldset>
 </template>
 
 <!-- Display buttons on the chat tab, public, options, and all the private chat tabs -->

@@ -55,11 +55,6 @@ Meteor.startup ->
       return
   )
 #
-Template.footer.helpers
-  getFooterString: ->
-    info = getBuildInformation()
-    foot = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.bbbServerVersion} - #{info.dateOfBuild}] - For more information visit #{info.link}"
-
 Template.header.events
   "click .joinAudioButton": (event) ->
     if !isWebRTCAvailable()
@@ -89,20 +84,21 @@ Template.header.events
   "click .leaveAudioButton": (event) ->
     exitVoiceCall event
 
-  "click .lowerHand": (event) ->
-    $(".tooltip").hide()
-    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-
   "click .muteIcon": (event) ->
     $(".tooltip").hide()
     toggleMic @
 
+  "click .lowerHand": (event) ->
+    $(".tooltip").hide()
+    BBB.lowerHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+
   "click .raiseHand": (event) ->
     $(".tooltip").hide()
-    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
-  # "click .settingsIcon": (event) ->
-    #   alert "settings"
+  "click .settingsIcon": (event) ->
+    setInSession("tempFontSize", getInSession("messageFontSize"))
+    $("#settingsModal").foundation('reveal', 'open');
 
   "click .signOutIcon": (event) ->
     $('.signOutIcon').blur()
@@ -136,6 +132,12 @@ Template.header.events
     $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")
     $("#navbarMinimizedButton").addClass("navbarMinimizedButtonLarge")
 
+  "click .toggleUserlist": (event) ->
+    if isLandscape()
+      toggleUsersList()
+    else
+      toggleLeftHandSlidingMenu()
+
 Template.slidingMenu.events
   'click .joinAudioButton': (event) ->
     onAudioJoinHelper()
@@ -145,16 +147,15 @@ Template.slidingMenu.events
     toggleSlidingMenu()
     toggleChatbar()
 
-  'click .lowerHand': (event) ->
-    $('.tooltip').hide()
+  "click .lowerHand": (event) ->
+    $(".tooltip").hide()
     toggleSlidingMenu()
-    Meteor.call('userLowerHand', getInSession('meetingId'), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+    BBB.lowerHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
-  'click .raiseHand': (event) ->
-    console.log 'navbar raise own hand from client'
-    $('.tooltip').hide()
+  "click .raiseHand": (event) ->
+    $(".tooltip").hide()
     toggleSlidingMenu()
-    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   'click .usersListIcon': (event) ->
     $('.tooltip').hide()
@@ -174,10 +175,6 @@ Template.slidingMenu.events
   "click .leaveAudioButton": (event) ->
     exitVoiceCall event
     toggleSlidingMenu()
-
-Template.main.helpers
-  setTitle: ->
-    document.title = "BigBlueButton #{window.getMeetingName() ? 'HTML5'}"
 
 Template.main.rendered = ->
   # the initialization code for the dialog presenting the user with microphone+listen only options
@@ -205,11 +202,11 @@ Template.main.rendered = ->
 
   # jQuery click events are handled here. Meteor click handlers don't get called.
   # we pass in a named boolean parameter the whether we wish to join audio as listen only or not
-  $("#microphone").click ->
-    introToAudio @, isListenOnly: false
+  # $("#microphone").click ->
+    # introToAudio @, isListenOnly: false
 
-  $("#listen_only").click ->
-    introToAudio @, isListenOnly: true
+  # $("#listen_only").click ->
+    # introToAudio @, isListenOnly: true
 
   $("#dialog").dialog(
     modal: true
@@ -221,7 +218,7 @@ Template.main.rendered = ->
       {
         text: 'Yes'
         click: () ->
-          userLogout getInSession("meetingId"), getInSession("userId"), true
+          userLogout BBB.getMeetingId(), getInSession("userId"), true
           $(this).dialog("close")
         class: 'btn btn-xs btn-primary active'
       }

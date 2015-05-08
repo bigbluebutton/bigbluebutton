@@ -7,9 +7,9 @@ config = {}
 config.appName = 'BigBlueButton HTML5 Client'
 config.bbbServerVersion = '0.9.0'
 config.copyrightYear = '2015'
-config.dateOfBuild = 'Feb 06, 2015' #TODO
+config.html5ClientBuild = 'NNNN'
 config.defaultWelcomeMessage = 'Welcome to %%CONFNAME%%!\r\rFor help on using BigBlueButton see these (short) <a href="event:http://www.bigbluebutton.org/content/videos"><u>tutorial videos</u></a>.\r\rTo join the audio bridge click the headset icon (upper-left hand corner).  Use a headset to avoid causing background noise for others.\r\r\r'
-config.defaultWelcomeMessageFooter = "This server is running a build of <a href='https://code.google.com/p/bigbluebutton/wiki/090Overview' target='_blank'><u>BigBlueButton #{config.bbbServerVersion}</u></a>."
+config.defaultWelcomeMessageFooter = "This server is running a build of <a href='http://docs.bigbluebutton.org/overview/090overview.html' target='_blank'><u>BigBlueButton #{config.bbbServerVersion}</u></a>."
 
 config.maxUsernameLength = 30
 config.maxChatLength = 140
@@ -39,6 +39,7 @@ config.redis.channels.toBBBApps = {}
 config.redis.channels.toBBBApps.pattern = "bigbluebutton:to-bbb-apps:*"
 config.redis.channels.toBBBApps.chat = "bigbluebutton:to-bbb-apps:chat"
 config.redis.channels.toBBBApps.meeting = "bigbluebutton:to-bbb-apps:meeting"
+config.redis.channels.toBBBApps.presentation = "bigbluebutton:to-bbb-apps:presentation"
 config.redis.channels.toBBBApps.users = "bigbluebutton:to-bbb-apps:users"
 config.redis.channels.toBBBApps.voice = "bigbluebutton:to-bbb-apps:voice"
 config.redis.channels.toBBBApps.whiteboard = "bigbluebutton:to-bbb-apps:whiteboard"
