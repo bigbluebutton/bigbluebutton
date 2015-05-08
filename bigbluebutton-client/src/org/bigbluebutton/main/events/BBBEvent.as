@@ -43,6 +43,10 @@ package org.bigbluebutton.main.events {
 	public static const JOIN_VOICE_FOCUS_HEAD:String = "JOIN_VOICE_FOCUS_HEAD";
 	public static const CHANGE_RECORDING_STATUS:String = "CHANGE_RECORDING_STATUS";
    
+		public static const RECONNECT_DISCONNECTED_EVENT:String = "RECONNECT_ON_DISCONNECTED_EVENT";
+		public static const RECONNECT_CONNECTION_ATTEMPT_FAILED:String = "RECONNECT_CONNECTION_ATTEMPT_FAILED";
+		public static const RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED:String = "RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED";
+
 		public var message:String;
 		public var payload:Object = new Object();
 		

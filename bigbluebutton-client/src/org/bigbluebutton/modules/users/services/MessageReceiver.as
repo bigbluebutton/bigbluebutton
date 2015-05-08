@@ -351,6 +351,7 @@ package org.bigbluebutton.modules.users.services
       
       if (UsersUtil.hasUser(internUserID)) {
         var bu:BBBUser = UsersUtil.getUser(internUserID);
+        bu.talking = voiceUser.talking;
         bu.voiceMuted = voiceUser.muted;
         bu.voiceJoined = true;
         
@@ -552,6 +553,10 @@ package org.bigbluebutton.modules.users.services
         for each(var stream:String in streams) {
           UserManager.getInstance().getConference().sharedWebcam(user.userID, stream);
         }
+      }
+
+      if (joinedUser.voiceUser.joined) {
+        userJoinedVoice(joinedUser);
       }
 
       UserManager.getInstance().getConference().presenterStatusChanged(user.userID, joinedUser.presenter);

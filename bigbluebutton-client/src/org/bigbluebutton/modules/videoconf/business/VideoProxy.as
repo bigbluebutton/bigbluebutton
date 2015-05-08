@@ -38,9 +38,9 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.events.ClientStatusEvent;
-	import org.bigbluebutton.main.model.users.AutoReconnect;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
@@ -59,7 +59,6 @@ package org.bigbluebutton.modules.videoconf.business
 		private var _url:String;
 		private var camerasPublishing:Object = new Object();
 		private var logoutOnUserCommand:Boolean = false;
-		private var reconnect:AutoReconnect = new AutoReconnect();
 		private var reconnecting:Boolean = false;
 		private var dispatcher:Dispatcher = new Dispatcher();
     
@@ -101,10 +100,11 @@ package org.bigbluebutton.modules.videoconf.business
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
 					if (reconnecting) {
-						dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT, 
-							"Connection reestablished", 
-							"Video connection has been reestablished successfully"));
-							reconnecting = false;
+						reconnecting = false;
+
+						var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED);
+						attemptSucceeded.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						dispatcher.dispatchEvent(attemptSucceeded);
 					}
           onConnectedToVideoApp();
 					break;
@@ -113,17 +113,21 @@ package org.bigbluebutton.modules.videoconf.business
 					if (!logoutOnUserCommand) {
 						dispatcher.dispatchEvent(new StopBroadcastEvent());
 
-						dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
-							"Video connection dropped", 
-							"Attempting to reconnect"));
 						reconnecting = true;
-						reconnect.onDisconnect(connect);
+
+						var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+						disconnectedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						disconnectedEvent.payload.callback = connect;
+						disconnectedEvent.payload.callbackParameters = [];
+						dispatcher.dispatchEvent(disconnectedEvent);
 					}
 					break;
 					
 				case "NetConnection.Connect.Failed":
 					if (reconnecting) {
-						reconnect.onConnectionAttemptFailed();
+						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED);
+						attemptFailedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						dispatcher.dispatchEvent(attemptFailedEvent);
 					}
 					break;
 			}

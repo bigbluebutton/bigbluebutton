@@ -37,8 +37,8 @@ package org.bigbluebutton.modules.deskshare.services.red5
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.events.ClientStatusEvent;
-	import org.bigbluebutton.main.model.users.AutoReconnect;
+	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
@@ -49,7 +49,6 @@ package org.bigbluebutton.modules.deskshare.services.red5
     
 		private var nc:NetConnection;
 		private var uri:String;
-    private const connectionTimeout:int = 5000;
     private var retryTimer:Timer = null;
     private var retryCount:int = 0;
     private const MAX_RETRIES:int = 5;
@@ -58,7 +57,6 @@ package org.bigbluebutton.modules.deskshare.services.red5
     private var width:Number;
     private var height:Number;
     private var room:String;
-    private var reconnect:AutoReconnect = new AutoReconnect();
     private var logoutOnUserCommand:Boolean = false;
     private var reconnecting:Boolean = false;
     
@@ -186,7 +184,9 @@ package org.bigbluebutton.modules.deskshare.services.red5
 			switch(event.info.code){
 				case "NetConnection.Connect.Failed":
 					if (reconnecting) {
-						reconnect.onConnectionAttemptFailed();
+						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED);
+						attemptFailedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+						dispatcher.dispatchEvent(attemptFailedEvent);
 					}
 					ce.status = ConnectionEvent.FAILED;
           
@@ -196,10 +196,11 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				case "NetConnection.Connect.Success":
           ce.status = ConnectionEvent.SUCCESS;
           if (reconnecting) {
-            dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT, 
-              "Connection reestablished", 
-              "Deskshare connection has been reestablished successfully"));
             reconnecting = false;
+
+            var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED);
+            attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+            dispatcher.dispatchEvent(attemptSucceeded);
           }
           dispatcher.dispatchEvent(ce);
           connectionSuccessHandler();
@@ -215,11 +216,13 @@ package org.bigbluebutton.modules.deskshare.services.red5
           ce.status = ConnectionEvent.CLOSED;
           stopViewing();
           if (!logoutOnUserCommand) {
-            dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT, 
-              "Deskshare connection dropped", 
-              "Attempting to reconnect"));
             reconnecting = true;
-            reconnect.onDisconnect(connect);
+
+            var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+            disconnectedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+            disconnectedEvent.payload.callback = connect;
+            disconnectedEvent.payload.callbackParameters = [];
+            dispatcher.dispatchEvent(disconnectedEvent);
           }
 				break;
 				

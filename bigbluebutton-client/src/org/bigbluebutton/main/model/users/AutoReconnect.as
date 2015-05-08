@@ -29,11 +29,11 @@ package org.bigbluebutton.main.model.users
     private var _reconnectCallback:Function;
     private var _reconnectParameters:Array;
 
-    public function onDisconnect(callback:Function, ...parameters):void {
+    public function onDisconnect(callback:Function, parameters:Array):void {
       trace(LOG + "onDisconnect, parameters=" + parameters.toString());
       _reconnectCallback = callback;
       _reconnectParameters = parameters;
-      attemptReconnect(1000);
+      attemptReconnect(0);
     }
 
     public function onConnectionAttemptFailed():void {
@@ -49,7 +49,7 @@ package org.bigbluebutton.main.model.users
         _reconnectCallback.apply(null, _reconnectParameters);
       });
       retryTimer.start();
-      if (_backoff < 16000) _backoff = backoff *2;
+      if (_backoff < 16000) _backoff = Math.max(backoff, 500) *2;
     }
   }
 }
