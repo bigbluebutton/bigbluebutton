@@ -638,3 +638,16 @@ body {
 .rightNavbarSection {
   float: right;
 }
+
+.toggleMenuButton {
+  float: right;
+  @media @landscape {
+    display: none;
+  }
+}
+
+.rightNavbarSection {
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    display: none;
+  }
+}
