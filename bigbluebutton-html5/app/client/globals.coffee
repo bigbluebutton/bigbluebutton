@@ -125,9 +125,6 @@ Handlebars.registerHelper 'isMobile', () ->
 Handlebars.registerHelper 'isPortraitMobile', () ->
   isPortraitMobile()
 
-Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
-  isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
-
 Handlebars.registerHelper "meetingIsRecording", ->
   BBB.isMeetingRecording()
 

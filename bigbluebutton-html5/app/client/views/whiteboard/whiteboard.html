@@ -1,7 +1,7 @@
 <template name="whiteboard">
     <div id="{{id}}" {{visibility name}} class="component gradientBar">
         <h3 id="whiteboard-navbar" class="title">
-            {{#if isMobileChromeOrFirefox}}
+            {{#if isMobile}}
                 {{> makeButton btn_class="fullscreenWhiteboardButton" i_class="glyphicon glyphicon-fullscreen"}}
             {{/if}}
             <span class="ion-easel heading"></span>
