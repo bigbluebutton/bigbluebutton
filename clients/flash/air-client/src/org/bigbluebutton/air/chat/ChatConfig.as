@@ -1,14 +1,16 @@
-package org.bigbluebutton.air.main.views {
-	
-	import org.bigbluebutton.lib.main.commands.RaiseHandCommand;
-	import org.bigbluebutton.lib.main.commands.RaiseHandSignal;
+package org.bigbluebutton.air.chat {
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
+	import org.bigbluebutton.air.chat.views.ChatRoomsViewMediator;
+	import org.bigbluebutton.air.chat.views.ChatViewMediator;
+	import org.bigbluebutton.air.chat.views.IChatRoomsView;
+	import org.bigbluebutton.air.chat.views.IChatView;
+	import org.bigbluebutton.air.chat.views.SelectParticipantViewMediator;
 	
-	public class ProfileConfig implements IConfig {
+	public class ChatConfig implements IConfig {
 		
 		[Inject]
 		public var injector:IInjector;
@@ -37,15 +39,16 @@ package org.bigbluebutton.air.main.views {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(IProfileView).toMediator(ProfileViewMediator);
+			mediatorMap.map(IChatView).toMediator(ChatViewMediator);
+			mediatorMap.map(IChatRoomsView).toMediator(ChatRoomsViewMediator);
+			mediatorMap.map(ISelectParticipantView).toMediator(SelectParticipantViewMediator);
 		}
 		
 		/**
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			signalCommandMap.map(RaiseHandSignal).toCommand(RaiseHandCommand);
-			//signalCommandMap.map(ButtonTestSignal).toCommand(ButtonTestCommand);
+			
 		}
 	}
 }
