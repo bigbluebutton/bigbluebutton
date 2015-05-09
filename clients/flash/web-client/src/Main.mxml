@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:common="org.bigbluebutton.web.common.views.*"
+			   width="100%" height="100%"
+			   preinitialize="preinitializeHandler(event)"
+			   creationComplete="creationCompleteHandler(event)">
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.web.AppConfig;
+			import org.bigbluebutton.web.chat.views.ChatConfig;
+			import org.bigbluebutton.web.common.views.BBBWindow;
+			
+			import robotlegs.bender.bundles.mvcs.MVCSBundle;
+			import robotlegs.bender.extensions.contextView.ContextView;
+			import robotlegs.bender.extensions.signalCommandMap.SignalCommandMapExtension;
+			import robotlegs.bender.framework.api.IContext;
+			import robotlegs.bender.framework.api.LogLevel;
+			import robotlegs.bender.framework.impl.Context;
+			
+			protected var context:IContext;
+			
+			protected function preinitializeHandler(event:FlexEvent):void {
+				setupContext();
+			}
+			
+			/**
+			 * Sets up the Robotlegs context.
+			 */
+			private function setupContext():void {
+				context = new Context()
+					.install(MVCSBundle, SignalCommandMapExtension)
+					.configure(AppConfig)
+					
+					.configure(ChatConfig)
+					
+					.configure(new ContextView(this));
+				
+				// If you wish to change the log level then uncomment the line below and set 
+				// the logLevel to the value you desire. The default logLevel is DEBUG, which 
+				// is set in the MVCSBundle. The default log level traces out the framework 
+				// actions, which can assist in learning Robotlegs.
+				setLogLevel();
+			}
+			
+			/**
+			 * Sets the logLevel for the robotegs context.
+			 */
+			private function setLogLevel():void {
+				// setting the logLevel to WARN means that robotlegs
+				// will also notify us about ERROR & FATAL.
+				context.logLevel = LogLevel.WARN;
+			}
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				mainCanvas.windowManager.add(new BBBWindow());
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Group id="mainshell"
+			 width="100%"
+			 height="100%">
+		<s:layout>
+			<s:VerticalLayout gap="0" />
+		</s:layout>
+		<s:Rect width="50" height="50">
+			<s:fill>
+				<s:SolidColor color="#000000" />
+			</s:fill>
+			<s:stroke>
+				<s:SolidColorStroke color="#ff0000" weight="10" />
+			</s:stroke>
+		</s:Rect>
+		<common:BBBCanvas id="mainCanvas" width="100%" height="100%">
+			
+		</common:BBBCanvas>
+	</s:Group>
+</s:Application>
