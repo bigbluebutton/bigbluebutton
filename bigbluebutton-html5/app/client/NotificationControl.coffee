@@ -1,76 +1,50 @@
+# Methods return a reference to itself to allow chaining
 class @NotificationControl
-  # static icon to be used for notifications
-  @iconHolder='null'
-  elementId="#notification"
-  position={nMy:"center",nAt:"center",nOf:window} # default to center of screen
-  showTime=500 # half second for showing/hiding
-  hideTime=500
-  notificationName=''
-  showNotification=->
-  duration=1000 #default last one second
-  hideNotification=->
+  container = '' # holds where the alerts will go
+  notifications = {}
 
-  # time queries
-  getNotifcationTime: -> {duration: duration, showTime: showTime, hideTime: hideTime}
-  getDuration: -> duration
-  getShowTime: -> showTime
-  getHideTime: -> hideTime
+  constructor: (c) ->
+    container = if c[0] isnt '#' then "##{c}" else c # prepend '#' to the identifier
+    $("body").prepend( # create container for notifications
+      '<!-- Drawing area for notifications. Must have "data-alert" atrribute, I do not know why, typically only for actual notifications -->' +
+      "<div id=\"#{container}\" data-alert></div>")
 
-  removeIconSpace: -> # will remove icon if Raphael icon object has been created to prevent pushed coontent
-    if NotificationControl.iconHolder? then NotificationControl.iconHolder.remove()
+  # id: name of the notification
+  # type: optional style classes
+  # content: the notification's message
+  # nDuration: how many milliseconds the notification will stay (less than 1 implies permanent)
+  # nFadeTime: how many milliseconds it takes the notification to be removed
+  create: (id, type, content, nDuration, nFadeTime) ->
+    elementId = if id[0] is '#' then id.substr(1) else id # remove prepended '#' from the identifier
+    notifications[elementId] = {}
+    notifications[elementId].element = ''
+    notifications[elementId].element += "<div id=\"#{elementId}\" data-alert class='bbbNotification alert-box #{type}' tabindex='0' aria-live='assertive' role='dialogalert'>"
+    notifications[elementId].element += "#{content}"
+    notifications[elementId].element += '<button href="#" tabindex="0" class="close" aria-label="Close Alert">&times;</button>'
+    notifications[elementId].element += '</div>'
+    notifications[elementId].duration = nDuration or -1 # if no time is specified, it must be dismissed by the user
+    notifications[elementId].fadeTime = nFadeTime or 1000
+    @
 
-  constructor: ->
-    @clear()
-    @makeDialog()
+  registerShow: (elementId, nShowNotification) -> # register the method to be called when showing the notification
+    notifications[elementId].showNotification = nShowNotification
+    @
 
-  # set up params
-  makeNewNotification: (nElementId, nNotificationName, nPosition, nShowTime, nHideTime) ->
-    elementId = if nElementId[0] isnt '#' then "##{nElementId}" else elementId # prepend '#' to the identifier
-    position = nPosition if nPosition?
-    showTime = nShowTime if nShowTime?
-    hideTime = nHideTime if nHideTime?
-    notificationName = nNotificationName
-    @makeDialog()
+  registerHide: (elementId, nHideNotification) -> # register the method called when hiding the notification
+    notifications[elementId].hideNotification = nHideNotification
+    @
 
-  clear: -> # reset members to default values
-    @iconHolder='null'
-    elementId="#notification"
-    position={nMy:"center",nAt:"center",nOf:window}
-    showTime=500
-    hideTime=500
-    notificationName=''
-    showNotification=->
-    duration=1000
-    hideNotification=->
-
-  makeDialog: -> # initialize the HTML dialog element with the current members
-    $(elementId).dialog
-      modal: false
-      draggable: false
-      resizable: false
-      autoOpen: false
-      dialogClass: 'no-close no-titlebar notification'
-      show: effect: "blind", duration: showTime
-      hide: effect: "blind", duration: hideTime
-      position: my: position.nMy, at: position.nAt, of: position.nOf # register the position
-
-  registerShow: (nShowNotification, nDuration) -> # register the method to be called when showing the notification, and the duration
-    showNotification = nShowNotification if nShowNotification?
-    duration = nDuration if nDuration?
-
-  registerHide: (nHideNotification) -> # register the method called when hiding the notification
-    hideNotification = nHideNotification if nHideNotification?
-
-  display: () -> # called the registered methods
-    setInSession notificationName, true
-    showNotification()
-    $("#notification").dialog('open')
+  display: (elementId) -> # called the registered methods
+    $(container).append(notifications[elementId].element) # display the notification
+    notifications[elementId].showNotification?()
 
     setTimeout () ->
-      $(elementId).dialog('close')
-      hideNotification()
-      setInSession notificationName, false
-    , duration
+      # remove the notification if the user selected to
+      ($('#'+elementId).fadeOut notifications[elementId].fadeTime, -> $('#'+elementId).remove()) if notifications[elementId].duration > 0
+      notifications[elementId].hideNotification?()
+      notifications[elementId] = {} # delete all notification data
+    , notifications[elementId].duration
+    @
 
   # static icon members
   @icons = {
@@ -82,41 +56,42 @@ class @NotificationControl
     'IE_IconPath': 'M27.998,2.266c-2.12-1.91-6.925,0.382-9.575,1.93c-0.76-0.12-1.557-0.185-2.388-0.185c-3.349,0-6.052,0.985-8.106,2.843c-2.336,2.139-3.631,4.94-3.631,8.177c0,0.028,0.001,0.056,0.001,0.084c3.287-5.15,8.342-7.79,9.682-8.487c0.212-0.099,0.338,0.155,0.141,0.253c-0.015,0.042-0.015,0,0,0c-2.254,1.35-6.434,5.259-9.146,10.886l-0.003-0.007c-1.717,3.547-3.167,8.529-0.267,10.358c2.197,1.382,6.13-0.248,9.295-2.318c0.764,0.108,1.567,0.165,2.415,0.165c5.84,0,9.937-3.223,11.399-7.924l-8.022-0.014c-0.337,1.661-1.464,2.548-3.223,2.548c-2.21,0-3.729-1.211-3.828-4.012l15.228-0.014c0.028-0.578-0.042-0.985-0.042-1.436c0-5.251-3.143-9.355-8.255-10.663c2.081-1.294,5.974-3.209,7.848-1.681c1.407,1.14,0.633,3.533,0.295,4.518c-0.056,0.254,0.24,0.296,0.296,0.057C28.814,5.573,29.026,3.194,27.998,2.266zM13.272,25.676c-2.469,1.475-5.873,2.539-7.539,1.289c-1.243-0.935-0.696-3.468,0.398-5.938c0.664,0.992,1.495,1.886,2.473,2.63C9.926,24.651,11.479,25.324,13.272,25.676zM12.714,13.046c0.042-2.435,1.787-3.49,3.617-3.49c1.928,0,3.49,1.112,3.49,3.49H12.714z'
   }
 
-#   <div id="mainAlert1" data-alert class="alert-box" tabindex="0" aria-live="assertive" role="dialogalert">
-#   Your content goes here
-#   <button href="#" tabindex="0" class="close" aria-label="Close Alert">&times;</button>
-# </div>
+# @notification_WebRTCAudioJoined = () -> # used when the user can join audio
+#   if !BBB.amIInAudio()
+#     Tracker.autorun (comp) -> # wait until user is in
+#       if BBB.amIInAudio() # display notification when you are in audio
+#         Meteor.NotificationControl.makeNewNotification("#notification", 'webrtc_notification_is_displayed', {nMy: 'left top', nAt: 'left bottom', nOf: '.joinAudioButton'})
+#         Meteor.NotificationControl.registerShow () ->
+#           $('#notification').addClass('joined-audio-notification')
+#           $("#browser-icon-container").remove() # remove the space taken up by the unused icon
+#           # notify the type of audio joined
+#           $('#notification-text').html("You've joined the #{if BBB.amIListenOnlyAudio() then 'Listen Only' else ''} audio")
+#         , 3000
+#         Meteor.NotificationControl.registerHide () ->
+#           $('.joinAudioButton').blur()
+#         Meteor.NotificationControl.display()
 
 @notification_WebRTCNotSupported = () -> # shown when the user's browser does not support WebRTC
   # create a new notification at the audio button they clicked to trigger the event
-  Meteor.NotificationControl.makeNewNotification("#notification", 'webrtc_notification_is_displayed', {nMy: 'left top', nAt: 'left bottom', nOf: '.joinAudioButton'})
-  Meteor.NotificationControl.registerShow () ->
-    $('#notification').addClass('joined-audio-notification webrtc-support-notification')
-    Meteor.NotificationControl.icon = new Raphael('browser-icon-container', 35, 35)
+  Meteor.NotificationControl.create("webRTC_notification", '', '', -1)
+  .registerShow("webRTC_notification", ->
     if ((browserName=getBrowserName()) in ['Safari', 'IE']) or browserName="settings" # show either the browser icon or cog gears
-      Meteor.NotificationControl.icon.path(NotificationControl.icons["#{browserName}_IconPath"]).attr({fill: "#000", stroke: "none"})
-      $('#notification-text').html("Sorry,<br/>#{if browserName isnt 'settings' then browserName else 'your browser'} doesn't support WebRTC")
-      $('.notification.ui-widget-content p').css('font-size', '11px') if browserName is 'settings' # to make sure the text fits the dialog box
-  , 3000
-  Meteor.NotificationControl.registerHide () ->
-    $('.joinAudioButton').blur()
-    setTimeout () -> # waits to hide the notification, then removes the icons. Looks cleaner than text shifting left before closing
-      Meteor.NotificationControl.icon.remove()
-      $('.notification').removeClass('webrtc-support-notification')
-    , Meteor.NotificationControl.getNotifcationTime().hideTime
-  Meteor.NotificationControl.display()
+      $("#webRTC_notification").prepend('<div id="browser-icon-container"></div>' +
+        "Sorry,<br/>#{if browserName isnt 'settings' then browserName else 'your browser'} doesn't support WebRTC")
+      (new Raphael('browser-icon-container', 35, 35)).path(NotificationControl.icons["#{browserName}_IconPath"]).attr({fill: "#000", stroke: "none"})
+  ).display("webRTC_notification")
 
-@notification_WebRTCAudioJoined = () -> # used when the user can join audio
-  if !BBB.amIInAudio()
-    Tracker.autorun (comp) -> # wait until user is in
-      if BBB.amIInAudio() # display notification when you are in audio
-        Meteor.NotificationControl.makeNewNotification("#notification", 'webrtc_notification_is_displayed', {nMy: 'left top', nAt: 'left bottom', nOf: '.joinAudioButton'})
-        Meteor.NotificationControl.registerShow () ->
-          $('#notification').addClass('joined-audio-notification')
-          $("#browser-icon-container").remove() # remove the space taken up by the unused icon
-          # notify the type of audio joined
-          $('#notification-text').html("You've joined the #{if BBB.amIListenOnlyAudio() then 'Listen Only' else ''} audio")
-        , 3000
-        Meteor.NotificationControl.registerHide () ->
-          $('.joinAudioButton').blur()
-        Meteor.NotificationControl.display()
+# simulates many notifications being displayed simultaneously
+@testNotifications = ->
+  Meteor.NotificationControl.create("alert1", '', "static (1)", -1).display("alert1")
+  Meteor.NotificationControl.create("alert2", '', "timed (2)", 1500).registerShow("alert2", (->)).registerHide("alert2", ->).display("alert2")
+  Meteor.NotificationControl.create("alert3", '', "static (3)", -1).registerShow("alert3", (->)).registerHide("alert3", -> console.log "inside hide").display("alert3")
+  Meteor.NotificationControl.create("alert4", '', "timed (4)", 1500).display("alert4")
+  Meteor.NotificationControl.create("alert5", '', "static (5)", -1).display("alert5")
+  Meteor.NotificationControl.create("alert6", '', "static (6)").registerShow("alert6", (->)).registerHide("alert6", ->).display("alert6")
+  Meteor.NotificationControl.create("alert7", '', "static (7)").registerShow("alert7", (->)).registerHide("alert7", -> console.log "inside hide").display("alert7")
+  Meteor.NotificationControl.create("alert8", '', "timed (8)", 1500).display("alert8")
+  Meteor.NotificationControl.create("alert9", '', "static (9)", -1).display("alert9")
+  Meteor.NotificationControl.create("alert10", '', "timed (10)", 1500).registerShow("alert10", (->)).registerHide("alert10", ->).display("alert10")
+  Meteor.NotificationControl.create("alert11", '', "static (11)", -1).registerShow("alert11", (->)).registerHide("alert11", -> console.log "inside hide").display("alert11")
+  Meteor.NotificationControl.create("alert12", '', "static (12)").display("alert12")

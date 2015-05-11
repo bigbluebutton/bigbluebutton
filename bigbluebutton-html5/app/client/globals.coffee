@@ -381,8 +381,6 @@ Handlebars.registerHelper "visibility", (section) ->
       document.location = getInSession 'logoutURL'
   })
 
-  $(document).foundation() # initialize foundation javascript
-
 # Detects a mobile device
 @isMobile = ->
   navigator.userAgent.match(/Android/i) or

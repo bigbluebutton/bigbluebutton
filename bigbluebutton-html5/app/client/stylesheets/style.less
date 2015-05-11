@@ -633,3 +633,25 @@ body {
 .rightNavbarSection {
   float: right;
 }
+
+#notificationArea {
+  bottom:0;
+  left:0;
+  margin: auto;
+  @media @landscape {
+    width: 50%;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    width: 90%;
+  }
+  overflow-y: hidden;
+  position: absolute;
+  right:0;
+  text-align: center;
+  top: 57px; // height of navbar (50px), 2 pixels for navbar margin, 5 pixels for neat whitespace
+  z-index: 1; // in front of the whiteboard
+}
+
+.bbbNotification {
+  margin-bottom: 5px;
+}
