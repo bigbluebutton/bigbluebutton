@@ -9,6 +9,7 @@ bin-release-temp/
 .FlexUnitSettings
 .actionScriptProperties
 .flexProperties
+.flexLibProperties
 .metadata
 .project
 .fxpProperties
