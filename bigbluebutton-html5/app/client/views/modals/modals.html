@@ -6,46 +6,44 @@
 <template name="settingsAudio">
   <fieldset class="desktopSettingsFieldset">
     <legend>Audio Options</legend>
-    <div class='audioControllersSection'>
-      {{#if amIInAudio}}
-        {{#if amIListenOnlyAudio}}
-          <!-- display listen only with exit -->
-          {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton" i_class="fi-prohibited" rel="tooltip"
-          data_placement="bottom" title="Leave Audio Call"}}
-          <!-- display microphone with join -->
-          {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton" i_class="fi-microphone" rel="tooltip"
-          data_placement="bottom" title="Join Microphone"}}
-        {{else}}
-          <!-- display join listen only -->
-          {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton" i_class="fi-megaphone" rel="tooltip"
-          data_placement="bottom" title="Join Listen only"}}
-          <!-- display microphone with exit -->
-          {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton" i_class="fi-prohibited" rel="tooltip"
-          data_placement="bottom" title="exit"}}
-
-          <!-- to be inserted back into the navbar -->
-          <!-- different icons for speaking -->
-          <!-- {{#if isCurrentUserMuted}} -->
-            <!-- if you are muted the button representing your status will show volume off -->
-            <!-- {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}} -->
-          <!-- {{else}} -->
-            <!-- {{#if isCurrentUserTalking}} -->
-              <!-- you are talking. Display a high volume/volume up representing voice activity -->
-              <!-- {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}} -->
-            <!-- {{else}} -->
-              <!-- you are not talking. Display low volume/volume down representing no voice activity -->
-              <!-- {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}} -->
-            <!-- {{/if}} -->
-          <!-- {{/if}} -->
-        {{/if}}
+    {{#if amIInAudio}}
+      {{#if amIListenOnlyAudio}}
+        <!-- display microphone with join -->
+        {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone" rel="tooltip"
+        data_placement="bottom" title="Join Microphone"}}
+        <!-- display listen only with exit -->
+        {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="fi-prohibited" rel="tooltip"
+        data_placement="bottom" title="Leave Audio Call"}}
       {{else}}
-        <!-- display both with join -->
-        {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton" i_class="fi-megaphone"
-        rel="tooltip" data_placement="bottom" title="Join Listen only"}}
-        {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton" i_class="fi-microphone"
-        rel="tooltip" data_placement="bottom" title="Join Microphone"}}
+        <!-- display microphone with exit -->
+        {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="fi-prohibited" rel="tooltip"
+        data_placement="bottom" title="exit"}}
+        <!-- display join listen only -->
+        {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume" rel="tooltip"
+        data_placement="bottom" title="Join Listen only"}}
+
+        <!-- to be inserted back into the navbar -->
+        <!-- different icons for speaking -->
+        {{#if isCurrentUserMuted}}
+          <!-- if you are muted the button representing your status will show volume off -->
+          {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
+        {{else}}
+          {{#if isCurrentUserTalking}}
+            <!-- you are talking. Display a high volume/volume up representing voice activity -->
+            {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+          {{else}}
+            <!-- you are not talking. Display low volume/volume down representing no voice activity -->
+            {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
+          {{/if}}
+        {{/if}}
       {{/if}}
-    </div>
+    {{else}}
+      <!-- display both with join -->
+      {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone"
+      rel="tooltip" data_placement="bottom" title="Join Microphone"}}
+      {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume"
+      rel="tooltip" data_placement="bottom" title="Join Listen only"}}
+    {{/if}}
   </fieldset>
 </template>
 

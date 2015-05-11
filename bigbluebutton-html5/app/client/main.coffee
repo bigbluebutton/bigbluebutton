@@ -1,30 +1,3 @@
-# this method gets called from either mobile or desktop UI
-# this method will adjust the UI to compensate for the new audio button
-displayAudioSelectionMenu = ({isMobile} = {}) ->
-  isMobile ?= false
-  $('.joinAudioButton').blur()
-
-  if isMobile
-    toggleSlidingMenu()
-    $('.navbarTitle').css('width', '55%')
-
-  # pop open the dialog allowing users to choose the audio options
-  if isLandscapeMobile()
-    $('.joinAudio-dialog').addClass('landscape-mobile-joinAudio-dialog')
-  else
-    $('.joinAudio-dialog').addClass('desktop-joinAudio-dialog')
-
-  $("#joinAudioDialog").dialog("open")
-
-# helper function to reuse some code for the handling of audio join
-onAudioJoinHelper = () ->
-  # if the microphone is locked (lock settings), the viewer is only
-  # allowed to join the audio as listenOnly.
-  if BBB.isMyMicLocked()
-    introToAudio(null, isListenOnly: true)
-  else
-    displayAudioSelectionMenu(isMobile: isMobile())
-
 # Helper to load javascript libraries from the BBB server
 loadLib = (libname) ->
   successCallback = ->
@@ -56,12 +29,6 @@ Meteor.startup ->
   )
 #
 Template.header.events
-  "click .joinAudioButton": (event) ->
-    if !isWebRTCAvailable()
-      notification_WebRTCNotSupported()
-    else
-      onAudioJoinHelper()
-
   "click .chatBarIcon": (event) ->
     $(".tooltip").hide()
     toggleChatbar()
@@ -124,14 +91,6 @@ Template.header.events
     $(".tooltip").hide()
     toggleWhiteBoard()
 
-  "mouseout #navbarMinimizedButton": (event) ->
-    $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonLarge")
-    $("#navbarMinimizedButton").addClass("navbarMinimizedButtonSmall")
-
-  "mouseover #navbarMinimizedButton": (event) ->
-    $("#navbarMinimizedButton").removeClass("navbarMinimizedButtonSmall")
-    $("#navbarMinimizedButton").addClass("navbarMinimizedButtonLarge")
-
   "click .toggleUserlist": (event) ->
     if isLandscape()
       toggleUsersList()
@@ -139,9 +98,6 @@ Template.header.events
       toggleLeftHandSlidingMenu()
 
 Template.slidingMenu.events
-  'click .joinAudioButton': (event) ->
-    onAudioJoinHelper()
-
   'click .chatBarIcon': (event) ->
     $('.tooltip').hide()
     toggleSlidingMenu()
@@ -177,37 +133,6 @@ Template.slidingMenu.events
     toggleSlidingMenu()
 
 Template.main.rendered = ->
-  # the initialization code for the dialog presenting the user with microphone+listen only options
-  $("#joinAudioDialog").dialog(
-    modal: true
-    draggable: false
-    resizable: false
-    autoOpen: false
-    dialogClass: 'no-close logout-dialog joinAudioDialog'
-    buttons: [
-      {
-        text: 'Cancel'
-        click: () ->
-          $(this).dialog("close")
-          $(".tooltip").hide()
-        class: 'btn btn-xs btn-default joinAudioDialogButton'
-      }
-    ]
-    open: (event, ui) ->
-      $('.ui-widget-overlay').bind 'click', () ->
-        if isMobile()
-          $("#joinAudioDialog").dialog('close')
-    position: { my: "center", at: "center", of: window }
-  )
-
-  # jQuery click events are handled here. Meteor click handlers don't get called.
-  # we pass in a named boolean parameter the whether we wish to join audio as listen only or not
-  # $("#microphone").click ->
-    # introToAudio @, isListenOnly: false
-
-  # $("#listen_only").click ->
-    # introToAudio @, isListenOnly: true
-
   $("#dialog").dialog(
     modal: true
     draggable: false
@@ -244,7 +169,6 @@ Template.main.rendered = ->
 
   $(window).resize( ->
     $('#dialog').dialog('close')
-    $('#joinAudioDialog').dialog('close')
   )
 
   $('#shield').click () ->
