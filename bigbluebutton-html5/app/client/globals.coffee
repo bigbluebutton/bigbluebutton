@@ -233,17 +233,11 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @toggleLeftHandSlidingMenu = ->
   if $('#container').css('position') is 'fixed'
-    $('#container').animate
-      left: '0'
-    , 500, () ->
-      $('#container').css('position', '')
-      $('#container').css('left', 0)
+    $('#container').css('position', '')
+    $('#container').css('left', '')
   else
-    $('#container').css('left', '0')
+    $('#container').css('left', '500px')
     $('#container').css('position', 'fixed')
-    $('#container').animate
-      left: '500px'
-    , 500
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
