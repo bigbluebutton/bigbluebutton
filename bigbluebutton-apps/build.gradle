@@ -100,12 +100,16 @@ dependencies {
   providedCompile 'commons-pool:commons-pool:1.5.6'
  
   // Libraries needed to run the scala tools
-  scalaTools 'org.scala-lang:scala-compiler:2.9.2'
-  scalaTools 'org.scala-lang:scala-library:2.9.2'
+  scalaTools 'org.scala-lang:scala-compiler:2.11.6'
+  scalaTools 'org.scala-lang:scala-library:2.11.6'
 
   // Libraries needed for scala api
-  compile 'org.scala-lang:scala-library:2.9.2'
+  compile 'org.scala-lang:scala-library:2.11.6'
 
+  compile 'com.typesafe.akka:akka-actor_2.11:2.3.10'
+  compile 'com.typesafe.akka:akka-testkit_2.11:2.3.10'
+  compile 'com.typesafe.akka:akka-slf4j_2.11:2.3.10'
+  
   // workaround for http://issues.gradle.org/browse/GRADLE-1273
   //compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
   //compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)

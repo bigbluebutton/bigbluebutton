@@ -2,17 +2,18 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.api._
 import java.util.concurrent.CountDownLatch
-import scala.actors.Actor
-import scala.actors.Actor._
+import akka.actor.{ ActorSystem, Props }
 
 class BigBlueButtonGateway(outGW: MessageOutGateway) {
-  
-  private val bbbActor = new BigBlueButtonActor(outGW)
-  bbbActor.start
-  
+
+  implicit val system = ActorSystem("bigbluebutton-apps-system")
+ 
+  val bbbActor = system.actorOf(
+                            BigBlueButtonActor.props(system, outGW), 
+                            "bigbluebutton-actor")
+                             
   def accept(msg: InMessage):Unit = {  
-    bbbActor ! msg
-    
+    bbbActor ! msg    
   }
 
   def acceptKeepAlive(msg: KeepAliveMessage):Unit = {
