@@ -42,13 +42,11 @@
     flex: 1 1 20%;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-    display: none !important;
+    position: absolute;
+    left: -500px;
+    width: 500px;
+    height: 100%;
   }
-}
-
-#users-left {
-  width: 500px;
-  height: 100%;
 }
 
 #user-contents {

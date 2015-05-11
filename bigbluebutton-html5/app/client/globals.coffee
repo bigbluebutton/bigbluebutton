@@ -238,17 +238,11 @@ Handlebars.registerHelper "visibility", (section) ->
     , 500, () ->
       $('#container').css('position', '')
       $('#container').css('left', 0)
-    $('#background-menus').animate
-      left: '-250px'
-    , 500
   else
     $('#container').css('left', '0')
     $('#container').css('position', 'fixed')
     $('#container').animate
       left: '500px'
-    , 500
-    $('#background-menus').animate
-      left: '0'
     , 500
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
