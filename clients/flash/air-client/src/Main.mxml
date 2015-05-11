@@ -27,6 +27,7 @@
 			import org.bigbluebutton.air.common.utils.TransitionAnimationENUM;
 			import org.bigbluebutton.air.common.views.NoTabView;
 			import org.bigbluebutton.air.deskshare.views.DeskshareConfig;
+			import org.bigbluebutton.air.main.MainConfig;
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
 			import org.bigbluebutton.air.presentation.views.PresentationConfig;
 			import org.bigbluebutton.air.settings.views.AudioSettingsConfig;
@@ -85,6 +86,7 @@
 					.install(MVCSBundle, SignalCommandMapExtension)
 					.configure(AppConfig)
 					
+					.configure(MainConfig)
 					.configure(PresentationConfig)
 					.configure(ChatConfig)
 					.configure(VideoChatConfig)

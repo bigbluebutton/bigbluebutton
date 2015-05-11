@@ -1,5 +1,7 @@
 package org.bigbluebutton.air.main {
 	
+	import org.bigbluebutton.air.main.commands.NavigateToCommand;
+	import org.bigbluebutton.air.main.commands.NavigateToSignal;
 	import org.bigbluebutton.air.main.views.DisconnectPageViewMediator;
 	import org.bigbluebutton.air.main.views.IDisconnectPageView;
 	import org.bigbluebutton.air.main.views.ILoadingScreen;
@@ -71,6 +73,7 @@ package org.bigbluebutton.air.main {
 		private function signals():void {
 			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommand);
 			signalCommandMap.map(RaiseHandSignal).toCommand(RaiseHandCommand);
+			signalCommandMap.map(NavigateToSignal).toCommand(NavigateToCommand);
 		}
 	}
 }
