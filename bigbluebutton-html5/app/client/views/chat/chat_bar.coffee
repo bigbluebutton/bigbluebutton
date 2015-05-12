@@ -88,26 +88,12 @@ Handlebars.registerHelper "inPrivateChat", ->
   unless (message?.length > 0 and (/\S/.test(message))) # check the message has content and it is not whitespace
     return # do nothing if invalid message
 
-  chattingWith = getInSession('inChatWith')
-
-  if chattingWith isnt "PUBLIC_CHAT"
+  color = "0x000000" #"0x#{getInSession("messageColor")}"
+  if (chattingWith = getInSession('inChatWith')) isnt "PUBLIC_CHAT"
     toUsername = Meteor.Users.findOne(userId: chattingWith)?.user.name
-
-  messageForServer = { # construct message for server
-    "message": message
-    "chat_type": if chattingWith is "PUBLIC_CHAT" then "PUBLIC_CHAT" else "PRIVATE_CHAT"
-    "from_userid": getInSession("userId")
-    "from_username": BBB.getMyUserName()
-    "from_tz_offset": "240"
-    "to_username": if chattingWith is "PUBLIC_CHAT" then "public_chat_username" else toUsername
-    "to_userid": if chattingWith is "PUBLIC_CHAT" then "public_chat_userid" else chattingWith
-    "from_lang": "en"
-    "from_time": getTime()
-    "from_color": "0x000000"
-    # "from_color": "0x#{getInSession("messageColor")}"
-  }
-
-  Meteor.call "sendChatMessagetoServer", getInSession("meetingId"), messageForServer, getInSession("userId"), getInSession("authToken")
+    BBB.sendPrivateChatMessage(color, "en", message, chattingWith, toUsername)
+  else
+    BBB.sendPublicChatMessage(color, "en", message)
 
   $('#newMessageInput').val '' # Clear message box
 
@@ -263,7 +249,7 @@ Template.optionsBar.events
 Template.optionsBar.helpers
   thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
     # TODO: Add a check for the count to only include users who are allowed to private chat
-    (Meteor.Users.find({'meetingId': getInSession("meetingId")}).count()-1) >= 1
+    (BBB.getNumberOfUsers()-1) >= 1
 
 Template.optionsBar.rendered = ->
   $('div[rel=tooltip]').tooltip()

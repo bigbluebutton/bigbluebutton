@@ -45,7 +45,7 @@ ieIconPath = 'M27.998,2.266c-2.12-1.91-6.925,0.382-9.575,1.93c-0.76-0.12-1.557-0
               $('#notification-text').html("You've joined the Listen Only Audio")
             else
               $('#notification-text').html("You've joined the audio")
-            
+
             $('#notification').dialog('open')
             setTimeout () ->
               $('#notification').dialog('close') # close the entire notification
@@ -118,7 +118,7 @@ Meteor.startup ->
 Template.footer.helpers
   getFooterString: ->
     info = getBuildInformation()
-    foot = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.bbbServerVersion} - #{info.dateOfBuild}] - For more information visit #{info.link}"
+    foot = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.html5ClientBuild}] - For more information visit #{info.link}"
 
 Template.header.events
   "click .joinAudioButton": (event) ->
@@ -146,17 +146,17 @@ Template.header.events
   "click .leaveAudioButton": (event) ->
     exitVoiceCall event
 
-  "click .lowerHand": (event) ->
-    $(".tooltip").hide()
-    Meteor.call('userLowerHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-
   "click .muteIcon": (event) ->
     $(".tooltip").hide()
     toggleMic @
 
+  "click .lowerHand": (event) ->
+    $(".tooltip").hide()
+    BBB.lowerHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+
   "click .raiseHand": (event) ->
     $(".tooltip").hide()
-    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   # "click .settingsIcon": (event) ->
     #   alert "settings"
@@ -202,16 +202,15 @@ Template.slidingMenu.events
     toggleSlidingMenu()
     toggleChatbar()
 
-  'click .lowerHand': (event) ->
-    $('.tooltip').hide()
+  "click .lowerHand": (event) ->
+    $(".tooltip").hide()
     toggleSlidingMenu()
-    Meteor.call('userLowerHand', getInSession('meetingId'), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+    BBB.lowerHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
-  'click .raiseHand': (event) ->
-    console.log 'navbar raise own hand from client'
-    $('.tooltip').hide()
+  "click .raiseHand": (event) ->
+    $(".tooltip").hide()
     toggleSlidingMenu()
-    Meteor.call('userRaiseHand', getInSession("meetingId"), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
   'click .usersListIcon': (event) ->
     $('.tooltip').hide()
@@ -234,7 +233,7 @@ Template.slidingMenu.events
 
 Template.main.helpers
   setTitle: ->
-    document.title = "BigBlueButton #{window.getMeetingName() ? 'HTML5'}"
+    document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
 
 Template.main.rendered = ->
   # the initialization code for the dialog presenting the user with microphone+listen only options
@@ -278,7 +277,7 @@ Template.main.rendered = ->
       {
         text: 'Yes'
         click: () ->
-          userLogout getInSession("meetingId"), getInSession("userId"), true
+          userLogout BBB.getMeetingId(), getInSession("userId"), true
           $(this).dialog("close")
         class: 'btn btn-xs btn-primary active'
       }
