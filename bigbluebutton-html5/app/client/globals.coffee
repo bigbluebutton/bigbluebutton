@@ -223,12 +223,7 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # toggle state of session variable
 @toggleUsersList = ->
-  if getInSession("display_usersList") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
-  else
-    setInSession "display_usersList", !getInSession "display_usersList"
+  setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
 @toggleLeftHandSlidingMenu = ->
