@@ -13,6 +13,9 @@ Template.settingsAudio.events
   "click #exitAudio": ->
     exitVoiceCall()
 
+  "click .joinAudioButton": (event) ->
+    $("#settingsModal").foundation('reveal', 'close')
+
 Template.settingsCloseButton.events
   "click #closeSettings": ->
     setInSession "messageFontSize", getInSession("tempFontSize")

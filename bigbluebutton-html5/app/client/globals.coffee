@@ -161,8 +161,8 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @introToAudio = (event, {isListenOnly} = {}) ->
   isListenOnly ?= true
-  joinVoiceCall event, isListenOnly: isListenOnly
   notification_WebRTCAudioJoined()
+  joinVoiceCall event, isListenOnly: isListenOnly
 
 # check the chat history of the user and add tabs for the private chats
 @populateChatTabs = (msg) ->
