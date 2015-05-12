@@ -86,23 +86,23 @@ trait MeetingMessageHandler extends SystemConfiguration {
     
     def buildJsonFailedResponse():RegisterUserResponseFormat = {
       val result = ResultFormat(false, "Failed to get a response.")      
-	  val payload = RegisterUserResponsePayloadFormat(meeting, 
+	    val payload = RegisterUserResponsePayloadFormat(meeting, 
 	                   message.payload.session, None, result, 
 	                   userDesc)
-	  RegisterUserResponseFormat(header, payload)   
+	    RegisterUserResponseFormat(header, payload)   
     }
     
     def buildJsonResponse(response: RegisterUserResponse):
                        RegisterUserResponseFormat = {
       val result = ResultFormat(response.result.success, response.result.message)      
-	  val payload = RegisterUserResponsePayloadFormat(meeting, 
+	    val payload = RegisterUserResponsePayloadFormat(meeting, 
 	                   response.session.id, Some(response.token), result, 
 	                   userDesc)
       RegisterUserResponseFormat(header, payload)       
     }
     
     val registerUserMessage = RegisterUserRequest(session, regUser)
-	(msgReceiver ? registerUserMessage).mapTo[RegisterUserResponse]
+	  (msgReceiver ? registerUserMessage).mapTo[RegisterUserResponse]
 	      .map(result => { buildJsonResponse(result) })
 	      .recover { case _ => buildJsonFailedResponse() }    
   }

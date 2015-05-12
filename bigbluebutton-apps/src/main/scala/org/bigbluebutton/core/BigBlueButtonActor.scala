@@ -2,10 +2,15 @@ package org.bigbluebutton.core
 
 import akka.actor._
 import akka.actor.ActorLogging
+import akka.pattern.{ask, pipe}
+import akka.util.Timeout
+import scala.concurrent.duration._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.util._
 import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
+import scala.util.Success
+import scala.util.Failure
 
 object BigBlueButtonActor extends SystemConfiguration {  
   def props(system: ActorSystem, outGW: MessageOutGateway): Props = 
@@ -13,7 +18,10 @@ object BigBlueButtonActor extends SystemConfiguration {
 }
 
 class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) extends Actor with ActorLogging {
-
+  def actorRefFactory = context
+  implicit def executionContext = actorRefFactory.dispatcher
+  implicit val timeout = Timeout(5 seconds)
+    
   //private var meetings = new HashMap[String, MeetingActor]
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
   
@@ -28,29 +36,24 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
   }
   
   private def handleValidateAuthToken(msg: ValidateAuthToken) {
-    // FIXME: ralam (may 11, 2015)
+    meetings.get(msg.meetingID) foreach { m =>
+      val future = m.actorRef.ask(msg)(5 seconds)
     
-//    meetings.get(msg.meetingID) foreach { m =>
-//      (m.actorRef ask msg).mapTo[ValidateAuthTokenReply]
-//        .map(result => { 
-//        log.warning("Failed to get response to from meeting=" + result.meetingID + "]. Meeting has probably hung.")
-//         outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId, msg.sessionId))
-//       ).recover { case _ => buildJsonFailedResponse() }
-//        
-//      m.actorRef !? (3000, msg) match {
-//        case None => {
-//          log.warning("Failed to get response to from meeting=" + msg.meetingID + "]. Meeting has probably hung.")
-//          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId, msg.sessionId))
-//        }
-//        case Some(rep) => {
-//        /**
-//         * Received a reply from MeetingActor which means hasn't hung!
-//         * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
-//         * audit to check whether the actor is still alive. (ralam feb 25, 2015)
-//         */
-//        }
-//      }   
-//    }      
+      future onComplete {
+        case Success(result) => {
+          log.debug("Got response from meeting=" + msg.meetingID + "].")
+          /**
+           * Received a reply from MeetingActor which means hasn't hung!
+           * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
+           * audit to check whether the actor is still alive. (ralam feb 25, 2015)
+           */
+        }
+        case Failure(failure) => {
+         log.warning("Failed to get response to from meeting=" + msg.meetingID + "]. Meeting has probably hung.")
+         outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId, msg.sessionId))          
+        }
+      }
+    }
   }
   
   private def handleMeetingMessage(msg: InMessage):Unit = {
@@ -109,23 +112,21 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
   }
   
   private def handleCreateMeeting(msg: CreateMeeting):Unit = {
-    // FIXME: ralam (may 11, 2015)
-    
     meetings.get(msg.meetingID) match {
       case None => {
         log.info("New meeting create request [" + msg.meetingName + "]")
-//    	  var m = new MeetingActor(msg.meetingID, msg.externalMeetingID, msg.meetingName, msg.recorded, 
-//    	                  msg.voiceBridge, msg.duration, 
-//    	                  msg.autoStartRecording, msg.allowStartStopRecording, msg.moderatorPass,
-//    	                  msg.viewerPass, msg.createTime, msg.createDate,
-//    	                  outGW)
-//    	  m.start
-//    	  meetings += m.meetingID -> m
-//    	  outGW.send(new MeetingCreated(m.meetingID, m.externalMeetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration,
-//    	                     msg.moderatorPass, msg.viewerPass, msg.createTime, msg.createDate))
+    	  var m = RunningMeeting(msg.meetingID, msg.externalMeetingID, msg.meetingName, msg.recorded, 
+    	                  msg.voiceBridge, msg.duration, 
+    	                  msg.autoStartRecording, msg.allowStartStopRecording, msg.moderatorPass,
+    	                  msg.viewerPass, msg.createTime, msg.createDate,
+    	                  outGW)
+
+    	  meetings += m.meetingID -> m
+    	  outGW.send(new MeetingCreated(m.meetingID, m.externalMeetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration,
+    	                     msg.moderatorPass, msg.viewerPass, msg.createTime, msg.createDate))
     	  
-//    	  m.actorRef ! new InitializeMeeting(m.meetingID, m.recorded)
-//    	  m.actorRef ! "StartTimer"
+    	  m.actorRef ! new InitializeMeeting(m.meetingID, m.recorded)
+    	  m.actorRef ! "StartTimer"
       }
       case Some(m) => {
         log.info("Meeting already created [" + msg.meetingName + "]")
@@ -135,48 +136,47 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
   }
 
   private def handleGetAllMeetingsRequest(msg: GetAllMeetingsRequest) {
-    // FIXME: ralam (may 11, 2015)
-    
-//    var len = meetings.keys.size
-//    println("meetings.size=" + meetings.size)
-//    println("len_=" + len)
+ 
+    var len = meetings.keys.size
+    println("meetings.size=" + meetings.size)
+    println("len_=" + len)
 
-//    val set = meetings.keySet
-//    val arr : Array[String] = new Array[String](len)
-///    set.copyToArray(arr)
-//    val resultArray : Array[MeetingInfo] = new Array[MeetingInfo](len)
+    val set = meetings.keySet
+    val arr : Array[String] = new Array[String](len)
+    set.copyToArray(arr)
+    val resultArray : Array[MeetingInfo] = new Array[MeetingInfo](len)
 
-//    for(i <- 0 until arr.length) {
-//      val id = arr(i)
-//      val duration = meetings.get(arr(i)).head.getDuration()
-//      val name = meetings.get(arr(i)).head.getMeetingName()
-//      val recorded = meetings.get(arr(i)).head.getRecordedStatus()
-//      val voiceBridge = meetings.get(arr(i)).head.getVoiceBridgeNumber()
+    for(i <- 0 until arr.length) {
+      val id = arr(i)
+      val duration = meetings.get(arr(i)).head.duration
+      val name = meetings.get(arr(i)).head.meetingName
+      val recorded = meetings.get(arr(i)).head.recorded
+      val voiceBridge = meetings.get(arr(i)).head.voiceBridge
 
-//      var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
-//      resultArray(i) = info
+      var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
+      resultArray(i) = info
 
       //remove later
-//      println("for a meeting:" + id)
-//      println("Meeting Name = " + meetings.get(id).head.getMeetingName())
-//      println("isRecorded = " + meetings.get(id).head.getRecordedStatus())
-//      println("voiceBridge = " + voiceBridge)
-//      println("duration = " + duration)
+      println("for a meeting:" + id)
+      println("Meeting Name = " + meetings.get(id).head.meetingName)
+      println("isRecorded = " + meetings.get(id).head.recorded)
+      println("voiceBridge = " + voiceBridge)
+      println("duration = " + duration)
 
       //send the users
-//      self ! (new GetUsers(id, "nodeJSapp"))
+      self ! (new GetUsers(id, "nodeJSapp"))
 
       //send the presentation
-//      self ! (new GetPresentationInfo(id, "nodeJSapp", "nodeJSapp"))
+      self ! (new GetPresentationInfo(id, "nodeJSapp", "nodeJSapp"))
 
       //send chat history
-//      self ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
+      self ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
 
       //send lock settings
-//      self ! (new GetLockSettings(id, "nodeJSapp"))
-//    }
+      self ! (new GetLockSettings(id, "nodeJSapp"))
+    }
 
-//    outGW.send(new GetAllMeetingsReply(resultArray))
+    outGW.send(new GetAllMeetingsReply(resultArray))
   }
 
 }

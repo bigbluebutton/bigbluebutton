@@ -48,22 +48,6 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   var recording = false;
   var muted = false;
   var meetingEnded = false
-
-  def getDuration():Long = {
-    duration
-  }
-
-  def getMeetingName():String = {
-    meetingName
-  }
-
-  def getRecordedStatus():Boolean = {
-    recorded
-  }
-
-  def getVoiceBridgeNumber():String = {
-    voiceBridge
-  }
   
   val TIMER_INTERVAL = 30000
   var hasLastWebUserLeft = false
