@@ -411,10 +411,27 @@ body {
 }
 
 .slideButton {
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     display: block;
-    width: 100%;
-    height: calc(~'20% - 20px');
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    background-color: white;
+    color: extract(@darkGrey, 3);
+    border-bottom: 2px solid extract(@darkGrey, 3);
+    margin-top: 0;
+    margin-bottom: 0;
+    &:hover {
+      background-color: extract(@lightGrey, 1);
+    }
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 110px;
+    font-size: 40px;
+  }
+  @media @desktop-portrait {
+    height: 50px;
+    font-size: 20px;
   }
 }
 
