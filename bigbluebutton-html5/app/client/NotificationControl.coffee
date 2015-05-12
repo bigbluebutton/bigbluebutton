@@ -61,19 +61,22 @@ class @NotificationControl
     Tracker.autorun (comp) -> # wait until user is in
       if BBB.amIInAudio() # display notification when you are in audio
         comp.stop() # prevents computation from running twice (which can happen occassionally)
-        Meteor.NotificationControl.create("webRTC_AudioJoined", '', '', -1)
+        Meteor.NotificationControl.create("webRTC_AudioJoined", 'success ', '', 2500)
         .registerShow("webRTC_AudioJoined", ->
           $("#webRTC_AudioJoined").prepend("You've joined the #{if BBB.amIListenOnlyAudio() then 'Listen Only' else ''} audio")
         ).display("webRTC_AudioJoined")
 
+@notification_WebRTCAudioExited = -> # used when the user can join audio
+  Meteor.NotificationControl.create("webRTC_AudioExited", ' ', 'You have exited audio', 2500).display("webRTC_AudioExited")
+
 @notification_WebRTCNotSupported = -> # shown when the user's browser does not support WebRTC
   # create a new notification at the audio button they clicked to trigger the event
-  Meteor.NotificationControl.create("webRTC_NotSupported", '', '', -1)
+  Meteor.NotificationControl.create("webRTC_NotSupported", 'alert', '', -1)
   .registerShow("webRTC_NotSupported", ->
     if ((browserName=getBrowserName()) in ['Safari', 'IE']) or browserName="settings" # show either the browser icon or cog gears
-      $("#webRTC_notification").prepend('<div id="browser-icon-container"></div>' +
+      $("#webRTC_NotSupported").prepend('<div id="browser-icon-container"></div>' +
         "Sorry,<br/>#{if browserName isnt 'settings' then browserName else 'your browser'} doesn't support WebRTC")
-      (new Raphael('browser-icon-container', 35, 35)).path(NotificationControl.icons["#{browserName}_IconPath"]).attr({fill: "#000", stroke: "none"})
+      (new Raphael('browser-icon-container', 35, 35)).path(NotificationControl.icons["#{browserName}_IconPath"]).attr({fill: "#FFF", stroke: "none"})
   ).display("webRTC_NotSupported")
 
 # simulates many notifications being displayed simultaneously

@@ -271,6 +271,7 @@ Handlebars.registerHelper "visibility", (section) ->
         Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), false)
       BBB.leaveVoiceConference hangupCallback
       getInSession("triedHangup", true) # we have hung up, prevent retries
+      notification_WebRTCAudioExited()
     else
       console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
       setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
