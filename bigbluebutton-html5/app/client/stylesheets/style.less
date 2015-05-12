@@ -286,6 +286,8 @@ body {
     height: 50px !important;
     width: 51.2px;
     top: 0 !important;
+    padding-left: 1% !important;
+    padding-right: 1% !important;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 100px !important;
@@ -410,10 +412,27 @@ body {
 }
 
 .slideButton {
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     display: block;
-    width: 100%;
-    height: calc(~'20% - 20px');
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    background-color: white;
+    color: extract(@darkGrey, 3);
+    border-bottom: 2px solid extract(@darkGrey, 3);
+    margin-top: 0;
+    margin-bottom: 0;
+    &:hover {
+      background-color: extract(@lightGrey, 1);
+    }
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 110px;
+    font-size: 40px;
+  }
+  @media @desktop-portrait {
+    height: 50px;
+    font-size: 20px;
   }
 }
 
@@ -616,23 +635,44 @@ body {
   height: calc(~'100% - 55px');
 }
 
-.logoutIcon {
+.signOutIcon {
   height: 28px;
-  width: 87px;
-}
-
-#background-menus {
-  position: fixed;
-  top: 0;
-  left: -250px;
-  width: calc(~'100% + 500px');
-  height: 100%;
-  background-color: #484c55;
-  z-index: -1000;
+  width: 75px;
+  margin-left: 10px;
 }
 
 .rightNavbarSection {
   float: right;
+}
+
+.toggleMenuButton {
+  float: right;
+  @media @landscape {
+    display: none;
+  }
+}
+
+.rightNavbarSection {
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    display: none;
+  }
+}
+
+.toggleUserlist {
+  width: 57px;
+  margin-right: 10px;
+}
+.settingsIcon {
+  width: 57px;
+  margin-right: 5px;
+}
+
+#menu {
+  width: 500px;
+  height: 100%;
+  position: fixed;
+  right: 0;
+  z-index: -1000;
 }
 
 #notificationArea {

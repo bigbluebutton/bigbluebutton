@@ -97,6 +97,13 @@ Template.header.events
     else
       toggleLeftHandSlidingMenu()
 
+  "click .toggleMenuButton": (event) ->
+    toggleRightHandSlidingMenu()
+
+Template.menu.events
+  'click .slideButton': (event) ->
+    toggleRightHandSlidingMenu()
+
 Template.slidingMenu.events
   'click .chatBarIcon': (event) ->
     $('.tooltip').hide()

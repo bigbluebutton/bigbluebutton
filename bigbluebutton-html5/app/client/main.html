@@ -33,21 +33,23 @@
       {{> makeButton id="settingsIcon" btn_class="settingsIcon navbarButton" i_class="ion-gear-b" rel="tooltip"
       title="BigBlueButton Settings"}}
 
-      {{> makeButton id="logout" btn_class="logoutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
+      {{> makeButton id="logout" btn_class="signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
       title="Logout"}}
     </div>
+    {{> makeButton btn_class="toggleMenuButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Toggle Menu"}}
   </nav>
 </template>
 
 <template name="main">
-  <div id="background-menus">
-    {{> usersList id="users-left" name="usersList"}}
+  <div id="dialog" title="Confirm Logout">
+    <p>Are you sure you want to log out?</p>
   </div>
   <div id="container">
     {{#if isDisconnected}}
       {{>status}}
     {{else}}
       {{> usersList id="users" name="usersList"}}
+      {{> menu id="menu"}}
       <div id="main">
         {{> header}}
         <div id="panels">
@@ -77,4 +79,12 @@
 </template>
 
 <template name='slidingMenu'>
+</template>
+
+<template name="menu">
+  <div id="{{id}}">
+    {{> makeButton btn_class="slideButton" i_class="ion-chatbubble" label="Chat"}}
+    {{> makeButton btn_class="slideButton" i_class="ion-gear-b" label="Settings"}}
+    {{> makeButton btn_class="slideButton" i_class="ion-log-out" label="Log out"}}
+  </div>
 </template>
