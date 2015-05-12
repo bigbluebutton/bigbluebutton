@@ -198,6 +198,10 @@ Template.header.events
   "click .toggleMenuButton": (event) ->
     toggleRightHandSlidingMenu()
 
+Template.menu.events
+  'click .slideButton': (event) ->
+    toggleRightHandSlidingMenu()
+
 Template.slidingMenu.events
   'click .joinAudioButton': (event) ->
     onAudioJoinHelper()
