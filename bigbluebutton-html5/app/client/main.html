@@ -13,7 +13,7 @@
       {{> makeButton id="settingsIcon" btn_class="settingsIcon navbarButton" i_class="ion-gear-b" rel="tooltip"
       title="BigBlueButton Settings"}}
 
-      {{> makeButton id="logout" btn_class="logoutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
+      {{> makeButton id="logout" btn_class="signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
       title="Logout"}}
     </div>
     {{> makeButton btn_class="toggleMenuButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Toggle Menu"}}
@@ -21,6 +21,9 @@
 </template>
 
 <template name="main">
+  <div id="dialog" title="Confirm Logout">
+    <p>Are you sure you want to log out?</p>
+  </div>
   <div id="container">
     {{#if isDisconnected}}
       {{>status}}
