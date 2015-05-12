@@ -26,8 +26,7 @@
       {{>status}}
     {{else}}
       {{> usersList id="users" name="usersList"}}
-      <div id="menu">
-      </div>
+      {{> menu id="menu"}}
       <div id="main">
         {{> header}}
         <div id="panels">
@@ -57,4 +56,9 @@
 </template>
 
 <template name='slidingMenu'>
+</template>
+
+<template name="menu">
+  <div id="{{id}}">
+  </div>
 </template>
