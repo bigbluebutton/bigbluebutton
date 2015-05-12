@@ -649,7 +649,12 @@ body {
   position: fixed;
   right:0;
   text-align: center;
-  top: 57px; // height of navbar (50px), 2 pixels for navbar margin, 5 pixels for neat whitespace
+  @media @landscape, @desktop-portrait {
+    top: 57px; // height of navbar (50px), 2 pixels for navbar margin, 5 pixels for neat whitespace
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    top: 130px; // height of navbar (130px), 20 pixels for neat whitespace
+  }
   z-index: 1; // in front of the whiteboard
 }
 
