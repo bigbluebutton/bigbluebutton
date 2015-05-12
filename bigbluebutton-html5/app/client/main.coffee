@@ -195,6 +195,9 @@ Template.header.events
     else
       toggleLeftHandSlidingMenu()
 
+  "click .toggleMenuButton": (event) ->
+    toggleRightHandSlidingMenu()
+
 Template.slidingMenu.events
   'click .joinAudioButton': (event) ->
     onAudioJoinHelper()
