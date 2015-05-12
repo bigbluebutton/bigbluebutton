@@ -17,7 +17,12 @@ case class FsVoiceUserTalking(userId: String, conference: String, talking: Boole
 case class FsRecording(conference: String, recordingFile: String, 
                             timestamp: String, recording: Boolean)
 
-class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBlueButtonInGW) extends Actor with ActorLogging {
+object FreeswitchConferenceActor {  
+  def props(system: ActorSystem, fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBlueButtonInGW): Props = 
+        Props(classOf[FreeswitchConferenceActor], system, fsproxy, bbbInGW)
+}
+
+class FreeswitchConferenceActor(val system: ActorSystem, fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBlueButtonInGW) extends Actor with ActorLogging {
  
   private var confs = new scala.collection.immutable.HashMap[String, FreeswitchConference]
   

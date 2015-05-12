@@ -53,6 +53,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   var hasLastWebUserLeft = false
   var lastWebUserLeftOn:Long = 0
 
+  // FIXME
 //  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
 //    def act {
 //        reactWithin(timeout) {
