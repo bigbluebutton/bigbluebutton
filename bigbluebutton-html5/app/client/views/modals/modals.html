@@ -48,10 +48,16 @@
 </template>
 
 <template name="settingsCloseButton">
-  <a href="#" id="closeSettings" class="close-reveal-modal" style="font-size: 12px; position: inherit;"><u>Cancel</u></a>
-  <button type="submit" id="saveSettings" style="margin-bottom: 0px; background-color: #007095; border-radius: 15px; padding: 5px 10px 5px 10px" class="btn settingsButton" rel="tooltip" title="Save Changes">
-    Save
-  </button>
+  {{#if equals link "x"}}
+    <a href="#" class="closeSettings close-reveal-modal" style="font-size: 30px; position: inherit;">&#215;</a>
+  {{else}}
+    <a href="#" class="closeSettings close-reveal-modal" style="font-size: 12px; position: inherit;"><u>Cancel</u></a>
+  {{/if}}
+</template>
+
+<template name="settingsSaveButton">
+  {{> makeButton id="saveSettings" btn_class="settingsButton"  rel="tooltip"
+  title="Save Changes" style="margin-bottom: 0px; background-color: #007095; border-radius: 15px; padding: 5px 10px 5px 10px" text="Save"}}
 </template>
 
 <template name="settingsModal">
@@ -62,9 +68,7 @@
           <span class="modalTitle">BigBlueButton Settings</span>
         </i>
       </p>
-      <p style="text-align:right">
-        <a href="#" class="close-reveal-modal" style="font-size: 30px; position: inherit;">&#215;</a>
-      </p>
+      <p style="text-align:right">{{>settingsCloseButton link="x"}}</p>
     </div>
 
     <div style="padding: 10px; text-align: center;">
@@ -75,7 +79,8 @@
     </div>
 
     <div class="bar" style="border-top:1px solid grey; text-align: right;">
-      {{>settingsCloseButton}}
+      {{>settingsCloseButton link="link"}}
+      {{>settingsSaveButton}}
     </div>
 </div>
 </template>
