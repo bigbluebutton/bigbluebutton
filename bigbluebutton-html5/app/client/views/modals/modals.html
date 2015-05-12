@@ -21,21 +21,6 @@
         <!-- display join listen only -->
         {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume" rel="tooltip"
         data_placement="bottom" title="Join Listen only"}}
-
-        <!-- to be inserted back into the navbar -->
-        <!-- different icons for speaking -->
-        {{#if isCurrentUserMuted}}
-          <!-- if you are muted the button representing your status will show volume off -->
-          {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-off" sharingAudio=true rel="tooltip" data_placement="bottom" title="Unmute"}}
-        {{else}}
-          {{#if isCurrentUserTalking}}
-            <!-- you are talking. Display a high volume/volume up representing voice activity -->
-            {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-up" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
-          {{else}}
-            <!-- you are not talking. Display low volume/volume down representing no voice activity -->
-            {{> makeButton btn_class="muteIcon" i_class="glyphicon glyphicon-volume-down" sharingAudio=true rel="tooltip" data_placement="bottom" title="Mute"}}
-          {{/if}}
-        {{/if}}
       {{/if}}
     {{else}}
       <!-- display both with join -->
