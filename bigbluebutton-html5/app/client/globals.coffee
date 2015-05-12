@@ -159,11 +159,6 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
-@introToAudio = (event, {isListenOnly} = {}) ->
-  isListenOnly ?= true
-  notification_WebRTCAudioJoined()
-  joinVoiceCall event, isListenOnly: isListenOnly
-
 # check the chat history of the user and add tabs for the private chats
 @populateChatTabs = (msg) ->
   myUserId = getInSession "userId"
@@ -280,13 +275,17 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # close the daudio UI, then join the conference. If listen only send the request to the server
 @joinVoiceCall = (event, {isListenOnly} = {}) ->
-  $('#joinAudioDialog').dialog('close')
+  if !isWebRTCAvailable()
+    notification_WebRTCNotSupported()
+    return
+
   isListenOnly ?= true
 
   # create voice call params
   joinCallback = (message) ->
     console.log "Beginning WebRTC Conference Call"
 
+  notification_WebRTCAudioJoining()
   if isListenOnly
     Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
   BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?

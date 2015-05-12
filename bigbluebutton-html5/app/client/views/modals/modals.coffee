@@ -4,9 +4,9 @@ Template.bbbSettingsInfo.helpers
     result = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.html5ClientBuild}] - For more information visit #{info.link}"
 
 Template.settingsAudio.events
-  "click #joinMicrophone": (event) -> introToAudio @, isListenOnly: false
+  "click #joinMicrophone": (event) -> joinVoiceCall @, isListenOnly: false
 
-  "click #joinListenOnly": (event) -> introToAudio @, isListenOnly: true
+  "click #joinListenOnly": (event) -> joinVoiceCall @, isListenOnly: true
 
   "click #exitAudio": -> exitVoiceCall()
 

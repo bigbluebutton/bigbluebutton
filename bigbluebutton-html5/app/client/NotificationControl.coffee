@@ -38,13 +38,19 @@ class @NotificationControl
     $('#'+container).append(notifications[elementId].element) # display the notification
     notifications[elementId].showNotification?()
 
-    setTimeout () ->
+    setTimeout () =>
       # remove the notification if the user selected to
-      ($('#'+elementId).fadeOut notifications[elementId].fadeTime, -> $('#'+elementId).remove()) if notifications[elementId].duration > 0
+      @hideANotification(elementId) if notifications[elementId].duration > 0
       notifications[elementId].hideNotification?()
       notifications[elementId] = {} # delete all notification data
     , notifications[elementId].duration
     @
+
+  # hides a notification that may have been left over
+  hideANotification: (elementId) ->
+    ($('#'+elementId).fadeOut notifications[elementId].fadeTime, -> $('#'+elementId).remove())
+    notifications[elementId].hideNotification?()
+    notifications[elementId] = {}
 
   # static icon members
   @icons = {
@@ -56,18 +62,24 @@ class @NotificationControl
     'IE_IconPath': 'M27.998,2.266c-2.12-1.91-6.925,0.382-9.575,1.93c-0.76-0.12-1.557-0.185-2.388-0.185c-3.349,0-6.052,0.985-8.106,2.843c-2.336,2.139-3.631,4.94-3.631,8.177c0,0.028,0.001,0.056,0.001,0.084c3.287-5.15,8.342-7.79,9.682-8.487c0.212-0.099,0.338,0.155,0.141,0.253c-0.015,0.042-0.015,0,0,0c-2.254,1.35-6.434,5.259-9.146,10.886l-0.003-0.007c-1.717,3.547-3.167,8.529-0.267,10.358c2.197,1.382,6.13-0.248,9.295-2.318c0.764,0.108,1.567,0.165,2.415,0.165c5.84,0,9.937-3.223,11.399-7.924l-8.022-0.014c-0.337,1.661-1.464,2.548-3.223,2.548c-2.21,0-3.729-1.211-3.828-4.012l15.228-0.014c0.028-0.578-0.042-0.985-0.042-1.436c0-5.251-3.143-9.355-8.255-10.663c2.081-1.294,5.974-3.209,7.848-1.681c1.407,1.14,0.633,3.533,0.295,4.518c-0.056,0.254,0.24,0.296,0.296,0.057C28.814,5.573,29.026,3.194,27.998,2.266zM13.272,25.676c-2.469,1.475-5.873,2.539-7.539,1.289c-1.243-0.935-0.696-3.468,0.398-5.938c0.664,0.992,1.495,1.886,2.473,2.63C9.926,24.651,11.479,25.324,13.272,25.676zM12.714,13.046c0.042-2.435,1.787-3.49,3.617-3.49c1.928,0,3.49,1.112,3.49,3.49H12.714z'
   }
 
-@notification_WebRTCAudioJoined = -> # used when the user can join audio
+@notification_WebRTCAudioExited = -> # used when the user can join audio
+  Meteor.NotificationControl.create("webRTC_AudioExited", ' ', 'You have exited audio', 2500).display("webRTC_AudioExited")
+
+@notification_WebRTCAudioJoining = -> # used when the user can join audio
+  # display joining notification
+  Meteor.NotificationControl.create("webRTC_AudioJoining", '', 'Connecting to the audio call...', -1)
+  .registerShow("webRTC_AudioJoining", ->
+  ).display("webRTC_AudioJoining")
+  # joined. Displayed joined notification and hide the joining notification
   if !BBB.amIInAudio()
     Tracker.autorun (comp) -> # wait until user is in
       if BBB.amIInAudio() # display notification when you are in audio
         comp.stop() # prevents computation from running twice (which can happen occassionally)
         Meteor.NotificationControl.create("webRTC_AudioJoined", 'success ', '', 2500)
         .registerShow("webRTC_AudioJoined", ->
+          Meteor.NotificationControl.hideANotification('webRTC_AudioJoining')
           $("#webRTC_AudioJoined").prepend("You've joined the #{if BBB.amIListenOnlyAudio() then 'Listen Only' else ''} audio")
         ).display("webRTC_AudioJoined")
-
-@notification_WebRTCAudioExited = -> # used when the user can join audio
-  Meteor.NotificationControl.create("webRTC_AudioExited", ' ', 'You have exited audio', 2500).display("webRTC_AudioExited")
 
 @notification_WebRTCNotSupported = -> # shown when the user's browser does not support WebRTC
   # create a new notification at the audio button they clicked to trigger the event
@@ -78,18 +90,3 @@ class @NotificationControl
         "Sorry,<br/>#{if browserName isnt 'settings' then browserName else 'your browser'} doesn't support WebRTC")
       (new Raphael('browser-icon-container', 35, 35)).path(NotificationControl.icons["#{browserName}_IconPath"]).attr({fill: "#FFF", stroke: "none"})
   ).display("webRTC_NotSupported")
-
-# simulates many notifications being displayed simultaneously
-@testNotifications = ->
-  Meteor.NotificationControl.create("alert1", '', "static (1)", -1).display("alert1")
-  Meteor.NotificationControl.create("alert2", '', "timed (2)", 1500).registerShow("alert2", (->)).registerHide("alert2", ->).display("alert2")
-  Meteor.NotificationControl.create("alert3", '', "static (3)", -1).registerShow("alert3", (->)).registerHide("alert3", -> console.log "inside hide").display("alert3")
-  Meteor.NotificationControl.create("alert4", '', "timed (4)", 1500).display("alert4")
-  Meteor.NotificationControl.create("alert5", '', "static (5)", -1).display("alert5")
-  Meteor.NotificationControl.create("alert6", '', "static (6)").registerShow("alert6", (->)).registerHide("alert6", ->).display("alert6")
-  Meteor.NotificationControl.create("alert7", '', "static (7)").registerShow("alert7", (->)).registerHide("alert7", -> console.log "inside hide").display("alert7")
-  Meteor.NotificationControl.create("alert8", '', "timed (8)", 1500).display("alert8")
-  Meteor.NotificationControl.create("alert9", '', "static (9)", -1).display("alert9")
-  Meteor.NotificationControl.create("alert10", '', "timed (10)", 1500).registerShow("alert10", (->)).registerHide("alert10", ->).display("alert10")
-  Meteor.NotificationControl.create("alert11", '', "static (11)", -1).registerShow("alert11", (->)).registerHide("alert11", -> console.log "inside hide").display("alert11")
-  Meteor.NotificationControl.create("alert12", '', "static (12)").display("alert12")
