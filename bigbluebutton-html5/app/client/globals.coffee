@@ -344,11 +344,6 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # assign the default values for the Session vars
 @setDefaultSettings = ->
-  # console.log "in setDefaultSettings"
-  if isLandscapeMobile()
-    setInSession "display_usersList", false
-  else
-    setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
@@ -361,6 +356,10 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
   setInSession 'webrtc_notification_is_displayed', false
+  if isLandscape()
+    setInSession 'display_usersList', true
+  else
+    setInSession 'display_usersList', false
 
 @onLoadComplete = ->
   document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
