@@ -41,15 +41,7 @@
 </template>
 
 <template name="main">
-  {{#if getInSession "display_usersList"}}
-    {{> container id="container" class="moved-to-right"}}
-  {{else}}
-    {{> container id="container"}}
-  {{/if}}
-</template>
-
-<template name="container">
-  <div id="{{id}}" class="{{class}}">
+  <div id="container" class="{{containerPosition}}">
     {{#if isDisconnected}}
       {{>status}}
     {{else}}
@@ -68,7 +60,7 @@
 </template>
 
 <template name="modals">
-  <div id="settingsModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog" data-options="close_on_background_click:false">
+  <div id="settingsModal" class="reveal-modal small" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog" data-options="close_on_background_click:false">
     {{> settingsModal}}
   </div>
   <div id="logoutModal" class="reveal-modal tiny" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog" data-options="close_on_background_click:false">
@@ -78,9 +70,6 @@
 </template>
 
 <template name="recordingStatus">
-</template>
-
-<template name='slidingMenu'>
 </template>
 
 <template name="menu">

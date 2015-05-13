@@ -1,12 +1,5 @@
 @import "variables";
 
-.active {
-  border: .2vh solid !important;
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    border-left: .1vh solid !important;
-  }
-}
-
 #chat {
   @media @landscape {
     -webkit-flex: 3 3 30%;
@@ -50,66 +43,15 @@
   }
 }
 
-.chatNameSelector {
-  clear:right;
-  float:left;
-  margin-bottom: 0px !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chatNameSelectorPrivate {
-  .chatNameSelector;
-  width:90%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  @media @landscape {
-    height: 20px;
-  }
-  @media @desktop-portrait {
-    height: 25px;
-  }
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 4vw;
-  }
-}
-
-.chatNameSelectorPublic {
-  .chatNameSelector;
-  margin-bottom: 1px !important;
-  width:100%;
-}
-
 .chat-input-wrapper {
   padding-top:10px;
   padding-left:10px;
   padding-right:10px;
 }
 
-#chat-user-list {
-  padding: 5px;
-}
-
-
 .disabledChat {
   background-color: grey;
   width: 100% !important;
-}
-
-.dropdown {
-  float: left;
-  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
-    .dropdownMessage {
-      font-size: 3vw; //might be obsolete
-      font-style: italic; //might be obsolete
-    }
-  }
-  .dropdown-menu {
-    height: 80px;
-    overflow-y: scroll;
-    right: 0px;
-  }
 }
 
 #fontSizeTable {
@@ -134,17 +76,6 @@
 
 .gotUnreadMail {
   background: extract(@yellow, 2) !important;
-}
-
-#MoreChatsDrop {
-  float: right;
-}
-
-#MoreChatsbutton {
-  margin-right: 10px;
-  margin-top: 5px;
-  padding-bottom: 0px;
-  padding-top: 0px;
 }
 
 #newMessageInput {
@@ -179,38 +110,12 @@
   }
 }
 
-.optionsBar {
-  height: 85%;
-  overflow-y: auto;
-  padding-left: 15px;
-  padding-top: 15px;
-  p {
-    @media @mobile-portrait, @mobile-portrait-with-keyboard {
-      font-size: 6vw;
-      font-style: italic;
-    }
-  }
-}
-
 .panel-footer {
   bottom: 0px;
   position: relative;
   background: extract(@white, 1);
   padding: 0;
   border-top: 1px solid extract(@lightGrey, 3);
-}
-
-.private-chat-user-box {
-  border-left: 1px solid grey;
-  min-width: 50%;
-  height: 40px;
-  padding: 5px;
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    width: 60%;
-    height: 100px;
-    font-size: 40px;
-    padding-left: 25px;
-  }
 }
 
 #sendMessageButton {
@@ -245,45 +150,6 @@
   @media @landscape {
     height: 50px;
     padding: 0px;
-  }
-}
-
-#tabsList {
-  display: table;
-  margin: 0;
-  padding: 0;
-  table-layout: fixed;
-  text-align: center;
-  width: 100%;
-  a {
-    padding:0px;
-    @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      font-size: 35px;
-    }
-    @media @desktop-portrait {
-      font-size: 20px;
-    }
-    @media @landscape {
-      font-size: 12px;
-    }
-  }
-  li:first-child a {
-    border-left: 0;
-  }
-  &:before, &:after {
-    content: none;
-  }
-}
-
-.tab {
-  font-size: 14px;
-  height:auto;
-  width: 25% !important;
-
-  &:hover {
-    background-color: #ddd;
-    border: 1px solid;
-    border-bottom: none;
   }
 }
 

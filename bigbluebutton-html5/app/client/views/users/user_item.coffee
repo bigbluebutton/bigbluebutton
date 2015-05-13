@@ -25,4 +25,3 @@ Template.displayUserIcons.helpers
 Template.usernameEntry.events
   'click #usernameEntry': (event) ->
     userIdSelected = @.userId
-
