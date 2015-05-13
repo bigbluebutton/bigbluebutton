@@ -42,40 +42,29 @@
 
 <template name="main">
   {{#if getInSession "display_usersList"}}
-    <div id="container" class="moved-to-right">
-      {{#if isDisconnected}}
-        {{>status}}
-      {{else}}
-        {{> usersList id="users" name="usersList" class="open"}}
-        {{> menu id="menu"}}
-        <div id="main">
-          {{> header}}
-          <div id="panels">
-            {{> whiteboard id="whiteboard" name="whiteboard"}}
-            {{> chatbar id="chat" title="Chat" name="chatbar"}}
-          </div>
-          {{> modals}}
-        </div>
-      {{/if}}
-    </div>
+    {{> container id="container" class="moved-to-right"}}
   {{else}}
-    <div id="container">
-      {{#if isDisconnected}}
-        {{>status}}
-      {{else}}
-        {{> usersList id="users" name="usersList" class="closed"}}
-        {{> menu id="menu"}}
-        <div id="main">
-          {{> header}}
-          <div id="panels">
-            {{> whiteboard id="whiteboard" name="whiteboard"}}
-            {{> chatbar id="chat" title="Chat" name="chatbar"}}
-          </div>
-          {{> modals}}
-        </div>
-      {{/if}}
-    </div>
+    {{> container id="container"}}
   {{/if}}
+</template>
+
+<template name="container">
+  <div id="{{id}}" class="{{class}}">
+    {{#if isDisconnected}}
+      {{>status}}
+    {{else}}
+      {{> usersList id="users" name="usersList" class="open"}}
+      {{> menu id="menu"}}
+      <div id="main">
+        {{> header}}
+        <div id="panels">
+          {{> whiteboard id="whiteboard" name="whiteboard"}}
+          {{> chatbar id="chat" title="Chat" name="chatbar"}}
+        </div>
+        {{> modals}}
+      </div>
+    {{/if}}
+  </div>
 </template>
 
 <template name="modals">
