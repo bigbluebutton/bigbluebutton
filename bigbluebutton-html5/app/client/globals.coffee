@@ -152,6 +152,12 @@ Handlebars.registerHelper "visibility", (section) ->
   else
     style: 'display:none;'
 
+Handlebars.registerHelper 'containerPosition', (section) ->
+  if getInSession 'display_usersList'
+    return 'moved-to-right'
+  else
+    return ''
+
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
   www = /(^|[^\/])(www\.[\S]+($|\b))/img
@@ -183,21 +189,8 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # toggle state of session variable
 @toggleUsersList = ->
-  if getInSession("display_usersList") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
-  else
-    setInSession "display_usersList", !getInSession "display_usersList"
+  setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
-
-@toggleLeftHandSlidingMenu = ->
-  if $('#container').css('position') is 'fixed'
-    $('#container').css('position', '')
-    $('#container').css('left', '')
-  else
-    $('#container').css('left', '500px')
-    $('#container').css('position', 'fixed')
 
 @toggleRightHandSlidingMenu = ->
   if $('#container').css('position') is 'fixed'
@@ -305,11 +298,6 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # assign the default values for the Session vars
 @setDefaultSettings = ->
-  # console.log "in setDefaultSettings"
-  if isLandscapeMobile()
-    setInSession "display_usersList", false
-  else
-    setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
@@ -321,6 +309,11 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
+
+  if isLandscape()
+    setInSession 'display_usersList', true
+  else
+    setInSession 'display_usersList', false
 
 @onLoadComplete = ->
   document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
