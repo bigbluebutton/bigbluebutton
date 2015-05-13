@@ -22,7 +22,6 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
   implicit def executionContext = actorRefFactory.dispatcher
   implicit val timeout = Timeout(5 seconds)
     
-  //private var meetings = new HashMap[String, MeetingActor]
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
   
   def receive = {

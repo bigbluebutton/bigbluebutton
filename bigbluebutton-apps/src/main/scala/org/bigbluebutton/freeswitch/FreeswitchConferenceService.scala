@@ -14,9 +14,7 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
   fsListener.setVoiceConferenceService(this)
   
   implicit val system = ActorSystem("bigbluebutton-apps-fsesl")
- 
-
-                            
+                             
   var bbbInGW: IBigBlueButtonInGW = _
   var fsActor: ActorRef = _
   
