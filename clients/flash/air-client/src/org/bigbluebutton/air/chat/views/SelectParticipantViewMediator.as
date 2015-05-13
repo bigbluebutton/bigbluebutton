@@ -10,7 +10,7 @@ package org.bigbluebutton.air.chat.views {
 	import org.bigbluebutton.air.common.utils.TransitionAnimationENUM;
 	import org.bigbluebutton.air.users.views.ISelectParticipantView;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.osflash.signals.ISignal;
 	

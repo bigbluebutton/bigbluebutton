@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.main.views {
 	
 	import org.bigbluebutton.air.main.commands.NavigateToSignal;
-	import org.bigbluebutton.lib.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

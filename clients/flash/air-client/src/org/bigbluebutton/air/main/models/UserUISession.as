@@ -1,4 +1,4 @@
-package org.bigbluebutton.lib.main.models {
+package org.bigbluebutton.air.main.models {
 	
 	import mx.collections.ArrayList;
 	
@@ -93,7 +93,7 @@ package org.bigbluebutton.lib.main.models {
 		/**
 		 * Should be set true when the application is loading data
 		 */
-		private var _loading:Boolean = false;
+		private var _loading:Boolean = true;
 		
 		public function get loading():Boolean {
 			return _loading;

@@ -1,4 +1,4 @@
-package org.bigbluebutton.lib.main.models {
+package org.bigbluebutton.air.main.models {
 	
 	import org.osflash.signals.ISignal;
 	

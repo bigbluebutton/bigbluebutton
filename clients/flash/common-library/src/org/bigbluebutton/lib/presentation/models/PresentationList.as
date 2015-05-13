@@ -3,14 +3,10 @@ package org.bigbluebutton.lib.presentation.models {
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
-	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
 	public class PresentationList {
-		
-		[Inject]
-		public var userSession:IUserSession;
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;

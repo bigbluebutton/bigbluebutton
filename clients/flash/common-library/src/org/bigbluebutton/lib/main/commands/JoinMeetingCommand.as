@@ -3,7 +3,6 @@ package org.bigbluebutton.lib.main.commands {
 	import org.bigbluebutton.lib.main.models.Config;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.services.ILoginService;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -13,9 +12,6 @@ package org.bigbluebutton.lib.main.commands {
 		
 		[Inject]
 		public var loginService:ILoginService;
-		
-		[Inject]
-		public var userUISession:IUserUISession;
 		
 		[Inject]
 		public var userSession:IUserSession;
@@ -29,11 +25,13 @@ package org.bigbluebutton.lib.main.commands {
 		[Inject]
 		public var connectSignal:ConnectSignal;
 		
+		[Inject]
+		public var connectingFailedSignal:ConnectingFailedSignal;
+		
 		override public function execute():void {
 			loginService.joinSuccessSignal.add(successJoined);
 			loginService.getConfigSuccessSignal.add(successConfig);
 			loginService.joinFailureSignal.add(unsuccessJoined);
-			userUISession.loading = true;
 			loginService.load(url);
 		}
 		
@@ -49,8 +47,7 @@ package org.bigbluebutton.lib.main.commands {
 		
 		protected function unsuccessJoined(reason:String):void {
 			trace(LOG + "unsuccessJoined()");
-			userUISession.loading = false;
-			userUISession.joinFailureSignal.dispatch(reason);
+			connectingFailedSignal.dispatch(reason);
 		}
 	}
 }

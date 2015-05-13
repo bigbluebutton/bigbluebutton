@@ -4,7 +4,6 @@ package org.bigbluebutton.lib.main.commands {
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
 	import org.bigbluebutton.lib.user.services.IUsersService;
@@ -18,9 +17,6 @@ package org.bigbluebutton.lib.main.commands {
 		
 		[Inject]
 		public var userSession:IUserSession;
-		
-		[Inject]
-		public var userUISession:IUserUISession;
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
@@ -48,6 +44,12 @@ package org.bigbluebutton.lib.main.commands {
 		
 		[Inject]
 		public var presentationService:IPresentationService;
+		
+		[Inject]
+		public var connectingFinishedSignal:ConnectingFinishedSignal;
+		
+		[Inject]
+		public var connectingFailedSignal:ConnectingFailedSignal;
 		
 		override public function execute():void {
 			connection.uri = uri;
@@ -106,14 +108,13 @@ package org.bigbluebutton.lib.main.commands {
 		}
 		
 		protected function successUsersAdded():void {
-			userUISession.loading = false;
 			userSession.userList.allUsersAddedSignal.remove(successUsersAdded);
+			connectingFinishedSignal.dispatch();
 		}
 		
 		private function unsuccessConnected(reason:String):void {
 			trace(LOG + "unsuccessConnected()");
-			userUISession.loading = false;
-			userUISession.joinFailureSignal.dispatch("connectionFailed");
+			connectingFailedSignal.dispatch("connectionFailed");
 			connection.connectionSuccessSignal.remove(successConnected);
 			connection.connectionFailureSignal.remove(unsuccessConnected);
 		}

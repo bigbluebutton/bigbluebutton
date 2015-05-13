@@ -1,7 +1,6 @@
 package org.bigbluebutton.lib.main.commands {
 	
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.IUserUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
@@ -12,9 +11,6 @@ package org.bigbluebutton.lib.main.commands {
 		
 		[Inject]
 		public var userSession:IUserSession;
-		
-		[Inject]
-		public var userUISession:IUserUISession;
 		
 		public function DisconnectUserCommand() {
 			super();

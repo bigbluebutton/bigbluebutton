@@ -8,7 +8,7 @@ package org.bigbluebutton.air.main.views {
 	
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.services.ILoginService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
@@ -23,16 +23,12 @@ package org.bigbluebutton.air.main.views {
 		public var joinMeetingSignal:JoinMeetingSignal;
 		
 		[Inject]
-		public var loginService:ILoginService;
-		
-		[Inject]
 		public var userSession:IUserSession;
 		
 		[Inject]
 		public var userUISession:IUserUISession;
 		
 		override public function initialize():void {
-			//loginService.joinFailureSignal.add(onJoinFailure);
 			userUISession.joinFailureSignal.add(onJoinFailure);
 			NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE, onInvokeEvent);
 		}
@@ -96,7 +92,6 @@ package org.bigbluebutton.air.main.views {
 		
 		override public function destroy():void {
 			super.destroy();
-			//loginService.joinFailureSignal.remove(onJoinFailure);
 			userUISession.joinFailureSignal.remove(onJoinFailure);
 			NativeApplication.nativeApplication.removeEventListener(InvokeEvent.INVOKE, onInvokeEvent);
 			view.dispose();

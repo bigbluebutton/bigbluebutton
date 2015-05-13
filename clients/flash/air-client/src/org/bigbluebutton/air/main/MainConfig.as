@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.main {
 	
+	import org.bigbluebutton.air.main.commands.ConnectingFailedCommandAIR;
 	import org.bigbluebutton.air.main.commands.NavigateToCommand;
 	import org.bigbluebutton.air.main.commands.NavigateToSignal;
 	import org.bigbluebutton.air.main.views.DisconnectPageViewMediator;
@@ -18,6 +19,7 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.PagesNavigatorViewMediator;
 	import org.bigbluebutton.air.main.views.ProfileViewMediator;
 	import org.bigbluebutton.air.main.views.RecordingStatusMediator;
+	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingCommand;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.lib.main.commands.RaiseHandCommand;
@@ -72,6 +74,7 @@ package org.bigbluebutton.air.main {
 		 */
 		private function signals():void {
 			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommand);
+			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommandAIR);
 			signalCommandMap.map(RaiseHandSignal).toCommand(RaiseHandCommand);
 			signalCommandMap.map(NavigateToSignal).toCommand(NavigateToCommand);
 		}

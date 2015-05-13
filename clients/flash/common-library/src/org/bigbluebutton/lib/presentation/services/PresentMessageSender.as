@@ -3,7 +3,7 @@ package org.bigbluebutton.lib.presentation.services {
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	public class PresentMessageSender {
-		public var userSession:org.bigbluebutton.lib.main.models.IUserSession;
+		public var userSession:IUserSession;
 		
 		// The default callbacks of userSession.mainconnection.sendMessage
 		private var defaultSuccessResponse:Function = function(result:String):void {trace(result);};

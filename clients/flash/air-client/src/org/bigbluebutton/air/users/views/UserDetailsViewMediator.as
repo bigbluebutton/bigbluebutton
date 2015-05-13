@@ -7,7 +7,7 @@ package org.bigbluebutton.air.users.views {
 	import org.bigbluebutton.air.common.utils.PagesENUM;
 	import org.bigbluebutton.air.common.utils.TransitionAnimationENUM;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.user.models.User;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;

@@ -7,7 +7,7 @@ package org.bigbluebutton.air.main.views {
 	
 	import mx.core.FlexGlobals;
 	
-	import org.bigbluebutton.lib.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.bigbluebutton.lib.main.utils.DisconnectType;
 	

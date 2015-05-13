@@ -2,7 +2,7 @@ package org.bigbluebutton.air.main.views {
 	
 	import mx.core.FlexGlobals;
 	
-	import org.bigbluebutton.lib.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -20,6 +20,7 @@ package org.bigbluebutton.air.main.views {
 		override public function initialize():void {
 			view.setVisible(false);
 			view.includeInLayout = false;
+			update(userUISettings.loading);
 			userUISettings.loadingSignal.add(update);
 		}
 		

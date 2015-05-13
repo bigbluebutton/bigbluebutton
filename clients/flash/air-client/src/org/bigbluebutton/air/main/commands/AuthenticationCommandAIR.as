@@ -1,9 +1,9 @@
-package org.bigbluebutton.lib.main.commands {
+package org.bigbluebutton.air.main.commands {
 	
-	import org.bigbluebutton.lib.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	import robotlegs.bender.bundles.mvcs.Command;
 	
-	public class AuthenticationCommand extends Command {
+	public class AuthenticationCommandAIR extends Command {
 		
 		[Inject]
 		public var command:String;
@@ -11,7 +11,7 @@ package org.bigbluebutton.lib.main.commands {
 		[Inject]
 		public var userUISession:IUserUISession;
 		
-		public function AuthenticationCommand() {
+		public function AuthenticationCommandAIR() {
 			super();
 		}
 		
