@@ -41,7 +41,7 @@
   @media @landscape {
     height: calc(~'100% - 70px');
   }
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-left: 0px;
   padding-right: 0px;
   @media @desktop-portrait, @mobile-portrait {
@@ -81,21 +81,6 @@
   width:100%;
 }
 
-.close:hover {
-  background-color: red;
-}
-
-.closeTab {
-  float:left;
-  width:10%;
-  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 4vw;
-  }
-  @media @landscape {
-    font-size: 1vw;
-  }
-}
-
 .chat-input-wrapper {
   padding-top:10px;
   padding-left:10px;
@@ -128,20 +113,22 @@
 }
 
 #fontSizeTable {
-  /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
+  border: 1px solid white;
   height: 80px;
-  width: 379px;
+  margin-bottom: 0px;
   overflow: hidden;
+  /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
+  width: 379px;
   .displayButtons {
+    height: 35px;
+    margin: 0px;
+    padding:0px;
     text-align:center;
     width:84px;
-    margin: 0px;
-    height: 35px;
-    padding:0px;
   }
   #displayLabel {
-    width: 169px;
     text-align: center;
+    width: 169px;
   }
 }
 
@@ -169,6 +156,8 @@
   border-top-left-radius: 10px;
   border-bottom-right-radius: 0px;
   border-top-right-radius: 0px;
+  padding-top: 5px;
+  padding-bottom: 0px;
 
   border:1px solid extract(@lightGrey, 3);
   margin: 0px;

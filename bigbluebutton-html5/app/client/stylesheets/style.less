@@ -24,6 +24,7 @@ body {
 
 .btn {
   // background-color: extract(@white, 2);
+  padding: 0px;
 }
 
 .component {
@@ -450,8 +451,26 @@ body {
 }
 
 /* Notifications */
+#browser-icon-container {
+  float: left;
+  max-height: 35px !important;
+  max-width: 35px !important;
+  path {
+    margin: auto;
+  }
+}
+
+#notification {
+  height: 100% !important;
+  margin: 0;
+  min-height: 0px !important;
+  overflow: hidden;
+  padding: 0;
+  width: 100% !important;
+}
 
 .notification {
+  background: grey;
   /* sets the opacity of the background */
   filter:alpha(opacity=85);
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=85)";
@@ -459,49 +478,26 @@ body {
   -khtml-opacity: 0.85;
   opacity: 0.85;
 
-  background: grey;
-  &.webrtc-support-notification {
-    width: 500px !important;
-    height: 50px !important;
-  }
   &.joined-audio-notification {
-    width: 500px !important;
     #browser-icon-container {
       display: none;
     }
     #notification-text {
       height: 100% !important;
     }
+    width: 500px !important;
   }
-  min-height: 0px !important;
-  font-weight: 900;
   &.ui-widget-content p {
     color: black;
     font-size: 14px;
-    margin: 0;
     padding: 1px;
   }
-}
-
-#notification {
-  min-height: 0px !important;
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0;
-  padding: 0;
-}
-
-#browser-icon-container {
-  width: 35px !important;
-  height: 35px !important;
-  float: left;
-  path {
-    margin: auto;
+  &.webrtc-support-notification {
+    height: 50px !important;
+    width: 500px !important;
   }
-}
-
-#notification-text {
-  float: left;
+  font-weight: 900;
+  min-height: 0px !important;
 }
 
 .invisible {
@@ -530,51 +526,6 @@ body {
       }
     }
     height: 32% !important;
-  }
-}
-
-/* Logout menu's properties on desktop */
-.desktop-logout-dialog {
-  @media @desktop-portrait, @landscape {
-    .ui-dialog-content {
-      height: 36px !important; /* overriding "height: auto;" */
-    }
-  }
-}
-
-.no-close .ui-dialog-titlebar-close {
-  display: none; /* no close button */
-}
-
-.logout-dialog.ui-dialog {
-  .ui-widget-header {
-    color: extract(@white, 1);
-    font-weight: bold;
-    background: extract(@darkGrey, 3);
-    @media @desktop-portrait, @landscape {
-      font-size: 12px;
-    }
-  }
-  .ui-dialog-content {
-    font-weight: bold;
-    text-align: center;
-    @media @desktop-portrait, @landscape {
-      min-height: 0px !important; /* overriding "min-height: 47px;"*/
-    }
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    width: 100% !important;
-  }
-}
-
-.logout-dialog.ui-widget-content {
-  background: extract(@white, 3);
-  border: 5px solid extract(@darkGrey, 3);
-  @media @desktop-portrait, @landscape {
-    font-size: 11px;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    font-size: 280%;
   }
 }
 
@@ -614,7 +565,7 @@ body {
     -moz-flex: 4 4 80%;
     -ms-flex: 4 4 80%;
     flex: 4 4 80%;
-    height: 99%;
+    height: 100%;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
   height: 100%;
@@ -636,7 +587,7 @@ body {
     flex-flow: column;
   }
   width: 100%;
-  height: calc(~'100% - 55px');
+  height: calc(~'100% - 50px'); // 50px for narbar height
 }
 
 .signOutIcon {
@@ -677,4 +628,71 @@ body {
   position: fixed;
   right: 0;
   z-index: -1000;
+}
+
+#notificationArea {
+  bottom:0;
+  left:0;
+  margin: auto;
+  @media @landscape {
+    width: 50%;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    width: 90%;
+  }
+  @media @landscape, @desktop-portrait {
+    top: 57px; // height of navbar (50px), 2 pixels for navbar margin, 5 pixels for neat whitespace
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    top: 130px; // height of navbar (130px), 20 pixels for neat whitespace
+  }
+  overflow-y: hidden;
+  position: fixed;
+  right:0;
+  text-align: center;
+  z-index: 1; // in front of the whiteboard
+}
+
+.bbbNotification {
+  margin-bottom: 5px;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    font-size: 50px;
+  }
+  .close {
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      font-size: 100px;
+      top: 20%;
+    }
+  }
+}
+
+#logoutModal {
+  margin-top: 0px;
+  margin-right: 0px;
+  top: 5% !important;
+  right: 5%;
+  position: fixed;
+  text-align: center;
+  width: 20%;
+
+  .logoutButton {
+    width: 50px;
+    height: 30px;
+    background-color: rgb(229, 229, 229);
+    color: rgb(121, 121, 121);
+    font-weight: bold;
+    border-radius: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  #yes {
+    border: 2px solid rgb(71, 164, 255);
+  }
+  #no {
+
+  }
+}
+
+.top-bar {
+  line-height: 0;
 }
