@@ -4,6 +4,8 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
+import akka.util.Timeout
+import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.poll.Poll
 import org.bigbluebutton.core.apps.poll.PollApp
 import org.bigbluebutton.core.apps.users.UsersApp
@@ -14,6 +16,8 @@ import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
+import akka.actor.ActorContext
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case object StopMeetingActor
 
@@ -23,7 +27,7 @@ object MeetingActor {
                    autoStartRecording: Boolean, allowStartStopRecording: Boolean,
                    moderatorPass: String, viewerPass: String,
                    createTime: Long, createDate: String,
-                   outGW: MessageOutGateway): Props = 
+                   outGW: MessageOutGateway)(implicit context: ActorContext): Props = 
         Props(classOf[MeetingActor], meetingID, externalMeetingID, meetingName, recorded, 
                    voiceBridge, duration, 
                    autoStartRecording, allowStartStopRecording,
@@ -204,6 +208,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
     log.debug("MonitorNumberOfWebUsers continue for meeting [" + meetingID + "]")
 //    val timerActor = new TimerActor(TIMER_INTERVAL, self, "MonitorNumberOfWebUsers")
 //    timerActor.start    
+//    context.system.scheduler.schedule(0 seconds, 2000 millis, self, "MonitorNumberOfWebUsers")
   }
   
   def timeNowInMinutes():Long = {
