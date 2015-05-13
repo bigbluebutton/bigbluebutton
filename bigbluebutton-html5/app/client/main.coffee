@@ -33,17 +33,6 @@ Template.header.events
     $(".tooltip").hide()
     toggleChatbar()
 
-  "click .collapseSlidingMenuButton": (event) ->
-    toggleSlidingMenu()
-    $(".tooltip").hide()
-    $('.collapseSlidingMenuButton').blur()
-    $('.myNavbar').css('z-index', 1032)
-
-  'click .collapseNavbarButton': (event) ->
-    $(".tooltip").hide()
-    $('.collapseNavbarButton').blur()
-    toggleNavbarCollapse()
-
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
     toggleNavbar()
@@ -83,10 +72,6 @@ Template.header.events
     $(".tooltip").hide()
     toggleCam @
 
-  "click .whiteboardIcon": (event) ->
-    $(".tooltip").hide()
-    toggleWhiteBoard()
-
   "click .toggleUserlist": (event) ->
     toggleUsersList()
 
@@ -96,41 +81,6 @@ Template.header.events
 Template.menu.events
   'click .slideButton': (event) ->
     toggleRightHandSlidingMenu()
-
-Template.slidingMenu.events
-  'click .chatBarIcon': (event) ->
-    $('.tooltip').hide()
-    toggleSlidingMenu()
-    toggleChatbar()
-
-  "click .lowerHand": (event) ->
-    $(".tooltip").hide()
-    toggleSlidingMenu()
-    BBB.lowerHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-
-  "click .raiseHand": (event) ->
-    $(".tooltip").hide()
-    toggleSlidingMenu()
-    BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-
-  'click .usersListIcon': (event) ->
-    $('.tooltip').hide()
-    toggleSlidingMenu()
-    toggleUsersList()
-
-  'click .whiteboardIcon': (event) ->
-    $('.tooltip').hide()
-    toggleSlidingMenu()
-    toggleWhiteBoard()
-
-  'click .collapseButton': (event) ->
-    $('.tooltip').hide()
-    toggleSlidingMenu()
-    $('.collapseButton').blur()
-
-  "click .leaveAudioButton": (event) ->
-    exitVoiceCall event
-    toggleSlidingMenu()
 
 Template.main.rendered = ->
   $("#dialog").dialog(
