@@ -6,6 +6,7 @@ import org.bigbluebutton.core.User
 import java.util.ArrayList
 import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.ListSet
 
 trait UsersApp {
   this : MeetingActor =>
@@ -81,18 +82,11 @@ trait UsersApp {
         //send the reply
         outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId, msg.sessionId))
 
-        //send the list of users in the meeting
-        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers, msg.sessionId))
-
-        //send chat history
-        this ! (new GetChatHistoryRequest(meetingID, msg.userId, msg.userId))
-
         //join the user
         handleUserJoin(new UserJoining(meetingID, msg.userId, msg.token))
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
-        this ! (new GetPresentationInfo(meetingID, msg.userId, msg.userId))
       }
       case None => {
         logger.info("ValidateToken failed: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
@@ -153,11 +147,14 @@ trait UsersApp {
       case None => // do nothing
     }
   }
-  
+
   def handleGetLockSettings(msg: GetLockSettings) {
-    logger.info("Not implemented: handleGetLockSettings")
+    //println("*************** Reply with current lock settings ********************")
+
+    //reusing the existing handle for NewPermissionsSettings to reply to the GetLockSettings request
+    outGW.send(new NewPermissionsSetting(meetingID, msg.userId, permissions, users.getUsers))
   }
-  
+
   def handleSetLockSettings(msg: SetLockSettings) {
 //    println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {
@@ -245,20 +242,21 @@ trait UsersApp {
 
   def handleUserShareWebcam(msg: UserShareWebcam) {
     users.getUser(msg.userId) foreach {user =>
-      val uvo = user.copy(hasStream=true, webcamStream=msg.stream)
+      val streams = user.webcamStreams + msg.stream
+      val uvo = user.copy(hasStream=true, webcamStreams=streams)
       users.addUser(uvo)
-      logger.info("User shared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
+      logger.info("User shared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] sharedStream=[" + msg.stream + "] streams=[" + streams + "]")
       outGW.send(new UserSharedWebcam(meetingID, recorded, uvo.userID, msg.stream))
     }     
   }
 
   def handleUserunshareWebcam(msg: UserUnshareWebcam) {
     users.getUser(msg.userId) foreach {user =>
-      val stream = user.webcamStream
-      val uvo = user.copy(hasStream=false, webcamStream="")
+      val streams = user.webcamStreams - msg.stream
+      val uvo = user.copy(hasStream=(!streams.isEmpty), webcamStreams=streams)
       users.addUser(uvo)
-      logger.info("User unshared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "]")
-      outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID, stream))
+      logger.info("User unshared webcam:  mid=[" + meetingID + "] uid=[" + uvo.userID + "] unsharedStream=[" + msg.stream + "] streams=[" + streams + "]")
+      outGW.send(new UserUnsharedWebcam(meetingID, recorded, uvo.userID, msg.stream))
     }     
   }
 	                         
@@ -280,7 +278,7 @@ trait UsersApp {
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
                   ru.role, raiseHand=false, presenter=false, 
                   hasStream=false, locked=getInitialLockStatus(ru.role), 
-                  webcamStream="", phoneUser=false, vu, listenOnly=false)
+                  webcamStreams=new ListSet[String](), phoneUser=false, vu, listenOnly=false)
   	
 	    users.addUser(uvo)
 		
@@ -306,6 +304,18 @@ trait UsersApp {
 	  user foreach { u => 
 	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
 	    outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
+	    
+	    if (u.presenter) {
+	      /* The current presenter has left the meeting. Find a moderator and make
+	       * him presenter. This way, if there is a moderator in the meeting, there
+	       * will always be a presenter.
+	       */
+	      val moderator = users.findAModerator()
+	      moderator.foreach { mod =>
+	        logger.info("Presenter left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]. Making user=[" + mod.userID + "] presenter.")
+	        assignNewPresenter(mod.userID, mod.name, mod.userID)
+	      }
+	    }
 	  }
 	  
       startCheckingIfWeNeedToEndVoiceConf()
@@ -335,7 +345,7 @@ trait UsersApp {
           
           val uvo = new UserVO(webUserId, webUserId, msg.voiceUser.callerName, 
 		                  Role.VIEWER, raiseHand=false, presenter=false, 
-		                  hasStream=false, locked=getInitialLockStatus(Role.VIEWER), webcamStream="", 
+		                  hasStream=false, locked=getInitialLockStatus(Role.VIEWER), webcamStreams=new ListSet[String](),
 		                  phoneUser=true, vu, listenOnly=false)
 		  	
 		      users.addUser(uvo)

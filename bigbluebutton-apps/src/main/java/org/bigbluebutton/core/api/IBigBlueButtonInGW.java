@@ -11,7 +11,8 @@ public interface IBigBlueButtonInGW {
 	void endAllMeetings();
 	void createMeeting2(String meetingID, String externalMeetingID, String meetingName, boolean recorded, 
 			    String voiceBridge, long duration, boolean autoStartRecording,
-			    boolean allowStartStopRecording);
+			    boolean allowStartStopRecording, String moderatorPass, String viewerPass,
+			    long createTime, String createDate);
 	void destroyMeeting(String meetingID);
 	void getAllMeetings(String meetingID);
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
@@ -30,7 +31,7 @@ public interface IBigBlueButtonInGW {
 	void userRaiseHand(String meetingId, String userId);	
 	void lowerHand(String meetingId, String userId, String loweredBy);
 	void shareWebcam(String meetingId, String userId, String stream);
-	void unshareWebcam(String meetingId, String userId);
+	void unshareWebcam(String meetingId, String userId, String stream);
 	void setUserStatus(String meetingID, String userID, String status, Object value);
 	void getUsers(String meetingID, String requesterID);
 	void userLeft(String meetingID, String userID, String sessionId);

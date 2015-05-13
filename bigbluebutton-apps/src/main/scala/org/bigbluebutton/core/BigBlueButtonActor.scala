@@ -105,11 +105,13 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
         logger.info("New meeting create request [" + msg.meetingName + "]")
     	  var m = new MeetingActor(msg.meetingID, msg.externalMeetingID, msg.meetingName, msg.recorded, 
     	                  msg.voiceBridge, msg.duration, 
-    	                  msg.autoStartRecording, msg.allowStartStopRecording,
+    	                  msg.autoStartRecording, msg.allowStartStopRecording, msg.moderatorPass,
+    	                  msg.viewerPass, msg.createTime, msg.createDate,
     	                  outGW)
     	  m.start
     	  meetings += m.meetingID -> m
-    	  outGW.send(new MeetingCreated(m.meetingID, m.externalMeetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration))
+    	  outGW.send(new MeetingCreated(m.meetingID, m.externalMeetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration,
+    	                     msg.moderatorPass, msg.viewerPass, msg.createTime, msg.createDate))
     	  
     	  m ! new InitializeMeeting(m.meetingID, m.recorded)
     	  m ! "StartTimer"
@@ -156,6 +158,9 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 
       //send chat history
       this ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
+
+      //send lock settings
+      this ! (new GetLockSettings(id, "nodeJSapp"))
     }
 
     outGW.send(new GetAllMeetingsReply(resultArray))

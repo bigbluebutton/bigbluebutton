@@ -203,7 +203,8 @@
 					}
 					
 					if (data.hasStream) {
-						if (data.viewingStream || data.me) {
+						// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
+						if (data.me || data.isViewingAllStreams()) {
 							webcamImg.visible = true;
 							webcamImg.includeInLayout = true;
 							webcamBtn.visible = false;

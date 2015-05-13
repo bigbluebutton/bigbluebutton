@@ -2,7 +2,6 @@ package org.bigbluebutton.core
 
 import scala.actors.Actor
 import scala.actors.Actor._
-import org.bigbluebutton.core.apps.poll.PollApp
 import org.bigbluebutton.core.apps.poll.Poll
 import org.bigbluebutton.core.apps.poll.PollApp
 import org.bigbluebutton.core.apps.users.UsersApp
@@ -20,6 +19,8 @@ case object StopMeetingActor
 class MeetingActor(val meetingID: String, val externalMeetingID: String, val meetingName: String, val recorded: Boolean, 
                    val voiceBridge: String, duration: Long, 
                    val autoStartRecording: Boolean, val allowStartStopRecording: Boolean,
+                   val moderatorPass: String, val viewerPass: String,
+                   val createTime: Long, val createDate: String,
                    val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
@@ -88,6 +89,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: MuteUserRequest                        => handleMuteUserRequest(msg)
 	    case msg: EjectUserFromVoiceRequest              => handleEjectUserRequest(msg)
 	    case msg: SetLockSettings                        => handleSetLockSettings(msg)
+	    case msg: GetLockSettings                        => handleGetLockSettings(msg)
       case msg: LockUserRequest                        => handleLockUserRequest(msg)
 	    case msg: InitLockSettings                       => handleInitLockSettings(msg)
       case msg: InitAudioSettings                      => handleInitAudioSettings(msg)

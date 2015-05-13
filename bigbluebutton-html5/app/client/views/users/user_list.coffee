@@ -1,3 +1,10 @@
 Template.usersList.helpers
-  getMeetingSize: -> # Retreieve the number of users in the chat, or "error" string
-    return Meteor.Users.find().count()
+  getInfoNumberOfUsers: ->
+    numberUsers = BBB.getNumberOfUsers()
+    if numberUsers > 8
+      return "Users: #{numberUsers}"
+    # do not display the label if there are just a few users
+
+Template.usersList.events
+  "click .closeUserlistIcon": (event, template) ->
+    toggleUsersList()

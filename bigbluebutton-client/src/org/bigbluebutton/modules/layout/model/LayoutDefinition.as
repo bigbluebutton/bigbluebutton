@@ -21,13 +21,18 @@ package org.bigbluebutton.modules.layout.model {
 	public class LayoutDefinition {
 
 		import flash.utils.Dictionary;
+		import flash.utils.getQualifiedClassName;
+		
 		import flexlib.mdi.containers.MDICanvas;
-		import flexlib.mdi.containers.MDIWindow;		
+		import flexlib.mdi.containers.MDIWindow;
+		
 		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.common.Role;
 		import org.bigbluebutton.core.managers.UserManager;
 		import org.bigbluebutton.modules.layout.managers.OrderManager;
 		
+    private static const LOG:String = "Layout::LayoutDefinition - ";
+    
 		[Bindable] public var name:String;
 		// default is a reserved word in actionscript
 		[Bindable] public var defaultLayout:Boolean = false;
@@ -90,7 +95,7 @@ package org.bigbluebutton.modules.layout.model {
 				return _layoutsPerRole[Role.PRESENTER];
 			} else {
 				LogUtil.error("There's no layout that fits the participants profile");
-        trace("LayoutDefinition::getMyLayout There's no layout that fits the participants profile");
+        //trace(LOG + "getMyLayout There's no layout that fits the participants profile");
 				return null;
 			}
 		}
@@ -124,62 +129,9 @@ package org.bigbluebutton.modules.layout.model {
 			return xml;
 		}
 		
-		/*
-		 * 0 if there's no order
-		 * 1 if "a" should appears after "b"
-		 * -1 if "a" should appears before "b"
-		 */
-		private function sortWindows(a:Object, b:Object):int {
-			// ignored windows are positioned in front
-			if (a.ignored && b.ignored) return 0;
-			if (a.ignored) return 1;
-			if (b.ignored) return -1;
-			// then comes the windows that has no layout definition
-			if (!a.hasLayoutDefinition && !b.hasLayoutDefinition) return 0;
-			if (!a.hasLayoutDefinition) return 1;
-			if (!b.hasLayoutDefinition) return -1;
-			// then the focus order is used to sort
-			if (a.order == b.order) return 0;
-			if (a.order == -1) return 1;
-			if (b.order == -1) return -1;
-			return (a.order < b.order? 1: -1);
-		}
-		
-		private function adjustWindowsOrder(canvas:MDICanvas):void {
-			var orderedList:Array = new Array();
-			var type:String;
-			var order:int;
-			var ignored:Boolean;
-			var hasLayoutDefinition:Boolean;
-			
-//			LogUtil.debug("=> Before sort");
-			for each (var window:MDIWindow in canvas.windowManager.windowList) {
-				type = WindowLayout.getType(window);
-				hasLayoutDefinition = myLayout.hasOwnProperty(type);
-				if (hasLayoutDefinition)
-					order = myLayout[type].order;
-				else
-					order = -1;
-				ignored = ignoreWindowByType(type);
-				var item:Object = { window:window, order:order, type:type, ignored:ignored, hasLayoutDefinition:hasLayoutDefinition };
-				orderedList.push(item);
-//				LogUtil.debug("===> type: " + item.type + " ignored? " + item.ignored + " hasLayoutDefinition? " + item.hasLayoutDefinition + " order? " + item.order);
-			}
-			orderedList.sort(this.sortWindows);
-//			LogUtil.debug("=> After sort");
-			for each (var obj:Object in orderedList) {
-//				LogUtil.debug("===> type: " + obj.type + " ignored? " + obj.ignored + " hasLayoutDefinition? " + obj.hasLayoutDefinition + " order? " + obj.order);
-				if (!obj.ignored)
-					OrderManager.getInstance().bringToFront(obj.window);
-				canvas.windowManager.bringToFront(obj.window);
-			}
-		}
-		
 		public function applyToCanvas(canvas:MDICanvas):void {
 			if (canvas == null)
 				return;
-
-			adjustWindowsOrder(canvas);
 			
 			var windows:Array = canvas.windowManager.windowList;
 			// LogUtil.traceObject(myLayout);
@@ -187,10 +139,14 @@ package org.bigbluebutton.modules.layout.model {
 			
 			var type:String;
 			for each (var window:MDIWindow in windows) {
-					type = WindowLayout.getType(window);
-	
-				if (!ignoreWindowByType(type))
+				type = WindowLayout.getType(window);
+				//trace(LOG + "Determine if we need to apply layout [" + name + "] for window [" + type + "]");
+				if (!ignoreWindowByType(type)) {
+					//trace(LOG + "Applying layout [" + name + "] to window [" + type + "]");
 					WindowLayout.setLayout(canvas, window, transformedLayout[type]);
+				} else {
+					//trace(LOG + "Ignoring layout [" + name + "] to window [" + type + "]");
+				}
 			}
 		}
 		

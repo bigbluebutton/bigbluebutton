@@ -19,11 +19,13 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID:String, meetingName: String, record: Boolean, 
           voiceBridge: String, duration: Long, autoStartRecording: Boolean, 
-          allowStartStopRecording: Boolean) {
+          allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String,
+          createTime: Long, createDate: String) {
 //    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
   	bbbGW.accept(new CreateMeeting(meetingID, externalMeetingID, meetingName, record, 
 	                   voiceBridge, duration, autoStartRecording,
-	                   allowStartStopRecording))
+	                   allowStartStopRecording, moderatorPass, viewerPass,
+	                   createTime, createDate))
   }
   
   def destroyMeeting(meetingID: String) {
@@ -160,8 +162,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new UserShareWebcam(meetingId, userId, stream))
   }
   
-  def unshareWebcam(meetingId: String, userId: String) {
-    bbbGW.accept(new UserUnshareWebcam(meetingId, userId))
+  def unshareWebcam(meetingId: String, userId: String, stream:String) {
+    bbbGW.accept(new UserUnshareWebcam(meetingId, userId, stream))
   }
 	
   def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
@@ -189,10 +191,14 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   }
 
   def userConnectedToGlobalAudio(voiceConf: String, userid: String, name: String) {
+    // we are required to pass the meeting_id as first parameter (just to satisfy trait)
+    // but it's not used anywhere. That's why we pass voiceConf twice instead
     bbbGW.accept(new UserConnectedToGlobalAudio(voiceConf, voiceConf, userid, name))
   }
   
   def userDisconnectedFromGlobalAudio(voiceConf: String, userid: String, name: String) {
+    // we are required to pass the meeting_id as first parameter (just to satisfy trait)
+    // but it's not used anywhere. That's why we pass voiceConf twice instead
     bbbGW.accept(new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name))
   }
   

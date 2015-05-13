@@ -66,18 +66,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="applyDefaultLayout" />
     </EventHandlers>
-    
-    <EventHandlers type="{LayoutEvent.LOCK_LAYOUT_EVENT}">
-      <MethodInvoker generator="{LayoutManager}" method="lockLayout" />
-    </EventHandlers>
 
   <EventHandlers type="{EventConstants.LOCK_LAYOUT_REQ}">
     <MethodInvoker generator="{LayoutManager}" method="lockLayout"/>
   </EventHandlers>
-  
-    <EventHandlers type="{LayoutEvent.UNLOCK_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutService}" method="unlockLayout" />
-    </EventHandlers>
 
   <EventHandlers type="{EventConstants.UNLOCK_LAYOUT_REQ}">
     <MethodInvoker generator="{LayoutService}" method="unlockLayout"/>
@@ -103,10 +95,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{LayoutFromRemoteEvent.LAYOUT_FROM_REMOTE}">
    		<MethodInvoker generator="{LayoutManager}" method="applyRemoteLayout" arguments="{event}" />
     </EventHandlers>
-
-  <EventHandlers type="{LayoutEvent.SYNC_LAYOUT_EVENT}">
-    <MethodInvoker generator="{LayoutManager}" method="syncLayout" />
-  </EventHandlers>
   
     <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
@@ -127,14 +115,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{RemoteSyncLayoutEvent.REMOTE_SYNC_LAYOUT_EVENT}">
     <MethodInvoker generator="{LayoutManager}" method="remoteSyncLayout" arguments="{event}"/>
   </EventHandlers>
-  	
-    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-   		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
-    </EventHandlers>
-
-    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
-   		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
-    </EventHandlers>
 
   <Injectors target="{LayoutService}">
     <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>

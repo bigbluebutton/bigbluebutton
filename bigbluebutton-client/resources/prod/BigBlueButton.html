@@ -72,7 +72,8 @@
     <script src="lib/bbb_deskshare.js?v=VERSION" language="javascript"></script>
     <script src="lib/bbb_api_bridge.js?v=VERSION" language="javascript"></script>
     <script src="lib/sip.js?v=VERSION" language="javascript"></script> 
-    <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script> 
+    <script src="lib/bbb_webrtc_bridge_sip.js?v=VERSION" language="javascript"></script>
+    <script src="lib/weburl_regex.js?v=VERSION" language="javascript"></script> 
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');
@@ -89,7 +90,7 @@
         // reuse code in a function to log an error when needed
         var reportError = function() {
           alert("Unable to load the HTML5 client!");
-          BBBLog.error("Could not redirect to html5client (the server side does not seem to be running)");
+          BBBLog.debug("Could not redirect to html5client (the server side does not seem to be running)");
         }
 
         var checkRequest = $.ajax({
@@ -163,7 +164,7 @@
         </div>
       </div>
     </div>
-    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();" value="Click to focus the client"/>
-    <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
+    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();" value="Click to focus the client"></button>
+    <div id="clientReady" aria-atomic="false" aria-live="polite"></div>
   </body>
 </html>

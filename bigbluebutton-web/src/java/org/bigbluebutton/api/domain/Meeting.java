@@ -64,6 +64,8 @@ public class Meeting {
 	private final ConcurrentMap<String, User> users; 
 	private final ConcurrentMap<String, Config> configs;
 	
+	private long lastUserLeftOn = 0;
+	
 	public Meeting(Builder builder) {
 		name = builder.name;
 		extMeetingId = builder.externalId;
@@ -239,7 +241,9 @@ public class Meeting {
 	}
 	
 	public User userLeft(String userid){
-		return users.remove(userid);		
+		User u = (User) users.remove(userid);	
+		if (users.isEmpty()) lastUserLeftOn = System.currentTimeMillis();
+		return u;
 	}
 	
 	public User getUserById(String id){
@@ -284,7 +288,7 @@ public class Meeting {
 
 	private boolean hasBeenEmptyFor(int expiry) {
 		long now = System.currentTimeMillis();
-		return (now - endTime > (expiry * MILLIS_IN_A_MINUTE));
+		return (now - lastUserLeftOn > (expiry * MILLIS_IN_A_MINUTE));
 	}
 	
 	private boolean isEmpty() {

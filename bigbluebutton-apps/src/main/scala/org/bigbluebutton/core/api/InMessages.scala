@@ -25,7 +25,11 @@ case class CreateMeeting
   voiceBridge: String,
   duration: Long,
   autoStartRecording: Boolean,
-  allowStartStopRecording: Boolean
+  allowStartStopRecording: Boolean,
+  moderatorPass: String,
+  viewerPass: String,
+  createTime: Long,
+  createDate: String
 ) extends InMessage
                          
 case class InitializeMeeting(
@@ -122,7 +126,8 @@ case class UserShareWebcam(
 
 case class UserUnshareWebcam(
     meetingID: String, 
-    userId: String
+    userId: String,
+    stream: String
 ) extends InMessage
                          
 case class ChangeUserStatus(

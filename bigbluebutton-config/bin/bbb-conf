@@ -155,7 +155,6 @@ need_root() {
 
 usage() {
 	echo "BigBlueButton Configuration Utility - Version $BIGBLUEBUTTON_RELEASE"
-        echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "   bbb-conf [options]"
         echo
@@ -172,9 +171,9 @@ usage() {
         echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
         echo "Administration:"
-        echo "   --restart                        Restart BigBueButton"
-        echo "   --stop                           Stop BigBueButton"
-        echo "   --start                          Start BigBueButton"
+        echo "   --restart                        Restart BigBlueButton"
+        echo "   --stop                           Stop BigBlueButton"
+        echo "   --start                          Start BigBlueButton"
         echo "   --clean                          Restart and clean all log files"
         echo "   --zip                            Zip up log files for reporting an error"
         echo
@@ -338,7 +337,7 @@ enable_webrtc(){
 	sed -i "s/freeswitch.ip=.*/freeswitch.ip=$IP/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 
 	# Enable WebRTC in the client
-	sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml
+	sed -i "s@useWebRTCIfAvailable=\".*\"@useWebRTCIfAvailable=\"true\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
 	# Enable port 5066 in FreeSWITCH
 	sed -i 's/^.*<!--<param name="ws-binding"  value=":5066"\/>-->.*$/\t<param name="ws-binding"  value=":5066"\/>/g' /opt/freeswitch/conf/sip_profiles/external.xml
@@ -361,7 +360,7 @@ disable_webrtc(){
 	sed -i "s/freeswitch.ip=.*/freeswitch.ip=127.0.0.1/g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
 
 	# Disable WebRTC in the client
-	sed -i "s@useWebrtcIfAvailable=\".*\"@useWebrtcIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml
+        sed -i "s@useWebRTCIfAvailable=\".*\"@useWebRTCIfAvailable=\"false\"@g" /var/www/bigbluebutton/client/conf/config.xml
 
 	# Disable port 5066 in FreeSWITCH
 	sed -i 's/^.*<param name="ws-binding"  value=":5066"\/>.*$/\t<!--<param name="ws-binding"  value=":5066"\/>-->/g' /opt/freeswitch/conf/sip_profiles/external.xml
@@ -441,16 +440,6 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
-	if [ "$1" = "--reset-dev" -o "$1" = "-reset-dev" -o "$1" = "-r" ]; then
-		echo 
-		echo "This option is depreciated.  See "
-		echo 
-		echo "   https://code.google.com/p/bigbluebutton/wiki/081DevelopingBigBlueButton "
-		echo 
-		echo "for instructions on how to setup a development environment."
-		exit 0
-	fi
-
 	if [ "$1" = "--restart" -o "$1" = "-restart" ]; then
                 RESTART=1
                 shift
@@ -485,16 +474,6 @@ while [ $# -gt 0 ]; do
 		shift; shift
 		continue
 	fi		
-
-        if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
-		echo 
-		echo "This option is depreciated.  See "
-		echo 
-		echo "   https://code.google.com/p/bigbluebutton/wiki/081DevelopingBigBlueButton "
-		echo 
-		echo "for instructions on how to setup a development environment."
-		exit 0
-        fi
 	
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" ]; then
 		SALT="${2}"
@@ -570,6 +549,16 @@ fi
 
 if [ $SALT ]; then
 	need_root
+	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
+
+	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
+		sed -i "s|\(^[ \t]*config.bbb.sharedSecret[ =]*\).*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee
+	fi
+
+	if [ -f /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js ]; then
+		sed -i "s|\(^[ \t]*var shared_secret[ =]*\)[^;]*|\1\"$SALT\"|g" /usr/local/bigbluebutton/bbb-webhooks/extra/post_catcher.js
+	fi
+
 	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
 	echo "Changed BigBlueButton's shared secret to $SALT"
 	echo
@@ -748,6 +737,30 @@ check_configuration() {
 			echo "#"
 			echo "#                                IP from ifconfig: $IP"
 			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp: $API_IP"
+			echo
+		fi
+	fi
+
+	BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+
+	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
+		WEBHOOKS_SALT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
+		
+		if [ "$BBB_SALT" != "$WEBHOOKS_SALT" ]; then
+			echo "# Warning: Webhooks API Salt mismatch: "
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties = $BBB_SALT"
+			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee                       = $WEBHOOKS_SALT"
+			echo
+		fi
+		
+		WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+		WEBHOOKS_APP_PORT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.server.port[ =]*' | cut -d '=' -f2 | xargs)
+
+		if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
+			echo "# Warning: Webhooks port mismatch: "
+			echo "#  /etc/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
+			echo "#  /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee = $WEBHOOKS_APP_PORT"
 			echo
 		fi
 	fi
@@ -1029,11 +1042,7 @@ check_state() {
 		echo "#"
 		echo "#    http://$BBB_WEB/"
 		echo "#"
-		echo "# If your BigBlueButton server is behind a firewall, see FAQ:"
-		echo "#"
-		echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ"
-		echo "#"
-		echo "# (See entry for setting up BigBlueButton behind a firewall.)"
+		echo "# If your BigBlueButton server is behind a firewall, see FAQ."
 		echo 
 	fi
 
@@ -1075,10 +1084,6 @@ check_state() {
                                 echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
                                 echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
                                 echo "#"
-                                echo "# If your audio is not working (users click the  headset icon "
-                                echo "# and don't appear in the Listeners window, ensure FreeSWITCH uses"
-                                echo "# the local loopback 127.0.0.1 address.  See"
-                                echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ#Users_do_not_appear_in_the_listeners_window"
                                 echo 
                             fi
                         fi
@@ -1603,4 +1608,3 @@ if [ $WATCH ]; then
 	need_root
 	watch -n 2 "top -n 1 -b | head -n 5; echo; bbb-conf --network; bbb-conf --debug"
 fi
-

@@ -65,7 +65,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.MouseEvent;
 			import flash.geom.Point;
 			
-			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
 			
 			import mx.collections.ArrayCollection;
@@ -402,7 +401,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function openVideoPreviewWindow(event:BBBEvent):void {
         var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
-        camSettings.resolutions = (event.payload.resolutions as String).split(",");
+        camSettings.defaultCamera = event.payload.defaultCamera;
+        camSettings.camerasArray = event.payload.camerasArray;
         camSettings.publishInClient = event.payload.publishInClient;
         camSettings.chromePermissionDenied = event.payload.chromePermissionDenied;
         
@@ -647,6 +647,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ls.x = point1.x - (ls.width/2);
 				ls.y = point1.y - (ls.height/2);	
 			}
+			
+			private function onFooterLinkClicked(e:TextEvent):void{
+				trace("Clicked on link[" + e.text + "] from footer");
+				if (ExternalInterface.available) {
+					ExternalInterface.call("chatLinkClicked", e.text);
+				}
+			}
 		]]>
 	</mx:Script>
 
@@ -672,8 +679,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
 		<mx:Label
 				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
-				id="copyrightLabel2"
-				selectable="false" paddingRight="20"/>
+				link="onFooterLinkClicked(event)"
+				id="copyrightLabel2" truncateToFit="true"
+				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
 		<mx:Label 
 				id="lblWebRTC"

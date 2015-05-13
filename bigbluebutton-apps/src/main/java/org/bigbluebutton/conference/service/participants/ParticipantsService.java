@@ -71,10 +71,10 @@ public class ParticipantsService {
 		application.shareWebcam(scope.getName(), userId, stream);		
 	}
 	
-	public void unshareWebcam() {
+	public void unshareWebcam(String stream) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String userId = getBbbSession().getInternalUserID();
-		application.unshareWebcam(scope.getName(), userId);
+		application.unshareWebcam(scope.getName(), userId, stream);
 	}
 	
 	public void setParticipantStatus(Map<String, Object> msg) {

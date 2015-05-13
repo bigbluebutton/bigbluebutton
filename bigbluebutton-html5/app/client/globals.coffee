@@ -1,20 +1,16 @@
 @getBuildInformation = ->
-  appName = Meteor.config?.appName or "UNKNOWN NAME"
-  copyrightYear = Meteor.config?.copyrightYear or "UNKNOWN DATE"
-  dateOfBuild = Meteor.config?.dateOfBuild or "UNKNOWN DATE"
-  defaultWelcomeMessage = Meteor.config?.defaultWelcomeMessage or "UNKNOWN"
-  defaultWelcomeMessageFooter = Meteor.config?.defaultWelcomeMessageFooter or "UNKNOWN"
+  copyrightYear = Meteor.config?.copyrightYear or "DATE"
+  html5ClientBuild = Meteor.config?.html5ClientBuild or "VERSION"
+  defaultWelcomeMessage = Meteor.config?.defaultWelcomeMessage or "WELCOME MESSAGE"
+  defaultWelcomeMessageFooter = Meteor.config?.defaultWelcomeMessageFooter or "WELCOME MESSAGE"
   link = "<a href='http://bigbluebutton.org/' target='_blank'>http://bigbluebutton.org</a>"
-  bbbServerVersion = Meteor.config?.bbbServerVersion or "UNKNOWN VERSION"
 
   {
-    'appName': appName
     'copyrightYear': copyrightYear
-    'dateOfBuild': dateOfBuild
+    'html5ClientBuild': html5ClientBuild
     'defaultWelcomeMessage': defaultWelcomeMessage
     'defaultWelcomeMessageFooter': defaultWelcomeMessageFooter
     'link': link
-    'bbbServerVersion': bbbServerVersion
   }
 
 # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
@@ -30,36 +26,21 @@
     color = colourToHex(color)
   color
 
-# thickness can be a number (e.g. "2") or a string (e.g. "2px")
-@formatThickness = (thickness) ->
-  thickness ?= "1" # default value
-  if !thickness.toString().match(/.*px$/)
-    "#" + thickness + "px" # leading "#" - to be compatible with Firefox
-  thickness
-
 @getCurrentSlideDoc = -> # returns only one document
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-
-# retrieve account for selected user
-@getCurrentUserFromSession = ->
-  Meteor.Users.findOne(userId: getInSession("userId"))
+  BBB.getCurrentSlide()
 
 @getInSession = (k) -> SessionAmplify.get k
-
-@getMeetingName = ->
-  return Meteor.Meetings.findOne()?.meetingName or null
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
 
-@getTimeOfJoining = ->
-  Meteor.Users.findOne(userId: getInSession "userId")?.user?.time_of_joining
+# helper to determine whether user has joined any type of audio
+Handlebars.registerHelper "amIInAudio", ->
+  BBB.amIInAudio()
 
-@getPresentationFilename = ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  currentPresentation?.presentation?.name
+# helper to determine whether the user is in the listen only audio stream
+Handlebars.registerHelper "amIListenOnlyAudio", ->
+  BBB.amIListenOnlyAudio()
 
 Handlebars.registerHelper "colourToHex", (value) =>
   @window.colourToHex(value)
@@ -75,15 +56,11 @@ Handlebars.registerHelper "getCurrentSlide", ->
   presentationId = currentPresentation?.presentation?.id
   Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
 
-# retrieve account for selected user
-Handlebars.registerHelper "getCurrentUser", =>
-  @window.getCurrentUserFromSession()
-
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
 Handlebars.registerHelper "getMeetingName", ->
-  return Meteor.Meetings.findOne()?.meetingName or null
+  BBB.getMeetingName()
 
 Handlebars.registerHelper "getShapesForSlide", ->
   currentSlide = getCurrentSlideDoc()
@@ -104,7 +81,7 @@ Handlebars.registerHelper "getUsersInMeeting", ->
   raised.concat lowered
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
-  "Presentation: " + (getPresentationFilename() or "Loading...")
+  (BBB.currentPresentationName() or "Loading presentation...")
 
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
@@ -113,11 +90,7 @@ Handlebars.registerHelper "isCurrentUserMuted", ->
   BBB.amIMuted()
 
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
-  user = BBB.getCurrentUser()
-  user?.user?.raise_hand
-
-Handlebars.registerHelper "isCurrentUserSharingAudio", ->
-  BBB.amISharingAudio()
+  BBB.isCurrentUserRaisingHand()
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
   BBB.amISharingVideo()
@@ -125,18 +98,20 @@ Handlebars.registerHelper "isCurrentUserSharingVideo", ->
 Handlebars.registerHelper "isCurrentUserTalking", ->
   BBB.amITalking()
 
+Handlebars.registerHelper "isCurrentUserPresenter", ->
+  BBB.isUserPresenter(getInSession('userId'))
+
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
-Handlebars.registerHelper "isUserListenOnly", (userId) ->
-  user = Meteor.Users.findOne({userId:userId})
-  return user?.user?.listenOnly
+Handlebars.registerHelper "isUserInAudio", (userId) ->
+  BBB.isUserInAudio(userId)
+
+Handlebars.registerHelper "isUserListenOnlyAudio", (userId) ->
+  BBB.isUserListenOnlyAudio(userId)
 
 Handlebars.registerHelper "isUserMuted", (userId) ->
   BBB.isUserMuted(userId)
-
-Handlebars.registerHelper "isUserSharingAudio", (userId) ->
-  BBB.isUserSharingAudio(userId)
 
 Handlebars.registerHelper "isUserSharingVideo", (userId) ->
   BBB.isUserSharingWebcam(userId)
@@ -144,11 +119,17 @@ Handlebars.registerHelper "isUserSharingVideo", (userId) ->
 Handlebars.registerHelper "isUserTalking", (userId) ->
   BBB.isUserTalking(userId)
 
+Handlebars.registerHelper 'isMobile', () ->
+  isMobile()
+
 Handlebars.registerHelper 'isPortraitMobile', () ->
-  window.matchMedia('(orientation: portrait)').matches and window.matchMedia('(max-device-aspect-ratio: 1/1)').matches
+  isPortraitMobile()
+
+Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
+  isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
 
 Handlebars.registerHelper "meetingIsRecording", ->
-  Meteor.Meetings.findOne()?.recorded # Should only ever have one meeting, so we dont need any filter and can trust result #1
+  BBB.isMeetingRecording()
 
 Handlebars.registerHelper "messageFontSize", ->
   style: "font-size: #{getInSession("messageFontSize")}px;"
@@ -230,33 +211,76 @@ Handlebars.registerHelper "visibility", (section) ->
   setTimeout(redrawWhiteboard, 0)
 
 @toggleMic = (event) ->
-  u = Meteor.Users.findOne({userId:getInSession("userId")})
-  if u?
-    Meteor.call('muteUser', getInSession("meetingId"), u.userId, getInSession("userId"), getInSession("authToken"), not u.user.voiceUser.muted)
+  BBB.toggleMyMic()
 
 @toggleNavbar = ->
   setInSession "display_navbar", !getInSession "display_navbar"
 
 # toggle state of session variable
 @toggleUsersList = ->
-  if getInSession("display_usersList") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
-  else
-    setInSession "display_usersList", !getInSession "display_usersList"
+  setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
-@toggleVoiceCall = (event) ->
-  if BBB.amISharingAudio()
-    hangupCallback = ->
-      console.log "left voice conference"
-    BBB.leaveVoiceConference hangupCallback #TODO should we apply role permissions to this action?
+@toggleLeftHandSlidingMenu = ->
+  if $('#container').css('position') is 'fixed'
+    $('#container').css('position', '')
+    $('#container').css('left', '')
   else
-    # create voice call params
-    joinCallback = (message) ->
-      console.log "started webrtc_call"
-    BBB.joinVoiceConference joinCallback # make the call #TODO should we apply role permissions to this action?
+    $('#container').css('left', '500px')
+    $('#container').css('position', 'fixed')
+
+@toggleRightHandSlidingMenu = ->
+  if $('#container').css('position') is 'fixed'
+    $('#container').css('position', '')
+    $('#container').css('right', '')
+  else
+    $('#container').css('right', '500px')
+    $('#container').css('position', 'fixed')
+
+# Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
+# retry if a call is in progress, send the leave voice conference message to BBB
+@exitVoiceCall = (event) ->
+  # To be called when the hangup is initiated
+  hangupCallback = ->
+    console.log "Exiting Voice Conference"
+
+  # Checks periodically until a call is established so we can successfully end the call
+  # clean state
+  getInSession("triedHangup", false)
+  # function to initiate call
+  (checkToHangupCall = (context) ->
+    # if an attempt to hang up the call is made when the current session is not yet finished, the request has no effect
+    # keep track in the session if we haven't tried a hangup
+    if BBB.getCallStatus() isnt null and !getInSession("triedHangup")
+      console.log "Attempting to hangup on WebRTC call"
+      if BBB.amIListenOnlyAudio() # notify BBB-apps we are leaving the call call if we are listen only
+        Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), false)
+      BBB.leaveVoiceConference hangupCallback
+      getInSession("triedHangup", true) # we have hung up, prevent retries
+      notification_WebRTCAudioExited()
+    else
+      console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
+      setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
+  )(@) # automatically run function
+  return false
+
+# close the daudio UI, then join the conference. If listen only send the request to the server
+@joinVoiceCall = (event, {isListenOnly} = {}) ->
+  if !isWebRTCAvailable()
+    notification_WebRTCNotSupported()
+    return
+
+  isListenOnly ?= true
+
+  # create voice call params
+  joinCallback = (message) ->
+    console.log "Beginning WebRTC Conference Call"
+
+  notification_WebRTCAudioJoining()
+  if isListenOnly
+    Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
+  BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
+
   return false
 
 @toggleWhiteBoard = ->
@@ -320,11 +344,6 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # assign the default values for the Session vars
 @setDefaultSettings = ->
-  # console.log "in setDefaultSettings"
-  if isLandscapeMobile()
-    setInSession "display_usersList", false
-  else
-    setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
@@ -337,8 +356,13 @@ Handlebars.registerHelper "visibility", (section) ->
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
   setInSession 'webrtc_notification_is_displayed', false
+  if isLandscape()
+    setInSession 'display_usersList', true
+  else
+    setInSession 'display_usersList', false
 
 @onLoadComplete = ->
+  document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
   setDefaultSettings()
 
   Meteor.Users.find().observe({
@@ -346,12 +370,6 @@ Handlebars.registerHelper "visibility", (section) ->
     if oldDocument.userId is getInSession 'userId'
       document.location = getInSession 'logoutURL'
   })
-
-# applies zooming to the stroke thickness
-@zoomStroke = (thickness) ->
-  currentSlide = @getCurrentSlideDoc()
-  ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
-  thickness * 100 / ratio
 
 # Detects a mobile device
 @isMobile = ->
@@ -362,6 +380,9 @@ Handlebars.registerHelper "visibility", (section) ->
   navigator.userAgent.match(/IEMobile/i) or
   navigator.userAgent.match(/BlackBerry/i) or
   navigator.userAgent.match(/webOS/i)
+
+@isLandscape = ->
+  window.matchMedia('(orientation: landscape)').matches
 
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
@@ -486,7 +507,11 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # determines which browser is being used
 @getBrowserName = () ->
-  if navigator.userAgent.match(/Safari/i)
+  if navigator.userAgent.match(/Chrome/i)
+    return 'Chrome'
+  else if navigator.userAgent.match(/Firefox/i)
+    return 'Firefox'
+  else if navigator.userAgent.match(/Safari/i)
     return 'Safari'
   else if navigator.userAgent.match(/Trident/i)
     return 'IE'

@@ -203,7 +203,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 	wuser.put(Constants.PRESENTER, user.presenter:java.lang.Boolean)
 	wuser.put(Constants.HAS_STREAM, user.hasStream:java.lang.Boolean)
 	wuser.put(Constants.LOCKED, user.locked:java.lang.Boolean)
-	wuser.put(Constants.WEBCAM_STREAM, user.webcamStream)
+	wuser.put("webcamStream", user.webcamStreams mkString("|"))
 	wuser.put(Constants.PHONE_USER, user.phoneUser:java.lang.Boolean)
 	wuser.put(Constants.VOICE_USER, vuser)	  
 	  
@@ -230,6 +230,10 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.VOICE_CONF, msg.voiceBridge)
     payload.put(Constants.DURATION, msg.duration)     
+    payload.put(Constants.MODERATOR_PASS, msg.moderatorPass)
+    payload.put(Constants.VIEWER_PASS, msg.viewerPass)
+    payload.put(Constants.CREATE_TIME, msg.createTime)
+    payload.put(Constants.CREATE_DATE, msg.createDate)
     
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CREATE_MEETING)

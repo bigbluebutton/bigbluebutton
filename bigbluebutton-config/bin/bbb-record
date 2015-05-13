@@ -394,8 +394,8 @@ if [ $DELETEALL ]; then
   done
 
   rm -rf /var/bigbluebutton/recording/raw/*
-
-  rm -f /usr/share/red5/webapps/video/streams/*.flv
+  
+  find /usr/share/red5/webapps/video/streams -name "*.flv" -exec rm '{}' \;
   rm -f /var/bigbluebutton/deskshare/*.flv
   rm -f /var/freeswitch/meetings/*.wav
 

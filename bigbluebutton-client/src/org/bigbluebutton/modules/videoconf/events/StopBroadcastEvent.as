@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.videoconf.events
 		public static const STOP_BROADCASTING:String = "STOP_BROADCASTING";
 		
 		public var stream:String;
+		public var camId:int = -1;
 		
 		public function StopBroadcastEvent(type:String = STOP_BROADCASTING)
 		{
