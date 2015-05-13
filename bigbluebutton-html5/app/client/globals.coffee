@@ -246,27 +246,6 @@ Handlebars.registerHelper 'containerPosition', (section) ->
 
   return false
 
-@toggleWhiteBoard = ->
-  if getInSession("display_whiteboard") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
-  else
-    setInSession "display_whiteboard", !getInSession "display_whiteboard"
-  setTimeout(redrawWhiteboard, 0)
-
-@toggleSlidingMenu = ->
-  if $('#sliding-menu').hasClass('sliding-menu-opened')
-    DestroyFixedView()
-    setInSession 'display_slidingMenu', false
-    $('#sliding-menu').removeClass('sliding-menu-opened')
-    $('#shield').css('display', 'none')
-  else
-    CreateFixedView()
-    setInSession 'display_slidingMenu', true
-    $('#sliding-menu').addClass('sliding-menu-opened')
-    $('#shield').css('display', 'block')
-
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
@@ -309,7 +288,6 @@ Handlebars.registerHelper 'containerPosition', (section) ->
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
-
   if isLandscape()
     setInSession 'display_usersList', true
   else
@@ -354,101 +332,6 @@ Handlebars.registerHelper 'containerPosition', (section) ->
 @isOnlyOnePanelOpen = () ->
   #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1
   getInSession("display_usersList") + getInSession("display_whiteboard") + getInSession("display_chatbar") is 1
-
-# Reverts all the changes to userlist, whiteboard and chat made by the push menu
-@DestroyFixedView = () ->
-  $('#chat').css('position', '')
-  $('#chat').css('top', '')
-  $('#chat').css('left', '')
-
-  $('#users').css('position', '')
-  $('#users').css('top', '')
-  $('#users').css('left', '')
-
-  $('#whiteboard').css('position', '')
-  $('#whiteboard').css('top', '')
-  $('#whiteboard').css('left', '')
-
-  $('#footer').css('position', '')
-  $('#footer').css('top', '')
-  $('#footer').css('left', '')
-
-  $('#chat').css('height', '')
-  $('#users').css('height', '')
-  $('#users').css('width', '')
-  $('#whiteboard').css('height', '')
-  $('#footer').css('height', '')
-  $('#footer').css('width', '')
-
-  # pushing the view back
-  $('#main').css('position', 'relative')
-  $('#main').css('top', '0')
-  $('#main').css('left', '0')
-
-# Makes the position of userlist, whiteboard and chat fixed (to disable scrolling) and
-# positions each element correctly
-@CreateFixedView = () ->
-  # positioning the whiteboard
-  if getInSession 'display_whiteboard'
-    whiteboardHeight = $('#whiteboard').height()
-    $('#whiteboard').css('position', 'fixed')
-    $('#whiteboard').css('left', '15%')
-    $('#whiteboard').css('height', whiteboardHeight + 5 + 'px')
-    $('#whiteboard').css('top', '100px')
-
-  # positioning the chatbar
-  if getInSession 'display_chatbar'
-    chatHeight = $('#chat').height()
-    $('#chat').css('position', 'fixed')
-    $('#chat').css('left', '15%')
-    $('#chat').css('height', chatHeight)
-    if getInSession 'display_whiteboard'
-      $('#chat').css('top', 110 + $('#whiteboard').height() + 'px')
-    else
-      $('#chat').css('top', '100px')
-
-  # positioning the userlist
-  if getInSession 'display_usersList'
-    chatHeight = $('#chat').height()
-    usersHeight = $('#users').height()
-    usersWidth = $('#users').width()
-
-    $('#users').css('position', 'fixed')
-    $('#users').css('left', '15%')
-    $('#users').css('width', usersWidth) # prevents from shrinking
-    $('#users').css('height', usersHeight)
-
-    top = 100 # minimum margin for the userlist (height of the navbar)
-    if getInSession 'display_whiteboard'
-      top += $('#whiteboard').height() + 10
-    if getInSession 'display_chatbar'
-      top += chatHeight + 15
-    $('#users').css('top', top + 'px')
-
-  # positioning the footer
-  chatHeight = $('#chat').height()
-  usersHeight = $('#users').height()
-  footerHeight = $('#footer').height()
-  footerWidth = $('#footer').width()
-
-  $('#footer').css('position', 'fixed')
-  $('#footer').css('left', '15%')
-  $('#footer').css('height', footerHeight)
-  $('#footer').css('width', footerWidth) # prevents from shrinking
-
-  top = 100
-  if getInSession 'display_whiteboard'
-    top += $('#whiteboard').height() + 10
-  if getInSession 'display_chatbar'
-    top += chatHeight + 15
-  if getInSession 'display_usersList'
-    top += usersHeight + 30
-  $('#footer').css('top', top + 'px')
-
-  # pusing the rest of the page right
-  $('#main').css('position', 'fixed')
-  $('#main').css('top', '50px')
-  $('#main').css('left', '15%')
 
 # determines which browser is being used
 @getBrowserName = () ->
