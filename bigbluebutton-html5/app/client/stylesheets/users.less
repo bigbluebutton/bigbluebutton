@@ -1,17 +1,5 @@
 @import "variables";
 
-#content {
-  margin-top: 10px;
-  &:first-child {
-    margin-top: 0px;
-  }
-  overflow: hidden;
-  width: 100%;
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    background: #E6F0FA;
-  }
-}
-
 .usericon {
   font-size: 16px;
 }
@@ -55,6 +43,16 @@
   .userlist {
     height: calc(~'100% - 29px'); /* height of user contents - user list */
 
+    #content {
+      margin-top: 10px;
+      &:first-child { margin-top: 0px; }
+      overflow: hidden;
+      width: 100%;
+      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+        background: #E6F0FA;
+      }
+    }
+
     @media @landscape {
       padding:10px;
       max-height:83vh;
@@ -64,7 +62,6 @@
       padding-left: 10px;
       padding-right: 10px;
     }
-
     @media @desktop-portrait, @mobile-portrait {
       max-height: 58vw; //for longer userlist a scrollbar appears
     }
@@ -73,16 +70,6 @@
 
 .userCurrent {
   font-weight: bold;
-}
-
-#username {
-  @media @landscape {
-    display:block;
-  }
-  @media @desktop-portrait {
-    display:block;
-    width:70%;
-  }
 }
 
 .closeUserlistIcon {

@@ -183,6 +183,3 @@ Template.main.rendered = ->
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
-
-Template.recordingStatus.rendered = ->
-  $('button[rel=tooltip]').tooltip()

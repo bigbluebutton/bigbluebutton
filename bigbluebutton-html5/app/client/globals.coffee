@@ -159,38 +159,6 @@ Handlebars.registerHelper "visibility", (section) ->
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
 
-# check the chat history of the user and add tabs for the private chats
-@populateChatTabs = (msg) ->
-  myUserId = getInSession "userId"
-  users = Meteor.Users.find().fetch()
-
-  # assuming that I only have access only to private messages where I am the sender or the recipient
-  myPrivateChats = Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT'}).fetch()
-
-  uniqueArray = []
-  for chat in myPrivateChats
-    if chat.message.to_userid is myUserId
-      uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
-    if chat.message.from_userid is myUserId
-      uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
-
-  #keep unique entries only
-  uniqueArray = uniqueArray.filter((itm, i, a) ->
-      i is a.indexOf(itm)
-    )
-
-  if msg.message.to_userid is myUserId
-    new_msg_userid = msg.message.from_userid
-  if msg.message.from_userid is myUserId
-    new_msg_userid = msg.message.to_userid
-
-  #insert the unique entries in the collection
-  for u in uniqueArray
-    tabs = getInSession('chatTabs')
-    if tabs.filter((tab) -> tab.userId == u.userId).length is 0 and u.userId is new_msg_userid
-      tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
-      setInSession 'chatTabs', tabs
-
 @setInSession = (k, v) -> SessionAmplify.set k, v
 
 @safeString = (str) ->
@@ -212,9 +180,6 @@ Handlebars.registerHelper "visibility", (section) ->
 
 @toggleMic = (event) ->
   BBB.toggleMyMic()
-
-@toggleNavbar = ->
-  setInSession "display_navbar", !getInSession "display_navbar"
 
 # toggle state of session variable
 @toggleUsersList = ->
@@ -309,15 +274,6 @@ Handlebars.registerHelper "visibility", (section) ->
     $('#sliding-menu').addClass('sliding-menu-opened')
     $('#shield').css('display', 'block')
 
-@toggleNavbarCollapse = ->
-  setInSession 'display_hiddenNavbarSection', !getInSession 'display_hiddenNavbarSection'
-  if getInSession 'display_hiddenNavbarSection'
-    $('.navbarTitle').addClass('narrowedNavbarTitle');
-    $('.collapseNavbarSection').css('display', 'block')
-  else
-    $('.collapseNavbarSection').css('display', 'none')
-    $('.navbarTitle').removeClass('narrowedNavbarTitle');
-
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
 # the user's userId
@@ -365,7 +321,6 @@ Handlebars.registerHelper "visibility", (section) ->
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
-  setInSession 'webrtc_notification_is_displayed', false
 
 @onLoadComplete = ->
   document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
@@ -396,13 +351,11 @@ Handlebars.registerHelper "visibility", (section) ->
  window.matchMedia('(orientation: portrait)').matches and        # browser is portrait
  window.matchMedia('(max-device-aspect-ratio: 1/1)').matches     # device is portrait
 
-
 # Checks if the view is landscape and mobile device is being used
 @isLandscapeMobile = () ->
   isMobile() and
   window.matchMedia('(orientation: landscape)').matches and     # browser is landscape
   window.matchMedia('(min-device-aspect-ratio: 1/1)').matches   # device is landscape
-
 
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
@@ -411,7 +364,6 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # Reverts all the changes to userlist, whiteboard and chat made by the push menu
 @DestroyFixedView = () ->
-
   $('#chat').css('position', '')
   $('#chat').css('top', '')
   $('#chat').css('left', '')
@@ -443,9 +395,7 @@ Handlebars.registerHelper "visibility", (section) ->
 # Makes the position of userlist, whiteboard and chat fixed (to disable scrolling) and
 # positions each element correctly
 @CreateFixedView = () ->
-
   # positioning the whiteboard
-
   if getInSession 'display_whiteboard'
     whiteboardHeight = $('#whiteboard').height()
     $('#whiteboard').css('position', 'fixed')
@@ -454,7 +404,6 @@ Handlebars.registerHelper "visibility", (section) ->
     $('#whiteboard').css('top', '100px')
 
   # positioning the chatbar
-
   if getInSession 'display_chatbar'
     chatHeight = $('#chat').height()
     $('#chat').css('position', 'fixed')
@@ -466,7 +415,6 @@ Handlebars.registerHelper "visibility", (section) ->
       $('#chat').css('top', '100px')
 
   # positioning the userlist
-
   if getInSession 'display_usersList'
     chatHeight = $('#chat').height()
     usersHeight = $('#users').height()
@@ -485,7 +433,6 @@ Handlebars.registerHelper "visibility", (section) ->
     $('#users').css('top', top + 'px')
 
   # positioning the footer
-
   chatHeight = $('#chat').height()
   usersHeight = $('#users').height()
   footerHeight = $('#footer').height()
@@ -506,7 +453,6 @@ Handlebars.registerHelper "visibility", (section) ->
   $('#footer').css('top', top + 'px')
 
   # pusing the rest of the page right
-
   $('#main').css('position', 'fixed')
   $('#main').css('top', '50px')
   $('#main').css('left', '15%')

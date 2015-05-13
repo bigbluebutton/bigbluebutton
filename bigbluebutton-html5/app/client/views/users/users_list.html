@@ -1,15 +1,13 @@
 <template name="usersList">
   <div id="{{id}}" {{visibility name}} class="component">
-    <h3 class="title">
+    <h3 class="meetingTitle">
       {{getMeetingName}}
       <span class="closeUserlistIcon"><i class="ion-close-circled"></i></span>
     </h3>
     <div id="user-contents">
       <div class="userlist ScrollableWindowY">
         {{#each getUsersInMeeting}}
-          <div id="content">
-            {{>userItem}}
-          </div>
+          <div id="content">{{>userItem}}</div>
         {{/each}}
       </div>
     </div>

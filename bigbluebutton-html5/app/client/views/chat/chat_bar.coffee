@@ -49,22 +49,6 @@ Handlebars.registerHelper "autoscroll", ->
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   false
 
-Handlebars.registerHelper "grabChatTabs", ->
-  if getInSession('chatTabs') is undefined
-    initTabs = [
-      userId: "PUBLIC_CHAT"
-      name: "Public"
-      gotMail: false
-      class: "publicChatTab"
-    ,
-      userId: "OPTIONS"
-      name: "Options"
-      gotMail: false
-      class: "optionsChatTab"
-    ]
-    setInSession 'chatTabs', initTabs
-  getInSession('chatTabs')[0..3]
-
 # true if the lock settings limit public chat and the current user is locked
 Handlebars.registerHelper "publicChatDisabled", ->
   userIsLocked = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.locked
@@ -137,8 +121,7 @@ Template.chatbar.helpers
       return Meteor.Users.findOne({userId: getInSession('inChatWith')})?
 
 # When chatbar gets rendered, launch the auto-check for unread chat
-Template.chatbar.rendered = ->
-  detectUnreadChat()
+Template.chatbar.rendered = -> detectUnreadChat()
 
 # When message gets rendered, scroll to the bottom
 Template.message.rendered = ->
@@ -165,51 +148,6 @@ Template.chatInput.events
       $('#newMessageInput').val("")
       return false
 
-Template.chatInput.rendered  = ->
-  $('input[rel=tooltip]').tooltip()
-  $('button[rel=tooltip]').tooltip()
-
-Template.extraConversations.events
-	"click .extraConversation": (event) ->
-		# console.log "extra conversation"
-		user = @
-		# console.log user
-		# console.log "#{user.name} #{user.userId}"
-		# put this conversation in the 3rd position in the chat tabs collection (after public and options)
-		# Take all the tabs and turn into an array
-		tabArray = getInSession('chatTabs')
-
-		# find the index of the selected tab
-		index = do ->
-			for value, idx in tabArray
-				if value.userId is user.userId
-					selected = value
-					return idx
-			null
-
-		if index?
-			# take object
-			selected = tabArray[index]
-
-			if selected?
-				# remove it
-				tabArray.splice(index, 1)
-				# insert it at the 3rd index
-				tabArray.splice(2, 0, selected)
-				# update collection
-				setInSession 'chatTabs', tabArray
-    # make the current conversation the selected tab
-    setInSession 'display_chatPane', true
-    setInSession "inChatWith", user.userId
-
-Template.extraConversations.helpers
-  getExtraConversations: ->
-    getInSession('chatTabs')[4..]
-
-  tooManyConversations: ->
-    return false if getInSession('chatTabs') is undefined
-    getInSession('chatTabs').length > 4
-
 Template.message.helpers
   sanitizeAndFormat: (str) ->
     if typeof str is 'string'
@@ -230,29 +168,6 @@ Template.message.helpers
     if minutes < 10
       minutes = "0" + minutes
     hours + ":" + minutes
-
-Template.optionsBar.events
-  'change #privateChatSelector': (event, template) -> # clicked a user's name to begin private chat
-    userIdSelected = event.currentTarget.value
-    console.log "will chat with userId:" + userIdSelected
-    tabs = getInSession('chatTabs')
-
-    # if you are starting a private chat
-    if tabs.filter((tab) -> tab.userId is userIdSelected).length is 0
-      userName = Meteor.Users.findOne({userId: userIdSelected})?.user?.name
-      tabs.push {userId: userIdSelected, name: userName, gotMail: false, class: 'privateChatTab'}
-      setInSession 'chatTabs', tabs
-
-    setInSession 'display_chatPane', true
-    setInSession "inChatWith", userIdSelected
-
-Template.optionsBar.helpers
-  thereArePeopletoChatWith: -> # Subtract 1 for the current user. Returns whether there are other people in the chat
-    # TODO: Add a check for the count to only include users who are allowed to private chat
-    (BBB.getNumberOfUsers()-1) >= 1
-
-Template.optionsBar.rendered = ->
-  $('div[rel=tooltip]').tooltip()
 
 Template.optionsFontSize.events
   "click #decreaseFontSize": (event) ->
@@ -276,69 +191,6 @@ Template.optionsFontSize.events
       if $('#decreaseFontSize').html() is 'MIN'
         $('#decreaseFontSize').html('')
         $('#decreaseFontSize').addClass('icon fi-minus')
-
-Template.tabButtons.events
-  'click .close': (event) -> # user closes private chat
-    setInSession 'inChatWith', 'PUBLIC_CHAT'
-    setInSession 'display_chatPane', true
-    console.log "userId: #{@userId}"
-    _this = @
-    tabs = getInSession('chatTabs')
-    if tabs.filter((tab) -> tab.userId is _this.userId).length > 0
-      tabs = $.grep(tabs, (t) -> t.userId isnt _this.userId)
-      setInSession 'chatTabs', tabs
-
-    return false # stops propogation/prevents default
-
-  'click .gotUnreadMail': (event) ->
-    #chatTabs.update({userId: @userId}, {$set: {gotMail: false}})
-    _this = @
-    setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
-      tab.gotMail = false if tab.userId is _this.userId
-      tab
-    )
-
-  'click .optionsChatTab': (event) ->
-    # console.log "options"
-    setInSession "inChatWith", "OPTIONS"
-    setInSession 'display_chatPane', false
-
-  'click .privateChatTab': (event) ->
-    # console.log "private:"
-    # console.log @
-    setInSession "inChatWith", @userId
-    setInSession 'display_chatPane', true
-
-  'click .publicChatTab': (event) ->
-    # console.log "public"
-    setInSession "inChatWith", "PUBLIC_CHAT"
-    setInSession 'display_chatPane', true
-
-  'click .tab': (event) ->
-    unless getInSession "inChatWith" is "OPTIONS"
-      if window.matchMedia('(orientation: landscape)').matches
-        $("#newMessageInput").focus()
-        # console.log "tab"
-
-Template.tabButtons.helpers
-  hasGotUnreadMailClass: (gotMail) ->
-    if gotMail
-      return "gotUnreadMail"
-    else
-      return ""
-
-  isTabActive: (userId) ->
-    if getInSession("inChatWith") is userId
-      return "active"
-
-  makeSafe: (string) ->
-    safeString(string)
-
-Template.tabButtons.rendered = ->
-  Tracker.autorun (comp) ->
-    setInSession 'tabsRenderedTime', TimeSync.serverTime()
-    if getInSession('tabsRenderedTime') isnt undefined
-      comp.stop()
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->

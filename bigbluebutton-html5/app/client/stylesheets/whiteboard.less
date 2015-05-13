@@ -7,31 +7,6 @@
     -ms-flex: 7 7 70%;
     flex: 7 7 70%;
     height: 100%;
-  }
-}
-
-#whiteboard-paper {
-  background-color: white !important;
-  /*height: auto !important;*/
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-  #svggroup {
-    display: block;
-    height: 100% !important;
-    width: 100% !important;
-  }
-}
-
-#whiteboard-navbar {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
-}
-
-#whiteboard-container {
-  @media @landscape {
     display: -moz-flex;
     display: -ms-flexbox;
     display: -ms-flex;
@@ -40,7 +15,17 @@
     align-items: center;
     -webkit-align-items: center;
     -ms-align-items: center;
-    height: 100%;
+    padding-top: 10px;
+  }
+}
+
+#whiteboard-paper {
+  margin-left: auto;
+  margin-right: auto;
+  #svggroup {
+    display: block;
+    height: 100% !important;
+    width: 100% !important;
   }
 }
 
