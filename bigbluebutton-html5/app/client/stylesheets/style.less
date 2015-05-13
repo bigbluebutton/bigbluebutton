@@ -529,51 +529,6 @@ body {
   }
 }
 
-/* Logout menu's properties on desktop */
-.desktop-logout-dialog {
-  @media @desktop-portrait, @landscape {
-    .ui-dialog-content {
-      height: 36px !important; /* overriding "height: auto;" */
-    }
-  }
-}
-
-.no-close .ui-dialog-titlebar-close {
-  display: none; /* no close button */
-}
-
-.logout-dialog.ui-dialog {
-  .ui-widget-header {
-    color: extract(@white, 1);
-    font-weight: bold;
-    background: extract(@darkGrey, 3);
-    @media @desktop-portrait, @landscape {
-      font-size: 12px;
-    }
-  }
-  .ui-dialog-content {
-    font-weight: bold;
-    text-align: center;
-    @media @desktop-portrait, @landscape {
-      min-height: 0px !important; /* overriding "min-height: 47px;"*/
-    }
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    width: 100% !important;
-  }
-}
-
-.logout-dialog.ui-widget-content {
-  background: extract(@white, 3);
-  border: 5px solid extract(@darkGrey, 3);
-  @media @desktop-portrait, @landscape {
-    font-size: 11px;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    font-size: 280%;
-  }
-}
-
 .joinAudioDialog {
   min-width: 500px;
   width: 25% !important;
@@ -708,5 +663,32 @@ body {
       font-size: 100px;
       top: 20%;
     }
+  }
+}
+
+#logoutModal {
+  margin-top: 0px;
+  margin-right: 0px;
+  top: 5% !important;
+  right: 5%;
+  position: fixed;
+  text-align: center;
+  width: 20%;
+
+  .logoutButton {
+    width: 50px;
+    height: 30px;
+    background-color: rgb(229, 229, 229);
+    color: rgb(121, 121, 121);
+    font-weight: bold;
+    border-radius: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  #yes {
+    border: 2px solid rgb(71, 164, 255);
+  }
+  #no {
+
   }
 }

@@ -69,11 +69,7 @@ Template.header.events
 
   "click .signOutIcon": (event) ->
     $('.signOutIcon').blur()
-    if isLandscapeMobile()
-      $('.logout-dialog').addClass('landscape-mobile-logout-dialog')
-    else
-      $('.logout-dialog').addClass('desktop-logout-dialog')
-    $("#dialog").dialog("open")
+    $("#logoutModal").foundation('reveal', 'open');
 
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()

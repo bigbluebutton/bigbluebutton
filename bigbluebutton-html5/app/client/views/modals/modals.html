@@ -1,7 +1,3 @@
-<template name="bbbSettingsInfo">
-  {{{getBBBSettingsInfo}}}
-</template>
-
 <!-- listen only | microphone -->
 <template name="settingsAudio">
   <fieldset class="desktopSettingsFieldset">
@@ -32,40 +28,32 @@
   </fieldset>
 </template>
 
-<template name="settingsCloseButton">
-  {{#if equals link "x"}}
-    <a href="#" class="closeSettings close-reveal-modal" style="font-size: 30px; position: inherit;">&#215;</a>
-  {{else}}
-    <a href="#" class="closeSettings close-reveal-modal" style="font-size: 12px; position: inherit;"><u>Cancel</u></a>
-  {{/if}}
-</template>
-
-<template name="settingsSaveButton">
-  {{> makeButton id="saveSettings" btn_class="settingsButton"  rel="tooltip"
-  title="Save Changes" style="margin-bottom: 0px; background-color: #007095; border-radius: 15px; padding: 5px 10px 5px 10px" text="Save"}}
-</template>
-
 <template name="settingsModal">
-  <div id="settingsModal" class="reveal-modal medium" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog" data-options="close_on_background_click:false">
-    <div class="bar" style="border-bottom:1px solid grey">
-      <p style="float: left">
-        <i class="ion-gear-b" style="font-size:30px">
-          <span class="modalTitle">BigBlueButton Settings</span>
-        </i>
-      </p>
-      <p style="text-align:right">{{>settingsCloseButton link="x"}}</p>
-    </div>
+  <div class="bar" style="border-bottom:1px solid grey">
+    <p style="float: left">
+      <i class="ion-gear-b" style="font-size:30px">
+        <span class="modalTitle">BigBlueButton Settings</span>
+      </i>
+    </p>
+    <p style="text-align:right">
+      <a href="#" class="closeSettings close-reveal-modal" style="font-size: 30px; position: inherit;">&#215;</a>
+    </p>
+  </div>
 
-    <div style="padding: 10px; text-align: center;">
-      <!-- <p>Share Camera</p> -->
-      {{> settingsAudio}}<br/>
-      {{> optionsFontSize}}<br/>
-      {{> bbbSettingsInfo}}
-    </div>
+  <div style="padding: 10px; text-align: center;">
+    {{> settingsAudio}}<br/>
+    {{> optionsFontSize}}<br/>
+    {{{getBBBSettingsInfo}}}
+  </div>
 
-    <div class="bar" style="border-top:1px solid grey; text-align: right;">
-      {{>settingsCloseButton link="link"}}
-      {{>settingsSaveButton}}
-    </div>
-</div>
+  <div class="bar" style="border-top:1px solid grey; text-align: right;">
+    <a href="#" class="closeSettings close-reveal-modal" style="font-size: 12px; position: inherit;"><u>Cancel</u></a>
+    {{> makeButton id="saveSettings" btn_class="settingsButton"  rel="tooltip" title="Save Changes" style="margin-bottom: 0px; background-color: #007095; border-radius: 15px; padding: 5px 10px 5px 10px" text="Save"}}
+  </div>
+</template>
+
+<template name="logoutModal">
+  <p>Are you sure you want to logout?</p>
+  {{> makeButton id="yes" btn_class="logoutButton" rel="tooltip" title="Logout" text="Yes"}}
+  {{> makeButton id="no" btn_class="logoutButton" rel="tooltip" title="Logout" text="No"}}
 </template>

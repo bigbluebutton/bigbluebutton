@@ -1,19 +1,21 @@
-Template.bbbSettingsInfo.helpers
+Template.settingsModal.helpers
   getBBBSettingsInfo: ->
     info = getBuildInformation()
     result = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.html5ClientBuild}] - For more information visit #{info.link}"
 
+Template.logoutModal.events
+  "click #yes": -> userLogout(getInSession("meetingId"), getInSession("userId"))
+  "click #no": -> $("#logoutModal").foundation('reveal', 'close');
+
 Template.settingsAudio.events
-  "click #joinMicrophone": (event) -> joinVoiceCall @, isListenOnly: false
-
-  "click #joinListenOnly": (event) -> joinVoiceCall @, isListenOnly: true
-
   "click #exitAudio": -> exitVoiceCall()
 
   "click .joinAudioButton": (event) -> $("#settingsModal").foundation('reveal', 'close')
 
-Template.settingsCloseButton.events
-  "click .closeSettings": -> setInSession "messageFontSize", getInSession("tempFontSize")
+  "click #joinListenOnly": (event) -> joinVoiceCall @, isListenOnly: true
 
-Template.settingsSaveButton.events
+  "click #joinMicrophone": (event) -> joinVoiceCall @, isListenOnly: false
+
+Template.settingsModal.events
+  "click .closeSettings": -> setInSession "messageFontSize", getInSession("tempFontSize")
   "click #saveSettings": -> $("#settingsModal").foundation('reveal', 'close');
