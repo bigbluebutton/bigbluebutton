@@ -10,26 +10,26 @@ object ChatApp {
 class ChatApp {
   private var privateChats = new collection.immutable.HashMap[String, PrivateChatConversation]()
   private var publicChat = new PublicChatConversation(Seq())
-  
+
   private var counter = 0
-  
-  def generateMessageId():String = {
+
+  def generateMessageId(): String = {
     counter += 1
     "msg".concat(counter.toString)
   }
-  
+
   def savePrivateChat(conv: PrivateChatConversation) = {
     privateChats += conv.id -> conv
   }
-  
+
   def getConversionId(msg: PrivateMessage): String = {
     val from = new collection.immutable.StringOps(msg.from.id)
     val to = new collection.immutable.StringOps(msg.to.id)
-    
+
     if (from < to) from.concat("-").concat(to) else to.concat("-").concat(from)
-      
+
   }
-  
+
   def newPrivateChatMessage(msg: PrivateMessage) = {
     val convId = getConversionId(msg)
     val conversation = privateChats.get(convId)
@@ -45,12 +45,12 @@ class ChatApp {
       }
     }
   }
-  
+
   def newPublicChatMessages(msg: PublicMessage) = {
-     publicChat = publicChat.copy(messages = (publicChat.messages :+ msg)) 
+    publicChat = publicChat.copy(messages = (publicChat.messages :+ msg))
   }
-  
-  def getPublicChatHistory():Array[PublicMessage] = {
+
+  def getPublicChatHistory(): Array[PublicMessage] = {
     publicChat.messages.toArray
   }
 }

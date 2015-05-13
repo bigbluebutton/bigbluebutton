@@ -19,88 +19,88 @@ import org.bigbluebutton.endpoint.GetUsersRequestMessage
 import org.bigbluebutton.endpoint.AssignPresenterMessage
 
 trait UsersMessageUnmarshalling {
-  this : MessageUnmarshallingActor =>
-  
+  this: MessageUnmarshallingActor =>
+
   val messageHandlerActor: ActorRef
   val log: LoggingAdapter
-  
+
   def handleUserJoin(msg: HeaderAndJsonMessage) = {
-    def message(msg: HeaderAndJsonMessage):Option[UserJoinRequestFormat] = {    
+    def message(msg: HeaderAndJsonMessage): Option[UserJoinRequestFormat] = {
       import UserMessagesProtocol._
       try {
         Some(JsonParser(msg.jsonMessage).asJsObject.convertTo[UserJoinRequestFormat])
-      }  catch {
+      } catch {
         case e: DeserializationException => {
           log.error("Failed to deserialize UserJoinRequestMessage: [{}]", msg.jsonMessage)
           None
-        } 
+        }
         case e: ParsingException => {
           log.error("Invalid JSON Format : [{}]", msg)
           None
         }
       }
     }
-        
+
     message(msg) foreach { ujm => messageHandlerActor ! ujm }
   }
-  
-  def handleUserLeave(msg: HeaderAndJsonMessage) = {   
-    def message(msg: HeaderAndJsonMessage):Option[UserLeaveMessage] = {    
+
+  def handleUserLeave(msg: HeaderAndJsonMessage) = {
+    def message(msg: HeaderAndJsonMessage): Option[UserLeaveMessage] = {
       import UserMessagesProtocol._
       try {
         Some(JsonParser(msg.jsonMessage).asJsObject.convertTo[UserLeaveMessage])
-      }  catch {
+      } catch {
         case e: DeserializationException => {
           log.error("Failed to deserialize UserLeaveMessage: [{}]", msg.jsonMessage)
           None
-        } 
+        }
         case e: ParsingException => {
           log.error("Invalid JSON Format : [{}]", msg)
           None
         }
       }
-    }   
+    }
 
-    message(msg) foreach { ulm => messageHandlerActor ! ulm }    
+    message(msg) foreach { ulm => messageHandlerActor ! ulm }
   }
-  
+
   def handleGetUsers(msg: HeaderAndJsonMessage) = {
-    def message(msg: HeaderAndJsonMessage):Option[GetUsersRequestMessage] = {    
+    def message(msg: HeaderAndJsonMessage): Option[GetUsersRequestMessage] = {
       import UserMessagesProtocol._
       try {
         Some(JsonParser(msg.jsonMessage).asJsObject.convertTo[GetUsersRequestMessage])
-      }  catch {
+      } catch {
         case e: DeserializationException => {
           log.error("Failed to deserialize GetUsersRequestMessage: [{}]", msg.jsonMessage)
           None
-        } 
+        }
         case e: ParsingException => {
           log.error("Invalid JSON Format : [{}]", msg)
           None
         }
       }
-    }   
+    }
 
-    message(msg) foreach { gum => messageHandlerActor ! gum }   
+    message(msg) foreach { gum => messageHandlerActor ! gum }
   }
-  
+
   def handleAssignPresenter(msg: HeaderAndJsonMessage) = {
-    def message(msg: HeaderAndJsonMessage):Option[AssignPresenterMessage] = {    
+    def message(msg: HeaderAndJsonMessage): Option[AssignPresenterMessage] = {
       import UserMessagesProtocol._
       try {
         Some(JsonParser(msg.jsonMessage).asJsObject.convertTo[AssignPresenterMessage])
-      }  catch {
+      } catch {
         case e: DeserializationException => {
           log.error("Failed to deserialize AssignPresenterMessage: [{}]", msg.jsonMessage)
           None
-        } 
+        }
         case e: ParsingException => {
           log.error("Invalid JSON Format : [{}]", msg)
           None
         }
       }
-    }   
+    }
 
-    message(msg) foreach { apm => messageHandlerActor ! apm }     
+    message(msg) foreach { apm => messageHandlerActor ! apm }
   }
 }

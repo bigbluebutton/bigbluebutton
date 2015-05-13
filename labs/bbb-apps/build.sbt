@@ -5,7 +5,7 @@ organization := "org.bigbluebutton"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion  := "2.10.2"
+scalaVersion  := "2.11.6"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -13,13 +13,14 @@ scalacOptions ++= Seq(
   "-Xlint",
   "-Ywarn-dead-code",
   "-language:_",
-  "-target:jvm-1.6",
+  "-target:jvm-1.7",
   "-encoding", "UTF-8"
 )
 
 resolvers ++= Seq(
   "spray repo" at "http://repo.spray.io/",
-  "rediscala" at "https://github.com/etaty/rediscala-mvn/raw/master/releases/"
+  "rediscala" at "http://dl.bintray.com/etaty/maven",
+  "blindside-repos" at "http://blindside.googlecode.com/svn/repository/"
 )
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/dev/repo/maven-repo/releases" )) )
@@ -34,29 +35,29 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 libraryDependencies ++= {
-  val akkaVersion  = "2.2.3"
-  val sprayVersion = "1.2-RC3"
+  val akkaVersion  = "2.3.10"
+  val sprayVersion = "1.3.2"
   Seq(
-	  "io.spray"            %   "spray-can"       % sprayVersion,
-	  "io.spray"            %   "spray-routing"   % sprayVersion,
-	  "io.spray"            %   "spray-testkit"   % sprayVersion % "test",
-	  "io.spray"            %%  "spray-json"      % "1.2.5",
-    "com.github.sstone"   %%  "amqp-client"     % "1.3-ML1", 
-	  "com.typesafe.akka"   %%  "akka-camel"      % akkaVersion,
-	  "com.typesafe.akka"   %%  "akka-actor"      % akkaVersion,
-	  "com.typesafe.akka"   %%  "akka-testkit"    % akkaVersion % "test",
-	  "org.specs2"          %%  "specs2"          % "2.2.3" % "test",
-	  "org.scalatest"       %   "scalatest_2.10"  % "2.0" % "test",
-	  "com.typesafe.akka" 	%%  "akka-slf4j"      % akkaVersion,
-	  "ch.qos.logback"    	%   "logback-classic" % "1.0.3",
-	  "org.pegdown" 		    % 	"pegdown" 			  % "1.4.0",
-	  "junit" 				      %   "junit"           % "4.11",
-	  "com.etaty.rediscala" %% "rediscala"        % "1.3",
-	  "commons-codec"       %   "commons-codec"   % "1.8",
-	  "joda-time"           %   "joda-time"       % "2.3",
-	  "net.virtual-void" %%  "json-lenses" % "0.5.4"
+	  "io.spray"                 %%  "spray-json"        % sprayVersion,
+	  "io.spray"                 %%  "spray-routing"     % sprayVersion,
+	  "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
+	  "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
+	  "com.typesafe.akka" 	     %%  "akka-slf4j"        % akkaVersion,
+	  "ch.qos.logback"    	      %  "logback-classic"   % "1.0.3",
+	  "org.pegdown" 		      %  "pegdown"           % "1.4.0",
+	  "junit" 				      %  "junit"             % "4.11",
+	  "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
+	  "commons-codec"             %  "commons-codec"     % "1.8",
+	  "joda-time"                 %  "joda-time"         % "2.3",
+	  "net.virtual-void"         %%  "json-lenses"       % "0.5.4",
+	  "com.google.code.gson"      %  "gson"              % "1.7.1",
+	  "redis.clients"             %  "jedis"             % "2.1.0",
+	  "org.jboss.netty"           %  "netty"             % "3.2.1.Final",
+      "org.apache.commons"        %  "commons-lang3"     % "3.2"
 	)}
 
+libraryDependencies += "org.freeswitch"   %  "fs-esl-client" % "0.8.2" from "http://blindside.googlecode.com/svn/repository/org/freeswitch/fs-esl-client/0.8.2/fs-esl-client-0.8.2.jar"
 
 seq(Revolver.settings: _*)
 
+scalariformSettings

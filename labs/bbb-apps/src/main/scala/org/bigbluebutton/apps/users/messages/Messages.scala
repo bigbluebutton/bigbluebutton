@@ -7,10 +7,9 @@ import org.bigbluebutton.apps.users.data.JoinedUser
 import org.bigbluebutton.apps.users.data.UserIdAndName
 import org.bigbluebutton.apps.users.data.CallerId
 
+trait MeetingMessage { def session: Session }
 
-trait MeetingMessage{def session: Session}  
-
-case class Result(success:Boolean, message: String)
+case class Result(success: Boolean, message: String)
 
 /**
  * Message from 3rd-party to register a user.
@@ -21,18 +20,18 @@ case class RegisterUserRequest(session: Session, user: RegisterUser) extends Mee
  * Reply message for the register user request.
  */
 case class RegisterUserResponse(session: Session, result: Result,
-                                token: String, user: RegisterUser)
+  token: String, user: RegisterUser)
 
 /**
  * Message from 3rd-party for a user joining the meeting.
- */                                
+ */
 case class UserJoinRequest(session: Session, token: String)
 
 /**
  * Reply to the join user request.
  */
 case class UserJoinResponse(session: Session, result: Result,
-                              user: Option[JoinedUser])
+  user: Option[JoinedUser])
 
 /**
  * Broadcast message to interested parties that a user has joined the meeting.
@@ -58,11 +57,11 @@ case class GetUsersRequest(session: Session, requesterId: String)
  * Reply to the get user request.
  */
 case class GetUsersResponse(session: Session, requesterId: String, users: Seq[JoinedUser])
-  
+
 /**
  * Message to assign a presenter.
  */
-case class AssignPresenter(session: Session, presenter: Presenter)  
+case class AssignPresenter(session: Session, presenter: Presenter)
 
 /**
  * Broadcast message to tell users that a new presenter has been assigned.
@@ -97,9 +96,9 @@ case class HandLowered(session: Session, user: UserIdAndName, loweredBy: UserIdA
 /**
  * Message that informs a user has joined the voice conference.
  */
-case class VoiceUserJoin(userId: String, voiceConfId: String, callerId: CallerId, 
-                         muted: Boolean, locked: Boolean, talking: Boolean,
-                         metadata: Map[String, String])
+case class VoiceUserJoin(userId: String, voiceConfId: String, callerId: CallerId,
+  muted: Boolean, locked: Boolean, talking: Boolean,
+  metadata: Map[String, String])
 
 /**
  * Message to mute a user.
@@ -115,17 +114,16 @@ case class MuteUserRequest(session: Session, user: UserIdAndName, mute: Boolean,
  * Message to voice conference server to mute the user.
  */
 case class UserMuteRequest(session: Session, user: UserIdAndName, mute: Boolean,
-                           metadata: Map[String, String])
-                           
+  metadata: Map[String, String])
+
 /**
  * Message from voice conference server that the user has been muted.
  */
 case class UserMuted(userId: String, muted: Boolean, metadata: Map[String, String])
 
-
 case class UserHasBeenMuted(session: Session, user: UserIdAndName, muted: Boolean)
 
-case class LockUser(session: Session, user: UserIdAndName, lock:Boolean, lockedBy: UserIdAndName)
+case class LockUser(session: Session, user: UserIdAndName, lock: Boolean, lockedBy: UserIdAndName)
 
 case class LockedUser(session: Session, user: UserIdAndName, lock: Boolean, lockedBy: UserIdAndName)
 

@@ -9,9 +9,9 @@ import Message._
 import org.parboiled.errors.ParsingException
 
 object Message {
-   case class Meeting(id: String, name: String, session: String)
-   case class MessageHeader(name: String, timestamp: Long, meeting: Meeting)
-   case class MessageEvent(header: MessageHeader, payload: JsValue)
+  case class Meeting(id: String, name: String, session: String)
+  case class MessageHeader(name: String, timestamp: Long, meeting: Meeting)
+  case class MessageEvent(header: MessageHeader, payload: JsValue)
 }
 
 object MessageHeaderJsonProtocol extends DefaultJsonProtocol {
@@ -31,11 +31,11 @@ object MessageHandler {
       case None => None
     }
   }
- 
+
   def extractPayload(msg: JsObject): Option[JsValue] = {
-    msg.fields.get("payload")  
+    msg.fields.get("payload")
   }
-  
+
   def processMessage(msg: String): Option[JsObject] = {
     try {
       val msgObject = JsonParser(msg).asJsObject
@@ -44,9 +44,9 @@ object MessageHandler {
       case e: ParsingException => None
     }
   }
-  
+
   def forwardMessage(header: MessageHeader, payload: JsValue) {
-    
+
   }
 
   def handleMessage(jsonMsg: String) {
@@ -55,10 +55,10 @@ object MessageHandler {
       val msgObj = jsonObj get
       val header = extractMessageHeader(msgObj)
       val payload = extractPayload(msgObj)
-      
+
       if (header != None && payload != None) {
         forwardMessage(header get, payload get)
       }
     }
   }
-} 
+}

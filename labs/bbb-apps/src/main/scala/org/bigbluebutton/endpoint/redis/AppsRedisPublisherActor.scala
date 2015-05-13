@@ -10,18 +10,18 @@ import akka.actor.Actor
 import org.bigbluebutton.SystemConfiguration
 
 object AppsRedisPublisherActor extends SystemConfiguration {
- 
+
   val channels = Seq("time")
   val patterns = Seq("pattern.*")
-  
-  def props(system: ActorSystem): Props = 
-	      Props(classOf[AppsRedisPublisherActor], 
-	            system, redisHost, redisPort)
+
+  def props(system: ActorSystem): Props =
+    Props(classOf[AppsRedisPublisherActor],
+      system, redisHost, redisPort)
 }
 
-class AppsRedisPublisherActor(val system: ActorSystem, 
+class AppsRedisPublisherActor(val system: ActorSystem,
     val host: String, val port: Int) extends Actor {
-  
+
   val redis = RedisClient(host, port)(system)
 
   val futurePong = redis.ping()
@@ -29,17 +29,17 @@ class AppsRedisPublisherActor(val system: ActorSystem,
   futurePong.map(pong => {
     println(s"Redis replied with a $pong")
   })
-  
+
   Await.result(futurePong, 5 seconds)
-  
+
   def publish(channel: String, msg: String) {
     println("PUBLISH TO [" + channel + "]: \n [" + msg + "]")
- //   redis.publish("time", System.currentTimeMillis())
+    //   redis.publish("time", System.currentTimeMillis())
   }
-  
+
   def receive = {
     //case msg: JsonMessage => publish(msg.channel, msg.message)
-    case msg:String => println("PUBLISH TO [channel]: \n [" + msg + "]")
+    case msg: String => println("PUBLISH TO [channel]: \n [" + msg + "]")
   }
 
 }

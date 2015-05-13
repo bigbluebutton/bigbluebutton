@@ -3,7 +3,7 @@ package org.bigbluebutton.endpoint.redis
 import akka.actor.Props
 import java.net.InetSocketAddress
 import redis.actors.RedisSubscriberActor
-import redis.api.pubsub.{PMessage, Message}
+import redis.api.pubsub.{ PMessage, Message }
 import redis.RedisClient
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -27,7 +27,7 @@ class RedisPubSubActor {
 }
 
 class SubscribeActor(channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
-  extends RedisSubscriberActor(new InetSocketAddress("localhost", 6379), channels, patterns) {
+    extends RedisSubscriberActor(new InetSocketAddress("localhost", 6379), channels, patterns) {
 
   def onMessage(message: Message) {
     println(s"message received: $message")
