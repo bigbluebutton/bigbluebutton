@@ -565,7 +565,7 @@ body {
     -moz-flex: 4 4 80%;
     -ms-flex: 4 4 80%;
     flex: 4 4 80%;
-    height: 99%;
+    height: 100%;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
   height: 100%;
@@ -587,7 +587,7 @@ body {
     flex-flow: column;
   }
   width: 100%;
-  height: calc(~'100% - 55px');
+  height: calc(~'100% - 50px'); // 50px for narbar height
 }
 
 .signOutIcon {
@@ -691,4 +691,8 @@ body {
   #no {
 
   }
+}
+
+.top-bar {
+  line-height: 0;
 }
