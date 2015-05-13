@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.effects {
+package org.bigbluebutton.web.window.effects {
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -29,8 +29,8 @@ package org.bigbluebutton.web.common.effects {
 	import mx.effects.Effect;
 	import mx.effects.Parallel;
 	
-	import org.bigbluebutton.web.common.views.BBBManager;
-	import org.bigbluebutton.web.common.views.BBBWindow;
+	import org.bigbluebutton.web.window.views.BBBManager;
+	import org.bigbluebutton.web.window.views.BBBWindow;
 	
 	import spark.effects.Move;
 	import spark.effects.Resize;

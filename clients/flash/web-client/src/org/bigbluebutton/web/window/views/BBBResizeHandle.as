@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.views {
+package org.bigbluebutton.web.window.views {
 	
 	/**
 	 * Enumeration of possible resize handles.

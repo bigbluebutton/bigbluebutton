@@ -2,7 +2,7 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   xmlns:common="org.bigbluebutton.web.common.views.*"
+			   xmlns:views="org.bigbluebutton.web.window.views.*"
 			   width="100%" height="100%"
 			   preinitialize="preinitializeHandler(event)"
 			   creationComplete="creationCompleteHandler(event)">
@@ -17,7 +17,7 @@
 			
 			import org.bigbluebutton.web.AppConfig;
 			import org.bigbluebutton.web.chat.views.ChatConfig;
-			import org.bigbluebutton.web.common.views.BBBWindow;
+			import org.bigbluebutton.web.window.views.BBBWindow;
 			
 			import robotlegs.bender.bundles.mvcs.MVCSBundle;
 			import robotlegs.bender.extensions.contextView.ContextView;
@@ -72,16 +72,8 @@
 		<s:layout>
 			<s:VerticalLayout gap="0" />
 		</s:layout>
-		<s:Rect width="50" height="50">
-			<s:fill>
-				<s:SolidColor color="#000000" />
-			</s:fill>
-			<s:stroke>
-				<s:SolidColorStroke color="#ff0000" weight="10" />
-			</s:stroke>
-		</s:Rect>
-		<common:BBBCanvas id="mainCanvas" width="100%" height="100%">
-			
-		</common:BBBCanvas>
+		<views:BBBCanvas id="mainCanvas" width="100%" height="100%">
+			<views:BBBWindow id="testWindow" title="Test Window" />
+		</views:BBBCanvas>
 	</s:Group>
 </s:Application>

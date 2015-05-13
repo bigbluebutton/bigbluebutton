@@ -21,13 +21,13 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.events {
+package org.bigbluebutton.web.window.events {
 	import flash.events.Event;
 	
 	import mx.effects.Effect;
 	
-	import org.bigbluebutton.web.common.views.BBBManager;
-	import org.bigbluebutton.web.common.views.BBBWindow;
+	import org.bigbluebutton.web.window.views.BBBManager;
+	import org.bigbluebutton.web.window.views.BBBWindow;
 	
 	/**
 	 * Event type dispatched by BBBManager. Majority of events based on/relayed from managed windows.

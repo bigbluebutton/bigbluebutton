@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.views {
+package org.bigbluebutton.web.window.views {
 	
 	import flash.display.DisplayObject;
 	
@@ -110,30 +110,30 @@ package org.bigbluebutton.web.common.views {
 				
 				// now that we're sized we set our position
 				// right aligned, respecting border width
-				this.x = window.width - this.width; //- Number(window.getStyle("borderThicknessRight"));
+				this.x = window.width - this.width - Number(window.getStyle("borderThickness")) * 2;
 				// vertically centered
 				this.y = window.titleBarOverlay.y + (window.titleBarOverlay.height - this.height) / 2;
 			}
+			
+			
+			// lay out the title field and icon (if present)
+			var tf:Label = window.getTitleTextField();
+			//   var icon:DisplayObject = window.getTitleIconObject();
+			
+			//   tf.x = Number(window.getStyle("borderThicknessLeft"));
+			
+			//   if (icon) {
+			//   icon.x = tf.x;
+			//   tf.x = icon.x + icon.width + 4;
+			//   }
+			
+			// ghetto truncation
+			if (!window.minimized) {
+				tf.width = this.x - tf.x;
+			} else {
+				tf.width = window.width - tf.x - 4;
+			}
 		
-		/*
-		   // lay out the title field and icon (if present)
-		   var tf:Label = window.getTitleTextField();
-		   var icon:DisplayObject = window.getTitleIconObject();
-		
-		   tf.x = Number(window.getStyle("borderThicknessLeft"));
-		
-		   if (icon) {
-		   icon.x = tf.x;
-		   tf.x = icon.x + icon.width + 4;
-		   }
-		
-		   // ghetto truncation
-		   if (!window.minimized) {
-		   tf.width = this.x - tf.x;
-		   } else {
-		   tf.width = window.width - tf.x - 4;
-		   }
-		 */
 		}
 	}
 }

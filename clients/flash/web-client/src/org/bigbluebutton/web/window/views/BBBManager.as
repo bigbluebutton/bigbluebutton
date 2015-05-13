@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.views {
+package org.bigbluebutton.web.window.views {
 	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -41,12 +41,12 @@ package org.bigbluebutton.web.common.views {
 	import mx.events.ResizeEvent;
 	import mx.utils.ArrayUtil;
 	
-	import org.bigbluebutton.web.common.effects.BBBEffectsDescriptorBase;
-	import org.bigbluebutton.web.common.effects.BBBGroupEffectItem;
-	import org.bigbluebutton.web.common.effects.IBBBEffectsDescriptorBase;
-	import org.bigbluebutton.web.common.events.BBBEffectEvent;
-	import org.bigbluebutton.web.common.events.BBBManagerEvent;
-	import org.bigbluebutton.web.common.events.BBBWindowEvent;
+	import org.bigbluebutton.web.window.effects.BBBEffectsDescriptorBase;
+	import org.bigbluebutton.web.window.effects.BBBGroupEffectItem;
+	import org.bigbluebutton.web.window.effects.IBBBEffectsDescriptorBase;
+	import org.bigbluebutton.web.window.events.BBBEffectEvent;
+	import org.bigbluebutton.web.window.events.BBBManagerEvent;
+	import org.bigbluebutton.web.window.events.BBBWindowEvent;
 	
 	/**
 	 * Class responsible for applying effects and default behaviors to BBBWindow instances such as

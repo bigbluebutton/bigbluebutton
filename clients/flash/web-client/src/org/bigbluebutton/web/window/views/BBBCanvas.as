@@ -21,12 +21,12 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.views {
+package org.bigbluebutton.web.window.views {
 	
 	import mx.core.IVisualElement;
 	import mx.events.FlexEvent;
 	
-	import org.bigbluebutton.web.common.effects.IBBBEffectsDescriptorBase;
+	import org.bigbluebutton.web.window.effects.IBBBEffectsDescriptorBase;
 	
 	import spark.components.Group;
 	

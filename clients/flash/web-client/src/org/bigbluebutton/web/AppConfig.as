@@ -8,7 +8,7 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
-	import org.bigbluebutton.lib.main.commands.AuthenticationCommand;
+	import org.bigbluebutton.air.main.commands.AuthenticationCommand;
 	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
@@ -16,10 +16,10 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.IUserSession;
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.UserSession;
-	import org.bigbluebutton.lib.main.models.UserUISession;
+	import org.bigbluebutton.air.main.models.UserUISession;
 	import org.bigbluebutton.lib.main.services.BigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.services.ILoginService;

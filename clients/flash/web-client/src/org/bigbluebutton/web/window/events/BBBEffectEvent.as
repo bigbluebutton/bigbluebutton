@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.events {
+package org.bigbluebutton.web.window.events {
 	import mx.events.EffectEvent;
 	
 	/**

@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.views {
+package org.bigbluebutton.web.window.views {
 	
 	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
@@ -35,23 +35,24 @@ package org.bigbluebutton.web.common.views {
 	import flash.utils.getQualifiedClassName;
 	
 	import mx.core.FlexGlobals;
+	import mx.core.UITextField;
 	import mx.managers.CursorManager;
 	import mx.styles.CSSStyleDeclaration;
 	
-	import org.bigbluebutton.web.common.events.BBBWindowEvent;
+	import org.bigbluebutton.web.common.skins.BetterButtonSkin;
+	import org.bigbluebutton.web.window.events.BBBWindowEvent;
+	import org.bigbluebutton.web.window.skins.BBBWindowSkin;
 	
 	import spark.components.Button;
 	import spark.components.Group;
+	import spark.components.Label;
 	import spark.components.Panel;
+	import spark.core.IDisplayText;
 	
 	/**
 	 * Central window class used in flexlib.mdi. Includes min/max/close buttons by default.
 	 */
 	public class BBBWindow extends Panel {
-		
-		private const TITLE_HEIGHT:int = 32;
-		
-		private const TITLE_Y:int = -32;
 		
 		private const RESIZE_BUTTON_ALPHA:Number = 0;
 		
@@ -352,7 +353,7 @@ package org.bigbluebutton.web.common.views {
 			//------------------------
 			//  type selector
 			//------------------------
-			var selector:CSSStyleDeclaration = FlexGlobals.topLevelApplication.styleManager.getStyleDeclaration("org.bigbluebutton.web.common.views.BBBWindow");
+			var selector:CSSStyleDeclaration = FlexGlobals.topLevelApplication.styleManager.getStyleDeclaration("org.bigbluebutton.web.window.views.BBBWindow");
 			
 			if (!selector) {
 				selector = new CSSStyleDeclaration();
@@ -361,15 +362,15 @@ package org.bigbluebutton.web.common.views {
 			// these are default names for secondary styles. these can be set in CSS and will affect
 			// all windows that don't have an override for these styles.
 			selector.defaultFactory = function():void {
-				this.styleNameFocus = "mdiWindowFocus";
-				this.styleNameNoFocus = "mdiWindowNoFocus";
+				this.styleNameFocus = "BBBWindowFocus";
+				this.styleNameNoFocus = "BBBWindowNoFocus";
 				
-				this.titleStyleName = "mdiWindowTitleStyle";
+				this.titleStyleName = "BBBWindowTitleStyle";
 				
-				this.minimizeBtnStyleName = "mdiWindowMinimizeBtn";
-				this.maximizeBtnStyleName = "mdiWindowMaximizeBtn";
-				this.restoreBtnStyleName = "mdiWindowRestoreBtn";
-				this.closeBtnStyleName = "mdiWindowCloseBtn";
+				this.minimizeBtnStyleName = "BBBWindowMinimizeBtn";
+				this.maximizeBtnStyleName = "BBBWindowMaximizeBtn";
+				this.restoreBtnStyleName = "BBBWindowRestoreBtn";
+				this.closeBtnStyleName = "BBBWindowCloseBtn";
 				
 				this.windowControlsClass = BBBWindowControls;
 				
@@ -400,14 +401,13 @@ package org.bigbluebutton.web.common.views {
 			}
 			winFocusSelector.defaultFactory = function():void {
 				this.headerHeight = 26;
-				this.roundedBottomCorners = true;
 				this.borderColor = 0xCCCCCC;
-				this.borderThicknessTop = 0;
-				this.borderThicknessRight = 3;
-				this.borderThicknessBottom = 3;
-				this.borderThicknessLeft = 3;
 				this.borderAlpha = 1;
+				this.borderThickness = 1;
 				this.backgroundAlpha = 1;
+				this.dropShadowVisible = false;
+				this.cornerRadius = 5;
+				this.skinClass = BBBWindowSkin;
 			}
 			FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("." + styleNameFocus, winFocusSelector, false);
 			
@@ -421,14 +421,13 @@ package org.bigbluebutton.web.common.views {
 			}
 			winNoFocusSelector.defaultFactory = function():void {
 				this.headerHeight = 26;
-				this.roundedBottomCorners = true;
 				this.borderColor = 0xCCCCCC;
-				this.borderThicknessTop = 0;
-				this.borderThicknessRight = 3;
-				this.borderThicknessBottom = 3;
-				this.borderThicknessLeft = 3;
 				this.borderAlpha = .5;
+				this.borderThickness = 1;
 				this.backgroundAlpha = .5;
+				this.dropShadowVisible = false;
+				this.cornerRadius = 5;
+				this.skinClass = BBBWindowSkin;
 			}
 			FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("." + styleNameNoFocus, winNoFocusSelector, false);
 			
@@ -457,10 +456,12 @@ package org.bigbluebutton.web.common.views {
 				minimizeBtnSelector = new CSSStyleDeclaration();
 			}
 			minimizeBtnSelector.defaultFactory = function():void {
-				this.upSkin = DEFAULT_MINIMIZE_BUTTON;
-				this.overSkin = DEFAULT_MINIMIZE_BUTTON;
-				this.downSkin = DEFAULT_MINIMIZE_BUTTON;
-				this.disabledSkin = DEFAULT_MINIMIZE_BUTTON;
+				this.borderAlpha = 0;
+				this.backgroundAlpha = 0;
+				this.highlightAlpha = 0;
+				this.lowlightAlpha = 0;
+				this.skinClass = BetterButtonSkin;
+				this.icon = DEFAULT_MINIMIZE_BUTTON;
 			}
 			FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("." + minimizeBtnStyleName, minimizeBtnSelector, false);
 			
@@ -473,10 +474,12 @@ package org.bigbluebutton.web.common.views {
 				maximizeBtnSelector = new CSSStyleDeclaration();
 			}
 			maximizeBtnSelector.defaultFactory = function():void {
-				this.upSkin = DEFAULT_MAXIMIZE_BUTTON;
-				this.overSkin = DEFAULT_MAXIMIZE_BUTTON;
-				this.downSkin = DEFAULT_MAXIMIZE_BUTTON;
-				this.disabledSkin = DEFAULT_MAXIMIZE_BUTTON;
+				this.borderAlpha = 0;
+				this.backgroundAlpha = 0;
+				this.highlightAlpha = 0;
+				this.lowlightAlpha = 0;
+				this.skinClass = BetterButtonSkin;
+				this.icon = DEFAULT_MAXIMIZE_BUTTON;
 			}
 			FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("." + maximizeBtnStyleName, maximizeBtnSelector, false);
 			
@@ -489,10 +492,12 @@ package org.bigbluebutton.web.common.views {
 				restoreBtnSelector = new CSSStyleDeclaration();
 			}
 			restoreBtnSelector.defaultFactory = function():void {
-				this.upSkin = DEFAULT_RESTORE_BUTTON;
-				this.overSkin = DEFAULT_RESTORE_BUTTON;
-				this.downSkin = DEFAULT_RESTORE_BUTTON;
-				this.disabledSkin = DEFAULT_RESTORE_BUTTON;
+				this.borderAlpha = 0;
+				this.backgroundAlpha = 0;
+				this.highlightAlpha = 0;
+				this.lowlightAlpha = 0;
+				this.skinClass = BetterButtonSkin;
+				this.icon = DEFAULT_RESTORE_BUTTON;
 			}
 			FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("." + restoreBtnStyleName, restoreBtnSelector, false);
 			
@@ -505,15 +510,17 @@ package org.bigbluebutton.web.common.views {
 				closeBtnSelector = new CSSStyleDeclaration();
 			}
 			closeBtnSelector.defaultFactory = function():void {
-				this.upSkin = DEFAULT_CLOSE_BUTTON;
-				this.overSkin = DEFAULT_CLOSE_BUTTON;
-				this.downSkin = DEFAULT_CLOSE_BUTTON;
-				this.disabledSkin = DEFAULT_CLOSE_BUTTON;
+				this.borderAlpha = 0;
+				this.backgroundAlpha = 0;
+				this.highlightAlpha = 0;
+				this.lowlightAlpha = 0;
+				this.skinClass = BetterButtonSkin;
+				this.icon = DEFAULT_CLOSE_BUTTON;
 			}
 			FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("." + closeBtnStyleName, closeBtnSelector, false);
 			
 			// apply it all
-			FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("org.bigbluebutton.web.common.views.BBBWindow", selector, false);
+			FlexGlobals.topLevelApplication.styleManager.setStyleDeclaration("org.bigbluebutton.web.window.views.BBBWindow", selector, false);
 			
 			return true;
 		}
@@ -554,9 +561,9 @@ package org.bigbluebutton.web.common.views {
 			if (!titleBarOverlay) {
 				titleBarOverlay = new Button();
 				titleBarOverlay.width = this.width;
-				titleBarOverlay.height = TITLE_HEIGHT; //this.titleBar.height;
+				titleBarOverlay.height = getStyle("headerHeight");
 				titleBarOverlay.alpha = RESIZE_BUTTON_ALPHA;
-				titleBarOverlay.y = TITLE_Y;
+				titleBarOverlay.y = -(getStyle("headerHeight"));
 				titleBarOverlay.setStyle("backgroundColor", 0x000000);
 				///TODO				BindingUtils.bindProperty(titleBarOverlay, "toolTip", this, "title");
 				addElement(titleBarOverlay);
@@ -647,45 +654,48 @@ package org.bigbluebutton.web.common.views {
 		override protected function updateDisplayList(w:Number, h:Number):void {
 			super.updateDisplayList(w, h);
 			
+			var titleOffset:Number = getStyle("headerHeight");
+			
 			titleBarOverlay.width = this.width;
-			titleBarOverlay.height = TITLE_HEIGHT; //this.titleBar.height;
+			titleBarOverlay.height = titleOffset;
+			titleBarOverlay.y = -titleOffset;
 			
 			// edges
 			resizeHandleTop.x = cornerHandleSize * .5;
-			resizeHandleTop.y = -(edgeHandleSize * .5) + TITLE_Y;
+			resizeHandleTop.y = -(edgeHandleSize * .5) - titleOffset;
 			resizeHandleTop.width = this.width - cornerHandleSize;
 			resizeHandleTop.height = edgeHandleSize;
 			
 			resizeHandleRight.x = this.width - edgeHandleSize * .5;
-			resizeHandleRight.y = cornerHandleSize * .5 + TITLE_Y;
+			resizeHandleRight.y = cornerHandleSize * .5 - titleOffset;
 			resizeHandleRight.width = edgeHandleSize;
 			resizeHandleRight.height = this.height - cornerHandleSize;
 			
 			resizeHandleBottom.x = cornerHandleSize * .5;
-			resizeHandleBottom.y = this.height - edgeHandleSize * .5 + TITLE_Y;
+			resizeHandleBottom.y = this.height - edgeHandleSize * .5 - titleOffset;
 			resizeHandleBottom.width = this.width - cornerHandleSize;
 			resizeHandleBottom.height = edgeHandleSize;
 			
 			resizeHandleLeft.x = -(edgeHandleSize * .5);
-			resizeHandleLeft.y = cornerHandleSize * .5 + TITLE_Y;
+			resizeHandleLeft.y = cornerHandleSize * .5 - titleOffset;
 			resizeHandleLeft.width = edgeHandleSize;
 			resizeHandleLeft.height = this.height - cornerHandleSize;
 			
 			// corners
 			resizeHandleTL.x = -(cornerHandleSize * .5)
-			resizeHandleTL.y = -(cornerHandleSize * .5) + TITLE_Y;
+			resizeHandleTL.y = -(cornerHandleSize * .5) - titleOffset;
 			resizeHandleTL.width = resizeHandleTL.height = cornerHandleSize;
 			
 			resizeHandleTR.x = this.width - cornerHandleSize * .5;
-			resizeHandleTR.y = -(cornerHandleSize * .5) + TITLE_Y;
+			resizeHandleTR.y = -(cornerHandleSize * .5) - titleOffset;
 			resizeHandleTR.width = resizeHandleTR.height = cornerHandleSize;
 			
 			resizeHandleBR.x = this.width - cornerHandleSize * .5;
-			resizeHandleBR.y = this.height - cornerHandleSize * .5 + TITLE_Y;
+			resizeHandleBR.y = this.height - cornerHandleSize * .5 - titleOffset;
 			resizeHandleBR.width = resizeHandleBR.height = cornerHandleSize;
 			
 			resizeHandleBL.x = -(cornerHandleSize * .5);
-			resizeHandleBL.y = this.height - cornerHandleSize * .5 + TITLE_Y;
+			resizeHandleBL.y = this.height - cornerHandleSize * .5 - titleOffset;
 			resizeHandleBL.width = resizeHandleBL.height = cornerHandleSize;
 			
 			// cause windowControls container to update
@@ -742,12 +752,17 @@ package org.bigbluebutton.web.common.views {
 			// style the window's title
 			// this code is probably not as efficient as it could be but i am sick of dealing with styling
 			// if titleStyleName (the style inherited from Panel) has been set we use that, regardless of focus
-			if (!hasFocus && getStyleByPriority(selectorList, "titleStyleNameNoFocus")) {
-				setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameNoFocus"));
-			} else if (getStyleByPriority(selectorList, "titleStyleNameFocus")) {
-				setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameFocus"));
-			} else {
-				getStyleByPriority(selectorList, "titleStyleName")
+			if (titleDisplay) {
+				if (!hasFocus && getStyleByPriority(selectorList, "titleStyleNameNoFocus")) {
+					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleNameNoFocus");
+					//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameNoFocus"));
+				} else if (getStyleByPriority(selectorList, "titleStyleNameFocus")) {
+					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleNameFocus");
+					//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameFocus"));
+				} else {
+					//getStyleByPriority(selectorList, "titleStyleName")
+					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleName");
+				}
 			}
 			
 			// style minimize button
@@ -804,7 +819,7 @@ package org.bigbluebutton.web.common.views {
 				}
 			}
 			// add type selector (created in classConstruct so we know it exists)
-			var typeSelector:CSSStyleDeclaration = FlexGlobals.topLevelApplication.styleManager.getStyleDeclaration("org.bigbluebutton.web.common.views.BBBWindow");
+			var typeSelector:CSSStyleDeclaration = FlexGlobals.topLevelApplication.styleManager.getStyleDeclaration("org.bigbluebutton.web.window.views.BBBWindow");
 			selectorList.push(typeSelector);
 			
 			return selectorList;
@@ -916,15 +931,16 @@ package org.bigbluebutton.web.common.views {
 			}
 		}
 		
-		/*
-		   /**
-		 * Returns reference to titleTextField which is protected by default.
+		
+		/**
+		 * Returns reference to titleDisplay which is protected by default.
 		 * Provided to allow BBBWindowControls subclasses as much freedom as possible.
-		   /
-		   public function getTitleTextField():UITextField {
-		   return titleTextField as UITextField;
-		   }
 		 */
+		public function getTitleTextField():Label {
+			var t:Label = (titleDisplay as Label);
+			return (titleDisplay as Label);
+		}
+		
 		
 		/*
 		   /**
@@ -1351,7 +1367,7 @@ package org.bigbluebutton.web.common.views {
 		}
 		
 		public function get minimizeHeight():Number {
-			return TITLE_HEIGHT; //titleBar.height;
+			return getStyle("headerHeight");
 		}
 		
 		public static const CONTEXT_MENU_LABEL_MINIMIZE:String = "Minimize";

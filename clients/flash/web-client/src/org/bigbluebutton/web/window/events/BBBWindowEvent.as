@@ -21,11 +21,11 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.events {
+package org.bigbluebutton.web.window.events {
 	
 	import flash.events.Event;
 	
-	import org.bigbluebutton.web.common.views.BBBWindow;
+	import org.bigbluebutton.web.window.views.BBBWindow;
 	
 	/**
 	 * Event type dispatched by BBBWindow. Events will also be rebroadcast (as BBBManagerEvents)

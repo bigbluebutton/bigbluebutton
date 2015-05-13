@@ -21,10 +21,10 @@
  * SOFTWARE.
  */
 
-package org.bigbluebutton.web.common.effects {
+package org.bigbluebutton.web.window.effects {
 	import flash.geom.Point;
 	
-	import org.bigbluebutton.web.common.views.BBBWindow;
+	import org.bigbluebutton.web.window.views.BBBWindow;
 	
 	public class BBBGroupEffectItem {
 		public var window:BBBWindow;
