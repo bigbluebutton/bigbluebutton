@@ -88,10 +88,11 @@ Template.header.events
     toggleWhiteBoard()
 
   "click .toggleUserlist": (event) ->
-    if isLandscape()
+    ###if isLandscape()
       toggleUsersList()
     else
-      toggleLeftHandSlidingMenu()
+      toggleLeftHandSlidingMenu()###
+    toggleUsersList()
 
   "click .toggleMenuButton": (event) ->
     toggleRightHandSlidingMenu()

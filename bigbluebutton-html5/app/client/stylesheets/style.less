@@ -252,6 +252,12 @@ body {
   width: 100%;
   height: 100%;
   background-color: extract(@white, 3);
+  &.moved-to-right {
+    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+      position: fixed;
+      left: 500px;
+    }
+  }
 }
 
 .ui-widget-overlay {
