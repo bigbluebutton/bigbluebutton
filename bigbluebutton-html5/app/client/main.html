@@ -41,15 +41,7 @@
 </template>
 
 <template name="main">
-  {{#if getInSession "display_usersList"}}
-    {{> container id="container" class="moved-to-right"}}
-  {{else}}
-    {{> container id="container"}}
-  {{/if}}
-</template>
-
-<template name="container">
-  <div id="{{id}}" class="{{class}}">
+  <div id="container" class="{{containerPosition}}">
     {{#if isDisconnected}}
       {{>status}}
     {{else}}

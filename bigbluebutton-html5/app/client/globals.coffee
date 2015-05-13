@@ -152,6 +152,13 @@ Handlebars.registerHelper "visibility", (section) ->
   else
     style: 'display:none;'
 
+Handlebars.registerHelper 'containerPosition', (section) ->
+  if getInSession 'display_usersList'
+    return 'moved-to-right'
+  else
+    return ''
+  
+
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
   www = /(^|[^\/])(www\.[\S]+($|\b))/img
