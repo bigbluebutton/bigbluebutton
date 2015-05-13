@@ -157,7 +157,6 @@ Handlebars.registerHelper 'containerPosition', (section) ->
     return 'moved-to-right'
   else
     return ''
-  
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
@@ -227,14 +226,6 @@ Handlebars.registerHelper 'containerPosition', (section) ->
 @toggleUsersList = ->
   setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
-
-@toggleLeftHandSlidingMenu = ->
-  if $('#container').css('position') is 'fixed'
-    $('#container').css('position', '')
-    $('#container').css('left', '')
-  else
-    $('#container').css('left', '500px')
-    $('#container').css('position', 'fixed')
 
 @toggleRightHandSlidingMenu = ->
   if $('#container').css('position') is 'fixed'
