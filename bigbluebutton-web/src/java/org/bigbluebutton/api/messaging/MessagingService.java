@@ -32,9 +32,6 @@ public interface MessagingService {
 	void endMeeting(String meetingId);
 	void send(String channel, String message);
 	void sendPolls(String meetingId, String title, String question, String questionType, List<String> answers);
-	String storeSubscription(String meetingId, String externalMeetingID, String callbackURL);
-	boolean removeSubscription(String meetingId, String subscriptionId);
-	List<Map<String,String>> listSubscriptions(String meetingId);
 	void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken);
 	void sendKeepAlive(String keepAliveId);
 }
