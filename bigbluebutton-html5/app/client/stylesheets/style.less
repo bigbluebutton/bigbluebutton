@@ -187,13 +187,18 @@ body {
     z-index: 1; // same level as notifications
     .shield {
       position: absolute;
-      top: 50px;
       left: 0;
       width: 100%;
       height: 100%;
       background-color: black;
       opacity: 0.5;
       z-index: 1;
+      @media @landscape, @desktop-portrait {
+        top: 50px;
+      }
+      @media @mobile-portrait-with-keyboard, @mobile-portrait {
+        top: 110px;
+      }
     }
   }
 }
