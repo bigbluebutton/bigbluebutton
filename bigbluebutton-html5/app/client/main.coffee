@@ -72,11 +72,11 @@ Template.header.events
     $(".tooltip").hide()
     toggleCam @
 
-  "click .toggleUserlist": (event) ->
+  "click .toggleUserlistButton": (event) ->
     toggleUsersList()
 
   "click .toggleMenuButton": (event) ->
-    toggleRightHandSlidingMenu()
+    toggleMenu()
 
 Template.menu.events
   'click .slideButton': (event) ->

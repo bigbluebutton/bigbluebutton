@@ -1,9 +1,9 @@
 <template name="header">
   <nav id="navbar" class="myNavbar gradientBar top-bar" role="navigation">
     {{#if getInSession "display_usersList"}}
-      {{> makeButton btn_class="toggleUserlist navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Close Userlist"}}
+      {{> makeButton btn_class="toggleUserlistButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Close Userlist"}}
     {{else}}
-      {{> makeButton btn_class="toggleUserlist navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Open Userlist"}}
+      {{> makeButton btn_class="toggleUserlistButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Open Userlist"}}
     {{/if}}
 
     {{#if amIInAudio}}
