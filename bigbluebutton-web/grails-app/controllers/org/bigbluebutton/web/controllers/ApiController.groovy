@@ -1474,6 +1474,11 @@ class ApiController {
 									custdata "$k" : v
 								}
               }
+              metadata = array {
+                meeting.getMetadata().each{ k, v ->
+                  metadata "$k" : v
+                }
+              }
             }
           }
         }
