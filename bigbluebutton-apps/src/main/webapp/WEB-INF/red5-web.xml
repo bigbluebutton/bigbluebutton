@@ -86,18 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="0" ref="outMsgGW"/>
     </bean>
     
-    <bean id="collectorGW" class="org.bigbluebutton.core.CollectorGateway">
-        <constructor-arg index="0" ref="collDispatcher"/>
-    </bean>
-    
-    <bean id="collDispatcher" class="org.bigbluebutton.core.api.ConsoleDispatcher"/>
 
-    <bean id="redisLpushDispatcher" class="org.bigbluebutton.core.api.RedisLpushDispatcher" 
-           init-method="start" destroy-method="stop">
-      <property name="redisPool"><ref bean="redisPool" /> </property>
-    </bean>
-
-      
     <bean id="outMsgGW" class="org.bigbluebutton.core.api.MessageOutGateway">
         <property name="listeners">
             <set>
@@ -172,50 +161,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <constructor-arg index="0" ref="connInvokerService"/>
     </bean>
     
-    <bean id="chatRedisRecorder" class="org.bigbluebutton.core.apps.chat.redis.ChatEventRedisRecorder">
-        <constructor-arg index="0" ref="recorderApplication"/>
-    </bean>
-
-    <bean id="chatRedisPublisher" class="org.bigbluebutton.core.apps.chat.redis.ChatEventRedisPublisher">
-      <constructor-arg ref="redisMessageSender"/>
-    </bean>  
-            
+          
     <bean id="meetingEventRedisPublisher" class="org.bigbluebutton.core.meeting.MeetingEventRedisPublisher">
       <constructor-arg ref="redisMessageSender" />
     </bean>
 
-    <bean id="pollRedisPublisher" class="org.bigbluebutton.core.apps.poll.redis.PollEventRedisPublisher">
-        <constructor-arg index="0" ref="redisMessageSender"/>
-    </bean>
-    
-    <bean id="pollRedisRecorder" class="org.bigbluebutton.core.apps.poll.redis.PollEventRedisRecorder">
-        <constructor-arg index="0" ref="recorderApplication"/>
-    </bean>
-
-    <bean id="pollMessageHandler" class="org.bigbluebutton.conference.service.poll.messaging.redis.PollRedisMessageHandler">
-      <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
-    </bean>
-            
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
       <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
     </bean>
     
-
-        
-	<import resource="bbb-redis-pool.xml"/>
-	<import resource="bbb-redis-recorder.xml"/>
-	<import resource="bbb-app-chat.xml" />
-	<import resource="bbb-app-layout.xml" />
-	<import resource="bbb-app-poll.xml" />
-	<import resource="bbb-app-presentation.xml" />
-	<import resource="bbb-app-whiteboard.xml" />
-	<import resource="bbb-app-users.xml" />
-	
-	<import resource="bbb-voice-app.xml" />
-  <import resource="bbb-voice-freeswitch.xml" />
-  	
+       
+	<import resource="bbb-redis-pool.xml"/> 	
   	<import resource="bbb-redis-messaging.xml"/>
-  	<!--
-  	<import resource="spring/applicationContext-redis.xml"/>
-  	-->
+
 </beans>

@@ -20,7 +20,6 @@ package org.bigbluebutton.conference.service.layout;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
-import scala.Option;
 
 public class LayoutApplication {	
 	private IBigBlueButtonInGW bbbInGW;
@@ -33,11 +32,11 @@ public class LayoutApplication {
 		bbbInGW.broadcastLayout(meetingID, requesterID, layout);
 	}
 
-	public void lockLayout(String meetingId, String setById, 
-                           Boolean lock, Boolean viewersOnly,
-                           Option<String> layout) {
-		bbbInGW.lockLayout(meetingId, setById, lock, viewersOnly, layout); 
-	}
+//	public void lockLayout(String meetingId, String setById, 
+//                           Boolean lock, Boolean viewersOnly,
+//                           Option<String> layout) {
+//		bbbInGW.lockLayout(meetingId, setById, lock, viewersOnly, layout); 
+//	}
 
 	public void getCurrentLayout(String meetingID, String requesterID) {
 		bbbInGW.getCurrentLayout(meetingID, requesterID);

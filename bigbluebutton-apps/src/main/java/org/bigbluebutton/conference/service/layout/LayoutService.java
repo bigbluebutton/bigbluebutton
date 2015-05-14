@@ -25,7 +25,6 @@ import org.bigbluebutton.conference.Constants;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
-import scala.Option;
 
 public class LayoutService {
 	
@@ -59,12 +58,12 @@ public class LayoutService {
 		Boolean lock = (Boolean) message.get("lock");
 		Boolean viewersOnly = (Boolean) message.get("viewersOnly");
 				
-		Option<String> layout;
-		if  (newlayout == null || newlayout.isEmpty()) {
-			layout = Option.empty();
-		} else {
-			layout = scala.Option.apply(newlayout);
-		}
+//		Option<String> layout;
+//		if  (newlayout == null || newlayout.isEmpty()) {
+//			layout = Option.empty();
+//		} else {
+//			layout = scala.Option.apply(newlayout);
+//		}
 		
 		if (lock == null) {
 			log.error("Invalid Lock Layout message. lock in null.");
@@ -76,7 +75,7 @@ public class LayoutService {
 			return;
 		}
 		
-		application.lockLayout(meetingID, getBbbSession().getInternalUserID(), lock, viewersOnly, layout);
+//		application.lockLayout(meetingID, getBbbSession().getInternalUserID(), lock, viewersOnly, layout);
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {
