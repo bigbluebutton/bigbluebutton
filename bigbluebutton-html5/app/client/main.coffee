@@ -128,5 +128,9 @@ Template.main.rendered = ->
   if Meteor.config.app.autoJoinAudio
     onAudioJoinHelper()
 
+Template.main.events
+  'click .shield': (event) ->
+    closePushMenus()
+
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()

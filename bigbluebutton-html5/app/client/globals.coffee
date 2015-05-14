@@ -197,6 +197,10 @@ Handlebars.registerHelper 'containerPosition', (section) ->
 @toggleMenu = ->
   setInSession 'display_menu', !getInSession 'display_menu'
 
+@closePushMenus = ->
+  setInSession 'display_usersList', false
+  setInSession 'display_menu', false
+
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
 @exitVoiceCall = (event) ->
