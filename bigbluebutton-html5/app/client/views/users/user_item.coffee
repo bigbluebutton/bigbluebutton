@@ -23,5 +23,8 @@ Template.displayUserIcons.helpers
     return locked and lockInAction
 
 Template.usernameEntry.events
-  'click #usernameEntry': (event) ->
+  'click .usernameEntry': (event) ->
     userIdSelected = @.userId
+    console.log userIdSelected
+    unless userIdSelected is null or userIdSelected is BBB.getCurrentUser()?.userId
+      setInSession "inChatWith", userIdSelected
