@@ -22,9 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
-import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
@@ -40,7 +38,6 @@ import com.google.gson.Gson;
 public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
 
-	private RecorderApplication recorderApplication;
 	private ConnectionInvokerService connInvokerService;
 	private IBigBlueButtonInGW bbbGW;
 	
@@ -96,7 +93,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	
 	@Override
 	public void roomStop(IScope room) {
-		recorderApplication.destroyRecordSession(room.getName());	
 		super.roomStop(room);
 	}
     	
@@ -128,7 +124,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		}
 		   	    	
 		if (record == true) {
-			recorderApplication.createRecordSession(room);
+
 		}
 		
 		String userId = internalUserID;
@@ -254,9 +250,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		bbbGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
 	}
 		
-	public void setRecorderApplication(RecorderApplication a) {
-		recorderApplication = a;
-	}
 	
 	public void setApplicationListeners(Set<IApplication> listeners) {
 		Iterator<IApplication> iter = listeners.iterator();
