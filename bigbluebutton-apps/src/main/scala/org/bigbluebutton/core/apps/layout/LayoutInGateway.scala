@@ -15,7 +15,12 @@ class LayoutInGateway(bbbGW: BigBlueButtonGateway) {
 	
 	def lockLayout(meetingID: String, setById: String, 
 	               lock: Boolean, viewersOnly: Boolean,
-                 layout: Option[String]) {
-	  bbbGW.accept(new LockLayoutRequest(meetingID, setById, lock, viewersOnly, layout))
+                 layout: String) {
+    if (layout != null) {
+      bbbGW.accept(new LockLayoutRequest(meetingID, setById, lock, viewersOnly, Some(layout)))
+    } else {
+      bbbGW.accept(new LockLayoutRequest(meetingID, setById, lock, viewersOnly, None))
+    }
+	  
 	}
 }

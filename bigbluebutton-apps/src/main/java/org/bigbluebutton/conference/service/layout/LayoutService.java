@@ -25,7 +25,6 @@ import org.bigbluebutton.conference.Constants;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
-import scala.Option;
 
 public class LayoutService {
 	
@@ -58,12 +57,12 @@ public class LayoutService {
 		String newlayout = (String) message.get("layout");
 		Boolean lock = (Boolean) message.get("lock");
 		Boolean viewersOnly = (Boolean) message.get("viewersOnly");
-				
-		Option<String> layout;
+		String layout;
+		
 		if  (newlayout == null || newlayout.isEmpty()) {
-			layout = Option.empty();
+			layout = null;
 		} else {
-			layout = scala.Option.apply(newlayout);
+			layout = newlayout;
 		}
 		
 		if (lock == null) {
