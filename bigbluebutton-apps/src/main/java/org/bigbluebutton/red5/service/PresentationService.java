@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.red5.service.presentation;
+package org.bigbluebutton.red5.service;
 
 import java.util.Map;
 

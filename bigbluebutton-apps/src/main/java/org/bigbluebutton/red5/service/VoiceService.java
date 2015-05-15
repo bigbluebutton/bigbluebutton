@@ -16,12 +16,13 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.red5.service.voice;
+package org.bigbluebutton.red5.service;
 import java.util.Map;
 
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.service.voice.VoiceKeyUtil;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;

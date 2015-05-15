@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.red5.service.lock;
+package org.bigbluebutton.red5.service;
 
 import java.util.ArrayList;
 import java.util.Map;

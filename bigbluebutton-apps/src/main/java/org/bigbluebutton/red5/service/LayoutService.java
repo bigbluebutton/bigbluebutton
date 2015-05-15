@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * Author: Felipe Cecagno <felipe@mconf.org>
 */
-package org.bigbluebutton.red5.service.layout;
+package org.bigbluebutton.red5.service;
 
 import java.util.Map;
 

@@ -17,7 +17,7 @@
 *
 */
 
-package org.bigbluebutton.red5.service.participants;
+package org.bigbluebutton.red5.service;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
