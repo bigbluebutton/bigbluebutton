@@ -7,15 +7,16 @@ import org.bigbluebutton.core.api.OutMessageListener2
 
 class CollectorGateway(dispatcher: IDispatcher) extends OutMessageListener2 {
 
-  private val collActor = new CollectorActor(dispatcher)
+  // FIXME
+//  private val collActor = new CollectorActor(dispatcher)
   
-  collActor.start
+//  collActor.start
   
   def collectInMessage(msg: InMessage) {
-    collActor ! msg
+//    collActor ! msg
   }
   
   def handleMessage(msg: IOutMessage) {
-    collActor ! msg
+//    collActor ! msg
   }
 }

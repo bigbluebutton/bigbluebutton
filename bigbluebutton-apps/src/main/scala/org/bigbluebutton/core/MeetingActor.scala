@@ -1,7 +1,9 @@
 package org.bigbluebutton.core
 
-import scala.actors.Actor
-import scala.actors.Actor._
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.ActorLogging
+import akka.actor.Props
 import org.bigbluebutton.core.apps.poll.Poll
 import org.bigbluebutton.core.apps.poll.PollApp
 import org.bigbluebutton.core.apps.users.UsersApp
@@ -10,12 +12,26 @@ import org.bigbluebutton.core.apps.presentation.PresentationApp
 import org.bigbluebutton.core.apps.layout.LayoutApp
 import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
-import scala.actors.TIMEOUT
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 
 case object StopMeetingActor
-                      
+
+object MeetingActor {
+  def props(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean, 
+                   voiceBridge: String, duration: Long, 
+                   autoStartRecording: Boolean, allowStartStopRecording: Boolean,
+                   moderatorPass: String, viewerPass: String,
+                   createTime: Long, createDate: String,
+                   outGW: MessageOutGateway): Props = 
+        Props(classOf[MeetingActor], meetingID, externalMeetingID, meetingName, recorded, 
+                   voiceBridge, duration, 
+                   autoStartRecording, allowStartStopRecording,
+                   moderatorPass, viewerPass,
+                   createTime, createDate,
+                   outGW)
+}
+
 class MeetingActor(val meetingID: String, val externalMeetingID: String, val meetingName: String, val recorded: Boolean, 
                    val voiceBridge: String, duration: Long, 
                    val autoStartRecording: Boolean, val allowStartStopRecording: Boolean,
@@ -24,7 +40,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
                    val outGW: MessageOutGateway) 
                    extends Actor with UsersApp with PresentationApp
                    with PollApp with LayoutApp with ChatApp
-                   with WhiteboardApp with LogHelper {  
+                   with WhiteboardApp with ActorLogging {  
 
   var audioSettingsInited = false
   var permissionsInited = false
@@ -32,38 +48,21 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   var recording = false;
   var muted = false;
   var meetingEnded = false
-
-  def getDuration():Long = {
-    duration
-  }
-
-  def getMeetingName():String = {
-    meetingName
-  }
-
-  def getRecordedStatus():Boolean = {
-    recorded
-  }
-
-  def getVoiceBridgeNumber():String = {
-    voiceBridge
-  }
   
   val TIMER_INTERVAL = 30000
   var hasLastWebUserLeft = false
   var lastWebUserLeftOn:Long = 0
 
-  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
-    def act {
-        reactWithin(timeout) {
-          case TIMEOUT => who ! reply
-        }
-    }
-  }
+  // FIXME
+//  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
+//    def act {
+//        reactWithin(timeout) {
+//          case TIMEOUT => who ! reply
+//        }
+//    }
+//  }
   
-  def act() = {
-	loop {
-	  react {
+  def receive = {
 	    case "StartTimer"                                => handleStartTimer
 	    case "Hello"                                     => handleHello
 	    case "MonitorNumberOfWebUsers"                   => handleMonitorNumberOfWebUsers()
@@ -138,10 +137,8 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: VoiceRecording                         => handleVoiceRecording(msg)
 	    
 	    case msg: EndMeeting                             => handleEndMeeting(msg)
-	    case StopMeetingActor                            => exit
+	    case StopMeetingActor                            => //exit
 	    case _ => // do nothing
-	  }
-	}
   }
   
   def hasMeetingEnded():Boolean = {
@@ -169,7 +166,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   
   def startRecordingIfAutoStart() {
     if (recorded && !recording && autoStartRecording && users.numWebUsers == 1) {
-      logger.info("Auto start recording for meeting=[" + meetingID + "]")
+      log.info("Auto start recording for meeting=[" + meetingID + "]")
      recording = true
      outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))          
     }
@@ -178,7 +175,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   def stopAutoStartedRecording() {
     if (recorded && recording && autoStartRecording 
         && users.numWebUsers == 0) {
-      logger.info("Last web user left. Auto stopping recording for meeting=[{}", meetingID)
+      log.info("Last web user left. Auto stopping recording for meeting=[{}", meetingID)
       recording = false
       outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))          
     }    
@@ -187,7 +184,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   def startCheckingIfWeNeedToEndVoiceConf() {
     if (users.numWebUsers == 0) {
       lastWebUserLeftOn = timeNowInMinutes
-	    logger.debug("MonitorNumberOfWebUsers started for meeting [" + meetingID + "]")
+	    log.debug("MonitorNumberOfWebUsers started for meeting [" + meetingID + "]")
       scheduleEndVoiceConference()
     }
   }
@@ -195,7 +192,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   def handleMonitorNumberOfWebUsers() {
     if (users.numWebUsers == 0 && lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - lastWebUserLeftOn > 2) {
-        logger.info("MonitorNumberOfWebUsers empty for meeting [" + meetingID + "]. Ejecting all users from voice.")
+        log.info("MonitorNumberOfWebUsers empty for meeting [" + meetingID + "]. Ejecting all users from voice.")
         outGW.send(new EjectAllVoiceUsers(meetingID, recorded, voiceBridge))
       } else {
         scheduleEndVoiceConference()
@@ -204,9 +201,9 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   }
   
   private def scheduleEndVoiceConference() {
-    logger.debug("MonitorNumberOfWebUsers continue for meeting [" + meetingID + "]")
-    val timerActor = new TimerActor(TIMER_INTERVAL, self, "MonitorNumberOfWebUsers")
-    timerActor.start    
+    log.debug("MonitorNumberOfWebUsers continue for meeting [" + meetingID + "]")
+//    val timerActor = new TimerActor(TIMER_INTERVAL, self, "MonitorNumberOfWebUsers")
+//    timerActor.start    
   }
   
   def timeNowInMinutes():Long = {
@@ -236,10 +233,10 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   }
   
   private def handleSetRecordingStatus(msg: SetRecordingStatus) {
-    logger.debug("Change recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
+    log.debug("Change recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
     if (allowStartStopRecording && recording != msg.recording) {
      recording = msg.recording
-     logger.debug("Sending recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
+     log.debug("Sending recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
      outGW.send(new RecordingStatusChanged(meetingID, recorded, msg.userId, msg.recording))      
     }
   }   

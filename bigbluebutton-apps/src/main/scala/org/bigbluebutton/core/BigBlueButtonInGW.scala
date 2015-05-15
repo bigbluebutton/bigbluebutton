@@ -354,8 +354,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	
 	def lockLayout(meetingId: String, setById: String, 
 	               lock: Boolean, viewersOnly: Boolean,
-                 layout: scala.Option[String]) {
-	    layoutGW.lockLayout(meetingId, setById, lock, viewersOnly, layout)
+                 layout: String) {
+      layoutGW.lockLayout(meetingId, setById, lock, viewersOnly, layout)
+	    
 	}
 	
 	/*********************************************************************

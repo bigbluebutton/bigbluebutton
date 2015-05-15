@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.voice
 
-import scala.actors.Actor
-import scala.actors.Actor._
+import akka.actor._
+import akka.actor.ActorLogging
 
 case class MuteAllUsers(meetingId: String, except: Option[Seq[String]])
 case class MuteUser(meetingId: String, userId: String)

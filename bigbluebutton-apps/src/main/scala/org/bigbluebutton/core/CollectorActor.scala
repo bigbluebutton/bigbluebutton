@@ -1,7 +1,7 @@
 package org.bigbluebutton.core
 
-import scala.actors.Actor
-import scala.actors.Actor._
+import akka.actor._
+import akka.actor.ActorLogging
 import org.bigbluebutton.core.api._
 import com.google.gson.Gson
 import scala.collection.mutable.HashMap
@@ -19,9 +19,7 @@ import org.bigbluebutton.core.apps.users.redis.UsersMessageToJsonConverter
 
 class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
-  def act() = {
-    loop {
-      react {
+  def receive = {
         //IN MESSAGES
         case msg: CreateMeeting                 => handleCreateMeeting(msg)
         case msg: InitializeMeeting             => handleInitializeMeeting(msg)
@@ -178,8 +176,6 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
         case msg: GetAllMeetingsReply           => handleGetAllMeetingsReply(msg)
 
         case _ => // do nothing
-      }
-    }
   }
 
   private def buildUserHashMap(user: UserVO):java.util.HashMap[String, Object] = {

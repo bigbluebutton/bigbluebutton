@@ -1,8 +1,10 @@
 package org.bigbluebutton.freeswitch
 
+import akka.actor.{ ActorSystem, Props }
 import org.bigbluebutton.webconference.voice.IVoiceConferenceService
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.webconference.voice.FreeswitchConferenceEventListener
+import akka.actor.ActorRef
 
 class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy, 
                              fsListener: FreeswitchConferenceEventListener) 
@@ -11,13 +13,18 @@ class FreeswitchConferenceService(fsproxy: FreeswitchManagerProxy,
 
   fsListener.setVoiceConferenceService(this)
   
+  implicit val system = ActorSystem("bigbluebutton-apps-fsesl")
+ 
+
+                            
   var bbbInGW: IBigBlueButtonInGW = _
-  var fsActor: FreeswitchConferenceActor = _
+  var fsActor: ActorRef = _
   
   def setIBigBlueButtonInGW(inGW: IBigBlueButtonInGW) {
       bbbInGW = inGW
-      fsActor = new FreeswitchConferenceActor(fsproxy, bbbInGW)
-      fsActor.start
+      fsActor = system.actorOf(
+                            FreeswitchConferenceActor.props(system, fsproxy, bbbInGW), 
+                            "bigbluebutton-fs-actor")
   }
   
   def handleMessage(msg: IOutMessage) {
