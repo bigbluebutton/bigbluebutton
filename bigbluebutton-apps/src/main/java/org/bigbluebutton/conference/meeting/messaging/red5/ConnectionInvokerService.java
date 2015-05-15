@@ -22,20 +22,13 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
-import org.red5.server.api.scope.ScopeType;
 import org.red5.server.api.service.ServiceUtils;
-import org.red5.server.api.so.ISharedObject;
-import org.red5.server.api.so.ISharedObjectService;
-import org.red5.server.so.SharedObjectService;
-import org.red5.server.util.ScopeUtils;
 import org.slf4j.Logger;
 
 public class ConnectionInvokerService {
@@ -93,8 +86,6 @@ public class ConnectionInvokerService {
 			sendBroadcastMessage((BroadcastClientMessage) message);
 		} else if (message instanceof DirectClientMessage) {
 			sendDirectMessage((DirectClientMessage) message);
-		} else if (message instanceof SharedObjectClientMessage) {
-			sendSharedObjectMessage((SharedObjectClientMessage) message);
 		} else if (message instanceof DisconnectClientMessage) {
 			handlDisconnectClientMessage((DisconnectClientMessage) message);
 		} else if (message instanceof DisconnectAllClientsMessage) {
@@ -130,27 +121,6 @@ public class ConnectionInvokerService {
 			}				
 		}		
 	}	
-
-	private void sendSharedObjectMessage(SharedObjectClientMessage msg) {
-		System.out.println("*********** Request to send [" + msg.getMessageName() + "] using shared object.");
-		
-		IScope meetingScope = getScope(msg.getMeetingID());
-		if (meetingScope != null) {
-			if (meetingScope.hasChildScope(ScopeType.SHARED_OBJECT, msg.getSharedObjectName())) {
-				ISharedObject so = getSharedObject(meetingScope, msg.getSharedObjectName());
-				if (so != null) {
-					System.out.println("*********** Sending [" + msg.getMessageName() + "] using shared object.");
-					so.sendMessage(msg.getMessageName(), msg.getMessage());
-				} else {
-					System.out.println("**** Cannot get SO for [" + msg.getSharedObjectName() + "]");
-				}
-			} else {
-				System.out.println("**** No SO scope for [" + msg.getSharedObjectName() + "]");
-			}
-		} else {
-			System.out.println("**** No Meeting scope for [" + msg.getMeetingID() + "]");
-		}
-	}
 	
 	private void sendDirectMessage(final DirectClientMessage msg) {
 	  final String sessionId = CONN + msg.getUserID();
@@ -216,8 +186,4 @@ public class ConnectionInvokerService {
 		return null;
 	}
 	
-	private ISharedObject getSharedObject(IScope scope, String name) {
-		ISharedObjectService service = (ISharedObjectService) ScopeUtils.getScopeService(scope, ISharedObjectService.class, SharedObjectService.class, false);
-		return service.getSharedObject(scope, name);
-	}
 }

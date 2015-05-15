@@ -23,78 +23,81 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
+
 import java.util.Map;
+
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 
 public class ParticipantsService {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
-	private ParticipantsApplication application;
+
     private final String CONN = "RED5-";
     
+	private IBigBlueButtonInGW bbbInGW;
+	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
+	}
+	
 	public void assignPresenter(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		application.assignPresenter(scope.getName(), (String) msg.get("newPresenterID"), (String) msg.get("newPresenterName"), (String) msg.get("assignedBy"));
+		bbbInGW.assignPresenter(scope.getName(), (String) msg.get("newPresenterID"), (String) msg.get("newPresenterName"), (String) msg.get("assignedBy"));
 	}
 	
 	public void getParticipants() {
 		IScope scope = Red5.getConnectionLocal().getScope();
         String connId = Red5.getConnectionLocal().getSessionId();    
-        String sessionId =  CONN + connId + "-" + getBbbSession().getInternalUserID();
-		application.getUsers(scope.getName(), getBbbSession().getInternalUserID(), sessionId);
+        bbbInGW.getUsers(scope.getName(), getBbbSession().getInternalUserID());
 	}
 	
 	public void userRaiseHand() {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String userId = getBbbSession().getInternalUserID();
-		application.userRaiseHand(scope.getName(), userId);
+		bbbInGW.userRaiseHand(scope.getName(), userId);
 	}
 	
 	public void lowerHand(Map<String, String> msg) {
 		String userId = (String) msg.get("userId");
 		String loweredBy = (String) msg.get("loweredBy");
 		IScope scope = Red5.getConnectionLocal().getScope();
-		application.lowerHand(scope.getName(), userId, loweredBy);
+		bbbInGW.lowerHand(scope.getName(), userId, loweredBy);
 	}
 	
 	public void ejectUserFromMeeting(Map<String, String> msg) {
 		String userId = (String) msg.get("userId");
 		String ejectedBy = (String) msg.get("ejectedBy");
 		IScope scope = Red5.getConnectionLocal().getScope();
-		application.ejectUserFromMeeting(scope.getName(), userId, ejectedBy);
+		bbbInGW.ejectUserFromMeeting(scope.getName(), userId, ejectedBy);
 	}
 	
 	public void shareWebcam(String stream) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String userId = getBbbSession().getInternalUserID();
-		application.shareWebcam(scope.getName(), userId, stream);		
+		bbbInGW.shareWebcam(scope.getName(), userId, stream);		
 	}
 	
 	public void unshareWebcam(String stream) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String userId = getBbbSession().getInternalUserID();
-		application.unshareWebcam(scope.getName(), userId, stream);
+		bbbInGW.unshareWebcam(scope.getName(), userId, stream);
 	}
 	
 	public void setParticipantStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-
-		application.setParticipantStatus(roomName, (String) msg.get("userID"), (String) msg.get("status"), (Object) msg.get("value"));
-	}
-	
-	public void setParticipantsApplication(ParticipantsApplication a) {
-		application = a;
+		bbbInGW.setUserStatus(roomName, (String) msg.get("userID"), (String) msg.get("status"), (Object) msg.get("value"));
 	}
 	
 	public void setRecordingStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.setRecordingStatus(roomName, (String)msg.get("userId"), (Boolean) msg.get("recording"));
+		bbbInGW.setRecordingStatus(roomName, (String)msg.get("userId"), (Boolean) msg.get("recording"));
 	}
 
 	public void getRecordingStatus() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.getRecordingStatus(roomName, getMyUserId());
+		bbbInGW.getRecordingStatus(roomName, getMyUserId());
 	}
 	
 	public String getMyUserId() {

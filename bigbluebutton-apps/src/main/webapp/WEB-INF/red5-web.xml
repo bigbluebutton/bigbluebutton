@@ -55,9 +55,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<ref bean="whiteboardApplication" />
     		</set>
   		</property>	  
-  		<property name="recorderApplication"> 
-  		  <ref bean="recorderApplication"/>
-  		</property>	
   		<property name="connInvokerService"> 
   		  <ref bean="connInvokerService"/>
   		</property>		
@@ -75,39 +72,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   	
     <bean id="bbbInGW" class="org.bigbluebutton.core.BigBlueButtonInGW">
         <constructor-arg index="0" ref="bbbGW"/>
-        <constructor-arg index="1" ref="preuploadedPresentationsUtil"/>
     </bean>
-    
-    <bean id="preuploadedPresentationsUtil" class="org.bigbluebutton.conference.service.presentation.PreuploadedPresentationsUtil">
-      <property name="bigBlueButtonDirectory" value="${default.BigBlueButtonDirectory}"/>
-    </bean>
-              
+                 
     <bean id="bbbGW" class="org.bigbluebutton.core.BigBlueButtonGateway">
         <constructor-arg index="0" ref="outMsgGW"/>
     </bean>
     
-
     <bean id="outMsgGW" class="org.bigbluebutton.core.api.MessageOutGateway">
         <property name="listeners">
             <set>
                 <ref bean="presentationRed5ClientSender" />  
-                <ref bean="presentationRedisRecorder" />
-                <ref bean="presentationRedisPublisher" />
                 <ref bean="usersRed5ClientSender" />   
-                <ref bean="usersRedisRecorder" />
-                <ref bean="usersRedisPublisher" />
-                <ref bean="meetingEventRedisPublisher" />  
                 <ref bean="layoutRed5ClientSender" /> 
-                <ref bean="pollRed5ClientSender" />
-                <ref bean="pollRedisRecorder" />  
-                <ref bean="pollRedisPublisher"/>  
                 <ref bean="whiteboardRed5ClientSender"/> 
-                <ref bean="whiteboardRedisRecorder"/>
-                <ref bean="whiteboardEventRedisPublisher"/>
-                <ref bean="chatRed5ClientSender"/>   
-                <ref bean="chatRedisRecorder"/>
-                <ref bean="chatRedisPublisher"/>
-                <ref bean="fsConfService"/>                    
+                <ref bean="chatRed5ClientSender"/>                   
                 <ref bean="whiteboardEventRedisPublisher"/>             
             </set>        
          </property> 
