@@ -14,7 +14,8 @@ Template.slide.rendered = ->
   pic.src = currentSlide?.slide?.png_uri
 
 @createWhiteboardPaper = (callback) =>
-  @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper')
+  # @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper')
+  @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard')
   callback(@whiteboardPaperModel)
 
 @displaySlide = (wpm) ->
@@ -50,11 +51,12 @@ Template.slide.rendered = ->
     # for landscape orientation we want "fit to height" so that we can
     # minimize the empty space above and below the slide (for best readability)
     boardWidth = $("#whiteboard").width()
-    if $('#whiteboard-paper').css('display') is 'none'
-      boardHeight = $("#whiteboard").height()
-    else
+    # if $('#whiteboard-paper').css('display') is 'none'
+      # boardHeight = $("#whiteboard").height()
+    # else
       # the slide area is under the whiteboard navbar. -10 so that the slide stays within
-      boardHeight = $("#whiteboard").height() - 10
+      # boardHeight = $("#whiteboard").height() - 10
+    boardHeight = $("#whiteboard").height() - 10
   else
     # for portrait orientation we want "fit to width" so that we can
     # minimize the empty space on the sides of the slide (for best readability)

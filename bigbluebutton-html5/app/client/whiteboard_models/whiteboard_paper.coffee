@@ -217,7 +217,8 @@ class Meteor.WhiteboardPaperModel
   _updateContainerDimensions: ->
     #console.log "update Container Dimensions"
 
-    $container = $('#whiteboard-paper')
+    # $container = $('#whiteboard-paper')
+    $container = $('#whiteboard')
     @containerWidth = $container.innerWidth()
     @containerHeight = $container.innerHeight()
 
@@ -334,12 +335,14 @@ class Meteor.WhiteboardPaperModel
     if originalWidth <= originalHeight
       # square => boardHeight is the shortest side
       @adjustedWidth = boardHeight * originalWidth / originalHeight
-      $('#whiteboard-paper').width(@adjustedWidth)
+      # $('#whiteboard-paper').width(@adjustedWidth)
+      $('#whiteboard').width(@adjustedWidth)
       @addImageToPaper(data, @adjustedWidth, boardHeight)
       @adjustedHeight = boardHeight
     else
       @adjustedHeight = boardWidth * originalHeight / originalWidth
-      $('#whiteboard-paper').height(@adjustedHeight)
+      # $('#whiteboard-paper').height(@adjustedHeight)
+      $('#whiteboard').height(@adjustedHeight)
       @addImageToPaper(data, boardWidth, @adjustedHeight)
       @adjustedWidth = boardWidth
 

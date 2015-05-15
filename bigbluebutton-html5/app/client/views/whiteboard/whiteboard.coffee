@@ -6,6 +6,15 @@
   wpm.clearCursor()
   manuallyDisplayShapes()
   wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
+
+
+  if window.matchMedia('(orientation: landscape)').matches
+    $("#whiteboard").css('height', '100%')
+  else
+    $('#whiteboard').css('height', $('#main').width()*1.4)
+    $('#whiteboard').css('width', $("#main").width())
+
+
   wpm.createCursor()
   if callback
     callback()
@@ -34,7 +43,8 @@ Template.whiteboard.events
       elem.mozRequestFullScreen()
     else if elem.webkitRequestFullscreen
       elem.webkitRequestFullscreen()
-    $('#whiteboard-paper').addClass('invisible')
+    # $('#whiteboard-paper').addClass('invisible')
+    $('#whiteboard').addClass('invisible')
     $('#chat').addClass('invisible')
     $('#users').addClass('invisible')
     $('#footer').addClass('invisible')
@@ -48,8 +58,10 @@ Template.whiteboard.events
     $('body').css('overflow', 'hidden')
     setTimeout () ->
       redrawWhiteboard () ->
-        $('#whiteboard-paper').removeClass('invisible')
-        $('#whiteboard-paper').addClass('vertically-centered')
+        # $('#whiteboard-paper').removeClass('invisible')
+        # $('#whiteboard-paper').addClass('vertically-centered')
+        $('#whiteboard').removeClass('invisible')
+        $('#whiteboard').addClass('vertically-centered')
     , 100
 
     # Listens for the fullscreen state change (user leaves fullscreen mode)
@@ -58,7 +70,8 @@ Template.whiteboard.events
     $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
       if document.webkitFullscreenElement is null
         $('#whiteboard').unbind('webkitfullscreenchange')
-        $('#whiteboard-paper').removeClass('vertically-centered')
+        # $('#whiteboard-paper').removeClass('vertically-centered')
+        $('#whiteboard').removeClass('vertically-centered')
         $('#chat').removeClass('invisible')
         $('#users').removeClass('invisible')
         $('#footer').removeClass('invisible')
@@ -75,7 +88,8 @@ Template.whiteboard.events
     $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
       if document.mozFullScreenElement is null
         $(document).unbind('mozfullscreenchange')
-        $('#whiteboard-paper').removeClass('vertically-centered')
+        # $('#whiteboard-paper').removeClass('vertically-centered')
+        $('#whiteboard').removeClass('vertically-centered')
         $('#chat').removeClass('invisible')
         $('#users').removeClass('invisible')
         $('#footer').removeClass('invisible')

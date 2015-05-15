@@ -1,12 +1,20 @@
 @import "variables";
+@import "mixins";
 
 #whiteboard {
+  overflow: hidden;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media @desktop-portrait {
+    width: inherit;
+  }
+
   @media @landscape {
     -webkit-flex: 7 7 70%;
     -moz-flex: 7 7 70%;
     -ms-flex: 7 7 70%;
     flex: 7 7 70%;
-    height: 100%;
     display: -moz-flex;
     display: -ms-flexbox;
     display: -ms-flex;
@@ -15,18 +23,45 @@
     align-items: center;
     -webkit-align-items: center;
     -ms-align-items: center;
-  }
-}
 
-#whiteboard-paper {
-  margin-left: auto;
-  margin-right: auto;
+    #svggroup {
+      height: 100% !important;
+      svg {
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+  }
+
+  @media @desktop-portrait {
+    #svggroup {
+      position: relative;
+      // top: 50%;
+      // transform: translateY(-50%);
+      // margin-top: -200px;
+      svg {
+      }
+    }
+  }
+
   #svggroup {
     display: block;
-    height: 100% !important;
     width: 100% !important;
   }
 }
+
+// #whiteboard-paper {
+//   margin-left: auto;
+//   margin-right: auto;
+//   #svggroup {
+//     display: block;
+//     height: 100% !important;
+//     width: 100% !important;
+//   }
+//   @media @landscape {
+//     .vertically-centered;
+//   }
+// }
 
 .fullscreenWhiteboardButton {
   float: right;
@@ -56,10 +91,4 @@
   font-size: 28px;
   float: right;
   margin-right: 90px;
-}
-
-.vertically-centered {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
 }
