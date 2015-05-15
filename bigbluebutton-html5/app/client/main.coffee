@@ -80,7 +80,7 @@ Template.header.events
 
 Template.menu.events
   'click .slideButton': (event) ->
-    toggleRightHandSlidingMenu()
+    toggleMenu()
 
 Template.main.rendered = ->
   $("#dialog").dialog(
