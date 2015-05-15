@@ -1,4 +1,4 @@
-package org.bigbluebutton.red5.service.messaging.redis;
+package org.bigbluebutton.red5.pubsub.redis;
 
 public class ReceivedMessage {
 

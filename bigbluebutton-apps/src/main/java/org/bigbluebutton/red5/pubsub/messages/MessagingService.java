@@ -16,8 +16,12 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.red5.service.messaging.redis;
+package org.bigbluebutton.red5.pubsub.messages;
 
-public interface MessageHandler {
-	void handleMessage(String pattern, String channel, String message);
+import redis.clients.jedis.Jedis;
+
+public interface MessagingService {
+	public void send(String channel, String message);
+	public Jedis createRedisClient();
+	public void dropRedisClient(Jedis jedis);
 }

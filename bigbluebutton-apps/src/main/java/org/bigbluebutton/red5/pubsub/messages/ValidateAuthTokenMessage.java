@@ -1,4 +1,4 @@
-package org.bigbluebutton.red5.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 public class ValidateAuthTokenMessage implements IMessage {
 	public static final String VALIDATE_AUTH_TOKEN  = "validate_auth_token";

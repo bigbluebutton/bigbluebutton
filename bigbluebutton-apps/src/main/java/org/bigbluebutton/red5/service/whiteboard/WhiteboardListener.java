@@ -3,8 +3,8 @@ package org.bigbluebutton.red5.service.whiteboard;
 
 
 import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.service.messaging.MessagingConstants;
-import org.bigbluebutton.red5.service.messaging.redis.MessageHandler;
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+import org.bigbluebutton.red5.pubsub.redis.MessageHandler;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;

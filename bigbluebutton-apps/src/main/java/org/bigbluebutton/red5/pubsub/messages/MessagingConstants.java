@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.red5.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 public class MessagingConstants {
 	

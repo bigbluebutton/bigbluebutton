@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.service.messaging.MessagingConstants;
-import org.bigbluebutton.red5.service.messaging.redis.MessageHandler;
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+import org.bigbluebutton.red5.pubsub.redis.MessageHandler;
 
 public class ChatMessageListener implements MessageHandler{
 

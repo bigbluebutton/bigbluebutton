@@ -1,4 +1,4 @@
-package org.bigbluebutton.red5.service.messaging.redis;
+package org.bigbluebutton.red5.pubsub.redis;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;

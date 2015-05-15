@@ -6,8 +6,8 @@ package org.bigbluebutton.red5.service.participants;
 
 import org.bigbluebutton.red5.BigBlueButtonApplication;
 import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.service.messaging.MessagingConstants;
-import org.bigbluebutton.red5.service.messaging.redis.MessageHandler;
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+import org.bigbluebutton.red5.pubsub.redis.MessageHandler;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 

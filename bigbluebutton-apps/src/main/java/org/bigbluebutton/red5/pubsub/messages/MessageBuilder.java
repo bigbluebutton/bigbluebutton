@@ -1,4 +1,4 @@
-package org.bigbluebutton.red5.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 import java.util.concurrent.TimeUnit;
 
