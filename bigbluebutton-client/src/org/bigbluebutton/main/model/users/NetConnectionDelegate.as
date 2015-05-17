@@ -54,6 +54,7 @@ package org.bigbluebutton.main.model.users
 		private var _room:String;
 		private var tried_tunneling:Boolean = false;
 		private var logoutOnUserCommand:Boolean = false;
+		private var guestKickedOutCommand:Boolean = false;
 		private var backoff:Number = 2000;
 		
 		private var dispatcher:Dispatcher;    
@@ -76,6 +77,10 @@ package org.bigbluebutton.main.model.users
 		
     public function setUri(uri:String):void {
       _applicationURI = uri;
+
+      var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+      var result:Array = pattern.exec(uri);
+      BandwidthMonitor.getInstance().serverURL = result.server;
     }
        
         
@@ -225,7 +230,8 @@ package org.bigbluebutton.main.model.users
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
-											_conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings);			
+											_conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings,
+											_conferenceParameters.guest);
 			} catch(e:ArgumentError) {
 				// Invalid parameters.
 				switch (e.errorID) {
@@ -243,6 +249,12 @@ package org.bigbluebutton.main.model.users
 			this.logoutOnUserCommand = logoutOnUserCommand;
 			_netConnection.close();
 		}
+
+		public function guestDisconnect() : void
+		{
+			this.guestKickedOutCommand = true;
+			_netConnection.close();
+		}
 		
     
     public function forceClose():void {
@@ -253,17 +265,6 @@ package org.bigbluebutton.main.model.users
 			handleResult( event );
 		}
 		
-    private var _bwMon:BandwidthMonitor = new BandwidthMonitor();
-    
-    private function startMonitoringBandwidth():void {
-      trace("Start monitoring bandwidth.");
-      var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
-      var result:Array = pattern.exec(_applicationURI);
-      _bwMon.serverURL = result.server;
-      _bwMon.serverApplication = "video";
-      _bwMon.start();
-    }
-        
     private var autoReconnectTimer:Timer = new Timer(1000, 1);
     
 		public function handleResult(event:Object):void {
@@ -358,7 +359,12 @@ package org.bigbluebutton.main.model.users
 		private function sendConnectionFailedEvent(reason:String):void{
       var logData:Object = new Object();
       
-			if (this.logoutOnUserCommand) {
+			if (this.guestKickedOutCommand) {
+				logData.reason = "Guest kicked out";
+				logData.user = UsersUtil.getUserData();
+				JSLog.warn("User disconnected from BBB App.", logData);
+				sendGuestUserKickedOutEvent();
+			} else if (this.logoutOnUserCommand) {
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
         JSLog.debug("User logged out from BBB App.", logData);
@@ -374,6 +380,11 @@ package org.bigbluebutton.main.model.users
 		
 		private function sendUserLoggedOutEvent():void{
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
+			dispatcher.dispatchEvent(e);
+		}
+
+		private function sendGuestUserKickedOutEvent():void {
+			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.MODERATOR_DENIED_ME);
 			dispatcher.dispatchEvent(e);
 		}
 		

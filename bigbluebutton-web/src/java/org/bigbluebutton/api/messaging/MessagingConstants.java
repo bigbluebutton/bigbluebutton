@@ -47,7 +47,12 @@ public class MessagingConstants {
 	public static final String USER_JOINED_EVENT             = "user_joined_message";
 	public static final String USER_LEFT_EVENT               = "user_left_message";
 	public static final String USER_STATUS_CHANGE_EVENT      = "user_status_changed_message";
-	
+	public static final String USER_JOINED_VOICE_EVENT       = "user_joined_voice_message";
+	public static final String USER_LEFT_VOICE_EVENT         = "user_left_voice_message";
+	public static final String USER_LISTEN_ONLY_EVENT        = "user_listening_only";
+	public static final String USER_SHARE_WEBCAM_EVENT       = "user_shared_webcam_message";
+	public static final String USER_UNSHARE_WEBCAM_EVENT     = "user_unshared_webcam_message";
+	public static final String USER_ROLE_CHANGE_EVENT        = "user_role_changed_message";
 			
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
 	public static final String KEEP_ALIVE_REPLY = "keep_alive_reply";

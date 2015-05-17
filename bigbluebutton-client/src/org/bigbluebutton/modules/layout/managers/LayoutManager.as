@@ -125,10 +125,27 @@ package org.bigbluebutton.modules.layout.managers
 			});
 			_fileRef.save(_layoutModel.toString(), "layouts.xml");
 		}
-				
+
+		public function loadLayoutsFromFile():void {
+			var loader:LayoutLoader = new LayoutLoader();
+			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
+				if (e.success) {
+					_layoutModel.addLayouts(e.layouts);
+					applyLayout(_layoutModel.getDefaultLayout());
+					broadcastLayouts();
+					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), "", Alert.OK, _canvas);
+				} else
+					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.failed'), "", Alert.OK, _canvas);
+			});
+			loader.loadFromLocalFile();
+		}
+
 		public function addCurrentLayoutToList():void {
+				_currentLayout.name += " " + (++_customLayoutsCount);
 				_layoutModel.addLayout(_currentLayout);
-        
+				updateCurrentLayout(_currentLayout);
+				broadcastLayouts();
+
 				var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
 				redefineLayout.layout = _currentLayout;
 				// this is to force LayoutCombo to update the current label
@@ -213,6 +230,8 @@ package org.bigbluebutton.modules.layout.managers
 			//trace(LOG + " layout changed by me. Sync others to this new layout.");
 			var e:SyncLayoutEvent = new SyncLayoutEvent(_currentLayout);
 			_globalDispatcher.dispatchEvent(e);
+
+			Alert.show(ResourceUtil.getInstance().getString('bbb.layout.sync'), "", Alert.OK, _canvas);
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
@@ -228,6 +247,7 @@ package org.bigbluebutton.modules.layout.managers
 			if (layout != null) {
         layout.applyToCanvas(_canvas);
         dispatchSwitchedLayoutEvent(layout.name);
+        UserManager.getInstance().getConference().numAdditionalSharedNotes = layout.numAdditionalSharedNotes;
       }
       //trace(LOG + " applyLayout layout [" + layout.name +  "]");	
 			updateCurrentLayout(layout);
@@ -319,6 +339,7 @@ package org.bigbluebutton.modules.layout.managers
         //trace(LOG + "updateCurrentLayout - currentLayout = [" + layout.name + "]");
         layout.currentLayout = true;
       } else {
+        _globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.INVALIDATE_LAYOUT_EVENT));
         _currentLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
         //trace(LOG + "updateCurrentLayout - layout is NULL! Setting currentLayout = [" + _currentLayout.name + "]");
       }

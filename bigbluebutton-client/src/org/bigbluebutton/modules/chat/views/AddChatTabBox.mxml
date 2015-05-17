@@ -26,7 +26,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          creationComplete="onCreationComplete()">
   
   <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
-  
+  <mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
+
     <mx:Script>
         <![CDATA[
           import com.asfusion.mate.events.Dispatcher;
@@ -42,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           import org.bigbluebutton.core.managers.UserManager;
           import org.bigbluebutton.main.model.users.BBBUser;
           import org.bigbluebutton.main.model.users.Conference;
+          import org.bigbluebutton.main.model.users.events.ChangeMyRole;
           import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
           import org.bigbluebutton.modules.chat.model.ChatOptions;
           import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -106,16 +108,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
           
           private function lockSettingsChanged(e:Event):void {
-            
-            if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
-            
-            var userManager:UserManager = UserManager.getInstance();
-            var conference:Conference = userManager.getConference();
-            var me:BBBUser = conference.getMyUser();
-            
-            usersList.enabled = !me.disableMyPrivateChat;
+              refreshListStatus();
           }
-            
+
+          private function refreshRole(e:ChangeMyRole):void {
+              refreshListStatus();
+          }
+
+          private function refreshListStatus():void {
+              var userManager:UserManager = UserManager.getInstance();
+              var conference:Conference = userManager.getConference();
+              var me:BBBUser = conference.getMyUser();
+
+              usersList.enabled = !me.disableMyPrivateChat || me.moderator || me.presenter;
+          }
         ]]>
     </mx:Script>
     

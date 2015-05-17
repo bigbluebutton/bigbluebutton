@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{LayoutsReadyEvent.LAYOUTS_READY}" method="populateLayoutsList"/>
   <mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidadeLayout" />
   
 	<mx:Script>
 		<![CDATA[
@@ -88,12 +89,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         dataProvider = layoutNames;
         populateComboBox();
         this.addEventListener(DropdownEvent.OPEN, openDropdownHandler);
+        refreshRole(UsersUtil.amIModerator());
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
-		  var conference:Conference = UserManager.getInstance().getConference();
-		  var thisUser:BBBUser = conference.getMyUser();
-		  this.enabled = ! thisUser.lockedLayout;
+        refreshRole(UsersUtil.amIModerator());
       }
       
 			private function populateLayoutsList(e:LayoutsReadyEvent):void {
@@ -157,6 +157,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_dispatcher.dispatchEvent(new ChangeLayoutEvent(e.currentTarget.selectedItem.localeKey));
 			}
 					
+			private function invalidadeLayout(e:Event):void {
+				selectedIndex = -1;
+				prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.custom');
+			}
+
+			public function refreshRole(amIModerator:Boolean):void {
+				var conference:Conference = UserManager.getInstance().getConference();
+				var thisUser:BBBUser = conference.getMyUser();
+				this.enabled = ! thisUser.lockedLayout || amIModerator;
+			}
 		]]>
 	</mx:Script>
 </mx:ComboBox>

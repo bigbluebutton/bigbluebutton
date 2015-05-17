@@ -1,0 +1,211 @@
+<!--
+	This file is part of BBB-Notes.
+	
+	Copyright (c) Islam El-Ashi. All rights reserved.
+	
+	BBB-Notes is free software: you can redistribute it and/or modify
+	it under the terms of the Lesser GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or 
+	any later version.
+	
+	BBB-Notes is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	Lesser GNU General Public License for more details.
+	
+	You should have received a copy of the Lesser GNU General Public License
+	along with BBB-Notes.  If not, see <http://www.gnu.org/licenses/>.
+	
+	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
+-->
+<containers:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:containers="org.bigbluebutton.common.*" 
+	xmlns:mate="http://mate.asfusion.com/"
+	layout="absolute" 
+	minWidth="160" 
+	minHeight="160" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	creationComplete="onCreationComplete()" 
+	xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
+	showCloseButton="false">
+
+	
+	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch" />
+
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.utils.getTimer;
+			
+			import mx.accessibility.AlertAccImpl;
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.events.ResizeEvent;
+			import mx.events.SliderEvent;
+			import mx.utils.ObjectUtil;
+			import flexlib.mdi.containers.MDICanvas;
+			
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.sharednotes.views.components.PatchableTextArea;
+			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
+			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
+			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
+			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
+			import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
+			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flash.utils.getQualifiedClassName;
+			import mx.collections.ArrayCollection;
+
+			private var _room:String;
+			private var _uri:String;
+			private var _host:String;
+			private var _connection:NetConnection;
+			protected var _dispatcher:Dispatcher = new Dispatcher();
+			private var _document:String = "";
+			protected var _notesId:String="MAIN_WINDOW";
+
+			private var options:SharedNotesOptions = new SharedNotesOptions();
+
+			private var sendUpdateTimer:Timer;
+			
+			public function onCreationComplete():void {
+				sendUpdateTimer = new Timer(options.refreshDelay, 1);
+
+				textArea.addEventListener("SHARED_NOTES_SAVED", function(e:Event):void {
+					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
+				});
+
+				textArea.addEventListener(Event.CHANGE, function(e:Event):void {
+					if (!sendUpdateTimer.running) {
+						sendUpdateTimer.reset();
+						sendUpdateTimer.start();
+					}
+				});
+				// the following code was used to decide which event to listen for updates in the text area
+				//textArea.addEventListener(flash.events.Event.CHANGE, onTextAreaEvent);
+				//textArea.addEventListener(KeyboardEvent.KEY_DOWN, onTextAreaEvent);
+				//textArea.addEventListener(TextEvent.TEXT_INPUT, onTextAreaEvent);
+				//textArea.addEventListener(mx.events.FlexEvent.DATA_CHANGE, onTextAreaEvent);
+				//textArea.addEventListener(mx.events.FlexEvent.UPDATE_COMPLETE, onTextAreaEvent);
+
+				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
+					sendPatch();
+				});
+
+				BindingUtils.bindSetter(updateRoleDependentProperties, UsersUtil.getMyself(), "role");
+
+				updateTitle();
+			}
+
+			private function onTextAreaEvent(e:Event):void {
+				trace("Text area event " + e.type + " on user " + UsersUtil.getMyUserID());
+			}
+
+			private function updateRoleDependentProperties(role:String):void {
+				if(noteId == "MAIN_WINDOW"){
+					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
+				} else {
+					showCloseButton = role == Role.MODERATOR;
+				}
+			}
+
+			public function get noteId():String{
+				return _notesId;
+			}
+
+			public function addRemoteDocument(notes:Object):void{
+				_document = notes[noteId];
+				textArea.text = _document;
+			}
+
+			private function sendPatch():void {
+				var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
+				LogUtil.debug("SEND PATCH" + clientText + "::" + _document);
+				if (_document != clientText) {
+					textArea.editable = false;
+					onSyncing();
+//					trace("ADD LOCAL");
+					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+					sendPatchEvent.noteId = noteId;
+					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
+					sendPatchEvent.beginIndex = textArea.selectionBeginIndex;
+					sendPatchEvent.endIndex = textArea.selectionEndIndex;
+					//patchHistory.push(messageToSend.patchData);
+					_dispatcher.dispatchEvent(sendPatchEvent);
+					_document = clientText;
+					textArea.editable = true;
+					onSynced();
+				}
+			}
+
+			private function receivePatch(e:ReceivePatchEvent):void {
+//				trace("SharedNotesWindow: patch received");
+//				trace("=====\n" + e.patch + "\n=====");
+				if (e.patch != "" && e.noteId==noteId) {
+					var result:String = DiffPatch.patch(e.patch, _document);
+//					trace("SharedNotesWindow: before the patch\n" + _document);
+//					trace("SharedNotesWindow: after the patch\n" + result);
+					_document = result;
+					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
+//					trace("SharedNotes: patching local with server modifications");
+				}
+			}
+
+			private function onSynced(e:Event = null):void {
+			}
+			
+			private function onSyncing(e:Event = null):void {
+			}
+
+			private function onTextChange(e:Event):void {
+				onSyncing(e);
+			}
+			
+			protected function btnSave_clickHandler(event:MouseEvent):void
+			{
+				textArea.saveNotesToFile(title);
+			}
+
+			protected function btnNew_clickHandler(event:MouseEvent):void
+			{
+				_dispatcher.dispatchEvent(new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT));
+			}
+
+			public function getPrefferedPosition():String{
+				return options.position;
+			}
+			
+			override public function close(event:MouseEvent=null):void {
+				super.close(event);
+			}
+
+			override protected function resourcesChanged():void {
+				super.resourcesChanged();
+
+				updateTitle();
+			}
+
+			protected function updateTitle():void {
+				title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title');
+			}
+
+		]]>
+	</mx:Script>
+
+	<mx:VBox width="100%" height="100%">
+		<components:PatchableTextArea width="100%" height="100%" paddingBottom="0" id="textArea" editable="true" verticalScrollPolicy="auto"/>
+
+		<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
+			<mx:Button id="btnNew" width="26" height="26" click="btnNew_clickHandler(event)" icon="@Embed(source='images/ic_note_add_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+			<mx:Button width="26" height="26" click="btnSave_clickHandler(event)" icon="@Embed(source='images/ic_save_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+		</mx:HBox>
+	</mx:VBox>
+</containers:CustomMdiWindow>

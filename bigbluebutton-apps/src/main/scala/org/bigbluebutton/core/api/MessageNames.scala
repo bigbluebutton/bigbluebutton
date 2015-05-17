@@ -24,6 +24,7 @@ object MessageNames {
   val USER_SHARE_WEBCAM                    = "user_share_webcam_request"
   val USER_UNSHARE_WEBCAM                  = "user_unshare_webcam_request"
   val CHANGE_USER_STATUS                   = "change_user_status_request"
+  val CHANGE_USER_ROLE                     = "change_user_role_request"
   val ASSIGN_PRESENTER                     = "assign_presenter_request"
   val SET_RECORDING_STATUS                 = "set_recording_status_request"
   val GET_CHAT_HISTORY                     = "get_chat_history_request"
@@ -79,6 +80,10 @@ object MessageNames {
   val UNDO_WHITEBOARD                      = "undo_whiteboard_request"
   val ENABLE_WHITEBOARD                    = "enable_whiteboard_request"
   val IS_WHITEBOARD_ENABLED                = "is_whiteboard_enabled_request"
+  val GET_STREAM_PATH                      = "get_stream_path_request"
+  var GET_GUEST_POLICY                     = "get_guest_policy"
+  val SET_GUEST_POLICY                     = "set_guest_policy"
+  val RESPOND_TO_GUEST                     = "respond_to_guest"
   val GET_ALL_MEETINGS_REQUEST             = "get_all_meetings_request"
 
   // OUT MESSAGES
@@ -109,6 +114,7 @@ object MessageNames {
   val USER_SHARED_WEBCAM                   = "user_shared_webcam_message"
   val USER_UNSHARED_WEBCAM                 = "user_unshared_webcam_message"
   val USER_STATUS_CHANGED                  = "user_status_changed_message"
+  val USER_ROLE_CHANGED                    = "user_role_changed_message"
   val MUTE_VOICE_USER                      = "mute_voice_user_request"
   val USER_VOICE_MUTED                     = "user_voice_muted_message"
   val USER_VOICE_TALKING                   = "user_voice_talking_message"
@@ -160,5 +166,9 @@ object MessageNames {
   val MEETING_DESTROYED_EVENT              = "meeting_destroyed_event"
   val KEEP_ALIVE_REPLY                     = "keep_alive_reply"
   val USER_LISTEN_ONLY                     = "user_listening_only"
+  val GET_STREAM_PATH_REPLY                = "get_stream_path_reply"
+  var GET_GUEST_POLICY_REPLY               = "get_guest_policy_reply"
+  val GUEST_POLICY_CHANGED                 = "guest_policy_changed"
+  val GUEST_ACCESS_DENIED                  = "guest_access_denied"
   val GET_ALL_MEETINGS_REPLY               = "get_all_meetings_reply"
 }

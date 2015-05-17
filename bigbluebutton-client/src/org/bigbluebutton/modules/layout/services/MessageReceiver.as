@@ -64,7 +64,12 @@ package org.bigbluebutton.modules.layout.services
 
       lockLayout(message.locked, message.setById);
       
-      _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+      if (message.layout == "") {
+        _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+      } else {
+        // it means that the moderator has used the broadcast layout method before the user joins
+        handleSyncLayout(message);
+      }
       
       _dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
     }

@@ -55,7 +55,7 @@
 		<mxmlc file="${SRC_DIR}/BBBClientCheck.mxml"
 			   output="check/BBBClientCheck.swf"
 			   debug="false"
-			   locale="en_US"
+			   locale="en_US,pt_BR"
 			   actionscript-file-encoding="UTF-8"
 			   incremental="false">
 			<static-link-runtime-shared-libraries>false</static-link-runtime-shared-libraries>
@@ -106,6 +106,7 @@
 		<copy todir="resources/lib/" >
 			<fileset file="../bigbluebutton-client/resources/prod/lib/bbb_webrtc_bridge_sip.js" />
 			<fileset file="../bigbluebutton-client/resources/prod/lib/sip.js" />
+			<fileset file="../bigbluebutton-client/resources/prod/lib/bbb_localization.js" />
 		</copy>
 
 		<get src="${TEST_IMAGE_URL}" dest="${html.output}/test_image.jpg" skipexisting="true" />

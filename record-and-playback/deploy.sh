@@ -38,7 +38,16 @@ function deploy_format() {
 	done
 }
 
-deploy_format "presentation"
+RECORDING_SERVER=true
+if $RECORDING_SERVER ; then
+	deploy_format "presentation"
+	deploy_format "presentation_export"
+	deploy_format "mconf_decrypter"
+	sudo mv /usr/local/bigbluebutton/core/scripts/mconf-recording-decrypter.initd /etc/init.d/mconf-recording-decrypter
+	sudo mv /usr/local/bigbluebutton/core/scripts/mconf-recording-decrypter.monit /etc/monit/conf.d/mconf-recording-decrypter
+else
+	deploy_format "mconf_encrypted"
+fi
 
 sudo mkdir -p /var/bigbluebutton/playback/
 sudo mkdir -p /var/bigbluebutton/recording/raw/
@@ -49,10 +58,12 @@ sudo mkdir -p /var/bigbluebutton/recording/status/archived/
 sudo mkdir -p /var/bigbluebutton/recording/status/processed/
 sudo mkdir -p /var/bigbluebutton/recording/status/sanity/
 
-sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
 sudo chown -R tomcat7:tomcat7 /var/bigbluebutton/ /var/log/bigbluebutton/
 sudo chown -R red5:red5 /var/bigbluebutton/deskshare/
 sudo chown -R freeswitch:daemon /var/bigbluebutton/meetings/
 
 cd /usr/local/bigbluebutton/core/
 sudo bundle install
+
+sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
+sudo service nginx reload

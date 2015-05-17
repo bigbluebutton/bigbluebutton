@@ -97,7 +97,7 @@
       * after. (richard mar 28, 2014)
       */
       if (mic) {
-        if (options.skipCheck) {
+        if (options.skipCheck && PhoneOptions.firstAudioJoin) {
           trace(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
 
           streamManager.useDefaultMic();
@@ -197,6 +197,17 @@
     }
     
     public function initialize():void {      
+      trace(LOG + "Initializing FlashCallManager, current state: " + state);
+      switch (state) {
+        case STOP_ECHO_THEN_JOIN_CONF:
+          // if we initialize usingFlash here, we won't be able to hang up from
+          // the flash connection
+          trace(LOG + "Invalid state for initialize, aborting...");
+          return;
+        default:
+          break;
+      }
+
       printMics();
       options = new PhoneOptions();
       if (options.useWebRTCIfAvailable && isWebRTCSupported()) {

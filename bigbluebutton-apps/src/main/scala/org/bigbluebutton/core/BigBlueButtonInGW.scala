@@ -7,6 +7,7 @@ import org.bigbluebutton.core.apps.poll.PollInGateway
 import org.bigbluebutton.core.apps.layout.LayoutInGateway
 import org.bigbluebutton.core.apps.chat.ChatInGateway
 import scala.collection.JavaConversions._
+import org.bigbluebutton.core.apps.sharednotes.SharedNotesInGateway
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardInGateway
 import org.bigbluebutton.core.apps.voice.VoiceInGateway
 import java.util.ArrayList
@@ -68,9 +69,9 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId))
   }
   
-  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String):Unit = {
+  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String, guest: java.lang.Boolean):Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken))
+    bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken, guest))
   }
   
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -162,12 +163,17 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     bbbGW.accept(new UserShareWebcam(meetingId, userId, stream))
   }
   
-  def unshareWebcam(meetingId: String, userId: String) {
-    bbbGW.accept(new UserUnshareWebcam(meetingId, userId))
+  def unshareWebcam(meetingId: String, userId: String, stream:String) {
+    bbbGW.accept(new UserUnshareWebcam(meetingId, userId, stream))
   }
 	
   def setUserStatus(meetingID: String, userID: String, status: String, value: Object):Unit = {
     bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
+  }
+
+  def setUserRole(meetingID: String, userID: String, role: String) {
+    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
+    bbbGW.accept(new ChangeUserRole(meetingID, userID, userRole));
   }
 
   def getUsers(meetingID: String, requesterID: String):Unit = {
@@ -200,6 +206,26 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     // we are required to pass the meeting_id as first parameter (just to satisfy trait)
     // but it's not used anywhere. That's why we pass voiceConf twice instead
     bbbGW.accept(new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name))
+  }
+
+  // Guest support
+  def getGuestPolicy(meetingID: String, requesterID: String) {
+    bbbGW.accept(new GetGuestPolicy(meetingID, requesterID))
+  }
+
+  def setGuestPolicy(meetingID: String, guestPolicy: String, setBy: String) {
+    val policy = guestPolicy.toUpperCase() match {
+      case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
+      case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
+      case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
+      //default
+      case undef => GuestPolicy.ASK_MODERATOR
+    }
+    bbbGW.accept(new SetGuestPolicy(meetingID, policy, setBy))
+  }
+
+  def responseToGuest(meetingID: String, userId: String, response: java.lang.Boolean, requesterID: String) {
+    bbbGW.accept(new RespondToGuest(meetingID, userId, response, requesterID))
   }
   
 	/**************************************************************************************
@@ -254,11 +280,11 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	
 	def sendConversionCompleted(messageKey: String, meetingId: String, 
             code: String, presentationId: String, numPages: Int, 
-            presName: String, presBaseUrl: String) {
+            presName: String, presBaseUrl: String, presDownloadable: Boolean) {
 //	  println("******************** PRESENTATION CONVERSION COMPLETED MESSAGE ***************************** ")
       val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
 	        
-	  val presentation = new Presentation(id=presentationId, name=presName, pages=pages)
+	  val presentation = new Presentation(id=presentationId, name=presName, pages=pages, downloadable=presDownloadable)
       bbbGW.accept(new PresentationConversionCompleted(meetingId, messageKey, 
                        code, presentation))	 
                        
@@ -465,4 +491,32 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	  voiceGW.voiceRecording(meetingId, recordingFile, 
 			            timestamp, recording)
 	}
+  
+  val sharedNotesGW = new SharedNotesInGateway(bbbGW)
+  
+  def patchDocument(meetingId: String, userId: String, noteId: String,
+      patch: String, beginIndex: Int, endIndex: Int) {
+    sharedNotesGW.patchDocument(meetingId, userId, noteId, patch, beginIndex, endIndex)
+  }
+  
+  def getCurrentDocument(meetingId: String, userId: String) {
+    sharedNotesGW.getCurrentDocument(meetingId, userId)
+  }
+  
+  def createAdditionalNotes(meetingId: String, userId: String) {
+    sharedNotesGW.createAdditionalNotes(meetingId, userId)
+  }
+  def destroyAdditionalNotes(meetingId: String, userId: String, noteId: String) {
+    sharedNotesGW.destroyAdditionalNotes(meetingId, userId, noteId)
+  }
+  def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
+    sharedNotesGW.requestAdditionalNotesSet(meetingId, userId, additionalNotesSetSize)
+  }
+
+	/*********************************************************************
+	 * Message Interface for Video
+	 *******************************************************************/
+	 def getStreamPath(meetingId:String, requesterId:String, streamName: String, defaultPath:String) {
+		 bbbGW.accept(new GetStreamPath(meetingId, requesterId, streamName, defaultPath));
+	 }
 }

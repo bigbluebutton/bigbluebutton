@@ -43,6 +43,10 @@ package org.bigbluebutton.core.model.users
     public function withRole(value: String):UserBuilder {
       return this;  
     }
+
+    public function withGuest(value: Boolean):UserBuilder {
+      return this;
+    }
     
     public function withCustomData(value: String):UserBuilder {
       return this;  

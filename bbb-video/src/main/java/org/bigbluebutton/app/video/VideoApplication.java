@@ -21,16 +21,27 @@ package org.bigbluebutton.app.video;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.bigbluebutton.app.video.h263.H263Converter;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
+import org.red5.server.api.scope.IBasicScope;
+import org.red5.server.api.scope.IBroadcastScope;
+import org.red5.server.api.scope.ScopeType;
 import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.server.api.stream.IPlayItem;
 import org.red5.server.api.stream.IServerStream;
 import org.red5.server.api.stream.IStreamListener;
+import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 import com.google.gson.Gson;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
@@ -42,13 +53,24 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
-	
+
+    private Map<String, CustomStreamRelay> remoteStreams = new ConcurrentHashMap<String, CustomStreamRelay>();
+    private Map<String, Integer> listenersOnRemoteStream = new ConcurrentHashMap<String, Integer>();
+
+	// Proxy disconnection timer
+	private Timer timer;
+	// Proxy disconnection timeout
+	private long relayTimeout;
+
+	private final Map<String, H263Converter> h263Converters = new HashMap<String, H263Converter>();
+
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
 		log.info("BBB Video appStart");
 		System.out.println("BBB Video appStart");    	
 		appScope = app;
+		timer = new Timer();
 		return true;
 	}
 
@@ -61,6 +83,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   @Override
 	public boolean roomConnect(IConnection conn, Object[] params) {
 		log.info("BBB Video roomConnect"); 
+
+		if(params.length == 0) {
+			params = new Object[2];
+			params[0] = "UNKNOWN-MEETING-ID";
+			params[1] = "UNKNOWN-USER-ID";
+		}
+
   	String meetingId = ((String) params[0]).toString();
   	String userId = ((String) params[1]).toString();
   	
@@ -162,13 +191,24 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	super.streamPublishStart(stream);
     }
     
+
+    public IBroadcastScope getBroadcastScope(IScope scope, String name) {
+    IBasicScope basicScope = scope.getBasicScope(ScopeType.BROADCAST, name);
+    if (!(basicScope instanceof IBroadcastScope)) {
+        return null;
+    } else {
+        return (IBroadcastScope) basicScope;
+    }
+}
+
+
     @Override
     public void streamBroadcastStart(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
-        if (recordVideoStream) {
+        if (recordVideoStream && !stream.getPublishedName().contains("/")) {
 	    	recordStream(stream);
 	    	VideoStreamListener listener = new VideoStreamListener(); 
 	        listener.setEventRecordingService(recordingService);
@@ -180,7 +220,15 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private Long genTimestamp() {
     	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
     }
-    
+
+	private boolean isH263Stream(ISubscriberStream stream) {
+		String streamName = stream.getBroadcastStreamPublishName();
+		if(streamName.startsWith(H263Converter.H263PREFIX)) {
+			return true;
+		}
+		return false;
+	}
+
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
       super.streamBroadcastClose(stream);   	
@@ -209,6 +257,11 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         event.put("eventName", "StopWebcamShareEvent");
         recordingService.record(scopeName, event);    		
       }
+
+		if(h263Converters.containsKey(stream.getName())) {
+			// Stop converter
+			h263Converters.remove(stream.getName()).stopConverter();
+		}
     }
     
     /**
@@ -237,5 +290,126 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public void setEventRecordingService(EventRecordingService s) {
 		recordingService = s;
 	}
-	
+
+	public void setRelayTimeout(long timeout) {
+		this.relayTimeout = timeout;
+	}
+    @Override
+    public void streamPlayItemPlay(ISubscriberStream stream, IPlayItem item, boolean isLive) {
+        // log w3c connect event
+        String streamName = item.getName();
+        streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+
+		if(isH263Stream(stream)) {
+			log.trace("Detected H263 stream request [{}]", streamName);
+
+			synchronized (h263Converters) {
+				// Check if a new stream converter is necessary
+				if(!h263Converters.containsKey(streamName)) {
+					H263Converter converter = new H263Converter(streamName);
+					h263Converters.put(streamName, converter);
+				}
+				else {
+					H263Converter converter = h263Converters.get(streamName);
+					converter.addListener();
+				}
+			}
+		}
+        if(streamName.contains("/")) {
+			synchronized(remoteStreams) {
+				if(remoteStreams.containsKey(streamName) == false) {
+					String[] parts = streamName.split("/");
+					String sourceServer = parts[0];
+					String sourceStreamName = StringUtils.join(parts, '/', 1, parts.length);
+					String destinationServer = Red5.getConnectionLocal().getHost();
+					String destinationStreamName = streamName;
+					String app = "video/"+Red5.getConnectionLocal().getScope().getName();
+					log.trace("streamPlayItemPlay:: streamName [" + streamName + "]");
+					log.trace("streamPlayItemPlay:: sourceServer [" + sourceServer + "]");
+					log.trace("streamPlayItemPlay:: sourceStreamName [" + sourceStreamName + "]");
+					log.trace("streamPlayItemPlay:: destinationServer [" + destinationServer + "]");
+					log.trace("streamPlayItemPlay:: destinationStreamName [" + destinationStreamName + "]");
+					log.trace("streamPlayItemPlay:: app [" + app + "]");
+
+					CustomStreamRelay remoteRelay = new CustomStreamRelay();
+					remoteRelay.initRelay(new String[]{sourceServer, app, sourceStreamName, destinationServer, app, destinationStreamName, "live"});
+					remoteRelay.startRelay();
+					remoteStreams.put(destinationStreamName, remoteRelay);
+					listenersOnRemoteStream.put(streamName, 1);
+				}
+				else {
+					Integer numberOfListeners = listenersOnRemoteStream.get(streamName) + 1;
+					listenersOnRemoteStream.put(streamName,numberOfListeners);
+				}
+			}
+		}
+		log.info("W3C x-category:stream x-event:play c-ip:{} x-sname:{} x-name:{}", new Object[] { Red5.getConnectionLocal().getRemoteAddress(), stream.getName(), item.getName() });
+	}
+
+    @Override
+    public void streamSubscriberClose(ISubscriberStream stream) {
+
+		String streamName = stream.getBroadcastStreamPublishName();
+		streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+
+		if(isH263Stream(stream)) {
+			synchronized (h263Converters) {
+				// Remove prefix
+				if(h263Converters.containsKey(streamName)) {
+					H263Converter converter = h263Converters.get(streamName);
+					converter.removeListener();
+				}
+				else {
+					log.warn("Converter not found for H263 stream [{}]", streamName);
+				}
+			}
+		}
+		synchronized(remoteStreams) {
+			super.streamSubscriberClose(stream);
+			log.trace("Subscriber close for stream [{}]", streamName);
+			if(streamName.contains("/")) {
+				if(remoteStreams.containsKey(streamName)) {
+					Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
+					if(numberOfListeners != null) {
+						numberOfListeners = numberOfListeners - 1;
+						listenersOnRemoteStream.put(streamName, numberOfListeners);
+						log.trace("Stream [{}] has {} subscribers left", streamName, numberOfListeners);
+						if(numberOfListeners < 1) {
+							log.info("Starting timeout to close proxy for stream: {}", streamName);
+							timer.schedule(new DisconnectProxyTask(streamName), relayTimeout);
+						}
+					}
+				}
+			}
+		}
+    }
+
+	private final class DisconnectProxyTask extends TimerTask {
+		// Stream name that should be disconnected
+		private String streamName;
+
+		public DisconnectProxyTask(String streamName) {
+			this.streamName = streamName;
+		}
+
+		@Override
+		public void run() {
+			// Cancel this task
+			this.cancel();
+			// Check if someone reconnected
+			synchronized(remoteStreams) {
+				Integer numberOfListeners = listenersOnRemoteStream.get(streamName);
+				log.trace("Stream [{}] has {} subscribers", streamName, numberOfListeners);
+				if(numberOfListeners != null) {
+					if(numberOfListeners < 1) {
+						// No one else is connected to this stream, close relay
+						log.info("Stopping relay for stream [{}]", streamName);
+						listenersOnRemoteStream.remove(streamName);
+						CustomStreamRelay remoteRelay = remoteStreams.remove(streamName);
+						remoteRelay.stopRelay();
+					}
+				}
+			}
+		}
+	}
 }

@@ -40,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.present.events.PresentationEvent;
       import org.bigbluebutton.modules.present.events.PresenterCommands;
       import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+      import org.bigbluebutton.modules.present.events.DownloadEvent;
       import org.bigbluebutton.modules.present.events.UploadEvent;
       import org.bigbluebutton.modules.present.managers.PresentManager;
       import org.bigbluebutton.modules.present.services.PageLoaderService;
@@ -69,6 +70,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
 		<MethodInvoker generator="{PresentManager}" method="handleStopModuleEvent" />
+	</EventHandlers>
+
+	<EventHandlers type="{DownloadEvent.OPEN_DOWNLOAD_WINDOW}" >
+		<MethodInvoker generator="{PresentManager}" method="handleOpenDownloadWindow" />
+	</EventHandlers>
+	
+	<EventHandlers type="{DownloadEvent.CLOSE_DOWNLOAD_WINDOW}" >
+		<MethodInvoker generator="{PresentManager}" method="handleCloseDownloadWindow" />
+	</EventHandlers>
+
+	<EventHandlers type="{DownloadEvent.DOWNLOAD_PRESENTATION}" >
+		<MethodInvoker generator="{PresentProxy}"  method="startDownload" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >

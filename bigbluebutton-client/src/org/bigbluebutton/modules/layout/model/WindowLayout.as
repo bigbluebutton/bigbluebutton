@@ -252,12 +252,16 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		static public function getType(obj:Object):String {
-			var qualifiedClass:String = String(getQualifiedClassName(obj));
-			var pattern:RegExp = /(\w+)::(\w+)/g;
-			if (qualifiedClass.match(pattern)) {
-				return qualifiedClass.split("::")[1];
-			} else { 
-				return String(Object).substr(String(Object).lastIndexOf(".") + 1).match(/[a-zA-Z]+/).join();
+			if (obj.hasOwnProperty("windowName")) {
+				return obj.windowName;
+			} else {
+				var qualifiedClass:String = String(getQualifiedClassName(obj));
+				var pattern:RegExp = /(\w+)::(\w+)/g;
+				if (qualifiedClass.match(pattern)) {
+					return qualifiedClass.split("::")[1];
+				} else {
+					return String(Object).substr(String(Object).lastIndexOf(".") + 1).match(/[a-zA-Z]+/).join();
+				}
 			}
 		}
 		

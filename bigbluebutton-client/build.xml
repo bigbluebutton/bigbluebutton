@@ -34,10 +34,10 @@
 	<property name="NOTES" value="NotesModule" />
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
-	<property name="VIDEO_DOCK" value="VideodockModule" />
 	<property name="POLLING" value="PollingModule" />
 	<property name="LAYOUT" value="LayoutModule" />
 	<property name="USERS" value="UsersModule" />
+	<property name="SHAREDNOTES" value="SharedNotesModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -83,6 +83,7 @@
 				debug="${DEBUG}" 
 				mxml.compatibility-version="3.0.0" 
 				swf-version="13" 
+				default-background-color="0xFFFFFF"
 				optimize="true">
 			</mxmlc>
 		</sequential>
@@ -176,6 +177,7 @@
 				<include-resource-bundles>skins</include-resource-bundles> 
 				<include-resource-bundles>styles</include-resource-bundles>
 				<source-path path-element="${FLEX_HOME}/frameworks"/>
+				<default-background-color>0xFFFFFF</default-background-color>
 			</mxmlc>
 		</sequential>
 	</macrodef>
@@ -264,10 +266,6 @@
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
 	</target>
 
-	<target name="build-videodock" description="Compile Video Dock Module">
-		<build-module src="${SRC_DIR}" target="${VIDEO_DOCK}" />
-	</target>
-		
 	<target name="build-whiteboard" description="Compile Whiteboard Module">
 		<build-module src="${SRC_DIR}" target="${WHITEBOARD}" />
 	</target>
@@ -280,15 +278,27 @@
 			<build-module src="${SRC_DIR}" target="${USERS}" />
 	</target>
 	
+     <target name="build-sharednotes" description="Compile SharedNotes Module">
+                <build-module src="${SRC_DIR}" target="${SHAREDNOTES}" />
+
+		<echo message="Copying assets for SharedNotesModule" />
+                <copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/sharednotes/views/images/" >
+                        <fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/views/images/" />
+                </copy>
+		<copy file="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/util/shared_notes.js" todir="${OUTPUT_DIR}/lib/">
+			
+		</copy>
+    </target>
+
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-present" 
-			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users"
+			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users, build-sharednotes"
 			description="Compile main, chat, present modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes, build-polling"
+			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-notes, build-polling"
 			description="Compile deskshare, phone, video, whiteboard modules">
 	</target>
 	
@@ -301,6 +311,7 @@
 				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" link-report="linker-report.xml">
 					<target-player>11</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
+					<default-background-color>0xFFFFFF</default-background-color>
 					<source-path path-element="@{flex}/frameworks" />
 					
 					<!--
@@ -369,7 +380,7 @@
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
-
+				<default-background-color>0xFFFFFF</default-background-color>
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
 					<include name="libs" />
 					<include name="../bundles/{locale}" />
@@ -420,14 +431,17 @@
 			<fileset dir="${PROD_RESOURCES_DIR}/lib"/>
 		</copy> 
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButtonTest.html" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/MconfLive.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>	
 		<copy file="${PROD_RESOURCES_DIR}/avatar.png" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/logo.png" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/background.jpg" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>	
 		<copy file="${PROD_RESOURCES_DIR}/expressInstall.swf" todir="${OUTPUT_DIR}" overwrite="true"/>	
 		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/layout.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/profiles.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 		<if>
 			<equals arg1="${BUILD_ENV}" arg2="DEV"/>
 			<then>
@@ -446,8 +460,8 @@
 
 	<target name="generate-html-wrapper">
 		<html-wrapper
-			title="BigBlueButton"
-			file="BigBlueButton.html"
+			title="Mconf-Live"
+			file="MconfLive.html"
 			height="100%"
 			width="100%"
 			bgcolor="grey"

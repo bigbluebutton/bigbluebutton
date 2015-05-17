@@ -49,17 +49,38 @@ public class ConnectionInvokerService {
 	
 	private BlockingQueue<ClientMessage> messages;
 	
+	private ConcurrentHashMap<String, IConnection> connections;
+	private ConcurrentHashMap<String, IScope> scopes;
+	
 	private volatile boolean sendMessages = false;
 	private IScope bbbAppScope;
 
 	public ConnectionInvokerService() {
 		messages = new LinkedBlockingQueue<ClientMessage>();
+
+		connections = new ConcurrentHashMap<String, IConnection>();
+		scopes = new ConcurrentHashMap<String, IScope>();
 	}
 
 	public void setAppScope(IScope scope) {
 		bbbAppScope = scope;
 	}
 
+	public boolean addConnection(String id, IConnection conn) {
+		if (connections == null) {
+			System.out.println("Connections is null!!!!");
+			return false;
+		}
+		if (id == null) {
+			System.out.println("CONN ID IS NULL!!!");
+			
+		}
+		if (conn == null) {
+			System.out.println("CONN IS NULL");
+		}
+		return connections.putIfAbsent(id, conn) == null;
+	}
+	
 	public void start() {
 		sendMessages = true;
 		Runnable sender = new Runnable() {
@@ -82,6 +103,18 @@ public class ConnectionInvokerService {
 	
 	public void stop() {
 		sendMessages = false;
+	}
+	
+	public void removeConnection(String id) {
+		connections.remove(id);
+	}
+	
+	public void addScope(String id, IScope scope) {
+		scopes.putIfAbsent(id, scope);
+	}
+	
+	public void removeScope(String id) {
+		scopes.remove(id);
 	}
 	
 	public void sendMessage(final ClientMessage message) {

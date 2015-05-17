@@ -22,6 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:views="org.bigbluebutton.modules.deskshare.view.components.*"
 	width="600" height="400"
 	initialize="init()"
 	creationComplete="onCreationComplete()"
@@ -29,7 +30,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopView.title')}" 
 	showCloseButton="false"
-	resize="fitToWindow()" >
+	resize="onResizeEvent()"
+	layout="absolute" >
 	
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
@@ -51,14 +53,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
+			import org.bigbluebutton.modules.deskshare.managers.SmartWindowResizer;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private var screenHeight:Number = Capabilities.screenResolutionY;
-			private var screenWidth:Number = Capabilities.screenResolutionX;
-						
 			private var images:Images = new Images();
-			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
-			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
 			
 			private var cursor:Shape;
 			
@@ -69,8 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoHeight:Number;
 			private var videoWidth:Number;
 			
-			private static const VIDEO_WIDTH_PADDING:int = 7;
-			private static const VIDEO_HEIGHT_PADDING:int = 65;
+			[Bindable] private var actualSize:Boolean = false;
 
 			// The following code block is to deal with a bug in FLexLib 
 			// with MDI windows not responding well to being maximized
@@ -79,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
+			private var resizer:SmartWindowResizer = new SmartWindowResizer();
 			
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:DeskshareOptions;
@@ -89,19 +87,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 									
 			private function onCreationComplete():void{
-				videoHolder.addChild(video);				
-				this.addChild(videoHolder);
+				videoHolderCanvas.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
-				fitToActualSize();				
+				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStartEvent);
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
-				maximize();
 				
 				resourcesChanged();
 				
@@ -109,27 +105,67 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
+
+				bottomBar.registerListeners(this);
+				onResizeEvent();
 			}
 			
-			private function onResizeEndEvent(event:MDIWindowEvent):void {
+			private function onResizeStartEvent(event:MDIWindowEvent):void {
 				if (event.window == this) {
-					fitToWindow();
+					resizer.onResizeStart();
 				}
 			}
+
+			private function onResizeEndEvent(event:MDIWindowEvent):void {
+				if (event.window == this) {
+					resizer.onResizeEnd();
+				}
+			}
+
+			private function onResizeEvent():void {
+				if (this.minimized) {
+					return;
+				}
+
+				if (actualSize) {
+					onResizeCallback(this.width - horizontalBorder, this.height - verticalBorder, videoWidth, videoHeight, Math.max((this.width - horizontalBorder - videoWidth) / 2, 0), Math.max((this.height - verticalBorder - videoHeight) / 2, 0));
+				} else {
+					resizer.onResize(this.width - horizontalBorder, this.height - verticalBorder, this.maximized, video.width, video.height, videoWidth / videoHeight, false, onResizeCallback);
+				}
+			}
+
+			private function onResizeCallback(externalWidth:int, externalHeight:int, internalWidth:int, internalHeight:int, internalOffsetX:int, internalOffsetY:int):void {
+				this.width = externalWidth + horizontalBorder;
+				this.height = externalHeight + verticalBorder;
+
+				/* Reposition video within window */
+				videoHolder.x = internalOffsetX;
+				videoHolder.y = internalOffsetY;
+
+				videoHolder.width = video.width = internalWidth;
+				videoHolder.height = video.height = internalHeight;
+			}
+
+			protected function get verticalBorder():Number {
+				return this.borderMetrics.top + this.borderMetrics.bottom;
+			}
 			
+			protected function get horizontalBorder():Number {
+				return this.borderMetrics.left + this.borderMetrics.right;
+			}
+
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
-				cursor.x = ((event.x/videoWidth)) * videoHolder.width;
-				cursor.y = ((event.y/videoHeight)) * videoHolder.height;
+				cursor.x = ((event.x/videoWidth)) * video.width;
+				cursor.y = ((event.y/videoHeight)) * video.height;
 			
 				cursorImg.visible = true;
                 // DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
-                if (cursor.x < videoHolder.x) cursor.x = videoHolder.x;
-                if (cursor.y < videoHolder.y) cursor.y = videoHolder.y;
-                if (cursor.x > videoHolder.x + videoHolder.width) cursor.x = videoHolder.x + videoHolder.width;
-                if (cursor.y > videoHolder.y + videoHolder.height) cursor.y = videoHolder.y + videoHolder.height;
-                cursorImg.x = cursor.x;
-                cursorImg.y = cursor.y;
+                if (cursor.x < video.x) cursor.x = video.x;
+                if (cursor.y < video.y) cursor.y = video.y;
+                if (cursor.x > video.x + video.width) cursor.x = video.x + video.width;
+                if (cursor.y > video.y + video.height) cursor.y = video.y + video.height;
+                cursorImg.move(cursor.x, cursor.y);
 			}
 			
 			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
@@ -153,21 +189,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.stream = stream;
 				this.title = "Viewing Remote Desktop";
        
+				videoHolder.addChild(video);
+				onResizeEvent();
 			}
 			
-      protected function updateButtonsPosition():void {
-        if (this.width < bottomBar.width) {
-          bottomBar.visible = false;
-        }
-        
-        if (bottomBar.visible == false) {
-          bottomBar.y = bottomBar.x = 0;
-        } else {
-          bottomBar.y = (this.height - bottomBar.height) / 2;
-          bottomBar.x = (this.width - bottomBar.width) / 2;
-        }
-      }
-      
 			public function stopViewing():void {
 				ns.close();
 				closeWindow();				
@@ -201,85 +226,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}
-												
-			/**
-			 * resizes the desktop sharing video to fit to this window
-			 */
-			private function fitToWindow():void{
-				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
-				}
-				
-				// Ignore if we are displaying the actual size of the video
-				if (! btnActualSize.selected) {
-					fitVideoToWindow();
-				}
-			}
 			
-			private function fitVideoToWindow():void {
-				if (this.width < this.height) {
-					fitToWidthAndAdjustHeightToMaintainAspectRatio();				
-				} else {
-					fitToHeightAndAdjustWidthToMaintainAspectRatio();
-				}				
-			}
-						
-			private function fitWindowToVideo():void {	
-				video.width = videoWidth;
-				videoHolder.width = videoWidth;
-				video.height = videoHeight;
-				videoHolder.height = videoHeight;			
-				this.height = videoHeight + VIDEO_HEIGHT_PADDING;
-				this.width = videoWidth + VIDEO_WIDTH_PADDING;
-			}
-			
-			private function videoIsSmallerThanWindow():Boolean {
-				return (videoHeight < this.height) && (videoWidth < this.width);
-			}
-			
-		
-			private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
-					video.width = this.width - VIDEO_WIDTH_PADDING;
-					videoHolder.width = video.width;
-					// Maintain aspect-ratio
-					video.height = (videoHeight * video.width) / videoWidth;
-					videoHolder.height = video.height;
-					this.height = video.height + VIDEO_HEIGHT_PADDING;					
-			}
-				
-			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-					video.height = this.height - VIDEO_HEIGHT_PADDING;
-					videoHolder.height = video.height;
-					// Maintain aspect-ratio
-					video.width = (videoWidth * video.height) / videoHeight;
-					videoHolder.width = video.width;
-					this.width = video.width + VIDEO_WIDTH_PADDING;					
-			}
-								
-			/**
-			 * resizes the desktop sharing video to actual video resolution
-			 */
-			private function fitToActualSize():void{
-				if (videoIsSmallerThanWindow()) {
-					fitWindowToVideo();
-				} else {
-					video.width = videoWidth;
-					videoHolder.width = videoWidth;
-					video.height = videoHeight;
-					videoHolder.height = videoHeight;					
-				}
-			}
-			
-			private function determineHowToDisplayVideo():void {
-				if (btnActualSize.selected) {
-					fitToActualSize();			
-					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');	
-					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow');
-				} else {
-					fitToWindow();
-					btnActualSize.toolTip = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
-					btnActualSize.label = ResourceUtil.getInstance().getString('bbb.desktopView.actualSize');
-				}
+			private function toggleActualSize():void {
+				actualSize = !actualSize;
+				onResizeEvent();
 			}
 			
 			private function closeWindow():void {
@@ -308,17 +258,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
-	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-		
-	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
+	
+	<mx:Canvas width="100%" height="100%" id="videoHolderCanvas" />
+
+	<views:DesktopViewToolbar x="0" y="{videoHolderCanvas.height - bottomBar.height - 16}" id="bottomBar" height="28" width="100%" >
 		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
-				   toggle="true" 
-				   click="determineHowToDisplayVideo()" 
-				   selected="false"
-				   height="90%" 
-				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
+				   click="toggleActualSize()" 
+				   height="28" 
+				   label="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
+				   toolTip="{actualSize ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"
 				   tabIndex="{baseIndex+4}"/>
-	</mx:HBox>
+	</views:DesktopViewToolbar>
 </CustomMdiWindow>

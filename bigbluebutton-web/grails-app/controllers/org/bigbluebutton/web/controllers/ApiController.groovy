@@ -222,6 +222,12 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
+    String guest;
+    if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true"))
+      guest = "true";
+    else
+      guest = "false";
+
     // Do we have a name for the user joining? If none, complain.
     if(!StringUtils.isEmpty(params.fullName)) {
       params.fullName = StringUtils.strip(params.fullName);
@@ -391,6 +397,7 @@ class ApiController {
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
+    us.guest = guest
     us.logoutUrl = meeting.getLogoutUrl();
     us.configXML = configxml;
 			
@@ -413,7 +420,7 @@ class ApiController {
 	meetingService.addUserSession(session['user-token'], us);
 	
 	// Register user into the meeting.
-	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
+	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.guest)
 	
 	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -807,10 +814,16 @@ class ApiController {
 				              meetingName(m.getName())
 				              createTime(m.getCreateTime())
 											createDate(formatPrettyDate(m.getCreateTime()))
+                      voiceBridge(m.getTelVoice())
+                      dialNumber(m.getDialNumber())
                       attendeePW(m.getViewerPassword())
                       moderatorPW(m.getModeratorPassword())
                       hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
                       running(m.isRunning() ? "true" : "false")
+                      participantCount(m.getNumUsers())
+                      listenerCount(m.getNumListenOnly())
+                      voiceParticipantCount(m.getNumVoiceJoined())
+                      videoCount(m.getNumVideos())
 											duration(m.duration)
 											hasUserJoined(m.hasUserJoined())
                     }
@@ -1454,6 +1467,7 @@ class ApiController {
               internalUserID = newInternalUserID
               authToken = us.authToken
               role = us.role
+              guest = us.guest
               conference = us.conference
               room = us.room 
               voicebridge = us.voicebridge
@@ -1652,6 +1666,7 @@ class ApiController {
     // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
     ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
 	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
+	recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 	
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -1699,6 +1714,17 @@ class ApiController {
 							  url(item.getUrl())
 							  length(item.getLength())
 							  mkp.yield(item.getExtensions())
+						  }
+					  }
+                  }
+				  download() {
+					  r.getDownloads().each { item ->
+						  format{
+							  type(item.getFormat())
+							  url(item.getUrl())
+							  md5(item.getMd5())
+							  key(item.getKey())
+							  length(item.getLength())
 						  }
 					  }
                   }
@@ -1987,6 +2013,7 @@ class ApiController {
             returncode(RESP_CODE_SUCCESS)
 			      meetingName(meeting.getName())
             meetingID(meeting.getExternalId())
+            internalMeetingID(meeting.getInternalId())
 			      createTime(meeting.getCreateTime())
 						createDate(formatPrettyDate(meeting.getCreateTime()))
 			      voiceBridge(meeting.getTelVoice())
@@ -2001,6 +2028,8 @@ class ApiController {
             startTime(meeting.getStartTime())
             endTime(meeting.getEndTime())
             participantCount(meeting.getNumUsers())
+            listenerCount(meeting.getNumListenOnly())
+            voiceParticipantCount(meeting.getNumVoiceJoined())
             maxUsers(meeting.getMaxUsers())
             moderatorCount(meeting.getNumModerators())
             attendees() {
@@ -2009,6 +2038,16 @@ class ApiController {
                   userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
+                  guest("${att.guest}")
+                  waitingForAcceptance("${att.waitingForAcceptance}")
+                  isPresenter("${att.isPresenter()}")
+                  isListeningOnly("${att.isListeningOnly()}")
+                  hasJoinedVoice("${att.isVoiceJoined()}")
+                  videoStreams(){
+                    att.getStreams().each { s ->
+                      streamName("${s}")
+                    }
+                  }
 				  customdata(){
 					  meeting.getUserCustomData(att.externalUserId).each{ k,v ->
 						  "$k"("$v")
@@ -2042,6 +2081,8 @@ class ApiController {
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             createTime(meeting.getCreateTime())
+            voiceBridge(meeting.getTelVoice())
+            dialNumber(meeting.getDialNumber())
 						createDate(formatPrettyDate(meeting.getCreateTime()))
 						hasUserJoined(meeting.hasUserJoined())
 						duration(meeting.duration)

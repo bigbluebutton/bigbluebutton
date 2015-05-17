@@ -34,8 +34,8 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
-  import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
   import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
@@ -141,9 +141,9 @@ package org.bigbluebutton.main.api
     }
  
     private function handleRaiseHandRequest(handRaised:Boolean):void {
-      trace(LOG + "Received raise hand request from JS API [" + handRaised + "]");
-      var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-      e.raised = handRaised;
+      trace("Received raise hand request from JS API [" + handRaised + "]");
+      var userID:String = UserManager.getInstance().getConference().getMyUserId();
+      var e:ChangeStatusEvent = new ChangeStatusEvent(userID, handRaised? ChangeStatusEvent.RAISE_HAND: ChangeStatusEvent.CLEAR_STATUS);
       _dispatcher.dispatchEvent(e);
     }
     
@@ -156,8 +156,8 @@ package org.bigbluebutton.main.api
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;
       
-      var streamName:String = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
-      if (streamName != null) {
+      var streamNames:Array = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
+      if (streamNames && streamNames.length > 0) {
         isUserPublishing = true; 
       }
       
@@ -165,7 +165,7 @@ package org.bigbluebutton.main.api
       obj.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
-      obj.streamName = streamName;
+      obj.streamNames = streamNames;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
@@ -195,15 +195,12 @@ package org.bigbluebutton.main.api
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
       obj.isPublishing = camSettings.isPublishing;
       obj.camIndex = camSettings.camIndex;
-      obj.camWidth = camSettings.camWidth;
-      obj.camHeight = camSettings.camHeight;
-      
-      var vidConf:VideoConfOptions = new VideoConfOptions();
-      
-      obj.camKeyFrameInterval = vidConf.camKeyFrameInterval;
-      obj.camModeFps = vidConf.camModeFps;
-      obj.camQualityBandwidth = vidConf.camQualityBandwidth;
-      obj.camQualityPicture = vidConf.camQualityPicture;  
+      obj.camWidth = camSettings.videoProfile.width;
+      obj.camHeight = camSettings.videoProfile.height;
+      obj.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+      obj.camModeFps = camSettings.videoProfile.modeFps;
+      obj.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+      obj.camQualityPicture = camSettings.videoProfile.qualityPicture;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;

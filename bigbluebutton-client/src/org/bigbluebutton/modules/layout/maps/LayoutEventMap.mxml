@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
       import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
@@ -62,7 +63,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
    		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
     </EventHandlers>
-            
+
+    <EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}">
+      <MethodInvoker generator="{LayoutEventMapDelegate}" method="refreshRole" arguments="{event}"/>
+    </EventHandlers>
+
     <EventHandlers type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="applyDefaultLayout" />
     </EventHandlers>
@@ -100,6 +105,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
    		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
     </EventHandlers>
 	
+    <EventHandlers type="{LayoutEvent.LOAD_LAYOUTS_EVENT}">
+      <MethodInvoker generator="{LayoutManager}" method="loadLayoutsFromFile" />
+    </EventHandlers>
+
     <EventHandlers type="{LayoutEvent.ADD_CURRENT_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="addCurrentLayoutToList" />
     </EventHandlers>

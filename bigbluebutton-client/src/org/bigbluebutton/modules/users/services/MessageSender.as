@@ -74,32 +74,21 @@ package org.bigbluebutton.modules.users.services
       );
     }
     
-    public function raiseHand(userID:String, raise:Boolean):void {    
+    public function changeStatus(userID:String, status:String):void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      if (raise) {
-        _nc.sendMessage("participants.userRaiseHand", 
-          function(result:String):void { // On successful result
-            LogUtil.debug(result); 
-          },	                   
-          function(status:String):void { // status - On error occurred
-            LogUtil.error(status); 
-          }
-        );        
-      } else {
-        var message:Object = new Object();
-        message["userId"] = userID;
-        message["loweredBy"] = userID;
-
-        _nc.sendMessage("participants.lowerHand", 
-          function(result:String):void { // On successful result
-            LogUtil.debug(result); 
-          },	                   
-          function(status:String):void { // status - On error occurred
-            LogUtil.error(status); 
-          },
-          message
-        );        
-      }  
+      var message:Object = new Object();
+      message["userID"] = userID;
+      message["status"] = "mood";
+      message["value"] = status;
+      _nc.sendMessage("participants.setParticipantStatus",
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );  
     }
     
     public function addStream(userID:String, streamName:String):void {
@@ -123,7 +112,8 @@ package org.bigbluebutton.modules.users.services
         },	                   
         function(status:String):void { // status - On error occurred
           LogUtil.error(status); 
-        }
+        },
+        streamName
       );
     }
     
@@ -370,6 +360,77 @@ package org.bigbluebutton.modules.users.services
         },
         newLockSettings
       );      
+    }
+
+    public function changeRole(userID:String, role:String):void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      var message:Object = new Object();
+      message["userId"] = userID;
+      message["role"] = role;
+
+      _nc.sendMessage(
+        "participants.setParticipantRole",// Remote function name
+        function(result:String):void { // On successful result
+          LogUtil.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
+    }
+
+    public function queryForGuestPolicy():void {
+      trace(LOG + "queryForGuestPolicy");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.getGuestPolicy",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         }
+       );
+    }
+
+    public function setGuestPolicy(policy:String):void {
+      trace(LOG + "setGuestPolicy - new policy:[" + policy + "]");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.setGuestPolicy",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         },
+         policy
+       );
+    }
+
+    public function responseToGuest(userId:String, response:Boolean):void {
+      trace(LOG + "responseToGuest - userId:[" + userId + "] response:[" + response + "]");
+
+      var message:Object = new Object();
+      message["userId"] = userId;
+      message["response"] = response;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.responseToGuest",
+         function(result:String):void { // On successful result
+           LogUtil.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LogUtil.error(status);
+         },
+         message
+       );
+    }
+
+    public function responseToAllGuests(response:Boolean):void {
+      responseToGuest(null, response);
     }
   }
 }

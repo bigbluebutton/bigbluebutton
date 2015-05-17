@@ -36,6 +36,7 @@ public class Recording {
 	private String endTime;
 	private Map<String, String> metadata = new HashMap<String, String>();
 	private ArrayList<Playback> playbacks=new ArrayList<Playback>();
+	private ArrayList<Download> downloads=new ArrayList<Download>();
 	
 	//TODO: 
 	private String state;
@@ -44,7 +45,11 @@ public class Recording {
 	private String playbackDuration;
 	private GPathResult playbackExtensions;
 	
-	
+	private String downloadLink;
+	private String downloadFormat;
+	private String downloadMd5;
+	private String downloadKey;
+
 	public String getId() {
 		return id;
 	}
@@ -84,7 +89,37 @@ public class Recording {
 	public void setEndTime(String endTime) {
 		this.endTime = convertOldDateFormat(endTime);
 	}
+	public String getDownloadLink() {
+		return downloadLink;
+	}
 	
+	public void setDownloadLink(String downloadLink) {
+		this.downloadLink = downloadLink;
+	}
+
+	public String getDownloadFormat() {
+		return downloadFormat;
+	}
+	
+	public void setDownloadFormat(String downloadFormat) {
+		this.downloadFormat = downloadFormat;
+	}
+
+	public String getDownloadMd5() {
+		return downloadMd5;
+	}
+	
+	public void setDownloadMd5(String downloadMd5) {
+		this.downloadMd5 = downloadMd5;
+	}
+
+	public String getDownloadKey() {
+		return downloadKey;
+	}
+	
+	public void setDownloadKey(String downloadKey) {
+		this.downloadKey = downloadKey;
+	}
 	public String getPlaybackLink() {
 		return playbackLink;
 	}
@@ -139,6 +174,14 @@ public class Recording {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public ArrayList<Download> getDownloads() {
+		return downloads;
+	}
+
+	public void setDownloads(ArrayList<Download> downloads) {
+		this.downloads = downloads;
 	}
 
 	public ArrayList<Playback> getPlaybacks() {

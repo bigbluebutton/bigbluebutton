@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bigbluebutton.api.MeetingService;
 
 public class Meeting {
 	private static Logger log = LoggerFactory.getLogger(Meeting.class);
@@ -315,6 +314,33 @@ public class Meeting {
 	
 	private boolean hasEnded() {
 		return endTime > 0;
+	}
+
+	public int getNumListenOnly() {
+		int sum = 0;
+		for (String key : users.keySet()) {
+			User u =  (User) users.get(key);
+			if (u.isListeningOnly()) sum++;
+		}
+		return sum;
+	}
+	
+	public int getNumVoiceJoined() {
+		int sum = 0;
+		for (String key : users.keySet()) {
+			User u =  (User) users.get(key);
+			if (u.isVoiceJoined()) sum++;
+		}
+		return sum;
+	}
+
+	public int getNumVideos() {
+		int sum = 0;
+		for (String key : users.keySet()) {
+			User u =  (User) users.get(key);
+			sum += u.getStreams().size();
+		}
+		return sum;
 	}
 	
 	public void addUserCustomData(String userID, Map<String, String> data) {
