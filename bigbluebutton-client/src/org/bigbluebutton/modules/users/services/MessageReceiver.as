@@ -41,7 +41,6 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.main.model.users.events.ChangeStatusBtnEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -539,9 +538,6 @@ package org.bigbluebutton.modules.users.services
       UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
       var status:String = map.value;
       var statusArray:Array = status.split(",");
-      if(map.status == "mood") {
-          dispatcher.dispatchEvent(new ChangeStatusBtnEvent(map.userID, statusArray[0]));
-      }
 
       if (msg.status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);

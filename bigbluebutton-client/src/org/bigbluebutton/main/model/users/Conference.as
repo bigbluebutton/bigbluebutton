@@ -339,6 +339,10 @@ package org.bigbluebutton.main.model.users {
 		public function getMyUserId():String {
 			return me.userID;
 		}
+
+		public function getMyself():BBBUser {
+			return me;
+		}
     
 		public function setMyUserid(userID:String):void {
 			me.userID = userID;
