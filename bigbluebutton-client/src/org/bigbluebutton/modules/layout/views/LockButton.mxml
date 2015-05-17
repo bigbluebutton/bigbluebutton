@@ -53,7 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onClick(e:Event):void {
-				//_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SYNC_LAYOUT_EVENT));
+				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SYNC_LAYOUT_EVENT));
 			}
 			
 			private function onLockLayoutEvent(e:Event):void {

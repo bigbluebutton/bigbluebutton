@@ -136,25 +136,21 @@ package org.bigbluebutton.modules.layout.model {
 			layout.hidden = !window.visible;
 			layout.order = OrderManager.getInstance().getOrderByRef(window);
       
-      //trace("WindowLayout::getLayout for " + layout.name + " [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
-      //  + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
+//      trace("WindowLayout::getLayout for " + layout.name + " [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
+//        + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
       
 			return layout;
 		}
 		
 		static public function setLayout(canvas:MDICanvas, window:MDIWindow, layout:WindowLayout):void {
-      //if (window == null) trace("WindowLayout::setLayout - window is NULL!!!");
-      //if (layout == null) trace("WindowLayout::setLayout - layout is NULL!!!");
-      //if (layout.name == null) trace("WindowLayout::setLayout - layout.name is NULL!!!");
-      
-      //trace("WindowLayout::setLayout for " + getType(window) + ",layout=" + layout.name + "]");
+//      trace("WindowLayout::setLayout for " + window.name + ",layout=" + layout.name + "]");
       
 			if (layout == null) {
         return;
       }
       
-      //trace("WindowLayout::setLayout [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
-      //  + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
+//      trace("WindowLayout::setLayout [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
+//        + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
       
 			layout.applyToWindow(canvas, window);
 		}
