@@ -197,6 +197,19 @@
     }
     
     public function initialize():void {      
+      JSLog.debug(LOG + "Initializing FlashCallManager, current state: " + state);
+      trace(LOG + "Initializing FlashCallManager, current state: " + state);
+      switch (state) {
+        case STOP_ECHO_THEN_JOIN_CONF:
+          // if we initialize usingFlash here, we won't be able to hang up from
+          // the flash connection
+          JSLog.debug(LOG + "Invalid state for initialize, aborting...");
+          trace(LOG + "Invalid state for initialize, aborting...");
+          return;
+        default:
+          break;
+      }
+      
       printMics();
       options = new PhoneOptions();
       if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
