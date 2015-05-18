@@ -171,7 +171,7 @@ class PresentationService {
 		//new File(pdfFile)
 		list[0]
 	}
-}	
+}
 
 /*** Helper classes **/
 import java.io.FilenameFilter;

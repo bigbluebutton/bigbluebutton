@@ -181,7 +181,7 @@ public class MeetingMessageHandler implements MessageHandler {
 								listener.handle(new UserRoleChanged(meetingId, userid, role));
 							}
 						}
-					}
+					}				
 				}
 		  } 
 	}

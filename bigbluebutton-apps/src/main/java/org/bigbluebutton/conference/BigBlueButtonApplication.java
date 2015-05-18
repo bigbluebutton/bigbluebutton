@@ -91,14 +91,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     
 	@Override
 	public boolean roomStart(IScope room) {
-		connInvokerService.addScope(room.getName(), room);
 		return super.roomStart(room);
 	}	
 	
 	@Override
 	public void roomStop(IScope room) {
 		recorderApplication.destroyRecordSession(room.getName());	
-		connInvokerService.removeScope(room.getName());
 		super.roomStop(room);
 	}
     	
@@ -154,8 +152,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		
 		bbbGW.initAudioSettings(room, internalUserID, muted);
 
-		boolean success = connInvokerService.addConnection(internalUserID, connection);
-
 	    String meetingId = bbbSession.getRoom();
 	    
 	    String connType = getConnectionType(Red5.getConnectionLocal().getType());
@@ -182,7 +178,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		
 		log.info("User joining bbb-apps: data={}", logStr);
 		
-		return success && super.roomConnect(connection, params);
+		return super.roomConnect(connection, params);
         
 	}
 
@@ -203,8 +199,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		int remotePort = Red5.getConnectionLocal().getRemotePort();    	
 		String clientId = Red5.getConnectionLocal().getClient().getId();
 		log.info("***** " + APP + "[clientid=" + clientId + "] disconnnected from " + remoteHost + ":" + remotePort + ".");
-
-		connInvokerService.removeConnection(getBbbSession().getInternalUserID());
 
 	    BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	          

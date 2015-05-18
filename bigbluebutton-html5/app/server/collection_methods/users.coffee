@@ -6,49 +6,6 @@
 # immediately, since they do not require permission for things such as muting themsevles. 
 # --------------------------------------------------------------------------------------------
 Meteor.methods
-  # meetingId: the meetingId of the meeting the user is in
-  # toSetUserId: the userId of the user joining
-  # requesterUserId: the userId of the requester
-  # requesterToken: the authToken of the requester
-  listenOnlyRequestToggle: (meetingId, userId, authToken, isJoining) ->
-    voiceConf = Meteor.Meetings.findOne({meetingId:meetingId})?.voiceConf
-    username = Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.name
-    if isJoining
-      if isAllowedTo('joinListenOnly', meetingId, userId, authToken)
-        message =
-          payload:
-            userid: userId
-            meeting_id: meetingId
-            voice_conf: voiceConf
-            name: username
-          header:
-            timestamp: new Date().getTime()
-            name: "user_connected_to_global_audio"
-            version: "0.0.1"
-
-        Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
-
-        publish Meteor.config.redis.channels.toBBBApps.meeting, message
-
-    else
-      if isAllowedTo('leaveListenOnly', meetingId, userId, authToken)
-        message =
-          payload:
-            userid: userId
-            meeting_id: meetingId
-            voice_conf: voiceConf
-            name: username
-          header:
-            timestamp: new Date().getTime()
-            name: "user_disconnected_from_global_audio"
-            version: "0.0.1"
-
-        Meteor.log.info "publishing a user listenOnly toggleRequest #{isJoining} request for #{userId}"
-
-        publish Meteor.config.redis.channels.toBBBApps.meeting, message
-
-    return
-
   # meetingId: the meetingId of the meeting the user[s] is in
   # toMuteUserId: the userId of the user to be [un]muted
   # requesterUserId: the userId of the requester
@@ -160,6 +117,7 @@ Meteor.methods
   Meteor.log.info "marking user [#{userId}] as offline in meeting[#{meetingId}]"
   Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
 
+
 # Corresponds to a valid action on the HTML clientside
 # After authorization, publish a user_leaving_request in redis
 # params: meetingid, userid as defined in BBB-App
@@ -192,8 +150,8 @@ Meteor.methods
       Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.locked':voiceUserObject.locked}}) # locked
     if voiceUserObject.muted?
       Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}}) # muted
-    if voiceUserObject.listen_only?
-      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listen_only}}) # listenOnly
+    if voiceUserObject.listenOnly?
+      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listenOnly}}) # muted
   else
     Meteor.log.error "ERROR! did not find such voiceUser!"
 
@@ -204,7 +162,7 @@ Meteor.methods
   # the collection already contains an entry for this user because
   # we added a dummy user on register_user_message (to save authToken)
   if u?
-    Meteor.log.info "UPDATING USER #{user.userid}, authToken=#{u.authToken}, locked=#{user.locked}"
+    Meteor.log.info "UPDATING USER #{user.userid}, authToken=#{u.authToken}"
     Meteor.Users.update({userId:user.userid, meetingId: meetingId}, {$set:{
       user:
         userid: user.userid
@@ -307,36 +265,6 @@ Meteor.methods
     id = Meteor.Users.insert(entry)
     Meteor.log.info "added user dummy html5 user with: userid=[#{userId}], id=[#{id}]
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
-
-
-# when new lock settings including disableMic are set,
-# all viewers that are in the audio bridge with a mic should be muted and locked
-@handleLockingMic = (meetingId, newSettings) ->
-  # send mute requests for the viewer users joined with mic
-  for u in Meteor.Users.find({
-                              meetingId:meetingId
-                              'user.role':'VIEWER'
-                              'user.listenOnly':false
-                              'user.locked':true
-                              'user.voiceUser.joined':true
-                              'user.voiceUser.muted':false})?.fetch()
-    Meteor.log.error u.user.name #
-    Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true) #true for muted
-
-# change the locked status of a user (lock settings)
-@setUserLockedStatus = (meetingId, userId, isLocked) ->
-  if Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
-    Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.locked': isLocked}})
-
-    # if the user is sharing audio, he should be muted upon locking involving disableMic
-    u = Meteor.Users.findOne({meetingId:meetingId, userId:userId})
-    if u.user.role is 'VIEWER' and !u.user.listenOnly and u.user.voiceUser.joined and !u.user.voiceUser.muted and isLocked
-      Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true) #true for muted
-
-    Meteor.log.info "setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
-  else
-    Meteor.log.error "(unsuccessful-no such user) setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
-
 
 # called on server start and on meeting end
 @clearUsersCollection = (meetingId) ->

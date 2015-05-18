@@ -46,7 +46,7 @@ ToolTip {
   paddingRight: 3;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .bandwidthButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -643,11 +643,4 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	fontFamily: Arial;
 	fontSize: 20;  
 	fontWeight: bold;
-}
-
-.bandwidthButtonStyle {
-  paddingTop: 0;
-  paddingBottom: 0;
-  height: 22;
-  icon:   Embed('assets/images/bandwidth.png');
 }

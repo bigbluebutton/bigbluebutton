@@ -158,9 +158,6 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 
       //send chat history
       this ! (new GetChatHistoryRequest(id, "nodeJSapp", "nodeJSapp"))
-
-      //send lock settings
-      this ! (new GetLockSettings(id, "nodeJSapp"))
     }
 
     outGW.send(new GetAllMeetingsReply(resultArray))

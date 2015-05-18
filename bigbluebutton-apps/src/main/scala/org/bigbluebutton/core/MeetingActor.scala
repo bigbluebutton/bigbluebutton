@@ -93,7 +93,6 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: MuteUserRequest                        => handleMuteUserRequest(msg)
 	    case msg: EjectUserFromVoiceRequest              => handleEjectUserRequest(msg)
 	    case msg: SetLockSettings                        => handleSetLockSettings(msg)
-	    case msg: GetLockSettings                        => handleGetLockSettings(msg)
       case msg: LockUserRequest                        => handleLockUserRequest(msg)
 	    case msg: InitLockSettings                       => handleInitLockSettings(msg)
       case msg: InitAudioSettings                      => handleInitAudioSettings(msg)

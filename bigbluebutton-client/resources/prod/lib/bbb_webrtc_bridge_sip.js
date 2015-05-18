@@ -37,26 +37,15 @@ function webRTCCallback(message) {
 	}
 }
 
-function callIntoConference(voiceBridge, callback, isListenOnly) {
-	// root of the call initiation process from the html5 client
-	// Flash will not pass in the listen only field. For html5 it is optional. Assume NOT listen only if no state passed
-	if (isListenOnly == null) {
-		isListenOnly = false;
-	}
-
+function callIntoConference(voiceBridge, callback) {
 	if (!callerIdName) {
 		BBB.getMyUserInfo(function(userInfo) {
 			console.log("User info callback [myUserID=" + userInfo.myUserID
 				+ ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
 				+ ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
-				+ ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge
-				+ ",isListenOnly=" + isListenOnly + "].");
+				+ ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
 			userID = userInfo.myUserID;
 			callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
-			if (isListenOnly) {
-				//prepend the callerIdName so it is recognized as a global audio user
-				callerIdName = "GLOBAL_AUDIO_" + callerIdName;
-			}
 			conferenceVoiceBridge = userInfo.voiceBridge
 			if (voiceBridge === "9196") {
 				voiceBridge = voiceBridge + conferenceVoiceBridge;
@@ -64,7 +53,7 @@ function callIntoConference(voiceBridge, callback, isListenOnly) {
 				voiceBridge = conferenceVoiceBridge;
 			}
 			console.log(callerIdName);
-			webrtc_call(callerIdName, voiceBridge, callback, isListenOnly);
+			webrtc_call(callerIdName, voiceBridge, callback);
 		});
 	} else {
 		if (voiceBridge === "9196") {
@@ -72,7 +61,7 @@ function callIntoConference(voiceBridge, callback, isListenOnly) {
 		} else {
 			voiceBridge = conferenceVoiceBridge;
 		}
-		webrtc_call(callerIdName, voiceBridge, callback, isListenOnly);
+		webrtc_call(callerIdName, voiceBridge, callback);
 	}
 }
 
@@ -220,30 +209,25 @@ function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {
 	}
 };
 
-function webrtc_call(username, voiceBridge, callback, isListenOnly) {
+function webrtc_call(username, voiceBridge, callback) {
 	if (!isWebRTCAvailable()) {
 		callback({'status': 'failed', 'errorcode': 1003}); // Browser version not supported
 		return;
 	}
-	if (isListenOnly == null) { // assume NOT listen only unless otherwise stated
-		isListenOnly = false;
-	}
-
+	
 	var server = window.document.location.hostname;
 	console.log("user " + username + " calling to " +  voiceBridge);
-
+	
 	var makeCallFunc = function() {
-		// only make the call when both microphone and useragent have been created
-		// for listen only, stating listen only is a viable substitute for acquiring user media control
-		if ((isListenOnly||userMicMedia) && userAgent)
-			make_call(username, voiceBridge, server, callback, false, isListenOnly);
+		if (userMicMedia && userAgent) // only make the call when both microphone and useragent have been created
+			make_call(username, voiceBridge, server, callback, false);
 	};
+	
 	if (!userAgent) {
 		createUA(username, server, callback, makeCallFunc);
 	}
-	// if the user requests to proceed as listen only (does not require media) or media is already acquired,
-	// proceed with making the call
-	if (isListenOnly || userMicMedia !== undefined) {
+	
+	if (userMicMedia !== undefined) {
 		makeCallFunc();
 	} else {
 		callback({'status':'mediarequest'});
@@ -260,15 +244,11 @@ function webrtc_call(username, voiceBridge, callback, isListenOnly) {
 	}
 }
 
-function make_call(username, voiceBridge, server, callback, recall, isListenOnly) {
-	if (isListenOnly == null) {
-		isListenOnly = false;
-	}
-
+function make_call(username, voiceBridge, server, callback, recall) {
 	if (userAgent == null) {
 		console.log("userAgent is still null. Delaying call");
 		var callDelayTimeout = setTimeout( function() {
-			make_call(username, voiceBridge, server, callback, recall, isListenOnly);
+			make_call(username, voiceBridge, server, callback, recall);
 		}, 100);
 		return;
 	}
@@ -277,7 +257,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 		console.log("Trying to make call, but UserAgent hasn't connected yet. Delaying call");
 		userAgent.once('connected', function() {
 			console.log("UserAgent has now connected, retrying the call");
-			make_call(username, voiceBridge, server, callback, recall, isListenOnly);
+			make_call(username, voiceBridge, server, callback, recall);
 		});
 		return;
 	}
@@ -289,53 +269,16 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 
 	// Make an audio/video call:
 	console.log("Setting options.. ");
-
-	var options = {};
-	if (isListenOnly) {
-		// create necessary options for a listen only stream
-		var stream = null;
-		// handle the web browser
-		// create a stream object through the browser separated from user media
-		if (typeof webkitMediaStream !== 'undefined') {
-			// Google Chrome
-			stream = new webkitMediaStream;
-		} else {
-			// Firefox
-			audioContext = new window.AudioContext;
-			stream = audioContext.createMediaStreamDestination().stream;
+	var options = {
+		media: {
+			stream: userMicMedia,
+			render: {
+				remote: {
+					audio: document.getElementById('remote-media')
+				}
+			}
 		}
-
-		options = {
-			media: {
-				stream: stream, // use the stream created above
-				render: {
-					remote: {
-						// select an element to render the incoming stream data
-						audio: document.getElementById('remote-media')
-					}
-				}
-			},
-			// a list of our RTC Connection constraints
-			RTCConstraints: {
-				// our constraints are mandatory. We must received audio and must not receive audio
-				mandatory: {
-					OfferToReceiveAudio: true,
-					OfferToReceiveVideo: false
-				}
-			}
-		};
-	} else {
-		options = {
-			media: {
-				stream: userMicMedia,
-				render: {
-					remote: {
-						audio: document.getElementById('remote-media')
-					}
-				}
-			}
-		};
-	}
+	};
 	
 	callTimeout = setTimeout(function() {
 		console.log('Ten seconds without updates sending timeout code');
@@ -488,8 +431,4 @@ function webrtc_hangup(callback) {
 
 function isWebRTCAvailable() {
 	return SIP.WebRTC.isSupported();
-}
-
-function getCallStatus() {
-	return currentSession;
 }

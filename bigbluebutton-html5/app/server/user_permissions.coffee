@@ -1,16 +1,8 @@
 
 presenter = null
 
-# holds the values for whether the moderator user is allowed to perform an action (true)
-# or false if not allowed. Some actions have dynamic values depending on the current lock settings
+#for the time being moderators have the same permissions that viewers do
 moderator =
-  # audio listen only
-  joinListenOnly: true
-  leaveListenOnly: true
-
-  # join audio with mic cannot be controlled on the server side as it is
-  # a client side only functionality
-
   # raising/lowering hand
   raiseOwnHand : true
   lowerOwnHand : true
@@ -26,29 +18,18 @@ moderator =
   subscribeChat: true
 
   #chat
-  chatPublic: true
-  chatPrivate: true
+  chatPublic: true #should make this dynamically modifiable later on
+  chatPrivate: true #should make this dynamically modifiable later on
 
 
-# holds the values for whether the viewer user is allowed to perform an action (true)
-# or false if not allowed. Some actions have dynamic values depending on the current lock settings
-viewer = (meetingId, userId) ->
-
-  # listen only
-  joinListenOnly: true
-  leaveListenOnly: true
-
-  # join audio with mic cannot be controlled on the server side as it is
-  # a client side only functionality
-
+viewer =
   # raising/lowering hand
   raiseOwnHand : true
   lowerOwnHand : true
 
   # muting
   muteSelf : true
-  unmuteSelf : !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disableMic) or
-                !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked)
+  unmuteSelf : true
 
   logoutSelf : true
 
@@ -57,18 +38,11 @@ viewer = (meetingId, userId) ->
   subscribeChat: true
 
   #chat
-  chatPublic: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePubChat) or
-                !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
-                Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
-  chatPrivate: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePrivChat) or
-                !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
-                Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
+  chatPublic: true #should make this dynamically modifiable later on
+  chatPrivate: true #should make this dynamically modifiable later on
 
-
-
-# carries out the decision making for actions affecting users. For the list of
-# actions and the default value - see 'viewer' and 'moderator' in the beginning of the file
 @isAllowedTo = (action, meetingId, userId, authToken) ->
+  # Disclaimer:the current version of the HTML5 client represents only VIEWER users
 
   validated = Meteor.Users.findOne({meetingId:meetingId, userId: userId})?.validated
   Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken} validated:#{validated}"
@@ -78,7 +52,7 @@ viewer = (meetingId, userId) ->
   if user? and authToken is user.authToken # check if the user is who he claims to be
     if user.validated and user.clientType is "HTML5"
       if user.user?.role is 'VIEWER' or user.user?.role is 'MODERATOR' or user.user?.role is undefined
-        return viewer(meetingId, userId)[action] or false
+        return viewer[action] or false
       else
         Meteor.log.warn "UNSUCCESSFULL ATTEMPT FROM userid=#{userId} to perform:#{action}"
         return false

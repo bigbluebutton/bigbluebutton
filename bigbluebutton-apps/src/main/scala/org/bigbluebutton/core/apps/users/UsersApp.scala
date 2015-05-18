@@ -82,11 +82,18 @@ trait UsersApp {
         //send the reply
         outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId, msg.sessionId))
 
+        //send the list of users in the meeting
+        outGW.send(new GetUsersReply(meetingID, msg.userId, users.getUsers, msg.sessionId))
+
+        //send chat history
+        this ! (new GetChatHistoryRequest(meetingID, msg.userId, msg.userId))
+
         //join the user
         handleUserJoin(new UserJoining(meetingID, msg.userId, msg.token))
 
         //send the presentation
         logger.info("ValidateToken success: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
+        this ! (new GetPresentationInfo(meetingID, msg.userId, msg.userId))
       }
       case None => {
         logger.info("ValidateToken failed: mid=[" + meetingID + "] uid=[" + msg.userId + "]")
@@ -147,14 +154,11 @@ trait UsersApp {
       case None => // do nothing
     }
   }
-
+  
   def handleGetLockSettings(msg: GetLockSettings) {
-    //println("*************** Reply with current lock settings ********************")
-
-    //reusing the existing handle for NewPermissionsSettings to reply to the GetLockSettings request
-    outGW.send(new NewPermissionsSetting(meetingID, msg.userId, permissions, users.getUsers))
+    logger.info("Not implemented: handleGetLockSettings")
   }
-
+  
   def handleSetLockSettings(msg: SetLockSettings) {
 //    println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {

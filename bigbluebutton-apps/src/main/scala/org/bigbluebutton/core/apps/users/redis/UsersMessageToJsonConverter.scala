@@ -137,7 +137,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.STATUS, msg.status)
     payload.put(Constants.VALUE, msg.value.toString)
 
-		val header = Util.buildHeader(MessageNames.USER_STATUS_CHANGED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_STATUS_CHANGED, msg.version, None)
     Util.buildJson(header, payload)
 	}
 

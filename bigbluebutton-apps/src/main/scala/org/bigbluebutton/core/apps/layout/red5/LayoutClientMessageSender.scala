@@ -30,10 +30,10 @@ class LayoutClientMessageSender(service: ConnectionInvokerService) extends OutMe
 	private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
 	  val message = new java.util.HashMap[String, Object]()  	
 	  message.put("locked", msg.locked:java.lang.Boolean);
-	  message.put("setByUserID", msg.requesterID);
+	  message.put("setByUserID", msg.setByUserID);
 	  message.put("layout", msg.layoutID);
 	  
-	  msg.applyTo.filter(_.userID != msg.requesterID) foreach {u =>
+	  msg.applyTo foreach {u =>
 	    var m = new DirectClientMessage(msg.meetingID, u.userID, "syncLayout", message);
 	    service.sendMessage(m);	    
 	  }  

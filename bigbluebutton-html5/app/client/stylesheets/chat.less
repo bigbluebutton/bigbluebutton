@@ -1,9 +1,9 @@
 @import "variables";
 
 .active {
-  border: .2vh solid !important;
+  border: .2vh solid extract(@azure, 2) !important;
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    border-left: .1vh solid !important;
+    border-left: .1vh solid extract(@azure, 2) !important;
   }
 }
 
@@ -76,24 +76,18 @@
 .chatNameSelectorPrivate {
   .chatNameSelector;
   width:90%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  @media @landscape {
-    height: 20px;
-  }
-  @media @desktop-portrait {
-    height: 25px;
-  }
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 4vw;
-  }
 }
 
 .chatNameSelectorPublic {
   .chatNameSelector;
   margin-bottom: 1px !important;
   width:100%;
+}
+
+.chatOptionsText {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size: 5vw;
+  }
 }
 
 .close:hover {
@@ -119,12 +113,6 @@
   padding: 5px;
 }
 
-
-.disabledChat {
-  background-color: grey;
-  width: 100% !important;
-}
-
 .dropdown {
   float: left;
   @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
@@ -140,20 +128,25 @@
   }
 }
 
-#fontSizeTable {
-  /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
-  height: 64px;
-  #displayButtons {
-    text-align:center;
-    width:84px;
+#fontSizeControl {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    font-size:7vw;
   }
-  #displayLabel {
-    width: 154px;
+  .fontSizeLabel {
+    height:30px;
+    text-align:center;
   }
 }
 
 .gotUnreadMail {
   background: extract(@yellow, 2) !important;
+}
+
+#increaseFontSize, #decreaseFontSize {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    height: 100px;
+    width: 100px;
+  }
 }
 
 #MoreChatsDrop {
@@ -292,7 +285,7 @@
 
   &:hover {
     background-color: #ddd;
-    border: 1px solid;
+    border: 1px solid extract(@azure, 2);
     border-bottom: none;
   }
 }
