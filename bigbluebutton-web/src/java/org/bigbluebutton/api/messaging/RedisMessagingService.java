@@ -120,18 +120,6 @@ public class RedisMessagingService implements MessagingService {
   	this.storeService = storeService;
   }
   
-	public String storeSubscription(String meetingId, String externalMeetingID, String callbackURL){
-		return storeService.storeSubscription(meetingId, externalMeetingID, callbackURL);
-	}
-
-	public boolean removeSubscription(String meetingId, String subscriptionId){
-		return storeService.removeSubscription(meetingId, subscriptionId);
-	}
-
-	public List<Map<String,String>> listSubscriptions(String meetingId){
-		return storeService.listSubscriptions(meetingId);	
-	}	
-	
 	public void removeMeeting(String meetingId){
 		storeService.removeMeeting(meetingId);
 	}
