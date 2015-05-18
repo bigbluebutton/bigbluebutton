@@ -26,7 +26,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bigbluebutton.app.video.h263.H263Converter;
+import org.bigbluebutton.app.video.converter.H263Converter;
+import org.bigbluebutton.app.video.converter.VideoRotator;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
@@ -63,6 +64,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private long relayTimeout;
 
 	private final Map<String, H263Converter> h263Converters = new HashMap<String, H263Converter>();
+
+	private final Map<String, VideoRotator> videoRotators = new HashMap<String, VideoRotator>();
 
     @Override
 	public boolean appStart(IScope app) {
@@ -204,14 +207,21 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void streamBroadcastStart(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastStart(stream);
-    	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+    	String streamName = stream.getPublishedName();
+    	log.info("streamBroadcastStart " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
-        if (recordVideoStream && !stream.getPublishedName().contains("/")) {
+        if (streamName.contains("/")) {
+            if(VideoRotator.getDirection(streamName) != null) {
+                VideoRotator rotator = new VideoRotator(streamName);
+                videoRotators.put(streamName, rotator);
+            }
+        }
+        else if (recordVideoStream) {
 	    	recordStream(stream);
 	    	VideoStreamListener listener = new VideoStreamListener(); 
 	        listener.setEventRecordingService(recordingService);
 	        stream.addStreamListener(listener); 
-	        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
+	        streamListeners.put(conn.getScope().getName() + "-" + streamName, listener);
         }
     }
 
@@ -253,9 +263,15 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         recordingService.record(scopeName, event);    		
       }
 
-      if (h263Converters.containsKey(stream.getName())) {
+      String streamName = stream.getName();
+      if(h263Converters.containsKey(streamName)) {
         // Stop converter
-        h263Converters.remove(stream.getName()).stopConverter();
+        h263Converters.remove(streamName).stopConverter();
+      }
+
+      if(videoRotators.containsKey(streamName)) {
+        // Stop rotator
+        videoRotators.remove(streamName).stop();
       }
     }
     
