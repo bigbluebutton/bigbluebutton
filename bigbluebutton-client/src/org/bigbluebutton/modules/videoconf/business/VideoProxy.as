@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.net.NetStream;
 	import flash.system.Capabilities;
 	import flash.utils.Dictionary;
-
+	
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
@@ -72,7 +72,7 @@ package org.bigbluebutton.modules.videoconf.business
 		private var streamNamePrefixDict:Dictionary;
 		// Dictionary<streamName,url>
 		private var streamUrlDict:Dictionary;
-
+    
 		private function parseOptions():void {
 			videoOptions = new VideoConfOptions();
 			videoOptions.parseOptions();	
@@ -113,7 +113,7 @@ package org.bigbluebutton.modules.videoconf.business
       var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new ConnectedEvent(ConnectedEvent.VIDEO_CONNECTED));
     }
-
+    
 		private function onNetStatus(event:NetStatusEvent):void{
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
@@ -127,7 +127,7 @@ package org.bigbluebutton.modules.videoconf.business
 					break;
 			}
 		}
-
+		
 		private function onSecurityError(event:NetStatusEvent):void{
 		}
 		
@@ -279,7 +279,7 @@ package org.bigbluebutton.modules.videoconf.business
 				trace("VideoProxy:: closePlayConnectionFor:: Connection with: [" + streamUrl + "] has [" + streams.length + "] streams");
 			}
 		}
-
+		
 		public function startPublishing(e:StartBroadcastEvent):void{
 			var ns:NetStream = new NetStream(nc);
 			ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );

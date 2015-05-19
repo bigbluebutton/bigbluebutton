@@ -70,14 +70,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             protected function onCreationComplete():void {
-                if (user) {
-                    updateButtons();
-                    if (user.talking) {
-                        titleBox.setStyle("styleName", "videoToolbarBackgroundTalkingStyle");
-                    } else {
-                        titleBox.setStyle("styleName", "videoToolbarBackgroundNotTalkingStyle");
-                    }
-                }
             }
 
             public function set userId(value:String):void {
@@ -226,7 +218,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
             }
 
-            private function updateTalkingStatus() {
+            private function updateTalkingStatus():void {
                 if (user.talking) {
                     titleBox.setStyle("styleName", "videoToolbarBackgroundTalkingStyle");
                 } else {

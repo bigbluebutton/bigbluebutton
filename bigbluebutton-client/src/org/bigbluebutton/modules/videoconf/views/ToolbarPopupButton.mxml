@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" styleName="webcamDefaultButtonStyle"
 		   xmlns:mate="http://mate.asfusion.com/"
-		   click="openPublishWindow()" initialize="init()"
+		   click="openPublishWindow()" creationComplete="init()" 
 		   mouseOver = "mouseOverHandler(event)"
 		   mouseOut = "mouseOutHandler(event)"
            height="24"
@@ -78,12 +78,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher;
 
 			public function lockSettingsChanged(e:*):void{
-        if (UsersUtil.amIModerator()  || UsersUtil.amIPresenter()){
-          // Ignore lock setting changes as 
-          // or presenter we are moderator.
-          return; 
-        }
-        
 				updateButton();
 			}
 
@@ -96,8 +90,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
 
-				this.visible = me.moderator || me.presenter || !me.disableMyCam;
-				this.includeInLayout = me.moderator || me.presenter || !me.disableMyCam;
+				this.visible = !me.disableMyCam;
+				this.includeInLayout = !me.disableMyCam;
 			}
 
 			private function init():void{
@@ -265,7 +259,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(camIndex != -1) {
 					dp[camIndex].status = ON_STATE;
 					dataMenu.dataProvider = dp;
-					mouseOverHandler(null);
 				}
 			}
 		]]>
