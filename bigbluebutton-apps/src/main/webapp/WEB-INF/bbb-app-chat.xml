@@ -28,7 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 		
 	<bean id="chatApplication" class="org.bigbluebutton.conference.service.chat.ChatApplication">
-        <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+        <property name="bigBlueButtonInGW"> <ref bean="red5BbbInGW"/></property>
 	</bean>
 	
 	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
