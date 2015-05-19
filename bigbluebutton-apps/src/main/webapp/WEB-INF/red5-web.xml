@@ -77,7 +77,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="0" ref="bbbGW"/>
         <constructor-arg index="1" ref="preuploadedPresentationsUtil"/>
     </bean>
-    
+
+    <bean id="red5BbbInGW" class="org.bigbluebutton.core.api.Red5BBBInGw">
+      <property name="messageSender" ref="redisMessageSender"/>
+    </bean>
+          
     <bean id="preuploadedPresentationsUtil" class="org.bigbluebutton.conference.service.presentation.PreuploadedPresentationsUtil">
       <property name="bigBlueButtonDirectory" value="${default.BigBlueButtonDirectory}"/>
     </bean>
@@ -199,7 +203,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
       <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
     </bean>
-    
+
+    <bean id="redisPubSubMessageHandler" class="org.bigbluebutton.conference.service.messaging.redis.RedisPubSubMessageHandler">
+      <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+    </bean>
+        
 
         
 	<import resource="bbb-redis-pool.xml"/>
