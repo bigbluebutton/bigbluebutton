@@ -72,7 +72,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
 
   # returns true if the user has joined the listen only audio stream
   BBB.amIListenOnlyAudio = (callback) ->
-    BBB.isUserListenOnlyAudio BBB.getCurrentUser()?.userId
+    BBB.getCurrentUser()?.user?.listenOnly
 
   # returns whether the user has joined the voice conference and is sharing audio through a microphone
   BBB.amISharingAudio = (callback) ->
@@ -481,5 +481,3 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
 
   BBB
 )()
-#
-

@@ -1,62 +1,41 @@
 @import "variables";
 
-.active {
-  border: .2vh solid !important;
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    border-left: .1vh solid !important;
-  }
-}
-
 #chat {
-  background-color: extract(@white, 2);
-  border: 1px solid extract(@lightGrey, 3);
-  float: left;
-  background: extract(@white, 1);
-  margin-left: 0.25%;
-  margin-right: 0.25%;
-  overflow: hidden;
-  -webkit-flex: 1 1 25%;
-  flex: 1 1 25%;
-  padding-left: 0px;
-  padding-right: 0px;
-  width: 100%;
   @media @landscape {
-    height: calc(~'100% - 15px');
-    -webkit-order: 3;
-    order: 3;
+    -webkit-flex: 3 3 30%;
+    -moz-flex: 3 3 30%;
+    -ms-flex: 3 3 30%;
+    flex: 3 3 30%;
+    height: 100%;
   }
-  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-    -webkit-order: 2;
-    order: 2;
-  }
+  order: 3;
 }
 
 .chat {
   list-style: none;
   margin: 0px;
   padding: 0px;
-  
+
   @media @desktop-portrait, @landscape {
     li {
       margin: 0px;
       padding: 15px;
       word-wrap: break-word;
-      &:nth-child(even) {
-        background-color: rgb(245,245,245);
-      }
+      // &:nth-child(even) {
+      //   background-color: rgb(245,245,245);
+      // }
       table {
         width: 100%;
       }
     }
   }
-
 }
 
 #chatbody {
   @media @landscape {
-    height: calc(~'100% - 121px');
+    height: calc(~'100% - 70px');
   }
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-left: 0px;
   padding-right: 0px;
   @media @desktop-portrait, @mobile-portrait {
@@ -65,90 +44,34 @@
   }
 }
 
-.chatNameSelector {
-  clear:right;
-  float:left;
-  margin-bottom: 0px !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chatNameSelectorPrivate {
-  .chatNameSelector;
-  width:90%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  @media @landscape {
-    height: 20px;
-  }
-  @media @desktop-portrait {
-    height: 25px;
-  }
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 4vw;
-  }
-}
-
-.chatNameSelectorPublic {
-  .chatNameSelector;
-  margin-bottom: 1px !important;
-  width:100%;
-}
-
-.close:hover {
-  background-color: red;
-}
-
-.closeTab {
-  float:left;
-  width:10%;
-  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 4vw;
-  }
-  @media @landscape {
-    font-size: 1vw;
-  }
-}
-
 .chat-input-wrapper {
-  padding:10px;
+  padding-top:10px;
+  padding-left:10px;
+  padding-right:10px;
 }
-
-#chat-user-list {
-  padding: 5px;
-}
-
 
 .disabledChat {
   background-color: grey;
   width: 100% !important;
 }
 
-.dropdown {
-  float: left;
-  @media @desktop-portrait, @mobile-portrait, @mobile-portrait-with-keyboard {
-    .dropdownMessage {
-      font-size: 3vw; //might be obsolete
-      font-style: italic; //might be obsolete
-    }
-  }
-  .dropdown-menu {
-    height: 80px;
-    overflow-y: scroll;
-    right: 0px;
-  }
-}
-
 #fontSizeTable {
+  border: 1px solid white;
+  height: 80px;
+  margin-bottom: 0px;
+  overflow: hidden;
   /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
-  height: 64px;
-  #displayButtons {
+  width: 379px;
+  .displayButtons {
+    height: 35px;
+    margin: 0px;
+    padding:0px;
     text-align:center;
     width:84px;
   }
   #displayLabel {
-    width: 154px;
+    text-align: center;
+    width: 169px;
   }
 }
 
@@ -156,25 +79,20 @@
   background: extract(@yellow, 2) !important;
 }
 
-#MoreChatsDrop {
-  float: right;
-}
-
-#MoreChatsbutton {
-  margin-right: 10px;
-  margin-top: 5px;
-  padding-bottom: 0px;
-  padding-top: 0px;
-}
-
 #newMessageInput {
   display: block;
   float: left;
   width: 75%;
   resize: none;
-  padding:5px;
-  border-radius:4px;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+  border-bottom-right-radius: 0px;
+  border-top-right-radius: 0px;
+  padding-top: 5px;
+  padding-bottom: 0px;
+
   border:1px solid extract(@lightGrey, 3);
+  margin: 0px;
 
   @media @landscape {
     height: 40px; /* same height as send button */
@@ -193,107 +111,46 @@
   }
 }
 
-.optionsBar {
-  height: 85%;
-  overflow-y: auto;
-  padding-left: 15px;
-  padding-top: 15px;
-  p {
-    @media @mobile-portrait, @mobile-portrait-with-keyboard {
-      font-size: 6vw;
-      font-style: italic;
-    }
-  }
-}
-
 .panel-footer {
   bottom: 0px;
-  /* padding: 10px; TODO: investigate (causes the overflow in the chat's title) */
   position: relative;
   background: extract(@white, 1);
-}
-
-.private-chat-user-box {
-  border-left: 1px solid grey;
-  min-width: 50%;
-  height: 40px;
-  padding: 5px;
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    width: 60%;
-    height: 100px;
-    font-size: 40px;
-    padding-left: 25px;
-  }
+  padding: 0;
+  border-top: 1px solid extract(@lightGrey, 3);
 }
 
 #sendMessageButton {
-  background-color: extract(@azure, 1);
   width: 20%; /* 75% for the message input, 5% margin between the two */
-  color: extract(@white, 1);
+  color: extract(@black, 1);
+  background-color: extract(@white, 1);
+  font-weight: bold;
+  height: 50px;
+  margin: 0px;
+
+  border: 1px solid extract(@lightGrey, 3);
+  border-bottom-left-radius: 00px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+
   @media @desktop-portrait {
     width: 20%; /* 75% for the message input, 5% margin between the two */
     font-size: 30px;
     height: 60px;
-    margin-left: 5%;
   }
   @media @mobile-portrait {
     width: 15vw;
     height: 8vw;
     font-size: 4vw;
-    margin-left: 5%;
   }
   @media @mobile-portrait-with-keyboard {
     width: 19vw;
     height: 21vh;
     font-size: 3vh;
-    margin-left: 1%;
-    margin-right: 1%;
-    marigin-top: 2vh;
-    margin-bottom: 2vh;
   }
   @media @landscape {
-    height: 40px;
+    height: 50px;
     padding: 0px;
-    margin-left: 5%;
-  }
-}
-
-#tabsList {
-  display: table;
-  margin: 0;
-  padding: 0;
-  table-layout: fixed;
-  text-align: center;
-  width: 100%;
-  a {
-    padding:0px;
-    @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      font-size: 35px;
-    }
-    @media @desktop-portrait {
-      font-size: 20px;
-    }
-    @media @landscape {
-      font-size: 12px;
-    }
-  }
-  li:first-child a {
-    border-left: 0;
-  }
-  &:before, &:after {
-    content: none;
-  }
-}
-
-.tab {
-  font-size: 14px;
-  height:auto;
-  width: 25% !important;
-
-  &:hover {
-    background-color: #ddd;
-    border: 1px solid;
-    border-bottom: none;
   }
 }
 

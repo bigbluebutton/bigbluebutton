@@ -21,3 +21,7 @@ Template.displayUserIcons.helpers
                     settings.lockedLayout or
                     settings.disablePubChat
     return locked and lockInAction
+
+Template.usernameEntry.events
+  'click #usernameEntry': (event) ->
+    userIdSelected = @.userId
