@@ -83,14 +83,7 @@ def fetchRecordings(url)
 
             BigBlueButton.logger.info("Downloading the encrypted file to #{encrypted_file}")
 
-            begin
-              writeOut = open(encrypted_file, "wb")
-              writeOut.write(open(file_url).read)
-              writeOut.close
-            rescue Exception => e
-              BigBlueButton.logger.error "Failed to download the encrypted file: #{e.to_s}"
-              next
-            end
+            `wget --output-document "#{encrypted_file}" "#{file_url}"`
 
             md5_calculated = Digest::MD5.file(encrypted_file)
 
