@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.messaging.redis;
+package org.bigbluebutton.red5.pubsub.redis;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -89,7 +89,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		  Gson gson = new Gson();
 	  	  message.put("msg", gson.toJson(args));
 	  	  
-	  	  System.out.println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n");
+	  	  System.out.println("RedisPubSubMessageHandler - handleValidateAuthTokenReply \n" + message.get("msg") + "\n");
 	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenReply", message);
 		  service.sendMessage(m);	 
 	}

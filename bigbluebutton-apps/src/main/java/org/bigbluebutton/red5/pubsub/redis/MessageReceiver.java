@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.messaging.redis;
+package org.bigbluebutton.red5.pubsub.redis;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -32,8 +32,8 @@ public class MessageReceiver {
 			Runnable messageReceiver = new Runnable() {
 			    public void run() {
 			    	if (receiveMessage) {
-			    		jedis.psubscribe(new PubSubListener(), 
-			    				MessagingConstants.TO_BBB_APPS_PATTERN); 
+			    		jedis.psubscribe(new PubSubListener(),
+			    				MessagingConstants.FROM_BBB_APPS_PATTERN); 
 			    	}
 			    }
 			};

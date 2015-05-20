@@ -207,11 +207,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
     </bean>
 
-    <bean id="redisPubSubMessageHandler" class="org.bigbluebutton.conference.service.messaging.redis.RedisPubSubMessageHandler">
+    <bean id="redisPubSubMessageHandler" class="org.bigbluebutton.red5.pubsub.redis.RedisPubSubMessageHandler">
       <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
     </bean>
-        
-
         
 	<import resource="bbb-redis-pool.xml"/>
 	<import resource="bbb-redis-recorder.xml"/>
@@ -223,9 +221,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<import resource="bbb-app-users.xml" />
 	
 	<import resource="bbb-voice-app.xml" />
-  <import resource="bbb-voice-freeswitch.xml" />
+    <import resource="bbb-voice-freeswitch.xml" />
   	
   	<import resource="bbb-redis-messaging.xml"/>
+  	<import resource="bbb-red5-redis-pubsub.xml"/>
   	<!--
   	<import resource="spring/applicationContext-redis.xml"/>
   	-->
