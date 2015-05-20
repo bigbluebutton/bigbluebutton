@@ -3,6 +3,7 @@ package org.bigbluebutton.red5.pubsub.redis;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 import org.bigbluebutton.conference.service.messaging.CreateMeetingMessage;
@@ -14,6 +15,7 @@ import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.RegisterUserMessage;
 import org.bigbluebutton.conference.service.messaging.UserConnectedToGlobalAudio;
 import org.bigbluebutton.conference.service.messaging.UserDisconnectedFromGlobalAudio;
+import org.bigbluebutton.conference.service.messaging.UserLeftMessage;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenReplyMessage;
 
@@ -69,7 +71,15 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 				switch (messageName) {
 				  case ValidateAuthTokenReplyMessage.VALIDATE_AUTH_TOKEN_REPLY:
 					  ValidateAuthTokenReplyMessage m = ValidateAuthTokenReplyMessage.fromJson(message);
-					  processValidateAuthTokenReply(m);
+					  if (m != null) {
+						  processValidateAuthTokenReply(m);
+					  }
+					  
+				  case UserLeftMessage.USER_LEFT:
+					  UserLeftMessage ulm = UserLeftMessage.fromJson(message);
+					  if (ulm != null) {
+						  processUserLeftMessage(ulm);
+					  }
 				}
 			}
 		}		
@@ -94,4 +104,18 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		  service.sendMessage(m);	 
 	}
 	
+	
+	private void processUserLeftMessage(UserLeftMessage msg) {
+		  Map<String, Object> args = new HashMap<String, Object>();	
+		  args.put("user", msg.user);
+			
+		  Map<String, Object> message = new HashMap<String, Object>();
+		  Gson gson = new Gson();
+	  	  message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - handleUserLeft \n" + message.get("msg") + "\n");
+			
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantLeft", message);
+	  	  service.sendMessage(m); 
+	}
 }

@@ -398,8 +398,8 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	    
 //		println("UsersClientMessageSender - handleUserLeft \n" + message.get("msg") + "\n")
 		
-  	  var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
-  	  service.sendMessage(m);
+//  	  var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
+//  	  service.sendMessage(m);
 	}
 
     def handleUserRaisedHand(msg: UserRaisedHand) {
