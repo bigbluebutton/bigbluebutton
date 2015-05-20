@@ -6,6 +6,7 @@ import org.bigbluebutton.conference.service.messaging.GetChatHistory;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.UserLeftMessage;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
 
@@ -151,9 +152,9 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void userLeft(String meetingID, String userID, String sessionId) {
-		// TODO Auto-generated method stub
-
+	public void userLeft(String meetingId, String userId, String sessionId) {
+		UserLeftMessage msg = new UserLeftMessage(meetingId, userId);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override

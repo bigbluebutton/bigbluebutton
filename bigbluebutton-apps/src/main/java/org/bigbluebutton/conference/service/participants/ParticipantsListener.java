@@ -26,7 +26,7 @@ public class ParticipantsListener implements MessageHandler{
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_USERS_CHANNEL)) {
-
+			System.out.println("Users message: " + channel + " " + message);
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
 			JsonObject headerObject = (JsonObject) obj.get("header");

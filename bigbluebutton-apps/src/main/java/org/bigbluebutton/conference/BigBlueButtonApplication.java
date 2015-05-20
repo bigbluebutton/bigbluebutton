@@ -223,7 +223,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	        
 	    log.info("User leaving bbb-apps: data={}", logStr);
 	      	        
-		bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
+	    red5InGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
 		
 		super.roomDisconnect(conn);
 	}
