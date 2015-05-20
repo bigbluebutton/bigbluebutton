@@ -4,14 +4,14 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class UserLeftMessage implements IMessage {
+public class UserLeavingMessage implements IMessage {
 	public static final String USER_LEFT = "user_leaving_request";
 	public final String VERSION = "0.0.1";
 
 	public final String meetingId;
 	public final String userId;
 
-	public UserLeftMessage(String meetingID, String internalUserId) {
+	public UserLeavingMessage(String meetingID, String internalUserId) {
 		this.meetingId = meetingID;
 		this.userId = internalUserId;
 	}
@@ -25,7 +25,7 @@ public class UserLeftMessage implements IMessage {
 
 		return MessageBuilder.buildJson(header, payload);				
 	}
-	public static UserLeftMessage fromJson(String message) {
+	public static UserLeavingMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -40,7 +40,7 @@ public class UserLeftMessage implements IMessage {
 							&& payload.has(Constants.USER_ID)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String userid = payload.get(Constants.USER_ID).getAsString();
-						return new UserLeftMessage(meetingID, userid);
+						return new UserLeavingMessage(meetingID, userid);
 					}
 				}
 			}
