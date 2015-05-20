@@ -2,15 +2,9 @@ package org.bigbluebutton.core.api;
 
 import java.util.Map;
 
-import org.bigbluebutton.conference.service.messaging.GetChatHistory;
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
-import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class Red5BBBInGw implements IBigBlueButtonInGW {
 
@@ -332,7 +326,7 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void gotoSlide(String meetingID, String page) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -444,21 +438,21 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void getChatHistory(String meetingID, String requesterID,
 			String replyTo) {
-		GetChatHistory msg = new GetChatHistory(meetingID, requesterID, replyTo);
-		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
 	public void sendPublicMessage(String meetingID, String requesterID,
 			Map<String, String> message) {
-		SendPublicChatMessage msg = new SendPublicChatMessage(meetingID, requesterID, message);
-		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
 	public void sendPrivateMessage(String meetingID, String requesterID,
 			Map<String, String> message) {
-
+		// TODO Auto-generated method stub
 
 	}
 
