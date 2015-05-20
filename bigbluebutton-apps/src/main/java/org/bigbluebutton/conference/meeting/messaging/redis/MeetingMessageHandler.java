@@ -30,7 +30,7 @@ public class MeetingMessageHandler implements MessageHandler {
 	public void handleMessage(String pattern, String channel, String message) {
 //		System.out.println("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
-//			System.out.println("Meeting message: " + channel + " " + message);
+			System.out.println("Meeting message: " + channel + " " + message);
 			IMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {

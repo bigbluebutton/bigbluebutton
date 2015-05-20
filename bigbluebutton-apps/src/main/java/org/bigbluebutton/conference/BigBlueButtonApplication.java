@@ -42,7 +42,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 	private RecorderApplication recorderApplication;
 	private ConnectionInvokerService connInvokerService;
-	private IBigBlueButtonInGW bbbGW;
+	private IBigBlueButtonInGW bbbGW, red5InGW;
 	
 	private final String APP = "BBB";
 	private final String CONN = "RED5-";
@@ -251,7 +251,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String logStr =  gson.toJson(logData);
             
         log.info("User validate token bbb-apps: data={}", logStr);
-		bbbGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
+        red5InGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
 	}
 		
 	public void setRecorderApplication(RecorderApplication a) {
@@ -276,4 +276,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
 		this.bbbGW = bbbGW;
 	}
+
+	public void setRed5InGW(IBigBlueButtonInGW red5InGW) {
+		this.red5InGW = red5InGW;
+	}
+	
 }
