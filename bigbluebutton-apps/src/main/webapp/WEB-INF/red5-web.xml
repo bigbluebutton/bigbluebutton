@@ -64,6 +64,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   		<property name="bigBlueButtonInGW"> 
   		  <ref bean="bbbInGW"/>
   		</property>
+  		<property name="red5InGW"> 
+  		  <ref bean="red5BbbInGW"/>
+  		</property>
 	</bean>
 	
 	<bean id="connInvokerService" class="org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService" 

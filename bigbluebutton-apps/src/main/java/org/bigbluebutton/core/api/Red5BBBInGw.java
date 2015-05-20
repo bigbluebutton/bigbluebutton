@@ -5,6 +5,8 @@ import java.util.Map;
 import org.bigbluebutton.conference.service.messaging.GetChatHistory;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
+import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
 
 import com.google.gson.Gson;
@@ -100,8 +102,8 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void validateAuthToken(String meetingId, String userId,
 			String token, String correlationId, String sessionId) {
-		// TODO Auto-generated method stub
-
+		ValidateAuthTokenMessage msg = new ValidateAuthTokenMessage(meetingId, userId, token, correlationId, sessionId);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	@Override

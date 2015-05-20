@@ -151,7 +151,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
       val gson = new Gson();
       message.put("msg", gson.toJson(args))
       
-//        println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
+      println("UsersClientMessageSender - handleValidateAuthTokenTimedOut \n" + message.get("msg") + "\n")
       val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenTimedOut", message);
       service.sendMessage(m);       
     }
@@ -167,7 +167,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	  
-//  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
+  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
   	  val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
 	  service.sendMessage(m);	    
 	}
