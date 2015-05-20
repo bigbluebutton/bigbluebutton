@@ -152,7 +152,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
   
   private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {    
     val json = UsersMessageToJsonConverter.validateAuthTokenReplyToJson(msg)
-//    println("************** Publishing [" + json + "] *******************")
+    println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)  		
   }
   

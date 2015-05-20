@@ -94,7 +94,11 @@ public class MeetingMessageHandler implements MessageHandler {
 					GetAllMeetingsRequest emm = (GetAllMeetingsRequest) msg;
 					log.info("Received GetAllMeetingsRequest");
 					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
+				} else {
+					log.warn("Unknown message: [" + message + "]");
 				}
+			} else {
+				log.warn("Failed to decode message: [" + message + "]");
 			}
 		} else if (channel.equalsIgnoreCase(MessagingConstants.TO_SYSTEM_CHANNEL)) {
 			IMessage msg = MessageFromJsonConverter.convert(message);
@@ -105,6 +109,8 @@ public class MeetingMessageHandler implements MessageHandler {
 					log.debug("Received KeepAliveMessage request. Meeting id [{}]", emm.keepAliveId);
 					bbbGW.isAliveAudit(emm.keepAliveId);					
 				}
+			} else {
+				log.warn("Unknown message: [" + message + "]");
 			}
 		}
 	}

@@ -167,9 +167,9 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	  
-  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-  	  val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
-	  service.sendMessage(m);	    
+//  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
+//  	  val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+//	  service.sendMessage(m);	    
 	}
 	
 	private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {

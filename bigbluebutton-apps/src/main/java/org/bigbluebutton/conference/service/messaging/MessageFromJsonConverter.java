@@ -28,6 +28,7 @@ public class MessageFromJsonConverter {
 					  System.out.println("Registering a user");
 					  return RegisterUserMessage.fromJson(message);
 				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
+					  System.out.println("Process ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN");
 					  return ValidateAuthTokenMessage.fromJson(message);
 				  case UserConnectedToGlobalAudio.USER_CONNECTED_TO_GLOBAL_AUDIO:
 					return UserConnectedToGlobalAudio.fromJson(message);
@@ -40,17 +41,7 @@ public class MessageFromJsonConverter {
 		}
 		return null;
 	}
-	
-	private static IMessage processValidateAuthTokenMessage(JsonObject header, JsonObject payload) {
-		String id = payload.get(Constants.MEETING_ID).getAsString();
-		String userid = payload.get(Constants.USER_ID).getAsString();
-		String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
-		String replyTo = header.get(Constants.REPLY_TO).getAsString();
-		String sessionId = "tobeimplemented";
-		return new ValidateAuthTokenMessage(id, userid, authToken, replyTo,
-		    sessionId);
-	}
-	
+		
 	private static IMessage processCreateMeeting(JsonObject payload) {
 		String id = payload.get(Constants.MEETING_ID).getAsString();
 		String externalId = payload.get(Constants.EXTERNAL_MEETING_ID).getAsString();

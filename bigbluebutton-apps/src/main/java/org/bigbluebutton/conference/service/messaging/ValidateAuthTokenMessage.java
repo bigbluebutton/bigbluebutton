@@ -34,20 +34,25 @@ public class ValidateAuthTokenMessage implements IMessage {
 	}
 	
 	public static ValidateAuthTokenMessage fromJson(String message) {
+		System.out.println("Process ValidateAuthTokenMessage.fromJson");
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 		
 		if (obj.has("header") && obj.has("payload")) {
+			System.out.println("Process ValidateAuthTokenMessage.fromJson 1");
 			JsonObject header = (JsonObject) obj.get("header");
 			JsonObject payload = (JsonObject) obj.get("payload");
 			
 			if (header.has("name")) {
+				System.out.println("Process ValidateAuthTokenMessage.fromJson 2");
 				String messageName = header.get("name").getAsString();
 				if (VALIDATE_AUTH_TOKEN.equals(messageName)) {
+					System.out.println("Process ValidateAuthTokenMessage.fromJson 3");
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.USER_ID)
 							&& payload.has(Constants.AUTH_TOKEN)
 							&& header.has(Constants.REPLY_TO)) {
+						System.out.println("Process ValidateAuthTokenMessage.fromJson 4");
 						String id = payload.get(Constants.MEETING_ID).getAsString();
 						String userid = payload.get(Constants.USER_ID).getAsString();
 						String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
@@ -59,6 +64,7 @@ public class ValidateAuthTokenMessage implements IMessage {
 				} 
 			}
 		}
+		System.out.println("Process ValidateAuthTokenMessage.fromJson 0000");
 		return null;
 
 	}
