@@ -1,16 +1,11 @@
 <template name="whiteboard">
-    <div id="{{id}}" {{visibility name}} class="component gradientBar">
-        {{#each getCurrentSlide}}
-            {{> slide}}
-        {{/each}}
-        <div id="whiteboard-paper">
-        </div>
-        <!-- {{#if isCurrentUserPresenter}}
-            <span class="presentationNavigationControls">
-                <button class="previousSlide ion-arrow-left-a" title="Go to the previous slide"></button>
-                {{presentationProgress}}
-                <button class="nextSlide ion-arrow-right-a" title="Go to the next slide"></button>
-            </span>
-        {{/if}} -->
+  <div id="{{id}}" {{visibility name}} class="component gradientBar">
+    {{#each getCurrentSlide}}
+      {{> slide}}
+    {{/each}}
+    <div id="whiteboard-container">
+      <div id="whiteboard-paper">
+      </div>
     </div>
+  </div>
 </template>

@@ -1,7 +1,7 @@
 if (!window.console) window.console = {};
 if (!window.console.log) window.console.log = function () { };
 
-function startApplet(IP, roomNumber, fullScreen, useSVC2)
+function startApplet(IP, useTLS , roomNumber, fullScreen, useSVC2)
 {
         console.log("Starting deskshare applet.");
         var div = document.createElement("div");
@@ -12,6 +12,7 @@ function startApplet(IP, roomNumber, fullScreen, useSVC2)
                         "id=\"DeskShareApplet\" width=\"100\" height=\"10\" archive=\"bbb-deskshare-applet-0.9.0.jar\">" +
                         "<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
                         "<param name=\"IP\" value=\"" + IP + "\"/>" +
+                        "<param name=\"useTLS\" value=\"" + useTLS + "\"/>" +
                         "<param name=\"PORT\" value=\"9123\"/>" +
                         "<param name=\"SCALE\" value=\"0.8\"/>" +
                         "<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +

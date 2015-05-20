@@ -4,7 +4,7 @@
     <!-- if the user is listen only, only display the one icon -->
     {{#if isUserListenOnlyAudio userId}}
       <span rel="tooltip" data-placement="bottom" title="{{user.name}} is only listening">
-        <i class="icon fi-volume usericon"></i>
+        <i class="icon fi-volume-none usericon"></i>
       </span>
     {{else}}
       {{#if isCurrentUser userId}}
@@ -83,8 +83,7 @@
     </span>
   {{else}}
     <span class="usernameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
-      {{user.name}}
-      {{#if user.presenter}} (presenter) {{/if}}
+      {{user.name}} {{#if user.presenter}} (presenter) {{/if}}
     </span>
   {{/if}}
 </template>

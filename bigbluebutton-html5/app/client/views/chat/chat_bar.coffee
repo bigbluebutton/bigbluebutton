@@ -41,8 +41,7 @@
   if chattingWith is 'PUBLIC_CHAT' # find all public and system messages
     return Meteor.Chat.find({'message.chat_type': $in: ["SYSTEM_MESSAGE","PUBLIC_CHAT"]},{sort: {'message.from_time': 1}}).fetch()
   else
-    unless chattingWith is 'OPTIONS'
-      return Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.to_userid': chattingWith},{'message.from_userid': chattingWith}]}).fetch()
+    return Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT', $or: [{'message.to_userid': chattingWith},{'message.from_userid': chattingWith}]}).fetch()
 
 # Scrolls the message container to the bottom. The number of pixels to scroll down is the height of the container
 Handlebars.registerHelper "autoscroll", ->
@@ -63,9 +62,9 @@ Handlebars.registerHelper "privateChatDisabled", ->
   presenter = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.presenter
   return userIsLocked and privateChatIsDisabled and !presenter
 
-# return whether the user's chat pane is open in Private chat (vs Public chat or Options)
+# return whether the user's chat pane is open in Private chat
 Handlebars.registerHelper "inPrivateChat", ->
-  return !((getInSession 'inChatWith') in ['PUBLIC_CHAT', 'OPTIONS'])
+  return (getInSession 'inChatWith') isnt 'PUBLIC_CHAT'
 
 @sendMessage = ->
   message = linkify $('#newMessageInput').val() # get the message from the input box
@@ -115,7 +114,7 @@ Template.chatbar.helpers
     msgs
 
   userExists: ->
-    if getInSession('inChatWith') in ["PUBLIC_CHAT", "OPTIONS"]
+    if getInSession('inChatWith') is "PUBLIC_CHAT"
       return true
     else
       return Meteor.Users.findOne({userId: getInSession('inChatWith')})?
