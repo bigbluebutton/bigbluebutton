@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -21,31 +21,31 @@ package org.bigbluebutton.conference.service.chat;
 
 import java.util.Map;
 
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.core.api.Red5BBBInGw;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 
 public class ChatApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ChatApplication.class, "bigbluebutton" );	
-	
-	private IBigBlueButtonInGW bbbInGW;
-	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
-		bbbInGW = inGW;
+
+	private Red5BBBInGw Red5BBBInGw;
+
+	public void setBigBlueButtonInGW(Red5BBBInGw inGW) {
+		Red5BBBInGw = inGW;
 	}
-	
+
 	public void sendPublicChatHistory(String meetingID, String requesterID) {
 		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
-		String replyTo = meetingID + "/" + requesterID; 
-		bbbInGW.getChatHistory(meetingID, requesterID, replyTo);
+		String replyTo = meetingID + "/" + requesterID;
+		Red5BBBInGw.getChatHistory(meetingID, requesterID, replyTo);
 	}
-	
+
 	public void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message) {
-		bbbInGW.sendPublicMessage(meetingID, requesterID, message);
+		Red5BBBInGw.sendPublicMessage(meetingID, requesterID, message);
 	}
-	
+
 	public void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message) {
-		bbbInGW.sendPrivateMessage(meetingID, requesterID, message);
+		Red5BBBInGw.sendPrivateMessage(meetingID, requesterID, message);
 	}
 }
