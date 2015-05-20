@@ -43,6 +43,8 @@
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
+			publishURI="HOST"
+			useTLS="false"
 			showButton="true"
 			autoStart="false"
 			autoFullScreen="false"

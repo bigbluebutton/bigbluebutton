@@ -41,6 +41,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
   private final int numThreads;
   private final String host;
   private final int port;
+  private final boolean useTLS;
   private final String room;
   private final boolean httpTunnel;
   private final boolean useSVC2;
@@ -55,11 +56,12 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	private NetworkConnectionListener listener;
 	private final SequenceNumberGenerator seqNumGenerator = new SequenceNumberGenerator();
 	
-	public NetworkStreamSender(BlockManager blockManager, String host, int port,
+	public NetworkStreamSender(BlockManager blockManager, String host, int port, boolean useTLS ,
 			String room, Dimension screenDim, Dimension blockDim, boolean httpTunnel, boolean useSVC2) {
 		this.blockManager = blockManager;
 		this.host = host;
 		this.port = port;
+		this.useTLS = useTLS;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
@@ -154,7 +156,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	private void createSender(int i) throws ConnectionException {
 		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator, useSVC2);
 		socketSenders[i].addListener(this);
-		socketSenders[i].connect(host, port);		
+		socketSenders[i].connect(host, port, useTLS);		
 	}
 	
 	private void createHttpSender(int i) throws ConnectionException {

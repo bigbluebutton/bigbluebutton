@@ -81,6 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var connection:NetConnection;
 			private var uri:String;
+			private var useTLS:Boolean;
 			private var room:String;
 			private var sharingFullScreen:Boolean = false;
 			private var streaming:Boolean = false;
@@ -168,9 +169,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */			
 			public function resetWidthAndHeight():void{/* do nothing */}
 			
-			public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
+			public function initWindow(connection:NetConnection, uri:String, useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 				this.connection = connection;
 				this.uri = uri;
+				this.useTLS = useTLS;
 				this.room = room;				
 				this.autoStart = autoStart;
 				/*if(autoFullScreen)
@@ -185,15 +187,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				javaTimer = new Timer(7000, 1);
 				javaTimer.addEventListener(TimerEvent.TIMER, onJavaTimer);
 				javaTimer.start();
-				startSharing(connection, uri, room, fullScreen);
+				startSharing(connection, uri, useTLS , room, fullScreen);
 			}
 			
-			private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
+			private function startSharing(connection:NetConnection, uri:String , useTLS:Boolean , room:String, fullScreen:Boolean):void {
 				var captureX:Number = 0;
 				var captureY:Number = 0;				
 				sharingFullScreen = fullScreen;
 				LogUtil.debug("Calling startApplet");
-				ExternalInterface.call("startApplet", uri, room, fullScreen, true /*useSVC2Check.selected*/);
+				ExternalInterface.call("startApplet", uri , useTLS , room, fullScreen, true /*useSVC2Check.selected*/);
 			}
 			
 			public function stopSharing():void{

@@ -28,6 +28,9 @@ import java.util.Vector;
 import org.bigbluebutton.deskshare.client.ExitCode;
 import org.bigbluebutton.deskshare.common.Dimension;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 public class NetworkSocketStreamSender implements Runnable {
 	private Socket socket = null;
 	
@@ -41,6 +44,11 @@ public class NetworkSocketStreamSender implements Runnable {
 	private final int id;
 	private NetworkStreamListener listener;
 	private final SequenceNumberGenerator seqNumGenerator;
+	
+	private SSLSocket sslSocket = null;
+	private SSLSocketFactory sslSocketFactory = null ;
+	
+	private Boolean useTLS = false;
 	
 	public NetworkSocketStreamSender(int id, NextBlockRetriever retriever, String room, 
 			Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator, boolean useSVC2) {
@@ -61,11 +69,27 @@ public class NetworkSocketStreamSender implements Runnable {
 		if (listener != null) listener.networkException(id,reason);
 	}
 	
-	public void connect(String host, int port) throws ConnectionException {
+	public void connect(String host, int port , boolean useTLS ) throws ConnectionException {
+		//We use this value to devie how to create the socket
+		this.useTLS = useTLS;
+		
 		System.out.println("NetworkSocketStreamSender: connecting to " + host + ":" + port);
 		try {
-			socket = new Socket(host, port);
-			outstream = new DataOutputStream(socket.getOutputStream());
+			
+			//Creating the ssl socket
+            //Host and port should point to Stunnel or the TLS terminating service
+            //Handling if TLS is enabled or not
+            if(useTLS){   
+				System.out.println("Connecting over TLS");			
+                sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                sslSocket = (SSLSocket) sslSocketFactory.createSocket(host, port);
+                outstream = new DataOutputStream(sslSocket.getOutputStream());
+            }
+            else{
+                //If not use regular socket
+                socket = new Socket(host, port);
+                outstream = new DataOutputStream(socket.getOutputStream());
+            }
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			throw new ConnectionException("UnknownHostException: " + host);
@@ -199,7 +223,11 @@ public class NetworkSocketStreamSender implements Runnable {
 		try {
 			outstream.close();
 			outstream = null;
-			socket.close();		
+			if(this.useTLS){
+				sslSocket.close();
+			}else{
+				socket.close();		
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
