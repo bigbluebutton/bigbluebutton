@@ -1,4 +1,4 @@
-package org.bigbluebutton.lib.main.services {
+package org.bigbluebutton.air.main.services {
 	
 	import flash.net.URLRequest;
 	

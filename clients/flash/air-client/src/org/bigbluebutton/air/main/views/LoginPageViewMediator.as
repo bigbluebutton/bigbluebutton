@@ -6,10 +6,9 @@ package org.bigbluebutton.air.main.views {
 	
 	import mx.core.FlexGlobals;
 	
+	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.air.main.models.IUserUISession;
-	import org.bigbluebutton.lib.main.services.ILoginService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

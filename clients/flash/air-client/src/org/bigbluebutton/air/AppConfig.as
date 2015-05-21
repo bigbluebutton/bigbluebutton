@@ -1,7 +1,10 @@
 package org.bigbluebutton.air {
 	
-	import org.bigbluebutton.air.main.commands.DisconnectUserCommandAIR;
+	import org.bigbluebutton.air.main.commands.AuthenticationCommandAIR;
 	import org.bigbluebutton.air.main.commands.ConnectingFinishedCommandAIR;
+	import org.bigbluebutton.air.main.commands.DisconnectUserCommandAIR;
+	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.air.main.models.UserUISession;
 	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
 	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
@@ -11,18 +14,15 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
-	import org.bigbluebutton.air.main.commands.AuthenticationCommandAIR;
 	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
-	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
+	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.UserSession;
-	import org.bigbluebutton.air.main.models.UserUISession;
 	import org.bigbluebutton.lib.main.services.BigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.services.ILoginService;

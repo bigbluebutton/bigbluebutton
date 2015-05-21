@@ -11,10 +11,6 @@ package org.bigbluebutton.air.main.commands {
 		[Inject]
 		public var userUISession:IUserUISession;
 		
-		public function AuthenticationCommandAIR() {
-			super();
-		}
-		
 		override public function execute():void {
 			switch (command) {
 				case "timeOut":

@@ -10,20 +10,18 @@ package org.bigbluebutton.lib.main.services {
 	public class LoginService implements ILoginService {
 		protected var _urlRequest:URLRequest = null;
 		
-		protected var _joinSuccessSignal:Signal = new Signal();
+		protected var _loginSuccessSignal:Signal = new Signal();
 		
 		protected var _getConfigSuccessSignal:Signal = new Signal();
 		
-		protected var _joinFailureSignal:Signal = new Signal();
+		protected var _loginFailureSignal:Signal = new Signal();
 		
-		protected var _joinUrl:String;
-		
-		public function get joinSuccessSignal():ISignal {
-			return _joinSuccessSignal;
+		public function get loginSuccessSignal():ISignal {
+			return _loginSuccessSignal;
 		}
 		
-		public function get joinFailureSignal():ISignal {
-			return _joinFailureSignal;
+		public function get loginFailureSignal():ISignal {
+			return _loginFailureSignal;
 		}
 		
 		public function get getConfigSuccessSignal():ISignal {
@@ -32,24 +30,16 @@ package org.bigbluebutton.lib.main.services {
 		
 		protected function fail(reason:String):void {
 			trace("Login failed. " + reason);
-			joinFailureSignal.dispatch(reason);
+			loginFailureSignal.dispatch(reason);
 			//TODO: show message to user saying that the meeting identifier is invalid 
 		}
 		
-		public function load(joinUrl:String):void {
-			_joinUrl = joinUrl;
-			var joinSubservice:JoinService = new JoinService();
-			joinSubservice.successSignal.add(afterJoin);
-			joinSubservice.failureSignal.add(fail);
-			joinSubservice.join(_joinUrl);
-		}
-		
-		protected function afterJoin(urlRequest:URLRequest, responseUrl:String):void {
+		public function login(urlRequest:URLRequest, url:String):void {
 			_urlRequest = urlRequest;
 			var configSubservice:ConfigService = new ConfigService();
 			configSubservice.successSignal.add(afterConfig);
 			configSubservice.failureSignal.add(fail);
-			configSubservice.getConfig(getServerUrl(responseUrl), _urlRequest);
+			configSubservice.getConfig(getServerUrl(url), _urlRequest);
 		}
 		
 		protected function getServerUrl(url:String):String {
@@ -97,10 +87,10 @@ package org.bigbluebutton.lib.main.services {
 						user.customdata[key] = result.customdata[key].toString();
 					}
 				}
-				joinSuccessSignal.dispatch(user);
+				loginSuccessSignal.dispatch(user);
 			} else {
 				trace("Join FAILED");
-				joinFailureSignal.dispatch("Add some reason here!");
+				loginFailureSignal.dispatch("Add some reason here!");
 			}
 		}
 	}
