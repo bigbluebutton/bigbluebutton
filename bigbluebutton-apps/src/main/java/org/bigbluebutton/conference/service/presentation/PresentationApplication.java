@@ -20,32 +20,24 @@ package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
 import org.bigbluebutton.core.api.Red5BBBInGw;
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 
 public class PresentationApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationApplication.class, "bigbluebutton" );
 
-	private IBigBlueButtonInGW bbbInGW;
 	private Red5BBBInGw red5BBBInGW;
 
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
-		bbbInGW = inGW;
+	public void setRed5BBBInGW(Red5BBBInGw inGW) {
+		red5BBBInGW = inGW;
 	}
-	
-	public void setRed5BBBInGW(Red5BBBInGw inGW2) {
-		red5BBBInGW = inGW2;
-	}
-	
+
 	public void clear(String meetingID) {
 	}
 
 	public void sendConversionUpdate(String messageKey, String meetingId,
 			String code, String presentationId, String presName) {
 		System.out.println("-----sendConversionUpdate---");
-//		red5BBBInGW.sendConversionUpdate(messageKey, meetingId, code,
-//				presentationId, presName);
-		bbbInGW.sendConversionUpdate(messageKey, meetingId, code,
+		red5BBBInGW.sendConversionUpdate(messageKey, meetingId, code,
 				presentationId, presName);
 	}
 
@@ -53,17 +45,15 @@ public class PresentationApplication {
 			String code, String presentationId, int numberOfPages,
 			int maxNumberPages, String presName) {
 		System.out.println("-----sendPageCountError---");
-		bbbInGW.sendPageCountError(messageKey, meetingId, code, 
-				presentationId, numberOfPages, maxNumberPages, presName);
-//		Red5BBBInGw.sendPageCountError(messageKey, meetingId, code, 
-//						presentationId, numberOfPages, maxNumberPages, presName);
+		red5BBBInGW.sendPageCountError(messageKey, meetingId, code, 
+						presentationId, numberOfPages, maxNumberPages, presName);
 	}
 
 	public void sendSlideGenerated(String messageKey, String meetingId,
 			String code, String presentationId, int numberOfPages,
 			int pagesCompleted, String presName) {
 		System.out.println("-----sendSlideGenerated---");
-		bbbInGW.sendSlideGenerated(messageKey, meetingId, code, 
+		red5BBBInGW.sendSlideGenerated(messageKey, meetingId, code, 
 				presentationId, numberOfPages, pagesCompleted, presName);
 	}
 
@@ -71,10 +61,8 @@ public class PresentationApplication {
 			String code, String presentation, int numberOfPages,
 			String presName, String presBaseUrl) {
 		System.out.println("-----sendConversionCompleted---");
-		bbbInGW.sendConversionCompleted(messageKey, meetingId,
+		red5BBBInGW.sendConversionCompleted(messageKey, meetingId,
 				code, presentation, numberOfPages, presName, presBaseUrl);
-//		Red5BBBInGw.sendConversionCompleted(messageKey, meetingId,
-//				code, presentation, numberOfPages, presName, presBaseUrl);
 	}
 
 	public void removePresentation(String meetingID, String presentationID){

@@ -13,6 +13,7 @@ import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
 import org.bigbluebutton.conference.service.messaging.SendConversionUpdate;
 import org.bigbluebutton.conference.service.messaging.SendCursorUpdate;
 import org.bigbluebutton.conference.service.messaging.SendPageCountError;
+import org.bigbluebutton.conference.service.messaging.SendSlideGenerated;
 import org.bigbluebutton.conference.service.messaging.SharePresentation;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 
@@ -84,7 +85,6 @@ public class PresentationMessageListener implements MessageHandler {
         @Override
     	public void handleMessage(String pattern, String channel, String message) {
     		if (channel.equalsIgnoreCase(MessagingConstants.TO_PRESENTATION_CHANNEL)) {
-    			System.out.println("__message:"+message);
     			JsonParser parser = new JsonParser();
     			JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -97,8 +97,8 @@ public class PresentationMessageListener implements MessageHandler {
     						SendConversionUpdate msg = SendConversionUpdate.fromJson(message);
     						System.out.println("in messageHandler - sendConversionCompleted");
 
-    						sendConversionUpdate(msg.messageKey, msg.meetingId, msg.code,
-    								msg.presId, msg.presName);
+//    						sendConversionUpdate(msg.messageKey, msg.meetingId, msg.code,
+//    								msg.presId, msg.presName);
     						bbbInGW.sendConversionUpdate(msg.messageKey, msg.meetingId,
     								msg.code, msg.presId, msg.presName);
     					} else if (ResizeAndMoveSlide.RESIZE_AND_MOVE_SLIDE.equals(messageName)) {
@@ -116,16 +116,16 @@ public class PresentationMessageListener implements MessageHandler {
     						System.out.println("in messageHandler - sendConversionCompleted");
     						SendConversionCompleted msg = SendConversionCompleted.fromJson(message);
 
-    						sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
-    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
+//    						sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
+//    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
     						bbbInGW.sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
     								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
     					} else if (SendPageCountError.SEND_PAGE_COUNT_ERROR.equals(messageName)) {
     						System.out.println("in messageHandler - sendPageCountError");
     						SendPageCountError msg = SendPageCountError.fromJson(message);
 
-    						sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
-    								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
+//    						sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
+//    								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
     						bbbInGW.sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
     								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
     					} else if (GoToSlide.GO_TO_SLIDE.equals(messageName)) {
@@ -153,6 +153,12 @@ public class PresentationMessageListener implements MessageHandler {
     						GetSlideInfo msg = GetSlideInfo.fromJson(message);
 
     						bbbInGW.getSlideInfo(msg.meetingId, msg.requesterId, msg.replyTo);
+    					} else if (SendSlideGenerated.SEND_SLIDE_GENERATED.equals(messageName)) {
+    						System.out.println("in messageHandler - SendSlideGenerated");
+    						SendSlideGenerated msg = SendSlideGenerated.fromJson(message);
+
+    						bbbInGW.sendSlideGenerated(msg.messageKey, msg.meetingId, msg.code,
+    								msg.presId, msg.numberOfPages, msg.pagesCompleted, msg.presName);
     					}
     				}
     			}

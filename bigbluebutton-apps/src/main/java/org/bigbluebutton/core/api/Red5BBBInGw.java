@@ -6,6 +6,7 @@ import org.bigbluebutton.conference.service.messaging.GetPresentationInfo;
 import org.bigbluebutton.conference.service.messaging.GoToSlide;
 import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
 import org.bigbluebutton.conference.service.messaging.SendPageCountError;
+import org.bigbluebutton.conference.service.messaging.SendSlideGenerated;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.GetSlideInfo;
 import org.bigbluebutton.conference.service.messaging.ResizeAndMoveSlide;
@@ -396,8 +397,10 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void sendSlideGenerated(String messageKey, String meetingId,
 			String code, String presId, int numberOfPages, int pagesCompleted,
 			String presName) {
-		// TODO Auto-generated method stub
-
+		System.out.println("~~sendSlideGenerated in Red5BBBInGw");
+		SendSlideGenerated msg = new SendSlideGenerated(messageKey, meetingId,
+				code, presId, numberOfPages, pagesCompleted, presName);
+		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
