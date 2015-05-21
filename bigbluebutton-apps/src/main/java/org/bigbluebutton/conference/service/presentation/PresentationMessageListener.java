@@ -3,16 +3,17 @@ package org.bigbluebutton.conference.service.presentation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bigbluebutton.conference.service.messaging.GetChatHistory;
 import org.bigbluebutton.conference.service.messaging.GetPresentationInfo;
+import org.bigbluebutton.conference.service.messaging.GetSlideInfo;
 import org.bigbluebutton.conference.service.messaging.GoToSlide;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.RemovePresentation;
 import org.bigbluebutton.conference.service.messaging.ResizeAndMoveSlide;
 import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
 import org.bigbluebutton.conference.service.messaging.SendConversionUpdate;
+import org.bigbluebutton.conference.service.messaging.SendCursorUpdate;
 import org.bigbluebutton.conference.service.messaging.SendPageCountError;
-import org.bigbluebutton.conference.service.messaging.SendPrivateChatMessage;
-import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
+import org.bigbluebutton.conference.service.messaging.SharePresentation;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 
 import com.google.gson.Gson;
@@ -92,7 +93,6 @@ public class PresentationMessageListener implements MessageHandler {
 
     				if (header.has("name")) {
     					String messageName = header.get("name").getAsString();
-    					System.out.println("\n\n\n\n"+messageName+"\n\n\n");
     					if (SendConversionUpdate.SEND_CONVERSION_UPDATE.equals(messageName)) {
     						SendConversionUpdate msg = SendConversionUpdate.fromJson(message);
     						System.out.println("in messageHandler - sendConversionCompleted");
@@ -133,6 +133,26 @@ public class PresentationMessageListener implements MessageHandler {
     						GoToSlide msg = GoToSlide.fromJson(message);
 
     						bbbInGW.gotoSlide(msg.meetingId, msg.page);
+    					} else if (RemovePresentation.REMOVE_PRESENTATION.equals(messageName)) {
+    						System.out.println("in messageHandler - removePresentation");
+    						RemovePresentation msg = RemovePresentation.fromJson(message);
+
+    						bbbInGW.removePresentation(msg.meetingId, msg.presentationId);
+    					} else if (SendCursorUpdate.SEND_CURSOR_UPDATE.equals(messageName)) {
+    						System.out.println("in messageHandler - sendCursorUpdate");
+    						SendCursorUpdate msg = SendCursorUpdate.fromJson(message);
+
+    						bbbInGW.sendCursorUpdate(msg.meetingId, msg.xPercent, msg.yPercent);
+    					} else if (SharePresentation.SHARE_PRESENTATION.equals(messageName)) {
+    						System.out.println("in messageHandler - sharePresentation");
+    						SharePresentation msg = SharePresentation.fromJson(message);
+
+    						bbbInGW.sharePresentation(msg.meetingId, msg.presentationId, msg.share);
+    					} else if (GetSlideInfo.GET_SLIDE_INFO.equals(messageName)) {
+    						System.out.println("in messageHandler - GetSlideInfo");
+    						GetSlideInfo msg = GetSlideInfo.fromJson(message);
+
+    						bbbInGW.getSlideInfo(msg.meetingId, msg.requesterId, msg.replyTo);
     					}
     				}
     			}

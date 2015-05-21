@@ -79,43 +79,40 @@ public class PresentationApplication {
 
 	public void removePresentation(String meetingID, String presentationID){
 		System.out.println("----removePresentation----");
-		bbbInGW.removePresentation(meetingID, presentationID);
+		red5BBBInGW.removePresentation(meetingID, presentationID);
 	}
 
 	public void getPresentationInfo(String meetingID, String requesterID) {
 		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
 		String replyTo = meetingID + "/" + requesterID; 
 		System.out.println("----getPresentationInfo----");
-		bbbInGW.getPresentationInfo(meetingID, requesterID, replyTo);
-//		Red5BBBInGw.getPresentationInfo(meetingID, requesterID, replyTo);
+		red5BBBInGW.getPresentationInfo(meetingID, requesterID, replyTo);
 	}
 
 	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {	
 		System.out.println("----sendCursorUpdate----");
-		bbbInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
+		red5BBBInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
 	}
 
 	public void resizeAndMoveSlide(String meetingID, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		System.out.println("-----resizeAndMoveSlide---");
-		bbbInGW.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);
-//		Red5BBBInGw.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);
+		red5BBBInGW.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);
 	}
 
 	public void gotoSlide(String meetingID, String pageId){
 		System.out.println("----gotoSlide----");
-//		bbbInGW.gotoSlide(meetingID, pageId);
 		red5BBBInGW.gotoSlide(meetingID, pageId);
 	}
 
 	public void sharePresentation(String meetingID, String presentationID, Boolean share){
 		System.out.println("-----sharePresentation---");
-		bbbInGW.sharePresentation(meetingID, presentationID, share);
+		red5BBBInGW.sharePresentation(meetingID, presentationID, share);
 	}
 
 	public void getSlideInfo(String meetingID, String requesterID) {
 		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
 		System.out.println("----getSlideInfo----");
 		String replyTo = meetingID + "/" + requesterID; 
-		bbbInGW.getSlideInfo(meetingID, requesterID,  replyTo);
+		red5BBBInGW.getSlideInfo(meetingID, requesterID,  replyTo);
 	}
 }
