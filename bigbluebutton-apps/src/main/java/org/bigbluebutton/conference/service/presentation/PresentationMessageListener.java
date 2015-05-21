@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.GetChatHistory;
 import org.bigbluebutton.conference.service.messaging.GetPresentationInfo;
+import org.bigbluebutton.conference.service.messaging.GoToSlide;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.ResizeAndMoveSlide;
 import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
@@ -127,19 +128,15 @@ public class PresentationMessageListener implements MessageHandler {
     								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
     						bbbInGW.sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
     								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
-    					} else if (SendPageCountError.SEND_PAGE_COUNT_ERROR.equals(messageName)) {
-    						System.out.println("in messageHandler - sendPageCountError");
-    						SendPageCountError msg = SendPageCountError.fromJson(message);
+    					} else if (GoToSlide.GO_TO_SLIDE.equals(messageName)) {
+    						System.out.println("in messageHandler - goToSlide");
+    						GoToSlide msg = GoToSlide.fromJson(message);
 
-    						sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
-    								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
-    						bbbInGW.sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
-    								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
+    						bbbInGW.gotoSlide(msg.meetingId, msg.page);
     					}
     				}
     			}
     			else {
-    				System.out.println("\n\n\nOOOOOOOOOOOOOOO:" +message + "\n\n");
     				Gson gson = new Gson();
     				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
     				String code = (String) map.get("returnCode");

@@ -3,6 +3,7 @@ package org.bigbluebutton.core.api;
 import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.GetPresentationInfo;
+import org.bigbluebutton.conference.service.messaging.GoToSlide;
 import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
 import org.bigbluebutton.conference.service.messaging.SendPageCountError;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
@@ -342,8 +343,9 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 
 	@Override
 	public void gotoSlide(String meetingID, String page) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("~~gotoSlide in Red5BBBInGw");
+		GoToSlide msg = new GoToSlide(meetingID, page);
+		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override

@@ -103,7 +103,8 @@ public class PresentationApplication {
 
 	public void gotoSlide(String meetingID, String pageId){
 		System.out.println("----gotoSlide----");
-		bbbInGW.gotoSlide(meetingID, pageId);
+//		bbbInGW.gotoSlide(meetingID, pageId);
+		red5BBBInGW.gotoSlide(meetingID, pageId);
 	}
 
 	public void sharePresentation(String meetingID, String presentationID, Boolean share){
