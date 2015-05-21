@@ -6,17 +6,8 @@ import java.util.Map;
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
-import org.bigbluebutton.conference.service.messaging.CreateMeetingMessage;
-import org.bigbluebutton.conference.service.messaging.DestroyMeetingMessage;
-import org.bigbluebutton.conference.service.messaging.EndMeetingMessage;
-import org.bigbluebutton.conference.service.messaging.GetAllMeetingsRequest;
-import org.bigbluebutton.conference.service.messaging.KeepAliveMessage;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
-import org.bigbluebutton.conference.service.messaging.RegisterUserMessage;
-import org.bigbluebutton.conference.service.messaging.UserConnectedToGlobalAudio;
-import org.bigbluebutton.conference.service.messaging.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.conference.service.messaging.UserLeftMessage;
-import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenReplyMessage;
 
 import com.google.gson.Gson;
@@ -33,7 +24,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
-		System.out.println("RedisPubSubMessageHandler message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.FROM_CHAT_CHANNEL)) {
 			handleChatMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_PRESENTATION_CHANNEL)) {
@@ -41,6 +31,8 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_MEETING_CHANNEL)) {
 			handleMeetingMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_USERS_CHANNEL)) {
+			System.out.println("RedisPubSubMessageHandler message: " + pattern + " " + channel + " " + message);
+
 			handleUsersMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_WHITEBOARD_CHANNEL)) {
 			handleWhiteboarMessage(message);
@@ -74,12 +66,13 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 					  if (m != null) {
 						  processValidateAuthTokenReply(m);
 					  }
-					  
+					  break;
 				  case UserLeftMessage.USER_LEFT:
 					  UserLeftMessage ulm = UserLeftMessage.fromJson(message);
 					  if (ulm != null) {
-						  processUserLeftMessage(ulm);
+					//	  processUserLeftMessage(ulm);
 					  }
+					  break;
 				}
 			}
 		}		

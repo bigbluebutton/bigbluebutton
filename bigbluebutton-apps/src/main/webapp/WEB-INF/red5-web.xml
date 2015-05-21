@@ -125,7 +125,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <ref bean="chatRed5ClientSender"/>   
                 <ref bean="chatRedisRecorder"/>
                 <ref bean="chatRedisPublisher"/>
-                <ref bean="fsConfService"/>                    
+                <!--ref bean="fsConfService"/-->                    
                 <ref bean="whiteboardEventRedisPublisher"/>             
             </set>        
          </property> 
@@ -221,7 +221,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<import resource="bbb-app-users.xml" />
 	
 	<import resource="bbb-voice-app.xml" />
-    <import resource="bbb-voice-freeswitch.xml" />
+    <!--import resource="bbb-voice-freeswitch.xml" /-->
   	
   	<import resource="bbb-redis-messaging.xml"/>
   	<import resource="bbb-red5-redis-pubsub.xml"/>

@@ -54,6 +54,8 @@ public class MeetingMessageHandler implements MessageHandler {
 					bbbGW.destroyMeeting(emm.meetingId);
 				} else if (msg instanceof ValidateAuthTokenMessage) {
 					ValidateAuthTokenMessage emm = (ValidateAuthTokenMessage) msg;
+					System.out.println("Received ValidateAuthTokenMessage token request. Meeting id [" + emm.meetingId + "]");
+					
 					log.info("Received ValidateAuthTokenMessage token request. Meeting id [{}]", emm.meetingId);
 					log.warn("TODO: Need to pass sessionId on ValidateAuthTokenMessage message.");
 					String sessionId = "tobeimplemented";
@@ -106,7 +108,7 @@ public class MeetingMessageHandler implements MessageHandler {
 			if (msg != null) {
 				if (msg instanceof KeepAliveMessage) {
 					KeepAliveMessage emm = (KeepAliveMessage) msg;
-					log.debug("Received KeepAliveMessage request. Meeting id [{}]", emm.keepAliveId);
+//					log.debug("Received KeepAliveMessage request. Meeting id [{}]", emm.keepAliveId);
 					bbbGW.isAliveAudit(emm.keepAliveId);					
 				}
 			} else {
