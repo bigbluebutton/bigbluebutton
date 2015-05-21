@@ -2,11 +2,22 @@ package org.bigbluebutton.conference.service.presentation;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.bigbluebutton.conference.service.messaging.GetChatHistory;
+import org.bigbluebutton.conference.service.messaging.GetPresentationInfo;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.ResizeAndMoveSlide;
+import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
+import org.bigbluebutton.conference.service.messaging.SendConversionUpdate;
+import org.bigbluebutton.conference.service.messaging.SendPrivateChatMessage;
+import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
@@ -66,7 +77,41 @@ public class PresentationMessageListener implements MessageHandler {
                 conversionUpdatesProcessor.sendConversionCompleted(messageKey, conference,
                         code, presId, numberOfPages, filename, presBaseUrl);
         }
-        
+
+        @Override
+    	public void handleMessage(String pattern, String channel, String message) {
+    		if (channel.equalsIgnoreCase(MessagingConstants.TO_CHAT_CHANNEL)) {
+    			JsonParser parser = new JsonParser();
+    			JsonObject obj = (JsonObject) parser.parse(message);
+
+    			if (obj.has("header") && obj.has("payload")) {
+    				JsonObject header = (JsonObject) obj.get("header");
+
+    				if (header.has("name")) {
+    					String messageName = header.get("name").getAsString();
+    					if (SendConversionUpdate.SEND_CONVERSION_UPDATE.equals(messageName)) {
+    						SendConversionUpdate msg = SendConversionUpdate.fromJson(message);
+    						System.out.println("in messageHandler - sendConversionCompleted");
+    						sendConversionUpdate(msg.messageKey, msg.meetingId, msg.code, msg.presId, msg.presName);
+    						bbbInGW.sendConversionUpdate(msg.messageKey, msg.meetingId, msg.code, msg.presId, msg.presName);
+    					} else if (ResizeAndMoveSlide.RESIZE_AND_MOVE_SLIDE.equals(messageName)) {
+    						System.out.println("in messageHandler - resizeAndMoveSlide");
+    						ResizeAndMoveSlide msg = ResizeAndMoveSlide.fromJson(message);
+    						bbbInGW.resizeAndMoveSlide(msg.meetingId, msg.xOffset, msg.yOffset, msg.widthRatio, msg.heightRatio);
+    					} else if (GetPresentationInfo.GET_PRESENTATION_INFO.equals(messageName)) {
+    						System.out.println("in messageHandler - getPresentationInfo");
+    						GetPresentationInfo msg = GetPresentationInfo.fromJson(message);
+    						bbbInGW.getPresentationInfo(msg.meetingId, msg.requesterId, msg.replyTo);
+    					} else if (SendConversionCompleted.SEND_CONVERSION_COMPLETED.equals(messageName)) {
+    						System.out.println("in messageHandler - sendConversionCompleted");
+    						SendConversionCompleted msg = SendConversionCompleted.fromJson(message);
+    						bbbInGW.sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code, msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
+    					}
+    				}
+    			}
+    		}
+    	}
+        /*
         @Override
         public void handleMessage(String pattern, String channel, String message) {
                 
@@ -144,4 +189,5 @@ public class PresentationMessageListener implements MessageHandler {
                         }
                 }
         }
+        */
 }

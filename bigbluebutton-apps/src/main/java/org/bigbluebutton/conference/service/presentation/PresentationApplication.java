@@ -19,16 +19,16 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.core.api.Red5BBBInGw;
 import org.red5.logging.Red5LoggerFactory;
 
 public class PresentationApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationApplication.class, "bigbluebutton" );	
 		
-	private IBigBlueButtonInGW bbbInGW;
+	private Red5BBBInGw Red5BBBInGw;
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
-		bbbInGW = inGW;
+	public void setBigBlueButtonInGW(Red5BBBInGw inGW) {
+		Red5BBBInGw = inGW;
 	}
 		
 	public void clear(String meetingID) {
@@ -37,61 +37,72 @@ public class PresentationApplication {
 
 	public void sendConversionUpdate(String messageKey, String meetingId, 
             String code, String presentationId, String presName) {
-		bbbInGW.sendConversionUpdate(messageKey, meetingId, code, 
+		System.out.println("-----sendConversionUpdate---");
+		Red5BBBInGw.sendConversionUpdate(messageKey, meetingId, code, 
 				presentationId, presName);
     }
 	
 	public void sendPageCountError(String messageKey, String meetingId, 
             String code, String presentationId, int numberOfPages,
             int maxNumberPages, String presName) {
-		bbbInGW.sendPageCountError(messageKey, meetingId, code, 
-				presentationId, numberOfPages, maxNumberPages, presName);
+		System.out.println("-----sendPageCountError---");
+//		bbbInGW.sendPageCountError(messageKey, meetingId, code, 
+//				presentationId, numberOfPages, maxNumberPages, presName);
 	}
 	
 	public void sendSlideGenerated(String messageKey, String meetingId, 
             String code, String presentationId, int numberOfPages,
             int pagesCompleted, String presName) {
-		bbbInGW.sendSlideGenerated(messageKey, meetingId, code, 
-				presentationId, numberOfPages, pagesCompleted, presName);
+		System.out.println("-----sendSlideGenerated---");
+//		bbbInGW.sendSlideGenerated(messageKey, meetingId, code, 
+//				presentationId, numberOfPages, pagesCompleted, presName);
 	}
 
 	public void sendConversionCompleted(String messageKey, String meetingId, 
             String code, String presentation, int numberOfPages, 
             String presName, String presBaseUrl) {
-		bbbInGW.sendConversionCompleted(messageKey, meetingId, 
+		System.out.println("-----sendConversionCompleted---");
+		Red5BBBInGw.sendConversionCompleted(messageKey, meetingId, 
 	            code, presentation, numberOfPages, presName, presBaseUrl);
 	}
 				
 	public void removePresentation(String meetingID, String presentationID){
-		bbbInGW.removePresentation(meetingID, presentationID);
+		System.out.println("----removePresentation----");
+//		bbbInGW.removePresentation(meetingID, presentationID);
     }
 	
 	public void getPresentationInfo(String meetingID, String requesterID) {
 		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
 		String replyTo = meetingID + "/" + requesterID; 
-		bbbInGW.getPresentationInfo(meetingID, requesterID, replyTo);
+		System.out.println("----getPresentationInfo----");
+		Red5BBBInGw.getPresentationInfo(meetingID, requesterID, replyTo);
 	}
 		
 	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {	
-		bbbInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
+		System.out.println("----sendCursorUpdate----");
+//		bbbInGW.sendCursorUpdate(meetingID, xPercent, yPercent);
 	}
 	
 	public void resizeAndMoveSlide(String meetingID, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
-		bbbInGW.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);
+		System.out.println("-----resizeAndMoveSlide---");
+		Red5BBBInGw.resizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio);
 	}
 		
 	public void gotoSlide(String meetingID, String pageId){		
-		bbbInGW.gotoSlide(meetingID, pageId);
+		System.out.println("----gotoSlide----");
+//		bbbInGW.gotoSlide(meetingID, pageId);
 	}
 	
 	public void sharePresentation(String meetingID, String presentationID, Boolean share){		
-		bbbInGW.sharePresentation(meetingID, presentationID, share);
+		System.out.println("-----sharePresentation---");
+//		bbbInGW.sharePresentation(meetingID, presentationID, share);
 	}
 	
 	public void getSlideInfo(String meetingID, String requesterID) {		
 		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		System.out.println("----getSlideInfo----");
 		String replyTo = meetingID + "/" + requesterID; 
-		bbbInGW.getSlideInfo(meetingID, requesterID,  replyTo);		
+//		bbbInGW.getSlideInfo(meetingID, requesterID,  replyTo);		
 	}
 		
 }

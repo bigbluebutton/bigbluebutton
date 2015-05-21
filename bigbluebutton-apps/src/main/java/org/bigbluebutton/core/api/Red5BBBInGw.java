@@ -2,11 +2,15 @@ package org.bigbluebutton.core.api;
 
 import java.util.Map;
 
-import org.bigbluebutton.conference.service.messaging.GetChatHistory;
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
-import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.GetPresentationInfo;
+import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
+import org.bigbluebutton.conference.service.messaging.ResizeAndMoveSlide;
+import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.SendConversionUpdate;
+import org.bigbluebutton.conference.service.messaging.SendPrivateChatMessage;
+import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
+import org.bigbluebutton.conference.service.messaging.GetChatHistory;
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
 
 import com.google.gson.Gson;
@@ -311,7 +315,10 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void getPresentationInfo(String meetingID, String requesterID,
 			String replyTo) {
-		// TODO Auto-generated method stub
+		GetPresentationInfo msg = new GetPresentationInfo(meetingID,
+				requesterID, replyTo);
+		System.out.println("~~getPresentationInfo in Red5BBBInGw");
+		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 
 	}
 
@@ -325,8 +332,11 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void resizeAndMoveSlide(String meetingID, double xOffset,
 			double yOffset, double widthRatio, double heightRatio) {
-		// TODO Auto-generated method stub
 
+		System.out.println("~~resizeAndMoveSlide in Red5BBBInGw");
+		ResizeAndMoveSlide msg = new ResizeAndMoveSlide(meetingID,
+				xOffset, yOffset, widthRatio, heightRatio);
+		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
@@ -352,8 +362,10 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendConversionUpdate(String messageKey, String meetingId,
 			String code, String presId, String presName) {
-		// TODO Auto-generated method stub
-
+		System.out.println("~~sendConversionUpdate in Red5BBBInGw");
+		SendConversionUpdate msg = new SendConversionUpdate(messageKey, meetingId,
+				code, presId, presName);
+		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
@@ -376,8 +388,10 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void sendConversionCompleted(String messageKey, String meetingId,
 			String code, String presId, int numPages, String presName,
 			String presBaseUrl) {
-		// TODO Auto-generated method stub
-
+		System.out.println("~~sendConversionCompleted in Red5BBBInGw");
+		SendConversionCompleted msg = new SendConversionCompleted(messageKey, meetingId,
+				code, presId, numPages, presName, presBaseUrl);
+		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
@@ -444,6 +458,7 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void getChatHistory(String meetingID, String requesterID,
 			String replyTo) {
+		System.out.println("~~getChatHistory in Red5BBBInGw");
 		GetChatHistory msg = new GetChatHistory(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
@@ -451,6 +466,7 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendPublicMessage(String meetingID, String requesterID,
 			Map<String, String> message) {
+		System.out.println("~~sendPublicMessage in Red5BBBInGw");
 		SendPublicChatMessage msg = new SendPublicChatMessage(meetingID, requesterID, message);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
@@ -458,8 +474,9 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendPrivateMessage(String meetingID, String requesterID,
 			Map<String, String> message) {
-
-
+		System.out.println("~~sendPrivateMessage in Red5BBBInGw");
+		SendPrivateChatMessage msg = new SendPrivateChatMessage(meetingID, requesterID, message);
+		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
 	@Override
