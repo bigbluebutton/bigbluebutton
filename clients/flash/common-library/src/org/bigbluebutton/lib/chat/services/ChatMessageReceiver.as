@@ -34,9 +34,11 @@ package org.bigbluebutton.lib.chat.services {
 		}
 		
 		private function handleChatRequestMessageHistoryReply(message:Object):void {
-			var msgCount:Number = message.count as Number;
-			for (var i:int = 0; i < msgCount; i++) {
-				handleChatReceivePublicMessageCommand(message.messages[i]);
+			trace(LOG + "Handling chat history message [" + message.msg + "]");
+			var chats:Array = JSON.parse(message.msg) as Array;
+			
+			for (var i:int = 0; i < chats.length; i++) {
+				handleChatReceivePublicMessageCommand(chats[i]);
 			}
 		}
 		
