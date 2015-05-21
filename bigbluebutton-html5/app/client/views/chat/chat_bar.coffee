@@ -122,6 +122,11 @@ Template.chatbar.helpers
 # When chatbar gets rendered, launch the auto-check for unread chat
 Template.chatbar.rendered = -> detectUnreadChat()
 
+
+Template.chatbar.events
+  'click .toPublic': (event) ->
+    setInSession 'inChatWith', 'PUBLIC_CHAT'
+
 # When message gets rendered, scroll to the bottom
 Template.message.rendered = ->
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
