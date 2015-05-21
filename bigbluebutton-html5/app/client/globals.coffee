@@ -155,6 +155,8 @@ Handlebars.registerHelper "visibility", (section) ->
 Handlebars.registerHelper 'containerPosition', (section) ->
   if getInSession 'display_usersList'
     return 'moved-to-right'
+  else if getInSession 'display_menu'
+    return 'moved-to-left'
   else
     return ''
 
@@ -192,13 +194,12 @@ Handlebars.registerHelper 'containerPosition', (section) ->
   setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
 
-@toggleRightHandSlidingMenu = ->
-  if $('#container').css('position') is 'fixed'
-    $('#container').css('position', '')
-    $('#container').css('right', '')
-  else
-    $('#container').css('right', '500px')
-    $('#container').css('position', 'fixed')
+@toggleMenu = ->
+  setInSession 'display_menu', !getInSession 'display_menu'
+
+@closePushMenus = ->
+  setInSession 'display_usersList', false
+  setInSession 'display_menu', false
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
@@ -272,6 +273,7 @@ Handlebars.registerHelper 'containerPosition', (section) ->
   amplify.store('tabsRenderedTime', null)
   amplify.store('userId', null)
   amplify.store('userName', null)
+  amplify.store('display_menu', null)
   if callback?
     callback()
 
@@ -292,6 +294,7 @@ Handlebars.registerHelper 'containerPosition', (section) ->
     setInSession 'display_usersList', true
   else
     setInSession 'display_usersList', false
+  setInSession 'display_menu', false
 
 @onLoadComplete = ->
   document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"

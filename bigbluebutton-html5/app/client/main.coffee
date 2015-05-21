@@ -72,15 +72,15 @@ Template.header.events
     $(".tooltip").hide()
     toggleCam @
 
-  "click .toggleUserlist": (event) ->
+  "click .toggleUserlistButton": (event) ->
     toggleUsersList()
 
   "click .toggleMenuButton": (event) ->
-    toggleRightHandSlidingMenu()
+    toggleMenu()
 
 Template.menu.events
   'click .slideButton': (event) ->
-    toggleRightHandSlidingMenu()
+    toggleMenu()
 
 Template.main.rendered = ->
   $("#dialog").dialog(
@@ -127,6 +127,10 @@ Template.main.rendered = ->
 
   if Meteor.config.app.autoJoinAudio
     onAudioJoinHelper()
+
+Template.main.events
+  'click .shield': (event) ->
+    closePushMenus()
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()

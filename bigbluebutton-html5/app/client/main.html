@@ -1,9 +1,9 @@
 <template name="header">
   <nav id="navbar" class="myNavbar gradientBar top-bar" role="navigation">
     {{#if getInSession "display_usersList"}}
-      {{> makeButton btn_class="toggleUserlist navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Close Userlist"}}
+      {{> makeButton btn_class="toggleUserlistButton navbarButton pressedButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Close Userlist"}}
     {{else}}
-      {{> makeButton btn_class="toggleUserlist navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Open Userlist"}}
+      {{> makeButton btn_class="toggleUserlistButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Open Userlist"}}
     {{/if}}
 
     {{#if amIInAudio}}
@@ -36,7 +36,11 @@
       {{> makeButton id="logout" btn_class="signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
       title="Logout"}}
     </div>
-    {{> makeButton btn_class="toggleMenuButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Toggle Menu"}}
+    {{#if getInSession "display_menu"}}
+      {{> makeButton btn_class="toggleMenuButton navbarButton pressedButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Close Menu"}}
+    {{else}}
+      {{> makeButton btn_class="toggleMenuButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Open Menu"}}
+    {{/if}}
   </nav>
 </template>
 
@@ -50,6 +54,7 @@
       <div id="main">
         {{> header}}
         <div id="panels">
+          <div class="shield"></div>
           {{> whiteboard id="whiteboard" name="whiteboard"}}
           {{> chatbar id="chat" title="Chat" name="chatbar"}}
         </div>
