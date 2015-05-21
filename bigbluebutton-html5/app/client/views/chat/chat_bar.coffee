@@ -122,7 +122,7 @@ Template.chatbar.helpers
 # When chatbar gets rendered, launch the auto-check for unread chat
 Template.chatbar.rendered = -> detectUnreadChat()
 
-
+# When "< Public" is clicked, go to public chat 
 Template.chatbar.events
   'click .toPublic': (event) ->
     setInSession 'inChatWith', 'PUBLIC_CHAT'
