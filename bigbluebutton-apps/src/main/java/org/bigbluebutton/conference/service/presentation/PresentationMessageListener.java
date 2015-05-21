@@ -9,6 +9,7 @@ import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.ResizeAndMoveSlide;
 import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
 import org.bigbluebutton.conference.service.messaging.SendConversionUpdate;
+import org.bigbluebutton.conference.service.messaging.SendPageCountError;
 import org.bigbluebutton.conference.service.messaging.SendPrivateChatMessage;
 import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
@@ -80,7 +81,8 @@ public class PresentationMessageListener implements MessageHandler {
 
         @Override
     	public void handleMessage(String pattern, String channel, String message) {
-    		if (channel.equalsIgnoreCase(MessagingConstants.TO_CHAT_CHANNEL)) {
+    		if (channel.equalsIgnoreCase(MessagingConstants.TO_PRESENTATION_CHANNEL)) {
+    			System.out.println("__message:"+message);
     			JsonParser parser = new JsonParser();
     			JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -89,105 +91,131 @@ public class PresentationMessageListener implements MessageHandler {
 
     				if (header.has("name")) {
     					String messageName = header.get("name").getAsString();
+    					System.out.println("\n\n\n\n"+messageName+"\n\n\n");
     					if (SendConversionUpdate.SEND_CONVERSION_UPDATE.equals(messageName)) {
     						SendConversionUpdate msg = SendConversionUpdate.fromJson(message);
     						System.out.println("in messageHandler - sendConversionCompleted");
-    						sendConversionUpdate(msg.messageKey, msg.meetingId, msg.code, msg.presId, msg.presName);
-    						bbbInGW.sendConversionUpdate(msg.messageKey, msg.meetingId, msg.code, msg.presId, msg.presName);
+
+    						sendConversionUpdate(msg.messageKey, msg.meetingId, msg.code,
+    								msg.presId, msg.presName);
+    						bbbInGW.sendConversionUpdate(msg.messageKey, msg.meetingId,
+    								msg.code, msg.presId, msg.presName);
     					} else if (ResizeAndMoveSlide.RESIZE_AND_MOVE_SLIDE.equals(messageName)) {
     						System.out.println("in messageHandler - resizeAndMoveSlide");
     						ResizeAndMoveSlide msg = ResizeAndMoveSlide.fromJson(message);
-    						bbbInGW.resizeAndMoveSlide(msg.meetingId, msg.xOffset, msg.yOffset, msg.widthRatio, msg.heightRatio);
+
+    						bbbInGW.resizeAndMoveSlide(msg.meetingId, msg.xOffset, msg.yOffset,
+    								msg.widthRatio, msg.heightRatio);
     					} else if (GetPresentationInfo.GET_PRESENTATION_INFO.equals(messageName)) {
     						System.out.println("in messageHandler - getPresentationInfo");
     						GetPresentationInfo msg = GetPresentationInfo.fromJson(message);
+
     						bbbInGW.getPresentationInfo(msg.meetingId, msg.requesterId, msg.replyTo);
     					} else if (SendConversionCompleted.SEND_CONVERSION_COMPLETED.equals(messageName)) {
     						System.out.println("in messageHandler - sendConversionCompleted");
     						SendConversionCompleted msg = SendConversionCompleted.fromJson(message);
-    						bbbInGW.sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code, msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
+
+    						sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
+    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
+    						bbbInGW.sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
+    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
+    					} else if (SendPageCountError.SEND_PAGE_COUNT_ERROR.equals(messageName)) {
+    						System.out.println("in messageHandler - sendPageCountError");
+    						SendPageCountError msg = SendPageCountError.fromJson(message);
+
+    						sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
+    								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
+    						bbbInGW.sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
+    								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
+    					} else if (SendPageCountError.SEND_PAGE_COUNT_ERROR.equals(messageName)) {
+    						System.out.println("in messageHandler - sendPageCountError");
+    						SendPageCountError msg = SendPageCountError.fromJson(message);
+
+    						sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
+    								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
+    						bbbInGW.sendPageCountError(msg.messageKey, msg.meetingId, msg.code,
+    								msg.presId, msg.numberOfPages, msg.maxNumberPages, msg.presName);
     					}
+    				}
+    			}
+    			else {
+    				System.out.println("\n\n\nOOOOOOOOOOOOOOO:" +message + "\n\n");
+    				Gson gson = new Gson();
+    				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
+    				String code = (String) map.get("returnCode");
+    				String presId = (String) map.get("presentationId");
+    				String filename = (String) map.get("filename");
+    				String conference = (String) map.get("conference");
+    				String messageKey = (String) map.get("messageKey");
+
+    				if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY) ||
+    						messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY) ||
+    						messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY) ||
+    						messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY) ||
+    						messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY) ||
+    						messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY) ||
+    						messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
+
+    					sendConversionUpdate(messageKey, conference, code, presId, filename);
+    				} else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
+
+    					Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
+    					Integer maxNumberPages = new Integer((String) map.get("maxNumberPages"));
+    					sendPageCountError(messageKey, conference, code,
+    							presId, numberOfPages, maxNumberPages, filename);
+
+    				} else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
+    					Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
+    					Integer pagesCompleted = new Integer((String) map.get("pagesCompleted"));
+
+    					sendSlideGenerated(messageKey, conference, code,
+    							presId, numberOfPages, pagesCompleted, filename);
+
+    				} else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
+    					Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
+    					String presBaseUrl = (String) map.get("presentationBaseUrl");
+
+    					sendConversionCompleted(messageKey, conference, code,
+    							presId, numberOfPages, filename, presBaseUrl);
     				}
     			}
     		}
     	}
-        /*
-        @Override
-        public void handleMessage(String pattern, String channel, String message) {
-                
-                if (channel.equalsIgnoreCase(MessagingConstants.TO_PRESENTATION_CHANNEL)) {
-                        
-                        JsonParser parser = new JsonParser();
-                        JsonObject obj = (JsonObject) parser.parse(message);
-                        
-                        if(obj.has("payload") && obj.has("header")) {
-                                
-                                JsonObject headerObject = (JsonObject) obj.get("header");
-                                JsonObject payloadObject = (JsonObject) obj.get("payload");
-                                
-                                String eventName =  headerObject.get("name").toString().replace("\"", "");
-                                
-                                if(eventName.equalsIgnoreCase("presentation_page_changed_message") ||
-                                        eventName.equalsIgnoreCase("presentation_page_resized_message")) {
-                                        
-                                        JsonObject pageObject = (JsonObject) payloadObject.get("page");
-                                        String roomName = payloadObject.get("meeting_id").toString().replace("\"", "");
-                                        
-                                        if(eventName.equalsIgnoreCase("presentation_page_changed_message")) {
-                                                String pageId = pageObject.get("id").toString().replace("\"", "");
-                                                bbbInGW.gotoSlide(roomName, pageId);
-                                        } else if(eventName.equalsIgnoreCase("presentation_page_resized_message")) {
-                                                String xOffset = pageObject.get("x_offset").toString().replace("\"", "");
-                                                String yOffset = pageObject.get("y_offset").toString().replace("\"", "");
-                                                String widthRatio = pageObject.get("width_ratio").toString().replace("\"", "");
-                                                String heightRatio = pageObject.get("height_ratio").toString().replace("\"", "");
-                                                bbbInGW.resizeAndMoveSlide(roomName, Double.parseDouble(xOffset), Double.parseDouble(yOffset), Double.parseDouble(widthRatio), Double.parseDouble(heightRatio));
-                                        }
-                                }
-                        }
-                        else {
-                                Gson gson = new Gson();
-                                HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
-                                
-                                String code = (String) map.get("returnCode");
-                                String presId = (String) map.get("presentationId");
-                                String filename = (String) map.get("filename");
-                                String conference = (String) map.get("conference");
-                                String messageKey = (String) map.get("messageKey");
-                                
-                                if (messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY) ||
-                                        messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY) ||
-                                        messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY) ||
-                                        messageKey.equalsIgnoreCase(UNSUPPORTED_DOCUMENT_KEY) ||
-                                        messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY) ||
-                                        messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY) ||
-                                        messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
-                                        
-                                        sendConversionUpdate(messageKey, conference, code, presId, filename);
-                                        
-                                } else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-                                        Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
-                                        Integer maxNumberPages = new Integer((String) map.get("maxNumberPages"));
-                                        
-                                        sendPageCountError(messageKey, conference, code,
-                                                presId, numberOfPages, maxNumberPages, filename);
-                                        
-                                } else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-                                        Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
-                                        Integer pagesCompleted = new Integer((String) map.get("pagesCompleted"));
-                                        
-                                        sendSlideGenerated(messageKey, conference, code,
-                                                presId, numberOfPages, pagesCompleted, filename);
-                                        
-                                } else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
-                                        Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
-                                        String presBaseUrl = (String) map.get("presentationBaseUrl");
-                                        
-                                        sendConversionCompleted(messageKey, conference, code,
-                                                presId, numberOfPages, filename, presBaseUrl);
-                                }
-                        }
-                }
-        }
-        */
+//        @Override
+//        public void handleMessage(String pattern, String channel, String message) {
+//                
+//                if (channel.equalsIgnoreCase(MessagingConstants.TO_PRESENTATION_CHANNEL)) {
+//                        
+//                        JsonParser parser = new JsonParser();
+//                        JsonObject obj = (JsonObject) parser.parse(message);
+//                        
+//                        if(obj.has("payload") && obj.has("header")) {
+//                                
+//                                JsonObject headerObject = (JsonObject) obj.get("header");
+//                                JsonObject payloadObject = (JsonObject) obj.get("payload");
+//                                
+//                                String eventName =  headerObject.get("name").toString().replace("\"", "");
+//                                
+//                                if(eventName.equalsIgnoreCase("presentation_page_changed_message") ||
+//                                        eventName.equalsIgnoreCase("presentation_page_resized_message")) {
+//                                        
+//                                        JsonObject pageObject = (JsonObject) payloadObject.get("page");
+//                                        String roomName = payloadObject.get("meeting_id").toString().replace("\"", "");
+//                                        
+//                                        if(eventName.equalsIgnoreCase("presentation_page_changed_message")) {
+//                                                String pageId = pageObject.get("id").toString().replace("\"", "");
+//                                                bbbInGW.gotoSlide(roomName, pageId);
+//                                        } else if(eventName.equalsIgnoreCase("presentation_page_resized_message")) {
+//                                                String xOffset = pageObject.get("x_offset").toString().replace("\"", "");
+//                                                String yOffset = pageObject.get("y_offset").toString().replace("\"", "");
+//                                                String widthRatio = pageObject.get("width_ratio").toString().replace("\"", "");
+//                                                String heightRatio = pageObject.get("height_ratio").toString().replace("\"", "");
+//                                                bbbInGW.resizeAndMoveSlide(roomName, Double.parseDouble(xOffset), Double.parseDouble(yOffset), Double.parseDouble(widthRatio), Double.parseDouble(heightRatio));
+//                                        }
+//                                }
+//                        }
+//                        
+//                }
+//        }
 }
+

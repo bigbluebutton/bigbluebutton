@@ -28,7 +28,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 
 	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
-		<property name="bigBlueButtonInGW"> <ref bean="red5BbbInGW"/></property>
+		<property name="bigBlueButtonInGW"><ref bean="bbbInGW"/></property>
+		<property name="red5BBBInGW"><ref bean="red5BbbInGW"/></property>
 	</bean>
 	
 	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">

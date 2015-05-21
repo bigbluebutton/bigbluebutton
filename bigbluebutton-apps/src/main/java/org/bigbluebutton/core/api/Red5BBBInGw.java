@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.GetPresentationInfo;
 import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
+import org.bigbluebutton.conference.service.messaging.SendPageCountError;
 import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.ResizeAndMoveSlide;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
@@ -372,8 +373,11 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void sendPageCountError(String messageKey, String meetingId,
 			String code, String presId, int numberOfPages, int maxNumberPages,
 			String presName) {
-		// TODO Auto-generated method stub
+		System.out.println("~~sendPageCountError in Red5BBBInGw");
 
+		SendPageCountError msg = new SendPageCountError(messageKey, meetingId,
+				code, presId, numberOfPages, maxNumberPages, presName);
+		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
