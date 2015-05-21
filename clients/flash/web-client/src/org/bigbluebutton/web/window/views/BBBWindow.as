@@ -536,7 +536,6 @@ package org.bigbluebutton.web.window.views {
 			
 			this.addEventListener(KeyboardEvent.KEY_DOWN, arrowKeyPress);
 			
-			windowControls = new BBBWindowControls();
 			updateContextMenu();
 		}
 		
@@ -642,8 +641,7 @@ package org.bigbluebutton.web.window.views {
 				addElement(resizeHandleBL);
 			}
 			
-			// bring windowControls to top as they are created in constructor
-			setElementIndex(windowControls, numElements - 1);
+			windowControls = new BBBWindowControls();
 			
 			addListeners();
 		}

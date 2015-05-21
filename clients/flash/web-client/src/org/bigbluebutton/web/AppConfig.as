@@ -1,25 +1,17 @@
 package org.bigbluebutton.web {
 	
-	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
-	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
-	import org.bigbluebutton.lib.chat.services.ChatMessageService;
-	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.common.services.BaseConnection;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
-	import org.bigbluebutton.air.main.commands.AuthenticationCommand;
-	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserCommand;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
-	import org.bigbluebutton.air.main.models.IUserSession;
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.models.UserSession;
-	import org.bigbluebutton.air.main.models.UserUISession;
 	import org.bigbluebutton.lib.main.services.BigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.main.services.ILoginService;
@@ -32,7 +24,6 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.user.services.UsersService;
 	import org.bigbluebutton.lib.video.commands.CameraQualityCommand;
 	import org.bigbluebutton.lib.video.commands.CameraQualitySignal;
-	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.video.services.VideoConnection;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
@@ -53,7 +44,6 @@ package org.bigbluebutton.web {
 		
 		public function configure():void {
 			// Singleton mapping
-			injector.map(IUserUISession).toSingleton(UserUISession);
 			injector.map(IUserSession).toSingleton(UserSession);
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
@@ -67,7 +57,6 @@ package org.bigbluebutton.web {
 			injector.map(IVideoConnection).toType(VideoConnection);
 			// Signal to Command mapping
 			signalCommandMap.map(ConnectSignal).toCommand(ConnectCommand);
-			signalCommandMap.map(AuthenticationSignal).toCommand(AuthenticationCommand);
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
 			//signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
 			signalCommandMap.map(LoadSlideSignal).toCommand(LoadSlideCommand);

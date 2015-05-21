@@ -1,0 +1,47 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+
+s|Label.chatTimeColor
+{
+	color: #C3C3C3;
+}
+
+global
+{
+	fontFamily: Myriad Pro;
+	content-background-color: #FFFFFF;
+	color: #777777;
+}
+
+s|ItemRenderer.chatItemStyle
+{
+	selectionColor: #FFFFFF;
+	rollOverColor: #FFFFFF;
+	alternatingItemColors: #FFFFFF;
+}
+
+s|Label.chatNameTimeStyle
+{
+	paddingLeft:6;
+	paddingRight:6;
+	paddingBottom:0;
+	paddingTop:4;
+}
+
+s|RichEditableText.msgTextStyle
+{
+	paddingTop:0;
+	paddingLeft:6;
+	paddingRight:6;
+	paddingBottom:2;
+}
+
+.contentFontSize
+{
+	fontSize:12;
+}
+
+.subContentFontSize
+{
+	fontSize:12;
+}

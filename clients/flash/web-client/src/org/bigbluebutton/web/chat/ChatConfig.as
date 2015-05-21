@@ -1,8 +1,10 @@
-package org.bigbluebutton.web.chat.views {
+package org.bigbluebutton.web.chat {
 	import org.bigbluebutton.lib.chat.models.ChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.ChatMessageService;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
+	import org.bigbluebutton.web.chat.views.ChatWindow;
+	import org.bigbluebutton.web.chat.views.ChatWindowMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -40,7 +42,7 @@ package org.bigbluebutton.web.chat.views {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			
+			mediatorMap.map(ChatWindow).toMediator(ChatWindowMediator);
 		}
 		
 		/**
