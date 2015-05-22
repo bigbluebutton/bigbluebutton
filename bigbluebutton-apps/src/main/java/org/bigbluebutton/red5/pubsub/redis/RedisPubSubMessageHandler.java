@@ -6,8 +6,12 @@ import java.util.Map;
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
+import org.bigbluebutton.red5.pubsub.messages.Constants;
 import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+import org.bigbluebutton.red5.pubsub.messages.PresenterAssignedMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserJoinedMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserLeftMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserStatusChangedMessage;
 import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenReplyMessage;
 
 import com.google.gson.Gson;
@@ -32,7 +36,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 			handleMeetingMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_USERS_CHANNEL)) {
 			System.out.println("RedisPubSubMessageHandler message: " + pattern + " " + channel + " " + message);
-
 			handleUsersMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_WHITEBOARD_CHANNEL)) {
 			handleWhiteboarMessage(message);
@@ -70,7 +73,25 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 				  case UserLeftMessage.USER_LEFT:
 					  UserLeftMessage ulm = UserLeftMessage.fromJson(message);
 					  if (ulm != null) {
-					//	  processUserLeftMessage(ulm);
+						  processUserLeftMessage(ulm);
+					  }
+					  break;
+				  case UserJoinedMessage.USER_JOINED:
+					  UserJoinedMessage ujm = UserJoinedMessage.fromJson(message);
+					  if (ujm != null) {
+						  processUserJoinedMessage(ujm);
+					  }
+					  break;
+				  case PresenterAssignedMessage.PRESENTER_ASSIGNED:
+					  PresenterAssignedMessage pam = PresenterAssignedMessage.fromJson(message);
+					  if (pam != null) {
+						  processPresenterAssignedMessage(pam);
+					  }
+					  break;
+				  case UserStatusChangedMessage.USER_STATUS_CHANGED:
+					  UserStatusChangedMessage usm = UserStatusChangedMessage.fromJson(message);
+					  if (usm != null) {
+						  processUserStatusChangedMessage(usm);
 					  }
 					  break;
 				}
@@ -109,6 +130,61 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	  	System.out.println("RedisPubSubMessageHandler - handleUserLeft \n" + message.get("msg") + "\n");
 			
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantLeft", message);
-	  	  service.sendMessage(m); 
+	  	service.sendMessage(m); 
 	}
+
+	private void processUserJoinedMessage(UserJoinedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("user", msg.user);
+			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n");
+		
+	  	String userId = msg.user.get("userId").toString();
+	  	
+	  	DirectClientMessage jmr = new DirectClientMessage(msg.meetingId, userId, "joinMeetingReply", message);
+	  	service.sendMessage(jmr);
+		  	  
+	  	System.out.println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n");
+		  	    
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantJoined", message);
+	  	service.sendMessage(m);
+	}
+	
+	private void processPresenterAssignedMessage(PresenterAssignedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("newPresenterID", msg.newPresenterId);
+		args.put("newPresenterName", msg.newPresenterName);
+		args.put("assignedBy", msg.assignedBy);
+			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processPresenterAssignedMessage \n" + message.get("msg") + "\n");
+		
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "assignPresenterCallback", message);
+		service.sendMessage(m);	
+	}
+
+	private void processUserStatusChangedMessage(UserStatusChangedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userID", msg.userId);
+		args.put("status", msg.status);
+		args.put("value", msg.value);
+			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserStatusChangedMessage \n" + message.get("msg") + "\n");
+		
+	  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantStatusChange", message);
+		service.sendMessage(m);
+	}
+
 }

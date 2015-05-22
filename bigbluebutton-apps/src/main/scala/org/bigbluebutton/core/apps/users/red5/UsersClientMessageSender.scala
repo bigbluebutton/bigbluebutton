@@ -167,8 +167,8 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	  
-  	println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-  	val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
+//  	println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
+//  	val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
 //	  service.sendMessage(m);	    
 	}
 	
@@ -361,10 +361,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	message.put("msg", gson.toJson(args))
 		
-  	  println("UsersClientMessageSender - handleAssignPresenter \n" + message.get("msg") + "\n")
+//  	  println("UsersClientMessageSender - handleAssignPresenter \n" + message.get("msg") + "\n")
   	    
-	  var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
-	  service.sendMessage(m);		
+//	  var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
+//	  service.sendMessage(m);		
 	}
 	
 	private def handleUserJoined(msg: UserJoined):Unit = {
@@ -380,10 +380,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
   	service.sendMessage(jmr);
   	  
-    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
-  	    
-  	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
-  	service.sendMessage(m);
+//    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
+//  	    
+ // 	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
+//  	service.sendMessage(m);
 	}
 
 	
@@ -396,10 +396,10 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	  message.put("msg", gson.toJson(args))
   	    
-		println("UsersClientMessageSender - handleUserLeft \n" + message.get("msg") + "\n")
-		
-  	  var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
-  	  service.sendMessage(m);
+//		println("UsersClientMessageSender - handleUserLeft \n" + message.get("msg") + "\n")
+//		
+//  	  var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
+//  	  service.sendMessage(m);
 	}
 
     def handleUserRaisedHand(msg: UserRaisedHand) {
@@ -474,7 +474,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	    println("UsersClientMessageSender - handleUserStatusChange \n" + message.get("msg") + "\n")
   	    
 		var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
-		service.sendMessage(m);
+//		service.sendMessage(m);
 	}
 	
 	private def handleUserListeningOnly(msg: UserListeningOnly) {

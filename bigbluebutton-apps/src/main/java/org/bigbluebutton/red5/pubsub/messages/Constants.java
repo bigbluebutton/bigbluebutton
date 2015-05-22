@@ -15,6 +15,7 @@ public class Constants {
   public static final String AUTH_TOKEN                      = "auth_token";
   public static final String ROLE                            = "role";
   public static final String EXT_USER_ID                     = "external_user_id";
+  public static final String EXTERN_USERID                  = "extern_userid";
   public static final String REQUESTER_ID                    = "requester_id";
   public static final String REPLY_TO                        = "reply_to";
   public static final String LOWERED_BY                      = "lowered_by";
@@ -32,6 +33,7 @@ public class Constants {
   public static final String AUTO_START_RECORDING            = "auto_start_recording";
   public static final String ALLOW_START_STOP_RECORDING      = "allow_start_stop_recording";
   public static final String LAYOUT_ID                       = "layout_id";
+  public static final String LISTEN_ONLY                     = "listenOnly";
   public static final String POLL                            = "poll";
   public static final String POLL_ID                         = "poll_id";
   public static final String FORCE                           = "force";
@@ -53,10 +55,13 @@ public class Constants {
   public static final String MUTE                            = "mute";
   public static final String CALLER_ID_NUM                   = "caller_id_num";
   public static final String CALLER_ID_NAME                  = "caller_id_name";
+  public static final String CALLERNUM                       = "callernum";
+  public static final String CALLERNAME                      = "callername";
   public static final String TALKING                         = "talking";
   public static final String USER                            = "user";
   public static final String MUTED                           = "muted";
   public static final String VOICE_USER                      = "voice_user";
+  public static final String VOICEUSER                      = "voiceUser";
   public static final String RECORDING_FILE                  = "recording_file";
   public static final String ANNOTATION                      = "annotation";
   public static final String WHITEBOARD_ID                   = "whiteboard_id";
@@ -84,6 +89,7 @@ public class Constants {
   public static final String CURRENT                         = "current";
   public static final String PAGES                           = "pages";
   public static final String WEB_USER_ID                     = "web_user_id";
+  public static final String WEB_USERID                      = "web_userid";
   public static final String JOINED                          = "joined";
   public static final String X_PERCENT                       = "x_percent";
   public static final String Y_PERCENT                       = "y_percent";
