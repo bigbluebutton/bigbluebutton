@@ -88,15 +88,6 @@ public class SendLockSettingsMessage implements IMessage {
 //							settingsMap.put(Constants.LOCK_ON_JOIN, settingsObj.get(Constants.LOCK_ON_JOIN).getAsBoolean());
 //							settingsMap.put(Constants.LOCK_ON_JOIN_CONFIGURABLE, settingsObj.get(Constants.LOCK_ON_JOIN_CONFIGURABLE).getAsBoolean());
 
-//							settingsMap.put("disableCam", settingsObj.get(Constants.DISABLE_CAMERA).getAsBoolean());
-//							settingsMap.put("disableMic", settingsObj.get(Constants.DISABLE_MICROPHONE).getAsBoolean());
-//							settingsMap.put("disablePrivateChat", settingsObj.get(Constants.DISABLE_PRIVATE_CHAT).getAsBoolean());
-//							settingsMap.put("disablePublicChat", settingsObj.get(Constants.DISABLE_PUBLIC_CHAT).getAsBoolean());
-//							settingsMap.put("lockedLayout", settingsObj.get(Constants.LOCKED_LAYOUT).getAsBoolean());
-//							settingsMap.put("lockOnJoin", settingsObj.get(Constants.LOCK_ON_JOIN).getAsBoolean());
-//							settingsMap.put("lockOnJoinConfigurable", settingsObj.get(Constants.LOCK_ON_JOIN_CONFIGURABLE).getAsBoolean());
-
-							System.out.println("AAAAAAAAAAAA:"+settingsObj.toString());
 							settingsMap.put("disableCam", settingsObj.get(Constants.DISABLE_CAMERA).getAsBoolean());
 							settingsMap.put("disableMic", settingsObj.get(Constants.DISABLE_MICROPHONE).getAsBoolean());
 							settingsMap.put("disablePrivateChat", settingsObj.get(Constants.DISABLE_PRIVATE_CHAT).getAsBoolean());

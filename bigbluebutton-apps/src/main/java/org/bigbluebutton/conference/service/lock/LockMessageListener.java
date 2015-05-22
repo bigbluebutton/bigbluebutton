@@ -38,7 +38,6 @@ public class LockMessageListener implements MessageHandler{
 						bbbGW.lockUser(msg.meetingId, msg.requesterId, msg.lock, msg.internalUserId);
 					} else if(SendLockSettingsMessage.SEND_LOCK_SETTINGS.equals(messageName)) {
 						SendLockSettingsMessage msg = SendLockSettingsMessage.fromJson(message);
-						System.out.println("\n\n(("+message);
 						bbbGW.sendLockSettings(msg.meetingId, msg.userId, msg.newSettings);
 					}
 				}
