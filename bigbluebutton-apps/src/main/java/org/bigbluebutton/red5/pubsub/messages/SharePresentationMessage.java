@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SharePresentation implements IMessage {
+public class SharePresentationMessage implements IMessage {
 	public static final String SHARE_PRESENTATION = "share_presentation";
 	public static final String VERSION = "0.0.1";
 
@@ -13,7 +13,7 @@ public class SharePresentation implements IMessage {
 	public final String presentationId;
 	public final boolean share;
 
-	public SharePresentation(String meetingId, String presentationId,
+	public SharePresentationMessage(String meetingId, String presentationId,
 			boolean share){
 		this.meetingId = meetingId;
 		this.presentationId = presentationId;
@@ -31,7 +31,7 @@ public class SharePresentation implements IMessage {
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static SharePresentation fromJson(String message) {
+	public static SharePresentationMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -50,7 +50,7 @@ public class SharePresentation implements IMessage {
 						boolean share = payload.get(Constants.SHARE).getAsBoolean();
 
 						System.out.println("SharePresentation fromJson");
-						return new SharePresentation(meetingId, presentationId, share);
+						return new SharePresentationMessage(meetingId, presentationId, share);
 					}
 				}
 			}

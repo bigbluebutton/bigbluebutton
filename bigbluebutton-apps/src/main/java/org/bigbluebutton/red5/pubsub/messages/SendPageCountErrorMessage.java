@@ -5,27 +5,28 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SendConversionCompleted implements IMessage {
-	public static final String SEND_CONVERSION_COMPLETED = "send_conversion_completed";
+public class SendPageCountErrorMessage implements IMessage {
+	public static final String SEND_PAGE_COUNT_ERROR = "send_page_count_error";
 	public static final String VERSION = "0.0.1";
 
 	public final String meetingId;
 	public final String messageKey;
 	public final String code;
 	public final String presId;
-	public final int numPages;
+	public final int numberOfPages;
+	public final int maxNumberPages;
 	public final String presName;
-	public final String presBaseUrl;
 
-	public SendConversionCompleted(String messageKey, String meetingId,	String code,
-			String presId, int numPages, String presName,	String presBaseUrl) {
+	public SendPageCountErrorMessage(String messageKey, String meetingId,
+			String code, String presId, int numberOfPages, int maxNumberPages,
+			String presName) {
 		this.meetingId = meetingId;
 		this.messageKey = messageKey;
 		this.code = code;
 		this.presId = presId;
-		this.numPages = numPages;
+		this.numberOfPages = numberOfPages;
+		this.maxNumberPages = maxNumberPages;
 		this.presName = presName;
-		this.presBaseUrl = presBaseUrl;
 	}
 
 	public String toJson() {
@@ -34,16 +35,16 @@ public class SendConversionCompleted implements IMessage {
 		payload.put(Constants.MESSAGE_KEY, messageKey);
 		payload.put(Constants.CODE, code);
 		payload.put(Constants.PRESENTATION_ID, presId);
-		payload.put(Constants.NUM_PAGES, numPages);
+		payload.put(Constants.NUM_PAGES, numberOfPages);
+		payload.put(Constants.MAX_NUM_PAGES, maxNumberPages);
 		payload.put(Constants.PRESENTATION_NAME, presName);
-		payload.put(Constants.PRESENTATION_BASE_URL, presBaseUrl);
 
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_CONVERSION_COMPLETED, VERSION, null);
-		System.out.println("SendConversionCompleted toJson");
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_PAGE_COUNT_ERROR, VERSION, null);
+		System.out.println("SendPageCountError toJson");
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static SendConversionCompleted fromJson(String message) {
+	public static SendPageCountErrorMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -53,26 +54,26 @@ public class SendConversionCompleted implements IMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (SEND_CONVERSION_COMPLETED.equals(messageName)) {
+				if (SEND_PAGE_COUNT_ERROR.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.MESSAGE_KEY)
 							&& payload.has(Constants.CODE)
 							&& payload.has(Constants.PRESENTATION_ID)
+							&& payload.has(Constants.MAX_NUM_PAGES)
 							&& payload.has(Constants.NUM_PAGES)
-							&& payload.has(Constants.PRESENTATION_NAME)
-							&& payload.has(Constants.PRESENTATION_BASE_URL)) {
+							&& payload.has(Constants.PRESENTATION_NAME)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String messageKey = payload.get(Constants.MESSAGE_KEY).getAsString();
 						String code = payload.get(Constants.CODE).getAsString();
 						String presId = payload.get(Constants.PRESENTATION_ID).getAsString();
-						int numPages = payload.get(Constants.NUM_PAGES).getAsInt();
+						int numberOfPages = payload.get(Constants.NUM_PAGES).getAsInt();
+						int maxNumberPages = payload.get(Constants.MAX_NUM_PAGES).getAsInt();
 						String presName = payload.get(Constants.PRESENTATION_NAME).getAsString();
-						String presBaseUrl = payload.get(Constants.PRESENTATION_BASE_URL).getAsString();
 
-						System.out.println("SendConversionCompleted fromJson");
-						return new SendConversionCompleted(messageKey, meetingId, code, presId, numPages, presName, presBaseUrl);
+						System.out.println("SendPageCountError fromJson");
+						return new SendPageCountErrorMessage(messageKey, meetingId, code, presId, numberOfPages, maxNumberPages, presName);
 					}
-				} 
+				}
 			}
 		}
 		return null;

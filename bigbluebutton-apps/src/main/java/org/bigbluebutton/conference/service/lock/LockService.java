@@ -23,15 +23,15 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.core.api.Red5BBBInGw;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 
 public class LockService {
 	private static Logger log = Red5LoggerFactory.getLogger( LockService.class, "bigbluebutton" );
-	
-	private IBigBlueButtonInGW bbbInGW;
+
+	private Red5BBBInGw red5BBBInGW;
 
 	/**
 	 * Internal function used to get the session
@@ -39,20 +39,21 @@ public class LockService {
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
-	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
-		bbbInGW = inGW;
+
+	public void setRed5BBBInGW(Red5BBBInGw inGW) {
+		red5BBBInGW = inGW;
 	}
-	
+
 	/**
 	 * Called from client to get lock settings for this room. 
 	 * */
 	public void getLockSettings(){
 		String meetingId = getBbbSession().getRoom();
 		String userId = getMyUserId();
-		bbbInGW.getLockSettings(meetingId, userId);
+
+		red5BBBInGW.getLockSettings(meetingId, userId);
 	}
-	
+
 	/**
 	 * Called from client to get lock settings for this room.
 	 * 
@@ -64,9 +65,9 @@ public class LockService {
 	public void setLockSettings(Map<String, Boolean> newSettings){
 		String meetingId = getBbbSession().getRoom();
 		String userId = getMyUserId();
-		bbbInGW.sendLockSettings(meetingId, userId, newSettings);
+		red5BBBInGW.sendLockSettings(meetingId, userId, newSettings);
 	}
-	
+
 	/**
 	 * This method locks (or unlocks), based on lock parameter  
 	 * all users but the users listed in array dontLockTheseUsers
@@ -75,7 +76,7 @@ public class LockService {
 		log.debug("setAllUsersLock ({}, {})", new Object[] { lock, dontLockTheseUsers });
 	
 	}
-	
+
 	/**
 	 * This method locks or unlocks a specific user
 	 * */
@@ -87,9 +88,9 @@ public class LockService {
 		String userId = (String) msg.get("userId");
 		
 		log.info("setUserLock ({}, {})", new Object[] { lock, userId });
-		bbbInGW.lockUser(meetingID, requesterID, lock, userId);
+		red5BBBInGW.lockUser(meetingID, requesterID, lock, userId);
 	}
-	
+
 	public String getMyUserId() {
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		assert bbbSession != null;

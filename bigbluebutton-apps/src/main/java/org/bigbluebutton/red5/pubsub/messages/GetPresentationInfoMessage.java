@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetPresentationInfo implements IMessage {
+public class GetPresentationInfoMessage implements IMessage {
 	public static final String GET_PRESENTATION_INFO = "get_presentation_info";
 	public static final String VERSION = "0.0.1";
 
@@ -13,7 +13,7 @@ public class GetPresentationInfo implements IMessage {
 	public final String requesterId;
 	public final String replyTo;
 
-	public GetPresentationInfo(String meetingId, String requesterId, String replyTo) {
+	public GetPresentationInfoMessage(String meetingId, String requesterId, String replyTo) {
 		this.meetingId = meetingId;
 		this.requesterId = requesterId;
 		this.replyTo = replyTo;
@@ -30,7 +30,7 @@ public class GetPresentationInfo implements IMessage {
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static GetPresentationInfo fromJson(String message) {
+	public static GetPresentationInfoMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -48,7 +48,7 @@ public class GetPresentationInfo implements IMessage {
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 						System.out.println("GetPresentationInfo fromJson");
-						return new GetPresentationInfo(meetingId, requesterId, replyTo);
+						return new GetPresentationInfoMessage(meetingId, requesterId, replyTo);
 					}
 				} 
 			}

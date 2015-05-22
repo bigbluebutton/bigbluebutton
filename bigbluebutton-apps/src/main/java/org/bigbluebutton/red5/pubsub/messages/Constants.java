@@ -100,4 +100,11 @@ public class Constants {
   public static final String CREATE_TIME                     = "create_time";
   public static final String CREATE_DATE                     = "create_date";
   public static final String PRESENTATION_BASE_URL           = "presentation_base_url";
+  public static final String DISABLE_CAMERA                  = "disable_camera";
+  public static final String LOCK_ON_JOIN_CONFIGURABLE       = "lock_on_join_configurable";
+  public static final String DISABLE_MICROPHONE              = "disable_microphone";
+  public static final String DISABLE_PRIVATE_CHAT            = "disable_private_chat";
+  public static final String DISABLE_PUBLIC_CHAT             = "disable_public_chat";
+  public static final String LOCK_ON_JOIN                    = "lock_on_join";
+  public static final String LOCKED_LAYOUT                   = "locked_layout";
 }

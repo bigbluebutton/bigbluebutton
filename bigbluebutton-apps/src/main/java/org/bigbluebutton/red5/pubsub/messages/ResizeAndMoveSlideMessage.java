@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class ResizeAndMoveSlide implements IMessage {
+public class ResizeAndMoveSlideMessage implements IMessage {
 	public static final String RESIZE_AND_MOVE_SLIDE = "resize_and_move_slide";
 	public static final String VERSION = "0.0.1";
 
@@ -15,7 +15,7 @@ public class ResizeAndMoveSlide implements IMessage {
 	public final double widthRatio;
 	public final double heightRatio;
 
-	public ResizeAndMoveSlide(String meetingId, double xOffset, double yOffset,
+	public ResizeAndMoveSlideMessage(String meetingId, double xOffset, double yOffset,
 			double widthRatio, double heightRatio) {
 		this.meetingId = meetingId;
 		this.xOffset = xOffset;
@@ -37,7 +37,7 @@ public class ResizeAndMoveSlide implements IMessage {
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static ResizeAndMoveSlide fromJson(String message) {
+	public static ResizeAndMoveSlideMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -59,7 +59,7 @@ public class ResizeAndMoveSlide implements IMessage {
 						double heightRatio = payload.get(Constants.HEIGHT_RATIO).getAsDouble();
 						double widthRatio = payload.get(Constants.WIDTH_RATIO).getAsDouble();
 						System.out.println("ResizeAndMoveSlide fromJson");
-						return new ResizeAndMoveSlide(meetingId, xOffset, yOffset, widthRatio, heightRatio);
+						return new ResizeAndMoveSlideMessage(meetingId, xOffset, yOffset, widthRatio, heightRatio);
 					}
 				} 
 			}

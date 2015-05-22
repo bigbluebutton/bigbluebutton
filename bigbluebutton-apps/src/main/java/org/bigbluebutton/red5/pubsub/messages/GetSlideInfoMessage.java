@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetSlideInfo implements IMessage {
+public class GetSlideInfoMessage implements IMessage {
 	public static final String GET_SLIDE_INFO = "get_slide_info";
 	public static final String VERSION = "0.0.1";
 
@@ -13,7 +13,7 @@ public class GetSlideInfo implements IMessage {
 	public final String requesterId;
 	public final String replyTo;
 
-	public GetSlideInfo(String meetingId, String requesterId, String replyTo){
+	public GetSlideInfoMessage(String meetingId, String requesterId, String replyTo){
 		this.meetingId = meetingId;
 		this.requesterId = requesterId;
 		this.replyTo = replyTo;
@@ -30,7 +30,7 @@ public class GetSlideInfo implements IMessage {
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static GetSlideInfo fromJson(String message) {
+	public static GetSlideInfoMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -49,7 +49,7 @@ public class GetSlideInfo implements IMessage {
 						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 
 						System.out.println("GetSlideInfo fromJson");
-						return new GetSlideInfo(meetingId, requesterId, replyTo);
+						return new GetSlideInfoMessage(meetingId, requesterId, replyTo);
 					}
 				}
 			}

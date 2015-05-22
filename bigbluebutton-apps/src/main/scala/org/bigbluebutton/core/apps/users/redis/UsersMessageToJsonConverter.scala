@@ -101,7 +101,7 @@ object UsersMessageToJsonConverter {
     payload.put("disablePubChat", msg.permissions.disablePubChat)
     payload.put("lockedLayout", msg.permissions.lockedLayout)
     payload.put("lockOnJoin", msg.permissions.lockOnJoin)
-    payload.put("lockOnJoinConfigurable", msg.permissions.lockOnJoin)
+    payload.put("lockOnJoinConfigurable", msg.permissions.lockOnJoinConfigurable)
     
     val users = new java.util.ArrayList[java.util.Map[String, Any]]
     msg.applyTo.foreach(uvo => {    

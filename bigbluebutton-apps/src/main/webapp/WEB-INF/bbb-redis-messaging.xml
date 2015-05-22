@@ -53,7 +53,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               <ref bean="pollMessageHandler" />
               <ref bean="participantsListener" />
               <ref bean="voiceMessageListener" />
-              <ref bean="whiteboardListener" />            
+              <ref bean="whiteboardListener" />
+              <ref bean="lockMessageListener" />
           </set>
       </property>
     </bean>

@@ -5,29 +5,29 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class RemovePresentation implements IMessage {
-	public static final String REMOVE_PRESENTATION = "remove_presentation";
+public class GoToSlideMessage implements IMessage {
+	public static final String GO_TO_SLIDE = "go_to_slide";
 	public static final String VERSION = "0.0.1";
 
 	public final String meetingId;
-	public final String presentationId;
+	public final String page;
 
-	public RemovePresentation(String meetingId, String presentationId){
+	public GoToSlideMessage(String meetingId, String page){
 		this.meetingId = meetingId;
-		this.presentationId = presentationId;
+		this.page = page;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
-		payload.put(Constants.PRESENTATION_ID, presentationId);
+		payload.put(Constants.PAGE, page);
 
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(REMOVE_PRESENTATION, VERSION, null);
-		System.out.println("RemovePresentation toJson");
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GO_TO_SLIDE, VERSION, null);
+		System.out.println("GoToSlide toJson");
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static RemovePresentation fromJson(String message) {
+	public static GoToSlideMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -37,14 +37,14 @@ public class RemovePresentation implements IMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (REMOVE_PRESENTATION.equals(messageName)) {
+				if (GO_TO_SLIDE.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID)
-							&& payload.has(Constants.PRESENTATION_ID)) {
+							&& payload.has(Constants.PAGE)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
-						String presentationId = payload.get(Constants.PRESENTATION_ID).getAsString();
+						String page = payload.get(Constants.PAGE).getAsString();
 
-						System.out.println("RemovePresentation fromJson");
-						return new RemovePresentation(meetingId, presentationId);
+						System.out.println("GoToSlide fromJson");
+						return new GoToSlideMessage(meetingId, page);
 					}
 				}
 			}

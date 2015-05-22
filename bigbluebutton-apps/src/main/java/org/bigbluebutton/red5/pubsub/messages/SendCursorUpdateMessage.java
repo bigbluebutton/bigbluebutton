@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SendCursorUpdate implements IMessage {
+public class SendCursorUpdateMessage implements IMessage {
 	public static final String SEND_CURSOR_UPDATE = "send_cursor_update";
 	public static final String VERSION = "0.0.1";
 
@@ -13,7 +13,7 @@ public class SendCursorUpdate implements IMessage {
 	public final double xPercent;
 	public final double yPercent;
 
-	public SendCursorUpdate(String meetingId, double xPercent, double yPercent){
+	public SendCursorUpdateMessage(String meetingId, double xPercent, double yPercent){
 		this.meetingId = meetingId;
 		this.xPercent = xPercent;
 		this.yPercent = yPercent;
@@ -26,11 +26,11 @@ public class SendCursorUpdate implements IMessage {
 		payload.put(Constants.Y_PERCENT, yPercent);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_CURSOR_UPDATE, VERSION, null);
-		System.out.println("SendCursorUpdate toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static SendCursorUpdate fromJson(String message) {
+	public static SendCursorUpdateMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -48,8 +48,7 @@ public class SendCursorUpdate implements IMessage {
 						double xPercent = payload.get(Constants.X_PERCENT).getAsDouble();
 						double yPercent = payload.get(Constants.Y_PERCENT).getAsDouble();
 
-						System.out.println("SendCursorUpdate fromJson");
-						return new SendCursorUpdate(meetingId, xPercent, yPercent);
+						return new SendCursorUpdateMessage(meetingId, xPercent, yPercent);
 					}
 				}
 			}
