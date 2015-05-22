@@ -210,6 +210,7 @@ case class UserJoined(
 case class UserRaisedHand(
     meetingID: String, 
     recorded: Boolean, 
+    raisedHand: Boolean,
     userID: String,
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
@@ -217,6 +218,7 @@ case class UserRaisedHand(
 case class UserLoweredHand(
     meetingID: String, 
     recorded: Boolean, 
+    raisedHand: Boolean,
     userID: String, 
     loweredBy: String,
   version:String = Versions.V_0_0_1

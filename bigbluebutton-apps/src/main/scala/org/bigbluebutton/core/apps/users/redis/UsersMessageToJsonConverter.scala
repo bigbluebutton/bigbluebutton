@@ -147,7 +147,7 @@ object UsersMessageToJsonConverter {
   def userRaisedHandToJson(msg: UserRaisedHand):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.recorded) 
+    payload.put(Constants.RAISE_HAND, msg.raisedHand) 
     payload.put(Constants.USER_ID, msg.userID)
 
     val header = Util.buildHeader(MessageNames.USER_RAISED_HAND, msg.version, None)
@@ -157,7 +157,7 @@ object UsersMessageToJsonConverter {
   def userLoweredHandToJson(msg: UserLoweredHand):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.recorded) 
+    payload.put(Constants.RAISE_HAND, msg.raisedHand) 
     payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.LOWERED_BY, msg.loweredBy)
 
@@ -325,6 +325,18 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
   
+  def validateAuthTokenTimeoutToJson(msg: ValidateAuthTokenTimedOut):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.REPLY_TO, msg.correlationId)
+    payload.put(Constants.VALID, msg.valid.toString)
+    payload.put(Constants.AUTH_TOKEN, msg.token)
+    payload.put(Constants.USER_ID, msg.requesterId)
+    payload.put(Constants.MEETING_ID, msg.meetingID)  
+    
+    val header = Util.buildHeader(MessageNames.VALIDATE_AUTH_TOKEN_TIMEOUT, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+    
 	def userJoinedToJson(msg: UserJoined):String = {
 	  val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)

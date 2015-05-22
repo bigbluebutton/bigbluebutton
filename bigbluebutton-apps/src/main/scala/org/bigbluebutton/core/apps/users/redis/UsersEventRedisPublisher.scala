@@ -23,6 +23,7 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
         case msg: EndAndKickAll                 => handleEndAndKickAll(msg)
         case msg: GetUsersReply                 => handleGetUsersReply(msg)
         case msg: ValidateAuthTokenReply        => handleValidateAuthTokenReply(msg)
+        case msg: ValidateAuthTokenTimedOut     => handleValidateAuthTokenTimedOut(msg)
         case msg: UserJoined                    => handleUserJoined(msg)
         case msg: UserRaisedHand                => handleUserRaisedHand(msg)
         case msg: UserLoweredHand               => handleUserLoweredHand(msg)
@@ -168,6 +169,12 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)  		
   }
   
+  private def handleValidateAuthTokenTimedOut(msg: ValidateAuthTokenTimedOut) {
+    val json = UsersMessageToJsonConverter.validateAuthTokenTimeoutToJson(msg)
+    println("************** Publishing [" + json + "] *******************")
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)      
+  }
+      
 	private def handleUserJoined(msg: UserJoined) {
     val json = UsersMessageToJsonConverter.userJoinedToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)	

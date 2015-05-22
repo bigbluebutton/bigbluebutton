@@ -212,7 +212,7 @@ trait UsersApp {
     users.getUser(msg.userId) foreach {user =>
       val uvo = user.copy(raiseHand=true)
       users.addUser(uvo)
-      outGW.send(new UserRaisedHand(meetingID, recorded, uvo.userID))
+      outGW.send(new UserRaisedHand(meetingID, recorded, uvo.raiseHand, uvo.userID))
     }
   }
 
@@ -220,7 +220,7 @@ trait UsersApp {
     users.getUser(msg.userId) foreach {user =>
       val uvo = user.copy(raiseHand=false)
       users.addUser(uvo)
-      outGW.send(new UserLoweredHand(meetingID, recorded, uvo.userID, msg.loweredBy))
+      outGW.send(new UserLoweredHand(meetingID, recorded, uvo.raiseHand, uvo.userID, msg.loweredBy))
     }    
   }
   

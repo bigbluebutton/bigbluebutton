@@ -18,8 +18,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case msg: UserRaisedHand                         => handleUserRaisedHand(msg)
-	    case msg: UserLoweredHand                        => handleUserLoweredHand(msg)
 	    case msg: UserSharedWebcam                       => handleUserSharedWebcam(msg)
 	    case msg: UserUnsharedWebcam                     => handleUserUnshareWebcam(msg)	                
 	    case msg: GetUsersReply                          => handleGetUsersReply(msg)
@@ -29,7 +27,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: UserLeftVoice                          => handleUserLeftVoice(msg)
 	    case msg: RecordingStatusChanged                 => handleRecordingStatusChanged(msg)
 	    case msg: GetRecordingStatusReply                => handleGetRecordingStatusReply(msg)
-	    case msg: ValidateAuthTokenTimedOut              => handleValidateAuthTokenTimedOut(msg)
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
       case msg: UserLocked                             => handleUserLocked(msg)
@@ -120,24 +117,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
      val m = new BroadcastClientMessage(msg.meetingID, "userLocked", message);
      service.sendMessage(m);   
   }
-  
-
-    private def handleValidateAuthTokenTimedOut(msg: ValidateAuthTokenTimedOut) {
-      val args = new java.util.HashMap[String, Object]();  
-      args.put("userId", msg.requesterId);
-      args.put("valid", msg.valid:java.lang.Boolean);       
-      
-      val message = new java.util.HashMap[String, Object]() 
-      val gson = new Gson();
-      message.put("msg", gson.toJson(args))
-      
-      println("UsersClientMessageSender - handleValidateAuthTokenTimedOut \n" + message.get("msg") + "\n")
-      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenTimedOut", message);
-      service.sendMessage(m);       
-    }
-    
-	
-	
+  	
 	private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
 	  val args = new java.util.HashMap[String, Object]();  
 	  args.put("userId", msg.userId);
@@ -277,36 +257,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  service.sendMessage(m);	  
 	}
 	
-	
-    def handleUserRaisedHand(msg: UserRaisedHand) {
-	  	var args = new HashMap[String, Object]()	
-		args.put("userId", msg.userID)
-		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
-  	    
-		println("UsersClientMessageSender - handleUserRaisedHand \n" + message.get("msg") + "\n")
-		
-		var m = new BroadcastClientMessage(msg.meetingID, "userRaisedHand", message);
-		service.sendMessage(m);      
-    }
-
-    def handleUserLoweredHand(msg: UserLoweredHand) {
-	  	var args = new HashMap[String, Object]();	
-		args.put("userId", msg.userID)
-		args.put("loweredBy", msg.loweredBy)
-		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
-  	    
-		println("UsersClientMessageSender - handleUserLoweredHand \n" + message.get("msg") + "\n")
-		
-		var m = new BroadcastClientMessage(msg.meetingID, "userLoweredHand", message);
-		service.sendMessage(m);      
-    }
-
 	def handleUserSharedWebcam(msg: UserSharedWebcam) {
 	  	var args = new HashMap[String, Object]()	
 		args.put("userId", msg.userID)

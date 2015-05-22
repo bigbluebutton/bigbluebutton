@@ -16,8 +16,11 @@ import org.bigbluebutton.red5.pubsub.messages.PresenterAssignedMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserJoinedMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserLeftMessage;
 import org.bigbluebutton.red5.pubsub.messages.DisconnectUserMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserLoweredHandMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserRaisedHandMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserStatusChangedMessage;
 import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenReplyMessage;
+import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenTimeoutMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -110,6 +113,12 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 						  processValidateAuthTokenReply(m);
 					  }
 					  break;
+				  case ValidateAuthTokenTimeoutMessage.VALIDATE_AUTH_TOKEN_TIMEOUT:
+					  ValidateAuthTokenTimeoutMessage vattm = ValidateAuthTokenTimeoutMessage.fromJson(message);
+					  if (vattm != null) {
+						  processValidateAuthTokenTimeoutMessage(vattm);
+					  }
+					  break;
 				  case UserLeftMessage.USER_LEFT:
 					  UserLeftMessage ulm = UserLeftMessage.fromJson(message);
 					  if (ulm != null) {
@@ -134,7 +143,18 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 						  processUserStatusChangedMessage(usm);
 					  }
 					  break;
-
+				  case UserRaisedHandMessage.USER_RAISED_HAND:
+					  UserRaisedHandMessage urhm = UserRaisedHandMessage.fromJson(message);
+					  if (urhm != null) {
+						  processUserRaisedHandMessage(urhm);
+					  }
+					  break;
+				  case UserLoweredHandMessage.USER_LOWERED_HAND:
+					  UserLoweredHandMessage ulhm = UserLoweredHandMessage.fromJson(message);
+					  if (ulhm != null) {
+						  processUserLoweredHandMessage(ulhm);
+					  }
+					  break;
 				}
 			}
 		}		
@@ -199,6 +219,19 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		  service.sendMessage(m);	 
 	}
 	
+	private void processValidateAuthTokenTimeoutMessage(ValidateAuthTokenTimeoutMessage msg) {	    
+		  Map<String, Object> args = new HashMap<String, Object>();  
+		  args.put("userId", msg.userId);
+		  args.put("valid", msg.valid);	    
+		  
+		  Map<String, Object> message = new HashMap<String, Object>();
+		  Gson gson = new Gson();
+	  	  message.put("msg", gson.toJson(args));
+	  	  
+	  	  System.out.println("RedisPubSubMessageHandler - processValidateAuthTokenTimeoutMessage \n" + message.get("msg") + "\n");
+	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenTimedOut", message);
+		  service.sendMessage(m);	 
+	}
 	
 	private void processUserLeftMessage(UserLeftMessage msg) {
 		  Map<String, Object> args = new HashMap<String, Object>();	
@@ -235,7 +268,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	  	service.sendMessage(m);
 	}
 
-	
 	private void processPresenterAssignedMessage(PresenterAssignedMessage msg) {	  	
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("newPresenterID", msg.newPresenterId);
@@ -249,6 +281,35 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	  	System.out.println("RedisPubSubMessageHandler - processPresenterAssignedMessage \n" + message.get("msg") + "\n");
 		
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "assignPresenterCallback", message);
+		service.sendMessage(m);	
+	}
+	
+	private void processUserRaisedHandMessage(UserRaisedHandMessage msg) {	  			
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserRaisedHandMessage \n" + message.get("msg") + "\n");
+		
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userRaisedHand", message);
+		service.sendMessage(m);	
+	}
+	
+	private void processUserLoweredHandMessage(UserLoweredHandMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("loweredBy", msg.loweredBy);
+			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserLoweredHandMessage \n" + message.get("msg") + "\n");
+		
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLoweredHand", message);
 		service.sendMessage(m);	
 	}
 
