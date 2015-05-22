@@ -139,7 +139,6 @@ public class PresentationMessageListener implements MessageHandler {
 
     						bbbInGW.removePresentation(msg.meetingId, msg.presentationId);
     					} else if (SendCursorUpdate.SEND_CURSOR_UPDATE.equals(messageName)) {
-    						System.out.println("in messageHandler - sendCursorUpdate");
     						SendCursorUpdate msg = SendCursorUpdate.fromJson(message);
 
     						bbbInGW.sendCursorUpdate(msg.meetingId, msg.xPercent, msg.yPercent);

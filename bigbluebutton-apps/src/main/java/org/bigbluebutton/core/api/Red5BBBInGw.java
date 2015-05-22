@@ -18,6 +18,9 @@ import org.bigbluebutton.conference.service.messaging.SharePresentation;
 import org.bigbluebutton.conference.service.messaging.SendPrivateChatMessage;
 import org.bigbluebutton.conference.service.messaging.SendPublicChatMessage;
 import org.bigbluebutton.conference.service.messaging.GetChatHistory;
+import org.bigbluebutton.conference.service.messaging.GetLockSettings;
+import org.bigbluebutton.conference.service.messaging.LockUser;
+import org.bigbluebutton.conference.service.messaging.SendLockSettings;
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
 
 import com.google.gson.Gson;
@@ -93,21 +96,27 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendLockSettings(String meetingID, String userId,
 			Map<String, Boolean> settings) {
-		// TODO Auto-generated method stub
+		SendLockSettings msg = new SendLockSettings(meetingID, userId, settings);
 
+		System.out.println("~~~sendLockSettings in Red5BBBInGw");
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void getLockSettings(String meetingId, String userId) {
-		// TODO Auto-generated method stub
+		GetLockSettings msg = new GetLockSettings(meetingId, userId);
 
+		System.out.println("~~~GetLockSettings in Red5BBBInGw");
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void lockUser(String meetingId, String requesterID, boolean lock,
 			String internalUserID) {
-		// TODO Auto-generated method stub
+		LockUser msg = new LockUser(meetingId, requesterID, lock, internalUserID);
 
+		System.out.println("~~~LockUser in Red5BBBInGw");
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	@Override
@@ -335,7 +344,7 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 			double yPercent) {
 		SendCursorUpdate msg = new SendCursorUpdate(meetingID,
 				xPercent, yPercent);
-		System.out.println("~~SendCursorUpdate in Red5BBBInGw");
+
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 

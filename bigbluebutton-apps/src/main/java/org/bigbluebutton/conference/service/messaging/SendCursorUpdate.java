@@ -26,7 +26,7 @@ public class SendCursorUpdate implements IMessage {
 		payload.put(Constants.Y_PERCENT, yPercent);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_CURSOR_UPDATE, VERSION, null);
-		System.out.println("SendCursorUpdate toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -48,7 +48,6 @@ public class SendCursorUpdate implements IMessage {
 						double xPercent = payload.get(Constants.X_PERCENT).getAsDouble();
 						double yPercent = payload.get(Constants.Y_PERCENT).getAsDouble();
 
-						System.out.println("SendCursorUpdate fromJson");
 						return new SendCursorUpdate(meetingId, xPercent, yPercent);
 					}
 				}

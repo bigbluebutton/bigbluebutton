@@ -27,20 +27,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 
-	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
+	<bean id="lock.service" class="org.bigbluebutton.conference.service.lock.LockService">
 		<property name="red5BBBInGW"><ref bean="red5BbbInGW"/></property>
 	</bean>
 
-	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">
-		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
-	</bean>
-
-	<bean id="conversionUpdatesProcessor" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor">
-		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
-	</bean>
-
-	<bean id="presentationMessageListener" class="org.bigbluebutton.conference.service.presentation.PresentationMessageListener">
-		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
+	<bean id="lockMessageListener" class="org.bigbluebutton.conference.service.lock.LockMessageListener">
 		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 </beans>
