@@ -5,7 +5,7 @@ import org.bigbluebutton.core.api._
 import scala.collection.immutable.HashMap
 import com.google.gson.Gson
 import scala.collection.JavaConverters._
-import org.bigbluebutton.conference.service.messaging.MessagingConstants
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants
 
 class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 

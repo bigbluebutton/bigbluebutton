@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.poll.redis
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import com.google.gson.Gson
-import org.bigbluebutton.conference.service.messaging.MessagingConstants
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.poll.PollVO
 

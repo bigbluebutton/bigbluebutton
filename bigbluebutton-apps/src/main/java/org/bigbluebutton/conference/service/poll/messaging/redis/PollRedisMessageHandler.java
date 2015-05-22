@@ -1,12 +1,14 @@
 package org.bigbluebutton.conference.service.poll.messaging.redis;
 
 
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 

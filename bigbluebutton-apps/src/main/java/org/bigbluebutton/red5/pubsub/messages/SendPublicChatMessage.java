@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,15 +8,15 @@ import org.bigbluebutton.conference.service.chat.ChatKeyUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SendPrivateChatMessage implements IMessage {
-	public static final String SEND_PRIVATE_CHAT_MESSAGE = "send_private_chat_message";
+public class SendPublicChatMessage implements IMessage {
+	public static final String SEND_PUBLIC_CHAT_MESSAGE = "send_public_chat_message";
 	public static final String VERSION = "0.0.1";
 
 	public final String meetingId;
 	public final String requesterId;
 	public final Map<String, String> messageInfo;
 
-	public SendPrivateChatMessage(String meetingId, String requesterId,
+	public SendPublicChatMessage(String meetingId, String requesterId,
 			Map<String, String> message) {
 		this.meetingId = meetingId;
 		this.requesterId = requesterId;
@@ -41,13 +41,13 @@ public class SendPrivateChatMessage implements IMessage {
 		payload.put(Constants.MESSAGE, message);
 		payload.put(Constants.MEETING_ID, meetingId);
 
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_PRIVATE_CHAT_MESSAGE, VERSION, null);
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_PUBLIC_CHAT_MESSAGE, VERSION, null);
 
-		System.out.println("SendPrivateChatMessage toJson");
+		System.out.println("sendPublicChatMessage toJson");
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static SendPrivateChatMessage fromJson(String message) {
+	public static SendPublicChatMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 		
@@ -57,7 +57,7 @@ public class SendPrivateChatMessage implements IMessage {
 			
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (SEND_PRIVATE_CHAT_MESSAGE.equals(messageName)) {
+				if (SEND_PUBLIC_CHAT_MESSAGE.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.MESSAGE)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
@@ -85,8 +85,8 @@ public class SendPrivateChatMessage implements IMessage {
 							messageInfo.put(ChatKeyUtil.FROM_USERNAME, msgObj.get(ChatKeyUtil.FROM_USERNAME).getAsString());
 
 							String requesterId = messageInfo.get(ChatKeyUtil.FROM_USERID);
-							System.out.println("SendPrivateChatMessage fromJson");
-							return new SendPrivateChatMessage(meetingId, requesterId, messageInfo);
+							System.out.println("sendPublicChatMessage fromJson");
+							return new SendPublicChatMessage(meetingId, requesterId, messageInfo);
 						}
 					}
 				} 

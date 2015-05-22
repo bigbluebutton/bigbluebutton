@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 import java.util.HashMap;
 

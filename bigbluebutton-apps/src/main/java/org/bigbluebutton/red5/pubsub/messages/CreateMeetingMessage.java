@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 public class CreateMeetingMessage implements IMessage {
 	public static final String CREATE_MEETING_REQUEST_EVENT  = "create_meeting_request";

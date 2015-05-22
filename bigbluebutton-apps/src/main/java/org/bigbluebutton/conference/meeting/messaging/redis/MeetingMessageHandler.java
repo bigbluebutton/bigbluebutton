@@ -2,22 +2,24 @@ package org.bigbluebutton.conference.meeting.messaging.redis;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.bigbluebutton.conference.service.messaging.CreateMeetingMessage;
-import org.bigbluebutton.conference.service.messaging.DestroyMeetingMessage;
-import org.bigbluebutton.conference.service.messaging.EndMeetingMessage;
-import org.bigbluebutton.conference.service.messaging.IMessage;
-import org.bigbluebutton.conference.service.messaging.KeepAliveMessage;
-import org.bigbluebutton.conference.service.messaging.MessageFromJsonConverter;
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
-import org.bigbluebutton.conference.service.messaging.RegisterUserMessage;
-import org.bigbluebutton.conference.service.messaging.UserConnectedToGlobalAudio;
-import org.bigbluebutton.conference.service.messaging.UserDisconnectedFromGlobalAudio;
-import org.bigbluebutton.conference.service.messaging.ValidateAuthTokenMessage;
-import org.bigbluebutton.conference.service.messaging.GetAllMeetingsRequest;
+
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.pubsub.messages.CreateMeetingMessage;
+import org.bigbluebutton.red5.pubsub.messages.DestroyMeetingMessage;
+import org.bigbluebutton.red5.pubsub.messages.EndMeetingMessage;
+import org.bigbluebutton.red5.pubsub.messages.GetAllMeetingsRequest;
+import org.bigbluebutton.red5.pubsub.messages.IMessage;
+import org.bigbluebutton.red5.pubsub.messages.KeepAliveMessage;
+import org.bigbluebutton.red5.pubsub.messages.MessageFromJsonConverter;
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+import org.bigbluebutton.red5.pubsub.messages.RegisterUserMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserConnectedToGlobalAudio;
+import org.bigbluebutton.red5.pubsub.messages.UserDisconnectedFromGlobalAudio;
+import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenMessage;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+
 import com.google.gson.Gson;
 
 

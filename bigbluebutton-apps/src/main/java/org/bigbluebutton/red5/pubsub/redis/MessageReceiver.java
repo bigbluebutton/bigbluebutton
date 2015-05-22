@@ -2,9 +2,11 @@ package org.bigbluebutton.red5.pubsub.redis;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;

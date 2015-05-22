@@ -375,12 +375,12 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  val gson = new Gson();
   	message.put("msg", gson.toJson(args))
 
-  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
+    println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
 			
   	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
   	service.sendMessage(jmr);
   	  
-  println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
+    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
   	    
   	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
   	service.sendMessage(m);

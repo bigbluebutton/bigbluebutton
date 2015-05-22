@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 public class KeepAliveMessage implements IMessage {
 	public static final String KEEP_ALIVE_REQUEST                 = "keep_alive_request";

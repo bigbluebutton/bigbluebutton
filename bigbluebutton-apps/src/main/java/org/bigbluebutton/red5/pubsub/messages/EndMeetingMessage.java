@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 public class EndMeetingMessage implements IMessage {
 	public static final String END_MEETING_REQUEST_EVENT  = "end_meeting_request_event";

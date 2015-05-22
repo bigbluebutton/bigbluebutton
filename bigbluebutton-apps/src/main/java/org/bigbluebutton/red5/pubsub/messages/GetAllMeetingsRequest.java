@@ -1,4 +1,4 @@
-package org.bigbluebutton.conference.service.messaging;
+package org.bigbluebutton.red5.pubsub.messages;
 
 public class GetAllMeetingsRequest implements IMessage {
 	public static final String GET_ALL_MEETINGS_REQUEST_EVENT  = "get_all_meetings_request";

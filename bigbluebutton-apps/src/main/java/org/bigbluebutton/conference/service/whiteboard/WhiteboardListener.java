@@ -2,10 +2,10 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
-
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 

@@ -3,23 +3,23 @@ package org.bigbluebutton.conference.service.presentation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bigbluebutton.conference.service.messaging.GetPresentationInfo;
-import org.bigbluebutton.conference.service.messaging.GetSlideInfo;
-import org.bigbluebutton.conference.service.messaging.GoToSlide;
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
-import org.bigbluebutton.conference.service.messaging.RemovePresentation;
-import org.bigbluebutton.conference.service.messaging.ResizeAndMoveSlide;
-import org.bigbluebutton.conference.service.messaging.SendConversionCompleted;
-import org.bigbluebutton.conference.service.messaging.SendConversionUpdate;
-import org.bigbluebutton.conference.service.messaging.SendCursorUpdate;
-import org.bigbluebutton.conference.service.messaging.SendPageCountError;
-import org.bigbluebutton.conference.service.messaging.SharePresentation;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.pubsub.messages.GetPresentationInfo;
+import org.bigbluebutton.red5.pubsub.messages.GetSlideInfo;
+import org.bigbluebutton.red5.pubsub.messages.GoToSlide;
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+import org.bigbluebutton.red5.pubsub.messages.RemovePresentation;
+import org.bigbluebutton.red5.pubsub.messages.ResizeAndMoveSlide;
+import org.bigbluebutton.red5.pubsub.messages.SendConversionCompleted;
+import org.bigbluebutton.red5.pubsub.messages.SendConversionUpdate;
+import org.bigbluebutton.red5.pubsub.messages.SendCursorUpdate;
+import org.bigbluebutton.red5.pubsub.messages.SendPageCountError;
+import org.bigbluebutton.red5.pubsub.messages.SharePresentation;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;

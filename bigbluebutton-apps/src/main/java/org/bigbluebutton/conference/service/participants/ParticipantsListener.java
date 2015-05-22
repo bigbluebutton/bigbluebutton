@@ -3,11 +3,11 @@ package org.bigbluebutton.conference.service.participants;
 
 
 import org.bigbluebutton.conference.BigBlueButtonApplication;
-import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 //import org.bigbluebutton.core.api.*;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 

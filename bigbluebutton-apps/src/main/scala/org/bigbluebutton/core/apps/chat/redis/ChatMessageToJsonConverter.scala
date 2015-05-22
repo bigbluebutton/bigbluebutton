@@ -8,7 +8,7 @@ import scala.collection.mutable.HashMap
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
 import java.util.ArrayList
-import org.bigbluebutton.conference.service.messaging.MessagingConstants
+import org.bigbluebutton.red5.pubsub.messages.MessagingConstants
 import org.bigbluebutton.core.messaging.Util
 
 object ChatMessageToJsonConverter {
