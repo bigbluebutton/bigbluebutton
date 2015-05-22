@@ -203,7 +203,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
 	</bean>
 
-	<bean id="redisPubSubMessageHandler" class="org.bigbluebutton.conference.service.messaging.redis.RedisPubSubMessageHandler">
+	<bean id="redisPubSubMessageHandler" class="org.bigbluebutton.red5.pubsub.redis.RedisPubSubMessageHandler">
 		<property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 
