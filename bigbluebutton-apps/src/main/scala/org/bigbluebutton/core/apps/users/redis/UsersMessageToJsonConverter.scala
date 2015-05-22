@@ -50,6 +50,22 @@ object UsersMessageToJsonConverter {
 	  mapAsJavaMap(wuser)
 	}
 
+  def meetingHasEnded(msg: MeetingHasEnded):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+
+    val header = Util.buildHeader(MessageNames.MEETING_HAS_ENDED, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+    
+  def meetingEnded(msg: MeetingEnded):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+
+    val header = Util.buildHeader(MessageNames.MEETING_ENDED, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+    
   def disconnectAllUsersToJson(msg: DisconnectAllUsers):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)

@@ -18,14 +18,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	def handleMessage(msg: IOutMessage) {
 	  msg match {
-	    case msg: MeetingEnded                           => handleMeetingEnded(msg)
-	    case msg: DisconnectAllUsers                     => handleDisconnectAllUsers(msg)
-	    case msg: MeetingHasEnded                        => handleMeetingHasEnded(msg)
-	    case msg: DisconnectUser                         => handleDisconnectUser(msg)
-	    case msg: PresenterAssigned                      => handleAssignPresenter(msg)
-	    case msg: UserJoined                             => handleUserJoined(msg)
-	    case msg: UserLeft                               => handleUserLeft(msg)
-	    case msg: UserStatusChange                       => handleUserStatusChange(msg)
 	    case msg: UserRaisedHand                         => handleUserRaisedHand(msg)
 	    case msg: UserLoweredHand                        => handleUserLoweredHand(msg)
 	    case msg: UserSharedWebcam                       => handleUserSharedWebcam(msg)
@@ -38,8 +30,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: RecordingStatusChanged                 => handleRecordingStatusChanged(msg)
 	    case msg: GetRecordingStatusReply                => handleGetRecordingStatusReply(msg)
 	    case msg: ValidateAuthTokenTimedOut              => handleValidateAuthTokenTimedOut(msg)
-	    case msg: ValidateAuthTokenReply                 => handleValidateAuthTokenReply(msg)
-	    case msg: UserRegistered                         => handleRegisteredUser(msg)
 	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
       case msg: UserLocked                             => handleUserLocked(msg)
@@ -131,17 +121,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
      service.sendMessage(m);   
   }
   
-	private def handleRegisteredUser(msg: UserRegistered) {
-	  val args = new java.util.HashMap[String, Object]();  
-	  args.put("userId", msg.user.id);
 
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-  	  
- 	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
-	}
-	
     private def handleValidateAuthTokenTimedOut(msg: ValidateAuthTokenTimedOut) {
       val args = new java.util.HashMap[String, Object]();  
       args.put("userId", msg.requesterId);
@@ -157,20 +137,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
     }
     
 	
-	
-	private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
-	  val args = new java.util.HashMap[String, Object]();  
-	  args.put("userId", msg.requesterId);
-	  args.put("valid", msg.valid:java.lang.Boolean);	    
-	  
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-  	  
-//  	println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-//  	val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
-//	  service.sendMessage(m);	    
-	}
 	
 	private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
 	  val args = new java.util.HashMap[String, Object]();  
@@ -285,27 +251,7 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	  service.sendMessage(m)
 	}
 
-	private def handleMeetingHasEnded(msg: MeetingHasEnded):Unit = {
-	  var args = new HashMap[String, Object]();	
-	  args.put("status", "Meeting has already ended.");
-		
-	  var message = new HashMap[String, Object]();
-	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
-	  
-	  println("UsersClientMessageSender - handleMeetingHasEnded \n" + message.get("msg") + "\n")
-	  
-	  var m = new DirectClientMessage(msg.meetingID, msg.userId, "meetingHasEnded", message)
-	  service.sendMessage(m);
-	}
-	
-	private def handleDisconnectUser(msg: DisconnectUser) {
-	  println("UsersClientMessageSender - handleDisconnectUser mid=[" + msg.meetingID + "], uid=[" + msg.userId + "]\n")
-	  
-	  var m = new DisconnectClientMessage(msg.meetingID, msg.userId)
-	  service.sendMessage(m);	  
-	}
-	
+
 	private def handleMeetingState(msg: MeetingState) {
 	  var args = new HashMap[String, Object]();	
 	  args.put("permissions", buildPermissionsHashMap(msg.permissions));
@@ -332,76 +278,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	}
 	
 	
-	private def handleMeetingEnded(msg: MeetingEnded):Unit = {
-	  var args = new HashMap[String, Object]();	
-	  args.put("status", "Meeting has been ended.");
-		
-	  var message = new HashMap[String, Object]();
-	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
-  	    
-	  println("UsersClientMessageSender - handleMeetingEnded \n" + msg.meetingID + "\n")
-	  
-	  var m = new BroadcastClientMessage(msg.meetingID, "meetingEnded", message);
-	  service.sendMessage(m);
-	}
-	
-	private def handleDisconnectAllUsers(msg: DisconnectAllUsers) {
-	  var dm = new DisconnectAllClientsMessage(msg.meetingID)
-	  service.sendMessage(dm)	  
-	}
-
-	private def handleAssignPresenter(msg:PresenterAssigned):Unit = {
-	  var args = new HashMap[String, Object]();	
-	  args.put("newPresenterID", msg.presenter.presenterID);
-	  args.put("newPresenterName", msg.presenter.presenterName);
-	  args.put("assignedBy", msg.presenter.assignedBy);
-		
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-		
-//  	  println("UsersClientMessageSender - handleAssignPresenter \n" + message.get("msg") + "\n")
-  	    
-//	  var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
-//	  service.sendMessage(m);		
-	}
-	
-	private def handleUserJoined(msg: UserJoined):Unit = {
-	  var args = new HashMap[String, Object]();	
-	  args.put("user", buildUserHashMap(msg.user));
-		
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-
-    println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
-			
-  	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
-  	service.sendMessage(jmr);
-  	  
-//    println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
-//  	    
- // 	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
-//  	service.sendMessage(m);
-	}
-
-	
-	
-	private def handleUserLeft(msg: UserLeft):Unit = {
-	  var args = new HashMap[String, Object]();	
-	  args.put("user", buildUserHashMap(msg.user));
-		
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
-  	    
-//		println("UsersClientMessageSender - handleUserLeft \n" + message.get("msg") + "\n")
-//		
-//  	  var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
-//  	  service.sendMessage(m);
-	}
-
     def handleUserRaisedHand(msg: UserRaisedHand) {
 	  	var args = new HashMap[String, Object]()	
 		args.put("userId", msg.userID)
@@ -461,21 +337,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 		service.sendMessage(m);	  
 	}
 	                
-	private def handleUserStatusChange(msg: UserStatusChange):Unit = {
-	  var args = new HashMap[String, Object]();	
-		args.put("userID", msg.userID);
-		args.put("status", msg.status);
-		args.put("value", msg.value);
-		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
-  	    
-  	    println("UsersClientMessageSender - handleUserStatusChange \n" + message.get("msg") + "\n")
-  	    
-		var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
-//		service.sendMessage(m);
-	}
 	
 	private def handleUserListeningOnly(msg: UserListeningOnly) {
 	  var args = new HashMap[String, Object]();	

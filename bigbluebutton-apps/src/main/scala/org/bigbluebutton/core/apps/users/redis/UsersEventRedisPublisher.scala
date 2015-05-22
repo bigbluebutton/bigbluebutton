@@ -9,7 +9,8 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 
   def handleMessage(msg: IOutMessage) {
 	  msg match {
-
+        case msg: MeetingEnded                  => handleMeetingEnded(msg)
+        case msg: MeetingHasEnded               => handleMeetingHasEnded(msg)
         case msg: DisconnectAllUsers            => handleDisconnectAllUsers(msg)
         case msg: DisconnectUser                => handleDisconnectUser(msg)
         case msg: PermissionsSettingInitialized => handlePermissionsSettingInitialized(msg)
@@ -40,15 +41,26 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 	  }
 	}
 
+  private def handleMeetingHasEnded(msg: MeetingHasEnded):Unit = {
+    val json = UsersMessageToJsonConverter.meetingHasEnded(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+    
+  private def handleMeetingEnded(msg: MeetingEnded):Unit = {
+    val json = UsersMessageToJsonConverter.meetingEnded(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+    
   private def handleDisconnectAllUsers(msg: DisconnectAllUsers) {
     val json = UsersMessageToJsonConverter.disconnectAllUsersToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 
-  private def handleDisconnectUser(msg: DisconnectUser) {
+    private def handleDisconnectUser(msg: DisconnectUser) {
     val json = UsersMessageToJsonConverter.disconnectUserToJson(msg)
-    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)  
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json) 
   }
+    
 
   private def handlePermissionsSettingInitialized(msg: PermissionsSettingInitialized) {
     val json = UsersMessageToJsonConverter.permissionsSettingInitializedToJson(msg)
