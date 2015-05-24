@@ -37,9 +37,10 @@ package org.bigbluebutton.modules.layout.model {
 		private var _layoutsPerRole:Dictionary = new Dictionary();
 		
 		static private var _ignoredWindows:Array = new Array("AvatarWindow", "PublishWindow", 
-				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow",
+				"VideoWindow", "DesktopPublishWindow",
 				"LogWindow", "NetworkStatsWindow");
 		static private var _roles:Array = new Array(Role.VIEWER, Role.MODERATOR, Role.PRESENTER);
+		private static const LOG:String = "Layout::LayoutDefinition - ";
 				
 		private function loadLayout(vxml:XML):void {
 			if (vxml.@name != undefined) {
@@ -89,8 +90,7 @@ package org.bigbluebutton.modules.layout.model {
 			} else if (hasPresenterLayout) {
 				return _layoutsPerRole[Role.PRESENTER];
 			} else {
-				LogUtil.error("There's no layout that fits the participants profile");
-        trace("LayoutDefinition::getMyLayout There's no layout that fits the participants profile");
+				trace(LOG + "getMyLayout There's no layout that fits the participants profile");
 				return null;
 			}
 		}
@@ -175,22 +175,40 @@ package org.bigbluebutton.modules.layout.model {
 			}
 		}
 		
-		public function applyToCanvas(canvas:MDICanvas):void {
-			if (canvas == null)
+		public function applyToCanvas(canvas:MDICanvas, onLayoutAppliedCallback:Function):void {
+			trace(LOG + "applyToCanvas");
+			if (canvas == null) {
+				trace(LOG + "applyToCanvas canvas is null, returning");
+				onLayoutAppliedCallback();
 				return;
+			}
 
 			adjustWindowsOrder(canvas);
 			
-			var windows:Array = canvas.windowManager.windowList;
-			// LogUtil.traceObject(myLayout);
+			var windows:Array = canvas.windowManager.windowList.filter(function(item:*, index:int, array:Array):Boolean {
+				return !ignoreWindow(item as MDIWindow);
+			});
+
+			if (windows.length == 0) {
+				trace(LOG + "applyToCanvas no windows to apply layout, returning");
+				onLayoutAppliedCallback();
+				return;
+			}
+			
 			var transformedLayout:Dictionary = generateWindowsTransformations(myLayout, windows, canvas.width, canvas.height);
 			
 			var type:String;
+			var count:int = windows.length;
 			for each (var window:MDIWindow in windows) {
-					type = WindowLayout.getType(window);
+				type = WindowLayout.getType(window);
 	
-				if (!ignoreWindowByType(type))
-					WindowLayout.setLayout(canvas, window, transformedLayout[type]);
+				WindowLayout.setLayout(canvas, window, transformedLayout[type], function():void {
+					count--;
+					trace(LOG + "count = " + count + " of " + windows.length);
+					if (count == 0) {
+						onLayoutAppliedCallback();
+					}
+				});
 			}
 		}
 		
@@ -325,16 +343,6 @@ package org.bigbluebutton.modules.layout.model {
 			}
 			
 			return copiedLayout;
-		}
-		
-		private function apply(canvas:MDICanvas, window:MDIWindow, type:String=null):void {
-			if (type == null) {
-				type = WindowLayout.getType(window);
-			}
-
-			if (!ignoreWindowByType(type)) {
-				WindowLayout.setLayout(canvas, window, myLayout[type]);
-			}
 		}
 		
 		static private function ignoreWindowByType(type:String):Boolean {
