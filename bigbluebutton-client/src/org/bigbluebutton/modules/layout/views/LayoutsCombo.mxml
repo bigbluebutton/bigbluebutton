@@ -134,7 +134,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (idx == -1) {
 					prompt = e.layoutID;
 				} else {
-					prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.prompt');
+					prompt = dataProvider[idx].label;
 				}
 				invalidateDisplayList();
 				
