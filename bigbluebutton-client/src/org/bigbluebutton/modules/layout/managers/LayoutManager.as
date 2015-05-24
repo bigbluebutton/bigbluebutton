@@ -136,13 +136,14 @@ package org.bigbluebutton.modules.layout.managers
 		}
 
 		public function addCurrentLayoutToList():void {
-				_currentLayout.name += " " + (++_customLayoutsCount);
-				_layoutModel.addLayout(_currentLayout);
-				updateCurrentLayout(_currentLayout);
+				var newLayout:LayoutDefinition = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
+				newLayout.name += " " + (++_customLayoutsCount);
+				_layoutModel.addLayout(newLayout);
+				updateCurrentLayout(newLayout);
 				broadcastLayouts();
 
 				var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
-				redefineLayout.layout = _currentLayout;
+				redefineLayout.layout = newLayout;
 				// this is to force LayoutCombo to update the current label
 				redefineLayout.remote = true;
 				_globalDispatcher.dispatchEvent(redefineLayout);
