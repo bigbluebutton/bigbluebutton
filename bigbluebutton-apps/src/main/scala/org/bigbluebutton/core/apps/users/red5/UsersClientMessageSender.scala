@@ -18,13 +18,37 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	
 	def handleMessage(msg: IOutMessage) {
 	  msg match {             
-	    case msg: GetUsersReply                          => handleGetUsersReply(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
-	    
+	    case msg: GetUsersReply                          => handleGetUsersReply(msg)
+
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
 	
+  private def handleGetUsersReply(msg: GetUsersReply):Unit = {
+      var args = new HashMap[String, Object]();
+      args.put("count", msg.users.length:java.lang.Integer)
+
+      var users = new ArrayList[java.util.HashMap[String, Object]];
+      msg.users.foreach(uvo => {
+        users.add(buildUserHashMap(uvo))
+      })
+
+      args.put("users", users);
+
+      val message = new java.util.HashMap[String, Object]()
+      val gson = new Gson()
+         message.put("msg", gson.toJson(args))
+
+      System.out.println("*************************************************************************************\n");
+      println("UsersClientMessageSender - handleGetUsersReply \n" + message.get("msg") + "\n")
+      System.out.println("*************************************************************************************\n");
+      
+//      var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message)
+//         service.sendMessage(m)
+ }
+
+  
 	private def buildPermissionsHashMap(perms: Permissions):java.util.HashMap[String, java.lang.Boolean] = {
 	  val args = new java.util.HashMap[String, java.lang.Boolean]();  
 	  args.put("disableCam", perms.disableCam:java.lang.Boolean);
@@ -90,27 +114,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	  println("UsersClientMessageSender - handleNewPermissionsSetting \n" + message.get("msg") + "\n")
       val m = new BroadcastClientMessage(msg.meetingID, "permissionsSettingsChanged", message);
 	  service.sendMessage(m);	    
-	}
-
-	private def handleGetUsersReply(msg: GetUsersReply):Unit = {
-      var args = new HashMap[String, Object]();			
-      args.put("count", msg.users.length:java.lang.Integer)
-		
-      var users = new ArrayList[java.util.HashMap[String, Object]];
-      msg.users.foreach(uvo => {		
-        users.add(buildUserHashMap(uvo))
-      })
-		
-      args.put("users", users);
-		
-      val message = new java.util.HashMap[String, Object]() 
-      val gson = new Gson()
-  	  message.put("msg", gson.toJson(args))
-		
-      println("UsersClientMessageSender - handleGetUsersReply \n" + message.get("msg") + "\n")
-			
-      var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message)
-  	  service.sendMessage(m)
 	}
 	                
 }

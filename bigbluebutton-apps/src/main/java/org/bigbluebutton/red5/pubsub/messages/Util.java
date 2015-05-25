@@ -1,8 +1,13 @@
 package org.bigbluebutton.red5.pubsub.messages;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class Util {
@@ -109,4 +114,29 @@ public class Util {
 			
 	}
 
+	public ArrayList<Map<String, Object>> extractUsers(JsonArray users) {
+		ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+/*
+		for (Iterator<JsonElement> usersIter = users.iterator(); usersIter.hasNext();) {
+			JsonElement user = usersIter.next();
+			Map<String, Object> userMap = extractUser((JsonObject)user);
+			if (userMap != null) {
+				collection.add(userMap);
+			}
+			return collection;
+		}
+*/
+		
+	    Iterator<JsonElement> usersIter = users.iterator();
+	    while (usersIter.hasNext()){
+			JsonElement user = usersIter.next();
+			Map<String, Object> userMap = extractUser((JsonObject)user);
+			if (userMap != null) {
+				collection.add(userMap);
+			}
+	    }
+		
+		return collection;
+			
+	}
 }

@@ -10,6 +10,7 @@ import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectAllClientsM
 import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessage;
 import org.bigbluebutton.red5.pubsub.messages.DisconnectAllUsersMessage;
 import org.bigbluebutton.red5.pubsub.messages.GetRecordingStatusReplyMessage;
+import org.bigbluebutton.red5.pubsub.messages.GetUsersReplyMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingEndedMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingHasEndedMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingMutedMessage;
@@ -237,6 +238,12 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 					  GetRecordingStatusReplyMessage grsrm = GetRecordingStatusReplyMessage.fromJson(message);
 					  if (grsrm != null) {
 						  processGetRecordingStatusReplyMessage(grsrm);
+					  }
+					  break;
+				  case GetUsersReplyMessage.GET_USERS_REPLY:
+					  GetUsersReplyMessage gurm = GetUsersReplyMessage.fromJson(message);
+					  if (gurm != null) {
+						  processGetUsersReplyMessage(gurm);
 					  }
 					  break;
 				}
@@ -607,4 +614,20 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		service.sendMessage(m);
 	}
 	
+	private void processGetUsersReplyMessage(GetUsersReplyMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("count", msg.users.size());
+		args.put("users", msg.users);
+		
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	
+		System.out.println("*************************************************************************************\n");
+	  	System.out.println("RedisPubSubMessageHandler - processGetUsersReplyMessage \n" + message.get("msg") + "\n");
+	  	System.out.println("*************************************************************************************\n");
+		  	    
+	  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "getUsersReply", message);
+		service.sendMessage(m);
+	}	
 }
