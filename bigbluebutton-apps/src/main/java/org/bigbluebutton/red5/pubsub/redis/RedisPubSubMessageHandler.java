@@ -11,6 +11,8 @@ import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessa
 import org.bigbluebutton.red5.pubsub.messages.DisconnectAllUsersMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingEndedMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingHasEndedMessage;
+import org.bigbluebutton.red5.pubsub.messages.MeetingMutedMessage;
+import org.bigbluebutton.red5.pubsub.messages.MeetingStateMessage;
 import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
 import org.bigbluebutton.red5.pubsub.messages.PresenterAssignedMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserJoinedMessage;
@@ -97,6 +99,18 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 					  MeetingHasEndedMessage mhem = MeetingHasEndedMessage.fromJson(message);
 					  if (mhem != null) {
 						  processMeetingHasEndedMessage(mhem);
+					  }
+					  break;
+				  case MeetingStateMessage.MEETING_STATE:
+					  MeetingStateMessage msm = MeetingStateMessage.fromJson(message);
+					  if (msm != null) {
+						  processMeetingStateMessage(msm);
+					  }
+					  break;
+				  case MeetingMutedMessage.MEETING_MUTED:
+					  MeetingMutedMessage mmm = MeetingMutedMessage.fromJson(message);
+					  if (mmm != null) {
+						  processMeetingMutedMessage(mmm);
 					  }
 					  break;
 				}
@@ -225,6 +239,35 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingHasEnded", message);
 	  	service.sendMessage(m); 
+	}
+	
+	private void processMeetingStateMessage(MeetingStateMessage msg) {	  	  
+		Map<String, Object> args = new HashMap<String, Object>();  
+		args.put("permissions", msg.permissions);
+		args.put("meetingMuted", msg.muted);
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	  
+		System.out.println("RedisPubSubMessageHandler - processMeetingStateMessage \n" + message.get("msg") + "\n");
+
+		DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "meetingState", message);
+	  	service.sendMessage(m);   
+	}
+	
+	private void processMeetingMutedMessage(MeetingMutedMessage msg) {	  	  
+		Map<String, Object> args = new HashMap<String, Object>();  
+		args.put("meetingMuted", msg.muted);
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	  
+		System.out.println("RedisPubSubMessageHandler - processMeetingMutedMessage \n" + message.get("msg") + "\n");
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingMuted", message);
+	  	service.sendMessage(m);    
 	}
 	
 	private void processMeetingEndedMessage(MeetingEndedMessage msg) {

@@ -50,6 +50,38 @@ object UsersMessageToJsonConverter {
 	  mapAsJavaMap(wuser)
 	}
 
+  private def buildPermissionsHashMap(perms: Permissions):java.util.HashMap[String, java.lang.Boolean] = {
+    val args = new java.util.HashMap[String, java.lang.Boolean]();  
+    args.put("disableCam", perms.disableCam:java.lang.Boolean);
+    args.put("disableMic", perms.disableMic:java.lang.Boolean);
+    args.put("disablePrivChat", perms.disablePrivChat:java.lang.Boolean);
+    args.put("disablePubChat", perms.disablePubChat:java.lang.Boolean);
+    args.put("lockedLayout", perms.lockedLayout:java.lang.Boolean);
+    args.put("lockOnJoin", perms.lockOnJoin:java.lang.Boolean);
+    args.put("lockOnJoinConfigurable", perms.lockOnJoinConfigurable:java.lang.Boolean);
+    args
+  }
+    
+  def meetingState(msg: MeetingState):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.PERMISSIONS, buildPermissionsHashMap(msg.permissions))
+    payload.put(Constants.MEETING_MUTED, msg.meetingMuted:java.lang.Boolean);
+    payload.put(Constants.USER_ID, msg.userId);
+    
+    val header = Util.buildHeader(MessageNames.MEETING_STATE, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+    
+  def meetingMuted(msg: MeetingMuted):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.MEETING_MUTED, msg.meetingMuted:java.lang.Boolean);
+    
+    val header = Util.buildHeader(MessageNames.MEETING_MUTED, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+    
   def meetingHasEnded(msg: MeetingHasEnded):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)

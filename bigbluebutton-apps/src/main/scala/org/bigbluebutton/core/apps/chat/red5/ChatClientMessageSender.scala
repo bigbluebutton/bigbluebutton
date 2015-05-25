@@ -42,7 +42,7 @@ class ChatClientMessageSender(service: ConnectionInvokerService) extends OutMess
   
   private def handleSendPublicMessageEvent(msg: SendPublicMessageEvent) { 
     val gson = new Gson()
-	val jsonMsg = gson.toJson(mapAsJavaMap(msg.message))
+	  val jsonMsg = gson.toJson(mapAsJavaMap(msg.message))
 //	System.out.println("************ PUBLIC CHAT MESSAGE = \n" + jsonMsg + "\n")
 	  
 	val m = new BroadcastClientMessage(msg.meetingID, "ChatReceivePublicMessageCommand", mapAsJavaMap(msg.message));

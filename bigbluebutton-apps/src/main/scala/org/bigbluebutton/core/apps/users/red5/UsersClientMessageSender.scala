@@ -23,8 +23,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	    case msg: GetRecordingStatusReply                => handleGetRecordingStatusReply(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
       case msg: UserLocked                             => handleUserLocked(msg)
-	    case msg: MeetingMuted                           => handleMeetingMuted(msg)
-	    case msg: MeetingState                           => handleMeetingState(msg)
 	    
 	    case _ => // println("Unhandled message in UsersClientMessageSender")
 	  }
@@ -159,32 +157,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 			
       var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message)
   	  service.sendMessage(m)
-	}
-
-
-	private def handleMeetingState(msg: MeetingState) {
-	  var args = new HashMap[String, Object]();	
-	  args.put("permissions", buildPermissionsHashMap(msg.permissions));
-		args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
-		
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-
-  	var jmr = new DirectClientMessage(msg.meetingID, msg.userId, "meetingState", message);
-  	service.sendMessage(jmr);	  
-	}
-	
-	private def handleMeetingMuted(msg: MeetingMuted) {
-	  var args = new HashMap[String, Object]();	
-	  args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
-		
-	  var message = new HashMap[String, Object]();
-	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-  	    
-	  var m = new BroadcastClientMessage(msg.meetingID, "meetingMuted", message);
-	  service.sendMessage(m);	  
 	}
 	                
 }

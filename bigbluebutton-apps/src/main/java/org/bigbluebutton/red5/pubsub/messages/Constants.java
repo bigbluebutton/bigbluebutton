@@ -10,6 +10,7 @@ public class Constants {
   public static final String USER_ID                         = "userid";
   public static final String RECORDED                        = "recorded";
   public static final String MEETING_NAME                    = "meeting_name";
+  public static final String MEETING_MUTED                   = "meetingMuted";
   public static final String VOICE_CONF                      = "voice_conf";
   public static final String DURATION                        = "duration";
   public static final String AUTH_TOKEN                      = "auth_token";
@@ -107,4 +108,13 @@ public class Constants {
   public static final String DISABLE_PUBLIC_CHAT             = "disable_public_chat";
   public static final String LOCK_ON_JOIN                    = "lock_on_join";
   public static final String LOCKED_LAYOUT                   = "locked_layout";
+  public static final String PERM_DISABLE_CAM                = "disableCam";
+  public static final String PERM_DISABLE_MIC                = "disableMic";
+  public static final String PERM_DISABLE_PRIVCHAT           = "disablePrivChat";
+  public static final String PERM_DISABLE_PUBCHAT            = "disablePubChat";
+  public static final String PERM_LOCKED_LAYOUT              = "lockedLayout";
+  public static final String PERM_LOCK_ON_JOIN               = "lockOnJoin";
+  public static final String PERM_LOCK_ON_JOIN_CONFIG        = "lockOnJoinConfigurable";
 }
+
+

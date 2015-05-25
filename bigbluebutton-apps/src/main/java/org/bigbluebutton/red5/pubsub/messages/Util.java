@@ -6,7 +6,34 @@ import java.util.Map;
 import com.google.gson.JsonObject;
 
 public class Util {
-
+	public Map<String, Boolean> extractPermission(JsonObject vu) {
+		if (vu.has(Constants.PERM_DISABLE_CAM) && vu.has(Constants.PERM_DISABLE_MIC)
+				&& vu.has(Constants.PERM_DISABLE_PRIVCHAT) && vu.has(Constants.PERM_DISABLE_PUBCHAT)
+				&& vu.has(Constants.PERM_LOCKED_LAYOUT) && vu.has(Constants.PERM_LOCK_ON_JOIN)
+				&& vu.has(Constants.PERM_LOCK_ON_JOIN_CONFIG)){
+				
+			Map<String, Boolean> vuMap = new HashMap<String, Boolean>();
+			Boolean disableCam = vu.get(Constants.PERM_DISABLE_CAM).getAsBoolean();
+			Boolean disableMic = vu.get(Constants.PERM_DISABLE_MIC).getAsBoolean();
+			Boolean disablePrivChat = vu.get(Constants.PERM_DISABLE_PRIVCHAT).getAsBoolean();
+			Boolean disablePubChat = vu.get(Constants.PERM_DISABLE_PUBCHAT).getAsBoolean();
+			Boolean lockedLayout = vu.get(Constants.PERM_LOCKED_LAYOUT).getAsBoolean();
+			Boolean lockOnJoin = vu.get(Constants.PERM_LOCK_ON_JOIN).getAsBoolean();
+			Boolean lockOnJoinConfig = vu.get(Constants.PERM_LOCK_ON_JOIN_CONFIG).getAsBoolean();
+			
+			vuMap.put(Constants.PERM_DISABLE_CAM, disableCam);
+			vuMap.put(Constants.PERM_DISABLE_MIC, disableMic);
+			vuMap.put(Constants.PERM_DISABLE_PRIVCHAT, disablePrivChat);
+			vuMap.put(Constants.PERM_DISABLE_PUBCHAT, disablePubChat);
+			vuMap.put(Constants.PERM_LOCKED_LAYOUT, lockedLayout);
+			vuMap.put(Constants.PERM_LOCK_ON_JOIN, lockOnJoin);
+			vuMap.put(Constants.PERM_LOCK_ON_JOIN_CONFIG, lockOnJoinConfig);
+			
+			return vuMap;
+		}
+		return null;
+	}
+	
 	public Map<String, Object> extractVoiceUser(JsonObject vu) {
 		if (vu.has(Constants.TALKING) && vu.has(Constants.LOCKED)
 				&& vu.has(Constants.MUTED) && vu.has(Constants.JOINED)

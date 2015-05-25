@@ -90,6 +90,8 @@ object MessageNames {
   val GET_RECORDING_STATUS_REPLY           = "get_recording_status_reply"    
   val MEETING_ENDED                        = "meeting_ended_message"
   val MEETING_HAS_ENDED                    = "meeting_has_ended_message"
+  val MEETING_STATE                        = "meeting_state_message"
+  val MEETING_MUTED                        = "meeting_muted_message"
   val MEETING_DESTROYED                    = "meeting_destroyed_message"    
   val DISCONNECT_ALL_USERS                 = "disconnect_all_users_message"
   val DISCONNECT_USER                      = "disconnect_user_message"
