@@ -91,9 +91,9 @@ Handlebars.registerHelper "isCurrentUserMuted", ->
 
 #Retreives a username for a private chat tab from the database if it exists
 Handlebars.registerHelper "privateChatName", ->
-  testing = Meteor.Users.findOne({ userId: getInSession "inChatWith" })
-  if testing?
-    testing?.user?.name
+  obj = Meteor.Users.findOne({ userId: getInSession "inChatWith" })
+  if obj?
+    obj?.user?.name
 
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
   BBB.isCurrentUserRaisingHand()
