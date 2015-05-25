@@ -17,12 +17,15 @@ import org.bigbluebutton.red5.pubsub.messages.UserJoinedMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserJoinedVoiceMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserLeftMessage;
 import org.bigbluebutton.red5.pubsub.messages.DisconnectUserMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserLeftVoiceMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserListeningOnlyMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserLoweredHandMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserRaisedHandMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserSharedWebcamMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserStatusChangedMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserUnsharedWebcamMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserVoiceMutedMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserVoiceTalkingMessage;
 import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenReplyMessage;
 import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenTimeoutMessage;
 
@@ -153,6 +156,12 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 						  processUserRaisedHandMessage(urhm);
 					  }
 					  break;
+				  case UserListeningOnlyMessage.USER_LISTENING_ONLY:
+					  UserListeningOnlyMessage ulom = UserListeningOnlyMessage.fromJson(message);
+					  if (ulom != null) {
+						  processUserListeningOnlyMessage(ulom);
+					  }
+					  break;
 				  case UserLoweredHandMessage.USER_LOWERED_HAND:
 					  UserLoweredHandMessage ulhm = UserLoweredHandMessage.fromJson(message);
 					  if (ulhm != null) {
@@ -177,10 +186,22 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 						  processUserJoinedVoiceMessage(ujvm);
 					  }
 					  break;
+				  case UserLeftVoiceMessage.USER_LEFT_VOICE:
+					  UserLeftVoiceMessage ulvm = UserLeftVoiceMessage.fromJson(message);
+					  if (ulvm != null) {
+						  processUserLeftVoiceMessage(ulvm);
+					  }
+					  break;
 				  case UserVoiceMutedMessage.USER_VOICE_MUTED:
 					  UserVoiceMutedMessage uvmm = UserVoiceMutedMessage.fromJson(message);
 					  if (uvmm != null) {
 						  processUserVoiceMutedMessage(uvmm);
+					  }
+					  break;
+				  case UserVoiceTalkingMessage.USER_VOICE_TALKING:
+					  UserVoiceTalkingMessage uvtm = UserVoiceTalkingMessage.fromJson(message);
+					  if (uvtm != null) {
+						  processUserVoiceTalkingMessage(uvtm);
 					  }
 					  break;
 				}
@@ -326,6 +347,21 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		service.sendMessage(m);	
 	}
 	
+	private void processUserListeningOnlyMessage(UserListeningOnlyMessage msg) {	  			
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		 args.put("listenOnly", msg.listenOnly);
+		 
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserListeningOnlyMessage \n" + message.get("msg") + "\n");
+		
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "user_listening_only", message);
+		service.sendMessage(m);	
+	}	
+	
 	private void processUserLoweredHandMessage(UserLoweredHandMessage msg) {	  	
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("userId", msg.userId);
@@ -404,6 +440,21 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		service.sendMessage(m);	
 	}
 	
+	private void processUserLeftVoiceMessage(UserLeftVoiceMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("meetingID", msg.meetingId);
+		args.put("user", msg.user);
+			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserLeftVoiceMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLeftVoice", message);
+		service.sendMessage(m);	
+	}
+	
 	private void processUserVoiceMutedMessage(UserVoiceMutedMessage msg) {	  	
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("meetingID", msg.meetingId);
@@ -424,4 +475,25 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserMuted", message);
 		service.sendMessage(m);		
 	}
+
+	private void processUserVoiceTalkingMessage(UserVoiceTalkingMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("meetingID", msg.meetingId);
+		args.put("userId", msg.user.get("userId"));
+		
+		Map<String, Object> vuMap = (Map<String, Object>) msg.user.get("voiceUser");
+		
+		
+		args.put("voiceUserId", (String) vuMap.get("userId"));
+		args.put("talking", (Boolean) vuMap.get("talking"));
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserVoiceTalkingMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserTalking", message);
+		service.sendMessage(m);		
+	}	
 }

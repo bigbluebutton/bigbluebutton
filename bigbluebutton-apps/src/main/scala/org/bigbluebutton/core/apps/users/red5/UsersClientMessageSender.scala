@@ -19,11 +19,8 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	def handleMessage(msg: IOutMessage) {
 	  msg match {             
 	    case msg: GetUsersReply                          => handleGetUsersReply(msg)
-	    case msg: UserVoiceTalking                       => handleUserVoiceTalking(msg)
-	    case msg: UserLeftVoice                          => handleUserLeftVoice(msg)
 	    case msg: RecordingStatusChanged                 => handleRecordingStatusChanged(msg)
 	    case msg: GetRecordingStatusReply                => handleGetRecordingStatusReply(msg)
-	    case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
 	    case msg: NewPermissionsSetting                  => handleNewPermissionsSetting(msg)
       case msg: UserLocked                             => handleUserLocked(msg)
 	    case msg: MeetingMuted                           => handleMeetingMuted(msg)
@@ -143,39 +140,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	}
 	
 	
-	private def handleUserVoiceTalking(msg: UserVoiceTalking) {
-	  val args = new java.util.HashMap[String, Object]();
-	  args.put("meetingID", msg.meetingID);	  
-	  args.put("userId", msg.user.userID);
-	  args.put("voiceUserId", msg.user.voiceUser.userId);
-	  args.put("talking", msg.user.voiceUser.talking:java.lang.Boolean);
-	  
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	  message.put("msg", gson.toJson(args))
-  	
- 	  println("UsersClientMessageSender - handleUserVoiceTalking \n" + message.get("msg") + "\n")
-//  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
-      val m = new BroadcastClientMessage(msg.meetingID, "voiceUserTalking", message);
-	  service.sendMessage(m);	  
-	}
-	
-	private def handleUserLeftVoice(msg: UserLeftVoice) {
-	  val args = new java.util.HashMap[String, Object]();
-	  args.put("meetingID", msg.meetingID);
-	  args.put("user", buildUserHashMap(msg.user))
-	
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
-  	message.put("msg", gson.toJson(args))
-  	
-  	  println("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
-//  	log.debug("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
-      val m = new BroadcastClientMessage(msg.meetingID, "userLeftVoice", message);
-	  service.sendMessage(m);	  
-	}
-	
-	
 	private def handleGetUsersReply(msg: GetUsersReply):Unit = {
       var args = new HashMap[String, Object]();			
       args.put("count", msg.users.length:java.lang.Integer)
@@ -223,19 +187,4 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
 	  service.sendMessage(m);	  
 	}
 	                
-	
-	private def handleUserListeningOnly(msg: UserListeningOnly) {
-	  var args = new HashMap[String, Object]();	
-	  args.put("userId", msg.userID);
-	  args.put("listenOnly", msg.listenOnly:java.lang.Boolean);
-	
-	  val message = new java.util.HashMap[String, Object]() 
-	  val gson = new Gson();
- 	  message.put("msg", gson.toJson(args))
-  	    
-    println("UsersClientMessageSender - handleUserListeningOnly \n" + message.get("msg") + "\n")
-  	    
- 	  var m = new BroadcastClientMessage(msg.meetingID, "user_listening_only", message);
- 	  service.sendMessage(m);	  
-	}
 }
