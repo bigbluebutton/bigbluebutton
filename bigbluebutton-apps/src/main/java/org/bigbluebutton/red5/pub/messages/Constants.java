@@ -109,6 +109,14 @@ public class Constants {
   public static final String DISABLE_PUBLIC_CHAT             = "disable_public_chat";
   public static final String LOCK_ON_JOIN                    = "lock_on_join";
   public static final String LOCKED_LAYOUT                   = "locked_layout";
+  public static final String CHAT_TYPE                       = "chat_type";
+  public static final String TO_USERNAME                     = "to_username";
+  public static final String FROM_USERNAME                   = "from_username";
+  public static final String FROM_USERID                     = "from_userid";
+  public static final String FROM_TZ_OFFSET                  = "from_tz_offset";
+  public static final String FROM_COLOR                      = "from_color";
+  public static final String TO_USERID                       = "to_userid";
+  public static final String FROM_TIME                       = "from_time";
   public static final String PERM_DISABLE_CAM                = "disableCam";
   public static final String PERM_DISABLE_MIC                = "disableMic";
   public static final String PERM_DISABLE_PRIVCHAT           = "disablePrivChat";

@@ -470,7 +470,7 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void getChatHistory(String meetingID, String requesterID,
 			String replyTo) {
 		System.out.println("~~getChatHistory in Red5BBBInGw");
-		GetChatHistory msg = new GetChatHistory(meetingID, requesterID, replyTo);
+		GetChatHistoryRequestMessage msg = new GetChatHistoryRequestMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 

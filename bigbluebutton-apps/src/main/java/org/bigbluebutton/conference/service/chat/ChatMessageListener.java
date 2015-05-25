@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.pub.messages.GetChatHistory;
+import org.bigbluebutton.red5.pub.messages.GetChatHistoryRequestMessage;
 import org.bigbluebutton.red5.pub.messages.MessagingConstants;
 import org.bigbluebutton.red5.pub.messages.SendPrivateChatMessage;
 import org.bigbluebutton.red5.pub.messages.SendPublicChatMessage;
@@ -30,8 +30,8 @@ public class ChatMessageListener implements MessageHandler{
 
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
-					if (GetChatHistory.GET_CHAT_HISTORY_REQUEST.equals(messageName)) {
-						GetChatHistory msg = GetChatHistory.fromJson(message);
+					if (GetChatHistoryRequestMessage.GET_CHAT_HISTORY_REQUEST.equals(messageName)) {
+						GetChatHistoryRequestMessage msg = GetChatHistoryRequestMessage.fromJson(message);
 						bbbGW.getChatHistory(msg.meetingId, msg.requesterId, msg.replyTo);
 					} else if (SendPublicChatMessage.SEND_PUBLIC_CHAT_MESSAGE.equals(messageName)){
 						SendPublicChatMessage msg = SendPublicChatMessage.fromJson(message);
