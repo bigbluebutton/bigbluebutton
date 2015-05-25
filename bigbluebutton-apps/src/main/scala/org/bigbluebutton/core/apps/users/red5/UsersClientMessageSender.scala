@@ -17,9 +17,7 @@ import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessa
 class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMessageListener2 {
 	
 	def handleMessage(msg: IOutMessage) {
-	  msg match {
-	    case msg: UserSharedWebcam                       => handleUserSharedWebcam(msg)
-	    case msg: UserUnsharedWebcam                     => handleUserUnshareWebcam(msg)	                
+	  msg match {             
 	    case msg: GetUsersReply                          => handleGetUsersReply(msg)
 	    case msg: UserJoinedVoice                        => handleUserJoinedVoice(msg)
 	    case msg: UserVoiceMuted                         => handleUserVoiceMuted(msg)
@@ -255,36 +253,6 @@ class UsersClientMessageSender(service: ConnectionInvokerService) extends OutMes
   	    
 	  var m = new BroadcastClientMessage(msg.meetingID, "meetingMuted", message);
 	  service.sendMessage(m);	  
-	}
-	
-	def handleUserSharedWebcam(msg: UserSharedWebcam) {
-	  	var args = new HashMap[String, Object]()	
-		args.put("userId", msg.userID)
-		args.put("webcamStream", msg.stream)
-		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
-  	    
-		println("UsersClientMessageSender - handleUserSharedWebcam \n" + message.get("msg") + "\n")
-		
-		var m = new BroadcastClientMessage(msg.meetingID, "userSharedWebcam", message);
-		service.sendMessage(m);	  
-	}
-
-	def handleUserUnshareWebcam(msg: UserUnsharedWebcam) {
-	  	var args = new HashMap[String, Object]()	
-		args.put("userId", msg.userID)
-		args.put("webcamStream", msg.stream)
-		
-	    val message = new java.util.HashMap[String, Object]() 
-	    val gson = new Gson();
-  	    message.put("msg", gson.toJson(args))
-  	    
-		println("UsersClientMessageSender - handleUserUnshareWebcam \n" + message.get("msg") + "\n")
-		
-		var m = new BroadcastClientMessage(msg.meetingID, "userUnsharedWebcam", message);
-		service.sendMessage(m);	  
 	}
 	                
 	

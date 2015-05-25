@@ -18,7 +18,9 @@ import org.bigbluebutton.red5.pubsub.messages.UserLeftMessage;
 import org.bigbluebutton.red5.pubsub.messages.DisconnectUserMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserLoweredHandMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserRaisedHandMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserSharedWebcamMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserStatusChangedMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserUnsharedWebcamMessage;
 import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenReplyMessage;
 import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenTimeoutMessage;
 
@@ -153,6 +155,18 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 					  UserLoweredHandMessage ulhm = UserLoweredHandMessage.fromJson(message);
 					  if (ulhm != null) {
 						  processUserLoweredHandMessage(ulhm);
+					  }
+					  break;
+				  case UserSharedWebcamMessage.USER_SHARED_WEBCAM:
+					  UserSharedWebcamMessage uswm = UserSharedWebcamMessage.fromJson(message);
+					  if (uswm != null) {
+						  processUserSharedWebcamMessage(uswm);
+					  }
+					  break;
+				  case UserUnsharedWebcamMessage.USER_UNSHARED_WEBCAM:
+					  UserUnsharedWebcamMessage uuwm = UserUnsharedWebcamMessage.fromJson(message);
+					  if (uuwm != null) {
+						  processUserUnsharedWebcamMessage(uuwm);
 					  }
 					  break;
 				}
@@ -330,4 +344,34 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		service.sendMessage(m);
 	}
 
+	private void processUserSharedWebcamMessage(UserSharedWebcamMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("webcamStream", msg.stream);
+			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserSharedWebcamMessage \n" + message.get("msg") + "\n");
+		
+	  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userSharedWebcam", message);
+		service.sendMessage(m);
+	}
+	
+	private void processUserUnsharedWebcamMessage(UserUnsharedWebcamMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("webcamStream", msg.stream);
+			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserUnharedWebcamMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userUnsharedWebcam", message);
+		service.sendMessage(m);
+	}
 }
