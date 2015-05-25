@@ -9,6 +9,8 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
 
   def handleMessage(msg: IOutMessage) {
 	  msg match {
+        case msg: RecordingStatusChanged                 => handleRecordingStatusChanged(msg)
+        case msg: GetRecordingStatusReply                => handleGetRecordingStatusReply(msg)
         case msg: MeetingMuted                           => handleMeetingMuted(msg)
         case msg: MeetingState                           => handleMeetingState(msg)
         case msg: MeetingEnded                           => handleMeetingEnded(msg)

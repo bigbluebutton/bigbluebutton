@@ -9,12 +9,15 @@ import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectAllClientsMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessage;
 import org.bigbluebutton.red5.pubsub.messages.DisconnectAllUsersMessage;
+import org.bigbluebutton.red5.pubsub.messages.GetRecordingStatusReplyMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingEndedMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingHasEndedMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingMutedMessage;
 import org.bigbluebutton.red5.pubsub.messages.MeetingStateMessage;
 import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
 import org.bigbluebutton.red5.pubsub.messages.PresenterAssignedMessage;
+import org.bigbluebutton.red5.pubsub.messages.RecordingStatusChangedMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserLockedMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserJoinedMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserJoinedVoiceMessage;
 import org.bigbluebutton.red5.pubsub.messages.UserLeftMessage;
@@ -111,6 +114,12 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 					  MeetingMutedMessage mmm = MeetingMutedMessage.fromJson(message);
 					  if (mmm != null) {
 						  processMeetingMutedMessage(mmm);
+					  }
+					  break;
+				  case UserLockedMessage.USER_LOCKED:
+					  UserLockedMessage ulm = UserLockedMessage.fromJson(message);
+					  if (ulm != null) {
+						  processUserLockedMessage(ulm);
 					  }
 					  break;
 				}
@@ -216,6 +225,18 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 					  UserVoiceTalkingMessage uvtm = UserVoiceTalkingMessage.fromJson(message);
 					  if (uvtm != null) {
 						  processUserVoiceTalkingMessage(uvtm);
+					  }
+					  break;
+				  case RecordingStatusChangedMessage.RECORDING_STATUS_CHANGED:
+					  RecordingStatusChangedMessage rscm = RecordingStatusChangedMessage.fromJson(message);
+					  if (rscm != null) {
+						  processRecordingStatusChangedMessage(rscm);
+					  }
+					  break;
+				  case GetRecordingStatusReplyMessage.Get_RECORDING_STATUS_REPLY:
+					  GetRecordingStatusReplyMessage grsrm = GetRecordingStatusReplyMessage.fromJson(message);
+					  if (grsrm != null) {
+						  processGetRecordingStatusReplyMessage(grsrm);
 					  }
 					  break;
 				}
@@ -539,4 +560,51 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserTalking", message);
 		service.sendMessage(m);		
 	}	
+	
+	private void processRecordingStatusChangedMessage(RecordingStatusChangedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("recording", msg.recording);
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processRecordingStatusChangedMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "recordingStatusChanged", message);
+		service.sendMessage(m);		
+	}	
+	
+	private void processGetRecordingStatusReplyMessage(GetRecordingStatusReplyMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("recording", msg.recording);
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processGetRecordingStatusReplyMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "getRecordingStatusReply", message);
+		service.sendMessage(m);		
+	}
+	
+	private void processUserLockedMessage(UserLockedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+	     args.put("meetingID", msg.meetingId);
+	     args.put("user", msg.userId);
+	     args.put("lock", msg.locked);
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserLockedMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLocked", message);
+		service.sendMessage(m);
+	}
+	
 }
