@@ -114,3 +114,34 @@
   top: 50%;
   transform: translateY(-50%);
 }
+
+#controllers {
+  width: 100%;
+  height: 40px;
+}
+
+#switchSlideSection {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 105px;
+  height: 100%;
+}
+
+.switchSlideButton {
+  width: 50px;
+  height: 100%;
+  margin-bottom: 0;
+  color: extract(@black, 1);
+  background-color: extract(@white, 1);
+  border: 1px solid extract(@lightGrey, 3);
+  border-radius: 10px;
+  &:hover {
+    background-color: extract(@lightGrey, 3);
+    color: extract(@black, 1);
+  }
+  &:focus {
+    background-color: extract(@white, 1);
+    color: extract(@black, 1);
+  }
+}

@@ -7,5 +7,13 @@
       <div id="whiteboard-paper">
       </div>
     </div>
+    {{#if isCurrentUserPresenter}}
+      <div id="controllers">
+        <div id="switchSlideSection">
+          {{> makeButton btn_class="switchSlideButton previousSlide" i_class="ion-arrow-left-a" rel="tooltip" data_placement="top" title="Previous"}}
+          {{> makeButton btn_class="switchSlideButton nextSlide" i_class="ion-arrow-right-a" rel="tooltip" data_placement="top" title="Next"}}
+        </div>
+      </div>
+    {{/if}}
   </div>
 </template>

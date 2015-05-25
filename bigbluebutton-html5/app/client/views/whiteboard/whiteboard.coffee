@@ -24,6 +24,9 @@ Template.whiteboard.events
   "click .nextSlide":(event) ->
     BBB.goToNextPage()
 
+  'click .switchSlideButton': (event) ->
+    $('.tooltip').hide()
+
   "click .fullscreenWhiteboardButton": (event, template) ->
     elem = document.getElementById("whiteboard")
     if elem.requestFullscreen
