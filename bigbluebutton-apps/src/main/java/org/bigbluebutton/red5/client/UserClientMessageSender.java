@@ -3,448 +3,448 @@ package org.bigbluebutton.red5.client;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
+import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
+import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
+import org.bigbluebutton.red5.pubsub.messages.GetRecordingStatusReplyMessage;
+import org.bigbluebutton.red5.pubsub.messages.GetUsersReplyMessage;
+import org.bigbluebutton.red5.pubsub.messages.PresenterAssignedMessage;
+import org.bigbluebutton.red5.pubsub.messages.RecordingStatusChangedMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserJoinedMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserJoinedVoiceMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserLeftMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserLeftVoiceMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserListeningOnlyMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserLoweredHandMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserRaisedHandMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserSharedWebcamMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserStatusChangedMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserUnsharedWebcamMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserVoiceMutedMessage;
+import org.bigbluebutton.red5.pubsub.messages.UserVoiceTalkingMessage;
+import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenReplyMessage;
+import org.bigbluebutton.red5.pubsub.messages.ValidateAuthTokenTimeoutMessage;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+
 public class UserClientMessageSender {
-	/*
-	private Map<String, Object> buildPermissionsHashMap(Permissions perms) {
-		Map<String, Boolean> args = new HashMap<String, Boolean>();  
-		args.put("disableCam", perms.disableCam);
-		args.put("disableMic", perms.disableMic);
-		args.put("disablePrivChat", perms.disablePrivChat);
-		args.put("disablePubChat", perms.disablePubChat);
-		args.put("lockedLayout", perms.lockedLayout);
-		args.put("lockOnJoin", perms.lockOnJoin);
-	    args.put("lockOnJoinConfigurable", perms.lockOnJoinConfigurable);
-		return args;
+	private ConnectionInvokerService service;
+	
+	public UserClientMessageSender(ConnectionInvokerService service) {
+		this.service = service;
 	}
-			
-	private Map<String, Object> buildUserHashMap(Map<String, Object> msg) {
-		Map<String, Object> vuser = new HashMap<String, Object>();
-		vuser.put("userId", vu.userId);
-		vuser.put("webUserId", vu.webUserId);
-		vuser.put("callerName", vu.callerName);
-		vuser.put("callerNum", vu.callerNum);
-		vuser.put("joined", vu.joined);
-		vuser.put("locked", vu.locked);
-		vuser.put("muted", vu.muted);
-		vuser.put("talking", vu.talking);
-			
-		Map<String, Object> wuser = new HashMap<String, Object>();
-		wuser.put("userId", user.userID);
-		wuser.put("externUserID", user.externUserID);
-		wuser.put("name", user.name);
-		wuser.put("role", user.role.toString());
-		wuser.put("raiseHand", user.raiseHand);
-		wuser.put("presenter", user.presenter);
-		wuser.put("hasStream", user.hasStream);
-		wuser.put("locked", user.locked);
-		wuser.put("webcamStream", user.webcamStreams mkString("|"));
-		wuser.put("phoneUser", user.phoneUser);
-		wuser.put("voiceUser", vuser);	  
-		wuser.put("listenOnly", user.listenOnly);
-		   
-		return wuser;
-	}
-	*/
-/*
-			private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
-			  val args = new java.util.HashMap[String, Object]();  
-			  args.put("disableCam", msg.permissions.disableCam:java.lang.Boolean);
-			  args.put("disableMic", msg.permissions.disableMic:java.lang.Boolean);
-			  args.put("disablePrivChat", msg.permissions.disablePrivChat:java.lang.Boolean);
-			  args.put("disablePubChat", msg.permissions.disablePubChat:java.lang.Boolean);
-		    args.put("lockedLayout", msg.permissions.lockedLayout:java.lang.Boolean);
-		    args.put("lockOnJoin", msg.permissions.lockOnJoin:java.lang.Boolean);
-		    args.put("lockOnJoinConfigurable", msg.permissions.lockOnJoinConfigurable:java.lang.Boolean);
-		    
-			  var users = new ArrayList[java.util.HashMap[String, Object]];
-		      msg.applyTo.foreach(uvo => {		
-		        users.add(buildUserHashMap(uvo))
-		      })
-				
-		      args.put("users", users);
-		      
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
-		  	  
-//		  	  println("UsersClientMessageSender - handleNewPermissionsSetting \n" + message.get("msg") + "\n")
-		      val m = new BroadcastClientMessage(msg.meetingID, "permissionsSettingsChanged", message);
-			  service.sendMessage(m);	    
+	
+	public void handleUsersMessage(String message) {
+		JsonParser parser = new JsonParser();
+		JsonObject obj = (JsonObject) parser.parse(message);
+		
+		if (obj.has("header") && obj.has("payload")) {
+			JsonObject header = (JsonObject) obj.get("header");
+
+			if (header.has("name")) {
+				String messageName = header.get("name").getAsString();
+				switch (messageName) {
+				  case ValidateAuthTokenReplyMessage.VALIDATE_AUTH_TOKEN_REPLY:
+					  ValidateAuthTokenReplyMessage m = ValidateAuthTokenReplyMessage.fromJson(message);
+					  if (m != null) {
+						  processValidateAuthTokenReply(m);
+					  }
+					  break;
+				  case ValidateAuthTokenTimeoutMessage.VALIDATE_AUTH_TOKEN_TIMEOUT:
+					  ValidateAuthTokenTimeoutMessage vattm = ValidateAuthTokenTimeoutMessage.fromJson(message);
+					  if (vattm != null) {
+						  processValidateAuthTokenTimeoutMessage(vattm);
+					  }
+					  break;
+				  case UserLeftMessage.USER_LEFT:
+					  UserLeftMessage ulm = UserLeftMessage.fromJson(message);
+					  if (ulm != null) {
+						  processUserLeftMessage(ulm);
+					  }
+					  break;
+				  case UserJoinedMessage.USER_JOINED:
+					  UserJoinedMessage ujm = UserJoinedMessage.fromJson(message);
+					  if (ujm != null) {
+						  processUserJoinedMessage(ujm);
+					  }
+					  break;
+				  case PresenterAssignedMessage.PRESENTER_ASSIGNED:
+					  PresenterAssignedMessage pam = PresenterAssignedMessage.fromJson(message);
+					  if (pam != null) {
+						  processPresenterAssignedMessage(pam);
+					  }
+					  break;
+				  case UserStatusChangedMessage.USER_STATUS_CHANGED:
+					  UserStatusChangedMessage usm = UserStatusChangedMessage.fromJson(message);
+					  if (usm != null) {
+						  processUserStatusChangedMessage(usm);
+					  }
+					  break;
+				  case UserRaisedHandMessage.USER_RAISED_HAND:
+					  UserRaisedHandMessage urhm = UserRaisedHandMessage.fromJson(message);
+					  if (urhm != null) {
+						  processUserRaisedHandMessage(urhm);
+					  }
+					  break;
+				  case UserListeningOnlyMessage.USER_LISTENING_ONLY:
+					  UserListeningOnlyMessage ulom = UserListeningOnlyMessage.fromJson(message);
+					  if (ulom != null) {
+						  processUserListeningOnlyMessage(ulom);
+					  }
+					  break;
+				  case UserLoweredHandMessage.USER_LOWERED_HAND:
+					  UserLoweredHandMessage ulhm = UserLoweredHandMessage.fromJson(message);
+					  if (ulhm != null) {
+						  processUserLoweredHandMessage(ulhm);
+					  }
+					  break;
+				  case UserSharedWebcamMessage.USER_SHARED_WEBCAM:
+					  UserSharedWebcamMessage uswm = UserSharedWebcamMessage.fromJson(message);
+					  if (uswm != null) {
+						  processUserSharedWebcamMessage(uswm);
+					  }
+					  break;
+				  case UserUnsharedWebcamMessage.USER_UNSHARED_WEBCAM:
+					  UserUnsharedWebcamMessage uuwm = UserUnsharedWebcamMessage.fromJson(message);
+					  if (uuwm != null) {
+						  processUserUnsharedWebcamMessage(uuwm);
+					  }
+					  break;
+				  case UserJoinedVoiceMessage.USER_JOINED_VOICE:
+					  UserJoinedVoiceMessage ujvm = UserJoinedVoiceMessage.fromJson(message);
+					  if (ujvm != null) {
+						  processUserJoinedVoiceMessage(ujvm);
+					  }
+					  break;
+				  case UserLeftVoiceMessage.USER_LEFT_VOICE:
+					  UserLeftVoiceMessage ulvm = UserLeftVoiceMessage.fromJson(message);
+					  if (ulvm != null) {
+						  processUserLeftVoiceMessage(ulvm);
+					  }
+					  break;
+				  case UserVoiceMutedMessage.USER_VOICE_MUTED:
+					  UserVoiceMutedMessage uvmm = UserVoiceMutedMessage.fromJson(message);
+					  if (uvmm != null) {
+						  processUserVoiceMutedMessage(uvmm);
+					  }
+					  break;
+				  case UserVoiceTalkingMessage.USER_VOICE_TALKING:
+					  UserVoiceTalkingMessage uvtm = UserVoiceTalkingMessage.fromJson(message);
+					  if (uvtm != null) {
+						  processUserVoiceTalkingMessage(uvtm);
+					  }
+					  break;
+				  case RecordingStatusChangedMessage.RECORDING_STATUS_CHANGED:
+					  RecordingStatusChangedMessage rscm = RecordingStatusChangedMessage.fromJson(message);
+					  if (rscm != null) {
+						  processRecordingStatusChangedMessage(rscm);
+					  }
+					  break;
+				  case GetRecordingStatusReplyMessage.Get_RECORDING_STATUS_REPLY:
+					  GetRecordingStatusReplyMessage grsrm = GetRecordingStatusReplyMessage.fromJson(message);
+					  if (grsrm != null) {
+						  processGetRecordingStatusReplyMessage(grsrm);
+					  }
+					  break;
+				  case GetUsersReplyMessage.GET_USERS_REPLY:
+					  GetUsersReplyMessage gurm = GetUsersReplyMessage.fromJson(message);
+					  if (gurm != null) {
+						  processGetUsersReplyMessage(gurm);
+					  }
+					  break;
+				}
 			}
-			
-		  private def handleUserLocked(msg: UserLocked) {
-		     val args = new java.util.HashMap[String, Object]();
-		     args.put("meetingID", msg.meetingID);
-		     args.put("user", msg.userId)
-		     args.put("lock", msg.lock:java.lang.Boolean)
-		     
-		     val message = new java.util.HashMap[String, Object]()
-		     val gson = new Gson();
-		     message.put("msg", gson.toJson(args))
-		     
-		     val m = new BroadcastClientMessage(msg.meetingID, "userLocked", message);
-		     service.sendMessage(m);   
-		  }
+		}		
+	}
+	private void processValidateAuthTokenReply(ValidateAuthTokenReplyMessage msg) {
+		  Map<String, Object> args = new HashMap<String, Object>();  
+		  args.put("userId", msg.userId);
+		  args.put("valid", msg.valid);	    
 		  
-			private def handleRegisteredUser(msg: UserRegistered) {
-			  val args = new java.util.HashMap[String, Object]();  
-			  args.put("userId", msg.user.id);
+		  Map<String, Object> message = new HashMap<String, Object>();
+		  Gson gson = new Gson();
+	  	  message.put("msg", gson.toJson(args));
+	  	  
+	  	  System.out.println("RedisPubSubMessageHandler - handleValidateAuthTokenReply \n" + message.get("msg") + "\n");
+	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenReply", message);
+		  service.sendMessage(m);	 
+	}
+	
+	private void processValidateAuthTokenTimeoutMessage(ValidateAuthTokenTimeoutMessage msg) {	    
+		  Map<String, Object> args = new HashMap<String, Object>();  
+		  args.put("userId", msg.userId);
+		  args.put("valid", msg.valid);	    
+		  
+		  Map<String, Object> message = new HashMap<String, Object>();
+		  Gson gson = new Gson();
+	  	  message.put("msg", gson.toJson(args));
+	  	  
+	  	  System.out.println("RedisPubSubMessageHandler - processValidateAuthTokenTimeoutMessage \n" + message.get("msg") + "\n");
+	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenTimedOut", message);
+		  service.sendMessage(m);	 
+	}
+	
+	private void processUserLeftMessage(UserLeftMessage msg) {
+		  Map<String, Object> args = new HashMap<String, Object>();	
+		  args.put("user", msg.user);
+			
+		  Map<String, Object> message = new HashMap<String, Object>();
+		  Gson gson = new Gson();
+	  	  message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - handleUserLeft \n" + message.get("msg") + "\n");
+			
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantLeft", message);
+	  	service.sendMessage(m); 
+	}
 
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	message.put("msg", gson.toJson(args))
+	private void processUserJoinedMessage(UserJoinedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("user", msg.user);
+			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - joinMeetingReply \n" + message.get("msg") + "\n");
+		
+	  	String userId = msg.user.get("userId").toString();
+	  	
+	  	DirectClientMessage jmr = new DirectClientMessage(msg.meetingId, userId, "joinMeetingReply", message);
+	  	service.sendMessage(jmr);
 		  	  
-		 // 	  println("UsersClientMessageSender - handleRegisteredUser \n" + message.get("msg") + "\n")
-			}
-			
-		    private def handleValidateAuthTokenTimedOut(msg: ValidateAuthTokenTimedOut) {
-		      val args = new java.util.HashMap[String, Object]();  
-		      args.put("userId", msg.requesterId);
-		      args.put("valid", msg.valid:java.lang.Boolean);       
-		      
-		      val message = new java.util.HashMap[String, Object]() 
-		      val gson = new Gson();
-		      message.put("msg", gson.toJson(args))
-		      
-		      println("UsersClientMessageSender - handleValidateAuthTokenTimedOut \n" + message.get("msg") + "\n")
-		      val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenTimedOut", message);
-		      service.sendMessage(m);       
-		    }
-		    
-			
-			
-			private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
-			  val args = new java.util.HashMap[String, Object]();  
-			  args.put("userId", msg.requesterId);
-			  args.put("valid", msg.valid:java.lang.Boolean);	    
-			  
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
-		  	  
-//		  	  println("UsersClientMessageSender - handleValidateAuthTokenReply \n" + message.get("msg") + "\n")
-//		  	  val m = new DirectClientMessage(msg.meetingID, msg.requesterId, "validateAuthTokenReply", message);
-//			  service.sendMessage(m);	    
-			}
-			
-			private def handleGetRecordingStatusReply(msg: GetRecordingStatusReply) {
-			  val args = new java.util.HashMap[String, Object]();  
-			  args.put("userId", msg.userId);
-			  args.put("recording", msg.recording:java.lang.Boolean);	    
-			  
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
-		  	  
-//		  	  println("UsersClientMessageSender - handleGetRecordingStatusReply \n" + message.get("msg") + "\n")
-		      val m = new DirectClientMessage(msg.meetingID, msg.userId, "getRecordingStatusReply", message);
-			  service.sendMessage(m);	  
-			}
-			
-			private def handleRecordingStatusChanged(msg: RecordingStatusChanged) {
-			  val args = new java.util.HashMap[String, Object]();  
-			  args.put("userId", msg.userId);
-			  args.put("recording", msg.recording:java.lang.Boolean);	    
-			  
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	message.put("msg", gson.toJson(args))
-		  	  
-//		  	  println("UsersClientMessageSender - handleRecordingStatusChanged \n" + message.get("msg") + "\n")
-		      val m = new BroadcastClientMessage(msg.meetingID, "recordingStatusChanged", message);
-			  service.sendMessage(m);	
-			}
-			
-			private def handleUserVoiceMuted(msg: UserVoiceMuted) {
-			  val args = new java.util.HashMap[String, Object]();
-			  args.put("meetingID", msg.meetingID);	  
-			  args.put("userId", msg.user.userID);
-			  args.put("voiceUserId", msg.user.voiceUser.userId);
-			  args.put("muted", msg.user.voiceUser.muted:java.lang.Boolean);
-			  
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
-		  	
-//		  	  println("UsersClientMessageSender - handleUserVoiceMuted \n" + message.get("msg") + "\n")
-//		  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
-		      val m = new BroadcastClientMessage(msg.meetingID, "voiceUserMuted", message);
-			  service.sendMessage(m);		  
-			}
-			
-			private def handleUserVoiceTalking(msg: UserVoiceTalking) {
-			  val args = new java.util.HashMap[String, Object]();
-			  args.put("meetingID", msg.meetingID);	  
-			  args.put("userId", msg.user.userID);
-			  args.put("voiceUserId", msg.user.voiceUser.userId);
-			  args.put("talking", msg.user.voiceUser.talking:java.lang.Boolean);
-			  
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
-		  	
-		 // 	  println("UsersClientMessageSender - handleUserVoiceTalking \n" + message.get("msg") + "\n")
-//		  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
-		      val m = new BroadcastClientMessage(msg.meetingID, "voiceUserTalking", message);
-			  service.sendMessage(m);	  
-			}
-			
-			private def handleUserLeftVoice(msg: UserLeftVoice) {
-			  val args = new java.util.HashMap[String, Object]();
-			  args.put("meetingID", msg.meetingID);
-			  args.put("user", buildUserHashMap(msg.user))
-			
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	message.put("msg", gson.toJson(args))
-		  	
-//		  	  println("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
-//		  	log.debug("UsersClientMessageSender - handleUserLeftVoice \n" + message.get("msg") + "\n")
-		      val m = new BroadcastClientMessage(msg.meetingID, "userLeftVoice", message);
-			  service.sendMessage(m);	  
-			}
-			
-			private def handleUserJoinedVoice(msg: UserJoinedVoice) {
-			  val args = new java.util.HashMap[String, Object]();
-			  args.put("meetingID", msg.meetingID);
-			  args.put("user", buildUserHashMap(msg.user))
-			
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
-		  	
-//		  	  println("UsersClientMessageSender - handleUserJoinedVoice \n" + message.get("msg") + "\n")
-//		  	log.debug("UsersClientMessageSender - handlePresentationConversionProgress \n" + message.get("msg") + "\n")
-		      val m = new BroadcastClientMessage(msg.meetingID, "userJoinedVoice", message);
-			  service.sendMessage(m);		
-			}
-			
-			private def handleGetUsersReply(msg: GetUsersReply):Unit = {
-		      var args = new HashMap[String, Object]();			
-		      args.put("count", msg.users.length:java.lang.Integer)
-				
-		      var users = new ArrayList[java.util.HashMap[String, Object]];
-		      msg.users.foreach(uvo => {		
-		        users.add(buildUserHashMap(uvo))
-		      })
-				
-		      args.put("users", users);
-				
-		      val message = new java.util.HashMap[String, Object]() 
-		      val gson = new Gson()
-		  	  message.put("msg", gson.toJson(args))
-				
-//		      println("UsersClientMessageSender - handleGetUsersReply \n" + message.get("msg") + "\n")
-					
-		      var m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getUsersReply", message)
-		  	  service.sendMessage(m)
-			}
+	  	System.out.println("RedisPubSubMessageHandler - handleUserJoined \n" + message.get("msg") + "\n");
+		  	    
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantJoined", message);
+	  	service.sendMessage(m);
+	}
 
-			private def handleMeetingHasEnded(msg: MeetingHasEnded):Unit = {
-			  var args = new HashMap[String, Object]();	
-			  args.put("status", "Meeting has already ended.");
-				
-			  var message = new HashMap[String, Object]();
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
-			  
-//			  println("UsersClientMessageSender - handleMeetingHasEnded \n" + message.get("msg") + "\n")
-			  
-			  var m = new DirectClientMessage(msg.meetingID, msg.userId, "meetingHasEnded", message)
-			  service.sendMessage(m);
-			}
+	private void processPresenterAssignedMessage(PresenterAssignedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("newPresenterID", msg.newPresenterId);
+		args.put("newPresenterName", msg.newPresenterName);
+		args.put("assignedBy", msg.assignedBy);
 			
-			private def handleDisconnectUser(msg: DisconnectUser) {
-//			  println("UsersClientMessageSender - handleDisconnectUser mid=[" + msg.meetingID + "], uid=[" + msg.userId + "]\n")
-			  
-			  var m = new DisconnectClientMessage(msg.meetingID, msg.userId)
-			  service.sendMessage(m);	  
-			}
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processPresenterAssignedMessage \n" + message.get("msg") + "\n");
+		
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "assignPresenterCallback", message);
+		service.sendMessage(m);	
+	}
+	
+	private void processUserRaisedHandMessage(UserRaisedHandMessage msg) {	  			
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserRaisedHandMessage \n" + message.get("msg") + "\n");
+		
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userRaisedHand", message);
+		service.sendMessage(m);	
+	}
+	
+	private void processUserListeningOnlyMessage(UserListeningOnlyMessage msg) {	  			
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		 args.put("listenOnly", msg.listenOnly);
+		 
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserListeningOnlyMessage \n" + message.get("msg") + "\n");
+		
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "user_listening_only", message);
+		service.sendMessage(m);	
+	}	
+	
+	private void processUserLoweredHandMessage(UserLoweredHandMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("loweredBy", msg.loweredBy);
 			
-			private def handleMeetingState(msg: MeetingState) {
-			  var args = new HashMap[String, Object]();	
-			  args.put("permissions", buildPermissionsHashMap(msg.permissions));
-				args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
-				
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	message.put("msg", gson.toJson(args))
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserLoweredHandMessage \n" + message.get("msg") + "\n");
+		
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLoweredHand", message);
+		service.sendMessage(m);	
+	}
 
-		  	var jmr = new DirectClientMessage(msg.meetingID, msg.userId, "meetingState", message);
-		  	service.sendMessage(jmr);	  
-			}
+	private void processUserStatusChangedMessage(UserStatusChangedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userID", msg.userId);
+		args.put("status", msg.status);
+		args.put("value", msg.value);
 			
-			private def handleMeetingMuted(msg: MeetingMuted) {
-			  var args = new HashMap[String, Object]();	
-			  args.put("meetingMuted", msg.meetingMuted:java.lang.Boolean);
-				
-			  var message = new HashMap[String, Object]();
-			  val gson = new Gson();
-		  	message.put("msg", gson.toJson(args))
-		  	    
-			  var m = new BroadcastClientMessage(msg.meetingID, "meetingMuted", message);
-			  service.sendMessage(m);	  
-			}
-			
-			
-			private def handleMeetingEnded(msg: MeetingEnded):Unit = {
-			  var args = new HashMap[String, Object]();	
-			  args.put("status", "Meeting has been ended.");
-				
-			  var message = new HashMap[String, Object]();
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
-		  	    
-//			  println("UsersClientMessageSender - handleMeetingEnded \n" + msg.meetingID + "\n")
-			  
-			  var m = new BroadcastClientMessage(msg.meetingID, "meetingEnded", message);
-			  service.sendMessage(m);
-			}
-			
-			private def handleDisconnectAllUsers(msg: DisconnectAllUsers) {
-			  var dm = new DisconnectAllClientsMessage(msg.meetingID)
-			  service.sendMessage(dm)	  
-			}
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserStatusChangedMessage \n" + message.get("msg") + "\n");
+		
+	  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantStatusChange", message);
+		service.sendMessage(m);
+	}
 
-			private def handleAssignPresenter(msg:PresenterAssigned):Unit = {
-			  var args = new HashMap[String, Object]();	
-			  args.put("newPresenterID", msg.presenter.presenterID);
-			  args.put("newPresenterName", msg.presenter.presenterName);
-			  args.put("assignedBy", msg.presenter.assignedBy);
-				
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	message.put("msg", gson.toJson(args))
-				
-//		  	  println("UsersClientMessageSender - handleAssignPresenter \n" + message.get("msg") + "\n")
-		  	    
-			  var m = new BroadcastClientMessage(msg.meetingID, "assignPresenterCallback", message);
-			  service.sendMessage(m);		
-			}
+	private void processUserSharedWebcamMessage(UserSharedWebcamMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("webcamStream", msg.stream);
 			
-			private def handleUserJoined(msg: UserJoined):Unit = {
-			  var args = new HashMap[String, Object]();	
-			  args.put("user", buildUserHashMap(msg.user));
-				
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	message.put("msg", gson.toJson(args))
-
-		//  println("UsersClientMessageSender - joinMeetingReply \n" + message.get("msg") + "\n")
-					
-		  	var jmr = new DirectClientMessage(msg.meetingID, msg.user.userID, "joinMeetingReply", message);
-		  	service.sendMessage(jmr);
-		  	  
-		//  println("UsersClientMessageSender - handleUserJoined \n" + message.get("msg") + "\n")
-		  	    
-		  	var m = new BroadcastClientMessage(msg.meetingID, "participantJoined", message);
-		  	service.sendMessage(m);
-			}
-
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserSharedWebcamMessage \n" + message.get("msg") + "\n");
+		
+	  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userSharedWebcam", message);
+		service.sendMessage(m);
+	}
+	
+	private void processUserUnsharedWebcamMessage(UserUnsharedWebcamMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("webcamStream", msg.stream);
 			
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserUnharedWebcamMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userUnsharedWebcam", message);
+		service.sendMessage(m);
+	}
+	
+	private void processUserJoinedVoiceMessage(UserJoinedVoiceMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("meetingID", msg.meetingId);
+		args.put("user", msg.user);
 			
-			private def handleUserLeft(msg: UserLeft):Unit = {
-			  var args = new HashMap[String, Object]();	
-			  args.put("user", buildUserHashMap(msg.user));
-				
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		  	  message.put("msg", gson.toJson(args))
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserJoinedVoiceMessage \n" + message.get("msg") + "\n");
 		  	    
-//				println("UsersClientMessageSender - handleUserLeft \n" + message.get("msg") + "\n")
-				
-		  	  var m = new BroadcastClientMessage(msg.meetingID, "participantLeft", message);
-		  	  service.sendMessage(m);
-			}
-
-		    def handleUserRaisedHand(msg: UserRaisedHand) {
-			  	var args = new HashMap[String, Object]()	
-				args.put("userId", msg.userID)
-				
-			    val message = new java.util.HashMap[String, Object]() 
-			    val gson = new Gson();
-		  	    message.put("msg", gson.toJson(args))
-		  	    
-//				println("UsersClientMessageSender - handleUserRaisedHand \n" + message.get("msg") + "\n")
-				
-				var m = new BroadcastClientMessage(msg.meetingID, "userRaisedHand", message);
-				service.sendMessage(m);      
-		    }
-
-		    def handleUserLoweredHand(msg: UserLoweredHand) {
-			  	var args = new HashMap[String, Object]();	
-				args.put("userId", msg.userID)
-				args.put("loweredBy", msg.loweredBy)
-				
-			    val message = new java.util.HashMap[String, Object]() 
-			    val gson = new Gson();
-		  	    message.put("msg", gson.toJson(args))
-		  	    
-//				println("UsersClientMessageSender - handleUserLoweredHand \n" + message.get("msg") + "\n")
-				
-				var m = new BroadcastClientMessage(msg.meetingID, "userLoweredHand", message);
-				service.sendMessage(m);      
-		    }
-
-			def handleUserSharedWebcam(msg: UserSharedWebcam) {
-			  	var args = new HashMap[String, Object]()	
-				args.put("userId", msg.userID)
-				args.put("webcamStream", msg.stream)
-				
-			    val message = new java.util.HashMap[String, Object]() 
-			    val gson = new Gson();
-		  	    message.put("msg", gson.toJson(args))
-		  	    
-//				println("UsersClientMessageSender - handleUserSharedWebcam \n" + message.get("msg") + "\n")
-				
-				var m = new BroadcastClientMessage(msg.meetingID, "userSharedWebcam", message);
-				service.sendMessage(m);	  
-			}
-
-			def handleUserUnshareWebcam(msg: UserUnsharedWebcam) {
-			  	var args = new HashMap[String, Object]()	
-				args.put("userId", msg.userID)
-				args.put("webcamStream", msg.stream)
-				
-			    val message = new java.util.HashMap[String, Object]() 
-			    val gson = new Gson();
-		  	    message.put("msg", gson.toJson(args))
-		  	    
-//				println("UsersClientMessageSender - handleUserUnshareWebcam \n" + message.get("msg") + "\n")
-				
-				var m = new BroadcastClientMessage(msg.meetingID, "userUnsharedWebcam", message);
-				service.sendMessage(m);	  
-			}
-			                
-			private def handleUserStatusChange(msg: UserStatusChange):Unit = {
-			  var args = new HashMap[String, Object]();	
-				args.put("userID", msg.userID);
-				args.put("status", msg.status);
-				args.put("value", msg.value);
-				
-			    val message = new java.util.HashMap[String, Object]() 
-			    val gson = new Gson();
-		  	    message.put("msg", gson.toJson(args))
-		  	    
-//		  	    println("UsersClientMessageSender - handleUserStatusChange \n" + message.get("msg") + "\n")
-		  	    
-				var m = new BroadcastClientMessage(msg.meetingID, "participantStatusChange", message);
-				service.sendMessage(m);
-			}
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userJoinedVoice", message);
+		service.sendMessage(m);	
+	}
+	
+	private void processUserLeftVoiceMessage(UserLeftVoiceMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("meetingID", msg.meetingId);
+		args.put("user", msg.user);
 			
-			private def handleUserListeningOnly(msg: UserListeningOnly) {
-			  var args = new HashMap[String, Object]();	
-			  args.put("userId", msg.userID);
-			  args.put("listenOnly", msg.listenOnly:java.lang.Boolean);
-			
-			  val message = new java.util.HashMap[String, Object]() 
-			  val gson = new Gson();
-		 	  message.put("msg", gson.toJson(args))
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserLeftVoiceMessage \n" + message.get("msg") + "\n");
 		  	    
-//		    println("UsersClientMessageSender - handleUserListeningOnly \n" + message.get("msg") + "\n")
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLeftVoice", message);
+		service.sendMessage(m);	
+	}
+	
+	private void processUserVoiceMutedMessage(UserVoiceMutedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("meetingID", msg.meetingId);
+		args.put("userId", msg.user.get("userId"));
+		
+		Map<String, Object> vuMap = (Map<String, Object>) msg.user.get("voiceUser");
+		
+		
+		args.put("voiceUserId", (String) vuMap.get("userId"));
+		args.put("muted", (Boolean) vuMap.get("muted"));
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserVoiceMutedMessage \n" + message.get("msg") + "\n");
 		  	    
-		 	  var m = new BroadcastClientMessage(msg.meetingID, "user_listening_only", message);
-		 	  service.sendMessage(m);	  
-			}
-*/
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserMuted", message);
+		service.sendMessage(m);		
+	}
+
+	private void processUserVoiceTalkingMessage(UserVoiceTalkingMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("meetingID", msg.meetingId);
+		args.put("userId", msg.user.get("userId"));
+		
+		Map<String, Object> vuMap = (Map<String, Object>) msg.user.get("voiceUser");
+		
+		
+		args.put("voiceUserId", (String) vuMap.get("userId"));
+		args.put("talking", (Boolean) vuMap.get("talking"));
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processUserVoiceTalkingMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserTalking", message);
+		service.sendMessage(m);		
+	}	
+	
+	private void processRecordingStatusChangedMessage(RecordingStatusChangedMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("recording", msg.recording);
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processRecordingStatusChangedMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "recordingStatusChanged", message);
+		service.sendMessage(m);		
+	}	
+	
+	private void processGetRecordingStatusReplyMessage(GetRecordingStatusReplyMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("userId", msg.userId);
+		args.put("recording", msg.recording);
+		  
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	    
+	  	System.out.println("RedisPubSubMessageHandler - processGetRecordingStatusReplyMessage \n" + message.get("msg") + "\n");
+		  	    
+	  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "getRecordingStatusReply", message);
+		service.sendMessage(m);		
+	}
+	
+	private void processGetUsersReplyMessage(GetUsersReplyMessage msg) {	  	
+		Map<String, Object> args = new HashMap<String, Object>();	
+		args.put("count", msg.users.size());
+		args.put("users", msg.users);
+		
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+	  	
+		System.out.println("*************************************************************************************\n");
+	  	System.out.println("RedisPubSubMessageHandler - processGetUsersReplyMessage \n" + message.get("msg") + "\n");
+	  	System.out.println("*************************************************************************************\n");
+		  	    
+	  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "getUsersReply", message);
+		service.sendMessage(m);
+	}
 }

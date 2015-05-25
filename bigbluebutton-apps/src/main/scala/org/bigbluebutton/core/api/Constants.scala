@@ -11,6 +11,7 @@ object Constants {
   val USER_ID                         = "userid"
   val RECORDED                        = "recorded"
   val MEETING_NAME                    = "meeting_name"
+  val MEETING_MUTED                   = "meetingMuted"
   val VOICE_CONF                      = "voice_conf"
   val DURATION                        = "duration"
   val AUTH_TOKEN                      = "auth_token"

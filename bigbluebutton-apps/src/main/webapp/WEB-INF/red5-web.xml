@@ -107,7 +107,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<ref bean="presentationRed5ClientSender" />
 				<ref bean="presentationRedisRecorder" />
 				<ref bean="presentationRedisPublisher" />
-				<ref bean="usersRed5ClientSender" />
 				<ref bean="usersRedisRecorder" />
 				<ref bean="usersRedisPublisher" />
 				<ref bean="meetingEventRedisPublisher" />
@@ -120,7 +119,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<ref bean="whiteboardEventRedisPublisher"/>
 				<ref bean="chatRedisRecorder"/>
 				<ref bean="chatRedisPublisher"/>
-				<!--ref bean="fsConfService"/-->
+				<ref bean="fsConfService"/>
 				<ref bean="whiteboardEventRedisPublisher"/>
 			</set>
 		 </property>
@@ -140,10 +139,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<bean id="usersRedisRecorder" class="org.bigbluebutton.core.apps.users.redis.UsersEventRedisRecorder">
 			<constructor-arg index="0" ref="recorderApplication"/>
-	</bean>
-
-	<bean id="usersRed5ClientSender" class="org.bigbluebutton.core.apps.users.red5.UsersClientMessageSender">
-		<constructor-arg index="0" ref="connInvokerService"/>
 	</bean>
 
 	<bean id="usersRedisPublisher" class="org.bigbluebutton.core.apps.users.redis.UsersEventRedisPublisher">
@@ -212,7 +207,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<import resource="bbb-app-whiteboard.xml" />
 	<import resource="bbb-app-users.xml" />
 	<import resource="bbb-voice-app.xml" />
-    <!--import resource="bbb-voice-freeswitch.xml" /-->
+    <import resource="bbb-voice-freeswitch.xml" />
   	<import resource="bbb-redis-messaging.xml"/>
   	<import resource="bbb-red5-redis-pubsub.xml"/>
 </beans>

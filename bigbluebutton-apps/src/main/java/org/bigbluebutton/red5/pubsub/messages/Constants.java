@@ -10,6 +10,7 @@ public class Constants {
   public static final String USER_ID                         = "userid";
   public static final String RECORDED                        = "recorded";
   public static final String MEETING_NAME                    = "meeting_name";
+  public static final String MEETING_MUTED                   = "meetingMuted";
   public static final String VOICE_CONF                      = "voice_conf";
   public static final String DURATION                        = "duration";
   public static final String AUTH_TOKEN                      = "auth_token";
@@ -33,7 +34,8 @@ public class Constants {
   public static final String AUTO_START_RECORDING            = "auto_start_recording";
   public static final String ALLOW_START_STOP_RECORDING      = "allow_start_stop_recording";
   public static final String LAYOUT_ID                       = "layout_id";
-  public static final String LISTEN_ONLY                     = "listenOnly";
+  public static final String LISTENONLY                      = "listenOnly";
+  public static final String LISTEN_ONLY                     = "listen_only";
   public static final String POLL                            = "poll";
   public static final String POLL_ID                         = "poll_id";
   public static final String FORCE                           = "force";
@@ -115,4 +117,13 @@ public class Constants {
   public static final String FROM_COLOR                      = "from_color";
   public static final String TO_USERID                       = "to_userid";
   public static final String FROM_TIME                       = "from_time";
+  public static final String PERM_DISABLE_CAM                = "disableCam";
+  public static final String PERM_DISABLE_MIC                = "disableMic";
+  public static final String PERM_DISABLE_PRIVCHAT           = "disablePrivChat";
+  public static final String PERM_DISABLE_PUBCHAT            = "disablePubChat";
+  public static final String PERM_LOCKED_LAYOUT              = "lockedLayout";
+  public static final String PERM_LOCK_ON_JOIN               = "lockOnJoin";
+  public static final String PERM_LOCK_ON_JOIN_CONFIG        = "lockOnJoinConfigurable";
 }
+
+

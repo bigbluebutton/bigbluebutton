@@ -6,13 +6,39 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.bigbluebutton.conference.service.chat.ChatKeyUtil;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class Util {
-
+	public Map<String, Boolean> extractPermission(JsonObject vu) {
+		if (vu.has(Constants.PERM_DISABLE_CAM) && vu.has(Constants.PERM_DISABLE_MIC)
+				&& vu.has(Constants.PERM_DISABLE_PRIVCHAT) && vu.has(Constants.PERM_DISABLE_PUBCHAT)
+				&& vu.has(Constants.PERM_LOCKED_LAYOUT) && vu.has(Constants.PERM_LOCK_ON_JOIN)
+				&& vu.has(Constants.PERM_LOCK_ON_JOIN_CONFIG)){
+				
+			Map<String, Boolean> vuMap = new HashMap<String, Boolean>();
+			Boolean disableCam = vu.get(Constants.PERM_DISABLE_CAM).getAsBoolean();
+			Boolean disableMic = vu.get(Constants.PERM_DISABLE_MIC).getAsBoolean();
+			Boolean disablePrivChat = vu.get(Constants.PERM_DISABLE_PRIVCHAT).getAsBoolean();
+			Boolean disablePubChat = vu.get(Constants.PERM_DISABLE_PUBCHAT).getAsBoolean();
+			Boolean lockedLayout = vu.get(Constants.PERM_LOCKED_LAYOUT).getAsBoolean();
+			Boolean lockOnJoin = vu.get(Constants.PERM_LOCK_ON_JOIN).getAsBoolean();
+			Boolean lockOnJoinConfig = vu.get(Constants.PERM_LOCK_ON_JOIN_CONFIG).getAsBoolean();
+			
+			vuMap.put(Constants.PERM_DISABLE_CAM, disableCam);
+			vuMap.put(Constants.PERM_DISABLE_MIC, disableMic);
+			vuMap.put(Constants.PERM_DISABLE_PRIVCHAT, disablePrivChat);
+			vuMap.put(Constants.PERM_DISABLE_PUBCHAT, disablePubChat);
+			vuMap.put(Constants.PERM_LOCKED_LAYOUT, lockedLayout);
+			vuMap.put(Constants.PERM_LOCK_ON_JOIN, lockOnJoin);
+			vuMap.put(Constants.PERM_LOCK_ON_JOIN_CONFIG, lockOnJoinConfig);
+			
+			return vuMap;
+		}
+		return null;
+	}
+	
 	public Map<String, Object> extractVoiceUser(JsonObject vu) {
 		if (vu.has(Constants.TALKING) && vu.has(Constants.LOCKED)
 				&& vu.has(Constants.MUTED) && vu.has(Constants.JOINED)
@@ -45,7 +71,7 @@ public class Util {
 	
 	public Map<String, Object> extractUser(JsonObject user) {
 		if (user.has(Constants.USER_ID) && user.has(Constants.NAME)
-				&& user.has(Constants.HAS_STREAM) && user.has(Constants.LISTEN_ONLY)
+				&& user.has(Constants.HAS_STREAM) && user.has(Constants.LISTENONLY)
 				&& user.has(Constants.RAISE_HAND) && user.has(Constants.PHONE_USER)
 				&& user.has(Constants.PRESENTER) && user.has(Constants.LOCKED)
 				&& user.has(Constants.EXTERN_USERID) && user.has(Constants.ROLE)
@@ -56,7 +82,7 @@ public class Util {
 			String userid = user.get(Constants.USER_ID).getAsString();
 			String username = user.get(Constants.NAME).getAsString();
 			Boolean hasStream = user.get(Constants.HAS_STREAM).getAsBoolean();
-			Boolean listenOnly = user.get(Constants.LISTEN_ONLY).getAsBoolean();
+			Boolean listenOnly = user.get(Constants.LISTENONLY).getAsBoolean();
 			Boolean raiseHand = user.get(Constants.RAISE_HAND).getAsBoolean();
 			Boolean phoneUser = user.get(Constants.PHONE_USER).getAsBoolean();
 			Boolean presenter = user.get(Constants.PRESENTER).getAsBoolean();
@@ -133,4 +159,19 @@ public class Util {
 		return null;
 	}
 
+	public ArrayList<Map<String, Object>> extractUsers(JsonArray users) {
+		ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+	
+	    Iterator<JsonElement> usersIter = users.iterator();
+	    while (usersIter.hasNext()){
+			JsonElement user = usersIter.next();
+			Map<String, Object> userMap = extractUser((JsonObject)user);
+			if (userMap != null) {
+				collection.add(userMap);
+			}
+	    }
+		
+		return collection;
+			
+	}
 }

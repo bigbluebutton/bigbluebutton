@@ -50,6 +50,38 @@ object UsersMessageToJsonConverter {
 	  mapAsJavaMap(wuser)
 	}
 
+  private def buildPermissionsHashMap(perms: Permissions):java.util.HashMap[String, java.lang.Boolean] = {
+    val args = new java.util.HashMap[String, java.lang.Boolean]();  
+    args.put("disableCam", perms.disableCam:java.lang.Boolean);
+    args.put("disableMic", perms.disableMic:java.lang.Boolean);
+    args.put("disablePrivChat", perms.disablePrivChat:java.lang.Boolean);
+    args.put("disablePubChat", perms.disablePubChat:java.lang.Boolean);
+    args.put("lockedLayout", perms.lockedLayout:java.lang.Boolean);
+    args.put("lockOnJoin", perms.lockOnJoin:java.lang.Boolean);
+    args.put("lockOnJoinConfigurable", perms.lockOnJoinConfigurable:java.lang.Boolean);
+    args
+  }
+    
+  def meetingState(msg: MeetingState):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.PERMISSIONS, buildPermissionsHashMap(msg.permissions))
+    payload.put(Constants.MEETING_MUTED, msg.meetingMuted:java.lang.Boolean);
+    payload.put(Constants.USER_ID, msg.userId);
+    
+    val header = Util.buildHeader(MessageNames.MEETING_STATE, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+    
+  def meetingMuted(msg: MeetingMuted):String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.MEETING_MUTED, msg.meetingMuted:java.lang.Boolean);
+    
+    val header = Util.buildHeader(MessageNames.MEETING_MUTED, msg.version, None)
+    Util.buildJson(header, payload)
+  }
+    
   def meetingHasEnded(msg: MeetingHasEnded):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -95,13 +127,7 @@ object UsersMessageToJsonConverter {
   def newPermissionsSettingToJson(msg: NewPermissionsSetting):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put("disableCam", msg.permissions.disableCam)
-    payload.put("disableMic", msg.permissions.disableMic)
-    payload.put("disablePrivChat", msg.permissions.disablePrivChat)
-    payload.put("disablePubChat", msg.permissions.disablePubChat)
-    payload.put("lockedLayout", msg.permissions.lockedLayout)
-    payload.put("lockOnJoin", msg.permissions.lockOnJoin)
-    payload.put("lockOnJoinConfigurable", msg.permissions.lockOnJoinConfigurable)
+    payload.put(Constants.PERMISSIONS, buildPermissionsHashMap(msg.permissions))
     
     val users = new java.util.ArrayList[java.util.Map[String, Any]]
     msg.applyTo.foreach(uvo => {    
