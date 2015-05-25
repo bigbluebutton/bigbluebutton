@@ -127,13 +127,7 @@ object UsersMessageToJsonConverter {
   def newPermissionsSettingToJson(msg: NewPermissionsSetting):String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put("disableCam", msg.permissions.disableCam)
-    payload.put("disableMic", msg.permissions.disableMic)
-    payload.put("disablePrivChat", msg.permissions.disablePrivChat)
-    payload.put("disablePubChat", msg.permissions.disablePubChat)
-    payload.put("lockedLayout", msg.permissions.lockedLayout)
-    payload.put("lockOnJoin", msg.permissions.lockOnJoin)
-    payload.put("lockOnJoinConfigurable", msg.permissions.lockOnJoinConfigurable)
+    payload.put(Constants.PERMISSIONS, buildPermissionsHashMap(msg.permissions))
     
     val users = new java.util.ArrayList[java.util.Map[String, Any]]
     msg.applyTo.foreach(uvo => {    
