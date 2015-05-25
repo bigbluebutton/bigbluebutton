@@ -2,12 +2,14 @@ package org.bigbluebutton.conference.service.presentation;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.pubsub.messages.*;
+import org.bigbluebutton.red5.pub.messages.*;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;

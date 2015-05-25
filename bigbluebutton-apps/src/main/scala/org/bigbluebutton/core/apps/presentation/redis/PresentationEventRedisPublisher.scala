@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.presentation.redis
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.red5.pubsub.messages.MessagingConstants
+import org.bigbluebutton.red5.pub.messages.MessagingConstants
 
 class PresentationEventRedisPublisher(service: MessageSender) extends OutMessageListener2 { 
   def handleMessage(msg: IOutMessage) {

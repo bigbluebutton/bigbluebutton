@@ -8,15 +8,16 @@ import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerServ
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectAllClientsMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessage;
-import org.bigbluebutton.red5.pubsub.messages.Constants;
-import org.bigbluebutton.red5.pubsub.messages.DisconnectAllUsersMessage;
-import org.bigbluebutton.red5.pubsub.messages.DisconnectUserMessage;
-import org.bigbluebutton.red5.pubsub.messages.MeetingEndedMessage;
-import org.bigbluebutton.red5.pubsub.messages.MeetingHasEndedMessage;
-import org.bigbluebutton.red5.pubsub.messages.MeetingMutedMessage;
-import org.bigbluebutton.red5.pubsub.messages.MeetingStateMessage;
-import org.bigbluebutton.red5.pubsub.messages.NewPermissionsSettingMessage;
-import org.bigbluebutton.red5.pubsub.messages.UserLockedMessage;
+import org.bigbluebutton.red5.pub.messages.Constants;
+import org.bigbluebutton.red5.pub.messages.DisconnectAllUsersMessage;
+import org.bigbluebutton.red5.pub.messages.DisconnectUserMessage;
+import org.bigbluebutton.red5.pub.messages.MeetingEndedMessage;
+import org.bigbluebutton.red5.pub.messages.MeetingHasEndedMessage;
+import org.bigbluebutton.red5.pub.messages.MeetingMutedMessage;
+import org.bigbluebutton.red5.pub.messages.MeetingStateMessage;
+import org.bigbluebutton.red5.pub.messages.NewPermissionsSettingMessage;
+import org.bigbluebutton.red5.sub.messages.UserLockedMessage;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

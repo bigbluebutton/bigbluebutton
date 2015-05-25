@@ -6,10 +6,10 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.pubsub.messages.GetChatHistory;
-import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
-import org.bigbluebutton.red5.pubsub.messages.SendPrivateChatMessage;
-import org.bigbluebutton.red5.pubsub.messages.SendPublicChatMessage;
+import org.bigbluebutton.red5.pub.messages.GetChatHistory;
+import org.bigbluebutton.red5.pub.messages.MessagingConstants;
+import org.bigbluebutton.red5.pub.messages.SendPrivateChatMessage;
+import org.bigbluebutton.red5.pub.messages.SendPublicChatMessage;
 
 public class ChatMessageListener implements MessageHandler{
 

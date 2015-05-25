@@ -51,7 +51,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="web.handler" class="org.bigbluebutton.conference.BigBlueButtonApplication">
 		<property name="applicationListeners">
 				<set>
-				<ref bean="participantsHandler" />
 				<ref bean="whiteboardApplication" />
 				</set>
 			</property>

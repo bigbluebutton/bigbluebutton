@@ -3,7 +3,7 @@ package org.bigbluebutton.red5.pubsub.redis;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.bigbluebutton.red5.pubsub.messages.MessagingConstants;
+import org.bigbluebutton.red5.pub.messages.MessagingConstants;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 

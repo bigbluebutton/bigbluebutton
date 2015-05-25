@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.users.redis
 
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.red5.pubsub.messages.MessagingConstants
+import org.bigbluebutton.red5.pub.messages.MessagingConstants
 import com.google.gson.Gson
 
 class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {

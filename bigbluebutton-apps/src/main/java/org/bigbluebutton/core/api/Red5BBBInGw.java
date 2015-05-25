@@ -3,7 +3,8 @@ package org.bigbluebutton.core.api;
 import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
-import org.bigbluebutton.red5.pubsub.messages.*;
+import org.bigbluebutton.red5.pub.messages.*;
+import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
