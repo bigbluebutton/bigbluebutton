@@ -71,7 +71,7 @@ public class Util {
 	
 	public Map<String, Object> extractUser(JsonObject user) {
 		if (user.has(Constants.USER_ID) && user.has(Constants.NAME)
-				&& user.has(Constants.HAS_STREAM) && user.has(Constants.LISTEN_ONLY)
+				&& user.has(Constants.HAS_STREAM) && user.has(Constants.LISTENONLY)
 				&& user.has(Constants.RAISE_HAND) && user.has(Constants.PHONE_USER)
 				&& user.has(Constants.PRESENTER) && user.has(Constants.LOCKED)
 				&& user.has(Constants.EXTERN_USERID) && user.has(Constants.ROLE)
@@ -82,7 +82,7 @@ public class Util {
 			String userid = user.get(Constants.USER_ID).getAsString();
 			String username = user.get(Constants.NAME).getAsString();
 			Boolean hasStream = user.get(Constants.HAS_STREAM).getAsBoolean();
-			Boolean listenOnly = user.get(Constants.LISTEN_ONLY).getAsBoolean();
+			Boolean listenOnly = user.get(Constants.LISTENONLY).getAsBoolean();
 			Boolean raiseHand = user.get(Constants.RAISE_HAND).getAsBoolean();
 			Boolean phoneUser = user.get(Constants.PHONE_USER).getAsBoolean();
 			Boolean presenter = user.get(Constants.PRESENTER).getAsBoolean();
@@ -116,17 +116,7 @@ public class Util {
 
 	public ArrayList<Map<String, Object>> extractUsers(JsonArray users) {
 		ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
-/*
-		for (Iterator<JsonElement> usersIter = users.iterator(); usersIter.hasNext();) {
-			JsonElement user = usersIter.next();
-			Map<String, Object> userMap = extractUser((JsonObject)user);
-			if (userMap != null) {
-				collection.add(userMap);
-			}
-			return collection;
-		}
-*/
-		
+	
 	    Iterator<JsonElement> usersIter = users.iterator();
 	    while (usersIter.hasNext()){
 			JsonElement user = usersIter.next();

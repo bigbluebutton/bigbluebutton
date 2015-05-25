@@ -34,7 +34,8 @@ public class Constants {
   public static final String AUTO_START_RECORDING            = "auto_start_recording";
   public static final String ALLOW_START_STOP_RECORDING      = "allow_start_stop_recording";
   public static final String LAYOUT_ID                       = "layout_id";
-  public static final String LISTEN_ONLY                     = "listenOnly";
+  public static final String LISTENONLY                      = "listenOnly";
+  public static final String LISTEN_ONLY                     = "listen_only";
   public static final String POLL                            = "poll";
   public static final String POLL_ID                         = "poll_id";
   public static final String FORCE                           = "force";
