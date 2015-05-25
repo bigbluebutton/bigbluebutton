@@ -173,6 +173,33 @@ body {
       left: 500px;
     }
   }
+  &.moved-to-left {
+    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+      position: fixed;
+      right: 500px;
+    }
+  }
+  &.moved-to-right, &.moved-to-left {
+    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+      z-index: 1; // same level as notifications
+      .shield {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        opacity: 0.5;
+        z-index: 1;
+        cursor: pointer;
+        @media @landscape, @desktop-portrait {
+          top: 50px;
+        }
+        @media @mobile-portrait-with-keyboard, @mobile-portrait {
+          top: 110px;
+        }
+      }
+    }
+  }
 }
 
 .fullScreenPresentation {
@@ -257,6 +284,12 @@ body {
     &:hover {
       background-color: extract(@lightGrey, 1);
     }
+    i, span {
+      float: left;
+    }
+    span {
+      margin-left: 20px;
+    }
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 110px;
@@ -333,6 +366,12 @@ body {
   }
 }
 
+.pressedButton {
+  i {
+    color: extract(@azure, 2);
+  }
+}
+
 .toggleUserlist {
   width: 57px;
   margin-right: 10px;
@@ -353,8 +392,10 @@ body {
 
 #notificationArea {
   bottom:0;
+  height: 50%;
   left:0;
   margin: auto;
+  margin-top: 0px;
   @media @landscape {
     width: 50%;
   }

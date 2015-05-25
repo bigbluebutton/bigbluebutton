@@ -25,13 +25,22 @@ package org.bigbluebutton.modules.deskshare.model
 		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var autoStart:Boolean = false;
 		[Bindable] public var autoFullScreen:Boolean = false;
+		public var useTLS:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
-		
+		public var publishURI:String;
+
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("DeskShareModule");
 			if (vxml != null) {
+				publishURI = "";
+				if (vxml.@publishURI != undefined){
+					publishURI = vxml.@publishURI.toString();
+				}
 				if (vxml.@autoStart != undefined) {
 					autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@useTLS != undefined){
+					useTLS = (vxml.@useTLS.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@autoFullScreen != undefined){
 					autoFullScreen = (vxml.@autoFullScreen.toString().toUpperCase() == "TRUE") ? true : false;

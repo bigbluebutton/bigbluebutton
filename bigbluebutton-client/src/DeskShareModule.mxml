@@ -98,12 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.uri;
 			}
 			
-			public function getCaptureServerUri():String{
-				var uri:String = _attributes.uri;
-				uri = uri.split("/")[2];
-				return uri;
-			}
-			
 			public function tunnel():Boolean {
 				if (_attributes.protocol == "RTMPT") {
 					LogUtil.debug("Use tunneling for desktop sharing");

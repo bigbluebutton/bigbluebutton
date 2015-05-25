@@ -36,6 +36,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	  String hostValue = "localhost";
 	  String minJreVersion = "1.7.0_51";
     Integer portValue = new Integer(9123);
+	Boolean useTLS = false;
     String roomValue = "85115";
     Integer cWidthValue = new Integer(800);
     Integer cHeightValue = new Integer(600);
@@ -78,6 +79,14 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		if (port != null) portValue = Integer.parseInt(port);
 		roomValue = getParameter("ROOM");
 
+		String getUseTLS = getParameter("useTLS");
+		if(getUseTLS != null) useTLS = Boolean.parseBoolean(getUseTLS);
+		if(useTLS){
+			//Change port if useTLS is true
+			//Better to place it here than the client if we want to assure that TLS is forced
+			portValue = 443;
+		}
+		
 		String scaleValue = getParameter("SCALE");
 		if (scaleValue != null) scale = Double.parseDouble(scaleValue);
 		
@@ -147,7 +156,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 
 	
 	private void allowDesktopSharing() {
-		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
+		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue).useTLS(useTLS)
 				.room(roomValue).captureWidth(cWidthValue)
 				.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
 				.quality(qualityValue).autoScale(scale)

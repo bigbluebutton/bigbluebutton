@@ -301,15 +301,6 @@ class Meteor.WhiteboardPaperModel
     imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
     imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or boardHeight
 
-    # console.log "xBegin: #{xBegin}"
-    # console.log "xEnd: #{xEnd}"
-    # console.log "yBegin: #{yBegin}"
-    # console.log "yEnd: #{yEnd}"
-    # console.log "boardWidth: #{boardWidth}"
-    # console.log "boardHeight: #{boardHeight}"
-    #console.log "imageWidth: #{imageWidth}"
-    #console.log "imageHeight: #{imageHeight}"
-
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
