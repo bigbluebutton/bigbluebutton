@@ -2,9 +2,7 @@ package org.bigbluebutton.red5.sub.messages;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bigbluebutton.red5.pub.messages.Constants;
-import org.bigbluebutton.red5.pub.messages.IMessage;
 import org.bigbluebutton.red5.pub.messages.MessageBuilder;
 import org.bigbluebutton.red5.pub.messages.Util;
 
@@ -12,7 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 
-public class UserVoiceMutedMessage implements IMessage {
+public class UserVoiceMutedMessage implements ISubscribedMessage {
 	public static final String USER_VOICE_MUTED  = "user_voice_muted_message";
 	public static final String VERSION = "0.0.1";
 	

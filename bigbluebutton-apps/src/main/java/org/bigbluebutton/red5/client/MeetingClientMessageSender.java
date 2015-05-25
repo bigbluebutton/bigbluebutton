@@ -11,11 +11,11 @@ import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessa
 import org.bigbluebutton.red5.pub.messages.Constants;
 import org.bigbluebutton.red5.pub.messages.DisconnectAllUsersMessage;
 import org.bigbluebutton.red5.pub.messages.DisconnectUserMessage;
-import org.bigbluebutton.red5.pub.messages.MeetingEndedMessage;
-import org.bigbluebutton.red5.pub.messages.MeetingHasEndedMessage;
-import org.bigbluebutton.red5.pub.messages.MeetingMutedMessage;
-import org.bigbluebutton.red5.pub.messages.MeetingStateMessage;
-import org.bigbluebutton.red5.pub.messages.NewPermissionsSettingMessage;
+import org.bigbluebutton.red5.sub.messages.MeetingEndedMessage;
+import org.bigbluebutton.red5.sub.messages.MeetingHasEndedMessage;
+import org.bigbluebutton.red5.sub.messages.MeetingMutedMessage;
+import org.bigbluebutton.red5.sub.messages.MeetingStateMessage;
+import org.bigbluebutton.red5.sub.messages.NewPermissionsSettingMessage;
 import org.bigbluebutton.red5.sub.messages.UserLockedMessage;
 
 import com.google.gson.Gson;

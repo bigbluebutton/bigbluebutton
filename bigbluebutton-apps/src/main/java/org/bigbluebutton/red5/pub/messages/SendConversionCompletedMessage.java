@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SendConversionCompletedMessage implements IMessage {
+public class SendConversionCompletedMessage implements IPublishedMessage {
 	public static final String SEND_CONVERSION_COMPLETED = "send_conversion_completed";
 	public static final String VERSION = "0.0.1";
 

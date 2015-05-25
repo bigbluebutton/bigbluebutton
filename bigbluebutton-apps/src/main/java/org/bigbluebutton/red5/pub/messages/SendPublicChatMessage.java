@@ -8,7 +8,7 @@ import org.bigbluebutton.conference.service.chat.ChatKeyUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SendPublicChatMessage implements IMessage {
+public class SendPublicChatMessage implements IPublishedMessage {
 	public static final String SEND_PUBLIC_CHAT_MESSAGE = "send_public_chat_message";
 	public static final String VERSION = "0.0.1";
 

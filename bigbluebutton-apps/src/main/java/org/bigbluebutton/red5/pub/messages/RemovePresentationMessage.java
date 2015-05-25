@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class RemovePresentationMessage implements IMessage {
+public class RemovePresentationMessage implements IPublishedMessage {
 	public static final String REMOVE_PRESENTATION = "remove_presentation";
 	public static final String VERSION = "0.0.1";
 

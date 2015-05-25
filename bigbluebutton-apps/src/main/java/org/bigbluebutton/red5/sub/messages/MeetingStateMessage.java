@@ -1,12 +1,15 @@
-package org.bigbluebutton.red5.pub.messages;
+package org.bigbluebutton.red5.sub.messages;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.bigbluebutton.red5.pub.messages.Constants;
+import org.bigbluebutton.red5.pub.messages.MessageBuilder;
+import org.bigbluebutton.red5.pub.messages.Util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class MeetingStateMessage implements IMessage {
+public class MeetingStateMessage implements ISubscribedMessage {
 	public static final String MEETING_STATE = "meeting_state_message";
 	public final String VERSION = "0.0.1";
 

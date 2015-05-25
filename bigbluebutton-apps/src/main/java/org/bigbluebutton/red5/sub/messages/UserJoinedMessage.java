@@ -2,16 +2,13 @@ package org.bigbluebutton.red5.sub.messages;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bigbluebutton.red5.pub.messages.Constants;
-import org.bigbluebutton.red5.pub.messages.IMessage;
 import org.bigbluebutton.red5.pub.messages.MessageBuilder;
 import org.bigbluebutton.red5.pub.messages.Util;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class UserJoinedMessage implements IMessage {
+public class UserJoinedMessage implements ISubscribedMessage {
 	public static final String USER_JOINED = "user_joined_message";
 	public final String VERSION = "0.0.1";
 

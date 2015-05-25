@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetChatHistory implements IMessage {
+public class GetChatHistory implements IPublishedMessage {
 	public static final String GET_CHAT_HISTORY_REQUEST = "get_chat_history_request";
 	public static final String VERSION = "0.0.1";
 

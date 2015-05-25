@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetPresentationInfoMessage implements IMessage {
+public class GetPresentationInfoMessage implements IPublishedMessage {
 	public static final String GET_PRESENTATION_INFO = "get_presentation_info";
 	public static final String VERSION = "0.0.1";
 

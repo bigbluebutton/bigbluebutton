@@ -3,13 +3,13 @@ package org.bigbluebutton.apps.sub.messages;
 import java.util.HashMap;
 
 import org.bigbluebutton.red5.pub.messages.Constants;
-import org.bigbluebutton.red5.pub.messages.IMessage;
+import org.bigbluebutton.red5.pub.messages.IPublishedMessage;
 import org.bigbluebutton.red5.pub.messages.MessageBuilder;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class UserConnectedToGlobalAudio implements IMessage {
+public class UserConnectedToGlobalAudio implements IPublishedMessage {
 	public static final String USER_CONNECTED_TO_GLOBAL_AUDIO = "user_connected_to_global_audio";
 	public static final String VERSION = "0.0.1";
 

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SendCursorUpdateMessage implements IMessage {
+public class SendCursorUpdateMessage implements IPublishedMessage {
 	public static final String SEND_CURSOR_UPDATE = "send_cursor_update";
 	public static final String VERSION = "0.0.1";
 

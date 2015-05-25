@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.red5.pub.messages.Constants;
-import org.bigbluebutton.red5.pub.messages.IMessage;
+import org.bigbluebutton.red5.pub.messages.IPublishedMessage;
 import org.bigbluebutton.red5.pub.messages.MessageBuilder;
 import org.bigbluebutton.red5.pub.messages.Util;
 
@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 
-public class UserLeftVoiceMessage implements IMessage {
+public class UserLeftVoiceMessage implements ISubscribedMessage {
 	public static final String USER_LEFT_VOICE  = "user_left_voice_message";
 	public static final String VERSION = "0.0.1";
 	

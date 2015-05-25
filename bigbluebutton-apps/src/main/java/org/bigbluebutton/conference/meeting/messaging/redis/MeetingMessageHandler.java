@@ -11,7 +11,7 @@ import org.bigbluebutton.red5.pub.messages.CreateMeetingMessage;
 import org.bigbluebutton.red5.pub.messages.DestroyMeetingMessage;
 import org.bigbluebutton.red5.pub.messages.EndMeetingMessage;
 import org.bigbluebutton.red5.pub.messages.GetAllMeetingsRequest;
-import org.bigbluebutton.red5.pub.messages.IMessage;
+import org.bigbluebutton.red5.pub.messages.IPublishedMessage;
 import org.bigbluebutton.red5.pub.messages.KeepAliveMessage;
 import org.bigbluebutton.red5.pub.messages.MessageFromJsonConverter;
 import org.bigbluebutton.red5.pub.messages.MessagingConstants;
@@ -33,7 +33,7 @@ public class MeetingMessageHandler implements MessageHandler {
 //		System.out.println("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
 			System.out.println("Meeting message: " + channel + " " + message);
-			IMessage msg = MessageFromJsonConverter.convert(message);
+			IPublishedMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
 				if (msg instanceof EndMeetingMessage) {
@@ -105,7 +105,7 @@ public class MeetingMessageHandler implements MessageHandler {
 				log.warn("Failed to decode message: [" + message + "]");
 			}
 		} else if (channel.equalsIgnoreCase(MessagingConstants.TO_SYSTEM_CHANNEL)) {
-			IMessage msg = MessageFromJsonConverter.convert(message);
+			IPublishedMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
 				if (msg instanceof KeepAliveMessage) {
