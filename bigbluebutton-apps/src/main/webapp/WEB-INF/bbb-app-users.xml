@@ -27,16 +27,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 
-	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
-		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
-	</bean>
-	
-	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
-		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
-	</bean>
 	
 	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
-		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+        <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/> </property>
+        <property name="red5InGW"> <ref bean="red5BbbInGW"/> </property>
 	</bean>
 
 	<bean id="participantsListener" class="org.bigbluebutton.conference.service.participants.ParticipantsListener">
