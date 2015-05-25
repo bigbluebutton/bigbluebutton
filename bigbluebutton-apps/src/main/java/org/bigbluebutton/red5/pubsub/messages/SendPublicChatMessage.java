@@ -50,11 +50,11 @@ public class SendPublicChatMessage implements IMessage {
 	public static SendPublicChatMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
-		
+
 		if (obj.has("header") && obj.has("payload")) {
 			JsonObject header = (JsonObject) obj.get("header");
 			JsonObject payload = (JsonObject) obj.get("payload");
-			
+
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (SEND_PUBLIC_CHAT_MESSAGE.equals(messageName)) {
@@ -83,6 +83,28 @@ public class SendPublicChatMessage implements IMessage {
 							messageInfo.put(ChatKeyUtil.FROM_USERID, msgObj.get(ChatKeyUtil.FROM_USERID).getAsString());
 							messageInfo.put(ChatKeyUtil.FROM_TIME, msgObj.get(ChatKeyUtil.FROM_TIME).getAsString());
 							messageInfo.put(ChatKeyUtil.FROM_USERNAME, msgObj.get(ChatKeyUtil.FROM_USERNAME).getAsString());
+
+							String requesterId = messageInfo.get(ChatKeyUtil.FROM_USERID);
+							System.out.println("sendPublicChatMessage fromJson");
+							return new SendPublicChatMessage(meetingId, requesterId, messageInfo);
+						} else if (msgObj.has(Constants.CHAT_TYPE) 
+								&& msgObj.has(Constants.MESSAGE)
+								&& msgObj.has(Constants.TO_USERNAME)
+								&& msgObj.has(Constants.FROM_TZ_OFFSET)
+								&& msgObj.has(Constants.FROM_COLOR)
+								&& msgObj.has(Constants.TO_USERID)
+								&& msgObj.has(Constants.FROM_USERID)
+								&& msgObj.has(Constants.FROM_TIME)
+								&& msgObj.has(Constants.FROM_USERNAME)){
+							messageInfo.put(ChatKeyUtil.CHAT_TYPE, msgObj.get(Constants.CHAT_TYPE).getAsString());
+							messageInfo.put(ChatKeyUtil.MESSAGE, msgObj.get(Constants.MESSAGE).getAsString());
+							messageInfo.put(ChatKeyUtil.TO_USERNAME, msgObj.get(Constants.TO_USERNAME).getAsString());
+							messageInfo.put(ChatKeyUtil.FROM_TZ_OFFSET, msgObj.get(Constants.FROM_TZ_OFFSET).getAsString());
+							messageInfo.put(ChatKeyUtil.FROM_COLOR, msgObj.get(Constants.FROM_COLOR).getAsString());
+							messageInfo.put(ChatKeyUtil.TO_USERID, msgObj.get(Constants.TO_USERID).getAsString());
+							messageInfo.put(ChatKeyUtil.FROM_USERID, msgObj.get(Constants.FROM_USERID).getAsString());
+							messageInfo.put(ChatKeyUtil.FROM_TIME, msgObj.get(Constants.FROM_TIME).getAsString());
+							messageInfo.put(ChatKeyUtil.FROM_USERNAME, msgObj.get(Constants.FROM_USERNAME).getAsString());
 
 							String requesterId = messageInfo.get(ChatKeyUtil.FROM_USERID);
 							System.out.println("sendPublicChatMessage fromJson");

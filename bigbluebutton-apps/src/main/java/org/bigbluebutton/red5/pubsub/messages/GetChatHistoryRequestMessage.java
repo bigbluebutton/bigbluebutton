@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetChatHistory implements IMessage {
+public class GetChatHistoryRequestMessage implements IMessage {
 	public static final String GET_CHAT_HISTORY_REQUEST = "get_chat_history_request";
 	public static final String VERSION = "0.0.1";
 
@@ -14,7 +14,7 @@ public class GetChatHistory implements IMessage {
 	public final String requesterId;
 
 
-	public GetChatHistory(String meetingId, String requesterId, String replyTo) {
+	public GetChatHistoryRequestMessage(String meetingId, String requesterId, String replyTo) {
 		this.meetingId = meetingId;
 		this.replyTo = replyTo;
 		this.requesterId = requesterId;
@@ -31,25 +31,26 @@ public class GetChatHistory implements IMessage {
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static GetChatHistory fromJson(String message) {
+	public static GetChatHistoryRequestMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
-		
 		if (obj.has("header") && obj.has("payload")) {
 			JsonObject header = (JsonObject) obj.get("header");
 			JsonObject payload = (JsonObject) obj.get("payload");
-			
+
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (GET_CHAT_HISTORY_REQUEST.equals(messageName)) {
+					System.out.println("4"+payload.toString());
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.REPLY_TO)
 							&& payload.has(Constants.REQUESTER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
+
 						System.out.println("GetChatHistory fromJson");
-						return new GetChatHistory(meetingId, replyTo, requesterId);
+						return new GetChatHistoryRequestMessage(meetingId, replyTo, requesterId);
 					}
 				} 
 			}
