@@ -23,7 +23,6 @@ import org.bigbluebutton.red5.sub.messages.UserLoweredHandMessage;
 import org.bigbluebutton.red5.sub.messages.UserRaisedHandMessage;
 import org.bigbluebutton.red5.sub.messages.UserShareWebcamRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserUnshareWebcamRequestMessage;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

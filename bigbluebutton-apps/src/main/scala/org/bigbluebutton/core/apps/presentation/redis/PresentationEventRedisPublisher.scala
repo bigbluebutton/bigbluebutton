@@ -1,9 +1,14 @@
 package org.bigbluebutton.core.apps.presentation.redis
 
 import org.bigbluebutton.core.api.OutMessageListener2
+import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.red5.pub.messages.MessagingConstants
+import org.bigbluebutton.red5.sub.messages.PresentationRemovedMessage
+import collection.JavaConverters._
+import scala.collection.JavaConversions._
+import org.bigbluebutton.red5.pub.messages.GetPresentationInfoReplyMessage
 
 class PresentationEventRedisPublisher(service: MessageSender) extends OutMessageListener2 { 
   def handleMessage(msg: IOutMessage) {
@@ -24,17 +29,62 @@ class PresentationEventRedisPublisher(service: MessageSender) extends OutMessage
     }
   }
   
+  private def pageToMap(page: Page):java.util.Map[String, Any] = {
+    val res = new scala.collection.mutable.HashMap[String, Any]
+    res += "id"           -> page.id
+    res += "num"          -> page.num
+    res += "thumb_uri"    -> page.thumbUri
+    res += "swf_uri"      -> page.swfUri
+    res += "txt_uri"      -> page.txtUri
+    res += "png_uri"      -> page.pngUri
+    res += "current"      -> page.current
+    res += "x_offset"     -> page.xOffset
+    res += "y_offset"     -> page.yOffset
+    res += "width_ratio"  -> page.widthRatio
+    res += "height_ratio" -> page.heightRatio
+    
+    mapAsJavaMap(res)
+  }
+    
   private def handleClearPresentationOutMsg(msg: ClearPresentationOutMsg) {
     val json = PesentationMessageToJsonConverter.clearPresentationOutMsgToJson(msg)
     service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
   }
   
   private def handleRemovePresentationOutMsg(msg: RemovePresentationOutMsg) {
-    val json = PesentationMessageToJsonConverter.removePresentationOutMsgToJson(msg)
-    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
+    val m = new PresentationRemovedMessage(msg.meetingID, msg.presentationID)
+    service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, m.toJson())
   }
   
   private def handleGetPresentationInfoOutMsg(msg: GetPresentationInfoOutMsg) {
+     // Create a map for our current presenter
+    val presenter = new java.util.HashMap[String, Object]()
+    presenter.put(Constants.USER_ID, msg.info.presenter.userId)
+    presenter.put(Constants.NAME, msg.info.presenter.name)
+    presenter.put(Constants.ASSIGNED_BY, msg.info.presenter.assignedBy)
+    
+    // Create an array for our presentations
+    val presentations = new java.util.ArrayList[java.util.Map[String, Object]]     
+    msg.info.presentations.foreach { pres =>
+      val presentation = new java.util.HashMap[String, Object]()
+      presentation.put(Constants.ID, pres.id)
+      presentation.put(Constants.NAME, pres.name)
+      presentation.put(Constants.CURRENT, pres.current:java.lang.Boolean)      
+     
+      // Get the pages for a presentation
+      val pages = new java.util.ArrayList[java.util.Map[String, Any]]() 
+      pres.pages.values foreach {p =>
+        pages.add(pageToMap(p))
+      }   
+      // store the pages in the presentation 
+      presentation.put(Constants.PAGES, pages)
+  
+      // add this presentation into our presentations list
+      presentations.add(presentation);     
+    }    
+    
+    val reply = new GetPresentationInfoReplyMessage(msg.meetingID, msg.requesterID, presenter, presentations) 
+    
     val json = PesentationMessageToJsonConverter.getPresentationInfoOutMsgToJson(msg)
     service.send(MessagingConstants.FROM_PRESENTATION_CHANNEL, json)
   }

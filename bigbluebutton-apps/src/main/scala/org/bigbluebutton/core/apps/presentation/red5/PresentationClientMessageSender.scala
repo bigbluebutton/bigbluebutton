@@ -27,7 +27,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
   def handleMessage(msg: IOutMessage) {
     msg match {
       case msg: ClearPresentationOutMsg             => handleClearPresentationOutMsg(msg)
-      case msg: RemovePresentationOutMsg            => handleRemovePresentationOutMsg(msg)
+//      case msg: RemovePresentationOutMsg            => handleRemovePresentationOutMsg(msg)
       case msg: GetPresentationInfoOutMsg           => handleGetPresentationInfoOutMsg(msg)
       case msg: SendCursorUpdateOutMsg              => handleSendCursorUpdateOutMsg(msg)
       case msg: ResizeAndMoveSlideOutMsg            => handleResizeAndMoveSlideOutMsg(msg)
@@ -152,7 +152,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
     
     // Build JSON
     val args = new java.util.HashMap[String, Object]()
-	args.put("meetingID", msg.meetingID);
+	  args.put("meetingID", msg.meetingID);
 	
     // Create a map for our current presenter
     val presenter = new java.util.HashMap[String, String]()
@@ -186,13 +186,13 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
     args.put("presentations", presentations)
 
     val message = new java.util.HashMap[String, Object]() 
-	val gson = new Gson();
+	  val gson = new Gson();
   	message.put("msg", gson.toJson(args))
   	 	
-//  	println("***** PresentationClientMessageSender - handleGetPresentationInfoOutMsg to user[" +msg.requesterID + "] message[" + message.get("msg") + "]")
+  	println("***** PresentationClientMessageSender - handleGetPresentationInfoOutMsg to user[" +msg.requesterID + "] message[" + message.get("msg") + "]")
   	
 	val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "getPresentationInfoReply", message);
-	service.sendMessage(m);	
+//	service.sendMessage(m);	
   }
   
   private def handleSendCursorUpdateOutMsg(msg: SendCursorUpdateOutMsg) {
