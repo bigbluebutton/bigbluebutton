@@ -1,40 +1,37 @@
 package org.bigbluebutton.red5.pubsub.messages;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetChatHistoryReplyMessage implements IMessage {
-	public static final String GET_CHAT_HISTORY_REPLY = "get_chat_history_reply";
+public class ClearWhiteboardRequestMessage implements IMessage {
+	public static final String CLEAR_WHITEBOARD_REQUEST = "clear_whiteboard_request";
 	public static final String VERSION = "0.0.1";
 
 	public final String meetingId;
+	public final String whiteboardId;
 	public final String requesterId;
-	public final ArrayList<Map<String, Object>> chatHistory;
 
 
-	public GetChatHistoryReplyMessage(String meetingId, String requesterId, ArrayList<Map<String, Object>> chatHistory) {
+	public ClearWhiteboardRequestMessage(String meetingId, String requesterId, String whiteboardId) {
 		this.meetingId = meetingId;
-		this.chatHistory = chatHistory;
+		this.whiteboardId = whiteboardId;
 		this.requesterId = requesterId;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
-		payload.put(Constants.CHAT_HISTORY, chatHistory);
+		payload.put(Constants.WHITEBOARD_ID, whiteboardId);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 
-		System.out.println("GetChatHistoryReplyMessage toJson");
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_CHAT_HISTORY_REPLY, VERSION, null);
+		System.out.println("ClearWhiteboardRequestMessage toJson");
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(CLEAR_WHITEBOARD_REQUEST, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static GetChatHistoryReplyMessage fromJson(String message) {
+	public static ClearWhiteboardRequestMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 		if (obj.has("header") && obj.has("payload")) {
@@ -43,22 +40,19 @@ public class GetChatHistoryReplyMessage implements IMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (GET_CHAT_HISTORY_REPLY.equals(messageName)) {
+				if (CLEAR_WHITEBOARD_REQUEST.equals(messageName)) {
+					System.out.println("4"+payload.toString());
 					if (payload.has(Constants.MEETING_ID) 
-							&& payload.has(Constants.CHAT_HISTORY)
+							&& payload.has(Constants.WHITEBOARD_ID)
 							&& payload.has(Constants.REQUESTER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
+						String whiteboardId = payload.get(Constants.WHITEBOARD_ID).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
-						JsonArray history = (JsonArray) payload.get(Constants.CHAT_HISTORY);
-
-						Util util = new Util();
-
-						ArrayList<Map<String, Object>> chatHistory = util.extractChatHistory(history);
-						System.out.println("GetChatHistoryReplyMessage fromJson");
-						return new GetChatHistoryReplyMessage(meetingId, requesterId, chatHistory);
+						System.out.println("ClearWhiteboardRequestMessage fromJson");
+						return new ClearWhiteboardRequestMessage(meetingId, requesterId, whiteboardId);
 					}
-				} 
+				}
 			}
 		}
 		return null;
