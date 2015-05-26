@@ -6,6 +6,8 @@ import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
 import org.bigbluebutton.red5.pub.messages.*;
 import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
+import org.bigbluebutton.red5.sub.messages.InitAudioSettingsMessage;
+import org.bigbluebutton.red5.sub.messages.InitPermissionsSettingMessage;
 import org.bigbluebutton.red5.sub.messages.SetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetUserStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
@@ -79,9 +81,9 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void initLockSettings(String meetingID, Map<String, Boolean> settings) {
-		// TODO Auto-generated method stub
-
+	public void initLockSettings(String meetingID, Map<String, Boolean> permissions) {
+		InitPermissionsSettingMessage msg = new InitPermissionsSettingMessage(meetingID, permissions);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
@@ -215,8 +217,8 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void initAudioSettings(String meetingID, String requesterID,
 			Boolean muted) {
-		// TODO Auto-generated method stub
-
+		InitAudioSettingsMessage msg = new InitAudioSettingsMessage(meetingID, requesterID, muted);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 
 	@Override

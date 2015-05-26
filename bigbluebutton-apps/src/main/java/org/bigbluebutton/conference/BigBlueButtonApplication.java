@@ -143,9 +143,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID + ", muted =" + muted;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 
-		bbbGW.initLockSettings(room, lsMap);
+		red5InGW.initLockSettings(room, lsMap);
 		
-		bbbGW.initAudioSettings(room, internalUserID, muted);
+		red5InGW.initAudioSettings(room, internalUserID, muted);
 
 	    String meetingId = bbbSession.getRoom();
 	    

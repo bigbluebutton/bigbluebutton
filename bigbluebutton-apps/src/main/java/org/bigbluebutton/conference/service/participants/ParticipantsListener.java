@@ -9,6 +9,8 @@ import org.bigbluebutton.red5.pub.messages.GetUsersRequestMessage;
 import org.bigbluebutton.red5.pub.messages.MessagingConstants;
 import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
+import org.bigbluebutton.red5.sub.messages.InitAudioSettingsMessage;
+import org.bigbluebutton.red5.sub.messages.InitPermissionsSettingMessage;
 import org.bigbluebutton.red5.sub.messages.SetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetUserStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
@@ -76,6 +78,12 @@ public class ParticipantsListener implements MessageHandler{
 						  break;
 					  case GetUsersRequestMessage.GET_USERS_REQUEST:
 						  processGetUsersRequestMessage(message);
+						  break;
+					  case InitPermissionsSettingMessage.INIT_PERMISSIONS_SETTING:
+						  processInitPermissionsSettingMessage(message);
+						  break;
+					  case InitAudioSettingsMessage.INIT_AUDIO_SETTING:
+						  processInitAudioSettingsMessage(message);
 						  break;
 					}
 				}
@@ -157,6 +165,20 @@ public class ParticipantsListener implements MessageHandler{
 		GetUsersRequestMessage msg = GetUsersRequestMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.getUsers(msg.meetingId, msg.requesterId);
+		}
+	}
+	
+	private void processInitPermissionsSettingMessage(String message) {
+		InitPermissionsSettingMessage msg = InitPermissionsSettingMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.initLockSettings(msg.meetingId, msg.permissions);
+		}
+	}
+	
+	private void processInitAudioSettingsMessage(String message) {
+		InitAudioSettingsMessage msg = InitAudioSettingsMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.initAudioSettings(msg.meetingId, msg.userId, msg.muted);
 		}
 	}
 }

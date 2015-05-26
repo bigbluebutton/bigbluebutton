@@ -29,23 +29,23 @@ import org.slf4j.Logger;
 public class ChatApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ChatApplication.class, "bigbluebutton" );	
 
-	private Red5BBBInGw Red5BBBInGw;
+	private Red5BBBInGw red5BBBInGw;
 
 	public void setBigBlueButtonInGW(Red5BBBInGw inGW) {
-		Red5BBBInGw = inGW;
+		red5BBBInGw = inGW;
 	}
 
 	public void sendPublicChatHistory(String meetingID, String requesterID) {
 		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
 		String replyTo = meetingID + "/" + requesterID;
-		Red5BBBInGw.getChatHistory(meetingID, requesterID, replyTo);
+		red5BBBInGw.getChatHistory(meetingID, requesterID, replyTo);
 	}
 
 	public void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message) {
-		Red5BBBInGw.sendPublicMessage(meetingID, requesterID, message);
+		red5BBBInGw.sendPublicMessage(meetingID, requesterID, message);
 	}
 
 	public void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message) {
-		Red5BBBInGw.sendPrivateMessage(meetingID, requesterID, message);
+		red5BBBInGw.sendPrivateMessage(meetingID, requesterID, message);
 	}
 }
