@@ -29,7 +29,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	
 	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
-        <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/> </property>
         <property name="red5InGW"> <ref bean="red5BbbInGW"/> </property>
 	</bean>
 

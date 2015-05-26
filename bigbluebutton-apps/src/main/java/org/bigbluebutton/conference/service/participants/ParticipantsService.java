@@ -33,7 +33,7 @@ import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 public class ParticipantsService {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
-	private IBigBlueButtonInGW bbbInGW, red5InGW;
+	private IBigBlueButtonInGW red5InGW;
     
 	public void assignPresenter(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
@@ -49,7 +49,7 @@ public class ParticipantsService {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();
 		String userId = getBbbSession().getInternalUserID();
-		bbbInGW.getUsers(meetingId, userId);
+		red5InGW.getUsers(meetingId, userId);
 	}
 	
 	public void userRaiseHand() {
@@ -128,10 +128,6 @@ public class ParticipantsService {
 	private BigBlueButtonSession getBbbSession() {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
     }
-
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
-		this.bbbInGW = bbbGW;
-	}
 
 	public void setRed5InGW(IBigBlueButtonInGW red5InGW) {
 		this.red5InGW = red5InGW;

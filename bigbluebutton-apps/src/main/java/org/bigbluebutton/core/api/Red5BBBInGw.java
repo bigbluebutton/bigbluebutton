@@ -155,9 +155,9 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void getUsers(String meetingID, String requesterID) {
-		// TODO Auto-generated method stub
-
+	public void getUsers(String meetingId, String requesterId) {
+		GetUsersRequestMessage msg = new GetUsersRequestMessage(meetingId, requesterId);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override

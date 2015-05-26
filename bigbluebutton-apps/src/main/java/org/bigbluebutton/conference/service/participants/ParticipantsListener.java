@@ -5,6 +5,7 @@ import org.bigbluebutton.conference.BigBlueButtonApplication;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.red5.pub.messages.AssignPresenterRequestMessage;
+import org.bigbluebutton.red5.pub.messages.GetUsersRequestMessage;
 import org.bigbluebutton.red5.pub.messages.MessagingConstants;
 import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
@@ -72,6 +73,9 @@ public class ParticipantsListener implements MessageHandler{
 						  break;
 					  case GetRecordingStatusRequestMessage.GET_RECORDING_STATUS_REQUEST:
 						  processGetRecordingStatusRequestMessage(message);
+						  break;
+					  case GetUsersRequestMessage.GET_USERS_REQUEST:
+						  processGetUsersRequestMessage(message);
 						  break;
 					}
 				}
@@ -146,6 +150,13 @@ public class ParticipantsListener implements MessageHandler{
 		GetRecordingStatusRequestMessage msg = GetRecordingStatusRequestMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.getRecordingStatus(msg.meetingId, msg.userId);
+		}
+	}
+	
+	private void processGetUsersRequestMessage(String message) {
+		GetUsersRequestMessage msg = GetUsersRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.getUsers(msg.meetingId, msg.requesterId);
 		}
 	}
 }
