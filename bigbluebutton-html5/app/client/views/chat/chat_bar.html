@@ -1,14 +1,25 @@
 <template name="chatbar">
   <div id="{{id}}" {{visibility name}} class="component">
-    <div id="chatbody">
-      <ul class="chat" {{messageFontSize}}>
-        {{#each getCombinedMessagesForChat}}
-          {{#if message}}
-            <li>{{> message}}</li>
-          {{/if}}
-        {{/each}}
-        {{#unless userExists}}<li>The user has left</li>{{/unless}}
-      </ul>
+    <div name="chatBodyContainer" class="chatBodyContainer">
+      {{#if inPrivateChat}}
+        <div class="privateChatTab" name="privatechatTab">
+          {{> makeButton id="close" btn_class="secondary tiny round toPublic " i_class="ion-ios-arrow-left" rel="tooltip"
+          data_placement="bottom" title="Back to public" label="Public"}}
+          <div class="privateChatName" name="privateChatName">
+            {{privateChatName}}
+          </div>
+        </div>
+      {{/if}}
+      <div id="chatbody">
+        <ul class="chat" {{messageFontSize}}>
+          {{#each getCombinedMessagesForChat}}
+            {{#if message}}
+              <li>{{> message}}</li>
+            {{/if}}
+          {{/each}}
+          {{#unless userExists}}<li>The user has left</li>{{/unless}}
+        </ul>
+      </div>
     </div>
     {{#if userExists}}
       <div class="panel-footer">{{> chatInput}}</div>

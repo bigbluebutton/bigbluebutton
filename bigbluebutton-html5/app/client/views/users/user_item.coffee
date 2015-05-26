@@ -22,6 +22,9 @@ Template.displayUserIcons.helpers
                     settings.disablePubChat
     return locked and lockInAction
 
+# Opens a private chat tab when a username from the userlist is clicked 
 Template.usernameEntry.events
-  'click #usernameEntry': (event) ->
+  'click .usernameEntry': (event) ->
     userIdSelected = @.userId
+    unless userIdSelected is null or userIdSelected is BBB.getCurrentUser()?.userId
+      setInSession "inChatWith", userIdSelected

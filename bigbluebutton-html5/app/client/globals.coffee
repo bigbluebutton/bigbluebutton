@@ -89,6 +89,12 @@ Handlebars.registerHelper "isCurrentUser", (userId) ->
 Handlebars.registerHelper "isCurrentUserMuted", ->
   BBB.amIMuted()
 
+#Retreives a username for a private chat tab from the database if it exists
+Handlebars.registerHelper "privateChatName", ->
+  obj = Meteor.Users.findOne({ userId: getInSession "inChatWith" })
+  if obj?
+    obj?.user?.name
+
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
   BBB.isCurrentUserRaisingHand()
 
@@ -283,7 +289,7 @@ Handlebars.registerHelper 'containerPosition', (section) ->
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
-  setInSession "inChatWith", 'PUBLIC_CHAT'
+  if not getInSession "inChatWith" then setInSession "inChatWith", 'PUBLIC_CHAT'
   if isPortraitMobile() or isLandscapeMobile()
     setInSession "messageFontSize", Meteor.config.app.mobileFont
   else
