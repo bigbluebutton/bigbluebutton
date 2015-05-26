@@ -6,7 +6,6 @@ import org.bigbluebutton.red5.pub.messages.GetLockSettingsMessage;
 import org.bigbluebutton.red5.pub.messages.LockUserMessage;
 import org.bigbluebutton.red5.pub.messages.MessagingConstants;
 import org.bigbluebutton.red5.pub.messages.SendLockSettingsMessage;
-
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 

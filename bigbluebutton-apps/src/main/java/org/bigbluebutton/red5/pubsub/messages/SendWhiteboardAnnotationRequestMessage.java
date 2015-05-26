@@ -1,44 +1,45 @@
-package org.bigbluebutton.red5.sub.messages;
+package org.bigbluebutton.red5.pubsub.messages;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.red5.pub.messages.Constants;
 import org.bigbluebutton.red5.pub.messages.MessageBuilder;
 import org.bigbluebutton.red5.pub.messages.Util;
+import org.bigbluebutton.red5.sub.messages.ISubscribedMessage;
 
-import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetChatHistoryReplyMessage implements ISubscribedMessage {
-	public static final String GET_CHAT_HISTORY_REPLY = "get_chat_history_reply";
+public class SendWhiteboardAnnotationRequestMessage implements ISubscribedMessage {
+	public static final String SEND_WHITEBOARD_ANNOTATION_REQUEST = "send_whiteboard_annotation_request";
 	public static final String VERSION = "0.0.1";
 
 	public final String meetingId;
 	public final String requesterId;
-	public final ArrayList<Map<String, Object>> chatHistory;
+	public final Map<String, Object> annotation;
 
 
-	public GetChatHistoryReplyMessage(String meetingId, String requesterId, ArrayList<Map<String, Object>> chatHistory) {
+	public SendWhiteboardAnnotationRequestMessage(String meetingId,
+			String requesterId, Map<String, Object> annotation) {
 		this.meetingId = meetingId;
-		this.chatHistory = chatHistory;
 		this.requesterId = requesterId;
+		this.annotation = annotation;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
-		payload.put(Constants.CHAT_HISTORY, chatHistory);
 		payload.put(Constants.REQUESTER_ID, requesterId);
+		payload.put(Constants.ANNOTATION, annotation);
 
-		System.out.println("GetChatHistoryReplyMessage toJson");
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_CHAT_HISTORY_REPLY, VERSION, null);
+		System.out.println("SendWhiteboardAnnotationRequestMessage toJson");
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_WHITEBOARD_ANNOTATION_REQUEST, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static GetChatHistoryReplyMessage fromJson(String message) {
+	public static SendWhiteboardAnnotationRequestMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 		if (obj.has("header") && obj.has("payload")) {
@@ -47,22 +48,22 @@ public class GetChatHistoryReplyMessage implements ISubscribedMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (GET_CHAT_HISTORY_REPLY.equals(messageName)) {
+				if (SEND_WHITEBOARD_ANNOTATION_REQUEST.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID) 
-							&& payload.has(Constants.CHAT_HISTORY)
+							&& payload.has(Constants.ANNOTATION)
 							&& payload.has(Constants.REQUESTER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
-						JsonArray history = (JsonArray) payload.get(Constants.CHAT_HISTORY);
+						JsonObject annotationElement = (JsonObject) payload.get(Constants.ANNOTATION);
 
 						Util util = new Util();
+						Map<String, Object> annotation = util.extractAnnotation(annotationElement);
 
-						ArrayList<Map<String, Object>> chatHistory = util.extractChatHistory(history);
-						System.out.println("GetChatHistoryReplyMessage fromJson");
-						return new GetChatHistoryReplyMessage(meetingId, requesterId, chatHistory);
+						System.out.println("SendWhiteboardAnnotationRequestMessage fromJson");
+						return new SendWhiteboardAnnotationRequestMessage(meetingId, requesterId, annotation);
 					}
-				} 
+				}
 			}
 		}
 		return null;

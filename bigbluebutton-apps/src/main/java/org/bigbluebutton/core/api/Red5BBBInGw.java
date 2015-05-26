@@ -4,6 +4,11 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
 import org.bigbluebutton.red5.pub.messages.*;
+import org.bigbluebutton.red5.pubsub.messages.ClearWhiteboardRequestMessage;
+import org.bigbluebutton.red5.pubsub.messages.EnableWhiteboardRequestMessage;
+import org.bigbluebutton.red5.pubsub.messages.IsWhiteboardEnabledRequestMessage;
+import org.bigbluebutton.red5.pubsub.messages.RequestWhiteboardAnnotationHistoryRequestMessage;
+import org.bigbluebutton.red5.pubsub.messages.SendWhiteboardAnnotationRequestMessage;
 import org.bigbluebutton.red5.sub.messages.BroadcastLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetCurrentLayoutRequestMessage;
@@ -505,42 +510,51 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID,
 			Map<String, Object> annotation) {
-		// TODO Auto-generated method stub
-
+		System.out.println("~~sendWhiteboardAnnotation in Red5BBBInGw");
+		SendWhiteboardAnnotationRequestMessage msg = new SendWhiteboardAnnotationRequestMessage(meetingID, requesterID, annotation);
+		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void requestWhiteboardAnnotationHistory(String meetingID,
 			String requesterID, String whiteboardId, String replyTo) {
-		// TODO Auto-generated method stub
+		System.out.println("~~requestWhiteboardAnnotationHistory in Red5BBBInGw");
+		RequestWhiteboardAnnotationHistoryRequestMessage msg = new RequestWhiteboardAnnotationHistoryRequestMessage(meetingID, requesterID, whiteboardId, replyTo);
+		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
 	}
 
 	@Override
 	public void clearWhiteboard(String meetingID, String requesterID,
 			String whiteboardId) {
-		// TODO Auto-generated method stub
+		System.out.println("~~ClearWhiteboardRequestMessage in Red5BBBInGw");
+		ClearWhiteboardRequestMessage msg = new ClearWhiteboardRequestMessage(meetingID, requesterID, whiteboardId);
+		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
 	}
 
 	@Override
 	public void undoWhiteboard(String meetingID, String requesterID,
 			String whiteboardId) {
-		// TODO Auto-generated method stub
-
+		System.out.println("~~undoWhiteboard in Red5BBBInGw");
+		org.bigbluebutton.red5.pubsub.messages.UndoWhiteboardRequest msg = new org.bigbluebutton.red5.pubsub.messages.UndoWhiteboardRequest(meetingID, requesterID, whiteboardId);
+		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void enableWhiteboard(String meetingID, String requesterID,
 			Boolean enable) {
-		// TODO Auto-generated method stub
-
+		System.out.println("~~enableWhiteboard in Red5BBBInGw");
+		EnableWhiteboardRequestMessage msg = new EnableWhiteboardRequestMessage(meetingID, requesterID, enable);
+		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void isWhiteboardEnabled(String meetingID, String requesterID,
 			String replyTo) {
-		// TODO Auto-generated method stub
+		System.out.println("~~isWhiteboardEnabled in Red5BBBInGw");
+		IsWhiteboardEnabledRequestMessage msg = new IsWhiteboardEnabledRequestMessage(meetingID, requesterID, replyTo);
+		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
 	}
 

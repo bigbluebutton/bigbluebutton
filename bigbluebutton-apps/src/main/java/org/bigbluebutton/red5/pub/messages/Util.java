@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.bigbluebutton.conference.service.chat.ChatKeyUtil;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -152,8 +153,6 @@ public class Util {
 			chatMap.put(ChatKeyUtil.FROM_TIME, chat.get(Constants.FROM_TIME).getAsString());
 			chatMap.put(ChatKeyUtil.FROM_USERNAME, chat.get(Constants.FROM_USERNAME).getAsString());
 
-			System.out.println("in extractChat" + chatMap.get(ChatKeyUtil.CHAT_TYPE));
-			System.out.println("in extractChat2" + chatMap.get(Constants.CHAT_TYPE));
 			return chatMap;
 		}
 		return null;
@@ -187,4 +186,100 @@ public class Util {
 		return collection;
 			
 	}	
+
+	public Map<String, Object> extractAnnotation(JsonObject annotationElement) {
+		//NON-TEXT SHAPE
+		if (annotationElement.has(Constants.ID)
+				&& annotationElement.has("transparency")
+				&& annotationElement.has("color")
+				&& annotationElement.has("status")
+				&& annotationElement.has("whiteboardId")
+				&& annotationElement.has("type")
+				&& annotationElement.has("thickness")
+				&& annotationElement.has("points")){
+
+			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
+
+			boolean transparency = annotationElement.get("transparency").getAsBoolean();
+			String id = annotationElement.get(Constants.ID).getAsString();
+			int color = annotationElement.get("color").getAsInt();
+			String status = annotationElement.get(Constants.STATUS).getAsString();
+			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
+			int thickness = annotationElement.get("thickness").getAsInt();
+			String type = annotationElement.get("type").getAsString();
+
+			JsonArray pointsJsonArray = annotationElement.get("points").getAsJsonArray();
+
+			ArrayList<Float> pointsArray = new ArrayList<Float>();
+			Iterator<JsonElement> pointIter = pointsJsonArray.iterator();
+			while (pointIter.hasNext()){
+				JsonElement p = pointIter.next();
+				Float pf = p.getAsFloat();
+				if (pf != null) {
+					pointsArray.add(pf);
+				}
+			}
+
+			finalAnnotation.put("transparency", transparency);
+			finalAnnotation.put(Constants.ID, id);
+			finalAnnotation.put("color", color);
+			finalAnnotation.put("status", status);
+			finalAnnotation.put("whiteboardId", whiteboardId);
+			finalAnnotation.put("thickness", thickness);
+			finalAnnotation.put("points", pointsArray);
+			finalAnnotation.put("type", type);
+
+			return finalAnnotation;
+		}
+
+		// TEXT SHAPE
+		else if (annotationElement.has(Constants.ID)
+				&& annotationElement.has("text")
+				&& annotationElement.has("fontColor")
+				&& annotationElement.has("status")
+				&& annotationElement.has("textBoxWidth")
+				&& annotationElement.has("fontSize")
+				&& annotationElement.has("type")
+				&& annotationElement.has("calcedFontSize")
+				&& annotationElement.has("textBoxHeight")
+				&& annotationElement.has("calcedFontSize")
+				&& annotationElement.has("whiteboardId")
+				&& annotationElement.has("dataPoints")
+				&& annotationElement.has("x")
+				&& annotationElement.has("y")){
+
+			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
+
+			String text = annotationElement.get("text").getAsString();
+			int fontColor = annotationElement.get("fontColor").getAsInt();
+			String status = annotationElement.get(Constants.STATUS).getAsString();
+			Float textBoxWidth = annotationElement.get("textBoxWidth").getAsFloat();
+			int fontSize = annotationElement.get("fontSize").getAsInt();
+			String type = annotationElement.get("type").getAsString();
+			Float calcedFontSize = annotationElement.get("calcedFontSize").getAsFloat();
+			Float textBoxHeight = annotationElement.get("textBoxHeight").getAsFloat();
+			String id = annotationElement.get(Constants.ID).getAsString();
+			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
+			Float x = annotationElement.get("x").getAsFloat();
+			Float y = annotationElement.get("y").getAsFloat();
+			String dataPoints = annotationElement.get("dataPoints").getAsString();
+
+			finalAnnotation.put("text", text);
+			finalAnnotation.put("fontColor", fontColor);
+			finalAnnotation.put(Constants.STATUS, status);
+			finalAnnotation.put("textBoxWidth", textBoxWidth);
+			finalAnnotation.put("fontSize", fontSize);
+			finalAnnotation.put("type", type);
+			finalAnnotation.put("calcedFontSize", calcedFontSize);
+			finalAnnotation.put("textBoxHeight", textBoxHeight);
+			finalAnnotation.put(Constants.ID, id);
+			finalAnnotation.put("whiteboardId", whiteboardId);
+			finalAnnotation.put("x", x);
+			finalAnnotation.put("y", y);
+			finalAnnotation.put("dataPoints", dataPoints);
+
+			return finalAnnotation;
+		}
+		return null;
+	}
 }

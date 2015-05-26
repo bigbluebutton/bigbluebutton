@@ -28,7 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			">
 
 	<bean id="whiteboardApplication" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
-		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
+		<property name="red5BBBInGW"> <ref bean="red5BbbInGW"/></property>
 	</bean>
 
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">

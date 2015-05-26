@@ -25,16 +25,17 @@ import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.core.api.Red5BBBInGw;
 
 public class WhiteboardApplication implements IApplication {	
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
 
-	private IBigBlueButtonInGW bbbInGW;
-	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
-		bbbInGW = inGW;
+	private Red5BBBInGw red5BBBInGW;
+
+	public void setRed5BBBInGW(Red5BBBInGw inGW) {
+		red5BBBInGW = inGW;
 	}
-	
+
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
 		return true;
@@ -89,33 +90,33 @@ public class WhiteboardApplication implements IApplication {
 	@Override
 	public void roomStop(IScope scope) {
 	}
-	
+
 	public void requestAnnotationHistory(String meetingID, String requesterID, String whiteboardId) {
 	// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
 		String replyTo = meetingID + "/" + requesterID; 
-		bbbInGW.requestWhiteboardAnnotationHistory(meetingID, requesterID, whiteboardId, replyTo);
+		red5BBBInGW.requestWhiteboardAnnotationHistory(meetingID, requesterID, whiteboardId, replyTo);
 	}
-	
+
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> shape) {
-		bbbInGW.sendWhiteboardAnnotation(meetingID, requesterID, shape);
+		red5BBBInGW.sendWhiteboardAnnotation(meetingID, requesterID, shape);
 	}
-	
+
 	public void clearWhiteboard(String meetingID, String requesterID, String whiteboardId) {
-		bbbInGW.clearWhiteboard(meetingID, requesterID, whiteboardId);
+		red5BBBInGW.clearWhiteboard(meetingID, requesterID, whiteboardId);
 	}
-	
+
 	public void undoWhiteboard(String meetingID, String requesterID, String whiteboardId) {
-		bbbInGW.undoWhiteboard(meetingID, requesterID, whiteboardId);
+		red5BBBInGW.undoWhiteboard(meetingID, requesterID, whiteboardId);
 	}
-		
+
 	public void setWhiteboardEnable(String meetingID, String requesterID, Boolean enable) {
-		bbbInGW.enableWhiteboard(meetingID, requesterID, enable);
+		red5BBBInGW.enableWhiteboard(meetingID, requesterID, enable);
 	}
-	
+
 	public void setIsWhiteboardEnabled(String meetingID, String requesterID) {
 		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
 		String replyTo = meetingID + "/" + requesterID; 
-		bbbInGW.isWhiteboardEnabled(meetingID, requesterID, replyTo);
+		red5BBBInGW.isWhiteboardEnabled(meetingID, requesterID, replyTo);
 	}
-	
+
 }
