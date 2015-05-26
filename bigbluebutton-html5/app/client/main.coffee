@@ -52,10 +52,6 @@ Template.header.events
     $(".tooltip").hide()
     BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
 
-  "click .settingsIcon": (event) ->
-    setInSession("tempFontSize", getInSession("messageFontSize"))
-    $("#settingsModal").foundation('reveal', 'open');
-
   "click .signOutIcon": (event) ->
     $('.signOutIcon').blur()
     $("#logoutModal").foundation('reveal', 'open');
@@ -131,6 +127,10 @@ Template.main.rendered = ->
 Template.main.events
   'click .shield': (event) ->
     closePushMenus()
+
+  'click .settingsIcon': (event) ->
+    setInSession("tempFontSize", getInSession("messageFontSize"))
+    $("#settingsModal").foundation('reveal', 'open');
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
