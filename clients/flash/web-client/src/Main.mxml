@@ -20,10 +20,8 @@
 			import org.bigbluebutton.web.AppConfig;
 			import org.bigbluebutton.web.chat.ChatConfig;
 			import org.bigbluebutton.web.chat.views.ChatWindow;
-			import org.bigbluebutton.web.chat.views.ChatWindowBase;
 			import org.bigbluebutton.web.main.MainConfig;
 			import org.bigbluebutton.web.main.views.LoadingScreen;
-			import org.bigbluebutton.web.window.views.BBBWindow;
 			
 			import robotlegs.bender.bundles.mvcs.MVCSBundle;
 			import robotlegs.bender.extensions.contextView.ContextView;

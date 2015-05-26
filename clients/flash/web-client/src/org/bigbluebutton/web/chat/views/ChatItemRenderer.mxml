@@ -56,7 +56,7 @@
 	</s:states>
 	<s:Group width="100%">
 		<s:layout>
-			<s:VerticalLayout verticalAlign="middle" />
+			<s:VerticalLayout verticalAlign="middle" gap="0"/>
 		</s:layout>
 		<s:Group id="nameTimeGroup"
 				 width="100%">
