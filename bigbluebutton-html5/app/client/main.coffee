@@ -74,6 +74,9 @@ Template.menu.events
   'click .slideButton': (event) ->
     toggleMenu()
 
+  'click .toggleChatButton': (event) ->
+    toggleChatbar()
+
 Template.main.rendered = ->
   $("#dialog").dialog(
     modal: true
