@@ -1,9 +1,67 @@
+@import "variables";
+
 #settingsModal {
-  border-radius: 15px; display: none; padding:0px;
+  border-radius: 15px;
+  display: none;
+  padding: 0px;
+  @media @desktop-portrait, @landscape {
+    min-width: 430px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 90%;
+    height: 50%;
+  }
   .bar {
     padding: 10px;
   }
+  .topBar {
+    border-bottom: 1px solid grey;
+    p:first-child {
+      float: left;
+      i {
+        @media @desktop-portrait, @landscape {
+          font-size: 30px;
+        }
+        @media @mobile-portrait-with-keyboard, @mobile-portrait {
+          font-size: 300%;
+        }
+      }
+    }
+    p:nth-child(2) {
+      text-align: right;
+      .closeSettings {
+        @media @desktop-portrait, @landscape {
+          font-size: 30px;
+        }
+        @media @mobile-portrait-with-keyboard, @mobile-portrait {
+          font-size: 450%;
+        }
+        position: inherit;
+      }
+    }
+  }
+  .bottomBar {
+    border-top: 1px solid grey;
+    text-align: right;
+    .closeSettings {
+      @media @desktop-portrait, @landscape {
+        font-size: 12px;
+      }
+      @media @mobile-portrait-with-keyboard, @mobile-portrait {
+        font-size: 250%;
+      }
+      position: inherit;
+    }
 
+  }
+  .settingsBody {
+    padding: 10px;
+    text-align: center;
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      font-size: 200%;
+      height: 70%;
+    }
+  }
   p {
     margin-bottom: 0px;
   }
@@ -11,7 +69,6 @@
     margin-left: 20px;
     font-style: normal;
   }
-
   .joinAudioButton {
     width: 80px;
     height: 70px;
@@ -24,4 +81,19 @@
   margin: auto;
   width: 400px;
   padding: 0px;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 30%;
+    .settingsButton {
+      width: 80%;
+      height: 80%;
+    }
+  }
+}
+#saveSettings {
+  @media @desktop-portrait, @landscape {
+    font-size: 12px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    font-size: 250%;
+  }
 }

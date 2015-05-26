@@ -347,9 +347,11 @@ body {
 }
 
 .signOutIcon {
-  height: 28px;
-  width: 75px;
-  margin-left: 10px;
+  @media @landscape {
+    height: 28px;
+    width: 75px;
+    margin-left: 10px;
+  }
 }
 
 .rightNavbarSection {
@@ -378,8 +380,10 @@ body {
 }
 
 .settingsIcon {
-  width: 57px;
-  margin-right: 5px;
+  @media @landscape {
+    width: 57px;
+    margin-right: 5px;
+  }
 }
 
 #menu {
@@ -435,12 +439,28 @@ body {
   right: 5%;
   position: fixed;
   text-align: center;
-  width: 20%;
-
+  @media @landscape {
+    width: 20%;
+  }
+  @media @desktop-portrait {
+    width: 40%;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 90%;
+    p {
+      font-size: 250%;
+    }
+  }
   .logoutButton {
     padding: 0px;
-    width: 50px;
-    height: 30px;
+    @media @desktop-portrait, @landscape {
+      width: 50px;
+      height: 30px;
+    }
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      width: 20%;
+      font-size: 200%;
+    }
     background-color: rgb(229, 229, 229);
     color: rgb(121, 121, 121);
     font-weight: bold;
