@@ -443,11 +443,27 @@ body {
   right: 5%;
   position: fixed;
   text-align: center;
-  width: 20%;
-
+  @media @landscape {
+    width: 20%;
+  }
+  @media @desktop-portrait {
+    width: 40%;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    width: 90%;
+    p {
+      font-size: 250%;
+    }
+  }
   .logoutButton {
-    width: 50px;
-    height: 30px;
+    @media @desktop-portrait, @landscape {
+      width: 50px;
+      height: 30px;
+    }
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      width: 20%;
+      font-size: 200%;
+    }
     background-color: rgb(229, 229, 229);
     color: rgb(121, 121, 121);
     font-weight: bold;
