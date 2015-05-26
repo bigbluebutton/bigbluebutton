@@ -1,9 +1,38 @@
 #settingsModal {
-  border-radius: 15px; display: none; padding:0px;
+  border-radius: 15px;
+  display: none;
+  padding: 0px;
   .bar {
     padding: 10px;
   }
-
+  .topBar {
+    border-bottom: 1px solid grey;
+    p:first-child {
+      float: left;
+      i {
+        font-size: 30px;
+      }
+    }
+    p:nth-child(2) {
+      text-align: right;
+      .closeSettings {
+        font-size: 30px;
+        position: inherit;
+      }
+    }
+  }
+  .bottomBar {
+    border-top: 1px solid grey;
+    text-align: right;
+    .closeSettings {
+      font-size: 12px;
+      position: inherit;
+    }
+  }
+  .settingsBody {
+    padding: 10px;
+    text-align: center;
+  }
   p {
     margin-bottom: 0px;
   }
@@ -11,7 +40,6 @@
     margin-left: 20px;
     font-style: normal;
   }
-
   .joinAudioButton {
     width: 80px;
     height: 70px;
