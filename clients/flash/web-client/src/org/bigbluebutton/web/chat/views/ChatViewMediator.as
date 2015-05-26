@@ -104,6 +104,17 @@ package org.bigbluebutton.web.chat.views {
 		override public function destroy():void {
 			super.destroy();
 			//view.dispose();
+			view.messageList.dataProvider = null;
+			
+			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSuccess);
+			chatMessageService.sendMessageOnFailureSignal.remove(onSendFailure);
+			
+			view.messageList.removeEventListener(FlexEvent.UPDATE_COMPLETE, listUpdateCompleteHandler);
+			view.sendButton.removeEventListener(MouseEvent.CLICK, sendButtonClickHandler);
+			view.inputArea.removeEventListener(KeyboardEvent.KEY_DOWN, inputAreaKeyDownHandler);
+			
+			userSession.userList.userRemovedSignal.remove(userRemoved);
+			userSession.userList.userAddedSignal.remove(userAdded);
 			view = null;
 		}
 	}

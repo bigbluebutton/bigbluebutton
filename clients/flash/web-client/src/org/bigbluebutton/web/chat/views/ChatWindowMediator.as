@@ -44,6 +44,7 @@ package org.bigbluebutton.web.chat.views {
 		override public function destroy():void {
 			super.destroy();
 			//view.dispose();
+			chatMessagesSession.chatMessageChangeSignal.remove(newMessageReceived);
 			view = null;
 		}
 	}
