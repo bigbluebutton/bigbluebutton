@@ -27,12 +27,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 		
-	<bean id="chatApplication" class="org.bigbluebutton.conference.service.chat.ChatApplication">
-        <property name="bigBlueButtonInGW"> <ref bean="red5BbbInGW"/></property>
-	</bean>
-	
 	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
-		<property name="chatApplication"> <ref local="chatApplication"/></property>
+		<property name="bigBlueButtonInGW"> <ref bean="red5BbbInGW"/></property>
 	</bean>
 
 	<bean id="chatMessageListener" class="org.bigbluebutton.conference.service.chat.ChatMessageListener">

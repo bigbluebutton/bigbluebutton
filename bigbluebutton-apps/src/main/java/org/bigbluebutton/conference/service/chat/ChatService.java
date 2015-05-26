@@ -20,21 +20,25 @@ package org.bigbluebutton.conference.service.chat;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.core.api.Red5BBBInGw;
 import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;
 
 public class ChatService {	
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
-	private ChatApplication application;
+	private Red5BBBInGw red5BBBInGw;
 
 	public void sendPublicChatHistory() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
 		
-		application.sendPublicChatHistory(meetingID, requesterID);
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID;
+		red5BBBInGw.getChatHistory(meetingID, requesterID, replyTo);
 	}
 	
 	private BigBlueButtonSession getBbbSession() {
@@ -67,11 +71,11 @@ public class ChatService {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
 		
-		application.sendPublicMessage(meetingID, requesterID, message);
+		red5BBBInGw.sendPublicMessage(meetingID, requesterID, message);
 	}
 	
-	public void setChatApplication(ChatApplication a) {
-		application = a;
+	public void setBigBlueButtonInGW(Red5BBBInGw inGW) {
+		red5BBBInGw = inGW;
 	}
 
 	public void sendPrivateMessage(Map<String, Object> msg){
@@ -99,7 +103,6 @@ public class ChatService {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
 		
-		application.sendPrivateMessage(meetingID, requesterID, message);
-
+		red5BBBInGw.sendPrivateMessage(meetingID, requesterID, message);
 	}
 }
