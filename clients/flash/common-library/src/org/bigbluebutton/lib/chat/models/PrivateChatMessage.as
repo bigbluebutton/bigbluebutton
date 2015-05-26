@@ -39,9 +39,11 @@ package org.bigbluebutton.lib.chat.models {
 			return _privateChat;
 		}
 		
+		/* I don't think we need a public setter
 		public function set privateChat(value:ChatMessages):void {
 			_privateChat = value;
 			_privateChat.chatMessageChangeSignal.dispatch();
 		}
+		*/
 	}
 }
