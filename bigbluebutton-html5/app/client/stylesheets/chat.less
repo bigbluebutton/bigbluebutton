@@ -1,5 +1,39 @@
 @import "variables";
 
+@media @desktop-portrait, @landscape {
+  .privateChatTab {
+    order: 1;
+    -webkit-order: 1;
+    -ms-flex-order: 1;
+    -ms-order: 1;
+    background-color: #EEEEEE;
+    min-width: 205px;
+    .btn {
+      background-color: inherit;
+      margin: 0;
+      height: 45px;
+    }
+    span {
+      position: relative;
+      font-size: 18px;
+      bottom: 9px;
+      left: 2px;
+    }
+    i {
+      position: relative;
+      right: 2px;
+      font-size: 18px;
+      bottom: 4px;
+    }
+  }
+  .privateChatName {
+    float: right;
+    padding: 0.65rem 1.25rem 0.6rem 0.3rem;
+    font-family: "Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
+    font-size: 18px;
+  }
+}
+
 #chat {
   @media @landscape {
     -webkit-flex: 3 3 30%;
@@ -30,10 +64,31 @@
     }
   }
 }
-
+.chatBodyContainer {
+  @media @landscape {
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-flow: column;
+    flex-flow: column;
+    height: calc(~'100% - 70px');
+    width: 100%;
+  }
+}
 #chatbody {
   @media @landscape {
-    height: calc(~'100% - 70px');
+    order: 2;
+    -webkit-order: 2;
+    -ms-flex-order: 2;
+    -ms-order: 2;
+    shrink: 1;
+    -webkit-shrink: 1;
+    -moz-shrink: 1;
+    grow:1;
+    -webkit-grow: 1;
+    -moz-grow: 1;
   }
   overflow-y: auto;
   padding-left: 0px;
