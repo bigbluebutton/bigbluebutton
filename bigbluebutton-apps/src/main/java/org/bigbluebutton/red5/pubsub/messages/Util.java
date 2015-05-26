@@ -175,11 +175,13 @@ public class Util {
 	}
 
 	public Map<String, Object> extractAnnotation(JsonObject annotationElement) {
+		//NON-TEXT SHAPE
 		if (annotationElement.has(Constants.ID)
 				&& annotationElement.has("transparency")
 				&& annotationElement.has("color")
 				&& annotationElement.has("status")
 				&& annotationElement.has("whiteboardId")
+				&& annotationElement.has("type")
 				&& annotationElement.has("thickness")
 				&& annotationElement.has("points")){
 
@@ -213,6 +215,55 @@ public class Util {
 			finalAnnotation.put("thickness", thickness);
 			finalAnnotation.put("points", pointsArray);
 			finalAnnotation.put("type", type);
+
+			return finalAnnotation;
+		}
+
+		// TEXT SHAPE
+		else if (annotationElement.has(Constants.ID)
+				&& annotationElement.has("text")
+				&& annotationElement.has("fontColor")
+				&& annotationElement.has("status")
+				&& annotationElement.has("textBoxWidth")
+				&& annotationElement.has("fontSize")
+				&& annotationElement.has("type")
+				&& annotationElement.has("calcedFontSize")
+				&& annotationElement.has("textBoxHeight")
+				&& annotationElement.has("calcedFontSize")
+				&& annotationElement.has("whiteboardId")
+				&& annotationElement.has("dataPoints")
+				&& annotationElement.has("x")
+				&& annotationElement.has("y")){
+
+			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
+
+			String text = annotationElement.get("text").getAsString();
+			int fontColor = annotationElement.get("fontColor").getAsInt();
+			String status = annotationElement.get(Constants.STATUS).getAsString();
+			Float textBoxWidth = annotationElement.get("textBoxWidth").getAsFloat();
+			int fontSize = annotationElement.get("fontSize").getAsInt();
+			String type = annotationElement.get("type").getAsString();
+			Float calcedFontSize = annotationElement.get("calcedFontSize").getAsFloat();
+			Float textBoxHeight = annotationElement.get("textBoxHeight").getAsFloat();
+			String id = annotationElement.get(Constants.ID).getAsString();
+			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
+			Float x = annotationElement.get("x").getAsFloat();
+			Float y = annotationElement.get("y").getAsFloat();
+			String dataPoints = annotationElement.get("dataPoints").getAsString();
+
+			finalAnnotation.put("text", text);
+			finalAnnotation.put("fontColor", fontColor);
+			finalAnnotation.put(Constants.STATUS, status);
+			finalAnnotation.put("textBoxWidth", textBoxWidth);
+			finalAnnotation.put("fontSize", fontSize);
+			finalAnnotation.put("type", type);
+			finalAnnotation.put("calcedFontSize", calcedFontSize);
+			finalAnnotation.put("textBoxHeight", textBoxHeight);
+			finalAnnotation.put(Constants.ID, id);
+			finalAnnotation.put("whiteboardId", whiteboardId);
+			finalAnnotation.put("x", x);
+			finalAnnotation.put("y", y);
+			finalAnnotation.put("dataPoints", dataPoints);
 
 			return finalAnnotation;
 		}
