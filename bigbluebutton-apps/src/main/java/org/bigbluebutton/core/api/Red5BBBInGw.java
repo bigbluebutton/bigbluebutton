@@ -4,10 +4,13 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
 import org.bigbluebutton.red5.pub.messages.*;
+import org.bigbluebutton.red5.sub.messages.BroadcastLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
+import org.bigbluebutton.red5.sub.messages.GetCurrentLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.InitAudioSettingsMessage;
 import org.bigbluebutton.red5.sub.messages.InitPermissionsSettingMessage;
+import org.bigbluebutton.red5.sub.messages.LockLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetUserStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
@@ -464,15 +467,15 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 
 	@Override
 	public void getCurrentLayout(String meetingID, String requesterID) {
-		// TODO Auto-generated method stub
-
+		GetCurrentLayoutRequestMessage msg = new GetCurrentLayoutRequestMessage(meetingID, requesterID);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void broadcastLayout(String meetingID, String requesterID,
 			String layout) {
-		// TODO Auto-generated method stub
-
+		BroadcastLayoutRequestMessage msg = new BroadcastLayoutRequestMessage(meetingID, requesterID, layout);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
@@ -544,8 +547,8 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void lockLayout(String meetingID, String setById, boolean lock,
 			boolean viewersOnly, String layout) {
-		// TODO Auto-generated method stub
-		
+		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
 }

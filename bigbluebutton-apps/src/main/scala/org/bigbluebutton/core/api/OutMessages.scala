@@ -372,7 +372,8 @@ case class BroadcastLayoutEvent(
     layoutID: String, 
     locked: Boolean, 
     setByUserID: String,
-    applyTo: Array[UserVO]
+    applyTo: Array[UserVO],
+    version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
 case class LockLayoutEvent(

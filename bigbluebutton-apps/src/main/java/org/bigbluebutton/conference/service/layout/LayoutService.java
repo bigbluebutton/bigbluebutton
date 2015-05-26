@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
@@ -30,12 +31,16 @@ public class LayoutService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( LayoutService.class, "bigbluebutton" );
 	
-	private LayoutApplication application;
+	private IBigBlueButtonInGW red5GW;
+	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		red5GW = inGW;
+	}
 
 	public void getCurrentLayout() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		log.debug("Received get current layout request");
-		application.getCurrentLayout(meetingID, getBbbSession().getInternalUserID());
+
+		red5GW.getCurrentLayout(meetingID, getBbbSession().getInternalUserID());
 	}
 		
 	public void broadcast(Map<String, Object> message) {
@@ -47,8 +52,8 @@ public class LayoutService {
 			log.error("Invalid Broadcast Layout message. layout is null or empty.");
 			return;
 		}
-					
-		application.broadcastLayout(meetingID, getBbbSession().getInternalUserID(), newlayout);
+							
+		red5GW.broadcastLayout(meetingID, getBbbSession().getInternalUserID(), newlayout);
 	}
 	
 	public void lock(Map<String, Object> message) {
@@ -75,11 +80,7 @@ public class LayoutService {
 			return;
 		}
 		
-		application.lockLayout(meetingID, getBbbSession().getInternalUserID(), lock, viewersOnly, layout);
-	}
-	
-	public void setLayoutApplication(LayoutApplication a) {
-		application = a;
+		red5GW.lockLayout(meetingID, getBbbSession().getInternalUserID(), lock, viewersOnly, layout); 
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

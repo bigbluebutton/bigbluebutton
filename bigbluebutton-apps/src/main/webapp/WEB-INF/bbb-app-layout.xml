@@ -26,13 +26,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util 
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
-	
-	<bean id="layoutApplication" class="org.bigbluebutton.conference.service.layout.LayoutApplication">
-		<property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
-	</bean>
-	    
+		    
 	<bean id="layout.service" class="org.bigbluebutton.conference.service.layout.LayoutService">
-	    <property name="layoutApplication"><ref local="layoutApplication"/></property>
+	    <property name="bigBlueButtonInGW"> <ref bean="red5BbbInGW"/></property>
    	</bean>	
 	
 

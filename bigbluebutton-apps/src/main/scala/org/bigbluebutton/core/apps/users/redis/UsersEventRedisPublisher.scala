@@ -4,6 +4,9 @@ import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.red5.pub.messages.MessagingConstants
 import com.google.gson.Gson
+import org.bigbluebutton.red5.sub.messages.GetCurrentLayoutReplyMessage
+import org.bigbluebutton.red5.sub.messages.BroadcastLayoutMessage
+import org.bigbluebutton.red5.sub.messages.LockLayoutMessage
 
 class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 
@@ -42,10 +45,38 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
         case msg: UserLeftVoice                          => handleUserLeftVoice(msg)
         case msg: IsMeetingMutedReply                    => handleIsMeetingMutedReply(msg)
         case msg: UserListeningOnly                      => handleUserListeningOnly(msg)
+        case msg: GetCurrentLayoutReply                  => handleGetCurrentLayoutReply(msg)
+        case msg: BroadcastLayoutEvent                   => handleBroadcastLayoutEvent(msg)
+        case msg: LockLayoutEvent                        => handleLockLayoutEvent(msg)
 	    case _ => //println("Unhandled message in UsersClientMessageSender")
 	  }
 	}
 
+  private def handleLockLayoutEvent(msg: LockLayoutEvent) {
+    val users = new java.util.ArrayList[String];
+    msg.applyTo.foreach(uvo => {    
+      users.add(uvo.userID)
+    })
+    
+    val evt = new LockLayoutMessage(msg.meetingID, msg.setById, msg.locked, users)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, evt.toJson()) 
+  }
+    
+  private def handleBroadcastLayoutEvent(msg: BroadcastLayoutEvent) {
+    val users = new java.util.ArrayList[String];
+    msg.applyTo.foreach(uvo => {    
+      users.add(uvo.userID)
+    })
+    
+    val evt = new BroadcastLayoutMessage(msg.meetingID, msg.setByUserID, msg.layoutID, msg.locked, users)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, evt.toJson()) 
+  }
+  
+  private def handleGetCurrentLayoutReply(msg: GetCurrentLayoutReply) {
+    val reply = new GetCurrentLayoutReplyMessage(msg.meetingID, msg.requesterID, msg.setByUserID, msg.layoutID, msg.locked)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, reply.toJson())    
+  }
+    
   private def handleMeetingState(msg: MeetingState) {
     val json = UsersMessageToJsonConverter.meetingState(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)    

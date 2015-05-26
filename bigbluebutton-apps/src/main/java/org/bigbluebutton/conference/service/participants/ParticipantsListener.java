@@ -7,10 +7,14 @@ import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.red5.pub.messages.AssignPresenterRequestMessage;
 import org.bigbluebutton.red5.pub.messages.GetUsersRequestMessage;
 import org.bigbluebutton.red5.pub.messages.MessagingConstants;
+import org.bigbluebutton.red5.sub.messages.BroadcastLayoutMessage;
+import org.bigbluebutton.red5.sub.messages.BroadcastLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
+import org.bigbluebutton.red5.sub.messages.GetCurrentLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.InitAudioSettingsMessage;
 import org.bigbluebutton.red5.sub.messages.InitPermissionsSettingMessage;
+import org.bigbluebutton.red5.sub.messages.LockLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetUserStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
@@ -84,6 +88,15 @@ public class ParticipantsListener implements MessageHandler{
 						  break;
 					  case InitAudioSettingsMessage.INIT_AUDIO_SETTING:
 						  processInitAudioSettingsMessage(message);
+						  break;
+					  case BroadcastLayoutRequestMessage.BROADCAST_LAYOUT_REQUEST:
+						  processBroadcastLayoutRequestMessage(message);
+						  break;
+					  case LockLayoutRequestMessage.LOCK_LAYOUT_REQUEST:
+						  processLockLayoutRequestMessage(message);
+						  break;
+					  case GetCurrentLayoutRequestMessage.GET_CURRENT_LAYOUT_REQUEST:
+						  processGetCurrentLayoutRequestMessage(message);
 						  break;
 					}
 				}
@@ -179,6 +192,27 @@ public class ParticipantsListener implements MessageHandler{
 		InitAudioSettingsMessage msg = InitAudioSettingsMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.initAudioSettings(msg.meetingId, msg.userId, msg.muted);
+		}
+	}
+	
+	private void processBroadcastLayoutRequestMessage(String message) {
+		BroadcastLayoutRequestMessage msg = BroadcastLayoutRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.broadcastLayout(msg.meetingId, msg.userId, msg.layout);
+		}
+	}
+	
+	private void processLockLayoutRequestMessage(String message) {
+		LockLayoutRequestMessage msg = LockLayoutRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.lockLayout(msg.meetingId, msg.userId, msg.lock, msg.viewersOnly, msg.layout);
+		}
+	}
+	
+	private void processGetCurrentLayoutRequestMessage(String message) {
+		GetCurrentLayoutRequestMessage msg = GetCurrentLayoutRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.getCurrentLayout(msg.meetingId, msg.userId);
 		}
 	}
 }

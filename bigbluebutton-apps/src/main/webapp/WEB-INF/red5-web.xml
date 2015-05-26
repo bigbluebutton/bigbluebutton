@@ -109,7 +109,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				<ref bean="usersRedisRecorder" />
 				<ref bean="usersRedisPublisher" />
 				<ref bean="meetingEventRedisPublisher" />
-				<ref bean="layoutRed5ClientSender" />
 				<ref bean="pollRed5ClientSender" />
 				<ref bean="pollRedisRecorder" />
 				<ref bean="pollRedisPublisher"/>
@@ -145,10 +144,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 
 	<bean id="pollRed5ClientSender" class="org.bigbluebutton.core.apps.poll.red5.PollClientMessageSender">
-		<constructor-arg index="0" ref="connInvokerService"/>
-	</bean>
-
-	<bean id="layoutRed5ClientSender" class="org.bigbluebutton.core.apps.layout.red5.LayoutClientMessageSender">
 		<constructor-arg index="0" ref="connInvokerService"/>
 	</bean>
 

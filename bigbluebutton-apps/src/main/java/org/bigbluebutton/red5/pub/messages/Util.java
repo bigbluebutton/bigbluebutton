@@ -174,4 +174,17 @@ public class Util {
 		return collection;
 			
 	}
+	
+	public ArrayList<String> extractUserids(JsonArray users) {
+		ArrayList<String> collection = new ArrayList<String>();
+	
+	    Iterator<JsonElement> usersIter = users.iterator();
+	    while (usersIter.hasNext()){
+			JsonElement user = usersIter.next();
+			collection.add(user.getAsString());
+	    }
+		
+		return collection;
+			
+	}	
 }
