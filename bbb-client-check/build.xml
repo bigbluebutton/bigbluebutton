@@ -107,6 +107,7 @@
 			<fileset file="../bigbluebutton-client/resources/prod/lib/bbb_webrtc_bridge_sip.js" />
 			<fileset file="../bigbluebutton-client/resources/prod/lib/sip.js" />
 			<fileset file="../bigbluebutton-client/resources/prod/lib/bbb_localization.js" />
+			<fileset file="../bigbluebutton-client/resources/prod/lib/jquery-1.5.1.min.js" />
 		</copy>
 
 		<get src="${TEST_IMAGE_URL}" dest="${html.output}/test_image.jpg" skipexisting="true" />

@@ -4,6 +4,9 @@ var inEchoTest = true;
 
 function webRTCCallback(message) {
 	switch (message.status) {
+		case 'succeded':
+			BBB.webRTCCallSucceeded();
+			break;
 		case 'failed':
 			if (message.errorcode !== 1004) {
 				message.cause = null;
@@ -175,6 +178,7 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 	userAgent = new SIP.UA(configuration);
 	userAgent.on('connected', function() {
 		uaConnected = true;
+		callback({'status':'succeded'});
 		makeCallFunc();
 	});
 	userAgent.on('disconnected', function() {
