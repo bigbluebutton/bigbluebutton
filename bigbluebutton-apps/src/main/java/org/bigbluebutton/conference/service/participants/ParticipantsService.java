@@ -42,7 +42,7 @@ public class ParticipantsService {
 		String newPresenterName = (String) msg.get("newPresenterName");
 		String assignedBy = (String) msg.get("assignedBy");
 
-		bbbInGW.assignPresenter(meetingId, newPresenterID, newPresenterName, assignedBy);
+		red5InGW.assignPresenter(meetingId, newPresenterID, newPresenterName, assignedBy);
 	}
 	
 	public void getParticipants() {
@@ -54,8 +54,9 @@ public class ParticipantsService {
 	
 	public void userRaiseHand() {
 		IScope scope = Red5.getConnectionLocal().getScope();
+		String meetingId = scope.getName();
 		String userId = getBbbSession().getInternalUserID();
-		bbbInGW.userRaiseHand(scope.getName(), userId);
+		red5InGW.userRaiseHand(meetingId, userId);
 	}
 	
 	public void lowerHand(Map<String, String> msg) {
@@ -64,7 +65,7 @@ public class ParticipantsService {
 		String userId = (String) msg.get("userId");
 		String loweredBy = (String) msg.get("loweredBy");
 
-		bbbInGW.lowerHand(meetingId, userId, loweredBy);
+		red5InGW.lowerHand(meetingId, userId, loweredBy);
 	}
 	
 	public void ejectUserFromMeeting(Map<String, String> msg) {
@@ -73,7 +74,7 @@ public class ParticipantsService {
 		String userId = (String) msg.get("userId");
 		String ejectedBy = (String) msg.get("ejectedBy");
 
-		bbbInGW.ejectUserFromMeeting(meetingId, userId, ejectedBy);
+		red5InGW.ejectUserFromMeeting(meetingId, userId, ejectedBy);
 	}
 	
 	public void shareWebcam(String stream) {
@@ -81,7 +82,7 @@ public class ParticipantsService {
 		String meetingId = scope.getName();
 		String userId = getBbbSession().getInternalUserID();
 
-		bbbInGW.shareWebcam(meetingId, userId, stream);	
+		red5InGW.shareWebcam(meetingId, userId, stream);	
 	}
 	
 	public void unshareWebcam(String stream) {
@@ -89,7 +90,7 @@ public class ParticipantsService {
 		String meetingId = scope.getName();
 		String userId = getBbbSession().getInternalUserID();
 
-		bbbInGW.unshareWebcam(meetingId, userId, stream);
+		red5InGW.unshareWebcam(meetingId, userId, stream);
 	}
 	
 	public void setParticipantStatus(Map<String, Object> msg) {
@@ -99,7 +100,7 @@ public class ParticipantsService {
 		String status = (String) msg.get("status");
 		Object value = (Object) msg.get("value");
 		
-		bbbInGW.setUserStatus(meetingId, userId, status, value);
+		red5InGW.setUserStatus(meetingId, userId, status, value);
 	}
 		
 	public void setRecordingStatus(Map<String, Object> msg) {
@@ -108,14 +109,14 @@ public class ParticipantsService {
 		String userId = (String) msg.get("userId");
 		Boolean recording = (Boolean) msg.get("recording");
 
-		bbbInGW.setRecordingStatus(meetingId, userId, recording);
+		red5InGW.setRecordingStatus(meetingId, userId, recording);
 	}
 
 	public void getRecordingStatus() {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();
 
-		bbbInGW.getRecordingStatus(meetingId, getMyUserId());
+		red5InGW.getRecordingStatus(meetingId, getMyUserId());
 	}
 	
 	public String getMyUserId() {

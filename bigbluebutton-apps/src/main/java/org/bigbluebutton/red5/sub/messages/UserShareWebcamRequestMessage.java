@@ -3,39 +3,37 @@ package org.bigbluebutton.red5.sub.messages;
 import java.util.HashMap;
 import org.bigbluebutton.red5.pub.messages.Constants;
 import org.bigbluebutton.red5.pub.messages.MessageBuilder;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 
-public class UserLoweredHandMessage implements ISubscribedMessage {
-	public static final String USER_LOWERED_HAND  = "user_lowered_hand_message";
+public class UserShareWebcamRequestMessage implements ISubscribedMessage {
+	public static final String USER_SHARE_WEBCAM_REQUEST  = "user_share_webcam_request_message";
 	public static final String VERSION = "0.0.1";
 	
 	public final String meetingId;
 	public final String userId;
-	public final Boolean raisedHand;
-	public final String loweredBy;
+	public final String stream;
 	
-	public UserLoweredHandMessage(String meetingId, String userId, Boolean raisedHand, String loweredBy) {
+	public UserShareWebcamRequestMessage(String meetingId, String userId, String stream) {
 		this.meetingId = meetingId;
 		this.userId = userId;
-		this.raisedHand = raisedHand;
-		this.loweredBy = loweredBy;
+		this.stream = stream;
 	}
 	
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId); 
 		payload.put(Constants.USER_ID, userId);
-		payload.put(Constants.RAISE_HAND, raisedHand);
-		payload.put(Constants.LOWERED_BY, loweredBy);
+		payload.put(Constants.STREAM, stream);
 		
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(USER_LOWERED_HAND, VERSION, null);
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(USER_SHARE_WEBCAM_REQUEST, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);				
 	}
 	
-	public static UserLoweredHandMessage fromJson(String message) {
+	public static UserShareWebcamRequestMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 		
@@ -45,16 +43,14 @@ public class UserLoweredHandMessage implements ISubscribedMessage {
 			
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (USER_LOWERED_HAND.equals(messageName)) {
+				if (USER_SHARE_WEBCAM_REQUEST.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.USER_ID)
-							&& payload.has(Constants.RAISE_HAND)
-							&& payload.has(Constants.LOWERED_BY)) {
+							&& payload.has(Constants.STREAM)) {
 						String id = payload.get(Constants.MEETING_ID).getAsString();
 						String userid = payload.get(Constants.USER_ID).getAsString();
-						Boolean raisedHand = payload.get(Constants.RAISE_HAND).getAsBoolean();
-						String loweredBy = payload.get(Constants.LOWERED_BY).getAsString();
-						return new UserLoweredHandMessage(id, userid, raisedHand, loweredBy);					
+						String stream = payload.get(Constants.STREAM).getAsString();
+						return new UserShareWebcamRequestMessage(id, userid, stream);					
 					}
 				} 
 			}

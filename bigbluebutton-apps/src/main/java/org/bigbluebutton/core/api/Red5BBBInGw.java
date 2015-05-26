@@ -4,7 +4,15 @@ import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
 import org.bigbluebutton.red5.pub.messages.*;
+import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
+import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
+import org.bigbluebutton.red5.sub.messages.SetRecordingStatusRequestMessage;
+import org.bigbluebutton.red5.sub.messages.SetUserStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
+import org.bigbluebutton.red5.sub.messages.UserLoweredHandMessage;
+import org.bigbluebutton.red5.sub.messages.UserRaisedHandMessage;
+import org.bigbluebutton.red5.sub.messages.UserShareWebcamRequestMessage;
+import org.bigbluebutton.red5.sub.messages.UserUnshareWebcamRequestMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -118,33 +126,32 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 
 	@Override
 	public void userRaiseHand(String meetingId, String userId) {
-		// TODO Auto-generated method stub
-
+		UserRaisedHandMessage msg = new UserRaisedHandMessage(meetingId, userId, true);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void lowerHand(String meetingId, String userId, String loweredBy) {
-		// TODO Auto-generated method stub
-
+		UserLoweredHandMessage msg = new UserLoweredHandMessage(meetingId, userId, false, loweredBy);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void shareWebcam(String meetingId, String userId, String stream) {
-		// TODO Auto-generated method stub
-
+		UserShareWebcamRequestMessage msg = new UserShareWebcamRequestMessage(meetingId, userId, stream);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void unshareWebcam(String meetingId, String userId, String stream) {
-		// TODO Auto-generated method stub
-
+		UserUnshareWebcamRequestMessage msg = new UserUnshareWebcamRequestMessage(meetingId, userId, stream);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void setUserStatus(String meetingID, String userID, String status,
-			Object value) {
-		// TODO Auto-generated method stub
-
+	public void setUserStatus(String meetingId, String userId, String status, Object value) {
+		SetUserStatusRequestMessage msg = new SetUserStatusRequestMessage(meetingId, userId, status, value.toString());
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
@@ -172,23 +179,23 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void assignPresenter(String meetingID, String newPresenterID,
+	public void assignPresenter(String meetingId, String newPresenterID,
 			String newPresenterName, String assignedBy) {
-		// TODO Auto-generated method stub
-
+		AssignPresenterRequestMessage msg = new AssignPresenterRequestMessage(meetingId, newPresenterID, newPresenterName, assignedBy);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void setRecordingStatus(String meetingId, String userId,
 			Boolean recording) {
-		// TODO Auto-generated method stub
-
+		SetRecordingStatusRequestMessage msg = new SetRecordingStatusRequestMessage(meetingId, userId, recording);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void getRecordingStatus(String meetingId, String userId) {
-		// TODO Auto-generated method stub
-
+		GetRecordingStatusRequestMessage msg = new GetRecordingStatusRequestMessage(meetingId, userId);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
 	@Override
@@ -255,8 +262,8 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void ejectUserFromMeeting(String meetingId, String userId,
 			String ejectedBy) {
-		// TODO Auto-generated method stub
-
+		EjectUserFromMeetingRequestMessage msg = new EjectUserFromMeetingRequestMessage(meetingId, userId, ejectedBy);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
