@@ -165,6 +165,7 @@ package org.bigbluebutton.air.chat.views {
 		
 		private function onSendSuccess(result:String):void {
 			view.inputMessage.enabled = true;
+			view.sendButton.enabled = true;
 			view.inputMessage.text = "";
 		}
 		
