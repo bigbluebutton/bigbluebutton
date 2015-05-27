@@ -11,11 +11,17 @@ import org.bigbluebutton.red5.pubsub.messages.RequestWhiteboardAnnotationHistory
 import org.bigbluebutton.red5.pubsub.messages.SendWhiteboardAnnotationRequestMessage;
 import org.bigbluebutton.red5.sub.messages.BroadcastLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
+import org.bigbluebutton.red5.sub.messages.EjectUserFromVoiceRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetCurrentLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.InitAudioSettingsMessage;
 import org.bigbluebutton.red5.sub.messages.InitPermissionsSettingMessage;
+import org.bigbluebutton.red5.sub.messages.IsMeetingMutedRequestMessage;
 import org.bigbluebutton.red5.sub.messages.LockLayoutRequestMessage;
+import org.bigbluebutton.red5.sub.messages.LockMuteUserRequestMessage;
+import org.bigbluebutton.red5.sub.messages.MuteAllExceptPresenterRequestMessage;
+import org.bigbluebutton.red5.sub.messages.MuteAllRequestMessage;
+import org.bigbluebutton.red5.sub.messages.MuteUserRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetUserStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
@@ -23,6 +29,7 @@ import org.bigbluebutton.red5.sub.messages.UserLoweredHandMessage;
 import org.bigbluebutton.red5.sub.messages.UserRaisedHandMessage;
 import org.bigbluebutton.red5.sub.messages.UserShareWebcamRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserUnshareWebcamRequestMessage;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -231,40 +238,42 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void muteAllExceptPresenter(String meetingID, String requesterID,
 			Boolean mute) {
-		// TODO Auto-generated method stub
-
+		MuteAllExceptPresenterRequestMessage msg = new MuteAllExceptPresenterRequestMessage(meetingID, requesterID, mute);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 
 	@Override
 	public void muteAllUsers(String meetingID, String requesterID, Boolean mute) {
-		// TODO Auto-generated method stub
-
+		MuteAllRequestMessage msg = new MuteAllRequestMessage(meetingID, requesterID, mute);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 
 	@Override
 	public void isMeetingMuted(String meetingID, String requesterID) {
-		// TODO Auto-generated method stub
-
+		IsMeetingMutedRequestMessage msg = new IsMeetingMutedRequestMessage(meetingID, requesterID);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 
 	@Override
 	public void muteUser(String meetingID, String requesterID, String userID,
 			Boolean mute) {
-		// TODO Auto-generated method stub
+		MuteUserRequestMessage msg = new MuteUserRequestMessage(meetingID, requesterID, userID, mute);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 
 	}
 
 	@Override
 	public void lockMuteUser(String meetingID, String requesterID,
 			String userID, Boolean lock) {
-		// TODO Auto-generated method stub
-
+		LockMuteUserRequestMessage msg = new LockMuteUserRequestMessage(meetingID, requesterID, userID, lock);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 
 	@Override
 	public void ejectUserFromVoice(String meetingID, String userId,
 			String ejectedBy) {
-		// TODO Auto-generated method stub
+		EjectUserFromVoiceRequestMessage msg = new EjectUserFromVoiceRequestMessage(meetingID, ejectedBy, userId);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 
 	}
 

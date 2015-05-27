@@ -42,7 +42,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
 	private RecorderApplication recorderApplication;
 	private ConnectionInvokerService connInvokerService;
-	private IBigBlueButtonInGW bbbGW, red5InGW;
+	private IBigBlueButtonInGW red5InGW;
 	
 	private final String APP = "BBB";
 	private final String CONN = "RED5-";
@@ -273,10 +273,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		this.connInvokerService = connInvokerService;
 	}
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
-		this.bbbGW = bbbGW;
-	}
-
 	public void setRed5InGW(IBigBlueButtonInGW red5InGW) {
 		this.red5InGW = red5InGW;
 	}

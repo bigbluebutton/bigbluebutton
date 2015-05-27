@@ -31,6 +31,7 @@ public class VoiceService {
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
 	
 	private IBigBlueButtonInGW bbbInGW;
+	private IBigBlueButtonInGW red5InGW;
 	
 	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
 		bbbInGW = inGW;
@@ -59,20 +60,20 @@ public class VoiceService {
   		String meetingID = Red5.getConnectionLocal().getScope().getName();
   		String requesterID = getBbbSession().getInternalUserID();	
   		Boolean muteAll = (Boolean) msg.get("mute");
-  		bbbInGW.muteAllExceptPresenter(meetingID, requesterID, muteAll);
+  		red5InGW.muteAllExceptPresenter(meetingID, requesterID, muteAll);
 	}
 	
 	public void muteAllUsers(Map<String, Object> msg) {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();	
 		Boolean mute = (Boolean) msg.get("mute");
-		bbbInGW.muteAllUsers(meetingID, requesterID, mute); 		
+		red5InGW.muteAllUsers(meetingID, requesterID, mute); 		
 	}	
 	
 	public void isRoomMuted(){
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();		
-		bbbInGW.isMeetingMuted(meetingID, requesterID); 	
+		red5InGW.isMeetingMuted(meetingID, requesterID); 	
 	}
 
 	// not sure if this is used
@@ -82,7 +83,7 @@ public class VoiceService {
 
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
-		bbbInGW.muteUser(meetingID, requesterID, userid, mute); 
+		red5InGW.muteUser(meetingID, requesterID, userid, mute); 
 	}
 
 	public void lockMuteUser(Map<String, Object> msg) { 			
@@ -91,18 +92,22 @@ public class VoiceService {
 		
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();		
-		bbbInGW.lockMuteUser(meetingID, requesterID, userid, lock); 
+		red5InGW.lockMuteUser(meetingID, requesterID, userid, lock); 
 	}
 	
 	public void ejectUserFromVoice(Map<String, Object> msg) {
 		String userId = (String) msg.get("userId");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String ejectedBy = getBbbSession().getInternalUserID();		
-		bbbInGW.ejectUserFromVoice(meetingID, userId, ejectedBy); 	
+		red5InGW.ejectUserFromVoice(meetingID, userId, ejectedBy); 	
 		
 	}
 		
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	}
+	
+	public void setRed5InGW(IBigBlueButtonInGW red5InGW) {
+		this.red5InGW = red5InGW;
 	}
 }

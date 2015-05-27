@@ -7,14 +7,19 @@ import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.red5.pub.messages.AssignPresenterRequestMessage;
 import org.bigbluebutton.red5.pub.messages.GetUsersRequestMessage;
 import org.bigbluebutton.red5.pub.messages.MessagingConstants;
-import org.bigbluebutton.red5.sub.messages.BroadcastLayoutMessage;
 import org.bigbluebutton.red5.sub.messages.BroadcastLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
+import org.bigbluebutton.red5.sub.messages.EjectUserFromVoiceRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetCurrentLayoutRequestMessage;
 import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.InitAudioSettingsMessage;
 import org.bigbluebutton.red5.sub.messages.InitPermissionsSettingMessage;
+import org.bigbluebutton.red5.sub.messages.IsMeetingMutedRequestMessage;
 import org.bigbluebutton.red5.sub.messages.LockLayoutRequestMessage;
+import org.bigbluebutton.red5.sub.messages.LockMuteUserRequestMessage;
+import org.bigbluebutton.red5.sub.messages.MuteAllExceptPresenterRequestMessage;
+import org.bigbluebutton.red5.sub.messages.MuteAllRequestMessage;
+import org.bigbluebutton.red5.sub.messages.MuteUserRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetRecordingStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.SetUserStatusRequestMessage;
 import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
@@ -98,6 +103,25 @@ public class ParticipantsListener implements MessageHandler{
 					  case GetCurrentLayoutRequestMessage.GET_CURRENT_LAYOUT_REQUEST:
 						  processGetCurrentLayoutRequestMessage(message);
 						  break;
+					  case MuteAllExceptPresenterRequestMessage.MUTE_ALL_EXCEPT_PRESENTER_REQUEST:
+						  processMuteAllExceptPresenterRequestMessage(message);
+						  break;
+					  case MuteAllRequestMessage.MUTE_ALL_REQUEST:
+						  processMuteAllRequestMessage(message);
+						  break;
+					  case IsMeetingMutedRequestMessage.IS_MEETING_MUTED_REQUEST:
+						  processIsMeetingMutedRequestMessage(message);
+						  break;
+					  case MuteUserRequestMessage.MUTE_USER_REQUEST:
+						  processMuteUserRequestMessage(message);
+						  break;
+					  case LockMuteUserRequestMessage.LOCK_MUTE_USER_REQUEST:
+						  processLockMuteUserRequestMessage(message);
+						  break;
+					  case EjectUserFromVoiceRequestMessage.EJECT_USER_FROM_VOICE_REQUEST:
+						  processEjectUserFromVoiceRequestMessage(message);
+						  break;
+						  
 					}
 				}
 			}
@@ -214,5 +238,47 @@ public class ParticipantsListener implements MessageHandler{
 		if (msg != null) {
 			bbbInGW.getCurrentLayout(msg.meetingId, msg.userId);
 		}
+	}
+	
+	private void processMuteAllExceptPresenterRequestMessage(String message) {
+		MuteAllExceptPresenterRequestMessage msg = MuteAllExceptPresenterRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.muteAllExceptPresenter(msg.meetingId, msg.requesterId, msg.mute);
+		}
+	}
+	
+	private void processMuteAllRequestMessage(String message) {
+		MuteAllRequestMessage msg = MuteAllRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.muteAllUsers(msg.meetingId, msg.requesterId, msg.mute);
+		}
+	}
+	
+	private void processIsMeetingMutedRequestMessage(String message) {
+		IsMeetingMutedRequestMessage msg = IsMeetingMutedRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.isMeetingMuted(msg.meetingId, msg.requesterId);
+		}		
+	}
+	
+	private void processMuteUserRequestMessage(String message) {
+		MuteUserRequestMessage msg = MuteUserRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.muteUser(msg.meetingId, msg.requesterId, msg.userId, msg.mute);
+		}		
+	}
+	
+	private void processLockMuteUserRequestMessage(String message) {
+		LockMuteUserRequestMessage msg = LockMuteUserRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.lockMuteUser(msg.meetingId, msg.requesterId, msg.userId, msg.lock);
+		}		
+	}
+	
+	private void processEjectUserFromVoiceRequestMessage(String message) {
+		EjectUserFromVoiceRequestMessage msg = EjectUserFromVoiceRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.ejectUserFromVoice(msg.meetingId, msg.userId, msg.requesterId);
+		}		
 	}
 }

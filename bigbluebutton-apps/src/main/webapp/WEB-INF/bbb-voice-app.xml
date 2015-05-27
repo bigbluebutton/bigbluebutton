@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<beans:bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
 		<beans:property name="bigBlueButtonInGW" ref="bbbInGW"/>
+		<beans:property name="red5InGW" ref="red5BbbInGW"/>
 	</beans:bean>
 
 	<beans:bean id="voiceMessageListener" class="org.bigbluebutton.conference.service.voice.VoiceMessageListener">
