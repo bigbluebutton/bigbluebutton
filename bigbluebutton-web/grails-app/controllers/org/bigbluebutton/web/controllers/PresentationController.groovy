@@ -21,9 +21,11 @@ package org.bigbluebutton.web.controllers
 import grails.converters.*
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.Util;
 
 class PresentationController {
+  MeetingService meetingService
   PresentationService presentationService
   
   def index = {
@@ -65,11 +67,19 @@ class PresentationController {
 
   def upload = {		
     println 'PresentationController:upload'
+
+    def meetingId = params.conference
+    def meeting = meetingService.getNotEndedMeetingWithId(meetingId);
+    if (meeting == null) {
+      println "Presentation uploaded to non-existant meeting ${meetingId}, ignoring"
+      flash.message = 'meeting is not running'
+      return [];
+    }
+
     def file = request.getFile('fileUpload')
 		if(file && !file.empty) {
 			flash.message = 'Your file has been uploaded'
 			
-			def meetingId = params.conference
 			def presFilename = file.getOriginalFilename()
 			def filenameExt = Util.getFilenameExt(presFilename);
       String presentationDir = presentationService.getPresentationDir()
