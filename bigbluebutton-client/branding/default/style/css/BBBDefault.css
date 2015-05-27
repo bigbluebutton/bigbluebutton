@@ -524,6 +524,19 @@ DataGrid {
   fontSize: 12;    
 }
 
+.micSettingsWindowOpenDialogLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;
+  fontWeight: bold;
+  color: #e1e2e5;
+}
+
+.micSettingsWindowShareMicrophoneLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;
+  color: #5e5f63;
+}
+
 .micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;

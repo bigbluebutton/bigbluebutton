@@ -461,8 +461,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (browser == "Firefox") {
           var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
           ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-            ffBrowser.x = 100;
-            ffBrowser.y = 150;
+            ffBrowser.x = 54;
+            ffBrowser.y = 0;
           }); 
         } else if (browser == "Chrome") {
           var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
