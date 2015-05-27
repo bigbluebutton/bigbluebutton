@@ -166,6 +166,13 @@ Handlebars.registerHelper 'containerPosition', (section) ->
   else
     return ''
 
+# vertically shrinks the whiteboard if the slide navigation controllers are present
+Handlebars.registerHelper 'whiteboardSize', (section) ->
+  if BBB.isUserPresenter(getInSession('userId'))
+    return 'presenter-whiteboard'
+  else
+    return 'viewer-whiteboard'
+
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
   www = /(^|[^\/])(www\.[\S]+($|\b))/img
