@@ -22,6 +22,8 @@
 			import org.bigbluebutton.web.chat.views.ChatWindow;
 			import org.bigbluebutton.web.main.MainConfig;
 			import org.bigbluebutton.web.main.views.LoadingScreen;
+			import org.bigbluebutton.web.user.UserConfig;
+			import org.bigbluebutton.web.user.views.UserWindow;
 			
 			import robotlegs.bender.bundles.mvcs.MVCSBundle;
 			import robotlegs.bender.extensions.contextView.ContextView;
@@ -46,6 +48,7 @@
 					
 					.configure(MainConfig)
 					.configure(ChatConfig)
+					.configure(UserConfig)
 					
 					.configure(new ContextView(this));
 				
@@ -66,8 +69,8 @@
 			}
 			
 			private function creationCompleteHandler(event:FlexEvent):void {
-				//mainCanvas.windowManager.add(new BBBWindow());
 				mainCanvas.windowManager.add(new ChatWindow());
+				mainCanvas.windowManager.add(new UserWindow());
 			}
 		]]>
 	</fx:Script>
