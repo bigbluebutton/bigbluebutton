@@ -329,11 +329,13 @@ package org.bigbluebutton.web.window.views {
 					case BBBManagerEvent.WINDOW_FOCUS_START:
 						mgrEvent.window.hasFocus = true;
 						mgrEvent.window.validateNow();
-						container.setElementIndex(mgrEvent.window, container.numElements - 1);
+						mgrEvent.window.depth = 1;
+						//container.setElementIndex(mgrEvent.window, container.numElements - 1);
 						break;
 					
 					case BBBManagerEvent.WINDOW_FOCUS_END:
 						mgrEvent.window.hasFocus = false;
+						mgrEvent.window.depth = 0;
 						mgrEvent.window.validateNow();
 						break;
 					
