@@ -269,4 +269,51 @@ public class Util {
 		}
 		return null;
 	}
+
+	public ArrayList<Map<String, Object>> extractShapes(JsonArray shapes) {
+		ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+
+		Iterator<JsonElement> shapesIter = shapes.iterator();
+		while (shapesIter.hasNext()){
+			JsonElement shape = shapesIter.next();
+
+			Map<String, Object> shapeMap = extractOuterAnnotation((JsonObject)shape);
+
+			if (shapeMap != null) {
+				collection.add(shapeMap);
+			}
+		}
+		return collection;
+	}
+
+	public Map<String, Object> extractOuterAnnotation(JsonObject annotationElement) {
+
+		if (annotationElement.has(Constants.ID)
+				&& annotationElement.has("shape")
+				&& annotationElement.has("status")
+				&& annotationElement.has("shape_type")){
+
+			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
+
+			String id = annotationElement.get(Constants.ID).getAsString();
+			String status = annotationElement.get("status").getAsString();
+			String type = annotationElement.get("shape_type").getAsString();
+
+			finalAnnotation.put(Constants.ID, id);
+			finalAnnotation.put("type", type);
+			finalAnnotation.put("status", status);
+			finalAnnotation.put("status", status);
+
+			JsonElement shape = annotationElement.get("shape");
+			Map<String, Object> shapesMap = extractAnnotation((JsonObject)shape);
+
+			if (shapesMap != null) {
+				finalAnnotation.put("shapes", shapesMap);
+			}
+
+			return finalAnnotation;
+		}
+
+		return null;
+	}
 }

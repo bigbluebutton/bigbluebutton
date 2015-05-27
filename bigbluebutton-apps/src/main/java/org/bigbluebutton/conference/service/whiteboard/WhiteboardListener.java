@@ -63,31 +63,6 @@ public class WhiteboardListener implements MessageHandler{
 					}
 				}
 			}
-
-
-//			JsonObject headerObject = (JsonObject) obj.get("header");
-//			JsonObject payloadObject = (JsonObject) obj.get("payload");
-//
-//			String eventName =  headerObject.get("name").toString().replace("\"", "");
-//
-//			if(eventName.equalsIgnoreCase("get_whiteboard_shapes_request")){
-//			//more cases to follow
-//
-//				String roomName = payloadObject.get("meeting_id").toString().replace("\"", "");
-//
-//				if(eventName.equalsIgnoreCase("get_whiteboard_shapes_request")){
-//					String requesterID = payloadObject.get("requester_id").toString().replace("\"", "");
-//					if(payloadObject.get("whiteboard_id") != null){
-//						String whiteboardID = payloadObject.get("whiteboard_id").toString().replace("\"", "");
-//						System.out.println("\n FOUND A whiteboardID:" + whiteboardID + "\n");
-//						bbbInGW.requestWhiteboardAnnotationHistory(roomName, requesterID, whiteboardID, requesterID);
-//					}
-//					else {
-//						System.out.println("\n DID NOT FIND A whiteboardID \n");
-//					}
-//					System.out.println("\n user<" + requesterID + "> requested the shapes.\n");
-//				}
-//			}
 		}
 	}
 }
