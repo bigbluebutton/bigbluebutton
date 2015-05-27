@@ -104,7 +104,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
         meetings -= msg.meetingID    
         log.info("Kick everyone out on meeting id[" + msg.meetingID + "].")
         outGW.send(new EndAndKickAll(msg.meetingID, m.recorded))
-        
+        outGW.send(new DisconnectAllUsers(msg.meetingID))
         log.info("Destroyed meeting id[" + msg.meetingID + "].")
         outGW.send(new MeetingDestroyed(msg.meetingID))
       }

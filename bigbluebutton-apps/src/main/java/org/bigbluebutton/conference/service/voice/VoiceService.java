@@ -30,32 +30,8 @@ public class VoiceService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
 	
-	private IBigBlueButtonInGW bbbInGW;
 	private IBigBlueButtonInGW red5InGW;
-	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
-		bbbInGW = inGW;
-	}
-
-	/*
-	private Map<Integer, Map> arrayListToMap(ArrayList<Participant> alp) {
-		log.debug("Converting arraylist to Map " + alp.size());
-		Map<Integer, Map> result = new HashMap();
 		
-		for (Participant p : alp) {
-			Map<String, Object> pmap = new HashMap();
-			pmap.put("participant", p.getId());
-			pmap.put("name", p.getName());
-			pmap.put("muted", p.isMuted());
-			pmap.put("talking", p.isTalking());
-			log.debug("[" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "]");
-			result.put(p.getId(), pmap);
-		}
-		
-		return result;
-	}
-*/	
-	
 	public void muteAllUsersExceptPresenter(Map<String, Object> msg) {
   		String meetingID = Red5.getConnectionLocal().getScope().getName();
   		String requesterID = getBbbSession().getInternalUserID();	
