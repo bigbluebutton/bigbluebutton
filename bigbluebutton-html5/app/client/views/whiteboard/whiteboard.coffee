@@ -15,7 +15,10 @@ Template.whiteboard.helpers
     currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
     currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
     totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
-    return "#{currentSlideNum}/#{totalSlideNum}"
+    if currentSlideNum isnt undefined
+      return "#{currentSlideNum}/#{totalSlideNum}"
+    else
+      return ''
 
 Template.whiteboard.events
   "click .previousSlide":(event) ->
@@ -23,6 +26,9 @@ Template.whiteboard.events
 
   "click .nextSlide":(event) ->
     BBB.goToNextPage()
+
+  'click .switchSlideButton': (event) ->
+    $('.tooltip').hide()
 
   "click .fullscreenWhiteboardButton": (event, template) ->
     elem = document.getElementById("whiteboard")

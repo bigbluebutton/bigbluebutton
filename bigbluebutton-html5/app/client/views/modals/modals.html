@@ -1,0 +1,59 @@
+<!-- listen only | microphone -->
+<template name="settingsAudio">
+  <fieldset class="desktopSettingsFieldset">
+    <legend>Audio Options</legend>
+    {{#if amIInAudio}}
+      {{#if amIListenOnlyAudio}}
+        <!-- display microphone with join -->
+        {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone" rel="tooltip"
+        data_placement="bottom" title="Join Microphone"}}
+        <!-- display listen only with exit -->
+        {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
+        data_placement="bottom" title="Leave Audio Call"}}
+      {{else}}
+        <!-- display microphone with exit -->
+        {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
+        data_placement="bottom" title="exit"}}
+        <!-- display join listen only -->
+        {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume" rel="tooltip"
+        data_placement="bottom" title="Join Listen only"}}
+      {{/if}}
+    {{else}}
+      <!-- display both with join -->
+      {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone"
+      rel="tooltip" data_placement="bottom" title="Join Microphone"}}
+      {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume"
+      rel="tooltip" data_placement="bottom" title="Join Listen only"}}
+    {{/if}}
+  </fieldset>
+</template>
+
+<template name="settingsModal">
+  <div class="bar topBar">
+    <p>
+      <i class="ion-gear-b">
+        <span class="modalTitle">BigBlueButton Settings</span>
+      </i>
+    </p>
+    <p>
+      <a href="#" class="closeSettings close-reveal-modal">&#215;</a>
+    </p>
+  </div>
+
+  <div class="settingsBody">
+    {{> settingsAudio}}<br/>
+    {{> optionsFontSize}}<br/>
+    {{{getBBBSettingsInfo}}}
+  </div>
+
+  <div class="bar bottomBar">
+    <a href="#" class="closeSettings close-reveal-modal"><u>Cancel</u></a>
+    {{> makeButton id="saveSettings" btn_class="settingsButton"  rel="tooltip" title="Save Changes" style="margin-bottom: 0px; background-color: #007095; border-radius: 15px; padding: 5px 10px 5px 10px" text="Save"}}
+  </div>
+</template>
+
+<template name="logoutModal">
+  <p>Are you sure you want to logout?</p>
+  {{> makeButton id="yes" btn_class="logoutButton" rel="tooltip" title="Logout" text="Yes"}}
+  {{> makeButton id="no" btn_class="logoutButton" rel="tooltip" title="Logout" text="No"}}
+</template>

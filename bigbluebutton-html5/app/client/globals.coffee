@@ -89,6 +89,12 @@ Handlebars.registerHelper "isCurrentUser", (userId) ->
 Handlebars.registerHelper "isCurrentUserMuted", ->
   BBB.amIMuted()
 
+#Retreives a username for a private chat tab from the database if it exists
+Handlebars.registerHelper "privateChatName", ->
+  obj = Meteor.Users.findOne({ userId: getInSession "inChatWith" })
+  if obj?
+    obj?.user?.name
+
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
   BBB.isCurrentUserRaisingHand()
 
@@ -152,49 +158,20 @@ Handlebars.registerHelper "visibility", (section) ->
   else
     style: 'display:none;'
 
+Handlebars.registerHelper 'containerPosition', (section) ->
+  if getInSession 'display_usersList'
+    return 'moved-to-right'
+  else if getInSession 'display_menu'
+    return 'moved-to-left'
+  else
+    return ''
+
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
   www = /(^|[^\/])(www\.[\S]+($|\b))/img
   http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
   str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
   str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
-
-@introToAudio = (event, {isListenOnly} = {}) ->
-  isListenOnly ?= true
-  joinVoiceCall event, isListenOnly: isListenOnly
-  displayWebRTCNotification()
-
-# check the chat history of the user and add tabs for the private chats
-@populateChatTabs = (msg) ->
-  myUserId = getInSession "userId"
-  users = Meteor.Users.find().fetch()
-
-  # assuming that I only have access only to private messages where I am the sender or the recipient
-  myPrivateChats = Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT'}).fetch()
-
-  uniqueArray = []
-  for chat in myPrivateChats
-    if chat.message.to_userid is myUserId
-      uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
-    if chat.message.from_userid is myUserId
-      uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
-
-  #keep unique entries only
-  uniqueArray = uniqueArray.filter((itm, i, a) ->
-      i is a.indexOf(itm)
-    )
-
-  if msg.message.to_userid is myUserId
-    new_msg_userid = msg.message.from_userid
-  if msg.message.from_userid is myUserId
-    new_msg_userid = msg.message.to_userid
-
-  #insert the unique entries in the collection
-  for u in uniqueArray
-    tabs = getInSession('chatTabs')
-    if tabs.filter((tab) -> tab.userId == u.userId).length is 0 and u.userId is new_msg_userid
-      tabs.push {userId: u.userId, name: u.username, gotMail: false, class: 'privateChatTab'}
-      setInSession 'chatTabs', tabs
 
 @setInSession = (k, v) -> SessionAmplify.set k, v
 
@@ -218,18 +195,17 @@ Handlebars.registerHelper "visibility", (section) ->
 @toggleMic = (event) ->
   BBB.toggleMyMic()
 
-@toggleNavbar = ->
-  setInSession "display_navbar", !getInSession "display_navbar"
-
 # toggle state of session variable
 @toggleUsersList = ->
-  if getInSession("display_usersList") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
-  else
-    setInSession "display_usersList", !getInSession "display_usersList"
+  setInSession "display_usersList", !getInSession "display_usersList"
   setTimeout(redrawWhiteboard, 0)
+
+@toggleMenu = ->
+  setInSession 'display_menu', !getInSession 'display_menu'
+
+@closePushMenus = ->
+  setInSession 'display_usersList', false
+  setInSession 'display_menu', false
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
@@ -251,6 +227,7 @@ Handlebars.registerHelper "visibility", (section) ->
         Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), false)
       BBB.leaveVoiceConference hangupCallback
       getInSession("triedHangup", true) # we have hung up, prevent retries
+      notification_WebRTCAudioExited()
     else
       console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
       setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
@@ -259,48 +236,22 @@ Handlebars.registerHelper "visibility", (section) ->
 
 # close the daudio UI, then join the conference. If listen only send the request to the server
 @joinVoiceCall = (event, {isListenOnly} = {}) ->
-  $('#joinAudioDialog').dialog('close')
+  if !isWebRTCAvailable()
+    notification_WebRTCNotSupported()
+    return
+
   isListenOnly ?= true
 
   # create voice call params
   joinCallback = (message) ->
     console.log "Beginning WebRTC Conference Call"
 
+  notification_WebRTCAudioJoining()
   if isListenOnly
     Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
   BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
 
   return false
-
-@toggleWhiteBoard = ->
-  if getInSession("display_whiteboard") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
-  else
-    setInSession "display_whiteboard", !getInSession "display_whiteboard"
-  setTimeout(redrawWhiteboard, 0)
-
-@toggleSlidingMenu = ->
-  if $('#sliding-menu').hasClass('sliding-menu-opened')
-    DestroyFixedView()
-    setInSession 'display_slidingMenu', false
-    $('#sliding-menu').removeClass('sliding-menu-opened')
-    $('#shield').css('display', 'none')
-  else
-    CreateFixedView()
-    setInSession 'display_slidingMenu', true
-    $('#sliding-menu').addClass('sliding-menu-opened')
-    $('#shield').css('display', 'block')
-
-@toggleNavbarCollapse = ->
-  setInSession 'display_hiddenNavbarSection', !getInSession 'display_hiddenNavbarSection'
-  if getInSession 'display_hiddenNavbarSection'
-    $('.navbarTitle').addClass('narrowedNavbarTitle');
-    $('.collapseNavbarSection').css('display', 'block')
-  else
-    $('.collapseNavbarSection').css('display', 'none')
-    $('.navbarTitle').removeClass('narrowedNavbarTitle');
 
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
@@ -328,30 +279,31 @@ Handlebars.registerHelper "visibility", (section) ->
   amplify.store('tabsRenderedTime', null)
   amplify.store('userId', null)
   amplify.store('userName', null)
+  amplify.store('display_menu', null)
   if callback?
     callback()
 
 # assign the default values for the Session vars
 @setDefaultSettings = ->
-  # console.log "in setDefaultSettings"
-  if isLandscapeMobile()
-    setInSession "display_usersList", false
-  else
-    setInSession "display_usersList", true
   setInSession "display_navbar", true
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
-  setInSession "inChatWith", 'PUBLIC_CHAT'
+  if not getInSession "inChatWith" then setInSession "inChatWith", 'PUBLIC_CHAT'
   if isPortraitMobile() or isLandscapeMobile()
     setInSession "messageFontSize", Meteor.config.app.mobileFont
   else
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
   setInSession 'display_hiddenNavbarSection', false
-  setInSession 'webrtc_notification_is_displayed', false
+  if isLandscape()
+    setInSession 'display_usersList', true
+  else
+    setInSession 'display_usersList', false
+  setInSession 'display_menu', false
 
 @onLoadComplete = ->
+  document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
   setDefaultSettings()
 
   Meteor.Users.find().observe({
@@ -370,12 +322,14 @@ Handlebars.registerHelper "visibility", (section) ->
   navigator.userAgent.match(/BlackBerry/i) or
   navigator.userAgent.match(/webOS/i)
 
+@isLandscape = ->
+  window.matchMedia('(orientation: landscape)').matches
+
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
  isMobile() and
  window.matchMedia('(orientation: portrait)').matches and        # browser is portrait
  window.matchMedia('(max-device-aspect-ratio: 1/1)').matches     # device is portrait
-
 
 # Checks if the view is landscape and mobile device is being used
 @isLandscapeMobile = () ->
@@ -383,113 +337,10 @@ Handlebars.registerHelper "visibility", (section) ->
   window.matchMedia('(orientation: landscape)').matches and     # browser is landscape
   window.matchMedia('(min-device-aspect-ratio: 1/1)').matches   # device is landscape
 
-
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
   #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1
   getInSession("display_usersList") + getInSession("display_whiteboard") + getInSession("display_chatbar") is 1
-
-# Reverts all the changes to userlist, whiteboard and chat made by the push menu
-@DestroyFixedView = () ->
-
-  $('#chat').css('position', '')
-  $('#chat').css('top', '')
-  $('#chat').css('left', '')
-
-  $('#users').css('position', '')
-  $('#users').css('top', '')
-  $('#users').css('left', '')
-
-  $('#whiteboard').css('position', '')
-  $('#whiteboard').css('top', '')
-  $('#whiteboard').css('left', '')
-
-  $('#footer').css('position', '')
-  $('#footer').css('top', '')
-  $('#footer').css('left', '')
-
-  $('#chat').css('height', '')
-  $('#users').css('height', '')
-  $('#users').css('width', '')
-  $('#whiteboard').css('height', '')
-  $('#footer').css('height', '')
-  $('#footer').css('width', '')
-
-  # pushing the view back
-  $('#main').css('position', 'relative')
-  $('#main').css('top', '0')
-  $('#main').css('left', '0')
-
-# Makes the position of userlist, whiteboard and chat fixed (to disable scrolling) and
-# positions each element correctly
-@CreateFixedView = () ->
-
-  # positioning the whiteboard
-
-  if getInSession 'display_whiteboard'
-    whiteboardHeight = $('#whiteboard').height()
-    $('#whiteboard').css('position', 'fixed')
-    $('#whiteboard').css('left', '15%')
-    $('#whiteboard').css('height', whiteboardHeight + 5 + 'px')
-    $('#whiteboard').css('top', '100px')
-
-  # positioning the chatbar
-
-  if getInSession 'display_chatbar'
-    chatHeight = $('#chat').height()
-    $('#chat').css('position', 'fixed')
-    $('#chat').css('left', '15%')
-    $('#chat').css('height', chatHeight)
-    if getInSession 'display_whiteboard'
-      $('#chat').css('top', 110 + $('#whiteboard').height() + 'px')
-    else
-      $('#chat').css('top', '100px')
-
-  # positioning the userlist
-
-  if getInSession 'display_usersList'
-    chatHeight = $('#chat').height()
-    usersHeight = $('#users').height()
-    usersWidth = $('#users').width()
-
-    $('#users').css('position', 'fixed')
-    $('#users').css('left', '15%')
-    $('#users').css('width', usersWidth) # prevents from shrinking
-    $('#users').css('height', usersHeight)
-
-    top = 100 # minimum margin for the userlist (height of the navbar)
-    if getInSession 'display_whiteboard'
-      top += $('#whiteboard').height() + 10
-    if getInSession 'display_chatbar'
-      top += chatHeight + 15
-    $('#users').css('top', top + 'px')
-
-  # positioning the footer
-
-  chatHeight = $('#chat').height()
-  usersHeight = $('#users').height()
-  footerHeight = $('#footer').height()
-  footerWidth = $('#footer').width()
-
-  $('#footer').css('position', 'fixed')
-  $('#footer').css('left', '15%')
-  $('#footer').css('height', footerHeight)
-  $('#footer').css('width', footerWidth) # prevents from shrinking
-
-  top = 100
-  if getInSession 'display_whiteboard'
-    top += $('#whiteboard').height() + 10
-  if getInSession 'display_chatbar'
-    top += chatHeight + 15
-  if getInSession 'display_usersList'
-    top += usersHeight + 30
-  $('#footer').css('top', top + 'px')
-
-  # pusing the rest of the page right
-
-  $('#main').css('position', 'fixed')
-  $('#main').css('top', '50px')
-  $('#main').css('left', '15%')
 
 # determines which browser is being used
 @getBrowserName = () ->
