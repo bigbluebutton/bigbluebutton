@@ -3,6 +3,7 @@ package org.bigbluebutton.lib.user.models {
 	import org.bigbluebutton.lib.chat.models.ChatMessages;
 	import org.osflash.signals.ISignal;
 	
+	[Bindable]
 	public class User {
 		public static const MODERATOR:String = "MODERATOR";
 		
@@ -91,7 +92,6 @@ package org.bigbluebutton.lib.user.models {
 		
 		private var _hasStream:Boolean = false;
 		
-		[Bindable]
 		public function get hasStream():Boolean {
 			return _hasStream;
 		}
@@ -113,7 +113,6 @@ package org.bigbluebutton.lib.user.models {
 		
 		private var _voiceJoined:Boolean;
 		
-		[Bindable]
 		public function get voiceJoined():Boolean {
 			return _voiceJoined;
 		}
@@ -125,7 +124,6 @@ package org.bigbluebutton.lib.user.models {
 		
 		private var _muted:Boolean;
 		
-		[Bindable]
 		public function get muted():Boolean {
 			return _muted;
 		}
@@ -137,7 +135,6 @@ package org.bigbluebutton.lib.user.models {
 		
 		private var _talking:Boolean;
 		
-		[Bindable]
 		public function get talking():Boolean {
 			return _talking;
 		}
@@ -149,7 +146,6 @@ package org.bigbluebutton.lib.user.models {
 		
 		private var _locked:Boolean;
 		
-		[Bindable]
 		public function get locked():Boolean {
 			return _locked;
 			verifyUserStatus();
