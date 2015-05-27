@@ -7,12 +7,12 @@ import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessag
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 import org.bigbluebutton.red5.pub.messages.GetPresentationInfoReplyMessage;
+import org.bigbluebutton.red5.pub.messages.GoToSlideMessage;
 import org.bigbluebutton.red5.sub.messages.PresentationRemovedMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 
 public class PresentationClientMessageSender {
 	private ConnectionInvokerService service;
@@ -36,6 +36,12 @@ public class PresentationClientMessageSender {
 					  break;
 				  case GetPresentationInfoReplyMessage.GET_PRESENTATION_INFO_REPLY:
 					  processGetPresentationInfoReplyMessage(message);
+					  break;
+				  case GoToSlideMessage.GO_TO_SLIDE:
+					  GoToSlideMessage gts = GoToSlideMessage.fromJson(message);
+					  if (gts != null) {
+						  processGoToSlideMessage(gts);
+					  }
 					  break;
 				}
 			}
@@ -78,5 +84,8 @@ public class PresentationClientMessageSender {
 		}		
 	}
 	
+	private void processGoToSlideMessage(GoToSlideMessage gts) {
+		System.out.println("GOTOSLIDEMESSAGE****************");
+	}
 
 }
