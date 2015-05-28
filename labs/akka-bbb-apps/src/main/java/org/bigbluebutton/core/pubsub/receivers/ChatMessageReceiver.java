@@ -9,7 +9,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
-public class ChatMessageListener implements MessageHandler{
+public class ChatMessageReceiver implements MessageHandler{
 
 	private IBigBlueButtonInGW bbbGW;
 	

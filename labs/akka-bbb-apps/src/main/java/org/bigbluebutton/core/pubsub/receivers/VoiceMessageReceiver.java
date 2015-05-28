@@ -8,7 +8,7 @@ import org.bigbluebutton.core.service.voice.VoiceKeyUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class VoiceMessageListener implements MessageHandler {
+public class VoiceMessageReceiver implements MessageHandler {
 
 	private IBigBlueButtonInGW bbbGW;
 	

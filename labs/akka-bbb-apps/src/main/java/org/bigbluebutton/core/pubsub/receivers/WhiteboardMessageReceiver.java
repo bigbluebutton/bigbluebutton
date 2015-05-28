@@ -15,7 +15,7 @@ import org.bigbluebutton.core.pubsub.redis.MessageHandler;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
-public class WhiteboardListener implements MessageHandler {
+public class WhiteboardMessageReceiver implements MessageHandler {
 	
 	private IBigBlueButtonInGW bbbInGW;
 	

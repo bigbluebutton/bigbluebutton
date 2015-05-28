@@ -9,7 +9,7 @@ import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
-public class LockMessageListener implements MessageHandler {
+public class LockMessageReceiver implements MessageHandler {
 
 	private IBigBlueButtonInGW bbbGW;
 	

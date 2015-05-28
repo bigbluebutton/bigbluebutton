@@ -14,13 +14,13 @@ object AppsRedisSubscriberActor extends SystemConfiguration {
   val channels = Seq("time")
   val patterns = Seq("pattern.*")
 
-  def props(bbbAppsActor: ActorRef): Props =
+  def props(): Props =
     Props(classOf[AppsRedisSubscriberActor],
-      bbbAppsActor, redisHost, redisPort, channels, patterns).
-      withDispatcher("rediscala.rediscala-client-worker-dispatcher")
+      redisHost, redisPort,
+      channels, patterns).withDispatcher("akka.rediscala-client-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(bbbAppsActor: ActorRef, redisHost: String,
+class AppsRedisSubscriberActor(redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(

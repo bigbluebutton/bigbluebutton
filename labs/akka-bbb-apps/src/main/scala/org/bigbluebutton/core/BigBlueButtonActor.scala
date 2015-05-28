@@ -11,6 +11,7 @@ import org.bigbluebutton.core.util._
 import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
 import scala.util.Success
 import scala.util.Failure
+import org.bigbluebutton.SystemConfiguration
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem, outGW: MessageOutGateway): Props =

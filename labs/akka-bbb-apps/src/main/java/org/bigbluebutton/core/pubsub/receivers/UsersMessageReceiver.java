@@ -29,7 +29,7 @@ import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
-public class ParticipantsListener implements MessageHandler{
+public class UsersMessageReceiver implements MessageHandler{
 
 	private IBigBlueButtonInGW bbbInGW;
 	
