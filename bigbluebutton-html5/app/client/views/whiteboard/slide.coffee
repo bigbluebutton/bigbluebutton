@@ -11,6 +11,9 @@ Template.slide.rendered = ->
     if currentSlide?.slide?.png_uri?
       createWhiteboardPaper (wpm) ->
         displaySlide wpm
+        Tracker.autorun (comp) -> # whiteboard is redrawn every time user becomes a presenter or loses that status
+          if BBB.isUserPresenter(getInSession('userId')) isnt undefined
+            redrawWhiteboard()
   pic.src = currentSlide?.slide?.png_uri
 
 @createWhiteboardPaper = (callback) =>
@@ -49,17 +52,13 @@ Template.slide.rendered = ->
   if window.matchMedia('(orientation: landscape)').matches
     # for landscape orientation we want "fit to height" so that we can
     # minimize the empty space above and below the slide (for best readability)
-    boardWidth = $("#whiteboard").width()
-    if $('#whiteboard-paper').css('display') is 'none'
-      boardHeight = $("#whiteboard").height()
-    else
-      # the slide area is under the whiteboard navbar. -10 so that the slide stays within
-      boardHeight = $("#whiteboard").height() - $("#whiteboard-navbar").height() - 10
+    boardWidth = $("#whiteboard-container").width()
+    boardHeight = $("#whiteboard-container").height()
   else
     # for portrait orientation we want "fit to width" so that we can
     # minimize the empty space on the sides of the slide (for best readability)
-    boardWidth = $("#whiteboard").width()
-    boardHeight = 1.4 * $("#whiteboard").width() # A4 paper size
+    boardWidth = $("#whiteboard-container").width()
+    boardHeight = 1.4 * $("#whiteboard-container").width() # A4 paper size
 
   # this is the best fitting pair
   adjustedWidth = null
