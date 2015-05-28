@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.core.service.presentation;
+package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 

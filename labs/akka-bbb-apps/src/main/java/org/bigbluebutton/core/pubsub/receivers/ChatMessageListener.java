@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.service.chat;
+package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.GetChatHistoryRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;

@@ -1,8 +1,10 @@
-package org.bigbluebutton.core.service.voice;
+package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.core.pubsub.redis.MessageHandler;
+import org.bigbluebutton.core.service.voice.VoiceKeyUtil;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 

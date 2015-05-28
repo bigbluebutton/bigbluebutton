@@ -1,5 +1,5 @@
 
-package org.bigbluebutton.core.service.participants;
+package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.AssignPresenterRequestMessage;
 import org.bigbluebutton.common.messages.BroadcastLayoutRequestMessage;

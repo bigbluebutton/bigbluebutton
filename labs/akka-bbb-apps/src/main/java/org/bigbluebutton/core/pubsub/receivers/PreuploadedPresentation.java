@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.service.presentation;
+package org.bigbluebutton.core.pubsub.receivers;
 
 public class PreuploadedPresentation {
 

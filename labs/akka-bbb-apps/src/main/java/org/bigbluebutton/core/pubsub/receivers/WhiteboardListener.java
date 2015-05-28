@@ -1,5 +1,5 @@
 
-package org.bigbluebutton.core.service.whiteboard;
+package org.bigbluebutton.core.pubsub.receivers;
 
 
 import org.bigbluebutton.common.messages.ClearWhiteboardRequestMessage;

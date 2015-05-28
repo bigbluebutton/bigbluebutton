@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.service.lock;
+package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.GetLockSettingsMessage;
 import org.bigbluebutton.common.messages.LockUserMessage;
