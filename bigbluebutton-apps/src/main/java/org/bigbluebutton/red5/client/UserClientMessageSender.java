@@ -25,9 +25,9 @@ import org.bigbluebutton.common.messages.UserVoiceMutedMessage;
 import org.bigbluebutton.common.messages.UserVoiceTalkingMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenReplyMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenTimeoutMessage;
-import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
-import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
-import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
+import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
+import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
+import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

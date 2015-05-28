@@ -3,7 +3,7 @@ package org.bigbluebutton.common.messages;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bigbluebutton.conference.service.chat.ChatKeyUtil;
+import org.bigbluebutton.red5.service.ChatKeyUtil;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

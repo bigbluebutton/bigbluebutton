@@ -12,11 +12,11 @@ import org.bigbluebutton.common.messages.MeetingMutedMessage;
 import org.bigbluebutton.common.messages.MeetingStateMessage;
 import org.bigbluebutton.common.messages.NewPermissionsSettingMessage;
 import org.bigbluebutton.common.messages.UserLockedMessage;
-import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
-import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
-import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
-import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectAllClientsMessage;
-import org.bigbluebutton.conference.meeting.messaging.red5.DisconnectClientMessage;
+import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
+import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
+import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
+import org.bigbluebutton.red5.client.messaging.DisconnectAllClientsMessage;
+import org.bigbluebutton.red5.client.messaging.DisconnectClientMessage;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

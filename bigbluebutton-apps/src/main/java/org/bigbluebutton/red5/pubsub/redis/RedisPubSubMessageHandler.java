@@ -1,12 +1,12 @@
 package org.bigbluebutton.red5.pubsub.redis;
 
 import org.bigbluebutton.common.messages.MessagingConstants;
-import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.MeetingClientMessageSender;
 import org.bigbluebutton.red5.client.PresentationClientMessageSender;
 import org.bigbluebutton.red5.client.UserClientMessageSender;
 import org.bigbluebutton.red5.client.ChatClientMessageSender;
 import org.bigbluebutton.red5.client.WhiteboardClientMessageSender;
+import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 
 public class RedisPubSubMessageHandler implements MessageHandler {
 

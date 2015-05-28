@@ -48,9 +48,7 @@ import org.bigbluebutton.common.messages.UserRaisedHandMessage;
 import org.bigbluebutton.common.messages.UserShareWebcamRequestMessage;
 import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
-import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
 public class Red5BBBInGw implements IBigBlueButtonInGW {
 
@@ -351,7 +349,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 
 	@Override
 	public void removePresentation(String meetingID, String presentationID) {
-		System.out.println("~~removePresentation in Red5BBBInGw");
 		RemovePresentationMessage msg = new RemovePresentationMessage(meetingID, presentationID);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
@@ -361,7 +358,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 			String replyTo) {
 		GetPresentationInfoMessage msg = new GetPresentationInfoMessage(meetingID,
 				requesterID, replyTo);
-		System.out.println("~~getPresentationInfo in Red5BBBInGw");
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 
 	}
@@ -379,7 +375,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void resizeAndMoveSlide(String meetingID, double xOffset,
 			double yOffset, double widthRatio, double heightRatio) {
 
-		System.out.println("~~resizeAndMoveSlide in Red5BBBInGw");
 		ResizeAndMoveSlideMessage msg = new ResizeAndMoveSlideMessage(meetingID,
 				xOffset, yOffset, widthRatio, heightRatio);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
@@ -387,7 +382,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 
 	@Override
 	public void gotoSlide(String meetingID, String page) {
-		System.out.println("~~gotoSlide in Red5BBBInGw");
 		GoToSlideMessage msg = new GoToSlideMessage(meetingID, page);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
@@ -395,7 +389,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sharePresentation(String meetingID, String presentationID,
 			boolean share) {
-		System.out.println("~~sharePresentation in Red5BBBInGw");
 		SharePresentationMessage msg = new SharePresentationMessage(meetingID, presentationID, share);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
@@ -403,7 +396,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void getSlideInfo(String meetingID, String requesterID,
 			String replyTo) {
-		System.out.println("~~getSlideInfo in Red5BBBInGw");
 		GetSlideInfoMessage msg = new GetSlideInfoMessage(meetingID, requesterID,
 				replyTo);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
@@ -412,7 +404,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendConversionUpdate(String messageKey, String meetingId,
 			String code, String presId, String presName) {
-		System.out.println("~~sendConversionUpdate in Red5BBBInGw");
 		SendConversionUpdateMessage msg = new SendConversionUpdateMessage(messageKey, meetingId,
 				code, presId, presName);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
@@ -422,7 +413,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void sendPageCountError(String messageKey, String meetingId,
 			String code, String presId, int numberOfPages, int maxNumberPages,
 			String presName) {
-		System.out.println("~~sendPageCountError in Red5BBBInGw");
 
 		SendPageCountErrorMessage msg = new SendPageCountErrorMessage(messageKey, meetingId,
 				code, presId, numberOfPages, maxNumberPages, presName);
@@ -433,7 +423,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void sendSlideGenerated(String messageKey, String meetingId,
 			String code, String presId, int numberOfPages, int pagesCompleted,
 			String presName) {
-		System.out.println("~~sendSlideGenerated in Red5BBBInGw");
 		SendSlideGeneratedMessage msg = new SendSlideGeneratedMessage(messageKey, meetingId,
 				code, presId, numberOfPages, pagesCompleted, presName);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
@@ -443,7 +432,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void sendConversionCompleted(String messageKey, String meetingId,
 			String code, String presId, int numPages, String presName,
 			String presBaseUrl) {
-		System.out.println("~~sendConversionCompleted in Red5BBBInGw");
 		SendConversionCompletedMessage msg = new SendConversionCompletedMessage(messageKey, meetingId,
 				code, presId, numPages, presName, presBaseUrl);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
@@ -513,7 +501,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void getChatHistory(String meetingID, String requesterID,
 			String replyTo) {
-		System.out.println("~~getChatHistory in Red5BBBInGw");
 		GetChatHistoryRequestMessage msg = new GetChatHistoryRequestMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
@@ -521,7 +508,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendPublicMessage(String meetingID, String requesterID,
 			Map<String, String> message) {
-		System.out.println("~~sendPublicMessage in Red5BBBInGw");
 		SendPublicChatMessage msg = new SendPublicChatMessage(meetingID, requesterID, message);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
@@ -529,7 +515,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendPrivateMessage(String meetingID, String requesterID,
 			Map<String, String> message) {
-		System.out.println("~~sendPrivateMessage in Red5BBBInGw");
 		SendPrivateChatMessage msg = new SendPrivateChatMessage(meetingID, requesterID, message);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
@@ -537,7 +522,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void sendWhiteboardAnnotation(String meetingID, String requesterID,
 			Map<String, Object> annotation) {
-		System.out.println("~~sendWhiteboardAnnotation in Red5BBBInGw");
 		SendWhiteboardAnnotationRequestMessage msg = new SendWhiteboardAnnotationRequestMessage(meetingID, requesterID, annotation);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
@@ -545,7 +529,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void requestWhiteboardAnnotationHistory(String meetingID,
 			String requesterID, String whiteboardId, String replyTo) {
-		System.out.println("~~requestWhiteboardAnnotationHistory in Red5BBBInGw");
 		RequestWhiteboardAnnotationHistoryRequestMessage msg = new RequestWhiteboardAnnotationHistoryRequestMessage(meetingID, requesterID, whiteboardId, replyTo);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
@@ -554,7 +537,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void clearWhiteboard(String meetingID, String requesterID,
 			String whiteboardId) {
-		System.out.println("~~ClearWhiteboardRequestMessage in Red5BBBInGw");
 		ClearWhiteboardRequestMessage msg = new ClearWhiteboardRequestMessage(meetingID, requesterID, whiteboardId);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
@@ -563,7 +545,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void undoWhiteboard(String meetingID, String requesterID,
 			String whiteboardId) {
-		System.out.println("~~undoWhiteboard in Red5BBBInGw");
 		org.bigbluebutton.common.messages.UndoWhiteboardRequest msg = new org.bigbluebutton.common.messages.UndoWhiteboardRequest(meetingID, requesterID, whiteboardId);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
@@ -571,7 +552,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void enableWhiteboard(String meetingID, String requesterID,
 			Boolean enable) {
-		System.out.println("~~enableWhiteboard in Red5BBBInGw");
 		EnableWhiteboardRequestMessage msg = new EnableWhiteboardRequestMessage(meetingID, requesterID, enable);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
@@ -579,7 +559,6 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	@Override
 	public void isWhiteboardEnabled(String meetingID, String requesterID,
 			String replyTo) {
-		System.out.println("~~isWhiteboardEnabled in Red5BBBInGw");
 		IsWhiteboardEnabledRequestMessage msg = new IsWhiteboardEnabledRequestMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
