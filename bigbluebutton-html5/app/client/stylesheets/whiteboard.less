@@ -75,8 +75,15 @@
     align-items: center;
     -webkit-align-items: center;
     -ms-align-items: center;
-    height: calc(~'100% - 39px');
   }
+}
+
+.presenter-whiteboard {
+  height: calc(~'100% - 40px');
+}
+
+.viewer-whiteboard {
+  height: 100%;
 }
 
 .fullscreenWhiteboardButton {
@@ -136,6 +143,7 @@
   background-color: extract(@white, 1);
   border: 1px solid extract(@lightGrey, 3);
   border-radius: 10px;
+  padding: 0;
   &:hover {
     background-color: extract(@lightGrey, 3);
     color: extract(@black, 1);
