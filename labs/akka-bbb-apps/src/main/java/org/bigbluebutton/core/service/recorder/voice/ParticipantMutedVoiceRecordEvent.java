@@ -16,30 +16,20 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
+package org.bigbluebutton.core.service.recorder.voice;
 
-public abstract class FreeswitchCommand {
-    public static final String SPACE = " ";
-
-    protected final String room;
-    protected final String requesterId;
-
-    public FreeswitchCommand(String room, String requesterId) {
-            this.room = room;
-            this.requesterId = requesterId;
-    }
-
-    public String getCommand() {
-        return "conference"; //conference is default, override if needed.
-    }
-
-    public abstract String getCommandArgs();
-
-    public String getRoom() {
-            return room;
-    }
-
-    public String getRequesterId() {
-            return requesterId;
-    }
+public class ParticipantMutedVoiceRecordEvent extends AbstractVoiceRecordEvent {
+	
+	public ParticipantMutedVoiceRecordEvent() {
+		super();
+		setEvent("ParticipantMutedEvent");
+	}
+		
+	public void setParticipant(String p) {
+		eventMap.put("participant", p);
+	}
+	
+	public void setMuted(boolean muted) {
+		eventMap.put("muted", Boolean.toString(muted));
+	}
 }

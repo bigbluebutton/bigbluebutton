@@ -16,35 +16,16 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
+package org.bigbluebutton.core.service.recorder.voice;
 
-import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
-import org.freeswitch.esl.client.transport.message.EslMessage;
-
-public class RecordConferenceCommand extends FreeswitchCommand {
-
-	private boolean record;
-	private String recordPath;
+public class ParticipantLeftVoiceRecordEvent extends AbstractVoiceRecordEvent {
 	
-	public RecordConferenceCommand(String room, String requesterId, boolean record, String recordPath){
-		super(room, requesterId);
-		this.record = record;
-		this.recordPath = recordPath;
+	public ParticipantLeftVoiceRecordEvent() {
+		super();
+		setEvent("ParticipantLeftEvent");
 	}
 	
-
-	@Override
-	public String getCommandArgs() {
-		String action = "norecord";
-		if (record)
-			action = "record";
-		
-		return SPACE + getRoom() + SPACE + action + SPACE + recordPath;
+	public void setParticipant(String p) {
+		eventMap.put("participant", p);
 	}
-
-	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
-
-        //Test for Known Conference
-
-    }
 }

@@ -16,10 +16,9 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice;
+package org.bigbluebutton.core.service.recorder.voice;
 
 import java.util.concurrent.TimeUnit;
-
 import org.bigbluebutton.core.service.recorder.RecorderApplication;
 import org.bigbluebutton.freeswitch.voice.events.VoiceConferenceEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceStartRecordingEvent;
@@ -28,7 +27,6 @@ import org.bigbluebutton.freeswitch.voice.events.VoiceUserLeftEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceUserLockedEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceUserMutedEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceUserTalkingEvent;
-
 
 public class VoiceEventRecorder {
 

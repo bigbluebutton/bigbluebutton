@@ -16,16 +16,23 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
+package org.bigbluebutton.core.service.recorder.voice;
 
-public class EjectAllUsersCommand extends FreeswitchCommand {
-    
-    public EjectAllUsersCommand(String room, String requesterId) {
-            super(room, requesterId);
-    }
-
-    @Override
-    public String getCommandArgs() {
-        return room + " kick all";
-    }
+public class StartRecordingVoiceRecordEvent extends AbstractVoiceRecordEvent {
+	
+	public StartRecordingVoiceRecordEvent(boolean record) {
+		super();
+		if (record)
+			setEvent("StartRecordingEvent");
+		else
+			setEvent("StopRecordingEvent");
+	}
+	
+	public void setRecordingTimestamp(String timestamp) {
+		eventMap.put("recordingTimestamp", timestamp);
+	}
+		
+	public void setFilename(String filename) {
+		eventMap.put("filename", filename);
+	}
 }

@@ -16,17 +16,21 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice;
+package org.bigbluebutton.core.service.recorder.voice;
 
-import org.bigbluebutton.core.service.recorder.RecordEvent;
-
-public abstract class AbstractVoiceRecordEvent extends RecordEvent {
+public class ParticipantTalkingVoiceRecordEvent extends AbstractVoiceRecordEvent {
 	
-	public AbstractVoiceRecordEvent() {
-		setModule("VOICE");
+	public ParticipantTalkingVoiceRecordEvent() {
+		super();
+		setEvent("ParticipantTalkingEvent");
 	}
-
-	public void setBridge(String bridge) {
-		eventMap.put("bridge", bridge);
+		
+	public void setParticipant(String p) {
+		eventMap.put("participant", p);
 	}
+	
+	public void setTalking(boolean talking) {
+		eventMap.put("talking", Boolean.toString(talking));
+	}
+	
 }
