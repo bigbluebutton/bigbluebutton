@@ -1,11 +1,12 @@
 package org.bigbluebutton.conference.service.lock;
 
+import org.bigbluebutton.common.messages.GetLockSettingsMessage;
+import org.bigbluebutton.common.messages.LockUserMessage;
+import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.SendLockSettingsMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.pub.messages.GetLockSettingsMessage;
-import org.bigbluebutton.red5.pub.messages.LockUserMessage;
-import org.bigbluebutton.red5.pub.messages.MessagingConstants;
-import org.bigbluebutton.red5.pub.messages.SendLockSettingsMessage;
+
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 

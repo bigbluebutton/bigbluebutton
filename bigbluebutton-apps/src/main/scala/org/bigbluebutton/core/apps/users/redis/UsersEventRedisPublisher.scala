@@ -2,11 +2,11 @@ package org.bigbluebutton.core.apps.users.redis
 
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.red5.pub.messages.MessagingConstants
+import org.bigbluebutton.common.messages.MessagingConstants
 import com.google.gson.Gson
-import org.bigbluebutton.red5.sub.messages.GetCurrentLayoutReplyMessage
-import org.bigbluebutton.red5.sub.messages.BroadcastLayoutMessage
-import org.bigbluebutton.red5.sub.messages.LockLayoutMessage
+import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage
+import org.bigbluebutton.common.messages.BroadcastLayoutMessage
+import org.bigbluebutton.common.messages.LockLayoutMessage
 
 class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 

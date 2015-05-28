@@ -2,16 +2,17 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 
+import org.bigbluebutton.common.messages.ClearWhiteboardRequestMessage;
+import org.bigbluebutton.common.messages.EnableWhiteboardRequestMessage;
+import org.bigbluebutton.common.messages.IsWhiteboardEnabledRequestMessage;
+import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.RequestWhiteboardAnnotationHistoryRequestMessage;
+import org.bigbluebutton.common.messages.SendWhiteboardAnnotationRequestMessage;
+import org.bigbluebutton.common.messages.UndoWhiteboardRequest;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.pub.messages.MessagingConstants;
 import org.bigbluebutton.core.api.Red5BBBInGw;
-import org.bigbluebutton.red5.pubsub.messages.ClearWhiteboardRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.EnableWhiteboardRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.IsWhiteboardEnabledRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.RequestWhiteboardAnnotationHistoryRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.SendWhiteboardAnnotationRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.UndoWhiteboardRequest;
+
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 

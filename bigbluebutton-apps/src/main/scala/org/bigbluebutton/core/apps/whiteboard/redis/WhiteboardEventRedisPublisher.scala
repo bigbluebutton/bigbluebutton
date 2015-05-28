@@ -5,7 +5,7 @@ import scala.collection.JavaConversions._
 import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
 import scala.collection.immutable.StringOps
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
-import org.bigbluebutton.red5.pub.messages.MessagingConstants
+import org.bigbluebutton.common.messages.MessagingConstants
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

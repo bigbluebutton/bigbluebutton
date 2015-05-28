@@ -2,34 +2,53 @@ package org.bigbluebutton.core.api;
 
 import java.util.Map;
 
+import org.bigbluebutton.common.messages.AssignPresenterRequestMessage;
+import org.bigbluebutton.common.messages.BroadcastLayoutRequestMessage;
+import org.bigbluebutton.common.messages.ClearWhiteboardRequestMessage;
+import org.bigbluebutton.common.messages.EjectUserFromMeetingRequestMessage;
+import org.bigbluebutton.common.messages.EjectUserFromVoiceRequestMessage;
+import org.bigbluebutton.common.messages.EnableWhiteboardRequestMessage;
+import org.bigbluebutton.common.messages.GetChatHistoryRequestMessage;
+import org.bigbluebutton.common.messages.GetCurrentLayoutRequestMessage;
+import org.bigbluebutton.common.messages.GetLockSettingsMessage;
+import org.bigbluebutton.common.messages.GetPresentationInfoMessage;
+import org.bigbluebutton.common.messages.GetRecordingStatusRequestMessage;
+import org.bigbluebutton.common.messages.GetSlideInfoMessage;
+import org.bigbluebutton.common.messages.GetUsersRequestMessage;
+import org.bigbluebutton.common.messages.GoToSlideMessage;
+import org.bigbluebutton.common.messages.InitAudioSettingsMessage;
+import org.bigbluebutton.common.messages.InitPermissionsSettingMessage;
+import org.bigbluebutton.common.messages.IsMeetingMutedRequestMessage;
+import org.bigbluebutton.common.messages.IsWhiteboardEnabledRequestMessage;
+import org.bigbluebutton.common.messages.LockLayoutRequestMessage;
+import org.bigbluebutton.common.messages.LockMuteUserRequestMessage;
+import org.bigbluebutton.common.messages.LockUserMessage;
+import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.MuteAllExceptPresenterRequestMessage;
+import org.bigbluebutton.common.messages.MuteAllRequestMessage;
+import org.bigbluebutton.common.messages.MuteUserRequestMessage;
+import org.bigbluebutton.common.messages.RemovePresentationMessage;
+import org.bigbluebutton.common.messages.RequestWhiteboardAnnotationHistoryRequestMessage;
+import org.bigbluebutton.common.messages.ResizeAndMoveSlideMessage;
+import org.bigbluebutton.common.messages.SendConversionCompletedMessage;
+import org.bigbluebutton.common.messages.SendConversionUpdateMessage;
+import org.bigbluebutton.common.messages.SendCursorUpdateMessage;
+import org.bigbluebutton.common.messages.SendLockSettingsMessage;
+import org.bigbluebutton.common.messages.SendPageCountErrorMessage;
+import org.bigbluebutton.common.messages.SendPrivateChatMessage;
+import org.bigbluebutton.common.messages.SendPublicChatMessage;
+import org.bigbluebutton.common.messages.SendSlideGeneratedMessage;
+import org.bigbluebutton.common.messages.SendWhiteboardAnnotationRequestMessage;
+import org.bigbluebutton.common.messages.SetRecordingStatusRequestMessage;
+import org.bigbluebutton.common.messages.SetUserStatusRequestMessage;
+import org.bigbluebutton.common.messages.SharePresentationMessage;
+import org.bigbluebutton.common.messages.UserLeavingMessage;
+import org.bigbluebutton.common.messages.UserLoweredHandMessage;
+import org.bigbluebutton.common.messages.UserRaisedHandMessage;
+import org.bigbluebutton.common.messages.UserShareWebcamRequestMessage;
+import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
+import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender;
-import org.bigbluebutton.red5.pub.messages.*;
-import org.bigbluebutton.red5.pubsub.messages.ClearWhiteboardRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.EnableWhiteboardRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.IsWhiteboardEnabledRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.RequestWhiteboardAnnotationHistoryRequestMessage;
-import org.bigbluebutton.red5.pubsub.messages.SendWhiteboardAnnotationRequestMessage;
-import org.bigbluebutton.red5.sub.messages.BroadcastLayoutRequestMessage;
-import org.bigbluebutton.red5.sub.messages.EjectUserFromMeetingRequestMessage;
-import org.bigbluebutton.red5.sub.messages.EjectUserFromVoiceRequestMessage;
-import org.bigbluebutton.red5.sub.messages.GetCurrentLayoutRequestMessage;
-import org.bigbluebutton.red5.sub.messages.GetRecordingStatusRequestMessage;
-import org.bigbluebutton.red5.sub.messages.InitAudioSettingsMessage;
-import org.bigbluebutton.red5.sub.messages.InitPermissionsSettingMessage;
-import org.bigbluebutton.red5.sub.messages.IsMeetingMutedRequestMessage;
-import org.bigbluebutton.red5.sub.messages.LockLayoutRequestMessage;
-import org.bigbluebutton.red5.sub.messages.LockMuteUserRequestMessage;
-import org.bigbluebutton.red5.sub.messages.MuteAllExceptPresenterRequestMessage;
-import org.bigbluebutton.red5.sub.messages.MuteAllRequestMessage;
-import org.bigbluebutton.red5.sub.messages.MuteUserRequestMessage;
-import org.bigbluebutton.red5.sub.messages.SetRecordingStatusRequestMessage;
-import org.bigbluebutton.red5.sub.messages.SetUserStatusRequestMessage;
-import org.bigbluebutton.red5.sub.messages.UserLeavingMessage;
-import org.bigbluebutton.red5.sub.messages.UserLoweredHandMessage;
-import org.bigbluebutton.red5.sub.messages.UserRaisedHandMessage;
-import org.bigbluebutton.red5.sub.messages.UserShareWebcamRequestMessage;
-import org.bigbluebutton.red5.sub.messages.UserUnshareWebcamRequestMessage;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -545,7 +564,7 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	public void undoWhiteboard(String meetingID, String requesterID,
 			String whiteboardId) {
 		System.out.println("~~undoWhiteboard in Red5BBBInGw");
-		org.bigbluebutton.red5.pubsub.messages.UndoWhiteboardRequest msg = new org.bigbluebutton.red5.pubsub.messages.UndoWhiteboardRequest(meetingID, requesterID, whiteboardId);
+		org.bigbluebutton.common.messages.UndoWhiteboardRequest msg = new org.bigbluebutton.common.messages.UndoWhiteboardRequest(meetingID, requesterID, whiteboardId);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 

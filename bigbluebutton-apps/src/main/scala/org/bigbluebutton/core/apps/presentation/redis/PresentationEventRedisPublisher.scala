@@ -4,11 +4,11 @@ import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.conference.service.messaging.redis.MessageSender
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.red5.pub.messages.MessagingConstants
-import org.bigbluebutton.red5.sub.messages.PresentationRemovedMessage
+import org.bigbluebutton.common.messages.MessagingConstants
+import org.bigbluebutton.common.messages.PresentationRemovedMessage
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
-import org.bigbluebutton.red5.pub.messages.GetPresentationInfoReplyMessage
+import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 
 class PresentationEventRedisPublisher(service: MessageSender) extends OutMessageListener2 { 
   def handleMessage(msg: IOutMessage) {

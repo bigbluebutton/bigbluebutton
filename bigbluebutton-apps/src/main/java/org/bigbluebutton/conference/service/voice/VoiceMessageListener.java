@@ -1,8 +1,8 @@
 package org.bigbluebutton.conference.service.voice;
 
+import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.pub.messages.MessagingConstants;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

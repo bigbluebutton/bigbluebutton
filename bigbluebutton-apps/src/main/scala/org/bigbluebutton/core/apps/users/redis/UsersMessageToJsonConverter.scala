@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users.redis
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.red5.pub.messages.MessagingConstants
+import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.core.messaging.Util
 import com.google.gson.Gson
 import org.bigbluebutton.core.api.UserVO

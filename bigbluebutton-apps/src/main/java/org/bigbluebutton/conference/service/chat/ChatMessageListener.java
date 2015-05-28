@@ -1,15 +1,15 @@
 package org.bigbluebutton.conference.service.chat;
 
+import org.bigbluebutton.common.messages.GetChatHistoryRequestMessage;
+import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.SendPrivateChatMessage;
+import org.bigbluebutton.common.messages.SendPublicChatMessage;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.red5.pub.messages.GetChatHistoryRequestMessage;
-import org.bigbluebutton.red5.pub.messages.MessagingConstants;
-import org.bigbluebutton.red5.pub.messages.SendPrivateChatMessage;
-import org.bigbluebutton.red5.pub.messages.SendPublicChatMessage;
 
 public class ChatMessageListener implements MessageHandler{
 

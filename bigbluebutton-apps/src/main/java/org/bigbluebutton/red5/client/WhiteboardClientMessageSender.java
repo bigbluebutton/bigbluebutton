@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bigbluebutton.common.messages.ClearWhiteboardReplyMessage;
+import org.bigbluebutton.common.messages.GetWhiteboardShapesReplyMessage;
+import org.bigbluebutton.common.messages.IsWhiteboardEnabledReplyMessage;
+import org.bigbluebutton.common.messages.SendWhiteboardAnnotationReplyMessage;
+import org.bigbluebutton.common.messages.UndoWhiteboardReplyMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.BroadcastClientMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService;
-import org.bigbluebutton.red5.pubsub.messages.ClearWhiteboardReplyMessage;
-import org.bigbluebutton.red5.pubsub.messages.IsWhiteboardEnabledReplyMessage;
-import org.bigbluebutton.red5.pubsub.messages.GetWhiteboardShapesReplyMessage;
-import org.bigbluebutton.red5.pubsub.messages.UndoWhiteboardReplyMessage;
-import org.bigbluebutton.red5.pubsub.messages.SendWhiteboardAnnotationReplyMessage;
 import org.bigbluebutton.conference.meeting.messaging.red5.DirectClientMessage;
 
 import com.google.gson.Gson;
