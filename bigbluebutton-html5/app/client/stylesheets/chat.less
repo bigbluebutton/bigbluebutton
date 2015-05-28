@@ -8,6 +8,8 @@
     -ms-order: 1;
     background-color: #EEEEEE;
     min-width: 205px;
+    height: 45px;
+    min-height: 45px;
     .btn {
       background-color: inherit;
       margin: 0;
@@ -65,7 +67,7 @@
   }
 }
 .chatBodyContainer {
-  @media @landscape {
+  @media @desktop-portrait, @landscape {
     display: -moz-flex;
     display: -ms-flexbox;
     display: -ms-flex;
@@ -78,7 +80,7 @@
   }
 }
 #chatbody {
-  @media @landscape {
+  @media @desktop-portrait, @landscape {
     order: 2;
     -webkit-order: 2;
     -ms-flex-order: 2;
