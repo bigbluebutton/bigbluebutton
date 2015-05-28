@@ -16,36 +16,25 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.events;
+package org.bigbluebutton.core.voice.events;
 
-public class VoiceStartRecordingEvent extends VoiceConferenceEvent {
+public class VoiceUserLockedEvent extends VoiceConferenceEvent {
 
-	private String timestamp;
-	private String filename;
-	private boolean record;
+	private final boolean locked;
+	private final String userId;
 	
-	public VoiceStartRecordingEvent(String room, boolean record) {
+	public VoiceUserLockedEvent(String userId, String room, boolean locked) {
 		super(room);
-		this.record =  record;
-	}
-	
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
+		this.locked = locked;
+		this.userId = userId;
 	}
 
-	public void setRecordingFilename(String filename) {
-		this.filename = filename;
+	public String getUserId() {
+		return userId;
 	}
 	
-	public String getTimestamp() {
-		return timestamp;
+	public boolean isLocked() {
+		return locked;
 	}
-	
-	public String getRecordingFilename() {
-		return filename;
-	}
-	
-	public boolean startRecord() {
-		return record;
-	}
+
 }

@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.events;
+package org.bigbluebutton.core.voice.events;
 
 public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 

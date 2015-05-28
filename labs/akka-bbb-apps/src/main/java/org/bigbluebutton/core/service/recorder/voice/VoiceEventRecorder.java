@@ -19,14 +19,15 @@
 package org.bigbluebutton.core.service.recorder.voice;
 
 import java.util.concurrent.TimeUnit;
+
 import org.bigbluebutton.core.service.recorder.RecorderApplication;
-import org.bigbluebutton.freeswitch.voice.events.VoiceConferenceEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceStartRecordingEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserJoinedEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserLeftEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserLockedEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserMutedEvent;
-import org.bigbluebutton.freeswitch.voice.events.VoiceUserTalkingEvent;
+import org.bigbluebutton.core.voice.events.VoiceConferenceEvent;
+import org.bigbluebutton.core.voice.events.VoiceStartRecordingEvent;
+import org.bigbluebutton.core.voice.events.VoiceUserJoinedEvent;
+import org.bigbluebutton.core.voice.events.VoiceUserLeftEvent;
+import org.bigbluebutton.core.voice.events.VoiceUserLockedEvent;
+import org.bigbluebutton.core.voice.events.VoiceUserMutedEvent;
+import org.bigbluebutton.core.voice.events.VoiceUserTalkingEvent;
 
 public class VoiceEventRecorder {
 

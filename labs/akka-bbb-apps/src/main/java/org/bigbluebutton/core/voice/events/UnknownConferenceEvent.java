@@ -16,17 +16,12 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.events;
+package org.bigbluebutton.core.voice.events;
 
-public abstract class VoiceConferenceEvent {
-	private final String room;
-	
-	public VoiceConferenceEvent(String room) {
-		this.room = room;
+public class UnknownConferenceEvent extends VoiceConferenceEvent {
+
+	public UnknownConferenceEvent(String participantId, String room) {
+		super(room);
 	}
 
-	public String getRoom() {
-		return room;
-	}
-	
 }

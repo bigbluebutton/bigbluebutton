@@ -16,25 +16,17 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.events;
+package org.bigbluebutton.core.voice.events;
 
-public class VoiceUserMutedEvent extends VoiceConferenceEvent {
-
-	private final boolean muted;
-	private final String userId;
+public abstract class VoiceConferenceEvent {
+	private final String room;
 	
-	public VoiceUserMutedEvent(String userId, String room, boolean muted) {
-		super(room);
-		this.muted = muted;
-		this.userId = userId;
+	public VoiceConferenceEvent(String room) {
+		this.room = room;
 	}
 
-	public String getUserId() {
-		return userId;
+	public String getRoom() {
+		return room;
 	}
 	
-	public boolean isMuted() {
-		return muted;
-	}
-
 }

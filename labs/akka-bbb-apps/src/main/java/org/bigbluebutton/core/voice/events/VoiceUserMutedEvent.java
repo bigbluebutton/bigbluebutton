@@ -16,16 +16,16 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.events;
+package org.bigbluebutton.core.voice.events;
 
-public class VoiceUserLockedEvent extends VoiceConferenceEvent {
+public class VoiceUserMutedEvent extends VoiceConferenceEvent {
 
-	private final boolean locked;
+	private final boolean muted;
 	private final String userId;
 	
-	public VoiceUserLockedEvent(String userId, String room, boolean locked) {
+	public VoiceUserMutedEvent(String userId, String room, boolean muted) {
 		super(room);
-		this.locked = locked;
+		this.muted = muted;
 		this.userId = userId;
 	}
 
@@ -33,8 +33,8 @@ public class VoiceUserLockedEvent extends VoiceConferenceEvent {
 		return userId;
 	}
 	
-	public boolean isLocked() {
-		return locked;
+	public boolean isMuted() {
+		return muted;
 	}
 
 }
