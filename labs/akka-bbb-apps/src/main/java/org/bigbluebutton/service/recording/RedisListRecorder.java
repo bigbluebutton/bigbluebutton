@@ -4,8 +4,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.bigbluebutton.conference.service.recorder.RecordEvent;
+
+import org.bigbluebutton.core.service.recorder.RecordEvent;
+
 import com.google.gson.Gson;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 

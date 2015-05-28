@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.bigbluebutton.conference.service.chat.ChatKeyUtil;
+import org.bigbluebutton.core.service.chat.ChatKeyUtil;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
