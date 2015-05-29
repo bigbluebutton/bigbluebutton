@@ -13,7 +13,7 @@ public class ChatMessageReceiver implements MessageHandler{
 
 	private IBigBlueButtonInGW bbbGW;
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
+	public ChatMessageReceiver(IBigBlueButtonInGW bbbGW) {
 		this.bbbGW = bbbGW;
 	}
 

@@ -12,7 +12,7 @@ public class VoiceMessageReceiver implements MessageHandler {
 
 	private IBigBlueButtonInGW bbbGW;
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
+	public VoiceMessageReceiver(IBigBlueButtonInGW bbbGW) {
 		this.bbbGW = bbbGW;
 	}
 

@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.apps.chat.redis
+package org.bigbluebutton.core.pubsub.senders
 
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.conference.service.chat.ChatKeyUtil

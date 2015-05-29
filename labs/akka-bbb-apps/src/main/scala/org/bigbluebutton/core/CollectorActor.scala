@@ -10,11 +10,11 @@ import scala.collection.JavaConversions._
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
-import org.bigbluebutton.core.apps.chat.redis.ChatMessageToJsonConverter
-import org.bigbluebutton.core.apps.presentation.redis.PesentationMessageToJsonConverter
-import org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardMessageToJsonConverter
-import org.bigbluebutton.core.meeting.MeetingMessageToJsonConverter
-import org.bigbluebutton.core.apps.users.redis.UsersMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.ChatMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 
 class CollectorActor(dispatcher: IDispatcher) extends Actor {
 

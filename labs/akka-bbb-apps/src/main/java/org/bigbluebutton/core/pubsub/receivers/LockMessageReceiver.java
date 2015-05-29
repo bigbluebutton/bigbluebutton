@@ -13,7 +13,7 @@ public class LockMessageReceiver implements MessageHandler {
 
 	private IBigBlueButtonInGW bbbGW;
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbGW) {
+	public LockMessageReceiver(IBigBlueButtonInGW bbbGW) {
 		this.bbbGW = bbbGW;
 	}
 

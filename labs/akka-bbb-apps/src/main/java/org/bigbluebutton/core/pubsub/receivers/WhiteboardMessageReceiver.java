@@ -19,7 +19,7 @@ public class WhiteboardMessageReceiver implements MessageHandler {
 	
 	private IBigBlueButtonInGW bbbInGW;
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbInGW) {
+	public WhiteboardMessageReceiver(IBigBlueButtonInGW bbbInGW) {
 		this.bbbInGW = bbbInGW;
 	}
 

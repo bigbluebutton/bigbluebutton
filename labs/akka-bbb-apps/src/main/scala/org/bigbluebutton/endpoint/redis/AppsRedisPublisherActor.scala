@@ -17,7 +17,7 @@ object AppsRedisPublisherActor extends SystemConfiguration {
   def props(system: ActorSystem): Props =
     Props(classOf[AppsRedisPublisherActor],
       system, redisHost, redisPort).
-      withDispatcher("akka.rediscala-client-worker-dispatcher")
+      withDispatcher("akka.rediscala-publish-worker-dispatcher")
 }
 
 class AppsRedisPublisherActor(val system: ActorSystem,
@@ -35,7 +35,7 @@ class AppsRedisPublisherActor(val system: ActorSystem,
 
   // publish after 2 seconds every 2 or 5 seconds
   system.scheduler.schedule(2 seconds, 2 seconds)(redis.publish("time", System.currentTimeMillis()))
-  system.scheduler.schedule(2 seconds, 5 seconds)(redis.publish("pattern.match", "pattern value"))
+  //  system.scheduler.schedule(2 seconds, 5 seconds)(redis.publish("bigbluebutton:to-bbb-apps:users", "pattern value"))
 
   def publish(channel: String, msg: String) {
     println("PUBLISH TO [" + channel + "]: \n [" + msg + "]")

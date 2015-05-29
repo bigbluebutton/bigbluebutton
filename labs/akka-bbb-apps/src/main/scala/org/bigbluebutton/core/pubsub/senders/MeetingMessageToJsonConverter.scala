@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.meeting
+package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.api._

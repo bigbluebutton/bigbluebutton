@@ -2,7 +2,6 @@ package org.bigbluebutton.core.pubsub.receivers;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bigbluebutton.common.messages.GetPresentationInfoMessage;
 import org.bigbluebutton.common.messages.GetSlideInfoMessage;
 import org.bigbluebutton.common.messages.GoToSlideMessage;
@@ -15,10 +14,10 @@ import org.bigbluebutton.common.messages.SendCursorUpdateMessage;
 import org.bigbluebutton.common.messages.SendPageCountErrorMessage;
 import org.bigbluebutton.common.messages.SendSlideGeneratedMessage;
 import org.bigbluebutton.common.messages.SharePresentationMessage;
-import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.core.pubsub.redis.MessageHandler;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
@@ -37,13 +36,10 @@ public class PresentationMessageListener implements MessageHandler {
         
         private ConversionUpdatesProcessor conversionUpdatesProcessor;
         private IBigBlueButtonInGW bbbInGW;
-        
-        public void setConversionUpdatesProcessor(ConversionUpdatesProcessor p) {
-                conversionUpdatesProcessor = p;
-        }
-        
-        public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+              
+        public PresentationMessageListener(IBigBlueButtonInGW inGW) {
                 bbbInGW = inGW;
+                conversionUpdatesProcessor = new ConversionUpdatesProcessor(bbbInGW);
         }
         
         private void sendConversionUpdate(String messageKey, String conference,

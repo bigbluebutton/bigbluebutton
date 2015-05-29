@@ -33,7 +33,7 @@ public class UsersMessageReceiver implements MessageHandler{
 
 	private IBigBlueButtonInGW bbbInGW;
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW bbbInGW) {
+	public UsersMessageReceiver(IBigBlueButtonInGW bbbInGW) {
 		this.bbbInGW = bbbInGW;
 	}
 

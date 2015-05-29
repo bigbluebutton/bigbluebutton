@@ -1,7 +1,6 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.conference.service.presentation.PreuploadedPresentationsUtil
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.layout.LayoutInGateway
 import org.bigbluebutton.core.apps.chat.ChatInGateway
@@ -13,7 +12,7 @@ import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
 
-class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresentationsUtil) extends IBigBlueButtonInGW {
+class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
 
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,

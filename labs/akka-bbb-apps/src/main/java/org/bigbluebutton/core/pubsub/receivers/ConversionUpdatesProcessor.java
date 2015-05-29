@@ -24,6 +24,10 @@ public class ConversionUpdatesProcessor {
 
 	private IBigBlueButtonInGW bbbInGW;
 	
+	public ConversionUpdatesProcessor(IBigBlueButtonInGW bbbInGW) {
+		this.bbbInGW = bbbInGW;
+	}
+	
 	public void sendConversionUpdate(String messageKey, String conference, 
                       String code, String presId, String presName) {
 		bbbInGW.sendConversionUpdate(messageKey, conference,

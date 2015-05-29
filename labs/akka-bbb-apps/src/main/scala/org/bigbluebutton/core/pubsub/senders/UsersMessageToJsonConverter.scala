@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.apps.users.redis
+package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.MessagingConstants

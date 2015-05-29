@@ -15,10 +15,16 @@ import org.bigbluebutton.common.messages.UserConnectedToGlobalAudio;
 import org.bigbluebutton.common.messages.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.core.pubsub.redis.MessageHandler;
+
 import com.google.gson.Gson;
 
-public class MeetingMessageReceiver {
+public class MeetingMessageReceiver implements MessageHandler {
 	private IBigBlueButtonInGW bbbGW;
+	
+	public MeetingMessageReceiver(IBigBlueButtonInGW bbbGW) {
+		this.bbbGW = bbbGW;
+	}
 	
 	public void handleMessage(String pattern, String channel, String message) {
 //		System.out.println("Checking message: " + pattern + " " + channel + " " + message);
