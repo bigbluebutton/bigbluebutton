@@ -5,17 +5,32 @@ import scala.concurrent.duration._
 import redis.RedisClient
 import scala.concurrent.{ Future, Await }
 import scala.concurrent.ExecutionContext.Implicits.global
-//import org.bigbluebutton.apps.MeetingManager
-import org.bigbluebutton.endpoint.redis.AppsRedisPublisherActor
+import org.freeswitch.esl.client.manager.DefaultManagerConnection
+import org.bigbluebutton.endpoint.redis.RedisPublisher
+import org.bigbluebutton.freeswitch.VoiceConferenceService
+import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
+import org.bigbluebutton.freeswitch.voice.freeswitch.{ ESLEventListener, ConnectionManager, FreeswitchApplication }
+import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 
 object Boot extends App with SystemConfiguration {
 
-  implicit val system = ActorSystem("bigbluebutton-apps-system")
+  implicit val system = ActorSystem("bigbluebutton-fsesl-system")
 
-  val redisPublisherActor = system.actorOf(
-    AppsRedisPublisherActor.props(system),
-    "redis-publisher")
+  val redisPublisher = new RedisPublisher(system)
 
-  //  val meetingManager = system.actorOf(MeetingManager.props(redisPublisherActor), "meeting-manager")
+  val eslConnection = new DefaultManagerConnection(eslHost, eslPort, eslPassword);
+
+  val voiceConfService = new VoiceConferenceService(redisPublisher)
+
+  val fsConfEventListener = new FreeswitchConferenceEventListener(voiceConfService)
+  fsConfEventListener.start()
+
+  val eslEventListener = new ESLEventListener(fsConfEventListener)
+  val connManager = new ConnectionManager(eslConnection, eslEventListener, fsConfEventListener)
+
+  connManager.start()
+
+  val fsApplication = new FreeswitchApplication(connManager)
+  fsApplication.start()
 
 }

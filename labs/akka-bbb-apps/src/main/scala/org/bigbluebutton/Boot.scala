@@ -37,13 +37,9 @@ object Boot extends App with SystemConfiguration {
   senders.add(whiteboardSender)
 
   val outGW = new MessageOutGateway(senders)
-
   val bbbGW = new BigBlueButtonGateway(system, outGW)
-
   val bbbInGW = new BigBlueButtonInGW(bbbGW)
-
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
-  val redisSubscriberActor = system.actorOf(
-    AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
+  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
 }

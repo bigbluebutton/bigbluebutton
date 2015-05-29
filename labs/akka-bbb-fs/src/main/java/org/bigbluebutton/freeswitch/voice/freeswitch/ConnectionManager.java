@@ -41,13 +41,19 @@ public class ConnectionManager  {
     
 	private static final ScheduledExecutorService connExec = Executors.newSingleThreadScheduledExecutor();
 	
-    private ManagerConnection manager;
+    private final ManagerConnection manager;
     private ScheduledFuture<ConnectThread> connectTask;
     
     private volatile boolean subscribed = false;
     
-    private ConferenceEventListener conferenceEventListener;
-    private ESLEventListener eslEventListener;
+    private final ConferenceEventListener conferenceEventListener;
+    private final ESLEventListener eslEventListener;
+    
+    public ConnectionManager(ManagerConnection connManager, ESLEventListener eventListener, ConferenceEventListener confListener) {
+    	this.manager = connManager;
+    	this.eslEventListener = eventListener;
+    	this.conferenceEventListener = confListener;
+    }
     
     private void connect() {
     	try {
@@ -137,18 +143,5 @@ public class ConnectionManager  {
 	    	EslMessage response = c.sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
 	        rcc.handleResponse(response, conferenceEventListener); 			
 		}
-	}
-	
-    public void setManagerConnection(ManagerConnection manager) {
-    	this.manager = manager;
-    }
-    
-    public void setESLEventListener(ESLEventListener listener) {
-    	this.eslEventListener = listener;
-    }
-    
-    public void setConferenceEventListener(ConferenceEventListener listener) {
-        this.conferenceEventListener = listener;
-    }
-    
+	}   
 }

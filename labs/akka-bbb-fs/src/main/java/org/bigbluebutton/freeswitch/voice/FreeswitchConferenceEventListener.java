@@ -38,10 +38,10 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 	private static final Executor runExec = Executors.newFixedThreadPool(SENDERTHREADS);
 	private BlockingQueue<VoiceConferenceEvent> messages = new LinkedBlockingQueue<VoiceConferenceEvent>();
 
-  private volatile boolean sendMessages = false;
-	private IVoiceConferenceService vcs;
+	private volatile boolean sendMessages = false;
+	private final IVoiceConferenceService vcs;
 	
-	public void setVoiceConferenceService(IVoiceConferenceService vcs) {
+	public FreeswitchConferenceEventListener(IVoiceConferenceService vcs) {
 		this.vcs = vcs;
 	}
 	

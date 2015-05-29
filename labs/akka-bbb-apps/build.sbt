@@ -56,7 +56,6 @@ libraryDependencies ++= {
       "org.apache.commons"        %  "commons-lang3"     % "3.2"
 	)}
 
-libraryDependencies += "org.freeswitch"   %  "fs-esl-client" % "0.8.2" from "http://blindside.googlecode.com/svn/repository/org/freeswitch/fs-esl-client/0.8.2/fs-esl-client-0.8.2.jar"
 
 seq(Revolver.settings: _*)
 

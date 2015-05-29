@@ -23,7 +23,11 @@ public class ESLEventListener implements IEslEventListener {
     private static final String START_RECORDING_EVENT = "start-recording";
     private static final String STOP_RECORDING_EVENT = "stop-recording";
     
-    private ConferenceEventListener conferenceEventListener;
+    private final ConferenceEventListener conferenceEventListener;
+    
+    public ESLEventListener(ConferenceEventListener conferenceEventListener) {
+    	this.conferenceEventListener = conferenceEventListener;
+    }
     
     @Override
     public void conferenceEventPlayFile(String uniqueId, String confName, int confSize, EslEvent event) {
@@ -190,13 +194,5 @@ public class ESLEventListener implements IEslEventListener {
     
     private String getRecordFilenameFromEvent(EslEvent e) {
     	return e.getEventHeaders().get("Path");
-    }
-    
-    /*private String getRecordTimestampFromEvent(EslEvent e) {
-    	return e.getEventHeaders().get("Event-Date-Timestamp");
-    }*/
-	
-    public void setConferenceEventListener(ConferenceEventListener listener) {
-        this.conferenceEventListener = listener;
     }
 }
