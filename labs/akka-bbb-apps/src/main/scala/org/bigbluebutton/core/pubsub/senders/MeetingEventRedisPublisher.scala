@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import org.bigbluebutton.conference.service.messaging.redis.MessageSender
+import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.core.api._
 import scala.collection.immutable.HashMap
 import com.google.gson.Gson

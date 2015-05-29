@@ -2,7 +2,7 @@ package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.apps.presentation.Page
-import org.bigbluebutton.conference.service.messaging.redis.MessageSender
+import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.MessagingConstants
 import org.bigbluebutton.common.messages.PresentationRemovedMessage

@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import org.bigbluebutton.conference.service.messaging.redis.MessageSender
+import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.MessagingConstants
 import com.google.gson.Gson

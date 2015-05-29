@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MessageOutGateway {
 
 	private List<OutMessageListener2> listeners;
 	
-	public MessageOutGateway() {
-		listeners = new ArrayList<OutMessageListener2>();
+	public MessageOutGateway(List<OutMessageListener2> listeners) {
+		this.listeners = listeners;
 	}
 	
 	public void send(IOutMessage msg) {

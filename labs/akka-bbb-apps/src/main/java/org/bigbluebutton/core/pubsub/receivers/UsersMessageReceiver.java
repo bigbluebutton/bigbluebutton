@@ -24,8 +24,8 @@ import org.bigbluebutton.common.messages.UserLoweredHandMessage;
 import org.bigbluebutton.common.messages.UserRaisedHandMessage;
 import org.bigbluebutton.common.messages.UserShareWebcamRequestMessage;
 import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
-import org.bigbluebutton.core.pubsub.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 

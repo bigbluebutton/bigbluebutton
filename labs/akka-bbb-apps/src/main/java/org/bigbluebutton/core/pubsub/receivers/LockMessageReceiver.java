@@ -4,8 +4,8 @@ import org.bigbluebutton.common.messages.GetLockSettingsMessage;
 import org.bigbluebutton.common.messages.LockUserMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.SendLockSettingsMessage;
-import org.bigbluebutton.core.pubsub.redis.MessageHandler;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 

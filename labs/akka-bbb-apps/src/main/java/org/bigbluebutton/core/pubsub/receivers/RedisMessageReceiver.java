@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.core.pubsub.redis.MessageHandler;
 
 public class RedisMessageReceiver {
 	private List<MessageHandler> receivers;

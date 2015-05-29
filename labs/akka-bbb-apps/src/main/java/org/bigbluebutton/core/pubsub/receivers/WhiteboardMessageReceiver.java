@@ -10,7 +10,6 @@ import org.bigbluebutton.common.messages.RequestWhiteboardAnnotationHistoryReque
 import org.bigbluebutton.common.messages.SendWhiteboardAnnotationRequestMessage;
 import org.bigbluebutton.common.messages.UndoWhiteboardRequest;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
-import org.bigbluebutton.core.pubsub.redis.MessageHandler;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;

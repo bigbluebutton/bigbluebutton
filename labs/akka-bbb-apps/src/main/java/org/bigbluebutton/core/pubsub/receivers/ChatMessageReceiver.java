@@ -4,9 +4,10 @@ import org.bigbluebutton.common.messages.GetChatHistoryRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.SendPrivateChatMessage;
 import org.bigbluebutton.common.messages.SendPublicChatMessage;
-import org.bigbluebutton.core.pubsub.redis.MessageHandler;
+
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
+
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 public class ChatMessageReceiver implements MessageHandler{

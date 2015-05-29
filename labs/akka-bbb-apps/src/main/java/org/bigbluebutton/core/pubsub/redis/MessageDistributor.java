@@ -2,6 +2,8 @@ package org.bigbluebutton.core.pubsub.redis;
 
 import java.util.Set;
 
+import org.bigbluebutton.core.pubsub.receivers.MessageHandler;
+
 public class MessageDistributor {
 	private ReceivedMessageHandler handler;
 	private Set<MessageHandler> listeners;
