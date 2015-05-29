@@ -4,6 +4,18 @@ import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.endpoint.redis.RedisPublisher
 
+case class FsVoiceUserJoined(userId: String, webUserId: String,
+  conference: String, callerIdNum: String,
+  callerIdName: String, muted: Boolean,
+  speaking: Boolean)
+
+case class FsVoiceUserLeft(userId: String, conference: String)
+case class FsVoiceUserLocked(userId: String, conference: String, locked: Boolean)
+case class FsVoiceUserMuted(userId: String, conference: String, muted: Boolean)
+case class FsVoiceUserTalking(userId: String, conference: String, talking: Boolean)
+case class FsRecording(conference: String, recordingFile: String,
+  timestamp: String, recording: Boolean)
+
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService {
 
   def voiceStartedRecording(conference: String, recordingFile: String,

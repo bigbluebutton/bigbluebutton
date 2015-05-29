@@ -6,11 +6,12 @@ import redis.RedisClient
 import scala.concurrent.{ Future, Await }
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.freeswitch.esl.client.manager.DefaultManagerConnection
-import org.bigbluebutton.endpoint.redis.RedisPublisher
+import org.bigbluebutton.endpoint.redis.{ RedisPublisher, AppsRedisSubscriberActor }
 import org.bigbluebutton.freeswitch.VoiceConferenceService
 import org.bigbluebutton.freeswitch.voice.FreeswitchConferenceEventListener
 import org.bigbluebutton.freeswitch.voice.freeswitch.{ ESLEventListener, ConnectionManager, FreeswitchApplication }
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
+import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
 
 object Boot extends App with SystemConfiguration {
 
@@ -33,4 +34,7 @@ object Boot extends App with SystemConfiguration {
   val fsApplication = new FreeswitchApplication(connManager)
   fsApplication.start()
 
+  val redisMsgReceiver = new RedisMessageReceiver(fsApplication)
+
+  val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
 }

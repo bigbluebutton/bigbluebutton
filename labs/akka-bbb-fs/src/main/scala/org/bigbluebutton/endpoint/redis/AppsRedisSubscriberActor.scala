@@ -8,19 +8,20 @@ import scala.concurrent.duration._
 import akka.actor.ActorRef
 import akka.actor.actorRef2Scala
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.freeswitch.pubsub.receivers.RedisMessageReceiver
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
   val channels = Seq("time")
-  val patterns = Seq("pattern.*")
+  val patterns = Seq("bigbluebutton:to-bbb-apps:*")
 
-  def props(bbbAppsActor: ActorRef): Props =
-    Props(classOf[AppsRedisSubscriberActor],
-      bbbAppsActor, redisHost, redisPort, channels, patterns).
-      withDispatcher("rediscala.rediscala-client-worker-dispatcher")
+  def props(msgReceiver: RedisMessageReceiver): Props =
+    Props(classOf[AppsRedisSubscriberActor], msgReceiver,
+      redisHost, redisPort,
+      channels, patterns).withDispatcher("akka.rediscala-subscriber-worker-dispatcher")
 }
 
-class AppsRedisSubscriberActor(bbbAppsActor: ActorRef, redisHost: String,
+class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: String,
   redisPort: Int,
   channels: Seq[String] = Nil, patterns: Seq[String] = Nil)
     extends RedisSubscriberActor(
@@ -33,6 +34,7 @@ class AppsRedisSubscriberActor(bbbAppsActor: ActorRef, redisHost: String,
 
   def onPMessage(pmessage: PMessage) {
     log.debug(s"pattern message received: $pmessage")
+    msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data)
   }
 
   def handleMessage(msg: String) {
