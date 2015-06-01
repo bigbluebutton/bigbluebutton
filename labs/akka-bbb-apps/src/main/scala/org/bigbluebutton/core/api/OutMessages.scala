@@ -228,6 +228,8 @@ case class MuteVoiceUser(
   recorded: Boolean,
   requesterID: String,
   userId: String,
+  voiceConfId: String,
+  voiceUserId: String,
   mute: Boolean,
   version: String = Versions.V_0_0_1) extends IOutMessage
 
@@ -250,6 +252,8 @@ case class EjectVoiceUser(
   recorded: Boolean,
   requesterID: String,
   userId: String,
+  voiceConfId: String,
+  voiceUserId: String,
   version: String = Versions.V_0_0_1) extends IOutMessage
 
 case class UserJoinedVoice(

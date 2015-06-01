@@ -311,34 +311,21 @@ case class VoiceUserJoinedMessage(
   muted: Boolean,
   talking: Boolean) extends InMessage
 
-case class VoiceUserJoined(
-  meetingID: String,
-  voiceUser: VoiceUser) extends InMessage
+case class UserJoinedVoiceConfMessage(
+  voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
+  callerIdNum: String, muted: Boolean, talking: Boolean)
 
-case class VoiceUserLeft(
-  meetingID: String,
-  userId: String) extends InMessage
-
-case class VoiceUserLocked(
-  meetingID: String,
-  userId: String,
-  locked: Boolean) extends InMessage
-
-case class VoiceUserMuted(
-  meetingID: String,
-  userId: String,
-  muted: Boolean) extends InMessage
-
-case class VoiceUserTalking(
-  meetingID: String,
-  userId: String,
-  talking: Boolean) extends InMessage
-
-case class VoiceRecording(
-  meetingID: String,
-  recordingFile: String,
-  timestamp: String,
-  recording: Boolean) extends InMessage
+case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String)
+case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean)
+case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean)
+case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean)
+case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String)
+//case class VoiceUserJoined(meetingID: String, voiceUser: VoiceUser) extends InMessage
+//case class VoiceUserLeft(meetingID: String, userId: String) extends InMessage
+//case class VoiceUserLocked(meetingID: String, userId: String, locked: Boolean) extends InMessage
+//case class VoiceUserMuted(meetingID: String, userId: String, muted: Boolean) extends InMessage
+//case class VoiceUserTalking( meetingID: String, userId: String, talking: Boolean) extends InMessage
+//case class VoiceRecording(meetingID: String, recordingFile: String, timestamp: String, recording: Boolean) extends InMessage
 
 // Whiteboard
 case class SendWhiteboardAnnotationRequest(

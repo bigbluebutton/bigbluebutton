@@ -26,10 +26,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectParticipantCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteParticipantCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.PopulateRoomCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
 
 public class FreeswitchApplication {
@@ -58,23 +58,23 @@ public class FreeswitchApplication {
 			}
 	  }
 	    
-	  public void populateRoom(String room) {    
-	  	PopulateRoomCommand prc = new PopulateRoomCommand(room, USER);
+	  public void getAllUsers(String voiceConfId) {    
+	  	GetAllUsersCommand prc = new GetAllUsersCommand(voiceConfId, USER);
 	   	queueMessage(prc);
 	  }
 	
-	  public void mute(String room, String participant, Boolean mute) {
-	    MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
+	  public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
+	    MuteUserCommand mpc = new MuteUserCommand(voiceConfId, voiceUserId, mute, USER);
 	    queueMessage(mpc);
 	  }
 	
-	  public void eject(String room, String participant) {
-	    EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);       
+	  public void eject(String voiceConfId, String voiceUserId) {
+	    EjectUserCommand mpc = new EjectUserCommand(voiceConfId, voiceUserId, USER);       
 	    queueMessage(mpc);
 	  }
 	
-	  public void ejectAll(String room) {
-	    EjectAllUsersCommand mpc = new EjectAllUsersCommand(room, USER);
+	  public void ejectAll(String voiceConfId) {
+	    EjectAllUsersCommand mpc = new EjectAllUsersCommand(voiceConfId, USER);
 	    queueMessage(mpc);
 	  }
 	    
@@ -82,28 +82,33 @@ public class FreeswitchApplication {
 	  	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
 	  }
 	    
-	  public void record(String room, String meetingid){
+	  public void startRecording(String voiceConfId, String meetingid){
 	  	String RECORD_DIR = "/var/freeswitch/meetings";        
 	   	String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + genTimestamp() + ".wav";
 	    	
-	   	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
+	   	RecordConferenceCommand rcc = new RecordConferenceCommand(voiceConfId, USER, true, voicePath);
 	   	queueMessage(rcc);
 	  }
+	  
+	  public void stopRecording(String voiceConfId, String meetingid, String voicePath){		    	
+		   	RecordConferenceCommand rcc = new RecordConferenceCommand(voiceConfId, USER, false, voicePath);
+		   	queueMessage(rcc);
+		  }
 	
 		private void sendMessageToFreeswitch(final FreeswitchCommand command) {
 			Runnable task = new Runnable() {
 				public void run() {
-					if (command instanceof PopulateRoomCommand) {
-						PopulateRoomCommand cmd = (PopulateRoomCommand) command;
+					if (command instanceof GetAllUsersCommand) {
+						GetAllUsersCommand cmd = (GetAllUsersCommand) command;
 						System.out.println("Sending PopulateRoomCommand for conference = [" + cmd.getRoom() + "]");
 						manager.getUsers(cmd);
-					} else if (command instanceof MuteParticipantCommand) {
-						MuteParticipantCommand cmd = (MuteParticipantCommand) command;
+					} else if (command instanceof MuteUserCommand) {
+						MuteUserCommand cmd = (MuteUserCommand) command;
 						System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						manager.mute(cmd);
-					} else if (command instanceof EjectParticipantCommand) {
-						EjectParticipantCommand cmd = (EjectParticipantCommand) command;
+					} else if (command instanceof EjectUserCommand) {
+						EjectUserCommand cmd = (EjectUserCommand) command;
 						System.out.println("Sending EjectParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						manager.eject(cmd);
 					} else if (command instanceof EjectAllUsersCommand) {

@@ -29,37 +29,34 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
     bbbGW.accept(new EjectUserFromVoiceRequest(meetingID, userId, ejectedBy))
   }
 
-  def voiceUserJoined(meetingId: String, userId: String, webUserId: String,
-    conference: String, callerIdNum: String,
-    callerIdName: String,
-    muted: Boolean, talking: Boolean) {
+  def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
+    callerIdNum: String, muted: Boolean, talking: Boolean) {
     //	  println("VoiceInGateway: Got voiceUserJoined message for meeting [" + meetingId + "] user[" + callerIdName + "]")
-    val voiceUser = new VoiceUser(userId, webUserId,
-      callerIdName, callerIdNum,
-      true, false, muted, talking)
-    bbbGW.accept(new VoiceUserJoined(meetingId, voiceUser))
+    val voiceUser = new VoiceUser(voiceUserId, userId, callerIdName, callerIdNum, true, false, muted, talking)
+    val msg = new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, callerIdName,
+      callerIdNum, muted, talking)
+
+    bbbGW.acceptUserJoinedVoiceConfMessage(msg)
   }
 
-  def voiceUserLeft(meetingId: String, userId: String) {
+  def voiceUserLeft(voiceConfId: String, voiceUserId: String) {
     //	  println("VoiceInGateway: Got voiceUserLeft message for meeting [" + meetingId + "] user[" + userId + "]")
-    bbbGW.accept(new VoiceUserLeft(meetingId, userId))
+    bbbGW.acceptUserLeftVoiceConfMessage(new UserLeftVoiceConfMessage(voiceConfId, voiceUserId))
   }
 
-  def voiceUserLocked(meetingId: String, userId: String, locked: Boolean) {
-    bbbGW.accept(new VoiceUserLocked(meetingId, userId, locked))
+  def voiceUserLocked(voiceConfId: String, voiceUserId: String, locked: Boolean) {
+    bbbGW.acceptUserLockedInVoiceConfMessage(new UserLockedInVoiceConfMessage(voiceConfId, voiceUserId, locked))
   }
 
-  def voiceUserMuted(meetingId: String, userId: String, muted: Boolean) {
-    bbbGW.accept(new VoiceUserMuted(meetingId, userId, muted))
+  def voiceUserMuted(voiceConfId: String, voiceUserId: String, muted: Boolean) {
+    bbbGW.acceptUserMutedInVoiceConfMessage(new UserMutedInVoiceConfMessage(voiceConfId, voiceUserId, muted))
   }
 
-  def voiceUserTalking(meetingId: String, userId: String, talking: Boolean) {
-    bbbGW.accept(new VoiceUserTalking(meetingId, userId, talking))
+  def voiceUserTalking(voiceConfId: String, voiceUserId: String, talking: Boolean) {
+    bbbGW.acceptUserTalkingInVoiceConfMessage(new UserTalkingInVoiceConfMessage(voiceConfId, voiceUserId, talking))
   }
 
-  def voiceRecording(meetingId: String, recordingFile: String,
-    timestamp: String, recording: java.lang.Boolean) {
-    bbbGW.accept(new VoiceRecording(meetingId, recordingFile,
-      timestamp, recording))
+  def voiceRecording(voiceConfId: String, recordingFile: String, timestamp: String, recording: java.lang.Boolean) {
+    bbbGW.acceptVoiceConfRecordingStartedMessage(new VoiceConfRecordingStartedMessage(voiceConfId, recordingFile, recording, timestamp))
   }
 }

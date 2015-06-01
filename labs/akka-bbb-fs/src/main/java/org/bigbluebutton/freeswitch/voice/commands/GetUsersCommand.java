@@ -18,9 +18,9 @@
 */
 package org.bigbluebutton.freeswitch.voice.commands;
 
-public class GetParticipantsCommand extends ConferenceCommand {
+public class GetUsersCommand extends ConferenceCommand {
 
-	public GetParticipantsCommand(String room, Integer requesterId) {
+	public GetUsersCommand(String room, Integer requesterId) {
 		super(room, requesterId);
 	}
 

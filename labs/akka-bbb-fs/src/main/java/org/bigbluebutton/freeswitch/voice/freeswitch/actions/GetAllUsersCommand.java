@@ -36,9 +36,9 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
-public class PopulateRoomCommand extends FreeswitchCommand {
+public class GetAllUsersCommand extends FreeswitchCommand {
 
-    public PopulateRoomCommand(String room, String requesterId) {
+    public GetAllUsersCommand(String room, String requesterId) {
             super(room, requesterId);
     }
     

@@ -26,9 +26,9 @@ import java.util.concurrent.TimeUnit;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectParticipantCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteParticipantCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.PopulateRoomCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
 import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
@@ -106,7 +106,7 @@ public class ConnectionManager  {
 		}
 	}
 	
-	public void getUsers(PopulateRoomCommand prc) {
+	public void getUsers(GetAllUsersCommand prc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
 	        EslMessage response = c.sendSyncApiCommand(prc.getCommand(), prc.getCommandArgs());
@@ -114,7 +114,7 @@ public class ConnectionManager  {
 		}
 	}
 	
-	public void mute(MuteParticipantCommand mpc) {
+	public void mute(MuteUserCommand mpc) {
 		System.out.println("Got mute request from FSApplication.");
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
@@ -123,7 +123,7 @@ public class ConnectionManager  {
 		}
 	}
 	
-	public void eject(EjectParticipantCommand mpc) {
+	public void eject(EjectUserCommand mpc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
 			c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());

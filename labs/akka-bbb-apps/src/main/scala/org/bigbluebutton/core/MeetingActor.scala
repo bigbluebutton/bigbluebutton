@@ -66,10 +66,11 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
     case "MonitorNumberOfWebUsers" => handleMonitorNumberOfWebUsers()
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: RegisterUser => handleRegisterUser(msg)
-    case msg: VoiceUserJoined => handleVoiceUserJoined(msg)
-    case msg: VoiceUserLeft => handleVoiceUserLeft(msg)
-    case msg: VoiceUserMuted => handleVoiceUserMuted(msg)
-    case msg: VoiceUserTalking => handleVoiceUserTalking(msg)
+    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
+    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
+    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
+    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
+    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
     case msg: UserJoining => handleUserJoin(msg)
     case msg: UserLeaving => handleUserLeft(msg)
     case msg: AssignPresenter => handleAssignPresenter(msg)
@@ -119,7 +120,6 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
     case msg: IsWhiteboardEnabledRequest => handleIsWhiteboardEnabledRequest(msg)
     case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
     case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
-    case msg: VoiceRecording => handleVoiceRecording(msg)
 
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit
@@ -206,14 +206,12 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
     outGW.send(new DisconnectAllUsers(msg.meetingID))
   }
 
-  private def handleVoiceRecording(msg: VoiceRecording) {
+  private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
     if (msg.recording) {
       outGW.send(new VoiceRecordingStarted(meetingID,
-        recorded, msg.recordingFile,
-        msg.timestamp, voiceBridge))
+        recorded, msg.recordStream, msg.timestamp, voiceBridge))
     } else {
-      outGW.send(new VoiceRecordingStopped(meetingID, recorded,
-        msg.recordingFile, msg.timestamp, voiceBridge))
+      outGW.send(new VoiceRecordingStopped(meetingID, recorded, msg.recordStream, msg.timestamp, voiceBridge))
     }
   }
 

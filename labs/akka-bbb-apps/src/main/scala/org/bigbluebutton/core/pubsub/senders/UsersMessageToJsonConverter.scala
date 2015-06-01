@@ -294,6 +294,8 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MUTE, msg.mute)
     payload.put(Constants.USER_ID, msg.userId)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.VOICE_CONF_ID, msg.voiceConfId)
+    payload.put(Constants.VOICE_USER_ID, msg.voiceUserId)
 
     val header = Util.buildHeader(MessageNames.EJECT_VOICE_USER, msg.version, None)
     Util.buildJson(header, payload)
@@ -305,6 +307,8 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.USER_ID, msg.userId)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.VOICE_CONF_ID, msg.voiceConfId)
+    payload.put(Constants.VOICE_USER_ID, msg.voiceUserId)
 
     val header = Util.buildHeader(MessageNames.EJECT_VOICE_USER, msg.version, None)
     Util.buildJson(header, payload)

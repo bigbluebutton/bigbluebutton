@@ -16,25 +16,12 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
+package org.bigbluebutton.freeswitch.voice.commands;
 
-public class MuteParticipantCommand extends FreeswitchCommand {
-	
-    private final String participant;
-    private final Boolean mute;
+public class RecordCommand extends ConferenceCommand {
 
-    public MuteParticipantCommand(String room, String participant, Boolean mute, String requesterId) {
-            super(room, requesterId);
-            this.participant = participant;
-            this.mute = mute;
-    }
-
-    @Override
-    public String getCommandArgs() {
-            String action = "unmute";
-            if (mute) action = "mute";
-
-            return room + SPACE + action + SPACE + participant;
-    }
+	public RecordCommand(String room, Integer requesterId) {
+		super(room, requesterId);
+	}
 
 }

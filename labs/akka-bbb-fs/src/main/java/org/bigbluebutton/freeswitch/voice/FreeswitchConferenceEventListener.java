@@ -60,26 +60,25 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 				if (event instanceof VoiceUserJoinedEvent) {
 				System.out.println("************** FreeswitchConferenceEventListener received voiceUserJoined ");
 				VoiceUserJoinedEvent evt = (VoiceUserJoinedEvent) event;
-				vcs.voiceUserJoined(evt.getVoiceUserId(), evt.getUserId(), evt.getRoom(), 
-						evt.getCallerIdNum(), evt.getCallerIdName(),
-						evt.getMuted(), evt.getSpeaking());
-			} else if (event instanceof VoiceUserLeftEvent) {
-				System.out.println("************** FreeswitchConferenceEventListener received VoiceUserLeftEvent ");
-				VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
-				vcs.voiceUserLeft(evt.getUserId(), evt.getRoom());
-			} else if (event instanceof VoiceUserMutedEvent) {
-				System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent ");
-				VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
-				vcs.voiceUserMuted(evt.getUserId(), evt.getRoom(), evt.isMuted());
-			} else if (event instanceof VoiceUserTalkingEvent) {
-				System.out.println("************** FreeswitchConferenceEventListener VoiceUserTalkingEvent ");
-				VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
-				vcs.voiceUserTalking(evt.getUserId(), evt.getRoom(), evt.isTalking());
-			} else if (event instanceof VoiceStartRecordingEvent) {
-				VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
-				System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent recording=[" + evt.startRecord() + "]");
-				vcs.voiceStartedRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp(), evt.startRecord());
-			} 				
+				vcs.userJoinedVoiceConf(evt.getRoom(), evt.getVoiceUserId(), evt.getUserId(), evt.getCallerIdName(), 
+						evt.getCallerIdNum(), evt.getMuted(), evt.getSpeaking());
+				} else if (event instanceof VoiceUserLeftEvent) {
+					System.out.println("************** FreeswitchConferenceEventListener received VoiceUserLeftEvent ");
+					VoiceUserLeftEvent evt = (VoiceUserLeftEvent) event;
+					vcs.userLeftVoiceConf(evt.getRoom(), evt.getUserId());
+				} else if (event instanceof VoiceUserMutedEvent) {
+					System.out.println("************** FreeswitchConferenceEventListener VoiceUserMutedEvent ");
+					VoiceUserMutedEvent evt = (VoiceUserMutedEvent) event;
+					vcs.userMutedInVoiceConf(evt.getRoom(), evt.getUserId(), evt.isMuted());
+				} else if (event instanceof VoiceUserTalkingEvent) {
+					System.out.println("************** FreeswitchConferenceEventListener VoiceUserTalkingEvent ");
+					VoiceUserTalkingEvent evt = (VoiceUserTalkingEvent) event;
+					vcs.userTalkingInVoiceConf(evt.getRoom(), evt.getUserId(), evt.isTalking());
+				} else if (event instanceof VoiceStartRecordingEvent) {
+					VoiceStartRecordingEvent evt = (VoiceStartRecordingEvent) event;
+					System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent recording=[" + evt.startRecord() + "]");
+					vcs.voiceConfRecordingStarted(evt.getRoom(), evt.getRecordingFilename(), evt.startRecord(), evt.getTimestamp());
+				} 				
 			}
 		};
 		

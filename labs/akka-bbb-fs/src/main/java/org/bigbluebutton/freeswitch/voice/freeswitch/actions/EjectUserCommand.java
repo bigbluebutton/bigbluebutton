@@ -18,11 +18,11 @@
 */
 package org.bigbluebutton.freeswitch.voice.freeswitch.actions;
 
-public class EjectParticipantCommand extends FreeswitchCommand {
+public class EjectUserCommand extends FreeswitchCommand {
     
     private final String participant;
 
-    public EjectParticipantCommand(String room, String participant, String requesterId) {
+    public EjectUserCommand(String room, String participant, String requesterId) {
             super(room, requesterId);
             this.participant = participant;
     }

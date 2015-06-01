@@ -68,12 +68,12 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     case msg: LockUserRequest => handleLockUserRequest(msg)
     case msg: EjectUserFromVoiceRequest => handleEjectUserFromVoiceRequest(msg)
     case msg: VoiceUserJoinedMessage => handleVoiceUserJoinedMessage(msg)
-    case msg: VoiceUserJoined => handleVoiceUserJoined(msg)
-    case msg: VoiceUserLeft => handleVoiceUserLeft(msg)
-    case msg: VoiceUserLocked => handleVoiceUserLocked(msg)
-    case msg: VoiceUserMuted => handleVoiceUserMuted(msg)
-    case msg: VoiceUserTalking => handleVoiceUserTalking(msg)
-    case msg: VoiceRecording => handleVoiceRecording(msg)
+    //    case msg: VoiceUserJoined => handleVoiceUserJoined(msg)
+    //    case msg: VoiceUserLeft => handleVoiceUserLeft(msg)
+    //    case msg: VoiceUserLocked => handleVoiceUserLocked(msg)
+    //    case msg: VoiceUserMuted => handleVoiceUserMuted(msg)
+    //    case msg: VoiceUserTalking => handleVoiceUserTalking(msg)
+    //    case msg: VoiceRecording => handleVoiceRecording(msg)
     case msg: SendWhiteboardAnnotationRequest => handleSendWhiteboardAnnotationRequest(msg)
     case msg: GetWhiteboardShapesRequest => handleGetWhiteboardShapesRequest(msg)
     case msg: ClearWhiteboardRequest => handleClearWhiteboardRequest(msg)
@@ -945,6 +945,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     dispatcher.dispatch(buildJson(header, payload))
   }
 
+  /*
   private def handleVoiceUserJoined(msg: VoiceUserJoined) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -958,7 +959,9 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     //    println("***** DISPATCHING VOICE USER JOINED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
+*/
 
+  /*
   private def handleVoiceUserLeft(msg: VoiceUserLeft) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -972,7 +975,9 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     //    println("***** DISPATCHING VOICE USER LEFT *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
+*/
 
+  /*
   private def handleVoiceUserLocked(msg: VoiceUserLocked) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -987,7 +992,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     //    println("***** DISPATCHING VOICE USER LOCKED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
-
+*/
+  /*  
   private def handleVoiceUserMuted(msg: VoiceUserMuted) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -1002,7 +1008,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     //    println("***** DISPATCHING VOICE USER MUTED *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
-
+*/
+  /*  
   private def handleVoiceUserTalking(msg: VoiceUserTalking) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -1017,7 +1024,8 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     //    println("***** DISPATCHING VOICE USER TALKING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
-
+*/
+  /*
   private def handleVoiceRecording(msg: VoiceRecording) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -1033,7 +1041,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     //    println("***** DISPATCHING VOICE RECORDING *****************")
     dispatcher.dispatch(buildJson(header, payload))
   }
-
+*/
   private def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
@@ -1429,7 +1437,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.USER_ID, msg.userId)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.VOICE_CONF_ID, msg.voiceConfId)
     payload.put(Constants.MUTE, msg.mute)
 
     val header = new java.util.HashMap[String, Any]()
@@ -1478,7 +1486,7 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.USER_ID, msg.userId)
-    payload.put(Constants.REQUESTER_ID, msg.requesterID)
+    payload.put(Constants.VOICE_CONF_ID, msg.voiceConfId)
 
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.EJECT_VOICE_USER)

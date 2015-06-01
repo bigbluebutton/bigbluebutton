@@ -71,7 +71,8 @@ case class UserVO(
   voiceUser: VoiceUser,
   listenOnly: Boolean)
 
-case class VoiceUser(userId: String,
+case class VoiceUser(
+  userId: String,
   webUserId: String,
   callerName: String,
   callerNum: String,

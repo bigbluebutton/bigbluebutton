@@ -23,7 +23,6 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
   implicit def executionContext = actorRefFactory.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
-  //private var meetings = new HashMap[String, MeetingActor]
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
 
   def receive = {
@@ -32,8 +31,54 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
     case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
+    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
+    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
+    case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
+    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
+    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
+    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
     case msg: InMessage => handleMeetingMessage(msg)
     case _ => // do nothing
+  }
+
+  private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
+    meetings.values.find(m => m.voiceBridge == voiceConfId)
+  }
+
+  private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
+    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
+
+    rm foreach { m => m.actorRef ! msg }
+  }
+
+  private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
+    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
+
+    rm foreach { m => m.actorRef ! msg }
+  }
+
+  private def handleUserLockedInVoiceConfMessage(msg: UserLockedInVoiceConfMessage) {
+    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
+
+    rm foreach { m => m.actorRef ! msg }
+  }
+
+  private def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
+    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
+
+    rm foreach { m => m.actorRef ! msg }
+  }
+
+  private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
+    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
+
+    rm foreach { m => m.actorRef ! msg }
+  }
+
+  private def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
+    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
+
+    rm foreach { m => m.actorRef ! msg }
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {

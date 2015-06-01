@@ -397,35 +397,29 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     voiceGW.ejectUserFromVoice(meetingId, userId, ejectedBy)
   }
 
-  def voiceUserJoined(meetingId: String, userId: String, webUserId: String,
-    conference: String, callerIdNum: String,
-    callerIdName: String,
-    muted: java.lang.Boolean, speaking: java.lang.Boolean) {
+  def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
+    callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
 
-    voiceGW.voiceUserJoined(meetingId, userId, webUserId,
-      conference, callerIdNum,
-      callerIdName, muted, speaking)
+    voiceGW.voiceUserJoined(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum, muted, talking)
   }
 
-  def voiceUserLeft(meetingId: String, userId: String) {
-    voiceGW.voiceUserLeft(meetingId, userId)
+  def voiceUserLeft(voiceConfId: String, voiceUserId: String) {
+    voiceGW.voiceUserLeft(voiceConfId, voiceUserId)
   }
 
-  def voiceUserLocked(meetingId: String, userId: String, locked: java.lang.Boolean) {
-    voiceGW.voiceUserLocked(meetingId, userId, locked)
+  def voiceUserLocked(voiceConfId: String, voiceUserId: String, locked: java.lang.Boolean) {
+    voiceGW.voiceUserLocked(voiceConfId, voiceUserId, locked)
   }
 
-  def voiceUserMuted(meetingId: String, userId: String, muted: java.lang.Boolean) {
-    voiceGW.voiceUserMuted(meetingId, userId, muted)
+  def voiceUserMuted(voiceConfId: String, voiceUserId: String, muted: java.lang.Boolean) {
+    voiceGW.voiceUserMuted(voiceConfId, voiceUserId, muted)
   }
 
-  def voiceUserTalking(meetingId: String, userId: String, talking: java.lang.Boolean) {
-    voiceGW.voiceUserTalking(meetingId, userId, talking)
+  def voiceUserTalking(voiceConfId: String, voiceUserId: String, talking: java.lang.Boolean) {
+    voiceGW.voiceUserTalking(voiceConfId, voiceUserId, talking)
   }
 
-  def voiceRecording(meetingId: String, recordingFile: String,
-    timestamp: String, recording: java.lang.Boolean) {
-    voiceGW.voiceRecording(meetingId, recordingFile,
-      timestamp, recording)
+  def voiceRecording(voiceConfId: String, recordingFile: String, timestamp: String, recording: java.lang.Boolean) {
+    voiceGW.voiceRecording(voiceConfId, recordingFile, timestamp, recording)
   }
 }

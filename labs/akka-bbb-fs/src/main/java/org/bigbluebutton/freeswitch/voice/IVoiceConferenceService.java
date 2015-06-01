@@ -1,13 +1,12 @@
 package org.bigbluebutton.freeswitch.voice;
 
 public interface IVoiceConferenceService {
-  void voiceUserJoined(String userId, String webUserId, String conference, 
-			String callerIdNum, String callerIdName,
-			Boolean muted, Boolean speaking);
-  void voiceUserLeft(String meetingId, String userId);
-  void voiceUserLocked(String meetingId, String userId, Boolean locked);
-  void voiceUserMuted(String meetingId, String userId, Boolean muted);
-  void voiceUserTalking(String meetingId, String userId, Boolean talking);
-  void voiceStartedRecording(String conference, String recordingFile, 
-		  String timestamp, Boolean recording);
+	void voiceConfRecordingStarted(String voiceConfId, String recordStream, Boolean recording, String timestamp);	
+	void userJoinedVoiceConf(String voiceConfId, String voiceUserId, String userId, String callerIdName, 
+			String callerIdNum, Boolean muted, Boolean speaking);
+	void userLeftVoiceConf(String voiceConfId, String voiceUserId);
+	void userLockedInVoiceConf(String voiceConfId, String voiceUserId, Boolean locked);
+	void userMutedInVoiceConf(String voiceConfId, String voiceUserId, Boolean muted);
+	void userTalkingInVoiceConf(String voiceConfId, String voiceUserId, Boolean talking);
+
 }

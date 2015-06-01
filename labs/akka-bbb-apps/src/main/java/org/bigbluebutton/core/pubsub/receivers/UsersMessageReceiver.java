@@ -19,11 +19,17 @@ import org.bigbluebutton.common.messages.MuteAllRequestMessage;
 import org.bigbluebutton.common.messages.MuteUserRequestMessage;
 import org.bigbluebutton.common.messages.SetRecordingStatusRequestMessage;
 import org.bigbluebutton.common.messages.SetUserStatusRequestMessage;
+import org.bigbluebutton.common.messages.UserJoinedVoiceConfMessage;
 import org.bigbluebutton.common.messages.UserLeavingMessage;
+import org.bigbluebutton.common.messages.UserLeftVoiceConfMessage;
+import org.bigbluebutton.common.messages.UserLockedInVoiceConfMessage;
 import org.bigbluebutton.common.messages.UserLoweredHandMessage;
+import org.bigbluebutton.common.messages.UserMutedInVoiceConfMessage;
 import org.bigbluebutton.common.messages.UserRaisedHandMessage;
 import org.bigbluebutton.common.messages.UserShareWebcamRequestMessage;
+import org.bigbluebutton.common.messages.UserTalkingInVoiceConfMessage;
 import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
+import org.bigbluebutton.common.messages.VoiceConfRecordingStartedMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
 import com.google.gson.JsonParser;
@@ -119,6 +125,79 @@ public class UsersMessageReceiver implements MessageHandler{
 					}
 				}
 			}
+		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_VOICE_CONF_SYSTEM_CHAN)) {
+			System.out.println("Voice message: " + channel + " " + message);
+			JsonParser parser = new JsonParser();
+			JsonObject obj = (JsonObject) parser.parse(message);
+			if (obj.has("header") && obj.has("payload")) {
+				JsonObject header = (JsonObject) obj.get("header");
+
+				if (header.has("name")) {
+					String messageName = header.get("name").getAsString();
+					switch (messageName) {
+					  case UserJoinedVoiceConfMessage.USER_JOINED_VOICE_CONF:
+						  processUserJoinedVoiceConfMessage(message);
+						  break;	
+					  case UserLeftVoiceConfMessage.USER_LEFT_VOICE_CONF:
+						  processUserLeftVoiceConfMessage(message);
+						  break;
+					  case UserLockedInVoiceConfMessage.USER_LOCKED_IN_VOICE_CONF:
+						  processUserLockedInVoiceConfMessage(message);
+						  break;
+					  case UserMutedInVoiceConfMessage.USER_MUTED_IN_VOICE_CONF:
+						  processUserMutedInVoiceConfMessage(message);
+						  break;
+					  case UserTalkingInVoiceConfMessage.USER_TALKING_IN_VOICE_CONF:
+						  processUserTalkingInVoiceConfMessage(message);
+						  break;
+					  case VoiceConfRecordingStartedMessage.VOICE_CONF_RECORDING_STARTED:
+						  processVoiceConfRecordingStartedMessage(message);
+						  break;
+					}
+				}
+			}
+		}
+	}
+	
+	private void processUserJoinedVoiceConfMessage(String json) {
+		UserJoinedVoiceConfMessage msg = UserJoinedVoiceConfMessage.fromJson(json);
+		if (msg != null) {
+			bbbInGW.voiceUserJoined(msg.voiceConfId, msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, msg.muted, msg.talking);
+		}
+	}
+
+	private void processUserLeftVoiceConfMessage(String json) {
+		UserLeftVoiceConfMessage msg = UserLeftVoiceConfMessage.fromJson(json);
+		if (msg != null) {
+			bbbInGW.voiceUserLeft(msg.voiceConfId, msg.voiceUserId);
+		}
+	}
+
+	private void processUserLockedInVoiceConfMessage(String json) {
+		UserLockedInVoiceConfMessage msg = UserLockedInVoiceConfMessage.fromJson(json);
+		if (msg != null) {
+			bbbInGW.voiceUserLocked(msg.voiceConfId, msg.voiceUserId, msg.locked);
+		}
+	}
+	
+	private void processUserMutedInVoiceConfMessage(String json) {
+		UserMutedInVoiceConfMessage msg = UserMutedInVoiceConfMessage.fromJson(json);
+		if (msg != null) {
+			bbbInGW.voiceUserMuted(msg.voiceConfId, msg.voiceUserId, msg.muted);
+		}
+	}
+
+	private void processUserTalkingInVoiceConfMessage(String json) {
+		UserTalkingInVoiceConfMessage msg = UserTalkingInVoiceConfMessage.fromJson(json);
+		if (msg != null) {
+			bbbInGW.voiceUserTalking(msg.voiceConfId, msg.voiceUserId, msg.talking);
+		}
+	}
+	
+	private void processVoiceConfRecordingStartedMessage(String json) {
+		VoiceConfRecordingStartedMessage msg = VoiceConfRecordingStartedMessage.fromJson(json);
+		if (msg != null) {
+			bbbInGW.voiceRecording(msg.voiceConfId, msg.recordStream, msg.timestamp, msg.recording);
 		}
 	}
 	

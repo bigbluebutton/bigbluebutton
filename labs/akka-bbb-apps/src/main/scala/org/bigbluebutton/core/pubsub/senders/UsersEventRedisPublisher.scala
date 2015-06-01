@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage
 import org.bigbluebutton.common.messages.LockLayoutMessage
+import org.bigbluebutton.common.messages.{ MuteUserInVoiceConfRequestMessage, EjectUserFromVoiceConfRequestMessage }
 
 class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 
@@ -178,13 +179,14 @@ class UsersEventRedisPublisher(service: MessageSender) extends OutMessageListene
   }
 
   private def handleMuteVoiceUser(msg: MuteVoiceUser) {
-    val json = UsersMessageToJsonConverter.muteVoiceUserToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+    val m = new MuteUserInVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.voiceUserId, msg.mute)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
   }
 
   private def handleEjectVoiceUser(msg: EjectVoiceUser) {
-    val json = UsersMessageToJsonConverter.ejectVoiceUserToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+    val m = new EjectUserFromVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.voiceUserId)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
+
   }
 
   private def handleUserLeftVoice(msg: UserLeftVoice) {

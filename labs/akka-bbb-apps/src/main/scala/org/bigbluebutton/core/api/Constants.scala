@@ -57,6 +57,8 @@ object Constants {
   val TALKING = "talking"
   val USER = "user"
   val MUTED = "muted"
+  val VOICE_CONF_ID = "voice_conf_id"
+  val VOICE_USER_ID = "voice_user_id"
   val VOICE_USER = "voice_user"
   val RECORDING_FILE = "recording_file"
   val ANNOTATION = "annotation"

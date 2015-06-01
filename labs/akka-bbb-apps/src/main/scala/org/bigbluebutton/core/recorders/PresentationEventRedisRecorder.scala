@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.pubsub.senders
+package org.bigbluebutton.core.recorders
 
 import org.bigbluebutton.conference.service.recorder.RecorderApplication
 import org.bigbluebutton.core.api.OutMessageListener2

@@ -13,7 +13,7 @@ import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
   val channels = Seq("time")
-  val patterns = Seq("bigbluebutton:to-bbb-apps:*")
+  val patterns = Seq("bigbluebutton:to-bbb-apps:*", "bigbluebutton:from-voice-conf:*")
 
   def props(msgReceiver: RedisMessageReceiver): Props =
     Props(classOf[AppsRedisSubscriberActor], msgReceiver,

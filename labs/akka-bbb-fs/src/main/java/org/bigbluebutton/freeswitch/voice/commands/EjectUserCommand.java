@@ -18,23 +18,17 @@
 */
 package org.bigbluebutton.freeswitch.voice.commands;
 
-public class MuteParticipantCommand extends ConferenceCommand {
+public class EjectUserCommand extends ConferenceCommand {
 
 	private final Integer participantId;
-	private final boolean mute;
 	
-	public MuteParticipantCommand(String room, Integer requesterId, Integer participantId, boolean mute) {
+	public EjectUserCommand(String room, Integer requesterId, Integer participantId) {
 		super(room, requesterId);
 		this.participantId = participantId;
-		this.mute = mute;
 	}
 
 	public Integer getParticipantId() {
 		return participantId;
-	}
-
-	public boolean isMute() {
-		return mute;
 	}
 
 }

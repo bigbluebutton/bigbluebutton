@@ -3,58 +3,44 @@ package org.bigbluebutton.freeswitch
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.endpoint.redis.RedisPublisher
-
-case class FsVoiceUserJoined(userId: String, webUserId: String,
-  conference: String, callerIdNum: String,
-  callerIdName: String, muted: Boolean,
-  speaking: Boolean)
-
-case class FsVoiceUserLeft(userId: String, conference: String)
-case class FsVoiceUserLocked(userId: String, conference: String, locked: Boolean)
-case class FsVoiceUserMuted(userId: String, conference: String, muted: Boolean)
-case class FsVoiceUserTalking(userId: String, conference: String, talking: Boolean)
-case class FsRecording(conference: String, recordingFile: String,
-  timestamp: String, recording: Boolean)
+import org.bigbluebutton.freeswitch.pubsub.messages._
 
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService {
 
-  def voiceStartedRecording(conference: String, recordingFile: String,
-    timestamp: String, recording: java.lang.Boolean) {
-    val fsRec = new FsRecording(conference, recordingFile, timestamp, recording)
+  val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system";
 
+  def voiceConfRecordingStarted(voiceConfId: String, recordStream: String, recording: java.lang.Boolean, timestamp: String) {
+    val msg = new VoiceConfRecordingStartedMessage(voiceConfId, recordStream, recording, timestamp)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
-  def voiceUserJoined(userId: String, webUserId: String, conference: String,
-    callerIdNum: String, callerIdName: String,
-    muted: java.lang.Boolean, talking: java.lang.Boolean) {
+  def userJoinedVoiceConf(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
+    callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
     //    println("******** FreeswitchConferenceService received voiceUserJoined vui=[" + userId + "] wui=[" + webUserId + "]")
-    val vuj = new FsVoiceUserJoined(userId, webUserId,
-      conference, callerIdNum,
-      callerIdName, muted,
-      talking)
-
+    val msg = new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId,
+      callerIdName, callerIdNum, muted, talking)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
-  def voiceUserLeft(userId: String, conference: String) {
+  def userLeftVoiceConf(voiceConfId: String, voiceUserId: String) {
     //    println("******** FreeswitchConferenceService received voiceUserLeft vui=[" + userId + "] conference=[" + conference + "]")
-    val vul = new FsVoiceUserLeft(userId, conference)
+    val msg = new UserLeftVoiceConfMessage(voiceConfId, voiceUserId)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
+  }
+
+  def userLockedInVoiceConf(voiceConfId: String, voiceUserId: String, locked: java.lang.Boolean) {
 
   }
 
-  def voiceUserLocked(userId: String, conference: String, locked: java.lang.Boolean) {
-    val vul = new FsVoiceUserLocked(userId, conference, locked)
-
+  def userMutedInVoiceConf(voiceConfId: String, voiceUserId: String, muted: java.lang.Boolean) {
+    println("******** FreeswitchConferenceService received voiceUserMuted vui=[" + voiceUserId + "] muted=[" + muted + "]")
+    val msg = new UserMutedInVoiceConfMessage(voiceConfId, voiceUserId, muted)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
-  def voiceUserMuted(userId: String, conference: String, muted: java.lang.Boolean) {
-    println("******** FreeswitchConferenceService received voiceUserMuted vui=[" + userId + "] muted=[" + muted + "]")
-    val vum = new FsVoiceUserMuted(userId, conference, muted)
-
-  }
-
-  def voiceUserTalking(userId: String, conference: String, talking: java.lang.Boolean) {
-    println("******** FreeswitchConferenceService received voiceUserTalking vui=[" + userId + "] talking=[" + talking + "]")
-    val vut = new FsVoiceUserTalking(userId, conference, talking)
-
+  def userTalkingInVoiceConf(voiceConfId: String, voiceUserId: String, talking: java.lang.Boolean) {
+    println("******** FreeswitchConferenceService received voiceUserTalking vui=[" + voiceUserId + "] talking=[" + talking + "]")
+    val msg = new UserTalkingInVoiceConfMessage(voiceConfId, voiceUserId, talking)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 }
