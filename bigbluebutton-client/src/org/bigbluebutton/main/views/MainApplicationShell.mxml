@@ -660,11 +660,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         var browser:String = ExternalInterface.call("determineBrowser")[0];
         if (browser == "Firefox") {
-          var ffBrowser:FirefoxMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, FirefoxMicPermissionImage, true) as FirefoxMicPermissionImage;
+          var ffBrowser:FirefoxMicPermissionImage = new FirefoxMicPermissionImage();
+          // we want to increase the contrast between the modal and the rest of the UI
+          ffBrowser.setStyle("modalTransparency", 0.75);
+          ffBrowser.setStyle("modalTransparencyColor", 0x000000);
           ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
-            ffBrowser.x = 100;
-            ffBrowser.y = 150;
-          }); 
+            ffBrowser.x = 54;
+            ffBrowser.y = 0;
+          });
+          PopUpManager.addPopUp(ffBrowser, mdiCanvas, true);
         } else if (browser == "Chrome") {
           var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
           chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
