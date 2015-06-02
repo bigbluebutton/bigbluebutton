@@ -373,6 +373,7 @@ public class MeetingService implements MessageListener {
 				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
 						getDurationRecording(r.getPlaybackDuration(), 
 								r.getEndTime(), r.getStartTime()),
+								// r.getSize();
 						r.getPlaybackExtensions()));
 				r.setPlaybacks(plays);
 				map.put(r.getId(), r);
@@ -381,6 +382,7 @@ public class MeetingService implements MessageListener {
 				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
 						getDurationRecording(r.getPlaybackDuration(), 
 								r.getEndTime(), r.getStartTime()),
+								// r.getSize();
 						r.getPlaybackExtensions()));
 			}
 		}

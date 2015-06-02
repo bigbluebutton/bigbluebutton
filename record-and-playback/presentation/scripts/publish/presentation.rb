@@ -919,6 +919,8 @@ if ($playback == "presentation")
 			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
 			b.start_time(real_start_time)
 			b.end_time(real_end_time)
+			# b.size(size)
+			# b.raw_size(raw_size)
 			b.playback {
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")

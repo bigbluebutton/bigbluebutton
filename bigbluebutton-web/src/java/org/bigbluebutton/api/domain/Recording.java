@@ -34,6 +34,8 @@ public class Recording {
 	private boolean published;
 	private String startTime;
 	private String endTime;
+	private String size = " "; // NEW size in bytes of all the files from the particular recording, including raw and published files
+	private String rawSize = " "; // NEW size in bytes of the raw files
 	private Map<String, String> metadata = new HashMap<String, String>();
 	private ArrayList<Playback> playbacks=new ArrayList<Playback>();
 	
@@ -84,7 +86,23 @@ public class Recording {
 	public void setEndTime(String endTime) {
 		this.endTime = convertOldDateFormat(endTime);
 	}
-	
+
+	public String getSize() {
+		return size;
+	}
+
+	public void setSize(String size) {
+		this.size = size;
+	}
+
+	public String getRawSize() {
+		return rawSize;
+	}
+
+	public void setRawSize(String rawSize) {
+		this.rawSize = rawSize;
+	}
+
 	public String getPlaybackLink() {
 		return playbackLink;
 	}
