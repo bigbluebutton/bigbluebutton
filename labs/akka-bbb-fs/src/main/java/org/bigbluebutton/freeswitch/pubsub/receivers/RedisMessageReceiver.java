@@ -61,17 +61,21 @@ public class RedisMessageReceiver {
 	
 	private void processEjectVoiceUserRequestMessage(String json) {
 		EjectUserFromVoiceConfRequestMessage msg = EjectUserFromVoiceConfRequestMessage.fromJson(json);
+		fsApp.eject(msg.voiceConfId, msg.voiceUserId);
 	}
 	
 	private void processGetVoiceUsersRequestMessage(String json) {
 		GetUsersFromVoiceConfRequestMessage msg = GetUsersFromVoiceConfRequestMessage.fromJson(json);
+		fsApp.getAllUsers(msg.voiceConfId);
 	}
 	
 	private void processMuteVoiceUserRequestMessage(String json) {
 		MuteUserInVoiceConfRequestMessage msg = MuteUserInVoiceConfRequestMessage.fromJson(json);
+		fsApp.muteUser(msg.voiceConfId, msg.voiceUserId, msg.mute);
 	}
 	
 	private void processRecordVoiceConfRequestMessage(String json) {
 		RecordVoiceConfRequestMessage msg = RecordVoiceConfRequestMessage.fromJson(json);
+		//fsApp.
 	}
 }

@@ -359,12 +359,17 @@ trait UsersApp {
   }
 
   def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) = {
-    val user = users.getUser(msg.userId) match {
+    log.info("Received user joined voice for user [" + msg.callerIdName + "] userid=[" + msg.userId + "]")
+
+    users.getUsers foreach { tu =>
+      println("*** Users [" + tu + "]")
+    }
+    users.getUserWithExternalId(msg.userId) match {
       case Some(user) => {
         val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, true, false, msg.muted, msg.talking)
         val nu = user.copy(voiceUser = vu)
         users.addUser(nu)
-        log.info("Received user joined voice for user [" + nu.name + "] userid=[" + msg.userId + "]")
+        log.info("User joined voice for user [" + nu.name + "] userid=[" + msg.userId + "]")
         outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, nu))
 
         if (meetingMuted)

@@ -32,7 +32,7 @@ class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
     callerIdNum: String, muted: Boolean, talking: Boolean) {
     //	  println("VoiceInGateway: Got voiceUserJoined message for meeting [" + meetingId + "] user[" + callerIdName + "]")
-    val voiceUser = new VoiceUser(voiceUserId, userId, callerIdName, callerIdNum, true, false, muted, talking)
+
     val msg = new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, callerIdName,
       callerIdNum, muted, talking)
 
