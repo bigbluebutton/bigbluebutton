@@ -23,10 +23,8 @@ public class ChatMessageReceiver implements MessageHandler{
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_CHAT_CHANNEL)) {
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
-
 			if (obj.has("header") && obj.has("payload")) {
 				JsonObject header = (JsonObject) obj.get("header");
-
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
 					if (GetChatHistoryRequestMessage.GET_CHAT_HISTORY_REQUEST.equals(messageName)) {

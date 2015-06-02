@@ -35,28 +35,20 @@ public class MeetingMessageReceiver implements MessageHandler {
 			if (msg != null) {
 				if (msg instanceof EndMeetingMessage) {
 					EndMeetingMessage emm = (EndMeetingMessage) msg;
-					System.out.println("Received end meeting request. Meeting id [" + emm.meetingId + "]");
 					bbbGW.endMeeting(emm.meetingId);
 				} else if (msg instanceof CreateMeetingMessage) {
 					CreateMeetingMessage emm = (CreateMeetingMessage) msg;
-					System.out.println("Received create meeting request. Meeting id [" + emm.id + "]");
 					bbbGW.createMeeting2(emm.id, emm.externalId, emm.name, emm.record, emm.voiceBridge, 
 							  emm.duration, emm.autoStartRecording, emm.allowStartStopRecording,
 							  emm.moderatorPass, emm.viewerPass, emm.createTime, emm.createDate);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage emm = (RegisterUserMessage) msg;
-					//System.out.println("Received register user request. Meeting id [{}], userid=[{}], token=[{}]", emm.meetingID, emm.internalUserId, emm.authToken);
 					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage emm = (DestroyMeetingMessage) msg;
-					//System.out.println("Received destroy meeting request. Meeting id [{}]", emm.meetingId);
 					bbbGW.destroyMeeting(emm.meetingId);
 				} else if (msg instanceof ValidateAuthTokenMessage) {
 					ValidateAuthTokenMessage emm = (ValidateAuthTokenMessage) msg;
-					System.out.println("Received ValidateAuthTokenMessage token request. Meeting id [" + emm.meetingId + "]");
-					
-					//System.out.println("Received ValidateAuthTokenMessage token request. Meeting id [{}]", emm.meetingId);
-					System.out.println("TODO: Need to pass sessionId on ValidateAuthTokenMessage message.");
 					String sessionId = "tobeimplemented";
 					bbbGW.validateAuthToken(emm.meetingId, emm.userId, emm.token, emm.replyTo, sessionId);
 				} else if (msg instanceof UserConnectedToGlobalAudio) {
@@ -93,7 +85,6 @@ public class MeetingMessageReceiver implements MessageHandler {
 				}
 				else if (msg instanceof GetAllMeetingsRequest) {
 					GetAllMeetingsRequest emm = (GetAllMeetingsRequest) msg;
-					//System.out.println("Received GetAllMeetingsRequest");
 					bbbGW.getAllMeetings("no_need_of_a_meeting_id");
 				} else {
 					System.out.println("Unknown message: [" + message + "]");
@@ -107,7 +98,6 @@ public class MeetingMessageReceiver implements MessageHandler {
 			if (msg != null) {
 				if (msg instanceof KeepAliveMessage) {
 					KeepAliveMessage emm = (KeepAliveMessage) msg;
-//					log.debug("Received KeepAliveMessage request. Meeting id [{}]", emm.keepAliveId);
 					bbbGW.isAliveAudit(emm.keepAliveId);					
 				}
 			} else {
