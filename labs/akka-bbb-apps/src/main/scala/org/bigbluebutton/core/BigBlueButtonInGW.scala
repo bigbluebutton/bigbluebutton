@@ -19,7 +19,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
     voiceBridge: String, duration: Long, autoStartRecording: Boolean,
     allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String,
     createTime: Long, createDate: String) {
-    //    println("******************** CREATING MEETING [" + meetingID + "] ***************************** ")
+
     bbbGW.accept(new CreateMeeting(meetingID, externalMeetingID, meetingName, record,
       voiceBridge, duration, autoStartRecording,
       allowStartStopRecording, moderatorPass, viewerPass,
@@ -27,12 +27,10 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
 
   def destroyMeeting(meetingID: String) {
-    //    println("******************** DESTROY MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new DestroyMeeting(meetingID))
   }
 
   def getAllMeetings(meetingID: String) {
-    println("******************** GET ALL MEETINGS ***************************** ")
     bbbGW.accept(new GetAllMeetingsRequest("meetingId"))
   }
 
@@ -50,7 +48,6 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
   }
 
   def endMeeting(meetingID: String) {
-    //    println("******************** END MEETING [" + meetingID + "] ***************************** ")
     bbbGW.accept(new EndMeeting(meetingID))
   }
 

@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.apps.users
 
-import org.bigbluebutton.core.User
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.UserVO
 import org.bigbluebutton.core.api.Role._
