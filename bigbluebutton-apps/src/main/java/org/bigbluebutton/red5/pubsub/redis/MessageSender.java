@@ -53,16 +53,16 @@ public class MessageSender {
 	
 	private void publish(final String channel, final String message) {
 		Runnable task = new Runnable() {
-	    public void run() {
-	  		Jedis jedis = redisPool.getResource();
-	  		try {
-	  			jedis.publish(channel, message);
-	  		} catch(Exception e){
-	  			log.warn("Cannot publish the message to redis", e);
-	  		} finally {
-	  			redisPool.returnResource(jedis);
-	  		}	    	
-	    }
+		    public void run() {
+		  		Jedis jedis = redisPool.getResource();
+		  		try {
+		  			jedis.publish(channel, message);
+		  		} catch(Exception e){
+		  			log.warn("Cannot publish the message to redis", e);
+		  		} finally {
+		  			redisPool.returnResource(jedis);
+		  		}	    	
+		    }
 		};
 		
 		runExec.execute(task);

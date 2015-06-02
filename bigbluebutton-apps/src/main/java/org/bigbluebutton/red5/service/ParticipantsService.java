@@ -26,15 +26,14 @@ import org.red5.server.api.scope.IScope;
 
 import java.util.Map;
 
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
-
+import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
 
 public class ParticipantsService {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private IBigBlueButtonInGW red5InGW;
-    
+	
 	public void assignPresenter(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();
@@ -102,7 +101,7 @@ public class ParticipantsService {
 		
 		red5InGW.setUserStatus(meetingId, userId, status, value);
 	}
-		
+	
 	public void setRecordingStatus(Map<String, Object> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();

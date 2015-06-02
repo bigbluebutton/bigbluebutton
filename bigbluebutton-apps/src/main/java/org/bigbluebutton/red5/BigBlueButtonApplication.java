@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
@@ -123,7 +122,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 				lsMap = new HashMap<String, Boolean>();
 			}
 		}
-		   	    			
+		   	    	
 		String userId = internalUserID;
 		String sessionId =  CONN + userId;
 		BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
@@ -246,7 +245,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         log.info("User validate token bbb-apps: data={}", logStr);
         red5InGW.validateAuthToken(meetingId, userId, token, meetingId + "/" + userId, sessionId);
 	}
-			
+		
+	
 	public void setApplicationListeners(Set<IApplication> listeners) {
 		Iterator<IApplication> iter = listeners.iterator();
 		while (iter.hasNext()) {

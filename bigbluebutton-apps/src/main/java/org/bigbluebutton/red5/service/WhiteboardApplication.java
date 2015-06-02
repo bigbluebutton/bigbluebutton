@@ -24,7 +24,6 @@ import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
-import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.core.api.Red5BBBInGw;
 
 public class WhiteboardApplication implements IApplication {	

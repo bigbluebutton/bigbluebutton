@@ -26,34 +26,45 @@ import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
+import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
 
 public class PresentationService {	
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationService.class, "bigbluebutton" );
 	
-	private PresentationApplication presentationApplication;
+	private IBigBlueButtonInGW bbbInGW;
+	
+	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+		bbbInGW = inGW;
+	}
 
 	public void removePresentation(Map<String, Object> msg) {
 		String presentationID = (String) msg.get("presentationID");
 		
 		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.removePresentation(scope.getName(), presentationID);
+		bbbInGW.removePresentation(scope.getName(), presentationID);
 	}
 	
 	public void getSlideInfo() {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		log.debug("Getting slide info for meeting [{}]", scope.getName());
-		presentationApplication.getSlideInfo(scope.getName(), getBbbSession().getInternalUserID());		
+		String meetingID = scope.getName();
+		String requesterID = getBbbSession().getInternalUserID();
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.getSlideInfo(meetingID, requesterID, replyTo);		
 	}
 	
 	public void clear() {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.clear(scope.getName());
+		bbbInGW.clear(scope.getName());
 	}
 	
 	public void getPresentationInfo() {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		log.debug("Getting presentation info for meeting [{}]", scope.getName());
-		presentationApplication.getPresentationInfo(scope.getName(), getBbbSession().getInternalUserID());
+		String meetingID = scope.getName();
+		String requesterID = getBbbSession().getInternalUserID();
+		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
+		String replyTo = meetingID + "/" + requesterID; 
+		bbbInGW.getPresentationInfo(meetingID, requesterID, replyTo);
 	}
 	
 	public void gotoSlide(Map<String, Object> msg) {
@@ -62,7 +73,7 @@ public class PresentationService {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		log.debug("Got GotoSlide for meeting [{}] page=[{}]", scope.getName(), pageId);
 
-		presentationApplication.gotoSlide(scope.getName(), pageId);
+		bbbInGW.gotoSlide(scope.getName(), pageId);
 	}
 	
 	public void sharePresentation(Map<String, Object> msg) {
@@ -70,7 +81,7 @@ public class PresentationService {
 		Boolean share = (Boolean) msg.get("share");
 		
 		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.sharePresentation(scope.getName(), presentationID, share);
+		bbbInGW.sharePresentation(scope.getName(), presentationID, share);
 	}
 	
 	public void sendCursorUpdate(Map<String, Object> msg) {
@@ -93,7 +104,7 @@ public class PresentationService {
 			yPercent = (Double) msg.get("yPercent");
 		}
 		
-		presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
+		bbbInGW.sendCursorUpdate(scope.getName(), xPercent, yPercent);
 	}
 	
 	public void resizeAndMoveSlide(Map<String, Object> msg) {
@@ -132,11 +143,7 @@ public class PresentationService {
 		}
 		
 		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
-	}
-
-	public void setPresentationApplication(PresentationApplication a) {
-		presentationApplication = a;
+		bbbInGW.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

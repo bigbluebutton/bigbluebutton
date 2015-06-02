@@ -48,6 +48,7 @@ import org.bigbluebutton.common.messages.UserRaisedHandMessage;
 import org.bigbluebutton.common.messages.UserShareWebcamRequestMessage;
 import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
+import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
 import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
 public class Red5BBBInGw implements IBigBlueButtonInGW {

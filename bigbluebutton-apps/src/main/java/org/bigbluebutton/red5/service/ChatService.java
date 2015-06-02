@@ -35,9 +35,9 @@ public class ChatService {
 	public void sendPublicChatHistory() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
-		
 		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
-		String replyTo = meetingID + "/" + requesterID;
+		String replyTo = meetingID + "/" + requesterID; 
+		
 		red5BBBInGw.getChatHistory(meetingID, requesterID, replyTo);
 	}
 	
@@ -77,6 +77,7 @@ public class ChatService {
 	public void setBigBlueButtonInGW(Red5BBBInGw inGW) {
 		red5BBBInGw = inGW;
 	}
+	
 
 	public void sendPrivateMessage(Map<String, Object> msg){
 		String chatType = msg.get(ChatKeyUtil.CHAT_TYPE).toString(); 

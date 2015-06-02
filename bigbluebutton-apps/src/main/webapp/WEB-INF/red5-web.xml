@@ -55,7 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="connInvokerService"><ref bean="connInvokerService"/></property>
 		<property name="red5InGW"> <ref bean="red5BbbInGW"/> </property>
 	</bean>
-
+	
 	<bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService" 
 				init-method="start" destroy-method="stop"/>
 
@@ -105,4 +105,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<import resource="bbb-redis-pool.xml"/>
   	<import resource="bbb-red5-redis-pubsub.xml"/>
+          
 </beans>
