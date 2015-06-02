@@ -16,31 +16,25 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.core.service.whiteboard.redis;
+package org.bigbluebutton.core.recorders.events;
 
-import org.bigbluebutton.core.service.recorder.RecordEvent;
+public class VoiceUserMutedRecordEvent extends VoiceConferenceRecordEvent {
 
-public abstract class AbstractWhiteboardRecordEvent extends RecordEvent {
+	private final boolean muted;
+	private final String userId;
 	
-	public AbstractWhiteboardRecordEvent() {
-		setModule("WHITEBOARD");
+	public VoiceUserMutedRecordEvent(String userId, String room, boolean muted) {
+		super(room);
+		this.muted = muted;
+		this.userId = userId;
 	}
 
-	public void setPresentation(String name) {
-		eventMap.put("presentation", name);
-	}
-
-	public void setPageNumber(String page) {
-		/**
-		 * Subtract 1 from the page number to be zero-based to be
-		 * compatible with 0.81 and earlier. (ralam Sept 2, 2014)
-		 */
-		Integer num = new Integer(page);
-//		System.out.println("WB Page Number real pagenum=[" + num + "] rec pagenum=[" + (num - 1) + "]");
-		eventMap.put("pageNumber", new Integer(num - 1).toString());
+	public String getUserId() {
+		return userId;
 	}
 	
-	public void setWhiteboardId(String id) {
-		eventMap.put("whiteboardId", id);
+	public boolean isMuted() {
+		return muted;
 	}
+
 }

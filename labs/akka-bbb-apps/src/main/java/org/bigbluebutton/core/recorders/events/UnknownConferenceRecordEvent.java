@@ -16,17 +16,12 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.core.service.whiteboard.redis;
+package org.bigbluebutton.core.recorders.events;
 
-public class UndoShapeWhiteboardRecordEvent extends
-		AbstractWhiteboardRecordEvent {
-	
-	public UndoShapeWhiteboardRecordEvent() {
-		super();
-		setEvent("UndoShapeEvent");
+public class UnknownConferenceRecordEvent extends VoiceConferenceRecordEvent {
+
+	public UnknownConferenceRecordEvent(String participantId, String room) {
+		super(room);
 	}
 
-	public void setShapeId(String id) {
-		eventMap.put("shapeId", id);
-	}
 }

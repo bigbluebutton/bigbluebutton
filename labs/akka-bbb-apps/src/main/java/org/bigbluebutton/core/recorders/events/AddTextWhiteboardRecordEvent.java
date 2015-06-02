@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.core.service.whiteboard.redis;
+package org.bigbluebutton.core.recorders.events;
 
 import java.util.ArrayList;
 import java.util.Map;

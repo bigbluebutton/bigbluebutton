@@ -5,10 +5,10 @@ import scala.collection.JavaConversions._
 import scala.collection.immutable.StringOps
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
-import org.bigbluebutton.core.service.whiteboard.redis.ModifyTextWhiteboardRecordEvent
-import org.bigbluebutton.core.service.whiteboard.redis.AddShapeWhiteboardRecordEvent
-import org.bigbluebutton.core.service.whiteboard.redis.ClearPageWhiteboardRecordEvent
-import org.bigbluebutton.core.service.whiteboard.redis.UndoShapeWhiteboardRecordEvent
+import org.bigbluebutton.core.recorders.events.ModifyTextWhiteboardRecordEvent
+import org.bigbluebutton.core.recorders.events.AddShapeWhiteboardRecordEvent
+import org.bigbluebutton.core.recorders.events.ClearPageWhiteboardRecordEvent
+import org.bigbluebutton.core.recorders.events.UndoShapeWhiteboardRecordEvent
 
 class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
 

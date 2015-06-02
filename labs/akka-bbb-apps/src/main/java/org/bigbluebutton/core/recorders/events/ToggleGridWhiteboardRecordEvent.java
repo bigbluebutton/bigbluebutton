@@ -18,23 +18,16 @@
 */
 package org.bigbluebutton.core.recorders.events;
 
-public class VoiceUserLockedEvent extends VoiceConferenceEvent {
-
-	private final boolean locked;
-	private final String userId;
+public class ToggleGridWhiteboardRecordEvent extends
+		AbstractWhiteboardRecordEvent {
 	
-	public VoiceUserLockedEvent(String userId, String room, boolean locked) {
-		super(room);
-		this.locked = locked;
-		this.userId = userId;
+	public ToggleGridWhiteboardRecordEvent() {
+		super();
+		setEvent("ToggleGridEvent");
 	}
-
-	public String getUserId() {
-		return userId;
-	}
-	
-	public boolean isLocked() {
-		return locked;
+		
+	public void setGridEnabled(boolean enabled) {
+		eventMap.put("gridEnabled", Boolean.toString(enabled));
 	}
 
 }

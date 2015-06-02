@@ -18,16 +18,23 @@
 */
 package org.bigbluebutton.core.recorders.events;
 
-public class VoiceUserLeftEvent extends VoiceConferenceEvent {
+public class VoiceUserLockedRecordEvent extends VoiceConferenceRecordEvent {
 
+	private final boolean locked;
 	private final String userId;
 	
-	public VoiceUserLeftEvent(String userId, String room) {
+	public VoiceUserLockedRecordEvent(String userId, String room, boolean locked) {
 		super(room);
+		this.locked = locked;
 		this.userId = userId;
 	}
-	
+
 	public String getUserId() {
 		return userId;
 	}
+	
+	public boolean isLocked() {
+		return locked;
+	}
+
 }

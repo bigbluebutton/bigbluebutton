@@ -16,13 +16,18 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.core.service.whiteboard.redis;
+package org.bigbluebutton.core.recorders.events;
 
-public class ClearPageWhiteboardRecordEvent extends
-		AbstractWhiteboardRecordEvent {
+public class VoiceUserLeftRecordEvent extends VoiceConferenceRecordEvent {
+
+	private final String userId;
 	
-	public ClearPageWhiteboardRecordEvent() {
-		super();
-		setEvent("ClearPageEvent");
+	public VoiceUserLeftRecordEvent(String userId, String room) {
+		super(room);
+		this.userId = userId;
+	}
+	
+	public String getUserId() {
+		return userId;
 	}
 }

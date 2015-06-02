@@ -2,8 +2,6 @@ package org.bigbluebutton.common.messages;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -28,8 +26,6 @@ public class SendWhiteboardAnnotationRequestMessage implements ISubscribedMessag
 		payload.put(Constants.MEETING_ID, meetingId);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 		payload.put(Constants.ANNOTATION, annotation);
-
-		System.out.println("SendWhiteboardAnnotationRequestMessage toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_WHITEBOARD_ANNOTATION_REQUEST, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -55,7 +51,6 @@ public class SendWhiteboardAnnotationRequestMessage implements ISubscribedMessag
 						Util util = new Util();
 						Map<String, Object> annotation = util.extractAnnotation(annotationElement);
 
-						System.out.println("SendWhiteboardAnnotationRequestMessage fromJson");
 						return new SendWhiteboardAnnotationRequestMessage(meetingId, requesterId, annotation);
 					}
 				}

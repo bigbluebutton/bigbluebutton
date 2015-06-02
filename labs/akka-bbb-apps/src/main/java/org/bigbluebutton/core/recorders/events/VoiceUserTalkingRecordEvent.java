@@ -18,14 +18,14 @@
 */
 package org.bigbluebutton.core.recorders.events;
 
-public class VoiceUserMutedEvent extends VoiceConferenceEvent {
+public class VoiceUserTalkingRecordEvent extends VoiceConferenceRecordEvent {
 
-	private final boolean muted;
+	private final boolean talking;
 	private final String userId;
 	
-	public VoiceUserMutedEvent(String userId, String room, boolean muted) {
+	public VoiceUserTalkingRecordEvent(String userId, String room, boolean talking) {
 		super(room);
-		this.muted = muted;
+		this.talking = talking;
 		this.userId = userId;
 	}
 
@@ -33,8 +33,8 @@ public class VoiceUserMutedEvent extends VoiceConferenceEvent {
 		return userId;
 	}
 	
-	public boolean isMuted() {
-		return muted;
+	public boolean isTalking() {
+		return talking;
 	}
 
 }

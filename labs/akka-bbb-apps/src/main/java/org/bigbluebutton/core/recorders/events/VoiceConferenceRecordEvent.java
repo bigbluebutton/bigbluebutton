@@ -18,34 +18,15 @@
 */
 package org.bigbluebutton.core.recorders.events;
 
-public class VoiceStartRecordingEvent extends VoiceConferenceEvent {
-
-	private String timestamp;
-	private String filename;
-	private boolean record;
+public abstract class VoiceConferenceRecordEvent {
+	private final String room;
 	
-	public VoiceStartRecordingEvent(String room, boolean record) {
-		super(room);
-		this.record =  record;
-	}
-	
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
+	public VoiceConferenceRecordEvent(String room) {
+		this.room = room;
 	}
 
-	public void setRecordingFilename(String filename) {
-		this.filename = filename;
+	public String getRoom() {
+		return room;
 	}
 	
-	public String getTimestamp() {
-		return timestamp;
-	}
-	
-	public String getRecordingFilename() {
-		return filename;
-	}
-	
-	public boolean startRecord() {
-		return record;
-	}
 }

@@ -18,23 +18,11 @@
 */
 package org.bigbluebutton.core.recorders.events;
 
-public class VoiceUserTalkingEvent extends VoiceConferenceEvent {
-
-	private final boolean talking;
-	private final String userId;
+public class ClearPageWhiteboardRecordEvent extends
+		AbstractWhiteboardRecordEvent {
 	
-	public VoiceUserTalkingEvent(String userId, String room, boolean talking) {
-		super(room);
-		this.talking = talking;
-		this.userId = userId;
+	public ClearPageWhiteboardRecordEvent() {
+		super();
+		setEvent("ClearPageEvent");
 	}
-
-	public String getUserId() {
-		return userId;
-	}
-	
-	public boolean isTalking() {
-		return talking;
-	}
-
 }

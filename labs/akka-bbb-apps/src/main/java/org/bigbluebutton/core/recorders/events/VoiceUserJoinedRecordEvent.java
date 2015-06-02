@@ -18,7 +18,7 @@
 */
 package org.bigbluebutton.core.recorders.events;
 
-public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
+public class VoiceUserJoinedRecordEvent extends VoiceConferenceRecordEvent {
 
 	private final String voiceUserId;
 	private final String callerIdNum;
@@ -28,7 +28,7 @@ public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 	private final Boolean locked = false;
 	private final String userId;
 	
-	public VoiceUserJoinedEvent(String userId, String voiceUserId, String room, 
+	public VoiceUserJoinedRecordEvent(String userId, String voiceUserId, String room, 
 								String callerIdNum, String callerIdName,
 								Boolean muted, Boolean speaking) {
 		super(room);

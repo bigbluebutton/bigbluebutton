@@ -26,13 +26,13 @@ import org.bigbluebutton.core.recorders.events.ParticipantLockedVoiceRecordEvent
 import org.bigbluebutton.core.recorders.events.ParticipantMutedVoiceRecordEvent;
 import org.bigbluebutton.core.recorders.events.ParticipantTalkingVoiceRecordEvent;
 import org.bigbluebutton.core.recorders.events.StartRecordingVoiceRecordEvent;
-import org.bigbluebutton.core.recorders.events.VoiceConferenceEvent;
-import org.bigbluebutton.core.recorders.events.VoiceStartRecordingEvent;
-import org.bigbluebutton.core.recorders.events.VoiceUserJoinedEvent;
-import org.bigbluebutton.core.recorders.events.VoiceUserLeftEvent;
-import org.bigbluebutton.core.recorders.events.VoiceUserLockedEvent;
-import org.bigbluebutton.core.recorders.events.VoiceUserMutedEvent;
-import org.bigbluebutton.core.recorders.events.VoiceUserTalkingEvent;
+import org.bigbluebutton.core.recorders.events.VoiceConferenceRecordEvent;
+import org.bigbluebutton.core.recorders.events.VoiceStartRecordingRecordEvent;
+import org.bigbluebutton.core.recorders.events.VoiceUserJoinedRecordEvent;
+import org.bigbluebutton.core.recorders.events.VoiceUserLeftRecordEvent;
+import org.bigbluebutton.core.recorders.events.VoiceUserLockedRecordEvent;
+import org.bigbluebutton.core.recorders.events.VoiceUserMutedRecordEvent;
+import org.bigbluebutton.core.recorders.events.VoiceUserTalkingRecordEvent;
 import org.bigbluebutton.core.service.recorder.RecorderApplication;
 
 public class VoiceEventRecorder {
@@ -43,26 +43,26 @@ public class VoiceEventRecorder {
   	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
   }
   
-	public void recordConferenceEvent(VoiceConferenceEvent event, String room) {
-		if (event instanceof VoiceUserJoinedEvent) {
+	public void recordConferenceEvent(VoiceConferenceRecordEvent event, String room) {
+		if (event instanceof VoiceUserJoinedRecordEvent) {
 			recordParticipantJoinedEvent(event, room);
-		} else if (event instanceof VoiceUserLeftEvent) {		
+		} else if (event instanceof VoiceUserLeftRecordEvent) {		
 			recordParticipantLeftEvent(event, room);
-		} else if (event instanceof VoiceUserMutedEvent) {
+		} else if (event instanceof VoiceUserMutedRecordEvent) {
 			recordParticipantMutedEvent(event, room);
-		} else if (event instanceof VoiceUserTalkingEvent) {
+		} else if (event instanceof VoiceUserTalkingRecordEvent) {
 			recordParticipantTalkingEvent(event, room);
-		} else if (event instanceof VoiceUserLockedEvent) {
+		} else if (event instanceof VoiceUserLockedRecordEvent) {
 			recordParticipantLockedEvent(event, room);
-		} else if (event instanceof VoiceStartRecordingEvent) {
+		} else if (event instanceof VoiceStartRecordingRecordEvent) {
 			recordStartRecordingEvent(event, room);
 		} else {
 			System.out.println("Processing UnknownEvent " + event.getClass().getName() + " for room: " + event.getRoom() );
 		}		
 	}
 	
-	private void recordStartRecordingEvent(VoiceConferenceEvent event, String room) {
-		VoiceStartRecordingEvent sre = (VoiceStartRecordingEvent) event;
+	private void recordStartRecordingEvent(VoiceConferenceRecordEvent event, String room) {
+		VoiceStartRecordingRecordEvent sre = (VoiceStartRecordingRecordEvent) event;
 		StartRecordingVoiceRecordEvent evt = new StartRecordingVoiceRecordEvent(sre.startRecord());
 		evt.setMeetingId(room);
 		evt.setTimestamp(genTimestamp());
@@ -73,8 +73,8 @@ public class VoiceEventRecorder {
 		recorder.record(room, evt);
 	}
 	
-	private void recordParticipantJoinedEvent(VoiceConferenceEvent event, String room) {
-		VoiceUserJoinedEvent pje = (VoiceUserJoinedEvent) event;
+	private void recordParticipantJoinedEvent(VoiceConferenceRecordEvent event, String room) {
+		VoiceUserJoinedRecordEvent pje = (VoiceUserJoinedRecordEvent) event;
 
 		ParticipantJoinedVoiceRecordEvent evt = new ParticipantJoinedVoiceRecordEvent();
 		evt.setMeetingId(room);
@@ -89,7 +89,7 @@ public class VoiceEventRecorder {
 		recorder.record(room, evt);
 	}
 
-	private void recordParticipantLeftEvent(VoiceConferenceEvent event, String room) {
+	private void recordParticipantLeftEvent(VoiceConferenceRecordEvent event, String room) {
 		
 		ParticipantLeftVoiceRecordEvent evt = new ParticipantLeftVoiceRecordEvent();
 		evt.setMeetingId(room);
@@ -97,45 +97,45 @@ public class VoiceEventRecorder {
 		evt.setBridge(event.getRoom());
 		
 		
-		evt.setParticipant(((VoiceUserLeftEvent)event).getUserId().toString());
+		evt.setParticipant(((VoiceUserLeftRecordEvent)event).getUserId().toString());
 		
 		recorder.record(room, evt);
 	}
 	
-	private void recordParticipantMutedEvent(VoiceConferenceEvent event, String room) {
-		VoiceUserMutedEvent pme = (VoiceUserMutedEvent) event;
+	private void recordParticipantMutedEvent(VoiceConferenceRecordEvent event, String room) {
+		VoiceUserMutedRecordEvent pme = (VoiceUserMutedRecordEvent) event;
 		
 		ParticipantMutedVoiceRecordEvent evt = new ParticipantMutedVoiceRecordEvent();
 		evt.setMeetingId(room);
 		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
-		evt.setParticipant(((VoiceUserMutedEvent)event).getUserId().toString());
+		evt.setParticipant(((VoiceUserMutedRecordEvent)event).getUserId().toString());
 		evt.setMuted(pme.isMuted());
 		
 		recorder.record(room, evt);
 	}
 	
-	private void recordParticipantTalkingEvent(VoiceConferenceEvent event, String room) {
-		VoiceUserTalkingEvent pte = (VoiceUserTalkingEvent) event;
+	private void recordParticipantTalkingEvent(VoiceConferenceRecordEvent event, String room) {
+		VoiceUserTalkingRecordEvent pte = (VoiceUserTalkingRecordEvent) event;
 	
 		ParticipantTalkingVoiceRecordEvent evt = new ParticipantTalkingVoiceRecordEvent();
 		evt.setMeetingId(room);
 		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
-		evt.setParticipant(((VoiceUserTalkingEvent)event).getUserId().toString());
+		evt.setParticipant(((VoiceUserTalkingRecordEvent)event).getUserId().toString());
 		evt.setTalking(pte.isTalking());
 		
 		recorder.record(room, evt);
 	}
 	
-	private void recordParticipantLockedEvent(VoiceConferenceEvent event, String room) {
-		VoiceUserLockedEvent ple = (VoiceUserLockedEvent) event;
+	private void recordParticipantLockedEvent(VoiceConferenceRecordEvent event, String room) {
+		VoiceUserLockedRecordEvent ple = (VoiceUserLockedRecordEvent) event;
 
 		ParticipantLockedVoiceRecordEvent evt = new ParticipantLockedVoiceRecordEvent();
 		evt.setMeetingId(room);
 		evt.setTimestamp(genTimestamp());
 		evt.setBridge(event.getRoom());
-		evt.setParticipant(((VoiceUserLockedEvent)event).getUserId().toString());
+		evt.setParticipant(((VoiceUserLockedRecordEvent)event).getUserId().toString());
 		evt.setLocked(ple.isLocked());
 		
 		recorder.record(room, evt);
