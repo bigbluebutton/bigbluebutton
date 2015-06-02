@@ -210,6 +210,34 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @toggleMenu = ->
   setInSession 'display_menu', !getInSession 'display_menu'
 
+@enterWhiteboardFullscreen = ->
+  element = document.getElementById('whiteboard')
+  if element.requestFullscreen
+    element.requestFullscreen()
+  else if element.mozRequestFullScreen
+    element.mozRequestFullScreen()
+  else if element.webkitRequestFullscreen
+    element.webkitRequestFullscreen()
+  else if element.msRequestFullscreen
+    element.msRequestFullscreen()
+  $('#chat').addClass('invisible')
+  $('#users').addClass('invisible')
+  $('#navbar').addClass('invisible')
+  $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
+    if document.webkitFullscreenElement is null
+      $('#whiteboard').unbind('webkitfullscreenchange')
+      $('#chat').removeClass('invisible')
+      $('#users').removeClass('invisible')
+      $('#navbar').removeClass('invisible')
+      redrawWhiteboard()
+  $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
+    if document.mozFullScreenElement is null
+      $(document).unbind('mozfullscreenchange')
+      $('#chat').removeClass('invisible')
+      $('#users').removeClass('invisible')
+      $('#navbar').removeClass('invisible')
+      redrawWhiteboard()
+
 @closePushMenus = ->
   setInSession 'display_usersList', false
   setInSession 'display_menu', false
