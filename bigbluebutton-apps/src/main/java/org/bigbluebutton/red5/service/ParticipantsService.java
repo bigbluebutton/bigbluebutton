@@ -23,16 +23,14 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
-
 import java.util.Map;
-
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
-import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.pubsub.MessagePublisher;
 
 public class ParticipantsService {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
-	private IBigBlueButtonInGW red5InGW;
+	private MessagePublisher red5InGW;
 	
 	public void assignPresenter(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
@@ -128,7 +126,7 @@ public class ParticipantsService {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
     }
 
-	public void setRed5InGW(IBigBlueButtonInGW red5InGW) {
+	public void setRed5Publisher(MessagePublisher red5InGW) {
 		this.red5InGW = red5InGW;
 	}
 }

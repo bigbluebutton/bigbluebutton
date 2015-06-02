@@ -22,8 +22,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
+
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
+import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -39,7 +40,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
 
 	private ConnectionInvokerService connInvokerService;
-	private IBigBlueButtonInGW red5InGW;
+	private MessagePublisher red5InGW;
 	
 	private final String APP = "BBB";
 	private final String CONN = "RED5-";
@@ -262,7 +263,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		this.connInvokerService = connInvokerService;
 	}
 	
-	public void setRed5InGW(IBigBlueButtonInGW red5InGW) {
+	public void setRed5Publisher(MessagePublisher red5InGW) {
 		this.red5InGW = red5InGW;
 	}
 	

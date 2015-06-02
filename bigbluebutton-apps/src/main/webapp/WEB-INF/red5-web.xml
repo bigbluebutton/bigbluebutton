@@ -53,30 +53,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <set> <ref bean="whiteboardApplication" /> </set>
         </property>
         <property name="connInvokerService"><ref bean="connInvokerService"/></property>
-        <property name="red5InGW"> <ref bean="red5BbbInGW"/> </property>
+        <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
 
     <bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService" 
                 init-method="start" destroy-method="stop"/>
 
     <bean id="layout.service" class="org.bigbluebutton.red5.service.LayoutService">
-        <property name="bigBlueButtonInGW"> <ref bean="red5BbbInGW"/></property>
+        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean> 
     
     <bean id="lock.service" class="org.bigbluebutton.red5.service.LockService">
-        <property name="red5BBBInGW"><ref bean="red5BbbInGW"/></property>
+        <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>
     
     <bean id="chat.service" class="org.bigbluebutton.red5.service.ChatService">
-        <property name="bigBlueButtonInGW"> <ref bean="red5BbbInGW"/></property>
+        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean>
     
     <bean id="participants.service" class="org.bigbluebutton.red5.service.ParticipantsService">
-        <property name="red5InGW"> <ref bean="red5BbbInGW"/> </property>
+        <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
     
     <bean id="presentationApplication" class="org.bigbluebutton.red5.service.PresentationApplication">
-        <property name="red5BBBInGW"><ref bean="red5BbbInGW"/></property>
+        <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>
 
     <bean id="presentation.service" class="org.bigbluebutton.red5.service.PresentationService">
@@ -84,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
     
     <bean id="whiteboardApplication" class="org.bigbluebutton.red5.service.WhiteboardApplication">
-        <property name="red5BBBInGW"> <ref bean="red5BbbInGW"/></property>
+        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean>
 
     <bean id="whiteboard.service" class="org.bigbluebutton.red5.service.WhiteboardService">
@@ -92,10 +92,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
     
     <bean id="voice.service" class="org.bigbluebutton.red5.service.VoiceService">
-        <property name="red5InGW" ref="red5BbbInGW"/>
+        <property name="red5Publisher" ref="red5Publisher"/>
     </bean>
     
-    <bean id="red5BbbInGW" class="org.bigbluebutton.core.api.Red5BBBInGw">
+    <bean id="red5Publisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
         <property name="messageSender" ref="red5RedisSender"/>
     </bean>
 

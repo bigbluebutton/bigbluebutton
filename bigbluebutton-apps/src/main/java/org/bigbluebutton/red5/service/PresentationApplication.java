@@ -19,15 +19,15 @@
 package org.bigbluebutton.red5.service;
 
 import org.slf4j.Logger;
-import org.bigbluebutton.core.api.Red5BBBInGw;
+import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 
 public class PresentationApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationApplication.class, "bigbluebutton" );
 
-	private Red5BBBInGw red5BBBInGW;
+	private MessagePublisher red5BBBInGW;
 
-	public void setRed5BBBInGW(Red5BBBInGw inGW) {
+	public void setRed5Publisher(MessagePublisher inGW) {
 		red5BBBInGW = inGW;
 	}
 

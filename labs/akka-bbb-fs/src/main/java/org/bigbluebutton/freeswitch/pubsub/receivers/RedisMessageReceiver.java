@@ -4,7 +4,6 @@ import org.bigbluebutton.freeswitch.pubsub.messages.EjectAllUsersFromVoiceConfRe
 import org.bigbluebutton.freeswitch.pubsub.messages.EjectUserFromVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.pubsub.messages.GetUsersFromVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.pubsub.messages.MuteUserInVoiceConfRequestMessage;
-import org.bigbluebutton.freeswitch.pubsub.messages.RecordVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.pubsub.messages.StartRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.pubsub.messages.StopRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;

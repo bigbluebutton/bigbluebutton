@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
-import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
@@ -31,9 +31,9 @@ public class LayoutService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( LayoutService.class, "bigbluebutton" );
 	
-	private IBigBlueButtonInGW red5GW;
+	private MessagePublisher red5GW;
 	
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
+	public void setRed5Publisher(MessagePublisher inGW) {
 		red5GW = inGW;
 	}
 

@@ -19,9 +19,10 @@
 package org.bigbluebutton.red5.service;
 
 import java.util.Map;
+
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
-import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
+import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class VoiceService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
 	
-	private IBigBlueButtonInGW red5InGW;
+	private MessagePublisher red5InGW;
 		
 	public void muteAllUsersExceptPresenter(Map<String, Object> msg) {
   		String meetingID = Red5.getConnectionLocal().getScope().getName();
@@ -83,7 +84,7 @@ public class VoiceService {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 	
-	public void setRed5InGW(IBigBlueButtonInGW red5InGW) {
+	public void setRed5Publisher(MessagePublisher red5InGW) {
 		this.red5InGW = red5InGW;
 	}
 }

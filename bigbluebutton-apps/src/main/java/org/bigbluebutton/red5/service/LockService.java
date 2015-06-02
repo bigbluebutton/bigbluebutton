@@ -21,9 +21,9 @@ package org.bigbluebutton.red5.service;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.bigbluebutton.core.api.Red5BBBInGw;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
+import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 public class LockService {
 	private static Logger log = Red5LoggerFactory.getLogger( LockService.class, "bigbluebutton" );
 
-	private Red5BBBInGw red5BBBInGW;
+	private MessagePublisher red5BBBInGW;
 
 	/**
 	 * Internal function used to get the session
@@ -40,7 +40,7 @@ public class LockService {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 
-	public void setRed5BBBInGW(Red5BBBInGw inGW) {
+	public void setRed5Publisher(MessagePublisher inGW) {
 		red5BBBInGW = inGW;
 	}
 
