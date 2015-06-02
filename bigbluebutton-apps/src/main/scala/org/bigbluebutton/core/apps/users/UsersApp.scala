@@ -375,13 +375,15 @@ trait UsersApp {
   def handleVoiceUserJoined(msg: VoiceUserJoined) = {
       val user = users.getUser(msg.voiceUser.webUserId) match {
         case Some(user) => {
+          // this is used to restore the mute state on reconnect
+          val previouslyMuted = user.voiceUser.muted
           val nu = user.copy(voiceUser=msg.voiceUser)
           users.addUser(nu)
           logger.info("Received user joined voice for user [" + nu.name + "] userid=[" + msg.voiceUser.webUserId + "]" )
           outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, nu))
           
-          if (meetingMuted)
-            outGW.send(new MuteVoiceUser(meetingID, recorded, nu.userID, nu.userID, meetingMuted))
+          if (meetingMuted || previouslyMuted)
+            outGW.send(new MuteVoiceUser(meetingID, recorded, nu.userID, nu.userID, true))
         }
         case None => {
         	handleUserJoinedVoiceFromPhone(msg)

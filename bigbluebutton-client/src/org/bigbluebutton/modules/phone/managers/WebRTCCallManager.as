@@ -217,7 +217,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleWebRTCCallFailedEvent(event:WebRTCCallEvent):void {
-      var errorString:String;
+      trace(LOG + "handleWebRTCCallFailedEvent");
       model.state = Constants.INITED;
       
       if(!reconnecting) {
@@ -237,7 +237,10 @@ package org.bigbluebutton.modules.phone.managers
         else {
           trace(LOG + "Giving up");
           reconnecting = false;
+          dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_ENDED));
 
+          var errorString:String;
+          
           if (event.errorCode == 1004) {
             errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode, [event.cause]);
           } else {
