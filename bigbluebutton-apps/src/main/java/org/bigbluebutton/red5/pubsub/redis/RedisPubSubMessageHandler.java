@@ -38,7 +38,6 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_USERS_CHANNEL)) {
 			userMessageSender.handleUsersMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_WHITEBOARD_CHANNEL)) {
-			System.out.println("the message FROM_WHITEBOARD_CHANNEL is:"+message);
 			whiteboardMessageSender.handleWhiteboardMessage(message);
 		}
 	}

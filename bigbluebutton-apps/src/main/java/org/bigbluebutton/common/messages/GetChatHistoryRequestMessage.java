@@ -24,7 +24,6 @@ public class GetChatHistoryRequestMessage implements IPublishedMessage {
 		payload.put(Constants.REPLY_TO, replyTo);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 
-		System.out.println("GetChatHistory toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_CHAT_HISTORY_REQUEST, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}

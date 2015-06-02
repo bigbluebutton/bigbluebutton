@@ -118,34 +118,25 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void sendLockSettings(String meetingID, String userId,
-			Map<String, Boolean> settings) {
+	public void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings) {
 		SendLockSettingsMessage msg = new SendLockSettingsMessage(meetingID, userId, settings);
-
-		System.out.println("~~~sendLockSettings in Red5BBBInGw");
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	@Override
 	public void getLockSettings(String meetingId, String userId) {
 		GetLockSettingsMessage msg = new GetLockSettingsMessage(meetingId, userId);
-
-		System.out.println("~~~GetLockSettings in Red5BBBInGw");
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void lockUser(String meetingId, String requesterID, boolean lock,
-			String internalUserID) {
+	public void lockUser(String meetingId, String requesterID, boolean lock, String internalUserID) {
 		LockUserMessage msg = new LockUserMessage(meetingId, requesterID, lock, internalUserID);
-
-		System.out.println("~~~LockUser in Red5BBBInGw");
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void validateAuthToken(String meetingId, String userId,
-			String token, String correlationId, String sessionId) {
+	public void validateAuthToken(String meetingId, String userId, String token, String correlationId, String sessionId) {
 		ValidateAuthTokenMessage msg = new ValidateAuthTokenMessage(meetingId, userId, token, correlationId, sessionId);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
@@ -212,8 +203,7 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void assignPresenter(String meetingId, String newPresenterID,
-			String newPresenterName, String assignedBy) {
+	public void assignPresenter(String meetingId, String newPresenterID, String newPresenterName, String assignedBy) {
 		AssignPresenterRequestMessage msg = new AssignPresenterRequestMessage(meetingId, newPresenterID, newPresenterName, assignedBy);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
@@ -246,15 +236,13 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void initAudioSettings(String meetingID, String requesterID,
-			Boolean muted) {
+	public void initAudioSettings(String meetingID, String requesterID, Boolean muted) {
 		InitAudioSettingsMessage msg = new InitAudioSettingsMessage(meetingID, requesterID, muted);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 
 	@Override
-	public void muteAllExceptPresenter(String meetingID, String requesterID,
-			Boolean mute) {
+	public void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute) {
 		MuteAllExceptPresenterRequestMessage msg = new MuteAllExceptPresenterRequestMessage(meetingID, requesterID, mute);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
@@ -272,38 +260,33 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void muteUser(String meetingID, String requesterID, String userID,
-			Boolean mute) {
+	public void muteUser(String meetingID, String requesterID, String userID, Boolean mute) {
 		MuteUserRequestMessage msg = new MuteUserRequestMessage(meetingID, requesterID, userID, mute);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 
 	}
 
 	@Override
-	public void lockMuteUser(String meetingID, String requesterID,
-			String userID, Boolean lock) {
+	public void lockMuteUser(String meetingID, String requesterID, String userID, Boolean lock) {
 		LockMuteUserRequestMessage msg = new LockMuteUserRequestMessage(meetingID, requesterID, userID, lock);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 	}
 
 	@Override
-	public void ejectUserFromVoice(String meetingID, String userId,
-			String ejectedBy) {
+	public void ejectUserFromVoice(String meetingID, String userId, String ejectedBy) {
 		EjectUserFromVoiceRequestMessage msg = new EjectUserFromVoiceRequestMessage(meetingID, ejectedBy, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
 
 	}
 
 	@Override
-	public void ejectUserFromMeeting(String meetingId, String userId,
-			String ejectedBy) {
+	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
 		EjectUserFromMeetingRequestMessage msg = new EjectUserFromMeetingRequestMessage(meetingId, userId, ejectedBy);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void voiceUserJoined(String meetingId, String userId,
-			String webUserId, String conference, String callerIdNum,
+	public void voiceUserJoined(String meetingId, String userId, String webUserId, String conference, String callerIdNum,
 			String callerIdName, Boolean muted, Boolean speaking) {
 		// TODO Auto-generated method stub
 
@@ -328,15 +311,13 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void voiceUserTalking(String meetingId, String userId,
-			Boolean talking) {
+	public void voiceUserTalking(String meetingId, String userId, Boolean talking) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void voiceRecording(String meetingId, String recordingFile,
-			String timestamp, Boolean recording) {
+	public void voiceRecording(String meetingId, String recordingFile, String timestamp, Boolean recording) {
 		// TODO Auto-generated method stub
 
 	}
@@ -354,29 +335,21 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void getPresentationInfo(String meetingID, String requesterID,
-			String replyTo) {
-		GetPresentationInfoMessage msg = new GetPresentationInfoMessage(meetingID,
-				requesterID, replyTo);
+	public void getPresentationInfo(String meetingID, String requesterID, String replyTo) {
+		GetPresentationInfoMessage msg = new GetPresentationInfoMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 
 	}
 
 	@Override
-	public void sendCursorUpdate(String meetingID, double xPercent,
-			double yPercent) {
-		SendCursorUpdateMessage msg = new SendCursorUpdateMessage(meetingID,
-				xPercent, yPercent);
-
+	public void sendCursorUpdate(String meetingID, double xPercent, double yPercent) {
+		SendCursorUpdateMessage msg = new SendCursorUpdateMessage(meetingID, xPercent, yPercent);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void resizeAndMoveSlide(String meetingID, double xOffset,
-			double yOffset, double widthRatio, double heightRatio) {
-
-		ResizeAndMoveSlideMessage msg = new ResizeAndMoveSlideMessage(meetingID,
-				xOffset, yOffset, widthRatio, heightRatio);
+	public void resizeAndMoveSlide(String meetingID, double xOffset, double yOffset, double widthRatio, double heightRatio) {
+		ResizeAndMoveSlideMessage msg = new ResizeAndMoveSlideMessage(meetingID, xOffset, yOffset, widthRatio, heightRatio);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
@@ -387,44 +360,32 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void sharePresentation(String meetingID, String presentationID,
-			boolean share) {
+	public void sharePresentation(String meetingID, String presentationID, boolean share) {
 		SharePresentationMessage msg = new SharePresentationMessage(meetingID, presentationID, share);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void getSlideInfo(String meetingID, String requesterID,
-			String replyTo) {
-		GetSlideInfoMessage msg = new GetSlideInfoMessage(meetingID, requesterID,
-				replyTo);
+	public void getSlideInfo(String meetingID, String requesterID, String replyTo) {
+		GetSlideInfoMessage msg = new GetSlideInfoMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void sendConversionUpdate(String messageKey, String meetingId,
-			String code, String presId, String presName) {
-		SendConversionUpdateMessage msg = new SendConversionUpdateMessage(messageKey, meetingId,
-				code, presId, presName);
+	public void sendConversionUpdate(String messageKey, String meetingId, String code, String presId, String presName) {
+		SendConversionUpdateMessage msg = new SendConversionUpdateMessage(messageKey, meetingId, code, presId, presName);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void sendPageCountError(String messageKey, String meetingId,
-			String code, String presId, int numberOfPages, int maxNumberPages,
-			String presName) {
-
-		SendPageCountErrorMessage msg = new SendPageCountErrorMessage(messageKey, meetingId,
-				code, presId, numberOfPages, maxNumberPages, presName);
+	public void sendPageCountError(String messageKey, String meetingId, String code, String presId, int numberOfPages, int maxNumberPages, String presName) {
+		SendPageCountErrorMessage msg = new SendPageCountErrorMessage(messageKey, meetingId, code, presId, numberOfPages, maxNumberPages, presName);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void sendSlideGenerated(String messageKey, String meetingId,
-			String code, String presId, int numberOfPages, int pagesCompleted,
-			String presName) {
-		SendSlideGeneratedMessage msg = new SendSlideGeneratedMessage(messageKey, meetingId,
-				code, presId, numberOfPages, pagesCompleted, presName);
+	public void sendSlideGenerated(String messageKey, String meetingId, String code, String presId, int numberOfPages, int pagesCompleted, String presName) {
+		SendSlideGeneratedMessage msg = new SendSlideGeneratedMessage(messageKey, meetingId, code, presId, numberOfPages, pagesCompleted, presName);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 
@@ -492,81 +453,70 @@ public class Red5BBBInGw implements IBigBlueButtonInGW {
 	}
 
 	@Override
-	public void broadcastLayout(String meetingID, String requesterID,
-			String layout) {
+	public void broadcastLayout(String meetingID, String requesterID, String layout) {
 		BroadcastLayoutRequestMessage msg = new BroadcastLayoutRequestMessage(meetingID, requesterID, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void getChatHistory(String meetingID, String requesterID,
-			String replyTo) {
+	public void getChatHistory(String meetingID, String requesterID, String replyTo) {
 		GetChatHistoryRequestMessage msg = new GetChatHistoryRequestMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void sendPublicMessage(String meetingID, String requesterID,
-			Map<String, String> message) {
+	public void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message) {
 		SendPublicChatMessage msg = new SendPublicChatMessage(meetingID, requesterID, message);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void sendPrivateMessage(String meetingID, String requesterID,
-			Map<String, String> message) {
+	public void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message) {
 		SendPrivateChatMessage msg = new SendPrivateChatMessage(meetingID, requesterID, message);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void sendWhiteboardAnnotation(String meetingID, String requesterID,
-			Map<String, Object> annotation) {
+	public void sendWhiteboardAnnotation(String meetingID, String requesterID, Map<String, Object> annotation) {
 		SendWhiteboardAnnotationRequestMessage msg = new SendWhiteboardAnnotationRequestMessage(meetingID, requesterID, annotation);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void requestWhiteboardAnnotationHistory(String meetingID,
-			String requesterID, String whiteboardId, String replyTo) {
+	public void requestWhiteboardAnnotationHistory(String meetingID, String requesterID, String whiteboardId, String replyTo) {
 		RequestWhiteboardAnnotationHistoryRequestMessage msg = new RequestWhiteboardAnnotationHistoryRequestMessage(meetingID, requesterID, whiteboardId, replyTo);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
 	}
 
 	@Override
-	public void clearWhiteboard(String meetingID, String requesterID,
-			String whiteboardId) {
+	public void clearWhiteboard(String meetingID, String requesterID, String whiteboardId) {
 		ClearWhiteboardRequestMessage msg = new ClearWhiteboardRequestMessage(meetingID, requesterID, whiteboardId);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
 	}
 
 	@Override
-	public void undoWhiteboard(String meetingID, String requesterID,
-			String whiteboardId) {
+	public void undoWhiteboard(String meetingID, String requesterID, String whiteboardId) {
 		org.bigbluebutton.common.messages.UndoWhiteboardRequest msg = new org.bigbluebutton.common.messages.UndoWhiteboardRequest(meetingID, requesterID, whiteboardId);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void enableWhiteboard(String meetingID, String requesterID,
-			Boolean enable) {
+	public void enableWhiteboard(String meetingID, String requesterID, Boolean enable) {
 		EnableWhiteboardRequestMessage msg = new EnableWhiteboardRequestMessage(meetingID, requesterID, enable);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 	}
 
 	@Override
-	public void isWhiteboardEnabled(String meetingID, String requesterID,
-			String replyTo) {
+	public void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo) {
 		IsWhiteboardEnabledRequestMessage msg = new IsWhiteboardEnabledRequestMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
 
 	}
 
 	@Override
-	public void lockLayout(String meetingID, String setById, boolean lock,
-			boolean viewersOnly, String layout) {
+	public void lockLayout(String meetingID, String setById, boolean lock, boolean viewersOnly, String layout) {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}

@@ -343,40 +343,44 @@ public class Util {
 		
 				pages.add(page);
 		    }
-	    }	
-	    
+	    }
 		return pages;
 	}
-	
+
 	public ArrayList<Map<String, Object>> extractPresentations(JsonArray presArray) {
 		ArrayList<Map<String, Object>> presentations = new ArrayList<Map<String, Object>>();
 		
-	    Iterator<JsonElement> presentationsIter = presArray.iterator();
-	    while (presentationsIter.hasNext()){
+		Iterator<JsonElement> presentationsIter = presArray.iterator();
+		while (presentationsIter.hasNext()){
 			JsonObject presObj = (JsonObject)presentationsIter.next();
-			if (presObj.has(Constants.ID) && presObj.has(Constants.NAME) 
-					&& presObj.has(Constants.CURRENT) && presObj.has(Constants.PAGES)) {
-				Map<String, Object> pres = new HashMap<String, Object>();
-				
-				String presId = presObj.get(Constants.ID).getAsString();
-				String presName = presObj.get(Constants.NAME).getAsString();
-				Boolean currentPres = presObj.get(Constants.CURRENT).getAsBoolean();
-				
-				pres.put("id", presId);
-				pres.put("name", presName);
-				pres.put("current", currentPres);
-				
-				JsonArray pagesJsonArray = presObj.get(Constants.PAGES).getAsJsonArray();
-				
-				ArrayList<Map<String, Object>> pages = extractPresentationPages(pagesJsonArray);
-				// store the pages in the presentation 
-				pres.put(Constants.PAGES, pages);
-			    
-				// add this presentation into our presentations list
-			    presentations.add(pres);
-		    }
-	    }
-	    return presentations;
+			presentations.add(extractPresentation(presObj));
+		}
+		return presentations;
+	}
+
+	public Map<String, Object> extractPresentation(JsonObject presObj) {
+		if (presObj.has(Constants.ID) && presObj.has(Constants.NAME) 
+				&& presObj.has(Constants.CURRENT) && presObj.has(Constants.PAGES)) {
+			Map<String, Object> pres = new HashMap<String, Object>();
+
+			String presId = presObj.get(Constants.ID).getAsString();
+			String presName = presObj.get(Constants.NAME).getAsString();
+			Boolean currentPres = presObj.get(Constants.CURRENT).getAsBoolean();
+
+			pres.put("id", presId);
+			pres.put("name", presName);
+			pres.put("current", currentPres);
+
+			JsonArray pagesJsonArray = presObj.get(Constants.PAGES).getAsJsonArray();
+
+			ArrayList<Map<String, Object>> pages = extractPresentationPages(pagesJsonArray);
+			// store the pages in the presentation 
+			pres.put(Constants.PAGES, pages);
+
+			// add this presentation into our presentations list
+			return pres;
+		}
+		return null;
 	}
 
 	public ArrayList<Map<String, Object>> extractShapes(JsonArray shapes) {
@@ -411,7 +415,6 @@ public class Util {
 			finalAnnotation.put(Constants.ID, id);
 			finalAnnotation.put("type", type);
 			finalAnnotation.put("status", status);
-			finalAnnotation.put("status", status);
 
 			JsonElement shape = annotationElement.get("shape");
 			Map<String, Object> shapesMap = extractAnnotation((JsonObject)shape);
@@ -421,6 +424,78 @@ public class Util {
 			}
 
 			return finalAnnotation;
+		}
+
+		return null;
+	}
+
+	public ArrayList<Map<String, Object>> extractPages(JsonArray pages) {
+		ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+
+		Iterator<JsonElement> pagesIter = pages.iterator();
+		while (pagesIter.hasNext()){
+			JsonElement page = pagesIter.next();
+
+			Map<String, Object> pageMap = extractPage((JsonObject)page);
+			if (pageMap != null) {
+				collection.add(pageMap);
+			}
+		}
+		return collection;
+	}
+
+	public Map<String, Object> extractPage(JsonObject page) {
+
+		final String WIDTH_RATIO = "width_ratio";
+		final String Y_OFFSET = "y_offset";
+		final String NUM = "num";
+		final String HEIGHT_RATIO = "height_ratio";
+		final String X_OFFSET = "x_offset";
+		final String PNG_URI = "png_uri";
+		final String THUMB_URI = "thumb_uri";
+		final String TXT_URI = "txt_uri";
+		final String CURRENT = "current";
+		final String SWF_URI = "swf_uri";
+
+		if (page.has(Constants.ID)
+				&& page.has(WIDTH_RATIO)
+				&& page.has(Y_OFFSET)
+				&& page.has(NUM)
+				&& page.has(HEIGHT_RATIO)
+				&& page.has(X_OFFSET)
+				&& page.has(PNG_URI)
+				&& page.has(THUMB_URI)
+				&& page.has(CURRENT)
+				&& page.has(TXT_URI)
+				&& page.has(SWF_URI)){
+
+			Map<String, Object> finalPage = new HashMap<String, Object>();
+
+			String id = page.get(Constants.ID).getAsString();
+			double widthRatio = page.get(WIDTH_RATIO).getAsDouble();
+			double yOffset = page.get(Y_OFFSET).getAsDouble();
+			double num = page.get(NUM).getAsDouble();
+			double heightRatio = page.get(HEIGHT_RATIO).getAsDouble();
+			double xOffset = page.get(X_OFFSET).getAsDouble();
+			String pngUri = page.get(PNG_URI).getAsString();
+			String thumbUri = page.get(THUMB_URI).getAsString();
+			boolean current = page.get(CURRENT).getAsBoolean();
+			String txtUri = page.get(TXT_URI).getAsString();
+			String swfUri = page.get(SWF_URI).getAsString();
+
+			finalPage.put(Constants.ID, id);
+			finalPage.put(WIDTH_RATIO, widthRatio);
+			finalPage.put(Y_OFFSET, yOffset);
+			finalPage.put(NUM, num);
+			finalPage.put(HEIGHT_RATIO, heightRatio);
+			finalPage.put(X_OFFSET, xOffset);
+			finalPage.put(PNG_URI, pngUri);
+			finalPage.put(THUMB_URI, thumbUri);
+			finalPage.put(CURRENT, current);
+			finalPage.put(TXT_URI, txtUri);
+			finalPage.put(SWF_URI, swfUri);
+
+			return finalPage;
 		}
 
 		return null;

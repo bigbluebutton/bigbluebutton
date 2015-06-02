@@ -33,7 +33,7 @@ public class WhiteboardClientMessageSender {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				System.out.println("AAAAAAAMEEESAGE:"+message);
+	
 				switch (messageName) {
 				  case UndoWhiteboardReplyMessage.UNDO_WHITEBOARD_REPLY:
 					  UndoWhiteboardReplyMessage uwrm = UndoWhiteboardReplyMessage.fromJson(message);
