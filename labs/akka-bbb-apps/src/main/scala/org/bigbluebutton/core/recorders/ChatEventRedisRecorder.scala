@@ -3,7 +3,7 @@ package org.bigbluebutton.core.recorders
 import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.service.recorder.RecorderApplication
-import org.bigbluebutton.core.service.recorder.chat.PublicChatRecordEvent
+import org.bigbluebutton.core.recorders.events.PublicChatRecordEvent
 
 class ChatEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
 

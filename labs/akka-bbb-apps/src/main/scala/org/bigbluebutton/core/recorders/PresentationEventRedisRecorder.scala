@@ -11,12 +11,12 @@ import org.bigbluebutton.core.api.ClearPresentationOutMsg
 import org.bigbluebutton.core.api.PresentationConversionDone
 import org.bigbluebutton.core.api.TimestampGenerator
 import org.bigbluebutton.core.service.recorder.RecorderApplication
-import org.bigbluebutton.core.service.recorder.presentation.ConversionCompletedPresentationRecordEvent
-import org.bigbluebutton.core.service.recorder.presentation.GotoSlidePresentationRecordEvent
-import org.bigbluebutton.core.service.recorder.presentation.ResizeAndMoveSlidePresentationRecordEvent
-import org.bigbluebutton.core.service.recorder.presentation.RemovePresentationPresentationRecordEvent
-import org.bigbluebutton.core.service.recorder.presentation.SharePresentationPresentationRecordEvent
-import org.bigbluebutton.core.service.recorder.presentation.CursorUpdateRecordEvent
+import org.bigbluebutton.core.recorders.events.ConversionCompletedPresentationRecordEvent
+import org.bigbluebutton.core.recorders.events.GotoSlidePresentationRecordEvent
+import org.bigbluebutton.core.recorders.events.ResizeAndMoveSlidePresentationRecordEvent
+import org.bigbluebutton.core.recorders.events.RemovePresentationPresentationRecordEvent
+import org.bigbluebutton.core.recorders.events.SharePresentationPresentationRecordEvent
+import org.bigbluebutton.core.recorders.events.CursorUpdateRecordEvent
 
 class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
   private val GENERATED_SLIDE_KEY = "GENERATED_SLIDE";
