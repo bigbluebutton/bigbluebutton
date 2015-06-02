@@ -19,27 +19,27 @@
 package org.bigbluebutton.red5.service;
 
 import java.util.Map;
+
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
-import org.bigbluebutton.red5.api.IBigBlueButtonInGW;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 
 public class WhiteboardService {
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardService.class, "bigbluebutton");
-
-	private final static String TYPE = "type";
-	private final static String STATUS = "status";
-	private final static String COR_ID = "id";
-	private final static String WB_ID = "whiteboardId";
+	private WhiteboardApplication application;
 	
-	private IBigBlueButtonInGW bbbInGW;
-		
-	public void setBigBlueButtonInGW(IBigBlueButtonInGW inGW) {
-		bbbInGW = inGW;
+	 private final static String TYPE = "type";
+	 private final static String STATUS = "status";
+	 private final static String COR_ID = "id";
+	 private final static String WB_ID = "whiteboardId";
+	
+	public void setWhiteboardApplication(WhiteboardApplication a){
+		log.debug("Setting whiteboard application instance");
+		this.application = a;
 	}
-				
+		
 	private boolean validMessage(Map<String, Object> shp) {
 		if (shp.containsKey(COR_ID) && shp.containsKey(TYPE) &&
 				shp.containsKey(STATUS) && shp.containsKey(WB_ID)) return true;
@@ -64,7 +64,7 @@ public class WhiteboardService {
 		String requesterID = getBbbSession().getInternalUserID();
 		
 		if (validMessage(annotation)) {
-			bbbInGW.sendWhiteboardAnnotation(meetingID, requesterID, annotation);
+			application.sendWhiteboardAnnotation(meetingID, requesterID, annotation);
 		}		
 	}
 	
@@ -86,11 +86,9 @@ public class WhiteboardService {
 		
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
-		String whiteboardId = (String) message.get(WB_ID);
-		if (whiteboardId != null) {
-			// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
-			String replyTo = meetingID + "/" + requesterID; 
-			bbbInGW.requestWhiteboardAnnotationHistory(meetingID, requesterID, whiteboardId, replyTo);
+		String wbId = (String) message.get(WB_ID);
+		if (wbId != null) {
+			application.requestAnnotationHistory(meetingID, requesterID, wbId);	
 		}		
 	}
 		
@@ -101,7 +99,7 @@ public class WhiteboardService {
 		String requesterID = getBbbSession().getInternalUserID();
 		String wbId = (String) message.get(WB_ID);
 		if (wbId != null) {
-			bbbInGW.clearWhiteboard(meetingID, requesterID, wbId);
+			application.clearWhiteboard(meetingID, requesterID, wbId);
 		}				
 	}
 	
@@ -112,7 +110,7 @@ public class WhiteboardService {
 		String requesterID = getBbbSession().getInternalUserID();
 		String wbId = (String) message.get(WB_ID);
 		if (wbId != null) {
-			bbbInGW.undoWhiteboard(meetingID, requesterID, wbId);
+			application.undoWhiteboard(meetingID, requesterID, wbId);
 		}
 	}
 	
@@ -127,16 +125,14 @@ public class WhiteboardService {
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();
 		Boolean enable = (Boolean)message.get("enabled");
-		bbbInGW.enableWhiteboard(meetingID, requesterID, enable);
+		
+		application.setWhiteboardEnable(meetingID, requesterID, enable);
 	}
 	
 	public void isWhiteboardEnabled() {
 		String meetingID = getMeetingId();
 		String requesterID = getBbbSession().getInternalUserID();		
-		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
-		String replyTo = meetingID + "/" + requesterID; 
-		bbbInGW.isWhiteboardEnabled(meetingID, requesterID, replyTo);
-		
+		application.setIsWhiteboardEnabled(meetingID, requesterID);
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

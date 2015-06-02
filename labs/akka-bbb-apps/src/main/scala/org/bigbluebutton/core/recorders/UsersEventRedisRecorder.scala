@@ -1,18 +1,18 @@
 package org.bigbluebutton.core.recorders
 
-import org.bigbluebutton.conference.service.recorder.RecorderApplication
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.conference.service.recorder.participants.ParticipantEndAndKickAllRecordEvent
-import org.bigbluebutton.conference.service.recorder.participants.AssignPresenterRecordEvent
-import org.bigbluebutton.conference.service.recorder.participants.ParticipantStatusChangeRecordEvent
-import org.bigbluebutton.conference.service.recorder.participants.ParticipantLeftRecordEvent
-import org.bigbluebutton.conference.service.recorder.participants.ParticipantJoinRecordEvent
-import org.bigbluebutton.webconference.voice.ParticipantMutedVoiceRecordEvent
-import org.bigbluebutton.webconference.voice.ParticipantTalkingVoiceRecordEvent
-import org.bigbluebutton.webconference.voice.ParticipantJoinedVoiceRecordEvent
-import org.bigbluebutton.webconference.voice.ParticipantLeftVoiceRecordEvent
-import org.bigbluebutton.conference.service.recorder.participants.RecordStatusRecordEvent
-import org.bigbluebutton.webconference.voice.StartRecordingVoiceRecordEvent
+import org.bigbluebutton.core.service.recorder.RecorderApplication
+import org.bigbluebutton.core.service.recorder.participants.ParticipantEndAndKickAllRecordEvent
+import org.bigbluebutton.core.service.recorder.participants.ParticipantJoinRecordEvent
+import org.bigbluebutton.core.service.recorder.voice.StartRecordingVoiceRecordEvent
+import org.bigbluebutton.core.service.recorder.voice.ParticipantMutedVoiceRecordEvent
+import org.bigbluebutton.core.service.recorder.voice.ParticipantTalkingVoiceRecordEvent
+import org.bigbluebutton.core.service.recorder.voice.ParticipantJoinedVoiceRecordEvent
+import org.bigbluebutton.core.service.recorder.voice.ParticipantLeftVoiceRecordEvent
+import org.bigbluebutton.core.service.recorder.participants.RecordStatusRecordEvent
+import org.bigbluebutton.core.service.recorder.participants.ParticipantLeftRecordEvent
+import org.bigbluebutton.core.service.recorder.participants.ParticipantStatusChangeRecordEvent
+import org.bigbluebutton.core.service.recorder.participants.AssignPresenterRecordEvent
 
 class UsersEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
 

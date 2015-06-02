@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.apps.whiteboard
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
 import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.core.apps.whiteboard.vo._
+import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 
 case class Whiteboard(id: String, shapes: Seq[AnnotationVO])
 

@@ -1,23 +1,22 @@
 package org.bigbluebutton.core.recorders
 
-import org.bigbluebutton.conference.service.recorder.RecorderApplication
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.api.IOutMessage
-import org.bigbluebutton.conference.service.recorder.presentation.GenerateSlidePresentationRecordEvent
-import org.bigbluebutton.conference.service.recorder.presentation.ConversionCompletedPresentationRecordEvent
 import org.bigbluebutton.core.api.GotoSlideOutMsg
-import org.bigbluebutton.conference.service.recorder.presentation.GotoSlidePresentationRecordEvent
 import org.bigbluebutton.core.api.ResizeAndMoveSlideOutMsg
-import org.bigbluebutton.conference.service.recorder.presentation.ResizeAndMoveSlidePresentationRecordEvent
 import org.bigbluebutton.core.api.RemovePresentationOutMsg
-import org.bigbluebutton.conference.service.recorder.presentation.RemovePresentationPresentationRecordEvent
 import org.bigbluebutton.core.api.SharePresentationOutMsg
-import org.bigbluebutton.conference.service.recorder.presentation.SharePresentationPresentationRecordEvent
 import org.bigbluebutton.core.api.SendCursorUpdateOutMsg
-import org.bigbluebutton.conference.service.recorder.presentation.CursorUpdateRecordEvent
 import org.bigbluebutton.core.api.ClearPresentationOutMsg
 import org.bigbluebutton.core.api.PresentationConversionDone
 import org.bigbluebutton.core.api.TimestampGenerator
+import org.bigbluebutton.core.service.recorder.RecorderApplication
+import org.bigbluebutton.core.service.recorder.presentation.ConversionCompletedPresentationRecordEvent
+import org.bigbluebutton.core.service.recorder.presentation.GotoSlidePresentationRecordEvent
+import org.bigbluebutton.core.service.recorder.presentation.ResizeAndMoveSlidePresentationRecordEvent
+import org.bigbluebutton.core.service.recorder.presentation.RemovePresentationPresentationRecordEvent
+import org.bigbluebutton.core.service.recorder.presentation.SharePresentationPresentationRecordEvent
+import org.bigbluebutton.core.service.recorder.presentation.CursorUpdateRecordEvent
 
 class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
   private val GENERATED_SLIDE_KEY = "GENERATED_SLIDE";

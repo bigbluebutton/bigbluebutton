@@ -1,7 +1,6 @@
 package org.bigbluebutton.freeswitch
 
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
-import org.bigbluebutton.core.api._
 import org.bigbluebutton.endpoint.redis.RedisPublisher
 import org.bigbluebutton.freeswitch.pubsub.messages._
 

@@ -1,15 +1,14 @@
 package org.bigbluebutton.core.recorders
 
-import org.bigbluebutton.conference.service.recorder.RecorderApplication
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.conference.service.whiteboard.redis.AddShapeWhiteboardRecordEvent
 import scala.collection.JavaConversions._
-import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
-import org.bigbluebutton.conference.service.whiteboard.redis.AddTextWhiteboardRecordEvent
-import org.bigbluebutton.conference.service.whiteboard.redis.ClearPageWhiteboardRecordEvent
-import org.bigbluebutton.conference.service.whiteboard.redis.UndoShapeWhiteboardRecordEvent
-import org.bigbluebutton.conference.service.whiteboard.redis.ModifyTextWhiteboardRecordEvent
 import scala.collection.immutable.StringOps
+import org.bigbluebutton.core.service.recorder.RecorderApplication
+import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.core.service.whiteboard.redis.ModifyTextWhiteboardRecordEvent
+import org.bigbluebutton.core.service.whiteboard.redis.AddShapeWhiteboardRecordEvent
+import org.bigbluebutton.core.service.whiteboard.redis.ClearPageWhiteboardRecordEvent
+import org.bigbluebutton.core.service.whiteboard.redis.UndoShapeWhiteboardRecordEvent
 
 class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMessageListener2 {
 

@@ -19,45 +19,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			 xmlns:lang="http://www.springframework.org/schema/lang"
-			 xsi:schemaLocation="
-						 http://www.springframework.org/schema/beans 
-						 http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-						 http://www.springframework.org/schema/lang 
-						 http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:lang="http://www.springframework.org/schema/lang"
+             xsi:schemaLocation="
+                         http://www.springframework.org/schema/beans 
+                         http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                         http://www.springframework.org/schema/lang 
+                         http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
-	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-			<property name="locations">
-				<list>
-					<value>/WEB-INF/red5-web.properties</value>
-					<value>/WEB-INF/bigbluebutton.properties</value>
-				</list>
-			</property>
-	</bean>
+    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+            <property name="locations">
+                <list>
+                    <value>/WEB-INF/red5-web.properties</value>
+                    <value>/WEB-INF/bigbluebutton.properties</value>
+                </list>
+            </property>
+    </bean>
 
-	<bean id="web.context" class="org.red5.server.Context" autowire="byType" />
+    <bean id="web.context" class="org.red5.server.Context" autowire="byType" />
 
-	<bean id="web.scope" class="org.red5.server.scope.WebScope"
-		 init-method="register">
-		<property name="server" ref="red5.server" />
-		<property name="parent" ref="global.scope" />
-		<property name="context" ref="web.context" />
-		<property name="handler" ref="web.handler" />
-		<property name="contextPath" value="${webapp.contextPath}" />
-		<property name="virtualHosts" value="${webapp.virtualHosts}" />
-	</bean>
+    <bean id="web.scope" class="org.red5.server.scope.WebScope"
+         init-method="register">
+        <property name="server" ref="red5.server" />
+        <property name="parent" ref="global.scope" />
+        <property name="context" ref="web.context" />
+        <property name="handler" ref="web.handler" />
+        <property name="contextPath" value="${webapp.contextPath}" />
+        <property name="virtualHosts" value="${webapp.virtualHosts}" />
+    </bean>
 
-	<bean id="web.handler" class="org.bigbluebutton.red5.BigBlueButtonApplication">
-		<property name="applicationListeners">
-				<set> <ref bean="whiteboardApplication" /> </set>
-		</property>
-		<property name="connInvokerService"><ref bean="connInvokerService"/></property>
-		<property name="red5InGW"> <ref bean="red5BbbInGW"/> </property>
-	</bean>
-	
-	<bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService" 
-				init-method="start" destroy-method="stop"/>
+    <bean id="web.handler" class="org.bigbluebutton.red5.BigBlueButtonApplication">
+        <property name="applicationListeners">
+                <set> <ref bean="whiteboardApplication" /> </set>
+        </property>
+        <property name="connInvokerService"><ref bean="connInvokerService"/></property>
+        <property name="red5InGW"> <ref bean="red5BbbInGW"/> </property>
+    </bean>
+
+    <bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService" 
+                init-method="start" destroy-method="stop"/>
 
     <bean id="layout.service" class="org.bigbluebutton.red5.service.LayoutService">
         <property name="bigBlueButtonInGW"> <ref bean="red5BbbInGW"/></property>
@@ -95,15 +95,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="red5InGW" ref="red5BbbInGW"/>
     </bean>
     
-	<bean id="red5BbbInGW" class="org.bigbluebutton.core.api.Red5BBBInGw">
-		<property name="messageSender" ref="red5RedisSender"/>
-	</bean>
+    <bean id="red5BbbInGW" class="org.bigbluebutton.core.api.Red5BBBInGw">
+        <property name="messageSender" ref="red5RedisSender"/>
+    </bean>
 
-	<bean id="redisPubSubMessageHandler" class="org.bigbluebutton.red5.pubsub.redis.RedisPubSubMessageHandler">
-		<property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
-	</bean>
+    <bean id="redisPubSubMessageHandler" class="org.bigbluebutton.red5.pubsub.redis.RedisPubSubMessageHandler">
+        <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+    </bean>
 
-	<import resource="bbb-redis-pool.xml"/>
-  	<import resource="bbb-red5-redis-pubsub.xml"/>
-          
+    <import resource="bbb-redis-pool.xml"/>
+    <import resource="bbb-red5-redis-pubsub.xml"/>
 </beans>

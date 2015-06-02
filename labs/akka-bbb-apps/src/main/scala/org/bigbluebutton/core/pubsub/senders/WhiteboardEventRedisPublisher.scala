@@ -2,11 +2,9 @@ package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
-import org.bigbluebutton.conference.service.whiteboard.WhiteboardKeyUtil
 import scala.collection.immutable.StringOps
 import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.common.messages.MessagingConstants
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
