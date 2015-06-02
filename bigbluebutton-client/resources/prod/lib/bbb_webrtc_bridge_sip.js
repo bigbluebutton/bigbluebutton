@@ -68,6 +68,10 @@ function callIntoConference(voiceBridge, callback) {
 function joinWebRTCVoiceConference() {
 	console.log("Joining to the voice conference directly");
 	inEchoTest = false;
+	// set proper callbacks to previously created user agent
+	if(userAgent) {
+		setUserAgentListeners(webRTCCallback);
+	}
 	callIntoConference(conferenceVoiceBridge, webRTCCallback);
 }
 
@@ -172,10 +176,18 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 	uaConnected = false;
 	
 	userAgent = new SIP.UA(configuration);
+	setUserAgentListeners(callback, makeCallFunc);
+	userAgent.start();
+};
+
+function setUserAgentListeners(callback, makeCallFunc) {
+	console.log("reseting UA callbacks");
+	userAgent.off('connected');
 	userAgent.on('connected', function() {
 		uaConnected = true;
 		makeCallFunc();
 	});
+	userAgent.off('disconnected');
 	userAgent.on('disconnected', function() {
 		if (userAgent) {
 			if (userAgent != null) {
@@ -191,8 +203,6 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 			}
 		}
 	});
-	
-	userAgent.start();
 };
 
 function getUserMicMedia(getUserMicMediaSuccess, getUserMicMediaFailure) {
