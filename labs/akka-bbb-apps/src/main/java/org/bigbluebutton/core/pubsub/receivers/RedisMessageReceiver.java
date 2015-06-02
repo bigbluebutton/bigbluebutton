@@ -27,10 +27,7 @@ public class RedisMessageReceiver {
 		
 		UsersMessageReceiver usersRx = new UsersMessageReceiver(bbbGW);
 		receivers.add(usersRx);
-		
-		VoiceMessageReceiver voiceRx = new VoiceMessageReceiver(bbbGW);
-		receivers.add(voiceRx);
-		
+				
 		WhiteboardMessageReceiver whiteboardRx = new WhiteboardMessageReceiver(bbbGW);
 		receivers.add(whiteboardRx);
 		
