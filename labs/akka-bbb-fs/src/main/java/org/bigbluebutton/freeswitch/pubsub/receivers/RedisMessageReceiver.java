@@ -5,6 +5,8 @@ import org.bigbluebutton.freeswitch.pubsub.messages.EjectUserFromVoiceConfReques
 import org.bigbluebutton.freeswitch.pubsub.messages.GetUsersFromVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.pubsub.messages.MuteUserInVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.pubsub.messages.RecordVoiceConfRequestMessage;
+import org.bigbluebutton.freeswitch.pubsub.messages.StartRecordingVoiceConfRequestMessage;
+import org.bigbluebutton.freeswitch.pubsub.messages.StopRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
 import com.google.gson.JsonObject;
@@ -45,8 +47,11 @@ public class RedisMessageReceiver {
 					  case MuteUserInVoiceConfRequestMessage.MUTE_VOICE_USER_REQUEST:
 						  processMuteVoiceUserRequestMessage(message);
 					  break;
-					  case RecordVoiceConfRequestMessage.RECORD_VOICE_CONF_REQUEST:
-						  processRecordVoiceConfRequestMessage(message);
+					  case StartRecordingVoiceConfRequestMessage.START_RECORD_VOICE_CONF_REQUEST:
+						  processStartRecordingVoiceConfRequestMessage(message);
+					  break;
+					  case StopRecordingVoiceConfRequestMessage.STOP_RECORD_VOICE_CONF_REQUEST:
+						  processStopRecordingVoiceConfRequestMessage(message);
 					  break;
 					}
 				}
@@ -74,8 +79,13 @@ public class RedisMessageReceiver {
 		fsApp.muteUser(msg.voiceConfId, msg.voiceUserId, msg.mute);
 	}
 	
-	private void processRecordVoiceConfRequestMessage(String json) {
-		RecordVoiceConfRequestMessage msg = RecordVoiceConfRequestMessage.fromJson(json);
-		//fsApp.
+	private void processStartRecordingVoiceConfRequestMessage(String json) {
+		StartRecordingVoiceConfRequestMessage msg = StartRecordingVoiceConfRequestMessage.fromJson(json);
+		fsApp.startRecording(msg.voiceConfId, msg.meetingId);
+	}
+	
+	private void processStopRecordingVoiceConfRequestMessage(String json) {
+		StopRecordingVoiceConfRequestMessage msg = StopRecordingVoiceConfRequestMessage.fromJson(json);
+		fsApp.stopRecording(msg.voiceConfId, msg.meetingId, msg.recordStream);
 	}
 }

@@ -35,27 +35,21 @@ public class WhiteboardMessageReceiver implements MessageHandler {
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
 					if (UndoWhiteboardRequest.UNDO_WHITEBOARD_REQUEST.equals(messageName)) {
-						System.out.println("inListener:UNDO_WHITEBOARD_REQUEST");
 						UndoWhiteboardRequest msg = UndoWhiteboardRequest.fromJson(message);
 						bbbInGW.undoWhiteboard(msg.meetingId, msg.requesterId, msg.whiteboardId);
 					} else if (ClearWhiteboardRequestMessage.CLEAR_WHITEBOARD_REQUEST.equals(messageName)) {
-						System.out.println("inListener:CLEAR_WHITEBOARD_REQUEST");
 						ClearWhiteboardRequestMessage msg = ClearWhiteboardRequestMessage.fromJson(message);
 						bbbInGW.clearWhiteboard(msg.meetingId, msg.requesterId, msg.whiteboardId);
 					} else if (RequestWhiteboardAnnotationHistoryRequestMessage.REQUEST_WHITEBOARD_ANNOTATION_HISTORY_REQUEST.equals(messageName)) {
-						System.out.println("inListener:REQUEST_WHITEBOARD_ANNOTATION_HISTORY_REQUEST");
 						RequestWhiteboardAnnotationHistoryRequestMessage msg = RequestWhiteboardAnnotationHistoryRequestMessage.fromJson(message);
 						bbbInGW.requestWhiteboardAnnotationHistory(msg.meetingId, msg.requesterId, msg.whiteboardId, msg.replyTo);
 					} else if (IsWhiteboardEnabledRequestMessage.IS_WHITEBOARD_ENABLED_REQUEST.equals(messageName)) {
-						System.out.println("inListener: IS_WHITEBOARD_ENABLED_REQUEST");
 						IsWhiteboardEnabledRequestMessage msg = IsWhiteboardEnabledRequestMessage.fromJson(message);
 						bbbInGW.isWhiteboardEnabled(msg.meetingId, msg.requesterId, msg.replyTo);
 					} else if (EnableWhiteboardRequestMessage.ENABLE_WHITEBOARD_REQUEST.equals(messageName)) {
-						System.out.println("inListener: ENABLE_WHITEBOARD_REQUEST");
 						EnableWhiteboardRequestMessage msg = EnableWhiteboardRequestMessage.fromJson(message);
 						bbbInGW.enableWhiteboard(msg.meetingId, msg.requesterId, msg.enable);
 					} else if (SendWhiteboardAnnotationRequestMessage.SEND_WHITEBOARD_ANNOTATION_REQUEST.equals(messageName)) {
-						System.out.println("inListener: SEND_WHITEBOARD_ANNOTATION_REQUEST");
 						SendWhiteboardAnnotationRequestMessage msg = SendWhiteboardAnnotationRequestMessage.fromJson(message);
 						bbbInGW.sendWhiteboardAnnotation(msg.meetingId, msg.requesterId, msg.annotation);
 					}
