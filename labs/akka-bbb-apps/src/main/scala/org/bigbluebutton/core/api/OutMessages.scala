@@ -284,6 +284,19 @@ case class StartRecording(
   requesterID: String,
   version: String = Versions.V_0_0_1) extends IOutMessage
 
+case class StartRecordingVoiceConf(
+  meetingID: String,
+  recorded: Boolean,
+  voiceConfId: String,
+  version: String = Versions.V_0_0_1) extends IOutMessage
+
+case class StopRecordingVoiceConf(
+  meetingID: String,
+  recorded: Boolean,
+  voiceConfId: String,
+  recordedStream: String,
+  version: String = Versions.V_0_0_1) extends IOutMessage
+
 case class StopRecording(
   meetingID: String,
   recorded: Boolean,

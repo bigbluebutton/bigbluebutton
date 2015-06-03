@@ -42,6 +42,11 @@ class UsersModel {
     uservos.values filter (u => u.phoneUser == false) size
   }
 
+  def numUsersInVoiceConference: Int = {
+    val joinedUsers = uservos.values filter (u => u.voiceUser.joined)
+    joinedUsers.size
+  }
+
   def getUserWithExternalId(userID: String): Option[UserVO] = {
     uservos.values find (u => u.externUserID == userID)
   }

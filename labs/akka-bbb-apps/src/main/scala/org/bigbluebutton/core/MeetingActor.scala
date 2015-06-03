@@ -51,6 +51,8 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   var hasLastWebUserLeft = false
   var lastWebUserLeftOn: Long = 0
 
+  var voiceRecordingFilename: String = ""
+
   // FIXME
   //  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
   //    def act {
@@ -208,9 +210,10 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 
   private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
     if (msg.recording) {
-      outGW.send(new VoiceRecordingStarted(meetingID,
-        recorded, msg.recordStream, msg.timestamp, voiceBridge))
+      voiceRecordingFilename = msg.recordStream
+      outGW.send(new VoiceRecordingStarted(meetingID, recorded, msg.recordStream, msg.timestamp, voiceBridge))
     } else {
+      voiceRecordingFilename = ""
       outGW.send(new VoiceRecordingStopped(meetingID, recorded, msg.recordStream, msg.timestamp, voiceBridge))
     }
   }

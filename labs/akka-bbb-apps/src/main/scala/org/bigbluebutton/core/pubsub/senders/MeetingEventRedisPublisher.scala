@@ -6,6 +6,8 @@ import scala.collection.immutable.HashMap
 import com.google.gson.Gson
 import scala.collection.JavaConverters._
 import org.bigbluebutton.common.messages.MessagingConstants
+import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
+import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 
 class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListener2 {
 
@@ -25,8 +27,20 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
       case msg: StartRecording => handleStartRecording(msg)
       case msg: StopRecording => handleStopRecording(msg)
       case msg: GetAllMeetingsReply => handleGetAllMeetingsReply(msg)
+      case msg: StartRecordingVoiceConf => handleStartRecordingVoiceConf(msg)
+      case msg: StopRecordingVoiceConf => handleStopRecordingVoiceConf(msg)
       case _ => //println("Unhandled message in MeetingEventRedisPublisher")
     }
+  }
+
+  private def handleStartRecordingVoiceConf(msg: StartRecordingVoiceConf) {
+    val m = new StartRecordingVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId)
+    service.send(MessagingConstants.TO_VOICE_CONF_CHANNEL, m.toJson())
+  }
+
+  private def handleStopRecordingVoiceConf(msg: StopRecordingVoiceConf) {
+    val m = new StopRecordingVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.recordedStream)
+    service.send(MessagingConstants.TO_VOICE_CONF_CHANNEL, m.toJson())
   }
 
   private def handleMeetingDestroyed(msg: MeetingDestroyed) {

@@ -360,9 +360,6 @@ trait UsersApp {
   def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) = {
     log.info("Received user joined voice for user [" + msg.callerIdName + "] userid=[" + msg.userId + "]")
 
-    users.getUsers foreach { tu =>
-      println("*** Users [" + tu + "]")
-    }
     users.getUserWithExternalId(msg.userId) match {
       case Some(user) => {
         val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, true, false, msg.muted, msg.talking)
@@ -374,9 +371,14 @@ trait UsersApp {
         if (meetingMuted)
           outGW.send(new MuteVoiceUser(meetingID, recorded, nu.userID, nu.userID, voiceBridge, nu.voiceUser.userId, meetingMuted))
       }
-      case None => {
-        handleUserJoinedVoiceFromPhone(msg)
-      }
+      case None =>
+        {
+          handleUserJoinedVoiceFromPhone(msg)
+        }
+
+        if (users.numUsersInVoiceConference == 1 && recorded) {
+          outGW.send(new StartRecordingVoiceConf(meetingID, recorded, voiceBridge))
+        }
     }
   }
 
@@ -395,6 +397,10 @@ trait UsersApp {
           val userLeaving = users.removeUser(user.userID)
           userLeaving foreach (u => outGW.send(new UserLeft(meetingID, recorded, u)))
         }
+      }
+
+      if (users.numUsersInVoiceConference == 0 && recorded) {
+        outGW.send(new StopRecordingVoiceConf(meetingID, recorded, voiceBridge, voiceRecordingFilename))
       }
     }
   }
