@@ -21,14 +21,22 @@ Template.whiteboard.helpers
       return ''
 
 Template.whiteboard.events
-  "click .previousSlide":(event) ->
+  'click .previousSlide':(event) ->
     BBB.goToPreviousPage()
 
-  "click .nextSlide":(event) ->
+  'click .nextSlide':(event) ->
     BBB.goToNextPage()
 
   'click .switchSlideButton': (event) ->
     $('.tooltip').hide()
 
-  "click .whiteboardFullscreenButton": (event, template) ->
+  'click .whiteboardFullscreenButton': (event, template) ->
     enterWhiteboardFullscreen()
+
+  'click .exitFullscreenButton': (event, template) ->
+    if document.exitFullscreen
+      document.exitFullscreen()
+    else if document.mozCancelFullScreen
+      document.mozCancelFullScreen()
+    else if document.webkitExitFullscreen
+      document.webkitExitFullscreen()

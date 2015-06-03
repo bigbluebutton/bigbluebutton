@@ -223,12 +223,16 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   $('#chat').addClass('invisible')
   $('#users').addClass('invisible')
   $('#navbar').addClass('invisible')
+  $('.fullscreenButton').removeClass('whiteboardFullscreenButton')
+  $('.fullscreenButton').addClass('exitFullscreenButton')
   $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
     if document.webkitFullscreenElement is null
       $('#whiteboard').unbind('webkitfullscreenchange')
       $('#chat').removeClass('invisible')
       $('#users').removeClass('invisible')
       $('#navbar').removeClass('invisible')
+      $('.fullscreenButton').removeClass('exitFullscreenButton')
+      $('.fullscreenButton').addClass('whiteboardFullscreenButton')
       redrawWhiteboard()
   $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
     if document.mozFullScreenElement is null
@@ -236,6 +240,8 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       $('#chat').removeClass('invisible')
       $('#users').removeClass('invisible')
       $('#navbar').removeClass('invisible')
+      $('.fullscreenButton').removeClass('exitFullscreenButton')
+      $('.fullscreenButton').addClass('whiteboardFullscreenButton')
       redrawWhiteboard()
 
 @closePushMenus = ->
