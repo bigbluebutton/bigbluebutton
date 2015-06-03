@@ -210,6 +210,16 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @toggleMenu = ->
   setInSession 'display_menu', !getInSession 'display_menu'
 
+@removeFullscreenStyles = ->
+  $('#whiteboard-paper').removeClass('verticallyCentered')
+  $('#chat').removeClass('invisible')
+  $('#users').removeClass('invisible')
+  $('#navbar').removeClass('invisible')
+  $('.fullscreenButton').removeClass('exitFullscreenButton')
+  $('.fullscreenButton').addClass('whiteboardFullscreenButton')
+  $('.fullscreenButton i').removeClass('ion-arrow-shrink')
+  $('.fullscreenButton i').addClass('ion-arrow-expand')
+
 @enterWhiteboardFullscreen = ->
   element = document.getElementById('whiteboard')
   if element.requestFullscreen
@@ -233,28 +243,14 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
     if document.webkitFullscreenElement is null
       $('#whiteboard').unbind('webkitfullscreenchange')
-      $('#whiteboard-paper').removeClass('verticallyCentered')
-      $('#chat').removeClass('invisible')
-      $('#users').removeClass('invisible')
-      $('#navbar').removeClass('invisible')
-      $('.fullscreenButton').removeClass('exitFullscreenButton')
       $('.fullscreenButton').removeClass('iconChrome')
-      $('.fullscreenButton').addClass('whiteboardFullscreenButton')
-      $('.fullscreenButton i').removeClass('ion-arrow-shrink')
-      $('.fullscreenButton i').addClass('ion-arrow-expand')
+      removeFullscreenStyles()
       redrawWhiteboard()
   $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
     if document.mozFullScreenElement is null
       $(document).unbind('mozfullscreenchange')
-      $('#whiteboard-paper').removeClass('verticallyCentered')
-      $('#chat').removeClass('invisible')
-      $('#users').removeClass('invisible')
-      $('#navbar').removeClass('invisible')
-      $('.fullscreenButton').removeClass('exitFullscreenButton')
       $('.fullscreenButton').removeClass('iconFirefox')
-      $('.fullscreenButton').addClass('whiteboardFullscreenButton')
-      $('.fullscreenButton i').removeClass('ion-arrow-shrink')
-      $('.fullscreenButton i').addClass('ion-arrow-expand')
+      removeFullscreenStyles()
       redrawWhiteboard()
 
 @closePushMenus = ->
