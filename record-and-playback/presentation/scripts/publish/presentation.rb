@@ -27,6 +27,7 @@ require 'trollop'
 require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
+require 'find'
 
 # used to convert the colours to hex
 class String
@@ -782,6 +783,14 @@ def processChatMessages
 	end
 end
 
+def getDirSize(dir_name)
+	size = 0
+	if FileTest.directory?(dir_name)
+		Find.find(dir_name) { |f| size =+ File.size(f); }
+	end
+	size
+end
+
 $vbox_width = 1600
 $vbox_height = 1200
 $magic_mystery_number = 2
@@ -909,6 +918,10 @@ if ($playback == "presentation")
                 real_start_time = match[1]
                 real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
 
+		# Get raw size of presentation files
+		raw_dir = "#{recording_dir}/raw/#{$meeting_id}"
+		raw_size = getDirSize(raw_dir).to_s
+
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
 
@@ -920,7 +933,7 @@ if ($playback == "presentation")
 			b.start_time(real_start_time)
 			b.end_time(real_end_time)
 			# b.size(size)
-			# b.raw_size(raw_size)
+			b.raw_size(raw_size)
 			b.playback {
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")

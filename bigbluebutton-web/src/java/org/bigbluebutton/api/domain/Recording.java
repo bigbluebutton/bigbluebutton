@@ -35,7 +35,7 @@ public class Recording {
 	private String startTime;
 	private String endTime;
 	private String size = " "; // NEW size in bytes of all the files from the particular recording, including raw and published files
-	private String rawSize = " "; // NEW size in bytes of the raw files
+	private String rawSize;
 	private Map<String, String> metadata = new HashMap<String, String>();
 	private ArrayList<Playback> playbacks=new ArrayList<Playback>();
 	

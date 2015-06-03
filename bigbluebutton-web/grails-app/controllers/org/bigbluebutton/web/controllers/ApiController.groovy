@@ -1676,35 +1676,36 @@ class ApiController {
            returncode(RESP_CODE_SUCCESS)
             recordings() {
               recs.values().each { r ->
-                recording() {
+				  recording() {
                   recordID(r.getId())
-                  meetingID(r.getMeetingID())
-                  name('') {
-                    mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
-                  }
+				  meetingID(r.getMeetingID())
+				  name(''){
+					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
+				  }
                   published(r.isPublished())
                   startTime(r.getStartTime())
                   endTime(r.getEndTime())
                   size(r.getSize())
                   rawSize(r.getRawSize())
-                  metadata() {
-                    r.getMetadata().each { k,v ->
-                      "$k"('') {
-                        mkp.yieldUnescaped("<![CDATA[$v]]>")
-                      }
-                    }
-                  }
-                  playback() {
-                    r.getPlaybacks().each { item ->
-                      format {
-                        type(item.getFormat())
-                        url(item.getUrl())
-                        length(item.getLength())
-                        mkp.yield(item.getExtensions())
+				  metadata() {
+					 r.getMetadata().each { k,v ->
+						 "$k"(''){ 
+							 mkp.yieldUnescaped("<![CDATA[$v]]>") 
+						 }
+					 }
+				  }
+				  playback() {
+					  r.getPlaybacks().each { item ->
+						  format{
+							  type(item.getFormat())
+							  url(item.getUrl())
+							  length(item.getLength())
+							  mkp.yield(item.getExtensions())
                         size(item.getSize())
-                      }
-                    }
+						  }
+					  }
                   }
+                  
                 }
               }
             }
