@@ -9,10 +9,15 @@ import org.bigbluebutton.core.apps.presentation.Presentation
 import org.bigbluebutton.core.recorders.VoiceEventRecorder
 import akka.actor.ActorSystem
 import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
+import akka.pattern.{ ask, pipe }
+import akka.util.Timeout
+import scala.concurrent.duration._
+import scala.util.Success
+import scala.util.Failure
 
 class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
-
-  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, outGW), "bigbluebutton-actor")
+  val log = system.log
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, outGW, voiceEventRecorder), "bigbluebutton-actor")
 
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,

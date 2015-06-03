@@ -73,7 +73,6 @@ public class VoiceEventRecorder {
 		evt.setBridge(event.getRoom());
 		evt.setRecordingTimestamp(sre.getTimestamp());
 		evt.setFilename(sre.getRecordingFilename());
-		System.out.println("*** Recording voice " + sre.startRecord() + " timestamp: " + evt.toMap().get("recordingTimestamp") + " file: " + evt.toMap().get("filename"));
 		recorder.record(meetingId, evt);
 	}
 	

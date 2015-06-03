@@ -12,12 +12,20 @@ import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
 import scala.util.Success
 import scala.util.Failure
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.recorders.VoiceEventRecorder
+import org.bigbluebutton.core.recorders.events.VoiceUserJoinedRecordEvent
+import org.bigbluebutton.core.recorders.events.VoiceUserLeftRecordEvent
+import org.bigbluebutton.core.recorders.events.VoiceUserLockedRecordEvent
+import org.bigbluebutton.core.recorders.events.VoiceUserMutedRecordEvent
+import org.bigbluebutton.core.recorders.events.VoiceStartRecordingRecordEvent
+import org.bigbluebutton.core.recorders.events.VoiceUserTalkingRecordEvent
+
 object BigBlueButtonActor extends SystemConfiguration {
-  def props(system: ActorSystem, outGW: MessageOutGateway): Props =
-    Props(classOf[BigBlueButtonActor], system, outGW)
+  def props(system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder): Props =
+    Props(classOf[BigBlueButtonActor], system, outGW, voiceEventRecorder)
 }
 
-class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) extends Actor with ActorLogging {
+class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder) extends Actor with ActorLogging {
   //  def actorRefFactory = system.
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
@@ -45,31 +53,57 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
   }
 
   private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+
+      val recEvent = new VoiceUserJoinedRecordEvent(msg.userId, msg.voiceUserId, msg.voiceConfId,
+        msg.callerIdNum, msg.callerIdName, msg.muted, msg.talking)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+    }
   }
 
   private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+      val recEvent = new VoiceUserLeftRecordEvent(msg.voiceUserId, msg.voiceConfId)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+    }
   }
 
   private def handleUserLockedInVoiceConfMessage(msg: UserLockedInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+      val recEvent = new VoiceUserLockedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.locked)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+    }
   }
 
   private def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+      val recEvent = new VoiceUserMutedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.muted)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+    }
   }
 
   private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
-    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+      val recEvent = new VoiceStartRecordingRecordEvent(msg.voiceConfId, msg.recording)
+      recEvent.setTimestamp(msg.timestamp)
+      recEvent.setRecordingFilename(msg.recordStream)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+    }
 
-    rm foreach { m => m.actorRef ! msg }
   }
 
   private def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
-    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
+      m.actorRef ! msg
+      val recEvent = new VoiceUserTalkingRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.talking)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+    }
 
-    rm foreach { m => m.actorRef ! msg }
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {
