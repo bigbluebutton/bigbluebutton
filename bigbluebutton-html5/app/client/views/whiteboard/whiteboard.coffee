@@ -30,5 +30,5 @@ Template.whiteboard.events
   'click .switchSlideButton': (event) ->
     $('.tooltip').hide()
 
-  "click .fullscreenWhiteboardButton": (event, template) ->
+  "click .whiteboardFullscreenButton": (event, template) ->
     enterWhiteboardFullscreen()
