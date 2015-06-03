@@ -12,15 +12,14 @@ import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
 import scala.util.Success
 import scala.util.Failure
 import org.bigbluebutton.SystemConfiguration
-
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem, outGW: MessageOutGateway): Props =
     Props(classOf[BigBlueButtonActor], system, outGW)
 }
 
 class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) extends Actor with ActorLogging {
-  def actorRefFactory = context
-  implicit def executionContext = actorRefFactory.dispatcher
+  //  def actorRefFactory = system.
+  implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
@@ -46,27 +45,19 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway) exte
   }
 
   private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
-    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
-
-    rm foreach { m => m.actorRef ! msg }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
   }
 
   private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
-    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
-
-    rm foreach { m => m.actorRef ! msg }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
   }
 
   private def handleUserLockedInVoiceConfMessage(msg: UserLockedInVoiceConfMessage) {
-    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
-
-    rm foreach { m => m.actorRef ! msg }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
   }
 
   private def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
-    val rm = findMeetingWithVoiceConfId(msg.voiceConfId)
-
-    rm foreach { m => m.actorRef ! msg }
+    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m => m.actorRef ! msg }
   }
 
   private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {

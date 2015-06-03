@@ -2,18 +2,17 @@ package org.bigbluebutton.core
 
 import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
-import org.bigbluebutton.core.apps.layout.LayoutInGateway
-import org.bigbluebutton.core.apps.chat.ChatInGateway
-import scala.collection.JavaConversions._
-import org.bigbluebutton.core.apps.whiteboard.WhiteboardInGateway
-import org.bigbluebutton.core.apps.voice.VoiceInGateway
 import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
 import org.bigbluebutton.core.recorders.VoiceEventRecorder
+import akka.actor.ActorSystem
+import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 
-class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
+class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
+
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, outGW), "bigbluebutton-actor")
 
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,
@@ -21,22 +20,22 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
     allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String,
     createTime: Long, createDate: String) {
 
-    bbbGW.accept(new CreateMeeting(meetingID, externalMeetingID, meetingName, record,
+    bbbActor ! new CreateMeeting(meetingID, externalMeetingID, meetingName, record,
       voiceBridge, duration, autoStartRecording,
       allowStartStopRecording, moderatorPass, viewerPass,
-      createTime, createDate))
+      createTime, createDate)
   }
 
   def destroyMeeting(meetingID: String) {
-    bbbGW.accept(new DestroyMeeting(meetingID))
+    bbbActor ! new DestroyMeeting(meetingID)
   }
 
   def getAllMeetings(meetingID: String) {
-    bbbGW.accept(new GetAllMeetingsRequest("meetingId"))
+    bbbActor ! new GetAllMeetingsRequest("meetingId")
   }
 
   def isAliveAudit(aliveId: String) {
-    bbbGW.acceptKeepAlive(new KeepAliveMessage(aliveId));
+    bbbActor ! new KeepAliveMessage(aliveId)
   }
 
   def lockSettings(meetingID: String, locked: java.lang.Boolean,
@@ -49,7 +48,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
   }
 
   def endMeeting(meetingID: String) {
-    bbbGW.accept(new EndMeeting(meetingID))
+    bbbActor ! new EndMeeting(meetingID)
   }
 
   def endAllMeetings() {
@@ -62,13 +61,12 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
    * ***********************************************************
    */
   def validateAuthToken(meetingId: String, userId: String, token: String, correlationId: String, sessionId: String) {
-    //    println("******************** VALIDATE TOKEN [" + token + "] ***************************** ")
-    bbbGW.accept(new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId))
+    bbbActor ! new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId)
   }
 
   def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String): Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    bbbGW.accept(new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken))
+    bbbActor ! new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken)
   }
 
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -93,7 +91,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
       lockOnJoin = lockOnJoin,
       lockOnJoinConfigurable = lockOnJoinConfigurable)
 
-    bbbGW.accept(new SetLockSettings(meetingID, userId, permissions))
+    bbbActor ! new SetLockSettings(meetingID, userId, permissions)
   }
 
   def initLockSettings(meetingID: String, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -117,68 +115,68 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
       lockOnJoin = lockOnJoin,
       lockOnJoinConfigurable = lockOnJoinConfigurable)
 
-    bbbGW.accept(new InitLockSettings(meetingID, permissions))
+    bbbActor ! new InitLockSettings(meetingID, permissions)
   }
 
   def initAudioSettings(meetingID: String, requesterID: String, muted: java.lang.Boolean) {
-    bbbGW.accept(new InitAudioSettings(meetingID, requesterID, muted.booleanValue()))
+    bbbActor ! new InitAudioSettings(meetingID, requesterID, muted.booleanValue())
   }
 
   def getLockSettings(meetingId: String, userId: String) {
-    bbbGW.accept(new GetLockSettings(meetingId, userId))
+    bbbActor ! new GetLockSettings(meetingId, userId)
   }
 
   def lockUser(meetingId: String, requesterID: String, lock: Boolean, userId: String) {
-    bbbGW.accept(new LockUserRequest(meetingId, requesterID, userId, lock))
+    bbbActor ! new LockUserRequest(meetingId, requesterID, userId, lock)
   }
 
   def setRecordingStatus(meetingId: String, userId: String, recording: java.lang.Boolean) {
-    bbbGW.accept(new SetRecordingStatus(meetingId, userId, recording.booleanValue()))
+    bbbActor ! new SetRecordingStatus(meetingId, userId, recording.booleanValue())
   }
 
   def getRecordingStatus(meetingId: String, userId: String) {
-    bbbGW.accept(new GetRecordingStatus(meetingId, userId))
+    bbbActor ! new GetRecordingStatus(meetingId, userId)
   }
 
   // Users
   def userRaiseHand(meetingId: String, userId: String) {
-    bbbGW.accept(new UserRaiseHand(meetingId, userId))
+    bbbActor ! new UserRaiseHand(meetingId, userId)
   }
 
   def lowerHand(meetingId: String, userId: String, loweredBy: String) {
-    bbbGW.accept(new UserLowerHand(meetingId, userId, loweredBy))
+    bbbActor ! new UserLowerHand(meetingId, userId, loweredBy)
   }
 
   def ejectUserFromMeeting(meetingId: String, userId: String, ejectedBy: String) {
-    bbbGW.accept(new EjectUserFromMeeting(meetingId, userId, ejectedBy))
+    bbbActor ! new EjectUserFromMeeting(meetingId, userId, ejectedBy)
   }
 
   def shareWebcam(meetingId: String, userId: String, stream: String) {
-    bbbGW.accept(new UserShareWebcam(meetingId, userId, stream))
+    bbbActor ! new UserShareWebcam(meetingId, userId, stream)
   }
 
   def unshareWebcam(meetingId: String, userId: String, stream: String) {
-    bbbGW.accept(new UserUnshareWebcam(meetingId, userId, stream))
+    bbbActor ! new UserUnshareWebcam(meetingId, userId, stream)
   }
 
-  def setUserStatus(meetingID: String, userID: String, status: String, value: Object): Unit = {
-    bbbGW.accept(new ChangeUserStatus(meetingID, userID, status, value));
+  def setUserStatus(meetingID: String, userID: String, status: String, value: Object) {
+    bbbActor ! new ChangeUserStatus(meetingID, userID, status, value)
   }
 
-  def getUsers(meetingID: String, requesterID: String): Unit = {
-    bbbGW.accept(new GetUsers(meetingID, requesterID))
+  def getUsers(meetingID: String, requesterID: String) {
+    bbbActor ! new GetUsers(meetingID, requesterID)
   }
 
   def userLeft(meetingID: String, userID: String, sessionId: String): Unit = {
-    bbbGW.accept(new UserLeaving(meetingID, userID, sessionId))
+    bbbActor ! new UserLeaving(meetingID, userID, sessionId)
   }
 
   def userJoin(meetingID: String, userID: String, authToken: String): Unit = {
-    bbbGW.accept(new UserJoining(meetingID, userID, authToken))
+    bbbActor ! new UserJoining(meetingID, userID, authToken)
   }
 
   def assignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String): Unit = {
-    bbbGW.accept(new AssignPresenter(meetingID, newPresenterID, newPresenterName, assignedBy))
+    bbbActor ! new AssignPresenter(meetingID, newPresenterID, newPresenterName, assignedBy)
   }
 
   def getCurrentPresenter(meetingID: String, requesterID: String): Unit = {
@@ -188,13 +186,13 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
   def userConnectedToGlobalAudio(voiceConf: String, userid: String, name: String) {
     // we are required to pass the meeting_id as first parameter (just to satisfy trait)
     // but it's not used anywhere. That's why we pass voiceConf twice instead
-    bbbGW.accept(new UserConnectedToGlobalAudio(voiceConf, voiceConf, userid, name))
+    bbbActor ! new UserConnectedToGlobalAudio(voiceConf, voiceConf, userid, name)
   }
 
   def userDisconnectedFromGlobalAudio(voiceConf: String, userid: String, name: String) {
     // we are required to pass the meeting_id as first parameter (just to satisfy trait)
     // but it's not used anywhere. That's why we pass voiceConf twice instead
-    bbbGW.accept(new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name))
+    bbbActor ! new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name)
   }
 
   /**
@@ -204,27 +202,19 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
    */
 
   def clear(meetingID: String) {
-    bbbGW.accept(new ClearPresentation(meetingID))
+    bbbActor ! new ClearPresentation(meetingID)
   }
 
-  def sendConversionUpdate(messageKey: String, meetingId: String,
-    code: String, presentationId: String, presName: String) {
-    bbbGW.accept(new PresentationConversionUpdate(meetingId, messageKey,
-      code, presentationId, presName))
+  def sendConversionUpdate(messageKey: String, meetingId: String, code: String, presentationId: String, presName: String) {
+    bbbActor ! new PresentationConversionUpdate(meetingId, messageKey, code, presentationId, presName)
   }
 
-  def sendPageCountError(messageKey: String, meetingId: String,
-    code: String, presentationId: String, numberOfPages: Int,
-    maxNumberPages: Int, presName: String) {
-    bbbGW.accept(new PresentationPageCountError(meetingId, messageKey,
-      code, presentationId, numberOfPages, maxNumberPages, presName))
+  def sendPageCountError(messageKey: String, meetingId: String, code: String, presentationId: String, numberOfPages: Int, maxNumberPages: Int, presName: String) {
+    bbbActor ! new PresentationPageCountError(meetingId, messageKey, code, presentationId, numberOfPages, maxNumberPages, presName)
   }
 
-  def sendSlideGenerated(messageKey: String, meetingId: String,
-    code: String, presentationId: String, numberOfPages: Int,
-    pagesCompleted: Int, presName: String) {
-    bbbGW.accept(new PresentationSlideGenerated(meetingId, messageKey,
-      code, presentationId, numberOfPages, pagesCompleted, presName))
+  def sendSlideGenerated(messageKey: String, meetingId: String, code: String, presentationId: String, numberOfPages: Int, pagesCompleted: Int, presName: String) {
+    bbbActor ! new PresentationSlideGenerated(meetingId, messageKey, code, presentationId, numberOfPages, pagesCompleted, presName)
   }
 
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.HashMap[String, Page] = {
@@ -249,46 +239,41 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
     pages
   }
 
-  def sendConversionCompleted(messageKey: String, meetingId: String,
-    code: String, presentationId: String, numPages: Int,
-    presName: String, presBaseUrl: String) {
-    //	  println("******************** PRESENTATION CONVERSION COMPLETED MESSAGE ***************************** ")
-    val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
+  def sendConversionCompleted(messageKey: String, meetingId: String, code: String, presentationId: String, numPages: Int, presName: String, presBaseUrl: String) {
 
+    val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
     val presentation = new Presentation(id = presentationId, name = presName, pages = pages)
-    bbbGW.accept(new PresentationConversionCompleted(meetingId, messageKey,
-      code, presentation))
+    bbbActor ! new PresentationConversionCompleted(meetingId, messageKey, code, presentation)
 
   }
 
   def removePresentation(meetingID: String, presentationID: String) {
-    bbbGW.accept(new RemovePresentation(meetingID, presentationID))
+    bbbActor ! new RemovePresentation(meetingID, presentationID)
   }
 
   def getPresentationInfo(meetingID: String, requesterID: String, replyTo: String) {
-    //	  println("**** Forwarding GetPresentationInfo for meeting[" + meetingID + "] ****")
-    bbbGW.accept(new GetPresentationInfo(meetingID, requesterID, replyTo))
+    bbbActor ! new GetPresentationInfo(meetingID, requesterID, replyTo)
   }
 
   def sendCursorUpdate(meetingID: String, xPercent: Double, yPercent: Double) {
-    bbbGW.accept(new SendCursorUpdate(meetingID, xPercent, yPercent))
+    bbbActor ! new SendCursorUpdate(meetingID, xPercent, yPercent)
   }
 
   def resizeAndMoveSlide(meetingID: String, xOffset: Double, yOffset: Double, widthRatio: Double, heightRatio: Double) {
-    bbbGW.accept(new ResizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio))
+    bbbActor ! new ResizeAndMoveSlide(meetingID, xOffset, yOffset, widthRatio, heightRatio)
   }
 
   def gotoSlide(meetingID: String, pageId: String) {
     //	  println("**** Forwarding GotoSlide for meeting[" + meetingID + "] ****")
-    bbbGW.accept(new GotoSlide(meetingID, pageId))
+    bbbActor ! new GotoSlide(meetingID, pageId)
   }
 
   def sharePresentation(meetingID: String, presentationID: String, share: Boolean) {
-    bbbGW.accept(new SharePresentation(meetingID, presentationID, share))
+    bbbActor ! new SharePresentation(meetingID, presentationID, share)
   }
 
   def getSlideInfo(meetingID: String, requesterID: String, replyTo: String) {
-    bbbGW.accept(new GetSlideInfo(meetingID, requesterID, replyTo))
+    bbbActor ! new GetSlideInfo(meetingID, requesterID, replyTo)
   }
 
   /**
@@ -296,20 +281,21 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
    * Message Interface for Layout
    * *******************************************************************
    */
-  val layoutGW = new LayoutInGateway(bbbGW)
 
   def getCurrentLayout(meetingID: String, requesterID: String) {
-    layoutGW.getCurrentLayout(meetingID, requesterID)
+    bbbActor ! new GetCurrentLayoutRequest(meetingID, requesterID)
   }
 
   def broadcastLayout(meetingID: String, requesterID: String, layout: String) {
-    layoutGW.broadcastLayout(meetingID, requesterID, layout)
+    bbbActor ! new BroadcastLayoutRequest(meetingID, requesterID, layout)
   }
 
-  def lockLayout(meetingId: String, setById: String,
-    lock: Boolean, viewersOnly: Boolean,
-    layout: String) {
-    layoutGW.lockLayout(meetingId, setById, lock, viewersOnly, layout)
+  def lockLayout(meetingId: String, setById: String, lock: Boolean, viewersOnly: Boolean, layout: String) {
+    if (layout != null) {
+      bbbActor ! new LockLayoutRequest(meetingId, setById, lock, viewersOnly, Some(layout))
+    } else {
+      bbbActor ! new LockLayoutRequest(meetingId, setById, lock, viewersOnly, None)
+    }
 
   }
 
@@ -318,19 +304,18 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
    * Message Interface for Chat
    * *****************************************************************
    */
-  val chatGW = new ChatInGateway(bbbGW)
 
   def getChatHistory(meetingID: String, requesterID: String, replyTo: String) {
-    chatGW.getChatHistory(meetingID, requesterID, replyTo)
+    bbbActor ! new GetChatHistoryRequest(meetingID, requesterID, replyTo)
   }
 
   def sendPublicMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
     // Convert java Map to Scala Map, then convert Mutable map to immutable map
-    chatGW.sendPublicMessage(meetingID, requesterID, mapAsScalaMap(message).toMap)
+    bbbActor ! new SendPublicMessageRequest(meetingID, requesterID, mapAsScalaMap(message).toMap)
   }
 
   def sendPrivateMessage(meetingID: String, requesterID: String, message: java.util.Map[String, String]) {
-    chatGW.sendPrivateMessage(meetingID, requesterID, mapAsScalaMap(message).toMap)
+    bbbActor ! new SendPrivateMessageRequest(meetingID, requesterID, mapAsScalaMap(message).toMap)
   }
 
   /**
@@ -338,30 +323,51 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
    * Message Interface for Whiteboard
    * *****************************************************************
    */
-  val wbGW = new WhiteboardInGateway(bbbGW)
+  private def buildAnnotation(annotation: Map[String, Object]): Option[AnnotationVO] = {
+    var shape: Option[AnnotationVO] = None
+
+    val id = annotation.getOrElse("id", null).asInstanceOf[String]
+    val shapeType = annotation.getOrElse("type", null).asInstanceOf[String]
+    val status = annotation.getOrElse("status", null).asInstanceOf[String]
+    val wbId = annotation.getOrElse("whiteboardId", null).asInstanceOf[String]
+    //    println("** GOT ANNOTATION status[" + status + "] shape=[" + shapeType + "]");
+
+    if (id != null && shapeType != null && status != null && wbId != null) {
+      shape = Some(new AnnotationVO(id, status, shapeType, annotation.toMap, wbId))
+    }
+
+    shape
+  }
 
   def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: java.util.Map[String, Object]) {
-    wbGW.sendWhiteboardAnnotation(meetingID, requesterID, mapAsScalaMap(annotation).toMap)
+    val ann = mapAsScalaMap(annotation).toMap
+
+    buildAnnotation(ann) match {
+      case Some(shape) => {
+        bbbActor ! new SendWhiteboardAnnotationRequest(meetingID, requesterID, shape)
+      }
+      case None => // do nothing
+    }
   }
 
-  def requestWhiteboardAnnotationHistory(meetingID: String, requestedID: String, whiteboardId: String, replyTo: String) {
-    wbGW.requestWhiteboardAnnotationHistory(meetingID, requestedID, whiteboardId, replyTo)
+  def requestWhiteboardAnnotationHistory(meetingID: String, requesterID: String, whiteboardId: String, replyTo: String) {
+    bbbActor ! new GetWhiteboardShapesRequest(meetingID, requesterID, whiteboardId, replyTo)
   }
 
-  def clearWhiteboard(meetingID: String, requestedID: String, whiteboardId: String) {
-    wbGW.clearWhiteboard(meetingID, requestedID, whiteboardId);
+  def clearWhiteboard(meetingID: String, requesterID: String, whiteboardId: String) {
+    bbbActor ! new ClearWhiteboardRequest(meetingID, requesterID, whiteboardId)
   }
 
-  def undoWhiteboard(meetingID: String, requestedID: String, whiteboardId: String) {
-    wbGW.undoWhiteboard(meetingID, requestedID, whiteboardId)
+  def undoWhiteboard(meetingID: String, requesterID: String, whiteboardId: String) {
+    bbbActor ! new UndoWhiteboardRequest(meetingID, requesterID, whiteboardId)
   }
 
-  def enableWhiteboard(meetingID: String, requestedID: String, enable: java.lang.Boolean) {
-    wbGW.enableWhiteboard(meetingID, requestedID, enable)
+  def enableWhiteboard(meetingID: String, requesterID: String, enable: java.lang.Boolean) {
+    bbbActor ! new EnableWhiteboardRequest(meetingID, requesterID, enable)
   }
 
-  def isWhiteboardEnabled(meetingID: String, requestedID: String, replyTo: String) {
-    wbGW.isWhiteboardEnabled(meetingID, requestedID, replyTo)
+  def isWhiteboardEnabled(meetingID: String, requesterID: String, replyTo: String) {
+    bbbActor ! new IsWhiteboardEnabledRequest(meetingID, requesterID, replyTo)
   }
 
   /**
@@ -369,55 +375,56 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEv
    * Message Interface for Voice
    * *****************************************************************
    */
-  val voiceGW = new VoiceInGateway(bbbGW, voiceEventRecorder)
 
   def muteAllExceptPresenter(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
-    voiceGW.muteAllExceptPresenter(meetingID, requesterID, mute)
+    bbbActor ! new MuteAllExceptPresenterRequest(meetingID, requesterID, mute)
   }
 
   def muteAllUsers(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
-    voiceGW.muteAllUsers(meetingID, requesterID, mute)
+    bbbActor ! new MuteMeetingRequest(meetingID, requesterID, mute)
   }
 
   def isMeetingMuted(meetingID: String, requesterID: String) {
-    voiceGW.isMeetingMuted(meetingID, requesterID)
+    bbbActor ! new IsMeetingMutedRequest(meetingID, requesterID)
   }
 
   def muteUser(meetingID: String, requesterID: String, userID: String, mute: java.lang.Boolean) {
-    voiceGW.muteUser(meetingID, requesterID, userID, mute)
+    bbbActor ! new MuteUserRequest(meetingID, requesterID, userID, mute)
   }
 
   def lockMuteUser(meetingID: String, requesterID: String, userID: String, lock: java.lang.Boolean) {
-    voiceGW.lockUser(meetingID, requesterID, userID, lock)
+    bbbActor ! new LockUserRequest(meetingID, requesterID, userID, lock)
   }
 
   def ejectUserFromVoice(meetingId: String, userId: String, ejectedBy: String) {
-    voiceGW.ejectUserFromVoice(meetingId, userId, ejectedBy)
+    bbbActor ! new EjectUserFromVoiceRequest(meetingId, userId, ejectedBy)
   }
 
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
     callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
 
-    voiceGW.voiceUserJoined(voiceConfId, voiceUserId, userId, callerIdName, callerIdNum, muted, talking)
+    bbbActor ! new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, callerIdName,
+      callerIdNum, muted, talking)
+
   }
 
   def voiceUserLeft(voiceConfId: String, voiceUserId: String) {
-    voiceGW.voiceUserLeft(voiceConfId, voiceUserId)
+    bbbActor ! new UserLeftVoiceConfMessage(voiceConfId, voiceUserId)
   }
 
   def voiceUserLocked(voiceConfId: String, voiceUserId: String, locked: java.lang.Boolean) {
-    voiceGW.voiceUserLocked(voiceConfId, voiceUserId, locked)
+    bbbActor ! new UserLockedInVoiceConfMessage(voiceConfId, voiceUserId, locked)
   }
 
   def voiceUserMuted(voiceConfId: String, voiceUserId: String, muted: java.lang.Boolean) {
-    voiceGW.voiceUserMuted(voiceConfId, voiceUserId, muted)
+    bbbActor ! new UserMutedInVoiceConfMessage(voiceConfId, voiceUserId, muted)
   }
 
   def voiceUserTalking(voiceConfId: String, voiceUserId: String, talking: java.lang.Boolean) {
-    voiceGW.voiceUserTalking(voiceConfId, voiceUserId, talking)
+    bbbActor ! new UserTalkingInVoiceConfMessage(voiceConfId, voiceUserId, talking)
   }
 
   def voiceRecording(voiceConfId: String, recordingFile: String, timestamp: String, recording: java.lang.Boolean) {
-    voiceGW.voiceRecording(voiceConfId, recordingFile, timestamp, recording)
+    bbbActor ! new VoiceConfRecordingStartedMessage(voiceConfId, recordingFile, recording, timestamp)
   }
 }
