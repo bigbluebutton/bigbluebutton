@@ -18,13 +18,21 @@
 */
 package org.bigbluebutton.core.service.recorder;
 
+import org.apache.commons.pool.impl.GenericObjectPool;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 public class RedisDispatcher implements Recorder {
 
 	private static final String COLON=":";
-	JedisPool redisPool;
+	private JedisPool redisPool;
+	private GenericObjectPoolConfigWrapper config;
+	
+	public RedisDispatcher(String host, int port, String password) {
+		setupConfig();
+		redisPool = new JedisPool(config.getConfig(), host, port);
+	}
 		
 	@Override
 	public void record(String session, RecordEvent message) {		
@@ -37,14 +45,19 @@ public class RedisDispatcher implements Recorder {
 			redisPool.returnResource(jedis);
 		}						
 	}
-	
-	public JedisPool getRedisPool() {
-		return redisPool;
+		
+	private void setupConfig() {
+		config = new GenericObjectPoolConfigWrapper();
+		config.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_FAIL);
+		config.setMaxActive(12);
+		config.setMaxIdle(6);
+		config.setMinIdle(1);
+		config.setTestOnBorrow(true);
+		config.setTestOnReturn(true);
+		config.setTestWhileIdle(true);
+		config.setNumTestsPerEvictionRun(12);
+		config.setTimeBetweenEvictionRunsMillis(60000);
+		config.setMaxWait(5000);
 	}
-
-	public void setRedisPool(JedisPool redisPool) {
-		this.redisPool = redisPool;
-	}
-	
 
 }

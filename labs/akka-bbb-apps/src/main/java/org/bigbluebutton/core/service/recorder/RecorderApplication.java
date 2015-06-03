@@ -22,7 +22,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.bigbluebutton.service.recording.RedisListRecorder;
 
 /**
  * 
@@ -36,15 +35,14 @@ public class RecorderApplication {
 	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
 	private static final Executor runExec = Executors.newFixedThreadPool(NTHREADS);
 	
-	private BlockingQueue<RecordEvent> messages;
+	private final BlockingQueue<RecordEvent> messages;
 	private volatile boolean recordEvents = false;
-
-  private RedisListRecorder redisListRecorder;
   
-	private Recorder recorder;
+	private final Recorder recorder;
 	
-	public RecorderApplication() {
-		 messages = new LinkedBlockingQueue<RecordEvent>();
+	public RecorderApplication(Recorder recorder) {
+		this.recorder = recorder;
+		messages = new LinkedBlockingQueue<RecordEvent>();
 	}
 
 	public void start() {
@@ -91,13 +89,6 @@ public class RecorderApplication {
 		};
 		runExec.execute(task);
 	}
-	
-	public void setRecorder(Recorder recorder) {
-		this.recorder = recorder;
-	}
-	
-	public void setRedisListRecorder(RedisListRecorder rec) {
-		redisListRecorder = rec;
-	}
+		
 }
 

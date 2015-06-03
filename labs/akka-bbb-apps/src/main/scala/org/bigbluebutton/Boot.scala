@@ -15,6 +15,13 @@ import org.bigbluebutton.core.MessageSender
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
 import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.pubsub.senders._
+import org.bigbluebutton.core.service.recorder.RedisDispatcher
+import org.bigbluebutton.core.service.recorder.RecorderApplication
+import org.bigbluebutton.core.recorders.VoiceEventRecorder
+import org.bigbluebutton.core.recorders.ChatEventRedisRecorder
+import org.bigbluebutton.core.recorders.PresentationEventRedisRecorder
+import org.bigbluebutton.core.recorders.UsersEventRedisRecorder
+import org.bigbluebutton.core.recorders.WhiteboardEventRedisRecorder
 
 object Boot extends App with SystemConfiguration {
 
@@ -23,22 +30,37 @@ object Boot extends App with SystemConfiguration {
   val redisPublisher = new RedisPublisher(system)
   val msgSender = new MessageSender(redisPublisher)
 
+  val redisDispatcher = new RedisDispatcher(redisHost, redisPort, redisPassword)
+  val recorderApp = new RecorderApplication(redisDispatcher)
+  recorderApp.start()
+
+  val voiceEventRecorder = new VoiceEventRecorder(recorderApp)
+
+  val chatEventRecorder = new ChatEventRedisRecorder(recorderApp)
+  val presentationEventRecorder = new PresentationEventRedisRecorder(recorderApp)
+  val usersEventRecorder = new UsersEventRedisRecorder(recorderApp)
+  val whiteboardEventRecorder = new WhiteboardEventRedisRecorder(recorderApp)
+
   val chatSender = new ChatEventRedisPublisher(msgSender)
   val meetingSender = new MeetingEventRedisPublisher(msgSender)
   val presSender = new PresentationEventRedisPublisher(msgSender)
   val userSender = new UsersEventRedisPublisher(msgSender)
   val whiteboardSender = new WhiteboardEventRedisPublisher(msgSender)
 
-  val senders = new java.util.ArrayList[OutMessageListener2]()
-  senders.add(chatSender)
-  senders.add(meetingSender)
-  senders.add(presSender)
-  senders.add(userSender)
-  senders.add(whiteboardSender)
+  val outMessageListeners = new java.util.ArrayList[OutMessageListener2]()
+  outMessageListeners.add(chatSender)
+  outMessageListeners.add(meetingSender)
+  outMessageListeners.add(presSender)
+  outMessageListeners.add(userSender)
+  outMessageListeners.add(whiteboardSender)
+  outMessageListeners.add(chatEventRecorder)
+  outMessageListeners.add(presentationEventRecorder)
+  outMessageListeners.add(usersEventRecorder)
+  outMessageListeners.add(whiteboardEventRecorder)
 
-  val outGW = new MessageOutGateway(senders)
+  val outGW = new MessageOutGateway(outMessageListeners)
   val bbbGW = new BigBlueButtonGateway(system, outGW)
-  val bbbInGW = new BigBlueButtonInGW(bbbGW)
+  val bbbInGW = new BigBlueButtonInGW(bbbGW, voiceEventRecorder)
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")

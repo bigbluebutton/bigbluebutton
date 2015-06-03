@@ -2,8 +2,9 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.core.BigBlueButtonGateway
 import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.recorders.VoiceEventRecorder
 
-class VoiceInGateway(bbbGW: BigBlueButtonGateway) {
+class VoiceInGateway(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEventRecorder) {
 
   def muteAllExceptPresenter(meetingID: String, requesterID: String, mute: Boolean) {
     bbbGW.accept(new MuteAllExceptPresenterRequest(meetingID, requesterID, mute))

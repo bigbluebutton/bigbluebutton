@@ -11,8 +11,9 @@ import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.presentation.Page
 import org.bigbluebutton.core.apps.presentation.Presentation
+import org.bigbluebutton.core.recorders.VoiceEventRecorder
 
-class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW {
+class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
 
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,
@@ -368,7 +369,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway) extends IBigBlueButtonInGW 
    * Message Interface for Voice
    * *****************************************************************
    */
-  val voiceGW = new VoiceInGateway(bbbGW)
+  val voiceGW = new VoiceInGateway(bbbGW, voiceEventRecorder)
 
   def muteAllExceptPresenter(meetingID: String, requesterID: String, mute: java.lang.Boolean) {
     voiceGW.muteAllExceptPresenter(meetingID, requesterID, mute)
