@@ -227,6 +227,8 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   $('#navbar').addClass('invisible')
   $('.fullscreenButton').removeClass('whiteboardFullscreenButton')
   $('.fullscreenButton').addClass('exitFullscreenButton')
+  $('.fullscreenButton i').removeClass('ion-arrow-expand')
+  $('.fullscreenButton i').addClass('ion-arrow-shrink')
   $('#whiteboard-paper').addClass('verticallyCentered')
   $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
     if document.webkitFullscreenElement is null
@@ -238,6 +240,8 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       $('.fullscreenButton').removeClass('exitFullscreenButton')
       $('.fullscreenButton').removeClass('iconChrome')
       $('.fullscreenButton').addClass('whiteboardFullscreenButton')
+      $('.fullscreenButton i').removeClass('ion-arrow-shrink')
+      $('.fullscreenButton i').addClass('ion-arrow-expand')
       redrawWhiteboard()
   $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
     if document.mozFullScreenElement is null
@@ -249,6 +253,8 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       $('.fullscreenButton').removeClass('exitFullscreenButton')
       $('.fullscreenButton').removeClass('iconFirefox')
       $('.fullscreenButton').addClass('whiteboardFullscreenButton')
+      $('.fullscreenButton i').removeClass('ion-arrow-shrink')
+      $('.fullscreenButton i').addClass('ion-arrow-expand')
       redrawWhiteboard()
 
 @closePushMenus = ->
