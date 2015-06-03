@@ -172,10 +172,19 @@
   top: 0;
   right: 0;
   margin-bottom: 0;
+  padding: 0;
   &, &:hover {
     background-color: transparent;
   }
   i {
     color: black;
+  }
+  @media @desktop-portrait, @landscape {
+    height: 50px;
+    width: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 100px;
+    width: 10%;
   }
 }

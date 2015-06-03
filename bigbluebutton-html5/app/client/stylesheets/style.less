@@ -474,8 +474,17 @@ body {
   line-height: 0;
 }
 
-btn {
+.btn {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
   i {
-    font-size: 30px;
+    @media @desktop-portrait, @landscape {
+      font-size: 30px;
+    }
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      font-size: 80px;
+    }
   }
 }
