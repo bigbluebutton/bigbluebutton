@@ -225,9 +225,11 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   $('#navbar').addClass('invisible')
   $('.fullscreenButton').removeClass('whiteboardFullscreenButton')
   $('.fullscreenButton').addClass('exitFullscreenButton')
+  $('#whiteboard-paper').addClass('verticallyCentered')
   $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
     if document.webkitFullscreenElement is null
       $('#whiteboard').unbind('webkitfullscreenchange')
+      $('#whiteboard-paper').removeClass('verticallyCentered')
       $('#chat').removeClass('invisible')
       $('#users').removeClass('invisible')
       $('#navbar').removeClass('invisible')
@@ -237,6 +239,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
     if document.mozFullScreenElement is null
       $(document).unbind('mozfullscreenchange')
+      $('#whiteboard-paper').removeClass('verticallyCentered')
       $('#chat').removeClass('invisible')
       $('#users').removeClass('invisible')
       $('#navbar').removeClass('invisible')
