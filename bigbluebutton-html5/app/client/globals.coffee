@@ -216,8 +216,10 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
     element.requestFullscreen()
   else if element.mozRequestFullScreen
     element.mozRequestFullScreen()
+    $('.fullscreenButton').addClass('iconFirefox') # browser-specific icon sizing
   else if element.webkitRequestFullscreen
     element.webkitRequestFullscreen()
+    $('.fullscreenButton').addClass('iconChrome') # browser-specific icon sizing
   else if element.msRequestFullscreen
     element.msRequestFullscreen()
   $('#chat').addClass('invisible')
@@ -234,6 +236,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       $('#users').removeClass('invisible')
       $('#navbar').removeClass('invisible')
       $('.fullscreenButton').removeClass('exitFullscreenButton')
+      $('.fullscreenButton').removeClass('iconChrome')
       $('.fullscreenButton').addClass('whiteboardFullscreenButton')
       redrawWhiteboard()
   $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
@@ -244,6 +247,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       $('#users').removeClass('invisible')
       $('#navbar').removeClass('invisible')
       $('.fullscreenButton').removeClass('exitFullscreenButton')
+      $('.fullscreenButton').removeClass('iconFirefox')
       $('.fullscreenButton').addClass('whiteboardFullscreenButton')
       redrawWhiteboard()
 
