@@ -37,6 +37,7 @@ require 'recordandplayback/generators/presentation'
 require 'open4'
 require 'pp'
 require 'absolute_time'
+require 'find'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -154,5 +155,13 @@ module BigBlueButton
 
   def self.monotonic_clock()
     return (AbsoluteTime.now * 1000).to_i
+  end
+
+  def self.get_dir_size(dir_name)
+    size = 0
+    if FileTest.directory?(dir_name)
+      Find.find(dir_name) { |f| size =+ File.size(f); }
+    end
+    size
   end
 end
