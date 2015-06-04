@@ -33,7 +33,6 @@ public class ResizeAndMoveSlideMessage implements IPublishedMessage {
 		payload.put(Constants.WIDTH_RATIO, widthRatio);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(RESIZE_AND_MOVE_SLIDE, VERSION, null);
-		System.out.println("ResizeAndMoveSlide toJson");
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -58,7 +57,7 @@ public class ResizeAndMoveSlideMessage implements IPublishedMessage {
 						double yOffset = payload.get(Constants.Y_OFFSET).getAsDouble();
 						double heightRatio = payload.get(Constants.HEIGHT_RATIO).getAsDouble();
 						double widthRatio = payload.get(Constants.WIDTH_RATIO).getAsDouble();
-						System.out.println("ResizeAndMoveSlide fromJson");
+
 						return new ResizeAndMoveSlideMessage(meetingId, xOffset, yOffset, widthRatio, heightRatio);
 					}
 				} 

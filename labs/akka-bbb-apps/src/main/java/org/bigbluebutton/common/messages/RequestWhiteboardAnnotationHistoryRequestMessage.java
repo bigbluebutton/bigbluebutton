@@ -30,7 +30,6 @@ public class RequestWhiteboardAnnotationHistoryRequestMessage implements ISubscr
 		payload.put(Constants.REQUESTER_ID, requesterId);
 		payload.put(Constants.REPLY_TO, replyTo);
 
-		System.out.println("RequestWhiteboardAnnotationHistoryRequestMessage toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(REQUEST_WHITEBOARD_ANNOTATION_HISTORY_REQUEST, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -45,7 +44,7 @@ public class RequestWhiteboardAnnotationHistoryRequestMessage implements ISubscr
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (REQUEST_WHITEBOARD_ANNOTATION_HISTORY_REQUEST.equals(messageName)) {
-					System.out.println("4"+payload.toString());
+
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.WHITEBOARD_ID)
 							&& payload.has(Constants.REPLY_TO)
@@ -55,7 +54,6 @@ public class RequestWhiteboardAnnotationHistoryRequestMessage implements ISubscr
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 
-						System.out.println("RequestWhiteboardAnnotationHistoryRequestMessage fromJson");
 						return new RequestWhiteboardAnnotationHistoryRequestMessage(meetingId, requesterId, whiteboardId, replyTo);
 					}
 				}

@@ -43,7 +43,6 @@ public class SendPrivateChatMessage implements IPublishedMessage {
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_PRIVATE_CHAT_MESSAGE, VERSION, null);
 
-		System.out.println("SendPrivateChatMessage toJson");
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -85,7 +84,7 @@ public class SendPrivateChatMessage implements IPublishedMessage {
 							messageInfo.put(ChatKeyUtil.FROM_USERNAME, msgObj.get(ChatKeyUtil.FROM_USERNAME).getAsString());
 
 							String requesterId = messageInfo.get(ChatKeyUtil.FROM_USERID);
-							System.out.println("SendPrivateChatMessage fromJson");
+
 							return new SendPrivateChatMessage(meetingId, requesterId, messageInfo);
 						} else if (msgObj.has(Constants.CHAT_TYPE) 
 								&& msgObj.has(Constants.MESSAGE)
@@ -107,7 +106,7 @@ public class SendPrivateChatMessage implements IPublishedMessage {
 							messageInfo.put(ChatKeyUtil.FROM_USERNAME, msgObj.get(Constants.FROM_USERNAME).getAsString());
 
 							String requesterId = messageInfo.get(ChatKeyUtil.FROM_USERID);
-							System.out.println("sendPrivateChatMessage fromJson");
+
 							return new SendPrivateChatMessage(meetingId, requesterId, messageInfo);
 						}
 					}

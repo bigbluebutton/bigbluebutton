@@ -67,7 +67,7 @@ public class RegisterUserMessage implements IPublishedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse RegisterUserMessage");
+
 		return null;
 	}
 }

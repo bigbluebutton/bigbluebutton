@@ -45,7 +45,7 @@ public class DisconnectUserMessage implements IPublishedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse DisconnectUserMessage");
+
 		return null;
 	}
 }

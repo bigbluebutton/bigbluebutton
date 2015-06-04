@@ -12,7 +12,6 @@ public class GetLockSettingsMessage implements IPublishedMessage {
 	public final String meetingId;
 	public final String userId;
 
-
 	public GetLockSettingsMessage(String meetingId, String userId) {
 		this.meetingId = meetingId;
 		this.userId = userId;
@@ -23,7 +22,6 @@ public class GetLockSettingsMessage implements IPublishedMessage {
 		payload.put(Constants.MEETING_ID, meetingId);
 		payload.put(Constants.USER_ID, userId);
 
-		System.out.println("GetLockSettings toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_LOCK_SETTINGS, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -43,7 +41,7 @@ public class GetLockSettingsMessage implements IPublishedMessage {
 							&& payload.has(Constants.USER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String userId = payload.get(Constants.USER_ID).getAsString();
-						System.out.println("GetLockSettings fromJson");
+
 						return new GetLockSettingsMessage(meetingId, userId);
 					}
 				}

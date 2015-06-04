@@ -25,10 +25,8 @@ public class MessageFromJsonConverter {
 				  case KeepAliveMessage.KEEP_ALIVE_REQUEST:
 					  return processKeepAlive(payload);
 				  case RegisterUserMessage.REGISTER_USER:
-					  System.out.println("Registering a user");
 					  return RegisterUserMessage.fromJson(message);
 				  case ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN:
-					  System.out.println("Process ValidateAuthTokenMessage.VALIDATE_AUTH_TOKEN");
 					  return processValidateAuthTokenMessage(header, payload);
 					  // return ValidateAuthTokenMessage.fromJson(message);
 				  case UserConnectedToGlobalAudio.USER_CONNECTED_TO_GLOBAL_AUDIO:
@@ -87,5 +85,4 @@ public class MessageFromJsonConverter {
 		return new KeepAliveMessage(id);
 	}
 
-	//private static IMessage processGetAllMeetings(JsonObject)
 }

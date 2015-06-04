@@ -34,7 +34,7 @@ public class SendConversionUpdateMessage implements IPublishedMessage {
 		payload.put(Constants.PRESENTATION_NAME, presName);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_CONVERSION_UPDATE, VERSION, null);
-		System.out.println("SendConversionUpdate toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -59,7 +59,7 @@ public class SendConversionUpdateMessage implements IPublishedMessage {
 						String messageKey = payload.get(Constants.MESSAGE_KEY).getAsString();
 						String presId = payload.get(Constants.PRESENTATION_ID).getAsString();
 						String presName = payload.get(Constants.PRESENTATION_NAME).getAsString();
-						System.out.println("SendConversionUpdate fromJson");
+
 						return new SendConversionUpdateMessage(messageKey, meetingId, code, presId, presName);
 					}
 				} 

@@ -26,7 +26,6 @@ public class GetUsersReplyMessage implements ISubscribedMessage {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
 
-
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_USERS_REPLY, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);				
@@ -60,7 +59,7 @@ public class GetUsersReplyMessage implements ISubscribedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse GetUsersReplyMessage");
+
 		return null;
 	}
 }

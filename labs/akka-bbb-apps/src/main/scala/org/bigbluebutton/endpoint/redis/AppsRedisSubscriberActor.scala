@@ -29,15 +29,11 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: Str
       channels, patterns) {
 
   def onMessage(message: Message) {
-    log.debug(s"message received: $message")
+    log.error(s"SHOULD NOT BE RECEIVING: $message")
   }
 
   def onPMessage(pmessage: PMessage) {
-    log.debug(s"pattern message received: $pmessage")
+    //log.debug(s"RECEIVED:\n $pmessage \n")
     msgReceiver.handleMessage(pmessage.patternMatched, pmessage.channel, pmessage.data)
-  }
-
-  def handleMessage(msg: String) {
-    log.warning("**** TODO: Handle pubsub messages. ****")
   }
 }

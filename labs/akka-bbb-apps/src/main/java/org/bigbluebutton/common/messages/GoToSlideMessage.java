@@ -23,7 +23,7 @@ public class GoToSlideMessage implements IPublishedMessage {
 		payload.put(Constants.PAGE, page);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GO_TO_SLIDE, VERSION, null);
-		System.out.println("GoToSlide toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -43,7 +43,6 @@ public class GoToSlideMessage implements IPublishedMessage {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String page = payload.get(Constants.PAGE).getAsString();
 
-						System.out.println("GoToSlide fromJson");
 						return new GoToSlideMessage(meetingId, page);
 					}
 				}

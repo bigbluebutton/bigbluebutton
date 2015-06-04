@@ -26,7 +26,7 @@ public class GetSlideInfoMessage implements IPublishedMessage {
 		payload.put(Constants.REPLY_TO, replyTo);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_SLIDE_INFO, VERSION, null);
-		System.out.println("GetSlideInfo toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -48,7 +48,6 @@ public class GetSlideInfoMessage implements IPublishedMessage {
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 
-						System.out.println("GetSlideInfo fromJson");
 						return new GetSlideInfoMessage(meetingId, requesterId, replyTo);
 					}
 				}

@@ -50,7 +50,7 @@ public class PresentationRemovedMessage implements ISubscribedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse PesentationRemovedMessage");
+
 		return null;
 	}
 }

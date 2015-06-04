@@ -33,7 +33,6 @@ public class GetWhiteboardShapesReplyMessage implements ISubscribedMessage {
 		payload.put(Constants.WHITEBOARD_ID, whiteboardId);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 
-		System.out.println("GetWhiteboardShapesReplyMessage toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_WHITEBOARD_SHAPES_REPLY, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -61,7 +60,6 @@ public class GetWhiteboardShapesReplyMessage implements ISubscribedMessage {
 						Util util = new Util();
 
 						ArrayList<Map<String, Object>> shapesList = util.extractShapes(shapes);
-						System.out.println("GetWhiteboardShapesReplyMessage fromJson" + shapesList.toString());
 						return new GetWhiteboardShapesReplyMessage(meetingId, requesterId,
 								whiteboardId, shapesList);
 					}

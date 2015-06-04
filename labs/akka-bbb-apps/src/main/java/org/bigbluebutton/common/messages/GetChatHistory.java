@@ -26,7 +26,6 @@ public class GetChatHistory implements IPublishedMessage {
 		payload.put(Constants.REPLY_TO, replyTo);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 
-		System.out.println("GetChatHistory toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_CHAT_HISTORY_REQUEST, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -48,7 +47,6 @@ public class GetChatHistory implements IPublishedMessage {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
-						System.out.println("GetChatHistory fromJson");
 						return new GetChatHistory(meetingId, replyTo, requesterId);
 					}
 				} 

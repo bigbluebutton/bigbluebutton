@@ -34,21 +34,10 @@ public class SendLockSettingsMessage implements IPublishedMessage {
 		settingsMap.put(Constants.LOCK_ON_JOIN, newSettings.get("lockOnJoin"));
 		settingsMap.put(Constants.LOCK_ON_JOIN_CONFIGURABLE, newSettings.get("lockOnJoinConfigurable"));
 
-		
-//		System.out.println("\n\n" + newSettings.toString() + "\n\n");
-//		settingsMap.put(Constants.DISABLE_CAMERA, newSettings.get(Constants.DISABLE_CAMERA));
-//		settingsMap.put(Constants.DISABLE_MICROPHONE, newSettings.get(Constants.DISABLE_MICROPHONE));
-//		settingsMap.put(Constants.DISABLE_PRIVATE_CHAT, newSettings.get(Constants.DISABLE_PRIVATE_CHAT));
-//		settingsMap.put(Constants.DISABLE_PUBLIC_CHAT, newSettings.get(Constants.DISABLE_PUBLIC_CHAT));
-//		settingsMap.put(Constants.LOCKED_LAYOUT, newSettings.get(Constants.LOCKED_LAYOUT));
-//		settingsMap.put(Constants.LOCK_ON_JOIN, newSettings.get(Constants.LOCK_ON_JOIN));
-//		settingsMap.put(Constants.LOCK_ON_JOIN_CONFIGURABLE, newSettings.get(Constants.LOCK_ON_JOIN_CONFIGURABLE));
-
 		payload.put(Constants.MEETING_ID, meetingId);
 		payload.put(Constants.USER_ID, userId);
 		payload.put(Constants.SETTINGS, settingsMap);
 
-		System.out.println("SendLockSettings toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_LOCK_SETTINGS, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -80,14 +69,6 @@ public class SendLockSettingsMessage implements IPublishedMessage {
 
 							Map<String, Boolean> settingsMap = new HashMap<String, Boolean>();
 
-//							settingsMap.put(Constants.DISABLE_CAMERA, settingsObj.get(Constants.DISABLE_CAMERA).getAsBoolean());
-//							settingsMap.put(Constants.DISABLE_MICROPHONE, settingsObj.get(Constants.DISABLE_MICROPHONE).getAsBoolean());
-//							settingsMap.put(Constants.DISABLE_PRIVATE_CHAT, settingsObj.get(Constants.DISABLE_PRIVATE_CHAT).getAsBoolean());
-//							settingsMap.put(Constants.DISABLE_PUBLIC_CHAT, settingsObj.get(Constants.DISABLE_PUBLIC_CHAT).getAsBoolean());
-//							settingsMap.put(Constants.LOCKED_LAYOUT, settingsObj.get(Constants.LOCKED_LAYOUT).getAsBoolean());
-//							settingsMap.put(Constants.LOCK_ON_JOIN, settingsObj.get(Constants.LOCK_ON_JOIN).getAsBoolean());
-//							settingsMap.put(Constants.LOCK_ON_JOIN_CONFIGURABLE, settingsObj.get(Constants.LOCK_ON_JOIN_CONFIGURABLE).getAsBoolean());
-
 							settingsMap.put("disableCam", settingsObj.get(Constants.DISABLE_CAMERA).getAsBoolean());
 							settingsMap.put("disableMic", settingsObj.get(Constants.DISABLE_MICROPHONE).getAsBoolean());
 							settingsMap.put("disablePrivateChat", settingsObj.get(Constants.DISABLE_PRIVATE_CHAT).getAsBoolean());
@@ -99,7 +80,6 @@ public class SendLockSettingsMessage implements IPublishedMessage {
 							String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 							String userId = payload.get(Constants.USER_ID).getAsString();
 
-							System.out.println("SendLockSettings fromJson");
 							return new SendLockSettingsMessage(meetingId, userId, settingsMap);
 						}
 					}

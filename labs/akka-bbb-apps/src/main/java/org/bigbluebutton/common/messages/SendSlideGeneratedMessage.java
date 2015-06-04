@@ -40,7 +40,7 @@ public class SendSlideGeneratedMessage implements IPublishedMessage {
 		payload.put(Constants.PRESENTATION_NAME, presName);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_SLIDE_GENERATED, VERSION, null);
-		System.out.println("SendSlideGenerated toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -70,7 +70,6 @@ public class SendSlideGeneratedMessage implements IPublishedMessage {
 						int pagesCompleted = payload.get(Constants.PAGES_COMPLETED).getAsInt();
 						String presName = payload.get(Constants.PRESENTATION_NAME).getAsString();
 
-						System.out.println("SendSlideGenerated fromJson");
 						return new SendSlideGeneratedMessage(messageKey, meetingId, code, presId, numberOfPages, pagesCompleted, presName);
 					}
 				}

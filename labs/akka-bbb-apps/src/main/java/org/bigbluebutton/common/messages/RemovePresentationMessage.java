@@ -23,7 +23,7 @@ public class RemovePresentationMessage implements IPublishedMessage {
 		payload.put(Constants.PRESENTATION_ID, presentationId);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(REMOVE_PRESENTATION, VERSION, null);
-		System.out.println("RemovePresentation toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -43,7 +43,6 @@ public class RemovePresentationMessage implements IPublishedMessage {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String presentationId = payload.get(Constants.PRESENTATION_ID).getAsString();
 
-						System.out.println("RemovePresentation fromJson");
 						return new RemovePresentationMessage(meetingId, presentationId);
 					}
 				}

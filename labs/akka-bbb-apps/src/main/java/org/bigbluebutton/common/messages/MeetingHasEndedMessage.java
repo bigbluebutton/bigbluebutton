@@ -42,7 +42,7 @@ public class MeetingHasEndedMessage implements ISubscribedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse MeetingHasEndedMessage");
+
 		return null;
 	}
 }

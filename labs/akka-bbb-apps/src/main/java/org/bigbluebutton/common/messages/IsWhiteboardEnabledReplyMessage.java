@@ -27,7 +27,6 @@ public class IsWhiteboardEnabledReplyMessage implements ISubscribedMessage {
 		payload.put(Constants.REQUESTER_ID, requesterId);
 		payload.put(Constants.ENABLED, enabled);
 
-		System.out.println("IsWhiteboardEnabledReplyMessage toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(IS_WHITEBOARD_ENABLED_REPLY, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -42,7 +41,7 @@ public class IsWhiteboardEnabledReplyMessage implements ISubscribedMessage {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (IS_WHITEBOARD_ENABLED_REPLY.equals(messageName)) {
-					System.out.println("4"+payload.toString());
+
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.REQUESTER_ID)
 							&& payload.has(Constants.ENABLED)) {
@@ -50,7 +49,6 @@ public class IsWhiteboardEnabledReplyMessage implements ISubscribedMessage {
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 						boolean enabled = payload.get(Constants.ENABLED).getAsBoolean();
 
-						System.out.println("IsWhiteboardEnabledReplyMessage fromJson");
 						return new IsWhiteboardEnabledReplyMessage(meetingId, requesterId, enabled);
 					}
 				}

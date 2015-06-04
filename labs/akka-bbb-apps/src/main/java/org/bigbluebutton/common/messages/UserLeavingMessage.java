@@ -46,7 +46,7 @@ public class UserLeavingMessage implements ISubscribedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse UserLeavingMessage");
+
 		return null;
 	}
 }

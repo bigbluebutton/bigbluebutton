@@ -27,7 +27,7 @@ public class SharePresentationMessage implements IPublishedMessage {
 		payload.put(Constants.SHARE, share);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SHARE_PRESENTATION, VERSION, null);
-		System.out.println("SharePresentation toJson");
+		
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -49,7 +49,6 @@ public class SharePresentationMessage implements IPublishedMessage {
 						String presentationId = payload.get(Constants.PRESENTATION_ID).getAsString();
 						boolean share = payload.get(Constants.SHARE).getAsBoolean();
 
-						System.out.println("SharePresentation fromJson");
 						return new SharePresentationMessage(meetingId, presentationId, share);
 					}
 				}

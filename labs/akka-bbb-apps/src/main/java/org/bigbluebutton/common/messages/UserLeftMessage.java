@@ -22,7 +22,6 @@ public class UserLeftMessage implements ISubscribedMessage {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
 
-
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(USER_LEFT, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);				
@@ -54,7 +53,7 @@ public class UserLeftMessage implements ISubscribedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse UserLeftMessage");
+
 		return null;
 	}
 }

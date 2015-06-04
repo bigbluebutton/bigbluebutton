@@ -22,7 +22,6 @@ public class InitPermissionsSettingMessage implements ISubscribedMessage {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
 
-
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(INIT_PERMISSIONS_SETTING, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);				
@@ -55,7 +54,7 @@ public class InitPermissionsSettingMessage implements ISubscribedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse NewPermissionsSettingMessage");
+
 		return null;
 	}
 }

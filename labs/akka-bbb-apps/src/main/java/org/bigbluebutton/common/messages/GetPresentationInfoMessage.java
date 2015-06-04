@@ -26,7 +26,7 @@ public class GetPresentationInfoMessage implements IPublishedMessage {
 		payload.put(Constants.REPLY_TO, replyTo);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_PRESENTATION_INFO, VERSION, null);
-		System.out.println("GetPresentationInfo toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -47,7 +47,7 @@ public class GetPresentationInfoMessage implements IPublishedMessage {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
-						System.out.println("GetPresentationInfo fromJson");
+
 						return new GetPresentationInfoMessage(meetingId, requesterId, replyTo);
 					}
 				} 

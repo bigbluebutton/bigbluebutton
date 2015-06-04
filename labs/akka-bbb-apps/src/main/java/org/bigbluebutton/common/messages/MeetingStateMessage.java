@@ -26,7 +26,6 @@ public class MeetingStateMessage implements ISubscribedMessage {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
 
-
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(MEETING_STATE, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);				
@@ -61,7 +60,7 @@ public class MeetingStateMessage implements ISubscribedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse UserJoinedMessage");
+
 		return null;
 	}
 }

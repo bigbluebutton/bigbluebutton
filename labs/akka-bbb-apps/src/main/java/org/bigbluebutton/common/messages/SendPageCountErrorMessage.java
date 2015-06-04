@@ -40,7 +40,7 @@ public class SendPageCountErrorMessage implements IPublishedMessage {
 		payload.put(Constants.PRESENTATION_NAME, presName);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(SEND_PAGE_COUNT_ERROR, VERSION, null);
-		System.out.println("SendPageCountError toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 
@@ -70,7 +70,6 @@ public class SendPageCountErrorMessage implements IPublishedMessage {
 						int maxNumberPages = payload.get(Constants.MAX_NUM_PAGES).getAsInt();
 						String presName = payload.get(Constants.PRESENTATION_NAME).getAsString();
 
-						System.out.println("SendPageCountError fromJson");
 						return new SendPageCountErrorMessage(messageKey, meetingId, code, presId, numberOfPages, maxNumberPages, presName);
 					}
 				}

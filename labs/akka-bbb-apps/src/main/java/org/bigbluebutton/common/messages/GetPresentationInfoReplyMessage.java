@@ -33,7 +33,7 @@ public class GetPresentationInfoReplyMessage implements IPublishedMessage {
 		payload.put(Constants.PRESENTATIONS, presentations);
 		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_PRESENTATION_INFO_REPLY, VERSION, null);
-		System.out.println("GetPresentationInfo toJson");
+
 		return MessageBuilder.buildJson(header, payload);
 	}
 

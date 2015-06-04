@@ -42,7 +42,7 @@ public class GetUsersRequestMessage implements IPublishedMessage {
 							&& payload.has(Constants.REQUESTER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
-						System.out.println("GetChatHistory fromJson");
+
 						return new GetUsersRequestMessage(meetingId, requesterId);
 					}
 				} 

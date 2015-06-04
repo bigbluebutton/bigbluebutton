@@ -35,7 +35,6 @@ public class UndoWhiteboardReplyMessage implements ISubscribedMessage {
 		payload.put(Constants.REQUESTER_ID, requesterId);
 		payload.put(Constants.SHAPE_ID, shapeId);
 
-		System.out.println("UndoWhiteboardReplyMessage toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(UNDO_WHITEBOARD_REPLY, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -59,7 +58,6 @@ public class UndoWhiteboardReplyMessage implements ISubscribedMessage {
 						String shapeId = payload.get(Constants.SHAPE_ID).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
-						System.out.println("UndoWhiteboardReplyMessage fromJson");
 						return new UndoWhiteboardReplyMessage(meetingId, requesterId, whiteboardId, shapeId);
 					}
 				}

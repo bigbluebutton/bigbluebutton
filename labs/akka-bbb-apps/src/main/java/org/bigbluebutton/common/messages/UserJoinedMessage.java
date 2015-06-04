@@ -22,7 +22,6 @@ public class UserJoinedMessage implements ISubscribedMessage {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
 
-
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(USER_JOINED, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);				
@@ -54,7 +53,7 @@ public class UserJoinedMessage implements ISubscribedMessage {
 				}
 			}
 		}
-		System.out.println("Failed to parse UserJoinedMessage");
+
 		return null;
 	}
 }

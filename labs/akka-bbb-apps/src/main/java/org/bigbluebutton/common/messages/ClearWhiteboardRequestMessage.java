@@ -26,7 +26,6 @@ public class ClearWhiteboardRequestMessage implements ISubscribedMessage {
 		payload.put(Constants.WHITEBOARD_ID, whiteboardId);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 
-		System.out.println("ClearWhiteboardRequestMessage toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(CLEAR_WHITEBOARD_REQUEST, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -41,7 +40,7 @@ public class ClearWhiteboardRequestMessage implements ISubscribedMessage {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (CLEAR_WHITEBOARD_REQUEST.equals(messageName)) {
-					System.out.println("4"+payload.toString());
+
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.WHITEBOARD_ID)
 							&& payload.has(Constants.REQUESTER_ID)) {
@@ -49,7 +48,6 @@ public class ClearWhiteboardRequestMessage implements ISubscribedMessage {
 						String whiteboardId = payload.get(Constants.WHITEBOARD_ID).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
-						System.out.println("ClearWhiteboardRequestMessage fromJson");
 						return new ClearWhiteboardRequestMessage(meetingId, requesterId, whiteboardId);
 					}
 				}

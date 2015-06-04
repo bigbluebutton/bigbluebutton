@@ -29,7 +29,6 @@ public class LockUserMessage implements IPublishedMessage {
 		payload.put(Constants.LOCK, lock);
 		payload.put(Constants.INTERNAL_USER_ID, internalUserId);
 
-		System.out.println("LockUser toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(LOCK_USER, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -54,7 +53,6 @@ public class LockUserMessage implements IPublishedMessage {
 						boolean lock = payload.get(Constants.LOCK).getAsBoolean();
 						String internalUserId = payload.get(Constants.INTERNAL_USER_ID).getAsString();
 
-						System.out.println("LockUser fromJson");
 						return new LockUserMessage(meetingId, requesterId, lock, internalUserId);
 					}
 				}

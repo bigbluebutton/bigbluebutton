@@ -29,7 +29,6 @@ public class GetChatHistoryReplyMessage implements ISubscribedMessage {
 		payload.put(Constants.CHAT_HISTORY, chatHistory);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 
-		System.out.println("GetChatHistoryReplyMessage toJson");
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_CHAT_HISTORY_REPLY, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -55,7 +54,7 @@ public class GetChatHistoryReplyMessage implements ISubscribedMessage {
 						Util util = new Util();
 
 						ArrayList<Map<String, Object>> chatHistory = util.extractChatHistory(history);
-						System.out.println("GetChatHistoryReplyMessage fromJson");
+
 						return new GetChatHistoryReplyMessage(meetingId, requesterId, chatHistory);
 					}
 				} 
