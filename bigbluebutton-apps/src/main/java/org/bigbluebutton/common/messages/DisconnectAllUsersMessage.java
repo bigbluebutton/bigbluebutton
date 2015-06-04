@@ -33,8 +33,7 @@ public class DisconnectAllUsersMessage implements IPublishedMessage {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (DISCONNECT_All_USERS.equals(messageName)) {
-					if (payload.has(Constants.MEETING_ID)
-							&& payload.has(Constants.USER_ID)) {
+					if (payload.has(Constants.MEETING_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 
 						return new 	DisconnectAllUsersMessage(meetingId);					
