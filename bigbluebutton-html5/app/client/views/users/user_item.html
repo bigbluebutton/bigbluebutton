@@ -9,16 +9,16 @@
     {{else}}
       {{#if isCurrentUser userId}}
         {{#if isUserMuted userId}}
-          <span rel="tooltip" data-placement="bottom" title="Unmute yourself">
+          <span class="muteIcon" rel="tooltip" data-placement="bottom" title="Unmute yourself">
             <i class="ion-ios-mic-off usericon"></i>
           </span>
         {{else}}
           {{#if isCurrentUserTalking}}
-            <span rel="tooltip" data-placement="bottom" title="you are talking">
+            <span class="muteIcon" rel="tooltip" data-placement="bottom" title="you are talking">
               <i class="ion-ios-mic usericon"></i>
             </span>
           {{else}}
-          <span rel="tooltip" data-placement="bottom" title="you are talking">
+          <span class="muteIcon" rel="tooltip" data-placement="bottom" title="you are talking">
             <i class="ion-ios-mic-outline usericon"></i>
           </span>
           {{/if}}
