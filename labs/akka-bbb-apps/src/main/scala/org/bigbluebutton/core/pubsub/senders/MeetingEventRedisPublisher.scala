@@ -35,12 +35,14 @@ class MeetingEventRedisPublisher(service: MessageSender) extends OutMessageListe
 
   private def handleStartRecordingVoiceConf(msg: StartRecordingVoiceConf) {
     val m = new StartRecordingVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId)
-    service.send(MessagingConstants.TO_VOICE_CONF_CHANNEL, m.toJson())
+    System.out.println("*******************\n" + m.toJson())
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
   }
 
   private def handleStopRecordingVoiceConf(msg: StopRecordingVoiceConf) {
     val m = new StopRecordingVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.recordedStream)
-    service.send(MessagingConstants.TO_VOICE_CONF_CHANNEL, m.toJson())
+    System.out.println("*******************\n" + m.toJson())
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
   }
 
   private def handleMeetingDestroyed(msg: MeetingDestroyed) {

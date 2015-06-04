@@ -357,6 +357,13 @@ trait UsersApp {
     }
   }
 
+  def startRecordingVoiceConference() {
+    if (users.numUsersInVoiceConference == 1 && recorded) {
+      log.info("********** Send START RECORDING [" + voiceBridge + "]")
+      outGW.send(new StartRecordingVoiceConf(meetingID, recorded, voiceBridge))
+    }
+  }
+
   def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) = {
     log.info("Received user joined voice for user [" + msg.callerIdName + "] userid=[" + msg.userId + "]")
 
@@ -368,17 +375,23 @@ trait UsersApp {
         log.info("User joined voice for user [" + nu.name + "] userid=[" + msg.userId + "]")
         outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, nu))
 
-        if (meetingMuted)
+        if (meetingMuted) {
           outGW.send(new MuteVoiceUser(meetingID, recorded, nu.userID, nu.userID, voiceBridge, nu.voiceUser.userId, meetingMuted))
-      }
-      case None =>
-        {
-          handleUserJoinedVoiceFromPhone(msg)
         }
 
-        if (users.numUsersInVoiceConference == 1 && recorded) {
-          outGW.send(new StartRecordingVoiceConf(meetingID, recorded, voiceBridge))
-        }
+        startRecordingVoiceConference()
+      }
+      case None => {
+        handleUserJoinedVoiceFromPhone(msg)
+        startRecordingVoiceConference()
+      }
+    }
+  }
+
+  def stopRecordingVoiceConference() {
+    if (users.numUsersInVoiceConference == 0 && recorded) {
+      log.info("********** Send STOP RECORDING [" + voiceBridge + "]")
+      outGW.send(new StopRecordingVoiceConf(meetingID, recorded, voiceBridge, voiceRecordingFilename))
     }
   }
 
@@ -399,9 +412,7 @@ trait UsersApp {
         }
       }
 
-      if (users.numUsersInVoiceConference == 0 && recorded) {
-        outGW.send(new StopRecordingVoiceConf(meetingID, recorded, voiceBridge, voiceRecordingFilename))
-      }
+      stopRecordingVoiceConference()
     }
   }
 

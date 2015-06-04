@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 
 
 public class StartRecordingVoiceConfRequestMessage {
-	public static final String START_RECORD_VOICE_CONF_REQUEST  = "start_recording__voice_conf_request_message";
+	public static final String START_RECORD_VOICE_CONF_REQUEST  = "start_recording_voice_conf_request_message";
 	public static final String VERSION = "0.0.1";
 	
 	public static final String MEETING_ID = "meeting_id";

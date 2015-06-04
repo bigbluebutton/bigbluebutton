@@ -24,6 +24,8 @@ public class RedisMessageReceiver {
 	}
 	
 	public void handleMessage(String pattern, String channel, String message) {
+		System.out.println("************* Received: \n" + message + "\n*************************");
+		
 		if (channel.equalsIgnoreCase(TO_VOICE_CONF_SYSTEM_CHAN)) {
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
