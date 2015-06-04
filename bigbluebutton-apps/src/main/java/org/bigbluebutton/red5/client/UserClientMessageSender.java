@@ -356,8 +356,7 @@ public class UserClientMessageSender {
 		message.put("msg", gson.toJson(args));
 	  	    
 	  	System.out.println("RedisPubSubMessageHandler - processUserStatusChangedMessage \n" + message.get("msg") + "\n");
-		
-	  	    
+			  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantStatusChange", message);
 		service.sendMessage(m);
 	}
