@@ -1,4 +1,5 @@
 package org.bigbluebutton.web.user.views {
+	import mx.controls.Button;
 	import mx.core.ClassFactory;
 	
 	import org.apache.flex.collections.ArrayList;
@@ -9,6 +10,7 @@ package org.bigbluebutton.web.user.views {
 	
 	public class UserWindow extends BBBWindow {
 		public var usersGrid:UserDataGrid;
+		public var raiseHandButton:Button;
 		
 		private var _lowerHandSignal:Signal;
 		public function get lowerHandSignal():Signal {
@@ -67,6 +69,15 @@ package org.bigbluebutton.web.user.views {
 			usersGrid.columns = cols;
 			
 			addElement(usersGrid);
+			
+			controlBarContent = new Array();
+			
+			raiseHandButton = new Button();
+			raiseHandButton.toggle = true;
+			raiseHandButton.styleName = "raiseHandButtonStyle";
+			raiseHandButton.width = 30;
+			raiseHandButton.height = 30;
+			controlBarContent.push(raiseHandButton);
 		}
 	}
 }

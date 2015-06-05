@@ -41,6 +41,10 @@ s|RichEditableText.msgTextStyle {
 	paddingBottom: 2;
 }
 
+.raiseHandButtonStyle {
+	icon: Embed(source="assets/images/hand.png");
+}
+
 .userButtonStyle {
 	
 }
