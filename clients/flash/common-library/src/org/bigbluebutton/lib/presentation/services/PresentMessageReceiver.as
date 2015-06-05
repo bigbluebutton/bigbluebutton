@@ -121,7 +121,7 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		private function handlePresentationCursorUpdateCommand(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			trace("PresentMessageReceiver::handlePresentationCursorUpdateCommand() -- cursing moving [" + msg.xPercent + ", " + msg.yPercent + "]");
+			trace("PresentMessageReceiver::handlePresentationCursorUpdateCommand() -- cursor moving [" + msg.xPercent + ", " + msg.yPercent + "]");
 		/* Properties of msg:
 		   xPercent
 		   yPercent

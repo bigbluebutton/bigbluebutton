@@ -77,20 +77,20 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.raiseHand();
 		}
 		
-		public function lowerHand(userID:String, loweredBy:String):void {
-			usersMessageSender.lowerHand(userID, loweredBy);
+		public function lowerHand(userID:String):void {
+			usersMessageSender.lowerHand(userID, userSession.userId);
 		}
 		
 		public function kickUser(userID:String):void {
-			usersMessageSender.kickUser(userID);
+			usersMessageSender.kickUser(userID, userSession.userId);
 		}
 		
 		public function queryForParticipants():void {
 			usersMessageSender.queryForParticipants();
 		}
 		
-		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
-			usersMessageSender.assignPresenter(userid, name, assignedBy);
+		public function assignPresenter(userid:String, name:String):void {
+			usersMessageSender.assignPresenter(userid, name, userSession.userId);
 		}
 		
 		public function queryForRecordingStatus():void {

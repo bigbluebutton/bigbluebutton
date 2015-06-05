@@ -24,7 +24,7 @@ package org.bigbluebutton.lib.main.commands {
 				userService.raiseHand();
 			} else {
 				trace("RaiseHandCommand.execute() - hand lowered for user " + userId + " by user " + userId);
-				userService.lowerHand(userId, userSession.userId);
+				userService.lowerHand(userId);
 			}
 		}
 	}

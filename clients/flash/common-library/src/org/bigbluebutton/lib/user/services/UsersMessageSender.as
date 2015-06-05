@@ -13,11 +13,12 @@ package org.bigbluebutton.lib.user.services {
 		public function UsersMessageSender() {
 		}
 		
-		public function kickUser(userID:String):void {
+		public function kickUser(userID:String, ejectedBy:String):void {
 			trace("UsersMessageSender::kickUser() -- Sending [participants.kickUser] message to server.. with message [userID:" + userID + "]");
 			var message:Object = new Object();
-			message["userID"] = userID;
-			userSession.mainConnection.sendMessage("participants.kickUser", defaultSuccessResponse, defaultFailureResponse, message);
+			message["userId"] = userID;
+			message["ejectedBy"] = ejectedBy;
+			userSession.mainConnection.sendMessage("participants.ejectUserFromMeeting", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function queryForParticipants():void {

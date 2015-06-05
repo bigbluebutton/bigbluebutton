@@ -3,22 +3,49 @@ package org.bigbluebutton.web.user.views {
 	
 	import org.apache.flex.collections.ArrayList;
 	import org.bigbluebutton.web.window.views.BBBWindow;
+	import org.osflash.signals.Signal;
 	
-	import spark.components.DataGrid;
 	import spark.components.gridClasses.GridColumn;
 	
 	public class UserWindow extends BBBWindow {
-		public var usersGrid:DataGrid;
+		public var usersGrid:UserDataGrid;
+		
+		private var _lowerHandSignal:Signal;
+		public function get lowerHandSignal():Signal {
+			return _lowerHandSignal;
+		}
+		
+		private var _changePresenterSignal:Signal;
+		public function get changePresenterSignal():Signal {
+			return _changePresenterSignal;
+		}
+		
+		private var _changeMuteSignal:Signal;
+		public function get changeMuteSignal():Signal {
+			return _changeMuteSignal;
+		}
+		
+		private var _kickUserSignal:Signal;
+		public function get kickUserSignal():Signal {
+			return _kickUserSignal;
+		}
 		
 		public function UserWindow() {
 			super();
+			
+			_lowerHandSignal = new Signal();
+			_changePresenterSignal = new Signal();
+			_changeMuteSignal = new Signal();
+			_kickUserSignal = new Signal();
+			
 			title = "Users";
 			width = 300;
 			height = 400;
 			
-			usersGrid = new DataGrid();
+			usersGrid = new UserDataGrid();
 			usersGrid.percentHeight = 100;
 			usersGrid.percentWidth = 100;
+			usersGrid.setupSignals(_lowerHandSignal, _changePresenterSignal, _changeMuteSignal, _kickUserSignal);
 			
 			var cols:ArrayList = new ArrayList();
 			

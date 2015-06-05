@@ -8,7 +8,13 @@ global {
 }
 
 s|Button {
-	skinClass: ClassReference("org.bigbluebutton.web.common.skins.BetterButtonSkin")	
+	skinClass: ClassReference("org.bigbluebutton.web.common.skins.BetterButtonSkin");
+	alpha: 1;
+}
+
+s|Button {
+	skinClass: ClassReference("org.bigbluebutton.web.common.skins.BetterButtonSkin");
+	alpha: 0.5;
 }
 
 s|Label.chatTimeColor {
@@ -36,10 +42,15 @@ s|RichEditableText.msgTextStyle {
 }
 
 .userButtonStyle {
+	
+}
+
+.userButtonStyle:disabled {
 	borderAlpha: 0;
 	backgroundAlpha: 0;
 	highlightAlpha: 0;
 	lowlightAlpha: 0;
+	alpha: 1;
 }
 
 .statusHandStyle {
