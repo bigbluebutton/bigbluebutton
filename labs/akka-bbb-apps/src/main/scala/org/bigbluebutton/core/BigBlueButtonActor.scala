@@ -26,7 +26,6 @@ object BigBlueButtonActor extends SystemConfiguration {
 }
 
 class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder) extends Actor with ActorLogging {
-  //  def actorRefFactory = system.
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
@@ -187,10 +186,8 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
       case None => {
         log.info("New meeting create request [" + msg.meetingName + "]")
         var m = RunningMeeting(msg.meetingID, msg.externalMeetingID, msg.meetingName, msg.recorded,
-          msg.voiceBridge, msg.duration,
-          msg.autoStartRecording, msg.allowStartStopRecording, msg.moderatorPass,
-          msg.viewerPass, msg.createTime, msg.createDate,
-          outGW)
+          msg.voiceBridge, msg.duration, msg.autoStartRecording, msg.allowStartStopRecording, msg.moderatorPass,
+          msg.viewerPass, msg.createTime, msg.createDate, outGW)
 
         meetings += m.meetingID -> m
         outGW.send(new MeetingCreated(m.meetingID, m.externalMeetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration,

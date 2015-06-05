@@ -2,7 +2,6 @@ package org.bigbluebutton.core.pubsub.receivers;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bigbluebutton.common.messages.CreateMeetingMessage;
 import org.bigbluebutton.common.messages.DestroyMeetingMessage;
 import org.bigbluebutton.common.messages.EndMeetingMessage;
@@ -16,10 +15,14 @@ import org.bigbluebutton.common.messages.UserConnectedToGlobalAudio;
 import org.bigbluebutton.common.messages.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
 public class MeetingMessageReceiver implements MessageHandler {
+	private static final Logger LOG = LoggerFactory.getLogger(MeetingMessageReceiver.class);
+	
 	private IBigBlueButtonInGW bbbGW;
 	
 	public MeetingMessageReceiver(IBigBlueButtonInGW bbbGW) {
@@ -27,7 +30,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 	}
 	
 	public void handleMessage(String pattern, String channel, String message) {
-//		System.out.println("Checking message: " + pattern + " " + channel + " " + message);
+		LOG.debug("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
 //			System.out.println("Meeting message: " + channel + " " + message);
 			IPublishedMessage msg = MessageFromJsonConverter.convert(message);

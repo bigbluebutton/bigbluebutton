@@ -43,7 +43,7 @@ libraryDependencies ++= {
 	  "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
 	  "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
 	  "com.typesafe.akka" 	     %%  "akka-slf4j"        % akkaVersion,
-	  "ch.qos.logback"    	      %  "logback-classic"   % "1.0.3",
+	  "ch.qos.logback"    	      %  "logback-classic"   % "1.0.13" % "runtime",
 	  "org.pegdown" 		      %  "pegdown"           % "1.4.0",
 	  "junit" 				      %  "junit"             % "4.11",
 	  "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",

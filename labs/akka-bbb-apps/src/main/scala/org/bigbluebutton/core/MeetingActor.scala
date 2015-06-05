@@ -12,22 +12,17 @@ import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
+import scala.concurrent.duration._
 
 case object StopMeetingActor
 
 object MeetingActor {
   def props(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
-    voiceBridge: String, duration: Long,
-    autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-    moderatorPass: String, viewerPass: String,
-    createTime: Long, createDate: String,
-    outGW: MessageOutGateway): Props =
+    voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
+    moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, outGW: MessageOutGateway): Props =
     Props(classOf[MeetingActor], meetingID, externalMeetingID, meetingName, recorded,
-      voiceBridge, duration,
-      autoStartRecording, allowStartStopRecording,
-      moderatorPass, viewerPass,
-      createTime, createDate,
-      outGW)
+      voiceBridge, duration, autoStartRecording, allowStartStopRecording, moderatorPass, viewerPass,
+      createTime, createDate, outGW)
 }
 
 class MeetingActor(val meetingID: String, val externalMeetingID: String, val meetingName: String, val recorded: Boolean,
@@ -52,6 +47,9 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   var lastWebUserLeftOn: Long = 0
 
   var voiceRecordingFilename: String = ""
+
+  import context.dispatcher
+  context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
 
   // FIXME
   //  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
@@ -177,6 +175,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   }
 
   def handleMonitorNumberOfWebUsers() {
+    println("FOOOOOO!")
     if (users.numWebUsers == 0 && lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - lastWebUserLeftOn > 2) {
         log.info("MonitorNumberOfWebUsers empty for meeting [" + meetingID + "]. Ejecting all users from voice.")

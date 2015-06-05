@@ -6,17 +6,11 @@ import org.bigbluebutton.core.api.MessageOutGateway
 
 object RunningMeeting {
   def apply(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
-    voiceBridge: String, duration: Long,
-    autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-    moderatorPass: String, viewerPass: String,
-    createTime: Long, createDate: String,
+    voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
+    moderatorPass: String, viewerPass: String, createTime: Long, createDate: String,
     outGW: MessageOutGateway)(implicit context: ActorContext) =
-    new RunningMeeting(meetingID, externalMeetingID, meetingName, recorded,
-      voiceBridge, duration,
-      autoStartRecording, allowStartStopRecording,
-      moderatorPass, viewerPass,
-      createTime, createDate,
-      outGW)(context)
+    new RunningMeeting(meetingID, externalMeetingID, meetingName, recorded, voiceBridge, duration,
+      autoStartRecording, allowStartStopRecording, moderatorPass, viewerPass, createTime, createDate, outGW)(context)
 }
 
 class RunningMeeting(val meetingID: String, val externalMeetingID: String, val meetingName: String, val recorded: Boolean,
@@ -27,9 +21,6 @@ class RunningMeeting(val meetingID: String, val externalMeetingID: String, val m
     val outGW: MessageOutGateway)(implicit val context: ActorContext) {
 
   val actorRef = context.actorOf(MeetingActor.props(meetingID, externalMeetingID, meetingName, recorded,
-    voiceBridge, duration,
-    autoStartRecording, allowStartStopRecording,
-    moderatorPass, viewerPass,
-    createTime, createDate,
-    outGW), meetingID)
+    voiceBridge, duration, autoStartRecording, allowStartStopRecording, moderatorPass, viewerPass,
+    createTime, createDate, outGW), meetingID)
 }
