@@ -6,6 +6,7 @@ import redis.RedisClient
 import scala.concurrent.{ Future, Await }
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.bigbluebutton.endpoint.redis.RedisPublisher
+import org.bigbluebutton.endpoint.redis.KeepAliveRedisPublisher
 import org.bigbluebutton.endpoint.redis.AppsRedisSubscriberActor
 import org.bigbluebutton.core.api.MessageOutGateway
 import org.bigbluebutton.core.api.IBigBlueButtonInGW
@@ -62,4 +63,6 @@ object Boot extends App with SystemConfiguration {
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
+
+  val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
 }

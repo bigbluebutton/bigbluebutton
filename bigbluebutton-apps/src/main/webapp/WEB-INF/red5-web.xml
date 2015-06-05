@@ -101,8 +101,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="redisPubSubMessageHandler" class="org.bigbluebutton.red5.pubsub.redis.RedisPubSubMessageHandler">
         <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+        <property name="bbbAppsIsKeepAliveHandler"> <ref bean="bbbAppsIsKeepAliveHandler"/></property>
     </bean>
 
+    <bean id="bbbAppsIsAliveMonitorService" class="org.bigbluebutton.red5.monitoring.BbbAppsIsAliveMonitorService"
+                init-method="start" destroy-method="stop">
+        <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+    </bean>
+
+    <bean id="bbbAppsIsKeepAliveHandler" class="org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler">
+        <property name="bbbAppsIsAliveMonitorService"> <ref bean="bbbAppsIsAliveMonitorService"/></property>
+    </bean>
+    
     <import resource="bbb-redis-pool.xml"/>
     <import resource="bbb-red5-redis-pubsub.xml"/>
 </beans>

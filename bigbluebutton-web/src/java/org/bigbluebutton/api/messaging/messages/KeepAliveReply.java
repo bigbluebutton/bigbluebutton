@@ -1,9 +1,12 @@
 package org.bigbluebutton.api.messaging.messages;
 
 public class KeepAliveReply implements IMessage {
-  public final String pongId;
+	
+  public final Long startedOn;
+  public final Long timestamp;
   
-  public KeepAliveReply(String pongId) {
-  	this.pongId = pongId;
+  public KeepAliveReply(Long startedOn, Long timestamp) {
+  	this.startedOn = startedOn;
+  	this.timestamp = timestamp;
   }
 }

@@ -99,9 +99,27 @@ public class ConnectionInvokerService {
 			handlDisconnectClientMessage((DisconnectClientMessage) message);
 		} else if (message instanceof DisconnectAllClientsMessage) {
 			handleDisconnectAllClientsMessage((DisconnectAllClientsMessage) message);
+		} else if (message instanceof DisconnectAllMessage) {
+			handleDisconnectAllMessage((DisconnectAllMessage) message);
 		}
 	}	
 
+	private void handleDisconnectAllMessage(DisconnectAllMessage msg) {
+		IScope meetingScope = bbbAppScope.getContext().resolveScope("bigbluebutton");
+		
+		if (meetingScope != null) {
+			Set<IConnection> conns = meetingScope.getClientConnections();
+
+			for (IConnection conn : conns) {
+				if (conn.isConnected()) {
+					String connId = (String) conn.getAttribute("INTERNAL_USER_ID");
+					log.info("Disconnecting client=[{}] as bbb-apps isn't running.", connId);
+					conn.close();
+				}
+			}	
+		}		
+	}
+	
 	private void handleDisconnectAllClientsMessage(DisconnectAllClientsMessage msg) {
 		IScope meetingScope = getScope(msg.getMeetingId());
 		if (meetingScope != null) {
