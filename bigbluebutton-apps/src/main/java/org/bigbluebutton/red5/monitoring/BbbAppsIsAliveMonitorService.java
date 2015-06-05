@@ -89,7 +89,7 @@ public class BbbAppsIsAliveMonitorService {
   }
   
   private void processCheckIsAliveTimer(CheckIsAliveTimer msg) {
-	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 20000)) {
+	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 10000)) {
 		  log.warn("BBB Apps is down. Disconnecting all clients.");
 		  service.sendMessage(new DisconnectAllMessage());
 	  }

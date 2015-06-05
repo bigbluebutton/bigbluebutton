@@ -51,6 +51,8 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
 
+  outGW.send(new GetUsersInVoiceConference(meetingID, recorded, voiceBridge))
+
   // FIXME
   //  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
   //    def act {

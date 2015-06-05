@@ -223,6 +223,12 @@ case class UserStatusChange(
   value: Object,
   version: String = Versions.V_0_0_1) extends IOutMessage
 
+case class GetUsersInVoiceConference(
+  meetingID: String,
+  recorded: Boolean,
+  voiceConfId: String,
+  version: String = Versions.V_0_0_1) extends IOutMessage
+
 case class MuteVoiceUser(
   meetingID: String,
   recorded: Boolean,

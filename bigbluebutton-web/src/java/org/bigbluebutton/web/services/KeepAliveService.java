@@ -131,11 +131,9 @@ public class KeepAliveService implements MessageListener {
   }
   	
   private void processPing(KeepAlivePing msg) {
-	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 20000)) {
+	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 10000)) {
 		  log.warn("BBB Apps is down. Making service unavailable.");
-	   		// BBB-Apps has gone down. Mark it as unavailable and clear
-	   		// pending ping messages. This allows us to continue to send ping messages
-	   		// in case BBB-Apps comes back up. (ralam - april 29, 2014)
+	   		// BBB-Apps has gone down. Mark it as unavailable. (ralam - april 29, 2014)
 	   		available = false;
 	  }		
   }
