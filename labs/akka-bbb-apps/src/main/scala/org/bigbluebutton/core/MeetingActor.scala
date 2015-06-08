@@ -48,19 +48,12 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 
   var voiceRecordingFilename: String = ""
 
+  val startedOn = timeNowInMinutes;
+
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
 
   outGW.send(new GetUsersInVoiceConference(meetingID, recorded, voiceBridge))
-
-  // FIXME
-  //  class TimerActor(val timeout: Long, val who: Actor, val reply: String) extends Actor {
-  //    def act {
-  //        reactWithin(timeout) {
-  //          case TIMEOUT => who ! reply
-  //        }
-  //    }
-  //  }
 
   def receive = {
     case "StartTimer" => handleStartTimer
@@ -172,26 +165,25 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
     if (users.numWebUsers == 0) {
       lastWebUserLeftOn = timeNowInMinutes
       log.debug("MonitorNumberOfWebUsers started for meeting [" + meetingID + "]")
-      scheduleEndVoiceConference()
     }
   }
 
   def handleMonitorNumberOfWebUsers() {
-    println("FOOOOOO!")
+    println("BACK TIMER")
     if (users.numWebUsers == 0 && lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - lastWebUserLeftOn > 2) {
         log.info("MonitorNumberOfWebUsers empty for meeting [" + meetingID + "]. Ejecting all users from voice.")
         outGW.send(new EjectAllVoiceUsers(meetingID, recorded, voiceBridge))
-      } else {
-        scheduleEndVoiceConference()
       }
     }
-  }
 
-  private def scheduleEndVoiceConference() {
-    log.debug("MonitorNumberOfWebUsers continue for meeting [" + meetingID + "]")
-    //    val timerActor = new TimerActor(TIMER_INTERVAL, self, "MonitorNumberOfWebUsers")
-    //    timerActor.start    
+    val now = timeNowInMinutes
+
+    println("(" + startedOn + "+" + duration + ") - " + now + " = " + ((startedOn + duration) - now) + " < 15")
+
+    if (((startedOn + duration) - now) < 15) {
+      log.warning("MEETING WILL END IN 15 MINUTES!!!!")
+    }
   }
 
   def timeNowInMinutes(): Long = {
