@@ -4,7 +4,7 @@ name := "bbb-apps-akka"
 
 organization := "org.bigbluebutton"
 
-version := "0.1-SNAPSHOT"
+version := "0.0.1"
 
 scalaVersion  := "2.11.6"
 
@@ -61,6 +61,10 @@ scalariformSettings
 
 //-----------
 // Packaging
+//
+// Reference:
+// https://github.com/muuki88/sbt-native-packager-examples/tree/master/akka-server-app
+// http://www.scala-sbt.org/sbt-native-packager/index.html
 //-----------
 mainClass := Some("org.bigbluebutton.Boot")
 
@@ -68,11 +72,24 @@ maintainer in Linux := "Richard Alam <ritzalam@gmail.com>"
 packageSummary in Linux := "BigBlueButton Apps (Akka)"
 packageDescription := """BigBlueButton Core Apps in Akka."""
 
+val user = "bigbluebutton"
+val group = "bigbluebutton"
+
+// user which will execute the application
+daemonUser in Linux := user        
+// group which will execute the application
+daemonGroup in Linux := group 
+
 mappings in Universal <+= (packageBin in Compile, sourceDirectory ) map { (_, src) =>
-    // we are using the reference.conf as default application.conf
-    // the user can override settings here
-    val conf = src / "main" / "resources" / "application.conf"
-    conf -> "conf/application.conf"
+    // Move the application.conf so the user can override settings here
+    val appConf = src / "main" / "resources" / "application.conf"
+    appConf -> "conf/application.conf"
+}
+
+mappings in Universal <+= (packageBin in Compile, sourceDirectory ) map { (_, src) =>
+    // Move logback.xml so the user can override settings here    
+    val logConf = src / "main" / "resources" / "logback.xml"
+    logConf -> "conf/logback.xml"
 }
 
 debianPackageDependencies in Debian ++= Seq("java7-runtime-headless", "bash")
