@@ -542,18 +542,22 @@ public class ParamsProcessorUtil {
 	
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
 		log.debug("checksum: [{}] ; query string: [{}]", checksum, queryString);
-	
+
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
 			return true;
 		}
-		
-		// handle either checksum as first or middle / end parameter
-		// TODO: this is hackish - should be done better
-		queryString = queryString.replace("&checksum=" + checksum, "");
-		queryString = queryString.replace("checksum=" + checksum + "&", "");
-		queryString = queryString.replace("checksum=" + checksum, "");
-		
+
+		if( queryString == null ) {
+		    queryString = "";
+		} else {
+		    // handle either checksum as first or middle / end parameter
+		    // TODO: this is hackish - should be done better
+		    queryString = queryString.replace("&checksum=" + checksum, "");
+		    queryString = queryString.replace("checksum=" + checksum + "&", "");
+		    queryString = queryString.replace("checksum=" + checksum, "");
+		}
+
 		log.debug("query string after checksum removed: [{}]", queryString);
 		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
 		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
