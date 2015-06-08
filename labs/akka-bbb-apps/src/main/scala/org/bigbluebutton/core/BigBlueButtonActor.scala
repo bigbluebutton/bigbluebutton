@@ -170,13 +170,15 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     meetings.get(msg.meetingID) match {
       case None => println("Could not find meeting id[" + msg.meetingID + "] to destroy.")
       case Some(m) => {
-        m.actorRef ! StopMeetingActor
         meetings -= msg.meetingID
         log.info("Kick everyone out on meeting id[" + msg.meetingID + "].")
         outGW.send(new EndAndKickAll(msg.meetingID, m.recorded))
         outGW.send(new DisconnectAllUsers(msg.meetingID))
         log.info("Destroyed meeting id[" + msg.meetingID + "].")
         outGW.send(new MeetingDestroyed(msg.meetingID))
+
+        // Stop the meeting actor.
+        context.stop(m.actorRef)
       }
     }
   }
