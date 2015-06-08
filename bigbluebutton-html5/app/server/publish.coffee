@@ -70,3 +70,7 @@ Meteor.publish 'meetings', (meetingId) ->
 Meteor.publish 'presentations', (meetingId) ->
   Meteor.log.info "publishing presentations for #{meetingId}"
   Meteor.Presentations.find({meetingId: meetingId})
+
+Meteor.publish 'whiteboard-clean-status', (meetingId) ->
+  Meteor.log.info "whiteboard clean status #{meetingId}"
+  Meteor.WhiteboardCleanStatus.find({meetingId: meetingId})

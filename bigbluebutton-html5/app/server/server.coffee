@@ -2,6 +2,7 @@ Meteor.startup ->
   Meteor.log.info "server start"
 
   #remove all data
+  Meteor.WhiteboardCleanStatus.remove({})
   clearUsersCollection()
   clearChatCollection()
   clearMeetingsCollection()

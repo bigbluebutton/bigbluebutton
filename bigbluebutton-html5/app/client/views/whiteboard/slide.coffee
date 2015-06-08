@@ -29,6 +29,9 @@ Template.slide.rendered = ->
   wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
 
 @manuallyDisplayShapes = ->
+
+  return if Meteor.WhiteboardCleanStatus.findOne({in_progress: true})?
+
   currentSlide = getCurrentSlideDoc()
   wpm = @whiteboardPaperModel
   shapes = Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id}).fetch()
