@@ -65,4 +65,5 @@ object Boot extends App with SystemConfiguration {
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
 
   val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
+
 }

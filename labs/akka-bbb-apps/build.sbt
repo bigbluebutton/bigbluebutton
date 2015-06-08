@@ -1,5 +1,4 @@
-import com.typesafe.sbt.SbtNativePackager._
-import NativePackagerKeys._
+enablePlugins(JavaServerAppPackaging)
 
 name := "bbb-apps-akka"
 
@@ -40,8 +39,6 @@ libraryDependencies ++= {
   val akkaVersion  = "2.3.10"
   val sprayVersion = "1.3.2"
   Seq(
-	  "io.spray"                 %%  "spray-json"        % sprayVersion,
-	  "io.spray"                 %%  "spray-routing"     % sprayVersion,
 	  "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
 	  "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
 	  "com.typesafe.akka" 	     %%  "akka-slf4j"        % akkaVersion,
@@ -51,10 +48,8 @@ libraryDependencies ++= {
 	  "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
 	  "commons-codec"             %  "commons-codec"     % "1.8",
 	  "joda-time"                 %  "joda-time"         % "2.3",
-	  "net.virtual-void"         %%  "json-lenses"       % "0.5.4",
 	  "com.google.code.gson"      %  "gson"              % "1.7.1",
 	  "redis.clients"             %  "jedis"             % "2.1.0",
-	  "org.jboss.netty"           %  "netty"             % "3.2.1.Final",
       "org.apache.commons"        %  "commons-lang3"     % "3.2"
 	)}
 
@@ -68,10 +63,16 @@ scalariformSettings
 // Packaging
 //-----------
 mainClass := Some("org.bigbluebutton.Boot")
-packageArchetype.java_server
 
-maintainer := "Richard Alam <ritzalam@gmail.com>"
-packageSummary := "BigBlueButton Apps (Akka)"
+maintainer in Linux := "Richard Alam <ritzalam@gmail.com>"
+packageSummary in Linux := "BigBlueButton Apps (Akka)"
 packageDescription := """BigBlueButton Core Apps in Akka."""
+
+mappings in Universal <+= (packageBin in Compile, sourceDirectory ) map { (_, src) =>
+    // we are using the reference.conf as default application.conf
+    // the user can override settings here
+    val conf = src / "main" / "resources" / "application.conf"
+    conf -> "conf/application.conf"
+}
 
 debianPackageDependencies in Debian ++= Seq("java7-runtime-headless", "bash")
