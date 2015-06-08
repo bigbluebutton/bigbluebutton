@@ -6,7 +6,7 @@
     -webkit-order: 1;
     -ms-flex-order: 1;
     -ms-order: 1;
-    background-color: #EEEEEE;
+    border-bottom: 1px solid #E5E5E5;
     min-width: 205px;
     height: 45px;
     min-height: 45px;
@@ -43,6 +43,9 @@
     -ms-flex: 3 3 30%;
     flex: 3 3 30%;
     height: 100%;
+    border-top: 0px;
+    border-right: 0px;
+    border-top-left-radius: 0px;
   }
   order: 3;
 }
@@ -51,7 +54,7 @@
   list-style: none;
   margin: 0px;
   padding: 0px;
-
+  height: 100%;
   @media @desktop-portrait, @landscape {
     li {
       margin: 0px;
@@ -91,6 +94,7 @@
     grow:1;
     -webkit-grow: 1;
     -moz-grow: 1;
+    height: calc(~'100% - 45px');
   }
   overflow-y: auto;
   padding-left: 0px;
@@ -141,10 +145,6 @@
   float: left;
   width: 75%;
   resize: none;
-  border-bottom-left-radius: 10px;
-  border-top-left-radius: 10px;
-  border-bottom-right-radius: 0px;
-  border-top-right-radius: 0px;
   padding-top: 5px;
   padding-bottom: 0px;
 
@@ -173,7 +173,7 @@
   position: relative;
   background: extract(@white, 1);
   padding: 0;
-  border-top: 1px solid extract(@lightGrey, 3);
+  border-top: 1px solid #E5E5E5;
 }
 
 #sendMessageButton {
@@ -183,12 +183,7 @@
   font-weight: bold;
   height: 50px;
   margin: 0px;
-
   border: 1px solid extract(@lightGrey, 3);
-  border-bottom-left-radius: 00px;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
 
   @media @desktop-portrait {
     width: 20%; /* 75% for the message input, 5% margin between the two */

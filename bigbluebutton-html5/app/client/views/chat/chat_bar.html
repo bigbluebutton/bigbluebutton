@@ -46,8 +46,10 @@
 </template>
 
 <template name="chatInputControls">
-  <textarea id="newMessageInput" rel="tooltip" data-placement="top" title="Write a new message"></textarea>
-  <button type="submit" id="sendMessageButton" class="btn" rel="tooltip" data-placement="top">Send</button>
+  <div class="button-group radius">
+    <textarea id="newMessageInput" rel="tooltip" data-placement="top" title="Write a new message"></textarea>
+    <input type="submit" id="sendMessageButton" class="button radius" rel="tooltip" data-placement="top" value="Send" />
+  </div>
 </template>
 
 <!-- Displays and styles an individual message in the chat -->
