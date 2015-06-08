@@ -1,5 +1,7 @@
+import com.typesafe.sbt.SbtNativePackager._
+import NativePackagerKeys._
 
-name := "apps"
+name := "bbb-apps-akka"
 
 organization := "org.bigbluebutton"
 
@@ -60,3 +62,16 @@ libraryDependencies ++= {
 seq(Revolver.settings: _*)
 
 scalariformSettings
+
+
+//-----------
+// Packaging
+//-----------
+mainClass := Some("org.bigbluebutton.Boot")
+packageArchetype.java_server
+
+maintainer := "Richard Alam <ritzalam@gmail.com>"
+packageSummary := "BigBlueButton Apps (Akka)"
+packageDescription := """BigBlueButton Core Apps in Akka."""
+
+debianPackageDependencies in Debian ++= Seq("java7-runtime-headless", "bash")
