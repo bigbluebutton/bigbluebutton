@@ -66,6 +66,7 @@
 }
 
 #whiteboard-container {
+  position: relative; // makes the fullscreen button's absolute position work
   @media @landscape {
     display: -moz-flex;
     display: -ms-flexbox;
@@ -75,8 +76,15 @@
     align-items: center;
     -webkit-align-items: center;
     -ms-align-items: center;
-    height: calc(~'100% - 39px');
   }
+}
+
+.presenter-whiteboard {
+  height: calc(~'100% - 40px');
+}
+
+.viewer-whiteboard {
+  height: 100%;
 }
 
 .fullscreenWhiteboardButton {
@@ -136,6 +144,7 @@
   background-color: extract(@white, 1);
   border: 1px solid extract(@lightGrey, 3);
   border-radius: 10px;
+  padding: 0;
   &:hover {
     background-color: extract(@lightGrey, 3);
     color: extract(@black, 1);
@@ -156,4 +165,60 @@
 
 #presentationProgress {
   font-size: 25px;
+}
+
+.whiteboardFullscreenButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-bottom: 0;
+  padding: 0;
+  &, &:hover {
+    background-color: transparent;
+  }
+  i {
+    color: black;
+  }
+  @media @landscape {
+    height: 50px;
+    width: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 100px;
+    width: 10%;
+  }
+}
+
+.exitFullscreenButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-bottom: 0;
+  padding: 0;
+  &, &:hover {
+    background-color: transparent;
+  }
+  i {
+    color: black;
+  }
+  @media @landscape {
+    height: 50px;
+    width: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 5%;
+    width: 10%;
+  }
+}
+
+.iconChrome {
+  i {
+    font-size: 200%;
+  }
+}
+
+.iconFirefox {
+  i {
+    font-size: 500%;
+  }
 }
