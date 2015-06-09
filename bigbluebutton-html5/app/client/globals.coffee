@@ -351,6 +351,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   else
     setInSession 'display_usersList', false
   setInSession 'display_menu', false
+  TimeSync.loggingEnabled = false # suppresses the log messages from timesync
 
 @onLoadComplete = ->
   document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"

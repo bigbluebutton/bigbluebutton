@@ -219,6 +219,11 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "get_whiteboard_shapes_reply" and message.payload.requester_id is "nodeJSapp"
+
+        # Create a whiteboard clean status or find one for the current meeting
+        if not Meteor.WhiteboardCleanStatus.findOne({meetingId: meetingId})?
+            Meteor.WhiteboardCleanStatus.insert({meetingId: meetingId, in_progress: false})
+
         for shape in message.payload.shapes
           whiteboardId = shape.wb_id
           addShapeToCollection meetingId, whiteboardId, shape
@@ -238,6 +243,7 @@ class Meteor.RedisPubSub
 
       if message.header.name is "whiteboard_cleared_message"
         whiteboardId = message.payload.whiteboard_id
+        Meteor.WhiteboardCleanStatus.update({meetingId: meetingId}, {$set: {'in_progress': true}})
         removeAllShapesFromSlide meetingId, whiteboardId
         return
 
