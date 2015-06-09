@@ -1700,8 +1700,8 @@ class ApiController {
 							  type(item.getFormat())
 							  url(item.getUrl())
 							  length(item.getLength())
-							  mkp.yield(item.getExtensions())
 							  size(item.getSize())
+							  mkp.yield(item.getExtensions())
 						  }
 					  }
                   }

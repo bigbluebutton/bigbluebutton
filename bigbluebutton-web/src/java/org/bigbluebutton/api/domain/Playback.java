@@ -24,14 +24,14 @@ public class Playback {
 	private String format;
 	private String url;
 	private int length;
-	private String size; // NEW size in bytes of the published files of this format
+	private String size;
 	private GPathResult extensions;
 	
-	public Playback(String format, String url, int length, GPathResult extensions) {
+	public Playback(String format, String url, int length, String size, GPathResult extensions) {
 		this.format = format;
 		this.url = url;
 		this.length = length;
-		this.size = " ";
+		this.size = size;
 		this.extensions = extensions;
 	}
 	public String getFormat() {

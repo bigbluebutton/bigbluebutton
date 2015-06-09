@@ -38,6 +38,7 @@ require 'open4'
 require 'pp'
 require 'absolute_time'
 require 'find'
+require 'rubygems'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -160,8 +161,18 @@ module BigBlueButton
   def self.get_dir_size(dir_name)
     size = 0
     if FileTest.directory?(dir_name)
-      Find.find(dir_name) { |f| size =+ File.size(f); }
+      Find.find(dir_name) { |f| size += File.size(f); }
     end
     size
+  end
+
+  def self.add_size_to_metadata(dir_name)
+    metadata = dir_name + "/metadata.xml"
+    if File.exist?(metadata)
+      size = BigBlueButton.get_dir_size(dir_name).to_s
+      doc = Nokogiri.XML(File.read(metadata))
+      doc.at('//text()[.="PLAYBACK_SIZE"]').content = size
+      File.open(metadata, 'w') { |f| f.print(doc.to_xml) }
+    end
   end
 end

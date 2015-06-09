@@ -923,13 +923,13 @@ if ($playback == "presentation")
 			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
 			b.start_time(real_start_time)
 			b.end_time(real_end_time)
-			# b.size(size)
 			b.raw_size(raw_size)
 			b.playback {
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
 				b.processing_time("#{processing_time}")
 				b.duration("#{recording_time}")
+				b.size("PLAYBACK_SIZE")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
@@ -986,6 +986,9 @@ if ($playback == "presentation")
 		if not FileTest.directory?(publish_dir)
 			FileUtils.mkdir_p publish_dir
 		end
+
+		BigBlueButton.add_size_to_metadata(package_dir)
+
 		FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
 		BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
 
