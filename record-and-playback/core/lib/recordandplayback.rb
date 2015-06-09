@@ -161,18 +161,31 @@ module BigBlueButton
   def self.get_dir_size(dir_name)
     size = 0
     if FileTest.directory?(dir_name)
-      Find.find(dir_name) { |f| size += File.size(f); }
+      Find.find(dir_name) { |f| size += File.size(f) }
     end
-    size
+    size.to_s
   end
 
   def self.add_size_to_metadata(dir_name)
-    metadata = dir_name + "/metadata.xml"
-    if File.exist?(metadata)
-      size = BigBlueButton.get_dir_size(dir_name).to_s
-      doc = Nokogiri.XML(File.read(metadata))
-      doc.at('//text()[.="PLAYBACK_SIZE"]').content = size
-      File.open(metadata, 'w') { |f| f.print(doc.to_xml) }
+    size = BigBlueButton.get_dir_size(dir_name)
+    metadata_file = dir_name + "/metadata.xml"
+
+    begin
+      doc = Nokogiri::XML(open(metadata_file).read)
+    rescue Exception => e
+      BigBlueButton.logger.error "Something went wrong: #{$!}"
+      raise e
+    end
+
+    if not doc.root.at_xpath("size")
+      size_node = Nokogiri::XML::Node.new "size", doc
+      size_node.content = size
+
+      doc.at("//recording/playback") << size_node
+
+      metadata_xml = File.new(metadata_file, "w")
+      metadata_xml.write(doc.to_xml(:indent => 2))
+      metadata_xml.close
     end
   end
 end
