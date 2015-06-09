@@ -1,9 +1,10 @@
+enablePlugins(JavaServerAppPackaging)
 
-name := "akka-bbb-fs"
+name := "bbb-fsesl-akka"
 
 organization := "org.bigbluebutton"
 
-version := "0.1-SNAPSHOT"
+version := "0.0.1"
 
 scalaVersion  := "2.11.6"
 
@@ -61,3 +62,38 @@ libraryDependencies += "org.freeswitch"   %  "fs-esl-client" % "0.8.2" from "htt
 seq(Revolver.settings: _*)
 
 scalariformSettings
+
+//-----------
+// Packaging
+//
+// Reference:
+// https://github.com/muuki88/sbt-native-packager-examples/tree/master/akka-server-app
+// http://www.scala-sbt.org/sbt-native-packager/index.html
+//-----------
+mainClass := Some("org.bigbluebutton.Boot")
+
+maintainer in Linux := "Richard Alam <ritzalam@gmail.com>"
+packageSummary in Linux := "BigBlueButton FS-ESL (Akka)"
+packageDescription := """BigBlueButton FreeSWITCH ESL in Akka."""
+
+val user = "bigbluebutton"
+val group = "bigbluebutton"
+
+// user which will execute the application
+daemonUser in Linux := user        
+// group which will execute the application
+daemonGroup in Linux := group 
+
+mappings in Universal <+= (packageBin in Compile, sourceDirectory ) map { (_, src) =>
+    // Move the application.conf so the user can override settings here
+    val appConf = src / "main" / "resources" / "application.conf"
+    appConf -> "conf/application.conf"
+}
+
+mappings in Universal <+= (packageBin in Compile, sourceDirectory ) map { (_, src) =>
+    // Move logback.xml so the user can override settings here    
+    val logConf = src / "main" / "resources" / "logback.xml"
+    logConf -> "conf/logback.xml"
+}
+
+debianPackageDependencies in Debian ++= Seq("java7-runtime-headless", "bash")
