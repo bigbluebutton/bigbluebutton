@@ -13,6 +13,7 @@ import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
+import org.bigbluebutton.core.apps.PollApp
 
 case object StopMeetingActor
 
@@ -32,7 +33,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   val createTime: Long, val createDate: String,
   val outGW: MessageOutGateway)
     extends Actor with UsersApp with PresentationApp
-    with LayoutApp with ChatApp
+    with LayoutApp with ChatApp with PollApp
     with WhiteboardApp with ActorLogging {
 
   var audioSettingsInited = false
