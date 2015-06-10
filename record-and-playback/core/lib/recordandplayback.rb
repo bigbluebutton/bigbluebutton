@@ -171,7 +171,9 @@ module BigBlueButton
     metadata_file = dir_name + "/metadata.xml"
 
     begin
-      doc = Nokogiri::XML(open(metadata_file).read)
+      doc = Nokogiri::XML(open(metadata_file).read) do |config|
+        config.noblanks
+      end
     rescue Exception => e
       BigBlueButton.logger.error "Something went wrong: #{$!}"
       raise e
