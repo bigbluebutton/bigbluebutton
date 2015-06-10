@@ -2,9 +2,11 @@
 
 name := "bbb-fsesl-client"
 
+description := "BigBlueButton custom FS-ESL client built on top of FS-ESL Java library."
+
 organization := "org.bigbluebutton"
 
-version := "0.0.1-SNAPSHOT"
+version := "0.0.2"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -64,9 +66,6 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
 
 pomExtra := (
-  <description>
-    BigBlueButton custom FS-ESL client built on top of FS-ESL Java library.
-  </description>
   <scm>
     <url>git@github.com:bigbluebutton/bigbluebutton.git</url>
     <connection>scm:git:git@github.com:bigbluebutton/bigbluebutton.git</connection>

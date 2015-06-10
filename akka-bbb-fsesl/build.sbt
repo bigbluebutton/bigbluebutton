@@ -49,12 +49,10 @@ libraryDependencies ++= {
 	  "joda-time"                 %  "joda-time"         % "2.3",
 	  "com.google.code.gson"      %  "gson"              % "1.7.1",
 	  "redis.clients"             %  "jedis"             % "2.1.0",
-	  "org.jboss.netty"           %  "netty"             % "3.2.1.Final",
       "org.apache.commons"        %  "commons-lang3"     % "3.2",
-      "org.bigbluebutton"         %  "bbb-common-message" % "0.0.3"
+      "org.bigbluebutton"         %  "bbb-common-message" % "0.0.3",
+      "org.bigbluebutton"         %  "bbb-fsesl-client"   % "0.0.2"
 	)}
-
-libraryDependencies += "org.freeswitch"   %  "fs-esl-client" % "0.8.2" from "http://blindside.googlecode.com/svn/repository/org/freeswitch/fs-esl-client/0.8.2/fs-esl-client-0.8.2.jar"
 
 seq(Revolver.settings: _*)
 
@@ -70,14 +68,18 @@ scalariformSettings
 mainClass := Some("org.bigbluebutton.Boot")
 
 maintainer in Linux := "Richard Alam <ritzalam@gmail.com>"
+
 packageSummary in Linux := "BigBlueButton FS-ESL (Akka)"
+
 packageDescription := """BigBlueButton FreeSWITCH ESL in Akka."""
 
 val user = "bigbluebutton"
+
 val group = "bigbluebutton"
 
 // user which will execute the application
 daemonUser in Linux := user        
+
 // group which will execute the application
 daemonGroup in Linux := group 
 
