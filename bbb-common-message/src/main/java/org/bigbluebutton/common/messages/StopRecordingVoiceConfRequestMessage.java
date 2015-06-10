@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 
 
 public class StopRecordingVoiceConfRequestMessage {
-	public static final String RECORD_VOICE_CONF_REQUEST  = "stop_recording_voice_conf_request_message";
+	public static final String STOP_RECORD_VOICE_CONF_REQUEST  = "stop_recording_voice_conf_request_message";
 	public static final String VERSION = "0.0.1";
 	
 	public static final String MEETING_ID = "meeting_id";
@@ -29,7 +29,7 @@ public class StopRecordingVoiceConfRequestMessage {
 		payload.put(VOICE_CONF_ID, voiceConfId);
 		payload.put(RECORD_STREAM, recordStream);
 		
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(RECORD_VOICE_CONF_REQUEST, VERSION, null);
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(STOP_RECORD_VOICE_CONF_REQUEST, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);				
 	}
@@ -44,7 +44,7 @@ public class StopRecordingVoiceConfRequestMessage {
 			
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (RECORD_VOICE_CONF_REQUEST.equals(messageName)) {
+				if (STOP_RECORD_VOICE_CONF_REQUEST.equals(messageName)) {
 					if (payload.has(MEETING_ID) 
 							&& payload.has(VOICE_CONF_ID)
 							&& payload.has(RECORD_STREAM)) {
