@@ -2,7 +2,7 @@ package org.bigbluebutton.freeswitch
 
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.endpoint.redis.RedisPublisher
-import org.bigbluebutton.freeswitch.pubsub.messages._
+import org.bigbluebutton.common.messages._
 
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService {
 

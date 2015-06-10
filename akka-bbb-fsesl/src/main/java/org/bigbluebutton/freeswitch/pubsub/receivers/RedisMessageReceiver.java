@@ -1,11 +1,12 @@
 package org.bigbluebutton.freeswitch.pubsub.receivers;
 
-import org.bigbluebutton.freeswitch.pubsub.messages.EjectAllUsersFromVoiceConfRequestMessage;
-import org.bigbluebutton.freeswitch.pubsub.messages.EjectUserFromVoiceConfRequestMessage;
-import org.bigbluebutton.freeswitch.pubsub.messages.GetUsersFromVoiceConfRequestMessage;
-import org.bigbluebutton.freeswitch.pubsub.messages.MuteUserInVoiceConfRequestMessage;
-import org.bigbluebutton.freeswitch.pubsub.messages.StartRecordingVoiceConfRequestMessage;
-import org.bigbluebutton.freeswitch.pubsub.messages.StopRecordingVoiceConfRequestMessage;
+
+import org.bigbluebutton.common.messages.EjectAllUsersFromVoiceConfRequestMessage;
+import org.bigbluebutton.common.messages.EjectUserFromVoiceConfRequestMessage;
+import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage;
+import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage;
+import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage;
+import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
 import com.google.gson.JsonObject;
