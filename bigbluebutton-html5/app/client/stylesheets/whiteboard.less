@@ -31,6 +31,9 @@
     #whiteboard-paper {
       height: 100%;
     }
+    .raiseHandButton {
+      display: none;
+    }
   }
   &:-moz-full-screen {
     width: 100%;
@@ -42,6 +45,9 @@
     #whiteboard-paper {
       height: 100%;
     }
+    .raiseHandButton {
+      display: none;
+    }
   }
   &:fullscreen {
     width: 100%;
@@ -52,6 +58,9 @@
     }
     #whiteboard-paper {
       height: 100%;
+    }
+    .raiseHandButton {
+      display: none;
     }
   }
 }
@@ -148,8 +157,8 @@
 }
 
 .whiteboardFullscreenButton {
-  top: 0;
-  right: 0;
+  top: 10px;
+  right: 10px;
   @media @landscape {
     height: 50px;
     width: 50px;
@@ -161,23 +170,21 @@
 }
 
 .raiseHandButton {
+  bottom: 10px;
+  right: 10px;
   @media @desktop-portrait, @landscape {
-    bottom: 0;
-    right: 0;
     height: 50px;
     width: 50px;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    bottom: 0;
-    right: 0;
     height: 100px;
     width: 10%;
   }
 }
 
 .exitFullscreenButton {
-  top: 0;
-  right: 0;
+  top: 10px;
+  right: 10px;
   @media @landscape {
     height: 50px;
     width: 50px;
