@@ -2,7 +2,11 @@
   <div id="{{id}}" {{visibility name}} class="component {{class}}">
     <h3 class="meetingTitle">
       {{getMeetingName}}
-      <span class="closeUserlistIcon"><i class="ion-close-circled"></i></span>
+      <span class="closeUserlistIcon">
+        <a href="#">
+          <i class="closeSettings close-reveal-modal">&#215;</i>
+        </a>
+      </span>
     </h3>
     <div id="user-contents">
       <div class="userlist ScrollableWindowY">
