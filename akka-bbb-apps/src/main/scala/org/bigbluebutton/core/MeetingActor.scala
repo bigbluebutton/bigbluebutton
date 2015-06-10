@@ -182,7 +182,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 
     println("(" + startedOn + "+" + duration + ") - " + now + " = " + ((startedOn + duration) - now) + " < 15")
 
-    if (((startedOn + duration) - now) < 15) {
+    if (duration > 0 && (((startedOn + duration) - now) < 15)) {
       log.warning("MEETING WILL END IN 15 MINUTES!!!!")
     }
   }
