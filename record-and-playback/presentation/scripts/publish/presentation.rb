@@ -909,10 +909,6 @@ if ($playback == "presentation")
                 real_start_time = match[1]
                 real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
 
-		# Get raw size of presentation files
-		raw_dir = "#{recording_dir}/raw/#{$meeting_id}"
-		raw_size = BigBlueButton.get_dir_size(raw_dir)
-
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
 
@@ -923,7 +919,6 @@ if ($playback == "presentation")
 			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
 			b.start_time(real_start_time)
 			b.end_time(real_end_time)
-			b.raw_size(raw_size)
 			b.playback {
 				b.format("presentation")
 				b.link("http://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
@@ -986,7 +981,10 @@ if ($playback == "presentation")
 			FileUtils.mkdir_p publish_dir
 		end
 
-		# After all the processing we'll add the published format size to the metadata file
+		# Get raw size of presentation files
+		raw_dir = "#{recording_dir}/raw/#{$meeting_id}"
+		# After all the processing we'll add the published format and raw sizes to the metadata file
+		BigBlueButton.add_raw_size_to_metadata(package_dir, raw_dir)
 		BigBlueButton.add_size_to_metadata(package_dir)
 
 		FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.

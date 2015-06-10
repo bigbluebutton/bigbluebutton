@@ -166,6 +166,31 @@ module BigBlueButton
     size.to_s
   end
 
+  def self.add_raw_size_to_metadata(dir_name, raw_dir_name)
+    size = BigBlueButton.get_dir_size(raw_dir_name)
+    metadata_file = dir_name + "/metadata.xml"
+
+    begin
+      doc = Nokogiri::XML(open(metadata_file).read) do |config|
+        config.noblanks
+      end
+    rescue Exception => e
+      BigBlueButton.logger.error "Something went wrong: #{$!}"
+      raise e
+    end
+
+    if not doc.at_xpath("//recording/raw_size")
+      raw_size_node = Nokogiri::XML::Node.new "raw_size", doc
+      raw_size_node.content = size
+
+      doc.at("//recording") << raw_size_node
+
+      metadata_xml = File.new(metadata_file, "w")
+      metadata_xml.write(doc.to_xml(:indent => 2))
+      metadata_xml.close
+    end
+  end
+
   def self.add_size_to_metadata(dir_name)
     size = BigBlueButton.get_dir_size(dir_name)
     metadata_file = dir_name + "/metadata.xml"
@@ -179,7 +204,7 @@ module BigBlueButton
       raise e
     end
 
-    if not doc.root.at_xpath("size")
+    if not doc.at_xpath("//recording/playback/size")
       size_node = Nokogiri::XML::Node.new "size", doc
       size_node.content = size
 

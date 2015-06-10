@@ -86,7 +86,7 @@ public class Recording {
 	public void setEndTime(String endTime) {
 		this.endTime = convertOldDateFormat(endTime);
 	}
-
+	
 	public String getSize() {
 		int size = 0;
 		for (Playback p: playbacks) {
