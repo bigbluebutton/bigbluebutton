@@ -50,7 +50,8 @@ libraryDependencies ++= {
 	  "com.google.code.gson"      %  "gson"              % "1.7.1",
 	  "redis.clients"             %  "jedis"             % "2.1.0",
 	  "org.jboss.netty"           %  "netty"             % "3.2.1.Final",
-      "org.apache.commons"        %  "commons-lang3"     % "3.2"
+      "org.apache.commons"        %  "commons-lang3"     % "3.2",
+      "org.bigbluebutton"         %  "bbb-common-message" % "0.0.3"
 	)}
 
 libraryDependencies += "org.freeswitch"   %  "fs-esl-client" % "0.8.2" from "http://blindside.googlecode.com/svn/repository/org/freeswitch/fs-esl-client/0.8.2/fs-esl-client-0.8.2.jar"
