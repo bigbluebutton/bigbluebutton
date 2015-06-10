@@ -1,7 +1,6 @@
 #!/usr/bin/ruby1.9.1
 
 require File.expand_path('../../lib/recordandplayback', __FILE__)
-require 'nokogiri'
 require 'trollop'
 
 props = YAML::load(File.open(File.expand_path('../bigbluebutton.yml', __FILE__)))
