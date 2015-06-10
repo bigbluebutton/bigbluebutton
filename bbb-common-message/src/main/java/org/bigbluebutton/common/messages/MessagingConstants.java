@@ -43,6 +43,13 @@ public class MessagingConstants {
 
 	public static final String BBB_APPS_KEEP_ALIVE_CHANNEL = "bigbluebutton:from-bbb-apps:keepalive";
 	
+	public static final String TO_VOICE_CONF_CHANNEL = "bigbluebutton:to-voice-conf";	
+	public static final String TO_VOICE_CONF_PATTERN = TO_VOICE_CONF_CHANNEL + ":*";
+	public static final String TO_VOICE_CONF_SYSTEM_CHAN = TO_VOICE_CONF_CHANNEL + ":system";
+	public static final String FROM_VOICE_CONF_CHANNEL = "bigbluebutton:from-voice-conf";	
+	public static final String FROM_VOICE_CONF_PATTERN = FROM_VOICE_CONF_CHANNEL + ":*";
+	public static final String FROM_VOICE_CONF_SYSTEM_CHAN = FROM_VOICE_CONF_CHANNEL + ":system";
+	
 	public static final String DESTROY_MEETING_REQUEST_EVENT = "DestroyMeetingRequestEvent";
 	public static final String CREATE_MEETING_REQUEST_EVENT = "CreateMeetingRequestEvent";	
 	public static final String END_MEETING_REQUEST_EVENT = "EndMeetingRequestEvent";
