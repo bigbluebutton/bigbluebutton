@@ -395,8 +395,7 @@ body {
 }
 
 #notificationArea {
-  bottom:0;
-  height: 50%;
+  height: auto;
   left:0;
   margin: auto;
   margin-top: 0px;
@@ -473,4 +472,25 @@ body {
 
 .top-bar {
   line-height: 0;
+}
+
+.btn {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  i {
+    @media @desktop-portrait, @landscape {
+      font-size: 30px;
+    }
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      font-size: 80px;
+    }
+  }
+}
+
+.verticallyCentered {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
 }

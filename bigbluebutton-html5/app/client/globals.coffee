@@ -210,6 +210,49 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @toggleMenu = ->
   setInSession 'display_menu', !getInSession 'display_menu'
 
+@removeFullscreenStyles = ->
+  $('#whiteboard-paper').removeClass('verticallyCentered')
+  $('#chat').removeClass('invisible')
+  $('#users').removeClass('invisible')
+  $('#navbar').removeClass('invisible')
+  $('.fullscreenButton').removeClass('exitFullscreenButton')
+  $('.fullscreenButton').addClass('whiteboardFullscreenButton')
+  $('.fullscreenButton i').removeClass('ion-arrow-shrink')
+  $('.fullscreenButton i').addClass('ion-arrow-expand')
+
+@enterWhiteboardFullscreen = ->
+  element = document.getElementById('whiteboard')
+  if element.requestFullscreen
+    element.requestFullscreen()
+  else if element.mozRequestFullScreen
+    element.mozRequestFullScreen()
+    $('.fullscreenButton').addClass('iconFirefox') # browser-specific icon sizing
+  else if element.webkitRequestFullscreen
+    element.webkitRequestFullscreen()
+    $('.fullscreenButton').addClass('iconChrome') # browser-specific icon sizing
+  else if element.msRequestFullscreen
+    element.msRequestFullscreen()
+  $('#chat').addClass('invisible')
+  $('#users').addClass('invisible')
+  $('#navbar').addClass('invisible')
+  $('.fullscreenButton').removeClass('whiteboardFullscreenButton')
+  $('.fullscreenButton').addClass('exitFullscreenButton')
+  $('.fullscreenButton i').removeClass('ion-arrow-expand')
+  $('.fullscreenButton i').addClass('ion-arrow-shrink')
+  $('#whiteboard-paper').addClass('verticallyCentered')
+  $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
+    if document.webkitFullscreenElement is null
+      $('#whiteboard').unbind('webkitfullscreenchange')
+      $('.fullscreenButton').removeClass('iconChrome')
+      removeFullscreenStyles()
+      redrawWhiteboard()
+  $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
+    if document.mozFullScreenElement is null
+      $(document).unbind('mozfullscreenchange')
+      $('.fullscreenButton').removeClass('iconFirefox')
+      removeFullscreenStyles()
+      redrawWhiteboard()
+
 @closePushMenus = ->
   setInSession 'display_usersList', false
   setInSession 'display_menu', false
@@ -308,6 +351,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   else
     setInSession 'display_usersList', false
   setInSession 'display_menu', false
+  TimeSync.loggingEnabled = false # suppresses the log messages from timesync
 
 @onLoadComplete = ->
   document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"

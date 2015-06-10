@@ -69,6 +69,7 @@
 }
 
 #whiteboard-container {
+  position: relative; // makes the fullscreen button's absolute position work
   @media @landscape {
     display: -moz-flex;
     display: -ms-flexbox;
@@ -167,4 +168,60 @@
 
 #presentationProgress {
   font-size: 25px;
+}
+
+.whiteboardFullscreenButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-bottom: 0;
+  padding: 0;
+  &, &:hover {
+    background-color: transparent;
+  }
+  i {
+    color: black;
+  }
+  @media @landscape {
+    height: 50px;
+    width: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 100px;
+    width: 10%;
+  }
+}
+
+.exitFullscreenButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-bottom: 0;
+  padding: 0;
+  &, &:hover {
+    background-color: transparent;
+  }
+  i {
+    color: black;
+  }
+  @media @landscape {
+    height: 50px;
+    width: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 5%;
+    width: 10%;
+  }
+}
+
+.iconChrome {
+  i {
+    font-size: 200%;
+  }
+}
+
+.iconFirefox {
+  i {
+    font-size: 500%;
+  }
 }
