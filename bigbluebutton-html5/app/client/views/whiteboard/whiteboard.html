@@ -6,8 +6,13 @@
     <div id="whiteboard-container" class="{{whiteboardSize}}">
       <div id="whiteboard-paper">
       </div>
+      {{#if isCurrentUserRaisingHand}}
+        {{> makeButton btn_class="lowerHand soaringButton raiseHandButton" i_class="ion-android-hand"}}
+      {{else}}
+        {{> makeButton btn_class="raiseHand soaringButton raiseHandButton" i_class="ion-android-hand"}}
+      {{/if}}
       {{#if isMobile}}
-        {{> makeButton btn_class="fullscreenButton whiteboardFullscreenButton" i_class="ion-arrow-expand"}}
+        {{> makeButton btn_class="soaringButton fullscreenButton whiteboardFullscreenButton" i_class="ion-arrow-expand"}}
       {{/if}}
     </div>
     {{#if isCurrentUserPresenter}}
