@@ -69,14 +69,18 @@ scalariformSettings
 mainClass := Some("org.bigbluebutton.Boot")
 
 maintainer in Linux := "Richard Alam <ritzalam@gmail.com>"
+
 packageSummary in Linux := "BigBlueButton Apps (Akka)"
+
 packageDescription := """BigBlueButton Core Apps in Akka."""
 
 val user = "bigbluebutton"
+
 val group = "bigbluebutton"
 
 // user which will execute the application
 daemonUser in Linux := user        
+
 // group which will execute the application
 daemonGroup in Linux := group 
 
