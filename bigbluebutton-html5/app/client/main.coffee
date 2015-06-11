@@ -44,14 +44,6 @@ Template.header.events
     $(".tooltip").hide()
     toggleMic @
 
-  "click .lowerHand": (event) ->
-    $(".tooltip").hide()
-    BBB.lowerHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-
-  "click .raiseHand": (event) ->
-    $(".tooltip").hide()
-    BBB.raiseHand(BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
-
   "click .hideNavbarIcon": (event) ->
     $(".tooltip").hide()
     toggleNavbar()

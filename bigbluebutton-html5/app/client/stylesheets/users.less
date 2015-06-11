@@ -4,6 +4,10 @@
   font-size: 16px;
 }
 
+#usericons {
+  text-align: right;
+}
+
 .usernameEntry {
   float:left;
   overflow: hidden;
@@ -12,10 +16,11 @@
   width: 60%;
   @media @landscape {
     height: 20px;
+    font-size: 4.5mm;
   }
   @media @desktop-portrait {
     height: 25px;
-    font-size: 2vh;
+    font-size: 4.5mm;
   }
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
     font-size: 4vw;
@@ -28,6 +33,10 @@
     -moz-flex: 1 1 20%;
     -ms-flex: 1 1 20%;
     flex: 1 1 20%;
+    border-left: 0px;
+    border-top: 0px;
+    border-top-right-radius: 0px;
+    background-color: #FAFAFA;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     position: absolute;
@@ -81,6 +90,13 @@
   margin-right: 5px;
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     display: none;
+  }
+  .closeSettings {
+    @media @landscape {    
+      color: #aaa;
+      font-style: normal;
+      font-size: 30px;
+    }
   }
 }
 

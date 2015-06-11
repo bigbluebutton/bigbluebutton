@@ -40,3 +40,9 @@ Template.whiteboard.events
       document.mozCancelFullScreen()
     else if document.webkitExitFullscreen
       document.webkitExitFullscreen()
+
+  'click .raiseHand': (event) ->
+    BBB.raiseHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+
+  'click .lowerHand': (event) ->
+    BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))

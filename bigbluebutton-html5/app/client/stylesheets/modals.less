@@ -1,11 +1,14 @@
 @import "variables";
 
 #settingsModal {
-  border-radius: 15px;
   display: none;
   padding: 0px;
+  p {
+    margin-bottom: 0px;
+  }
   @media @desktop-portrait, @landscape {
     min-width: 430px;
+    top: 20% !important;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     width: 90%;
@@ -17,35 +20,31 @@
   .topBar {
     border-bottom: 1px solid grey;
     p:first-child {
-      float: left;
-      i {
-        @media @desktop-portrait, @landscape {
-          font-size: 30px;
-        }
-        @media @mobile-portrait-with-keyboard, @mobile-portrait {
-          font-size: 300%;
-        }
-      }
+      text-align: center;
     }
     p:nth-child(2) {
+      float: right;
       text-align: right;
       .closeSettings {
         @media @desktop-portrait, @landscape {
+          margin-top: 10px;
           font-size: 30px;
         }
         @media @mobile-portrait-with-keyboard, @mobile-portrait {
           font-size: 450%;
         }
-        position: inherit;
       }
     }
   }
   .bottomBar {
     border-top: 1px solid grey;
     text-align: right;
+    @media @desktop-portrait, @landscape {
+      height: 69px;
+    }
     .closeSettings {
       @media @desktop-portrait, @landscape {
-        font-size: 12px;
+        font-size: 16px;
       }
       @media @mobile-portrait-with-keyboard, @mobile-portrait {
         font-size: 250%;
@@ -62,12 +61,9 @@
       height: 70%;
     }
   }
-  p {
-    margin-bottom: 0px;
-  }
   .modalTitle {
-    margin-left: 20px;
-    font-style: normal;
+    font-style: bold;
+    font-size: 30px;
   }
   .joinAudioButton {
     width: 80px;
@@ -89,9 +85,15 @@
     }
   }
 }
-#saveSettings {
+#saveSettings { 
+  border-radius: 3px; 
+  padding: 5px 10px 5px 10px;
+
   @media @desktop-portrait, @landscape {
-    font-size: 12px;
+    margin-top: 5px;
+    font-size: 16px;
+    width: 80px;
+    height: 35px;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     font-size: 250%;

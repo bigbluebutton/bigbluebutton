@@ -4,6 +4,9 @@
   padding: 0 !important;
   min-width: 0;
   @media @landscape {
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
     -webkit-order: 2;
     order: 2;
     -webkit-flex: 7 7 70%;
@@ -28,6 +31,9 @@
     #whiteboard-paper {
       height: 100%;
     }
+    .raiseHandButton {
+      display: none;
+    }
   }
   &:-moz-full-screen {
     width: 100%;
@@ -39,6 +45,9 @@
     #whiteboard-paper {
       height: 100%;
     }
+    .raiseHandButton {
+      display: none;
+    }
   }
   &:fullscreen {
     width: 100%;
@@ -49,6 +58,9 @@
     }
     #whiteboard-paper {
       height: 100%;
+    }
+    .raiseHandButton {
+      display: none;
     }
   }
 }
@@ -85,29 +97,6 @@
 
 .viewer-whiteboard {
   height: 100%;
-}
-
-.fullscreenWhiteboardButton {
-  float: right;
-  padding: 0;
-  @media @landscape {
-    margin-right: 5px;
-    width: 31px;
-    height: 31px;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    margin-right: 10px;
-    width: 78px;
-    height: 78px;
-  }
-  i {
-    @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      font-size: 75px;
-    }
-    @media @landscape {
-      font-size: 28px;
-    }
-  }
 }
 
 .presentationNavigationControls {
@@ -168,17 +157,8 @@
 }
 
 .whiteboardFullscreenButton {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin-bottom: 0;
-  padding: 0;
-  &, &:hover {
-    background-color: transparent;
-  }
-  i {
-    color: black;
-  }
+  top: 10px;
+  right: 10px;
   @media @landscape {
     height: 50px;
     width: 50px;
@@ -189,18 +169,22 @@
   }
 }
 
+.raiseHandButton {
+  bottom: 10px;
+  right: 10px;
+  @media @desktop-portrait, @landscape {
+    height: 50px;
+    width: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 100px;
+    width: 10%;
+  }
+}
+
 .exitFullscreenButton {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin-bottom: 0;
-  padding: 0;
-  &, &:hover {
-    background-color: transparent;
-  }
-  i {
-    color: black;
-  }
+  top: 10px;
+  right: 10px;
   @media @landscape {
     height: 50px;
     width: 50px;
@@ -208,6 +192,23 @@
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 5%;
     width: 10%;
+  }
+}
+
+.soaringButton {
+  position: absolute;
+  margin-bottom: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  &:hover {
+    background: rgba(0, 0, 0, 0.4);
+  }
+  &:focus {
+    outline:0;
+  }
+  i {
+    color: black;
   }
 }
 
