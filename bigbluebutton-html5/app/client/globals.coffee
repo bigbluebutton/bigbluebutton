@@ -374,7 +374,14 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   navigator.userAgent.match(/webOS/i)
 
 @isLandscape = ->
-  window.matchMedia('(orientation: landscape)').matches
+  not isMobile() and
+  window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
+
+@isPortrait = -> 
+  not isMobile() and
+  window.matchMedia('(orientation: portrait)').matches and       # browser is portrait
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
 
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
@@ -385,8 +392,8 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 # Checks if the view is landscape and mobile device is being used
 @isLandscapeMobile = () ->
   isMobile() and
-  window.matchMedia('(orientation: landscape)').matches and     # browser is landscape
-  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches   # device is landscape
+  window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
 
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
