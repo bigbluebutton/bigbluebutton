@@ -28,3 +28,5 @@ Template.usernameEntry.events
     userIdSelected = @.userId
     unless userIdSelected is null or userIdSelected is BBB.getCurrentUser()?.userId
       setInSession "inChatWith", userIdSelected
+    if userIdSelected is BBB.getCurrentUser()?.userId
+      setInSession "inChatWith", "PUBLIC_CHAT"
