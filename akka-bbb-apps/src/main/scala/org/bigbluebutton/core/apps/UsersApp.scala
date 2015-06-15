@@ -78,7 +78,7 @@ trait UsersApp {
           val replyTo = meetingID + '/' + msg.userId
 
           //send the reply
-          outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId, msg.sessionId))
+          outGW.send(new ValidateAuthTokenReply(meetingID, msg.userId, msg.token, true, msg.correlationId))
 
           //join the user
           handleUserJoin(new UserJoining(meetingID, msg.userId, msg.token))
@@ -347,7 +347,7 @@ trait UsersApp {
 
         users.addUser(uvo)
         log.info("New user joined voice for user [" + uvo.name + "] userid=[" + webUserId + "]")
-        outGW.send(new UserJoined(meetingID, recorded, uvo, sessionId))
+        outGW.send(new UserJoined(meetingID, recorded, uvo))
 
         outGW.send(new UserJoinedVoice(meetingID, recorded, voiceBridge, uvo))
         if (meetingMuted)

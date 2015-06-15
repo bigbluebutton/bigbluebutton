@@ -57,65 +57,138 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   outGW.send(new GetUsersInVoiceConference(meetingID, recorded, voiceBridge))
 
   def receive = {
-    case "StartTimer" => handleStartTimer
-    case "Hello" => handleHello
-    case "MonitorNumberOfWebUsers" => handleMonitorNumberOfWebUsers()
-    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
-    case msg: RegisterUser => handleRegisterUser(msg)
-    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
-    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case msg: UserJoining => handleUserJoin(msg)
-    case msg: UserLeaving => handleUserLeft(msg)
-    case msg: AssignPresenter => handleAssignPresenter(msg)
-    case msg: GetUsers => handleGetUsers(msg)
-    case msg: ChangeUserStatus => handleChangeUserStatus(msg)
-    case msg: EjectUserFromMeeting => handleEjectUserFromMeeting(msg)
-    case msg: UserRaiseHand => handleUserRaiseHand(msg)
-    case msg: UserLowerHand => handleUserLowerHand(msg)
-    case msg: UserShareWebcam => handleUserShareWebcam(msg)
-    case msg: UserUnshareWebcam => handleUserunshareWebcam(msg)
-    case msg: MuteMeetingRequest => handleMuteMeetingRequest(msg)
-    case msg: MuteAllExceptPresenterRequest => handleMuteAllExceptPresenterRequest(msg)
-    case msg: IsMeetingMutedRequest => handleIsMeetingMutedRequest(msg)
-    case msg: MuteUserRequest => handleMuteUserRequest(msg)
-    case msg: EjectUserFromVoiceRequest => handleEjectUserRequest(msg)
-    case msg: SetLockSettings => handleSetLockSettings(msg)
-    case msg: GetLockSettings => handleGetLockSettings(msg)
-    case msg: LockUserRequest => handleLockUserRequest(msg)
-    case msg: InitLockSettings => handleInitLockSettings(msg)
-    case msg: InitAudioSettings => handleInitAudioSettings(msg)
-    case msg: GetChatHistoryRequest => handleGetChatHistoryRequest(msg)
-    case msg: SendPublicMessageRequest => handleSendPublicMessageRequest(msg)
-    case msg: SendPrivateMessageRequest => handleSendPrivateMessageRequest(msg)
-    case msg: UserConnectedToGlobalAudio => handleUserConnectedToGlobalAudio(msg)
-    case msg: UserDisconnectedFromGlobalAudio => handleUserDisconnectedFromGlobalAudio(msg)
-    case msg: GetCurrentLayoutRequest => handleGetCurrentLayoutRequest(msg)
-    case msg: BroadcastLayoutRequest => handleBroadcastLayoutRequest(msg)
-    case msg: InitializeMeeting => handleInitializeMeeting(msg)
-    case msg: ClearPresentation => handleClearPresentation(msg)
-    case msg: PresentationConversionUpdate => handlePresentationConversionUpdate(msg)
-    case msg: PresentationPageCountError => handlePresentationPageCountError(msg)
-    case msg: PresentationSlideGenerated => handlePresentationSlideGenerated(msg)
-    case msg: PresentationConversionCompleted => handlePresentationConversionCompleted(msg)
-    case msg: RemovePresentation => handleRemovePresentation(msg)
-    case msg: GetPresentationInfo => handleGetPresentationInfo(msg)
-    case msg: SendCursorUpdate => handleSendCursorUpdate(msg)
-    case msg: ResizeAndMoveSlide => handleResizeAndMoveSlide(msg)
-    case msg: GotoSlide => handleGotoSlide(msg)
-    case msg: SharePresentation => handleSharePresentation(msg)
-    case msg: GetSlideInfo => handleGetSlideInfo(msg)
-    case msg: PreuploadedPresentations => handlePreuploadedPresentations(msg)
-    case msg: SendWhiteboardAnnotationRequest => handleSendWhiteboardAnnotationRequest(msg)
-    case msg: GetWhiteboardShapesRequest => handleGetWhiteboardShapesRequest(msg)
-    case msg: ClearWhiteboardRequest => handleClearWhiteboardRequest(msg)
-    case msg: UndoWhiteboardRequest => handleUndoWhiteboardRequest(msg)
-    case msg: EnableWhiteboardRequest => handleEnableWhiteboardRequest(msg)
-    case msg: IsWhiteboardEnabledRequest => handleIsWhiteboardEnabledRequest(msg)
-    case msg: SetRecordingStatus => handleSetRecordingStatus(msg)
-    case msg: GetRecordingStatus => handleGetRecordingStatus(msg)
+    case "StartTimer" =>
+      handleStartTimer
+    case "Hello" =>
+      handleHello
+    case "MonitorNumberOfWebUsers" =>
+      handleMonitorNumberOfWebUsers()
+    case msg: ValidateAuthToken =>
+      handleValidateAuthToken(msg)
+    case msg: RegisterUser =>
+      handleRegisterUser(msg)
+    case msg: UserJoinedVoiceConfMessage =>
+      handleUserJoinedVoiceConfMessage(msg)
+    case msg: UserLeftVoiceConfMessage =>
+      handleUserLeftVoiceConfMessage(msg)
+    case msg: UserMutedInVoiceConfMessage =>
+      handleUserMutedInVoiceConfMessage(msg)
+    case msg: UserTalkingInVoiceConfMessage =>
+      handleUserTalkingInVoiceConfMessage(msg)
+    case msg: VoiceConfRecordingStartedMessage =>
+      handleVoiceConfRecordingStartedMessage(msg)
+    case msg: UserJoining =>
+      handleUserJoin(msg)
+    case msg: UserLeaving =>
+      handleUserLeft(msg)
+    case msg: AssignPresenter =>
+      handleAssignPresenter(msg)
+    case msg: GetUsers =>
+      handleGetUsers(msg)
+    case msg: ChangeUserStatus =>
+      handleChangeUserStatus(msg)
+    case msg: EjectUserFromMeeting =>
+      handleEjectUserFromMeeting(msg)
+    case msg: UserRaiseHand =>
+      handleUserRaiseHand(msg)
+    case msg: UserLowerHand =>
+      handleUserLowerHand(msg)
+    case msg: UserShareWebcam =>
+      handleUserShareWebcam(msg)
+    case msg: UserUnshareWebcam =>
+      handleUserunshareWebcam(msg)
+    case msg: MuteMeetingRequest =>
+      handleMuteMeetingRequest(msg)
+    case msg: MuteAllExceptPresenterRequest =>
+      handleMuteAllExceptPresenterRequest(msg)
+    case msg: IsMeetingMutedRequest =>
+      handleIsMeetingMutedRequest(msg)
+    case msg: MuteUserRequest =>
+      handleMuteUserRequest(msg)
+    case msg: EjectUserFromVoiceRequest =>
+      handleEjectUserRequest(msg)
+    case msg: SetLockSettings =>
+      handleSetLockSettings(msg)
+    case msg: GetLockSettings =>
+      handleGetLockSettings(msg)
+    case msg: LockUserRequest =>
+      handleLockUserRequest(msg)
+    case msg: InitLockSettings =>
+      handleInitLockSettings(msg)
+    case msg: InitAudioSettings =>
+      handleInitAudioSettings(msg)
+    case msg: GetChatHistoryRequest =>
+      handleGetChatHistoryRequest(msg)
+    case msg: SendPublicMessageRequest =>
+      handleSendPublicMessageRequest(msg)
+    case msg: SendPrivateMessageRequest =>
+      handleSendPrivateMessageRequest(msg)
+    case msg: UserConnectedToGlobalAudio =>
+      handleUserConnectedToGlobalAudio(msg)
+    case msg: UserDisconnectedFromGlobalAudio =>
+      handleUserDisconnectedFromGlobalAudio(msg)
+    case msg: GetCurrentLayoutRequest =>
+      handleGetCurrentLayoutRequest(msg)
+    case msg: BroadcastLayoutRequest =>
+      handleBroadcastLayoutRequest(msg)
+    case msg: InitializeMeeting =>
+      handleInitializeMeeting(msg)
+    case msg: ClearPresentation =>
+      handleClearPresentation(msg)
+    case msg: PresentationConversionUpdate =>
+      handlePresentationConversionUpdate(msg)
+    case msg: PresentationPageCountError =>
+      handlePresentationPageCountError(msg)
+    case msg: PresentationSlideGenerated =>
+      handlePresentationSlideGenerated(msg)
+    case msg: PresentationConversionCompleted =>
+      handlePresentationConversionCompleted(msg)
+    case msg: RemovePresentation =>
+      handleRemovePresentation(msg)
+    case msg: GetPresentationInfo =>
+      handleGetPresentationInfo(msg)
+    case msg: SendCursorUpdate =>
+      handleSendCursorUpdate(msg)
+    case msg: ResizeAndMoveSlide =>
+      handleResizeAndMoveSlide(msg)
+    case msg: GotoSlide =>
+      handleGotoSlide(msg)
+    case msg: SharePresentation =>
+      handleSharePresentation(msg)
+    case msg: GetSlideInfo =>
+      handleGetSlideInfo(msg)
+    case msg: PreuploadedPresentations =>
+      handlePreuploadedPresentations(msg)
+    case msg: SendWhiteboardAnnotationRequest =>
+      handleSendWhiteboardAnnotationRequest(msg)
+    case msg: GetWhiteboardShapesRequest =>
+      handleGetWhiteboardShapesRequest(msg)
+    case msg: ClearWhiteboardRequest =>
+      handleClearWhiteboardRequest(msg)
+    case msg: UndoWhiteboardRequest =>
+      handleUndoWhiteboardRequest(msg)
+    case msg: EnableWhiteboardRequest =>
+      handleEnableWhiteboardRequest(msg)
+    case msg: IsWhiteboardEnabledRequest =>
+      handleIsWhiteboardEnabledRequest(msg)
+    case msg: SetRecordingStatus =>
+      handleSetRecordingStatus(msg)
+    case msg: GetRecordingStatus =>
+      handleGetRecordingStatus(msg)
+    case msg: CreatePollRequest =>
+      handleCreatePollRequest(msg)
+    case msg: StartPollRequest =>
+      handleStartPollRequest(msg)
+    case msg: StopPollRequest =>
+      handleStopPollRequest(msg)
+    case msg: ShowPollResultRequest =>
+      handleShowPollResultRequest(msg)
+    case msg: HidePollResultRequest =>
+      handleHidePollResultRequest(msg)
+    case msg: VotePollRequest =>
+      handleVotePollRequest(msg)
+    case msg: GetPollRequest =>
+      handleGetPollRequest(msg)
 
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit

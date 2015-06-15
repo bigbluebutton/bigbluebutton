@@ -120,7 +120,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
         }
         case Failure(failure) => {
           log.warning("Failed to get response to from meeting=" + msg.meetingID + "]. Meeting has probably hung.")
-          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId, msg.sessionId))
+          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId))
         }
       }
     }
@@ -152,7 +152,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     msg match {
       case vat: ValidateAuthToken => {
         log.info("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
-        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId, vat.sessionId))
+        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
       }
       case _ => {
         log.info("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")

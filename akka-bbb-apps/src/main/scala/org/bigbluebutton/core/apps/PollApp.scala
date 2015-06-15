@@ -12,6 +12,34 @@ trait PollApp {
 
   private val pollModel = new PollModel
 
+  def handleGetPollRequest(msg: GetPollRequest) {
+
+  }
+
+  def handleVotePollRequest(msg: VotePollRequest) {
+
+  }
+
+  def handleHidePollResultRequest(msg: HidePollResultRequest) {
+
+  }
+
+  def handleShowPollResultRequest(msg: ShowPollResultRequest) {
+
+  }
+
+  def handleStopPollRequest(msg: StopPollRequest) {
+
+  }
+
+  def handleStartPollRequest(msg: StartPollRequest) {
+
+  }
+
+  def handleCreatePollRequest(msg: CreatePollRequest) {
+
+  }
+
   private def buildAnswers(questionType: String, answersVO: Option[Array[AnswerVO]]): Array[Answer] = {
     var answers = new ArrayBuffer[Answer]()
 
