@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.apps.layout
+package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
@@ -9,36 +9,32 @@ trait LayoutApp {
 
   val outGW: MessageOutGateway
 
-  private var setByUser: String = "system";
-  private var currentLayout = "";
-  private var layoutLocked = false
-  private var viewersOnly = true
+  val layoutModel = new LayoutModel()
 
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
     outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID,
-      currentLayout, permissions.lockedLayout, setByUser))
+      layoutModel.getCurrentLayout(), permissions.lockedLayout, layoutModel.getLayoutSetter()))
   }
 
   def handleLockLayoutRequest(msg: LockLayoutRequest) {
-    viewersOnly = msg.viewersOnly
+    layoutModel.applyToViewersOnly(msg.viewersOnly)
     lockLayout(msg.lock)
 
-    outGW.send(new LockLayoutEvent(msg.meetingID, recorded,
-      msg.setById, msg.lock, affectedUsers))
+    outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.setById, msg.lock, affectedUsers))
 
     msg.layout foreach { l =>
-      currentLayout = l
+      layoutModel.setCurrentLayout(l)
       broadcastSyncLayout(msg.meetingID, msg.setById)
     }
   }
 
   private def broadcastSyncLayout(meetingId: String, setById: String) {
     outGW.send(new BroadcastLayoutEvent(meetingId, recorded, setById,
-      currentLayout, permissions.lockedLayout, setByUser, affectedUsers))
+      layoutModel.getCurrentLayout(), permissions.lockedLayout, layoutModel.getLayoutSetter(), affectedUsers))
   }
 
   def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
-    currentLayout = msg.layout
+    layoutModel.setCurrentLayout(msg.layout)
     broadcastSyncLayout(msg.meetingID, msg.requesterID)
   }
 
@@ -49,7 +45,7 @@ trait LayoutApp {
   }
 
   def affectedUsers(): Array[UserVO] = {
-    if (viewersOnly) {
+    if (layoutModel.doesLayoutApplyToViewersOnly()) {
       val au = ArrayBuffer[UserVO]()
       users.getUsers foreach { u =>
         if (!u.presenter && u.role != Role.MODERATOR) {

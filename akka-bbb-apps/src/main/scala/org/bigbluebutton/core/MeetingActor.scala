@@ -7,8 +7,8 @@ import akka.actor.Props
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps.presentation.PresentationApp
-import org.bigbluebutton.core.apps.layout.LayoutApp
-import org.bigbluebutton.core.apps.chat.ChatApp
+import org.bigbluebutton.core.apps.LayoutApp
+import org.bigbluebutton.core.apps.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
@@ -33,8 +33,8 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   val createTime: Long, val createDate: String,
   val outGW: MessageOutGateway)
     extends Actor with UsersApp with PresentationApp
-    with LayoutApp with ChatApp with PollApp
-    with WhiteboardApp with ActorLogging {
+    with LayoutApp with ChatApp with MeetingMessageHandler
+    with ActorLogging {
 
   var audioSettingsInited = false
   var permissionsInited = false
