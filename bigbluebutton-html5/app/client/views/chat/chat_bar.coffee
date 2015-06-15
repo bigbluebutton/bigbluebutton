@@ -127,6 +127,10 @@ Template.chatbar.events
   'click .toPublic': (event) ->
     setInSession 'inChatWith', 'PUBLIC_CHAT'
 
+Template.privateChatTab.rendered = ->
+  if isLandscape() or isPortrait()
+    $("#newMessageInput").focus()
+
 # When message gets rendered, scroll to the bottom
 Template.message.rendered = ->
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)

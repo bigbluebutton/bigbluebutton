@@ -26,7 +26,13 @@ Template.displayUserIcons.helpers
 Template.usernameEntry.events
   'click .usernameEntry': (event) ->
     userIdSelected = @.userId
-    unless userIdSelected is null or userIdSelected is BBB.getCurrentUser()?.userId
-      setInSession "inChatWith", userIdSelected
-    if userIdSelected is BBB.getCurrentUser()?.userId
-      setInSession "inChatWith", "PUBLIC_CHAT"
+    unless userIdSelected is null
+      if userIdSelected is BBB.getCurrentUser()?.userId
+        setInSession "inChatWith", "PUBLIC_CHAT"
+      else
+        setInSession "inChatWith", userIdSelected
+    if isLandscape()
+      $("#newMessageInput").focus()
+    if isPortrait() or isPortraitMobile()
+      toggleUsersList()
+      $("#newMessageInput").focus()
