@@ -19,10 +19,11 @@ class PollModel {
 
   def createPoll(pollVO: PollVO) {
     val questions = new ArrayBuffer[Question]
+    /*   
     pollVO.questions.foreach(qv => {
-      val responses = new ArrayBuffer[Response]
+      val responses = new ArrayBuffer[Answer]
       qv.responses.foreach(rv => {
-        val response = new Response(rv.id, rv.text)
+        val response = new Answer(rv.id, rv.text)
         responses += response
       })
       questions += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
@@ -30,11 +31,13 @@ class PollModel {
 
     val poll = new Poll(pollVO.id, pollVO.title, questions.toArray)
     polls += poll.id -> poll
+   
+    */
   }
 
   def updatePoll(pollVO: PollVO): Boolean = {
     var success = false
-
+    /*
     polls.get(pollVO.id) match {
       case Some(p) => {
         val questions = new ArrayBuffer[Question]
@@ -53,7 +56,7 @@ class PollModel {
       }
       case None => success = false
     }
-
+*/
     success
   }
 
@@ -133,6 +136,7 @@ class PollModel {
   def getPoll(pollID: String): Option[PollVO] = {
     var poll: Option[PollVO] = None
 
+    /*    
     polls.get(pollID) match {
       case Some(p) => {
         val questions = new ArrayBuffer[QuestionVO]
@@ -150,7 +154,7 @@ class PollModel {
       }
       case None => poll = None
     }
-
+*/
     poll
   }
 
@@ -168,7 +172,7 @@ class PollModel {
     }
   }
 
-  def respondToQuestion(pollID: String, questionID: String, responseID: String, responder: Responder) {
+  def respondToQuestion(pollID: String, questionID: String, responseID: Int, responder: Responder) {
     polls.get(pollID) match {
       case Some(p) => {
         p.respondToQuestion(questionID, responseID, responder)
@@ -182,6 +186,7 @@ class PollModel {
    * Some pre-created polls for testing and simulation so we don't have
    * to manually generate polls when testing the UI.
    */
+  /*
   def createSamplePoll() {
     addSamplePoll1()
     addSamplePoll2()
@@ -234,4 +239,6 @@ class PollModel {
     respondToQuestion("pollID-103", "q1", "2", new Responder("user3", "Pedro"))
     respondToQuestion("pollID-103", "q1", "3", new Responder("user4", "Aksaya"))
   }
+  */
+
 }
