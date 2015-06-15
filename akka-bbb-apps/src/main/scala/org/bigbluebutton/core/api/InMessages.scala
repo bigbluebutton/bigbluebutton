@@ -1,8 +1,8 @@
 package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.api.Role._
-import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
-import org.bigbluebutton.core.apps.presentation.Presentation
+import org.bigbluebutton.core.apps.AnnotationVO
+import org.bigbluebutton.core.apps.Presentation
 
 trait InMessage { val meetingID: String }
 

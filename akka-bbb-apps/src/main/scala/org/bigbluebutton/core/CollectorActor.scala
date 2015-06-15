@@ -8,8 +8,8 @@ import scala.collection.mutable.HashMap
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
 import java.util.ArrayList
-import org.bigbluebutton.core.apps.presentation.Page
-import org.bigbluebutton.core.apps.presentation.Presentation
+import org.bigbluebutton.core.apps.Page
+import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.pubsub.senders.ChatMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter

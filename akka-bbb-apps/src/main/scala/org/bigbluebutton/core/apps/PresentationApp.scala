@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.apps.presentation
+package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor

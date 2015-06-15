@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.apps.users
+package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.models.{ UserV, Voice }
 import scala.collection.mutable.ArrayBuffer

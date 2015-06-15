@@ -4,16 +4,18 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
-import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.apps.UsersApp
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.apps.presentation.PresentationApp
+import org.bigbluebutton.core.apps.PresentationApp
 import org.bigbluebutton.core.apps.LayoutApp
 import org.bigbluebutton.core.apps.ChatApp
-import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
+import org.bigbluebutton.core.apps.WhiteboardApp
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.PollApp
+import org.bigbluebutton.core.apps.ChatModel
+import org.bigbluebutton.core.apps.LayoutModel
 
 case object StopMeetingActor
 
@@ -35,6 +37,9 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
     extends Actor with UsersApp with PresentationApp
     with LayoutApp with ChatApp with MeetingMessageHandler
     with ActorLogging {
+
+  val chatModel = new ChatModel()
+  val layoutModel = new LayoutModel()
 
   var audioSettingsInited = false
   var permissionsInited = false

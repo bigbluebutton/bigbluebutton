@@ -9,8 +9,6 @@ trait ChatApp {
 
   val outGW: MessageOutGateway
 
-  val chatModel = new ChatModel()
-
   def handleGetChatHistoryRequest(msg: GetChatHistoryRequest) {
     val history = chatModel.getChatHistory()
     outGW.send(new GetChatHistoryReply(meetingID, recorded, msg.requesterID, msg.replyTo, history))

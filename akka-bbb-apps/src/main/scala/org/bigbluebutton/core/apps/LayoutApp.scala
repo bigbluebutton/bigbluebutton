@@ -9,8 +9,6 @@ trait LayoutApp {
 
   val outGW: MessageOutGateway
 
-  val layoutModel = new LayoutModel()
-
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
     outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID,
       layoutModel.getCurrentLayout(), permissions.lockedLayout, layoutModel.getLayoutSetter()))

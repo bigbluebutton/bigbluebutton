@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
-import org.bigbluebutton.core.apps.presentation.CurrentPresentationInfo
-import org.bigbluebutton.core.apps.presentation.Presentation
-import org.bigbluebutton.core.apps.presentation.Page
+import org.bigbluebutton.core.apps.AnnotationVO
+import org.bigbluebutton.core.apps.CurrentPresentationInfo
+import org.bigbluebutton.core.apps.Presentation
+import org.bigbluebutton.core.apps.Page
 
 abstract class OutMessage
 
