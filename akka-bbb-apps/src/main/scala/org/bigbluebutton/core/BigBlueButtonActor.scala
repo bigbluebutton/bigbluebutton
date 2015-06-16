@@ -48,7 +48,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
-    meetings.values.find(m => m.voiceBridge == voiceConfId)
+    meetings.values.find(m => m.mProps.voiceBridge == voiceConfId)
   }
 
   private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
@@ -57,7 +57,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
       val recEvent = new VoiceUserJoinedRecordEvent(msg.userId, msg.voiceUserId, msg.voiceConfId,
         msg.callerIdNum, msg.callerIdName, msg.muted, msg.talking)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
@@ -65,7 +65,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
       val recEvent = new VoiceUserLeftRecordEvent(msg.voiceUserId, msg.voiceConfId)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
@@ -73,7 +73,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
       val recEvent = new VoiceUserLockedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.locked)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
@@ -81,7 +81,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
       val recEvent = new VoiceUserMutedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.muted)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
@@ -91,7 +91,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
       val recEvent = new VoiceStartRecordingRecordEvent(msg.voiceConfId, msg.recording)
       recEvent.setTimestamp(msg.timestamp)
       recEvent.setRecordingFilename(msg.recordStream)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
 
   }
@@ -100,7 +100,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
       val recEvent = new VoiceUserTalkingRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.talking)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.meetingID)
+      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
 
   }
@@ -129,11 +129,11 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   private def handleMeetingMessage(msg: InMessage): Unit = {
     msg match {
       case ucm: UserConnectedToGlobalAudio => {
-        val m = meetings.values.find(m => m.voiceBridge == ucm.voiceConf)
+        val m = meetings.values.find(m => m.mProps.voiceBridge == ucm.voiceConf)
         m foreach { mActor => mActor.actorRef ! ucm }
       }
       case udm: UserDisconnectedFromGlobalAudio => {
-        val m = meetings.values.find(m => m.voiceBridge == udm.voiceConf)
+        val m = meetings.values.find(m => m.mProps.voiceBridge == udm.voiceConf)
         m foreach { mActor => mActor.actorRef ! udm }
       }
       case allOthers => {
@@ -172,7 +172,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
       case Some(m) => {
         meetings -= msg.meetingID
         log.info("Kick everyone out on meeting id[" + msg.meetingID + "].")
-        outGW.send(new EndAndKickAll(msg.meetingID, m.recorded))
+        outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
         outGW.send(new DisconnectAllUsers(msg.meetingID))
         log.info("Destroyed meeting id[" + msg.meetingID + "].")
         outGW.send(new MeetingDestroyed(msg.meetingID))
@@ -186,20 +186,19 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   private def handleCreateMeeting(msg: CreateMeeting): Unit = {
     meetings.get(msg.meetingID) match {
       case None => {
-        log.info("New meeting create request [" + msg.meetingName + "]")
-        var m = RunningMeeting(msg.meetingID, msg.externalMeetingID, msg.meetingName, msg.recorded,
-          msg.voiceBridge, msg.duration, msg.autoStartRecording, msg.allowStartStopRecording, msg.moderatorPass,
-          msg.viewerPass, msg.createTime, msg.createDate, outGW)
+        log.info("New meeting create request [" + msg.mProps.meetingName + "]")
+        var m = RunningMeeting(msg.mProps, outGW)
 
-        meetings += m.meetingID -> m
-        outGW.send(new MeetingCreated(m.meetingID, m.externalMeetingID, m.recorded, m.meetingName, m.voiceBridge, msg.duration,
-          msg.moderatorPass, msg.viewerPass, msg.createTime, msg.createDate))
+        meetings += m.mProps.meetingID -> m
+        outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.recorded, m.mProps.meetingName,
+          m.mProps.voiceBridge, msg.mProps.duration, msg.mProps.moderatorPass,
+          msg.mProps.viewerPass, msg.mProps.createTime, msg.mProps.createDate))
 
-        m.actorRef ! new InitializeMeeting(m.meetingID, m.recorded)
+        m.actorRef ! new InitializeMeeting(m.mProps.meetingID, m.mProps.recorded)
         m.actorRef ! "StartTimer"
       }
       case Some(m) => {
-        log.info("Meeting already created [" + msg.meetingName + "]")
+        log.info("Meeting already created [" + msg.mProps.meetingName + "]")
         // do nothing
       }
     }
@@ -218,18 +217,18 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
     for (i <- 0 until arr.length) {
       val id = arr(i)
-      val duration = meetings.get(arr(i)).head.duration
-      val name = meetings.get(arr(i)).head.meetingName
-      val recorded = meetings.get(arr(i)).head.recorded
-      val voiceBridge = meetings.get(arr(i)).head.voiceBridge
+      val duration = meetings.get(arr(i)).head.mProps.duration
+      val name = meetings.get(arr(i)).head.mProps.meetingName
+      val recorded = meetings.get(arr(i)).head.mProps.recorded
+      val voiceBridge = meetings.get(arr(i)).head.mProps.voiceBridge
 
       var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
       resultArray(i) = info
 
       //remove later
       println("for a meeting:" + id)
-      println("Meeting Name = " + meetings.get(id).head.meetingName)
-      println("isRecorded = " + meetings.get(id).head.recorded)
+      println("Meeting Name = " + meetings.get(id).head.mProps.meetingName)
+      println("isRecorded = " + meetings.get(id).head.mProps.recorded)
       println("voiceBridge = " + voiceBridge)
       println("duration = " + duration)
 

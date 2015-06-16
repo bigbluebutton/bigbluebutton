@@ -10,7 +10,7 @@ trait LayoutApp {
   val outGW: MessageOutGateway
 
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
-    outGW.send(new GetCurrentLayoutReply(msg.meetingID, recorded, msg.requesterID,
+    outGW.send(new GetCurrentLayoutReply(msg.meetingID, mProps.recorded, msg.requesterID,
       layoutModel.getCurrentLayout(), permissions.lockedLayout, layoutModel.getLayoutSetter()))
   }
 
@@ -18,7 +18,7 @@ trait LayoutApp {
     layoutModel.applyToViewersOnly(msg.viewersOnly)
     lockLayout(msg.lock)
 
-    outGW.send(new LockLayoutEvent(msg.meetingID, recorded, msg.setById, msg.lock, affectedUsers))
+    outGW.send(new LockLayoutEvent(msg.meetingID, mProps.recorded, msg.setById, msg.lock, affectedUsers))
 
     msg.layout foreach { l =>
       layoutModel.setCurrentLayout(l)
@@ -27,7 +27,7 @@ trait LayoutApp {
   }
 
   private def broadcastSyncLayout(meetingId: String, setById: String) {
-    outGW.send(new BroadcastLayoutEvent(meetingId, recorded, setById,
+    outGW.send(new BroadcastLayoutEvent(meetingId, mProps.recorded, setById,
       layoutModel.getCurrentLayout(), permissions.lockedLayout, layoutModel.getLayoutSetter(), affectedUsers))
   }
 
@@ -37,9 +37,9 @@ trait LayoutApp {
   }
 
   def handleLockLayout(lock: Boolean, setById: String) {
-    outGW.send(new LockLayoutEvent(meetingID, recorded, setById, lock, affectedUsers))
+    outGW.send(new LockLayoutEvent(mProps.meetingID, mProps.recorded, setById, lock, affectedUsers))
 
-    broadcastSyncLayout(meetingID, setById)
+    broadcastSyncLayout(mProps.meetingID, setById)
   }
 
   def affectedUsers(): Array[UserVO] = {

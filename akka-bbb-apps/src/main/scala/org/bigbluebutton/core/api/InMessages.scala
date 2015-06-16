@@ -3,15 +3,13 @@ package org.bigbluebutton.core.api
 import org.bigbluebutton.core.api.Role._
 import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
+import org.bigbluebutton.core.MeetingProperties
 
 trait InMessage { val meetingID: String }
 
 case class IsMeetingActorAliveMessage(meetingId: String)
 case class KeepAliveMessage(aliveID: String)
-case class CreateMeeting(meetingID: String, externalMeetingID: String, meetingName: String,
-  recorded: Boolean, voiceBridge: String, duration: Long, autoStartRecording: Boolean,
-  allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String,
-  createTime: Long, createDate: String) extends InMessage
+case class CreateMeeting(meetingID: String, mProps: MeetingProperties) extends InMessage
 case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage

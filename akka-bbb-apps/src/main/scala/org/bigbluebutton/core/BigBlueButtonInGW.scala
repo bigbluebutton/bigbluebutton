@@ -25,10 +25,10 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
     allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String,
     createTime: Long, createDate: String) {
 
-    bbbActor ! new CreateMeeting(meetingID, externalMeetingID, meetingName, record,
-      voiceBridge, duration, autoStartRecording,
-      allowStartStopRecording, moderatorPass, viewerPass,
-      createTime, createDate)
+    val mProps = new MeetingProperties(meetingID, externalMeetingID, meetingName, record,
+      voiceBridge, duration, autoStartRecording, allowStartStopRecording,
+      moderatorPass, viewerPass, createTime, createDate)
+    bbbActor ! new CreateMeeting(meetingID, mProps)
   }
 
   def destroyMeeting(meetingID: String) {

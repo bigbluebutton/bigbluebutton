@@ -4,6 +4,7 @@ import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.CurrentPresentationInfo
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.apps.Page
+import org.bigbluebutton.core.MeetingProperties
 
 abstract class OutMessage
 

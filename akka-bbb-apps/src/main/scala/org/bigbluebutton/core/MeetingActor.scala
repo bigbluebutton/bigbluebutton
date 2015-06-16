@@ -18,22 +18,16 @@ import org.bigbluebutton.core.apps.ChatModel
 import org.bigbluebutton.core.apps.LayoutModel
 
 case object StopMeetingActor
+case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
+  voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
+  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String)
 
 object MeetingActor {
-  def props(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
-    voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-    moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, outGW: MessageOutGateway): Props =
-    Props(classOf[MeetingActor], meetingID, externalMeetingID, meetingName, recorded,
-      voiceBridge, duration, autoStartRecording, allowStartStopRecording, moderatorPass, viewerPass,
-      createTime, createDate, outGW)
+  def props(mProps: MeetingProperties, outGW: MessageOutGateway): Props =
+    Props(classOf[MeetingActor], mProps: MeetingProperties, outGW)
 }
 
-class MeetingActor(val meetingID: String, val externalMeetingID: String, val meetingName: String, val recorded: Boolean,
-  val voiceBridge: String, duration: Long,
-  val autoStartRecording: Boolean, val allowStartStopRecording: Boolean,
-  val moderatorPass: String, val viewerPass: String,
-  val createTime: Long, val createDate: String,
-  val outGW: MessageOutGateway)
+class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     extends Actor with UsersApp with PresentationApp
     with LayoutApp with ChatApp with MeetingMessageHandler
     with ActorLogging {
@@ -59,7 +53,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
 
-  outGW.send(new GetUsersInVoiceConference(meetingID, recorded, voiceBridge))
+  outGW.send(new GetUsersInVoiceConference(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
 
   def receive = {
     case "StartTimer" =>
@@ -224,26 +218,26 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   }
 
   def startRecordingIfAutoStart() {
-    if (recorded && !recording && autoStartRecording && users.numWebUsers == 1) {
-      log.info("Auto start recording for meeting=[" + meetingID + "]")
+    if (mProps.recorded && !recording && mProps.autoStartRecording && users.numWebUsers == 1) {
+      log.info("Auto start recording for meeting=[" + mProps.meetingID + "]")
       recording = true
-      outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", recording))
     }
   }
 
   def stopAutoStartedRecording() {
-    if (recorded && recording && autoStartRecording
+    if (mProps.recorded && recording && mProps.autoStartRecording
       && users.numWebUsers == 0) {
-      log.info("Last web user left. Auto stopping recording for meeting=[{}", meetingID)
+      log.info("Last web user left. Auto stopping recording for meeting=[{}", mProps.meetingID)
       recording = false
-      outGW.send(new RecordingStatusChanged(meetingID, recorded, "system", recording))
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", recording))
     }
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
     if (users.numWebUsers == 0) {
       lastWebUserLeftOn = timeNowInMinutes
-      log.debug("MonitorNumberOfWebUsers started for meeting [" + meetingID + "]")
+      log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
     }
   }
 
@@ -251,16 +245,16 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
     println("BACK TIMER")
     if (users.numWebUsers == 0 && lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - lastWebUserLeftOn > 2) {
-        log.info("MonitorNumberOfWebUsers empty for meeting [" + meetingID + "]. Ejecting all users from voice.")
-        outGW.send(new EjectAllVoiceUsers(meetingID, recorded, voiceBridge))
+        log.info("MonitorNumberOfWebUsers empty for meeting [" + mProps.meetingID + "]. Ejecting all users from voice.")
+        outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
       }
     }
 
     val now = timeNowInMinutes
 
-    println("(" + startedOn + "+" + duration + ") - " + now + " = " + ((startedOn + duration) - now) + " < 15")
+    println("(" + startedOn + "+" + mProps.duration + ") - " + now + " = " + ((startedOn + mProps.duration) - now) + " < 15")
 
-    if (duration > 0 && (((startedOn + duration) - now) < 15)) {
+    if (mProps.duration > 0 && (((startedOn + mProps.duration) - now) < 15)) {
       log.warning("MEETING WILL END IN 15 MINUTES!!!!")
     }
   }
@@ -270,37 +264,37 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   }
 
   def sendMeetingHasEnded(userId: String) {
-    outGW.send(new MeetingHasEnded(meetingID, userId))
-    outGW.send(new DisconnectUser(meetingID, userId))
+    outGW.send(new MeetingHasEnded(mProps.meetingID, userId))
+    outGW.send(new DisconnectUser(mProps.meetingID, userId))
   }
 
   private def handleEndMeeting(msg: EndMeeting) {
     meetingEnded = true
-    outGW.send(new MeetingEnded(msg.meetingID, recorded, voiceBridge))
+    outGW.send(new MeetingEnded(msg.meetingID, mProps.recorded, mProps.voiceBridge))
     outGW.send(new DisconnectAllUsers(msg.meetingID))
   }
 
   private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
     if (msg.recording) {
       voiceRecordingFilename = msg.recordStream
-      outGW.send(new VoiceRecordingStarted(meetingID, recorded, msg.recordStream, msg.timestamp, voiceBridge))
+      outGW.send(new VoiceRecordingStarted(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
     } else {
       voiceRecordingFilename = ""
-      outGW.send(new VoiceRecordingStopped(meetingID, recorded, msg.recordStream, msg.timestamp, voiceBridge))
+      outGW.send(new VoiceRecordingStopped(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
     }
   }
 
   private def handleSetRecordingStatus(msg: SetRecordingStatus) {
-    log.debug("Change recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
-    if (allowStartStopRecording && recording != msg.recording) {
+    log.debug("Change recording status for meeting [" + mProps.meetingID + "], recording=[" + msg.recording + "]")
+    if (mProps.allowStartStopRecording && recording != msg.recording) {
       recording = msg.recording
-      log.debug("Sending recording status for meeting [" + meetingID + "], recording=[" + msg.recording + "]")
-      outGW.send(new RecordingStatusChanged(meetingID, recorded, msg.userId, msg.recording))
+      log.debug("Sending recording status for meeting [" + mProps.meetingID + "], recording=[" + msg.recording + "]")
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, msg.userId, msg.recording))
     }
   }
 
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {
-    outGW.send(new GetRecordingStatusReply(meetingID, recorded, msg.userId, recording.booleanValue()))
+    outGW.send(new GetRecordingStatusReply(mProps.meetingID, mProps.recorded, msg.userId, recording.booleanValue()))
   }
 
   def lockLayout(lock: Boolean) {

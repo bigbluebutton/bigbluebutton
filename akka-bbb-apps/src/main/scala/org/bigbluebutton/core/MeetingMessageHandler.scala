@@ -41,7 +41,7 @@ trait MeetingMessageHandler {
 
     wbModel.getWhiteboard(wbId) foreach { wb =>
       //        println("WhiteboardApp::handleSendWhiteboardAnnotationRequest - num shapes [" + wb.shapes.length + "]")
-      outGW.send(new SendWhiteboardAnnotationEvent(meetingID, recorded, msg.requesterID, wbId, msg.annotation))
+      outGW.send(new SendWhiteboardAnnotationEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wbId, msg.annotation))
     }
 
   }
@@ -55,7 +55,7 @@ trait MeetingMessageHandler {
   def handleGetWhiteboardShapesRequest(msg: GetWhiteboardShapesRequest) {
     //println("WB: Received page history [" + msg.whiteboardId + "]")
     wbModel.history(msg.whiteboardId) foreach { wb =>
-      outGW.send(new GetWhiteboardShapesReply(meetingID, recorded, msg.requesterID, wb.id, wb.shapes.toArray, msg.replyTo))
+      outGW.send(new GetWhiteboardShapesReply(mProps.meetingID, mProps.recorded, msg.requesterID, wb.id, wb.shapes.toArray, msg.replyTo))
     }
   }
 
@@ -63,7 +63,7 @@ trait MeetingMessageHandler {
     //println("WB: Received clear whiteboard")
     wbModel.clearWhiteboard(msg.whiteboardId)
     wbModel.getWhiteboard(msg.whiteboardId) foreach { wb =>
-      outGW.send(new ClearWhiteboardEvent(meetingID, recorded, msg.requesterID, wb.id))
+      outGW.send(new ClearWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wb.id))
     }
   }
 
@@ -72,19 +72,19 @@ trait MeetingMessageHandler {
 
     wbModel.getWhiteboard(msg.whiteboardId) foreach { wb =>
       wbModel.undoWhiteboard(msg.whiteboardId) foreach { last =>
-        outGW.send(new UndoWhiteboardEvent(meetingID, recorded, msg.requesterID, wb.id, last.id))
+        outGW.send(new UndoWhiteboardEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wb.id, last.id))
       }
     }
   }
 
   def handleEnableWhiteboardRequest(msg: EnableWhiteboardRequest) {
     wbModel.enableWhiteboard(msg.enable)
-    outGW.send(new WhiteboardEnabledEvent(meetingID, recorded, msg.requesterID, msg.enable))
+    outGW.send(new WhiteboardEnabledEvent(mProps.meetingID, mProps.recorded, msg.requesterID, msg.enable))
   }
 
   def handleIsWhiteboardEnabledRequest(msg: IsWhiteboardEnabledRequest) {
     val enabled = wbModel.isWhiteboardEnabled()
-    outGW.send(new IsWhiteboardEnabledReply(meetingID, recorded, msg.requesterID, enabled, msg.replyTo))
+    outGW.send(new IsWhiteboardEnabledReply(mProps.meetingID, mProps.recorded, msg.requesterID, enabled, msg.replyTo))
   }
 
   def handleGetPollRequest(msg: GetPollRequest) {
