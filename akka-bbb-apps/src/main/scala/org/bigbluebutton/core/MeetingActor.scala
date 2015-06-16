@@ -34,21 +34,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
-
-  var audioSettingsInited = false
-  var permissionsInited = false
-  var permissions = new Permissions()
-  var recording = false;
-  var muted = false;
-  var meetingEnded = false
-
-  val TIMER_INTERVAL = 30000
-  var hasLastWebUserLeft = false
-  var lastWebUserLeftOn: Long = 0
-
-  var voiceRecordingFilename: String = ""
-
-  val startedOn = timeNowInMinutes;
+  val meetingModel = new MeetingModel()
 
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
@@ -195,7 +181,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   def hasMeetingEnded(): Boolean = {
-    meetingEnded
+    meetingModel.hasMeetingEnded()
   }
 
   private def handleStartTimer() {
@@ -213,38 +199,37 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
   def webUserJoined() {
     if (users.numWebUsers > 0) {
-      lastWebUserLeftOn = 0
+      meetingModel.resetLastWebUserLeftOn()
     }
   }
 
   def startRecordingIfAutoStart() {
-    if (mProps.recorded && !recording && mProps.autoStartRecording && users.numWebUsers == 1) {
+    if (mProps.recorded && !meetingModel.isRecording() && mProps.autoStartRecording && users.numWebUsers == 1) {
       log.info("Auto start recording for meeting=[" + mProps.meetingID + "]")
-      recording = true
-      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", recording))
+      meetingModel.recordingStarted()
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
     }
   }
 
   def stopAutoStartedRecording() {
-    if (mProps.recorded && recording && mProps.autoStartRecording
-      && users.numWebUsers == 0) {
+    if (mProps.recorded && meetingModel.isRecording() && mProps.autoStartRecording && users.numWebUsers == 0) {
       log.info("Last web user left. Auto stopping recording for meeting=[{}", mProps.meetingID)
-      recording = false
-      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", recording))
+      meetingModel.recordingStopped()
+      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
     }
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
     if (users.numWebUsers == 0) {
-      lastWebUserLeftOn = timeNowInMinutes
+      meetingModel.lastWebUserLeft()
       log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
     }
   }
 
   def handleMonitorNumberOfWebUsers() {
     println("BACK TIMER")
-    if (users.numWebUsers == 0 && lastWebUserLeftOn > 0) {
-      if (timeNowInMinutes - lastWebUserLeftOn > 2) {
+    if (users.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
+      if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
         log.info("MonitorNumberOfWebUsers empty for meeting [" + mProps.meetingID + "]. Ejecting all users from voice.")
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
       }
@@ -252,9 +237,9 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
     val now = timeNowInMinutes
 
-    println("(" + startedOn + "+" + mProps.duration + ") - " + now + " = " + ((startedOn + mProps.duration) - now) + " < 15")
+    println("(" + meetingModel.startedOn + "+" + mProps.duration + ") - " + now + " = " + ((meetingModel.startedOn + mProps.duration) - now) + " < 15")
 
-    if (mProps.duration > 0 && (((startedOn + mProps.duration) - now) < 15)) {
+    if (mProps.duration > 0 && (((meetingModel.startedOn + mProps.duration) - now) < 15)) {
       log.warning("MEETING WILL END IN 15 MINUTES!!!!")
     }
   }
@@ -269,44 +254,48 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   private def handleEndMeeting(msg: EndMeeting) {
-    meetingEnded = true
+    meetingModel.meetingHasEnded
     outGW.send(new MeetingEnded(msg.meetingID, mProps.recorded, mProps.voiceBridge))
     outGW.send(new DisconnectAllUsers(msg.meetingID))
   }
 
   private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
     if (msg.recording) {
-      voiceRecordingFilename = msg.recordStream
+      meetingModel.setVoiceRecordingFilename(msg.recordStream)
       outGW.send(new VoiceRecordingStarted(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
     } else {
-      voiceRecordingFilename = ""
+      meetingModel.setVoiceRecordingFilename("")
       outGW.send(new VoiceRecordingStopped(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
     }
   }
 
   private def handleSetRecordingStatus(msg: SetRecordingStatus) {
     log.debug("Change recording status for meeting [" + mProps.meetingID + "], recording=[" + msg.recording + "]")
-    if (mProps.allowStartStopRecording && recording != msg.recording) {
-      recording = msg.recording
+    if (mProps.allowStartStopRecording && meetingModel.isRecording() != msg.recording) {
+      if (msg.recording) {
+        meetingModel.recordingStarted()
+      } else {
+        meetingModel.recordingStopped()
+      }
       log.debug("Sending recording status for meeting [" + mProps.meetingID + "], recording=[" + msg.recording + "]")
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, msg.userId, msg.recording))
     }
   }
 
   private def handleGetRecordingStatus(msg: GetRecordingStatus) {
-    outGW.send(new GetRecordingStatusReply(mProps.meetingID, mProps.recorded, msg.userId, recording.booleanValue()))
+    outGW.send(new GetRecordingStatusReply(mProps.meetingID, mProps.recorded, msg.userId, meetingModel.isRecording().booleanValue()))
   }
 
   def lockLayout(lock: Boolean) {
-    permissions = permissions.copy(lockedLayout = lock)
+    meetingModel.lockLayout(lock)
   }
 
   def newPermissions(np: Permissions) {
-    permissions = np
+    meetingModel.setPermissions(np)
   }
 
   def permissionsEqual(other: Permissions): Boolean = {
-    permissions == other
+    meetingModel.permissionsEqual(other)
   }
 
 }

@@ -101,7 +101,7 @@ trait UsersApp {
   }
 
   def handleRegisterUser(msg: RegisterUser) {
-    if (hasMeetingEnded) {
+    if (meetingModel.hasMeetingEnded()) {
       // Check first if the meeting has ended and the user refreshed the client to re-connect.
       log.info("Register user failed: reason=[meeting has ended] mid=[" + mProps.meetingID + "] uid=[" + msg.userID + "]")
       sendMeetingHasEnded(msg.userID)
@@ -150,14 +150,14 @@ trait UsersApp {
     //println("*************** Reply with current lock settings ********************")
 
     //reusing the existing handle for NewPermissionsSettings to reply to the GetLockSettings request
-    outGW.send(new NewPermissionsSetting(mProps.meetingID, msg.userId, permissions, users.getUsers))
+    outGW.send(new NewPermissionsSetting(mProps.meetingID, msg.userId, meetingModel.getPermissions(), users.getUsers))
   }
 
   def handleSetLockSettings(msg: SetLockSettings) {
     //    println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {
       newPermissions(msg.settings)
-      outGW.send(new NewPermissionsSetting(mProps.meetingID, msg.setByUser, permissions, users.getUsers))
+      outGW.send(new NewPermissionsSetting(mProps.meetingID, msg.setByUser, meetingModel.getPermissions, users.getUsers))
 
       handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
     }
@@ -179,16 +179,17 @@ trait UsersApp {
   }
 
   def handleInitLockSettings(msg: InitLockSettings) {
-    if (!permissionsInited) {
-      permissionsInited = true
+    if (!meetingModel.permisionsInitialized()) {
+      meetingModel.initializePermissions()
       newPermissions(msg.settings)
       outGW.send(new PermissionsSettingInitialized(msg.meetingID, msg.settings, users.getUsers))
     }
   }
 
   def handleInitAudioSettings(msg: InitAudioSettings) {
-    if (!audioSettingsInited) {
-      audioSettingsInited = true
+    if (!meetingModel.audioSettingsInitialized()) {
+      meetingModel.initializeAudioSettings()
+
       if (meetingMuted != msg.muted) {
         handleMuteAllExceptPresenterRequest(new MuteAllExceptPresenterRequest(mProps.meetingID, msg.requesterID, msg.muted));
       }
@@ -280,10 +281,12 @@ trait UsersApp {
 
       users.addUser(uvo)
 
-      log.info("User joined meeting:  mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "] role=[" + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + permissions.lockOnJoin + "] permissions.lockOnJoinConfigurable=[" + permissions.lockOnJoinConfigurable + "]")
+      log.info("User joined meeting:  mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "] role=["
+        + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + meetingModel.getPermissions().lockOnJoin
+        + "] permissions.lockOnJoinConfigurable=[" + meetingModel.getPermissions().lockOnJoinConfigurable + "]")
       outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
 
-      outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, permissions, meetingMuted))
+      outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingMuted))
 
       // Become presenter if the only moderator		
       if (users.numModerators == 1) {
@@ -322,7 +325,7 @@ trait UsersApp {
   }
 
   def getInitialLockStatus(role: Role.Role): Boolean = {
-    permissions.lockOnJoin && !role.equals(Role.MODERATOR)
+    meetingModel.getPermissions().lockOnJoin && !role.equals(Role.MODERATOR)
   }
 
   def handleUserJoinedVoiceFromPhone(msg: UserJoinedVoiceConfMessage) = {
@@ -391,7 +394,7 @@ trait UsersApp {
   def stopRecordingVoiceConference() {
     if (users.numUsersInVoiceConference == 0 && mProps.recorded) {
       log.info("********** Send STOP RECORDING [" + mProps.voiceBridge + "]")
-      outGW.send(new StopRecordingVoiceConf(mProps.meetingID, mProps.recorded, mProps.voiceBridge, voiceRecordingFilename))
+      outGW.send(new StopRecordingVoiceConf(mProps.meetingID, mProps.recorded, mProps.voiceBridge, meetingModel.getVoiceRecordingFilename()))
     }
   }
 

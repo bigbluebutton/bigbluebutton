@@ -11,7 +11,7 @@ trait LayoutApp {
 
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
     outGW.send(new GetCurrentLayoutReply(msg.meetingID, mProps.recorded, msg.requesterID,
-      layoutModel.getCurrentLayout(), permissions.lockedLayout, layoutModel.getLayoutSetter()))
+      layoutModel.getCurrentLayout(), meetingModel.getPermissions().lockedLayout, layoutModel.getLayoutSetter()))
   }
 
   def handleLockLayoutRequest(msg: LockLayoutRequest) {
@@ -28,7 +28,7 @@ trait LayoutApp {
 
   private def broadcastSyncLayout(meetingId: String, setById: String) {
     outGW.send(new BroadcastLayoutEvent(meetingId, mProps.recorded, setById,
-      layoutModel.getCurrentLayout(), permissions.lockedLayout, layoutModel.getLayoutSetter(), affectedUsers))
+      layoutModel.getCurrentLayout(), meetingModel.getPermissions().lockedLayout, layoutModel.getLayoutSetter(), affectedUsers))
   }
 
   def handleBroadcastLayoutRequest(msg: BroadcastLayoutRequest) {
