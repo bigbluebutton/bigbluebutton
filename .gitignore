@@ -16,3 +16,6 @@ bbb-api-demo/.project
 bigbluebutton-web/.settings*
 bigbluebutton-web/.classpath
 bigbluebutton-web/.project
+akka-bbb-apps/akka-bbb-apps*.log
+akka-bbb-apps/akka-bbb-apps.log
+
