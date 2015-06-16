@@ -231,13 +231,22 @@ trait UsersApp {
       }
       
       users.removeUser(msg.userId)
-      
+      regUsers -= getUserAuthToken(msg.userId)
+
       logger.info("Ejecting user from meeting:  mid=[" + meetingID + "]uid=[" + msg.userId + "]")
       outGW.send(new UserEjectedFromMeeting(meetingID, recorded, msg.userId, msg.ejectedBy))
       outGW.send(new DisconnectUser(meetingID, msg.userId))
       
       outGW.send(new UserLeft(msg.meetingID, recorded, user))
     }    
+  }
+
+  def getUserAuthToken(userId: String): String = {
+    val regUser = regUsers.values find (ru => userId contains ru.id)
+    regUser match {
+      case Some(ru) => ru.authToken
+      case None => ""
+    }
   }
 
   def handleUserShareWebcam(msg: UserShareWebcam) {

@@ -600,6 +600,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
         showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
+        var e:BBBEvent = new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT);
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(e);
       }
 			
 			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {

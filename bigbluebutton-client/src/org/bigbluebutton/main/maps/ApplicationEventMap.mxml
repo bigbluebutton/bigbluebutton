@@ -82,6 +82,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptSucceeded" arguments="{event.payload.type}"/>
   </EventHandlers>
 
+  <EventHandlers type="{BBBEvent.CANCEL_RECONNECTION_EVENT}">
+    <MethodInvoker generator="{ReconnectionManager}" method="onCancelReconnection" />
+  </EventHandlers>
+
 
   
 	<mx:Script>

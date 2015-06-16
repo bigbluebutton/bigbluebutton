@@ -138,5 +138,14 @@ package org.bigbluebutton.core.managers
         }
       }
     }
+
+    public function onCancelReconnection():void {
+      // Not sure if we need this to be clean
+      for (var type:Object in _connections) delete _connections[type];
+      if (_popup != null) {
+        PopUpManager.removePopUp(_popup);
+        _popup = null;
+      }
+    }
   }
 }
