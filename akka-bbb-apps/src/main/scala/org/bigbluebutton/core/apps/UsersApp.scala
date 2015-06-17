@@ -12,24 +12,12 @@ trait UsersApp {
 
   val outGW: MessageOutGateway
 
-  val users = new UsersModel
-  private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
-
-  private var locked = false
-  private var meetingMuted = false
-
-  private var currentPresenter = new Presenter("system", "system", "system")
-
   def hasUser(userID: String): Boolean = {
     users.hasUser(userID)
   }
 
   def getUser(userID: String): Option[UserVO] = {
     users.getUser(userID)
-  }
-
-  def getCurrentPresenter: Presenter = {
-    currentPresenter
   }
 
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
@@ -54,8 +42,12 @@ trait UsersApp {
   }
 
   def handleMuteAllExceptPresenterRequest(msg: MuteAllExceptPresenterRequest) {
-    meetingMuted = msg.mute
-    outGW.send(new MeetingMuted(mProps.meetingID, mProps.recorded, meetingMuted))
+    if (msg.mute) {
+      meetingModel.muteMeeting()
+    } else {
+      meetingModel.unmuteMeeting()
+    }
+    outGW.send(new MeetingMuted(mProps.meetingID, mProps.recorded, meetingModel.isMeetingMuted()))
 
     usersWhoAreNotPresenter foreach { u =>
       outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, msg.requesterID, u.userID, mProps.voiceBridge, u.voiceUser.userId, msg.mute))
@@ -63,8 +55,12 @@ trait UsersApp {
   }
 
   def handleMuteMeetingRequest(msg: MuteMeetingRequest) {
-    meetingMuted = msg.mute
-    outGW.send(new MeetingMuted(mProps.meetingID, mProps.recorded, meetingMuted))
+    if (msg.mute) {
+      meetingModel.muteMeeting()
+    } else {
+      meetingModel.unmuteMeeting()
+    }
+    outGW.send(new MeetingMuted(mProps.meetingID, mProps.recorded, meetingModel.isMeetingMuted()))
     users.getUsers foreach { u =>
       outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, msg.requesterID, u.userID, mProps.voiceBridge, u.voiceUser.userId, msg.mute))
     }
@@ -72,7 +68,7 @@ trait UsersApp {
 
   def handleValidateAuthToken(msg: ValidateAuthToken) {
     //    println("*************** Got ValidateAuthToken message ********************" )
-    regUsers.get(msg.token) match {
+    users.getRegisteredUserWithToken(msg.token) match {
       case Some(u) =>
         {
           val replyTo = mProps.meetingID + '/' + msg.userId
@@ -107,7 +103,8 @@ trait UsersApp {
       sendMeetingHasEnded(msg.userID)
     } else {
       val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
-      regUsers += msg.authToken -> regUser
+      users.addRegisteredUser(msg.authToken, regUser)
+
       log.info("Register user success: mid=[" + mProps.meetingID + "] uid=[" + msg.userID + "]")
       outGW.send(new UserRegistered(mProps.meetingID, mProps.recorded, regUser))
     }
@@ -115,7 +112,7 @@ trait UsersApp {
   }
 
   def handleIsMeetingMutedRequest(msg: IsMeetingMutedRequest) {
-    outGW.send(new IsMeetingMutedReply(mProps.meetingID, mProps.recorded, msg.requesterID, meetingMuted))
+    outGW.send(new IsMeetingMutedReply(mProps.meetingID, mProps.recorded, msg.requesterID, meetingModel.isMeetingMuted()))
   }
 
   def handleMuteUserRequest(msg: MuteUserRequest) {
@@ -190,7 +187,7 @@ trait UsersApp {
     if (!meetingModel.audioSettingsInitialized()) {
       meetingModel.initializeAudioSettings()
 
-      if (meetingMuted != msg.muted) {
+      if (meetingModel.isMeetingMuted() != msg.muted) {
         handleMuteAllExceptPresenterRequest(new MuteAllExceptPresenterRequest(mProps.meetingID, msg.requesterID, msg.muted));
       }
     }
@@ -270,7 +267,7 @@ trait UsersApp {
   }
 
   def handleUserJoin(msg: UserJoining): Unit = {
-    val regUser = regUsers.get(msg.authToken)
+    val regUser = users.getRegisteredUserWithToken(msg.authToken)
     regUser foreach { ru =>
       val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,
         false, false, false, false)
@@ -286,7 +283,7 @@ trait UsersApp {
         + "] permissions.lockOnJoinConfigurable=[" + meetingModel.getPermissions().lockOnJoinConfigurable + "]")
       outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
 
-      outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingMuted))
+      outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingModel.isMeetingMuted()))
 
       // Become presenter if the only moderator		
       if (users.numModerators == 1) {
@@ -353,8 +350,8 @@ trait UsersApp {
         outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
 
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, uvo))
-        if (meetingMuted)
-          outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, uvo.userID, uvo.userID, mProps.voiceBridge, vu.userId, meetingMuted))
+        if (meetingModel.isMeetingMuted())
+          outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, uvo.userID, uvo.userID, mProps.voiceBridge, vu.userId, meetingModel.isMeetingMuted()))
 
       }
     }
@@ -378,8 +375,8 @@ trait UsersApp {
         log.info("User joined voice for user [" + nu.name + "] userid=[" + msg.userId + "]")
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
 
-        if (meetingMuted) {
-          outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, nu.userID, nu.userID, mProps.voiceBridge, nu.voiceUser.userId, meetingMuted))
+        if (meetingModel.isMeetingMuted()) {
+          outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, nu.userID, nu.userID, mProps.voiceBridge, nu.voiceUser.userId, meetingModel.isMeetingMuted()))
         }
 
         startRecordingVoiceConference()
@@ -458,7 +455,7 @@ trait UsersApp {
       users.getUser(newPresenterID) match {
         case Some(newPres) => {
           users.becomePresenter(newPres.userID)
-          currentPresenter = new Presenter(newPresenterID, newPresenterName, assignedBy)
+          users.setCurrentPresenterInfo(new Presenter(newPresenterID, newPresenterName, assignedBy))
           outGW.send(new PresenterAssigned(mProps.meetingID, mProps.recorded, new Presenter(newPresenterID, newPresenterName, assignedBy)))
           outGW.send(new UserStatusChange(mProps.meetingID, mProps.recorded, newPresenterID, "presenter", true: java.lang.Boolean))
         }
