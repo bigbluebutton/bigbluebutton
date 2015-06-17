@@ -7,11 +7,10 @@ object Util {
 
   val VERSION = "version"
 
-  def buildHeader(name: String, version: String,
-    replyTo: Option[String]): java.util.HashMap[String, Any] = {
+  def buildHeader(name: String, replyTo: Option[String]): java.util.HashMap[String, Any] = {
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, name)
-    header.put(VERSION, version)
+    header.put(VERSION, Versions.V_0_0_1)
     header.put(Constants.TIMESTAMP, TimestampGenerator.generateTimestamp)
     header.put(Constants.CURRENT_TIME, TimestampGenerator.getCurrentTime)
     replyTo.foreach(rep => header.put(Constants.REPLY_TO, rep))

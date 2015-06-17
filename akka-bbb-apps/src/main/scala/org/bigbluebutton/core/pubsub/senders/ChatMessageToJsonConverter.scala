@@ -43,7 +43,7 @@ object ChatMessageToJsonConverter {
 
     payload.put(Constants.CHAT_HISTORY, collection)
 
-    val header = Util.buildHeader(MessageNames.GET_CHAT_HISTORY_REPLY, msg.version, Some(msg.replyTo))
+    val header = Util.buildHeader(MessageNames.GET_CHAT_HISTORY_REPLY, Some(msg.replyTo))
     Util.buildJson(header, payload)
   }
 
@@ -52,7 +52,7 @@ object ChatMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.MESSAGE, mapAsJavaMap(ChatMessageToJsonConverter.chatMessageToMap(msg.message)))
 
-    val header = Util.buildHeader(MessageNames.SEND_PUBLIC_CHAT_MESSAGE, msg.version, None)
+    val header = Util.buildHeader(MessageNames.SEND_PUBLIC_CHAT_MESSAGE, None)
     Util.buildJson(header, payload)
   }
 
@@ -61,7 +61,7 @@ object ChatMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.MESSAGE, mapAsJavaMap(ChatMessageToJsonConverter.chatMessageToMap(msg.message)))
 
-    val header = Util.buildHeader(MessageNames.SEND_PRIVATE_CHAT_MESSAGE, msg.version, None)
+    val header = Util.buildHeader(MessageNames.SEND_PRIVATE_CHAT_MESSAGE, None)
     Util.buildJson(header, payload)
   }
 }

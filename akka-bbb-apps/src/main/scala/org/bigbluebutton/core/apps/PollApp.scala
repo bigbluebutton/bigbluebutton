@@ -12,6 +12,48 @@ trait PollApp {
 
   private val pollModel = new PollModel
 
+  private def buildAnswers(questionType: String, answersVO: Option[Array[AnswerVO]]): Array[Answer] = {
+    var answers = new ArrayBuffer[Answer]()
+
+    //    answersVO match {
+    //      case Some(Array[AnswerVO]) => answers = buildAnswersFromVO(answersVO.get)
+    //      case None => answers = buildAnswersFromQuestionType(questionType)
+    //    }
+
+    answers.toArray
+  }
+
+  private def buildAnswersFromQuestionType(questionType: String): ArrayBuffer[Answer] = {
+    val answers = new ArrayBuffer[Answer]
+
+    val qType = """(YN)|(TF)|(A[1-5])|(1[1-5])"""
+
+    questionType.toUpperCase() match {
+      case "TF" => //
+      case "YN" => //
+    }
+
+    answers
+  }
+
+  private def buildAnswersFromVO(answersVO: Array[AnswerVO]): ArrayBuffer[Answer] = {
+    val answers = new ArrayBuffer[Answer]
+    answersVO.foreach { rv => answers += new Answer(rv.id, rv.key, rv.text) }
+
+    answers
+  }
+
+  def createPoll(id: String, questions: Array[QuestionVO], title: Option[String]) {
+    val qs = new ArrayBuffer[Question]
+
+    questions.foreach { qv =>
+      var answers = buildAnswers(qv.questionType, qv.answers)
+
+      //          qs += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
+
+    }
+  }
+
   /*  
   def handleHidePollResult(msg: HidePollResult) {
     val pollID = msg.pollID

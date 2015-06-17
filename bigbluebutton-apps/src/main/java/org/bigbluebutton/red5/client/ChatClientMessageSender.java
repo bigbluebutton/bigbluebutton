@@ -8,6 +8,7 @@ import org.bigbluebutton.common.messages.SendPrivateChatMessage;
 import org.bigbluebutton.common.messages.SendPublicChatMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
+import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
 import org.bigbluebutton.red5.service.ChatKeyUtil;
 
 import com.google.gson.Gson;
@@ -91,8 +92,12 @@ public class ChatClientMessageSender {
 
 		System.out.println("RedisPubSubMessageHandler - processSendPrivateChatMessage \n" +messageInfo.toString()+ "\n");
 
-		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "ChatReceivePrivateMessageCommand", messageInfo);
-		service.sendMessage(m);
+		String toUserId = msg.messageInfo.get(ChatKeyUtil.TO_USERID);
+		DirectClientMessage receiver = new DirectClientMessage(msg.meetingId, toUserId, "ChatReceivePrivateMessageCommand", messageInfo);
+		service.sendMessage(receiver);
+		
+		DirectClientMessage sender = new DirectClientMessage(msg.meetingId, msg.requesterId, "ChatReceivePrivateMessageCommand", messageInfo);
+		service.sendMessage(sender);
 	}
 
 	private void processGetChatHistoryReply(GetChatHistoryReplyMessage gch) {
@@ -101,7 +106,7 @@ public class ChatClientMessageSender {
 
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("meetingId", gch.meetingId);
-		args.put("requseter_id", gch.requesterId);
+		args.put("requester_id", gch.requesterId);
 		args.put("chat_history", gch.chatHistory);
 
 		Map<String, Object> message = new HashMap<String, Object>();
@@ -109,10 +114,10 @@ public class ChatClientMessageSender {
 		message.put("msg", gson.toJson(args.get("chat_history")));
 
 		System.out.println("*************************************************************************************\n");
-		System.out.println("RedisPubSubMessageHandler - processGetChatHistoryReply \n" + message.get("msg") + "\n");
+		System.out.println("RedisPubSubMessageHandler - processGetChatHistoryReply \n" + gson.toJson(args) + "\n");
 		System.out.println("*************************************************************************************\n");
 
-		BroadcastClientMessage m = new BroadcastClientMessage(gch.meetingId, "ChatRequestMessageHistoryReply", message);
+		DirectClientMessage m = new DirectClientMessage(gch.meetingId, gch.requesterId, "ChatRequestMessageHistoryReply", message);
 		service.sendMessage(m);
 	}
 

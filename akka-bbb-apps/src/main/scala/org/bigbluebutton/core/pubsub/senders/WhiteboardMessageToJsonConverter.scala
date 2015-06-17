@@ -2,7 +2,7 @@ package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
-import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
+import org.bigbluebutton.core.apps.AnnotationVO
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
 
@@ -36,7 +36,7 @@ object WhiteboardMessageToJsonConverter {
 
     payload.put(Constants.SHAPES, shapes)
 
-    val header = Util.buildHeader(MessageNames.GET_WHITEBOARD_SHAPES_REPLY, msg.version, Some(msg.replyTo))
+    val header = Util.buildHeader(MessageNames.GET_WHITEBOARD_SHAPES_REPLY, Some(msg.replyTo))
     Util.buildJson(header, payload)
   }
 
@@ -47,7 +47,7 @@ object WhiteboardMessageToJsonConverter {
     payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
     payload.put(Constants.SHAPE, shapeToMap(msg.shape))
 
-    val header = Util.buildHeader(MessageNames.SEND_WHITEBOARD_SHAPE, msg.version, None)
+    val header = Util.buildHeader(MessageNames.SEND_WHITEBOARD_SHAPE, None)
     Util.buildJson(header, payload)
   }
 
@@ -57,7 +57,7 @@ object WhiteboardMessageToJsonConverter {
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
 
-    val header = Util.buildHeader(MessageNames.WHITEBOARD_CLEARED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.WHITEBOARD_CLEARED, None)
     Util.buildJson(header, payload)
   }
 
@@ -68,7 +68,7 @@ object WhiteboardMessageToJsonConverter {
     payload.put(Constants.WHITEBOARD_ID, msg.whiteboardId)
     payload.put(Constants.SHAPE_ID, msg.shapeId)
 
-    val header = Util.buildHeader(MessageNames.UNDO_WHITEBOARD, msg.version, None)
+    val header = Util.buildHeader(MessageNames.UNDO_WHITEBOARD, None)
     Util.buildJson(header, payload)
   }
 
@@ -78,7 +78,7 @@ object WhiteboardMessageToJsonConverter {
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.ENABLE, msg.enable)
 
-    val header = Util.buildHeader(MessageNames.WHITEBOARD_ENABLED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.WHITEBOARD_ENABLED, None)
     Util.buildJson(header, payload)
   }
 
@@ -88,7 +88,7 @@ object WhiteboardMessageToJsonConverter {
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.ENABLE, msg.enabled)
 
-    val header = Util.buildHeader(MessageNames.IS_WHITEBOARD_ENABLED_REPLY, msg.version, Some(msg.replyTo))
+    val header = Util.buildHeader(MessageNames.IS_WHITEBOARD_ENABLED_REPLY, Some(msg.replyTo))
     Util.buildJson(header, payload)
   }
 }

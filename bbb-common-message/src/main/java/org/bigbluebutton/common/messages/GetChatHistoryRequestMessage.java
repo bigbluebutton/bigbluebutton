@@ -46,7 +46,7 @@ public class GetChatHistoryRequestMessage implements IPublishedMessage {
 						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
-						return new GetChatHistoryRequestMessage(meetingId, replyTo, requesterId);
+						return new GetChatHistoryRequestMessage(meetingId, requesterId, replyTo);
 					}
 				} 
 			}

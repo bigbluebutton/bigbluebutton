@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.apps.users
+package org.bigbluebutton.core.apps
 
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.core.api.UserVO

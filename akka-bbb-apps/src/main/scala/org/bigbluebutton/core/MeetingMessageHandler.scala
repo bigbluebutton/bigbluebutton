@@ -1,12 +1,10 @@
-package org.bigbluebutton.core.apps
+package org.bigbluebutton.core
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.core.apps.WhiteboardModel
 
-case class Whiteboard(id: String, shapes: Seq[AnnotationVO])
-
-trait WhiteboardApp {
+trait MeetingMessageHandler {
   this: MeetingActor =>
 
   val outGW: MessageOutGateway
@@ -26,23 +24,21 @@ trait WhiteboardApp {
     if (WhiteboardKeyUtil.TEXT_CREATED_STATUS == status) {
       //      println("Received textcreated status")
       wbModel.addAnnotation(wbId, shape)
-    } else if ((WhiteboardKeyUtil.PENCIL_TYPE == shapeType)
-      && (WhiteboardKeyUtil.DRAW_START_STATUS == status)) {
+    } else if ((WhiteboardKeyUtil.PENCIL_TYPE == shapeType) && (WhiteboardKeyUtil.DRAW_START_STATUS == status)) {
       //        println("Received pencil draw start status")
       wbModel.addAnnotation(wbId, shape)
-    } else if ((WhiteboardKeyUtil.DRAW_END_STATUS == status)
-      && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType)
-        || (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType)
-        || (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
-        || (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {
+    } else if ((WhiteboardKeyUtil.DRAW_END_STATUS == status) && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType)
+      || (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType) || (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
+      || (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {
       //        println("Received [" + shapeType +"] draw end status")
       wbModel.addAnnotation(wbId, shape)
     } else if (WhiteboardKeyUtil.TEXT_TYPE == shapeType) {
-      //	    println("Received [" + shapeType +"] modify text status")
+      //      println("Received [" + shapeType +"] modify text status")
       wbModel.modifyText(wbId, shape)
     } else {
-      //	    println("Received UNKNOWN whiteboard shape!!!!. status=[" + status + "], shapeType=[" + shapeType + "]")
+      //      println("Received UNKNOWN whiteboard shape!!!!. status=[" + status + "], shapeType=[" + shapeType + "]")
     }
+
     wbModel.getWhiteboard(wbId) foreach { wb =>
       //        println("WhiteboardApp::handleSendWhiteboardAnnotationRequest - num shapes [" + wb.shapes.length + "]")
       outGW.send(new SendWhiteboardAnnotationEvent(mProps.meetingID, mProps.recorded, msg.requesterID, wbId, msg.annotation))
@@ -89,5 +85,33 @@ trait WhiteboardApp {
   def handleIsWhiteboardEnabledRequest(msg: IsWhiteboardEnabledRequest) {
     val enabled = wbModel.isWhiteboardEnabled()
     outGW.send(new IsWhiteboardEnabledReply(mProps.meetingID, mProps.recorded, msg.requesterID, enabled, msg.replyTo))
+  }
+
+  def handleGetPollRequest(msg: GetPollRequest) {
+
+  }
+
+  def handleVotePollRequest(msg: VotePollRequest) {
+
+  }
+
+  def handleHidePollResultRequest(msg: HidePollResultRequest) {
+
+  }
+
+  def handleShowPollResultRequest(msg: ShowPollResultRequest) {
+
+  }
+
+  def handleStopPollRequest(msg: StopPollRequest) {
+
+  }
+
+  def handleStartPollRequest(msg: StartPollRequest) {
+
+  }
+
+  def handleCreatePollRequest(msg: CreatePollRequest) {
+
   }
 }

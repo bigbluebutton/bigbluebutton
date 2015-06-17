@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.apps.presentation
+package org.bigbluebutton.core.apps
 
 case class Presentation(id: String, name: String, current: Boolean = false,
   pages: scala.collection.immutable.HashMap[String, Page])

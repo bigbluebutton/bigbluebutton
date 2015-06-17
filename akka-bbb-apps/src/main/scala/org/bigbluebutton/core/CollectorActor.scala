@@ -8,8 +8,8 @@ import scala.collection.mutable.HashMap
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
 import java.util.ArrayList
-import org.bigbluebutton.core.apps.presentation.Page
-import org.bigbluebutton.core.apps.presentation.Presentation
+import org.bigbluebutton.core.apps.Page
+import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.pubsub.senders.ChatMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
@@ -188,15 +188,15 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
   private def handleCreateMeeting(msg: CreateMeeting) {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.EXTERNAL_MEETING_ID, msg.externalMeetingID)
-    payload.put(Constants.MEETING_NAME, msg.meetingName)
-    payload.put(Constants.RECORDED, msg.recorded)
-    payload.put(Constants.VOICE_CONF, msg.voiceBridge)
-    payload.put(Constants.DURATION, msg.duration)
-    payload.put(Constants.MODERATOR_PASS, msg.moderatorPass)
-    payload.put(Constants.VIEWER_PASS, msg.viewerPass)
-    payload.put(Constants.CREATE_TIME, msg.createTime)
-    payload.put(Constants.CREATE_DATE, msg.createDate)
+    payload.put(Constants.EXTERNAL_MEETING_ID, msg.mProps.externalMeetingID)
+    payload.put(Constants.MEETING_NAME, msg.mProps.meetingName)
+    payload.put(Constants.RECORDED, msg.mProps.recorded)
+    payload.put(Constants.VOICE_CONF, msg.mProps.voiceBridge)
+    payload.put(Constants.DURATION, msg.mProps.duration)
+    payload.put(Constants.MODERATOR_PASS, msg.mProps.moderatorPass)
+    payload.put(Constants.VIEWER_PASS, msg.mProps.viewerPass)
+    payload.put(Constants.CREATE_TIME, msg.mProps.createTime)
+    payload.put(Constants.CREATE_DATE, msg.mProps.createDate)
 
     val header = new java.util.HashMap[String, Any]()
     header.put(Constants.NAME, MessageNames.CREATE_MEETING)

@@ -69,7 +69,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MEETING_MUTED, msg.meetingMuted: java.lang.Boolean);
     payload.put(Constants.USER_ID, msg.userId);
 
-    val header = Util.buildHeader(MessageNames.MEETING_STATE, msg.version, None)
+    val header = Util.buildHeader(MessageNames.MEETING_STATE, None)
     Util.buildJson(header, payload)
   }
 
@@ -78,7 +78,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.MEETING_MUTED, msg.meetingMuted: java.lang.Boolean);
 
-    val header = Util.buildHeader(MessageNames.MEETING_MUTED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.MEETING_MUTED, None)
     Util.buildJson(header, payload)
   }
 
@@ -86,7 +86,7 @@ object UsersMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
 
-    val header = Util.buildHeader(MessageNames.MEETING_HAS_ENDED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.MEETING_HAS_ENDED, None)
     Util.buildJson(header, payload)
   }
 
@@ -94,7 +94,7 @@ object UsersMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
 
-    val header = Util.buildHeader(MessageNames.MEETING_ENDED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.MEETING_ENDED, None)
     Util.buildJson(header, payload)
   }
 
@@ -102,7 +102,7 @@ object UsersMessageToJsonConverter {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
 
-    val header = Util.buildHeader(MessageNames.DISCONNECT_ALL_USERS, msg.version, None)
+    val header = Util.buildHeader(MessageNames.DISCONNECT_ALL_USERS, None)
     Util.buildJson(header, payload)
   }
 
@@ -111,7 +111,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userId)
 
-    val header = Util.buildHeader(MessageNames.DISCONNECT_USER, msg.version, None)
+    val header = Util.buildHeader(MessageNames.DISCONNECT_USER, None)
     Util.buildJson(header, payload)
   }
 
@@ -120,7 +120,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.SETTINGS, msg.permissions.toString()) //#todo not tested
 
-    val header = Util.buildHeader(MessageNames.PERMISSION_SETTING_INITIALIZED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.PERMISSION_SETTING_INITIALIZED, None)
     Util.buildJson(header, payload)
   }
 
@@ -136,7 +136,7 @@ object UsersMessageToJsonConverter {
 
     payload.put("users", users)
 
-    val header = Util.buildHeader(MessageNames.NEW_PERMISSION_SETTINGS, msg.version, None)
+    val header = Util.buildHeader(MessageNames.NEW_PERMISSION_SETTINGS, None)
     Util.buildJson(header, payload)
   }
 
@@ -146,7 +146,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.userId)
     payload.put(Constants.LOCKED, msg.lock)
 
-    val header = Util.buildHeader(MessageNames.USER_LOCKED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_LOCKED, None)
     Util.buildJson(header, payload)
   }
 
@@ -155,7 +155,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userId)
 
-    val header = Util.buildHeader(MessageNames.GET_PERMISSION_SETTINGS_REPLY, msg.version, None)
+    val header = Util.buildHeader(MessageNames.GET_PERMISSION_SETTINGS_REPLY, None)
     Util.buildJson(header, payload)
   }
 
@@ -165,7 +165,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER, registeredUserToMap(msg.user))
     payload.put(Constants.RECORDED, msg.recorded)
 
-    val header = Util.buildHeader(MessageNames.USER_REGISTERED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_REGISTERED, None)
     Util.buildJson(header, payload)
   }
 
@@ -175,7 +175,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.RAISE_HAND, msg.raisedHand)
     payload.put(Constants.USER_ID, msg.userID)
 
-    val header = Util.buildHeader(MessageNames.USER_RAISED_HAND, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_RAISED_HAND, None)
     Util.buildJson(header, payload)
   }
 
@@ -186,7 +186,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.LOWERED_BY, msg.loweredBy)
 
-    val header = Util.buildHeader(MessageNames.USER_LOWERED_HAND, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_LOWERED_HAND, None)
     Util.buildJson(header, payload)
   }
 
@@ -197,7 +197,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.STATUS, msg.status)
     payload.put(Constants.VALUE, msg.value.toString)
 
-    val header = Util.buildHeader(MessageNames.USER_STATUS_CHANGED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_STATUS_CHANGED, None)
     Util.buildJson(header, payload)
   }
 
@@ -208,7 +208,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.STREAM, msg.stream)
 
-    val header = Util.buildHeader(MessageNames.USER_SHARED_WEBCAM, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_SHARED_WEBCAM, None)
     Util.buildJson(header, payload)
   }
 
@@ -219,7 +219,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.STREAM, msg.stream)
 
-    val header = Util.buildHeader(MessageNames.USER_UNSHARED_WEBCAM, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_UNSHARED_WEBCAM, None)
     Util.buildJson(header, payload)
   }
 
@@ -235,7 +235,7 @@ object UsersMessageToJsonConverter {
 
     payload.put(Constants.USERS, users)
 
-    val header = Util.buildHeader(MessageNames.GET_USERS_REPLY, msg.version, None)
+    val header = Util.buildHeader(MessageNames.GET_USERS_REPLY, None)
     Util.buildJson(header, payload)
   }
 
@@ -251,7 +251,7 @@ object UsersMessageToJsonConverter {
 
     payload.put(Constants.USERS, users)
 
-    val header = Util.buildHeader(MessageNames.GET_USERS_REPLY, msg.version, None)
+    val header = Util.buildHeader(MessageNames.GET_USERS_REPLY, None)
     Util.buildJson(header, payload)
   }
 
@@ -262,7 +262,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER, userToMap(msg.user))
     payload.put(Constants.VOICE_CONF, msg.confNum)
 
-    val header = Util.buildHeader(MessageNames.USER_JOINED_VOICE, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_JOINED_VOICE, None)
     Util.buildJson(header, payload)
   }
 
@@ -273,7 +273,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER, userToMap(msg.user))
     payload.put(Constants.VOICE_CONF, msg.confNum)
 
-    val header = Util.buildHeader(MessageNames.USER_VOICE_MUTED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_VOICE_MUTED, None)
     Util.buildJson(header, payload)
   }
 
@@ -284,7 +284,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER, userToMap(msg.user))
     payload.put(Constants.VOICE_CONF, msg.confNum)
 
-    val header = Util.buildHeader(MessageNames.USER_VOICE_TALKING, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_VOICE_TALKING, None)
     Util.buildJson(header, payload)
   }
 
@@ -297,7 +297,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.VOICE_CONF_ID, msg.voiceConfId)
     payload.put(Constants.VOICE_USER_ID, msg.voiceUserId)
 
-    val header = Util.buildHeader(MessageNames.EJECT_VOICE_USER, msg.version, None)
+    val header = Util.buildHeader(MessageNames.EJECT_VOICE_USER, None)
     Util.buildJson(header, payload)
   }
 
@@ -310,7 +310,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.VOICE_CONF_ID, msg.voiceConfId)
     payload.put(Constants.VOICE_USER_ID, msg.voiceUserId)
 
-    val header = Util.buildHeader(MessageNames.EJECT_VOICE_USER, msg.version, None)
+    val header = Util.buildHeader(MessageNames.EJECT_VOICE_USER, None)
     Util.buildJson(header, payload)
   }
 
@@ -321,7 +321,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER, userToMap(msg.user))
     payload.put(Constants.VOICE_CONF, msg.confNum)
 
-    val header = Util.buildHeader(MessageNames.USER_LEFT_VOICE, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_LEFT_VOICE, None)
     Util.buildJson(header, payload)
   }
 
@@ -332,7 +332,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
     payload.put(Constants.MUTED, msg.meetingMuted)
 
-    val header = Util.buildHeader(MessageNames.IS_MEETING_MUTED_REPLY, msg.version, None)
+    val header = Util.buildHeader(MessageNames.IS_MEETING_MUTED_REPLY, None)
     Util.buildJson(header, payload)
   }
 
@@ -343,7 +343,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.userId)
     payload.put(Constants.RECORDING, msg.recording)
 
-    val header = Util.buildHeader(MessageNames.RECORDING_STATUS_CHANGED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.RECORDING_STATUS_CHANGED, None)
     Util.buildJson(header, payload)
   }
 
@@ -354,7 +354,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.userId)
     payload.put(Constants.RECORDING, msg.recording)
 
-    val header = Util.buildHeader(MessageNames.GET_RECORDING_STATUS_REPLY, msg.version, None)
+    val header = Util.buildHeader(MessageNames.GET_RECORDING_STATUS_REPLY, None)
     Util.buildJson(header, payload)
   }
 
@@ -366,7 +366,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.AUTH_TOKEN, msg.token)
     payload.put(Constants.MEETING_ID, msg.meetingID)
 
-    val header = Util.buildHeader(MessageNames.VALIDATE_AUTH_TOKEN_REPLY, msg.version, None)
+    val header = Util.buildHeader(MessageNames.VALIDATE_AUTH_TOKEN_REPLY, None)
     Util.buildJson(header, payload)
   }
 
@@ -378,7 +378,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.requesterId)
     payload.put(Constants.MEETING_ID, msg.meetingID)
 
-    val header = Util.buildHeader(MessageNames.VALIDATE_AUTH_TOKEN_TIMEOUT, msg.version, None)
+    val header = Util.buildHeader(MessageNames.VALIDATE_AUTH_TOKEN_TIMEOUT, None)
     Util.buildJson(header, payload)
   }
 
@@ -387,7 +387,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put("user", userToMap(msg.user))
 
-    val header = Util.buildHeader(MessageNames.USER_JOINED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_JOINED, None)
     Util.buildJson(header, payload)
   }
 
@@ -396,7 +396,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put("user", userToMap(msg.user))
 
-    val header = Util.buildHeader(MessageNames.USER_LEFT, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_LEFT, None)
     Util.buildJson(header, payload)
   }
 
@@ -408,7 +408,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.ASSIGNED_BY, msg.presenter.assignedBy);
     payload.put(Constants.RECORDED, msg.recorded)
 
-    val header = Util.buildHeader(MessageNames.PRESENTER_ASSIGNED, msg.version, None)
+    val header = Util.buildHeader(MessageNames.PRESENTER_ASSIGNED, None)
     Util.buildJson(header, payload)
   }
 
@@ -417,7 +417,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded)
 
-    val header = Util.buildHeader(MessageNames.END_AND_KICK_ALL, msg.version, None)
+    val header = Util.buildHeader(MessageNames.END_AND_KICK_ALL, None)
     Util.buildJson(header, payload)
   }
 
@@ -427,7 +427,7 @@ object UsersMessageToJsonConverter {
     payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.LISTEN_ONLY, msg.listenOnly)
 
-    val header = Util.buildHeader(MessageNames.USER_LISTEN_ONLY, msg.version, None)
+    val header = Util.buildHeader(MessageNames.USER_LISTEN_ONLY, None)
     Util.buildJson(header, payload)
   }
 }
