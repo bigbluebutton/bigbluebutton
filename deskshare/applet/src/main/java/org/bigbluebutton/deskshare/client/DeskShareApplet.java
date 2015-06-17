@@ -192,7 +192,9 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	}
 	
 	public void onClientStop(ExitCode reason) {
-		// determine if client is disconnected _PTS_272_
+	  client.stop();
+	  
+		/*
 		if ( ExitCode.CONNECTION_TO_DESKSHARE_SERVER_DROPPED == reason ){
 			JFrame pframe = new JFrame("Desktop Sharing Disconneted");
 			if ( null != pframe ){
@@ -206,6 +208,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		}else{
 			client.stop();
 		}	
+		*/
 	}
 	
 }
