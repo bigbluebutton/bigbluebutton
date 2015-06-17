@@ -10,6 +10,7 @@ class MeetingModel {
   private var recording = false;
   private var muted = false;
   private var meetingEnded = false
+  private var meetingMuted = false
 
   val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
@@ -18,6 +19,18 @@ class MeetingModel {
   private var voiceRecordingFilename: String = ""
 
   val startedOn = timeNowInMinutes;
+
+  def muteMeeting() {
+    meetingMuted = true
+  }
+
+  def unmuteMeeting() {
+    meetingMuted = false
+  }
+
+  def isMeetingMuted(): Boolean = {
+    meetingMuted
+  }
 
   def recordingStarted() {
     recording = true

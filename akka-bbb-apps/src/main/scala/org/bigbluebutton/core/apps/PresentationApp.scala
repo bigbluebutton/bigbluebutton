@@ -83,10 +83,8 @@ trait PresentationApp {
   def handleGetPresentationInfo(msg: GetPresentationInfo) {
     //      println("PresentationApp : handleGetPresentationInfo GetPresentationInfo for meeting [" + msg.meetingID + "] [" + msg.requesterID + "]" )
 
-    val curPresenter = getCurrentPresenter;
-    val presenter = new CurrentPresenter(curPresenter.presenterID,
-      curPresenter.presenterName,
-      curPresenter.assignedBy)
+    val curPresenter = users.getCurrentPresenterInfo();
+    val presenter = new CurrentPresenter(curPresenter.presenterID, curPresenter.presenterName, curPresenter.assignedBy)
     val presentations = presModel.getPresentations
     val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
     outGW.send(new GetPresentationInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, presentationInfo, msg.replyTo))

@@ -6,9 +6,34 @@ import org.bigbluebutton.core.api.Role._
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.api.VoiceUser
 import org.bigbluebutton.core.util.RandomStringGenerator
+import org.bigbluebutton.core.api.Presenter
+import org.bigbluebutton.core.api.RegisteredUser
 
 class UsersModel {
   private var uservos = new collection.immutable.HashMap[String, UserVO]
+
+  private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
+
+  private var locked = false
+  private var meetingMuted = false
+
+  private var currentPresenter = new Presenter("system", "system", "system")
+
+  def setCurrentPresenterInfo(pres: Presenter) {
+    currentPresenter = pres
+  }
+
+  def getCurrentPresenterInfo(): Presenter = {
+    currentPresenter
+  }
+
+  def addRegisteredUser(token: String, regUser: RegisteredUser) {
+    regUsers += token -> regUser
+  }
+
+  def getRegisteredUserWithToken(token: String): Option[RegisteredUser] = {
+    regUsers.get(token)
+  }
 
   def generateWebUserId: String = {
     val webUserId = RandomStringGenerator.randomAlphanumericString(6)

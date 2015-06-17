@@ -11,8 +11,6 @@ trait WhiteboardApp {
 
   val outGW: MessageOutGateway
 
-  private val wbModel = new WhiteboardModel
-
   def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
     val status = msg.annotation.status
     val shapeType = msg.annotation.shapeType

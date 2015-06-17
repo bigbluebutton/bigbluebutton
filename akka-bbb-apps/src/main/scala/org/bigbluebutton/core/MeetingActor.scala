@@ -4,18 +4,12 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
-import org.bigbluebutton.core.apps.UsersApp
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.apps.PresentationApp
-import org.bigbluebutton.core.apps.LayoutApp
-import org.bigbluebutton.core.apps.ChatApp
-import org.bigbluebutton.core.apps.WhiteboardApp
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.PollApp
-import org.bigbluebutton.core.apps.ChatModel
-import org.bigbluebutton.core.apps.LayoutModel
+import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
+import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
 
 case object StopMeetingActor
 case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
@@ -29,12 +23,15 @@ object MeetingActor {
 
 class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     extends Actor with UsersApp with PresentationApp
-    with LayoutApp with ChatApp with MeetingMessageHandler
+    with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with ActorLogging {
 
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
   val meetingModel = new MeetingModel()
+  val users = new UsersModel()
+  val pollModel = new PollModel()
+  val wbModel = new WhiteboardModel()
 
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
