@@ -50,9 +50,11 @@ package org.bigbluebutton.core.managers
     private var _reconnectTimer:Timer = new Timer(10000, 1);
     private var _dispatcher:Dispatcher = new Dispatcher();
     private var _popup:IFlexDisplayObject = null;
+    private var _canceled:Boolean = false;
 
     public function ReconnectionManager() {
-      _reconnectTimer.addEventListener(TimerEvent.TIMER_COMPLETE, reconnect);
+      if (!_canceled)
+        _reconnectTimer.addEventListener(TimerEvent.TIMER_COMPLETE, reconnect);
     }
     
     private function reconnect(e:TimerEvent = null):void {
@@ -132,16 +134,20 @@ package org.bigbluebutton.core.managers
           "Connection reestablished", 
           "Connection has been reestablished successfully"));
 
-        if (_popup != null) {
-          PopUpManager.removePopUp(_popup);
-          _popup = null;
-        }
+        removePopUp();
       }
     }
 
     public function onCancelReconnection():void {
+      _canceled = true;
+
       // Not sure if we need this to be clean
       for (var type:Object in _connections) delete _connections[type];
+
+      removePopUp();
+    }
+
+    private function removePopUp():void {
       if (_popup != null) {
         PopUpManager.removePopUp(_popup);
         _popup = null;
