@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
-import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 
 case class Whiteboard(id: String, shapes: Seq[AnnotationVO])
 

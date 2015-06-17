@@ -1,7 +1,7 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.apps.WhiteboardModel
 
 trait MeetingMessageHandler {

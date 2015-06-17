@@ -4,7 +4,7 @@ import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
 import scala.collection.immutable.StringOps
 import org.bigbluebutton.core.service.recorder.RecorderApplication
-import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.recorders.events.ModifyTextWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.AddShapeWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.ClearPageWhiteboardRecordEvent
