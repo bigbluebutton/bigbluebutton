@@ -41,6 +41,10 @@ package org.bigbluebutton.modules.present.ui.views
 			invalidateDisplayList();
 		}
 		
+		public function get data():Array {
+			return _data;
+		}
+		
 		private function makeTextFields(num:int):void {
 			if (num > _textFields.length) {
 				var textField:TextField;
@@ -67,7 +71,14 @@ package org.bigbluebutton.modules.present.ui.views
 				graphics.drawRect(sx, sy, unscaledWidth, unscaledHeight);
 				graphics.endFill();
 				
-				var rowHeight:int = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
+				var actualRH:Number = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
+				trace("as raw " + actualRH +" int " + int(actualRH));
+				// Current problem is that the rowHeight is truncated. It would be nice if the extra pixels 
+				// could be distributed for a more even look.
+				var avgRowHeight:int = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
+				var curRowHeight:int = 0;
+				var extraVPixels:int = unscaledHeight - (_data.length * (avgRowHeight+vpadding) + vpadding);
+				trace("extraVPixels " + extraVPixels);
 				var largestVal:int = -1;
 				var totalCount:int = 0;
 				//find largest value
@@ -87,13 +98,22 @@ package org.bigbluebutton.modules.present.ui.views
 				
 				graphics.lineStyle(2);
 				graphics.beginFill(colFill, 1.0);
-				for (var j:int=0; j<_data.length; j++) {
-					ry = rowHeight * (j+0.5) + vpadding*(j+1);
+				for (var j:int=0, vp:int=extraVPixels, ry=0, curRowHeight=0; j<_data.length; j++) {
+					ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
+					
+					curRowHeight = avgRowHeight;
+					if (j%2==0 && vp > 0) {
+						curRowHeight += 1;
+						vp--;
+					}
+					ry += curRowHeight/2;
+					
+					//ry += curRowHeight * (j+0.5) + vpadding*(j+1);
 					// add row label
 					answerText = _textFields[currTFIdx++];
 					answerText.text = _data[j].a;
 					answerText.width = labelStartWidth;
-					answerText.height = rowHeight;
+					answerText.height = curRowHeight;
 					answerText.selectable = false;
 					//addChild(answerText);
 					answerArray.push(answerText);
@@ -107,7 +127,7 @@ package org.bigbluebutton.modules.present.ui.views
 					percentText = _textFields[currTFIdx++];;// new TextField();
 					percentText.text = ((_data[j].v/totalCount)*100).toFixed(0) + "%";
 					percentText.width = percentStartWidth;
-					percentText.height = rowHeight;
+					percentText.height = curRowHeight;
 					percentText.selectable = false;
 					//addChild(percentText);
 					percentArray.push(percentText);
@@ -121,20 +141,29 @@ package org.bigbluebutton.modules.present.ui.views
 				var maxAnswerWidth:int = 0;
 				var maxPercentWidth:int = 0;
 				
-				for (j=0; j<_data.length; j++) {
-					ry = rowHeight * (j+0.5) + vpadding*(j+1);
+				for (j=0, vp=extraVPixels, ry=0, curRowHeight=0; j<_data.length; j++) {
+					ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
+					
+					curRowHeight = avgRowHeight;
+					if (j%2==0 && vp > 0) {
+						curRowHeight += 1;
+						vp--;
+					}
+					ry += curRowHeight/2;
+					
+					//ry = curRowHeight * (j+0.5) + vpadding*(j+1);
 					
 					answerText = TextField(answerArray[j]);
 					findFontSize(answerText, minFontSize);
 					answerText.width = answerText.textWidth+4;
-					answerText.height = answerText.textHeight;
+					answerText.height = answerText.textHeight+4;
 					answerText.y = ry-answerText.height/2;
 					if (answerText.width > maxAnswerWidth) maxAnswerWidth = answerText.width;
 					
 					percentText = TextField(percentArray[j]);
 					findFontSize(percentText, minFontSize);
 					percentText.width = percentText.textWidth+4;
-					percentText.height = percentText.textHeight;
+					percentText.height = percentText.textHeight+4;
 					percentText.x = unscaledWidth - hpadding - percentText.width;
 					percentText.y = ry-percentText.height/2;
 					if (percentText.width > maxPercentWidth) maxPercentWidth = percentText.width;
@@ -145,22 +174,32 @@ package org.bigbluebutton.modules.present.ui.views
 				var maxBarWidth:int = unscaledWidth - (hpadding*4) - maxAnswerWidth - maxPercentWidth;
 				var barStartX:int = maxAnswerWidth + (hpadding*2);
 				
-				for (j=0; j<_data.length; j++) {
-					ry = rowHeight * (j+0.5) + vpadding*(j+1);
+				for (j=0, vp=extraVPixels, ry=0, curRowHeight=0; j<_data.length; j++) {
+					ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
+					
+					curRowHeight = avgRowHeight;
+					if (j%2==0 && vp > 0) {
+						curRowHeight += 1;
+						vp--;
+					}
+					ry += curRowHeight/2;
+					
+					//ry = curRowHeight * (j+0.5) + vpadding*(j+1);
+					
 					// draw rect
 					var rectWidth:int = maxBarWidth*(_data[j].v/largestVal);
-					graphics.drawRect(barStartX, ry-rowHeight/2, rectWidth, rowHeight);
+					graphics.drawRect(barStartX, ry-curRowHeight/2, rectWidth, curRowHeight);
 					// add vote count in middle of rect
 					countText = _textFields[currTFIdx++]; // new TextField();
 					countText.text = _data[j].v;
 					countText.width = rectWidth;
-					countText.height = rowHeight;
+					countText.height = curRowHeight;
 					countText.textColor = 0xFFFFFF;
 					countText.selectable = false;
 					//addChild(countText);
 					findFontSize(countText, minFontSize);
 					countText.width = countText.textWidth+4;
-					countText.height = countText.textHeight;
+					countText.height = countText.textHeight+4;
 					countText.x = barStartX+rectWidth/2-countText.width/2;
 					countText.y = ry-countText.height/2;
 				}
