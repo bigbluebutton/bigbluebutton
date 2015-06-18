@@ -1,14 +1,62 @@
+/**
+ * Copyright (c) 2007 FlexLib Contributors.  See:
+ * http://code.google.com/p/flexlib/wiki/ProjectContributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ * 
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * This class uses the basic resizing portions of the MDIWindow class contained in 
+ * the Flexlib library. Portions on the code in this file fall under their license.
+ */
+
 package org.bigbluebutton.modules.present.ui.views
 {
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
 	
-	import mx.controls.Button;
+	import mx.containers.Canvas;
+	import mx.core.UIComponent;
 	import mx.managers.CursorManager;
 
 	public class ResizablePollGraphic extends PollGraphic {
-		private const RESIZE_BUTTON_ALPHA:Number = 1;
+		private const RESIZE_BUTTON_ALPHA:Number = 0;
 		
 		[Embed(source = "assets/resizeCursorH.gif")]
 		private const resizeCursorHorizontalSkin:Class;
@@ -34,14 +82,14 @@ package org.bigbluebutton.modules.present.ui.views
 		public var edgeHandleSize:Number = 4;
 		public var cornerHandleSize:Number = 10;
 		
-		private var resizeHandleTop:Button;
-		private var resizeHandleRight:Button;
-		private var resizeHandleBottom:Button;
-		private var resizeHandleLeft:Button;
-		private var resizeHandleTL:Button;
-		private var resizeHandleTR:Button;
-		private var resizeHandleBR:Button;
-		private var resizeHandleBL:Button;
+		private var resizeHandleTop:Canvas;
+		private var resizeHandleRight:Canvas;
+		private var resizeHandleBottom:Canvas;
+		private var resizeHandleLeft:Canvas;
+		private var resizeHandleTL:Canvas;
+		private var resizeHandleTR:Canvas;
+		private var resizeHandleBR:Canvas;
+		private var resizeHandleBL:Canvas;
 		private var currentResizeHandle:String;
 		
 		private var dragStartMouseX:Number;
@@ -53,12 +101,16 @@ package org.bigbluebutton.modules.present.ui.views
 		private var dragAmountX:Number;
 		private var dragAmountY:Number;
 		
+		private var _resizing:Boolean;
+		
 		public var savedWindowRect:Rectangle;
 		
-		private var _resizing:Boolean;
+		public var objectToMove:UIComponent;
+		
 		
 		public function ResizablePollGraphic() {
 			super();
+			objectToMove = this;
 		}
 		
 		/**
@@ -69,7 +121,7 @@ package org.bigbluebutton.modules.present.ui.views
 			
 			// edges
 			if (!resizeHandleTop) {
-				resizeHandleTop = new Button();
+				resizeHandleTop = new Canvas();
 				resizeHandleTop.x = cornerHandleSize * .5;
 				resizeHandleTop.y = -(edgeHandleSize * .5);
 				resizeHandleTop.height = edgeHandleSize;
@@ -79,7 +131,7 @@ package org.bigbluebutton.modules.present.ui.views
 			}
 			
 			if (!resizeHandleRight) {
-				resizeHandleRight = new Button();
+				resizeHandleRight = new Canvas();
 				resizeHandleRight.y = cornerHandleSize * .5;
 				resizeHandleRight.width = edgeHandleSize;
 				resizeHandleRight.alpha = RESIZE_BUTTON_ALPHA;
@@ -88,7 +140,7 @@ package org.bigbluebutton.modules.present.ui.views
 			}
 			
 			if (!resizeHandleBottom) {
-				resizeHandleBottom = new Button();
+				resizeHandleBottom = new Canvas();
 				resizeHandleBottom.x = cornerHandleSize * .5;
 				resizeHandleBottom.height = edgeHandleSize;
 				resizeHandleBottom.alpha = RESIZE_BUTTON_ALPHA;
@@ -97,7 +149,7 @@ package org.bigbluebutton.modules.present.ui.views
 			}
 			
 			if (!resizeHandleLeft) {
-				resizeHandleLeft = new Button();
+				resizeHandleLeft = new Canvas();
 				resizeHandleLeft.x = -(edgeHandleSize * .5);
 				resizeHandleLeft.y = cornerHandleSize * .5;
 				resizeHandleLeft.width = edgeHandleSize;
@@ -108,7 +160,7 @@ package org.bigbluebutton.modules.present.ui.views
 			
 			// corners
 			if (!resizeHandleTL) {
-				resizeHandleTL = new Button();
+				resizeHandleTL = new Canvas();
 				resizeHandleTL.x = resizeHandleTL.y = -(cornerHandleSize * .3);
 				resizeHandleTL.width = resizeHandleTL.height = cornerHandleSize;
 				resizeHandleTL.alpha = RESIZE_BUTTON_ALPHA;
@@ -117,7 +169,7 @@ package org.bigbluebutton.modules.present.ui.views
 			}
 			
 			if (!resizeHandleTR) {
-				resizeHandleTR = new Button();
+				resizeHandleTR = new Canvas();
 				resizeHandleTR.width = resizeHandleTR.height = cornerHandleSize;
 				resizeHandleTR.alpha = RESIZE_BUTTON_ALPHA;
 				resizeHandleTR.focusEnabled = false;
@@ -125,7 +177,7 @@ package org.bigbluebutton.modules.present.ui.views
 			}
 			
 			if (!resizeHandleBR) {
-				resizeHandleBR = new Button();
+				resizeHandleBR = new Canvas();
 				resizeHandleBR.width = resizeHandleBR.height = cornerHandleSize;
 				resizeHandleBR.alpha = RESIZE_BUTTON_ALPHA;
 				resizeHandleBR.focusEnabled = false;
@@ -133,7 +185,7 @@ package org.bigbluebutton.modules.present.ui.views
 			}
 			
 			if (!resizeHandleBL) {
-				resizeHandleBL = new Button();
+				resizeHandleBL = new Canvas();
 				resizeHandleBL.width = resizeHandleBL.height = cornerHandleSize;
 				resizeHandleBL.alpha = RESIZE_BUTTON_ALPHA;
 				resizeHandleBL.focusEnabled = false;
@@ -230,7 +282,7 @@ package org.bigbluebutton.modules.present.ui.views
 		/**
 		 * Gives ResizeHandle value for a given resize handle button
 		 */
-		private function resizeHandleForButton(button:Button):String {
+		private function resizeHandleForButton(button:Canvas):String {
 			if (button == resizeHandleLeft)
 				return ResizeHandle.LEFT;
 			else if (button == resizeHandleRight)
@@ -256,10 +308,10 @@ package org.bigbluebutton.modules.present.ui.views
 		 */
 		private function onResizeButtonPress(event:MouseEvent):void {
 			//if (windowState == BBBWindow.NORMAL && resizable) {
-			currentResizeHandle = resizeHandleForButton(event.target as Button);
+			currentResizeHandle = resizeHandleForButton(event.target as Canvas);
 			setCursor(currentResizeHandle);
-			dragStartMouseX = parent.mouseX;
-			dragStartMouseY = parent.mouseY;
+			dragStartMouseX = stage.mouseX;
+			dragStartMouseY = stage.mouseY;
 			savePanel();
 			
 			dragMaxX = savedWindowRect.x + (savedWindowRect.width - minWidth);
@@ -282,33 +334,34 @@ package org.bigbluebutton.modules.present.ui.views
 				//dispatchEvent(new BBBWindowEvent(BBBWindowEvent.RESIZE_START, this));
 			}
 			
-			dragAmountX = parent.mouseX - dragStartMouseX;
-			dragAmountY = parent.mouseY - dragStartMouseY;
-			
-			if (currentResizeHandle == ResizeHandle.TOP && parent.mouseY > 0) {
-				this.y = Math.min(savedWindowRect.y + dragAmountY, dragMaxY);
+			dragAmountX = stage.mouseX - dragStartMouseX;
+			dragAmountY = stage.mouseY - dragStartMouseY;
+			//trace("currentResizeHandle: " + currentResizeHandle + " drag x-"+dragAmountX+" y-"+dragAmountY + " mouse x-"+parent.mouseX+" y-"+parent.mouseY);
+			//trace("currentResizeHandle: " + currentResizeHandle + " start "+ dragStartMouseX + " mouse "+stage.mouseX+ " drag "+dragAmountX + " saved " + savedWindowRect.x + " dragMaxX " + dragMaxX + " result " + Math.min(savedWindowRect.x + dragAmountX, dragMaxX));
+			if (currentResizeHandle == ResizeHandle.TOP) { // && parent.mouseY > 0) {
+				objectToMove.y = Math.min(savedWindowRect.y + dragAmountY, dragMaxY);
 				this.height = Math.max(savedWindowRect.height - dragAmountY, minHeight);
-			} else if (currentResizeHandle == ResizeHandle.RIGHT && parent.mouseX < parent.width) {
+			} else if (currentResizeHandle == ResizeHandle.RIGHT) {// && parent.mouseX < parent.width) {
 				this.width = Math.max(savedWindowRect.width + dragAmountX, minWidth);
-			} else if (currentResizeHandle == ResizeHandle.BOTTOM && parent.mouseY < parent.height) {
+			} else if (currentResizeHandle == ResizeHandle.BOTTOM) {// && parent.mouseY < parent.height) {
 				this.height = Math.max(savedWindowRect.height + dragAmountY, minHeight);
-			} else if (currentResizeHandle == ResizeHandle.LEFT && parent.mouseX > 0) {
-				this.x = Math.min(savedWindowRect.x + dragAmountX, dragMaxX);
+			} else if (currentResizeHandle == ResizeHandle.LEFT) {// && parent.mouseX > 0) {
+				objectToMove.x = Math.min(savedWindowRect.x + dragAmountX, dragMaxX);
 				this.width = Math.max(savedWindowRect.width - dragAmountX, minWidth);
-			} else if (currentResizeHandle == ResizeHandle.TOP_LEFT && parent.mouseX > 0 && parent.mouseY > 0) {
-				this.x = Math.min(savedWindowRect.x + dragAmountX, dragMaxX);
-				this.y = Math.min(savedWindowRect.y + dragAmountY, dragMaxY);
+			} else if (currentResizeHandle == ResizeHandle.TOP_LEFT) {// && parent.mouseX > 0 && parent.mouseY > 0) {
+				objectToMove.x = Math.min(savedWindowRect.x + dragAmountX, dragMaxX);
+				objectToMove.y = Math.min(savedWindowRect.y + dragAmountY, dragMaxY);
 				this.width = Math.max(savedWindowRect.width - dragAmountX, minWidth);
 				this.height = Math.max(savedWindowRect.height - dragAmountY, minHeight);
-			} else if (currentResizeHandle == ResizeHandle.TOP_RIGHT && parent.mouseX < parent.width && parent.mouseY > 0) {
-				this.y = Math.min(savedWindowRect.y + dragAmountY, dragMaxY);
+			} else if (currentResizeHandle == ResizeHandle.TOP_RIGHT) {// && parent.mouseX < parent.width && parent.mouseY > 0) {
+				objectToMove.y = Math.min(savedWindowRect.y + dragAmountY, dragMaxY);
 				this.width = Math.max(savedWindowRect.width + dragAmountX, minWidth);
 				this.height = Math.max(savedWindowRect.height - dragAmountY, minHeight);
-			} else if (currentResizeHandle == ResizeHandle.BOTTOM_RIGHT && parent.mouseX < parent.width && parent.mouseY < parent.height) {
+			} else if (currentResizeHandle == ResizeHandle.BOTTOM_RIGHT) {// && parent.mouseX < parent.width && parent.mouseY < parent.height) {
 				this.width = Math.max(savedWindowRect.width + dragAmountX, minWidth);
 				this.height = Math.max(savedWindowRect.height + dragAmountY, minHeight);
-			} else if (currentResizeHandle == ResizeHandle.BOTTOM_LEFT && parent.mouseX > 0 && parent.mouseY < parent.height) {
-				this.x = Math.min(savedWindowRect.x + dragAmountX, dragMaxX);
+			} else if (currentResizeHandle == ResizeHandle.BOTTOM_LEFT) {// && parent.mouseX > 0 && parent.mouseY < parent.height) {
+				objectToMove.x = Math.min(savedWindowRect.x + dragAmountX, dragMaxX);
 				this.width = Math.max(savedWindowRect.width - dragAmountX, minWidth);
 				this.height = Math.max(savedWindowRect.height + dragAmountY, minHeight);
 			}
@@ -323,7 +376,7 @@ package org.bigbluebutton.modules.present.ui.views
 			}
 			currentResizeHandle = null;
 			//systemManager.removeEventListener(Event.ENTER_FRAME, updateWindowSize);
-			stage.addEventListener(MouseEvent.MOUSE_MOVE, updateWindowSize, false, 0, true);
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE, updateWindowSize);
 			systemManager.removeEventListener(MouseEvent.MOUSE_UP, onResizeButtonRelease);
 			systemManager.stage.removeEventListener(Event.MOUSE_LEAVE, onMouseLeaveStage);
 			CursorManager.removeCursor(CursorManager.currentCursorID);
@@ -376,7 +429,7 @@ package org.bigbluebutton.modules.present.ui.views
 			// only floating windows can be resized
 			// event.buttonDown is to detect being dragged over
 			if (!event.buttonDown) {
-				setCursor(resizeHandleForButton(event.target as Button));
+				setCursor(resizeHandleForButton(event.target as Canvas));
 			}
 		}
 		
@@ -387,7 +440,7 @@ package org.bigbluebutton.modules.present.ui.views
 		}
 		
 		private function savePanel():void {
-			savedWindowRect = new Rectangle(this.x, this.y, this.width, this.height);
+			savedWindowRect = new Rectangle(objectToMove.x, objectToMove.y, this.width, this.height);
 		}
 	}
 }
