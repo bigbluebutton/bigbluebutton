@@ -33,6 +33,7 @@ package org.bigbluebutton.core.managers
   import mx.utils.ObjectUtil;
 
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.main.views.ReconnectionPopup;
@@ -48,13 +49,14 @@ package org.bigbluebutton.core.managers
 
     private var _connections:Dictionary = new Dictionary();
     private var _reconnectTimer:Timer = new Timer(10000, 1);
+    private var _reconnectTimeout:Timer = new Timer(5000, 1);
     private var _dispatcher:Dispatcher = new Dispatcher();
     private var _popup:IFlexDisplayObject = null;
     private var _canceled:Boolean = false;
 
     public function ReconnectionManager() {
-      if (!_canceled)
-        _reconnectTimer.addEventListener(TimerEvent.TIMER_COMPLETE, reconnect);
+      _reconnectTimer.addEventListener(TimerEvent.TIMER_COMPLETE, reconnect);
+      _reconnectTimeout.addEventListener(TimerEvent.TIMER_COMPLETE, timeout);
     }
     
     private function reconnect(e:TimerEvent = null):void {
@@ -65,6 +67,15 @@ package org.bigbluebutton.core.managers
           reconnectHelper(type);
         }
       }
+      if (!_reconnectTimeout.running)
+        trace(LOG + "Timeout started");
+        _reconnectTimeout.start();
+    }
+
+    private function timeout(e:TimerEvent = null):void {
+      trace(LOG + "timeout");
+      _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
+      _dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
     }
 
     private function reconnectHelper(type:String):void {
@@ -74,19 +85,21 @@ package org.bigbluebutton.core.managers
     }
 
     public function onDisconnected(type:String, callback:Function, parameters:Array):void {
-      trace(LOG + "onDisconnected, type=" + type + ", parameters=" + parameters.toString());
+      if (!_canceled) {
+        trace(LOG + "onDisconnected, type=" + type + ", parameters=" + parameters.toString());
 
-      var obj:Object = new Object();
-      obj.callback = callback;
-      obj.callbackParameters = parameters;
-      _connections[type] = obj;
+        var obj:Object = new Object();
+        obj.callback = callback;
+        obj.callbackParameters = parameters;
+        _connections[type] = obj;
 
-      if (!_reconnectTimer.running) {
-        _popup = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ReconnectionPopup, true);
-        PopUpManager.centerPopUp(_popup);
+        if (!_reconnectTimer.running) {
+          _popup = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ReconnectionPopup, true);
+          PopUpManager.centerPopUp(_popup);
 
-        _reconnectTimer.reset();
-        _reconnectTimer.start();
+          _reconnectTimer.reset();
+          _reconnectTimer.start();
+        }
       }
     }
 
@@ -134,6 +147,8 @@ package org.bigbluebutton.core.managers
           "Connection reestablished", 
           "Connection has been reestablished successfully"));
 
+        trace(LOG + "Timeout reseted");
+        _reconnectTimeout.reset();
         removePopUp();
       }
     }
@@ -141,7 +156,6 @@ package org.bigbluebutton.core.managers
     public function onCancelReconnection():void {
       _canceled = true;
 
-      // Not sure if we need this to be clean
       for (var type:Object in _connections) delete _connections[type];
 
       removePopUp();
