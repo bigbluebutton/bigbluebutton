@@ -105,7 +105,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				whiteboardCanvasHolder.y = 0;
 				
 				this.setChildIndex(thumbnailView, this.numChildren - 1);
-				this.addChild(new PollResultsView());
+				
+				var t:Timer = new Timer(3000, 1);
+				var that:SlideView = this;
+				t.addEventListener(TimerEvent.TIMER_COMPLETE, function () {
+					var poll:PollResultsView = new PollResultsView();
+					that.addChild(poll);
+					
+					that.callLater(function():void {
+						poll.x = that.width - poll.width;
+						poll.y = that.height - poll.height;
+					});
+				});
+				t.start();
         
         if (UsersUtil.amIPresenter()) {
           becomePresenter();

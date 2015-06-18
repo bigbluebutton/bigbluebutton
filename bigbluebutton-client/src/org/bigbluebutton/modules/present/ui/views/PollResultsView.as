@@ -9,9 +9,10 @@ package org.bigbluebutton.modules.present.ui.views
 	import mx.controls.Button;
 	import mx.events.MoveEvent;
 	import mx.events.ResizeEvent;
+	import mx.utils.object_proxy;
 	
 	public class PollResultsView extends VBox {
-		private var _pollGraphic:PollGraphic;
+		private var _pollGraphic:ResizablePollGraphic;
 		private var _topBox:HBox;
 		private var _botBox:HBox;
 		private var _data:Array = [{a:"True", v:10}, 
@@ -38,9 +39,12 @@ package org.bigbluebutton.modules.present.ui.views
 			addChild(_topBox);
 			
 			_pollGraphic = new ResizablePollGraphic();
-			_pollGraphic.width = 200;
-			_pollGraphic.height = 150;
 			//_pollGraphic.data = _data;
+			_pollGraphic.width = 200;
+			_pollGraphic.minWidth = 130;
+			_pollGraphic.height = ((23+10)*_pollGraphic.data.length+10);
+			_pollGraphic.minHeight = ((16+10)*_pollGraphic.data.length+10);
+			_pollGraphic.objectToMove = this;
 			addChild(_pollGraphic);
 			
 			_botBox = new HBox();
@@ -57,6 +61,7 @@ package org.bigbluebutton.modules.present.ui.views
 			
 			_pollGraphic.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
 			_pollGraphic.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
+			
 			//parent.addEventListener(ResizeEvent.RESIZE, parentResizedHandler);
 			//addEventListener(MoveEvent.MOVE, moveHandler, true); //doesn't fire when dragging
 			//BindingUtils.bindSetter(yChangeHandler, this, "y"); //only fired when drag stops
@@ -80,7 +85,7 @@ package org.bigbluebutton.modules.present.ui.views
 		
 		private function mouseUpHandler(e:MouseEvent):void {
 			trace("mouseUpHandler");
-			removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+			_pollGraphic.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 			stopDrag();
 		}
 		
