@@ -57,10 +57,21 @@ Template.header.events
     toggleCam @
 
   "click .toggleUserlistButton": (event) ->
-    toggleUsersList()
+    if isLandscape()
+      toggleUsersList()
+    else
+      if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
+        toggleRightDrawer()
+        toggleRightArrowClockwise()
+      toggleLeftDrawer()
+      toggleLeftArrowClockwise()
 
   "click .toggleMenuButton": (event) ->
-    toggleMenu()
+    if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+      toggleLeftDrawer()
+      toggleLeftArrowClockwise()
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
 Template.menu.events
   'click .slideButton': (event) ->
@@ -117,7 +128,8 @@ Template.main.rendered = ->
 
 Template.main.events
   'click .shield': (event) ->
-    closePushMenus()
+    #closePushMenus()
+    toggleLeftDrawer();
 
   'click .settingsIcon': (event) ->
     setInSession("tempFontSize", getInSession("messageFontSize"))

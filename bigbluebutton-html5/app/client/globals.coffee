@@ -152,11 +152,14 @@ Handlebars.registerHelper "pointerLocation", ->
 Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
 
-Handlebars.registerHelper "visibility", (section) ->
+###Handlebars.registerHelper "visibility", (section) ->
   if getInSession "display_#{section}"
     style: 'display:block;'
   else
-    style: 'display:none;'
+    style: 'display:none;'###
+
+Handlebars.registerHelper "visibility", (section) ->
+  style: 'display:block;'
 
 Handlebars.registerHelper 'containerPosition', (section) ->
   if getInSession 'display_usersList'
@@ -202,9 +205,11 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @toggleMic = (event) ->
   BBB.toggleMyMic()
 
-# toggle state of session variable
 @toggleUsersList = ->
-  setInSession "display_usersList", !getInSession "display_usersList"
+  if $('.sl-left-drawer').hasClass('hiddenInLandscape')
+    $('.sl-left-drawer').removeClass('hiddenInLandscape')
+  else
+    $('.sl-left-drawer').addClass('hiddenInLandscape')
   setTimeout(redrawWhiteboard, 0)
 
 @toggleMenu = ->

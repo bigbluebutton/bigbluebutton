@@ -67,6 +67,11 @@ body {
       margin-top: auto;
       margin-bottom: auto;
     }
+    // overriding the default button styling:
+    &.toggleUserlistButton, &.toggleMenuButton {
+      background: transparent;
+    }
+    span { background-color: white; }
   }
   @media @landscape {
     min-width: 768px;
@@ -136,14 +141,22 @@ body {
 }
 
 .meetingTitle {
-  border-bottom: 1px solid extract(@lightGrey, 1);
-  color: extract(@darkGrey, 1);
   font-weight: bold;
   line-height: 2em;
   margin: 0;
-  padding-bottom: 5px;
-  padding-left: 10px;
-  padding-top: 5px;
+  @media @mobile-portrait, @mobile-portrait-with-keyboard, @desktop-portrait {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    padding-left: 140px;
+    padding-top: 20px;
+    color: white;
+  }
+  @media @landscape {
+    border-bottom: 1px solid extract(@lightGrey, 1);
+    color: extract(@darkGrey, 1);
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-top: 5px;
+  }
   @media @desktop-portrait, @landscape {
     font-size: 18px;
     height: 50px;
@@ -167,18 +180,6 @@ body {
   width: 100%;
   height: 100%;
   background-color: extract(@white, 3);
-  &.moved-to-right {
-    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-      position: fixed;
-      left: 500px;
-    }
-  }
-  &.moved-to-left {
-    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-      position: fixed;
-      right: 500px;
-    }
-  }
   &.moved-to-right, &.moved-to-left {
     @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
       z-index: 1; // same level as notifications
@@ -188,7 +189,7 @@ body {
         width: 100%;
         height: 100%;
         background-color: black;
-        opacity: 0.5;
+        opacity: 0;
         z-index: 1;
         cursor: pointer;
         @media @landscape, @desktop-portrait {
@@ -276,9 +277,9 @@ body {
     margin-left: auto;
     margin-right: auto;
     width: 90%;
-    background-color: white;
-    color: extract(@darkGrey, 3);
-    border-bottom: 2px solid extract(@darkGrey, 3);
+    background-color: transparent;
+    color: white;
+    border-bottom: 2px solid extract(@lightGrey, 4);
     margin-top: 0;
     margin-bottom: 0;
     &:hover {
@@ -379,6 +380,10 @@ body {
   margin-right: 10px;
 }
 
+.toggleUserlistButton, .toggleMenuButton {
+  z-index: 1001;
+}
+
 .settingsIcon {
   @media @landscape {
     width: 57px;
@@ -387,11 +392,14 @@ body {
 }
 
 #menu {
-  width: 500px;
+  width: 85%;
   height: 100%;
-  position: fixed;
-  right: 0;
-  z-index: -1000;
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    .linear-gradient(rgb(65,68,77), rgb(58,60,69));
+  }
+  @media @landscape {
+    display: none;
+  }
 }
 
 #notificationArea {
@@ -493,4 +501,48 @@ body {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
+}
+
+/* Sliding Menu */
+
+@media @desktop-portrait {
+  .sl-left-drawer {
+    z-index: 1000;
+    position: fixed;
+    left: -400px;
+    width: 400px;
+    &.sl-left-drawer-out {
+      left: 0px;
+    }
+  }
+  .sl-right-drawer {
+    z-index: 1000;
+    position: fixed;
+    right: -400px;
+    width: 400px;
+    &.sl-right-drawer-out {
+      right: 0px;
+    }
+  }
+}
+
+.sl-left-drawer {
+  height: 100%;
+  @media @landscape {
+    -webkit-flex: 1 1 20%;
+    -moz-flex: 1 1 20%;
+    -ms-flex: 1 1 20%;
+    flex: 1 1 20%;
+  }
+}
+
+.sl-right-drawer {
+  height: 100%;
+  .linear-gradient(rgb(65,68,77), rgb(58,60,69));
+}
+
+.hiddenInLandscape {
+  @media @landscape {
+    display: none;
+  }
 }

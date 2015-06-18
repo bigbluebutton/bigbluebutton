@@ -1,10 +1,8 @@
 <template name="header">
   <nav id="navbar" class="myNavbar gradientBar top-bar" role="navigation">
-    {{#if getInSession "display_usersList"}}
-      {{> makeButton btn_class="toggleUserlistButton navbarButton pressedButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Close Userlist"}}
-    {{else}}
-      {{> makeButton btn_class="toggleUserlistButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Open Userlist"}}
-    {{/if}}
+    <button class="btn toggleUserlistButton navbarButton sl-hamburger sl-ham-la-cw sl-portrait-mobile sl-portrait-keyboard">
+      <span></span>
+    </button>
 
     {{#if amIInAudio}}
       {{#if amIListenOnlyAudio}}
@@ -36,11 +34,9 @@
       {{> makeButton id="logout" btn_class="signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
       title="Logout"}}
     </div>
-    {{#if getInSession "display_menu"}}
-      {{> makeButton btn_class="toggleMenuButton navbarButton pressedButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Close Menu"}}
-    {{else}}
-      {{> makeButton btn_class="toggleMenuButton navbarButton" i_class="ion-navicon-round" rel="tooltip" data_placement="bottom" title="Open Menu"}}
-    {{/if}}
+    <button class="btn toggleMenuButton navbarButton sl-hamburger sl-ham-ra-cw sl-portrait-mobile sl-portrait-keyboard">
+      <span></span>
+    </button>
   </nav>
 </template>
 
@@ -49,8 +45,12 @@
     {{#if isDisconnected}}
       {{>status}}
     {{else}}
-      {{> usersList id="users" name="usersList"}}
-      {{> menu id="menu"}}
+      <div class="sl-left-drawer sl-left-drawer-content-delay sl-portrait-mobile sl-portrait-keyboard">
+        {{> usersList id="users" name="usersList"}}
+      </div>
+      <div class="sl-right-drawer sl-portrait-mobile sl-portrait-keyboard">
+        {{> menu id="menu"}}
+      </div>
       <div id="main">
         {{> header}}
         <div id="panels">
