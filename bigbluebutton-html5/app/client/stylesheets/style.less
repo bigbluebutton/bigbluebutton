@@ -556,11 +556,14 @@ body {
   opacity: 0;
   z-index: 1;
   cursor: pointer;
-  @media @landscape, @desktop-portrait {
+  @media @desktop-portrait {
     top: 50px;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     top: 110px;
+  }
+  @media @landscape {
+    display: none;
   }
   &:not(.darken) {
     display: none;
