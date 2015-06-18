@@ -60,6 +60,7 @@ Template.header.events
     if isLandscape()
       toggleUsersList()
     else
+      toggleShield()
       if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
         toggleRightDrawer()
         toggleRightArrowClockwise()
@@ -67,6 +68,7 @@ Template.header.events
       toggleLeftArrowClockwise()
 
   "click .toggleMenuButton": (event) ->
+    toggleShield()
     if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
       toggleLeftDrawer()
       toggleLeftArrowClockwise()
@@ -128,8 +130,8 @@ Template.main.rendered = ->
 
 Template.main.events
   'click .shield': (event) ->
-    #closePushMenus()
-    toggleLeftDrawer();
+    toggleShield()
+    closeMenus()
 
   'click .settingsIcon': (event) ->
     setInSession("tempFontSize", getInSession("messageFontSize"))

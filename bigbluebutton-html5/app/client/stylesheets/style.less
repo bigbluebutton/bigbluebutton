@@ -546,3 +546,37 @@ body {
     display: none;
   }
 }
+
+.shield {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  opacity: 0;
+  z-index: 1;
+  cursor: pointer;
+  @media @landscape, @desktop-portrait {
+    top: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    top: 110px;
+  }
+  &:not(.darken) {
+    display: none;
+  }
+}
+
+.darken {
+  animation: darken 0.3s linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes darken {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}

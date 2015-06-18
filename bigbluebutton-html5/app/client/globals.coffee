@@ -215,6 +215,12 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @toggleMenu = ->
   setInSession 'display_menu', !getInSession 'display_menu'
 
+@toggleShield = ->
+  if $('.shield').hasClass('darken')
+    $('.shield').removeClass('darken')
+  else
+    $('.shield').addClass('darken')
+
 @removeFullscreenStyles = ->
   $('#whiteboard-paper').removeClass('verticallyCentered')
   $('#chat').removeClass('invisible')
@@ -258,9 +264,13 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       removeFullscreenStyles()
       redrawWhiteboard()
 
-@closePushMenus = ->
-  setInSession 'display_usersList', false
-  setInSession 'display_menu', false
+@closeMenus = ->
+  if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+    toggleLeftDrawer()
+    toggleLeftArrowClockwise()
+  else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
