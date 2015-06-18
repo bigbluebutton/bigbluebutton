@@ -41,4 +41,28 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     val msg = new UserTalkingInVoiceConfMessage(voiceConfId, voiceUserId, talking)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
+
+  def deskShareStarted(voiceConfId: String, callerIdNum: String, callerIdName: String) {
+    println("******** FreeswitchConferenceService received deskShareStarted")
+    val msg = new DeskShareStartedEventMessage(voiceConfId, callerIdNum, callerIdName)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
+  }
+
+  def deskShareEnded(voiceConfId: String, callerIdNum: String, callerIdName: String) {
+    println("******** FreeswitchConferenceService received deskShareEnded")
+    val msg = new DeskShareEndedEventMessage(voiceConfId, callerIdNum, callerIdName)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
+  }
+
+  def deskShareViewerJoined(voiceConfId: String, callerIdNum: String, callerIdName: String) {
+    println("******** FreeswitchConferenceService received deskShareViewerJoined")
+    val msg = new DeskShareViewerJoinedEventMessage(voiceConfId, callerIdNum, callerIdName)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
+  }
+
+  def deskShareViewerLeft(voiceConfId: String, callerIdNum: String, callerIdName: String) {
+    println("******** FreeswitchConferenceService received deskShareViewerLeft")
+    val msg = new DeskShareViewerLeftEventMessage(voiceConfId, callerIdNum, callerIdName)
+    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
+  }
 }

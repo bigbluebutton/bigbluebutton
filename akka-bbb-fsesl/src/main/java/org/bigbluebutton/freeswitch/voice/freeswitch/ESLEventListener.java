@@ -7,6 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
+import org.bigbluebutton.freeswitch.voice.events.DeskShareEndedEvent;
+import org.bigbluebutton.freeswitch.voice.events.DeskShareStartedEvent;
+import org.bigbluebutton.freeswitch.voice.events.DeskShareViewerJoinedEvent;
+import org.bigbluebutton.freeswitch.voice.events.DeskShareViewerLeftEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceStartRecordingEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceUserJoinedEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceUserLeftEvent;
@@ -22,7 +26,11 @@ public class ESLEventListener implements IEslEventListener {
     private static final String STOP_TALKING_EVENT = "stop-talking";
     private static final String START_RECORDING_EVENT = "start-recording";
     private static final String STOP_RECORDING_EVENT = "stop-recording";
-    
+
+    private static final String DESKSHARE_CONFERENCE_NAME_LABEL = "-DESKSHARE";
+    private static final String DESKSHARE_CALLER_NAME_LABEL = " (Screen)";
+    private static final String DESKSHARE_CALLER_ID_LABEL = " (screen)";
+
     private final ConferenceEventListener conferenceEventListener;
     
     public ESLEventListener(ConferenceEventListener conferenceEventListener) {
@@ -50,7 +58,7 @@ public class ESLEventListener implements IEslEventListener {
     
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
-    	
+
         Integer memberId = this.getMemberIdFromEvent(event);
         Map<String, String> headers = event.getEventHeaders();
         String callerId = this.getCallerIdFromEvent(event);
@@ -59,21 +67,35 @@ public class ESLEventListener implements IEslEventListener {
         boolean speaking = headers.get("Talking").equals("true") ? true : false;
 
         String voiceUserId = callerIdName;
-        
+
         System.out.println("User joined voice conference, user=[" + callerIdName + "], conf=[" + confName + "]");
-        
+
         Matcher gapMatcher = GLOBAL_AUDION_PATTERN.matcher(callerIdName);
         if (gapMatcher.matches()) {
         	System.out.println("Ignoring GLOBAL AUDIO USER [" + callerIdName + "]");
         	return;
         }
-        		
-		    Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
-		    if (matcher.matches()) {			
-			    voiceUserId = matcher.group(1).trim();
-			    callerIdName = matcher.group(2).trim();
-		    } 
-        
+
+        // Deskstop sharing conferences have their name in the form xxxxx-DESKSHARE
+        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_LABEL)) {
+            // Deskstop sharing conferences have the user with the desktop video displayed in this way:
+            // username (Screen) and usernum (screen)
+            if (callerId.endsWith(DESKSHARE_CALLER_ID_LABEL) && callerIdName.endsWith(DESKSHARE_CALLER_NAME_LABEL)) {
+                DeskShareStartedEvent dsStart = new DeskShareStartedEvent(confName, callerId, callerIdName);
+                conferenceEventListener.handleConferenceEvent(dsStart);
+                return; //TODO do we need it?
+            } else {
+                DeskShareViewerJoinedEvent dsJoined = new DeskShareViewerJoinedEvent(confName, callerId, callerIdName);
+                conferenceEventListener.handleConferenceEvent(dsJoined);
+        	}
+        }
+
+        Matcher matcher = CALLERNAME_PATTERN.matcher(callerIdName);
+        if (matcher.matches()) {
+            voiceUserId = matcher.group(1).trim();
+            callerIdName = matcher.group(2).trim();
+        }
+
         VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, memberId.toString(), confName, callerId, callerIdName, muted, speaking);
         conferenceEventListener.handleConferenceEvent(pj);
     }
@@ -82,6 +104,23 @@ public class ESLEventListener implements IEslEventListener {
     public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {   	
         Integer memberId = this.getMemberIdFromEvent(event);
         System.out.println("User left voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
+
+        // Deskstop sharing conferences have their name in the form xxxxx-DESKSHARE
+        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_LABEL)) {
+            String callerId = this.getCallerIdFromEvent(event);
+            String callerIdName = this.getCallerIdNameFromEvent(event);
+            // Deskstop sharing conferences have the user with the desktop video displayed in this way:
+            // username (Screen) and usernum (screen)
+            if (callerId.endsWith(DESKSHARE_CALLER_ID_LABEL) && callerIdName.endsWith(DESKSHARE_CALLER_NAME_LABEL)) {
+                DeskShareEndedEvent dsEnd = new DeskShareEndedEvent(confName, callerId, callerIdName);
+                conferenceEventListener.handleConferenceEvent(dsEnd);
+                return;//TODO do we need it?
+            } else {
+                DeskShareViewerLeftEvent dsLeft = new DeskShareViewerLeftEvent(confName, callerId, callerIdName);
+                conferenceEventListener.handleConferenceEvent(dsLeft);
+            }
+        }
+
         VoiceUserLeftEvent pl = new VoiceUserLeftEvent(memberId.toString(), confName);
         conferenceEventListener.handleConferenceEvent(pl);
     }

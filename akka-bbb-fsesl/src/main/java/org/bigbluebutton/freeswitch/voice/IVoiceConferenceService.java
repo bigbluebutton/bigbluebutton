@@ -8,5 +8,9 @@ public interface IVoiceConferenceService {
 	void userLockedInVoiceConf(String voiceConfId, String voiceUserId, Boolean locked);
 	void userMutedInVoiceConf(String voiceConfId, String voiceUserId, Boolean muted);
 	void userTalkingInVoiceConf(String voiceConfId, String voiceUserId, Boolean talking);
+	void deskShareStarted(String voiceConfId, String callerIdNum, String callerIdName);
+	void deskShareEnded(String voiceConfId, String callerIdNum, String callerIdName);
+	void deskShareViewerJoined(String voiceConfId, String callerIdNum, String callerIdName);
+	void deskShareViewerLeft(String voiceConfId, String callerIdNum, String callerIdName);
 
 }

@@ -4,7 +4,7 @@ name := "bbb-common-message"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.4"
+version := "0.0.5-SNAPSHOT"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
