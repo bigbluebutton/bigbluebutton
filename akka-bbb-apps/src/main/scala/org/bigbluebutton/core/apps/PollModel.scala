@@ -17,6 +17,10 @@ class PollModel {
     polls.size
   }
 
+  def addPoll(poll: Poll) {
+    polls += poll.id -> poll
+  }
+
   def createPoll(pollVO: PollVO) {
     val questions = new ArrayBuffer[Question]
     /*   
@@ -82,9 +86,9 @@ class PollModel {
     success
   }
 
-  def startPoll(pollID: String): Boolean = {
+  def startPoll(pollId: String): Boolean = {
     var success = false
-    polls.get(pollID) match {
+    polls.get(pollId) match {
       case Some(p) => {
         p.start
         success = true
@@ -133,29 +137,8 @@ class PollModel {
     present
   }
 
-  def getPoll(pollID: String): Option[PollVO] = {
-    var poll: Option[PollVO] = None
-
-    /*    
-    polls.get(pollID) match {
-      case Some(p) => {
-        val questions = new ArrayBuffer[QuestionVO]
-        p.questions.foreach(q => {
-          val responses = new ArrayBuffer[ResponseVO]
-          q.responses.foreach(response => {
-            val r = new ResponseVO(response.id, response.response, response.getResponders)
-            responses += r
-          })
-
-          val quest = new QuestionVO(q.id, q.multiResponse, q.question, responses.toArray)
-          questions += quest
-        })
-        poll = Some(new PollVO(p.id, p.title, questions.toArray))
-      }
-      case None => poll = None
-    }
-*/
-    poll
+  def getPoll(pollId: String): Option[Poll] = {
+    polls.get(pollId)
   }
 
   def hidePollResult(pollID: String) {
@@ -172,7 +155,7 @@ class PollModel {
     }
   }
 
-  def respondToQuestion(pollID: String, questionID: String, responseID: Int, responder: Responder) {
+  def respondToQuestion(pollID: String, questionID: Int, responseID: Int, responder: Responder) {
     polls.get(pollID) match {
       case Some(p) => {
         p.respondToQuestion(questionID, responseID, responder)
