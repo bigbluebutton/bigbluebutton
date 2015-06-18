@@ -56,18 +56,20 @@ Template.header.events
     if isLandscape()
       toggleUsersList()
     else
-      toggleShield()
       if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
         toggleRightDrawer()
         toggleRightArrowClockwise()
+      else
+        toggleShield()
       toggleLeftDrawer()
       toggleLeftArrowClockwise()
 
   "click .toggleMenuButton": (event) ->
-    toggleShield()
     if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
       toggleLeftDrawer()
       toggleLeftArrowClockwise()
+    else
+      toggleShield()
     toggleRightDrawer()
     toggleRightArrowClockwise()
 
