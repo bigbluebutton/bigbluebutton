@@ -225,52 +225,6 @@ body {
   }
 }
 
-/* Sliding menu */
-.sliding-menu {
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    transition: left 0.1s;
-    width: 15%;
-    height: 100%;
-    position: fixed;
-    top: 100px;
-    left: -15%;
-    z-index: 1031;
-    &.sliding-menu-opened {
-      left: 0px;
-    }
-    a {
-      border-bottom: 1px solid #258ecd;
-      padding: 1em;
-    }
-  }
-  @media @landscape, @desktop-portrait {
-      display: none;
-  }
-}
-
-.slideSection {
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    float: left;
-    margin-top: 0;
-    height: 100%;
-    width: 100%;
-    margin-bottom: 0.5%;
-    &.gradientBar {
-      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-    }
-    .btn {
-      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-      &.navbarIconToggleActive {
-        background: extract(@darkGrey, 3);
-        border-bottom: 4px solid extract(@azure, 1);
-      }
-      i {
-        color: extract(@white, 1);
-      }
-    }
-  }
-}
-
 .slideButton {
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     display: block;
@@ -373,11 +327,6 @@ body {
   i {
     color: extract(@azure, 2);
   }
-}
-
-.toggleUserlist {
-  width: 57px;
-  margin-right: 10px;
 }
 
 .toggleUserlistButton, .toggleMenuButton {

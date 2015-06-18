@@ -212,9 +212,6 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
     $('.sl-left-drawer').addClass('hiddenInLandscape')
   setTimeout(redrawWhiteboard, 0)
 
-@toggleMenu = ->
-  setInSession 'display_menu', !getInSession 'display_menu'
-
 @toggleShield = ->
   if $('.shield').hasClass('darken')
     $('.shield').removeClass('darken')

@@ -48,10 +48,6 @@ Template.header.events
     $(".tooltip").hide()
     toggleNavbar()
 
-  "click .usersListIcon": (event) ->
-    $(".tooltip").hide()
-    toggleUsersList()
-
   "click .videoFeedIcon": (event) ->
     $(".tooltip").hide()
     toggleCam @
@@ -77,7 +73,9 @@ Template.header.events
 
 Template.menu.events
   'click .slideButton': (event) ->
-    toggleMenu()
+    toggleShield()
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
   'click .toggleChatButton': (event) ->
     toggleChatbar()
