@@ -20,8 +20,10 @@ duongthienduc:meteor-winston@1.0.0
 ejson@1.0.6
 ewall:foundation@5.5.2
 fastclick@1.0.3
+fourseven:scss@3.1.1
 francocatena:status@1.1.2
 geojson-utils@1.0.3
+gthacoder:sled@0.0.1
 html-tools@1.0.4
 htmljs@1.0.4
 http@1.1.0
