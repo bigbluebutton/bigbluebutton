@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.CurrentPresentationInfo
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.MeetingProperties
+import org.bigbluebutton.core.apps.PollVO
 
 abstract class OutMessage
 
@@ -102,6 +103,18 @@ case class PresentationChanged(meetingID: String, presentation: Presentation) ex
 case class GetPresentationStatusReply(meetingID: String, presentations: Seq[Presentation], current: Presentation, replyTo: String) extends IOutMessage
 case class PresentationRemoved(meetingID: String, presentationId: String) extends IOutMessage
 case class PageChanged(meetingID: String, page: Page) extends IOutMessage
+
+// Polling
+case class PollCreatedMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String, poll: PollVO) extends IOutMessage
+case class CreatePollReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String, pollType: String) extends IOutMessage
+case class PollStartedMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String, poll: PollVO) extends IOutMessage
+case class StartPollReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
+case class PollStoppedMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String) extends IOutMessage
+case class StopPollReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
+case class PollShowResultMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String, poll: PollVO) extends IOutMessage
+case class ShowPollResultReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
+case class PollHideResultMessage(meetingID: String, recorded: Boolean, requesterId: String, pollId: String, poll: PollVO) extends IOutMessage
+case class HidePollResultReplyMessage(meetingID: String, recorded: Boolean, result: RequestResult, requesterId: String, pollId: String) extends IOutMessage
 
 // Whiteboard
 case class GetWhiteboardShapesReply(meetingID: String, recorded: Boolean, requesterID: String, whiteboardId: String, shapes: Array[AnnotationVO], replyTo: String) extends IOutMessage

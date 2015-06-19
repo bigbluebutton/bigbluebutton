@@ -14,69 +14,95 @@ trait PollApp {
 
   }
 
-  def handleVotePollRequest(msg: VotePollRequest) {
-
+  def handleRespondToPollRequest(msg: RespondToPollRequest) {
+    pollModel.getPoll(msg.pollId) match {
+      case Some(poll) => {
+        poll.hideResult()
+        outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+      }
+      case None => {
+        val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
+        sender ! new HidePollResultReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+      }
+    }
   }
 
   def handleHidePollResultRequest(msg: HidePollResultRequest) {
-
+    pollModel.getPoll(msg.pollId) match {
+      case Some(poll) => {
+        poll.hideResult()
+        outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+      }
+      case None => {
+        val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
+        sender ! new HidePollResultReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+      }
+    }
   }
 
   def handleShowPollResultRequest(msg: ShowPollResultRequest) {
-
+    pollModel.getPoll(msg.pollId) match {
+      case Some(poll) => {
+        poll.showResult()
+        outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+      }
+      case None => {
+        val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
+        sender ! new ShowPollResultReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+      }
+    }
   }
 
   def handleStopPollRequest(msg: StopPollRequest) {
-
+    pollModel.getPoll(msg.pollId) match {
+      case Some(poll) => {
+        poll.stop()
+        outGW.send(new PollStoppedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId))
+      }
+      case None => {
+        val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
+        sender ! new StopPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+      }
+    }
   }
 
   def handleStartPollRequest(msg: StartPollRequest) {
-
+    pollModel.getPoll(msg.pollId) match {
+      case Some(poll) => {
+        poll.start()
+        outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+      }
+      case None => {
+        val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
+        sender ! new StartPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+      }
+    }
   }
 
   def handleCreatePollRequest(msg: CreatePollRequest) {
-
-  }
-
-  private def buildAnswers(questionType: String, answersVO: Option[Array[AnswerVO]]): Array[Answer] = {
-    var answers = new ArrayBuffer[Answer]()
-
-    //    answersVO match {
-    //      case Some(Array[AnswerVO]) => answers = buildAnswersFromVO(answersVO.get)
-    //      case None => answers = buildAnswersFromQuestionType(questionType)
-    //    }
-
-    answers.toArray
-  }
-
-  private def buildAnswersFromQuestionType(questionType: String): ArrayBuffer[Answer] = {
-    val answers = new ArrayBuffer[Answer]
-
-    val qType = """(YN)|(TF)|(A[1-5])|(1[1-5])"""
-
-    questionType.toUpperCase() match {
-      case "TF" => //
-      case "YN" => //
+    PollFactory.createPoll(msg.pollId, msg.pollType) match {
+      case Some(poll) => {
+        pollModel.addPoll(poll)
+        outGW.send(new PollCreatedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+      }
+      case None => {
+        val result = new RequestResult(StatusCodes.NOT_ACCEPTABLE, Some(Array(ErrorCodes.INVALID_DATA)))
+        sender ! new CreatePollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId, msg.pollType)
+      }
     }
 
-    answers
   }
 
-  private def buildAnswersFromVO(answersVO: Array[AnswerVO]): ArrayBuffer[Answer] = {
-    val answers = new ArrayBuffer[Answer]
-    answersVO.foreach { rv => answers += new Answer(rv.id, rv.key, rv.text) }
+  private def handleRespondToPoll(poll: Poll, msg: RespondToPollRequest) {
+    if (hasUser(msg.requesterId)) {
+      getUser(msg.requesterId) match {
+        case Some(user) => {
+          val responder = new Responder(user.userID, user.name)
+          poll.respondToQuestion(msg.questionId, msg.answerId, responder)
 
-    answers
-  }
-
-  def createPoll(id: String, questions: Array[QuestionVO], title: Option[String]) {
-    val qs = new ArrayBuffer[Question]
-
-    questions.foreach { qv =>
-      var answers = buildAnswers(qv.questionType, qv.answers)
-
-      //          qs += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
-
+        }
+        case None => //do nothing
+      }
     }
   }
 
@@ -99,30 +125,7 @@ trait PollApp {
     }
   }
 
-  def handleRespondToPoll(msg: RespondToPoll) {
-    val pollID = msg.response.pollID
 
-    if (pollModel.hasPoll(pollID)) {
-      if (hasUser(msg.requesterID)) {
-        getUser(msg.requesterID) match {
-          case Some(user) => {
-            val responder = new Responder(user.userID, user.name)
-            msg.response.responses.foreach(question => {
-              question.responseIDs.foreach(response => {
-                pollModel.respondToQuestion(pollID, question.questionID, response, responder)
-              })
-            })
-
-            pollModel.getPoll(msg.response.pollID) match {
-              case Some(poll) => outGW.send(new PollResponseOutMsg(meetingID, recorded, responder, msg.response))
-              case None => // do nothing
-            }
-          }
-          case None => //do nothing
-        }
-      }
-    }
-  }
 
   def handleGetPolls(msg: GetPolls) {
     var polls = pollModel.getPolls

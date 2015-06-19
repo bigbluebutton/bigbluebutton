@@ -167,8 +167,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleShowPollResultRequest(msg)
     case msg: HidePollResultRequest =>
       handleHidePollResultRequest(msg)
-    case msg: VotePollRequest =>
-      handleVotePollRequest(msg)
+    case msg: RespondToPollRequest =>
+      handleRespondToPollRequest(msg)
     case msg: GetPollRequest =>
       handleGetPollRequest(msg)
 

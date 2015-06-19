@@ -16,7 +16,7 @@ object PollFactory {
   val LetterArray = Array("A", "B", "C", "D", "E")
   val NumberArray = Array("1", "2", "3", "4", "5")
 
-  def processYesNoPollType(qType: String): Question = {
+  private def processYesNoPollType(qType: String): Question = {
     val answers = new Array[Answer](2)
     answers(0) = new Answer(0, "N", Some("No"))
     answers(1) = new Answer(1, "Y", Some("Yes"))
@@ -24,7 +24,7 @@ object PollFactory {
     new Question(0, PollType.YesNoPollType, false, None, answers)
   }
 
-  def processTrueFalsePollType(qType: String): Question = {
+  private def processTrueFalsePollType(qType: String): Question = {
     val answers = new Array[Answer](2)
 
     answers(0) = new Answer(0, "F", Some("False"))
@@ -33,7 +33,7 @@ object PollFactory {
     new Question(0, PollType.TrueFalsePollType, false, None, answers)
   }
 
-  def processLetterPollType(qType: String, multiResponse: Boolean): Option[Question] = {
+  private def processLetterPollType(qType: String, multiResponse: Boolean): Option[Question] = {
     val q = qType.split('-')
     val numQs = q(1).toInt
 
@@ -52,7 +52,7 @@ object PollFactory {
     questionOption
   }
 
-  def processNumberPollType(qType: String, multiResponse: Boolean): Option[Question] = {
+  private def processNumberPollType(qType: String, multiResponse: Boolean): Option[Question] = {
     val q = qType.split('-')
     val numQs = q(1).toInt
 
@@ -68,6 +68,36 @@ object PollFactory {
       }
     }
     questionOption
+  }
+
+  private def createQuestion(qType: String): Option[Question] = {
+    val qt = qType.toUpperCase()
+    var questionOption: Option[Question] = None
+
+    if (qt.matches(PollType.YesNoPollType)) {
+      questionOption = Some(processYesNoPollType(qt))
+    } else if (qt.matches(PollType.TrueFalsePollType)) {
+      questionOption = Some(processTrueFalsePollType(qt))
+    } else if (qt.startsWith(PollType.LetterPollType)) {
+      questionOption = processLetterPollType(qt, false)
+    } else if (qt.startsWith(PollType.NumberPollType)) {
+      processNumberPollType(qt, false)
+    }
+
+    questionOption
+  }
+
+  def createPoll(id: String, pollType: String): Option[Poll] = {
+    var poll: Option[Poll] = None
+
+    createQuestion(pollType) match {
+      case Some(question) => {
+        poll = Some(new Poll(id, Array(question), None))
+      }
+      case None => poll = None
+    }
+
+    poll
   }
 }
 
@@ -113,9 +143,9 @@ class Poll(val id: String, val questions: Array[Question], val title: Option[Str
     return false
   }
 
-  def respondToQuestion(questionID: String, responseID: Int, responder: Responder) {
+  def respondToQuestion(questionID: Int, responseID: Int, responder: Responder) {
     questions.foreach(q => {
-      if (q.id.equals(questionID)) {
+      if (q.id == questionID) {
         q.respondToQuestion(responseID, responder)
       }
     })
