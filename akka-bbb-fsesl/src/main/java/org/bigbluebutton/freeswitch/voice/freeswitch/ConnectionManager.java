@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeskShareRecordCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
@@ -143,5 +144,13 @@ public class ConnectionManager  {
 	    	EslMessage response = c.sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
 	        rcc.handleResponse(response, conferenceEventListener); 			
 		}
-	}   
+	}
+
+	public void record(DeskShareRecordCommand dsrc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			EslMessage response = c.sendSyncApiCommand(dsrc.getCommand(), dsrc.getCommandArgs());
+			dsrc.handleResponse(response, conferenceEventListener);
+		}
+	}
 }

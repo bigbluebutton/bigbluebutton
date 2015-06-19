@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 
 
 public class DeskShareStartedEventMessage {
-	public static final String DESK_SHARE_STARTED_MESSAGE  = "desk_share_started_message";
+	public static final String DESKSHARE_STARTED_MESSAGE  = "deskshare_start_message";
 	public static final String VERSION = "0.0.1";
 
 	public static final String CONFERENCE_NAME = "conference_name";
@@ -29,7 +29,7 @@ public class DeskShareStartedEventMessage {
 		payload.put(CALLER_ID_NAME, callerIdName);
 		payload.put(CALLER_ID, callerId);
 
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESK_SHARE_STARTED_MESSAGE, VERSION, null);
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESKSHARE_STARTED_MESSAGE, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);
 	}
@@ -44,7 +44,7 @@ public class DeskShareStartedEventMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (DESK_SHARE_STARTED_MESSAGE.equals(messageName)) {
+				if (DESKSHARE_STARTED_MESSAGE.equals(messageName)) {
 					if (payload.has(CONFERENCE_NAME)
 							&& payload.has(CALLER_ID)
 							&& payload.has(CALLER_ID_NAME)) {

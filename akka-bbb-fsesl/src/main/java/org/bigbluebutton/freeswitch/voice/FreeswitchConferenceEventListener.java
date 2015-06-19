@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.bigbluebutton.freeswitch.voice.events.DeskShareRecordingEvent;
 import org.bigbluebutton.freeswitch.voice.events.DeskShareStartedEvent;
 import org.bigbluebutton.freeswitch.voice.events.DeskShareEndedEvent;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
@@ -102,6 +103,11 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 					DeskShareViewerLeftEvent evt = (DeskShareViewerLeftEvent) event;
 					System.out.println("************** FreeswitchConferenceEventListener DeskShareViewerLeftEvent");
 					vcs.deskShareViewerLeft(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
+				} else if (event instanceof DeskShareRecordingEvent) {
+					System.out.println("******** RECORDING******\n\n\n\n\n FreeswitchConferenceEventListener ");
+					DeskShareRecordingEvent evt = (DeskShareRecordingEvent) event;
+					System.out.println("************** FreeswitchConferenceEventListener DeskShareRecordingEvent");
+					vcs.deskShareRecording(evt.getRoom(), evt.getRecordingFilename(), evt.getRecord(), evt.getTimestamp());
 				}
 			}
 		};

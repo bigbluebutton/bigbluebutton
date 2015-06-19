@@ -12,5 +12,6 @@ public interface IVoiceConferenceService {
 	void deskShareEnded(String voiceConfId, String callerIdNum, String callerIdName);
 	void deskShareViewerJoined(String voiceConfId, String callerIdNum, String callerIdName);
 	void deskShareViewerLeft(String voiceConfId, String callerIdNum, String callerIdName);
+	void deskShareRecording(String room, String recordingFilename, boolean record, String timestamp);
 
 }

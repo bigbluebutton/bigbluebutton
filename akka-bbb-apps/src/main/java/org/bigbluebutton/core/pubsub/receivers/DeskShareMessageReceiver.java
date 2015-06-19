@@ -7,6 +7,8 @@ import org.bigbluebutton.common.messages.DeskShareStartedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareEndedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareViewerJoinedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareViewerLeftEventMessage;
+import org.bigbluebutton.common.messages.DeskShareStartRecordingEventMessage;
+import org.bigbluebutton.common.messages.DeskShareStopRecordingEventMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
@@ -28,7 +30,7 @@ public class DeskShareMessageReceiver implements MessageHandler {
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
 
-					if (DeskShareStartedEventMessage.DESK_SHARE_STARTED_MESSAGE.equals(messageName)) {
+					if (DeskShareStartedEventMessage.DESKSHARE_STARTED_MESSAGE.equals(messageName)) {
 						DeskShareStartedEventMessage msg = DeskShareStartedEventMessage.fromJson(message);
 //						// TODO
 					} else if (DeskShareEndedEventMessage.DESK_SHARE_ENDED_MESSAGE.equals(messageName)) {
@@ -40,6 +42,14 @@ public class DeskShareMessageReceiver implements MessageHandler {
 					} else if (DeskShareViewerLeftEventMessage.DESK_SHARE_VIEWER_LEFT_MESSAGE.equals(messageName)) {
 						DeskShareViewerLeftEventMessage msg = DeskShareViewerLeftEventMessage.fromJson(message);
 //						// TODO
+					} else if (DeskShareStartRecordingEventMessage.DESKSHARE_START_RECORDING_MESSAGE.equals(messageName)) {
+						DeskShareStartRecordingEventMessage msg = DeskShareStartRecordingEventMessage.fromJson(message);
+//						// TODO
+						System.out.println("^^^^^^^START REC^^^^^^");
+					} else if (DeskShareStopRecordingEventMessage.DESKSHARE_STOP_RECORDING_MESSAGE.equals(messageName)) {
+						DeskShareStopRecordingEventMessage msg = DeskShareStopRecordingEventMessage.fromJson(message);
+//						// TODO
+						System.out.println("^^^^^^^STOP REC^^^^^^");
 					}
 				}
 			}

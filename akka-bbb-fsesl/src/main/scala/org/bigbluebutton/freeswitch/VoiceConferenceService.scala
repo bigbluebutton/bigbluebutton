@@ -2,7 +2,17 @@ package org.bigbluebutton.freeswitch
 
 import org.bigbluebutton.freeswitch.voice.IVoiceConferenceService
 import org.bigbluebutton.endpoint.redis.RedisPublisher
-import org.bigbluebutton.common.messages._
+import org.bigbluebutton.common.messages.VoiceConfRecordingStartedMessage
+import org.bigbluebutton.common.messages.UserJoinedVoiceConfMessage
+import org.bigbluebutton.common.messages.UserLeftVoiceConfMessage
+import org.bigbluebutton.common.messages.UserMutedInVoiceConfMessage
+import org.bigbluebutton.common.messages.UserTalkingInVoiceConfMessage
+import org.bigbluebutton.common.messages.DeskShareStartedEventMessage
+import org.bigbluebutton.common.messages.DeskShareEndedEventMessage
+import org.bigbluebutton.common.messages.DeskShareViewerJoinedEventMessage
+import org.bigbluebutton.common.messages.DeskShareViewerLeftEventMessage
+import org.bigbluebutton.common.messages.DeskShareStartRecordingEventMessage
+import org.bigbluebutton.common.messages.DeskShareStopRecordingEventMessage
 
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService {
 
@@ -65,4 +75,17 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     val msg = new DeskShareViewerLeftEventMessage(voiceConfId, callerIdNum, callerIdName)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
+
+  def deskShareRecording(voiceConfId: String, recordingFilename: String, record: Boolean, timestamp: String) {
+    if (record) {
+      println("******** FreeswitchConferenceService received deskShareRecording - start")
+      val msg = new DeskShareStartRecordingEventMessage(voiceConfId, recordingFilename, timestamp)
+      sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
+    } else {
+      println("******** FreeswitchConferenceService received deskShareRecording - stop")
+      val msg = new DeskShareStopRecordingEventMessage(voiceConfId, recordingFilename, timestamp)
+      sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
+    }
+  }
+
 }
