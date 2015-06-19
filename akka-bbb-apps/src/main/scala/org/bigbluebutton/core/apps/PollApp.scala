@@ -30,7 +30,7 @@ trait PollApp {
   }
 
   def handleRespondToPollRequest(msg: RespondToPollRequest) {
-    pollModel.getPoll(msg.pollId) match {
+    pollModel.getSimplePollResult(msg.pollId) match {
       case Some(poll) => {
         handleRespondToPoll(poll, msg)
       }
@@ -45,7 +45,7 @@ trait PollApp {
     pollModel.getPoll(msg.pollId) match {
       case Some(poll) => {
         pollModel.hidePollResult(msg.pollId)
-        outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
+        outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId))
       }
       case None => {
         val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
@@ -55,7 +55,7 @@ trait PollApp {
   }
 
   def handleShowPollResultRequest(msg: ShowPollResultRequest) {
-    pollModel.getPoll(msg.pollId) match {
+    pollModel.getSimplePollResult(msg.pollId) match {
       case Some(poll) => {
         pollModel.showPollResult(poll.id)
         outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
@@ -81,7 +81,7 @@ trait PollApp {
   }
 
   def handleStartPollRequest(msg: StartPollRequest) {
-    pollModel.getPoll(msg.pollId) match {
+    pollModel.getSimplePoll(msg.pollId) match {
       case Some(poll) => {
         pollModel.startPoll(poll.id)
         outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
@@ -93,6 +93,19 @@ trait PollApp {
     }
   }
 
+  private def createPoll(msg: StartPollRequest) {
+    PollFactory.createPoll(msg.pollId, msg.pollType) match {
+      case Some(poll) => {
+        pollModel.addPoll(poll)
+      }
+      case None => {
+        val result = new RequestResult(StatusCodes.NOT_ACCEPTABLE, Some(Array(ErrorCodes.INVALID_DATA)))
+        sender ! new StartPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+      }
+    }
+  }
+
+  /*  
   def handleCreatePollRequest(msg: CreatePollRequest) {
     PollFactory.createPoll(msg.pollId, msg.pollType) match {
       case Some(poll) => {
@@ -106,8 +119,9 @@ trait PollApp {
     }
 
   }
+*/
 
-  private def handleRespondToPoll(poll: PollVO, msg: RespondToPollRequest) {
+  private def handleRespondToPoll(poll: SimplePollResultOutVO, msg: RespondToPollRequest) {
     if (hasUser(msg.requesterId)) {
       getUser(msg.requesterId) match {
         case Some(user) => {

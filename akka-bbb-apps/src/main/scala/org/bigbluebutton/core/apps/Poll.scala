@@ -113,7 +113,10 @@ case class Responder(val userId: String, name: String)
 
 case class ResponseOutVO(id: String, text: String, responders: Array[Responder] = Array[Responder]())
 case class QuestionOutVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseOutVO])
-case class PollOutVO(id: String, title: String, started: Boolean, stopped: Boolean, questions: Array[QuestionOutVO])
+case class SimpleAnswerOutVO(id: Int, key: String)
+case class SimplePollOutVO(id: String, answers: Array[SimpleAnswerOutVO])
+case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
+case class SimplePollResultOutVO(id: String, answers: Array[SimpleVoteOutVO])
 
 class Poll(val id: String, val questions: Array[Question], val title: Option[String]) {
   private var _started: Boolean = false
@@ -159,6 +162,14 @@ class Poll(val id: String, val questions: Array[Question], val title: Option[Str
 
     new PollVO(id, qvos.toArray, title, _started, _stopped, _showResult)
   }
+
+  def toSimplePollOutVO(): SimplePollOutVO = {
+    new SimplePollOutVO(id, questions(0).toSimpleAnswerOutVO())
+  }
+
+  def toSimplePollResultOutVO(): SimplePollResultOutVO = {
+    new SimplePollResultOutVO(id, questions(0).toSimpleVotesOutVO())
+  }
 }
 
 class Question(val id: Int, val questionType: String, val multiResponse: Boolean, val text: Option[String], val answers: Array[Answer]) {
@@ -190,6 +201,24 @@ class Question(val id: Int, val questionType: String, val multiResponse: Boolean
 
     new QuestionVO(id, questionType, multiResponse, text, Some(rvos.toArray))
   }
+
+  def toSimpleAnswerOutVO(): Array[SimpleAnswerOutVO] = {
+    val rvos = new ArrayBuffer[SimpleAnswerOutVO]
+    answers.foreach(answer => {
+      rvos += answer.toSimpleAnswerOutVO()
+    })
+
+    rvos.toArray
+  }
+
+  def toSimpleVotesOutVO(): Array[SimpleVoteOutVO] = {
+    val rvos = new ArrayBuffer[SimpleVoteOutVO]
+    answers.foreach(answer => {
+      rvos += answer.toSimpleVoteOutVO()
+    })
+
+    rvos.toArray
+  }
 }
 
 class Answer(val id: Int, val key: String, val text: Option[String]) {
@@ -211,5 +240,13 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
     var r = new Array[Responder](responders.length)
     responders.copyToArray(r)
     return r
+  }
+
+  def toSimpleAnswerOutVO(): SimpleAnswerOutVO = {
+    new SimpleAnswerOutVO(id, key)
+  }
+
+  def toSimpleVoteOutVO(): SimpleVoteOutVO = {
+    new SimpleVoteOutVO(id, key, numResponders)
   }
 }

@@ -82,6 +82,18 @@ class PollModel {
     polls.get(pollId) != None
   }
 
+  def getSimplePoll(pollId: String): Option[SimplePollOutVO] = {
+    var pvo: Option[SimplePollOutVO] = None
+    polls.get(pollId) foreach (p => pvo = Some(p.toSimplePollOutVO()))
+    pvo
+  }
+
+  def getSimplePollResult(pollId: String): Option[SimplePollResultOutVO] = {
+    var pvo: Option[SimplePollResultOutVO] = None
+    polls.get(pollId) foreach (p => pvo = Some(p.toSimplePollResultOutVO()))
+    pvo
+  }
+
   def getPoll(pollId: String): Option[PollVO] = {
     var pvo: Option[PollVO] = None
     polls.get(pollId) foreach (p => pvo = Some(p.toPollVO()))
