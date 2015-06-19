@@ -7,6 +7,8 @@ class PollModel {
 
   private val polls = new HashMap[String, Poll]()
 
+  private var currentPoll: Option[PollVO] = None
+
   /**
    * *
    * Uncomment to create sample polls for manual testing purposes
@@ -21,47 +23,12 @@ class PollModel {
     polls += poll.id -> poll
   }
 
-  def createPoll(pollVO: PollVO) {
-    val questions = new ArrayBuffer[Question]
-    /*   
-    pollVO.questions.foreach(qv => {
-      val responses = new ArrayBuffer[Answer]
-      qv.responses.foreach(rv => {
-        val response = new Answer(rv.id, rv.text)
-        responses += response
-      })
-      questions += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
-    })
-
-    val poll = new Poll(pollVO.id, pollVO.title, questions.toArray)
-    polls += poll.id -> poll
-   
-    */
+  def hasCurrentPoll(): Boolean = {
+    currentPoll != None
   }
 
-  def updatePoll(pollVO: PollVO): Boolean = {
-    var success = false
-    /*
-    polls.get(pollVO.id) match {
-      case Some(p) => {
-        val questions = new ArrayBuffer[Question]
-        pollVO.questions.foreach(qv => {
-          val responses = new ArrayBuffer[Response]
-          qv.responses.foreach(rv => {
-            val response = new Response(rv.id, rv.text)
-            responses += response
-          })
-          questions += new Question(qv.id, qv.multiResponse, qv.question, responses.toArray)
-        })
-
-        val poll = new Poll(pollVO.id, pollVO.title, questions.toArray)
-        polls += poll.id -> poll
-        success = true
-      }
-      case None => success = false
-    }
-*/
-    success
+  def getCurrentPoll(): Option[PollVO] = {
+    currentPoll
   }
 
   def getPolls(): Array[PollVO] = {
@@ -86,17 +53,12 @@ class PollModel {
     success
   }
 
-  def startPoll(pollId: String): Boolean = {
-    var success = false
-    polls.get(pollId) match {
-      case Some(p) => {
-        p.start
-        success = true
-      }
-      case None => success = false
+  def startPoll(pollId: String) {
+    polls.get(pollId) foreach {
+      p =>
+        p.start()
+        currentPoll = Some(p.toPollVO())
     }
-
-    success
   }
 
   def removePoll(pollID: String): Boolean = {
@@ -112,51 +74,38 @@ class PollModel {
     success
   }
 
-  def stopPoll(pollID: String): Boolean = {
-    var success = false
-    polls.get(pollID) match {
-      case Some(p) => {
-        p.stop
-        success = true
-      }
-      case None => success = false
-    }
-
-    success
+  def stopPoll(pollId: String) {
+    polls.get(pollId) foreach (p => p.stop())
   }
 
-  def hasPoll(pollID: String): Boolean = {
-    var present = false
-    polls.get(pollID) match {
-      case Some(p) => {
-        present = true
-      }
-      case None => present = false
-    }
-
-    present
+  def hasPoll(pollId: String): Boolean = {
+    polls.get(pollId) != None
   }
 
-  def getPoll(pollId: String): Option[Poll] = {
-    polls.get(pollId)
+  def getPoll(pollId: String): Option[PollVO] = {
+    var pvo: Option[PollVO] = None
+    polls.get(pollId) foreach (p => pvo = Some(p.toPollVO()))
+    pvo
   }
 
-  def hidePollResult(pollID: String) {
-    polls.get(pollID) match {
-      case Some(p) => p.hideResult
-      case None => // do nothing
+  def hidePollResult(pollId: String) {
+    polls.get(pollId) foreach {
+      p =>
+        p.hideResult()
+        currentPoll = None
     }
   }
 
-  def showPollResult(pollID: String) {
-    polls.get(pollID) match {
-      case Some(p) => p.showResult
-      case None => // do nothing
+  def showPollResult(pollId: String) {
+    polls.get(pollId) foreach {
+      p =>
+        p.showResult
+        currentPoll = Some(p.toPollVO())
     }
   }
 
-  def respondToQuestion(pollID: String, questionID: Int, responseID: Int, responder: Responder) {
-    polls.get(pollID) match {
+  def respondToQuestion(pollId: String, questionID: Int, responseID: Int, responder: Responder) {
+    polls.get(pollId) match {
       case Some(p) => {
         p.respondToQuestion(questionID, responseID, responder)
       }

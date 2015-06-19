@@ -84,6 +84,7 @@ case class ShowPollResultRequest(meetingID: String, requesterId: String, pollId:
 case class HidePollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
 case class RespondToPollRequest(meetingID: String, requesterId: String, pollId: String, questionId: Int, answerId: Int) extends InMessage
 case class GetPollRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
+case class GetCurrentPollRequest(meetingID: String, requesterId: String) extends InMessage
 
 // Voice
 case class InitAudioSettings(meetingID: String, requesterID: String, muted: Boolean) extends InMessage

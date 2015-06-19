@@ -171,6 +171,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleRespondToPollRequest(msg)
     case msg: GetPollRequest =>
       handleGetPollRequest(msg)
+    case msg: GetCurrentPollRequest =>
+      handleGetCurrentPollRequest(msg)
 
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit

@@ -14,15 +14,29 @@ trait PollApp {
 
   }
 
+  def handleGetCurrentPollRequest(msg: GetCurrentPollRequest) {
+    pollModel.getCurrentPoll() match {
+      case Some(p) => {
+        if (p.started && p.stopped && p.showResult) {
+          outGW.send(new GetCurrentPollReplyMessage(mProps.meetingID, mProps.recorded, msg.requesterId, true, Some(p)))
+        } else {
+          outGW.send(new GetCurrentPollReplyMessage(mProps.meetingID, mProps.recorded, msg.requesterId, false, None))
+        }
+      }
+      case None => {
+        outGW.send(new GetCurrentPollReplyMessage(mProps.meetingID, mProps.recorded, msg.requesterId, false, None))
+      }
+    }
+  }
+
   def handleRespondToPollRequest(msg: RespondToPollRequest) {
     pollModel.getPoll(msg.pollId) match {
       case Some(poll) => {
-        poll.hideResult()
-        outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+        handleRespondToPoll(poll, msg)
       }
       case None => {
         val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
-        sender ! new HidePollResultReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+        sender ! new RespondToPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
       }
     }
   }
@@ -30,8 +44,8 @@ trait PollApp {
   def handleHidePollResultRequest(msg: HidePollResultRequest) {
     pollModel.getPoll(msg.pollId) match {
       case Some(poll) => {
-        poll.hideResult()
-        outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+        pollModel.hidePollResult(msg.pollId)
+        outGW.send(new PollHideResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
       }
       case None => {
         val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
@@ -43,8 +57,8 @@ trait PollApp {
   def handleShowPollResultRequest(msg: ShowPollResultRequest) {
     pollModel.getPoll(msg.pollId) match {
       case Some(poll) => {
-        poll.showResult()
-        outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+        pollModel.showPollResult(poll.id)
+        outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
       }
       case None => {
         val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
@@ -56,7 +70,7 @@ trait PollApp {
   def handleStopPollRequest(msg: StopPollRequest) {
     pollModel.getPoll(msg.pollId) match {
       case Some(poll) => {
-        poll.stop()
+        pollModel.stopPoll(poll.id)
         outGW.send(new PollStoppedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId))
       }
       case None => {
@@ -69,8 +83,8 @@ trait PollApp {
   def handleStartPollRequest(msg: StartPollRequest) {
     pollModel.getPoll(msg.pollId) match {
       case Some(poll) => {
-        poll.start()
-        outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
+        pollModel.startPoll(poll.id)
+        outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
       }
       case None => {
         val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
@@ -93,105 +107,19 @@ trait PollApp {
 
   }
 
-  private def handleRespondToPoll(poll: Poll, msg: RespondToPollRequest) {
+  private def handleRespondToPoll(poll: PollVO, msg: RespondToPollRequest) {
     if (hasUser(msg.requesterId)) {
       getUser(msg.requesterId) match {
         case Some(user) => {
           val responder = new Responder(user.userID, user.name)
-          poll.respondToQuestion(msg.questionId, msg.answerId, responder)
-
+          pollModel.respondToQuestion(poll.id, msg.questionId, msg.answerId, responder)
+          outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
         }
-        case None => //do nothing
+        case None => {
+          val result = new RequestResult(StatusCodes.FORBIDDEN, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
+          sender ! new RespondToPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+        }
       }
     }
   }
-
-  /*  
-  def handleHidePollResult(msg: HidePollResult) {
-    val pollID = msg.pollID
-
-    if (pollModel.hasPoll(pollID)) {
-      pollModel.hidePollResult(pollID)
-      outGW.send(new PollHideResultOutMsg(meetingID, recorded, pollID))
-    }
-  }
-
-  def handleShowPollResult(msg: ShowPollResult) {
-    val pollID = msg.pollID
-
-    if (pollModel.hasPoll(pollID)) {
-      pollModel.showPollResult(pollID)
-      outGW.send(new PollShowResultOutMsg(meetingID, recorded, pollID))
-    }
-  }
-
-
-
-  def handleGetPolls(msg: GetPolls) {
-    var polls = pollModel.getPolls
-    outGW.send(new GetPollsReplyOutMsg(meetingID, recorded, msg.requesterID, polls))
-  }
-
-  def handleClearPoll(msg: ClearPoll) {
-    if (pollModel.clearPoll(msg.pollID)) {
-      outGW.send(new PollClearedOutMsg(meetingID, recorded, msg.pollID))
-    } else {
-      print("PollApp:: handleClearPoll - " + msg.pollID + " not found")
-    }
-  }
-
-  def handleStartPoll(msg: StartPoll) {
-    if (pollModel.hasPoll(msg.pollID)) {
-      pollModel.startPoll(msg.pollID)
-      outGW.send(new PollStartedOutMsg(meetingID, recorded, msg.pollID))
-    } else {
-      print("PollApp:: handleStartPoll - " + msg.pollID + " not found")
-    }
-  }
-
-  def handleStopPoll(msg: StopPoll) {
-    if (pollModel.hasPoll(msg.pollID)) {
-      pollModel.stopPoll(msg.pollID)
-      outGW.send(new PollStoppedOutMsg(meetingID, recorded, msg.pollID))
-    } else {
-      print("PollApp:: handleStopPoll - " + msg.pollID + " not found")
-    }
-  }
-
-  def handleSharePoll(msg: SharePoll) {
-
-  }
-
-  def handleRemovePoll(msg: RemovePoll) {
-    if (pollModel.hasPoll(msg.pollID)) {
-      pollModel.removePoll(msg.pollID)
-      outGW.send(new PollRemovedOutMsg(meetingID, recorded, msg.pollID))
-    } else {
-      print("PollApp:: handleRemovePoll - " + msg.pollID + " not found")
-    }
-  }
-
-  def handleDestroyPoll(msg: DestroyPoll) {
-
-  }
-
-  def handleUpdatePoll(msg: UpdatePoll) {
-    if (pollModel.updatePoll(msg.poll)) {
-      outGW.send(new PollUpdatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll))
-    } else {
-      print("PollApp:: handleUpdatePoll - " + msg.poll.id + " not found")
-    }
-  }
-
-  def handlePreCreatedPoll(msg: PreCreatedPoll) {
-    pollModel.createPoll(msg.poll)
-    outGW.send(new PollCreatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll))
-  }
-
-  def handleCreatePoll(msg: CreatePoll) {
-    pollModel.createPoll(msg.poll)
-    outGW.send(new PollCreatedOutMsg(meetingID, recorded, msg.poll.id, msg.poll))
-  }
-  
-  */
 }
