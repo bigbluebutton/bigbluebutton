@@ -77,13 +77,14 @@ case class PresentationConversionCompleted(meetingID: String, messageKey: String
   presentation: Presentation) extends InMessage
 
 // Polling
-case class CreatePollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
-case class StartPollRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
+//case class CreatePollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
+case class StartPollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
 case class StopPollRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
 case class ShowPollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
 case class HidePollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
 case class RespondToPollRequest(meetingID: String, requesterId: String, pollId: String, questionId: Int, answerId: Int) extends InMessage
 case class GetPollRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
+case class GetCurrentPollRequest(meetingID: String, requesterId: String) extends InMessage
 
 // Voice
 case class InitAudioSettings(meetingID: String, requesterID: String, muted: Boolean) extends InMessage

@@ -48,23 +48,36 @@ Template.header.events
     $(".tooltip").hide()
     toggleNavbar()
 
-  "click .usersListIcon": (event) ->
-    $(".tooltip").hide()
-    toggleUsersList()
-
   "click .videoFeedIcon": (event) ->
     $(".tooltip").hide()
     toggleCam @
 
   "click .toggleUserlistButton": (event) ->
-    toggleUsersList()
+    if isLandscape()
+      toggleUsersList()
+    else
+      if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
+        toggleRightDrawer()
+        toggleRightArrowClockwise()
+      else
+        toggleShield()
+      toggleLeftDrawer()
+      toggleLeftArrowClockwise()
 
   "click .toggleMenuButton": (event) ->
-    toggleMenu()
+    if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+      toggleLeftDrawer()
+      toggleLeftArrowClockwise()
+    else
+      toggleShield()
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
 Template.menu.events
   'click .slideButton': (event) ->
-    toggleMenu()
+    toggleShield()
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
   'click .toggleChatButton': (event) ->
     toggleChatbar()
@@ -117,7 +130,8 @@ Template.main.rendered = ->
 
 Template.main.events
   'click .shield': (event) ->
-    closePushMenus()
+    toggleShield()
+    closeMenus()
 
   'click .settingsIcon': (event) ->
     setInSession("tempFontSize", getInSession("messageFontSize"))

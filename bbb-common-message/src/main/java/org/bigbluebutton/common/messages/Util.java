@@ -497,4 +497,95 @@ public class Util {
 
 		return null;
 	}
+
+	public Map<String, Object> decodeSimplePollAnswer(JsonObject answer) {
+		Map<String, Object> answerMap = new HashMap<String, Object>();
+		if (answer.has(Constants.ID) && answer.has(KEY)) {
+			String id = answer.get(Constants.ID).getAsString();
+			String key = answer.get(KEY).getAsString();
+			
+			answerMap.put(Constants.ID, id);
+			answerMap.put(KEY, key);				
+		}
+	
+		
+		return answerMap;
+	}
+	
+	public static final String ANSWERS = "answers";
+	public static final String KEY = "key";
+	public static final String NUM_VOTES = "num_votes";
+	
+	public Map<String, Object> decodeSimplePoll(JsonObject poll) {
+		Map<String, Object> pollMap = new HashMap<String, Object>();
+		
+		if (poll.has(Constants.ID) && poll.has(ANSWERS)) {
+			String id = poll.get(Constants.ID).getAsString();			
+			JsonArray answers = poll.get(ANSWERS).getAsJsonArray();
+			
+			ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+			
+			Iterator<JsonElement> answersIter = answers.iterator();
+			while (answersIter.hasNext()){
+				JsonElement qElem = answersIter.next();
+
+				Map<String, Object> answerMap = decodeSimplePollAnswer((JsonObject)qElem);
+
+				if (answerMap != null) {
+					collection.add(answerMap);
+				}
+			}
+			
+			pollMap.put(Constants.ID, id);
+			pollMap.put(ANSWERS, collection);			
+		}
+
+		
+		return pollMap;
+	}
+
+	public Map<String, Object> decodeSimplePollAnswerVote(JsonObject answer) {
+		Map<String, Object> answerMap = new HashMap<String, Object>();
+		if (answer.has(Constants.ID) && answer.has(KEY)) {
+			String id = answer.get(Constants.ID).getAsString();
+			String key = answer.get(KEY).getAsString();
+			Integer numVotes = answer.get(NUM_VOTES).getAsInt();
+			
+			answerMap.put(Constants.ID, id);
+			answerMap.put(KEY, key);		
+			answerMap.put(NUM_VOTES, numVotes);
+		}
+
+		return answerMap;
+	}
+	
+	public Map<String, Object> decodeSimplePollResult(JsonObject poll) {
+		Map<String, Object> pollMap = new HashMap<String, Object>();
+		
+		if (poll.has(Constants.ID) && poll.has(ANSWERS)) {
+			String id = poll.get(Constants.ID).getAsString();			
+			JsonArray answers = poll.get(ANSWERS).getAsJsonArray();
+			
+			ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+			
+			Iterator<JsonElement> answersIter = answers.iterator();
+			while (answersIter.hasNext()){
+				JsonElement qElem = answersIter.next();
+
+				Map<String, Object> answerMap = decodeSimplePollAnswerVote((JsonObject)qElem);
+
+				if (answerMap != null) {
+					collection.add(answerMap);
+				}
+			}
+			
+			pollMap.put(Constants.ID, id);
+			pollMap.put(ANSWERS, collection);			
+		}
+
+		
+		return pollMap;
+	}
+	
+	
 }

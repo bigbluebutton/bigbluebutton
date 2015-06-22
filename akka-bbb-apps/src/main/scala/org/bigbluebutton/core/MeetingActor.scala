@@ -157,8 +157,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleSetRecordingStatus(msg)
     case msg: GetRecordingStatus =>
       handleGetRecordingStatus(msg)
-    case msg: CreatePollRequest =>
-      handleCreatePollRequest(msg)
+    //    case msg: CreatePollRequest =>
+    //      handleCreatePollRequest(msg)
     case msg: StartPollRequest =>
       handleStartPollRequest(msg)
     case msg: StopPollRequest =>
@@ -171,6 +171,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleRespondToPollRequest(msg)
     case msg: GetPollRequest =>
       handleGetPollRequest(msg)
+    case msg: GetCurrentPollRequest =>
+      handleGetCurrentPollRequest(msg)
 
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit

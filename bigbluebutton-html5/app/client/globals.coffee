@@ -152,11 +152,14 @@ Handlebars.registerHelper "pointerLocation", ->
 Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
 
-Handlebars.registerHelper "visibility", (section) ->
+###Handlebars.registerHelper "visibility", (section) ->
   if getInSession "display_#{section}"
     style: 'display:block;'
   else
-    style: 'display:none;'
+    style: 'display:none;'###
+
+Handlebars.registerHelper "visibility", (section) ->
+  style: 'display:block;'
 
 Handlebars.registerHelper 'containerPosition', (section) ->
   if getInSession 'display_usersList'
@@ -202,13 +205,18 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @toggleMic = (event) ->
   BBB.toggleMyMic()
 
-# toggle state of session variable
 @toggleUsersList = ->
-  setInSession "display_usersList", !getInSession "display_usersList"
+  if $('.sl-left-drawer').hasClass('hiddenInLandscape')
+    $('.sl-left-drawer').removeClass('hiddenInLandscape')
+  else
+    $('.sl-left-drawer').addClass('hiddenInLandscape')
   setTimeout(redrawWhiteboard, 0)
 
-@toggleMenu = ->
-  setInSession 'display_menu', !getInSession 'display_menu'
+@toggleShield = ->
+  if $('.shield').hasClass('darken')
+    $('.shield').removeClass('darken')
+  else
+    $('.shield').addClass('darken')
 
 @removeFullscreenStyles = ->
   $('#whiteboard-paper').removeClass('verticallyCentered')
@@ -253,9 +261,13 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       removeFullscreenStyles()
       redrawWhiteboard()
 
-@closePushMenus = ->
-  setInSession 'display_usersList', false
-  setInSession 'display_menu', false
+@closeMenus = ->
+  if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+    toggleLeftDrawer()
+    toggleLeftArrowClockwise()
+  else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
