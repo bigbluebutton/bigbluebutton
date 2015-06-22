@@ -37,12 +37,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.managers.PopUpManager;
 		
 		import org.bigbluebutton.common.Images;
-		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.main.events.BBBEvent;
-		import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		static public var PADDING_HORIZONTAL:Number = 6;
@@ -205,8 +203,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Script>
   
   <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
-    <mx:TextArea width="100%" borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.webcamSettings')}" 
+    <mx:HBox width="100%" horizontalAlign="left">
+      <mx:TextArea width="100%" wordWrap="false" borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.webcamSettings')}" 
                    styleName="webcamSettingsWindowTitleStyle" tabIndex="{baseIndex}"/>
+    </mx:HBox>
+ 
     <mx:HRule width="100%"/>
     <mx:Spacer height="1"/>
     

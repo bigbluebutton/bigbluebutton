@@ -113,6 +113,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	presentation.put("id", msg.presentation.id)
 	presentation.put("name", msg.presentation.name)
 	presentation.put("current", msg.presentation.current:java.lang.Boolean)
+	presentation.put("downloadable", msg.presentation.downloadable:java.lang.Boolean)
 	
 	val pages = new ArrayList[Page]()
 	
@@ -169,6 +170,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	   presentation.put("id", pres.id)
 	   presentation.put("name", pres.name)
 	   presentation.put("current", pres.current:java.lang.Boolean)      
+	   presentation.put("downloadable", pres.downloadable:java.lang.Boolean)
 	   
 	   // Get the pages for a presentation
        val pages = new ArrayList[Page]()	
@@ -259,6 +261,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	presentation.put("id", msg.presentation.id)
 	presentation.put("name", msg.presentation.name)
 	presentation.put("current", msg.presentation.current:java.lang.Boolean)      
+	presentation.put("downloadable", msg.presentation.downloadable:java.lang.Boolean)
 	   
 	// Get the pages for a presentation
     val pages = new ArrayList[Page]()	

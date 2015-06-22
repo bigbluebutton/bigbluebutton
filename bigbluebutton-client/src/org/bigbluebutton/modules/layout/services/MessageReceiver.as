@@ -64,7 +64,12 @@ package org.bigbluebutton.modules.layout.services
 
       lockLayout(message.locked, message.setById);
       
-      _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+      if (message.layout == "") {
+        _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+      } else {
+        // it means that the moderator has used the broadcast layout method before the user joins
+        handleSyncLayout(message);
+      }
       
       _dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
     }
@@ -77,6 +82,9 @@ package org.bigbluebutton.modules.layout.services
       layoutDefinition.load(new XML(message.layout));
       var translatedName:String = ResourceUtil.getInstance().getString(layoutDefinition.name)
       if (translatedName == "undefined") translatedName = layoutDefinition.name;
+      // remove previously added [Remote] mark
+      var pattern:RegExp = /^\[.*\] /g;
+      translatedName = translatedName.replace(pattern, "");
       layoutDefinition.name = "[" + ResourceUtil.getInstance().getString('bbb.layout.combo.remote') + "] " + translatedName;
       var redefineLayout:LayoutFromRemoteEvent = new LayoutFromRemoteEvent();
       redefineLayout.layout = layoutDefinition;

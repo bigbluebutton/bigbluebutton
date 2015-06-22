@@ -22,7 +22,10 @@ package org.bigbluebutton.modules.layout.events
 
   public class LayoutEvent extends Event
   {
+    public static const SYNC_LAYOUT_EVENT:String = 'SYNC_LAYOUT_EVENT';
     public static const BROADCAST_LAYOUT_EVENT:String = 'BROADCAST_LAYOUT_EVENT';
+    public static const LOCK_LAYOUT_EVENT:String = 'LOCK_LAYOUT_EVENT';
+    public static const UNLOCK_LAYOUT_EVENT:String = 'UNLOCK_LAYOUT_EVENT';
     public static const STOP_LAYOUT_MODULE_EVENT:String = 'STOP_LAYOUT_MODULE_EVENT';
     public static const VIEW_INITIALIZED_EVENT:String = 'VIEW_INITIALIZED_EVENT';
 

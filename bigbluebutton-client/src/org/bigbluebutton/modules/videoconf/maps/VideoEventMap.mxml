@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+      import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
       import org.bigbluebutton.modules.users.events.ViewCameraEvent;
       import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
@@ -39,7 +40,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
-      import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;		
+      import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
+      import org.bigbluebutton.modules.videoconf.events.PlayConnectionClosedEvent;
 		]]>
 	</mx:Script>
 	
@@ -85,6 +87,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
     <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID, event.stream, event.user]}" />
 	</EventHandlers>
+
+	<EventHandlers type="{StreamStoppedEvent.STREAM_STOPPED}">
+		<MethodInvoker generator="{VideoEventMapDelegate}" method="handleStreamStoppedEvent" arguments="{[event.userID, event.stream]}" />
+	</EventHandlers>
 	
 	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID, event.stream, event.viewedName]}" />
@@ -119,13 +125,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
   
   <EventHandlers type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleStoppedViewingWebcamEvent"  arguments="{event}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleStoppedViewingWebcamEvent"  arguments="{[event.webcamUserID, event.streamName]}"/>
   </EventHandlers>
   
   <EventHandlers type="{BBBEvent.CAM_SETTINGS_CLOSED}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
   </EventHandlers>
   
+	<EventHandlers type="{PlayConnectionReady.PLAY_CONNECTION_READY}">
+		<MethodInvoker generator="{VideoEventMapDelegate}" method="handlePlayConnectionReady" arguments="{event}" />
+	</EventHandlers>
+
+	<EventHandlers type="{PlayConnectionClosedEvent.PLAY_CONNECTION_CLOSED_EVENT}">
+		<MethodInvoker generator="{VideoEventMapDelegate}" method="handlePlayConnectionClosed" arguments="{[event.streamName, event.prefix]}" />
+	</EventHandlers>
   <!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
 </EventMap>

@@ -24,13 +24,14 @@ package org.bigbluebutton.main.events
 	public class NetworkStatsEvent extends Event
 	{
 		public static const NETWORK_STATS_EVENTS:String = "NETWORK_STATS_EVENTS";
+		public static const OPEN_NETSTATS_WIN:String = "OPEN_NETWORK_WIN";
 		
 		public var downloadStats:Dictionary;
 		public var uploadStats:Dictionary;
 		
-		public function NetworkStatsEvent(bubbles:Boolean=true, cancelable:Boolean=false)
+		public function NetworkStatsEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
-			super(NETWORK_STATS_EVENTS, bubbles, cancelable);
+			super(type, bubbles, cancelable);
 		}
 		
 	}

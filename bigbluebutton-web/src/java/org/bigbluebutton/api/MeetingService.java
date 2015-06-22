@@ -21,6 +21,13 @@ package org.bigbluebutton.api;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.*;
+import org.bigbluebutton.api.domain.Download;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
@@ -47,8 +55,14 @@ import org.bigbluebutton.api.messaging.messages.MeetingStarted;
 import org.bigbluebutton.api.messaging.messages.RegisterUser;
 import org.bigbluebutton.api.messaging.messages.RemoveExpiredMeetings;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
+import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
+import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
+import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
+import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
+import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.bigbluebutton.web.services.KeepAliveService;
 import org.slf4j.Logger;
@@ -87,8 +101,8 @@ public class MeetingService implements MessageListener {
 		sessions.put(token, user);
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
-		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken));
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String guest) {
+		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken, guest));
 	}
 	
 	public UserSession getUserSession(String token) {
@@ -297,21 +311,7 @@ public class MeetingService implements MessageListener {
 	}
 	
 	private void processRegisterUser(RegisterUser message) {
-		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken);
-	}
-	
-	public String addSubscription(String meetingId, String event, String callbackURL){
-		log.debug("Add a new subscriber");
-		String sid = messagingService.storeSubscription(meetingId, event, callbackURL);
-		return sid;
-	}
-
-	public boolean removeSubscription(String meetingId, String subscriptionId){
-		return messagingService.removeSubscription(meetingId, subscriptionId);
-	}
-
-	public List<Map<String,String>> listSubscriptions(String meetingId){
-		return messagingService.listSubscriptions(meetingId);
+		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken, message.guest);
 	}
 
 	public Meeting getMeeting(String meetingId) {
@@ -357,6 +357,10 @@ public class MeetingService implements MessageListener {
 		return recs;
 	}
 	
+	public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {
+		return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
+	}
+	
 	public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
 		HashMap<String,Recording> map= new HashMap<String, Recording>();
 		for (Recording r:olds) {
@@ -370,22 +374,44 @@ public class MeetingService implements MessageListener {
 
 				ArrayList<Playback> plays = new ArrayList<Playback>();
 				
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
-						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime()),
-						r.getPlaybackExtensions()));
+				if (!r.getPlaybackFormat().isEmpty()) {
+					plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+							getDurationRecording(r.getPlaybackDuration(),
+									r.getEndTime(), r.getStartTime()),
+							r.getPlaybackExtensions()));
+				}
 				r.setPlaybacks(plays);
+
+				ArrayList<Download> downloads = new ArrayList<Download>();
+				if (!r.getDownloadFormat().isEmpty()) {
+					downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
+							r.getDownloadMd5(), r.getDownloadKey(),
+							getDurationRecording(r.getEndTime(), r.getStartTime())));
+				}
+				r.setDownloads(downloads);
+
 				map.put(r.getId(), r);
 			} else {
 				Recording rec = map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
-						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime()),
-						r.getPlaybackExtensions()));
+				if (!r.getPlaybackFormat().isEmpty()) {
+					rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
+							getDurationRecording(r.getPlaybackDuration(), 
+									r.getEndTime(), r.getStartTime()),
+							r.getPlaybackExtensions()));
+				}
+				if (!r.getDownloadFormat().isEmpty()) {
+					rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
+							r.getDownloadMd5(), r.getDownloadKey(),
+							getDurationRecording(r.getEndTime(), r.getStartTime())));
+				}
 			}
 		}
 		
 		return map;
+	}
+	
+	private int getDurationRecording(String end, String start) {
+		return getDurationRecording("", end, start);
 	}
 	
 	private int getDurationRecording(String playbackDuration, String end, String start) {
@@ -549,7 +575,7 @@ public class MeetingService implements MessageListener {
 		log.debug("User joined in meeting[{}]", message.meetingId);
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
-			User user = new User(message.userId, message.externalUserId, message.name, message.role);
+			User user = new User(message.userId, message.externalUserId, message.name, message.role, message.guest, message.waitingForAcceptance);
 			m.userJoined(user);
 			log.info("New user in meeting [" + message.meetingId + "] user [" + user.getFullname() + "]");
 			
@@ -561,8 +587,10 @@ public class MeetingService implements MessageListener {
 			logData.put("externalUserId", user.getExternalUserId());
 			logData.put("username", user.getFullname());
 			logData.put("role", user.getRole());			
-			logData.put("event", "user_joined_message");
-			logData.put("description", "User had joined the meeting.");
+			logData.put("guest", user.isGuest());
+			logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+			logData.put("event", MessagingConstants.USER_JOINED_EVENT);
+			logData.put("description", "User has joined the meeting.");
 			
 			Gson gson = new Gson();
 		    String logStr =  gson.toJson(logData);
@@ -590,8 +618,10 @@ public class MeetingService implements MessageListener {
 				logData.put("externalUserId", user.getExternalUserId());
 				logData.put("username", user.getFullname());
 				logData.put("role", user.getRole());			
-				logData.put("event", "user_left_message");
-				logData.put("description", "User had left the meeting.");
+				logData.put("guest", user.isGuest());
+				logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+				logData.put("event", MessagingConstants.USER_LEFT_EVENT);
+				logData.put("description", "User left the meeting.");
 				
 				Gson gson = new Gson();
 		        String logStr =  gson.toJson(logData);
@@ -621,6 +651,100 @@ public class MeetingService implements MessageListener {
 		log.warn("The meeting " + message.meetingId + " doesn't exist");
 	}
 
+	public void userJoinedVoice(UserJoinedVoice message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setVoiceJoined(true);
+				log.info("User {} joined the voice conference in the meeting {}", user.getFullname(), message.meetingId);
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	public void userLeftVoice(UserLeftVoice message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setVoiceJoined(false);
+				log.info("User {} left the voice conference in the meeting {}", user.getFullname(), message.meetingId);
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	public void userListeningOnly(UserListeningOnly message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setListeningOnly(message.listenOnly);
+				if (message.listenOnly) {
+					log.info("User {} started to listen only in the meeting {}", user.getFullname(), message.meetingId);
+				} else {
+					log.info("User {} stopped to listen only in the meeting {}", user.getFullname(), message.meetingId);
+				}
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	public void userSharedWebcam(UserSharedWebcam message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.addStream(message.stream);
+				log.info("User {} started to stream {} to the meeting {}", user.getFullname(), message.stream, message.meetingId);
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	public void userUnsharedWebcam(UserUnsharedWebcam message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.removeStream(message.stream);
+				log.info("User {} stopped to stream {} to the meeting {}", user.getFullname(), message.stream, message.meetingId);
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
+	private void userRoleChanged(UserRoleChanged message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setRole(message.role);
+				log.debug("Setting new role in meeting " + message.meetingId + " for participant:" + user.getFullname());
+				return;
+			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
+			return;
+		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
+	}
+
 	private void processMessage(final IMessage message) {
 		Runnable task = new Runnable() {
 	    public void run() {
@@ -639,6 +763,23 @@ public class MeetingService implements MessageListener {
 	  			userLeft((UserLeft)message);
 	  		} else if (message instanceof UserStatusChanged) {
 	  			updatedStatus((UserStatusChanged)message);
+	  		} else if (message instanceof UserRoleChanged) {
+	  			userRoleChanged((UserRoleChanged)message);
+	  		} else if (message instanceof UserJoinedVoice) {
+	  			log.info("Processing voice user joined message.");
+	  			userJoinedVoice((UserJoinedVoice)message);
+	  		} else if (message instanceof UserLeftVoice) {
+	  			log.info("Processing voice user left message.");
+	  			userLeftVoice((UserLeftVoice)message);
+	  		} else if (message instanceof UserListeningOnly) {
+	  			log.info("Processing user listening only message.");
+	  			userListeningOnly((UserListeningOnly)message);
+	  		} else if (message instanceof UserSharedWebcam) {
+	  			log.info("Processing user shared webcam message.");
+	  			userSharedWebcam((UserSharedWebcam)message);
+	  		} else if (message instanceof UserUnsharedWebcam) {
+	  			log.info("Processing user unshared webcam message.");
+	  			userUnsharedWebcam((UserUnsharedWebcam)message);
 	  		} else if (message instanceof RemoveExpiredMeetings) {
 	  			checkAndRemoveExpiredMeetings();
 	  		} else if (message instanceof CreateMeeting) {

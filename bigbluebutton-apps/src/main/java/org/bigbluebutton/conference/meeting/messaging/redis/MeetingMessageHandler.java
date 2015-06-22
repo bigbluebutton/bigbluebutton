@@ -46,8 +46,8 @@ public class MeetingMessageHandler implements MessageHandler {
 							  emm.moderatorPass, emm.viewerPass, emm.createTime, emm.createDate);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage emm = (RegisterUserMessage) msg;
-					log.info("Received register user request. Meeting id [{}], userid=[{}], token=[{}]", emm.meetingID, emm.internalUserId, emm.authToken);
-					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken);
+					log.info("Received register user request. Meeting id [{}], userid=[{}], token=[{}], guest=[{}]", emm.meetingID, emm.internalUserId, emm.authToken, emm.guest);
+					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken, emm.guest);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage emm = (DestroyMeetingMessage) msg;
 					log.info("Received destroy meeting request. Meeting id [{}]", emm.meetingId);

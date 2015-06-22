@@ -45,19 +45,6 @@ public class ParticipantsService {
 		application.getUsers(scope.getName(), getBbbSession().getInternalUserID(), sessionId);
 	}
 	
-	public void userRaiseHand() {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String userId = getBbbSession().getInternalUserID();
-		application.userRaiseHand(scope.getName(), userId);
-	}
-	
-	public void lowerHand(Map<String, String> msg) {
-		String userId = (String) msg.get("userId");
-		String loweredBy = (String) msg.get("loweredBy");
-		IScope scope = Red5.getConnectionLocal().getScope();
-		application.lowerHand(scope.getName(), userId, loweredBy);
-	}
-	
 	public void ejectUserFromMeeting(Map<String, String> msg) {
 		String userId = (String) msg.get("userId");
 		String ejectedBy = (String) msg.get("ejectedBy");
@@ -80,7 +67,15 @@ public class ParticipantsService {
 	public void setParticipantStatus(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 
-		application.setParticipantStatus(roomName, (String) msg.get("userID"), (String) msg.get("status"), (Object) msg.get("value"));
+		String userid = (String) msg.get("userID");
+		String status = (String) msg.get("status");
+		Object value = (Object) msg.get("value");
+		if (status.equals("mood")) {
+			value = ((String) value) + "," + System.currentTimeMillis();
+		}
+
+		log.debug("Setting participant status " + roomName + " " + userid + " " + status + " " + value);
+		application.setParticipantStatus(roomName, userid, status, value);
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
@@ -107,4 +102,29 @@ public class ParticipantsService {
         return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
     }
 
+	public void getGuestPolicy() {
+		String requesterId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.getGuestPolicy(roomName, requesterId);
+	}
+
+	public void setGuestPolicy(String guestPolicy) {
+		String requesterId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.newGuestPolicy(roomName, guestPolicy, requesterId);
+	}
+
+	public void responseToGuest(Map<String, Object> msg) {
+		String requesterId = getBbbSession().getInternalUserID();
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.responseToGuest(roomName, (String) msg.get("userId"), (Boolean) msg.get("response"), requesterId);
+	}
+
+	public void setParticipantRole(Map<String, String> msg) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		String userId = (String) msg.get("userId");
+		String role = (String) msg.get("role");
+		log.debug("Setting participant role " + roomName + " " + userId + " " + role);
+		application.setParticipantRole(roomName, userId, role);
+	}
 }

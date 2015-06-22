@@ -1,0 +1,2 @@
+get_recordings_url:
+private_key: /usr/local/bigbluebutton/core/scripts/private.pem

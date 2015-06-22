@@ -9,8 +9,14 @@ import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
 import org.bigbluebutton.api.messaging.messages.MeetingStarted;
 import org.bigbluebutton.api.messaging.messages.UserJoined;
+import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
+import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
+import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
+import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
+import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -99,9 +105,11 @@ public class MeetingMessageHandler implements MessageHandler {
 							String externuserid = user.get("extern_userid").getAsString();
 							String username = user.get("name").getAsString();
 							String role = user.get("role").getAsString();
+							Boolean guest = user.get("guest").getAsBoolean();
+							Boolean waitingForAcceptance = user.get("waiting_for_acceptance").getAsBoolean();
 							
 							for (MessageListener listener : listeners) {
-								listener.handle(new UserJoined(meetingId, userid, externuserid, username, role));
+								listener.handle(new UserJoined(meetingId, userid, externuserid, username, role, guest, waitingForAcceptance));
 							}
 						} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
 						 	System.out.println("Handling [" + messageName + "] message.");
@@ -121,6 +129,57 @@ public class MeetingMessageHandler implements MessageHandler {
 						  for (MessageListener listener : listeners) {
 						  	listener.handle(new UserLeft(meetingId, userid));
 						  }
+						} else if (MessagingConstants.USER_JOINED_VOICE_EVENT.equalsIgnoreCase(messageName)) {
+							System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							JsonObject user = (JsonObject) payload.get("user");
+							
+							String userid = user.get("userid").getAsString();
+							for (MessageListener listener : listeners) {
+								listener.handle(new UserJoinedVoice(meetingId, userid));
+							}
+						} else if (MessagingConstants.USER_LEFT_VOICE_EVENT.equalsIgnoreCase(messageName)) {
+							System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							JsonObject user = (JsonObject) payload.get("user");
+							
+							String userid = user.get("userid").getAsString();
+							for (MessageListener listener : listeners) {
+								listener.handle(new UserLeftVoice(meetingId, userid));
+							}
+						} else if (MessagingConstants.USER_LISTEN_ONLY_EVENT.equalsIgnoreCase(messageName)) {
+							System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							String userid = payload.get("userid").getAsString();
+							Boolean listenOnly = payload.get("listen_only").getAsBoolean();
+
+							for (MessageListener listener : listeners) {
+								listener.handle(new UserListeningOnly(meetingId, userid, listenOnly));
+							}
+						} else if (MessagingConstants.USER_SHARE_WEBCAM_EVENT.equalsIgnoreCase(messageName)) {
+							System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							String userid = payload.get("userid").getAsString();
+							String stream = payload.get("stream").getAsString();
+							for (MessageListener listener : listeners) {
+								listener.handle(new UserSharedWebcam(meetingId, userid, stream));
+							}
+						} else if (MessagingConstants.USER_UNSHARE_WEBCAM_EVENT.equalsIgnoreCase(messageName)) {
+							System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							String userid = payload.get("userid").getAsString();
+							String stream = payload.get("stream").getAsString();
+							for (MessageListener listener : listeners) {
+								listener.handle(new UserUnsharedWebcam(meetingId, userid, stream));
+							}
+						} else if(MessagingConstants.USER_ROLE_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
+							System.out.println("Handling [" + messageName + "] message.");
+							String meetingId = payload.get("meeting_id").getAsString();
+							String userid = payload.get("userid").getAsString();
+							String role = payload.get("role").getAsString();
+							for (MessageListener listener : listeners) {
+								listener.handle(new UserRoleChanged(meetingId, userid, role));
+							}
 						}
 					}				
 				}

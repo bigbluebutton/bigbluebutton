@@ -23,8 +23,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:PopUpButton xmlns:mx="http://www.adobe.com/2006/mxml" styleName="webcamDefaultButtonStyle"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()" creationComplete="init()" 
-		   mouseOver = "mouseOverHandler(event)"
-		   mouseOut = "mouseOutHandler(event)"
            height="24"
 		   toolTip="{this.selected ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="false"
@@ -36,6 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
 	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -47,12 +46,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.styles.IStyleManager2;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
@@ -68,13 +69,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var _currentState:Number = OFF_STATE;
 
-			private var dp:Object = [];
+			private var camerasDataProvider:Array = [];
 			private var dataMenu:Menu;
 			public var numberOfCamerasOff:int = 0;
 
 			private var dispatcher:Dispatcher;
 
 			public function lockSettingsChanged(e:*):void{
+				updateButton();
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				updateButton();
+			}
+
+			private function updateButton():void {
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
@@ -86,18 +95,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void{
 				dispatcher = new Dispatcher();
 				numberOfCamerasOff = Camera.names.length;
-				for(var i:int = 0; i < Camera.names.length; i++) {
-					dp.push({label: Camera.names[i], status: OFF_STATE});
+				var cameraName:String;
+				for (var i:int = 0; i < Camera.names.length; i++) {	
+					cameraName = Camera.names[i];
+					if (cameraName == " ") {
+						cameraName = ResourceUtil.getInstance().getString('bbb.toolbar.video.unknownCameraName');
+					}
+					camerasDataProvider.push({label: cameraName, status: OFF_STATE});
 				}
-
-				dataMenu = Menu.createMenu(this, dp, false);
+				
+				dataMenu = Menu.createMenu(this, camerasDataProvider, false);
 				dataMenu.addEventListener("itemClick", changeHandler);
 				dataMenu.addEventListener("mouseOver", mouseOverHandler);
 				dataMenu.addEventListener("mouseOut", mouseOutHandler);
 				dataMenu.iconFunction = webcamMenuIcon;
 
 				this.popUp = dataMenu;
-				switchStateToNormal();
+
+				if (camerasDataProvider.length == 0) {
+					this.enabled = false;
+					this.styleName = "webcamOffButtonStyle";
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.video.publish.hint.noCamera');
+				} else {
+					this.addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
+					this.addEventListener(MouseEvent.MOUSE_OUT, mouseOutHandler);
+					switchStateToNormal();
+				}
 			}
 
 			private function webcamMenuIcon(item:Object):Class {
@@ -138,7 +161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				else {
 					if(camID != -1) {
-						dp[camID].status = OFF_STATE;
+						camerasDataProvider[camID].status = OFF_STATE;
 						if(numberOfCamerasOff < Camera.names.length)
 							numberOfCamerasOff++;
 						
@@ -150,7 +173,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var evt:BBBEvent = new BBBEvent("EnableToolbarPopupButton");
 				dispatchEvent(evt);
 						
-				dataMenu.dataProvider = dp;
+				dataMenu.dataProvider = camerasDataProvider;
 			}
 
 
@@ -170,7 +193,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.styleName = "webcamOnButtonStyle";
 					this.selected = true;
 					var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
-					shareCameraRequestEvent.camerasArray = dp;
+					shareCameraRequestEvent.camerasArray = camerasDataProvider;
 					dispatchEvent(shareCameraRequestEvent);
 				}
 			}
@@ -213,7 +236,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function changeHandler(event:MenuEvent):void {
-				if(dp[event.index].status == ON_STATE) {
+				if(camerasDataProvider[event.index].status == ON_STATE) {
 					var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent();
 					stopShareCameraRequestEvent.camId = event.index;
 					dispatchEvent(stopShareCameraRequestEvent);
@@ -224,15 +247,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						numberOfCamerasOff--;
 					var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
 					shareCameraRequestEvent.defaultCamera = String(event.index);
-					shareCameraRequestEvent.camerasArray = dp;
+					shareCameraRequestEvent.camerasArray = camerasDataProvider;
 					dispatchEvent(shareCameraRequestEvent);
 				}
 			}
 
 			public function setCamAsInactive(camIndex:int):void {
 				if(camIndex != -1) {
-					dp[camIndex].status = OFF_STATE;
-					dataMenu.dataProvider = dp;
+					camerasDataProvider[camIndex].status = OFF_STATE;
+					dataMenu.dataProvider = camerasDataProvider;
 				}
 			}
 	
@@ -246,8 +269,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function setCamAsActive(camIndex:int):void {
 				if(camIndex != -1) {
-					dp[camIndex].status = ON_STATE;
-					dataMenu.dataProvider = dp;
+					camerasDataProvider[camIndex].status = ON_STATE;
+					dataMenu.dataProvider = camerasDataProvider;
 				}
 			}
 		]]>

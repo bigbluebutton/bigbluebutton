@@ -68,7 +68,6 @@ package org.bigbluebutton.modules.layout.managers
 				var tmpOrder:int = _windowsOrder[key].order;
 				if (tmpOrder <= currentOrder)
 					_windowsOrder[key].order = tmpOrder + 1;
-//				LogUtil.debug("==========> " + key + " order: " + _windowsOrder[key].order);
 			}
 			_windowsOrder[type] = { order: 0 };
 		}

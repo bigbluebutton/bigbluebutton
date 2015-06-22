@@ -70,6 +70,12 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 				builder.duration(info.getPlaybackDuration())
 				builder.extension(info.getPlaybackExtensions())
 			}
+			builder.download {
+				builder.format(info.getDownloadFormat())
+				builder.link(info.getDownloadLink())
+				builder.md5(info.getDownloadMd5())
+				builder.key(info.getDownloadKey())
+			}
 			Map<String,String> metainfo = info.getMetadata();
 			builder.meta{
 				metainfo.keySet().each { key ->
@@ -104,7 +110,10 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		r.setPlaybackLink(rec.playback.link.text());
 		r.setPlaybackDuration(rec.playback.duration.text());
 		r.setPlaybackExtensions(rec.playback.extension.children());
-		
+		r.setDownloadFormat(rec.download.format.text());
+		r.setDownloadLink(rec.download.link.text());
+		r.setDownloadMd5(rec.download.md5.text());
+		r.setDownloadKey(rec.download.key.text());
 		Map<String, String> meta = new HashMap<String, String>();		
 		rec.meta.children().each { anode ->
 				log.debug("metadata: "+anode.name()+" "+anode.text())

@@ -85,10 +85,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 setUserProperties();
             }
 
-            public function loadCamera(options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile):void {
+            public function loadCamera(options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile, chromePermissionDenied:Boolean):void {
                 video.user = _user;
                 video.options = options;
-                video.publish(camIndex, videoProfile);
+                video.publish(camIndex, videoProfile, chromePermissionDenied);
 
                 videoVisibility = true;
                 setUserProperties();
@@ -218,7 +218,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 }
             }
 
-            private function updateTalkingStatus() {
+            private function updateTalkingStatus():void {
                 if (user.talking) {
                     titleBox.setStyle("styleName", "videoToolbarBackgroundTalkingStyle");
                 } else {

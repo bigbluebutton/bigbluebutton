@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.main.model.users.events.ChangeMyRole;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
       import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
@@ -62,14 +63,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
    		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
     </EventHandlers>
-            
+
+    <EventHandlers type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}">
+      <MethodInvoker generator="{LayoutEventMapDelegate}" method="refreshRole" arguments="{event}"/>
+    </EventHandlers>
+
     <EventHandlers type="{LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="applyDefaultLayout" />
+    </EventHandlers>
+    
+    <EventHandlers type="{LayoutEvent.LOCK_LAYOUT_EVENT}">
+      <MethodInvoker generator="{LayoutManager}" method="lockLayout" />
     </EventHandlers>
 
   <EventHandlers type="{EventConstants.LOCK_LAYOUT_REQ}">
     <MethodInvoker generator="{LayoutManager}" method="lockLayout"/>
   </EventHandlers>
+  
+    <EventHandlers type="{LayoutEvent.UNLOCK_LAYOUT_EVENT}">
+   		<MethodInvoker generator="{LayoutService}" method="unlockLayout" />
+    </EventHandlers>
 
   <EventHandlers type="{EventConstants.UNLOCK_LAYOUT_REQ}">
     <MethodInvoker generator="{LayoutService}" method="unlockLayout"/>
@@ -95,11 +108,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{LayoutFromRemoteEvent.LAYOUT_FROM_REMOTE}">
    		<MethodInvoker generator="{LayoutManager}" method="applyRemoteLayout" arguments="{event}" />
     </EventHandlers>
+
+  <EventHandlers type="{LayoutEvent.SYNC_LAYOUT_EVENT}">
+    <MethodInvoker generator="{LayoutManager}" method="syncLayout" />
+  </EventHandlers>
   
     <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
     </EventHandlers>
 	
+    <EventHandlers type="{LayoutEvent.LOAD_LAYOUTS_EVENT}">
+      <MethodInvoker generator="{LayoutManager}" method="loadLayoutsFromFile" />
+    </EventHandlers>
+
     <EventHandlers type="{LayoutEvent.ADD_CURRENT_LAYOUT_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="addCurrentLayoutToList" />
     </EventHandlers>
@@ -115,6 +136,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{RemoteSyncLayoutEvent.REMOTE_SYNC_LAYOUT_EVENT}">
     <MethodInvoker generator="{LayoutManager}" method="remoteSyncLayout" arguments="{event}"/>
   </EventHandlers>
+  	
+    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+   		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
+    </EventHandlers>
+
+    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
+   		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
+    </EventHandlers>
 
   <Injectors target="{LayoutService}">
     <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>

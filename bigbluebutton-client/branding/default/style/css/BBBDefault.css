@@ -99,7 +99,7 @@ ToolTip {
   fontFamily: Arial;
 }
 
-Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle, .bandwidthButtonStyle, .settingsButtonStyle, .acceptButtonStyle, .denyButtonStyle {
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -167,6 +167,18 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   paddingLeft: 0;
   paddingRight: 0;
   icon: Embed('assets/images/logout.png');
+}
+
+.settingsButtonStyle {
+  icon: Embed('assets/images/ic_settings_16px.png');
+}
+
+.acceptButtonStyle {
+  icon: Embed('assets/images/ic_thumb_up_16px.png');
+}
+
+.denyButtonStyle {
+  icon: Embed('assets/images/ic_thumb_down_16px.png');
 }
 
 DataGrid {
@@ -285,7 +297,7 @@ DataGrid {
 
 
 .presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
-.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -305,23 +317,23 @@ DataGrid {
 }
 
 .presentationUploadButtonStyle {
-  icon:   Embed('assets/images/upload.png');   
+  icon:   Embed('assets/images/ic_file_upload_16px.png');
 }
 
 .presentationBackButtonStyle {
-  icon:   Embed('assets/images/left-arrow.png'); 
+  icon:   Embed('assets/images/ic_arrow_back_24px.png');
 }
 
 .presentationBackButtonDisabledStyle {
-	icon:   Embed('assets/images/left-arrow-disabled.png'); 
+	icon:   Embed('assets/images/ic_arrow_back_grey_24px.png');
 }
 
 .presentationForwardButtonStyle {
-  icon:   Embed('assets/images/right-arrow.png'); 
+  icon:   Embed('assets/images/ic_arrow_forward_24px.png');
 }
 
 .presentationForwardButtonDisabledStyle {
-	icon:   Embed('assets/images/right-arrow-disabled.png'); 
+	icon:   Embed('assets/images/ic_arrow_forward_grey_24px.png');
 }
 
 .presentationFitToWidthButtonStyle {
@@ -330,6 +342,10 @@ DataGrid {
 
 .presentationFitToPageButtonStyle {
   icon:   Embed('assets/images/fit-to-screen.png'); 
+}
+
+.presentationDownloadButtonStyle {
+  icon:   Embed('assets/images/ic_file_download_16px.png');
 }
 
 .presentationZoomSliderStyle{
@@ -557,6 +573,19 @@ DataGrid {
 .micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
   fontFamily: Arial;
   fontSize: 12;    
+}
+
+.micSettingsWindowOpenDialogLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;
+  fontWeight: bold;
+  color: #e1e2e5;
+}
+
+.micSettingsWindowShareMicrophoneLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;
+  color: #5e5f63;
 }
 
 .micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
@@ -847,12 +876,12 @@ https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
 }
 
 Alert {
-	borderColor: #DFDFDF;
-	backgroundColor: #EFEFEF;
-	borderAlpha: 1;
-	shadowDistance: 1;
-	dropShadowColor: #FFFFFF;
-	color: #000000;
+  borderColor: #DFDFDF;
+  backgroundColor: #EFEFEF;
+  borderAlpha: 1;
+  shadowDistance: 1;
+  dropShadowColor: #FFFFFF;
+  color: #000000;
 }
 
 .lockSettingsDefaultLabelStyle {
@@ -897,6 +926,13 @@ Alert {
   icon:   Embed('assets/images/control-record-stop.png');
 }
 
+.bandwidthButtonStyle {
+  paddingTop: 0;
+  paddingBottom: 0;
+  height: 22;
+  icon:   Embed('assets/images/ic_swap_vert_16px.png');
+}
+
 .statusImageStyle {
   successImage:   Embed(source='assets/images/status_success.png');
   warningImage:   Embed(source='assets/images/status_warning.png');
@@ -916,4 +952,64 @@ Alert {
 .statusMessageStyle {
   fontSize: 12;
   paddingTop: 0;
+}
+
+.addLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_add_circle_outline_16px.png');
+}
+
+.saveLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_file_download_16px.png');
+}
+
+.loadLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_file_upload_16px.png');
+}
+
+.broadcastLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_send_16px.png');
+}
+
+.moodStyle {
+  icon:   Embed('assets/images/ic_mood_black_18dp.png');
+}
+
+.moodRaiseHandStyle {
+  icon:   Embed('assets/images/icon-3-high-five.png');
+}
+
+.moodAgreedStyle {
+  icon:   Embed('assets/images/icon-6-thumb-up.png');
+}
+
+.moodDisagreedStyle {
+  icon:   Embed('assets/images/icon-7-thumb-down.png');
+}
+
+.moodSpeakFasterStyle {
+  icon:   Embed('assets/images/ic_fast_forward_black_18dp.png');
+}
+
+.moodSpeakSlowerStyle {
+  icon:   Embed('assets/images/ic_fast_rewind_black_18dp.png');
+}
+
+.moodSpeakLouderStyle {
+  icon:   Embed('assets/images/ic_volume_up_black_18dp.png');
+}
+
+.moodSpeakSofterStyle {
+  icon:   Embed('assets/images/ic_volume_down_black_18dp.png');
+}
+
+.moodBeRightBackStyle {
+  icon:   Embed('assets/images/ic_access_time_black_18dp.png');
+}
+
+.moodHappyStyle {
+  icon:   Embed('assets/images/icon-6-smiling-face.png');
+}
+
+.moodSadStyle {
+  icon:   Embed('assets/images/icon-7-sad-face.png');
 }

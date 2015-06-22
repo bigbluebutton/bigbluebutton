@@ -52,6 +52,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
   import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+  import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
@@ -90,6 +91,9 @@ package org.bigbluebutton.modules.videoconf.maps
     private var streamList:ArrayList = new ArrayList();
     private var numberOfWindows:Object = new Object();
 
+	// Store userID of windows waiting for a NetConnection
+	private var pendingVideoWindowsList:Object = new Object();
+    
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
       _dispatcher = dispatcher;
@@ -117,7 +121,12 @@ package org.bigbluebutton.modules.videoconf.maps
       if (!_ready) return;
       trace("VideoEventMapDelegate:: [" + me + "] Viewing [" + userID + " stream [" + stream + "]");
       if (! UserManager.getInstance().getConference().amIThisUser(userID)) {
-        openViewWindowFor(userID);
+        // Check whether is one stream or all of them
+        if(stream.indexOf("|") > 0) {
+          initAllPlayConnectionsFor(userID);
+        } else {
+          initPlayConnectionFor(userID, stream);
+        }
       }
     }
 
@@ -226,7 +235,7 @@ package org.bigbluebutton.modules.videoconf.maps
           closeWindow(userID);
         }
         trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: View user's = [" + userID + "] webcam.");
-        openViewWindowFor(userID);
+        initAllPlayConnectionsFor(userID);
       } else {
         if (UsersUtil.isMe(userID) && options.autoStart) {
           trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.");
@@ -266,20 +275,50 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private function closeWindow(userID:String):void {
       _graphics.removeGraphicsFor(userID);
+      var bbbUser:BBBUser = UsersUtil.getUser(userID);
+      var streams:Array = bbbUser.streamNames;
+      for each(var stream:String in streams) {
+        proxy.closePlayConnectionFor(stream);
+      }
     }
 
     private function closePublishWindowWithStream(userID:String, stream:String):int {
       return _graphics.removeVideoByStreamName(userID, stream);
     }
 
-    private function openViewWindowFor(userID:String):void {
+    private function initAllPlayConnectionsFor(userID:String):void {
+      trace("VideoEventMapDelegate:: initAllPlayConnectionsFor : [" + userID + "]");
+      var bbbUser:BBBUser = UsersUtil.getUser(userID);
+      var streams:Array = bbbUser.streamNames;
+      for each(var stream:String in streams) {
+        initPlayConnectionFor(userID, stream);
+      }
+    }
+
+    private function initPlayConnectionFor(userID:String, streamName:String):void {
+      trace("VideoEventMapDelegate:: initPlayConnectionFor : user [" + userID + "] stream [" + streamName + "]");
+      // Store the userID
+      pendingVideoWindowsList[streamName] = userID;
+      // Request the connection
+      proxy.createPlayConnectionFor(streamName);
+    }
+
+    public function handlePlayConnectionReady(e:PlayConnectionReady):void {
+      var userID:String = pendingVideoWindowsList[e.streamName];
+      trace("VideoEventMapDelegate:: handlePlayConnectionReady : stream:[" + e.streamName + "] conn:["+e.connection.uri+"] prefix:["+e.prefix+"] userID:["+userID+"]");
+      if(userID) {
+        openViewWindowFor(userID, e.streamName);
+      }
+    }
+    
+    private function openViewWindowFor(userID:String, streamName:String):void {
       trace("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
 
       var bbbUser:BBBUser = UsersUtil.getUser(userID);
       if (bbbUser.hasStream) {
         closeAllAvatarWindows(userID);
       }
-      _graphics.addVideoFor(userID, proxy.connection);
+      _graphics.addVideoFor(userID, proxy.getConnectionForStream(streamName), proxy.getPrefixForStream(streamName) + streamName);
     }
 
     public function connectToVideoApp():void {
@@ -288,7 +327,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function startPublishing(e:StartBroadcastEvent):void{
-	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
+	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.publishConnection.uri + "/" + e.stream);
       proxy.startPublishing(e);
 
 	  _isWaitingActivation = false;
@@ -483,16 +522,28 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private function closeViewWindowWithStream(userID:String, stream:String):void {
       _graphics.removeVideoByStreamName(userID, stream);
+      proxy.closePlayConnectionFor(stream);
     }
 
-    public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
-      trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] received StoppedViewingWebcamEvent for user [" + event.webcamUserID + "]");
+    public function handleStreamStoppedEvent(userID:String, streamName:String):void {
+      // Since the stream used to create the window includes de prefix, we should include it here too
+      var stream:String = proxy.getPrefixForStream(streamName) + streamName;
+      handleStoppedViewingWebcamEvent(userID, stream);
+    }
 
-      closeViewWindowWithStream(event.webcamUserID, event.streamName);
+    public function handlePlayConnectionClosed(stream:String, prefix:String):void {
+      var userID:String = pendingVideoWindowsList[stream];
+      closeViewWindowWithStream(userID, prefix + stream);
+    }
 
-      if (options.displayAvatar && UsersUtil.hasUser(event.webcamUserID) && ! UsersUtil.isUserLeaving(event.webcamUserID)) {
-        trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] Opening avatar for user [" + event.webcamUserID + "]");
-        openAvatarWindowFor(event.webcamUserID);
+    public function handleStoppedViewingWebcamEvent(userID:String, streamName:String):void {
+      trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] received StoppedViewingWebcamEvent for user [" + userID + "]");
+
+      closeViewWindowWithStream(userID, streamName);
+
+      if (options.displayAvatar && UsersUtil.hasUser(userID) && ! UsersUtil.isUserLeaving(userID)) {
+        trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] Opening avatar for user [" + userID + "]");
+        openAvatarWindowFor(userID);
       }
     }
   }

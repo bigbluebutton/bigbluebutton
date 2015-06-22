@@ -1,0 +1,265 @@
+/*
+ * TODO: LoggedOutWindow has scrollbars
+ *
+ * Other:
+ * light green: 1f7385
+ * darker green: 27535C
+ * grey-ish light green: 637d7f
+ * navbar dark: #183338
+ * navbar light: #27535C
+ * bootstrap blue: #0E90D2
+ * bootstrap green: #468847
+ * bootstrap green light: #DFF0D8
+ * bootstrap green medium: #D6E9C6
+ * Flex 3 css properties: http://www.loscavio.com/downloads/blog/flex3_css_list/flex3_css_list.htm#ComboBox
+*/
+
+/* To make something bizarre
+  backgroundAlpha: 1;
+  backgroundColor: #800000;
+  borderStyle: solid;
+  borderColor: #008000;
+  borderAlpha: 1;
+  borderThickness: 5;
+  cornerRadius: 10;
+  dropShadowEnabled: false;
+*/
+
+/* green to blue
+#468847 -> #0E90D2
+#d6e9ff -> #d6e9ff
+#DFF0D8 -> #d6e9ff
+#569556 -> #468ce6
+*/
+
+
+Application
+{
+  /* top, bottom */
+  backgroundGradientColors: #27535C,#183338;  /*#27535C,#27535C; /* #637d7f; /*#444, #666;*/
+  /* main color used everywhere: selections, button borders?, ... */
+  themeColor: #468847; /*#1f7385;*/
+  /* top alpha, bottom alpha */
+  backgroundGradientAlphas: 0.8, 0.5;
+
+  fontFamily: Verdana;
+  fontSize: 10;
+  color: #111111;
+  fontWeight: normal;
+}
+
+/*The image for your logo is 200x200 pixels. No other size is currently supported so resize your logo accordingly. The logo will always appear in the lower right corner. */
+BrandingLogo
+{
+  backgroundImage: Embed(source="assets/img/mconf-logo.png");
+  backgroundSize: "100%";
+}
+
+/* Borders around the application so the windows don't touch the edges.
+   Will affect MicSettings too :( */
+VBox
+{
+  paddingBottom: 0;
+  paddingTop: 0;
+  paddingRight: 5;
+  paddingLeft: 5;
+}
+
+Text
+{
+  borderStyle: solid;
+  borderColor: #800000;
+  borderAlpha: 1;
+  borderThickness: 1;
+}
+
+/* the big area where all internal windows are */
+MDICanvas
+{
+}
+
+Button
+{
+  /* default color: border, hovers, etc. */
+  themeColor: #468847; /*#27535C;*/
+  /* normal all, smoothness? */
+  highlightAlphas: 1, 0.15;/*1, 0.33;*/
+  /* bottom normal?,  bottom normal?, hover, hover (border?) */
+  fillAlphas: 0.8, 0.6, 0.6, 0.8;/*1, 0.16, 0.18, 1;*/
+  /* disabled top and middle normal (weak), bottom all, middle hover (weak), bottom hover. top normal always #fff? */
+  fillColors: #dddddd, #ffffff, #dddddd, #cccccc;
+
+  borderStyle: solid;
+  borderColor: #aaaaaa;
+  borderAlpha: 1;
+  borderThickness: 2;
+}
+
+ComboBox, Button, TextArea, TextInput
+{
+  cornerRadius: 3;
+}
+
+ComboBox /*, LinkButton */
+{
+  selectionColor: #D6E9C6; /*#1f7385;*/
+  rollOverColor: #dddddd;
+  textSelectedColor: #000000; /*#ffffff;*/
+}
+
+DataGrid
+{
+  selectionColor: #DFF0D8;/*#a3c0c7;*/
+  rollOverColor: #dddddd;
+  /*textSelectedColor: #ffffff; TODO: how? */
+}
+
+/* Container that holds the entire app but also container that holds the control
+   buttons in every window title bar */
+LayoutContainer
+{
+  horizontalGap: 10; /* space between window controls (close, min) */
+  verticalGap: 0;
+}
+
+/* Both the top control bar and the control bar in the bottom of PresentModule */
+ApplicationControlBar
+{
+  backgroundAlpha: 0.01;
+  backgroundColor: #000000;/*#27535C;*/
+  borderStyle: solid;
+  /*borderColor: #27535C;*/
+  borderAlpha: 0;
+  borderThickness: 0;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+}
+/* doesn't work :( */
+/*ApplicationControlBar Button
+{
+  backgroundAlpha: 0.1;
+  backgroundColor: #000000;
+  borderThickness: 10;
+  cornerRadius: 1;
+  dropShadowEnabled: false;
+  themeColor: #800000;
+}*/
+
+/* Space around modal windows and aroung the control bars in the bottom of
+   almost all modules. Apparently doesn't work if TitleWindow is also
+   defined. */
+Panel
+{
+  /* To change the modal windows e.g. audio controls */
+  /*borderStyle: solid;
+  borderColor: #ffffff;
+  borderAlpha: 0.8;
+  borderThickness: 2;
+  cornerRadius: 2;
+  dropShadowEnabled: true;*/
+
+  /* this style will match the bottom control bars that exist in almost all
+     modules, like the place with the chat input text control and btn */
+  /*controlBarStyleName: "panelControlBar";*/
+}
+
+/* Internals of modal windows */
+TitleWindow
+{
+  backgroundAlpha: 1;
+  backgroundColor: #eeeeee;
+  borderStyle: solid;
+  borderColor: #ffffff;
+  borderAlpha: 0.9;
+  borderThickness: 4;
+  cornerRadius: 2;
+  dropShadowEnabled: true;
+  shadowDirection: right;
+}
+
+ProgressBar
+{
+  borderStyle: solid;
+  borderColor: #cccccc;
+  borderAlpha: 0.9;
+  borderThickness: 0;
+  cornerRadius: 1;
+  barColor: #569556;
+  color: #222; /*ffffff;*/
+}
+
+/* matches the tab component in ChatModule */
+/*TabNavigator
+{
+}*/
+
+/* List of participants */
+DataGridColumn
+{
+  backgroundAlpha: 1;
+  backgroundColor: #800000;
+  borderStyle: solid;
+  borderColor: #008000;
+  borderAlpha: 1;
+  borderThickness: 5;
+  cornerRadius: 10;
+  dropShadowEnabled: false;
+}
+
+/* Internal windows with focus */
+.mdiWindowFocus
+{
+  headerHeight: 22;
+  backgroundAlpha: 1;
+  backgroundColor: #dddddd; /*#637d7f;*/
+  borderStyle: solid;
+  borderColor: #ffffff; /*#27535C;*/
+  borderAlpha: 0.9;
+  borderThickness: 1;
+  cornerRadius: 1;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitleFocused";
+}
+.mypanelTitleFocused
+{
+  fontFamily: Verdana;
+  fontSize: 10;
+  fontWeight: bold;
+  color: #111111;
+}
+
+/* Internal windows without focus */
+.mdiWindowNoFocus
+{
+  headerHeight: 22;
+  backgroundAlpha: 0.95;
+  backgroundColor: #dddddd; /*#637d7f;*/
+  borderStyle: solid;
+  borderColor: #eeeeee;
+  borderAlpha: 0.9;
+  borderThickness: 1;
+  cornerRadius: 1;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+.mypanelTitle
+{
+  fontFamily: Verdana;
+  fontSize: 10;
+  fontWeight: bold;
+  color: #111111;
+}
+
+HSlider
+{
+  showTrackHighlight: true;
+}
+
+ToolTip {
+   cornerRadius: 2;
+   paddingLeft: 3;
+   paddingRight: 3;
+   backgroundColor: #94bbbe;
+   color: #222222;
+   textAlign: center;
+}

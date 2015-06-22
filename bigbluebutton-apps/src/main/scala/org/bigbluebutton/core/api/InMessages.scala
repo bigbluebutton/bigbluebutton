@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.api.Role._
+import org.bigbluebutton.core.api.GuestPolicy._
 import org.bigbluebutton.core.apps.poll._
 import org.bigbluebutton.core.apps.whiteboard.vo.AnnotationVO
 import org.bigbluebutton.core.apps.presentation.Presentation
@@ -85,7 +86,8 @@ case class RegisterUser(
     name: String, 
     role: Role, 
     extUserID: String,
-    authToken: String
+    authToken: String,
+    guest: Boolean
 ) extends InMessage
                        
 case class UserJoining(
@@ -137,6 +139,12 @@ case class ChangeUserStatus(
     value: Object
 ) extends InMessage
                             
+case class ChangeUserRole(
+    meetingID: String,
+    userID: String,
+    role: Role
+) extends InMessage
+
 case class AssignPresenter(
     meetingID: String, 
     newPresenterID: String, 
@@ -186,6 +194,25 @@ case class UserDisconnectedFromGlobalAudio(
     voiceConf: String,
     userid: String,
     name: String
+) extends InMessage
+
+// Guest support
+case class GetGuestPolicy(
+    meetingID: String,
+    requesterID: String
+) extends InMessage
+
+case class SetGuestPolicy(
+    meetingID: String,
+    policy: GuestPolicy,
+    setBy: String
+) extends InMessage
+
+case class RespondToGuest(
+    meetingID: String,
+    userId: String,
+    response: Boolean,
+    requesterID: String
 ) extends InMessage
 
 // Layout
@@ -512,3 +539,43 @@ case class IsWhiteboardEnabledRequest(
 case class GetAllMeetingsRequest(
     meetingID: String /** Not used. Just to satisfy trait **/
     ) extends InMessage
+
+// Shared notes
+case class PatchDocumentRequest(
+    meetingID: String, 
+    requesterID: String,
+    noteID: String,
+    patch: String,
+    beginIndex: Int,
+    endIndex: Int
+) extends InMessage
+
+case class GetCurrentDocumentRequest(
+    meetingID: String, 
+    requesterID: String
+) extends InMessage
+
+case class CreateAdditionalNotesRequest(
+    meetingID: String, 
+    requesterID: String
+) extends InMessage
+
+case class DestroyAdditionalNotesRequest(
+    meetingID: String, 
+    requesterID: String,
+    noteID: String
+) extends InMessage
+
+case class RequestAdditionalNotesSetRequest(
+    meetingID: String, 
+    requesterID: String,
+    additionalNotesSetSize: Int
+) extends InMessage
+
+// Video
+case class GetStreamPath(
+    meetingID: String,
+    requesterID: String,
+    streamName: String,
+    defaultPath: String
+) extends InMessage

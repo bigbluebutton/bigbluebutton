@@ -26,14 +26,6 @@ public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
 	private IBigBlueButtonInGW bbbInGW;
 
-	public void userRaiseHand(String meetingId, String userId) {
-		bbbInGW.userRaiseHand(meetingId, userId);
-	}
-	
-	public void lowerHand(String meetingId, String userId, String loweredBy) {
-		bbbInGW.lowerHand(meetingId, userId, loweredBy);
-	}
-	
 	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
 		bbbInGW.ejectUserFromMeeting(meetingId, userId, ejectedBy);
 	}
@@ -50,8 +42,8 @@ public class ParticipantsApplication {
 		bbbInGW.setUserStatus(room, userid, status, value);
 	}
 
-	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID) {
-		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid);
+	public boolean registerUser(String roomName, String userid, String username, String role, String externUserID, Boolean guest) {
+		bbbInGW.registerUser(roomName, userid, username, role, externUserID, userid, guest);
 		return true;
 	}
 
@@ -73,5 +65,21 @@ public class ParticipantsApplication {
 
 	public void getRecordingStatus(String meetingId, String userId) {
 		bbbInGW.getRecordingStatus(meetingId, userId);
+	}
+
+	public void getGuestPolicy(String meetingId, String requesterId) {
+		bbbInGW.getGuestPolicy(meetingId, requesterId);
+	}
+
+	public void newGuestPolicy(String meetingId, String guestPolicy, String setBy) {
+		bbbInGW.setGuestPolicy(meetingId, guestPolicy, setBy);
+	}
+
+	public void responseToGuest(String meetingId, String userId, Boolean response, String requesterId) {
+		bbbInGW.responseToGuest(meetingId, userId, response, requesterId);
+	}
+
+	public void setParticipantRole(String meetingId, String userId, String role) {
+		bbbInGW.setUserRole(meetingId, userId, role);
 	}
 }

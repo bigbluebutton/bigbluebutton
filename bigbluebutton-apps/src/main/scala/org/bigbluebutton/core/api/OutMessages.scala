@@ -255,6 +255,14 @@ case class UserStatusChange(
   version:String = Versions.V_0_0_1
 ) extends IOutMessage
                       
+case class UserRoleChange(
+    meetingID: String,
+    recorded: Boolean,
+    userID: String,
+    role: String,
+  version:String = Versions.V_0_0_1
+) extends IOutMessage
+
 case class MuteVoiceUser(
     meetingID: String, 
     recorded: Boolean, 
@@ -648,8 +656,62 @@ case class IsWhiteboardEnabledReply(
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
+case class GetGuestPolicyReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    policy: String
+) extends IOutMessage
+
+case class GuestPolicyChanged(
+    meetingID: String,
+    recorded: Boolean,
+    policy: String
+) extends IOutMessage
+
+case class GuestAccessDenied(
+    meetingID: String,
+    recorded: Boolean,
+    userId: String
+) extends IOutMessage
+
 case class GetAllMeetingsReply(
     meetings: Array[MeetingInfo],
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class PatchDocumentReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    noteID: String,
+    patch: String,
+    beginIndex: Int,
+    endIndex: Int,
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class GetCurrentDocumentReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    notes: Map[String, String],
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class CreateAdditionalNotesReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    noteID: String,
+    version:String = Versions.V_0_0_1
+) extends IOutMessage
+
+case class DestroyAdditionalNotesReply(
+    meetingID: String,
+    recorded: Boolean,
+    requesterID: String,
+    noteID: String,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 
@@ -659,4 +721,11 @@ case class MeetingVO(
     recorded: Boolean
 )
 
+// Video
+case class GetStreamPathReply(
+    meetingID: String,
+    requesterID: String,
+    streamName: String,
+    streamPath: String
+) extends IOutMessage
 

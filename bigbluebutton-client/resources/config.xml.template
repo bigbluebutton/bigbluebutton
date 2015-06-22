@@ -8,12 +8,13 @@
     <bwMon server="HOST" application="video/bwTest"/>
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter"/>
     <language userSelectionEnabled="true" />
-    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
+    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf?v=VERSION" />
+    <branding logo="logo.png" copyright="&#169; 2015 &lt;a href=&quot;http://www.mconf.org&quot; target=&quot;_blank&quot;&gt;http://www.mconf.org&lt;/a&gt;" background="" />
     <shortcutKeys showButton="true" />
     <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
     <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true"
+            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true" showNetworkMonitor="true" 
             showRecordingNotification="true"/>
     <meeting muteOnStart="false" />
     <lock disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
@@ -53,12 +54,14 @@
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
 			listenOnlyMode="true"
+			forceListenOnly="false"
 			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
 			useWebRTCIfAvailable="true"
 			showPhoneOption="false"
+			showMicrophoneHint="true"
 			echoTestApp="9196"
 			dependsOn="UsersModule"
 		/>
@@ -94,14 +97,7 @@
 			whiteboardAccess="presenter"
 			keepToolbarVisible="false"
 		/>
-<!--
 
-    <module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
-      uri="rtmp://HOST/bigbluebutton" 
-      dependsOn="PresentModule"
-    />
-    		
--->
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
@@ -113,43 +109,18 @@
 			maxFileSize="30"
 		/>
 
-<!--
-		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
-			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="VideoconfModule, UsersModule"
-			autoDock="true"
-			showControls="true"
-			maximizeWindow="false"
-			position="bottom-right"
-			width="172"
-			height="179"
-			layout="smart"
-			oneAlwaysBigger="false"
-			baseTabIndex="401"
-		/>
--->
-
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
-			enableEdit="false"
+			enableEdit="true"
 		/>
 
-<!--
-    <module name="NotesModule" url="http://HOST/client/NotesModule.swf?v=VERSION"
-      saveURL="http://HOST"
-      position="top-left"
-    />
-    
-    <module name="BroadcastModule" url="http://HOST/client/BroadcastModule.swf?v=VERSION"
-      uri="rtmp://HOST/bigbluebutton"
-      streamsUri="http://HOST/streams.xml"
-      position="top-left"
-      showStreams="true"
-      autoPlay="false"
-      dependsOn="UsersModule"
-    />
--->
-    		
+		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton"
+			refreshDelay="500"
+			enableMultipleNotes="true"
+			dependsOn="UsersModule"
+			position="bottom-left"
+		/>
 	</modules>
 </config>

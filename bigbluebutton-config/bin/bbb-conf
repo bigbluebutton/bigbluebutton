@@ -484,6 +484,9 @@ while [ $# -gt 0 ]; do
 			echo "       URL: http://$BBB_WEB/bigbluebutton/"
 			echo "      Salt: $SALT"
 			echo
+			echo "      Link to the API-Mate:"
+			echo "      http://mconf.github.io/api-mate/#server=http://$BBB_WEB/bigbluebutton/&sharedSecret=$SALT"
+			echo
 			exit 0
 		fi
 		shift; shift

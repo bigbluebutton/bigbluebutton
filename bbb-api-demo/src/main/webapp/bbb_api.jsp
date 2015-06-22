@@ -123,6 +123,27 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 }
 
 //
+// getJoinMeetingURL() -- get join meeting URL for both viewer and moderator as guest
+//
+
+public String getJoinMeetingURL(String username, String meetingID, String password, String clientURL, Boolean guest) {
+	String base_url_join = BigBlueButtonURL + "api/join?";
+        String clientURL_param = "";
+
+	if ((clientURL != null) && !clientURL.equals("")) {
+		clientURL_param = "&redirectClient=true&clientURL=" + urlEncode( clientURL );
+	}
+
+
+	String join_parameters = "meetingID=" + urlEncode(meetingID)
+		+ "&fullName=" + urlEncode(username) + "&password="
+		+ urlEncode(password) + "&guest=" + urlEncode(guest.toString()) + clientURL_param;
+
+	return base_url_join + join_parameters + "&checksum="
+		+ checksum("join" + join_parameters + salt);
+} 
+
+//
 // getJoinMeetingURL() -- get join meeting URL for both viewer and moderator
 //
 public String getJoinMeetingURL(String username, String meetingID, String password, String clientURL) {
