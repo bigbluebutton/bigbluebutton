@@ -23,7 +23,7 @@ repositories {
         //url "${System.properties['user.home']}/.ivy2/local"
         url "/home/ubuntu/.ivy2/local"
         layout "pattern", {
-            artifact "[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+            artifact "[organisation]/[module]/[revision]/[artifact].[ext]"
             m2compatible = true
         }
     }
@@ -41,7 +41,7 @@ repositories {
       name = "blindside-repos"
       addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
       addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
-    }			  
+    }             
     add(new org.apache.ivy.plugins.resolver.URLResolver()) {
       name = "testng_ibiblio_maven2"
       m2compatible = true
@@ -112,7 +112,7 @@ dependencies {
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'org.apache.commons:commons-lang3:3.2'
 
-  compile 'org.bigbluebutton:bbb-common-message:0.0.4'
+  compile 'org.bigbluebutton:bbb-common-message:0.0.5'
 }
 
 test {

@@ -46,6 +46,7 @@ object Boot extends App with SystemConfiguration {
   val presSender = new PresentationEventRedisPublisher(msgSender)
   val userSender = new UsersEventRedisPublisher(msgSender)
   val whiteboardSender = new WhiteboardEventRedisPublisher(msgSender)
+  val pollingSender = new PollingEventRedisPublisher(msgSender)
 
   val outMessageListeners = new java.util.ArrayList[OutMessageListener2]()
   outMessageListeners.add(chatSender)
@@ -57,6 +58,7 @@ object Boot extends App with SystemConfiguration {
   outMessageListeners.add(presentationEventRecorder)
   outMessageListeners.add(usersEventRecorder)
   outMessageListeners.add(whiteboardEventRecorder)
+  outMessageListeners.add(pollingSender)
 
   val outGW = new MessageOutGateway(outMessageListeners)
   val bbbInGW = new BigBlueButtonInGW(system, outGW, voiceEventRecorder)

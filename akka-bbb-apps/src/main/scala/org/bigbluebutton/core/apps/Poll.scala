@@ -113,8 +113,10 @@ case class Responder(val userId: String, name: String)
 
 case class ResponseOutVO(id: String, text: String, responders: Array[Responder] = Array[Responder]())
 case class QuestionOutVO(id: String, multiResponse: Boolean, question: String, responses: Array[ResponseOutVO])
+
 case class SimpleAnswerOutVO(id: Int, key: String)
 case class SimplePollOutVO(id: String, answers: Array[SimpleAnswerOutVO])
+
 case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
 case class SimplePollResultOutVO(id: String, answers: Array[SimpleVoteOutVO])
 

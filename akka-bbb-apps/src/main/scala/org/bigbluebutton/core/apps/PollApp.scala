@@ -127,7 +127,10 @@ trait PollApp {
         case Some(user) => {
           val responder = new Responder(user.userID, user.name)
           pollModel.respondToQuestion(poll.id, msg.questionId, msg.answerId, responder)
-          outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
+          users.getCurrentPresenter foreach { cp =>
+            outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.userID, msg.pollId, poll))
+          }
+
         }
         case None => {
           val result = new RequestResult(StatusCodes.FORBIDDEN, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))

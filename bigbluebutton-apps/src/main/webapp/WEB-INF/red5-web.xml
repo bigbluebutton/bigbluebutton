@@ -87,6 +87,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean>
 
+    <bean id="poll.service" class="org.bigbluebutton.red5.service.PollingService">
+        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
+    </bean>
+    
     <bean id="whiteboard.service" class="org.bigbluebutton.red5.service.WhiteboardService">
         <property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
     </bean>
