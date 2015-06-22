@@ -432,4 +432,25 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
   def voiceRecording(voiceConfId: String, recordingFile: String, timestamp: String, recording: java.lang.Boolean) {
     bbbActor ! new VoiceConfRecordingStartedMessage(voiceConfId, recordingFile, recording, timestamp)
   }
+
+  // Polling
+  def votePoll(meetingId: String, userId: String, pollId: String, questionId: Integer, answerId: Integer) {
+    bbbActor ! new RespondToPollRequest(meetingId, userId, pollId, questionId, answerId)
+  }
+
+  def startPoll(meetingId: String, requesterId: String, pollId: String, pollType: String) {
+    bbbActor ! new StartPollRequest(meetingId, requesterId, pollId, pollType)
+  }
+
+  def stopPoll(meetingId: String, userId: String, pollId: String) {
+    bbbActor ! new StopPollRequest(meetingId, userId, pollId)
+  }
+
+  def showPollResult(meetingId: String, requesterId: String, pollId: String, show: java.lang.Boolean) {
+    if (show) {
+      bbbActor ! new ShowPollResultRequest(meetingId, requesterId, pollId)
+    } else {
+      bbbActor ! new HidePollResultRequest(meetingId, requesterId, pollId)
+    }
+  }
 }

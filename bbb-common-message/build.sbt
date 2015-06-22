@@ -4,7 +4,7 @@ name := "bbb-common-message"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.5-SNAPSHOT"
+version := "0.0.5"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -40,11 +40,16 @@ crossPaths := false
 // This forbids including Scala related libraries into the dependency
 autoScalaLibrary := false
 
+/***************************
+* When developing, change the version above to x.x.x-SNAPSHOT then use the file resolver to
+* publish to the local maven repo using "sbt publish"
+*/
+// Uncomment this to publish to local maven repo while commenting out the nexus repo
 //publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
 
 
-publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/dev/repo/maven-repo/releases" )) )
-
+// Comment this out when publishing to local maven repo using SNAPSHOT version.
+// To push to sonatype "sbt publishSigned"
 publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value)

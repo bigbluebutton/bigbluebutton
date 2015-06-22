@@ -31,6 +31,9 @@ public class RedisMessageReceiver {
 		WhiteboardMessageReceiver whiteboardRx = new WhiteboardMessageReceiver(bbbGW);
 		receivers.add(whiteboardRx);
 		
+		PollingMessageReceiver pollRx = new PollingMessageReceiver(bbbGW);
+		receivers.add(pollRx);
+		
 		MeetingMessageReceiver meetingRx = new MeetingMessageReceiver(bbbGW);
 		receivers.add(meetingRx);
 	}
