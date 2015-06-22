@@ -68,7 +68,6 @@ package org.bigbluebutton.core.managers
         }
       }
       if (!_reconnectTimeout.running)
-        trace(LOG + "Timeout started");
         _reconnectTimeout.start();
     }
 
@@ -147,7 +146,6 @@ package org.bigbluebutton.core.managers
           "Connection reestablished", 
           "Connection has been reestablished successfully"));
 
-        trace(LOG + "Timeout reseted");
         _reconnectTimeout.reset();
         removePopUp();
       }
