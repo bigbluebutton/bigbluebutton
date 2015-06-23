@@ -7,13 +7,11 @@ package org.bigbluebutton.modules.polling.events
     
     public static const SHOW_POLL_RESULT:String = "show poll result";
     
-    public var pollId: String;
     public var show: Boolean;
     
-    public function ShowPollResultEvent(pollId:String, show:Boolean)
+    public function ShowPollResultEvent(show:Boolean)
     {
       super(SHOW_POLL_RESULT, true, false);
-      this.pollId = pollId;
       this.show = show;
     }
   }

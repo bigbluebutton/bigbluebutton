@@ -34,7 +34,6 @@
       import org.bigbluebutton.modules.polling.service.NetworkPollDataService;
       import org.bigbluebutton.modules.polling.service.PollDataProcessor;
       import org.bigbluebutton.modules.polling.service.PollingService;
-      import org.bigbluebutton.modules.polling.service.ShortCircuitPollDataService;
 			
 				]]>
 				
@@ -47,10 +46,7 @@
 	<EventHandlers type="{ModuleEvent.STOP}">
 	</EventHandlers>	
 
-  <EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}">
-    
-  </EventHandlers>
-  
+  <EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}"/>
 
   <EventHandlers type="{UpdatePollEvent.UPDATE_POLL}">
     <MethodInvoker generator="{PollingService}" method="handleUpdatePollEvent" arguments="{event}"/>
@@ -60,22 +56,23 @@
     <MethodInvoker generator="{PollingService}" method="handleStartPollEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <EventHandlers type="{PollEvent.STOP_POLL}">
+  <EventHandlers type="{StopPollEvent.STOP_POLL}">
     <MethodInvoker generator="{PollingService}" method="handleStopPollEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <EventHandlers type="{PollEvent.REMOVE_POLL}">
-    <MethodInvoker generator="{PollingService}" method="handleRemovePollEvent" arguments="{event}"/>
+  <EventHandlers type="{VotePollEvent.VOTE_POLL}">
+    <MethodInvoker generator="{PollingService}" method="handleVotePollEvent" arguments="{event}"/>
   </EventHandlers>
 
-  <EventHandlers type="{RespondEvent.RESPOND_EVENT}">
-    <MethodInvoker generator="{PollingService}" method="handleRespondPollEvent" arguments="{event}"/>
+  <EventHandlers type="{ShowPollResultEvent.SHOW_POLL_RESULT}">
+    <MethodInvoker generator="{PollingService}" method="handleShowPollResultEvent" arguments="{event}"/>
   </EventHandlers>
 
   
   <Injectors target="{PollingService}">
     <ObjectBuilder generator="{PollDataProcessor}" cache="global"/>
     <PropertyInjector targetKey="dataService" source="{NetworkPollDataService}"/>
+    <PropertyInjector targetKey="model" source="{PollingModel}"/>
   </Injectors>
 
   <Injectors target="{NetworkPollDataService}">
@@ -83,10 +80,6 @@
     <PropertyInjector targetKey="sender" source="{MessageSender}"/>
   </Injectors>
   
-  <Injectors target="{ShortCircuitPollDataService}">
-    <PropertyInjector targetKey="processor" source="{PollDataProcessor}"/>
-  </Injectors>	
-
   <Injectors target="{PollDataProcessor}">
     <PropertyInjector targetKey="model" source="{PollingModel}"/>
     <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>

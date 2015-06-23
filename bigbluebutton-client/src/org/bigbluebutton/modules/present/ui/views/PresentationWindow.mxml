@@ -88,7 +88,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
       import org.bigbluebutton.modules.polling.events.StartPollEvent;
+      import org.bigbluebutton.modules.polling.events.StopPollEvent;
+      import org.bigbluebutton.modules.polling.events.VotePollEvent;
       import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
       import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
       import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
@@ -637,47 +640,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenu.show();
 
 			}
-			
-      private function generatePollId():String {
-        var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
-        if (curPres != null) {
-          var date:Date = new Date();
-          var pollId: String = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
-          return pollId;
-        }
-        
-        return null;
-      }
-      
+			    
 			private function menuClickHandler(e:MenuEvent):void {
 				if(pollMenuData[e.index] != undefined) {
-          var pollId:String = generatePollId();
-          if (pollId == null) return;
-          
 					// start the requested poll
           if (e.index == 0) {
-            var ynEvent:StartPollEvent = new StartPollEvent(pollId, "YN");
+            var ynEvent:StartPollEvent = new StartPollEvent("YN");
             dispatchEvent(ynEvent);
           } else if (e.index == 1) {
-            var tfEvent:StartPollEvent = new StartPollEvent(pollId, "TF");
+            var tfEvent:StartPollEvent = new StartPollEvent("TF");
             dispatchEvent(tfEvent);
           } else if (e.index == 2) {
-            var a1Event:StartPollEvent = new StartPollEvent(pollId, "A-2");
+            var a1Event:StartPollEvent = new StartPollEvent("A-2");
             dispatchEvent(a1Event);
           } else if (e.index == 3) {
-            var a2Event:StartPollEvent = new StartPollEvent(pollId, "A-3");
+            var a2Event:StartPollEvent = new StartPollEvent("A-3");
             dispatchEvent(a2Event);
           } else if (e.index == 4) {
-            var a3Event:StartPollEvent = new StartPollEvent(pollId, "A-4");
+            var a3Event:StartPollEvent = new StartPollEvent("A-4");
             dispatchEvent(a3Event);
           } else if (e.index == 5) {
-            var a4Event:StartPollEvent = new StartPollEvent(pollId, "A-5");
+            var a4Event:StartPollEvent = new StartPollEvent("A-5");
             dispatchEvent(a4Event);
           } else if (e.index == 6) {
-            var a5Event:StartPollEvent = new StartPollEvent(pollId, "A-6");
+            var a5Event:StartPollEvent = new StartPollEvent("A-6");
             dispatchEvent(a5Event);
           } else if (e.index == 7) {
-            var a6Event:StartPollEvent = new StartPollEvent(pollId, "A-7");
+            var a6Event:StartPollEvent = new StartPollEvent("A-7");
             dispatchEvent(a6Event);
           } 
 				}
@@ -689,6 +678,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenu.x = pollXY.x;
 				pollMenu.y = pollXY.y;
 			}
+      
+      private function onPollStopButtonClicked():void {
+        dispatchEvent(new StopPollEvent());
+      }
+      
+      private function onPollVoteButtonClicked():void {
+        dispatchEvent(new VotePollEvent(1));
+      }
+      
+      private function onPollShowResultButtonClicked():void {
+        dispatchEvent(new ShowPollResultEvent(true));
+      }
 
 		]]>
 	</mx:Script>
@@ -705,6 +706,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
     		toolTip="Start a poll" 
     		click="onPollStartButtonClicked()" tabIndex="{baseIndex+6}"/>
+    <mx:Button id="pollStopBtn" visible="true" height="30" styleName="pollStartButtonStyle"
+               toolTip="Stop a poll" 
+               click="onPollStopButtonClicked()" tabIndex="{baseIndex+6}"/>
+    <mx:Button id="pollVoteBtn" visible="true" height="30" styleName="pollStartButtonStyle"
+               toolTip="Vote on poll" 
+               click="onPollVoteButtonClicked()" tabIndex="{baseIndex+6}"/>
+    <mx:Button id="pollShowResultBtn" visible="true" height="30" styleName="pollStartButtonStyle"
+               toolTip="Show result of poll" 
+               click="onPollShowResultButtonClicked()" tabIndex="{baseIndex+6}"/>
     	<mx:Spacer width="100%" id="spacer1"/>
     	<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"

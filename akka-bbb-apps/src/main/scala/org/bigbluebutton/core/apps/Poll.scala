@@ -231,7 +231,9 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
     responders.clear
   }
   def addResponder(responder: Responder) {
+    println("********************************************************************** Add response for key=[" + key + "] votes=[" + numResponders + "]")
     responders += responder
+    println("********************************************************************** Added response for key=[" + key + "] votes=[" + numResponders + "]")
   }
 
   def numResponders(): Int = {
@@ -249,6 +251,7 @@ class Answer(val id: Int, val key: String, val text: Option[String]) {
   }
 
   def toSimpleVoteOutVO(): SimpleVoteOutVO = {
+    println("********************************************************************** Num response for key=[" + key + "] votes=[" + numResponders + "]")
     new SimpleVoteOutVO(id, key, numResponders)
   }
 }
