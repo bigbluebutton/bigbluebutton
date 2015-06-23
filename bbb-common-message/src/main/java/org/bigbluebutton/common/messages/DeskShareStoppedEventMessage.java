@@ -4,9 +4,9 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-
-public class DeskShareEndedEventMessage {
-	public static final String DESK_SHARE_ENDED_MESSAGE  = "desk_share_ended_message";
+//Message from FreeSwitch to bbb-akka-apps
+public class DeskShareStoppedEventMessage {
+	public static final String DESK_SHARE_STOPPED_MESSAGE  = "desk_share_stopped_message";
 	public static final String VERSION = "0.0.1";
 
 	public static final String CONFERENCE_NAME = "conference_name";
@@ -17,7 +17,7 @@ public class DeskShareEndedEventMessage {
 	public final String callerId;
 	public final String callerIdName;
 
-	public DeskShareEndedEventMessage(String conferenceName, String callerId, String callerIdName) {
+	public DeskShareStoppedEventMessage(String conferenceName, String callerId, String callerIdName) {
 		this.conferenceName = conferenceName;
 		this.callerId = callerId;
 		this.callerIdName = callerIdName;
@@ -29,12 +29,12 @@ public class DeskShareEndedEventMessage {
 		payload.put(CALLER_ID_NAME, callerIdName);
 		payload.put(CALLER_ID, callerId);
 
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESK_SHARE_ENDED_MESSAGE, VERSION, null);
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESK_SHARE_STOPPED_MESSAGE, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static DeskShareEndedEventMessage fromJson(String message) {
+	public static DeskShareStoppedEventMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -44,7 +44,7 @@ public class DeskShareEndedEventMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (DESK_SHARE_ENDED_MESSAGE.equals(messageName)) {
+				if (DESK_SHARE_STOPPED_MESSAGE.equals(messageName)) {
 					if (payload.has(CONFERENCE_NAME)
 							&& payload.has(CALLER_ID)
 							&& payload.has(CALLER_ID_NAME)) {
@@ -52,7 +52,7 @@ public class DeskShareEndedEventMessage {
 						String callerId = payload.get(CALLER_ID_NAME).getAsString();
 						String callerIdName = payload.get(CALLER_ID_NAME).getAsString();
 
-						return new DeskShareEndedEventMessage(conferenceName, callerId, callerIdName);
+						return new DeskShareStoppedEventMessage(conferenceName, callerId, callerIdName);
 					}
 				}
 			}

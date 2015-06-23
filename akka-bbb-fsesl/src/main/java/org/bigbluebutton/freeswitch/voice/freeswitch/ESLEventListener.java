@@ -29,9 +29,9 @@ public class ESLEventListener implements IEslEventListener {
     private static final String START_RECORDING_EVENT = "start-recording";
     private static final String STOP_RECORDING_EVENT = "stop-recording";
 
-    private static final String DESKSHARE_CONFERENCE_NAME_LABEL = "-DESKSHARE";
-    private static final String DESKSHARE_CALLER_NAME_LABEL = " (Screen)";
-    private static final String DESKSHARE_CALLER_ID_LABEL = " (screen)";
+    private static final String DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE";
+    private static final String DESKSHARE_CALLER_NAME_SUFFIX = " (Screen)";
+    private static final String DESKSHARE_CALLER_ID_SUFFIX = " (screen)";
 
     private final ConferenceEventListener conferenceEventListener;
     
@@ -79,10 +79,10 @@ public class ESLEventListener implements IEslEventListener {
         }
 
         // Deskstop sharing conferences have their name in the form xxxxx-DESKSHARE
-        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_LABEL)) {
+        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
             // Deskstop sharing conferences have the user with the desktop video displayed in this way:
             // username (Screen) and usernum (screen)
-            if (callerId.endsWith(DESKSHARE_CALLER_ID_LABEL) && callerIdName.endsWith(DESKSHARE_CALLER_NAME_LABEL)) {
+            if (callerId.endsWith(DESKSHARE_CALLER_ID_SUFFIX) && callerIdName.endsWith(DESKSHARE_CALLER_NAME_SUFFIX)) {
                 DeskShareStartedEvent dsStart = new DeskShareStartedEvent(confName, callerId, callerIdName);
                 conferenceEventListener.handleConferenceEvent(dsStart);
                 return; //TODO do we need it?
@@ -108,12 +108,12 @@ public class ESLEventListener implements IEslEventListener {
         System.out.println("User left voice conference, user=[" + memberId.toString() + "], conf=[" + confName + "]");
 
         // Deskstop sharing conferences have their name in the form xxxxx-DESKSHARE
-        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_LABEL)) {
+        if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
             String callerId = this.getCallerIdFromEvent(event);
             String callerIdName = this.getCallerIdNameFromEvent(event);
             // Deskstop sharing conferences have the user with the desktop video displayed in this way:
             // username (Screen) and usernum (screen)
-            if (callerId.endsWith(DESKSHARE_CALLER_ID_LABEL) && callerIdName.endsWith(DESKSHARE_CALLER_NAME_LABEL)) {
+            if (callerId.endsWith(DESKSHARE_CALLER_ID_SUFFIX) && callerIdName.endsWith(DESKSHARE_CALLER_NAME_SUFFIX)) {
                 DeskShareEndedEvent dsEnd = new DeskShareEndedEvent(confName, callerId, callerIdName);
                 conferenceEventListener.handleConferenceEvent(dsEnd);
                 return;//TODO do we need it?
@@ -188,7 +188,7 @@ public class ESLEventListener implements IEslEventListener {
         System.out.println("Handling conferenceEventRecord " + action);
 
         if (action.equals(START_RECORDING_EVENT)) {
-            if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_LABEL)){
+            if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)){
                 DeskShareRecordingEvent dssre = new DeskShareRecordingEvent(confName, true);
                 dssre.setRecordingFilename(getRecordFilenameFromEvent(event));
                 dssre.setTimestamp(genTimestamp().toString());
@@ -204,7 +204,7 @@ public class ESLEventListener implements IEslEventListener {
                 conferenceEventListener.handleConferenceEvent(sre);
             }
         } else if (action.equals(STOP_RECORDING_EVENT)) {
-            if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_LABEL)){
+            if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)){
             	DeskShareRecordingEvent dssre = new DeskShareRecordingEvent(confName, false);
                 dssre.setRecordingFilename(getRecordFilenameFromEvent(event));
                 dssre.setTimestamp(genTimestamp().toString());
@@ -219,7 +219,11 @@ public class ESLEventListener implements IEslEventListener {
                  + getRecordFilenameFromEvent(event) + "], conf=[" + confName + "]");
                 conferenceEventListener.handleConferenceEvent(sre);
             }
-        } else {
+        } 
+        
+        // TODO check if it's a rtmp broadcast event?
+        
+        else {
             System.out.println("Processing UNKNOWN conference Action " + action + "]");
         }
     }

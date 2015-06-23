@@ -4,37 +4,37 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-// Message from bbb-akka-apps to FreeSwitch
-public class DeskShareStartRecordingEventMessage {
-	public static final String DESKSHARE_START_RECORDING_MESSAGE  = "deskshare_start_recording_message";
+
+public class DeskShareRTMPBroadcastStoppedEventMessage {
+	public static final String DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE = "deskshare_rtmp_broadcast_stopped_message";
 	public static final String VERSION = "0.0.1";
 
 	public static final String CONFERENCE_NAME = "conference_name";
-	public static final String FILENAME = "filename";
+	public static final String STREAMNAME = "streamname";
 	public static final String TIMESTAMP = "timestamp";
 
 	public final String conferenceName;
-	public final String filename;
+	public final String streamname;
 	public final String timestamp;
 
-	public DeskShareStartRecordingEventMessage(String conferenceName, String filename, String timestamp) {
+	public DeskShareRTMPBroadcastStoppedEventMessage(String conferenceName, String streamname, String timestamp) {
 		this.conferenceName = conferenceName;
-		this.filename = filename;
+		this.streamname = streamname;
 		this.timestamp = timestamp;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(CONFERENCE_NAME, conferenceName);
-		payload.put(FILENAME, filename);
+		payload.put(STREAMNAME, streamname);
 		payload.put(TIMESTAMP, timestamp);
 
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESKSHARE_START_RECORDING_MESSAGE, VERSION, null);
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static DeskShareStartRecordingEventMessage fromJson(String message) {
+	public static DeskShareRTMPBroadcastStoppedEventMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -44,15 +44,15 @@ public class DeskShareStartRecordingEventMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (DESKSHARE_START_RECORDING_MESSAGE.equals(messageName)) {
+				if (DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE.equals(messageName)) {
 					if (payload.has(CONFERENCE_NAME)
 							&& payload.has(TIMESTAMP)
-							&& payload.has(FILENAME)) {
+							&& payload.has(STREAMNAME)) {
 						String conferenceName = payload.get(CONFERENCE_NAME).getAsString();
-						String filename = payload.get(FILENAME).getAsString();
+						String streamname = payload.get(STREAMNAME).getAsString();
 						String timestamp = payload.get(TIMESTAMP).getAsString();
 
-						return new DeskShareStartRecordingEventMessage(conferenceName, filename, timestamp);
+						return new DeskShareRTMPBroadcastStoppedEventMessage(conferenceName, streamname, timestamp);
 					}
 				}
 			}

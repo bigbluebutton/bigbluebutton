@@ -62,6 +62,10 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage =>
       handleVoiceConfRecordingStartedMessage(msg)
+    case msg: DeskShareRecordingStartedRequest =>
+      handleDeskShareRecordingStartedRequest(msg)
+    case msg: DeskShareRecordingStoppedRequest =>
+      handleDeskShareRecordingStoppedRequest(msg)
     case msg: UserJoining =>
       handleUserJoin(msg)
     case msg: UserLeaving =>
@@ -232,6 +236,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
         log.info("MonitorNumberOfWebUsers empty for meeting [" + mProps.meetingID + "]. Ejecting all users from voice.")
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+
       }
     }
 
@@ -298,4 +303,50 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     meetingModel.permissionsEqual(other)
   }
 
+  // If the meeting is recorded, tell FS to record video
+  private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
+    //TODO
+    println("\n\n\nMeetingActor-handleDeskShareStartedRequest-start\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("\n\n\nMeetingActor-handleDeskShareStartedRequest-end\n")
+
+    if (meetingModel.isRecording()) {
+      println("IS RECORDING")
+      //      outGW.send(new DeskShareStartRecording())//TODO
+    } else {
+      println("IS NOT RECORDING")
+    }
+    //    if (mProps.allowStartStopRecording && meetingModel.isRecording() != msg.recording) {
+    //      if (msg.recording) {
+    //        meetingModel.recordingStarted()
+    //      } else {
+    //        meetingModel.recordingStopped()
+    //      }
+    //      log.debug("Sending recording status for meeting [" + mProps.meetingID + "], recording=[" + msg.recording + "]")
+    //      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, msg.userId, msg.recording))
+    //    }
+
+    //    if (msg.recording) {
+    //      meetingModel.setVoiceRecordingFilename(msg.recordStream)
+    //      outGW.send(new VoiceRecordingStarted(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
+    //    } else {
+    //      meetingModel.setVoiceRecordingFilename("")
+    //      outGW.send(new VoiceRecordingStopped(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
+    //    }
+
+    // conferenceName: String, filename: String, timestamp: String
+    outGW.send(new DeskShareStartedReply(msg.conferenceName, msg.callerId, msg.callerIdName))
+  }
+
+  private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
+    //TODO
+  }
+
+  private def handleDeskShareRecordingStartedRequest(msg: DeskShareRecordingStartedRequest) {
+
+  }
+
+  private def handleDeskShareRecordingStoppedRequest(msg: DeskShareRecordingStoppedRequest) {
+    //TODO
+  }
 }

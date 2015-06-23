@@ -104,5 +104,11 @@ public interface IBigBlueButtonInGW {
 	void undoWhiteboard(String meetingID, String requesterID, String whiteboardId);
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
-	
+
+	// DeskShare
+	void deskShareStarted(String conferenceName, String callerId, String callerIdName);
+	void deskShareStopped(String conferenceName, String callerId, String callerIdName);
+	void deskShareRecordingStarted(String conferenceName, String filename, String timestamp);
+	void deskShareRecordingStopped(String conferenceName, String filename, String timestamp);
+
 }

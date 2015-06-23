@@ -4,7 +4,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-
+// Message from bbb-akka-apps to FreeSwitch
 public class DeskShareStopRecordingEventMessage {
 	public static final String DESKSHARE_STOP_RECORDING_MESSAGE  = "deskshare_stop_recording_message";
 	public static final String VERSION = "0.0.1";

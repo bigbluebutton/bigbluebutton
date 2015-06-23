@@ -4,7 +4,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-
+//Message from FreeSwitch to bbb-akka-apps
 public class DeskShareStartedEventMessage {
 	public static final String DESKSHARE_STARTED_MESSAGE  = "deskshare_start_message";
 	public static final String VERSION = "0.0.1";

@@ -4,9 +4,9 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-// Message from bbb-akka-apps to FreeSwitch
-public class DeskShareStartRecordingEventMessage {
-	public static final String DESKSHARE_START_RECORDING_MESSAGE  = "deskshare_start_recording_message";
+
+public class DeskShareRecordingStoppedEventMessage {
+	public static final String DESKSHARE_RECORDING_STOPPED_MESSAGE  = "deskshare_recording_stopped_message";
 	public static final String VERSION = "0.0.1";
 
 	public static final String CONFERENCE_NAME = "conference_name";
@@ -17,7 +17,7 @@ public class DeskShareStartRecordingEventMessage {
 	public final String filename;
 	public final String timestamp;
 
-	public DeskShareStartRecordingEventMessage(String conferenceName, String filename, String timestamp) {
+	public DeskShareRecordingStoppedEventMessage(String conferenceName, String filename, String timestamp) {
 		this.conferenceName = conferenceName;
 		this.filename = filename;
 		this.timestamp = timestamp;
@@ -29,12 +29,12 @@ public class DeskShareStartRecordingEventMessage {
 		payload.put(FILENAME, filename);
 		payload.put(TIMESTAMP, timestamp);
 
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESKSHARE_START_RECORDING_MESSAGE, VERSION, null);
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESKSHARE_RECORDING_STOPPED_MESSAGE, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static DeskShareStartRecordingEventMessage fromJson(String message) {
+	public static DeskShareRecordingStoppedEventMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -44,7 +44,7 @@ public class DeskShareStartRecordingEventMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (DESKSHARE_START_RECORDING_MESSAGE.equals(messageName)) {
+				if (DESKSHARE_RECORDING_STOPPED_MESSAGE.equals(messageName)) {
 					if (payload.has(CONFERENCE_NAME)
 							&& payload.has(TIMESTAMP)
 							&& payload.has(FILENAME)) {
@@ -52,7 +52,7 @@ public class DeskShareStartRecordingEventMessage {
 						String filename = payload.get(FILENAME).getAsString();
 						String timestamp = payload.get(TIMESTAMP).getAsString();
 
-						return new DeskShareStartRecordingEventMessage(conferenceName, filename, timestamp);
+						return new DeskShareRecordingStoppedEventMessage(conferenceName, filename, timestamp);
 					}
 				}
 			}

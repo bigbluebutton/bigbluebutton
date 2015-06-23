@@ -43,6 +43,10 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
     case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
+    case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
+    case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
+    //    case msg: DeskShareRecordingStartedRequest => handleDeskShareRecordingStartedRequest(msg)
+    //    case msg: DeskShareRecordingStoppedRequest => handleDeskShareRecordingStoppedRequest(msg)
     case msg: InMessage => handleMeetingMessage(msg)
     case _ => // do nothing
   }
@@ -92,6 +96,8 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
       recEvent.setTimestamp(msg.timestamp)
       recEvent.setRecordingFilename(msg.recordStream)
       voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
+
+      // find meeting with voiceconf id and send it to 
     }
 
   }
@@ -246,6 +252,39 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     }
 
     outGW.send(new GetAllMeetingsReply(resultArray))
+  }
+
+  private def handleDeskShareRecordingStartedRequest(msg: DeskShareRecordingStartedRequest) {
+    //TODO
+  }
+
+  private def handleDeskShareRecordingStoppedRequest(msg: DeskShareRecordingStoppedRequest) {
+    //TODO
+  }
+
+  private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
+    // find in which meeting ....
+
+    println("\n\n\n\nBBBActor: handleDeskShareStartedRequest\n\n\n\n")
+    println(msg.conferenceName)
+    println(msg.callerId)
+    println(msg.callerIdName)
+
+    if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
+      var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
+      println("originalConfId=" + originalConfId)
+      findMeetingWithVoiceConfId(originalConfId) foreach { m =>
+        m.actorRef ! msg
+      }
+    } else {
+      println("\n\n\nERROR in handleDeskShareStartedMessage in BBBActor \n\n\n")
+    }
+
+  }
+
+  private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
+    //TODO
   }
 
 }

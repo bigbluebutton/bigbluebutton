@@ -432,4 +432,25 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
   def voiceRecording(voiceConfId: String, recordingFile: String, timestamp: String, recording: java.lang.Boolean) {
     bbbActor ! new VoiceConfRecordingStartedMessage(voiceConfId, recordingFile, recording, timestamp)
   }
+
+  /**
+   * *******************************************************************
+   * Message Interface for DeskShare
+   * *****************************************************************
+   */
+  def deskShareStarted(conferenceName: String, callerId: String, callerIdName: String) {
+    bbbActor ! new DeskShareStartedRequest(conferenceName, callerId, callerIdName)
+  }
+
+  def deskShareStopped(conferenceName: String, callerId: String, callerIdName: String) {
+    bbbActor ! new DeskShareStoppedRequest(conferenceName, callerId, callerIdName)
+  }
+  def deskShareRecordingStarted(conferenceName: String, filename: String, timestamp: String) {
+    //      bbbActor ! new DeskShareRecordingStartedRequest(conferenceName, filename, timestamp)
+  }
+
+  def deskShareRecordingStopped(conferenceName: String, filename: String, timestamp: String) {
+    //      bbbActor ! new DeskShareRecordingStoppedRequest(conferenceName, filename, timestamp)
+  }
+
 }
