@@ -20,15 +20,15 @@
 package org.bigbluebutton.modules.present.ui.views
 {
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
-	import mx.binding.utils.BindingUtils;
 	import mx.containers.HBox;
 	import mx.containers.VBox;
 	import mx.controls.Button;
-	import mx.events.MoveEvent;
-	import mx.events.ResizeEvent;
-	import mx.utils.object_proxy;
+	
+	import org.bigbluebutton.common.model.FocusableImage;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	
 	public class PollResultsView extends VBox {
 		private var _pollGraphic:ResizablePollGraphic;
@@ -87,7 +87,19 @@ package org.bigbluebutton.modules.present.ui.views
 		}
 		
 		private function handlePublishClick(e:MouseEvent):void {
-			
+			var slide:FocusableImage = SlideView(parent).slideLoader;
+			var x1:int, y1:int, x2:int, y2:int, nx1:Number, ny1:Number, nx2:Number, ny2:Number;
+			var slideXY:Point = slide.globalToLocal(localToGlobal(new Point(_pollGraphic.x, _pollGraphic.y)));
+			x1 = slideXY.x;
+			y1 = slideXY.y;
+			x2 = slideXY.x+_pollGraphic.width;
+			y2 = slideXY.y+_pollGraphic.height;
+			nx1 = (x1*100.0)/slide.width;
+			ny1 = (y1*100.0)/slide.height;
+			nx2 = (x2*100.0)/slide.width;
+			ny2 = (y2*100.0)/slide.height;
+			trace("x1 " + x1 + " y1 " + y1 + " x2 " + x2 + " y2 " + y2);
+			trace("nx1 " + nx1 + " ny1 " + ny1 + " nx2 " + nx2 + " ny2 " + ny2);
 		}
 		
 		private function handleCloseClick(e:MouseEvent):void {
@@ -109,7 +121,7 @@ package org.bigbluebutton.modules.present.ui.views
 		}
 		
 		private function mouseMoveHandler(e:MouseEvent):void {
-			trace("mouseMoveHandler " + this.y);
+			//trace("mouseMoveHandler " + this.y);
 			e.updateAfterEvent();
 			
 			if (this.y < 0) {
