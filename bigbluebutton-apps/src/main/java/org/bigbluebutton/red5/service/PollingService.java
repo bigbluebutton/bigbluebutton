@@ -38,67 +38,39 @@ public class PollingService {
 	}
 
 	public void votePoll(Map<String, Object> message) {
-		log.debug("Received broadcast layout request");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String userId = getBbbSession().getInternalUserID();
 		String pollId = (String) message.get("pollId");
 		Integer questionId = (Integer) message.get("questionId");
 		Integer answerId = (Integer) message.get("answerId");
 										
-	//	red5GW.broadcastLayout(meetingID, getBbbSession().getInternalUserID(), newlayout);
+		red5GW.votePoll(meetingID, userId, pollId, questionId, answerId);
 	}
 	
 	public void showPollResult(Map<String, Object> message) {
-		log.debug("Received broadcast layout request");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		String newlayout = (String) message.get("layout");
-
-		if (newlayout == null || newlayout.isEmpty()) {
-			log.error("Invalid Broadcast Layout message. layout is null or empty.");
-			return;
-		}
-							
-		red5GW.broadcastLayout(meetingID, getBbbSession().getInternalUserID(), newlayout);
+		String userId = getBbbSession().getInternalUserID();
+		String pollId = (String) message.get("pollId");
+		Boolean show = (Boolean) message.get("show");
+				
+		red5GW.showPollResult(meetingID, userId, pollId, show);
 	}
 	
 	public void startPoll(Map<String, Object> message) {
-		log.debug("Received broadcast layout request");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		String newlayout = (String) message.get("layout");
-
-		if (newlayout == null || newlayout.isEmpty()) {
-			log.error("Invalid Broadcast Layout message. layout is null or empty.");
-			return;
-		}
+		String userId = getBbbSession().getInternalUserID();
+		String pollId = (String) message.get("pollId");
+		String pollType = (String) message.get("pollType");
 							
-		red5GW.broadcastLayout(meetingID, getBbbSession().getInternalUserID(), newlayout);
+		red5GW.startPoll(meetingID, userId, pollId, pollType);
 	}
 	
 	public void stopPoll(Map<String, Object> message) {
-		log.debug("Received lock layout request");
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		String newlayout = (String) message.get("layout");
-		Boolean lock = (Boolean) message.get("lock");
-		Boolean viewersOnly = (Boolean) message.get("viewersOnly");
-		String layout;
+		String userId = getBbbSession().getInternalUserID();
+		String pollId = (String) message.get("pollId");
 		
-		if  (newlayout == null || newlayout.isEmpty()) {
-			layout = null;
-		} else {
-			layout = newlayout;
-		}
-		
-		if (lock == null) {
-			log.error("Invalid Lock Layout message. lock in null.");
-			return;
-		}
-		
-		if (viewersOnly == null) {
-			log.error("Invalid Lock Layout message. viewersOnly is null");
-			return;
-		}
-		
-		red5GW.lockLayout(meetingID, getBbbSession().getInternalUserID(), lock, viewersOnly, layout); 
+		red5GW.stopPoll(meetingID, userId, pollId); 
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

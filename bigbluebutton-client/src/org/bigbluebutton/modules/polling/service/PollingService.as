@@ -23,12 +23,10 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.modules.polling.events.CreatePollEvent;
-	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
 	import org.bigbluebutton.modules.polling.events.PollEvent;
 	import org.bigbluebutton.modules.polling.events.RespondEvent;
+	import org.bigbluebutton.modules.polling.events.StartPollEvent;
 	import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
-	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
 
 	public class PollingService
 	{	
@@ -40,21 +38,13 @@ package org.bigbluebutton.modules.polling.service
 		public function handleStartModuleEvent(module:PollingModule):void {
        trace(LOG + " module started event");
 		}
-		
-    public function handleGetPollsEvent(event:GetPollsEvent):void {
-      dataService.getPolls();
-    }
-    
-		public function handleCreatePollEvent(event:CreatePollEvent):void {
-      dataService.createPoll(event.poll);
-		}
-		
+			
     public function handleUpdatePollEvent(event:UpdatePollEvent):void {
       dataService.updatePoll(event.poll);
     }
 
-    public function handleStartPollEvent(event:PollEvent):void {
-      dataService.startPoll(event.pollID);
+    public function handleStartPollEvent(event:StartPollEvent):void {
+      dataService.startPoll(event.pollId, event.pollType);
     }
     
     public function handleStopPollEvent(event:PollEvent):void {

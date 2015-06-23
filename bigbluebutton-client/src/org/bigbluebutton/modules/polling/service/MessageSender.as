@@ -88,10 +88,11 @@ package org.bigbluebutton.modules.polling.service
       );
     }	
     
-    public function startPoll(pollID:String):void
+    public function startPoll(pollId:String, pollType: String):void
     {
       var map:Object = new Object();
-      map.pollID = pollID;
+      map["pollId"] = pollId;
+      map["pollType"] = pollType;
       
       var jsonMsg:String = JSON.stringify(map);
       
@@ -105,7 +106,7 @@ package org.bigbluebutton.modules.polling.service
         function(status:String):void {
           LogUtil.error(status); 
         },
-        jsonMsg
+        map
       );
     }
     

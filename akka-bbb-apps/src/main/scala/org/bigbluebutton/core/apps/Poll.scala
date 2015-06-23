@@ -13,8 +13,8 @@ object PollType {
 
 object PollFactory {
 
-  val LetterArray = Array("A", "B", "C", "D", "E")
-  val NumberArray = Array("1", "2", "3", "4", "5")
+  val LetterArray = Array("A", "B", "C", "D", "E", "F")
+  val NumberArray = Array("1", "2", "3", "4", "5", "6")
 
   private def processYesNoPollType(qType: String): Question = {
     val answers = new Array[Answer](2)
@@ -39,7 +39,7 @@ object PollFactory {
 
     var questionOption: Option[Question] = None
 
-    if (numQs > 0 && numQs <= 5) {
+    if (numQs > 0 && numQs <= 6) {
       val answers = new Array[Answer](numQs)
       var i = 0
       for (i <- 0 until numQs) {
@@ -58,7 +58,7 @@ object PollFactory {
 
     var questionOption: Option[Question] = None
 
-    if (numQs > 0 && numQs <= 5) {
+    if (numQs > 0 && numQs <= 6) {
       val answers = new Array[Answer](numQs)
       var i = 0
       for (i <- 0 until numQs) {

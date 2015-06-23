@@ -46,8 +46,8 @@ class PollingEventRedisPublisher(service: MessageSender) extends OutMessageListe
   }
 
   private def handleUserRespondedToPollMessage(msg: UserRespondedToPollMessage) {
-    //    val json = ChatMessageToJsonConverter.sendPrivateMessageEventToJson(msg)
-    //    service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
+    val json = UserRespondedToPollMessageTpJson(msg)
+    service.send(MessagingConstants.FROM_POLLING_CHANNEL, json)
   }
 
   private def pollVOtoMap(msg: SimplePollOutVO): java.util.HashMap[String, Object] = {

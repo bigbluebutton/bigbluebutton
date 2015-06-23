@@ -227,7 +227,7 @@ package org.bigbluebutton.modules.polling.service
     
     public function handlePollStartedMesage(msg:Object):void {
       trace(LOG + "*** Poll started " + msg.msg + " **** \n");
-      
+/*      
       var map:Object = JSON.parse(msg.msg);
       var pollID:String = map.pollID;
       
@@ -236,7 +236,7 @@ package org.bigbluebutton.modules.polling.service
       
         dispatcher.dispatchEvent(new PollEvent(PollEvent.POLL_STARTED, pollID));        
       }
-      
+*/      
     }
     
     public function handlePollStoppedMesage(msg:Object):void {
