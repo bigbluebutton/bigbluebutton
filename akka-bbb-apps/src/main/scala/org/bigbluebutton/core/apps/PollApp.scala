@@ -81,6 +81,9 @@ trait PollApp {
   }
 
   def handleStartPollRequest(msg: StartPollRequest) {
+    log.debug("Received StartPollRequest for pollId=[" + msg.pollId + "]")
+    createPoll(msg)
+
     pollModel.getSimplePoll(msg.pollId) match {
       case Some(poll) => {
         pollModel.startPoll(poll.id)

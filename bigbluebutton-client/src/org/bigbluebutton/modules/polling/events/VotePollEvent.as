@@ -20,13 +20,20 @@ package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
 	
-	public class StartPollingEvent extends Event
+	public class VotePollEvent extends Event
 	{
-		public static const START:String = "START_POLL";
+		public static const VOTE_POLL:String = "vote poll";
 		
-		public function StartPollingEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+    public var pollId: String;
+    public var questionId: Number;
+    public var answerId: Number;
+    
+		public function StartPollEvent(pollId: String, questionId: Number, answerId: Number)
 		{
-			super(type, bubbles, cancelable);
+			super(VOTE_POLL, true, false);
+      this.pollId = pollId;
+      this.questionId = questionId;
+      this.answerId = answerId;
 		}
 		
 	}

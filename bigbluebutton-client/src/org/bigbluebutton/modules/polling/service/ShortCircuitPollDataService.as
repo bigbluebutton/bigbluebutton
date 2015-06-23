@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.polling.service
     {
     }
     
-    public function startPoll(pollID:String):void
+    public function startPoll(pollID:String, pollType: String):void
     {
     }
     

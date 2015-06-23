@@ -1,6 +1,5 @@
 package org.bigbluebutton.modules.polling.vo
 {
-  import org.bigbluebutton.modules.polling.views.Responses;
 
   public class PollResponseVO
   {
@@ -16,10 +15,7 @@ package org.bigbluebutton.modules.polling.vo
       return _id;
     }
     
-    public function addResponse(resp:Responses):void {
-      _questions.push(resp);
-    }
-    
+   
     public function toMap():Object {
       var map:Object = new Object();
       map.pollID = _id;

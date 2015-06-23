@@ -30,9 +30,9 @@ package org.bigbluebutton.modules.polling.service
       sender.updatePoll(poll);
     }
     
-    public function startPoll(pollID:String):void
+    public function startPoll(pollId:String, pollType: String):void
     {
-      sender.startPoll(pollID);
+      sender.startPoll(pollId, pollType);
     }
     
     public function stopPoll(pollID:String):void

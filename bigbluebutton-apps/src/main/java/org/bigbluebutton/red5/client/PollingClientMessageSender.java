@@ -47,8 +47,8 @@ public class PollingClientMessageSender {
 	}
 	
 	private void processPollStartedMessage(String json) {
-		  PollStartedMessage msg = PollStartedMessage.fromJson(json);
-		  if (msg != null) {
+		PollStartedMessage msg = PollStartedMessage.fromJson(json);
+		if (msg != null) {
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put("poll", msg.poll);
 
@@ -58,7 +58,7 @@ public class PollingClientMessageSender {
 			
 			BroadcastClientMessage b = new BroadcastClientMessage(msg.meetingId, "pollStartedMessage", message);
 			service.sendMessage(b);
-		  }	
+		}	
 	}
 
 	private void processPollStoppedMessage(String json) {
