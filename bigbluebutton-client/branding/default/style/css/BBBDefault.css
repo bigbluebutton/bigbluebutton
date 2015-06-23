@@ -284,7 +284,7 @@ DataGrid {
 }
 
 
-.presentationUploadButtonStyle, pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
+.presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
   textIndent: 0;
@@ -308,7 +308,7 @@ DataGrid {
   icon:   Embed('assets/images/upload.png');   
 }
 
-pollStartButtonStyle {
+.pollStartButtonStyle {
   icon:   Embed('assets/images/poll_icon.png');
 }
 
