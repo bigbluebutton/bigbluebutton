@@ -415,13 +415,6 @@ package org.bigbluebutton.modules.videoconf.maps
       proxy.disconnect();
     }
 
-    public function onDisconnected(e:BBBEvent):void {
-      if (e.payload.type == "VIDEO_CONNECTION") {
-        trace("VideoEventMapDelegate:: onDisconnected");
-        closeAllWindows();
-      }
-    }
-
     public function closeAllWindows():void{
       trace("VideoEventMapDelegate:: closing all windows");
       if (_isPublishing) {
