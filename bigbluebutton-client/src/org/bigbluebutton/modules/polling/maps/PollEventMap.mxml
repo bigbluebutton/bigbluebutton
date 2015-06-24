@@ -48,10 +48,6 @@
 
   <EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}"/>
 
-  <EventHandlers type="{UpdatePollEvent.UPDATE_POLL}">
-    <MethodInvoker generator="{PollingService}" method="handleUpdatePollEvent" arguments="{event}"/>
-  </EventHandlers>
-
   <EventHandlers type="{StartPollEvent.START}">
     <MethodInvoker generator="{PollingService}" method="handleStartPollEvent" arguments="{event}"/>
   </EventHandlers>

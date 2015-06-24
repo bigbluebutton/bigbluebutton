@@ -23,12 +23,9 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.modules.polling.events.PollEvent;
-	import org.bigbluebutton.modules.polling.events.RespondEvent;
 	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
 	import org.bigbluebutton.modules.polling.events.StartPollEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
-	import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
 	import org.bigbluebutton.modules.polling.events.VotePollEvent;
 	import org.bigbluebutton.modules.polling.model.PollingModel;
 	import org.bigbluebutton.modules.polling.model.SimplePoll;

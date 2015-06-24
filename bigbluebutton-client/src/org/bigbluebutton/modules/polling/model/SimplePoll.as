@@ -1,9 +1,6 @@
 package org.bigbluebutton.modules.polling.model
 {
   import mx.collections.ArrayCollection;
-  
-  import org.bigbluebutton.modules.polling.vo.ResultVO;
-  import org.bigbluebutton.modules.polling.vo.ResultsVO;
 
   public class SimplePoll
   {

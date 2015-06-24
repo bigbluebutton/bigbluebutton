@@ -2,18 +2,12 @@ package org.bigbluebutton.modules.polling.service
 {
 
   import flash.events.IEventDispatcher;
-  
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.modules.polling.events.PollEvent;
   import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
   import org.bigbluebutton.modules.polling.events.PollStartedEvent;
   import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
   import org.bigbluebutton.modules.polling.events.PollVotedEvent;
-  import org.bigbluebutton.modules.polling.model.Poll;
   import org.bigbluebutton.modules.polling.model.PollingModel;
-  import org.bigbluebutton.modules.polling.model.Question;
-  import org.bigbluebutton.modules.polling.model.Responder;
-  import org.bigbluebutton.modules.polling.model.Response;
   import org.bigbluebutton.modules.polling.model.SimpleAnswer;
   import org.bigbluebutton.modules.polling.model.SimpleAnswerResult;
   import org.bigbluebutton.modules.polling.model.SimplePoll;

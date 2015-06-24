@@ -20,13 +20,10 @@ package org.bigbluebutton.modules.polling.service
 {
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	
+
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.modules.polling.vo.CreatePollVO;
-	import org.bigbluebutton.modules.polling.vo.PollResponseVO;
-	import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;

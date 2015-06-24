@@ -1,8 +1,5 @@
 package org.bigbluebutton.modules.polling.service
 {
-  import org.bigbluebutton.modules.polling.vo.CreatePollVO;
-  import org.bigbluebutton.modules.polling.vo.PollResponseVO;
-  import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
 
   public interface IPollDataService
   {
