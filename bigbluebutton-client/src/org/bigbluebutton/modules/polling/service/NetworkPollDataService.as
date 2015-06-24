@@ -1,12 +1,6 @@
 package org.bigbluebutton.modules.polling.service
 {
-  import org.bigbluebutton.modules.polling.vo.CreatePollVO;
-  import org.bigbluebutton.modules.polling.vo.PollResponseVO;
-  import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
-  
-  /**
-  * Used to send receive data from the server.
-  */
+
   public class NetworkPollDataService implements IPollDataService
   {
     private static const LOG:String = "Poll::NetworkPollDataService - ";
@@ -14,22 +8,7 @@ package org.bigbluebutton.modules.polling.service
     /* Injected by Mate */
     public var receiver:MessageReceiver;
     public var sender:MessageSender;
-        
-    public function getPolls():void
-    {
-      sender.getPolls();
-    }
-    
-    public function createPoll(poll:CreatePollVO):void
-    {
-      sender.createPoll(poll);
-    }
-    
-    public function updatePoll(poll:UpdatePollVO):void
-    {
-      sender.updatePoll(poll);
-    }
-    
+          
     public function startPoll(pollId:String, pollType: String):void
     {
       sender.startPoll(pollId, pollType);
@@ -40,14 +19,14 @@ package org.bigbluebutton.modules.polling.service
       sender.stopPoll(pollID);
     }
     
-    public function removePoll(pollID:String):void
+    public function votePoll(pollId:String, answerId:Number):void
     {
-      sender.removePoll(pollID);
+      sender.votePoll(pollId, answerId);
     }
     
-    public function respondPoll(response:PollResponseVO):void
+    public function showPollResult(pollId:String, show:Boolean):void
     {
-      sender.respondPoll(response);
+      sender.showPollResult(pollId, show);
     }
   }
 }

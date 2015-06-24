@@ -24,13 +24,11 @@ package org.bigbluebutton.modules.polling.events
 	{
 		public static const START:String = "start poll";
 		
-    public var pollId: String;
     public var pollType: String;
     
-		public function StartPollEvent(pollId: String, pollType: String)
+		public function StartPollEvent(pollType: String)
 		{
 			super(START, true, false);
-      this.pollId = pollId;
       this.pollType = pollType;
 		}
 		

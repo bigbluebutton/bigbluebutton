@@ -24,15 +24,11 @@ package org.bigbluebutton.modules.polling.events
 	{
 		public static const VOTE_POLL:String = "vote poll";
 		
-    public var pollId: String;
-    public var questionId: Number;
     public var answerId: Number;
     
-		public function StartPollEvent(pollId: String, questionId: Number, answerId: Number)
+		public function VotePollEvent(answerId: Number)
 		{
 			super(VOTE_POLL, true, false);
-      this.pollId = pollId;
-      this.questionId = questionId;
       this.answerId = answerId;
 		}
 		

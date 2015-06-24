@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.present.ui.views
 			_textFields = new Array();
 			data = null;
 			// temp setter for testing purposes
-			data = sampledata;
+			//data = sampledata;
 		}
 		
 		public function set data(d:Array):void {

@@ -19,17 +19,19 @@
 package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
-	import org.bigbluebutton.modules.polling.model.PollObject;
 	
-	public class SavePollEvent extends Event
+	import org.bigbluebutton.modules.polling.model.SimplePollResult;
+	
+	public class PollShowResultEvent extends Event
 	{
-		public static const SAVE:String = "SAVE_POLL";
-		public var poll:PollObject;
+		public static const SHOW_RESULT:String = "poll show result";
 		
-		public function SavePollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+    public var result:SimplePollResult;
+    
+		public function PollShowResultEvent(result:SimplePollResult)
 		{
-			poll = new PollObject();
-			super(type, bubbles, cancelable);
+			super(SHOW_RESULT, true, false);
+      this.result = result;
 		}
 		
 	}

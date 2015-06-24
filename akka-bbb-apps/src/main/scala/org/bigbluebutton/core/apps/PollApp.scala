@@ -129,9 +129,19 @@ trait PollApp {
       getUser(msg.requesterId) match {
         case Some(user) => {
           val responder = new Responder(user.userID, user.name)
-          pollModel.respondToQuestion(poll.id, msg.questionId, msg.answerId, responder)
+          /*
+           * Hardcode to zero as we are assuming the poll has only one question. 
+           * Our data model supports multiple question polls but for this
+           * release, we only have a simple poll which has one question per poll.
+           * (ralam june 23, 2015)
+           */
+          val questionId = 0
+          pollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder)
           users.getCurrentPresenter foreach { cp =>
-            outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.userID, msg.pollId, poll))
+            pollModel.getSimplePollResult(poll.id) foreach { updatedPoll =>
+              outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.userID, msg.pollId, updatedPoll))
+            }
+
           }
 
         }

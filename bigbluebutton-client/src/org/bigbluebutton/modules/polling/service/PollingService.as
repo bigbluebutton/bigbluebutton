@@ -23,10 +23,14 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.modules.polling.events.PollEvent;
-	import org.bigbluebutton.modules.polling.events.RespondEvent;
+	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
 	import org.bigbluebutton.modules.polling.events.StartPollEvent;
-	import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
+	import org.bigbluebutton.modules.polling.events.StopPollEvent;
+	import org.bigbluebutton.modules.polling.events.VotePollEvent;
+	import org.bigbluebutton.modules.polling.model.PollingModel;
+	import org.bigbluebutton.modules.polling.model.SimplePoll;
+	import org.bigbluebutton.modules.present.model.Presentation;
+	import org.bigbluebutton.modules.present.model.PresentationModel;
 
 	public class PollingService
 	{	
@@ -34,29 +38,43 @@ package org.bigbluebutton.modules.polling.service
 
     /* Injected by Mate */
     public var dataService:IPollDataService;
-
+    public var model:PollingModel;
+    
 		public function handleStartModuleEvent(module:PollingModule):void {
        trace(LOG + " module started event");
 		}
 			
-    public function handleUpdatePollEvent(event:UpdatePollEvent):void {
-      dataService.updatePoll(event.poll);
-    }
 
+    private function generatePollId():String {
+      var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
+      if (curPres != null) {
+        var date:Date = new Date();
+        var pollId: String = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+        return pollId;
+      }
+      
+      return null;
+    }
+    
     public function handleStartPollEvent(event:StartPollEvent):void {
-      dataService.startPoll(event.pollId, event.pollType);
+      var pollId:String = generatePollId();
+      if (pollId == null) return;
+      dataService.startPoll(pollId, event.pollType);
     }
     
-    public function handleStopPollEvent(event:PollEvent):void {
-      dataService.stopPoll(event.pollID);
+    public function handleStopPollEvent(event:StopPollEvent):void {
+      var curPoll:SimplePoll = model.getCurrentPoll();
+      dataService.stopPoll(curPoll.id);
     }
     
-    public function handleRemovePollEvent(event:PollEvent):void {
-      dataService.removePoll(event.pollID);
+    public function handleVotePollEvent(event:VotePollEvent):void {
+      var curPoll:SimplePoll = model.getCurrentPoll();
+      dataService.votePoll(curPoll.id, event.answerId);
     }
     
-    public function handleRespondPollEvent(event:RespondEvent):void {
-      dataService.respondPoll(event.response);
+    public function handleShowPollResultEvent(event:ShowPollResultEvent):void {
+      var curPoll:SimplePoll = model.getCurrentPoll();
+      dataService.showPollResult(curPoll.id, event.show);
     }
     
 
