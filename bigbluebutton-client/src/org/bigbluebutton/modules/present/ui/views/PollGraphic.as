@@ -23,7 +23,6 @@ package org.bigbluebutton.modules.present.ui.views
 	import flash.text.TextFormat;
 	import flash.text.TextFormatAlign;
 	
-	import mx.containers.Canvas;
 	import mx.core.UIComponent;
 	
 	public class PollGraphic extends UIComponent {
@@ -95,7 +94,6 @@ package org.bigbluebutton.modules.present.ui.views
 				// Current problem is that the rowHeight is truncated. It would be nice if the extra pixels 
 				// could be distributed for a more even look.
 				var avgRowHeight:int = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
-				var curRowHeight:int = 0;
 				var extraVPixels:int = unscaledHeight - (_data.length * (avgRowHeight+vpadding) + vpadding);
 				trace("extraVPixels " + extraVPixels);
 				var largestVal:int = -1;
@@ -109,7 +107,6 @@ package org.bigbluebutton.modules.present.ui.views
 				var currTFIdx:int = 0;
 				var answerText:TextField;
 				var percentText:TextField;
-				var ry:int
 				var answerArray:Array = new Array();
 				var percentArray:Array = new Array();
 				var minFontSize:int = 20;
@@ -117,7 +114,7 @@ package org.bigbluebutton.modules.present.ui.views
 				
 				graphics.lineStyle(2);
 				graphics.beginFill(colFill, 1.0);
-				for (var j:int=0, vp:int=extraVPixels, ry=0, curRowHeight=0; j<_data.length; j++) {
+				for (var j:int=0, vp:int=extraVPixels, ry:int=0, curRowHeight:int=0; j<_data.length; j++) {
 					ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
 					
 					curRowHeight = avgRowHeight;
