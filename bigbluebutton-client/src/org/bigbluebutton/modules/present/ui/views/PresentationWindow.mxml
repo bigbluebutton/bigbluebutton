@@ -684,7 +684,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onPollVoteButtonClicked():void {
-        dispatchEvent(new VotePollEvent(1));
+        var randomRounded : int = Math.floor(Math.random() * 7);
+        dispatchEvent(new VotePollEvent(randomRounded));
       }
       
       private function onPollShowResultButtonClicked():void {

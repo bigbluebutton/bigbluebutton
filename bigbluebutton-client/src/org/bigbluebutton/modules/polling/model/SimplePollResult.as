@@ -1,16 +1,13 @@
 package org.bigbluebutton.modules.polling.model
 {
   import mx.collections.ArrayCollection;
-  
-  import org.bigbluebutton.modules.polling.vo.ResultVO;
-  import org.bigbluebutton.modules.polling.vo.ResultsVO;
-
-  public class SimplePoll
+ 
+  public class SimplePollResult
   {
     private var _id:String;
     private var _answers: Array;
      
-    public function SimplePoll(id:String, answers:Array)
+    public function SimplePollResult(id:String, answers:Array)
     {
       _id = id;
       _answers = answers;
@@ -21,7 +18,7 @@ package org.bigbluebutton.modules.polling.model
     }
     
 
-    public function answers():Array {
+    public function get answers():Array {
       return _answers;
     }
     
