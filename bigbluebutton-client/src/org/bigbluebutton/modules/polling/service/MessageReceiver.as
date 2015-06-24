@@ -23,8 +23,6 @@ package org.bigbluebutton.modules.polling.service
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.polling.events.PollEvent;
-  import org.bigbluebutton.modules.polling.model.Poll;
   import org.bigbluebutton.modules.polling.model.PollingModel;
 
   public class MessageReceiver implements IMessageListener
