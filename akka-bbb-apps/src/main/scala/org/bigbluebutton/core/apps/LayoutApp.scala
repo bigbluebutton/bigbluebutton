@@ -45,14 +45,14 @@ trait LayoutApp {
   def affectedUsers(): Array[UserVO] = {
     if (layoutModel.doesLayoutApplyToViewersOnly()) {
       val au = ArrayBuffer[UserVO]()
-      users.getUsers foreach { u =>
+      usersModel.getUsers foreach { u =>
         if (!u.presenter && u.role != Role.MODERATOR) {
           au += u
         }
       }
       au.toArray
     } else {
-      users.getUsers
+      usersModel.getUsers
     }
 
   }

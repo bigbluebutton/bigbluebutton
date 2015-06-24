@@ -439,11 +439,11 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
   }
 
   def startPoll(meetingId: String, requesterId: String, pollId: String, pollType: String) {
-    bbbActor ! new StartPollRequest(meetingId, requesterId, pollId, pollType)
+    bbbActor ! new StartPollRequest(meetingId, requesterId, pollType)
   }
 
   def stopPoll(meetingId: String, userId: String, pollId: String) {
-    bbbActor ! new StopPollRequest(meetingId, userId, pollId)
+    bbbActor ! new StopPollRequest(meetingId, userId)
   }
 
   def showPollResult(meetingId: String, requesterId: String, pollId: String, show: java.lang.Boolean) {

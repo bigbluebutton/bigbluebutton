@@ -1,5 +1,8 @@
 package org.bigbluebutton.core.apps
 
+case class CurrentPresenter(userId: String, name: String, assignedBy: String)
+case class CurrentPresentationInfo(presenter: CurrentPresenter, presentations: Seq[Presentation])
+case class CursorLocation(xPercent: Double = 0D, yPercent: Double = 0D)
 case class Presentation(id: String, name: String, current: Boolean = false,
   pages: scala.collection.immutable.HashMap[String, Page])
 
@@ -29,6 +32,13 @@ class PresentationModel {
 
   def getCurrentPage(pres: Presentation): Option[Page] = {
     pres.pages.values find (p => p.current)
+  }
+
+  def getCurrentPage(): Option[Page] = {
+    for {
+      curPres <- getCurrentPresentation()
+      curPage <- getCurrentPage(curPres)
+    } yield curPage
   }
 
   def remove(presId: String): Option[Presentation] = {
