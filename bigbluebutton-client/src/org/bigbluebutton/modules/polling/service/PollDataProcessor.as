@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.polling.service
   import org.bigbluebutton.modules.polling.events.PollEvent;
   import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
   import org.bigbluebutton.modules.polling.events.PollStartedEvent;
+  import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
   import org.bigbluebutton.modules.polling.events.PollVotedEvent;
   import org.bigbluebutton.modules.polling.model.Poll;
   import org.bigbluebutton.modules.polling.model.PollingModel;
@@ -45,7 +46,7 @@ package org.bigbluebutton.modules.polling.service
           }
           
           model.setCurrentPoll(new SimplePoll(pollId, ans));
-          dispatcher.dispatchEvent(new PollStartedEvent(pollId));            
+          dispatcher.dispatchEvent(new PollStartedEvent(new SimplePoll(pollId, ans)));            
         }      
       }
     }
@@ -53,7 +54,7 @@ package org.bigbluebutton.modules.polling.service
     public function handlePollStoppedMesage(msg:Object):void {
       trace(LOG + "*** Poll stopped " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
-
+      dispatcher.dispatchEvent(new PollStoppedEvent());
     }
     
     public function handlePollShowResultMessage(msg:Object):void {
@@ -75,8 +76,7 @@ package org.bigbluebutton.modules.polling.service
           
           dispatcher.dispatchEvent(new PollShowResultEvent(new SimplePollResult(pollId, ans)));            
         }      
-      }
-      
+      }    
     }
     
     public function handlePollUserVotedMessage(msg:Object):void {

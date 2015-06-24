@@ -2,16 +2,18 @@ package org.bigbluebutton.modules.polling.events
 {
   import flash.events.Event;
   
+  import org.bigbluebutton.modules.polling.model.SimplePoll;
+  
   public class PollStartedEvent extends Event
   {
     public static const POLL_STARTED:String = "poll started";
     
-    public var pollId:String;
+    public var poll:SimplePoll;
     
-    public function PollStartedEvent(pollId:String)
+    public function PollStartedEvent(poll:SimplePoll)
     {
       super(POLL_STARTED, true, false);
-      this.pollId = pollId;
+      this.poll = poll;
     }
   }
 }

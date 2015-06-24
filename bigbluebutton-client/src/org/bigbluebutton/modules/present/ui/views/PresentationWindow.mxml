@@ -640,32 +640,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenu.show();
 
 			}
-			    
+			
+      // For testing only. Generate random response;
+      var tempNumChoice:int = 2;
+      
 			private function menuClickHandler(e:MenuEvent):void {
 				if(pollMenuData[e.index] != undefined) {
 					// start the requested poll
           if (e.index == 0) {
+            tempNumChoice = 2;
             var ynEvent:StartPollEvent = new StartPollEvent("YN");
             dispatchEvent(ynEvent);
           } else if (e.index == 1) {
+            tempNumChoice = 2;
             var tfEvent:StartPollEvent = new StartPollEvent("TF");
             dispatchEvent(tfEvent);
           } else if (e.index == 2) {
+            tempNumChoice = 2;
             var a1Event:StartPollEvent = new StartPollEvent("A-2");
             dispatchEvent(a1Event);
           } else if (e.index == 3) {
+            tempNumChoice = 3;
             var a2Event:StartPollEvent = new StartPollEvent("A-3");
             dispatchEvent(a2Event);
           } else if (e.index == 4) {
+            tempNumChoice = 4;
             var a3Event:StartPollEvent = new StartPollEvent("A-4");
             dispatchEvent(a3Event);
           } else if (e.index == 5) {
+            tempNumChoice = 5;
             var a4Event:StartPollEvent = new StartPollEvent("A-5");
             dispatchEvent(a4Event);
           } else if (e.index == 6) {
+            tempNumChoice = 7;
             var a5Event:StartPollEvent = new StartPollEvent("A-6");
             dispatchEvent(a5Event);
           } else if (e.index == 7) {
+            tempNumChoice = 7;
             var a6Event:StartPollEvent = new StartPollEvent("A-7");
             dispatchEvent(a6Event);
           } 
@@ -684,7 +695,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onPollVoteButtonClicked():void {
-        var randomRounded : int = Math.floor(Math.random() * 7);
+        var randomRounded : int = Math.floor(Math.random() * (tempNumChoice + 1));
         dispatchEvent(new VotePollEvent(randomRounded));
       }
       
