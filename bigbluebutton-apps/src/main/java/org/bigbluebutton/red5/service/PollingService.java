@@ -41,7 +41,7 @@ public class PollingService {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String userId = getBbbSession().getInternalUserID();
 		String pollId = (String) message.get("pollId");
-		Integer questionId = (Integer) message.get("questionId");
+		Integer questionId = (Integer) message.get("answerId");
 		Integer answerId = (Integer) message.get("answerId");
 										
 		red5GW.votePoll(meetingID, userId, pollId, questionId, answerId);

@@ -68,16 +68,6 @@ class PollingEventRedisPublisher(service: MessageSender) extends OutMessageListe
   }
 
   private def pollStartedMessageToJson(msg: PollStartedMessage): String = {
-    //    val payload = new java.util.HashMap[String, Any]()
-    //    payload.put(Constants.MEETING_ID, msg.meetingID)
-    //    payload.put(org.bigbluebutton.common.messages.PollStartedMessage.REQUESTER_ID, msg.requesterId)
-
-    //    val pollVO = pollVOtoMap(msg.poll)
-    //    payload.put(org.bigbluebutton.common.messages.PollStartedMessage.POLL, pollVO)
-
-    //    val header = Util.buildHeader(org.bigbluebutton.common.messages.PollStartedMessage.POLL_STARTED, None)
-    //    Util.buildJson(header, payload)
-
     val pollVO = pollVOtoMap(msg.poll)
     val psm = new org.bigbluebutton.common.messages.PollStartedMessage(msg.meetingID, msg.requesterId, pollVO)
     psm.toJson

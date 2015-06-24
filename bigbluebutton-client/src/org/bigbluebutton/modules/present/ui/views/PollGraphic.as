@@ -51,7 +51,7 @@ package org.bigbluebutton.modules.present.ui.views
 			_textFields = new Array();
 			data = null;
 			// temp setter for testing purposes
-			data = sampledata;
+			//data = sampledata;
 		}
 		
 		public function set data(d:Array):void {
@@ -117,7 +117,7 @@ package org.bigbluebutton.modules.present.ui.views
 				
 				graphics.lineStyle(2);
 				graphics.beginFill(colFill, 1.0);
-				for (var j:int=0, vp:int=extraVPixels, ry=0, curRowHeight=0; j<_data.length; j++) {
+				for (var j:int=0, vp:int=extraVPixels, ry:int=0, curRowHeight:int=0; j<_data.length; j++) {
 					ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
 					
 					curRowHeight = avgRowHeight;

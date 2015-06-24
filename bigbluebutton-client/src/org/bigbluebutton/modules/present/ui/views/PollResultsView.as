@@ -34,15 +34,14 @@ package org.bigbluebutton.modules.present.ui.views
 		private var _pollGraphic:ResizablePollGraphic;
 		private var _topBox:HBox;
 		private var _botBox:HBox;
-		private var _data:Array = [{a:"True", v:10}, 
-									{a:"False", v:3}];
+		private var _data:Array = [{a:"True", v:10}, {a:"False", v:3}];
 		
 		private var publishBtn1:Button;
 		private var publishBtn2:Button;
 		private var closeBtn1:Button;
 		private var closeBtn2:Button;
 		
-		public function PollResultsView() {
+		public function PollResultsView(result:Array) {
 			super();
 			setStyle("horizontalAlign", "center");
 			
@@ -58,7 +57,7 @@ package org.bigbluebutton.modules.present.ui.views
 			addChild(_topBox);
 			
 			_pollGraphic = new ResizablePollGraphic();
-			//_pollGraphic.data = _data;
+			_pollGraphic.data = result;
 			_pollGraphic.width = 200;
 			_pollGraphic.minWidth = 130;
 			_pollGraphic.height = ((23+10)*_pollGraphic.data.length+10);

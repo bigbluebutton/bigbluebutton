@@ -20,16 +20,18 @@ package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
 	
-	public class VotePollEvent extends Event
+	import org.bigbluebutton.modules.polling.model.SimplePollResult;
+	
+	public class PollShowResultEvent extends Event
 	{
-		public static const VOTE_POLL:String = "vote poll";
+		public static const SHOW_RESULT:String = "poll show result";
 		
-    public var answerId: Number;
+    public var result:SimplePollResult;
     
-		public function VotePollEvent(answerId: Number)
+		public function PollShowResultEvent(result:SimplePollResult)
 		{
-			super(VOTE_POLL, true, false);
-      this.answerId = answerId;
+			super(SHOW_RESULT, true, false);
+      this.result = result;
 		}
 		
 	}

@@ -23,12 +23,10 @@ package org.bigbluebutton.modules.polling.events
 	public class StopPollEvent extends Event
 	{
 		public static const STOP_POLL:String = "stop poll";
-		public var pollId : String;
 		
-		public function StopPollEvent(pollId: String)
+		public function StopPollEvent()
 		{
 			super(STOP_POLL, true, false);
-      this.pollId = pollId;
 		}
 		
 	}

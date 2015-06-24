@@ -7,6 +7,9 @@ package org.bigbluebutton.modules.polling.model
 
   public class PollingModel
   {
+    
+    private var _currentPoll:SimplePoll;
+    
     private var _polls:ArrayCollection
     
     private var _initialized:Boolean = false;
@@ -18,6 +21,14 @@ package org.bigbluebutton.modules.polling.model
     
     public function initialized():Boolean {
       return _initialized;
+    }
+    
+    public function setCurrentPoll(poll:SimplePoll):void {
+      _currentPoll = poll;
+    }
+    
+    public function getCurrentPoll():SimplePoll {
+      return _currentPoll;
     }
     
     public function getPolls():Array {
