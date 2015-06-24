@@ -185,11 +185,13 @@ package org.bigbluebutton.modules.users.services
       e.userid = userid;
       dispatcher.dispatchEvent(e);      
 
-      // If the user was the presenter and he's reconnecting
-      sendSwitchedPresenterEvent(false, UsersUtil.getPresenterUserID());
-      UserManager.getInstance().getConference().amIPresenter = false;
-      var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-      dispatcher.dispatchEvent(viewerEvent);
+      // If the user was the presenter he's reconnecting
+      if (UserManager.getInstance().getConference().amIPresenter) {
+        sendSwitchedPresenterEvent(false, UsersUtil.getPresenterUserID());
+        UserManager.getInstance().getConference().amIPresenter = false;
+        var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+        dispatcher.dispatchEvent(viewerEvent);
+      }
     }
     
     private function handleMeetingMuted(msg:Object):void {
