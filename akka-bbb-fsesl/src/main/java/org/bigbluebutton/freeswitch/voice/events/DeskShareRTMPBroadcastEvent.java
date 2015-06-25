@@ -21,8 +21,14 @@ package org.bigbluebutton.freeswitch.voice.events;
 public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 
 	private String timestamp;
-	private String filename;
 	private boolean record;
+	//{channels=2,samplerate=48000,vw=1920,vh=1080,fps=15.00}rtmp://192.168.0.109/live/abc/dev-test
+	private String streamUrl;
+	private Integer channels;
+	private Integer sampleRate;
+	private Integer vw;
+	private Integer vh;
+	private double fps;
 
 	public DeskShareRTMPBroadcastEvent(String room, boolean record) {
 		super(room);
@@ -33,19 +39,63 @@ public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 		this.timestamp = timestamp;
 	}
 
-	public void setRecordingFilename(String filename) {
-		this.filename = filename;
+	public void setRecordingStreamUrl(String streamUrl) {
+		this.streamUrl = streamUrl;
+	}
+
+//	public void setRecord(Boolean record) {
+//		this.record = record;
+//	}
+
+	public void setChannels(Integer channels) {
+		this.channels = channels;
+	}
+
+	public void setSampleRate(Integer sampleRate) {
+		this.sampleRate = sampleRate;
+	}
+
+	public void setVideoWidth(Integer vw) {
+		this.vw = vw;
+	}
+
+	public void setVideoHeight(Integer vh) {
+		this.vh = vh;
+	}
+
+	public void setFramesPerSecond(Double fps) {
+		this.fps = fps;
 	}
 
 	public String getTimestamp() {
 		return timestamp;
 	}
 
-	public String getRecordingFilename() {
-		return filename;
+	public String getRecordingStreamUrl() {
+		return streamUrl;
 	}
 
 	public boolean getRecord() {
 		return record;
+	}
+
+	public Integer getChannels() {
+		return channels;
+	}
+
+	public Integer getSampleRate() {
+		return sampleRate;
+	}
+
+	public Integer getVideoHeight() {
+		return vh;
+	}
+
+	public Integer getVideoWidth() {
+		return vw;
+	}
+
+	public Double getFramesPerSecond() {
+		return fps;
 	}
 }

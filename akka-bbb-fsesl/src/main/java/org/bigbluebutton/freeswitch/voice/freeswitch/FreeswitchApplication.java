@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeskShareRecordCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeskShareBroadcastRTMPCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
@@ -128,6 +129,9 @@ public class FreeswitchApplication {
 					} else if (command instanceof DeskShareRecordCommand) {
 						System.out.println("Sending DeskShareRecordCommand for conference = [" + command.getRoom() + "]");
 						manager.record((DeskShareRecordCommand)command);
+					} else if (command instanceof DeskShareBroadcastRTMPCommand) {
+						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$Sending DeskShareBroadcastRTMPCommand for conference = [" + command.getRoom() + "]");
+						manager.broadcastRTMP((DeskShareBroadcastRTMPCommand)command);
 					} else if (command instanceof BroadcastConferenceCommand) {
 						manager.broadcast((BroadcastConferenceCommand) command);
 					}
