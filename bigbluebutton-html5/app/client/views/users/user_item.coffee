@@ -36,3 +36,25 @@ Template.usernameEntry.events
     if isPortrait() or isPortraitMobile()
       toggleUsersList()
       $("#newMessageInput").focus()
+
+  'click .gotUnreadMail': (event) ->
+    _this = @
+    setInSession 'chats', getInSession('chats').map((chat) ->
+      chat.gotMail = false if chat.userId is _this.userId
+      chat
+    )
+
+Template.usernameEntry.helpers
+  hasGotUnreadMailClass: (userId) ->
+    chats = getInSession('chats')
+    flag = false
+    chats.map((tab) ->
+      if tab.userId is userId
+        if tab.gotMail
+          flag = true
+      tab
+    )
+    if flag
+      return "gotUnreadMail"
+    else
+      return ""

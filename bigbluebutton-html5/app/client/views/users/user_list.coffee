@@ -8,3 +8,9 @@ Template.usersList.helpers
 Template.usersList.events
   "click .closeUserlistIcon": (event, template) ->
     toggleUsersList()
+
+Template.usersList.rendered = ->
+  Tracker.autorun (comp) ->
+    setInSession 'userListRenderedTime', TimeSync.serverTime()
+    if getInSession('userListRenderedTime') isnt undefined
+      comp.stop()

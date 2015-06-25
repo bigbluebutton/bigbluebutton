@@ -78,11 +78,11 @@
 
 <template name="usernameEntry">
   {{#if isCurrentUser userId}}
-    <span class="userCurrent usernameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+    <span class="userCurrent usernameEntry {{hasGotUnreadMailClass user.userid}} " rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
       {{user.name}} {{#if user.presenter}} (presenter) {{/if}} (you)
     </span>
   {{else}}
-    <span class="usernameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+    <span class="usernameEntry {{ hasGotUnreadMailClass user.userid}} " rel="tooltip" data-placement="bottom" title="{{user.name}}">
       {{user.name}} {{#if user.presenter}} (presenter) {{/if}}
     </span>
   {{/if}}
