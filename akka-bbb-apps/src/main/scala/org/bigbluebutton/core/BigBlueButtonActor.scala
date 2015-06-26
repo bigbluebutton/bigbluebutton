@@ -52,6 +52,11 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
+    //    println("searching meeeting with voiceConfId=" + voiceConfId)
+    //    meetings.values.find(m => {
+    //      println("^^^^^^" + m.mProps.voiceBridge)
+    //      m.mProps.voiceBridge == voiceConfId
+    //    })
     meetings.values.find(m => m.mProps.voiceBridge == voiceConfId)
   }
 
@@ -275,7 +280,10 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
       println("originalConfId=" + originalConfId)
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
-        m.actorRef ! msg
+        {
+          println("FOREACH" + m.toString())
+          m.actorRef ! msg
+        }
       }
     } else {
       println("\n\n\nERROR in handleDeskShareStartedMessage in BBBActor \n\n\n")
@@ -284,7 +292,28 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
-    //TODO
+
+    println("DeskShareStoppedRequest in BBBActor")
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
+    // find in which meeting ....
+
+    println("\n\n\n\nBBBActor: handleDeskShareStoppedRequest\n\n\n\n")
+    println(msg.conferenceName)
+    println(msg.callerId)
+    println(msg.callerIdName)
+
+    if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
+      var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
+      println("originalConfId=" + originalConfId)
+      findMeetingWithVoiceConfId(originalConfId) foreach { m =>
+        {
+          println("FOREACH" + m.toString())
+          m.actorRef ! msg
+        }
+      }
+    } else {
+      println("\n\n\nERROR in handleDeskShareStoppedMessage in BBBActor \n\n\n")
+    }
   }
 
 }

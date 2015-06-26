@@ -35,9 +35,11 @@ public class DeskShareMessageReceiver implements MessageHandler {
 
 					if (DeskShareStartedEventMessage.DESKSHARE_STARTED_MESSAGE.equals(messageName)) {
 						DeskShareStartedEventMessage msg = DeskShareStartedEventMessage.fromJson(message);
+						System.out.println("^^^^^^^DESKSHARE STARTED^^^^^^");
 						bbbGW.deskShareStarted(msg.conferenceName, msg.callerId, msg.callerIdName);
 					} else if (DeskShareStoppedEventMessage.DESK_SHARE_STOPPED_MESSAGE.equals(messageName)) {
 						DeskShareStoppedEventMessage msg = DeskShareStoppedEventMessage.fromJson(message);
+						System.out.println("^^^^^^^DESKSHARE STOPPED^^^^^^");
 						bbbGW.deskShareStopped(msg.conferenceName, msg.callerId, msg.callerIdName);
 					}
 //					else if (DeskShareViewerJoinedEventMessage.DESK_SHARE_VIEWER_JOINED_MESSAGE.equals(messageName)) {

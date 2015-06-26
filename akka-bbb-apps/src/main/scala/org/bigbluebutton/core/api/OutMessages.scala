@@ -113,10 +113,12 @@ case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, reques
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
 // DeskShare
-case class DeskShareStartedReply(conferenceName: String, callerId: String, callerIdName: String) extends IOutMessage
-case class DeskShareStoppedReply(conferenceName: String, callerId: String, callerIdName: String) extends IOutMessage
-case class DeskShareRecordingStartedReply(conferenceName: String, filename: String, timestamp: String) extends IOutMessage
-case class DeskShareRecordingStoppedReply(conferenceName: String, filename: String, timestamp: String) extends IOutMessage
+//case class DeskShareStartedReply(conferenceName: String, callerId: String, callerIdName: String) extends IOutMessage
+//case class DeskShareStoppedReply(conferenceName: String, callerId: String, callerIdName: String) extends IOutMessage
+//case class DeskShareRecordingStartedReply(conferenceName: String, filename: String, timestamp: String) extends IOutMessage
+//case class DeskShareRecordingStoppedReply(conferenceName: String, filename: String, timestamp: String) extends IOutMessage
+case class DeskShareStartRecording(conferenceName: String, filename: String, timestamp: String) extends IOutMessage
+case class DeskShareStopRecording(conferenceName: String, filename: String, timestamp: String) extends IOutMessage
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

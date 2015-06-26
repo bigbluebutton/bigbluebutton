@@ -98,9 +98,9 @@ public class FreeswitchApplication {
 		queueMessage(rcc);
 	}
 
-	public void deskShareRecording(String voiceConfId, String meetingid, String filePath){
-		DeskShareRecordCommand dsrc = new DeskShareRecordCommand(voiceConfId, USER, true, filePath);
-		System.out.println("______in FS app deskShareRecording______");
+	public void deskShareRecording(String voiceConfId, String filePath, Boolean record){
+		DeskShareRecordCommand dsrc = new DeskShareRecordCommand(voiceConfId, USER, record, filePath);
+		System.out.println("______in FS app deskShareRecording__" + dsrc.getCommand() +  "____");
 		queueMessage(dsrc);
 	}
 
@@ -128,6 +128,7 @@ public class FreeswitchApplication {
 						manager.record((RecordConferenceCommand) command);
 					} else if (command instanceof DeskShareRecordCommand) {
 						System.out.println("Sending DeskShareRecordCommand for conference = [" + command.getRoom() + "]");
+						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$Sending DeskShareRECORDCommand for conference = [" + command.getRoom() + "]");
 						manager.record((DeskShareRecordCommand)command);
 					} else if (command instanceof DeskShareBroadcastRTMPCommand) {
 						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$Sending DeskShareBroadcastRTMPCommand for conference = [" + command.getRoom() + "]");

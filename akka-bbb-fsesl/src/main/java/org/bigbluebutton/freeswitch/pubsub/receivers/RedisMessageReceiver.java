@@ -1,12 +1,14 @@
 package org.bigbluebutton.freeswitch.pubsub.receivers;
 
 
+import org.bigbluebutton.common.messages.DeskShareStopRecordingEventMessage;
 import org.bigbluebutton.common.messages.EjectAllUsersFromVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.EjectUserFromVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage;
+import org.bigbluebutton.common.messages.DeskShareStartRecordingEventMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
 import com.google.gson.JsonObject;
@@ -55,12 +57,30 @@ public class RedisMessageReceiver {
 					  case StopRecordingVoiceConfRequestMessage.STOP_RECORD_VOICE_CONF_REQUEST:
 						  processStopRecordingVoiceConfRequestMessage(message);
 					  break;
+					  case DeskShareStartRecordingEventMessage.DESKSHARE_START_RECORDING_MESSAGE:
+						  processDeskShareStartRecordingEventMessage(message);
+					  break;
+					  case DeskShareStopRecordingEventMessage.DESKSHARE_STOP_RECORDING_MESSAGE:
+						  processDeskShareStopRecordingEventMessage(message);
+					  break;
 					}
 				}
 			}
 		}
 	}
-		
+
+	private void processDeskShareStartRecordingEventMessage(String json) {
+		System.out.println("^^^FS^processDeskShareStartRecordingEventMessage");
+		DeskShareStartRecordingEventMessage msg = DeskShareStartRecordingEventMessage.fromJson(json);
+		fsApp.deskShareRecording(msg.conferenceName, msg.filename, true);
+	}
+
+	private void processDeskShareStopRecordingEventMessage(String json) {
+		System.out.println("^^^FS^processDeskShareStopRecordingEventMessage");
+		DeskShareStopRecordingEventMessage msg = DeskShareStopRecordingEventMessage.fromJson(json);
+		fsApp.deskShareRecording(msg.conferenceName, msg.filename, false);
+	}
+
 	private void processEjectAllVoiceUsersRequestMessage(String json) {
 		EjectAllUsersFromVoiceConfRequestMessage msg = EjectAllUsersFromVoiceConfRequestMessage.fromJson(json);
 		fsApp.ejectAll(msg.voiceConfId);

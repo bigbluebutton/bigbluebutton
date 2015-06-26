@@ -62,10 +62,14 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage =>
       handleVoiceConfRecordingStartedMessage(msg)
-    case msg: DeskShareRecordingStartedRequest =>
-      handleDeskShareRecordingStartedRequest(msg)
-    case msg: DeskShareRecordingStoppedRequest =>
-      handleDeskShareRecordingStoppedRequest(msg)
+    //    case msg: DeskShareRecordingStartedRequest =>
+    //      handleDeskShareRecordingStartedRequest(msg)
+    //    case msg: DeskShareRecordingStoppedRequest =>
+    //      handleDeskShareRecordingStoppedRequest(msg)
+    case msg: DeskShareStartedRequest =>
+      handleDeskShareStartedRequest(msg)
+    case msg: DeskShareStoppedRequest =>
+      handleDeskShareStoppedRequest(msg)
     case msg: UserJoining =>
       handleUserJoin(msg)
     case msg: UserLeaving =>
@@ -231,7 +235,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   def handleMonitorNumberOfWebUsers() {
-    println("BACK TIMER")
+    // println("BACK TIMER")
     if (users.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
         log.info("MonitorNumberOfWebUsers empty for meeting [" + mProps.meetingID + "]. Ejecting all users from voice.")
@@ -305,45 +309,39 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
   // If the meeting is recorded, tell FS to record video
   private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
-    //TODO
-    println("\n\n\nMeetingActor-handleDeskShareStartedRequest-start\n")
+    println("\n\n\nMeetingActor-handleDeskShareStartedRequest\n")
     println("isRecording=" + meetingModel.isRecording())
-    println("\n\n\nMeetingActor-handleDeskShareStartedRequest-end\n")
 
     if (meetingModel.isRecording()) {
       println("IS RECORDING")
-      //      outGW.send(new DeskShareStartRecording())//TODO
+      val timestamp = System.currentTimeMillis().toString()
+      //      val filepath = "/var/freeswitch/meetings/" + mProps.meetingID + "-" + timestamp + ".mp4"
+      val filepath = "/home/debian/" + mProps.meetingID + "-" + timestamp + ".mp4"
+      meetingModel.recordingStarted()
+      meetingModel.setVoiceRecordingFilename(filepath)
+      outGW.send(new DeskShareStartRecording(msg.conferenceName, filepath, timestamp))
     } else {
       println("IS NOT RECORDING")
     }
-    //    if (mProps.allowStartStopRecording && meetingModel.isRecording() != msg.recording) {
-    //      if (msg.recording) {
-    //        meetingModel.recordingStarted()
-    //      } else {
-    //        meetingModel.recordingStopped()
-    //      }
-    //      log.debug("Sending recording status for meeting [" + mProps.meetingID + "], recording=[" + msg.recording + "]")
-    //      outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, msg.userId, msg.recording))
-    //    }
-
-    //    if (msg.recording) {
-    //      meetingModel.setVoiceRecordingFilename(msg.recordStream)
-    //      outGW.send(new VoiceRecordingStarted(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
-    //    } else {
-    //      meetingModel.setVoiceRecordingFilename("")
-    //      outGW.send(new VoiceRecordingStopped(mProps.meetingID, mProps.recorded, msg.recordStream, msg.timestamp, mProps.voiceBridge))
-    //    }
-
-    // conferenceName: String, filename: String, timestamp: String
-    outGW.send(new DeskShareStartedReply(msg.conferenceName, msg.callerId, msg.callerIdName))
   }
 
   private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
-    //TODO
+    println("\n\n\nMeetingActor-handleDeskShareStoppedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+
+    if (meetingModel.isRecording()) {
+      println("STOPPING WHEN IT IS RECORDING")
+      val timestamp = System.currentTimeMillis().toString()
+
+      meetingModel.recordingStopped()
+      outGW.send(new DeskShareStopRecording(msg.conferenceName, meetingModel.getVoiceRecordingFilename(), timestamp))
+    } else {
+      println("ERROR: STOP REC BUT IT WAS NOT RECORDING?!")
+    }
   }
 
   private def handleDeskShareRecordingStartedRequest(msg: DeskShareRecordingStartedRequest) {
-
+    //TODO
   }
 
   private def handleDeskShareRecordingStoppedRequest(msg: DeskShareRecordingStoppedRequest) {
