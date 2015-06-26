@@ -60,61 +60,66 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />	
 	<mate:Listener type="{ShortcutEvent.MINIMIZE_PRES}" method="remoteMinimize" />
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
-	
+	<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
+	<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
 	
 	<mx:Script>
 		<![CDATA[
-      import flash.geom.Point;
-      
-      import flexlib.containers.DockableToolBar;
-      import flexlib.mdi.events.MDIWindowEvent;
-      
-      import mx.binding.utils.BindingUtils;
-      import mx.collections.ArrayCollection;
-      import mx.containers.TitleWindow;
-      import mx.controls.Menu;
-      import mx.core.Application;
-      import mx.effects.Move;
-      import mx.events.MenuEvent;
-      import mx.events.ResizeEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.*;
-      
-      import org.bigbluebutton.common.IBbbCanvas;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
-      import org.bigbluebutton.modules.polling.events.StartPollEvent;
-      import org.bigbluebutton.modules.polling.events.StopPollEvent;
-      import org.bigbluebutton.modules.polling.events.VotePollEvent;
-      import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
-      import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
-      import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
-      import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-      import org.bigbluebutton.modules.present.events.NavigationEvent;
-      import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
-      import org.bigbluebutton.modules.present.events.PresentationEvent;
-      import org.bigbluebutton.modules.present.events.PresenterCommands;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
-      import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-      import org.bigbluebutton.modules.present.managers.Slide;
-      import org.bigbluebutton.modules.present.model.Page;
-      import org.bigbluebutton.modules.present.model.Presentation;
-      import org.bigbluebutton.modules.present.model.PresentationModel;
-      import org.bigbluebutton.modules.present.ui.views.PresentOptions;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flash.geom.Point;
+			
+			import flexlib.containers.DockableToolBar;
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.containers.TitleWindow;
+			import mx.controls.Menu;
+			import mx.core.Application;
+			import mx.effects.Move;
+			import mx.events.MenuEvent;
+			import mx.events.ResizeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.*;
+			
+			import org.bigbluebutton.common.IBbbCanvas;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
+			import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
+			import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
+			import org.bigbluebutton.modules.polling.events.StartPollEvent;
+			import org.bigbluebutton.modules.polling.events.StopPollEvent;
+			import org.bigbluebutton.modules.polling.events.VotePollEvent;
+			import org.bigbluebutton.modules.polling.views.PollResultsModal;
+			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
+			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
+			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
+			import org.bigbluebutton.modules.present.events.NavigationEvent;
+			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
+			import org.bigbluebutton.modules.present.events.PresentationEvent;
+			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
+			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+			import org.bigbluebutton.modules.present.managers.Slide;
+			import org.bigbluebutton.modules.present.model.Page;
+			import org.bigbluebutton.modules.present.model.Presentation;
+			import org.bigbluebutton.modules.present.model.PresentationModel;
+			import org.bigbluebutton.modules.present.ui.views.PresentOptions;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
              		
       private static const LOG:String = "Present::PresentationWindow - ";
       
       public static const TITLE:String = "Presentation";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
-						
+			private const CONTROL_BAR_HEIGHT:Number = 45;
+			
 			[Bindable] 
       private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
@@ -123,7 +128,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
 			
-			[Bindable] private var CONTROL_BAR_HEIGHT:Number;
+			[Bindable] private var controlBarHeight:Number;
 			private static const TOP_WINDOW_BORDER:Number = 30;
 			private static const WIDTH_PADDING:Number = 6;
 
@@ -155,7 +160,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void{
-				setCurrentState("presenter");
+				setControlBarState("presenter");
 				
 				thumbY = this.height - 160;
                 
@@ -276,7 +281,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (this.minimized) return;
 				
 				// Send the available space to display the slide.				
-				sendWindowResizedEvent((this.width - WIDTH_PADDING), (this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER));
+				sendWindowResizedEvent((this.width - WIDTH_PADDING), (this.height - controlBarHeight - TOP_WINDOW_BORDER));
 			}
 			
 			/*
@@ -413,9 +418,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnFitToPage.visible = showButtons;
 				
 				if(isPresenter) {
-					CONTROL_BAR_HEIGHT = 45;
+					controlBarHeight = CONTROL_BAR_HEIGHT;
 				} else {
-					CONTROL_BAR_HEIGHT = 0;
+					controlBarHeight = 0;
 				}
 				fitSlideToWindowMaintainingAspectRatio();
 			}
@@ -643,45 +648,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			}
 			
-      // For testing only. Generate random response;
-      var tempNumChoice:int = 2;
-      
 			private function menuClickHandler(e:MenuEvent):void {
 				if(pollMenuData[e.index] != undefined) {
 					// start the requested poll
-          if (e.index == 0) {
-            tempNumChoice = 2;
-            var ynEvent:StartPollEvent = new StartPollEvent("YN");
-            dispatchEvent(ynEvent);
-          } else if (e.index == 1) {
-            tempNumChoice = 2;
-            var tfEvent:StartPollEvent = new StartPollEvent("TF");
-            dispatchEvent(tfEvent);
-          } else if (e.index == 2) {
-            tempNumChoice = 2;
-            var a1Event:StartPollEvent = new StartPollEvent("A-2");
-            dispatchEvent(a1Event);
-          } else if (e.index == 3) {
-            tempNumChoice = 3;
-            var a2Event:StartPollEvent = new StartPollEvent("A-3");
-            dispatchEvent(a2Event);
-          } else if (e.index == 4) {
-            tempNumChoice = 4;
-            var a3Event:StartPollEvent = new StartPollEvent("A-4");
-            dispatchEvent(a3Event);
-          } else if (e.index == 5) {
-            tempNumChoice = 5;
-            var a4Event:StartPollEvent = new StartPollEvent("A-5");
-            dispatchEvent(a4Event);
-          } else if (e.index == 6) {
-            tempNumChoice = 7;
-            var a5Event:StartPollEvent = new StartPollEvent("A-6");
-            dispatchEvent(a5Event);
-          } else if (e.index == 7) {
-            tempNumChoice = 7;
-            var a6Event:StartPollEvent = new StartPollEvent("A-7");
-            dispatchEvent(a6Event);
-          } 
+					var pollEvent:StartPollEvent = null;
+					switch (e.index) {
+						case 0:
+							pollEvent = new StartPollEvent("YN");
+							break;
+						case 1:
+							pollEvent = new StartPollEvent("TF");
+							break;
+						case 2:
+							pollEvent = new StartPollEvent("A-2");
+							break;
+						case 3:
+							pollEvent = new StartPollEvent("A-3");
+							break;
+						case 4:
+							pollEvent = new StartPollEvent("A-4");
+							break;
+						case 5:
+							pollEvent = new StartPollEvent("A-5");
+							break;
+						case 6:
+							pollEvent = new StartPollEvent("A-6");
+							break;
+						case 7:
+							pollEvent = new StartPollEvent("A-7");
+							break;
+					}
+					var dispatcher:Dispatcher = new Dispatcher();
+					//dispatcher.
+					dispatchEvent(pollEvent);
 				}
 			}
 			
@@ -691,53 +690,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				pollMenu.x = pollXY.x;
 				pollMenu.y = pollXY.y;
 			}
-
 			
-			private function pollStartedHandler(e:Event):void {
-				var pollType:String = "TF";
-				
+			private function pollStartedHandler(e:PollStartedEvent):void {
 				// the event for this doesn't exist yet
 				if (UsersUtil.amIPresenter()) {
-					// display the results view likey in the SlideView
+					// display the results view
+					var popUp:PollResultsModal = PopUpManager.createPopUp(this, PollResultsModal, true) as PollResultsModal;
+					popUp.setPoll(e.poll);
+					PopUpManager.centerPopUp(popUp);
 				} else {
 					//switch to vote state
-					setCurrentState("vote");
-					CONTROL_BAR_HEIGHT = 45;
+					setControlBarState("vote");
 					//clear the past buttons
 					pollVoteBox.removeAllChildren();
 					//display the vote buttons
 					var voteBtn:Button;
-					if (pollType == "YN") {
-						voteBtn = new Button();
-						voteBtn.label = ResourceUtil.getInstance().getString('bbb.polling.answer.yes');
-						voteBtn.name = "Y";
-						voteBtn.addEventListener(MouseEvent.CLICK, voteButtonClickHandler);
-						pollVoteBox.addChild(voteBtn);
-						voteBtn = new Button();
-						voteBtn.label = ResourceUtil.getInstance().getString('bbb.polling.answer.no');
-						voteBtn.name = "N"
-						voteBtn.addEventListener(MouseEvent.CLICK, voteButtonClickHandler);
-						pollVoteBox.addChild(voteBtn);
-					} else if (pollType == "TF") {
-						voteBtn = new Button();
-						voteBtn.label = ResourceUtil.getInstance().getString('bbb.polling.answer.true');
-						voteBtn.name = "T";
-						voteBtn.addEventListener(MouseEvent.CLICK, voteButtonClickHandler);
-						pollVoteBox.addChild(voteBtn);
-						voteBtn = new Button();
-						voteBtn.label = ResourceUtil.getInstance().getString('bbb.polling.answer.false');
-						voteBtn.name = "F";
-						voteBtn.addEventListener(MouseEvent.CLICK, voteButtonClickHandler);
-						pollVoteBox.addChild(voteBtn);
-					} else if (pollType.charAt(0) == "A") {
-						var numBtns:int = int(pollType.charAt(pollType.length-1));
-						for (var i:int=0; i<numBtns; i++) {
+					var numBtns:int = e.poll.answers.length;
+					for (var i:int=0; i<numBtns; i++) {
 							voteBtn = new Button();
-							voteBtn.label = ResourceUtil.getInstance().getString('bbb.polling.answer.a'+i.toString());
-							voteBtn.name = String.fromCharCode("A".charCodeAt(0)+i);
+							voteBtn.label = ResourceUtil.getInstance().getString('bbb.polling.answer.'+e.poll.answers[i].key);
+							voteBtn.name = e.poll.answers[i].id;
 							voteBtn.addEventListener(MouseEvent.CLICK, voteButtonClickHandler);
 							pollVoteBox.addChild(voteBtn);
-						}
 					}
 				}
 			}
@@ -745,22 +719,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function voteButtonClickHandler(e:MouseEvent):void {
 				//still have to figure out how to determine which button was pressed
 				trace("vote clicked - answer is " + e.target.name);
-				//dispatchEvent(new VotePollEvent(randomRounded));
-			}
-/*			
-			private function onPollStopButtonClicked():void {
-				dispatchEvent(new StopPollEvent());
+				setControlBarState("presenter");
+				dispatchEvent(new VotePollEvent(Number(e.target.name)));
 			}
 			
-			private function onPollVoteButtonClicked():void {
-				var randomRounded : int = Math.floor(Math.random() * (tempNumChoice + 1));
-				
+			private function setControlBarState(state:String):void {
+				if (state == "vote") {
+					presenterControls.visible = false;
+					presenterControls.includeInLayout = false;
+					pollVoteBox.visible = true;
+					pollVoteBox.includeInLayout = true;
+					controlBarHeight = CONTROL_BAR_HEIGHT;
+				} else if (state == "presenter") {
+					presenterControls.visible = true;
+					presenterControls.includeInLayout = true;
+					pollVoteBox.visible = false;
+					pollVoteBox.includeInLayout = false;
+					if (UsersUtil.amIPresenter()) {
+						controlBarHeight = CONTROL_BAR_HEIGHT;
+					} else {
+						controlBarHeight = 0;
+					}
+				}
 			}
 			
-			private function onPollShowResultButtonClicked():void {
-				dispatchEvent(new ShowPollResultEvent(true));
+			private function pollStoppedHandler(e:PollStoppedEvent):void {
+				setControlBarState("presenter");
 			}
-*/
 
 		]]>
 	</mx:Script>
@@ -770,10 +755,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true"
 		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" tabIndex="{baseIndex+4}"/>			    
-	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}" styleName="presentationWindowControlsStyle" >
-
+	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" height="{controlBarHeight}" styleName="presentationWindowControlsStyle">
+		<mx:HBox id="presenterControls" x="0" y="0" width="100%" height="100%" horizontalAlign="center">
+			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
+					   click="onUploadButtonClicked()" tabIndex="{baseIndex+5}"/>
+			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}" 
+					   click="onPollStartButtonClicked()" tabIndex="{baseIndex+6}"/>
+			<mx:Spacer width="100%" id="spacer1"/>
+			<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"
+					   tabIndex="{baseIndex+7}"/>
+			<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"
+					   tabIndex="{baseIndex+8}"/>
+			<mx:Button id="forwardButton" visible="false" width="45" height="30" styleName="presentationForwardButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"
+					   tabIndex="{baseIndex+9}"/>    				
+			<mx:Spacer width="50%" id="spacer3"/>
+			<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
+						minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
+						useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
+						dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
+						tabIndex="{baseIndex+10}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
+			<mx:Button id="btnFitToWidth" visible="false" width="30" height="30" styleName="presentationFitToWidthButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
+					   click="onFitToPage(false)"
+					   tabIndex="{baseIndex+11}"/>
+			<mx:Button id="btnFitToPage" visible="false" width="30" height="30" styleName="presentationFitToPageButtonStyle"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
+					   click="onFitToPage(true)"
+					   tabIndex="{baseIndex+12}"/>
+			<!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
+			<mx:Spacer width="30" height="30" id="spacer4"/>
+		</mx:HBox>
+		<mx:HBox id="pollVoteBox" x="0" y="0" width="100%" height="100%" horizontalAlign="center" />
     </mx:ControlBar>
-	
+	<!--
 	<pres:states>
 		<mx:State name="presenter">
 			<mx:AddChild relativeTo="presCtrlBar" position="firstChild">
@@ -808,15 +827,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
 							   click="onFitToPage(true)"
 							   tabIndex="{baseIndex+12}"/>
-					<!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
+					<!- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button ->
 					<mx:Spacer width="30" height="30" id="spacer4"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="vote">
-			<mx:AddChild relativeTo="presCtrlBar" position="firstChild">
-				<mx:HBox id="pollVoteBox" width="100%" />
-			</mx:AddChild>
+			
 		</mx:State>
 	</pres:states>
+		-->
 </pres:CustomMdiWindow>

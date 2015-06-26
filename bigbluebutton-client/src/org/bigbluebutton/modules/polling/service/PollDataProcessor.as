@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.polling.service
           
           for (var j:int = 0; j < answers.length; j++) {
             var a:Object = answers[j];
-            ans.push(new SimpleAnswer(a.id as Number, a.key));
+            ans.push(new SimpleAnswer(Number(String(a.id)), a.key));
           }
           
           model.setCurrentPoll(new SimplePoll(pollId, ans));

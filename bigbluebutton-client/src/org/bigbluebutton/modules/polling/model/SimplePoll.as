@@ -18,7 +18,7 @@ package org.bigbluebutton.modules.polling.model
     }
     
 
-    public function answers():Array {
+    public function get answers():Array {
       return _answers;
     }
     
