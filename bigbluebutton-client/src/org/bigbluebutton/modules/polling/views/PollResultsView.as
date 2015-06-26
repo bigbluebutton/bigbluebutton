@@ -17,7 +17,7 @@
  *
  */
 
-package org.bigbluebutton.modules.present.ui.views
+package org.bigbluebutton.modules.polling.views
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.present.ui.views
 	import org.bigbluebutton.common.model.FocusableImage;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
+	import org.bigbluebutton.modules.present.ui.views.SlideView;
 	
 	public class PollResultsView extends VBox {
 		private var _pollGraphic:ResizablePollGraphic;

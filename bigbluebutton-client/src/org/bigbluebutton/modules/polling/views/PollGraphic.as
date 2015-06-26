@@ -17,7 +17,7 @@
  *
  */
 
-package org.bigbluebutton.modules.present.ui.views
+package org.bigbluebutton.modules.polling.views
 {
 	import flash.text.TextField;
 	import flash.text.TextFormat;
@@ -97,7 +97,7 @@ package org.bigbluebutton.modules.present.ui.views
 				var extraVPixels:int = unscaledHeight - (_data.length * (avgRowHeight+vpadding) + vpadding);
 				trace("extraVPixels " + extraVPixels);
 				var largestVal:int = -1;
-				var totalCount:int = 0;
+				var totalCount:Number = 0;
 				//find largest value
 				for (var i:int=0; i<_data.length; i++) {
 					if (_data[i].v > largestVal) largestVal = _data[i].v;
@@ -141,7 +141,8 @@ package org.bigbluebutton.modules.present.ui.views
 					
 					// add percentage
 					percentText = _textFields[currTFIdx++];;// new TextField();
-					percentText.text = ((_data[j].v/totalCount)*100).toFixed(0) + "%";
+					var percentNum:Number = (totalCount == 0 ? 0 : ((_data[j].v/totalCount)*100));
+					percentText.text = Math.round(percentNum).toString() + "%";
 					percentText.width = percentStartWidth;
 					percentText.height = curRowHeight;
 					percentText.selectable = false;

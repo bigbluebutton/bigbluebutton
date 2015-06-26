@@ -21,7 +21,7 @@
 * SOFTWARE.
 */
 
-package org.bigbluebutton.modules.present.ui.views
+package org.bigbluebutton.modules.polling.views
 {
 	
 	/**
