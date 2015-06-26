@@ -78,12 +78,12 @@
 
 <template name="usernameEntry">
   {{#if isCurrentUser userId}}
-    <span class="userCurrent usernameEntry {{hasGotUnreadMailClass user.userid}} " rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
-      {{user.name}} {{#if user.presenter}} (presenter) {{/if}} (you)
+    <span class="userCurrent usernameEntry {{#if hasGotUnreadMailClass 'PUBLIC_CHAT' }} ion-ios-email-outline gotUnreadPublic{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+      <span class="userName">{{user.name}} {{#if user.presenter}} (presenter) {{/if}} (you)</span>
     </span>
   {{else}}
-    <span class="usernameEntry {{ hasGotUnreadMailClass user.userid}} " rel="tooltip" data-placement="bottom" title="{{user.name}}">
-      {{user.name}} {{#if user.presenter}} (presenter) {{/if}}
+    <span class="usernameEntry {{#if hasGotUnreadMailClass user.userid }} ion-ios-email-outline gotUnreadMail{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+      <span class="userName"> {{user.name}} {{#if user.presenter}} (presenter) {{/if}}</span>
     </span>
   {{/if}}
 </template>

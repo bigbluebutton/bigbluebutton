@@ -44,9 +44,15 @@ Template.usernameEntry.events
       chat
     )
 
+  'click .gotUnreadPublic': (event) ->
+    setInSession 'chats', getInSession('chats').map((chat) ->
+      chat.gotMail = false if chat.userId is 'PUBLIC_CHAT'
+      chat
+    )
+
 Template.usernameEntry.helpers
   hasGotUnreadMailClass: (userId) ->
-    chats = getInSession('chats')
+    chats = getInSession('chats') if getInSession('chats') isnt undefined
     flag = false
     chats.map((tab) ->
       if tab.userId is userId
