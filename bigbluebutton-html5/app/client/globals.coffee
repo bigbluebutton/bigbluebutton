@@ -382,12 +382,11 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   else
     setInSession 'display_usersList', false
   setInSession 'display_menu', false
-  if not getInSession "chats"
-    initChats = [
-      userId: "PUBLIC_CHAT"
-      gotMail: false
-    ]
-    setInSession 'chats', initChats
+  initChats = [
+    userId: "PUBLIC_CHAT"
+    gotMail: false
+  ]
+  setInSession 'chats', initChats
   TimeSync.loggingEnabled = false # suppresses the log messages from timesync
 
 @onLoadComplete = ->
