@@ -63,10 +63,14 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage =>
       handleVoiceConfRecordingStartedMessage(msg)
-    //    case msg: DeskShareRecordingStartedRequest =>
-    //      handleDeskShareRecordingStartedRequest(msg)
-    //    case msg: DeskShareRecordingStoppedRequest =>
-    //      handleDeskShareRecordingStoppedRequest(msg)
+    case msg: DeskShareRecordingStartedRequest =>
+      handleDeskShareRecordingStartedRequest(msg) //TODO
+    case msg: DeskShareRecordingStoppedRequest =>
+      handleDeskShareRecordingStoppedRequest(msg) //TODO
+    case msg: DeskShareRTMPBroadcastStartedRequest =>
+      handleDeskShareRTMPBroadcastStartedRequest(msg) //TODO
+    case msg: DeskShareRTMPBroadcastStoppedRequest =>
+      handleDeskShareRTMPBroadcastStoppedRequest(msg) //TODO
     case msg: DeskShareStartedRequest =>
       handleDeskShareStartedRequest(msg)
     case msg: DeskShareStoppedRequest =>
@@ -313,29 +317,21 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
     println("\nMeetingActor-handleDeskShareStartedRequest " + "isRecording=" + meetingModel.isRecording() + "\n")
 
-    //TODO check for autoRecord
+    //TODO check for autoRecord?
 
     val timestamp = System.currentTimeMillis().toString()
     val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp +
       "/" + mProps.meetingID + "/" + mProps.meetingID + "-" + timestamp
 
-    meetingModel.setRTMPBroadcastingUrl(streamPath)
-    println("\n^^^^RTMP=" + meetingModel.getRTMPBroadcastingUrl())
-
-    println("IS BROADCASTING RTMP = " + meetingModel.isBroadcastingRTMP())
     // Tell FreeSwitch to broadcast to RTMP
     outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath, timestamp))
-    meetingModel.broadcastingRTMPStarted()
 
-    if (meetingModel.isRecording()) {
+    if (mProps.recorded) {
       println("IS RECORDING")
 
-      //TODO this path should be changed back 
+      //TODO this path should be changed back
       //val filepath = "/var/freeswitch/meetings/" + mProps.meetingID + "-" + timestamp + ".mp4"
       val filepath = "/home/debian/" + mProps.meetingID + "-" + timestamp + ".mp4"
-
-      meetingModel.recordingStarted()
-      meetingModel.setVoiceRecordingFilename(filepath)
 
       // Tell FreeSwitch to start recording to a file
       outGW.send(new DeskShareStartRecording(msg.conferenceName, filepath, timestamp))
@@ -347,33 +343,65 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
     println("\nMeetingActor-handleDeskShareStoppedRequest\n")
     println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
 
-    //TODO check for autorecord
+    //TODO check for autorecord?
 
-    // Tell FreeSwitch to stop broadcasting to RTMP
     val timestamp = System.currentTimeMillis().toString()
     println("IS BROADCASTING RTMP = " + meetingModel.isBroadcastingRTMP())
 
+    // Tell FreeSwitch to stop broadcasting to RTMP
     outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, meetingModel.getRTMPBroadcastingUrl(), timestamp))
-    meetingModel.broadcastingRTMPStoppped()
 
-    if (meetingModel.isRecording()) {
+    if (mProps.recorded) {
       println("STOPPING WHEN IT IS RECORDING")
 
       // Tell FreeSwitch to stop recording to a file
       outGW.send(new DeskShareStopRecording(msg.conferenceName, meetingModel.getVoiceRecordingFilename(), timestamp))
-
-      meetingModel.recordingStopped()
     } else {
       println("ERROR: STOP REC BUT IT WAS NOT RECORDING?!")
     }
   }
 
   private def handleDeskShareRecordingStartedRequest(msg: DeskShareRecordingStartedRequest) {
-    //TODO
+    println("\nMeetingActor-handleDeskShareRecordingStartedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
+    //TODO check if recording/ed
+    meetingModel.recordingStarted() //TODO move
+    meetingModel.setVoiceRecordingFilename(msg.filename) //TODO can i reuse setVoiceRecordingFilename or ..?
   }
 
   private def handleDeskShareRecordingStoppedRequest(msg: DeskShareRecordingStoppedRequest) {
-    //TODO
+    println("\nMeetingActor-handleDeskShareRecordingStoppedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
+
+    //TODO check if recording/ed
+    meetingModel.recordingStopped()
+    //TODO should I do: meetingModel.setVoiceRecordingFilename("")?
   }
+
+  private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
+    println("\nMeetingActor-handleDeskShareRTMPBroadcastStartedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
+
+    meetingModel.setRTMPBroadcastingUrl(msg.streamname)
+    meetingModel.broadcastingRTMPStarted()
+    println("\n^^^^RTMP=" + meetingModel.getRTMPBroadcastingUrl())
+    println("IS BROADCASTING RTMP = " + meetingModel.isBroadcastingRTMP())
+    // TODO check if recording/ed
+  }
+
+  private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
+    println("\nMeetingActor-handleDeskShareRTMPBroadcastStoppedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
+
+    meetingModel.broadcastingRTMPStoppped() //TODO move
+    // TODO should I do: meetingModel.setRTMPBroadcastingUrl("") ?
+    // TODO check if recording/ed
+  }
+
 }

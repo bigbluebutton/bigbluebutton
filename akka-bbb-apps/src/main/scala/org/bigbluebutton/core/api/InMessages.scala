@@ -118,3 +118,6 @@ case class DeskShareStartedRequest(conferenceName: String, callerId: String, cal
 case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String)
 case class DeskShareRecordingStartedRequest(conferenceName: String, filename: String, timestamp: String)
 case class DeskShareRecordingStoppedRequest(conferenceName: String, filename: String, timestamp: String)
+case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, timestamp: String)
+case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, timestamp: String)
+

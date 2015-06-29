@@ -45,8 +45,10 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
     case msg: DeskShareStartedRequest => handleDeskShareStartedRequest(msg)
     case msg: DeskShareStoppedRequest => handleDeskShareStoppedRequest(msg)
-    //    case msg: DeskShareRecordingStartedRequest => handleDeskShareRecordingStartedRequest(msg)
-    //    case msg: DeskShareRecordingStoppedRequest => handleDeskShareRecordingStoppedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStartedRequest => handleDeskShareRTMPBroadcastStartedRequest(msg) //TODO
+    case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg) //TODO
+    case msg: DeskShareRecordingStartedRequest => handleDeskShareRecordingStartedRequest(msg) //TODO
+    case msg: DeskShareRecordingStoppedRequest => handleDeskShareRecordingStoppedRequest(msg) //TODO
     case msg: InMessage => handleMeetingMessage(msg)
     case _ => // do nothing
   }
@@ -261,20 +263,45 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
   private def handleDeskShareRecordingStartedRequest(msg: DeskShareRecordingStartedRequest) {
     //TODO
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
+    println("\nBBBActor: handleDeskShareRecordingStartedRequest" + msg.conferenceName + msg.filename + "\n")
+
+    if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
+      var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
+      println("originalConfId=" + originalConfId)
+      findMeetingWithVoiceConfId(originalConfId) foreach { m =>
+        {
+          println("FOREACH" + m.toString())
+          m.actorRef ! msg
+        }
+      }
+    } else {
+      println("\n\n\nERROR in handleDeskShareRecordingStartedRequest in BBBActor \n\n\n")
+    }
   }
 
   private def handleDeskShareRecordingStoppedRequest(msg: DeskShareRecordingStoppedRequest) {
     //TODO
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
+    println("\nBBBActor: handleDeskShareRecordingStoppedRequest" + msg.conferenceName + msg.filename + "\n")
+
+    if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
+      var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
+      println("originalConfId=" + originalConfId)
+      findMeetingWithVoiceConfId(originalConfId) foreach { m =>
+        {
+          println("FOREACH" + m.toString())
+          m.actorRef ! msg
+        }
+      }
+    } else {
+      println("\n\n\nERROR in handleDeskShareRecordingStoppedRequest in BBBActor \n\n\n")
+    }
   }
 
   private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
-    // find in which meeting ....
-
-    println("\n\n\n\nBBBActor: handleDeskShareStartedRequest\n\n\n\n")
-    println(msg.conferenceName)
-    println(msg.callerId)
-    println(msg.callerIdName)
+    println("\nBBBActor: handleDeskShareStartedRequest" + msg.conferenceName + msg.callerId + msg.callerIdName + "\n")
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
@@ -293,7 +320,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
   private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
 
-    println("DeskShareStoppedRequest in BBBActor")
+    println("handleDeskShareStoppedRequest in BBBActor")
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
 
     println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.callerId + msg.callerIdName + "\n")
@@ -312,4 +339,45 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     }
   }
 
+  private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
+
+    println("handleDeskShareRTMPBroadcastStartedRequest in BBBActor")
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
+
+    println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.streamname + msg.timestamp + "\n")
+
+    if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
+      var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
+      println("originalConfId=" + originalConfId)
+      findMeetingWithVoiceConfId(originalConfId) foreach { m =>
+        {
+          println("FOREACH" + m.toString())
+          m.actorRef ! msg
+        }
+      }
+    } else {
+      println("\n\n\nERROR in handleDeskShareRTMPBroadcastStartedRequest in BBBActor \n\n\n")
+    }
+  }
+
+  private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
+
+    println("handleDeskShareRTMPBroadcastStoppedRequest in BBBActor")
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
+
+    println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.streamname + msg.timestamp + "\n")
+
+    if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
+      var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
+      println("originalConfId=" + originalConfId)
+      findMeetingWithVoiceConfId(originalConfId) foreach { m =>
+        {
+          println("FOREACH" + m.toString())
+          m.actorRef ! msg
+        }
+      }
+    } else {
+      println("\n\n\nERROR in handleDeskShareRTMPBroadcastStoppedRequest in BBBActor \n\n\n")
+    }
+  }
 }
