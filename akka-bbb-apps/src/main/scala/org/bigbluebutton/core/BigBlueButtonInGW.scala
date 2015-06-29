@@ -15,7 +15,8 @@ import scala.concurrent.duration._
 import scala.util.Success
 import scala.util.Failure
 
-class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
+class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder,
+    val red5DeskShareIP: String, val red5DeskShareApp: String) extends IBigBlueButtonInGW {
   val log = system.log
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, outGW, voiceEventRecorder), "bigbluebutton-actor")
 
@@ -27,7 +28,7 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
 
     val mProps = new MeetingProperties(meetingID, externalMeetingID, meetingName, record,
       voiceBridge, duration, autoStartRecording, allowStartStopRecording,
-      moderatorPass, viewerPass, createTime, createDate)
+      moderatorPass, viewerPass, createTime, createDate, red5DeskShareIP, red5DeskShareApp)
     bbbActor ! new CreateMeeting(meetingID, mProps)
   }
 

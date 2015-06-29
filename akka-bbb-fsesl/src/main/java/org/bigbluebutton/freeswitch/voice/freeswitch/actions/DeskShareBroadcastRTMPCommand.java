@@ -25,12 +25,14 @@ public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
 
 	private String broadcastPath;
 	private boolean broadcast;
+	private String timestamp; //TODO should we remove this?
 	// TODO add
 
-	public DeskShareBroadcastRTMPCommand(String room, String requesterId, boolean broadcast, String broadcastPath){
+	public DeskShareBroadcastRTMPCommand(String room, String requesterId, String broadcastPath, String timestamp, boolean broadcast){
 		super(room, requesterId);
 		this.broadcastPath = broadcastPath;
 		this.broadcast = broadcast;
+		this.timestamp = timestamp;
 	}
 
 

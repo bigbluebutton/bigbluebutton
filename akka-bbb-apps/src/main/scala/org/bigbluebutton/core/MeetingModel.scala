@@ -8,6 +8,7 @@ class MeetingModel {
   private var permissionsInited = false
   private var permissions = new Permissions()
   private var recording = false;
+  private var broadcastingRTMP = false
   private var muted = false;
   private var meetingEnded = false
 
@@ -29,6 +30,18 @@ class MeetingModel {
 
   def isRecording(): Boolean = {
     recording
+  }
+
+  def broadcastingRTMPStarted() {
+    broadcastingRTMP = true
+  }
+
+  def isBroadcastingRTMP(): Boolean = {
+    broadcastingRTMP
+  }
+
+  def broadcastingRTMPStoppped() {
+    broadcastingRTMP = false
   }
 
   def lastWebUserLeft() {

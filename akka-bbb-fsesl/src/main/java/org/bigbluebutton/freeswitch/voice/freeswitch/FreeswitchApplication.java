@@ -104,6 +104,12 @@ public class FreeswitchApplication {
 		queueMessage(dsrc);
 	}
 
+	public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast){
+		DeskShareBroadcastRTMPCommand rtmp = new DeskShareBroadcastRTMPCommand(voiceConfId, USER, streamUrl, timestamp, broadcast);
+		System.out.println("______in FS app deskShareRecording__" + rtmp.getCommand() +  "____");
+		queueMessage(rtmp);
+	}
+
 		private void sendMessageToFreeswitch(final FreeswitchCommand command) {
 			Runnable task = new Runnable() {
 				public void run() {

@@ -20,7 +20,8 @@ import org.bigbluebutton.core.apps.LayoutModel
 case object StopMeetingActor
 case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
   voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String)
+  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String,
+  red5DeskShareIP: String, red5DeskShareApp: String)
 
 object MeetingActor {
   def props(mProps: MeetingProperties, outGW: MessageOutGateway): Props =
@@ -312,13 +313,30 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     println("\n\n\nMeetingActor-handleDeskShareStartedRequest\n")
     println("isRecording=" + meetingModel.isRecording())
 
+    //TODO check for autoRecord
+
+    val timestamp = System.currentTimeMillis().toString()
+    //    val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp + "/abc/dev-test" //TODO change this
+    val streamPath = "rtmp://192.168.0.109/" + mProps.red5DeskShareApp + "/abc/dev-test" //TODO change this
+    // rtmp://192.168.0.109/live/abc/dev-test
+    println("CURRENTLY THE STREAMPATH=" + streamPath)
+
+    println("IS BROADCASTING RTMP = " + meetingModel.isBroadcastingRTMP())
+    // Tell FreeSwitch to broadcast to RTMP
+    outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath, timestamp))
+    meetingModel.broadcastingRTMPStarted()
+
     if (meetingModel.isRecording()) {
       println("IS RECORDING")
-      val timestamp = System.currentTimeMillis().toString()
+
+      //TODO this path should be changed back 
       //      val filepath = "/var/freeswitch/meetings/" + mProps.meetingID + "-" + timestamp + ".mp4"
       val filepath = "/home/debian/" + mProps.meetingID + "-" + timestamp + ".mp4"
+
       meetingModel.recordingStarted()
       meetingModel.setVoiceRecordingFilename(filepath)
+
+      // Tell FreeSwitch to start recording to a file
       outGW.send(new DeskShareStartRecording(msg.conferenceName, filepath, timestamp))
     } else {
       println("IS NOT RECORDING")
@@ -329,11 +347,21 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     println("\n\n\nMeetingActor-handleDeskShareStoppedRequest\n")
     println("isRecording=" + meetingModel.isRecording())
 
+    // Tell FreeSwitch to stop broadcasting to RTMP
+    val timestamp = System.currentTimeMillis().toString()
+    println("IS BROADCASTING RTMP = " + meetingModel.isBroadcastingRTMP())
+    //    val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp + "/abc/dev-test" //TODO change this
+    val streamPath = "rtmp://192.168.0.109/" + mProps.red5DeskShareApp + "/abc/dev-test" //TODO change this
+    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, streamPath, timestamp))
+    meetingModel.broadcastingRTMPStoppped()
+
     if (meetingModel.isRecording()) {
       println("STOPPING WHEN IT IS RECORDING")
       val timestamp = System.currentTimeMillis().toString()
 
       meetingModel.recordingStopped()
+
+      // Tell FreeSwitch to stop recording to a file
       outGW.send(new DeskShareStopRecording(msg.conferenceName, meetingModel.getVoiceRecordingFilename(), timestamp))
     } else {
       println("ERROR: STOP REC BUT IT WAS NOT RECORDING?!")
