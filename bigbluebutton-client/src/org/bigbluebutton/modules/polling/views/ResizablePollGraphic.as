@@ -45,7 +45,7 @@
  * the Flexlib library. Portions on the code in this file fall under their license.
  */
 
-package org.bigbluebutton.modules.present.ui.views
+package org.bigbluebutton.modules.polling.views
 {
 	import flash.events.Event;
 	import flash.events.MouseEvent;

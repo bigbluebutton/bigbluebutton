@@ -39,8 +39,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
   <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
   <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
-  <mate:Listener type="{PollVotedEvent.POLL_VOTED}" method="handlePollVotedEvent" />
-  
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
@@ -55,8 +53,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.modules.polling.events.PollVotedEvent;
-      import org.bigbluebutton.modules.polling.model.SimpleAnswerResult;
       import org.bigbluebutton.modules.present.commands.GoToPageCommand;
       import org.bigbluebutton.modules.present.events.CursorEvent;
       import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -295,25 +291,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// If delta is negative, the presenter is zooming-out of the presentation.
 				return delta < 0;
 			}
-      
-      private function handlePollVotedEvent(e:PollVotedEvent):void {
-        var that:SlideView = this;
-        
-        var resultData:Array = new Array();
-        var answers:Array = e.result.answers; 
-        for (var j:int = 0; j < answers.length; j++) {
-          var a:SimpleAnswerResult = answers[j] as SimpleAnswerResult;
-          resultData.push({a:a.key, v:a.numVotes});
-        }
-        
-        var poll:PollResultsView = new PollResultsView(resultData);
-        that.addChild(poll);
-        
-        that.callLater(function():void {
-          poll.x = that.width - poll.width;
-          poll.y = that.height - poll.height;
-        });
-      }
 				
 			/**
 			 * Handles notification from presenter that the slide has moved.

@@ -17,7 +17,7 @@
  *
  */
 
-package org.bigbluebutton.modules.present.ui.views
+package org.bigbluebutton.modules.polling.views
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
@@ -29,6 +29,8 @@ package org.bigbluebutton.modules.present.ui.views
 	
 	import org.bigbluebutton.common.model.FocusableImage;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+	import org.bigbluebutton.modules.present.ui.views.SlideView;
 	
 	public class PollResultsView extends VBox {
 		private var _pollGraphic:ResizablePollGraphic;
@@ -47,11 +49,11 @@ package org.bigbluebutton.modules.present.ui.views
 			
 			_topBox = new HBox();
 			publishBtn1 = new Button();
-			publishBtn1.label = "Publish";
+			publishBtn1.label = ResourceUtil.getInstance().getString('bbb.polling.publishButton.tooltip');
 			publishBtn1.addEventListener(MouseEvent.CLICK, handlePublishClick);
 			_topBox.addChild(publishBtn1);
 			closeBtn1 = new Button();
-			closeBtn1.label = "Close";
+			closeBtn1.label = ResourceUtil.getInstance().getString('bbb.polling.closeButton.tooltip');
 			closeBtn1.addEventListener(MouseEvent.CLICK, handleCloseClick);
 			_topBox.addChild(closeBtn1);
 			addChild(_topBox);
@@ -68,11 +70,11 @@ package org.bigbluebutton.modules.present.ui.views
 			_botBox = new HBox();
 			_botBox.visible = false;
 			publishBtn2 = new Button();
-			publishBtn2.label = "Publish";
+			publishBtn2.label = ResourceUtil.getInstance().getString('bbb.polling.publishButton.tooltip');
 			publishBtn2.addEventListener(MouseEvent.CLICK, handlePublishClick);
 			_botBox.addChild(publishBtn2);
 			closeBtn2 = new Button();
-			closeBtn2.label = "Close";
+			closeBtn2.label = ResourceUtil.getInstance().getString('bbb.polling.closeButton.tooltip');
 			closeBtn2.addEventListener(MouseEvent.CLICK, handleCloseClick);
 			_botBox.addChild(closeBtn2);
 			addChild(_botBox);
