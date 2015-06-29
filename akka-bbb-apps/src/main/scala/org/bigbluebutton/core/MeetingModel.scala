@@ -3,6 +3,11 @@ package org.bigbluebutton.core
 import org.bigbluebutton.core.api.Permissions
 import java.util.concurrent.TimeUnit
 
+case object StopMeetingActor
+case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
+  voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
+  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String)
+
 class MeetingModel {
   private var audioSettingsInited = false
   private var permissionsInited = false

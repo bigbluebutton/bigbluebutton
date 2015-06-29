@@ -15,7 +15,13 @@ trait PollApp {
   }
 
   def handleGetCurrentPollRequest(msg: GetCurrentPollRequest) {
-    pollModel.getCurrentPoll() match {
+
+    val poll = for {
+      page <- presModel.getCurrentPage()
+      curPoll <- pollModel.getRunningPollThatStartsWith(page.id)
+    } yield curPoll
+
+    poll match {
       case Some(p) => {
         if (p.started && p.stopped && p.showResult) {
           outGW.send(new GetCurrentPollReplyMessage(mProps.meetingID, mProps.recorded, msg.requesterId, true, Some(p)))
@@ -68,61 +74,44 @@ trait PollApp {
   }
 
   def handleStopPollRequest(msg: StopPollRequest) {
-    pollModel.getPoll(msg.pollId) match {
+    val cpoll = for {
+      page <- presModel.getCurrentPage()
+      curPoll <- pollModel.getRunningPollThatStartsWith(page.id)
+    } yield curPoll
+
+    cpoll match {
       case Some(poll) => {
         pollModel.stopPoll(poll.id)
-        outGW.send(new PollStoppedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId))
+        outGW.send(new PollStoppedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, poll.id))
       }
       case None => {
         val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
-        sender ! new StopPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
+        sender ! new StopPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId)
       }
     }
   }
 
   def handleStartPollRequest(msg: StartPollRequest) {
-    log.debug("Received StartPollRequest for pollId=[" + msg.pollId + "]")
-    createPoll(msg)
+    log.debug("Received StartPollRequest for pollType=[" + msg.pollType + "]")
 
-    pollModel.getSimplePoll(msg.pollId) match {
-      case Some(poll) => {
-        pollModel.startPoll(poll.id)
-        outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
-      }
-      case None => {
-        val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
-        sender ! new StartPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
-      }
-    }
-  }
+    presModel.getCurrentPage() foreach { page =>
+      val pollId = page.id + "/" + System.currentTimeMillis()
 
-  private def createPoll(msg: StartPollRequest) {
-    PollFactory.createPoll(msg.pollId, msg.pollType) match {
-      case Some(poll) => {
-        pollModel.addPoll(poll)
-      }
-      case None => {
-        val result = new RequestResult(StatusCodes.NOT_ACCEPTABLE, Some(Array(ErrorCodes.INVALID_DATA)))
-        sender ! new StartPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId)
-      }
-    }
-  }
+      PollFactory.createPoll(pollId, msg.pollType) foreach (poll => pollModel.addPoll(poll))
 
-  /*  
-  def handleCreatePollRequest(msg: CreatePollRequest) {
-    PollFactory.createPoll(msg.pollId, msg.pollType) match {
-      case Some(poll) => {
-        pollModel.addPoll(poll)
-        outGW.send(new PollCreatedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll.toPollVO()))
-      }
-      case None => {
-        val result = new RequestResult(StatusCodes.NOT_ACCEPTABLE, Some(Array(ErrorCodes.INVALID_DATA)))
-        sender ! new CreatePollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, msg.pollId, msg.pollType)
+      pollModel.getSimplePoll(pollId) match {
+        case Some(poll) => {
+          pollModel.startPoll(poll.id)
+          outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, poll))
+        }
+        case None => {
+          val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
+          sender ! new StartPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, pollId)
+        }
       }
     }
 
   }
-*/
 
   private def handleRespondToPoll(poll: SimplePollResultOutVO, msg: RespondToPollRequest) {
     if (hasUser(msg.requesterId)) {
@@ -137,7 +126,7 @@ trait PollApp {
            */
           val questionId = 0
           pollModel.respondToQuestion(poll.id, questionId, msg.answerId, responder)
-          users.getCurrentPresenter foreach { cp =>
+          usersModel.getCurrentPresenter foreach { cp =>
             pollModel.getSimplePollResult(poll.id) foreach { updatedPoll =>
               outGW.send(new UserRespondedToPollMessage(mProps.meetingID, mProps.recorded, cp.userID, msg.pollId, updatedPoll))
             }

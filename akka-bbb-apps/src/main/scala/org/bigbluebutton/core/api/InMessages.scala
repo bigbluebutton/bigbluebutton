@@ -78,8 +78,8 @@ case class PresentationConversionCompleted(meetingID: String, messageKey: String
 
 // Polling
 //case class CreatePollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
-case class StartPollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
-case class StopPollRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
+case class StartPollRequest(meetingID: String, requesterId: String, pollType: String) extends InMessage
+case class StopPollRequest(meetingID: String, requesterId: String) extends InMessage
 case class ShowPollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
 case class HidePollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage
 case class RespondToPollRequest(meetingID: String, requesterId: String, pollId: String, questionId: Int, answerId: Int) extends InMessage

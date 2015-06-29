@@ -10,11 +10,7 @@ import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
 import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
-
-case object StopMeetingActor
-case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
-  voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String)
+import org.bigbluebutton.core.apps.PresentationModel
 
 object MeetingActor {
   def props(mProps: MeetingProperties, outGW: MessageOutGateway): Props =
@@ -29,9 +25,10 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
   val meetingModel = new MeetingModel()
-  val users = new UsersModel()
+  val usersModel = new UsersModel()
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
+  val presModel = new PresentationModel()
 
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
@@ -197,13 +194,13 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   def webUserJoined() {
-    if (users.numWebUsers > 0) {
+    if (usersModel.numWebUsers > 0) {
       meetingModel.resetLastWebUserLeftOn()
     }
   }
 
   def startRecordingIfAutoStart() {
-    if (mProps.recorded && !meetingModel.isRecording() && mProps.autoStartRecording && users.numWebUsers == 1) {
+    if (mProps.recorded && !meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 1) {
       log.info("Auto start recording for meeting=[" + mProps.meetingID + "]")
       meetingModel.recordingStarted()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
@@ -211,7 +208,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   def stopAutoStartedRecording() {
-    if (mProps.recorded && meetingModel.isRecording() && mProps.autoStartRecording && users.numWebUsers == 0) {
+    if (mProps.recorded && meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 0) {
       log.info("Last web user left. Auto stopping recording for meeting=[{}", mProps.meetingID)
       meetingModel.recordingStopped()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
@@ -219,7 +216,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (users.numWebUsers == 0) {
+    if (usersModel.numWebUsers == 0) {
       meetingModel.lastWebUserLeft()
       log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
     }
@@ -227,7 +224,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
   def handleMonitorNumberOfWebUsers() {
     println("BACK TIMER")
-    if (users.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
+    if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
         log.info("MonitorNumberOfWebUsers empty for meeting [" + mProps.meetingID + "]. Ejecting all users from voice.")
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
