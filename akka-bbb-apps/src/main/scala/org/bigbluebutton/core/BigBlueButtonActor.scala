@@ -295,7 +295,6 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
     println("DeskShareStoppedRequest in BBBActor")
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
-    // find in which meeting ....
 
     println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.callerId + msg.callerIdName + "\n")
 

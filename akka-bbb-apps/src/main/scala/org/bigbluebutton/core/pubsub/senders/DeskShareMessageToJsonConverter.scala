@@ -4,6 +4,7 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.common.messages.DeskShareStartRecordingEventMessage
 import org.bigbluebutton.common.messages.DeskShareStopRecordingEventMessage
 import org.bigbluebutton.common.messages.DeskShareStartRTMPBroadcastEventMessage
+import org.bigbluebutton.common.messages.DeskShareStopRTMPBroadcastEventMessage
 
 object DeskShareMessageToJsonConverter {
 
@@ -24,6 +25,12 @@ object DeskShareMessageToJsonConverter {
   def getDeskShareStartRTMPBroadcastToJson(msg: DeskShareStartRTMPBroadcast): String = {
     println("^^^^^getDeskShareStartRTMPBroadcastToJson in DeskShareMessageToJsonConverter")
     val newMsg = new DeskShareStartRTMPBroadcastEventMessage(msg.conferenceName, msg.streamPath, msg.timestamp)
+    newMsg.toJson()
+  }
+
+  def getDeskShareStopRTMPBroadcastToJson(msg: DeskShareStopRTMPBroadcast): String = {
+    println("^^^^^getDeskShareStopRTMPBroadcastToJson in DeskShareMessageToJsonConverter")
+    val newMsg = new DeskShareStopRTMPBroadcastEventMessage(msg.conferenceName, msg.streamPath, msg.timestamp)
     newMsg.toJson()
   }
 }

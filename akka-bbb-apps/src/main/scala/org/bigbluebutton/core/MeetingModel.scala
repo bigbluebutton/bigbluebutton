@@ -17,6 +17,7 @@ class MeetingModel {
   private var lastWebUserLeftOnTimestamp: Long = 0
 
   private var voiceRecordingFilename: String = ""
+  private var rtmpBroadcastingUrl: String = ""
 
   val startedOn = timeNowInMinutes;
 
@@ -62,6 +63,14 @@ class MeetingModel {
 
   def getVoiceRecordingFilename(): String = {
     voiceRecordingFilename
+  }
+
+  def setRTMPBroadcastingUrl(path: String) {
+    rtmpBroadcastingUrl = path
+  }
+
+  def getRTMPBroadcastingUrl(): String = {
+    rtmpBroadcastingUrl
   }
 
   def permisionsInitialized(): Boolean = {

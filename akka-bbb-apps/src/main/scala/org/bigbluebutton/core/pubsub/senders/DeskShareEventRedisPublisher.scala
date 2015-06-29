@@ -17,6 +17,7 @@ class DeskShareEventRedisPublisher(service: MessageSender) extends OutMessageLis
       case msg: DeskShareStartRecording => handleDeskShareStartRecording(msg)
       case msg: DeskShareStopRecording => handleDeskShareStopRecording(msg)
       case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
+      case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
       case _ => // do nothing
     }
   }
@@ -36,6 +37,12 @@ class DeskShareEventRedisPublisher(service: MessageSender) extends OutMessageLis
   private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
     println("_______handleDeskShareStartRTMPBroadcast____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareStartRTMPBroadcastToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
+  }
+
+  private def handleDeskShareStopRTMPBroadcast(msg: DeskShareStopRTMPBroadcast) {
+    println("_______handleDeskShareStopRTMPBroadcast____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareStopRTMPBroadcastToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 }
