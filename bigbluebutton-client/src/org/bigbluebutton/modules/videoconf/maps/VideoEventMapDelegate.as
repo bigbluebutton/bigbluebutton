@@ -460,6 +460,9 @@ package org.bigbluebutton.modules.videoconf.maps
       trace("VideoEventMapDelegate:: [" + me + "] Connected to video application.");
       _ready = true;
 	  if (event.reconnection) {
+		  trace("VideoEventMapDelegate:: Got reconnected event.");
+		  stopAllBroadcasting();
+		  trace("VideoEventMapDelegate:: Closing all webcam windows.");
 		  closeAllWindows()
 	  } else {
 		  addToolbarButton();
