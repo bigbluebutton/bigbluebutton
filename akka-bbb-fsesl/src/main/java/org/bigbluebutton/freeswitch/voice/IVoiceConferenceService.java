@@ -12,10 +12,13 @@ public interface IVoiceConferenceService {
 	void deskShareEnded(String voiceConfId, String callerIdNum, String callerIdName);
 //	void deskShareViewerJoined(String voiceConfId, String callerIdNum, String callerIdName);
 //	void deskShareViewerLeft(String voiceConfId, String callerIdNum, String callerIdName);
-//	void deskShareRecording(String room, String recordingFilename, boolean record, String timestamp);
-	void deskShareRecordingStarted(String room, String filename, String timestamp);
-	void deskShareRecordingStopped(String room, String filename, String timestamp);
-	void deskShareRTMPBroadcastStarted(String room, String filename, String timestamp);
-	void deskShareRTMPBroadcastStopped(String room, String filename, String timestamp);
+	void deskShareRecordingStarted(String room, String filename, Integer channels,
+			Integer samplerate, Integer vw, Integer vh, Double fps, String timestamp);
+	void deskShareRecordingStopped(String room, String filename, Integer channels,
+			Integer samplerate, Integer vw, Integer vh, Double fps, String timestamp);
+	void deskShareRTMPBroadcastStarted(String room, String filename, Integer channels,
+			Integer samplerate, Integer vw, Integer vh, Double fps, String timestamp);
+	void deskShareRTMPBroadcastStopped(String room, String filename, Integer channels,
+			Integer samplerate, Integer vw, Integer vh, Double fps, String timestamp);
 
 }

@@ -268,10 +268,8 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-      println("originalConfId=" + originalConfId)
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
         {
-          println("FOREACH" + m.toString())
           m.actorRef ! msg
         }
       }
@@ -287,10 +285,8 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-      println("originalConfId=" + originalConfId)
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
         {
-          println("FOREACH" + m.toString())
           m.actorRef ! msg
         }
       }
@@ -305,10 +301,8 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-      println("originalConfId=" + originalConfId)
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
         {
-          println("FOREACH" + m.toString())
           m.actorRef ! msg
         }
       }
@@ -319,18 +313,13 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
-
-    println("handleDeskShareStoppedRequest in BBBActor")
-    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
-
     println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.callerId + msg.callerIdName + "\n")
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-      println("originalConfId=" + originalConfId)
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
         {
-          println("FOREACH" + m.toString())
           m.actorRef ! msg
         }
       }
@@ -340,18 +329,13 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
-
-    println("handleDeskShareRTMPBroadcastStartedRequest in BBBActor")
-    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
-
     println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.streamname + msg.timestamp + "\n")
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-      println("originalConfId=" + originalConfId)
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
         {
-          println("FOREACH" + m.toString())
           m.actorRef ! msg
         }
       }
@@ -361,18 +345,13 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
-
-    println("handleDeskShareRTMPBroadcastStoppedRequest in BBBActor")
-    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
-
     println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.streamname + msg.timestamp + "\n")
+    val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-      println("originalConfId=" + originalConfId)
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
         {
-          println("FOREACH" + m.toString())
           m.actorRef ! msg
         }
       }

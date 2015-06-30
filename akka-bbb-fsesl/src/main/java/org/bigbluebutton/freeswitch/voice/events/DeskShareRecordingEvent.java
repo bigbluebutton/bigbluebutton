@@ -20,32 +20,78 @@ package org.bigbluebutton.freeswitch.voice.events;
 
 public class DeskShareRecordingEvent extends VoiceConferenceEvent {
 
-	private String timestamp;
 	private String filename;
 	private boolean record;
+	private String timestamp;
+
+	private Integer channels;
+	private double fps;
+	private Integer sampleRate;
+	private Integer vh;
+	private Integer vw;
 
 	public DeskShareRecordingEvent(String room, boolean record) {
 		super(room);
 		this.record = record;
 	}
 
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
+	public Integer getChannels() {
+		return channels;
 	}
 
-	public void setRecordingFilename(String filename) {
-		this.filename = filename;
+	public Double getFramesPerSecond() {
+		return fps;
 	}
 
-	public String getTimestamp() {
-		return timestamp;
+	public boolean getRecord() {
+		return record;
 	}
 
 	public String getRecordingFilename() {
 		return filename;
 	}
 
-	public boolean getRecord() {
-		return record;
+	public Integer getSampleRate() {
+		return sampleRate;
+	}
+
+	public String getTimestamp() {
+		return timestamp;
+	}
+
+	public Integer getVideoHeight() {
+		return vh;
+	}
+
+	public Integer getVideoWidth() {
+		return vw;
+	}
+
+	public void setChannels(Integer channels) {
+		this.channels = channels;
+	}
+
+	public void setFramesPerSecond(Double fps) {
+		this.fps = fps;
+	}
+
+	public void setRecordingFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public void setSampleRate(Integer sampleRate) {
+		this.sampleRate = sampleRate;
+	}
+
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public void setVideoHeight(Integer vh) {
+		this.vh = vh;
+	}
+
+	public void setVideoWidth(Integer vw) {
+		this.vw = vw;
 	}
 }

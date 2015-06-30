@@ -5,11 +5,10 @@ import com.google.gson.JsonObject;
 
 import org.bigbluebutton.common.messages.DeskShareStartedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareStoppedEventMessage;
-import org.bigbluebutton.common.messages.DeskShareViewerJoinedEventMessage;
-import org.bigbluebutton.common.messages.DeskShareViewerLeftEventMessage;
+//import org.bigbluebutton.common.messages.DeskShareViewerJoinedEventMessage;
+//import org.bigbluebutton.common.messages.DeskShareViewerLeftEventMessage;
 import org.bigbluebutton.common.messages.DeskShareRecordingStartedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareRecordingStoppedEventMessage;
-import org.bigbluebutton.common.messages.GetChatHistoryRequestMessage;
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStartedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStoppedEventMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;

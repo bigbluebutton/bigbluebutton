@@ -106,27 +106,31 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 //					vcs.deskShareViewerLeft(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
 				} else if (event instanceof DeskShareRecordingEvent) {
 					if (((DeskShareRecordingEvent) event).getRecord()) {
-						System.out.println("******** Start RECORDING******\n\n\n\n\n FreeswitchConferenceEventListener ");
 						DeskShareRecordingEvent evt = (DeskShareRecordingEvent) event;
-						System.out.println("************** FreeswitchConferenceEventListener DeskShareRecordingEvent");
-						vcs.deskShareRecordingStarted(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp());
+						System.out.println("************** FreeswitchConferenceEventListener DeskShare(Start)RecordingEvent");
+						vcs.deskShareRecordingStarted(evt.getRoom(), evt.getRecordingFilename(),
+								evt.getChannels(), evt.getSampleRate(), evt.getVideoWidth(),
+								evt.getVideoHeight(), evt.getFramesPerSecond(), evt.getTimestamp());
 					} else {
-						System.out.println("******** Stop RECORDING******\n\n\n\n\n FreeswitchConferenceEventListener ");
 						DeskShareRecordingEvent evt = (DeskShareRecordingEvent) event;
-						System.out.println("************** FreeswitchConferenceEventListener DeskShareRecordingEvent");
-						vcs.deskShareRecordingStopped(evt.getRoom(), evt.getRecordingFilename(), evt.getTimestamp());
+						System.out.println("************** FreeswitchConferenceEventListener DeskShare(Stop)RecordingEvent");
+						vcs.deskShareRecordingStopped(evt.getRoom(), evt.getRecordingFilename(),
+								evt.getChannels(), evt.getSampleRate(), evt.getVideoWidth(),
+								evt.getVideoHeight(), evt.getFramesPerSecond(), evt.getTimestamp());
 					}
 				} else if (event instanceof DeskShareRTMPBroadcastEvent) {
 					if (((DeskShareRTMPBroadcastEvent) event).getRecord()) {
-						System.out.println("******** Start RTMP Broadcast******\n\n\n\n\n FreeswitchConferenceEventListener ");
 						DeskShareRTMPBroadcastEvent evt = (DeskShareRTMPBroadcastEvent) event;
 						System.out.println("************** FreeswitchConferenceEventListener DeskShareRTMPBroadcastStartedEvent");
-						vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getRecordingStreamUrl(), evt.getTimestamp());
+						vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getRecordingStreamUrl(),
+								evt.getChannels(), evt.getSampleRate(), evt.getVideoWidth(),
+								evt.getVideoHeight(), evt.getFramesPerSecond(), evt.getTimestamp());
 					} else {
-						System.out.println("******** Stop RTMP Broadcast******\n\n\n\n\n FreeswitchConferenceEventListener ");
 						DeskShareRTMPBroadcastEvent evt = (DeskShareRTMPBroadcastEvent) event;
 						System.out.println("************** FreeswitchConferenceEventListener DeskShareRTMPBroadcastStoppedEvent");
-						vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getRecordingStreamUrl(), evt.getTimestamp());
+						vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getRecordingStreamUrl(),
+								evt.getChannels(), evt.getSampleRate(), evt.getVideoWidth(),
+								evt.getVideoHeight(), evt.getFramesPerSecond(), evt.getTimestamp());
 					}
 				}
 			}
