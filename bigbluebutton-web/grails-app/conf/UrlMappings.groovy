@@ -50,11 +50,11 @@ class UrlMappings {
 		}
 
 		"/api/getMeetings"(controller:"api") {
-			action = [GET:'getMeetingsHandler']
+			action = [GET:'getMeetingsHandler', POST:'getMeetingsHandler']
 		}
 		
 		"/api/getRecordings"(controller:"api") {
-			action = [GET:'getRecordingsHandler']
+			action = [GET:'getRecordingsHandler', POST:'getRecordingsHandler']
 		}
 		
 		"/$controller/$action?/$id?(.${format})?"{
