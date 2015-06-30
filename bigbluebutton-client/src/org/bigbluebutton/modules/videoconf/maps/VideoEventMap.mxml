@@ -38,8 +38,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
-      import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
-      import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;		
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;		
 		]]>
 	</mx:Script>
 	
@@ -58,7 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
   
   <EventHandlers type="{ConnectAppEvent.CONNECT_VIDEO_APP}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectToVideoApp" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectToVideoApp"/>
   </EventHandlers>
   
 	<EventHandlers type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}">
@@ -111,7 +110,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 
   <EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" arguments="{event}"/>
   </EventHandlers>
  
   <EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
