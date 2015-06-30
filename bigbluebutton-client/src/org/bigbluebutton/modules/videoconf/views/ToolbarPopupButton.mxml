@@ -39,14 +39,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;			
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.styles.StyleManager;
 			import mx.styles.IStyleManager2;
-			
-			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -54,9 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 

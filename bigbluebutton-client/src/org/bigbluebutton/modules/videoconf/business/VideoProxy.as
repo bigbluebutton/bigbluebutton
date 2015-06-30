@@ -24,28 +24,26 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.events.TimerEvent;
 	import flash.media.H264Level;
 	import flash.media.H264Profile;
 	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	import flash.system.Capabilities;
-	
-	import mx.collections.ArrayCollection;
+	import flash.utils.Timer;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.model.users.BBBUser;
-	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
 	
 	public class VideoProxy
-	{		
+	{	
+		public static const LOG:String = "VideoProxy - ";
+		
 		public var videoOptions:VideoConfOptions;
 		
 		private var nc:NetConnection;
@@ -53,7 +51,11 @@ package org.bigbluebutton.modules.videoconf.business
 		private var _url:String;
 		private var camerasPublishing:Object = new Object();
 		private var connected:Boolean = false;
-    
+    	private var reconnect:Boolean = false;
+		private var reconnecting:Boolean = false;
+		
+		private var autoReconnectTimer:Timer = new Timer(1000, 1);
+		
 		private function parseOptions():void {
 			videoOptions = new VideoConfOptions();
 			videoOptions.parseOptions();	
@@ -61,7 +63,7 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public function VideoProxy(url:String)
 		{
-      _url = url;
+      		_url = url;
 			parseOptions();			
 			nc = new NetConnection();
 			nc.proxyType = "best";
@@ -69,34 +71,51 @@ package org.bigbluebutton.modules.videoconf.business
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			nc.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
-			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
-			
+			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);			
 		}
 		
-    public function connect():void {
-      nc.connect(_url, UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
-    }
-    
+		public function reconnectWhenDisconnected(connect:Boolean):void {
+			reconnect = connect;
+		}
+		
+	    public function connect():void {
+	      nc.connect(_url, UsersUtil.getInternalMeetingID(), UsersUtil.getMyUserID());
+	    }
+	    
 		private function onAsyncError(event:AsyncErrorEvent):void{
+			trace("VIDEO WEBCAM onAsyncError");
 		}
 		
 		private function onIOError(event:NetStatusEvent):void{
+			trace("VIDEO WEBCAM onIOError");
 		}
 		
     private function onConnectedToVideoApp():void{
       var dispatcher:Dispatcher = new Dispatcher();
-      dispatcher.dispatchEvent(new ConnectedEvent(ConnectedEvent.VIDEO_CONNECTED));
+      dispatcher.dispatchEvent(new ConnectedEvent(reconnecting));
+	  reconnecting = false;
     }
     
 		private function onNetStatus(event:NetStatusEvent):void{
+			trace("[" + event.info.code + "] for [" + _url + "]");
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
 					connected = true;
 					//ns = new NetStream(nc);
-          onConnectedToVideoApp();
+          			onConnectedToVideoApp();
 					break;
-        default:
+				case "NetStream.Play.Failed":
+					disconnect();
+					break;
+				case "NetStream.Play.Stop":
+					disconnect();
+					break;		
+				case "NetConnection.Connect.Closed":
+					disconnect();
+					break;						
+        		default:
 					LogUtil.debug("[" + event.info.code + "] for [" + _url + "]");
+					trace("[" + event.info.code + "] for [" + _url + "]");
 					connected = false;
 					break;
 			}
@@ -110,7 +129,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function startPublishing(e:StartBroadcastEvent):void{
-			var ns:NetStream = new NetStream(nc);
+			ns = new NetStream(nc);
 			ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 			ns.addEventListener( IOErrorEvent.IO_ERROR, onIOError );
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
@@ -178,9 +197,21 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 
 		public function disconnect():void {
-      trace("VideoProxy:: disconnecting from Video application");
-      stopAllBroadcasting();
+      		trace("VideoProxy:: disconnecting from Video application");
+      		stopAllBroadcasting();
 			if (nc != null) nc.close();
+			
+			if (reconnect) {
+				var reconnectTimer:Timer = new Timer(1000, 1);
+				reconnectTimer.addEventListener("timer", reconnectTimerHandler);
+				reconnectTimer.start();
+			}
+		}
+		
+		private function reconnectTimerHandler(event:TimerEvent):void {
+			trace(LOG + "rtmptRetryTimerHandler: " + event);
+			reconnecting = true;
+			connect();
 		}
 		
 		public function onBWCheck(... rest):Number { 
