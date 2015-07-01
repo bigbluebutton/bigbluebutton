@@ -68,16 +68,16 @@ public class MessageAgent implements SipInterfaceListener, TransactionClientList
 
    
    /** Sends a new text message. */
-   public void send(String recipient, String subject, String content)
-   {  send(recipient,subject,"application/text",content);
+   public void send(String recipient, String subject, String body)
+   {  send(recipient,subject,"application/text",body);
    }   
 
 
    /** Sends a new message. */
-   public void send(String recipient, String subject, String content_type, String content)
+   public void send(String recipient, String subject, String content_type, String body)
    {  NameAddress to_url=new NameAddress(recipient);
       NameAddress from_url=new NameAddress(user_profile.from_url);
-      Message req=MessageFactory.createMessageRequest(sip_provider,to_url,from_url,subject,content_type,content);
+      Message req=MessageFactory.createMessageRequest(sip_provider,to_url,from_url,subject,content_type,body);
       TransactionClient t=new TransactionClient(sip_provider,req,this);
       t.request();
    }
@@ -125,8 +125,8 @@ public class MessageAgent implements SipInterfaceListener, TransactionClientList
          String subject=null;
          if (msg.hasSubjectHeader()) subject=msg.getSubjectHeader().getSubject();
          String content_type=msg.getContentTypeHeader().getContentType();
-         String content=msg.getBody();
-         if (listener!=null) listener.onMaReceivedMessage(this,sender,recipient,subject,content_type,content);
+         String body=msg.getBody();
+         if (listener!=null) listener.onMaReceivedMessage(this,sender,recipient,subject,content_type,body);
       }
    }
  
