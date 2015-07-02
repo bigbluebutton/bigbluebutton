@@ -200,6 +200,8 @@ public class Util {
 			
 	}	
 
+
+	
 	public Map<String, Object> extractAnnotation(JsonObject annotationElement) {
 		//NON-TEXT SHAPE
 		if (annotationElement.has(Constants.ID)

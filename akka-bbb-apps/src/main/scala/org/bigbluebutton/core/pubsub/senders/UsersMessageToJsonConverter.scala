@@ -20,7 +20,7 @@ object UsersMessageToJsonConverter {
     wuser += "presenter" -> user.presenter
     wuser += "has_stream" -> user.hasStream
     wuser += "locked" -> user.locked
-    wuser += "webcam_stream" -> user.webcamStreams
+    wuser += "webcam_stream" -> user.webcamStreams.toArray
     wuser += "phone_user" -> user.phoneUser
     wuser += "listenOnly" -> user.listenOnly
 

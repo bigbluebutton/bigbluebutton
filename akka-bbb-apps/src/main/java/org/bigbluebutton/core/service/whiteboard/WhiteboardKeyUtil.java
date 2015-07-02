@@ -8,6 +8,7 @@ public class WhiteboardKeyUtil {
 	public static final String ELLIPSE_TYPE = "ellipse";
 	public static final String TRIANGLE_TYPE = "triangle";
 	public static final String LINE_TYPE = "line";
+	public static final String POLL_RESULT_TYPE = "poll_result";
 	
 	public static final String TEXT_CREATED_STATUS = "textCreated";
 	public static final String DRAW_START_STATUS = "DRAW_START";
