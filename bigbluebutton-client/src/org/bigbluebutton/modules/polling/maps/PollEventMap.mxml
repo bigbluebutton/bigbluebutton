@@ -22,17 +22,7 @@
 
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;
-      
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.polling.events.*;
-      import org.bigbluebutton.modules.polling.managers.PollManager;
-      import org.bigbluebutton.modules.polling.model.PollingModel;
-      import org.bigbluebutton.modules.polling.service.MessageReceiver;
-      import org.bigbluebutton.modules.polling.service.MessageSender;
-      import org.bigbluebutton.modules.polling.service.NetworkPollDataService;
-      import org.bigbluebutton.modules.polling.service.PollDataProcessor;
       import org.bigbluebutton.modules.polling.service.PollingService;
 			
 				]]>
@@ -40,7 +30,7 @@
 	</mx:Script>
 
 	<EventHandlers type="{ModuleEvent.START}">
-		
+		<ObjectBuilder generator="{PollingService}" cache="global"/>
 	</EventHandlers>	
 	
 	<EventHandlers type="{ModuleEvent.STOP}">
@@ -64,26 +54,7 @@
     <MethodInvoker generator="{PollingService}" method="handleShowPollResultEvent" arguments="{event}"/>
   </EventHandlers>
 
-  
-  <Injectors target="{PollingService}">
-    <ObjectBuilder generator="{PollDataProcessor}" cache="global"/>
-    <PropertyInjector targetKey="dataService" source="{NetworkPollDataService}"/>
-    <PropertyInjector targetKey="model" source="{PollingModel}"/>
-  </Injectors>
-
-  <Injectors target="{NetworkPollDataService}">
-    <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
-    <PropertyInjector targetKey="sender" source="{MessageSender}"/>
-  </Injectors>
-  
-  <Injectors target="{PollDataProcessor}">
-    <PropertyInjector targetKey="model" source="{PollingModel}"/>
-    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-  </Injectors>
-  
-  <Injectors target="{MessageReceiver}">
-    <PropertyInjector targetKey="processor" source="{PollDataProcessor}"/>
-  </Injectors>
+ 
   
   <Debugger level="{Debugger.ALL}" />
 </EventMap>

@@ -70,15 +70,13 @@ public class WhiteboardClientMessageSender {
 		}
 	}
 
-	private void processSendWhiteboardAnnotationReplyMessage(
-			SendWhiteboardAnnotationReplyMessage msg) {
+	private void processSendWhiteboardAnnotationReplyMessage(SendWhiteboardAnnotationReplyMessage msg) {
 
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put("whiteboardId", msg.whiteboardId);
 		
 		Map<String, Object> shape = new HashMap<String, Object>();
 
-		System.out.println("\n\n"+msg.shape.toString() +"\n\n");
 		shape.put("id", msg.shape.get("id"));
 		shape.put("type", msg.shape.get("type"));
 		shape.put("status", msg.shape.get("status"));
@@ -89,9 +87,6 @@ public class WhiteboardClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-
-		System.out.println("RedisPubSubMessageHandler - processSendWhiteboardAnnotationReplyMessage \n"
-		+ message.get("msg").toString() + "\n");
 
 		//broadcast message
 		BroadcastClientMessage b = new BroadcastClientMessage(msg.meetingId, "WhiteboardNewAnnotationCommand", message);

@@ -18,22 +18,18 @@
  */
 package org.bigbluebutton.modules.polling.service
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
-  import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.polling.model.PollingModel;
 
   public class MessageReceiver implements IMessageListener
   {
     private static const LOG:String = "Poll::MessageReceiver - ";
     
-    /* Injected by Mate */
-    public var processor:PollDataProcessor;
+    private var processor:PollDataProcessor;
     
-    public function MessageReceiver() {
+    public function MessageReceiver(processor:PollDataProcessor) {
       trace(LOG + " registering message listener");
+	  this.processor = processor;
       BBB.initConnectionManager().addMessageListener(this);
     }
 
@@ -55,8 +51,5 @@ package org.bigbluebutton.modules.polling.service
           break;
       }
     }
-
-
-   
   }
 }

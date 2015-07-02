@@ -18,11 +18,6 @@
 */
 package org.bigbluebutton.modules.polling.service
 {
-	
-	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
 	import org.bigbluebutton.modules.polling.events.StartPollEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
@@ -36,12 +31,22 @@ package org.bigbluebutton.modules.polling.service
 	{	
 		private static const LOG:String = "Poll::PollingService - ";
 
-    /* Injected by Mate */
-    public var dataService:IPollDataService;
-    public var model:PollingModel;
-    
+	    private var dataService:IPollDataService;
+    	private var model:PollingModel;
+    	private var sender:MessageSender;
+		private var dataProcessor:PollDataProcessor;
+		private var receiver:MessageReceiver;
+		
+		public function PollingService() {
+			model = new PollingModel();
+			sender = new MessageSender();
+			dataService = new NetworkPollDataService(sender);
+			dataProcessor = new PollDataProcessor(model);
+			receiver = new MessageReceiver(dataProcessor);
+		}
+			
 		public function handleStartModuleEvent(module:PollingModule):void {
-       trace(LOG + " module started event");
+       		trace(LOG + " module started event");
 		}
 			
 

@@ -328,7 +328,7 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
    * Message Interface for Whiteboard
    * *****************************************************************
    */
-  private def buildAnnotation(annotation: Map[String, Object]): Option[AnnotationVO] = {
+  private def buildAnnotation(annotation: scala.collection.mutable.Map[String, Object]): Option[AnnotationVO] = {
     var shape: Option[AnnotationVO] = None
 
     val id = annotation.getOrElse("id", null).asInstanceOf[String]
@@ -345,7 +345,7 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
   }
 
   def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: java.util.Map[String, Object]) {
-    val ann = mapAsScalaMap(annotation).toMap
+    val ann: scala.collection.mutable.Map[String, Object] = mapAsScalaMap(annotation)
 
     buildAnnotation(ann) match {
       case Some(shape) => {
