@@ -214,7 +214,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
         IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
         if (listener != null) {
-          stream.removeStreamListener(listener);
+        	((VideoStreamListener) listener).streamStopped();
+        	stream.removeStreamListener(listener);
         }
         
       if (recordVideoStream) {        

@@ -75,6 +75,8 @@ public class VideoStreamListener implements IStreamListener {
     // Event queue worker job name
     private String timeoutJobName;
  
+    private volatile boolean publishing = false;
+    
     private IScope scope;
     
     public VideoStreamListener(IScope scope, IBroadcastStream stream, Boolean record) {
@@ -107,6 +109,7 @@ public class VideoStreamListener implements IStreamListener {
 	          
 	    	  if (! firstPacketReceived) {
 	    		  firstPacketReceived = true;
+	    		  publishing = true;
 	    		  
 		          // start the worker to monitor if we are still receiving video packets
 		          timeoutJobName = scheduler.addScheduledJob(videoTimeout, new TimeoutJob());
@@ -129,6 +132,10 @@ public class VideoStreamListener implements IStreamListener {
 		recordingService = s;
 	}
 	
+	public void streamStopped() {
+		this.publishing = false;
+	}
+	
     private class TimeoutJob implements IScheduledJob {
     	private boolean streamStopped = false;
     	
@@ -141,9 +148,11 @@ public class VideoStreamListener implements IStreamListener {
                     // remove the scheduled job
                     scheduler.removeScheduledJob(timeoutJobName);
                     // stop / clean up
-                    stream.stop();                	
+                    if (publishing) {
+                    	stream.stop(); 	
+                    }
+                                   	
                 }
-
             }
         }
  
