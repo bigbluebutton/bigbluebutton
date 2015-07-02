@@ -42,6 +42,8 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+  import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+  import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -517,7 +519,13 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "*** handleUserUnsharedWebcam " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       UserManager.getInstance().getConference().unsharedWebcam(map.userId, map.webcamStream);
+	  sendStreamStoppedEvent(map.userId, map.webcamStream);
     }
+	
+	private function sendStreamStoppedEvent(userId: String, streamId: String):void{
+		var dispatcher:Dispatcher = new Dispatcher();
+		dispatcher.dispatchEvent(new StreamStoppedEvent(userId, streamId));
+	}
     
     public function participantStatusChange(userID:String, status:String, value:Object):void {
       trace(LOG + "Received status change [" + userID + "," + status + "," + value + "]")			
