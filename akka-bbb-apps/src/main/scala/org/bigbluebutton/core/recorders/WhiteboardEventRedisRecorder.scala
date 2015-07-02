@@ -53,7 +53,13 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
       event.setPresentation(getPresentationId(msg.whiteboardId))
       event.setPageNumber(getPageNum(msg.whiteboardId))
       event.setWhiteboardId(msg.whiteboardId)
-      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
+
+      // FIXME: Need to fix recording of wb event (ralam june 29, 2015)
+      //val ann: java.util.Map[String, Any] = mapAsJavaMap(msg.shape.shape)
+      //      val ann: java.util.Map[String, Object] = mapAsJavaMap(msg.shape.shape)
+      //      val ann2: java.util.Map[String, Object] = mapAsJavaMap(ann)
+
+      //      event.addAnnotation(mapAsJavaMap(ann))
       recorder.record(msg.meetingID, event)
     } else {
       val event = new AddShapeWhiteboardRecordEvent()
@@ -62,7 +68,8 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
       event.setPresentation(getPresentationId(msg.whiteboardId))
       event.setPageNumber(getPageNum(msg.whiteboardId))
       event.setWhiteboardId(msg.whiteboardId);
-      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
+      // FIXME: Need to fix recording of wb event (ralam june 29, 2015)
+      //      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
       recorder.record(msg.meetingID, event)
     }
   }

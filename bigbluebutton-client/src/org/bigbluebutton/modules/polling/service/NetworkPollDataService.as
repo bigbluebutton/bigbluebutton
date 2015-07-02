@@ -5,10 +5,12 @@ package org.bigbluebutton.modules.polling.service
   {
     private static const LOG:String = "Poll::NetworkPollDataService - ";
     
-    /* Injected by Mate */
-    public var receiver:MessageReceiver;
-    public var sender:MessageSender;
+    private var sender:MessageSender;
           
+	public function NetworkPollDataService(sender: MessageSender) {
+		this.sender = sender;
+	}
+	
     public function startPoll(pollId:String, pollType: String):void
     {
       sender.startPoll(pollId, pollType);

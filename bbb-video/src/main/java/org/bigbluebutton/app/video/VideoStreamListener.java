@@ -75,6 +75,8 @@ public class VideoStreamListener implements IStreamListener {
     // Event queue worker job name
     private String timeoutJobName;
  
+    private volatile boolean publishing = false;
+    
     private IScope scope;
     
     public VideoStreamListener(IScope scope, IBroadcastStream stream, Boolean record) {
@@ -107,11 +109,12 @@ public class VideoStreamListener implements IStreamListener {
 	          
 	    	  if (! firstPacketReceived) {
 	    		  firstPacketReceived = true;
-		          // start the worker
+	    		  publishing = true;
+	    		  
+		          // start the worker to monitor if we are still receiving video packets
 		          timeoutJobName = scheduler.addScheduledJob(videoTimeout, new TimeoutJob());
 		          
 		          if (record) { 
-		    		  IConnection conn = Red5.getConnectionLocal(); 
 		    		  Map<String, String> event = new HashMap<String, String>();
 		    		  event.put("module", "WEBCAM");
 		    		  event.put("timestamp", genTimestamp().toString());
@@ -119,7 +122,7 @@ public class VideoStreamListener implements IStreamListener {
 		    		  event.put("stream", stream.getPublishedName());
 		    		  event.put("eventName", "StartWebcamShareEvent");
 		    			
-		    		  recordingService.record(conn.getScope().getName(), event);
+		    		  recordingService.record(scope.getName(), event);
 		          }		          
 	    	  }
 	      } 
@@ -129,15 +132,27 @@ public class VideoStreamListener implements IStreamListener {
 		recordingService = s;
 	}
 	
+	public void streamStopped() {
+		this.publishing = false;
+	}
+	
     private class TimeoutJob implements IScheduledJob {
-    	 
+    	private boolean streamStopped = false;
+    	
         public void execute(ISchedulingService service) {
             if ((System.currentTimeMillis() - lastVideoTime) > videoTimeout) {
                 log.warn("No data received for stream[{}] in the last few seconds. Close stream.", stream.getPublishedName());
-                // remove the scheduled job
-                scheduler.removeScheduledJob(timeoutJobName);
-                // stop / clean up
-                stream.stop();
+                
+                if (!streamStopped) {
+                	streamStopped = true;
+                    // remove the scheduled job
+                    scheduler.removeScheduledJob(timeoutJobName);
+                    // stop / clean up
+                    if (publishing) {
+                    	stream.stop(); 	
+                    }
+                                   	
+                }
             }
         }
  

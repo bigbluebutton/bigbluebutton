@@ -1,7 +1,10 @@
 package org.bigbluebutton.modules.polling.service
 {
 
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.IEventDispatcher;
+  
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
   import org.bigbluebutton.modules.polling.events.PollStartedEvent;
@@ -17,10 +20,14 @@ package org.bigbluebutton.modules.polling.service
   {
     private static const LOG:String = "Poll::PollDataProcessor - ";
     
-    /* Injected by Mate */
-    public var model:PollingModel;
-    public var dispatcher:IEventDispatcher;
-           
+	private var model:PollingModel;
+	private var dispatcher:Dispatcher;
+    
+	public function PollDataProcessor(model: PollingModel) {
+		this.model = model;
+		this.dispatcher = new Dispatcher();
+	}
+	
     public function handlePollStartedMesage(msg:Object):void {
       trace(LOG + "*** Poll started " + msg.msg + " **** \n");
       

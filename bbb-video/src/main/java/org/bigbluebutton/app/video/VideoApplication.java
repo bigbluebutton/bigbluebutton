@@ -204,7 +204,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	       scopeName = stream.getScope().getName();
       }
       
-      log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+      log.info("Stream broadcast closed for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
       
   		String userId = getUserId();
   		String meetingId = conn.getScope().getName();
@@ -214,13 +214,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
         IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
         if (listener != null) {
-          stream.removeStreamListener(listener);
+        	((VideoStreamListener) listener).streamStopped();
+        	stream.removeStreamListener(listener);
         }
         
-      if (recordVideoStream) {
-        
+      if (recordVideoStream) {        
         long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
-        log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + scopeName);
+        log.info("Stop recording event for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
         Map<String, String> event = new HashMap<String, String>();
         event.put("module", "WEBCAM");
         event.put("timestamp", genTimestamp().toString());

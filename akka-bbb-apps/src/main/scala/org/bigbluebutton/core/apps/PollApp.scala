@@ -4,6 +4,8 @@ import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
+import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import com.google.gson.Gson
 
 trait PollApp {
   this: MeetingActor =>
@@ -60,11 +62,39 @@ trait PollApp {
     }
   }
 
+  def pollResultToWhiteboardShape(result: SimplePollResultOutVO, msg: ShowPollResultRequest): scala.collection.immutable.Map[String, Object] = {
+    val shape = new scala.collection.mutable.HashMap[String, Object]()
+
+    val answers = new ArrayBuffer[java.util.HashMap[String, Object]];
+    result.answers.foreach(ans => {
+      val amap = new java.util.HashMap[String, Object]()
+      amap.put("id", ans.id: java.lang.Integer)
+      amap.put("key", ans.key)
+      amap.put("num_votes", ans.numVotes: java.lang.Integer)
+      answers += amap
+    })
+
+    val gson = new Gson()
+    shape += "result" -> gson.toJson(answers.toArray)
+
+    val display = Array(0, 0, 200, 200)
+    shape += "points" -> display
+    shape.toMap
+  }
+
   def handleShowPollResultRequest(msg: ShowPollResultRequest) {
     pollModel.getSimplePollResult(msg.pollId) match {
       case Some(poll) => {
         pollModel.showPollResult(poll.id)
-        outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
+        val shape = pollResultToWhiteboardShape(poll, msg)
+
+        for {
+          page <- presModel.getCurrentPage()
+          annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id)
+        } this.context.self ! new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation)
+
+        //        outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
+
       }
       case None => {
         val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
