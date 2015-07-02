@@ -11,6 +11,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			super(id, type, status);
 			
 			_pollGraphic = new PollGraphic();
+			this.addChild(_pollGraphic);
 		}
 		
 		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
