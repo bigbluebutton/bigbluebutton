@@ -1,8 +1,6 @@
 <template name="header">
   <nav id="navbar" class="myNavbar gradientBar top-bar" role="navigation">
-    <button class="btn toggleUserlistButton navbarButton sl-hamburger sl-ham-la-cw sl-portrait-mobile sl-portrait-keyboard">
-      <span></span>
-    </button>
+    {{> makeButton btn_class="btn toggleUserlistButton navbarButton sl-hamburger sl-ham-la-cw sl-portrait-mobile sl-portrait-keyboard" rel="tooltip" title="Toggle Userlist" span=true}}
 
     {{#if amIInAudio}}
       {{#if amIListenOnlyAudio}}

@@ -118,6 +118,17 @@
   }
 }
 
+.toggleUserlistButton, .toggleMenuButton {
+  span {
+    @media @landscape, @desktop-portrait {
+      width: 30px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 8%;
+    }
+  }
+}
+
 // changing mute/unmute icons on hover:
 .muteIcon .ion-ios-mic-outline:hover:before {
   content: "\f45f";
