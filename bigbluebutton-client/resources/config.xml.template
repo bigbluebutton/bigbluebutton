@@ -96,14 +96,12 @@
 			whiteboardAccess="presenter"
 			keepToolbarVisible="false"
 		/>
-<!--
-
-    <module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
-      uri="rtmp://HOST/bigbluebutton" 
-      dependsOn="PresentModule"
-    />
-    		
--->
+		
+		<module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="PresentModule"
+		/>
+		
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
