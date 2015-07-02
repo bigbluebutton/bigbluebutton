@@ -73,7 +73,7 @@ public class Util {
 				&& user.has(Constants.RAISE_HAND) && user.has(Constants.PHONE_USER)
 				&& user.has(Constants.PRESENTER) && user.has(Constants.LOCKED)
 				&& user.has(Constants.EXTERN_USERID) && user.has(Constants.ROLE)
-				&& user.has(Constants.VOICEUSER)){
+				&& user.has(Constants.VOICEUSER) && user.has(Constants.WEBCAM_STREAM)){
 				
 			Map<String, Object> userMap = new HashMap<String, Object>();					
 
@@ -87,11 +87,15 @@ public class Util {
 			Boolean locked = user.get(Constants.LOCKED).getAsBoolean();
 			String extUserId = user.get(Constants.EXTERN_USERID).getAsString();
 			String role = user.get(Constants.ROLE).getAsString();
-						  
+			
+			JsonArray webcamStreamJArray = user.get(Constants.WEBCAM_STREAM).getAsJsonArray();
+			ArrayList<String> webcamStreams = extractWebcamStreams(webcamStreamJArray);
+			
 			userMap.put("userId", userid);
 			userMap.put("name", username);
 			userMap.put("listenOnly", listenOnly);
 			userMap.put("hasStream", hasStream);
+			userMap.put("webcamStream", webcamStreams);
 			userMap.put("raiseHand", raiseHand);
 			userMap.put("externUserID", extUserId);
 			userMap.put("phoneUser", phoneUser);
@@ -164,6 +168,19 @@ public class Util {
 			if (userMap != null) {
 				collection.add(userMap);
 			}
+	    }
+		
+		return collection;
+			
+	}
+
+	public ArrayList<String> extractWebcamStreams(JsonArray webcamStreams) {
+		ArrayList<String> collection = new ArrayList<String>();
+	
+	    Iterator<JsonElement> webcamStreamsIter = webcamStreams.iterator();
+	    while (webcamStreamsIter.hasNext()){
+			JsonElement stream = webcamStreamsIter.next();
+			collection.add(stream.getAsString());
 	    }
 		
 		return collection;

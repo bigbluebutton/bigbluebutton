@@ -30,6 +30,7 @@ public class GetUsersReplyMessage implements ISubscribedMessage {
 
 		return MessageBuilder.buildJson(header, payload);				
 	}
+	
 	public static GetUsersReplyMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
