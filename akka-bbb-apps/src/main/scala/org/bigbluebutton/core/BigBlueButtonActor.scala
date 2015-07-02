@@ -297,10 +297,11 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
   private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
-    println("\nBBBActor: handleDeskShareStartedRequest" + msg.conferenceName + msg.callerId + msg.callerIdName + "\n")
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
+      println("\nBBBActor: handleDeskShareStartedRequest" + msg.conferenceName + msg.callerId
+        + originalConfId + msg.callerIdName + "\n")
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
         {
           m.actorRef ! msg

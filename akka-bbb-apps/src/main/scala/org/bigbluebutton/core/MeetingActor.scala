@@ -379,6 +379,11 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
     meetingModel.setRTMPBroadcastingUrl(msg.streamname)
     meetingModel.broadcastingRTMPStarted()
+
+    // Notify viewers in the meeting that there's an rtmp stream to view
+    outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+      true, System.currentTimeMillis().toString()))
+    println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE1 " + meetingModel.getRTMPBroadcastingUrl())
   }
 
   private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
@@ -388,6 +393,11 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
     meetingModel.broadcastingRTMPStoppped()
     // TODO should I do: meetingModel.setRTMPBroadcastingUrl("") ?
+
+    // TODO notify viewers that RTMP broadcast stopped
+    outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+      false, System.currentTimeMillis().toString()))
+    println("DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE")
   }
 
 }

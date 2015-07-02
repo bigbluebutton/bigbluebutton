@@ -18,31 +18,38 @@ class DeskShareEventRedisPublisher(service: MessageSender) extends OutMessageLis
       case msg: DeskShareStopRecording => handleDeskShareStopRecording(msg)
       case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
       case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
+      case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
       case _ => // do nothing
     }
   }
 
   private def handleDeskShareStartRecording(msg: DeskShareStartRecording) {
-    println("_______handleDeskShareStartRecording____________")
+    println("_____publish to FS__handleDeskShareStartRecording____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareStartRecordingToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 
   private def handleDeskShareStopRecording(msg: DeskShareStopRecording) {
-    println("_______handleDeskShareStopRecording____________")
+    println("_____publish to FS__handleDeskShareStopRecording____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareStopRecordingToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 
   private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
-    println("_______handleDeskShareStartRTMPBroadcast____________")
+    println("_____publish to FS__handleDeskShareStartRTMPBroadcast____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareStartRTMPBroadcastToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 
   private def handleDeskShareStopRTMPBroadcast(msg: DeskShareStopRTMPBroadcast) {
-    println("_______handleDeskShareStopRTMPBroadcast____________")
+    println("_____publish to FS__handleDeskShareStopRTMPBroadcast____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareStopRTMPBroadcastToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
+  }
+
+  private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
+    println("_____publish to bigbluebutton-apps(red5) __handleDeskShareNotifyViewersRTMP____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareNotifyViewersRTMPToJson(msg)
+    service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
   }
 }
