@@ -178,13 +178,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	String streamId = stream.getPublishedName();
     	
     	publisher.userSharedWebcamMessage(meetingId, userId, streamId);
-    	
+    	VideoStreamListener listener = new VideoStreamListener(conn.getScope(), stream, recordVideoStream);
+        listener.setEventRecordingService(recordingService);
+        stream.addStreamListener(listener); 
+        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
+        
         if (recordVideoStream) {
 	    	recordStream(stream);
-	    	VideoStreamListener listener = new VideoStreamListener(); 
-	        listener.setEventRecordingService(recordingService);
-	        stream.addStreamListener(listener); 
-	        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
         }
     }
 
@@ -211,13 +211,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   		String streamId = stream.getPublishedName();
   	
   		publisher.userUnshareWebcamRequestMessage(meetingId, userId, streamId);
-  	
-      if (recordVideoStream) {
 
         IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
         if (listener != null) {
           stream.removeStreamListener(listener);
         }
+        
+      if (recordVideoStream) {
         
         long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
         log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + scopeName);

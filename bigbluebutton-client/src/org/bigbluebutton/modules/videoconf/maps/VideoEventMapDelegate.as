@@ -464,6 +464,7 @@ package org.bigbluebutton.modules.videoconf.maps
 		  stopAllBroadcasting();
 		  trace("VideoEventMapDelegate:: Closing all webcam windows.");
 		  closeAllWindows()
+		  openWebcamWindows();
 	  } else {
 		  addToolbarButton();
 		  openWebcamWindows();		  
