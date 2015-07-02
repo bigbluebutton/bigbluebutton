@@ -66,7 +66,7 @@ package org.bigbluebutton.modules.videoconf.views
 
     protected function getVideoProfile(stream:String):VideoProfile {
       trace("Parsing stream name [" + stream + "]");
-      var pattern:RegExp = new RegExp("([A-Za-z0-9_]+)-([A-Za-z0-9]+)-\\d+", "");
+      var pattern:RegExp = new RegExp("([A-Za-z0-9]+)-([A-Za-z0-9_]+)-\\d+", "");
       if (pattern.test(stream)) {
         trace("The stream name is well formatted");
         trace("Video profile resolution is [" + pattern.exec(stream)[1] + "]");
