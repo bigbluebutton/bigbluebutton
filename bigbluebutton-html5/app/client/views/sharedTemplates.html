@@ -1,11 +1,13 @@
 <template name="makeButton">
     <button type="submit" id="{{id}}" class="btn {{btn_class}}" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}" style="{{style}}">
-      {{#if text}}
-        <span>{{text}}</span>
-      {{else}}
-        {{#if i_class}}
-          <i class="{{i_class}}"></i><span>{{label}}</span>
-        {{/if}}
+      {{#if i_class}}
+        <i class="{{i_class}}"></i>
+      {{/if}}
+      {{#if label}}
+        <span>{{label}}</span>
+      {{/if}}
+      {{#if span}}
+        <span></span>
       {{/if}}
     </button>
 </template>
