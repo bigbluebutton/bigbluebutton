@@ -64,6 +64,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             return new Line(a.id, a.type, a.status);
         }  else if (a.type == DrawObject.TRIANGLE) {
             return new Triangle(a.id, a.type, a.status);
+        }  else if (a.type == DrawObject.POLL) {
+            return new PollResult(a.id, a.type, a.status);
         }
             
         return null;

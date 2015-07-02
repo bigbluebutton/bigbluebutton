@@ -43,6 +43,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         public static const TEXT:String = "text";      
 		public static const TRIANGLE:String = "triangle";
 		public static const LINE:String = "line";	
+		public static const POLL:String = "poll_result";
 				
 		/**
 		 * Status = [START, UPDATE, END]
