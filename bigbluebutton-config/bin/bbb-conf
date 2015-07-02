@@ -255,6 +255,12 @@ stop_bigbluebutton () {
 		/etc/init.d/bbb-record-core stop
 	fi
 
+	if [ -f /etc/init/bbb-apps-akka.conf ]; then
+        	service bbb-apps-akka stop
+	fi
+	if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
+        	service bbb-fsesl-akka stop
+	fi
 }
 
 start_bigbluebutton () {
@@ -296,6 +302,12 @@ start_bigbluebutton () {
 		fi
         fi
 
+	if [ -f /etc/init/bbb-apps-akka.conf ]; then
+        	service bbb-apps-akka start
+	fi
+	if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
+        	service bbb-fsesl-akka start
+	fi
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
