@@ -126,6 +126,10 @@ Template.chatbar.rendered = -> detectUnreadChat()
 Template.chatbar.events
   'click .toPublic': (event) ->
     setInSession 'inChatWith', 'PUBLIC_CHAT'
+    setInSession 'chats', getInSession('chats').map((chat) ->
+      chat.gotMail = false if chat.userId is "PUBLIC_CHAT"
+      chat
+    )
 
 Template.privateChatTab.rendered = ->
   if isLandscape() or isPortrait()

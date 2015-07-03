@@ -1,6 +1,5 @@
 Template.makeButton.helpers
   hasGotUnreadMail: (userId) ->
-    console.log "I'm here"
     chats = getInSession('chats') if getInSession('chats') isnt undefined
     flag = false
     if userId is "all_chats"
