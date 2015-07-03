@@ -108,7 +108,7 @@ trait UsersApp {
       logger.info("Register user failed: reason=[meeting has ended] mid=[" + meetingID + "] uid=[" + msg.userID + "]")
       sendMeetingHasEnded(msg.userID)
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.guest)
+      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.guest, msg.guest)
       regUsers += msg.authToken -> regUser
       logger.info("Register user success: mid=[" + meetingID + "] uid=[" + msg.userID + "]")
       outGW.send(new UserRegistered(meetingID, recorded, regUser))      
@@ -290,7 +290,7 @@ trait UsersApp {
               false, false, false, false)
         }
       }
-      val waitingForAcceptance = ru.guest && guestPolicy == GuestPolicy.ASK_MODERATOR;
+      val waitingForAcceptance = ru.guest && guestPolicy == GuestPolicy.ASK_MODERATOR && ru.waitingForAcceptance
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
                   ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, mood="", presenter=false, 
                   hasStream=false, locked=getInitialLockStatus(ru.role), 
@@ -326,7 +326,8 @@ trait UsersApp {
 	  user foreach { u => 
 	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
 	    outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
-	    
+	    updateRegUser(u)
+
 	    if (u.presenter) {
 	      /* The current presenter has left the meeting. Find a moderator and make
 	       * him presenter. This way, if there is a moderator in the meeting, there
@@ -504,8 +505,20 @@ trait UsersApp {
       }
     }
   }
+
   def getRegisteredUser(userID: String): Option[RegisteredUser] = {
     regUsers.values find (ru => userID contains ru.id)
+  }
+
+ def updateRegUser(uvo: UserVO) {
+    getRegisteredUser(uvo.userID) match {
+      case Some(ru) => {
+        val regUser = new RegisteredUser(uvo.userID, uvo.externUserID, uvo.name, uvo.role, ru.authToken, uvo.guest, uvo.waitingForAcceptance)
+        regUsers -= ru.authToken
+        regUsers += ru.authToken -> regUser
+      }
+      case None =>
+    }
   }
 
   def removeRegUser(userID: String) {

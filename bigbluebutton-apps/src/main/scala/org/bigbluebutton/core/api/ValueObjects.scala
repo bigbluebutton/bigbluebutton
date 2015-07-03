@@ -56,7 +56,8 @@ case class RegisteredUser (
     name: String, 
     role: Role.Role,
     authToken: String,
-    guest: Boolean
+    guest: Boolean,
+    waitingForAcceptance: Boolean
 )
 
 case class Voice(
