@@ -65,8 +65,8 @@ public class PngImageCreatorImp implements PngImageCreator {
 	 	}else{
 	 		for(int i=1; i<=pres.getNumberOfPages(); i++){
 	 			File tmp = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "tmp" + File.separatorChar + "slide" + i + ".pdf");
-	 			File destpng = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + i + ".png");
-				COMMAND = IMAGEMAGICK_DIR + "/convert -density 300x300 -quality 90 +dither -depth 8 -colors 256 " + File.separatorChar + tmp.getAbsolutePath() + " " + destpng.getAbsolutePath();
+	 			File destpng = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + i + ".svg");
+				COMMAND = "pdftocairo -svg -q -f 1 -l 1 " + File.separatorChar + tmp.getAbsolutePath() + " " + destpng.getAbsolutePath();
 
 	 			done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 	 			if(!done){

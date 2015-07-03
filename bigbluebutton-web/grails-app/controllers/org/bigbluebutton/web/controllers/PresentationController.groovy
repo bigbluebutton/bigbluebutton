@@ -157,7 +157,7 @@ class PresentationController {
 		if (pres.exists()) {
 		  def bytes = pres.readBytes()
 		  response.addHeader("Cache-Control", "no-cache")
-		  response.contentType = 'image/png'
+		  response.contentType = 'image/svg'
 		  response.outputStream << bytes;
 		}
 	  } catch (IOException e) {
