@@ -185,7 +185,7 @@ package org.bigbluebutton.modules.users.services
       e.userid = userid;
       dispatcher.dispatchEvent(e);      
 
-      // If the user was the presenter he's reconnecting
+      // If the user was the presenter he's reconnecting and must become viewer
       if (UserManager.getInstance().getConference().amIPresenter) {
         sendSwitchedPresenterEvent(false, UsersUtil.getPresenterUserID());
         UserManager.getInstance().getConference().amIPresenter = false;
@@ -423,6 +423,9 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "*** handleGetUsersReply " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       var users:Object = map.users as Array;
+
+      // since might be a reconnection, clean up users list
+      UserManager.getInstance().getConference().removeAllParticipants();
       
       if (map.count > 0) {
         trace(LOG + "number of users = [" + users.length + "]");

@@ -82,7 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>      
 
   <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
-    <MethodInvoker generator="{ChatMessageService}" method="getPublicChatMessages"/>
+    <EventAnnouncer generator="{TranscriptEvent}" type="{TranscriptEvent.LOAD_TRANSCRIPT}"/>
   </EventHandlers>
   
   <Injectors target="{ChatMessageService}">

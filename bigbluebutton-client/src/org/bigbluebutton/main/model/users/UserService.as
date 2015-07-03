@@ -181,8 +181,6 @@ package org.bigbluebutton.main.model.users
       trace(LOG + "userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
-			// since might be a reconnection, clean up users list
-			UserManager.getInstance().getConference().removeAllParticipants();
 			
       sender.queryForParticipants();     
       sender.queryForRecordingStatus();

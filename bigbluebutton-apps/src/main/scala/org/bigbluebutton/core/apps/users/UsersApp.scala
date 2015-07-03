@@ -231,7 +231,7 @@ trait UsersApp {
       }
       
       users.removeUser(msg.userId)
-      regUsers -= getUserAuthToken(msg.userId)
+      removeRegUser(msg.userId)
 
       logger.info("Ejecting user from meeting:  mid=[" + meetingID + "]uid=[" + msg.userId + "]")
       outGW.send(new UserEjectedFromMeeting(meetingID, recorded, msg.userId, msg.ejectedBy))
@@ -239,14 +239,6 @@ trait UsersApp {
       
       outGW.send(new UserLeft(msg.meetingID, recorded, user))
     }    
-  }
-
-  def getUserAuthToken(userId: String): String = {
-    val regUser = regUsers.values find (ru => userId contains ru.id)
-    regUser match {
-      case Some(ru) => ru.authToken
-      case None => ""
-    }
   }
 
   def handleUserShareWebcam(msg: UserShareWebcam) {
@@ -472,6 +464,17 @@ trait UsersApp {
   	    case None => // do nothing
   	  }
 
+    }
+  }
+
+  def getRegisteredUser(userID: String): Option[RegisteredUser] = {
+    regUsers.values find (ru => userID contains ru.id)
+  }
+
+  def removeRegUser(userID: String) {
+    getRegisteredUser(userID) match {
+      case Some(ru) => regUsers -= ru.authToken
+      case None =>
     }
   }
 }
