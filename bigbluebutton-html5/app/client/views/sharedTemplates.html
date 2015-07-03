@@ -1,13 +1,18 @@
 <template name="makeButton">
-    <button type="submit" id="{{id}}" class="btn {{btn_class}}" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}" style="{{style}}">
-      {{#if text}}
-        <span>{{text}}</span>
-      {{else}}
-        {{#if i_class}}
-          {{#if notification}}{{#if hasGotUnreadMail notification }}<div class="unreadChat"></div>{{/if}}{{/if}}
-          <i class="{{i_class}}"></i>
-          {{#if label}}<span>{{label}}</span>{{/if}}
-        {{/if}}
+  <button type="submit" id="{{id}}" class="btn {{btn_class}}" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}" style="{{style}}">
+    {{#if notification}}
+      {{#if hasGotUnreadMail notification }}
+        <div class="unreadChat"></div>
       {{/if}}
-    </button>
+    {{/if}}
+    {{#if i_class}}
+      <i class="{{i_class}}"></i>
+    {{/if}}
+    {{#if label}}
+      <span>{{label}}</span>
+    {{/if}}
+    {{#if span}}
+      <span></span>
+    {{/if}}
+  </button>
 </template>

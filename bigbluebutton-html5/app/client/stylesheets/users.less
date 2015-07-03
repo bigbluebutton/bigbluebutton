@@ -1,4 +1,5 @@
 @import "variables";
+@import "mixins";
 
 .usericon {
   font-size: 16px;
@@ -31,22 +32,35 @@
 
 #users {
   @media @landscape {
-    -webkit-flex: 1 1 20%;
-    -moz-flex: 1 1 20%;
-    -ms-flex: 1 1 20%;
-    flex: 1 1 20%;
+    width: 100%;
     border-left: 0px;
     border-top: 0px;
     border-top-right-radius: 0px;
     background-color: #FAFAFA;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-    position: absolute;
-    left: -500px;
-    width: 500px;
+    width: 100%;
     height: 100%;
+    border: none;
+    .linear-gradient(rgb(65,68,77), rgb(58,60,69));
   }
   order: 0;
+  height: 100%;
+}
+
+.darkening-in {
+  opacity: 0;
+  animation: darken-in 0.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes darken-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.5;
+  }
 }
 
 #user-contents {
@@ -57,14 +71,17 @@
 
     #content {
       span:hover {
-        background-color: #EEEEEE;
+        /*background-color: #EEEEEE;*/
+        background: transparent;
       }
       margin-top: 10px;
       &:first-child { margin-top: 0px; }
       overflow: hidden;
       width: 100%;
       @media @mobile-portrait, @mobile-portrait-with-keyboard {
-        background: #E6F0FA;
+        /*background: #E6F0FA;*/
+        background: transparent;
+        color: white;
       }
     }
 
@@ -76,6 +93,7 @@
       padding-top: 10px;
       padding-left: 10px;
       padding-right: 10px;
+      color: white;
     }
     @media @desktop-portrait, @mobile-portrait {
       max-height: 58vw; //for longer userlist a scrollbar appears
@@ -98,6 +116,17 @@
       color: #aaa;
       font-style: normal;
       font-size: 30px;
+    }
+  }
+}
+
+.toggleUserlistButton, .toggleMenuButton {
+  span {
+    @media @landscape, @desktop-portrait {
+      width: 30px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 8%;
     }
   }
 }
