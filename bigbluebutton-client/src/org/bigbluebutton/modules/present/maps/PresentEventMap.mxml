@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
       import mx.events.FlexEvent;
       
+      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
       import org.bigbluebutton.modules.present.api.PresentationAPI;
       import org.bigbluebutton.modules.present.business.PresentProxy;
@@ -82,6 +83,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<EventHandlers type="{DownloadEvent.DOWNLOAD_PRESENTATION}" >
 		<MethodInvoker generator="{PresentProxy}"  method="startDownload" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
+		<MethodInvoker generator="{PresentProxy}" method="getCurrentPresentationInfo" />
 	</EventHandlers>
 	
 	<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >

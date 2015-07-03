@@ -46,9 +46,8 @@ package org.bigbluebutton.modules.phone.managers
     
     private var model:WebRTCModel = PhoneModel.getInstance().webRTCModel;
 
-    private var INITIAL_BACKOFF:Number = 100;
     private var MAX_RETRIES:Number = 3;
-    private var reconnect:AutoReconnect = new AutoReconnect(INITIAL_BACKOFF);
+    private var reconnect:AutoReconnect = new AutoReconnect();
     private var reconnecting:Boolean = false;
     
     public function WebRTCCallManager() {
@@ -226,7 +225,7 @@ package org.bigbluebutton.modules.phone.managers
         dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT,
           ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.dropped"),
           ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reconnecting")));
-        reconnect.onDisconnect(joinVoiceConference);
+        reconnect.onDisconnect(joinVoiceConference, []);
       }
       else {
         trace(LOG + "WebRTC call reconnection failed");

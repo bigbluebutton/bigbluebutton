@@ -86,7 +86,7 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	    case msg: ChangeUserRole                         => handleChangeUserRole(msg)
 	    case msg: EjectUserFromMeeting                   => handleEjectUserFromMeeting(msg)
 	    case msg: UserShareWebcam                        => handleUserShareWebcam(msg)
-	    case msg: UserUnshareWebcam                      => handleUserunshareWebcam(msg)
+	    case msg: UserUnshareWebcam                      => handleUserUnshareWebcam(msg)
 	    case msg: MuteMeetingRequest                     => handleMuteMeetingRequest(msg)
 	    case msg: MuteAllExceptPresenterRequest          => handleMuteAllExceptPresenterRequest(msg)
 	    case msg: IsMeetingMutedRequest                  => handleIsMeetingMutedRequest(msg)

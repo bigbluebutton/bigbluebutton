@@ -8,6 +8,7 @@
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.main.api.JSLog;
+  import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -379,23 +380,49 @@
 		}
 	}
 	
+    public function handleFlashVoiceConnected():void {
+      switch (state) {
+        case JOIN_VOICE_CONFERENCE:
+          callIntoVoiceConference();
+          break;
+        case DO_ECHO_TEST:
+          callIntoEchoTest();
+          break;
+        case CALL_TO_LISTEN_ONLY_STREAM:
+          callToListenOnlyStream();
+          break;
+        case ON_LISTEN_ONLY_STREAM:
+          callToListenOnlyStream();
+          break;
+        case IN_CONFERENCE:
+          trace("Reconnected while transmiting mic. Automatic retransmission not implemented.");
+          state = INITED;
+          break;
+
+        default:
+          trace(LOG + "unhandled state: " + state);
+          break;
+      }
+    }
+
     public function handleFlashVoiceConnectionStatusEvent(event:FlashVoiceConnectionStatusEvent):void {
       trace(LOG + "Connection status event. status=[" + event.status + "]");
-      if (event.status == FlashVoiceConnectionStatusEvent.CONNECTED) {
-        switch (state) {
-          case JOIN_VOICE_CONFERENCE:
-            callIntoVoiceConference();
-            break;
-          case DO_ECHO_TEST:
-            callIntoEchoTest();
-            break;
-          case CALL_TO_LISTEN_ONLY_STREAM:
-            callToListenOnlyStream();
-            break;
-          default:
-            trace(LOG + "unhandled state: " + state);
-            break;
-        }
+      switch (event.status) {
+        case FlashVoiceConnectionStatusEvent.CONNECTED:
+          handleFlashVoiceConnected();
+          break;
+
+        case FlashVoiceConnectionStatusEvent.FAILED:
+        case FlashVoiceConnectionStatusEvent.DISCONNECTED:
+          // If reconnection is under way the state should de kept
+          if(!event.reconnecting) {
+            state = INITED;
+          }
+          dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
+          break;
+
+        default:
+          trace(LOG + "Unhandled connection status [" + event.status + "]");
       }
     }
     

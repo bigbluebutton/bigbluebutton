@@ -39,7 +39,7 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     public function onMessage(messageName:String, message:Object):void {
-      // LogUtil.debug("WB: received message " + messageName);
+      // trace("WB: received message " + messageName);
 
       switch (messageName) {
         case "WhiteboardRequestAnnotationHistoryReply":

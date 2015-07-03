@@ -215,7 +215,8 @@ trait UsersApp {
       }
       
       users.removeUser(msg.userId)
-      
+      removeRegUser(msg.userId)
+
       logger.info("Ejecting user from meeting:  mid=[" + meetingID + "]uid=[" + msg.userId + "]")
       outGW.send(new UserEjectedFromMeeting(meetingID, recorded, msg.userId, msg.ejectedBy))
       outGW.send(new DisconnectUser(meetingID, msg.userId))
@@ -234,7 +235,7 @@ trait UsersApp {
     }     
   }
 
-  def handleUserunshareWebcam(msg: UserUnshareWebcam) {
+  def handleUserUnshareWebcam(msg: UserUnshareWebcam) {
     users.getUser(msg.userId) foreach {user =>
       val streams = user.webcamStreams - msg.stream
       val uvo = user.copy(hasStream=(!streams.isEmpty), webcamStreams=streams)
@@ -274,8 +275,21 @@ trait UsersApp {
   def handleUserJoin(msg: UserJoining):Unit = {
     val regUser = regUsers.get(msg.authToken)
     regUser foreach { ru =>
-      val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
-                           false, false, false, false)
+      // if there was a phoneUser with the same userID, reuse the VoiceUser value object
+      val vu = users.getUser(msg.userID) match {
+        case Some(u) => {
+          if (u.phoneUser) {
+            u.voiceUser.copy()
+          } else {
+            new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
+                false, false, false, false)
+          }
+        }
+        case None => {
+          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
+              false, false, false, false)
+        }
+      }
       val waitingForAcceptance = ru.guest && guestPolicy == GuestPolicy.ASK_MODERATOR;
       val uvo = new UserVO(msg.userID, ru.externId, ru.name, 
                   ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, mood="", presenter=false, 
@@ -324,6 +338,11 @@ trait UsersApp {
 	        assignNewPresenter(mod.userID, mod.name, mod.userID)
 	      }
 	    }
+      
+      // add VoiceUser again to the list as a phone user since we still didn't get the event from FreeSWITCH
+      if (u.voiceUser.joined) {
+        this ! (new VoiceUserJoined(msg.meetingID, u.voiceUser));
+      }
 	  }
 	  
       startCheckingIfWeNeedToEndVoiceConf()
@@ -341,13 +360,15 @@ trait UsersApp {
           logger.info("Voice user=[" + msg.voiceUser.userId + "] is already in conf=[" + voiceBridge + "]. Must be duplicate message.")
         }
         case None => {
-          // No current web user. This means that the user called in through
-          // the phone. We need to generate a new user as we are not able
-          // to match with a web user.
-          val webUserId = users.generateWebUserId
-          val vu = new VoiceUser(msg.voiceUser.userId, webUserId, 
-                                 msg.voiceUser.callerName, msg.voiceUser.callerNum,
-                                 true, false, false, false)
+          val webUserId = if (msg.voiceUser.webUserId != null) {
+                msg.voiceUser.webUserId
+              } else {
+              // No current web user. This means that the user called in through
+              // the phone. We need to generate a new user as we are not able
+              // to match with a web user.
+                users.generateWebUserId
+              }
+          val vu = msg.voiceUser.copy(webUserId=webUserId)
           
           val sessionId = "PHONE-" + webUserId;
           
@@ -481,6 +502,16 @@ trait UsersApp {
           outGW.send(new GuestAccessDenied(meetingID, recorded, user.userID))
         }
       }
+    }
+  }
+  def getRegisteredUser(userID: String): Option[RegisteredUser] = {
+    regUsers.values find (ru => userID contains ru.id)
+  }
+
+  def removeRegUser(userID: String) {
+    getRegisteredUser(userID) match {
+      case Some(ru) => regUsers -= ru.authToken
+      case None =>
     }
   }
 }

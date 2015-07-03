@@ -25,22 +25,16 @@ package org.bigbluebutton.main.model.users
   {
     public static const LOG:String = "AutoReconnect - ";
 
-    private var _backoff:Number;
-    private var _initialBackoff:Number;
+    private var _backoff:Number = 2000;
     private var _reconnectCallback:Function;
     private var _reconnectParameters:Array;
     private var _retries: Number;
 
-    public function AutoReconnect(initialBackoff:Number = 1000) {
-      _initialBackoff = initialBackoff;
-      _backoff = initialBackoff;
-    }
-
-    public function onDisconnect(callback:Function, ...parameters):void {
+    public function onDisconnect(callback:Function, parameters:Array):void {
       trace(LOG + "onDisconnect, parameters=" + parameters.toString());
       _reconnectCallback = callback;
       _reconnectParameters = parameters;
-      attemptReconnect(_initialBackoff);
+      attemptReconnect(0);
       _retries = 1;
     }
 
@@ -58,7 +52,7 @@ package org.bigbluebutton.main.model.users
         _reconnectCallback.apply(null, _reconnectParameters);
       });
       retryTimer.start();
-      if (_backoff < 16000) _backoff = backoff *2;
+      if (_backoff < 16000) _backoff = Math.max(backoff, 500) *2;
     }
 
     public function get Retries():Number {
