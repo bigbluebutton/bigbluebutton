@@ -112,6 +112,9 @@ package org.bigbluebutton.modules.sharednotes.maps
 				delete windows[notesId];
 			}
 		}
-		
+
+		public function destroyAllAdditionalNotes():void {
+			for (var noteId:String in windows) destroyAdditionalNotes(noteId);
+		}
 	}
 }
