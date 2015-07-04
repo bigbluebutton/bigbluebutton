@@ -38,7 +38,6 @@ done_files.each do |df|
   if (match[2] == "mconf_encrypted")
     BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf_encrypted/publish-#{meeting_id}.log", 'daily' )
 
-    meeting_process_dir = "#{recording_dir}/process/mconf_encrypted/#{meeting_id}"
     meeting_publish_dir = "#{recording_dir}/publish/mconf_encrypted/#{meeting_id}"
     meeting_published_dir = "#{recording_dir}/published/mconf_encrypted/#{meeting_id}"
     meeting_raw_dir = "#{recording_dir}/raw/#{meeting_id}"
@@ -48,9 +47,9 @@ done_files.each do |df|
       FileUtils.mkdir_p meeting_publish_dir
 
       Dir.chdir(meeting_publish_dir) do
-        BigBlueButton::MconfProcessor.zip_directory(meeting_process_dir, "#{meeting_id}.zip")
+        BigBlueButton::MconfProcessor.zip_directory(meeting_raw_dir, "#{meeting_id}.zip")
 
-        metadata = BigBlueButton::Events.get_meeting_metadata("#{meeting_process_dir}/events.xml")
+        metadata = BigBlueButton::Events.get_meeting_metadata("#{meeting_raw_dir}/events.xml")
 
         length = 16
         chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -73,25 +72,12 @@ done_files.each do |df|
         key_filename = ""
         if metadata.has_key?('mconflb-rec-server-key') and not metadata['mconflb-rec-server-key'].to_s.empty?
           key_filename = "#{meeting_id}.enc"
-          # The key is already unescaped in the metadata!!
-          #BigBlueButton.logger.info("Unescaping public key")
-          #public_key_decoded = CGI::unescape("#{metadata['public-key'].to_s}")
+          # the key is already unescaped in the metadata
           public_key_decoded = "#{metadata['mconflb-rec-server-key'].to_s}"
           public_key_filename = "public-key.pem"
           public_key = File.new("#{public_key_filename}", "w") 
           public_key.write "#{public_key_decoded}"
           public_key.close
-
-=begin
-          # Test: print the public key
-          public_key = File.new("#{public_key_filename}", "r")
-          counter = 0
-          while (line = public_key.gets)
-            BigBlueButton.logger.info "#{counter}: #{line}"
-            counter = counter + 1
-          end
-          public_key.close          
-=end
 
           command = "openssl rsautl -encrypt -pubin -inkey #{public_key_filename} < #{meeting_id}.txt > #{meeting_id}.enc"
           status = BigBlueButton.execute(command)
@@ -99,7 +85,6 @@ done_files.each do |df|
             raise "Couldn't encrypt the random key using the server public key passed as metadata"
           end
 
-        # Comment it for testing
           FileUtils.rm_f ["#{meeting_id}.txt", "#{public_key_filename}"]
         else
           key_filename = "#{meeting_id}.txt"
@@ -112,8 +97,8 @@ done_files.each do |df|
         BigBlueButton.logger.info("Creating metadata.xml")
 
         # Get the real-time start and end timestamp
-        meeting_start = BigBlueButton::Events.first_event_timestamp("#{meeting_process_dir}/events.xml")
-        meeting_end = BigBlueButton::Events.last_event_timestamp("#{meeting_process_dir}/events.xml")
+        meeting_start = BigBlueButton::Events.first_event_timestamp("#{meeting_raw_dir}/events.xml")
+        meeting_end = BigBlueButton::Events.last_event_timestamp("#{meeting_raw_dir}/events.xml")
         match = /.*-(\d+)$/.match(meeting_id)
         real_start_time = match[1]
         real_end_time = (real_start_time.to_i + (meeting_end.to_i - meeting_start.to_i)).to_s
@@ -134,7 +119,7 @@ done_files.each do |df|
             b.key("http://#{playback_host}/mconf_encrypted/#{meeting_id}/#{key_filename}")
           }
           b.meta {
-            BigBlueButton::Events.get_meeting_metadata("#{meeting_process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
+            BigBlueButton::Events.get_meeting_metadata("#{meeting_raw_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
           }
         }
 
@@ -153,7 +138,7 @@ done_files.each do |df|
 
         # it doesn't work since video and deskshare files are owned by red5, 
         # freeswitch files are owned by freeswitch, and this script is ran by
-        # tomcat6, so it can just remove files owned by tomcat6
+        # tomcat7, so it can just remove files owned by tomcat7
         FileUtils.rm_r [ "/usr/share/red5/webapps/video/streams/#{meeting_id}",
                          "/usr/share/red5/webapps/deskshare/streams/#{meeting_id}",
                          Dir.glob("/var/freeswitch/meetings/#{meeting_id}*.wav") ], :force => true
