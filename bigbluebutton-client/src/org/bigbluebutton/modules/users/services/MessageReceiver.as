@@ -43,11 +43,14 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+  import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.NavigationEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+  import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+  import org.bigbluebutton.main.api.JSLog;
   
   public class MessageReceiver implements IMessageListener
   {
@@ -136,9 +139,39 @@ package org.bigbluebutton.modules.users.services
 		case "userLocked":
           handleUserLocked(message);
           break;
+                  case "DeskShareRTMPBroadcastNotification":
+          handleDeskShareRTMPBroadcastNotification(message);
+          break;
       }
-    }  
+    }
+
+     private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
+      trace(LOG + "*** handleDeskShareRTMPBroadcastNotification " + " **** \n");
+
+        var logData3:Object = new Object();
+//        JSLog.debug("\n\n\n" + LOG + " handleDeskShareRTMPNotification begin ", logData3);
+//        JSLog.debug(LOG + "_____rtmpUrl=" + msg.rtmpUrl, logData3);
+//        JSLog.debug(LOG + "_____broadcasting=" + msg.broadcasting, logData3);
+
+//        DeskshareManager.handleStreamStartEvent(1920,1080);
+
+    //  MeetingModel.getInstance().recording = recording;
+
+//      var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
+//      e.payload.remote = true;
+//      e.payload.recording = recording;
+
+      var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
+      event.videoWidth = 1920; //TODO
+      event.videoHeight = 1080; //TODO
+      event.rtmp = msg.rtmpUrl;
+      dispatcher.dispatchEvent(event);
+
+       JSLog.debug(LOG + "  handleDeskShareRTMPNotification  end\n\n\n", logData3);
+    }
     
+   
+
 	private function handleUserLocked(msg:Object):void {
 		trace(LOG + "*** handleUserLocked " + msg.msg + " **** \n");
 		var map:Object = JSON.parse(msg.msg);
@@ -173,6 +206,7 @@ package org.bigbluebutton.modules.users.services
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;
+
       dispatcher.dispatchEvent(e);
     }
     

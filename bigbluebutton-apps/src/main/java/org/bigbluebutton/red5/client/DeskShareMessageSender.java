@@ -45,8 +45,6 @@ public class DeskShareMessageSender {
 
 	private void processDeskShareNotifyViewersRTMPEventMessage(DeskShareNotifyViewersRTMPEventMessage msg) {
 		Map<String, Object> messageInfo = new HashMap<String, Object>();
-	//		messageInfo.put("rtmpUrl", msg.streamPath);
-	//		messageInfo.put("broadcasting", msg.broadcasting);
 		
 		System.out.println("RedisPubSubMessageHandler - " + msg.toJson());
 		System.out.println("RedisPubSubMessageHandler - processDeskShareNotifyViewersRTMPEventMessage \n" +msg.streamPath+ "\n");
@@ -61,9 +59,17 @@ public class DeskShareMessageSender {
 		messageInfo.put(ChatKeyUtil.FROM_COLOR, "0");
 		messageInfo.put(ChatKeyUtil.MESSAGE, "BROADCASTING_RTMP:"+msg.broadcasting + " " + msg.streamPath);
 
-//		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "DeskShareRTMPBroadcastNotification", messageInfo);
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "ChatReceivePublicMessageCommand", messageInfo);
 		service.sendMessage(m);
+
+		Map<String, Object> messageInfo2 = new HashMap<String, Object>();
+		messageInfo2.put("rtmpUrl", msg.streamPath);
+		messageInfo2.put("broadcasting", msg.broadcasting);
+		BroadcastClientMessage m2 = new BroadcastClientMessage(msg.meetingId, "DeskShareRTMPBroadcastNotification", messageInfo2);
+		System.out.println("A\n\n\n\nAAA" + m2.toString());
+		service.sendMessage(m2);
+		System.out.println("A\n\n\n\nAAA" + messageInfo2.toString());
+
 	}
 	
 

@@ -66,10 +66,10 @@ package org.bigbluebutton.modules.deskshare.managers
 			globalDispatcher.dispatchEvent(event);
 		}
 			
-		public function startViewing(room:String, videoWidth:Number, videoHeight:Number):void{
+		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
 			LogUtil.debug("ViewerWindowManager::startViewing");
 			viewWindow = new DesktopViewWindow();
-			viewWindow.startVideo(service.getConnection(), room, videoWidth, videoHeight);
+			viewWindow.startVideo(rtmp, videoWidth, videoHeight);
 			
 			openWindow(viewWindow);
 			isViewing = true;

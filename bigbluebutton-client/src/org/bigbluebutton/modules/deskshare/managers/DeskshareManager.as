@@ -26,6 +26,8 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
+	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+	import org.bigbluebutton.main.api.JSLog;
 			
 	public class DeskshareManager {		
 		private var publishWindowManager:PublishWindowManager;
@@ -125,10 +127,16 @@ package org.bigbluebutton.modules.deskshare.managers
 			viewWindowManager.handleViewWindowCloseEvent();		
 		}
 					
-		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
+		public function handleStreamStartEvent(e:ViewStreamEvent):void{
+		// public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{ //TODO change num of params
 			if (sharing) return;
 			LogUtil.debug("Received start vieweing command");
-			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
+			var logData3:Object = new Object();
+//			JSLog.debug("\n\n\n GGG handleStreamStartEvent ", logData3);
+//			JSLog.debug("~~~rtmp=" + e.rtmp, logData3);
+//        	JSLog.debug( "~~~height=" + e.videoHeight, logData3);
+//        	JSLog.debug("~~~width=" + e.videoWidth, logData3);
+			viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 		}
     
     

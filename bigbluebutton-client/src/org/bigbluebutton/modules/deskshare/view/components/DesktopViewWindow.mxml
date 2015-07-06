@@ -52,7 +52,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.main.api.JSLog;
+			import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
 
+			public static const LOG:String = "Deskshare::DesktopViewWindow - ";
 			private var screenHeight:Number = Capabilities.screenResolutionY;
 			private var screenWidth:Number = Capabilities.screenResolutionX;
 						
@@ -79,7 +82,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
-			
+			private var streamID:String;
+			private var nc:NetConnection;
+
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:DeskshareOptions;
 									
@@ -132,29 +137,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 cursorImg.y = cursor.y;
 			}
 			
-			public function startVideo(connection:NetConnection, stream:String, width:Number, height:Number):void{
+			public function startVideo(rtmp:String, width:Number, height:Number):void{
+
+    			var videoURL:String;
+
+				// split rtmp extract the streamId
 				this.videoWidth = width;
 				this.videoHeight = height;
-				
-				ns = new NetStream(connection);
-				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
-				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
-				ns.client = this;
-				ns.bufferTime = 0;
-				ns.receiveVideo(true);
-				ns.receiveAudio(false);
-				
-				video = new Video(width, height);
-				video.width = width;
-				video.height = height;
-        video.smoothing = true;
-				video.attachNetStream(ns);
-				ns.play(stream);	
-				this.stream = stream;
-				this.title = "Viewing Remote Desktop";
-       
+
+
+				//    rtmp://192.168.0.109/live/7114386164730e6323b4b5a28d425743032a96ac-1436203806865/7114386164730e6323b4b5a28d425743032a96ac-1436203806865-1436203854939
+				var myArray :Array = rtmp.split('/');
+
+				// myArray.forEach ( function ( item:*, i:int, arr:Array) : void { JSLog.debug("^^^^" + i +"aa=" + item, logData); } );
+
+				streamID = myArray[5]; // Grab the streamID from the end of the rtmp string
+				videoURL = rtmp.substring(0, rtmp.lastIndexOf('/'));
+
+				var logData:Object = new Object();
+				JSLog.debug("AAAAAAAAAAAAAAAAAAA  DesktopViewWindow::startVideo   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", logData);
+				JSLog.debug("^^^^rtmp=" + rtmp, logData);
+				JSLog.debug("^^^^videoURL=" + videoURL, logData);
+				JSLog.debug("^^^^streamId=" + streamID, logData);
+				JSLog.debug("^^^^width=" + width, logData);
+				JSLog.debug("^^^^height=" + height, logData);
+
+//				connect(videoURL);
+				connect(rtmp);
 			}
-			
+
       protected function updateButtonsPosition():void {
         if (this.width < bottomBar.width) {
           bottomBar.visible = false;
@@ -167,10 +178,101 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           bottomBar.x = (this.width - bottomBar.width) / 2;
         }
       }
+			public function connect(rtmpUrl: String):void {
+				nc = new NetConnection();
+				nc.proxyType = "best";
+				nc.objectEncoding = ObjectEncoding.AMF0;
+				nc.client = this;
+
+
+				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+				nc.connect(rtmpUrl);
+			}
+
+
+			public function onBWCheck(... rest):Number {
+				return 0;
+			}
+
+			public function onBWDone(... rest):void {
+				var p_bw:Number;
+				if (rest.length > 0) p_bw = rest[0];
+				// your application should do something here
+				// when the bandwidth check is complete
+				trace("bandwidth = " + p_bw + " Kbps.");
+			}
+			public function connectionSuccessHandler():void{
+				var logData1:Object = new Object();
+				JSLog.debug("SUCCESS  DesktopViewWindow::connectionSuccessHandler   SUCCESS" + videoHeight + videoWidth + streamID, logData1);
+				ns = new NetStream(nc);
+				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.client = this;
+
+				ns.bufferTime = 0;
+				ns.receiveVideo(true);
+				ns.receiveAudio(false);
+
+				video = new Video(videoWidth, videoHeight);
+				video.width = videoWidth;
+				video.height = videoHeight; //TODO
+				video.smoothing = true;
+				video.attachNetStream(ns);
+				ns.play(streamID);
+				this.title = "Viewing Remote Desktop222222222";
+			}
+
+			private function netStatusHandler(event:NetStatusEvent):void {
+//				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
+				var ce:ConnectionEvent = new ConnectionEvent();
+
+				switch(event.info.code){
+					case "NetConnection.Connect.Failed":
+						ce.status = ConnectionEvent.FAILED;
+
+						break;
+
+					case "NetConnection.Connect.Success":
+						ce.status = ConnectionEvent.SUCCESS; //setup stream
+						connectionSuccessHandler();
+						break;
+
+					case "NetConnection.Connect.Rejected":
+						ce.status = ConnectionEvent.REJECTED;
+						break;
+
+					case "NetConnection.Connect.Closed":
+						trace(LOG + "Deskshare connection closed.");
+						ce.status = ConnectionEvent.CLOSED;
+						break;
+
+					case "NetConnection.Connect.InvalidApp":
+						ce.status = ConnectionEvent.INVALIDAPP;
+						break;
+
+					case "NetConnection.Connect.AppShutdown":
+						ce.status = ConnectionEvent.APPSHUTDOWN;
+						break;
+
+					case "NetConnection.Connect.NetworkChange":
+						LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+						trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+						break;
+				}
+			}
+
+			private function securityErrorHandler(event:SecurityErrorEvent):void {
+//				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
+
+
+				var logData2:Object = new Object();
+				JSLog.debug("OOOPS  DesktopViewWindow::securityErrorHandler   OOOOPS" + videoHeight + videoWidth + streamID, logData2);
+			}
       
 			public function stopViewing():void {
 				ns.close();
-				closeWindow();				
+				closeWindow();
 			}
 			
 			private function onStopViewStreamEvent(event:ViewStreamEvent):void {
@@ -178,12 +280,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{
+				var logData3:Object = new Object();
+				JSLog.debug("1111111111111111111111111111111111111111111111111111111", logData3);
 				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
 			}
-			
+
 			private function onNetStatus(e:NetStatusEvent):void{
+
+				var logData3:Object = new Object();
+				JSLog.debug("222222222222222222222222222222222222222222222222222222222", logData3);
 				switch(e.info.code){
 				case "NetStream.Play.Start":
+
 					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
 									LogUtil.debug("Dispatching start viewing event");
 				var dispatcher: Dispatcher  = new Dispatcher();
