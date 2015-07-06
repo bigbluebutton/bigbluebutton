@@ -69,10 +69,16 @@
   .userlist {
     height: calc(~'100% - 29px'); /* height of user contents - user list */
 
+    #content:hover {
+        @media @landscape, @desktop-portrait { 
+          background-color: #EEEEEE;
+        }
+      }
     #content {
       span:hover {
-        /*background-color: #EEEEEE;*/
-        background: transparent;
+        @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+          background: transparent;
+        }
       }
       margin-top: 10px;
       &:first-child { margin-top: 0px; }
