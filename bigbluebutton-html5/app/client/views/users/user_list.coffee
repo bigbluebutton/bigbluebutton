@@ -5,10 +5,6 @@ Template.usersList.helpers
       return "Users: #{numberUsers}"
     # do not display the label if there are just a few users
 
-Template.usersList.events
-  "click .closeUserlistIcon": (event, template) ->
-    toggleUsersList()
-
 Template.usersList.rendered = ->
   Tracker.autorun (comp) ->
     setInSession 'userListRenderedTime', TimeSync.serverTime()
