@@ -95,7 +95,7 @@ class PresentationService {
 	}
 
 	def showPngImage(String conf, String room, String presentationName, String id) {
-		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "pngs" + File.separatorChar + "slide${id}.png")
+		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "pngs" + File.separatorChar + "slide${id}.svg")
 	}
 
 	def showPresentation = {conf, room, filename ->
@@ -168,6 +168,6 @@ import java.io.FilenameFilter;
 import java.io.File;
 class PngFilter implements FilenameFilter {
     public boolean accept(File dir, String name) {
-        return (name.endsWith(".png"));
+        return (name.endsWith(".svg"));
     }
 }
