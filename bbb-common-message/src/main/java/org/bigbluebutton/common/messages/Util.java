@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class Util {
 	public Map<String, Boolean> extractPermission(JsonObject vu) {
@@ -414,6 +417,50 @@ public class Util {
 		}
 		return collection;
 	}
+	
+	public Map<String, Object> extractPollResultAnnotation(JsonObject annotationElement) {
+		if (annotationElement.has("result")
+				&& annotationElement.has("points")) {
+			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
+			
+			String resultJson = annotationElement.get("result").getAsString();
+			JsonParser parser = new JsonParser();
+		    JsonArray resultJsonArray = parser.parse(resultJson).getAsJsonArray();
+		    
+			ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+			Iterator<JsonElement> resultIter = resultJsonArray.iterator();
+
+			while (resultIter.hasNext()){
+				JsonObject p = (JsonObject)resultIter.next();
+				Map<String, Object> vote = new HashMap<String, Object>();
+				Integer vid = p.get("id").getAsInt();
+				Integer vvotes = p.get("num_votes").getAsInt();
+				String vkey = p.get("key").getAsString();
+				vote.put("id", vid);
+				vote.put("num_votes", vvotes);
+				vote.put("key", vkey);
+				
+				collection.add(vote);
+			}
+			
+			JsonArray pointsJsonArray = annotationElement.get("points").getAsJsonArray();
+			ArrayList<Float> pointsArray = new ArrayList<Float>();
+			Iterator<JsonElement> pointIter = pointsJsonArray.iterator();
+			while (pointIter.hasNext()){
+				JsonElement p = pointIter.next();
+				Float pf = p.getAsFloat();
+				if (pf != null) {
+					pointsArray.add(pf);
+				}
+			}
+			
+			finalAnnotation.put("result", collection);
+			finalAnnotation.put("points", pointsArray);
+			
+			return finalAnnotation;
+		}
+		return null;
+	}
 
 	public Map<String, Object> extractOuterAnnotation(JsonObject annotationElement) {
 
@@ -433,8 +480,14 @@ public class Util {
 			finalAnnotation.put("status", status);
 
 			JsonElement shape = annotationElement.get("shape");
-			Map<String, Object> shapesMap = extractAnnotation((JsonObject)shape);
-
+			Map<String, Object> shapesMap;
+			
+			if (type.equals("poll_result")) {
+				shapesMap = extractPollResultAnnotation((JsonObject)shape);
+			} else {
+				shapesMap = extractAnnotation((JsonObject)shape);
+			}
+			
 			if (shapesMap != null) {
 				finalAnnotation.put("shapes", shapesMap);
 			}
