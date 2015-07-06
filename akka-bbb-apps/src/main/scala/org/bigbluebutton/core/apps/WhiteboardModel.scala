@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps
 
 import scala.collection.mutable.ArrayBuffer
 
-case class AnnotationVO(id: String, status: String, shapeType: String, shape: scala.collection.immutable.Map[String, Any], wbId: String)
+case class AnnotationVO(id: String, status: String, shapeType: String, shape: scala.collection.immutable.Map[String, Object], wbId: String)
 
 class WhiteboardModel {
   private var _whiteboards = new scala.collection.immutable.HashMap[String, Whiteboard]()

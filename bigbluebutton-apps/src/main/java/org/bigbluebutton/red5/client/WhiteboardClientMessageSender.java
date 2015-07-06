@@ -94,8 +94,7 @@ public class WhiteboardClientMessageSender {
 		
 	}
 
-	private void processGetWhiteboardShapesReplyMessage(
-			GetWhiteboardShapesReplyMessage msg) {
+	private void processGetWhiteboardShapesReplyMessage(GetWhiteboardShapesReplyMessage msg) {
 
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put("whiteboardId", msg.whiteboardId);
@@ -110,13 +109,11 @@ public class WhiteboardClientMessageSender {
 		+ message.get("msg").toString() + "\n");
 
 		//directed message
-		DirectClientMessage m = new DirectClientMessage(msg.meetingId,
-				msg.requesterId, "WhiteboardRequestAnnotationHistoryReply", message);
+		DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "WhiteboardRequestAnnotationHistoryReply", message);
 		service.sendMessage(m);
 	}
 
-	private void processIsWhiteboardEnabledReply(
-			IsWhiteboardEnabledReplyMessage msg) {
+	private void processIsWhiteboardEnabledReply(IsWhiteboardEnabledReplyMessage msg) {
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("enabled", msg.enabled);
 
