@@ -241,7 +241,7 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
 	    val swfUri = presBaseUrl + "/slide/" + i
 
         val txtUri = presBaseUrl + "/textfiles/" + i
-        val pngUri = presBaseUrl + "/svg/" + i
+        val pngUri = presBaseUrl + "/png/" + i
 
 	    val p = new Page(id=id, num=num, thumbUri=thumbnail, swfUri=swfUri,
 	                     txtUri=txtUri, pngUri=pngUri,
