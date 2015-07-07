@@ -419,10 +419,11 @@ public class Util {
 	}
 	
 	public Map<String, Object> extractPollResultAnnotation(JsonObject annotationElement) {
-		if (annotationElement.has("result")
+		if (annotationElement.has("result") && annotationElement.has("whiteboardId")
 				&& annotationElement.has("points")) {
 			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
 			
+			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
 			String resultJson = annotationElement.get("result").getAsString();
 			JsonParser parser = new JsonParser();
 		    JsonArray resultJsonArray = parser.parse(resultJson).getAsJsonArray();
@@ -454,6 +455,7 @@ public class Util {
 				}
 			}
 			
+			finalAnnotation.put("whiteboardId", whiteboardId);
 			finalAnnotation.put("result", collection);
 			finalAnnotation.put("points", pointsArray);
 			
