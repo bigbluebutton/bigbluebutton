@@ -54,12 +54,13 @@ Template.usernameEntry.helpers
   hasGotUnreadMailClass: (userId) ->
     chats = getInSession('chats') if getInSession('chats') isnt undefined
     flag = false
-    chats.map((tab) ->
-      if tab.userId is userId
-        if tab.gotMail
-          flag = true
-      tab
-    )
+    if chats isnt undefined
+      chats.map((tab) ->
+        if tab.userId is userId
+          if tab.gotMail
+            flag = true
+        tab
+      )
     if flag
       return "gotUnreadMail"
     else
