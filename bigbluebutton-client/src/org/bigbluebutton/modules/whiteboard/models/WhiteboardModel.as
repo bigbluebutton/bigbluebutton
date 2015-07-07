@@ -53,7 +53,8 @@ package org.bigbluebutton.modules.whiteboard.models
 		public function addAnnotation(annotation:Annotation):void {
       trace(LOG + "*** Adding annotation [" + annotation.id + "," + annotation.type + "," + annotation.status + "] ****");
       var wb:Whiteboard;
-      if (annotation.status == DrawObject.DRAW_START || annotation.status == TextObject.TEXT_CREATED) {
+      if (annotation.status == DrawObject.DRAW_START || annotation.type == DrawObject.POLL
+		  || annotation.status == TextObject.TEXT_CREATED) {
         wb = getWhiteboard(annotation.whiteboardId);
         if (wb != null) {
           wb.addAnnotation(annotation);
