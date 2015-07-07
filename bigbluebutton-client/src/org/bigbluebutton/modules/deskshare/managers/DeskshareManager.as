@@ -76,6 +76,8 @@ package org.bigbluebutton.modules.deskshare.managers
 		    
 		public function handleStartedViewingEvent(stream:String):void {
 			LogUtil.debug("handleStartedViewingEvent [" + stream + "]");
+			var logData3:Object = new Object();
+			JSLog.debug("\n\n\n DeskshareManager::handleStartedViewingEvent stream=" + stream, logData3);
 			service.sendStartedViewingNotification(stream);
 		}
 		
@@ -128,17 +130,32 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function handleStreamStartEvent(e:ViewStreamEvent):void{
-		// public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{ //TODO change num of params
-			if (sharing) return;
-			LogUtil.debug("Received start vieweing command");
 			var logData3:Object = new Object();
-//			JSLog.debug("\n\n\n GGG handleStreamStartEvent ", logData3);
-//			JSLog.debug("~~~rtmp=" + e.rtmp, logData3);
-//        	JSLog.debug( "~~~height=" + e.videoHeight, logData3);
-//        	JSLog.debug("~~~width=" + e.videoWidth, logData3);
+			JSLog.debug("~~~1sharing=" + sharing, logData3);
+			if (sharing) return;
+			JSLog.debug("\n\n\n GGG handleStreamStartEvent ", logData3);
+			LogUtil.debug("Received start vieweing command");
+			JSLog.debug("~~~1rtmp=" + e.rtmp, logData3);
+	//			JSLog.debug( "~~~1height=" + e.videoHeight, logData3);
+	//        	JSLog.debug("~~~1width=" + e.videoWidth, logData3);
+
+			JSLog.debug("~~~1sharing=" + sharing, logData3);
+			sharing = true;
 			viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 		}
-    
-    
+
+		public function handleStreamStopEvent(e:ViewStreamEvent):void{
+			var logData3:Object = new Object();
+			JSLog.debug("\n\n\n GGG handleStreamStopEvent sharing=" + sharing, logData3);
+			if (!sharing) return;
+			LogUtil.debug("Received start vieweing command");
+			JSLog.debug("~~~2rtmp=" + e.rtmp, logData3);
+//			JSLog.debug( "~~~2height=" + e.videoHeight, logData3);
+//			JSLog.debug("~~~2width=" + e.videoWidth, logData3);
+			//viewWindowManager.stopViewing(e.rtmp, e.videoWidth, e.videoHeight);
+
+			handleStopModuleEvent();
+			sharing = false; // TODO should we call it here?!
+		}
 	}
 }

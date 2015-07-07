@@ -83,6 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
 			private var streamID:String;
+			private var rtmpURL:String;
 			private var nc:NetConnection;
 
 			[Bindable] private var baseIndex:int;
@@ -92,14 +93,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dsOptions = new DeskshareOptions();
 				baseIndex = dsOptions.baseTabIndex;
 			}
-									
-			private function onCreationComplete():void{
-				videoHolder.addChild(video);				
+
+			private function displayVideo():void{
+				var logData1:Object = new Object();
+				JSLog.debug("DesktopViewWindow::displayVideo", logData1);
+				videoHolder.addChild(video);
 				this.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
-				fitToActualSize();				
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				fitToActualSize();
 				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);
@@ -107,13 +110,35 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
 				maximize();
-				
+
 				resourcesChanged();
-				
+
 				titleBarOverlay.tabIndex = baseIndex;
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
+			}
+			private function onCreationComplete():void{
+//				videoHolder.addChild(video);
+//				this.addChild(videoHolder);
+//				videoHolder.percentWidth = 100;
+//				videoHolder.percentHeight = 100;
+//				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+//				fitToActualSize();
+//				cursor = new Shape();
+//				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
+//				cursor.graphics.drawCircle(0,0,3);
+//				videoHolder.addChild(cursor);
+//				videoHolder.addChild(cursorImg);
+//				cursor.visible = false;
+//				maximize();
+//
+//				resourcesChanged();
+//
+//				titleBarOverlay.tabIndex = baseIndex;
+//				minimizeBtn.tabIndex = baseIndex+1;
+//				maximizeRestoreBtn.tabIndex = baseIndex+2;
+//				closeBtn.tabIndex = baseIndex+3;
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -145,7 +170,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.videoWidth = width;
 				this.videoHeight = height;
 
-
 				//    rtmp://192.168.0.109/live/7114386164730e6323b4b5a28d425743032a96ac-1436203806865/7114386164730e6323b4b5a28d425743032a96ac-1436203806865-1436203854939
 				var myArray :Array = rtmp.split('/');
 
@@ -159,49 +183,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				JSLog.debug("^^^^rtmp=" + rtmp, logData);
 				JSLog.debug("^^^^videoURL=" + videoURL, logData);
 				JSLog.debug("^^^^streamId=" + streamID, logData);
-				JSLog.debug("^^^^width=" + width, logData);
-				JSLog.debug("^^^^height=" + height, logData);
+//				JSLog.debug("^^^^width=" + width, logData);
+//				JSLog.debug("^^^^height=" + height, logData);
 
-//				connect(videoURL);
-				connect(rtmp);
+				this.rtmpURL = rtmp;
+				connect(videoURL); //leads to Success
+//				connect(rtmp);
 			}
 
-      protected function updateButtonsPosition():void {
-        if (this.width < bottomBar.width) {
-          bottomBar.visible = false;
-        }
-        
-        if (bottomBar.visible == false) {
-          bottomBar.y = bottomBar.x = 0;
-        } else {
-          bottomBar.y = (this.height - bottomBar.height) / 2;
-          bottomBar.x = (this.width - bottomBar.width) / 2;
-        }
-      }
 			public function connect(rtmpUrl: String):void {
+				var logData1:Object = new Object();
+				JSLog.debug("DesktopViewWindow::connect() and rtmpUrl=" + rtmpUrl, logData1);
 				nc = new NetConnection();
 				nc.proxyType = "best";
 				nc.objectEncoding = ObjectEncoding.AMF0;
 				nc.client = this;
-
 
 				nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 				nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 				nc.connect(rtmpUrl);
 			}
 
-
-			public function onBWCheck(... rest):Number {
-				return 0;
-			}
-
-			public function onBWDone(... rest):void {
-				var p_bw:Number;
-				if (rest.length > 0) p_bw = rest[0];
-				// your application should do something here
-				// when the bandwidth check is complete
-				trace("bandwidth = " + p_bw + " Kbps.");
-			}
 			public function connectionSuccessHandler():void{
 				var logData1:Object = new Object();
 				JSLog.debug("SUCCESS  DesktopViewWindow::connectionSuccessHandler   SUCCESS" + videoHeight + videoWidth + streamID, logData1);
@@ -215,16 +217,52 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.receiveAudio(false);
 
 				video = new Video(videoWidth, videoHeight);
-				video.width = videoWidth;
-				video.height = videoHeight; //TODO
-				video.smoothing = true;
+//				video.width = videoWidth;
+//				video.height = videoHeight; //TODO
+//				video.smoothing = true;
 				video.attachNetStream(ns);
+//				ns.play(rtmpURL); //new
 				ns.play(streamID);
+				displayVideo();
 				this.title = "Viewing Remote Desktop222222222";
+			}
+
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				var logData3:Object = new Object();
+				JSLog.debug("1111111111111111111111111111111111111111111111111111111", logData3);
+				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
+			}
+
+			private function onNetStatus(e:NetStatusEvent):void{
+
+				var logData3:Object = new Object();
+				JSLog.debug("222222222222222222222222222222222222222222222222222222222 " + e.info.code, logData3);
+				switch(e.info.code){
+					case "NetStream.Play.Start":
+						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
+						LogUtil.debug("Dispatching start viewing event");
+						var dispatcher: Dispatcher  = new Dispatcher();
+						var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
+
+						JSLog.debug("____stream=" + stream, logData3);
+
+
+
+						viewEvent.stream = "dev-test";
+//						viewEvent.stream = streamID;
+						dispatcher.dispatchEvent(viewEvent);
+						break;
+					case "NetStream.Play.UnpublishNotify":
+						LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+						stopViewing();
+						break;
+				}
 			}
 
 			private function netStatusHandler(event:NetStatusEvent):void {
 //				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
+				var logData1:Object = new Object();
+				JSLog.debug("eventinfo++++=" + event.info.code, logData1);
 				var ce:ConnectionEvent = new ConnectionEvent();
 
 				switch(event.info.code){
@@ -278,34 +316,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onStopViewStreamEvent(event:ViewStreamEvent):void {
 				stopViewing();
 			}
-						
-			private function onAsyncError(e:AsyncErrorEvent):void{
-				var logData3:Object = new Object();
-				JSLog.debug("1111111111111111111111111111111111111111111111111111111", logData3);
-				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
-			}
 
-			private function onNetStatus(e:NetStatusEvent):void{
+			protected function updateButtonsPosition():void {
+				if (this.width < bottomBar.width) {
+					bottomBar.visible = false;
+				}
 
-				var logData3:Object = new Object();
-				JSLog.debug("222222222222222222222222222222222222222222222222222222222", logData3);
-				switch(e.info.code){
-				case "NetStream.Play.Start":
-
-					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
-									LogUtil.debug("Dispatching start viewing event");
-				var dispatcher: Dispatcher  = new Dispatcher();
-        var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
-        viewEvent.stream = stream;
-				dispatcher.dispatchEvent(viewEvent);
-					break;
-				case "NetStream.Play.UnpublishNotify":
-					LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
-					stopViewing();
-					break;
+				if (bottomBar.visible == false) {
+					bottomBar.y = bottomBar.x = 0;
+				} else {
+					bottomBar.y = (this.height - bottomBar.height) / 2;
+					bottomBar.x = (this.width - bottomBar.width) / 2;
 				}
 			}
-			
+
+			public function onBWCheck(... rest):Number {
+				return 0;
+			}
+
+			public function onBWDone(... rest):void {
+				var p_bw:Number;
+				if (rest.length > 0) p_bw = rest[0];
+				// your application should do something here
+				// when the bandwidth check is complete
+				trace("bandwidth = " + p_bw + " Kbps.");
+			}
+
 			public function getPrefferedPosition():String{
 				return MainCanvas.DESKTOP_SHARING_VIEW;
 			}

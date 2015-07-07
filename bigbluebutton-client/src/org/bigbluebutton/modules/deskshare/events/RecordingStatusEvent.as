@@ -22,12 +22,12 @@ package org.bigbluebutton.modules.deskshare.events
 
 	public class RecordingStatusEvent extends Event
 	{
-		public static const DESKSHARE_RECORD_EVENT = "DESKSHARE_RECORD_EVENT";
+		public static const DESKSHARE_RECORD_EVENT:String = "DESKSHARE_RECORD_EVENT";
 		
-		public static const RECORD_STOPPED_EVENT = "DESKSHARE_RECORD_STOPPED_EVENT";
-		public static const RECORD_STARTED_EVENT = "DESKSHARE_RECORD_STARTED_EVENT";
-		public static const RECORD_UPDATED_EVENT = "DESKSHARE_RECORD_UPDATED_EVENT";
-		public static const RECORD_ERROR_EVENT = "DESKSHARE_RECORD_ERROR_EVENT";
+		public static const RECORD_STOPPED_EVENT:String = "DESKSHARE_RECORD_STOPPED_EVENT";
+		public static const RECORD_STARTED_EVENT:String = "DESKSHARE_RECORD_STARTED_EVENT";
+		public static const RECORD_UPDATED_EVENT:String = "DESKSHARE_RECORD_UPDATED_EVENT";
+		public static const RECORD_ERROR_EVENT:String = "DESKSHARE_RECORD_ERROR_EVENT";
 		
 		public var status:String;
 		

@@ -74,6 +74,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStartEvent" arguments="{event}"/>
 	</EventHandlers>
 
+	<EventHandlers type="{ViewStreamEvent.STOP}">
+		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStopEvent" arguments="{event}"/>
+	</EventHandlers>
+
 	<EventHandlers type="{ShareWindowEvent.CLOSE}">		
 		<MethodInvoker generator="{DeskshareManager}" method="handleShareWindowCloseEvent"/>
 	</EventHandlers>

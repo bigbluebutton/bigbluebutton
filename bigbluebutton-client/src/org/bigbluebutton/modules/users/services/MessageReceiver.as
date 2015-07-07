@@ -139,7 +139,7 @@ package org.bigbluebutton.modules.users.services
 		case "userLocked":
           handleUserLocked(message);
           break;
-                  case "DeskShareRTMPBroadcastNotification":
+        case "DeskShareRTMPBroadcastNotification":
           handleDeskShareRTMPBroadcastNotification(message);
           break;
       }
@@ -161,10 +161,18 @@ package org.bigbluebutton.modules.users.services
 //      e.payload.remote = true;
 //      e.payload.recording = recording;
 
-      var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
+      var event:ViewStreamEvent;
+       if (msg.broadcasting) {
+         event = new ViewStreamEvent(ViewStreamEvent.START);
+       } else {
+         event = new ViewStreamEvent(ViewStreamEvent.STOP);
+       }
       event.videoWidth = 1920; //TODO
       event.videoHeight = 1080; //TODO
       event.rtmp = msg.rtmpUrl;
+
+
+       // todo check for true/false ie broadcasting start stop
       dispatcher.dispatchEvent(event);
 
        JSLog.debug(LOG + "  handleDeskShareRTMPNotification  end\n\n\n", logData3);
