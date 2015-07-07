@@ -15,6 +15,7 @@ object WhiteboardMessageToJsonConverter {
     res += "wb_id" -> shape.wbId
 
     val shapeMap = new scala.collection.mutable.HashMap[String, Any]()
+    shapeMap += "whiteboardId" -> shape.wbId
     for ((key, value) <- shape.shape) {
       shapeMap += key -> value
     }

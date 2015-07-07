@@ -93,7 +93,7 @@ trait PollApp {
           annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS, WhiteboardKeyUtil.POLL_RESULT_TYPE, shape, page.id)
         } this.context.self ! new SendWhiteboardAnnotationRequest(mProps.meetingID, msg.requesterId, annotation)
 
-        //        outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
+        outGW.send(new PollShowResultMessage(mProps.meetingID, mProps.recorded, msg.requesterId, msg.pollId, poll))
 
       }
       case None => {
