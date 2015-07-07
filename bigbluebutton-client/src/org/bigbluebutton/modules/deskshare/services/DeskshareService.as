@@ -24,8 +24,7 @@ package org.bigbluebutton.modules.deskshare.services
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.deskshare.services.red5.Connection;
-import org.bigbluebutton.main.api.JSLog;
-	
+
 	/**
 	 * The DeskShareProxy communicates with the Red5 deskShare server application 
 	 * @author Snap
@@ -72,14 +71,10 @@ import org.bigbluebutton.main.api.JSLog;
     }
 		
     public function sendStartViewingNotification(captureWidth:Number, captureHeight:Number):void{
-		var logData3:Object = new Object();
-		JSLog.debug("\n\n\n DeskshareService::sendStartViewingNotification wh=" + captureHeight + captureWidth, logData3);
       conn.sendStartViewingNotification(captureWidth, captureHeight);
     }
 		
     public function sendStartedViewingNotification(stream:String):void{
-		var logData3:Object = new Object();
-		JSLog.debug("\n\n\n DeskshareService::sendStartedViewingNotification stream=" + stream, logData3);
       conn.sendStartedViewingNotification(stream);
     }
     

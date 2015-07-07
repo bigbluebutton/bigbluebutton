@@ -83,7 +83,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
 			private var streamID:String;
-			private var rtmpURL:String;
 			private var nc:NetConnection;
 
 			[Bindable] private var baseIndex:int;
@@ -95,8 +94,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function displayVideo():void{
-				var logData1:Object = new Object();
-				JSLog.debug("DesktopViewWindow::displayVideo", logData1);
 				videoHolder.addChild(video);
 				this.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
@@ -170,30 +167,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.videoWidth = width;
 				this.videoHeight = height;
 
-				//    rtmp://192.168.0.109/live/7114386164730e6323b4b5a28d425743032a96ac-1436203806865/7114386164730e6323b4b5a28d425743032a96ac-1436203806865-1436203854939
 				var myArray :Array = rtmp.split('/');
-
 				// myArray.forEach ( function ( item:*, i:int, arr:Array) : void { JSLog.debug("^^^^" + i +"aa=" + item, logData); } );
 
 				streamID = myArray[5]; // Grab the streamID from the end of the rtmp string
 				videoURL = rtmp.substring(0, rtmp.lastIndexOf('/'));
 
 				var logData:Object = new Object();
-				JSLog.debug("AAAAAAAAAAAAAAAAAAA  DesktopViewWindow::startVideo   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", logData);
-				JSLog.debug("^^^^rtmp=" + rtmp, logData);
-				JSLog.debug("^^^^videoURL=" + videoURL, logData);
-				JSLog.debug("^^^^streamId=" + streamID, logData);
-//				JSLog.debug("^^^^width=" + width, logData);
-//				JSLog.debug("^^^^height=" + height, logData);
+				JSLog.debug("DesktopViewWindow::startVideo", logData);
 
-				this.rtmpURL = rtmp;
-				connect(videoURL); //leads to Success
-//				connect(rtmp);
+				connect(videoURL);
 			}
 
 			public function connect(rtmpUrl: String):void {
-				var logData1:Object = new Object();
-				JSLog.debug("DesktopViewWindow::connect() and rtmpUrl=" + rtmpUrl, logData1);
 				nc = new NetConnection();
 				nc.proxyType = "best";
 				nc.objectEncoding = ObjectEncoding.AMF0;
@@ -217,26 +203,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.receiveAudio(false);
 
 				video = new Video(videoWidth, videoHeight);
-//				video.width = videoWidth;
-//				video.height = videoHeight; //TODO
 //				video.smoothing = true;
 				video.attachNetStream(ns);
-//				ns.play(rtmpURL); //new
 				ns.play(streamID);
 				displayVideo();
-				this.title = "Viewing Remote Desktop222222222";
+				this.title = "Viewing Remote Desktop";
 			}
 
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				var logData3:Object = new Object();
-				JSLog.debug("1111111111111111111111111111111111111111111111111111111", logData3);
 				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
 			}
 
 			private function onNetStatus(e:NetStatusEvent):void{
 
 				var logData3:Object = new Object();
-				JSLog.debug("222222222222222222222222222222222222222222222222222222222 " + e.info.code, logData3);
+				JSLog.debug("___ DesktopViewWindow::onNetStatus " + e.info.code, logData3);
 				switch(e.info.code){
 					case "NetStream.Play.Start":
 						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
@@ -244,11 +225,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						var dispatcher: Dispatcher  = new Dispatcher();
 						var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
 
-						JSLog.debug("____stream=" + stream, logData3);
+						JSLog.debug("____stream=" + streamID, logData3);
 
 
 
-						viewEvent.stream = "dev-test";
+						viewEvent.stream = "dev-test"; //TODO anton change back
 //						viewEvent.stream = streamID;
 						dispatcher.dispatchEvent(viewEvent);
 						break;
@@ -262,7 +243,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function netStatusHandler(event:NetStatusEvent):void {
 //				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
 				var logData1:Object = new Object();
-				JSLog.debug("eventinfo++++=" + event.info.code, logData1);
+				JSLog.debug("eventinfo++++=" + event.info.code, logData1); //todo anton
 				var ce:ConnectionEvent = new ConnectionEvent();
 
 				switch(event.info.code){
@@ -301,11 +282,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function securityErrorHandler(event:SecurityErrorEvent):void {
-//				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
-
-
 				var logData2:Object = new Object();
-				JSLog.debug("OOOPS  DesktopViewWindow::securityErrorHandler   OOOOPS" + videoHeight + videoWidth + streamID, logData2);
+				JSLog.debug("ERROR DesktopViewWindow::securityErrorHandler ", logData2);
 			}
       
 			public function stopViewing():void {

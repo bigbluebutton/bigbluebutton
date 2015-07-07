@@ -50,8 +50,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
   import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-  import org.bigbluebutton.main.api.JSLog;
-  
+
   public class MessageReceiver implements IMessageListener
   {
     private static const LOG:String = "Users::MessageReceiver - ";
@@ -148,34 +147,17 @@ package org.bigbluebutton.modules.users.services
      private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
       trace(LOG + "*** handleDeskShareRTMPBroadcastNotification " + " **** \n");
 
-        var logData3:Object = new Object();
-//        JSLog.debug("\n\n\n" + LOG + " handleDeskShareRTMPNotification begin ", logData3);
-//        JSLog.debug(LOG + "_____rtmpUrl=" + msg.rtmpUrl, logData3);
-//        JSLog.debug(LOG + "_____broadcasting=" + msg.broadcasting, logData3);
-
-//        DeskshareManager.handleStreamStartEvent(1920,1080);
-
-    //  MeetingModel.getInstance().recording = recording;
-
-//      var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
-//      e.payload.remote = true;
-//      e.payload.recording = recording;
-
       var event:ViewStreamEvent;
        if (msg.broadcasting) {
          event = new ViewStreamEvent(ViewStreamEvent.START);
        } else {
          event = new ViewStreamEvent(ViewStreamEvent.STOP);
        }
-      event.videoWidth = 1920; //TODO
-      event.videoHeight = 1080; //TODO
+      event.videoWidth = 1920; //TODO anton
+      event.videoHeight = 1080; //TODO anton
       event.rtmp = msg.rtmpUrl;
 
-
-       // todo check for true/false ie broadcasting start stop
       dispatcher.dispatchEvent(event);
-
-       JSLog.debug(LOG + "  handleDeskShareRTMPNotification  end\n\n\n", logData3);
     }
     
    
