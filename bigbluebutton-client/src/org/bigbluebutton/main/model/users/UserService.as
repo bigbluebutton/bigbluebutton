@@ -64,6 +64,7 @@ package org.bigbluebutton.main.model.users
 		private var hostURI:String;		
 		private var connection:NetConnection;
 		private var dispatcher:Dispatcher;
+		private var reconnecting:Boolean = false;
 		
     private var _connectionManager:ConnectionManager;
     private var msgReceiver:MessageReceiver = new MessageReceiver();
@@ -72,14 +73,18 @@ package org.bigbluebutton.main.model.users
 		public function UserService() {
 			dispatcher = new Dispatcher();
 			msgReceiver.onAllowedToJoin = function():void {
-				sender.queryForParticipants();
-				sender.queryForRecordingStatus();
-				sender.queryForGuestPolicy();
-
-				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
-				loadCommand.conferenceParameters = _conferenceParameters;
-				dispatcher.dispatchEvent(loadCommand);
+				onAllowedToJoin();
 			}
+		}
+
+		private function onAllowedToJoin():void {
+			sender.queryForParticipants();
+			sender.queryForRecordingStatus();
+			sender.queryForGuestPolicy();
+
+			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
+			loadCommand.conferenceParameters = _conferenceParameters;
+			dispatcher.dispatchEvent(loadCommand);
 		}
 		
 		public function startService(e:UserServicesEvent):void {
@@ -210,6 +215,18 @@ package org.bigbluebutton.main.model.users
       trace(LOG + "userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
+
+			var waitingForAcceptance:Boolean = true;
+			if (UserManager.getInstance().getConference().hasUser(e.userid)) {
+				trace(LOG + "userLoggedIn - conference has this user");
+				waitingForAcceptance = UserManager.getInstance().getConference().getUser(e.userid).waitingForAcceptance;
+			}
+
+			if (reconnecting && !waitingForAcceptance) {
+				trace(LOG + "userLoggedIn - reconnecting and allowed to join");
+				onAllowedToJoin();
+				reconnecting = false;
+			}
 		}
 		
 		public function denyGuest():void {
@@ -254,6 +271,11 @@ package org.bigbluebutton.main.model.users
 
 		public function changeRole(e:ChangeRoleEvent):void {
 			if (this.isModerator()) sender.changeRole(e.userid, e.role);
+		}
+
+		public function onReconnecting():void {
+			trace(LOG + "onReconnecting");
+			reconnecting = true;
 		}
 		
 		/**
