@@ -32,6 +32,7 @@ trait WhiteboardApp {
       && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType)
         || (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType)
         || (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
+        || (WhiteboardKeyUtil.POLL_RESULT_TYPE == shapeType)
         || (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {
       //        println("Received [" + shapeType +"] draw end status")
       wbModel.addAnnotation(wbId, shape)
