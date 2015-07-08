@@ -1,7 +1,7 @@
 <template name="header">
   <nav id="navbar" class="myNavbar gradientBar top-bar" role="navigation">
-    {{> makeButton btn_class="btn toggleUserlistButton navbarButton sl-hamburger sl-ham-la-cw sl-portrait-mobile sl-portrait-keyboard" rel="tooltip" title="Toggle Userlist" span=true}}
-
+    {{> makeButton btn_class="btn toggleUserlistButton navbarButton sl-hamburger sl-ham-la-cw sl-portrait-mobile sl-portrait-keyboard" rel="tooltip" title="Toggle Userlist" span=true notification="all_chats"}}
+    
     {{#if amIInAudio}}
       {{#if amIListenOnlyAudio}}
         {{> makeButton btn_class="navbarButton leaveAudioButton" i_class="icon fi-volume-none" rel="tooltip" title="Exit Audio"}}

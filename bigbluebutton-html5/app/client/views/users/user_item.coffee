@@ -26,5 +26,41 @@ Template.displayUserIcons.helpers
 Template.usernameEntry.events
   'click .usernameEntry': (event) ->
     userIdSelected = @.userId
-    unless userIdSelected is null or userIdSelected is BBB.getCurrentUser()?.userId
-      setInSession "inChatWith", userIdSelected
+    unless userIdSelected is null
+      if userIdSelected is BBB.getCurrentUser()?.userId
+        setInSession "inChatWith", "PUBLIC_CHAT"
+      else
+        setInSession "inChatWith", userIdSelected
+    if isLandscape()
+      $("#newMessageInput").focus()
+    if isPortrait() or isPortraitMobile()
+      toggleUsersList()
+      $("#newMessageInput").focus()
+
+  'click .gotUnreadMail': (event) ->
+    _this = @
+    setInSession 'chats', getInSession('chats').map((chat) ->
+      chat.gotMail = false if chat.userId is _this.userId
+      chat
+    )
+
+  'click .gotUnreadPublic': (event) ->
+    setInSession 'chats', getInSession('chats').map((chat) ->
+      chat.gotMail = false if chat.userId is 'PUBLIC_CHAT'
+      chat
+    )
+
+Template.usernameEntry.helpers
+  hasGotUnreadMailClass: (userId) ->
+    chats = getInSession('chats') if getInSession('chats') isnt undefined
+    flag = false
+    chats.map((tab) ->
+      if tab.userId is userId
+        if tab.gotMail
+          flag = true
+      tab
+    )
+    if flag
+      return "gotUnreadMail"
+    else
+      return ""

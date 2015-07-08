@@ -212,6 +212,37 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
     $('.sl-left-drawer').addClass('hiddenInLandscape')
   setTimeout(redrawWhiteboard, 0)
 
+@populateNotifications = (msg) ->
+  myUserId = getInSession "userId"
+  users = Meteor.Users.find().fetch()
+
+  # assuming that I only have access only to private messages where I am the sender or the recipient
+  myPrivateChats = Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT'}).fetch()
+
+  uniqueArray = []
+  for chat in myPrivateChats
+    if chat.message.to_userid is myUserId
+      uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
+    if chat.message.from_userid is myUserId
+      uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
+
+  #keep unique entries only
+  uniqueArray = uniqueArray.filter((itm, i, a) ->
+      i is a.indexOf(itm)
+    )
+
+  if msg.message.to_userid is myUserId
+    new_msg_userid = msg.message.from_userid
+  if msg.message.from_userid is myUserId
+    new_msg_userid = msg.message.to_userid
+
+  #insert the unique entries in the collection
+  for u in uniqueArray
+    chats = getInSession('chats')
+    if chats.filter((chat) -> chat.userId == u.userId).length is 0 and u.userId is new_msg_userid
+      chats.push {userId: u.userId, gotMail: false}
+      setInSession 'chats', chats
+
 @toggleShield = ->
   if $('.shield').hasClass('darken')
     $('.shield').removeClass('darken')
@@ -327,7 +358,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @clearSessionVar = (callback) ->
   amplify.store('authToken', null)
   amplify.store('bbbServerVersion', null)
-  amplify.store('chatTabs', null)
+  amplify.store('chats', null)
   amplify.store('dateOfBuild', null)
   amplify.store('display_chatPane', null)
   amplify.store('display_chatbar', null)
@@ -351,7 +382,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
-  if not getInSession "inChatWith" then setInSession "inChatWith", 'PUBLIC_CHAT'
+  setInSession "inChatWith", 'PUBLIC_CHAT'
   if isPortraitMobile() or isLandscapeMobile()
     setInSession "messageFontSize", Meteor.config.app.mobileFont
   else
@@ -363,6 +394,11 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   else
     setInSession 'display_usersList', false
   setInSession 'display_menu', false
+  initChats = [
+    userId: "PUBLIC_CHAT"
+    gotMail: false
+  ]
+  setInSession 'chats', initChats
   TimeSync.loggingEnabled = false # suppresses the log messages from timesync
 
 @onLoadComplete = ->
@@ -386,7 +422,14 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   navigator.userAgent.match(/webOS/i)
 
 @isLandscape = ->
-  window.matchMedia('(orientation: landscape)').matches
+  not isMobile() and
+  window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
+
+@isPortrait = -> 
+  not isMobile() and
+  window.matchMedia('(orientation: portrait)').matches and       # browser is portrait
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
 
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
@@ -397,8 +440,8 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 # Checks if the view is landscape and mobile device is being used
 @isLandscapeMobile = () ->
   isMobile() and
-  window.matchMedia('(orientation: landscape)').matches and     # browser is landscape
-  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches   # device is landscape
+  window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
 
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->

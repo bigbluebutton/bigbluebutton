@@ -22,12 +22,12 @@
         else
           chatMessage.message?.from_userid
       Tracker.autorun (comp) ->
-        tabsTime = getInSession('tabsRenderedTime')
+        tabsTime = getInSession('userListRenderedTime')
         if tabsTime? and chatMessage.message.from_userid isnt "SYSTEM_MESSAGE" and chatMessage.message.from_time - tabsTime > 0
-          populateChatTabs(chatMessage) # check if we need to open a new tab
+          populateNotifications(chatMessage) # check if we need to show a new notification
           destinationTab = findDestinationTab()
           if destinationTab isnt getInSession "inChatWith"
-            setInSession 'chatTabs', getInSession('chatTabs').map((tab) ->
+            setInSession 'chats', getInSession('chats').map((tab) ->
               tab.gotMail = true if tab.userId is destinationTab
               tab
             )
@@ -126,6 +126,14 @@ Template.chatbar.rendered = -> detectUnreadChat()
 Template.chatbar.events
   'click .toPublic': (event) ->
     setInSession 'inChatWith', 'PUBLIC_CHAT'
+    setInSession 'chats', getInSession('chats').map((chat) ->
+      chat.gotMail = false if chat.userId is "PUBLIC_CHAT"
+      chat
+    )
+
+Template.privateChatTab.rendered = ->
+  if isLandscape() or isPortrait()
+    $("#newMessageInput").focus()
 
 # When message gets rendered, scroll to the bottom
 Template.message.rendered = ->

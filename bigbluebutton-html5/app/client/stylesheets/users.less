@@ -10,6 +10,8 @@
 }
 
 .usernameEntry {
+  cursor: pointer;
+  line-height: 1.1;
   float:left;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -67,10 +69,16 @@
   .userlist {
     height: calc(~'100% - 29px'); /* height of user contents - user list */
 
+    #content:hover {
+        @media @landscape, @desktop-portrait { 
+          background-color: #EEEEEE;
+        }
+      }
     #content {
       span:hover {
-        /*background-color: #EEEEEE;*/
-        background: transparent;
+        @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+          background: transparent;
+        }
       }
       margin-top: 10px;
       &:first-child { margin-top: 0px; }
@@ -103,25 +111,10 @@
   font-weight: bold;
 }
 
-.closeUserlistIcon {
-  float: right;
-  margin-right: 5px;
-  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-    display: none;
-  }
-  .closeSettings {
-    @media @landscape {    
-      color: #aaa;
-      font-style: normal;
-      font-size: 30px;
-    }
-  }
-}
-
 .toggleUserlistButton, .toggleMenuButton {
   span {
     @media @landscape, @desktop-portrait {
-      width: 30px;
+      width: 26px;
       margin-left: auto;
       margin-right: auto;
       height: 8%;
@@ -138,4 +131,12 @@
 }
 .muteIcon .ion-ios-mic-off:hover:before {
   content: "\f461";
+}
+
+#content > .ion-ios-email-outline {
+    color: red;
+}
+
+.userName {
+  color: #666666;
 }

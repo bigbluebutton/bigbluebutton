@@ -33,6 +33,41 @@ body {
   margin-left:5px
 }
 
+@media @mobile-portrait {
+  .sl-toggled-on .unreadChat {
+    display: none;
+  }
+}
+.navbarButton .unreadChat {
+  position: absolute;
+  z-index: 1;
+  background:red;
+  border-radius:50%;
+  @media @desktop-portrait, @landscape {
+    top: 20%;
+    left: 65%;
+    width:20%;
+    height:20%;
+  }
+  @media @mobile-portrait {
+    top: 14%;
+    left: 70%;
+    width:25%;
+    height:25%;
+  }
+}
+.toPublic .unreadChat {
+  @media @desktop-portrait, @landscape {
+    position: absolute;
+    top: 39%;
+    left: 84%;
+    width:10px;
+    height:10px;
+    border-radius:5px;
+    background:red;
+  }
+}
+
 .myNavbar {
   border-bottom: 0px;
   &.gradientBar {
