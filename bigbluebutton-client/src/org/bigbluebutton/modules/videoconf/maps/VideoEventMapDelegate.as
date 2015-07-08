@@ -227,13 +227,14 @@ package org.bigbluebutton.modules.videoconf.maps
 
     private function openWebcamWindowFor(userID:String):void {
       trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: open window for = [" + userID + "]");
+
+      if (hasWindow(userID)) {
+        trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: user = [" + userID + "] has a window open. Close it.");
+        closeWindow(userID);
+      }
+
       if (! UsersUtil.isMe(userID) && UsersUtil.hasWebcamStream(userID)) {
         trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: Not ME and user = [" + userID + "] is publishing.");
-
-        if (hasWindow(userID)) {
-          trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: user = [" + userID + "] has a window open. Close it.");
-          closeWindow(userID);
-        }
         trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: View user's = [" + userID + "] webcam.");
         initAllPlayConnectionsFor(userID);
       } else {

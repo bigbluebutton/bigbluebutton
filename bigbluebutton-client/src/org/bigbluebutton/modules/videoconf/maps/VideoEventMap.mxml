@@ -131,10 +131,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.CAM_SETTINGS_CLOSED}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
   </EventHandlers>
-
-  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="closeAllWindows"/>
-  </EventHandlers>
   
 	<EventHandlers type="{PlayConnectionReady.PLAY_CONNECTION_READY}">
 		<MethodInvoker generator="{VideoEventMapDelegate}" method="handlePlayConnectionReady" arguments="{event}" />
