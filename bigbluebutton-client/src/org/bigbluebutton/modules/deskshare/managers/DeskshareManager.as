@@ -139,7 +139,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			if (!sharing) return;
 
 			handleStopModuleEvent();
-			sharing = false; // TODO should we call it here?!
+			sharing = false;
 		}
 	}
 }

@@ -355,11 +355,9 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
   private def handleDeskShareRecordingStartedRequest(msg: DeskShareRecordingStartedRequest) {
     println("\nMeetingActor-handleDeskShareRecordingStartedRequest\n")
-    println("isRecording=" + meetingModel.isRecording())
-    println("recorded=" + mProps.recorded)
-    //TODO check if recording/ed
-    meetingModel.recordingStarted() //TODO move
-    meetingModel.setVoiceRecordingFilename(msg.filename) //TODO can i reuse setVoiceRecordingFilename or ..?
+
+    meetingModel.recordingStarted()
+    meetingModel.setVoiceRecordingFilename(msg.filename)
   }
 
   private def handleDeskShareRecordingStoppedRequest(msg: DeskShareRecordingStoppedRequest) {
@@ -369,7 +367,6 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
     //TODO check if recording/ed
     meetingModel.recordingStopped()
-    //TODO should I do: meetingModel.setVoiceRecordingFilename("")?
   }
 
   private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
@@ -382,6 +379,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
     // Notify viewers in the meeting that there's an rtmp stream to view
     outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+      //    		true, msg.timestamp))
       true, System.currentTimeMillis().toString()))
     println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE1 " + meetingModel.getRTMPBroadcastingUrl())
   }
@@ -392,9 +390,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     println("recorded=" + mProps.recorded)
 
     meetingModel.broadcastingRTMPStoppped()
-    // TODO should I do: meetingModel.setRTMPBroadcastingUrl("") ?
 
-    // TODO notify viewers that RTMP broadcast stopped
+    // notify viewers that RTMP broadcast stopped
     outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
       false, System.currentTimeMillis().toString()))
     println("DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE")

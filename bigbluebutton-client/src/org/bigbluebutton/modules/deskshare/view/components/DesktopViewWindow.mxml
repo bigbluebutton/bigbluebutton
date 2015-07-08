@@ -225,12 +225,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						var dispatcher: Dispatcher  = new Dispatcher();
 						var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
 
-						JSLog.debug("____stream=" + streamID, logData3);
-
-
-
-						viewEvent.stream = "dev-test"; //TODO anton change back
-//						viewEvent.stream = streamID;
+						viewEvent.stream = streamID;
 						dispatcher.dispatchEvent(viewEvent);
 						break;
 					case "NetStream.Play.UnpublishNotify":
@@ -243,7 +238,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function netStatusHandler(event:NetStatusEvent):void {
 //				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
 				var logData1:Object = new Object();
-				JSLog.debug("eventinfo++++=" + event.info.code, logData1); //todo anton
+				JSLog.debug("event.info.code=" + event.info.code, logData1);
 				var ce:ConnectionEvent = new ConnectionEvent();
 
 				switch(event.info.code){
@@ -253,7 +248,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.Success":
-						ce.status = ConnectionEvent.SUCCESS; //setup stream
+						ce.status = ConnectionEvent.SUCCESS;
 						connectionSuccessHandler();
 						break;
 

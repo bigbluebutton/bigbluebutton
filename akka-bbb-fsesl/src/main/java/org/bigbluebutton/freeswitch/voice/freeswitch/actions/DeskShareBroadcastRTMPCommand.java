@@ -42,10 +42,6 @@ public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
 		if (broadcast)
 			action = "record";
 
-		System.out.println("\n\n\n\n\n DESKSHARE BROADCAST RTMP " + broadcast + "\n\n\n\n");
-
-		broadcastPath = "rtmp://192.168.0.109/live/abc/dev-test"; //TODO remove overwriting
-		//TODO perhaps use "rtmp" in the command
 		return SPACE + getRoom() + SPACE + action + SPACE + broadcastPath;
 	}
 
