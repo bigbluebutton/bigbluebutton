@@ -39,29 +39,28 @@ Template.usernameEntry.events
 
   'click .gotUnreadMail': (event) ->
     _this = @
-    setInSession 'chats', getInSession('chats').map((chat) ->
-      chat.gotMail = false if chat.userId is _this.userId
-      chat
-    )
+    chats = getInSession('chats')
+    if chats isnt undefined
+      for chat in chats
+        if chat.userId is _this.userId
+          chat.gotMail = false
+          break
+      setInSession 'chats', chats
 
   'click .gotUnreadPublic': (event) ->
-    setInSession 'chats', getInSession('chats').map((chat) ->
-      chat.gotMail = false if chat.userId is 'PUBLIC_CHAT'
-      chat
-    )
+    chats = getInSession('chats')
+    if chats isnt undefined
+      for chat in chats
+        if chat.userId is 'PUBLIC_CHAT'
+          chat.gotMail = false
+          break
+      setInSession 'chats', chats
 
 Template.usernameEntry.helpers
   hasGotUnreadMailClass: (userId) ->
-    chats = getInSession('chats') if getInSession('chats') isnt undefined
-    flag = false
+    chats = getInSession('chats')
     if chats isnt undefined
-      chats.map((tab) ->
-        if tab.userId is userId
-          if tab.gotMail
-            flag = true
-        tab
-      )
-    if flag
-      return "gotUnreadMail"
-    else
-      return ""
+      for chat in chats
+        if chat.userId is userId and chat.gotMail
+          return true
+    return false
