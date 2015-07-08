@@ -51,11 +51,11 @@ public class DeskShareMessageReceiver implements MessageHandler {
 					} else if (DeskShareRTMPBroadcastStartedEventMessage.DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE.equals(messageName)) {
 						System.out.println("^^^^^^^DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE^^^^^^");
 						DeskShareRTMPBroadcastStartedEventMessage msg = DeskShareRTMPBroadcastStartedEventMessage.fromJson(message);
-						bbbGW.deskShareRTMPBroadcastStarted(msg.conferenceName, msg.streamname, msg.timestamp);
+						bbbGW.deskShareRTMPBroadcastStarted(msg.conferenceName, msg.streamname, msg.vw, msg.vh, msg.timestamp);
 					} else if (DeskShareRTMPBroadcastStoppedEventMessage.DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE.equals(messageName)) {
 						System.out.println("^^^^^^^DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE^^^^^^");
 						DeskShareRTMPBroadcastStoppedEventMessage msg = DeskShareRTMPBroadcastStoppedEventMessage.fromJson(message);
-						bbbGW.deskShareRTMPBroadcastStopped(msg.conferenceName, msg.streamname, msg.timestamp);
+						bbbGW.deskShareRTMPBroadcastStopped(msg.conferenceName, msg.streamname, msg.vw, msg.vh, msg.timestamp);
 					}
 //					else if (DeskShareViewerJoinedEventMessage.DESK_SHARE_VIEWER_JOINED_MESSAGE.equals(messageName)) {
 //						DeskShareViewerJoinedEventMessage msg = DeskShareViewerJoinedEventMessage.fromJson(message);

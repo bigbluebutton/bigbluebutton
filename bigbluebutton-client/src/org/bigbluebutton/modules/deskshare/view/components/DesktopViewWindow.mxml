@@ -158,9 +158,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 cursorImg.x = cursor.x;
                 cursorImg.y = cursor.y;
 			}
-			
-			public function startVideo(rtmp:String, width:Number, height:Number):void{
 
+			public function startVideo(rtmp:String, width:Number, height:Number):void{
     			var videoURL:String;
 
 				// split rtmp extract the streamId

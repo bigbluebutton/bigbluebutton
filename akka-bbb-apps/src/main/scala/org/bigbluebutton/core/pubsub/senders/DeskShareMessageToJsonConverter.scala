@@ -9,8 +9,6 @@ import org.bigbluebutton.common.messages.DeskShareNotifyViewersRTMPEventMessage
 
 object DeskShareMessageToJsonConverter {
 
-  val UNKNOWN = "unknown"
-
   def getDeskShareStartRecordingToJson(msg: DeskShareStartRecording): String = {
     println("^^^^^getDeskShareStartRecordingToJson in DeskShareMessageToJsonConverter")
     val newMsg = new DeskShareStartRecordingEventMessage(msg.conferenceName, msg.filename, msg.timestamp)
@@ -25,19 +23,22 @@ object DeskShareMessageToJsonConverter {
 
   def getDeskShareStartRTMPBroadcastToJson(msg: DeskShareStartRTMPBroadcast): String = {
     println("^^^^^getDeskShareStartRTMPBroadcastToJson in DeskShareMessageToJsonConverter")
-    val newMsg = new DeskShareStartRTMPBroadcastEventMessage(msg.conferenceName, msg.streamPath, msg.timestamp)
+    val newMsg = new DeskShareStartRTMPBroadcastEventMessage(msg.conferenceName, msg.streamPath,
+      msg.timestamp)
     newMsg.toJson()
   }
 
   def getDeskShareStopRTMPBroadcastToJson(msg: DeskShareStopRTMPBroadcast): String = {
     println("^^^^^getDeskShareStopRTMPBroadcastToJson in DeskShareMessageToJsonConverter")
-    val newMsg = new DeskShareStopRTMPBroadcastEventMessage(msg.conferenceName, msg.streamPath, msg.timestamp)
+    val newMsg = new DeskShareStopRTMPBroadcastEventMessage(msg.conferenceName, msg.streamPath,
+      msg.timestamp)
     newMsg.toJson()
   }
 
   def getDeskShareNotifyViewersRTMPToJson(msg: DeskShareNotifyViewersRTMP): String = {
     println("^^^^^getDeskShareNotifyViewersRTMPToJson in DeskShareMessageToJsonConverter")
-    val newMsg = new DeskShareNotifyViewersRTMPEventMessage(msg.meetingID, msg.streamPath, msg.broadcasting, msg.timestamp)
+    val newMsg = new DeskShareNotifyViewersRTMPEventMessage(msg.meetingID, msg.streamPath,
+      msg.broadcasting, msg.videoWidth, msg.videoHeight, msg.timestamp)
     newMsg.toJson()
   }
 }

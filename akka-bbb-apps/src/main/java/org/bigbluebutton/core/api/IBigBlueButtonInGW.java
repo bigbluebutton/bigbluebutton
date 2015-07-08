@@ -111,8 +111,8 @@ public interface IBigBlueButtonInGW {
 	void deskShareRecordingStarted(String conferenceName, String filename, String timestamp);
 	void deskShareRecordingStopped(String conferenceName, String filename, String timestamp);
 	void deskShareRTMPBroadcastStarted(String conferenceName, String streamname,
-			String timestamp);
+			int videoWidth, int videoHeight, String timestamp);
 	void deskShareRTMPBroadcastStopped(String conferenceName, String streamname,
-			String timestamp);
+			int videoWidth, int videoHeight, String timestamp);
 
 }

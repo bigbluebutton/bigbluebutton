@@ -57,7 +57,7 @@ public class DeskShareMessageSender {
 		messageInfo.put(ChatKeyUtil.FROM_TIME, "1.435851039645E12");
 		messageInfo.put(ChatKeyUtil.FROM_TZ_OFFSET, "240");
 		messageInfo.put(ChatKeyUtil.FROM_COLOR, "0");
-		messageInfo.put(ChatKeyUtil.MESSAGE, "BROADCASTING_RTMP:"+msg.broadcasting + " " + msg.streamPath);
+		messageInfo.put(ChatKeyUtil.MESSAGE, "BROADCASTING_RTMP:"+msg.broadcasting + " " + msg.streamPath + "  vw=" + msg.vw + "  vh=" + msg.vh);
 
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "ChatReceivePublicMessageCommand", messageInfo);
 		service.sendMessage(m);
@@ -65,6 +65,8 @@ public class DeskShareMessageSender {
 		Map<String, Object> messageInfo2 = new HashMap<String, Object>();
 		messageInfo2.put("rtmpUrl", msg.streamPath);
 		messageInfo2.put("broadcasting", msg.broadcasting);
+		messageInfo2.put("width", msg.vw);
+		messageInfo2.put("height", msg.vh);
 		BroadcastClientMessage m2 = new BroadcastClientMessage(msg.meetingId, "DeskShareRTMPBroadcastNotification", messageInfo2);
 		System.out.println("A\n\n\n\nAAA" + m2.toString());
 		service.sendMessage(m2);

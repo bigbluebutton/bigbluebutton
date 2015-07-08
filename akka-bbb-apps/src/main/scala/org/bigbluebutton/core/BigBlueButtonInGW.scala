@@ -454,12 +454,12 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
     bbbActor ! new DeskShareRecordingStoppedRequest(conferenceName, filename, timestamp)
   }
 
-  def deskShareRTMPBroadcastStarted(conferenceName: String, streamname: String, timestamp: String) {
-    bbbActor ! new DeskShareRTMPBroadcastStartedRequest(conferenceName, streamname, timestamp)
+  def deskShareRTMPBroadcastStarted(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
+    bbbActor ! new DeskShareRTMPBroadcastStartedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
   }
 
-  def deskShareRTMPBroadcastStopped(conferenceName: String, streamname: String, timestamp: String) {
-    bbbActor ! new DeskShareRTMPBroadcastStoppedRequest(conferenceName, streamname, timestamp)
+  def deskShareRTMPBroadcastStopped(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
+    bbbActor ! new DeskShareRTMPBroadcastStoppedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
   }
 
 }

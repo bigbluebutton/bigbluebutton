@@ -50,6 +50,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
   import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+  import org.bigbluebutton.main.api.JSLog;
 
   public class MessageReceiver implements IMessageListener
   {
@@ -66,7 +67,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function onMessage(messageName:String, message:Object):void {
-//      trace(LOG + " received message " + messageName);
+      // trace(LOG + " received message " + messageName);
       
       switch (messageName) {
         case "getUsersReply":
@@ -135,7 +136,7 @@ package org.bigbluebutton.modules.users.services
         case "permissionsSettingsChanged":
           handlePermissionsSettingsChanged(message);
           break;
-		case "userLocked":
+        case "userLocked":
           handleUserLocked(message);
           break;
         case "DeskShareRTMPBroadcastNotification":
@@ -144,23 +145,22 @@ package org.bigbluebutton.modules.users.services
       }
     }
 
-     private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
-      trace(LOG + "*** handleDeskShareRTMPBroadcastNotification " + " **** \n");
+    private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
+      trace(LOG + "*** handleDeskShareRTMPBroadcastNotification **** \n");
 
       var event:ViewStreamEvent;
-       if (msg.broadcasting) {
-         event = new ViewStreamEvent(ViewStreamEvent.START);
-       } else {
-         event = new ViewStreamEvent(ViewStreamEvent.STOP);
-       }
-      event.videoWidth = 1920; //TODO anton
-      event.videoHeight = 1080; //TODO anton
+      if (msg.broadcasting) {
+        event = new ViewStreamEvent(ViewStreamEvent.START);
+      } else {
+        event = new ViewStreamEvent(ViewStreamEvent.STOP);
+      }
+
+      event.videoWidth = msg.width;
+      event.videoHeight = msg.height;
       event.rtmp = msg.rtmpUrl;
 
       dispatcher.dispatchEvent(event);
     }
-    
-   
 
 	private function handleUserLocked(msg:Object):void {
 		trace(LOG + "*** handleUserLocked " + msg.msg + " **** \n");
