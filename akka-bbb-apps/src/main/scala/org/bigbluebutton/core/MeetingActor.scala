@@ -13,11 +13,11 @@ import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollMod
 import org.bigbluebutton.core.apps.PresentationModel
 
 object MeetingActor {
-  def props(mProps: MeetingProperties, outGW: MessageOutGateway): Props =
+  def props(mProps: MeetingProperties, outGW: OutMessageGateway): Props =
     Props(classOf[MeetingActor], mProps: MeetingProperties, outGW)
 }
 
-class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
+class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     extends Actor with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with ActorLogging {
