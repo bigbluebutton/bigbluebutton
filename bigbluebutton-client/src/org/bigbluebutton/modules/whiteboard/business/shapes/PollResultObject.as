@@ -236,7 +236,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
     
     private function drawRect(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-      //            LogUtil.debug("Drawing RECTANGLE");
       var ao:Object = a.annotation;
       this.graphics.lineStyle(1 * zoom, 0);
       
@@ -251,27 +250,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
     
     override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
-      //      if (_pollGraphic != null) {
-      //        this.removeChild(_pollGraphic);
-      //      }
-      
-      //      _pollGraphic = new PollGraphic();
-      //      this.addChild(_pollGraphic);
-      
       var ao:Object = a.annotation;
       trace("RESULT = " + JSON.stringify(a));
-//      drawRect(a, parentWidth, parentHeight, zoom);
-/*
-      _pollGraphic.x = denormalize((ao.points as Array)[0], parentWidth);
-      _pollGraphic.y = denormalize((ao.points as Array)[1], parentHeight);
-      _pollGraphic.width = denormalize((ao.points as Array)[2], parentWidth);
-      _pollGraphic.height = denormalize((ao.points as Array)[3], parentHeight);
-*/    
+
       var arrayEnd:Number = (ao.points as Array).length;
-      var startX:Number = denormalize(21.845575, parentWidth);
-      var startY:Number = denormalize(23.145401, parentHeight);
-      var pwidth:Number = denormalize(46.516006, parentWidth) - startX;
-      var pheight:Number = denormalize(61.42433, parentHeight) - startY;
+      var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
+      var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
+      var pwidth:Number = denormalize((ao.points as Array)[2], parentWidth) - startX;
+      var pheight:Number = denormalize((ao.points as Array)[3], parentHeight) - startY;
            
       var answers:Array = ao.result as Array;
       var ans:Array = new Array();
@@ -287,8 +273,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	  
 	  updateDisplayList(pwidth, pheight);
 	  
-//	  drawRect(a, parentWidth, parentHeight, zoom);
-	   
     }
     
     override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
