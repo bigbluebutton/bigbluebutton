@@ -54,8 +54,17 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
       event.setPageNumber(getPageNum(msg.whiteboardId))
       event.setWhiteboardId(msg.whiteboardId)
       event.addAnnotation(mapAsJavaMap(msg.shape.shape))
-
       recorder.record(msg.meetingID, event)
+    } else if ((msg.shape.shapeType == WhiteboardKeyUtil.POLL_RESULT_TYPE)) {
+      val event = new ModifyTextWhiteboardRecordEvent()
+      event.setMeetingId(msg.meetingID)
+      event.setTimestamp(TimestampGenerator.generateTimestamp)
+      event.setPresentation(getPresentationId(msg.whiteboardId))
+      event.setPageNumber(getPageNum(msg.whiteboardId))
+      event.setWhiteboardId(msg.whiteboardId)
+      // FIXME: Need to make sure the x,y,w,h of display is correct
+//      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
+//      recorder.record(msg.meetingID, event)
     } else {
       val event = new AddShapeWhiteboardRecordEvent()
       event.setMeetingId(msg.meetingID)
@@ -63,8 +72,8 @@ class WhiteboardEventRedisRecorder(recorder: RecorderApplication) extends OutMes
       event.setPresentation(getPresentationId(msg.whiteboardId))
       event.setPageNumber(getPageNum(msg.whiteboardId))
       event.setWhiteboardId(msg.whiteboardId);
-      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
-      recorder.record(msg.meetingID, event)
+      //      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
+      //      recorder.record(msg.meetingID, event)
     }
   }
 
