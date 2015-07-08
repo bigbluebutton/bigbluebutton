@@ -6,6 +6,7 @@ import scala.collection.mutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import com.google.gson.Gson
+import java.util.ArrayList
 
 trait PollApp {
   this: MeetingActor =>
@@ -77,7 +78,12 @@ trait PollApp {
     val gson = new Gson()
     shape += "result" -> gson.toJson(answers.toArray)
 
-    val display = Array(0, 0, 200, 200)
+    val display = new ArrayList[Double]()
+    display.add(21.845575)
+    display.add(23.145401)
+    display.add(46.516006)
+    display.add(61.42433)
+
     shape += "points" -> display
     shape.toMap
   }
