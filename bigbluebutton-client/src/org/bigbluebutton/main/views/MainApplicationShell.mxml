@@ -152,7 +152,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var toolbarPaddingTop:Number = 4;
 			[Bindable] private var showFooterOpt:Boolean = true;
 			[Bindable] private var footerHeight:Number = 24;
-			[Bindable] private var globalHeight:Number = 0;
 			
 			[Bindable] private var isTunneling:Boolean = false;
 			
@@ -183,22 +182,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
-
-				systemManager.addEventListener(Event.RESIZE, updateCopyrightLabelDimensions);
-				copyrightLabel2.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCopyrightLabelDimensions);
-				updateCopyrightLabelDimensions();
-			}
-
-			private function updateCopyrightLabelDimensions(e:Event = null):void {
-				var screenRect:Rectangle = systemManager.screen;
-
-				if (spacer.width == 0) {
-					copyrightLabel2.width += (screenRect.width - controlBar.width);
-				} else {
-					copyrightLabel2.width += Math.min(spacer.width, copyrightLabel2.measuredWidth - copyrightLabel2.width);
-				}
-				
-				globalHeight = screenRect.height;
 			}
 		
 			protected function initFullScreen():void {				
@@ -671,7 +654,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  verticalScrollPolicy="off" 
 					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
 					  width="100%" 
-					  height="{globalHeight - footerHeight - toolbarHeight - 12}">
+					  height="100%">
 		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
@@ -681,8 +664,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
 				link="onFooterLinkClicked(event)"
 				id="copyrightLabel2" truncateToFit="true"
+				width="100%" minWidth="1"
 				selectable="true" paddingRight="10"/>
-		<mx:Spacer width="100%" id="spacer" />
+		
 		<mx:Label 
 				id="lblWebRTC"
 				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"

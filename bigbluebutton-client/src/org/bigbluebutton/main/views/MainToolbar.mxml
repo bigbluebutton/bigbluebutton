@@ -101,15 +101,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
       private function onCreationComplete():void {
-        if (this.width < 800) {
-          meetingNameLbl.visible = false;
-          shortcutKeysBtn.visible = false;
-          helpBtn.visible = false;      
-          muteMeBtn.visible = false;
-          meetingNameLbl.width = 0;
-          shortcutKeysBtn.width = 0;
-          helpBtn.width = 0;          
-        }
       }
       
       private function checkAccessiblity(e:TimerEvent):void {
@@ -158,6 +149,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
               var meetingTitle:String = BBB.initUserConfigManager().getMeetingTitle();                   
               if (meetingTitle != null) {
                   meetingNameLbl.text = meetingTitle;
+                  meetingNameLbl.toolTip = meetingTitle;
                } 
           }
       }
@@ -355,9 +347,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<views:RecordButton id="recordBtn" tabIndex="{baseIndex+numButtons+10}" />
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+11}"/>
-	<mx:Spacer width="50%"/>
-  <mx:Label id="meetingNameLbl" styleName="meetingNameLabelStyle" />
-  <mx:Spacer width="50%"/>
+	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
