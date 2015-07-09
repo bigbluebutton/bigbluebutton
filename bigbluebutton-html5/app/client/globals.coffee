@@ -401,6 +401,19 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   setInSession 'chats', initChats
   TimeSync.loggingEnabled = false # suppresses the log messages from timesync
 
+#true if it is a new user, false if the client was just refreshed
+@loginOrRefresh = ->
+  userId = getInSession 'userId'
+  checkId = getInSession 'checkId'
+  if checkId is undefined
+    setInSession 'checkId', userId
+    return true
+  else if userId isnt checkId
+    setInSession 'checkId', userId
+    return true
+  else 
+    return false
+
 @onLoadComplete = ->
   document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
   setDefaultSettings()
