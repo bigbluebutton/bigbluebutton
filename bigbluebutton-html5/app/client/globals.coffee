@@ -15,9 +15,9 @@
 
 # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
 @colourToHex = (value) ->
-	hex = parseInt(value).toString(16)
-	hex = "0" + hex while hex.length < 6
-	"##{hex}"
+  hex = parseInt(value).toString(16)
+  hex = "0" + hex while hex.length < 6
+  "##{hex}"
 
 # color can be a number (a hex converted to int) or a string (e.g. "#ffff00")
 @formatColor = (color) ->
@@ -236,6 +236,14 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   if msg.message.from_userid is myUserId
     new_msg_userid = msg.message.to_userid
 
+  chats = getInSession('chats')
+  if chats is undefined
+    initChats = [
+      userId: "PUBLIC_CHAT"
+      gotMail: false
+    ]
+    setInSession 'chats', initChats
+
   #insert the unique entries in the collection
   for u in uniqueArray
     chats = getInSession('chats')
@@ -382,9 +390,11 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
-  setInSession "inChatWith", 'PUBLIC_CHAT'
+  
+  #if it is a desktop version of the client
   if isPortraitMobile() or isLandscapeMobile()
     setInSession "messageFontSize", Meteor.config.app.mobileFont
+  #if this is a mobile version of the client
   else
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
@@ -394,11 +404,17 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   else
     setInSession 'display_usersList', false
   setInSession 'display_menu', false
-  initChats = [
-    userId: "PUBLIC_CHAT"
-    gotMail: false
-  ]
-  setInSession 'chats', initChats
+
+  #keep notifications and an opened private chat tab if page was refreshed
+  #reset to default if that's a new user
+  if loginOrRefresh()
+    initChats = [
+      userId: "PUBLIC_CHAT"
+      gotMail: false
+    ]
+    setInSession 'chats', initChats
+    setInSession "inChatWith", 'PUBLIC_CHAT'
+
   TimeSync.loggingEnabled = false # suppresses the log messages from timesync
 
 #true if it is a new user, false if the client was just refreshed
