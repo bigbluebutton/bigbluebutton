@@ -86,3 +86,7 @@ function doshare(on) {
 	});
 
 }
+function vertoScreenStart() {
+	alert("start");
+	screenStart(true, null);
+}

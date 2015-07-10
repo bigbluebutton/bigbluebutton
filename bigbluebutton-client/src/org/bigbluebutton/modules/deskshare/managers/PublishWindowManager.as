@@ -23,14 +23,15 @@ package org.bigbluebutton.modules.deskshare.managers
 	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-	
+	import flash.external.ExternalInterface;
+
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
-			
+
 	public class PublishWindowManager {		
 		private var shareWindow:DesktopPublishWindow;
 		private var globalDispatcher:Dispatcher;
@@ -48,27 +49,34 @@ package org.bigbluebutton.modules.deskshare.managers
 			globalDispatcher = new Dispatcher();
 			this.service = service;
 		}
-					
+
 		public function stopSharing():void {
 			if (shareWindow != null) shareWindow.stopSharing();
 		}
-																			
+
 		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 			LogUtil.debug("DS:PublishWindowManager::opening desk share window, autostart=" + autoStart + " autoFullScreen=" + autoFullScreen);
-			shareWindow = new DesktopPublishWindow();
-			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);
-			shareWindow.visible = true;
-			openWindow(shareWindow);
-			if (autoStart || autoFullScreen) {
-				/*
-				* Need to have a timer to trigger auto-publishing of deskshare.
-				*/
-				shareWindow.btnFSPublish.enabled = false;
-				shareWindow.btnRegionPublish.enabled = false;
-				autoPublishTimer = new Timer(2000, 1);
-				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-				autoPublishTimer.start();
-			}			
+
+			var result:String;
+			if (ExternalInterface.available) {
+				result = ExternalInterface.call("vertoScreenStart");
+			}
+
+//			shareWindow = new DesktopPublishWindow();
+//			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);
+//			shareWindow.visible = true;
+//			openWindow(shareWindow);
+//			if (autoStart || autoFullScreen) {
+//				/*
+//				* Need to have a timer to trigger auto-publishing of deskshare.
+//				*/
+//				shareWindow.btnFSPublish.enabled = false;
+//				shareWindow.btnRegionPublish.enabled = false;
+//				autoPublishTimer = new Timer(2000, 1);
+//				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+//				autoPublishTimer.start();
+//			}
+
 		}
 		
 		private function autopublishTimerHandler(event:TimerEvent):void {				
