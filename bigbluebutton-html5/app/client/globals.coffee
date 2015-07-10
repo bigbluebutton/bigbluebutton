@@ -241,6 +241,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
     initChats = [
       userId: "PUBLIC_CHAT"
       gotMail: false
+      number: 0;
     ]
     setInSession 'chats', initChats
 
@@ -248,7 +249,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   for u in uniqueArray
     chats = getInSession('chats')
     if chats.filter((chat) -> chat.userId == u.userId).length is 0 and u.userId is new_msg_userid
-      chats.push {userId: u.userId, gotMail: false}
+      chats.push {userId: u.userId, gotMail: false, number: 0}
       setInSession 'chats', chats
 
 @toggleShield = ->
@@ -411,6 +412,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
     initChats = [
       userId: "PUBLIC_CHAT"
       gotMail: false
+      number: 0
     ]
     setInSession 'chats', initChats
     setInSession "inChatWith", 'PUBLIC_CHAT'

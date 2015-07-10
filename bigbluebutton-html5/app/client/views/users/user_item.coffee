@@ -44,6 +44,7 @@ Template.usernameEntry.events
       for chat in chats
         if chat.userId is _this.userId
           chat.gotMail = false
+          chat.number = 0
           break
       setInSession 'chats', chats
 
@@ -53,6 +54,7 @@ Template.usernameEntry.events
       for chat in chats
         if chat.userId is 'PUBLIC_CHAT'
           chat.gotMail = false
+          chat.number = 0
           break
       setInSession 'chats', chats
 
