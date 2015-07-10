@@ -25,7 +25,6 @@ public class DeskShareRecordCommand extends FreeswitchCommand {
 
 	private String recordPath;
 	private boolean record;
-	// TODO add
 
 	public DeskShareRecordCommand(String room, String requesterId, boolean record, String recordPath){
 		super(room, requesterId);

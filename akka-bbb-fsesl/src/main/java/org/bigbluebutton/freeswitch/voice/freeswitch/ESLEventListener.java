@@ -86,7 +86,6 @@ public class ESLEventListener implements IEslEventListener {
             if (callerId.endsWith(DESKSHARE_CALLER_ID_SUFFIX) && callerIdName.endsWith(DESKSHARE_CALLER_NAME_SUFFIX)) {
                 DeskShareStartedEvent dsStart = new DeskShareStartedEvent(confName, callerId, callerIdName);
                 conferenceEventListener.handleConferenceEvent(dsStart);
-//                return; //TODO do we need it?
             } else {
                 DeskShareViewerJoinedEvent dsJoined = new DeskShareViewerJoinedEvent(confName, callerId, callerIdName);
                 conferenceEventListener.handleConferenceEvent(dsJoined);
@@ -117,7 +116,6 @@ public class ESLEventListener implements IEslEventListener {
             if (callerId.endsWith(DESKSHARE_CALLER_ID_SUFFIX) && callerIdName.endsWith(DESKSHARE_CALLER_NAME_SUFFIX)) {
                 DeskShareEndedEvent dsEnd = new DeskShareEndedEvent(confName, callerId, callerIdName);
                 conferenceEventListener.handleConferenceEvent(dsEnd);
-//                return;//TODO do we need it?
             } else {
                 DeskShareViewerLeftEvent dsLeft = new DeskShareViewerLeftEvent(confName, callerId, callerIdName);
                 conferenceEventListener.handleConferenceEvent(dsLeft);
