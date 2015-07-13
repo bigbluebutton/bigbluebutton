@@ -85,6 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -160,6 +161,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void{
+				//check for the polling module in config.xml
+				var vxml:XML = BBB.getConfigForModule("PollingModule");
+				if (vxml == null) presenterControls.removeChild(pollStartBtn);
+				
 				setControlBarState("presenter");
 				
 				thumbY = this.height - 160;
