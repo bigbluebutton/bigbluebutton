@@ -3,11 +3,12 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
 import com.google.gson.Gson
+import org.bigbluebutton.core.OutMessageGateway
 
 trait PresentationApp {
   this: MeetingActor =>
 
-  val outGW: MessageOutGateway
+  val outGW: OutMessageGateway
 
   private var cursorLocation = new CursorLocation
 

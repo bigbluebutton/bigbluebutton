@@ -3,13 +3,14 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
+import org.bigbluebutton.core.OutMessageGateway
 
 case class Whiteboard(id: String, shapes: Seq[AnnotationVO])
 
 trait WhiteboardApp {
   this: MeetingActor =>
 
-  val outGW: MessageOutGateway
+  val outGW: OutMessageGateway
 
   def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
     val status = msg.annotation.status

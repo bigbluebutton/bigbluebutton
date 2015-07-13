@@ -6,11 +6,12 @@ import java.util.ArrayList
 import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.ListSet
+import org.bigbluebutton.core.OutMessageGateway
 
 trait UsersApp {
   this: MeetingActor =>
 
-  val outGW: MessageOutGateway
+  val outGW: OutMessageGateway
 
   def hasUser(userID: String): Boolean = {
     usersModel.hasUser(userID)

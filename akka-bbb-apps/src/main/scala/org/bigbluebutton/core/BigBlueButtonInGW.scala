@@ -14,10 +14,11 @@ import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.util.Success
 import scala.util.Failure
+import org.bigbluebutton.core.service.recorder.RecorderApplication
 
-class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
+class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
   val log = system.log
-  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, outGW, voiceEventRecorder), "bigbluebutton-actor")
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, recorderApp, messageSender, voiceEventRecorder), "bigbluebutton-actor")
 
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,

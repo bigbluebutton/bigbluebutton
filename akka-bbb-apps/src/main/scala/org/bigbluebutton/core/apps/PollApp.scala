@@ -7,11 +7,12 @@ import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import com.google.gson.Gson
 import java.util.ArrayList
+import org.bigbluebutton.core.OutMessageGateway
 
 trait PollApp {
   this: MeetingActor =>
 
-  val outGW: MessageOutGateway
+  val outGW: OutMessageGateway
 
   def handleGetPollRequest(msg: GetPollRequest) {
 
