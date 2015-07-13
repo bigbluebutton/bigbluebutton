@@ -46,7 +46,7 @@ public class PollShowResultMessage implements ISubscribedMessage {
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(POLL)) {
 						String id = payload.get(Constants.MEETING_ID).getAsString();
-						
+					
 						JsonObject poll = payload.get(POLL).getAsJsonObject();
 						
 						Util util = new Util();

@@ -424,6 +424,9 @@ public class Util {
 			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
 			
 			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
+			Integer numRespondents = annotationElement.get(NUM_RESPONDENTS).getAsInt();
+			Integer numResponders = annotationElement.get(NUM_RESPONDERS).getAsInt();
+			
 			String resultJson = annotationElement.get("result").getAsString();
 			JsonParser parser = new JsonParser();
 		    JsonArray resultJsonArray = parser.parse(resultJson).getAsJsonArray();
@@ -456,6 +459,8 @@ public class Util {
 			}
 			
 			finalAnnotation.put("whiteboardId", whiteboardId);
+			finalAnnotation.put(NUM_RESPONDENTS, numRespondents);
+			finalAnnotation.put(NUM_RESPONDERS, numResponders);
 			finalAnnotation.put("result", collection);
 			finalAnnotation.put("points", pointsArray);
 			
@@ -589,6 +594,8 @@ public class Util {
 	public static final String ANSWERS = "answers";
 	public static final String KEY = "key";
 	public static final String NUM_VOTES = "num_votes";
+	public static final String NUM_RESPONDERS = "num_responders";
+	public static final String NUM_RESPONDENTS = "num_respondents";
 	
 	public Map<String, Object> decodeSimplePoll(JsonObject poll) {
 		Map<String, Object> pollMap = new HashMap<String, Object>();
@@ -637,7 +644,10 @@ public class Util {
 		Map<String, Object> pollMap = new HashMap<String, Object>();
 		
 		if (poll.has(Constants.ID) && poll.has(ANSWERS)) {
-			String id = poll.get(Constants.ID).getAsString();			
+			String id = poll.get(Constants.ID).getAsString();	
+			Integer numRespondents = poll.get(NUM_RESPONDENTS).getAsInt();
+			Integer numResponders = poll.get(NUM_RESPONDERS).getAsInt();
+			
 			JsonArray answers = poll.get(ANSWERS).getAsJsonArray();
 			
 			ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
@@ -654,6 +664,8 @@ public class Util {
 			}
 			
 			pollMap.put(Constants.ID, id);
+			pollMap.put(NUM_RESPONDENTS, numRespondents);
+			pollMap.put(NUM_RESPONDERS, numResponders);
 			pollMap.put(ANSWERS, collection);			
 		}
 

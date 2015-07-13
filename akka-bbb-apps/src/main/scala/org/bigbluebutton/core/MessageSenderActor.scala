@@ -395,7 +395,8 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   private def pollResultVOtoMap(msg: SimplePollResultOutVO): java.util.HashMap[String, Object] = {
     val pollVO = new java.util.HashMap[String, Object]()
     pollVO.put("id", msg.id)
-
+    pollVO.put("num_respondents", msg.numRespondents: java.lang.Integer)
+    pollVO.put("num_responders", msg.numResponders: java.lang.Integer)
     val answers = new java.util.ArrayList[java.util.Map[String, Any]];
     msg.answers.foreach(ans => {
       val amap = new java.util.HashMap[String, Any]()
