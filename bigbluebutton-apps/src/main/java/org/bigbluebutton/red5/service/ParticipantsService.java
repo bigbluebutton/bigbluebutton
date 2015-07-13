@@ -23,10 +23,15 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
+
+import java.util.HashMap;
 import java.util.Map;
+
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
+
+import com.google.gson.Gson;
 
 public class ParticipantsService {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
@@ -87,6 +92,16 @@ public class ParticipantsService {
 		String meetingId = scope.getName();
 		String userId = getBbbSession().getInternalUserID();
 
+		Map<String, Object> logData = new HashMap<String, Object>();
+		logData.put("meetingId", scope.getName());
+		logData.put("userId", userId);
+		logData.put("stream", stream);
+		
+		Gson gson = new Gson();
+		String logStr =  gson.toJson(logData);
+		
+        log.warn("User unshared webcam. data={}", logStr );
+        
 		red5InGW.unshareWebcam(meetingId, userId, stream);
 	}
 	
