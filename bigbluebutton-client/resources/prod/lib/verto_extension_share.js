@@ -1,4 +1,9 @@
 function screenStart(state, callback) {
+	alert("2");
+	//var imported = document.createElement('script');
+	//imported.src = '/client/lib/verto.js';
+	//document.head.appendChild(imported);
+
 	if(!isLoggedIntoVerto()) { // start the verto log in procedure
 		// runs when the websocket is successfully created
 		callbacks.onWSLogin = function(v, success) {
@@ -88,5 +93,5 @@ function doshare(on) {
 }
 function vertoScreenStart() {
 	alert("start");
-	screenStart(true, null);
+	screenStart(true, function(){});
 }
