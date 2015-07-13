@@ -71,7 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (ArrayUtil.getItemIndex(window, windowManager.windowList) != -1) {
 					windowManager.remove(window as MDIWindow);
 				} else {
-					LogUtil.debug("Trying to remove the window [ " + window + " ] but it's not a MainCanvas child");
+					trace("Trying to remove the window [ " + window + " ] but it's not a MainCanvas child");
 				}
 			}
 			

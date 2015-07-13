@@ -180,7 +180,7 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     }
   }
   
-  private def sendNonWebUserJoined(meetingId: String, webUserId: String, msg: FsVoiceUserJoined) {
+  private def sendUserJoined(meetingId: String, webUserId: String, msg: FsVoiceUserJoined) {
     bbbInGW.voiceUserJoined(meetingId, msg.userId, 
 	              webUserId, msg.conference, msg.callerIdNum, msg.callerIdName,
 	              msg.muted, msg.speaking)    
@@ -197,12 +197,12 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	      case Some(user) => {
           logger.info("The user is also in the web client. [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	     
-	        sendNonWebUserJoined(fc.meetingId, user.userID, msg)
+	        sendUserJoined(fc.meetingId, user.userID, msg)
 	      }
 	      case None => {
           logger.info("User is not a web user. Must be a phone caller. [" + 
                 msg.conference + "] user=[" + msg.callerIdName + "] wid=[" + msg.webUserId + "]")	
-	         sendNonWebUserJoined(fc.meetingId, msg.userId, msg)
+	         sendUserJoined(fc.meetingId, null, msg)
 	      }
 	    }
     })
