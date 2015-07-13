@@ -87,12 +87,12 @@ object PollFactory {
     questionOption
   }
 
-  def createPoll(id: String, pollType: String): Option[Poll] = {
+  def createPoll(id: String, pollType: String, numRespondents: Int): Option[Poll] = {
     var poll: Option[Poll] = None
 
     createQuestion(pollType) match {
       case Some(question) => {
-        poll = Some(new Poll(id, Array(question), None))
+        poll = Some(new Poll(id, Array(question), numRespondents, None))
       }
       case None => poll = None
     }
@@ -118,13 +118,13 @@ case class SimpleAnswerOutVO(id: Int, key: String)
 case class SimplePollOutVO(id: String, answers: Array[SimpleAnswerOutVO])
 
 case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
-case class SimplePollResultOutVO(id: String, answers: Array[SimpleVoteOutVO])
+case class SimplePollResultOutVO(id: String, answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
 
-class Poll(val id: String, val questions: Array[Question], val title: Option[String]) {
+class Poll(val id: String, val questions: Array[Question], val numRespondents: Int, val title: Option[String]) {
   private var _started: Boolean = false
   private var _stopped: Boolean = false
-
   private var _showResult: Boolean = false
+  private var _numResponders: Int = 0
 
   def showingResult() { _showResult = true }
   def hideResult() { _showResult = false }
@@ -152,6 +152,7 @@ class Poll(val id: String, val questions: Array[Question], val title: Option[Str
     questions.foreach(q => {
       if (q.id == questionID) {
         q.respondToQuestion(responseID, responder)
+        _numResponders += 1
       }
     })
   }
@@ -170,7 +171,7 @@ class Poll(val id: String, val questions: Array[Question], val title: Option[Str
   }
 
   def toSimplePollResultOutVO(): SimplePollResultOutVO = {
-    new SimplePollResultOutVO(id, questions(0).toSimpleVotesOutVO())
+    new SimplePollResultOutVO(id, questions(0).toSimpleVotesOutVO(), numRespondents, _numResponders)
   }
 }
 

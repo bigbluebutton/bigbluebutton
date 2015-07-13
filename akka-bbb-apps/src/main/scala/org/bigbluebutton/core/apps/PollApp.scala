@@ -66,6 +66,8 @@ trait PollApp {
 
   def pollResultToWhiteboardShape(result: SimplePollResultOutVO, msg: ShowPollResultRequest): scala.collection.immutable.Map[String, Object] = {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
+    shape += "num_respondents" -> new Integer(result.numRespondents)
+    shape += "num_responders" -> new Integer(result.numResponders)
 
     val answers = new ArrayBuffer[java.util.HashMap[String, Object]];
     result.answers.foreach(ans => {
@@ -135,7 +137,8 @@ trait PollApp {
     presModel.getCurrentPage() foreach { page =>
       val pollId = page.id + "/" + System.currentTimeMillis()
 
-      PollFactory.createPoll(pollId, msg.pollType) foreach (poll => pollModel.addPoll(poll))
+      val numRespondents = usersModel.numUsers() - 1 // subtract the presenter
+      PollFactory.createPoll(pollId, msg.pollType, numRespondents) foreach (poll => pollModel.addPoll(poll))
 
       pollModel.getSimplePoll(pollId) match {
         case Some(poll) => {
