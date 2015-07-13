@@ -46,6 +46,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
 	
+	private int packetTimeout = 10000;
+	
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
@@ -153,7 +155,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		logData.put("description", "User leaving BBB Video.");
 		
 		Gson gson = new Gson();
-    String logStr =  gson.toJson(logData);
+		String logStr =  gson.toJson(logData);
 		
 		log.info("User leaving bbb-video: data={}", logStr);
 		
@@ -178,7 +180,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	String streamId = stream.getPublishedName();
     	
     	publisher.userSharedWebcamMessage(meetingId, userId, streamId);
-    	VideoStreamListener listener = new VideoStreamListener(conn.getScope(), stream, recordVideoStream);
+    	VideoStreamListener listener = new VideoStreamListener(conn.getScope(), stream, recordVideoStream, userId, packetTimeout);
         listener.setEventRecordingService(recordingService);
         stream.addStreamListener(listener); 
         streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
@@ -253,6 +255,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 	public void setRecordVideoStream(boolean recordVideoStream) {
 		this.recordVideoStream = recordVideoStream;
+	}
+	
+	public void setPacketTimeout(int timeout) {
+		this.packetTimeout = timeout;
 	}
 	
 	public void setEventRecordingService(EventRecordingService s) {
