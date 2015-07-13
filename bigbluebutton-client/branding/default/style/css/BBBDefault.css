@@ -54,6 +54,7 @@ ToolTip {
   fontWeight: bold;
   fontSize: 15;
   fontFamily: Arial;
+  textAlign: center;
   color: #e1e2e5;
 }
 
