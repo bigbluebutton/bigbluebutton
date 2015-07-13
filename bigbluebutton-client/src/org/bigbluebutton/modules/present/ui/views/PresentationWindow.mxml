@@ -62,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
 	<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
 	<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
+	<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -85,10 +86,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
 			import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
 			import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
@@ -160,6 +163,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void{
+				//check for the polling module in config.xml
+				var vxml:XML = BBB.getConfigForModule("PollingModule");
+				if (vxml == null) presenterControls.removeChild(pollStartBtn);
+				
 				setControlBarState("presenter");
 				
 				thumbY = this.height - 160;
@@ -746,6 +753,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function pollStoppedHandler(e:PollStoppedEvent):void {
 				setControlBarState("presenter");
 			}
+			
+			private function pollShowResultHandler(e:PollShowResultEvent):void {
+				setControlBarState("presenter");
+			}
 
 		]]>
 	</mx:Script>
@@ -792,49 +803,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		<mx:HBox id="pollVoteBox" x="0" y="0" width="100%" height="100%" horizontalAlign="center" />
     </mx:ControlBar>
-	<!--
-	<pres:states>
-		<mx:State name="presenter">
-			<mx:AddChild relativeTo="presCtrlBar" position="firstChild">
-				<mx:HBox width="100%">
-					<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
-							   click="onUploadButtonClicked()" tabIndex="{baseIndex+5}"/>
-					<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}" 
-							   click="onPollStartButtonClicked()" tabIndex="{baseIndex+6}"/>
-					<mx:Spacer width="100%" id="spacer1"/>
-					<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"
-							   tabIndex="{baseIndex+7}"/>
-					<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"
-							   tabIndex="{baseIndex+8}"/>
-					<mx:Button id="forwardButton" visible="false" width="45" height="30" styleName="presentationForwardButtonStyle"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"
-							   tabIndex="{baseIndex+9}"/>    				
-					<mx:Spacer width="50%" id="spacer3"/>
-					<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
-								minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
-								useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
-								dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
-								tabIndex="{baseIndex+10}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
-					<mx:Button id="btnFitToWidth" visible="false" width="30" height="30" styleName="presentationFitToWidthButtonStyle"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
-							   click="onFitToPage(false)"
-							   tabIndex="{baseIndex+11}"/>
-					<mx:Button id="btnFitToPage" visible="false" width="30" height="30" styleName="presentationFitToPageButtonStyle"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
-							   click="onFitToPage(true)"
-							   tabIndex="{baseIndex+12}"/>
-					<!- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button ->
-					<mx:Spacer width="30" height="30" id="spacer4"/>
-				</mx:HBox>
-			</mx:AddChild>
-		</mx:State>
-		<mx:State name="vote">
-			
-		</mx:State>
-	</pres:states>
-		-->
 </pres:CustomMdiWindow>

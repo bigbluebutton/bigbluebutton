@@ -1,5 +1,3 @@
-.DS_Store
-._.DS_Store*
 .metadata
 .project
 .classpath
@@ -15,8 +13,6 @@ gen
 **/*.perspectivev3
 *.xcworkspace
 *.xcuserdatad
-**/target
-target
 *.iml
 project/*.ipr
 project/*.iml
@@ -30,9 +26,7 @@ project/*.iml
 project/*/*.iml
 project/.idea
 project/.idea/*
-.idea
-.idea/*
-.idea/**/*
+.idea/
 .DS_Store
 project/.DS_Store
 project/*/.DS_Store
@@ -53,4 +47,3 @@ akka-patterns-store/
 lib_managed/
 .cache
 bin/
-
