@@ -62,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
 	<mate:Listener type="{PollStartedEvent.POLL_STARTED}" method="pollStartedHandler" />
 	<mate:Listener type="{PollStoppedEvent.POLL_STOPPED}" method="pollStoppedHandler" />
+	<mate:Listener type="{PollShowResultEvent.SHOW_RESULT}" method="pollShowResultHandler" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -90,6 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
 			import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
 			import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
@@ -749,6 +751,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function pollStoppedHandler(e:PollStoppedEvent):void {
+				setControlBarState("presenter");
+			}
+			
+			private function pollShowResultHandler(e:PollShowResultEvent):void {
 				setControlBarState("presenter");
 			}
 
