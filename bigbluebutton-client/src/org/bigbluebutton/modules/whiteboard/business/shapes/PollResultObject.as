@@ -27,8 +27,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   
   public class PollResultObject extends DrawObject {
-    private const sx:int = 0;
-    private const sy:int = 0;
     //private const h:uint = 100;
     //private const w:uint = 280;
     private const bgFill:uint = 0XCECECE; //0xFFFFFF;
@@ -37,7 +35,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     private const hpadding:Number = 5;
     private const labelStartWidth:int = 40;
     private const percentStartWidth:int = 40;
-    
+	
     private var sampledata:Array = [{a:"A", v:3}, {a:"B", v:1}, {a:"C", v:5}, {a:"D", v:8}];
     private var _data:Array;
     private var _textFields:Array;
@@ -81,7 +79,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       if (_data != null && _data.length > 0) {
         graphics.lineStyle(2);
         graphics.beginFill(bgFill, 1.0);
-        graphics.drawRect(sx, sy, unscaledWidth, unscaledHeight);
+        graphics.drawRect(0, 0, unscaledWidth, unscaledHeight);
         graphics.endFill();
         
         var actualRH:Number = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
@@ -270,6 +268,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       
 	  data = ans;
 	  makeTextFields((answers != null ? answers.length*3 : 0));
+	  
+	  this.x = startX;
+	  this.y = startY;
 	  
 	  updateDisplayList(pwidth, pheight);
 	  
