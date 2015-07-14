@@ -86,6 +86,7 @@ package org.bigbluebutton.modules.sharednotes.services
       
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = message.noteID;
+      e.payload.noteName = message.noteName;
       dispatcher.dispatchEvent(e);
     }
     

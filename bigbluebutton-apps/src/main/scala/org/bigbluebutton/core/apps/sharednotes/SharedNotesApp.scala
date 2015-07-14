@@ -38,7 +38,7 @@ trait SharedNotesApp {
     outGW.send(new GetCurrentDocumentReply(meetingID, recorded, msg.requesterID, copyNotes))
   }
     
-  private def createAdditionalNotesNonSync(requesterID:String) {
+  private def createAdditionalNotesNonSync(requesterID:String, noteName:String = "") {
     var noteID = 0
     if (removedNotes.isEmpty()) {
       notesCounter += 1
@@ -49,12 +49,12 @@ trait SharedNotesApp {
     }
     notes += (noteID.toString -> "")
    
-    outGW.send(new CreateAdditionalNotesReply(meetingID, recorded, requesterID, noteID.toString))
+    outGW.send(new CreateAdditionalNotesReply(meetingID, recorded, requesterID, noteID.toString, noteName))
   }
 
   def handleCreateAdditionalNotesRequest(msg: CreateAdditionalNotesRequest) {
     notes.synchronized {
-      createAdditionalNotesNonSync(msg.requesterID)
+      createAdditionalNotesNonSync(msg.requesterID, msg.noteName)
     }
   }
     

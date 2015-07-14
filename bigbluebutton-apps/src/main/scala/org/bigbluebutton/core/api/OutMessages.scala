@@ -677,6 +677,7 @@ case class CreateAdditionalNotesReply(
     recorded: Boolean,
     requesterID: String,
     noteID: String,
+    noteName: String,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 

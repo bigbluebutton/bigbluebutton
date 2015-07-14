@@ -14,6 +14,7 @@ package org.bigbluebutton.modules.sharednotes.views
 	public class AdditionalSharedNotesWindow extends SharedNotesWindow
 	{
 		private var _windowName:String;
+		private var _noteName:String = "";
 
 		public function AdditionalSharedNotesWindow(n:String) {
 			super();
@@ -31,6 +32,10 @@ package org.bigbluebutton.modules.sharednotes.views
 
 		public function get windowName():String {
 			return this._windowName;
+		}
+
+		public function set noteName(name:String):void {
+			this._noteName = name;
 		}
 
 		override public function onCreationComplete():void {
@@ -65,7 +70,11 @@ package org.bigbluebutton.modules.sharednotes.views
 		}
 
 		override protected function updateTitle():void {
-			title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + noteId;
+			if (_noteName.length > 0) {
+				title = _noteName;
+			} else {
+				title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + noteId;
+			}
 		}
 	}
 }
