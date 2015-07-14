@@ -655,39 +655,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			}
 			
+			private function sendStartPollEvent(pollType:String):void {
+				// Let's reset the page to display full size so we can display the result
+				// on the bottom right-corner.
+				onResetZoom();
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatchEvent(new StartPollEvent(pollType));				
+			}
+			
 			private function menuClickHandler(e:MenuEvent):void {
 				if(pollMenuData[e.index] != undefined) {
 					// start the requested poll
 					var pollEvent:StartPollEvent = null;
 					switch (e.index) {
 						case 0:
-							pollEvent = new StartPollEvent("YN");
+							sendStartPollEvent("YN");
 							break;
 						case 1:
-							pollEvent = new StartPollEvent("TF");
+							sendStartPollEvent("TF");
 							break;
 						case 2:
-							pollEvent = new StartPollEvent("A-2");
+							sendStartPollEvent("A-2");
 							break;
 						case 3:
-							pollEvent = new StartPollEvent("A-3");
+							sendStartPollEvent("A-3");
 							break;
 						case 4:
-							pollEvent = new StartPollEvent("A-4");
+							sendStartPollEvent("A-4");
 							break;
 						case 5:
-							pollEvent = new StartPollEvent("A-5");
+							sendStartPollEvent("A-5");
 							break;
 						case 6:
-							pollEvent = new StartPollEvent("A-6");
+							sendStartPollEvent("A-6");
 							break;
 						case 7:
-							pollEvent = new StartPollEvent("A-7");
+							sendStartPollEvent("A-7");
 							break;
 					}
-					var dispatcher:Dispatcher = new Dispatcher();
-					//dispatcher.
-					dispatchEvent(pollEvent);
+
 				}
 			}
 			
