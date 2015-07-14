@@ -269,8 +269,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	  data = ans;
 	  makeTextFields((answers != null ? answers.length*3 : 0));
 	  
-	  this.x = startX;
-	  this.y = startY;
+	  this.x = parentWidth - pwidth;
+	  this.y = parentHeight - pheight;
 	  
 	  updateDisplayList(pwidth, pheight);
 	  
