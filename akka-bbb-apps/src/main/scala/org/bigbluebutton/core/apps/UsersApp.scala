@@ -249,11 +249,14 @@ trait UsersApp {
 
   def handleUserunshareWebcam(msg: UserUnshareWebcam) {
     usersModel.getUser(msg.userId) foreach { user =>
-      val streams = user.webcamStreams - msg.stream
-      val uvo = user.copy(hasStream = (!streams.isEmpty), webcamStreams = streams)
-      usersModel.addUser(uvo)
-      log.info("User unshared webcam:  mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "] unsharedStream=[" + msg.stream + "] streams=[" + streams + "]")
-      outGW.send(new UserUnsharedWebcam(mProps.meetingID, mProps.recorded, uvo.userID, msg.stream))
+      val streamName = user.webcamStreams find (w => w == msg.stream) foreach { streamName =>
+        val streams = user.webcamStreams - streamName
+        val uvo = user.copy(hasStream = (!streams.isEmpty), webcamStreams = streams)
+        usersModel.addUser(uvo)
+        log.info("User unshared webcam:  mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "] unsharedStream=[" + msg.stream + "] streams=[" + streams + "]")
+        outGW.send(new UserUnsharedWebcam(mProps.meetingID, mProps.recorded, uvo.userID, msg.stream))
+      }
+
     }
   }
 
