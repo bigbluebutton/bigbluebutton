@@ -221,6 +221,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     private function findFontSize(textField:TextField, defaultSize:Number):int {
       var tFormat:TextFormat = new TextFormat();
       tFormat.size = defaultSize;
+	  tFormat.font = "arial";
       tFormat.align = TextFormatAlign.CENTER;
       textField.setTextFormat(tFormat);
       var size:Number = defaultSize;
