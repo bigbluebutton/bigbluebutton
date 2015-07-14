@@ -38,22 +38,25 @@ body {
     display: none;
   }
 }
-.navbarButton .unreadChat {
-  position: absolute;
-  z-index: 1;
-  background:red;
-  border-radius:50%;
-  @media @desktop-portrait, @landscape {
-    top: 20%;
-    left: 65%;
-    width:20%;
-    height:20%;
-  }
-  @media @mobile-portrait {
-    top: 14%;
-    left: 70%;
-    width:25%;
-    height:25%;
+.navbarButton {
+  color: #469DCF;
+  .unreadChat {
+    position: absolute;
+    z-index: 1;
+    background:red;
+    border-radius:50%;
+    @media @desktop-portrait, @landscape {
+      top: 20%;
+      left: 65%;
+      width:20%;
+      height:20%;
+    }
+    @media @mobile-portrait {
+      top: 14%;
+      left: 70%;
+      width:25%;
+      height:25%;
+    }
   }
 }
 .toPublic .unreadChat {
@@ -69,8 +72,13 @@ body {
 }
 
 .myNavbar {
-  border-bottom: 0px;
-  &.gradientBar {
+  border-bottom: 1px;
+  @media @desktop-portrait, @landscape {
+    background-color: white;
+    border-bottom: 1px solid extract(@lightGrey, 1);
+  }
+
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
   }
   .btn {
@@ -80,13 +88,15 @@ body {
       top: 0 !important;
       padding-left: 1% !important;
       padding-right: 1% !important;
+      background-color: white;
+      border-bottom: 1px solid extract(@lightGrey, 1);
     }
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
       height: 100px !important;
       width: 10%;
       min-width: 60px;
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
     }
-    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
     .push-menu-icon {
       .icon-bar {
         margin-left: auto;
@@ -106,7 +116,7 @@ body {
     &.toggleUserlistButton, &.toggleMenuButton {
       background: transparent;
     }
-    span { background-color: white; }
+    span { background-color: #469DCF; }
   }
   @media @landscape {
     min-width: 768px;

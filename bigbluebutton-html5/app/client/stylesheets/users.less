@@ -36,7 +36,6 @@
     border-left: 0px;
     border-top: 0px;
     border-top-right-radius: 0px;
-    background-color: #FAFAFA;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     width: 100%;
@@ -64,10 +63,13 @@
 }
 
 #user-contents {
-  height: 83vh; /* for the inside scrolling list to utilize as much room as possible, this surrounding window must also take up as much room as possible */
-
+  height: calc(~'100% - 50px'); /* user-contents = user-contens - meetingTitle */
+  @media @landscape, @desktop-portrait{
+    background-color: #34495E;
+  }
   .userlist {
-    height: calc(~'100% - 29px'); /* height of user contents - user list */
+    max-height: 100% !important;
+    height: 100%;
 
     #content:hover {
         @media @landscape, @desktop-portrait { 
@@ -138,11 +140,13 @@
 }
 
 .userName {
-  color: #666666;
+  color: #E6E6E6;
 }
 
 .status {
   float: left;
-  width: 5%;
+  min-width: 15px;
+  margin-right: 5px;
   font-size: 18px;
+  color: #FFFFFF;
 }
