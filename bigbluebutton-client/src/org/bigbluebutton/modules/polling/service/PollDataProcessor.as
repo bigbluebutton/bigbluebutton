@@ -63,7 +63,8 @@ package org.bigbluebutton.modules.polling.service
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;
-        if (poll.hasOwnProperty("id") && poll.hasOwnProperty("answers")) {
+        if (poll.hasOwnProperty("id") && poll.hasOwnProperty("answers")
+			&& poll.hasOwnProperty("num_responders") && poll.hasOwnProperty("num_respondents")) {
           var pollId:String = poll.id;
           
           var answers:Array = poll.answers as Array;
@@ -75,7 +76,10 @@ package org.bigbluebutton.modules.polling.service
             ans.push(new SimpleAnswerResult(a.id as Number, a.key, a.num_votes as Number));
           }
           
-          dispatcher.dispatchEvent(new PollShowResultEvent(new SimplePollResult(pollId, ans)));            
+		  var numRespondents:Number = poll.num_respondents;
+		  var numResponders:Number = poll.num_responders;
+		  
+          dispatcher.dispatchEvent(new PollShowResultEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));            
         }      
       }    
     }
@@ -85,7 +89,8 @@ package org.bigbluebutton.modules.polling.service
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;
-        if (poll.hasOwnProperty("id") && poll.hasOwnProperty("answers")) {
+        if (poll.hasOwnProperty("id") && poll.hasOwnProperty("answers")
+			&& poll.hasOwnProperty("num_responders") && poll.hasOwnProperty("num_respondents")) {
           var pollId:String = poll.id;
           
           var answers:Array = poll.answers as Array;
@@ -97,7 +102,10 @@ package org.bigbluebutton.modules.polling.service
             ans.push(new SimpleAnswerResult(a.id as Number, a.key, a.num_votes as Number));
           }
           
-          dispatcher.dispatchEvent(new PollVotedEvent(new SimplePollResult(pollId, ans)));            
+		  var numRespondents:Number = poll.num_respondents;
+		  var numResponders:Number = poll.num_responders;
+		  
+          dispatcher.dispatchEvent(new PollVotedEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));            
         }      
       }
       
