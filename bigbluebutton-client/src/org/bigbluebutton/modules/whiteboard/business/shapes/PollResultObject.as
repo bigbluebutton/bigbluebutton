@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   public class PollResultObject extends DrawObject {
     //private const h:uint = 100;
     //private const w:uint = 280;
-    private const bgFill:uint = 0XCECECE; //0xFFFFFF;
+    private const bgFill:uint = 0xFFFFFF;
     private const colFill:uint = 0x000000;
     private const vpadding:Number = 10;
     private const hpadding:Number = 5;
