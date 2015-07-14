@@ -81,12 +81,13 @@ trait PollApp {
     val gson = new Gson()
     shape += "result" -> gson.toJson(answers.toArray)
 
-    // Hardcode poll result display location for now. 
+    // Hardcode poll result display location for now to display result
+    // in bottom-right corner.
     val display = new ArrayList[Double]()
-    display.add(21.845575)
-    display.add(23.145401)
-    display.add(46.516006)
-    display.add(61.42433)
+    display.add(75.0)
+    display.add(60.0)
+    display.add(25.0)
+    display.add(40.0)
 
     shape += "points" -> display
     shape.toMap

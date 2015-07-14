@@ -254,8 +254,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       var arrayEnd:Number = (ao.points as Array).length;
       var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
       var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
-      var pwidth:Number = denormalize((ao.points as Array)[2], parentWidth) - startX;
-      var pheight:Number = denormalize((ao.points as Array)[3], parentHeight) - startY;
+      var pwidth:Number = denormalize((ao.points as Array)[2], parentWidth);
+      var pheight:Number = denormalize((ao.points as Array)[3], parentHeight);
            
       var answers:Array = ao.result as Array;
       var ans:Array = new Array();
@@ -269,8 +269,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	  data = ans;
 	  makeTextFields((answers != null ? answers.length*3 : 0));
 	  
-	  this.x = parentWidth - pwidth;
-	  this.y = parentHeight - pheight;
+	  this.x = startX;
+	  this.y = startY;
 	  
 	  updateDisplayList(pwidth, pheight);
 	  
