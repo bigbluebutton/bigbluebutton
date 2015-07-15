@@ -192,9 +192,16 @@ body {
   font-weight: bold;
   line-height: 2em;
   margin: 0;
-  @media @mobile-portrait, @mobile-portrait-with-keyboard, @desktop-portrait {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
     padding-top: 20px;
+    color: white;
+    font-size: 4vw;
+    height: 110px;
+  }
+  @media @desktop-portrait {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    padding-top: 10px;
     color: white;
   }
   @media @landscape {
@@ -206,10 +213,6 @@ body {
   @media @desktop-portrait, @landscape {
     font-size: 18px;
     height: 50px;
-  }
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 4vw;
-    height: 110px;
   }
 }
 
@@ -352,6 +355,9 @@ body {
     &:hover {
     color: #2A5E7C;
   }
+  &:focus {
+    color: #2A5E7C;
+  }
     height: 28px;
     width: 75px;
     margin-left: 10px;
@@ -386,7 +392,10 @@ body {
   @media @landscape {
     &:hover {
     color: #2A5E7C;
-  }
+    }
+    &:focus {
+      color: #2A5E7C;
+    }
     width: 57px;
     margin-right: 5px;
   }

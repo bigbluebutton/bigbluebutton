@@ -7,6 +7,13 @@
 
 #usericons {
   text-align: right;
+  color: white;
+  span {
+    @media @landscape, @desktop-portrait {
+      font-size: 18px;
+      margin-right: 10px;
+    }
+  }
 }
 
 .usernameEntry {
@@ -18,11 +25,11 @@
   white-space: nowrap;
   width: 50%;
   @media @landscape {
-    height: 20px;
+    height: 27px;
     font-size: 4.5mm;
   }
   @media @desktop-portrait {
-    height: 25px;
+    height: 27px;
     font-size: 4.5mm;
   }
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
@@ -73,7 +80,7 @@
 
     #content:hover {
         @media @landscape, @desktop-portrait { 
-          background-color: #EEEEEE;
+          background-color: #2C4155;
         }
       }
     #content {
@@ -141,12 +148,13 @@
 
 .userName {
   color: #E6E6E6;
+  line-height: 1.5;
 }
 
 .status {
   float: left;
   min-width: 15px;
-  margin-right: 5px;
+  margin-right: 10px;
   font-size: 18px;
   color: #FFFFFF;
 }
