@@ -5,7 +5,7 @@ var callTimeout = null; // function that will run if there is no call establishe
 var conferenceIdNumber = "1008";
 var conferenceUsername = "FreeSWITCH User";
 var toDisplayDisconnectCallback = true; // if a call is dropped only display the error the first time
-var voiceBridge = extension = "3500";
+var voiceBridge = extension = "79463";
 var wasCallSuccessful = false; // when the websocket connection is closed this determines whether a call was ever successfully established
 
 // save a copy of the hangup function registered for the verto object
@@ -42,28 +42,36 @@ function callIntoConference(voiceBridge, conferenceUsername, conferenceIdNumber,
 	}
 	if(!isLoggedIntoVerto()) { // start the verto log in procedure
 		// runs when a web socket is disconnected
+		console.log("11111");
 		callbacks.onWSClose = function(v, success) {
-			if(wasCallSuccessful) { // a call was established through the websocket
-				if(toDisplayDisconnectCallback) { // will only display the error the first time
+			console.log("22222");
+			console.log("33333");
+			if(toDisplayDisconnectCallback) { // will only display the error the first time
+				if(wasCallSuccessful) { // a call was established through the websocket
+					console.log("4444");
 					// the connection was dropped in an already established call
 					console.log("websocket disconnected");
 					callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
 					toDisplayDisconnectCallback = false;
 				}
 			} else {
+				console.log("5555");
 				// this callback was triggered and a call was never successfully established
 				console.log("websocket connection could not be established");
 				callback({'status':'failed', 'errorcode': 1002}); // Could not make a WebSocket connection
 			}
 		}
+		console.log("66666");
 		// runs when the websocket is successfully created
 		callbacks.onWSLogin = function(v, success) {
+			console.log("7777");
 			display("");
 			cur_call = null;
 			ringing = false;
 			console.log("Inside onWSLogin");
 
 			if (success) {
+				console.log("888888");
 				online(true);
 				console.log("starting call");
 				toDisplayDisconnectCallback = true; // yes, display an error if the socket closes
@@ -71,17 +79,23 @@ function callIntoConference(voiceBridge, conferenceUsername, conferenceIdNumber,
 				webrtc_call(voiceBridge, conferenceUsername, conferenceIdNumber, callback);
 
 				if (!window.location.hash) {
+					console.log("99999");
 					goto_page("main");
 				}
 			} else {
+				console.log("10_10");
 				callback({'status':'failed', 'errorcode': '10XX'}); // eror logging verto into freeswitch
 				goto_page("main");
 				goto_dialog("login-error");
 			}
 		}
+
+		console.log("11_11");
 		// set up verto
 		$.verto.init({}, init);
 	} else {
+
+		console.log("12_12");
 		console.log("already logged into verto, going straight to making a call");
 		webrtc_call(voiceBridge, conferenceUsername, conferenceIdNumber, callback);
 	}
@@ -152,16 +166,21 @@ function docall(extension, conferenceUsername, conferenceIdNumber, callbacks) {
 
 // check if logged into verto by seeing if there is a ready websocket connection
 function isLoggedIntoVerto() {
-	return (verto != null ? (ref = verto.rpcClient) != null ? ref.socketReady() : void 0 : void 0);
+	var result = (verto != null ? (ref = verto.rpcClient) != null ? ref.socketReady() : void 0 : void 0)
+	console.log("in isLoggedIntoVerto" + result);
+	if (result == undefined)
+		return false;
+	return result;
 }
 
 // overwrite and substitute my own init function
 init = function() {
+	console.log("doing init()");
 	cur_call = null;
 	share_call = null;
 	$(".sharediv").show();
 	$("#camdiv").show();
-	$("#use_vid").prop("checked", "true");
+	//$("#use_vid").prop("checked", "true"); //use video by default
 	incomingBandwidth = "default";
 	vqual = "qvga";
 	online(false);
@@ -260,14 +279,16 @@ function make_call(voiceBridge, conferenceUsername, conferenceIdNumber, userCall
 
 function makeVerto(callbacks, stunsConfig) {
 	var vertoPort = "8082";
-	var hostName = window.location.hostname;
-	var socketUrl = "wss://" + hostName + ":" + vertoPort;
-	var login = "1008";
-	var password = "alpine";
-	var minWidth = "1920";
-	var minHeight = "1080";
-	var maxWidth = "1920";
-	var maxHeight = "1080";
+	//var hostName = window.location.hostname;
+	var hostName = "192.168.23.45";
+	var socketUrl = "ws://" + hostName + ":5066";
+	//var socketUrl = "wss://" + hostName + ":" + vertoPort;
+	var login = "1009";
+	var password = "fred";
+	var minWidth = "320";
+	var minHeight = "240";
+	var maxWidth = "320";
+	var maxHeight = "240";
 
 	console.log("stuns info is");
 	console.log(stunsConfig);
@@ -352,6 +373,7 @@ $(document).ready(function() {
 	$("body").append("<button id='shareScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>shareScreen</button>");
 	$("#shareScreen").click(function() {
 		console.log("shareScreen button");
+		//alert(1);
 		screenStart(true, function(){});
 		$("#shareScreen").hide();
 		$("#stopScreen").show();

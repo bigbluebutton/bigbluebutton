@@ -1,22 +1,27 @@
 function screenStart(state, callback) {
-	alert("2");
+	console.log("2");
 	//var imported = document.createElement('script');
 	//imported.src = '/client/lib/verto.js';
 	//document.head.appendChild(imported);
 
+	console.log("loggedIn=" + isLoggedIntoVerto());
 	if(!isLoggedIntoVerto()) { // start the verto log in procedure
+		console.log("aaa");
 		// runs when the websocket is successfully created
 		callbacks.onWSLogin = function(v, success) {
 			cur_call = true;
+			console.log("bbbb");
 			doshare(state);
 			goto_page("main");
 			console.log("logged in. starting screenshare");
 			$("#webcam").show()
 			$("#webcam").css("z-index","1000")
 		}
+		console.log("ccc");
 		// set up verto
 		$.verto.init({}, init);
 	} else {
+		console.log("ddddd");
 		console.log("already logged into verto, going straight to making a call");
 		cur_call = true;
 		doshare(state);
@@ -25,8 +30,9 @@ function screenStart(state, callback) {
 		$("#webcam").css("z-index","1000")
 	}
 
+	console.log("eee" + state);
 	if (state) {
-			callback({'status':'success', 'message': 'screenshare started'});
+		callback({'status':'success', 'message': 'screenshare started'});
 	} else {
 		callback({'status':'success', 'message': 'screenshare ended'});
 	}
@@ -50,7 +56,8 @@ function doshare(on) {
 	outgoingBandwidth = "5120";
 	incomingBandwidth = "5120";
 
-	var sharedev = $("#useshare").find(":selected").val();
+	var sharedev = "screen";
+	//var sharedev = $("#useshare").find(":selected").val();
 
 	if (sharedev !== "screen") {
 		console.log("Attempting Screen Capture with non-screen device....");
