@@ -14,6 +14,8 @@
       background-color: inherit;
       margin: 0;
       height: 45px;
+      outline: none;
+      min-width: 103px;
     }
     span {
       position: relative;
@@ -29,10 +31,17 @@
     }
   }
   .privateChatName {
+    width: calc(~'100% - 105px');
+    min-width: 101px;
+    text-align: right;
     float: right;
     padding: 0.65rem 1.25rem 0.6rem 0.3rem;
     font-family: "Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
     font-size: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
   }
 }
 
