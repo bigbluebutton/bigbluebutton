@@ -35,7 +35,6 @@ trait SharedNotesApp {
   
   def handleGetCurrentDocumentRequest(msg: GetCurrentDocumentRequest) {
     val copyNotes = notes.toMap
-    System.out.println(copyNotes.toString())
     
     outGW.send(new GetCurrentDocumentReply(meetingID, recorded, msg.requesterID, copyNotes))
   }
