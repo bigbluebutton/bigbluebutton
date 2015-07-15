@@ -184,16 +184,19 @@
 #sendMessageButton {
   width: 20%; /* 75% for the message input, 5% margin between the two */
   color: extract(@black, 1);
-  background-color: extract(@white, 1);
+  background-color: #3896D3;
   font-weight: bold;
   height: 50px;
   margin: 0px;
   border: 1px solid extract(@lightGrey, 3);
-
+  
   @media @desktop-portrait {
     width: 20%; /* 75% for the message input, 5% margin between the two */
     font-size: 30px;
     height: 60px;
+    &:hover {
+      background: #3A82D4;
+    }
   }
   @media @mobile-portrait {
     width: 15vw;
@@ -208,6 +211,9 @@
   @media @landscape {
     height: 50px;
     padding: 0px;
+    &:hover {
+      background: #3A82D4;
+    }
   }
 }
 
