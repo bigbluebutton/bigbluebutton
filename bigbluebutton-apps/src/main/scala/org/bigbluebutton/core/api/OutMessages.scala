@@ -668,7 +668,7 @@ case class GetCurrentDocumentReply(
     meetingID: String,
     recorded: Boolean,
     requesterID: String,
-    notes: Map[String, String],
+    notes: Map[String, Note],
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 

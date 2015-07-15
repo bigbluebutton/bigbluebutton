@@ -14,7 +14,6 @@ package org.bigbluebutton.modules.sharednotes.views
 	public class AdditionalSharedNotesWindow extends SharedNotesWindow
 	{
 		private var _windowName:String;
-		private var _noteName:String = "";
 
 		public function AdditionalSharedNotesWindow(n:String) {
 			super();

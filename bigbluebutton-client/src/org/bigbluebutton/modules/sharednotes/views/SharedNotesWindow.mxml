@@ -74,6 +74,7 @@
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
 			protected var _notesId:String="MAIN_WINDOW";
+			protected var _noteName:String = "";
 
 			private var options:SharedNotesOptions = new SharedNotesOptions();
 
@@ -118,8 +119,11 @@
 			}
 
 			public function addRemoteDocument(notes:Object):void{
-				_document = notes[noteId];
+				var note:Object = notes[noteId];
+				_document = note["document"];
+				_noteName = note["name"];
 				textArea.text = _document;
+				updateTitle();
 			}
 
 			private function sendPatch():void {
