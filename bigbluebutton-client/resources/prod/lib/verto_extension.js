@@ -45,11 +45,11 @@ function callIntoConference(voiceBridge, conferenceUsername, conferenceIdNumber,
 		console.log("11111");
 		callbacks.onWSClose = function(v, success) {
 			console.log("22222");
-			console.log("33333");
-			if(toDisplayDisconnectCallback) { // will only display the error the first time
-				if(wasCallSuccessful) { // a call was established through the websocket
-					console.log("4444");
-					// the connection was dropped in an already established call
+				console.log("33333");
+				if(toDisplayDisconnectCallback) { // will only display the error the first time
+					if(wasCallSuccessful) { // a call was established through the websocket
+						console.log("4444");
+						// the connection was dropped in an already established call
 					console.log("websocket disconnected");
 					callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
 					toDisplayDisconnectCallback = false;
@@ -281,8 +281,8 @@ function makeVerto(callbacks, stunsConfig) {
 	var vertoPort = "8082";
 	//var hostName = window.location.hostname;
 	var hostName = "192.168.23.45";
-	var socketUrl = "ws://" + hostName + ":5066";
-	//var socketUrl = "wss://" + hostName + ":" + vertoPort;
+	//var socketUrl = "ws://" + hostName + ":5066";
+	var socketUrl = "wss://" + hostName + ":" + vertoPort;
 	var login = "1009";
 	var password = "fred";
 	var minWidth = "320";

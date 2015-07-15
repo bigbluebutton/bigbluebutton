@@ -35,11 +35,11 @@ function clearConfMan() {
 }
 
 function goto_dialog(where) {
-	$( ":mobile-pagecontainer" ).pagecontainer( "change", "#dialog-" + where, { role: "dialog" } );
+	//$( ":mobile-pagecontainer" ).pagecontainer( "change", "#dialog-" + where, { role: "dialog" } );
 }
 
 function goto_page(where, force) {
-	$( ":mobile-pagecontainer" ).pagecontainer( "change", "#page-" + where);
+	//$( ":mobile-pagecontainer" ).pagecontainer( "change", "#page-" + where);
 }
 
 var first_login = false;
@@ -738,7 +738,7 @@ function pop(id, cname, dft) {
 
 function refresh_devices()
 {
-
+/*
 	$("#useshare").selectmenu({});
 	$("#useshare").selectmenu({});
 	$("#usemic").selectmenu({});
@@ -799,447 +799,448 @@ function refresh_devices()
 	$("input[type='checkbox']").checkboxradio("refresh");
 
 	//console.error($("#usecamera").find(":selected").val());
+	*/
 }
 
 function init() {
-	cur_call = null;
-
-	$("#usecamera").selectmenu({});
-	$("#usemic").selectmenu({});
-	$("#useshare").selectmenu({});
-
-	if (!autocall) {
-		pop("#ext", "verto_demo_ext", "3500");
-	}
-
-	pop("#cidname", "verto_demo_name", "FreeSWITCH User");
-	pop("#cid", "verto_demo_cid", "1008");
-	pop("#textto", "verto_demo_textto", "1000");
-
-	pop("#login", "verto_demo_login", "1008");
-	pop("#passwd", "verto_demo_passwd", "1234");
-
-	pop("#hostName", "verto_demo_hostname", window.location.hostname);
-	pop("#wsURL", "verto_demo_wsurl", "wss://" + window.location.hostname + ":8082");
-
-	var tmp = $.cookie("verto_demo_vid_checked") || "true";
-	$.cookie("verto_demo_vid_checked", tmp, {
-		expires: 365
-	});
-
-	if (tmp !== "true") {
-		$("#camdiv").hide();
-		$(".sharediv").hide();
-	} else {
-		$(".sharediv").show();
-		$("#camdiv").show();
-	}
-
-	$("#use_vid").prop("checked", tmp === "true").change(function(e) {
-		tmp = $("#use_vid").is(':checked');
-
-		if (!tmp) {
-			$("#camdiv").hide();
-			$(".sharediv").hide();
-		} else {
-			$("#camdiv").show();
-			$(".sharediv").show();
-		}
-		$.cookie("verto_demo_vid_checked", tmp ? "true" : "false", {
-			expires: 365
-		});
-	});
-
-
-	tmp = $.cookie("verto_demo_dedenc_checked") || "false";
-	$.cookie("verto_demo_dedenc_checked", tmp, {
-		expires: 365
-	});
-
-	$("#use_dedenc").prop("checked", tmp === "true").change(function(e) {
-		tmp = $("#use_dedenc").is(':checked');
-
-		if (!tmp && $("#mirror_input").is(':checked')) {
-			$("#mirror_input").click();
-		}
-
-		$.cookie("verto_demo_dedenc_checked", tmp ? "true" : "false", {
-			expires: 365
-		});
-	});
-
-
-	tmp = $.cookie("verto_demo_mirror_input_checked") || "false";
-	$.cookie("verto_demo_mirror_input_checked", tmp, {
-		expires: 365
-	});
-
-	$("#mirror_input").prop("checked", tmp === "true").change(function(e) {
-		tmp = $("#mirror_input").is(':checked');
-		if (tmp && !$("#use_dedenc").is(':checked')) {
-			$("#use_dedenc").click();
-		}
-		$.cookie("verto_demo_mirror_input_checked", tmp ? "true" : "false", {
-			expires: 365
-		});
-	});
-
+//	cur_call = null;
 //
-	outgoingBandwidth = $.cookie("verto_demo_outgoingBandwidth") || "default";
-	$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-		expires: 365
-	});
-
-	$("#outgoingBandwidth_250kb").prop("checked", outgoingBandwidth === "250").change(function(e) {
-		if ($("#outgoingBandwidth_250kb").is(':checked')) {
-			outgoingBandwidth = "250";
-			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#outgoingBandwidth_500kb").prop("checked", outgoingBandwidth === "500").change(function(e) {
-		if ($("#outgoingBandwidth_500kb").is(':checked')) {
-			outgoingBandwidth = "500";
-			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#outgoingBandwidth_1024kb").prop("checked", outgoingBandwidth === "1024").change(function(e) {
-		if ($("#outgoingBandwidth_1024kb").is(':checked')) {
-			outgoingBandwidth = "1024";
-			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#outgoingBandwidth_1536kb").prop("checked", outgoingBandwidth === "1536").change(function(e) {
-		if ($("#outgoingBandwidth_1536kb").is(':checked')) {
-			outgoingBandwidth = "1536";
-			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#outgoingBandwidth_2048kb").prop("checked", outgoingBandwidth === "2048").change(function(e) {
-		if ($("#outgoingBandwidth_2048kb").is(':checked')) {
-			outgoingBandwidth = "2048";
-			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#outgoingBandwidth_5120kb").prop("checked", outgoingBandwidth === "5120").change(function(e) {
-		if ($("#outgoingBandwidth_5120kb").is(':checked')) {
-			outgoingBandwidth = "5120";
-			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#outgoingBandwidth_0kb").prop("checked", outgoingBandwidth === "0").change(function(e) {
-		if ($("#outgoingBandwidth_0kb").is(':checked')) {
-			outgoingBandwidth = "0";
-			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#outgoingBandwidth_default").prop("checked", outgoingBandwidth === "default").change(function(e) {
-		if ($("#outgoingBandwidth_default").is(':checked')) {
-			outgoingBandwidth = "default";
-			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
-				expires: 365
-			});
-		}
-	});
+//	$("#usecamera").selectmenu({});
+//	$("#usemic").selectmenu({});
+//	$("#useshare").selectmenu({});
 //
-
-	incomingBandwidth = $.cookie("verto_demo_incomingBandwidth") || "default";
-	$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-		expires: 365
-	});
-
-	$("#incomingBandwidth_250kb").prop("checked", incomingBandwidth === "250").change(function(e) {
-		if ($("#incomingBandwidth_250kb").is(':checked')) {
-			incomingBandwidth = "250";
-			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#incomingBandwidth_500kb").prop("checked", incomingBandwidth === "500").change(function(e) {
-		if ($("#incomingBandwidth_500kb").is(':checked')) {
-			incomingBandwidth = "500";
-			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#incomingBandwidth_1024kb").prop("checked", incomingBandwidth === "1024").change(function(e) {
-		if ($("#incomingBandwidth_1024kb").is(':checked')) {
-			incomingBandwidth = "1024";
-			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#incomingBandwidth_1536kb").prop("checked", incomingBandwidth === "1536").change(function(e) {
-		if ($("#incomingBandwidth_1536kb").is(':checked')) {
-			incomingBandwidth = "1536";
-			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#incomingBandwidth_2048kb").prop("checked", incomingBandwidth === "2048").change(function(e) {
-		if ($("#incomingBandwidth_2048kb").is(':checked')) {
-			incomingBandwidth = "2048";
-			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#incomingBandwidth_5120kb").prop("checked", incomingBandwidth === "5120").change(function(e) {
-		if ($("#incomingBandwidth_5120kb").is(':checked')) {
-			incomingBandwidth = "5120";
-			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#incomingBandwidth_0kb").prop("checked", incomingBandwidth === "0").change(function(e) {
-		if ($("#incomingBandwidth_0kb").is(':checked')) {
-			incomingBandwidth = "0";
-			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-				expires: 365
-			});
-		}
-	});
-
-	$("#incomingBandwidth_default").prop("checked", incomingBandwidth === "default").change(function(e) {
-		if ($("#incomingBandwidth_default").is(':checked')) {
-			incomingBandwidth = "default";
-			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
-				expires: 365
-			});
-		}
-	});
+//	if (!autocall) {
+//		pop("#ext", "verto_demo_ext", "3500");
+//	}
 //
-
-	vqual = $.cookie("verto_demo_vqual") || "hd";
-	$.cookie("verto_demo_vqual", vqual, {
-		expires: 365
-	});
-
-
-
-	$("#vqual_qvga").prop("checked", vqual === "qvga").change(function(e) {
-		if ($("#vqual_qvga").is(':checked')) {
-			vqual = "qvga";
-			$.cookie("verto_demo_vqual", vqual, {
-				expires: 365
-			});
-		}
-	});
-
-
-	$("#vqual_vga").prop("checked", vqual === "vga").change(function(e) {
-		if ($("#vqual_vga").is(':checked')) {
-			vqual = "vga";
-			$.cookie("verto_demo_vqual", vqual, {
-				expires: 365
-			});
-		}
-	});
-
-
-	$("#vqual_qvga_wide").prop("checked", vqual === "qvga_wide").change(function(e) {
-		if ($("#vqual_qvga_wide").is(':checked')) {
-			vqual = "qvga_wide";
-			$.cookie("verto_demo_vqual", vqual, {
-				expires: 365
-			});
-		}
-	});
-
-
-	$("#vqual_vga_wide").prop("checked", vqual === "vga_wide").change(function(e) {
-		if ($("#vqual_vga_wide").is(':checked')) {
-			vqual = "vga_wide";
-			$.cookie("verto_demo_vqual", vqual, {
-				expires: 365
-			});
-		}
-	});
-
-
-	$("#vqual_hd").prop("checked", vqual === "hd").change(function(e) {
-		if ($("#vqual_hd").is(':checked')) {
-			vqual = "hd";
-			$.cookie("verto_demo_vqual", vqual, {
-				expires: 365
-			});
-		}
-	});
-
-
-	$("#vqual_hhd").prop("checked", vqual === "hhd").change(function(e) {
-		if ($("#vqual_hhd").is(':checked')) {
-			vqual = "hhd";
-			$.cookie("verto_demo_vqual", vqual, {
-				expires: 365
-			});
-		}
-	});
-
-
-	tmp = $.cookie("verto_demo_stereo_checked") || "true";
-	$.cookie("verto_demo_stereo_checked", tmp, {
-		expires: 365
-	});
-
-	$("#use_stereo").prop("checked", tmp === "true").change(function(e) {
-		tmp = $("#use_stereo").is(':checked');
-		$.cookie("verto_demo_stereo_checked", tmp ? "true" : "false", {
-			expires: 365
-		});
-	});
-
-	tmp = $.cookie("verto_demo_stun_checked") || "true";
-	$.cookie("verto_demo_stun_checked", tmp, {
-		expires: 365
-	});
-
-	$("#use_stun").prop("checked", tmp === "true").change(function(e) {
-		tmp = $("#use_stun").is(':checked');
-		$.cookie("verto_demo_stun_checked", tmp ? "true" : "false", {
-			expires: 365
-		});
-		if (verto) {
-			verto.iceServers(tmp);
-		}
-	});
-
-
-	tmp = $.cookie("verto_demo_local_video_checked") || "false";
-	$.cookie("verto_demo_local_video_checked", tmp, {
-		expires: 365
-	});
-
-	$("#local_video").prop("checked", tmp === "true").change(function(e) {
-		tmp = $("#local_video").is(':checked');
-		$.cookie("verto_demo_local_video_checked", tmp ? "true" : "false", {
-			expires: 365
-		});
-		if (verto) {
-			verto.iceServers(tmp);
-		}
-	});
-
-	check_vid_res();
-
-	verto = new $.verto({
-		login: $("#login").val() + "@" + $("#hostName").val(),
-		passwd: $("#passwd").val(),
-		socketUrl: $("#wsURL").val(),
-		tag: "webcam",
-		//localTag: $("#local_video").is(':checked') ? "local_webcam" : null,
-		ringFile: "sounds/bell_ring2.wav",
-		loginParams: {foo: true, bar: "yes"},
-		videoParams: {
-			"minWidth": vid_width,
-			"minHeight": vid_height,
-			"maxWidth": vid_width,
-			"maxHeight": vid_height,
-			"minFrameRate": 15,
-			"vertoBestFrameRate": 30,
-			//chromeMediaSource: 'screen',
-			//mediaSource: 'screen'
-		},
-//	audioParams: {
-//	    googAutoGainControl: false,
-//	    googNoiseSuppression: false,
-//	    googHighpassFilter: false
-//	},
-
-		iceServers: $("#use_stun").is(':checked')
-	},callbacks);
-
-
-	$("#login").change(function(e) {
-		$("#cid").val(e.currentTarget.value);
-		$.cookie("verto_demo_cid", e.currentTarget.value, {
-			expires: 365
-		});
-	});
-
-	$("#vtxtbtn").click(function() {
-		verto.message({
-			to: $("#textto").val(),
-			body: $("#textmsg").val()
-		});
-		$("#textmsg").val("");
-	});
-
-	$("#logoutbtn").click(function() {
-		verto.logout();
-		online(false);
-	});
-
-	$("#loginbtn").click(function() {
-		online(false);
-		verto.loginData({
-			login: $("#login").val() + "@" + $("#hostName").val(),
-			passwd: $("#passwd").val()
-		});
-		verto.login();
-		goto_page("main");
-	});
-
-	$("#xferdiv").hide();
-//    $("#webcam").hide();
-
-	online(false);
-
-	setupChat();
-
-	$("#ext").keyup(function (event) {
-		if (event.keyCode == 13) {
-			$( "#callbtn" ).trigger( "click" );
-		}
-	});
-
-	$(document).keypress(function(event) {
-		if (!(cur_call && event.target.id == "page-incall")) return;
-		var key = String.fromCharCode(event.keyCode);
-		var i = parseInt(key);
-
-
-		if (key === "#" || key === "*" || key === "0" || (i > 0 && i <= 9)) {
-			cur_call.dtmf(key);
-		}
-	});
-
-	if (window.location.hostname !== "webrtc.freeswitch.org") {
-		$("#directory").hide();
-	}
-
-	refresh_devices();
+//	pop("#cidname", "verto_demo_name", "FreeSWITCH User");
+//	pop("#cid", "verto_demo_cid", "1008");
+//	pop("#textto", "verto_demo_textto", "1000");
+//
+//	pop("#login", "verto_demo_login", "1008");
+//	pop("#passwd", "verto_demo_passwd", "1234");
+//
+//	pop("#hostName", "verto_demo_hostname", window.location.hostname);
+//	pop("#wsURL", "verto_demo_wsurl", "wss://" + window.location.hostname + ":8082");
+//
+//	var tmp = $.cookie("verto_demo_vid_checked") || "true";
+//	$.cookie("verto_demo_vid_checked", tmp, {
+//		expires: 365
+//	});
+//
+//	if (tmp !== "true") {
+//		$("#camdiv").hide();
+//		$(".sharediv").hide();
+//	} else {
+//		$(".sharediv").show();
+//		$("#camdiv").show();
+//	}
+//
+//	$("#use_vid").prop("checked", tmp === "true").change(function(e) {
+//		tmp = $("#use_vid").is(':checked');
+//
+//		if (!tmp) {
+//			$("#camdiv").hide();
+//			$(".sharediv").hide();
+//		} else {
+//			$("#camdiv").show();
+//			$(".sharediv").show();
+//		}
+//		$.cookie("verto_demo_vid_checked", tmp ? "true" : "false", {
+//			expires: 365
+//		});
+//	});
+//
+//
+//	tmp = $.cookie("verto_demo_dedenc_checked") || "false";
+//	$.cookie("verto_demo_dedenc_checked", tmp, {
+//		expires: 365
+//	});
+//
+//	$("#use_dedenc").prop("checked", tmp === "true").change(function(e) {
+//		tmp = $("#use_dedenc").is(':checked');
+//
+//		if (!tmp && $("#mirror_input").is(':checked')) {
+//			$("#mirror_input").click();
+//		}
+//
+//		$.cookie("verto_demo_dedenc_checked", tmp ? "true" : "false", {
+//			expires: 365
+//		});
+//	});
+//
+//
+//	tmp = $.cookie("verto_demo_mirror_input_checked") || "false";
+//	$.cookie("verto_demo_mirror_input_checked", tmp, {
+//		expires: 365
+//	});
+//
+//	$("#mirror_input").prop("checked", tmp === "true").change(function(e) {
+//		tmp = $("#mirror_input").is(':checked');
+//		if (tmp && !$("#use_dedenc").is(':checked')) {
+//			$("#use_dedenc").click();
+//		}
+//		$.cookie("verto_demo_mirror_input_checked", tmp ? "true" : "false", {
+//			expires: 365
+//		});
+//	});
+//
+////
+//	outgoingBandwidth = $.cookie("verto_demo_outgoingBandwidth") || "default";
+//	$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//		expires: 365
+//	});
+//
+//	$("#outgoingBandwidth_250kb").prop("checked", outgoingBandwidth === "250").change(function(e) {
+//		if ($("#outgoingBandwidth_250kb").is(':checked')) {
+//			outgoingBandwidth = "250";
+//			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#outgoingBandwidth_500kb").prop("checked", outgoingBandwidth === "500").change(function(e) {
+//		if ($("#outgoingBandwidth_500kb").is(':checked')) {
+//			outgoingBandwidth = "500";
+//			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#outgoingBandwidth_1024kb").prop("checked", outgoingBandwidth === "1024").change(function(e) {
+//		if ($("#outgoingBandwidth_1024kb").is(':checked')) {
+//			outgoingBandwidth = "1024";
+//			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#outgoingBandwidth_1536kb").prop("checked", outgoingBandwidth === "1536").change(function(e) {
+//		if ($("#outgoingBandwidth_1536kb").is(':checked')) {
+//			outgoingBandwidth = "1536";
+//			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#outgoingBandwidth_2048kb").prop("checked", outgoingBandwidth === "2048").change(function(e) {
+//		if ($("#outgoingBandwidth_2048kb").is(':checked')) {
+//			outgoingBandwidth = "2048";
+//			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#outgoingBandwidth_5120kb").prop("checked", outgoingBandwidth === "5120").change(function(e) {
+//		if ($("#outgoingBandwidth_5120kb").is(':checked')) {
+//			outgoingBandwidth = "5120";
+//			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#outgoingBandwidth_0kb").prop("checked", outgoingBandwidth === "0").change(function(e) {
+//		if ($("#outgoingBandwidth_0kb").is(':checked')) {
+//			outgoingBandwidth = "0";
+//			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#outgoingBandwidth_default").prop("checked", outgoingBandwidth === "default").change(function(e) {
+//		if ($("#outgoingBandwidth_default").is(':checked')) {
+//			outgoingBandwidth = "default";
+//			$.cookie("verto_demo_outgoingBandwidth", outgoingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+////
+//
+//	incomingBandwidth = $.cookie("verto_demo_incomingBandwidth") || "default";
+//	$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//		expires: 365
+//	});
+//
+//	$("#incomingBandwidth_250kb").prop("checked", incomingBandwidth === "250").change(function(e) {
+//		if ($("#incomingBandwidth_250kb").is(':checked')) {
+//			incomingBandwidth = "250";
+//			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#incomingBandwidth_500kb").prop("checked", incomingBandwidth === "500").change(function(e) {
+//		if ($("#incomingBandwidth_500kb").is(':checked')) {
+//			incomingBandwidth = "500";
+//			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#incomingBandwidth_1024kb").prop("checked", incomingBandwidth === "1024").change(function(e) {
+//		if ($("#incomingBandwidth_1024kb").is(':checked')) {
+//			incomingBandwidth = "1024";
+//			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#incomingBandwidth_1536kb").prop("checked", incomingBandwidth === "1536").change(function(e) {
+//		if ($("#incomingBandwidth_1536kb").is(':checked')) {
+//			incomingBandwidth = "1536";
+//			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#incomingBandwidth_2048kb").prop("checked", incomingBandwidth === "2048").change(function(e) {
+//		if ($("#incomingBandwidth_2048kb").is(':checked')) {
+//			incomingBandwidth = "2048";
+//			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#incomingBandwidth_5120kb").prop("checked", incomingBandwidth === "5120").change(function(e) {
+//		if ($("#incomingBandwidth_5120kb").is(':checked')) {
+//			incomingBandwidth = "5120";
+//			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#incomingBandwidth_0kb").prop("checked", incomingBandwidth === "0").change(function(e) {
+//		if ($("#incomingBandwidth_0kb").is(':checked')) {
+//			incomingBandwidth = "0";
+//			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//	$("#incomingBandwidth_default").prop("checked", incomingBandwidth === "default").change(function(e) {
+//		if ($("#incomingBandwidth_default").is(':checked')) {
+//			incomingBandwidth = "default";
+//			$.cookie("verto_demo_incomingBandwidth", incomingBandwidth, {
+//				expires: 365
+//			});
+//		}
+//	});
+////
+//
+//	vqual = $.cookie("verto_demo_vqual") || "hd";
+//	$.cookie("verto_demo_vqual", vqual, {
+//		expires: 365
+//	});
+//
+//
+//
+//	$("#vqual_qvga").prop("checked", vqual === "qvga").change(function(e) {
+//		if ($("#vqual_qvga").is(':checked')) {
+//			vqual = "qvga";
+//			$.cookie("verto_demo_vqual", vqual, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//
+//	$("#vqual_vga").prop("checked", vqual === "vga").change(function(e) {
+//		if ($("#vqual_vga").is(':checked')) {
+//			vqual = "vga";
+//			$.cookie("verto_demo_vqual", vqual, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//
+//	$("#vqual_qvga_wide").prop("checked", vqual === "qvga_wide").change(function(e) {
+//		if ($("#vqual_qvga_wide").is(':checked')) {
+//			vqual = "qvga_wide";
+//			$.cookie("verto_demo_vqual", vqual, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//
+//	$("#vqual_vga_wide").prop("checked", vqual === "vga_wide").change(function(e) {
+//		if ($("#vqual_vga_wide").is(':checked')) {
+//			vqual = "vga_wide";
+//			$.cookie("verto_demo_vqual", vqual, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//
+//	$("#vqual_hd").prop("checked", vqual === "hd").change(function(e) {
+//		if ($("#vqual_hd").is(':checked')) {
+//			vqual = "hd";
+//			$.cookie("verto_demo_vqual", vqual, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//
+//	$("#vqual_hhd").prop("checked", vqual === "hhd").change(function(e) {
+//		if ($("#vqual_hhd").is(':checked')) {
+//			vqual = "hhd";
+//			$.cookie("verto_demo_vqual", vqual, {
+//				expires: 365
+//			});
+//		}
+//	});
+//
+//
+//	tmp = $.cookie("verto_demo_stereo_checked") || "true";
+//	$.cookie("verto_demo_stereo_checked", tmp, {
+//		expires: 365
+//	});
+//
+//	$("#use_stereo").prop("checked", tmp === "true").change(function(e) {
+//		tmp = $("#use_stereo").is(':checked');
+//		$.cookie("verto_demo_stereo_checked", tmp ? "true" : "false", {
+//			expires: 365
+//		});
+//	});
+//
+//	tmp = $.cookie("verto_demo_stun_checked") || "true";
+//	$.cookie("verto_demo_stun_checked", tmp, {
+//		expires: 365
+//	});
+//
+//	$("#use_stun").prop("checked", tmp === "true").change(function(e) {
+//		tmp = $("#use_stun").is(':checked');
+//		$.cookie("verto_demo_stun_checked", tmp ? "true" : "false", {
+//			expires: 365
+//		});
+//		if (verto) {
+//			verto.iceServers(tmp);
+//		}
+//	});
+//
+//
+//	tmp = $.cookie("verto_demo_local_video_checked") || "false";
+//	$.cookie("verto_demo_local_video_checked", tmp, {
+//		expires: 365
+//	});
+//
+//	$("#local_video").prop("checked", tmp === "true").change(function(e) {
+//		tmp = $("#local_video").is(':checked');
+//		$.cookie("verto_demo_local_video_checked", tmp ? "true" : "false", {
+//			expires: 365
+//		});
+//		if (verto) {
+//			verto.iceServers(tmp);
+//		}
+//	});
+//
+//	check_vid_res();
+//
+//	verto = new $.verto({
+//		login: $("#login").val() + "@" + $("#hostName").val(),
+//		passwd: $("#passwd").val(),
+//		socketUrl: $("#wsURL").val(),
+//		tag: "webcam",
+//		//localTag: $("#local_video").is(':checked') ? "local_webcam" : null,
+//		ringFile: "sounds/bell_ring2.wav",
+//		loginParams: {foo: true, bar: "yes"},
+//		videoParams: {
+//			"minWidth": vid_width,
+//			"minHeight": vid_height,
+//			"maxWidth": vid_width,
+//			"maxHeight": vid_height,
+//			"minFrameRate": 15,
+//			"vertoBestFrameRate": 30,
+//			//chromeMediaSource: 'screen',
+//			//mediaSource: 'screen'
+//		},
+////	audioParams: {
+////	    googAutoGainControl: false,
+////	    googNoiseSuppression: false,
+////	    googHighpassFilter: false
+////	},
+//
+//		iceServers: $("#use_stun").is(':checked')
+//	},callbacks);
+//
+//
+//	$("#login").change(function(e) {
+//		$("#cid").val(e.currentTarget.value);
+//		$.cookie("verto_demo_cid", e.currentTarget.value, {
+//			expires: 365
+//		});
+//	});
+//
+//	$("#vtxtbtn").click(function() {
+//		verto.message({
+//			to: $("#textto").val(),
+//			body: $("#textmsg").val()
+//		});
+//		$("#textmsg").val("");
+//	});
+//
+//	$("#logoutbtn").click(function() {
+//		verto.logout();
+//		online(false);
+//	});
+//
+//	$("#loginbtn").click(function() {
+//		online(false);
+//		verto.loginData({
+//			login: $("#login").val() + "@" + $("#hostName").val(),
+//			passwd: $("#passwd").val()
+//		});
+//		verto.login();
+//		goto_page("main");
+//	});
+//
+//	$("#xferdiv").hide();
+////    $("#webcam").hide();
+//
+//	online(false);
+//
+//	setupChat();
+//
+//	$("#ext").keyup(function (event) {
+//		if (event.keyCode == 13) {
+//			$( "#callbtn" ).trigger( "click" );
+//		}
+//	});
+//
+//	$(document).keypress(function(event) {
+//		if (!(cur_call && event.target.id == "page-incall")) return;
+//		var key = String.fromCharCode(event.keyCode);
+//		var i = parseInt(key);
+//
+//
+//		if (key === "#" || key === "*" || key === "0" || (i > 0 && i <= 9)) {
+//			cur_call.dtmf(key);
+//		}
+//	});
+//
+//	if (window.location.hostname !== "webrtc.freeswitch.org") {
+//		$("#directory").hide();
+//	}
+//
+//	refresh_devices();
 }
 
 $(window).load(function() {
