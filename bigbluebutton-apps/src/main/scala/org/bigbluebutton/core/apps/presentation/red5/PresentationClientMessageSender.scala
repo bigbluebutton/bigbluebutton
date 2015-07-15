@@ -215,7 +215,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	args.put("current", msg.page.current:java.lang.Boolean)
 	args.put("swfUri", msg.page.swfUri)
 	args.put("txtUri", msg.page.txtUri)
-	args.put("pngUri", msg.page.pngUri)
+	args.put("svgUri", msg.page.svgUri)
 	args.put("thumbUri", msg.page.thumbUri)
 	args.put("xOffset", msg.page.xOffset:java.lang.Double);
 	args.put("yOffset", msg.page.yOffset:java.lang.Double);
@@ -237,7 +237,7 @@ class PresentationClientMessageSender(service: ConnectionInvokerService) extends
 	args.put("current", msg.page.current:java.lang.Boolean)
 	args.put("swfUri", msg.page.swfUri)
 	args.put("txtUri", msg.page.txtUri)
-	args.put("pngUri", msg.page.pngUri)
+	args.put("svgUri", msg.page.svgUri)
 	args.put("thumbUri", msg.page.thumbUri)
 	args.put("xOffset", msg.page.xOffset:java.lang.Double);
 	args.put("yOffset", msg.page.yOffset:java.lang.Double);

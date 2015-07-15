@@ -6,21 +6,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.bigbluebutton.presentation.PngImageCreator;
+import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PngImageCreatorImp implements PngImageCreator {
-	private static Logger log = LoggerFactory.getLogger(PngImageCreatorImp.class);
+public class SvgImageCreatorImp implements SvgImageCreator {
+	private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 	
 	private String IMAGEMAGICK_DIR;
 	
 	@Override
-	public boolean createPngImages(UploadedPresentation pres) {
+	public boolean createSvgImages(UploadedPresentation pres) {
 		boolean success = false;
-		File imagePresentationDir = determinePngImagesDirectory(pres.getUploadedFile());
+		File imagePresentationDir = determineSvgImagesDirectory(pres.getUploadedFile());
 		if (! imagePresentationDir.exists())
 			imagePresentationDir.mkdir();
 		
@@ -28,7 +28,7 @@ public class PngImageCreatorImp implements PngImageCreator {
 		
 		try {
 			extractPdfPages(pres);
-			success = generatePngImages(imagePresentationDir,pres);
+			success = generateSvgImages(imagePresentationDir,pres);
 	    } catch (InterruptedException e) {
 	    	log.warn("Interrupted Exception while generating images.");
 	        success = false;
@@ -38,7 +38,7 @@ public class PngImageCreatorImp implements PngImageCreator {
 	}
 	
 	private void extractPdfPages(UploadedPresentation pres){
-		File tmpDir = new File(pres.getUploadedFile().getParent() + File.separatorChar + "pngs" + File.separatorChar + "tmp");
+		File tmpDir = new File(pres.getUploadedFile().getParent() + File.separatorChar + "svgs" + File.separatorChar + "tmp");
 		if (! tmpDir.exists())
 			tmpDir.mkdir();
 		
@@ -52,7 +52,7 @@ public class PngImageCreatorImp implements PngImageCreator {
 	 	}
 	}
 
-	private boolean generatePngImages(File imagePresentationDir, UploadedPresentation pres) throws InterruptedException {
+	private boolean generateSvgImages(File imagePresentationDir, UploadedPresentation pres) throws InterruptedException {
 		String source = pres.getUploadedFile().getAbsolutePath();
 	 	String dest;
 	 	String COMMAND = "";
@@ -70,8 +70,8 @@ public class PngImageCreatorImp implements PngImageCreator {
 	 	}else{
 	 		for(int i=1; i<=pres.getNumberOfPages(); i++){
 	 			File tmp = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "tmp" + File.separatorChar + "slide" + i + ".pdf");
-	 			File destpng = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + i + ".svg");
-				COMMAND = "pdftocairo -rx 300 -ry 300 -svg -q -f 1 -l 1 " + File.separatorChar + tmp.getAbsolutePath() + " " + destpng.getAbsolutePath();
+	 			File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + i + ".svg");
+				COMMAND = "pdftocairo -rx 300 -ry 300 -svg -q -f 1 -l 1 " + File.separatorChar + tmp.getAbsolutePath() + " " + destsvg.getAbsolutePath();
 
 	 			done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 	 			if(!done){
@@ -83,12 +83,12 @@ public class PngImageCreatorImp implements PngImageCreator {
 	 	if (done) {
 	 		return true;
 	 	} 
-	 	log.warn("Failed to create png images: " + COMMAND);	 		
+	 	log.warn("Failed to create svg images: " + COMMAND);	 		
 		return false;
 	}
 	
-	private File determinePngImagesDirectory(File presentationFile) {
-		return new File(presentationFile.getParent() + File.separatorChar + "pngs");
+	private File determineSvgImagesDirectory(File presentationFile) {
+		return new File(presentationFile.getParent() + File.separatorChar + "svgs");
 	}
 	
 	private void cleanDirectory(File directory) {	
