@@ -120,7 +120,14 @@ Template.chatbar.helpers
       return Meteor.Users.findOne({userId: getInSession('inChatWith')})?
 
 # When chatbar gets rendered, launch the auto-check for unread chat
-Template.chatbar.rendered = -> detectUnreadChat()
+Template.chatbar.rendered = ->
+  detectUnreadChat()
+  $('#newMessageInput').on('input keydown paste cut', () -> setTimeout(() ->
+    $('#newMessageInput').height('auto')
+    $('.chatBodyContainer').height($('#chat').height() - ($('#newMessageInput')[0].scrollHeight + 22))
+    $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
+    $('#sendMessageButton').css('margin-top', ($('#newMessageInput').height() - 48) / 2 + 'px')
+  , 0))
 
 # When "< Public" is clicked, go to public chat 
 Template.chatbar.events
