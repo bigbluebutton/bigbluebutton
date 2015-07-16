@@ -1,17 +1,17 @@
 @import "variables";
 @import "mixins";
 
-.usericon {
-  font-size: 16px;
+.statusIcon {
+  font-size: 18px;
 }
 
 #usericons {
   text-align: right;
   color: white;
-  span {
+  span i {
     @media @landscape, @desktop-portrait {
-      font-size: 18px;
       margin-right: 10px;
+      font-size: 20px;
     }
   }
 }
@@ -23,7 +23,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 50%;
+  width: calc(~'100% - 111px');
   @media @landscape {
     height: 27px;
     font-size: 4.5mm;
@@ -153,7 +153,9 @@
 
 .status {
   float: left;
+  width: 15px;
   min-width: 15px;
+  height: 27px;
   margin-right: 10px;
   font-size: 18px;
   color: #FFFFFF;
