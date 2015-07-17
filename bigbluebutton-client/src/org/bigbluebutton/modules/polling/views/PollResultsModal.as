@@ -8,6 +8,10 @@ package org.bigbluebutton.modules.polling.views
 	import mx.containers.HBox;
 	import mx.containers.TitleWindow;
 	import mx.controls.Button;
+	import mx.controls.HRule;
+	import mx.controls.Label;
+	import mx.controls.TextArea;
+	import mx.core.ScrollPolicy;
 	import mx.managers.PopUpManager;
 	
 	import org.bigbluebutton.modules.polling.events.PollVotedEvent;
@@ -21,6 +25,7 @@ package org.bigbluebutton.modules.polling.views
 	public class PollResultsModal extends TitleWindow {
 		private var _voteListener:Listener;
 		
+		private var _respondersLabel:Label;
 		private var _pollGraphic:PollGraphic;
 		private var _publishBtn:Button;
 		private var _closeBtn:Button;
@@ -28,29 +33,56 @@ package org.bigbluebutton.modules.polling.views
 		public function PollResultsModal() {
 			super();
 			
+			styleName = "micSettingsWindowStyle";
 			width = 300;
 			height = 300;
+			setStyle("verticalGap", 15);
 			showCloseButton = false;
 			layout = "vertical";
 			setStyle("horizontalAlign", "center");
 			setStyle("verticalAlign", "middle");
 			
-			var topBox:HBox = new HBox();
-			_publishBtn = new Button();
-			_publishBtn.label = ResourceUtil.getInstance().getString('bbb.polling.publishButton.label');
-			_publishBtn.addEventListener(MouseEvent.CLICK, handlePublishClick);
-			topBox.addChild(_publishBtn);
-			_closeBtn = new Button();
-			_closeBtn.label = ResourceUtil.getInstance().getString('bbb.polling.closeButton.label');
-			_closeBtn.addEventListener(MouseEvent.CLICK, handleCloseClick);
-			topBox.addChild(_closeBtn);
-			addChild(topBox);
+			var modalTitle:TextArea = new TextArea();
+			modalTitle.setStyle("borderSkin", null);
+			modalTitle.verticalScrollPolicy = ScrollPolicy.OFF;
+			modalTitle.editable = false;
+			modalTitle.text = ResourceUtil.getInstance().getString('bbb.polling.pollModal.title');
+			modalTitle.styleName = "micSettingsWindowTitleStyle";
+			modalTitle.percentWidth = 100;
+			modalTitle.height = 25;
+			addChild(modalTitle);
+			
+			var hrule:HRule = new HRule();
+			hrule.percentWidth = 100;
+			addChild(hrule);
+			
+			_respondersLabel = new Label();
+			_respondersLabel.styleName = "pollResondersLabelStyle";
+			_respondersLabel.text = " ";// ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.novotes');
+			addChild(_respondersLabel);
 			
 			_pollGraphic = new PollGraphic();
 			_pollGraphic.data = null;
 			_pollGraphic.width = 200;
 			_pollGraphic.minWidth = 130;
 			addChild(_pollGraphic);
+			
+			hrule = new HRule();
+			hrule.percentWidth = 100;
+			addChild(hrule);
+			
+			var botBox:HBox = new HBox();
+			botBox.setStyle("gap", 10);
+			
+			_publishBtn = new Button();
+			_publishBtn.label = ResourceUtil.getInstance().getString('bbb.polling.publishButton.label');
+			_publishBtn.addEventListener(MouseEvent.CLICK, handlePublishClick);
+			botBox.addChild(_publishBtn);
+			_closeBtn = new Button();
+			_closeBtn.label = ResourceUtil.getInstance().getString('bbb.polling.closeButton.label');
+			_closeBtn.addEventListener(MouseEvent.CLICK, handleCloseClick);
+			botBox.addChild(_closeBtn);
+			addChild(botBox);
 			
 			_voteListener = new Listener();
 			_voteListener.type = PollVotedEvent.POLL_VOTED;
@@ -69,7 +101,7 @@ package org.bigbluebutton.modules.polling.views
 			_pollGraphic.height = ((23+10)*_pollGraphic.data.length+10);
 			_pollGraphic.minHeight = ((16+10)*_pollGraphic.data.length+10);
 			
-			height = _pollGraphic.height + 140;
+			height = _pollGraphic.height + 220;
 		}
 		
 		private function handlePollVotedEvent(e:PollVotedEvent):void {
@@ -81,6 +113,7 @@ package org.bigbluebutton.modules.polling.views
 			}
 			
 			_pollGraphic.data = resultData;
+			_respondersLabel.text = ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.text', [e.result.numResponders + "/" + e.result.numRespondents]);
 		}
 		
 		private function handlePublishClick(e:MouseEvent):void {
