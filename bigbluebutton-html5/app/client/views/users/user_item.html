@@ -57,12 +57,17 @@
 </template>
 
 <template name="usernameEntry">
-  {{#if isCurrentUser userId}}
     <div class="status">
       {{#if user.raise_hand}}
-        <span rel="tooltip" data-placement="bottom" title="Lower your hand">
-          <i class="icon ion-android-hand statusIcon"></i>
-        </span>
+        {{#if isCurrentUser userId}}
+          <span rel="tooltip" data-placement="bottom" title="Lower your hand">
+            <i class="icon ion-android-hand statusIcon"></i>
+          </span>
+        {{else}}
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand">
+            <i class="icon ion-android-hand statusIcon"></i>
+          </span>
+        {{/if}}
       {{else}}
         {{#if user.presenter}}
           <span rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter">
@@ -72,38 +77,27 @@
           {{#if equals user.role "MODERATOR"}}
             <span rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator">
               <i class="icon fi-torso statusIcon"></i>
-             </span>
+            </span>
           {{/if}}
         {{/if}}
       {{/if}}
     </div>
-    <span class="userCurrent usernameEntry {{#if hasGotUnreadMailClass 'PUBLIC_CHAT' }} ion-ios-email-outline gotUnreadPublic{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
-      <span class="userName">{{user.name}} {{#if user.presenter}} (presenter) {{/if}} (you)</span>
-    </span>
-  {{else}}
-    <div class="status">
-      {{#if user.raise_hand}}
-        <span rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand">
-          <i class="icon ion-android-hand statusIcon"></i>
-        </span>
-      {{else}}
-        {{#if user.presenter}}
-          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter">
-            <i class="icon fi-projection-screen statusIcon"></i>
-          </span>
-        {{else}}
-          {{#if equals user.role "MODERATOR"}}
-            <span rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator">
-              <i class="icon fi-torso statusIcon"></i>
-             </span>
-          {{/if}}
-        {{/if}}
+    
+    {{#if isCurrentUser userId}}
+      <span class="userCurrent usernameEntry {{#if hasGotUnreadMailClass 'PUBLIC_CHAT'}}gotUnreadMail{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+        <span class="userName">{{user.name}} {{#if user.presenter}} (presenter) {{/if}} (you)</span>
+      </span>
+      {{#if hasGotUnreadMailClass 'PUBLIC_CHAT' }} 
+        <div class="unreadChatNumber">{{getNumberOfUnreadMessages 'PUBLIC_CHAT'}}</div>
       {{/if}}
-    </div>
-    <span class="usernameEntry {{#if hasGotUnreadMailClass user.userid }} ion-ios-email-outline gotUnreadMail{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}}">
-      <span class="userName"> {{user.name}} {{#if user.presenter}} (presenter) {{/if}}</span>
-    </span>
-  {{/if}}
+    {{else}}
+      <span class="usernameEntry {{#if hasGotUnreadMailClass user.userid}}gotUnreadMail{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+        <span class="userName"> {{user.name}} {{#if user.presenter}} (presenter) {{/if}}</span>
+      </span>
+      {{#if hasGotUnreadMailClass user.userid }} 
+        <div class="unreadChatNumber">{{getNumberOfUnreadMessages user.userid}}</div>
+      {{/if}}
+    {{/if}}
 </template>
 
 <template name="userItem">

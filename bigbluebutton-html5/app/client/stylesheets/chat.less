@@ -11,11 +11,21 @@
     height: 45px;
     min-height: 45px;
     .btn {
+      &:hover {
+        color: #3896D3;
+        background-color:white;
+        border-bottom: 1px solid #E5E5E5;
+      }
+      &:focus {
+        background-color:white;
+        border-bottom: 1px solid #E5E5E5;
+      }
+      padding: 0.625rem 0.5rem 0.6875rem 0.5rem;
       background-color: inherit;
       margin: 0;
       height: 45px;
       outline: none;
-      min-width: 103px;
+      min-width: 50px;
     }
     span {
       position: relative;
@@ -42,6 +52,16 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     
+  }
+}
+
+.toPublic .unreadChatNumber {
+  @media @desktop-portrait, @landscape {
+    padding: 2px;
+    position: absolute;
+    top: 31%;
+    left: 100%;
+    margin: 0;
   }
 }
 

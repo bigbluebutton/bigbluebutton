@@ -39,20 +39,15 @@ Template.usernameEntry.events
 
   'click .gotUnreadMail': (event) ->
     _this = @
+    currentId = getInSession('userId')
+    if currentId isnt undefined and currentId is _this.userId
+      _id = "PUBLIC_CHAT"
+    else 
+      _id = _this.userId
     chats = getInSession('chats')
     if chats isnt undefined
       for chat in chats
-        if chat.userId is _this.userId
-          chat.gotMail = false
-          chat.number = 0
-          break
-      setInSession 'chats', chats
-
-  'click .gotUnreadPublic': (event) ->
-    chats = getInSession('chats')
-    if chats isnt undefined
-      for chat in chats
-        if chat.userId is 'PUBLIC_CHAT'
+        if chat.userId is _id
           chat.gotMail = false
           chat.number = 0
           break
@@ -66,3 +61,14 @@ Template.usernameEntry.helpers
         if chat.userId is userId and chat.gotMail
           return true
     return false
+
+  getNumberOfUnreadMessages: (userId) ->
+    chats = getInSession('chats')
+    if chats isnt undefined
+      for chat in chats
+        if chat.userId is userId and chat.gotMail
+          if chat.number > 9
+            return "9+"
+          else
+            return chat.number
+    return

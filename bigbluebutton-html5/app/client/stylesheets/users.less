@@ -15,6 +15,19 @@
     }
   }
 }
+.unreadChatNumber {
+  @media @landscape, @desktop-portrait{
+    float: left;
+    margin-top: 5px;
+    width: 28px;
+    height: 18px;
+    border-radius: 41%;
+    font-size: 12px;
+    color: #fff;
+    text-align: center;
+    background: #3896D3;
+  }
+}
 
 .usernameEntry {
   cursor: pointer;
@@ -23,7 +36,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: calc(~'100% - 111px');
+  width: calc(~'100% - 130px');
   @media @landscape {
     height: 27px;
     font-size: 4.5mm;
@@ -140,10 +153,6 @@
 }
 .muteIcon .ion-ios-mic-off:hover:before {
   content: "\f461";
-}
-
-#content > .ion-ios-email-outline {
-    color: red;
 }
 
 .userName {
