@@ -46,17 +46,12 @@ meeting_process_dir = "#{recording_dir}/process/mconf_encrypted/#{meeting_id}"
 
 if not FileTest.directory?(meeting_process_dir)
   FileUtils.mkdir_p "#{meeting_process_dir}"
-  # Create a copy of the raw archives
-  BigBlueButton.logger.info("Copying the recording raw files from #{meeting_raw_dir} to #{meeting_process_dir}")
-  FileUtils.cp_r Dir.glob("#{meeting_raw_dir}/*"), meeting_process_dir
 
-  # There's no need to backup the presentation raw folder now
-#  FileUtils.mkdir_p "#{meeting_process_dir}/presentation_raw"
-#  BigBlueButton.logger.info("Copying the recording presentation from #{meeting_raw_presentation_dir}/#{meeting_id} to #{meeting_process_dir}/presentation_raw")
-#  FileUtils.cp_r Dir.glob("#{meeting_raw_presentation_dir}/#{meeting_id}/*"), "#{meeting_process_dir}/presentation_raw" 
+  # We used to copy the raw files to the process directory, but it takes extra
+  # unnecessary disk space, so we create the process dir but leave it empty. The
+  # publish phase will use the data from the raw dir
 
   process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-mconf_encrypted.done", "w")
   process_done.write("Processed #{meeting_id}")
   process_done.close
 end
-
