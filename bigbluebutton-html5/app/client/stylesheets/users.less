@@ -1,12 +1,32 @@
 @import "variables";
 @import "mixins";
 
-.usericon {
-  font-size: 16px;
+.statusIcon {
+  font-size: 18px;
 }
 
 #usericons {
   text-align: right;
+  color: white;
+  span i {
+    @media @landscape, @desktop-portrait {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+  }
+}
+.unreadChatNumber {
+  @media @landscape, @desktop-portrait{
+    float: left;
+    margin-top: 5px;
+    width: 28px;
+    height: 18px;
+    border-radius: 41%;
+    font-size: 12px;
+    color: #fff;
+    text-align: center;
+    background: #3896D3;
+  }
 }
 
 .usernameEntry {
@@ -16,13 +36,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 60%;
+  width: calc(~'100% - 130px');
   @media @landscape {
-    height: 20px;
+    height: 27px;
     font-size: 4.5mm;
   }
   @media @desktop-portrait {
-    height: 25px;
+    height: 27px;
     font-size: 4.5mm;
   }
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
@@ -36,7 +56,6 @@
     border-left: 0px;
     border-top: 0px;
     border-top-right-radius: 0px;
-    background-color: #FAFAFA;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     width: 100%;
@@ -64,14 +83,17 @@
 }
 
 #user-contents {
-  height: 83vh; /* for the inside scrolling list to utilize as much room as possible, this surrounding window must also take up as much room as possible */
-
+  height: calc(~'100% - 50px'); /* user-contents = user-contens - meetingTitle */
+  @media @landscape, @desktop-portrait{
+    background-color: #34495E;
+  }
   .userlist {
-    height: calc(~'100% - 29px'); /* height of user contents - user list */
+    max-height: 100% !important;
+    height: 100%;
 
     #content:hover {
         @media @landscape, @desktop-portrait { 
-          background-color: #EEEEEE;
+          background-color: #2C4155;
         }
       }
     #content {
@@ -133,10 +155,17 @@
   content: "\f461";
 }
 
-#content > .ion-ios-email-outline {
-    color: red;
+.userName {
+  color: #E6E6E6;
+  line-height: 1.5;
 }
 
-.userName {
-  color: #666666;
+.status {
+  float: left;
+  width: 15px;
+  min-width: 15px;
+  height: 27px;
+  margin-right: 10px;
+  font-size: 18px;
+  color: #FFFFFF;
 }
