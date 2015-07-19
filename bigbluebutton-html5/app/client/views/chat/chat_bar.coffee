@@ -28,7 +28,9 @@
           destinationTab = findDestinationTab()
           if destinationTab isnt getInSession "inChatWith"
             setInSession 'chats', getInSession('chats').map((tab) ->
-              tab.gotMail = true if tab.userId is destinationTab
+              if tab.userId is destinationTab
+                tab.gotMail = true
+                tab.number++
               tab
             )
         comp.stop()
@@ -134,7 +136,9 @@ Template.chatbar.events
   'click .toPublic': (event) ->
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'chats', getInSession('chats').map((chat) ->
-      chat.gotMail = false if chat.userId is "PUBLIC_CHAT"
+      if chat.userId is "PUBLIC_CHAT"
+        chat.gotMail = false 
+        chat.number = 0
       chat
     )
 

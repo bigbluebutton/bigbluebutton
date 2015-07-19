@@ -38,39 +38,37 @@ body {
     display: none;
   }
 }
-.navbarButton .unreadChat {
-  position: absolute;
-  z-index: 1;
-  background:red;
-  border-radius:50%;
-  @media @desktop-portrait, @landscape {
-    top: 20%;
-    left: 65%;
-    width:20%;
-    height:20%;
-  }
-  @media @mobile-portrait {
-    top: 14%;
-    left: 70%;
-    width:25%;
-    height:25%;
-  }
-}
-.toPublic .unreadChat {
-  @media @desktop-portrait, @landscape {
+
+.navbarButton {
+  color: #469DCF;
+  .unreadChat {
     position: absolute;
-    top: 39%;
-    left: 84%;
-    width:10px;
-    height:10px;
-    border-radius:5px;
+    z-index: 1;
     background:red;
+    border-radius:80%;
+    @media @desktop-portrait, @landscape {
+      top: 20%;
+      left: 65%;
+      width:19%;
+      height:20%;
+    }
+    @media @mobile-portrait {
+      top: 14%;
+      left: 70%;
+      width:25%;
+      height:25%;
+    }
   }
 }
 
 .myNavbar {
-  border-bottom: 0px;
-  &.gradientBar {
+  border-bottom: 1px;
+  @media @desktop-portrait, @landscape {
+    background-color: white;
+    border-bottom: 1px solid extract(@lightGrey, 1);
+  }
+
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
   }
   .btn {
@@ -80,13 +78,15 @@ body {
       top: 0 !important;
       padding-left: 1% !important;
       padding-right: 1% !important;
+      background-color: white;
+      border-bottom: 1px solid extract(@lightGrey, 1);
     }
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
       height: 100px !important;
       width: 10%;
       min-width: 60px;
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
     }
-    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
     .push-menu-icon {
       .icon-bar {
         margin-left: auto;
@@ -106,7 +106,7 @@ body {
     &.toggleUserlistButton, &.toggleMenuButton {
       background: transparent;
     }
-    span { background-color: white; }
+    span { background-color: #469DCF; }
   }
   @media @landscape {
     min-width: 768px;
@@ -122,17 +122,18 @@ body {
   }
 
   .navbarTitle {
-    color: extract(@white, 1);
     font-weight: bold;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     @media @landscape {
+      color: extract(@darkGrey, 1);
       font-size: 16px;
       width: 30% !important;
     }
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      color: extract(@white, 1);
       font-size: 30px;
       padding-top: 30px;
       padding-left: 5px;
@@ -142,6 +143,7 @@ body {
       margin-right: auto;
     }
     @media @desktop-portrait {
+      color: extract(@darkGrey, 1);
       font-size: 16px;
       width: calc(~'100% - 102.4px');
     }
@@ -176,29 +178,31 @@ body {
 }
 
 .meetingTitle {
+  text-align: center;
   font-weight: bold;
   line-height: 2em;
   margin: 0;
-  @media @mobile-portrait, @mobile-portrait-with-keyboard, @desktop-portrait {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-    padding-left: 140px;
     padding-top: 20px;
+    color: white;
+    font-size: 4vw;
+    height: 110px;
+  }
+  @media @desktop-portrait {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    padding-top: 10px;
     color: white;
   }
   @media @landscape {
     border-bottom: 1px solid extract(@lightGrey, 1);
     color: extract(@darkGrey, 1);
     padding-bottom: 5px;
-    padding-left: 10px;
     padding-top: 5px;
   }
   @media @desktop-portrait, @landscape {
     font-size: 18px;
     height: 50px;
-  }
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 4vw;
-    height: 110px;
   }
 }
 
@@ -338,6 +342,12 @@ body {
 
 .signOutIcon {
   @media @landscape {
+    &:hover {
+    color: #2A5E7C;
+  }
+  &:focus {
+    color: #2A5E7C;
+  }
     height: 28px;
     width: 75px;
     margin-left: 10px;
@@ -370,6 +380,12 @@ body {
 
 .settingsIcon {
   @media @landscape {
+    &:hover {
+    color: #2A5E7C;
+    }
+    &:focus {
+      color: #2A5E7C;
+    }
     width: 57px;
     margin-right: 5px;
   }

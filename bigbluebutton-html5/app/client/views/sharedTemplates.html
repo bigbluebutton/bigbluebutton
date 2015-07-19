@@ -2,7 +2,7 @@
   <button type="submit" id="{{id}}" class="btn {{btn_class}}" {{isDisabled}} rel="{{rel}}" data-placement="{{data_placement}}" title="{{title}}" style="{{style}}">
     {{#if notification}}
       {{#if hasGotUnreadMail notification }}
-        <div class="unreadChat"></div>
+        <div class="{{getNotificationClass notification}}">{{getNumberOfUnreadMessages notification}}</div>
       {{/if}}
     {{/if}}
     {{#if i_class}}

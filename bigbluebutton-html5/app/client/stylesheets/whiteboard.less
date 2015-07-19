@@ -7,6 +7,8 @@
     border-top: 0px;
     border-left: 0px;
     border-right: 0px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
     -webkit-order: 2;
     order: 2;
     -webkit-flex: 7 7 70%;
@@ -126,6 +128,7 @@
 }
 
 .switchSlideButton {
+  outline: none;
   width: 50px;
   height: 100%;
   margin-bottom: 0;
@@ -200,11 +203,12 @@
   margin-bottom: 0;
   padding: 0;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.2);
+  background: #3896D3;
   &:hover {
-    background: rgba(0, 0, 0, 0.4);
+    background: #3A82D4;
   }
   &:focus {
+    background: #3896D3;
     outline:0;
   }
   i {
