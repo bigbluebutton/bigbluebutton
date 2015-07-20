@@ -1,7 +1,6 @@
 package org.bigbluebutton.modules.whiteboard.views.models
 {
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.common.LogUtil;
 	public class WhiteboardOptions
 	{
 		[Bindable] public var whiteboardAccess:String = "presenter";

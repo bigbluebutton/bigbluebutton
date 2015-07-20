@@ -42,37 +42,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}" method="handlePresentationRemoved" />
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
+		import mx.collections.ArrayCollection;
+		import mx.utils.StringUtil;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.modules.present.commands.UploadFileCommand;
+		import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
+		import org.bigbluebutton.modules.present.events.ConversionPageCountError;
+		import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
+		import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
+		import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
+		import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
+		import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
+		import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
+		import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
+		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+		import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
+		import org.bigbluebutton.modules.present.events.UploadEvent;
+		import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
+		import org.bigbluebutton.modules.present.events.UploadProgressEvent;
+		import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
+		import org.bigbluebutton.modules.present.model.PresentationModel;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
       
-      import mx.collections.*;
-      import mx.events.FlexEvent;
-      import mx.events.ValidationResultEvent;
-      import mx.managers.PopUpManager;
-      import mx.utils.*;
-      import mx.validators.*;
-      
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.modules.present.commands.UploadFileCommand;
-      import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
-      import org.bigbluebutton.modules.present.events.ConversionPageCountError;
-      import org.bigbluebutton.modules.present.events.ConversionPageCountMaxed;
-      import org.bigbluebutton.modules.present.events.ConversionSupportedDocEvent;
-      import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
-      import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
-      import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
-      import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
-      import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-      import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-      import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
-      import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
-      import org.bigbluebutton.modules.present.events.UploadProgressEvent;
-      import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
-      import org.bigbluebutton.modules.present.model.PresentationModel;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      
-      private static const LOG:String = "Present::FileUploadWindow - ";
+		private static const LOGGER:ILogger = getClassLogger(FileUploadWindow);      
         
       [Bindable] private var presentationNamesAC:ArrayCollection;
 	    [BIndable] public var maxFileSize:Number;
@@ -163,12 +158,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (fileSize > maxFileSizeBytes) {     
           // Hardcode for now to 30M limit. 
           // This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
-          trace(LOG + "File exceeds max limit:(" + fileSize + ">" + maxFileSizeBytes + ")");  			
+          LOGGER.debug("File exceeds max limit:({0}>{1})", [fileSize, maxFileSizeBytes]);  			
           enableControls();
           displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
         } else {
           var presentationName:String = StringUtil.trim(fileToUpload.name);
-          trace(LOG + "Uploading file : " + presentationName);
+          LOGGER.debug("Uploading file : {0}", [presentationName]);
 
           progBarLbl.visible = true;          
           lblFileName.enabled = false;
@@ -212,7 +207,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleSupportedDocument(e:ConversionSupportedDocEvent):void {
-        trace(LOG + "handleSupportedDocument");
+        LOGGER.debug("handleSupportedDocument");
         progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.supported');
         progressBar.setProgress(0, 100);
         progressBar.validateNow();
@@ -229,7 +224,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handlePageCountExceeded(e:ConversionPageCountMaxed):void {
-        trace(LOG + "handlePageCountExceeded");
+		LOGGER.debug("handlePageCountExceeded");
         enableControls();
         var message:String = " Maximum supported is " + e.maxPages;
         displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.error.convert.maxnbpagereach'), message);

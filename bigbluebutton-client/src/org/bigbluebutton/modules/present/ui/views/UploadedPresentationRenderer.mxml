@@ -7,17 +7,21 @@
 		 verticalAlign="middle">
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
+		import com.asfusion.mate.events.Dispatcher;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
+		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+		import org.bigbluebutton.modules.present.events.UploadEvent;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
       
-      import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
-      import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      
-      private var globalDispatch:Dispatcher = new Dispatcher();
+		private static const LOGGER:ILogger = getClassLogger(UploadedPresentationRenderer);      
+
+		private var globalDispatch:Dispatcher = new Dispatcher();
       
       private function showPresentation():void {
-        trace("FileUploadWindow::showPresentation() " + data.id);   
+        LOGGER.debug("FileUploadWindow::showPresentation() {0}", [data.id]);   
         var changePresCommand:ChangePresentationCommand = new ChangePresentationCommand(data.id);
         globalDispatch.dispatchEvent(changePresCommand);
         
@@ -25,7 +29,7 @@
       }
       
       private function deletePresentation():void {
-        trace("FileUploadWindow.mxml::deletePresentation() " + data.id);
+		  LOGGER.debug("FileUploadWindow.mxml::deletePresentation() {0}", [data.id]);
 
         var rEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.REMOVE_PRESENTATION_EVENT);
         rEvent.presentationName = data.id as String;

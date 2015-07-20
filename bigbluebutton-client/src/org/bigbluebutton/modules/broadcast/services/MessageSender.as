@@ -18,13 +18,16 @@
  */
 package org.bigbluebutton.modules.broadcast.services
 {
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.core.managers.UserManager;
 
   public class MessageSender {
-    public function playStream(uri:String, streamId:String, streamName:String):void {
+	  private static const LOGGER:ILogger = getClassLogger(MessageSender);
+
+	  public function playStream(uri:String, streamId:String, streamName:String):void {
       var message:Object = new Object();
       message["messageID"] = "BroadcastPlayStreamCommand";
       message["uri"] = uri;
@@ -34,10 +37,10 @@ package org.bigbluebutton.modules.broadcast.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("bigbluebutton.sendMessage", 
         function(result:String):void { // On successful result
-          trace(result); 
+		  LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+          LOGGER.error(status); 
         },
         message
       );
@@ -50,10 +53,10 @@ package org.bigbluebutton.modules.broadcast.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("bigbluebutton.sendMessage", 
         function(result:String):void { // On successful result
-          trace(result); 
+		  LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );
@@ -67,10 +70,10 @@ package org.bigbluebutton.modules.broadcast.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("bigbluebutton.sendMessage", 
         function(result:String):void { // On successful result
-          trace(result); 
+		  LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );
@@ -82,16 +85,15 @@ package org.bigbluebutton.modules.broadcast.services
       message["requestedBy"] = requestedByUserID;
       message["streamID"] = streamID;
 
-      trace("MessageSender:: sendWhatIsTheCurrentStreamReply [" + message["requestedBy"] 
-        + "," +  message["streamID"] + "]");
+	  LOGGER.debug("MessageSender:: sendWhatIsTheCurrentStreamReply [{0},{1}]", [message["requestedBy"], message["streamID"]]);
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("bigbluebutton.sendMessage", 
         function(result:String):void { // On successful result
-          trace(result); 
+		  LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );        

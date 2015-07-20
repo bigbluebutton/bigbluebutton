@@ -18,8 +18,6 @@
  */
 package org.bigbluebutton.core.model
 {
-	import org.bigbluebutton.common.LogUtil;
-
 	public class Config
 	{
 		private var config:XML = null;

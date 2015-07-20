@@ -20,20 +20,19 @@ package org.bigbluebutton.core.services
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.NetDataEvent; 
-	import flash.events.NetMonitorEvent; 
-	import flash.events.NetStatusEvent; 
+	import flash.events.NetDataEvent;
+	import flash.events.NetMonitorEvent;
+	import flash.events.NetStatusEvent;
 	import flash.events.StatusEvent;
 	import flash.events.TimerEvent;
-	import flash.net.NetMonitor; 
-	import flash.net.NetStream; 
-	import flash.utils.Dictionary;	 
+	import flash.net.NetMonitor;
+	import flash.net.NetStream;
+	import flash.utils.Dictionary;
 	import flash.utils.Timer;
-	import flash.utils.getDefinitionByName;
-	import flash.utils.getQualifiedClassName;
-	 
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.events.NetworkStatsEvent;
+	import flash.utils.describeType;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.main.model.NetworkStatsData;
 	
 	public class StreamMonitor
@@ -53,6 +52,8 @@ package org.bigbluebutton.core.services
 		 * http://osflash.org/pipermail/red5_osflash.org/2009-January/028906.html
 		 */
 		
+		private static const LOGGER:ILogger = getClassLogger(StreamMonitor);
+
 		private var _netmon:NetMonitor;
 		private var _heartbeat:Timer = new Timer( 2000 );
 		private var _globalDispatcher:Dispatcher = new Dispatcher();
@@ -219,13 +220,12 @@ package org.bigbluebutton.core.services
 		
 		static public function printDictionary(dict:Dictionary):void {
 			for (var key:Object in dict) {
-				LogUtil.debug(key + ": " + dict[key]);
+				LOGGER.debug(key + ": " + dict[key]);
 			}
 		}
 		
 		private function log(s:String):void {
-			//LogUtil.debug("[StreamMonitor] " + s);
-      trace("[StreamMonitor] " + s);
+			LOGGER.debug(s);
 		}
 	}
 }

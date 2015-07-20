@@ -18,7 +18,6 @@
  */
 package org.bigbluebutton.modules.chat.model
 {
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 
 	public class ChatOptions

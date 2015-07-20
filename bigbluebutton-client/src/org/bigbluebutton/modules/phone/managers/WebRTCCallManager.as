@@ -6,34 +6,30 @@ package org.bigbluebutton.modules.phone.managers
   import flash.external.ExternalInterface;
   import flash.utils.Timer;
   
-  import flexlib.scheduling.timelineClasses.TimeRangeDescriptorUtil;
-  
   import mx.controls.Alert;
   import mx.events.CloseEvent;
   
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.modules.phone.PhoneModel;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-  import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
-  import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
-  import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
-  import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
   import org.bigbluebutton.modules.phone.models.Constants;
   import org.bigbluebutton.modules.phone.models.WebRTCModel;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class WebRTCCallManager
   {
-    private static const LOG:String = "Phone::WebRTCCallManager - ";
+	private static const LOGGER:ILogger = getClassLogger(WebRTCCallManager);      
     
     private var browserType:String = "unknown";
     private var browserVersion:int = 0;
@@ -64,8 +60,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     private function isWebRTCSupported():Boolean {
-      trace(LOG + "- isWebRTCSupported - ExternalInterface.available=[" + ExternalInterface.available 
-        + "], isWebRTCAvailable=[" + ExternalInterface.call("isWebRTCAvailable") + "]");
+      LOGGER.debug("isWebRTCSupported - ExternalInterface.available=[{0}], isWebRTCAvailable=[{1}]", [ExternalInterface.available, ExternalInterface.call("isWebRTCAvailable")]);
       return (ExternalInterface.available && ExternalInterface.call("isWebRTCAvailable"));
     }
     
@@ -81,8 +76,7 @@ package org.bigbluebutton.modules.phone.managers
     private function checkIfToUseWebRTC():Boolean {
       var webRTCSupported:Boolean = isWebRTCSupported();
       
-      trace(LOG + "- checkIfToUseWebRTC - useWebRTCIfAvailable=[" + options.useWebRTCIfAvailable 
-        + "], isWebRTCSupported=[" + webRTCSupported + "]");
+	  LOGGER.debug("checkIfToUseWebRTC - useWebRTCIfAvailable=[{0}], isWebRTCSupported=[{1}]", [options.useWebRTCIfAvailable, webRTCSupported]);
       if (options.useWebRTCIfAvailable && webRTCSupported) {
         return true;
       }      
@@ -112,7 +106,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleWebRTCEchoTestNoAudioEvent():void {
-      trace(LOG + "handleWebRTCEchoTestNoAudioEvent");
+	  LOGGER.debug("handleWebRTCEchoTestNoAudioEvent");
       model.state = Constants.ECHO_TEST_FAILED;
       endEchoTest();
       
@@ -122,13 +116,13 @@ package org.bigbluebutton.modules.phone.managers
     private var t:Timer;
     
     public function handleWebRTCEchoTestHasAudioEvent():void {
-      trace(LOG + "handleWebRTCEchoTestHasAudioEvent");
+      LOGGER.debug("handleWebRTCEchoTestHasAudioEvent");
       model.state = Constants.STOP_ECHO_THEN_JOIN_CONF;
       endEchoTestJoinConference();
     }
     
     public function handleWebRTCCallStartedEvent():void {
-      trace(LOG + "setting state to IN_CONFERENCE");
+	  LOGGER.debug("setting state to IN_CONFERENCE");
       model.state = Constants.IN_CONFERENCE;
       dispatcher.dispatchEvent(new WebRTCJoinedVoiceConferenceEvent());
       
@@ -136,8 +130,6 @@ package org.bigbluebutton.modules.phone.managers
     
     public function handleWebRTCCallEndedEvent():void {
       model.state = Constants.INITED;
-      
-      
     }
     
     private function joinVoiceConference():void {
@@ -146,7 +138,7 @@ package org.bigbluebutton.modules.phone.managers
     }
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
-      trace(LOG + "handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
+	  LOGGER.debug("handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
       
       if (!usingWebRTC || !event.mic) return;
       
@@ -164,11 +156,11 @@ package org.bigbluebutton.modules.phone.managers
     }
     
 	  public function handleBecomeViewer():void {
-		  trace(LOG + "handleBecomeViewer received");
+		  LOGGER.debug("handleBecomeViewer received");
 		  if (options.presenterShareOnly) {
 			  if (!usingWebRTC || model.state != Constants.IN_CONFERENCE || UsersUtil.amIModerator()) return;
 			
-			  trace(LOG + "handleBecomeViewer leaving WebRTC and joining listen only stream");
+			  LOGGER.debug("handleBecomeViewer leaving WebRTC and joining listen only stream");
 			  ExternalInterface.call("leaveWebRTCVoiceConference");
 			
 			  var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();

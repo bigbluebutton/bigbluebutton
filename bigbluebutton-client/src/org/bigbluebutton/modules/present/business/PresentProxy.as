@@ -21,24 +21,18 @@ package org.bigbluebutton.modules.present.business
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.TimerEvent;
-	import flash.net.NetConnection;
 	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.model.users.BBBUser;
-	import org.bigbluebutton.main.model.users.Conference;
-	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
 	import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 	import org.bigbluebutton.modules.present.commands.GoToPageCommand;
 	import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
 	import org.bigbluebutton.modules.present.commands.UploadFileCommand;
 	import org.bigbluebutton.modules.present.events.GetListOfPresentationsReply;
-	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -52,7 +46,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.services.messaging.MessageSender;
 	
 	public class PresentProxy {
-    private static const LOG:String = "Present::PresentProxy - ";
+		private static const LOGGER:ILogger = getClassLogger(PresentProxy);
     
 		private var host:String;
 		private var conference:String;
@@ -121,21 +115,21 @@ package org.bigbluebutton.modules.present.business
     public function handleGoToPreviousPageCommand(cmd:GoToPrevPageCommand):void {
       var page:Page = PresentationModel.getInstance().getPrevPage(cmd.curPageId);
       if (page != null) {
-        trace(LOG + "Going to prev page[" + page.id + "] from page[" + cmd.curPageId + "]");
+        LOGGER.debug("Going to prev page[{0}] from page[{1}]", [page.id, cmd.curPageId]);
         sender.goToPage(page.id);
       } else {
-        trace(LOG + "Could not find pervious page. Current page [" + cmd.curPageId + "]");
+        LOGGER.debug("Could not find pervious page. Current page [{0}]", [cmd.curPageId]);
       }
     }
     
     public function handleGoToNextPageCommand(cmd:GoToNextPageCommand):void {
-      trace(LOG + "Go to next page. Current page [" + cmd.curPageId + "]");
+      LOGGER.debug("Go to next page. Current page [{0}]", [cmd.curPageId]);
       var page:Page = PresentationModel.getInstance().getNextPage(cmd.curPageId);
       if (page != null) {
-        trace(LOG + "Going to next page[" + page.id + "] from page[" + cmd.curPageId + "]");
+        LOGGER.debug("Going to next page[{0}] from page[{1}]", [page.id, cmd.curPageId]);
         sender.goToPage(page.id);
       } else {
-        trace(LOG + "Could not find next page. Current page [" + cmd.curPageId + "]");
+        LOGGER.debug("Could not find next page. Current page [{0}]", [cmd.curPageId]);
       }
     }
 				
@@ -145,7 +139,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function startUpload(e:UploadFileCommand):void{
-      trace(LOG + "Uploading presentation [" + e.filename + "]");
+      		LOGGER.debug("Uploading presentation [{0}]", [e.filename]);
       
 			if (uploadService == null) {
         uploadService = new FileUploadService(host + "/bigbluebutton/presentation/upload", conference, room);
@@ -169,15 +163,14 @@ package org.bigbluebutton.modules.present.business
 		public function loadPresentation(e:UploadEvent) : void
 		{
 			var presentationName:String = e.presentationName;
-			LogUtil.debug("PresentProxy::loadPresentation: presentationName=" + presentationName);
-      trace("PresentProxy::loadPresentation: presentationName=" + presentationName);
+			LOGGER.debug("PresentProxy::loadPresentation: presentationName={0}", [presentationName]);
 			var fullUri : String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName+"/slides";	
 			var slideUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName;
 			
-			LogUtil.debug("PresentationApplication::loadPresentation()... " + fullUri);
+			LOGGER.debug("PresentationApplication::loadPresentation()... {0}", [fullUri]);
 //			var service:PresentationService = new PresentationService();
 //			service.load(fullUri, slides, slideUri);
-			LogUtil.debug('number of slides=' + slides.size());
+			LOGGER.debug('number of slides={0}', [slides.size()]);
 		}
 		
 		/**
@@ -188,7 +181,7 @@ package org.bigbluebutton.modules.present.business
 		 */		
 		public function sharePresentation(e:PresenterCommands):void{
 
-      sender.sharePresentation(e.share, e.presentationName);
+      		sender.sharePresentation(e.share, e.presentationName);
       
 			var timer:Timer = new Timer(3000, 1);
 			timer.addEventListener(TimerEvent.TIMER, sendViewerNotify);
@@ -218,7 +211,7 @@ package org.bigbluebutton.modules.present.business
 		 * 
 		 */		
 		public function zoomSlide(e:PresenterCommands):void{
-      sender.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+      		sender.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
 		
 		/**

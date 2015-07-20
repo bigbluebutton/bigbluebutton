@@ -24,16 +24,16 @@ package org.bigbluebutton.core.services
   import flash.net.NetConnection;
   import flash.utils.Timer;
   
-  import mx.utils.ObjectUtil;
-
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.main.model.NetworkStatsData;
-
   import org.red5.flash.bwcheck.ClientServerBandwidth;
   import org.red5.flash.bwcheck.ServerClientBandwidth;
   import org.red5.flash.bwcheck.events.BandwidthDetectEvent;
 
   public class BandwidthMonitor {
+	private static const LOGGER:ILogger = getClassLogger(BandwidthMonitor);
+	
     private var _serverURL:String = "localhost";
     private var _serverApplication:String = "video";
     private var _clientServerService:String = "checkBandwidthUp";
@@ -70,7 +70,7 @@ package org.bigbluebutton.core.services
     
     private function onAsyncError(event:AsyncErrorEvent):void
     {
-      LogUtil.debug(event.error.toString());
+      LOGGER.debug(event.error.toString());
     }
     
     private function onStatus(event:NetStatusEvent):void
@@ -78,24 +78,24 @@ package org.bigbluebutton.core.services
       switch (event.info.code)
       {
         case "NetConnection.Connect.Success":
-          LogUtil.debug("Starting to monitor bandwidth between client and server");
+			LOGGER.debug("Starting to monitor bandwidth between client and server");
  //         monitor();
           break;
         default:
-          LogUtil.debug("Cannot establish the connection to measure bandwidth");
+		  LOGGER.debug("Cannot establish the connection to measure bandwidth");
           break;
       }      
     }
     
     private function monitor():void {
-      LogUtil.debug("Starting to monitor bandwidth");
+	  LOGGER.debug("Starting to monitor bandwidth");
       bwTestTimer =  new Timer(30000);
       bwTestTimer.addEventListener(TimerEvent.TIMER, rtmptRetryTimerHandler);
       bwTestTimer.start();
     }
     
     private function rtmptRetryTimerHandler(event:TimerEvent):void {
-      LogUtil.debug("Starting to detect bandwidth from server to client");
+	  LOGGER.debug("Starting to detect bandwidth from server to client");
       ServerClient();
     }
     
@@ -125,7 +125,7 @@ package org.bigbluebutton.core.services
     
     public function onDetectFailed(event:BandwidthDetectEvent):void
     {
-      LogUtil.debug("Detection failed with error: " + event.info.application + " " + event.info.description);
+	  LOGGER.debug("Detection failed with error: {0} {1}", [event.info.application, event.info.description]);
     }
     
     public function onClientServerComplete(event:BandwidthDetectEvent):void

@@ -24,12 +24,14 @@ package org.bigbluebutton.modules.broadcast.services
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.broadcast.events.StreamsListLoadedEvent;
 	import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
-	import org.bigbluebutton.modules.broadcast.models.Streams;
 	
 	public class StreamsService {
+		private static const LOGGER:ILogger = getClassLogger(StreamsService);
+
 		private var streamsXml:XML;
 		
 		private var broadcastManager:BroadcastManager;
@@ -39,7 +41,7 @@ package org.bigbluebutton.modules.broadcast.services
 		}
 		
 		public function queryAvailableStreams(uri:String):void {
-      trace("StreamsService::queryAvailableStreams");
+      		LOGGER.debug("StreamsService::queryAvailableStreams");
 			var urlLoader:URLLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
@@ -49,18 +51,18 @@ package org.bigbluebutton.modules.broadcast.services
 		
 		private function handleComplete(e:Event):void {
 			streamsXml = new XML(e.target.data);
-			LogUtil.debug(streamsXml);
-      trace("StreamsService::handleComplete\n" + streamsXml.toXMLString());
+			LOGGER.debug(streamsXml);
+			LOGGER.debug("StreamsService::handleComplete\n{0}", [streamsXml.toXMLString()]);
 			var mn:XMLList = streamsXml.stream..@name;
 			
 			for each (var n:XML in mn) {
-				LogUtil.debug(n);
+				LOGGER.debug(n);
 			}
 			var item:XML;
 			var list:XMLList = streamsXml.children();
 
 			for each(item in list) {
-				LogUtil.debug(item.@url + " " + item.@name + " " + item.@id);
+				LOGGER.debug("{0} {1} {2}", [item.@url, item.@name, item.@id]);
 				broadcastManager.streams.streamNames.push(item.@name);
 				broadcastManager.streams.streamUrls.push(item.@url);
 				broadcastManager.streams.streamIds.push(item.@id);

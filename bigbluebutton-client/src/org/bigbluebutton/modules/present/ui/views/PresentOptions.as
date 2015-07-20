@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.present.ui.views
 {
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.common.LogUtil;
 	public class PresentOptions
 	{
 		[Bindable] public var showWindowControls:Boolean = true;

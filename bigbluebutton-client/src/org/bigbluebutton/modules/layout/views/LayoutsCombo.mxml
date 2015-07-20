@@ -35,50 +35,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flash.events.Event;
-			import flash.events.IOErrorEvent;
-			import flash.events.ProgressEvent;
-			import flash.net.FileReference;
-			
-			import flexlib.mdi.containers.MDICanvas;
-			import flexlib.mdi.events.MDIManagerEvent;
-			import flexlib.mdi.managers.MDIManager;
-			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.listClasses.ListBase;
 			import mx.events.DropdownEvent;
 			import mx.events.ListEvent;
-			import mx.events.ResizeEvent;
 			
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
 			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.layout.events.ChangeLayoutEvent;
-			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
-			import org.bigbluebutton.modules.layout.events.LayoutChangedEvent;
-			import org.bigbluebutton.modules.layout.events.LayoutEvent;
-			import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
 			import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
-			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
-			import org.bigbluebutton.modules.layout.model.LayoutDefinition;
-			import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
 			import org.bigbluebutton.modules.layout.model.LayoutModel;
-			import org.bigbluebutton.modules.layout.model.WindowLayout;
-			import org.bigbluebutton.modules.layout.views.LayoutButton;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-      private static const LOG:String = "Layout::LayoutsCombo - ";
+			private static const LOGGER:ILogger = getClassLogger(LayoutsCombo);      
       
 			private var _dispatcher:Dispatcher = new Dispatcher();
       [Bindable] private var layoutNames:ArrayCollection = new ArrayCollection();

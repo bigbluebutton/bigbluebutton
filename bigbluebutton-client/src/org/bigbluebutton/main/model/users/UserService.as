@@ -20,24 +20,20 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.TimerEvent;
 	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
-	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
-	import org.bigbluebutton.core.managers.ConfigManager;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
-	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
@@ -54,7 +50,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.modules.users.services.MessageSender;
 
 	public class UserService {
-    private static const LOG:String = "Users::UserService - ";
+		private static const LOGGER:ILogger = getClassLogger(UserService);      
     
 		private var joinService:JoinService;
 		private var _conferenceParameters:ConferenceParameters;		
@@ -112,7 +108,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.username = result.username;
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
-        _conferenceParameters.authToken = result.authToken;
+        		_conferenceParameters.authToken = result.authToken;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
 				_conferenceParameters.welcome = result.welcome;
@@ -132,12 +128,12 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.muteOnStart = muteOnStart;
 				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
 				
-				trace("_conferenceParameters.muteOnStart = " + _conferenceParameters.muteOnStart);
+				LOGGER.debug("_conferenceParameters.muteOnStart = {0}", [_conferenceParameters.muteOnStart]);
 				
 				// assign the meeting name to the document title
 				ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
 				
-				trace(LOG + " Got the user info from web api.");       
+				LOGGER.debug(" Got the user info from web api.");       
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
 				 */
@@ -170,7 +166,7 @@ package org.bigbluebutton.main.model.users
     }
     
     public function changeRecordingStatus(e:BBBEvent):void {
-      trace(LOG + "changeRecordingStatus")
+      LOGGER.debug("changeRecordingStatus")
       if (this.isModerator() && !e.payload.remote) {
         var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
         sender.changeRecordingStatus(myUserId, e.payload.recording);
@@ -178,7 +174,7 @@ package org.bigbluebutton.main.model.users
     }
        
 		public function userLoggedIn(e:UsersConnectionEvent):void{
-      trace(LOG + "userLoggedIn - Setting my userid to [" + e.userid + "]");
+			LOGGER.debug("userLoggedIn - Setting my userid to [{0}]", [e.userid]);
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
 			

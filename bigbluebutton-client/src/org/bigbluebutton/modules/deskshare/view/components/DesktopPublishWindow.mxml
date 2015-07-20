@@ -48,14 +48,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flexlib.scheduling.scheduleClasses.BackgroundItem;
-			
 			import mx.core.UIComponent;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -71,6 +70,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
+
 			public static const SCALE:Number = 5;
 			private static const VID_HEIGHT_PAD:Number = 73;
 			private static const VID_WIDTH_PAD:Number = 6;
@@ -180,7 +181,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function shareScreen(fullScreen:Boolean):void {
-				LogUtil.debug("Calling shareScreen");
+				LOGGER.debug("Calling shareScreen");
 				btnFSPublish.enabled = false;
 				btnRegionPublish.enabled = false;
 //				useSVC2Check.enabled = false;
@@ -194,7 +195,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var captureX:Number = 0;
 				var captureY:Number = 0;				
 				sharingFullScreen = fullScreen;
-				LogUtil.debug("Calling startApplet");
+				LOGGER.debug("Calling startApplet");
 				ExternalInterface.call("startApplet", uri , useTLS , room, fullScreen, true /*useSVC2Check.selected*/);
 			}
 			
@@ -245,7 +246,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
-				LogUtil.debug("DeskShareWindow::onAppletStart");
+				LOGGER.debug("DeskShareWindow::onAppletStart");
 				startPreviewStream(connection, room, event.videoWidth, event.videoHeight);
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
 				streamEvent.videoWidth = event.videoWidth;
@@ -280,7 +281,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vidH = captureHeight;
 				}
 
-				LogUtil.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
+				LOGGER.debug("deskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
 				video = new Video(vidW, vidH);
 				video.width = vidW;
 				video.height = vidH;
@@ -319,20 +320,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
+				LOGGER.debug("VIdeoWindow::asyncerror {0}", [e.toString()]);
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
 				case "NetStream.Publish.Start":
-					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
+					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);
 					break;
 				case "NetStream.Play.UnpublishNotify":
-					LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);
 					stopSharing();
 					break;
 				case "NetStream.Play.Start":
-					LogUtil.debug("Netstatus: " + e.info.code);
+					LOGGER.debug("Netstatus: {0}", [e.info.code]);
 					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
 				}
 			}

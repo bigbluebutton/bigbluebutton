@@ -27,12 +27,15 @@ package org.bigbluebutton.modules.polling.views
 	import mx.containers.VBox;
 	import mx.controls.Button;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.model.FocusableImage;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
-	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.bigbluebutton.modules.present.ui.views.SlideView;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class PollResultsView extends VBox {
+		private static const LOGGER:ILogger = getClassLogger(PollResultsView);      
+
 		private var _pollGraphic:ResizablePollGraphic;
 		private var _topBox:HBox;
 		private var _botBox:HBox;
@@ -99,8 +102,8 @@ package org.bigbluebutton.modules.polling.views
 			ny1 = (y1*100.0)/slide.height;
 			nx2 = (x2*100.0)/slide.width;
 			ny2 = (y2*100.0)/slide.height;
-			trace("x1 " + x1 + " y1 " + y1 + " x2 " + x2 + " y2 " + y2);
-			trace("nx1 " + nx1 + " ny1 " + ny1 + " nx2 " + nx2 + " ny2 " + ny2);
+			LOGGER.debug("x1 {0} y1 {1} x2 {2} y2 {3}", [x1, y1, x2, y2]);
+			LOGGER.debug("nx1 {0} ny1 {1} nx2 {2} ny2 {3}", [nx1, ny1, nx2, ny2]);
 		}
 		
 		private function handleCloseClick(e:MouseEvent):void {
@@ -108,7 +111,7 @@ package org.bigbluebutton.modules.polling.views
 		}
 		
 		private function mouseDownHandler(e:MouseEvent):void {
-			trace("mouseDownHandler");
+			LOGGER.debug("mouseDownHandler");
 			_pollGraphic.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 			var dragRect:Rectangle = new Rectangle(0, 0-_pollGraphic.y, parent.width-this.width, parent.height-_pollGraphic.height);
 			startDrag(false, dragRect);
@@ -116,7 +119,7 @@ package org.bigbluebutton.modules.polling.views
 		}
 		
 		private function mouseUpHandler(e:MouseEvent):void {
-			trace("mouseUpHandler");
+			LOGGER.debug("mouseUpHandler");
 			_pollGraphic.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 			stopDrag();
 		}

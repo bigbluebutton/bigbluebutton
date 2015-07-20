@@ -18,26 +18,26 @@
  */
 package org.bigbluebutton.main.model.modules
 {
-  import com.asfusion.mate.events.Dispatcher; 
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.TimerEvent;
-  import flash.utils.Timer;  
-  import org.bigbluebutton.common.LogUtil;
-  import org.bigbluebutton.core.BBB;
-  import org.bigbluebutton.core.UsersUtil;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.vo.Config;
   import org.bigbluebutton.core.vo.ConfigBuilder;
-  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.ConfigEvent;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.events.PortTestEvent;
   import org.bigbluebutton.main.events.UserServicesEvent;
   import org.bigbluebutton.main.model.ConfigParameters;
-  import org.bigbluebutton.main.model.modules.EnterApiService;
   
   public class ModulesDispatcher
   {
-    private static const LOG:String = "Main::ModulesDispatcher - ";   
+	private static const LOGGER:ILogger = getClassLogger(ModulesDispatcher);
+	  
     private var dispatcher:Dispatcher;
     private var enterApiService: EnterApiService;
     private var meetingInfo:Object = new Object();
@@ -89,7 +89,7 @@ package org.bigbluebutton.main.model.modules
       
     private function resultListener(success:Boolean, result:Object):void {
       if (success) {
-        trace(LOG + "Saving meeting and user info " + JSON.stringify(result)); 
+        LOGGER.debug("Saving meeting and user info {0}", [jsonXify(result)]); 
         
         meetingInfo.username = result.username;
         meetingInfo.userId = result.userId;
@@ -99,26 +99,26 @@ package org.bigbluebutton.main.model.modules
         doPortTesting();
       } else {
         var logData:Object = new Object();
-        JSLog.critical("Failed to get meeting and user info from Enter API", logData);
+		LOGGER.fatal("Failed to get meeting and user info from Enter API {0}", [logData]);
         
         dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
       }
     }
     
     private function doPortTesting():void {
-      trace(LOG + "Sending TEST_RTMP Event");
+      LOGGER.debug("Sending TEST_RTMP Event");
       var e:PortTestEvent = new PortTestEvent(PortTestEvent.TEST_RTMP);
       dispatcher.dispatchEvent(e);       
     }
     
     private function timerHandler(e:TimerEvent):void{
-      trace(LOG + "Sending PORT_TEST_UPDATE Event");
+	  LOGGER.debug("Sending PORT_TEST_UPDATE Event");
       var evt:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_UPDATE);
       dispatcher.dispatchEvent(evt);
     }
     
     public function sendTunnelingFailedEvent(server: String, app: String):void{
-      trace(LOG + "Sending TunnelingFailed Event");
+	  LOGGER.debug("Sending TunnelingFailed Event");
       var logData:Object = new Object();
       logData.server = server;
       logData.app = app;
@@ -126,14 +126,13 @@ package org.bigbluebutton.main.model.modules
       logData.username = meetingInfo.username;
       logData.meetingName = meetingInfo.meetingName;
       logData.meetingId = meetingInfo.meetingId;
-      trace(LOG + "Cannot connect to Red5 using RTMP and RTMPT", JSON.stringify(logData));
-      JSLog.critical("Cannot connect to Red5 using RTMP and RTMPT", logData);
+	  LOGGER.fatal("Cannot connect to Red5 using RTMP and RTMPT {0}", [jsonXify(logData)]);
       
       dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
     }
     
     public function sendPortTestSuccessEvent(port:String, host:String, protocol:String, app:String):void{
-      trace(LOG + "Sending PORT_TEST_SUCCESS Event");
+	  LOGGER.debug("Sending PORT_TEST_SUCCESS Event");
       var logData:Object = new Object();
       logData.port = port;
       logData.server = host;
@@ -143,7 +142,7 @@ package org.bigbluebutton.main.model.modules
       logData.username = meetingInfo.username;
       logData.meetingName = meetingInfo.meetingName;
       logData.meetingId = meetingInfo.meetingId;
-      JSLog.debug("Successfully connected on test connection.", logData);
+      LOGGER.debug("Successfully connected on test connection. {0}", [jsonXify(logData)]);
       
       var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
       portEvent.port = port;
@@ -155,7 +154,7 @@ package org.bigbluebutton.main.model.modules
     }
     
     public function sendPortTestFailedEvent(port:String, host:String, protocol:String, app:String):void{
-      trace(LOG + "Sending PORT_TEST_FAILED Event");
+      LOGGER.debug("Sending PORT_TEST_FAILED Event");
       var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
       portFailEvent.port = port;
       portFailEvent.hostname = host;

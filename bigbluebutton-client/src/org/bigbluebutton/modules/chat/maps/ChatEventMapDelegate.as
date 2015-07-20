@@ -18,8 +18,9 @@
 */
 package org.bigbluebutton.modules.chat.maps {
 	import com.asfusion.mate.events.Dispatcher;
-	import flash.events.IEventDispatcher;	
-	import org.bigbluebutton.common.LogUtil;
+	
+	import flash.events.IEventDispatcher;
+	
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -27,7 +28,6 @@ package org.bigbluebutton.modules.chat.maps {
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class ChatEventMapDelegate {
-		private static var LOG:String = "ChatEventMapDelegate - ";
 		
 		private var dispatcher:IEventDispatcher;
 

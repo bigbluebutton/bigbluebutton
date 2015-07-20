@@ -1,9 +1,11 @@
 package org.bigbluebutton.modules.polling.service
 {
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 
   public class NetworkPollDataService implements IPollDataService
   {
-    private static const LOG:String = "Poll::NetworkPollDataService - ";
+	private static const LOGGER:ILogger = getClassLogger(NetworkPollDataService);      
     
     private var sender:MessageSender;
           

@@ -18,23 +18,25 @@
  */
 package org.bigbluebutton.modules.polling.service
 {
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;
 
   public class MessageReceiver implements IMessageListener
   {
-    private static const LOG:String = "Poll::MessageReceiver - ";
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
     
     private var processor:PollDataProcessor;
     
     public function MessageReceiver(processor:PollDataProcessor) {
-      trace(LOG + " registering message listener");
+      LOGGER.debug("registering message listener");
 	  this.processor = processor;
       BBB.initConnectionManager().addMessageListener(this);
     }
 
     public function onMessage(messageName:String, message:Object):void {
-      trace(LOG + "received message " + messageName);
+      LOGGER.debug("received message {0}", [messageName]);
 
       switch (messageName) {
         case "pollShowResultMessage":

@@ -21,17 +21,14 @@ package org.bigbluebutton.modules.deskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.events.CloseWindowEvent;
-	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
-	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
-	import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
 	import org.bigbluebutton.modules.deskshare.view.components.ToolbarButton;
-	import org.bigbluebutton.common.LogUtil;
 			
 	public class ToolbarButtonManager {		
+		private static const LOGGER:ILogger = getClassLogger(ToolbarButtonManager);
+
 		private var button:ToolbarButton;
 		private var isSharing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
@@ -44,7 +41,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 													
 		public function addToolbarButton():void {
-			LogUtil.debug("DeskShare::addToolbarButton");
+			LOGGER.debug("DeskShare::addToolbarButton");
 			
 			if ((button != null) && (!buttonShownOnToolbar)) {
 				button = new ToolbarButton();

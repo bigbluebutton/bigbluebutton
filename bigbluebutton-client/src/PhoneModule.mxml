@@ -32,18 +32,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import org.bigbluebutton.common.LogUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
-		
+
+			private static const LOGGER:ILogger = getClassLogger(PhoneModule);
+
 			private var _moduleName:String = "Phone";			
 			private var _attributes:Object;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("PhoneModule Initialized");			
+				LOGGER.debug("PhoneModule Initialized");			
 			}
 			
 			public function get moduleName():String {
@@ -86,8 +91,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.voicebridge;
 			}
 									
-			public function start(attributes:Object):void {	
-				LogUtil.debug("phone attr: " + attributes.username);
+			public function start(attributes:Object):void {
+				LOGGER.debug("phone attr: {0}", [attributes.username]);
 				_attributes = attributes;	
 
 				var event:StartPhoneModuleEvent = new StartPhoneModuleEvent(StartPhoneModuleEvent.START_PHONE_MODULE_EVENT);
@@ -96,7 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function stop():void {
-				trace("Stopping phone module");
+				LOGGER.debug("Stopping phone module");
 				var event:StopPhoneModuleEvent = new StopPhoneModuleEvent(StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT);
 				dispatcher.dispatchEvent(event);
 			}

@@ -24,11 +24,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import flexlib.mdi.containers.MDIWindow;		
-			import mx.controls.Alert;
 			import mx.utils.ArrayUtil;
+			
+			import flexlib.mdi.containers.MDIWindow;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.LogUtil;
 
 			public static const TOP_2_3:String = "top-two-thirds";
 			public static const BOTTOM_1_3:String = "bottom-one-third";
@@ -42,6 +44,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public static const POPUP:String = "popup";
 			public static const ABSOLUTE:String = "absolute";
 			
+			private static const LOGGER:ILogger = getClassLogger(MainCanvas);      
+
 			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE_VIEW";
 			public static const DESKTOP_SHARING_PUBLISH:String = "POP_UP_DESKSHARE_PUBLISH";
 			
@@ -71,7 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (ArrayUtil.getItemIndex(window, windowManager.windowList) != -1) {
 					windowManager.remove(window as MDIWindow);
 				} else {
-					LogUtil.debug("Trying to remove the window [ " + window + " ] but it's not a MainCanvas child");
+					LOGGER.debug("Trying to remove the window [ {0} ] but it's not a MainCanvas child", [window]);
 				}
 			}
 			

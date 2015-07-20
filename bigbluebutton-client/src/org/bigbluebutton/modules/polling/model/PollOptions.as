@@ -1,7 +1,6 @@
 package org.bigbluebutton.modules.polling.model
 {
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.common.LogUtil;
 	public class PollOptions
 	{
 		[Bindable] public var baseTabIndex:int;

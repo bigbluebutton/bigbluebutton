@@ -21,34 +21,29 @@ package org.bigbluebutton.modules.phone.managers {
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.AsyncErrorEvent;
-	import flash.events.Event;
-	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
-	import flash.external.*;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
-	import org.bigbluebutton.main.api.JSLog;
-	import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
-	import org.bigbluebutton.modules.phone.events.RegistrationFailedEvent;
-	import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
 	
 	public class ConnectionManager {
-    private static const LOG:String = "Phone::ConnectionManager - ";
+		private static const LOGGER:ILogger = getClassLogger(ConnectionManager);
     
 		private  var netConnection:NetConnection = null;
 		private var incomingNetStream:NetStream = null;
 		private var outgoingNetStream:NetStream = null;
 		private var username:String;
 		private var uri:String;
-    private var externUserId:String;
+		private var externUserId:String;
 		private var uid:String;
 		private var meetingId:String;
 		
@@ -73,7 +68,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
     public function setup(uid:String, externUserId:String, username:String, meetingId:String, uri:String):void {	
-      trace(LOG + "Setup uid=[" + uid + "] extuid=[" + externUserId + "] name=[" + username + "] uri=[" + uri + "]");
+	  LOGGER.debug("Setup uid=[{0}] extuid=[{1}] name=[{2}] uri=[{3}]", [uid, externUserId, username, uri]);
       this.uid = uid;	
       this.username  = username;
       this.meetingId = meetingId;
@@ -87,7 +82,7 @@ package org.bigbluebutton.modules.phone.managers {
       if (isTunnelling) {
         uri = uri.replace(/rtmp:/gi, "rtmpt:");
       }
-      trace(LOG + "Connecting to uri=[" + uri + "]");
+	  LOGGER.debug("Connecting to uri=[{0}]", [uri]);
 			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
 			netConnection = new NetConnection();
 			netConnection.proxyType = "best";
@@ -118,33 +113,33 @@ package org.bigbluebutton.modules.phone.managers {
       
       switch (statusCode) {
         case "NetConnection.Connect.Success":
-          trace(LOG + "Connection success");
-          JSLog.debug("Successfully connected to BBB Voice", logData);
+		  LOGGER.debug("Connection success");
+		  LOGGER.debug("Successfully connected to BBB Voice {0}", [jsonXify(logData)]);
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));           
           break;
         case "NetConnection.Connect.Failed":
-          trace(LOG + "Connection failed");
-          JSLog.error("Failed to connect to BBB Voice", logData);
+          LOGGER.debug("Connection failed");
+		  LOGGER.error("Failed to connect to BBB Voice {0}", [jsonXify(logData)]);
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED));
           break;
         case "NetConnection.Connect.NetworkChange":
-          trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
-          JSLog.warn("Detected network change to BBB Voice", logData);
+		  LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+		  LOGGER.warn("Detected network change to BBB Voice {0}", [jsonXify(logData)]);
           break;
         case "NetConnection.Connect.Closed":
-          trace(LOG + "Connection closed");
-          JSLog.debug("Disconnected from BBB Voice", logData);
+		  LOGGER.debug("Connection closed");
+		  LOGGER.debug("Disconnected from BBB Voice {0}", [jsonXify(logData)]);
           handleConnectionClosed();
           break;
       }
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
-      trace(LOG + "AsyncErrorEvent: " + event);
+			LOGGER.error("AsyncErrorEvent: {0}", [event]);
     }
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
-      trace(LOG + "securityErrorHandler: " + event);
+			LOGGER.error("securityErrorHandler: {0}", [event]);
     }
         
     //********************************************************************************************
@@ -153,19 +148,19 @@ package org.bigbluebutton.modules.phone.managers {
 		//
 		//********************************************************************************************		
 		public function failedToJoinVoiceConferenceCallback(msg:String):* {
-			trace(LOG + "failedToJoinVoiceConferenceCallback " + msg);
+			LOGGER.error("failedToJoinVoiceConferenceCallback {0}", [msg]);
 			var event:FlashCallDisconnectedEvent = new FlashCallDisconnectedEvent();
 			dispatcher.dispatchEvent(event);	
 		}
 		
 		public function disconnectedFromJoinVoiceConferenceCallback(msg:String):* {
-			trace(LOG + "disconnectedFromJoinVoiceConferenceCallback " + msg);
+			LOGGER.debug("disconnectedFromJoinVoiceConferenceCallback {0}", [msg]);
 			var event:FlashCallDisconnectedEvent = new FlashCallDisconnectedEvent();
 			dispatcher.dispatchEvent(event);	
 		}	
 				
-     public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
-      trace(LOG + "successfullyJoinedVoiceConferenceCallback [" + publishName + "] : [" + playName + "] : [" + codec + "]");
+     	public function successfullyJoinedVoiceConferenceCallback(publishName:String, playName:String, codec:String):* {
+		 	LOGGER.debug("successfullyJoinedVoiceConferenceCallback [{0}] : [{1}] : [{2}]", [publishName, playName, codec]);
 			var event:FlashCallConnectedEvent = new FlashCallConnectedEvent(publishName, playName, codec);
 			dispatcher.dispatchEvent(event);
 		}
@@ -176,13 +171,13 @@ package org.bigbluebutton.modules.phone.managers {
 		//
 		//********************************************************************************************		
 		public function doCall(dialStr:String, listenOnly:Boolean = false):void {
-			trace(LOG + "in doCall - Calling " + dialStr + (listenOnly? " *listen only*": ""));
+			LOGGER.debug("in doCall - Calling {0} {1}", [dialStr, listenOnly? "*listen only*": ""]);
 			netConnection.call("voiceconf.call", null, "default", username, dialStr, listenOnly.toString());
 		}
 				
 		public function doHangUp():void {			
 			if (isConnected()) {
-        trace(LOG + "hanging up call");
+        		LOGGER.debug("hanging up call");
 				netConnection.call("voiceconf.hangup", null, "default");
 			}
 		}
@@ -194,8 +189,8 @@ package org.bigbluebutton.modules.phone.managers {
 			var p_bw:Number; 
 			if (rest.length > 0) p_bw = rest[0]; 
 			// your application should do something here 
-			// when the bandwidth check is complete 
-			trace("bandwidth = " + p_bw + " Kbps."); 
+			// when the bandwidth check is complete
+			LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
 		}
 	}
 }

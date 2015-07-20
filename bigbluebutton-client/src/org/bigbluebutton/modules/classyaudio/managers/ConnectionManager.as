@@ -22,15 +22,11 @@ package org.bigbluebutton.modules.classyaudio.managers {
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.AsyncErrorEvent;
-	import flash.events.Event;
-	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
-	import flash.external.*;
 	import flash.net.NetConnection;
-	import flash.net.NetStream;
+	import flash.net.ObjectEncoding;
 	
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.classyaudio.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.CallDisconnectedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.ConnectionStatusEvent;

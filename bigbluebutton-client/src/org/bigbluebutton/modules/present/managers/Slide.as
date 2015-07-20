@@ -23,8 +23,6 @@ package org.bigbluebutton.modules.present.managers
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	
-	import org.bigbluebutton.common.LogUtil;
-	
 	[Bindable]
 	public class Slide
 	{

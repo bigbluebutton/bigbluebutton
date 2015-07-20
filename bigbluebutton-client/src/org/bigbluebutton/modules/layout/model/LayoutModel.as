@@ -1,10 +1,11 @@
 package org.bigbluebutton.modules.layout.model
 {
-  import mx.collections.ArrayCollection;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
 
   public class LayoutModel
   {
-    private static const LOG:String = "Layout::LayoutModel - ";
+	private static const LOGGER:ILogger = getClassLogger(LayoutModel);      
     
     private static var instance:LayoutModel = null;
     

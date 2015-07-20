@@ -18,13 +18,16 @@
  */
 package org.bigbluebutton.modules.classyaudio.managers
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.Event;
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.managers.UserManager;
+	import flash.utils.Timer;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.classyaudio.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.PushToTalkEvent;
@@ -32,6 +35,8 @@ package org.bigbluebutton.modules.classyaudio.managers
 
 	public class ClassyAudioManager
 	{
+		private static const LOGGER:ILogger = getClassLogger(ClassyAudioManager);
+
 		private var connectionManager:ConnectionManager;
 		private var streamManager:StreamManager;
 		private var onCall:Boolean = false;
@@ -67,16 +72,16 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 		
 		public function dialConference():void {
-			LogUtil.debug("Dialing...." + attributes.webvoiceconf + "...." + attributes.externUserID);
+			LOGGER.debug("Dialing....{0}....{1}", [attributes.webvoiceconf, attributes.externUserID]);
 			connectionManager.doCall(attributes.webvoiceconf);
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {
-			LogUtil.debug("Call connected...");
+			LOGGER.debug("Call connected...");
 			setupConnection();
-			LogUtil.debug("callConnected: Connection Setup");
+			LOGGER.debug("callConnected: Connection Setup");
 			streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
-			LogUtil.debug("callConnected::onCall set");
+			LOGGER.debug("callConnected::onCall set");
 			onCall = true;
 			
 			//Mute if the user is not the presenter at start
@@ -86,12 +91,12 @@ package org.bigbluebutton.modules.classyaudio.managers
 		}
 		
 		public function hangup():void {
-			LogUtil.debug("PhoneManager hangup");
+			LOGGER.debug("PhoneManager hangup");
 			if (onCall) {
-				LogUtil.debug("PM OnCall");
+				LOGGER.debug("PM OnCall");
 				streamManager.stopStreams();
 				connectionManager.doHangUp();
-				LogUtil.debug("PM hangup::doHangUp");
+				LOGGER.debug("PM hangup::doHangUp");
 				onCall = false;
 			}			
 		}

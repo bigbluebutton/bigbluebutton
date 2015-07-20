@@ -18,10 +18,8 @@
  */
 package org.bigbluebutton.modules.whiteboard.views
 {
-  import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
   import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.Pencil;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;

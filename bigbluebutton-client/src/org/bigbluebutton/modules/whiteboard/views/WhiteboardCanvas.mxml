@@ -24,23 +24,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-      import com.asfusion.mate.events.Dispatcher;      
-      import mx.managers.CursorManager;     
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.managers.CursorManager;
+      
       import org.bigbluebutton.common.IBbbCanvas;
       import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
       import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
       import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-      import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-      import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
       import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
       import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
       import org.bigbluebutton.modules.whiteboard.events.PageEvent;
       import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
       import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-      import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
       import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			
 			public var model:WhiteboardCanvasModel;	

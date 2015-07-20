@@ -32,7 +32,8 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.net.NetStream;
 	import flash.utils.Timer;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
@@ -42,7 +43,7 @@ package org.bigbluebutton.modules.videoconf.business
 	
 	public class VideoProxy
 	{	
-		public static const LOG:String = "VideoProxy - ";
+		private static const LOGGER:ILogger = getClassLogger(VideoProxy);
 		
 		public var videoOptions:VideoConfOptions;
 		
@@ -83,11 +84,11 @@ package org.bigbluebutton.modules.videoconf.business
 	    }
 	    
 		private function onAsyncError(event:AsyncErrorEvent):void{
-			trace("VIDEO WEBCAM onAsyncError");
+			LOGGER.debug("VIDEO WEBCAM onAsyncError");
 		}
 		
 		private function onIOError(event:NetStatusEvent):void{
-			trace("VIDEO WEBCAM onIOError");
+			LOGGER.debug("VIDEO WEBCAM onIOError");
 		}
 		
     private function onConnectedToVideoApp():void{
@@ -97,7 +98,7 @@ package org.bigbluebutton.modules.videoconf.business
     }
     
 		private function onNetStatus(event:NetStatusEvent):void{
-			trace("[" + event.info.code + "] for [" + _url + "]");
+			LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
 					connected = true;
@@ -114,8 +115,7 @@ package org.bigbluebutton.modules.videoconf.business
 					disconnect();
 					break;						
         		default:
-					LogUtil.debug("[" + event.info.code + "] for [" + _url + "]");
-					trace("[" + event.info.code + "] for [" + _url + "]");
+					LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
 					connected = false;
 					break;
 			}
@@ -139,7 +139,7 @@ package org.bigbluebutton.modules.videoconf.business
 //			if (Capabilities.version.search("11,0") != -1) {
 			if ((BBB.getFlashPlayerVersion() >= 11) && e.videoProfile.enableH264) {
 //			if (BBB.getFlashPlayerVersion() >= 11) {
-				LogUtil.info("Using H264 codec for video.");
+				LOGGER.info("Using H264 codec for video.");
 				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
 				var h264profile:String = H264Profile.MAIN;
 				if (e.videoProfile.h264Profile != "main") {
@@ -165,7 +165,7 @@ package org.bigbluebutton.modules.videoconf.business
 					case "5.1": h264Level = H264Level.LEVEL_5_1; break;
 				}
 				
-				LogUtil.info("Codec used: " + h264Level);
+				LOGGER.info("Codec used: {0}", [h264Level]);
 				
 				h264.setProfileLevel(h264profile, h264Level);
 				ns.videoStreamSettings = h264;
@@ -176,7 +176,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function stopBroadcasting(stream:String):void{
-      trace("Closing netstream for webcam publishing");
+			LOGGER.debug("Closing netstream for webcam publishing");
       			if (camerasPublishing[stream] != null) {
 	      			var ns:NetStream = camerasPublishing[stream];
 				ns.attachCamera(null);
@@ -197,7 +197,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 
 		public function disconnect():void {
-      		trace("VideoProxy:: disconnecting from Video application");
+      		LOGGER.debug("VideoProxy:: disconnecting from Video application");
       		stopAllBroadcasting();
 			if (nc != null) nc.close();
 			
@@ -209,7 +209,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		private function reconnectTimerHandler(event:TimerEvent):void {
-			trace(LOG + "rtmptRetryTimerHandler: " + event);
+			LOGGER.debug("rtmptRetryTimerHandler: {0}", [event]);
 			reconnecting = true;
 			connect();
 		}
@@ -223,7 +223,7 @@ package org.bigbluebutton.modules.videoconf.business
 			if (rest.length > 0) p_bw = rest[0]; 
 			// your application should do something here 
 			// when the bandwidth check is complete 
-			trace("bandwidth = " + p_bw + " Kbps."); 
+			LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
 		}
 		
 
