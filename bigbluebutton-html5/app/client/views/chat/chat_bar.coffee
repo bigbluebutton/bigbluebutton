@@ -128,7 +128,6 @@ Template.chatbar.rendered = ->
     $('#newMessageInput').height('auto')
     $('.chatBodyContainer').height($('#chat').height() - ($('#newMessageInput')[0].scrollHeight + 22))
     $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
-    $('#sendMessageButton').css('margin-top', ($('#newMessageInput').height() - 48) / 2 + 'px')
   , 0))
 
 # When "< Public" is clicked, go to public chat 
@@ -150,6 +149,18 @@ Template.privateChatTab.rendered = ->
 Template.message.rendered = ->
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   false
+
+Template.chatInput.rendered = ->
+  $('.panel-footer').resizable
+    handles: 'n'
+    minHeight: 70
+    resize: (event, ui) ->
+      if $('.panel-footer').css('top') is '0px'
+        $('.panel-footer').height(70) # prevents the element from shrinking vertically for 1-2 px
+      $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
+      $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+    start: (event, ui) ->
+      $('.panel-footer').resizable('option', 'maxHeight', Math.max($('.panel-footer').height(), $('#chat').height() / 2))
 
 Template.chatInput.events
   'click #sendMessageButton': (event) ->

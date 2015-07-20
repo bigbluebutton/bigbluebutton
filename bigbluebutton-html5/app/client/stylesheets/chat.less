@@ -176,7 +176,7 @@
   margin: 0px;
 
   @media @landscape {
-    height: 40px; /* same height as send button */
+    height: 100%; /* same height as send button */
   }
   @media @mobile-portrait {
     font-size: 4vw;
@@ -197,7 +197,7 @@
   position: relative;
   background: extract(@white, 1);
   padding: 0;
-  border-top: 1px solid #E5E5E5;
+  border-top: 1px solid extract(@lightGrey, 3);
 }
 
 #sendMessageButton {
@@ -229,6 +229,8 @@
   @media @landscape {
     height: 50px;
     padding: 0px;
+    position: absolute;
+    bottom: 10px;
     &:hover {
       background: #3A82D4;
     }
@@ -242,5 +244,18 @@
 #chatbar-contents {
   @media @landscape {
     min-width: 140px;
+  }
+}
+
+.button-group {
+  @media @landscape {
+    height: 100%;
+  }
+}
+
+#chatInput {
+  @media @landscape {
+    height: 100%;
+    padding-bottom: 10px;
   }
 }
