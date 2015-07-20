@@ -405,6 +405,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   else
     setInSession 'display_usersList', false
   setInSession 'display_menu', false
+  setInSession 'textarea_min_height', 0
 
   #keep notifications and an opened private chat tab if page was refreshed
   #reset to default if that's a new user

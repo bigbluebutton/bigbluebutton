@@ -125,9 +125,28 @@ Template.chatbar.helpers
 Template.chatbar.rendered = ->
   detectUnreadChat()
   $('#newMessageInput').on('input keydown paste cut', () -> setTimeout(() ->
-    $('#newMessageInput').height('auto')
-    $('.chatBodyContainer').height($('#chat').height() - ($('#newMessageInput')[0].scrollHeight + 22))
-    $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
+    if $('#newMessageInput')[0].scrollHeight > $('#newMessageInput').height() and $('#newMessageInput')[0].scrollHeight + 24 >= getInSession('textarea_min_height')
+      $('#newMessageInput').css('overflow', 'hidden')
+      $('.panel-footer').css('top', - ($('#newMessageInput')[0].scrollHeight - 70 + 24) + 'px')
+      $('.panel-footer').css('height', $('#newMessageInput')[0].scrollHeight + 24 + 'px')
+      $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
+      $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+    else
+      numLines = ($('#newMessageInput').val().match(/\n/g)||[]).length + 1
+      if numLines > 2
+        if 66 + (numLines - 3) * 21 < $('#newMessageInput').height()
+          if 67 + (numLines - 3) * 21 >= getInSession('textarea_min_height')
+            $('.panel-footer').css('top', - ((67 + (numLines - 3) * 21) - 50) + 'px')
+            $('.panel-footer').css('height', (67 + (numLines - 3) * 21) + 21 + 'px')
+            $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
+            $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+      else if numLines is 2
+        if 50 < $('#newMessageInput').height()
+          if 71 >= getInSession('textarea_min_height')
+            $('.panel-footer').css('top', '0px')
+            $('.panel-footer').css('height', '71px')
+            $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
+            $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   , 0))
 
 # When "< Public" is clicked, go to public chat 
@@ -157,10 +176,15 @@ Template.chatInput.rendered = ->
     resize: (event, ui) ->
       if $('.panel-footer').css('top') is '0px'
         $('.panel-footer').height(70) # prevents the element from shrinking vertically for 1-2 px
+      else
+        $('.panel-footer').css('top', parseInt($('.panel-footer').css('top')) + 1 + 'px')
       $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
       $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
     start: (event, ui) ->
+      $('#newMessageInput').css('overflow', '')
       $('.panel-footer').resizable('option', 'maxHeight', Math.max($('.panel-footer').height(), $('#chat').height() / 2))
+    stop: (event, ui) ->
+      setInSession 'textarea_min_height', $('.panel-footer').height() + 1
 
 Template.chatInput.events
   'click #sendMessageButton': (event) ->
