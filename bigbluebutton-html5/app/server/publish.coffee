@@ -56,6 +56,14 @@ Meteor.publish 'chat', (meetingId, userid, authToken) ->
     @error new Meteor.Error(402, "The user was not authorized to subscribe for 'chats'")
     return
 
+Meteor.publish 'bbb_poll', (meetingId, userid, authToken) ->
+  if isAllowedTo('subscribePoll', meetingId, userid, authToken)
+    Meteor.log.info "publishing Poll for #{meetingId} #{userid} #{authToken}"
+    return Meteor.Polls.find()
+  else
+    @error new Meteor.Error(402, "The user was not authorized to subscribe for 'bbb_poll'")
+    return
+
 Meteor.publish 'shapes', (meetingId) ->
   Meteor.Shapes.find({meetingId: meetingId})
 

@@ -335,6 +335,9 @@ class Meteor.RedisPubSub
             removeMeetingFromCollection meetingId
         return
 
+      if message.header.name is "poll_started_message"
+        addPollToCollection message.payload
+
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
