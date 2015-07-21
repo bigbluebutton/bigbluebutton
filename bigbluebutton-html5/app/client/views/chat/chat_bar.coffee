@@ -124,9 +124,6 @@ Template.chatbar.helpers
 # When chatbar gets rendered, launch the auto-check for unread chat
 Template.chatbar.rendered = ->
   detectUnreadChat()
-  $('#newMessageInput').on('keydown paste cut', () -> setTimeout(() ->
-    adjustChatInputHeight()
-  , 0))
 
 # When "< Public" is clicked, go to public chat
 Template.chatbar.events
@@ -185,6 +182,11 @@ Template.chatInput.events
       sendMessage()
       $('#newMessageInput').val("")
       return false
+
+Template.chatInputControls.rendered = ->
+  $('#newMessageInput').on('keydown paste cut', () -> setTimeout(() ->
+    adjustChatInputHeight()
+  , 0))
 
 Template.message.helpers
   sanitizeAndFormat: (str) ->
