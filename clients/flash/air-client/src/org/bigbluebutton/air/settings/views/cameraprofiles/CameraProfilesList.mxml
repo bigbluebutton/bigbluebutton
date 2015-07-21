@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:List xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		itemRenderer="org.bigbluebutton.air.settings.views.cameraprofiles.CameraProfileItemRenderer"
+		styleName="cameraProfilesListStyle">
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="contentJustify"
+						  gap="0"
+						  verticalAlign="middle"
+						  variableRowHeight="false" />
+	</s:layout>
+	<fx:Declarations>
+	</fx:Declarations>
+</s:List>
