@@ -124,38 +124,17 @@ Template.chatbar.helpers
 # When chatbar gets rendered, launch the auto-check for unread chat
 Template.chatbar.rendered = ->
   detectUnreadChat()
-  $('#newMessageInput').on('input keydown paste cut', () -> setTimeout(() ->
-    if $('#newMessageInput')[0].scrollHeight > $('#newMessageInput').height() and $('#newMessageInput')[0].scrollHeight + 24 >= getInSession('textarea_min_height')
-      $('#newMessageInput').css('overflow', 'hidden')
-      $('.panel-footer').css('top', - ($('#newMessageInput')[0].scrollHeight - 70 + 24) + 'px')
-      $('.panel-footer').css('height', $('#newMessageInput')[0].scrollHeight + 24 + 'px')
-      $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
-      $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
-    else
-      numLines = ($('#newMessageInput').val().match(/\n/g)||[]).length + 1
-      if numLines > 2
-        if 66 + (numLines - 3) * 21 < $('#newMessageInput').height()
-          if 67 + (numLines - 3) * 21 >= getInSession('textarea_min_height')
-            $('.panel-footer').css('top', - ((67 + (numLines - 3) * 21) - 50) + 'px')
-            $('.panel-footer').css('height', (67 + (numLines - 3) * 21) + 21 + 'px')
-            $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
-            $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
-      else if numLines is 2
-        if 50 < $('#newMessageInput').height()
-          if 71 >= getInSession('textarea_min_height')
-            $('.panel-footer').css('top', '0px')
-            $('.panel-footer').css('height', '71px')
-            $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
-            $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+  $('#newMessageInput').on('keydown paste cut', () -> setTimeout(() ->
+    adjustChatInputHeight()
   , 0))
 
-# When "< Public" is clicked, go to public chat 
+# When "< Public" is clicked, go to public chat
 Template.chatbar.events
   'click .toPublic': (event) ->
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'chats', getInSession('chats').map((chat) ->
       if chat.userId is "PUBLIC_CHAT"
-        chat.gotMail = false 
+        chat.gotMail = false
         chat.number = 0
       chat
     )
@@ -184,12 +163,13 @@ Template.chatInput.rendered = ->
       $('#newMessageInput').css('overflow', '')
       $('.panel-footer').resizable('option', 'maxHeight', Math.max($('.panel-footer').height(), $('#chat').height() / 2))
     stop: (event, ui) ->
-      setInSession 'textarea_min_height', $('.panel-footer').height() + 1
+      setInSession 'chatInputMinHeight', $('.panel-footer').height() + 1
 
 Template.chatInput.events
   'click #sendMessageButton': (event) ->
     $('#sendMessageButton').blur()
     sendMessage()
+    adjustChatInputHeight()
 
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     key = (if event.charCode then event.charCode else (if event.keyCode then event.keyCode else 0))
