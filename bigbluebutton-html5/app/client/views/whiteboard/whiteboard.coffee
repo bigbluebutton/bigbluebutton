@@ -19,6 +19,14 @@ Template.whiteboard.helpers
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
       return ''
+  
+  isPollStarted: ->
+    poll = getInSession('poll')
+    if poll is true
+      return true
+    else
+      return
+
 
 Template.whiteboard.events
   'click .previousSlide':(event) ->
@@ -46,3 +54,4 @@ Template.whiteboard.events
 
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+
