@@ -10,6 +10,8 @@ Template.usersList.rendered = ->
     handles: 'e'
     maxWidth: 600
     minWidth: 200
+    resize: () ->
+      adjustChatInputHeight()
   Tracker.autorun (comp) ->
     setInSession 'userListRenderedTime', TimeSync.serverTime()
     if getInSession('userListRenderedTime') isnt undefined
