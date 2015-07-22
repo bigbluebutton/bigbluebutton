@@ -64,7 +64,7 @@ package org.bigbluebutton.core.services
           // dispatch event
         }
       } else {
-        trace(LOG + "*** failed to get voice user name=[" + vu.name + "] **** \n");
+        trace(LOG + "*** failed to get user name=[" + vu.name + "] **** \n");
       }       
     }
     

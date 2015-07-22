@@ -28,8 +28,10 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
 	import org.bigbluebutton.main.api.JSLog;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -60,6 +62,7 @@ package org.bigbluebutton.main.model.users
     private var _messageListeners:Array = new Array();
     
     private var authenticated: Boolean = false;
+    private var reconnecting:Boolean = false;
     
 		public function NetConnectionDelegate():void
 		{
@@ -158,6 +161,10 @@ package org.bigbluebutton.main.model.users
         trace(LOG + "*** handleValidateAuthTokenTimedOut. valid=[ " + tokenValid + "] **** \n");
         dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
       }
+      if (reconnecting) {
+        onReconnect();
+        reconnecting = false;
+      }
     }
     
     private function handleValidateAuthTokenReply(msg: Object):void {
@@ -173,6 +180,28 @@ package org.bigbluebutton.main.model.users
         trace(LOG + "*** handleValidateAuthTokenReply. valid=[ " + tokenValid + "] **** \n");
         dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
       }
+      if (reconnecting) {
+        onReconnect();
+        reconnecting = false;
+      }
+    }
+
+    private function onReconnect():void {
+      if (authenticated) {
+        onReconnectSuccess();
+      } else {
+        onReconnectFailed();
+      }
+    }
+
+    private function onReconnectSuccess():void {
+      var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
+      attemptSucceeded.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+      dispatcher.dispatchEvent(attemptSucceeded);
+    }
+
+    private function onReconnectFailed():void {
+      sendUserLoggedOutEvent();
     }
     
     private function sendConnectionSuccessEvent(userid:String):void{      
@@ -263,8 +292,6 @@ package org.bigbluebutton.main.model.users
       _bwMon.serverApplication = "video";
       _bwMon.start();
     }
-        
-    private var autoReconnectTimer:Timer = new Timer(1000, 1);
     
 		public function handleResult(event:Object):void {
 			var info : Object = event.info;
@@ -328,11 +355,6 @@ package org.bigbluebutton.main.model.users
 			}
 		}
 		
-    private function autoReconnectTimerHandler(event:TimerEvent):void {
-      trace(LOG + "autoReconnectTimerHandler: " + event);
-      connect(_conferenceParameters, tried_tunneling);
-    }
-        
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
       trace(LOG + "rtmptRetryTimerHandler: " + event);
       connect(_conferenceParameters, true);
@@ -362,28 +384,36 @@ package org.bigbluebutton.main.model.users
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
         JSLog.debug("User logged out from BBB App.", logData);
-				sendUserLoggedOutEvent();
-			} else {
+        sendUserLoggedOutEvent();
+      } else if (reason == ConnectionFailedEvent.CONNECTION_CLOSED) {
+        // do not try to reconnect if the connection failed is different than CONNECTION_CLOSED
         logData.reason = reason;
         logData.user = UsersUtil.getUserData();
         JSLog.warn("User disconnected from BBB App.", logData);
+
+        if (reconnecting) {
+          var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+          attemptFailedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+          dispatcher.dispatchEvent(attemptFailedEvent);
+        } else {
+          reconnecting = true;
+          authenticated = false;
+
+          var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+          disconnectedEvent.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
+          disconnectedEvent.payload.callback = connect;
+          disconnectedEvent.payload.callbackParameters = new Array(_conferenceParameters, tried_tunneling);
+          dispatcher.dispatchEvent(disconnectedEvent);
+        }
+      } else {
         var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
-        dispatcher.dispatchEvent(e);        
+        dispatcher.dispatchEvent(e);
       }
 		}
 		
 		private function sendUserLoggedOutEvent():void{
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
 			dispatcher.dispatchEvent(e);
-		}
-		
-		private function attemptReconnect(backoff:Number):void{
-			var retryTimer:Timer = new Timer(backoff, 1);
-			retryTimer.addEventListener(TimerEvent.TIMER, function():void{
-				connect(_conferenceParameters, tried_tunneling);
-			});
-			retryTimer.start();
-			if (this.backoff < 16000) this.backoff = backoff *2;
 		}
 		
 		public function onBWCheck(... rest):Number { 
