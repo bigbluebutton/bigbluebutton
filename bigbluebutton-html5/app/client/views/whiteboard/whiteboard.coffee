@@ -46,3 +46,13 @@ Template.whiteboard.events
 
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+
+Template.whiteboard.rendered = ->
+  $('#whiteboard').resizable
+    handles: 'e'
+    minWidth: 150
+    start: () ->
+      $('#whiteboard').resizable('option', 'maxWidth', $('#panels').width() - 200) # gives the chat enough space (200px)
+    stop: () ->
+      $('#whiteboard').css('width', 100 * $('#whiteboard').width() / $('#panels').width() + '%') # transforms width to %
+      $('#whiteboard').resizable('option', 'maxWidth', null)
