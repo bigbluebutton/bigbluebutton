@@ -83,6 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -163,6 +164,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
 			public function initOptions(e:Event):void {
+				LogUtil.initLogging();
 				UserManager.getInstance().getConference().configLockSettings();
 				layoutOptions = new LayoutOptions();
 				layoutOptions.parseOptions();

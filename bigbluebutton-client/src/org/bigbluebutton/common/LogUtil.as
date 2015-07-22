@@ -1,70 +1,86 @@
 /**
-* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
-*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 3.0 of the License, or (at your option) any later
-* version.
-* 
-* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License along
-* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ *
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ *
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.bigbluebutton.common
 {
-	import mx.logging.ILogger;
-	import mx.logging.Log;
-	
+	import org.as3commons.logging.api.LOGGER_FACTORY;
+	import org.as3commons.logging.setup.SimpleTargetSetup;
+	import org.as3commons.logging.setup.target.IFormattingLogTarget;
+	import org.as3commons.logging.setup.target.TraceTarget;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.util.logging.JSNLogTarget;
+	import org.bigbluebutton.util.logging.LogWindowTarget;
+
 	public class LogUtil
 	{
-		public static const LOGGER:String = "BBBLOGGER";
-		
-		public static function debug(message:String):void
-		{
-			logger.debug(message);
-		}
+		public static const TRACE:String="trace";
+		public static const LOG_WINDOW:String="logwindow";
+		public static const JSNLOG:String="jsnlog";
 
-		public static function info(message:String):void
-		{
-			logger.info(message);
-		}
-		
-		public static function error(message:String):void
-		{
-			logger.error(message);
-		}
+		private static const DEFAULT_FORMAT:String="{dateUTC} {time} :: {name} :: [{logLevel}] {message}";
 
-		public static function fatal(message:String):void
+		private static var loggingEnabled:Boolean;
+		private static var loggingTargetName:String="trace";
+
+		/**
+		 * Initialises logging from the application configuration.
+		 */
+		public static function initLogging():void
 		{
-			logger.fatal(message);
-		}
-		
-		public static function warn(message:String):void
-		{
-			logger.warn(message);
-		}
-		
-		public static function traceObject(obj : *, level : int = 0):void
-		{
-			var tabs : String = "";
-			for ( var i : int = 0 ; i < level ; ++i ) {
-				tabs += "        "
+			var lxml:XML=BBB.initConfigManager().config.logging;
+			if (lxml.@enabled != undefined)
+			{
+				loggingEnabled=(lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
 			}
-			
-			for ( var prop : String in obj ){
-				debug( tabs + "[" + prop + "] -> " + obj[ prop ] );
-				traceObject( obj[ prop ], level + 1 );
+			if (lxml.@target != undefined)
+			{
+				loggingTargetName=lxml.@target.toString().toLowerCase();
+			}
+			if (loggingEnabled)
+			{
+				var logTarget:IFormattingLogTarget;
+				switch (loggingTargetName)
+				{
+					case TRACE:
+						logTarget=new TraceTarget();
+						break;
+					case LOG_WINDOW:
+						logTarget=new LogWindowTarget();
+						break;
+					case JSNLOG:
+						logTarget=new JSNLogTarget();
+						break;
+					default:
+						// no logging target set						
+						break;
+				}
+
+				logTarget.format=DEFAULT_FORMAT;
+				LOGGER_FACTORY.setup=new SimpleTargetSetup(logTarget);
 			}
 		}
 
-		private static function get logger():ILogger {
-			return Log.getLogger(LOGGER);
+		/**
+		 * Disables logging across the applicatio.
+		 */
+		public static function disableLogging():void
+		{
+			LOGGER_FACTORY.setup=null;
 		}
 	}
 }

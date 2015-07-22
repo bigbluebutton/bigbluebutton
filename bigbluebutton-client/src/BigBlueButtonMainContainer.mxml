@@ -28,7 +28,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   width="100%" height="100%"
   horizontalScrollPolicy="off"
   verticalScrollPolicy="off"
-  preinitialize="preinitializeHandler(event)"
   creationComplete="init()"
   addedToStage="onAddedToStage()">
   
@@ -38,17 +37,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		import flash.events.Event;
 		
-		import mx.events.FlexEvent;
 		import mx.managers.HistoryManager;
 		import mx.managers.IDragManager;
 		import mx.managers.ToolTipManager;
 		import mx.utils.URLUtil;
 		
 		import org.as3commons.logging.api.ILogger;
-		import org.as3commons.logging.api.LOGGER_FACTORY;
 		import org.as3commons.logging.api.getClassLogger;
-		import org.as3commons.logging.setup.SimpleTargetSetup;
-		import org.as3commons.logging.setup.target.TraceTarget;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.core.EventBroadcaster;
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
@@ -73,17 +68,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
-	  protected function preinitializeHandler(event:FlexEvent):void {
-		  var traceTarget : TraceTarget = new TraceTarget();
-		  traceTarget.format = "{dateUTC} {time} :: {name} :: [{logLevel}] {message}";
-		  LOGGER_FACTORY.setup = new SimpleTargetSetup(traceTarget);
-	  }
-
 	  protected function init():void {
         setupTooltips();
         setupAPI();
-        EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-        BBB.initConfigManager();
+		EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
+		BBB.initConfigManager();
         BBB.initVideoProfileManager();
         globalModifier = ExternalInterface.call("determineGlobalModifier");
       }
