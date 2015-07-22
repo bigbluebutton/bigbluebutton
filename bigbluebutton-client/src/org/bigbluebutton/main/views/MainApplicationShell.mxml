@@ -109,7 +109,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.util.logging.Logger;
 	
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
@@ -117,7 +116,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
-			private var logs:Logger = new Logger();
 			private var logWindow:LogWindow;
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
@@ -155,6 +153,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var confirmingLogout:Boolean = false;
 			private var chromeBrowser:ChromeWebcamPermissionImage = null;
+			
+			public function getLogWindow() : LogWindow
+			{
+				if (logWindow == null){
+					logWindow = new LogWindow();
+				}
+				return logWindow;
+			}
       
 			public function initOptions(e:Event):void {
 				UserManager.getInstance().getConference().configLockSettings();
@@ -231,11 +237,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}			
 			
 			private function openLogWindow():void {
-				if (logWindow == null){
-					logWindow = new LogWindow();
-					logWindow.logs = logs;
-				}
-				mdiCanvas.windowManager.add(logWindow);
+				mdiCanvas.windowManager.add(getLogWindow());
 				mdiCanvas.windowManager.absPos(logWindow, 50, 50);
 				logWindow.width = mdiCanvas.width - 100;
 				logWindow.height = mdiCanvas.height - 100;
