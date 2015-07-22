@@ -351,7 +351,9 @@
             trace(LOG + "ignoring join voice conf as usingFlash=[" + usingFlash + "] or eventMic=[" + !event.mic + "]");
           }
           break;
-		
+        case ON_LISTEN_ONLY_STREAM:
+          hangup();
+          break;
         default:
           trace("Ignoring join voice as state=[" + state + "]");
       }

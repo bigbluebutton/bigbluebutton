@@ -71,22 +71,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var phoneOptions:PhoneOptions = new PhoneOptions();
 			
 			private function startPhone():void {
-				var conference:Conference = UserManager.getInstance().getConference();
-				var thisUser:BBBUser = conference.getMyUser();
-				
 				trace(LOG + "startPhone 1 enabled=[" + enabled + "] selected=[" + selected + "]");
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
 				trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
 				if (this.selected) {
-					if(thisUser.disableMyMic || defaultListenOnlyMode){
+					if(disableMyMic || defaultListenOnlyMode){
 						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-						command.mic = false;
+						command.mic = !disableMyMic;
 						dispatcher.dispatchEvent(command);
 					} else {
-						//trace(LOG + "Sending Join Conference command");
-						//dispatcher.dispatchEvent(new JoinVoiceConferenceCommand());
 						trace(LOG + "Sending Show Audio Selection command");
 						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
 					}
@@ -94,6 +89,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					trace(LOG + "Sending Leave Conference command");
 					dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 				}				
+			}
+
+			private function get disableMyMic():Boolean {
+				var conference:Conference = UserManager.getInstance().getConference();
+				var me:BBBUser = conference.getMyUser();
+				
+				return me.disableMyMic && !(me.presenter || me.moderator);
 			}
 
 			private function get defaultListenOnlyMode():Boolean {
@@ -121,16 +123,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				var conference:Conference = UserManager.getInstance().getConference();
-				var thisUser:BBBUser = conference.getMyUser();
-				
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
-					if (phoneOptions.skipCheck || thisUser.disableMyMic || defaultListenOnlyMode) {
+					if (phoneOptions.skipCheck || disableMyMic || defaultListenOnlyMode) {
 						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
 						if (
 							(phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
-							|| thisUser.disableMyMic || defaultListenOnlyMode
+							|| disableMyMic
+							|| defaultListenOnlyMode
 						) {
 							command.mic = false;
 						} else {
