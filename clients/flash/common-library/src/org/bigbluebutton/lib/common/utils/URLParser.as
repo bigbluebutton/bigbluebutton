@@ -1,4 +1,5 @@
 package org.bigbluebutton.lib.common.utils {
+	import mx.utils.ObjectUtil;
 	
 	public class URLParser {
 		protected const reg:RegExp = /(?P<protocol>[a-zA-Z]+) : \/\/  (?P<host>[^:\/]*) (:(?P<port>\d+))?  ((?P<path>[^?]*))? ((?P<parameters>.*))? /x;

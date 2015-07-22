@@ -10,6 +10,8 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.ChatMessageService;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
+	import org.bigbluebutton.lib.common.models.ISaveData;
+	import org.bigbluebutton.lib.common.models.SaveData;
 	import org.bigbluebutton.lib.common.services.BaseConnection;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
@@ -65,6 +67,7 @@ package org.bigbluebutton.air {
 			injector.map(IPresentationService).toSingleton(PresentationService);
 			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
+			injector.map(ISaveData).toSingleton(SaveData);
 			// Type mapping
 			injector.map(IBaseConnection).toType(BaseConnection);
 			injector.map(IVoiceConnection).toType(VoiceConnection);

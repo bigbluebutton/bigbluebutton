@@ -1,5 +1,7 @@
 package org.bigbluebutton.web {
 	
+	import org.bigbluebutton.lib.common.models.ISaveData;
+	import org.bigbluebutton.lib.common.models.SaveData;
 	import org.bigbluebutton.lib.common.services.BaseConnection;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
@@ -49,6 +51,7 @@ package org.bigbluebutton.web {
 			injector.map(IUsersService).toSingleton(UsersService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
+			injector.map(ISaveData).toSingleton(SaveData);
 			// Type mapping
 			injector.map(IBaseConnection).toType(BaseConnection);
 			injector.map(IVoiceConnection).toType(VoiceConnection);

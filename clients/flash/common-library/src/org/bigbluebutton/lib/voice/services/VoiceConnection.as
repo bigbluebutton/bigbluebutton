@@ -79,7 +79,7 @@ package org.bigbluebutton.lib.voice.services {
 			// we don't use scope in the voice communication (many hours lost on it)
 			_conferenceParameters = confParams;
 			_username = encodeURIComponent(confParams.externUserID + "-bbbID-" + confParams.username);
-			baseConnection.connect(_applicationURI, confParams.externUserID, _username);
+			baseConnection.connect(_applicationURI, confParams.username, _username, confParams.externMeetingID);
 		}
 		
 		public function disconnect(onUserCommand:Boolean):void {

@@ -23,7 +23,7 @@ package org.bigbluebutton.web.main.views {
 		override public function initialize():void {
 			uiSession.loadingChangeSignal.add(onLoadingChange);
 			onLoadingChange(uiSession.loading, uiSession.loadingMessage);
-			var tempURL:String = "http://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=Web&meetingID=Demo+Meeting&password=ap&redirect=true&checksum=d8693816f636d92d06a4384cb67f8947d3132e4d";
+			var tempURL:String = "http://143.54.10.32/bigbluebutton/api/join?fullName=User+5421848&meetingID=random-6127182&password=mp&redirect=true&checksum=5abb021e739606db8e16e552f35c33fc65da2cf5";
 			// Call join service
 			var joinSubservice:JoinService = new JoinService();
 			joinSubservice.successSignal.add(joinSuccess);

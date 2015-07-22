@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.video.views {
 	
+	import flash.media.Video;
 	import flash.net.NetConnection;
 	
 	import mx.core.FlexGlobals;
@@ -7,6 +8,8 @@ package org.bigbluebutton.air.video.views {
 	import spark.components.Group;
 	import spark.components.Label;
 	import spark.components.List;
+	import spark.components.Scroller;
+	import spark.components.VideoDisplay;
 	
 	public class VideoChatView extends VideoChatViewBase implements IVideoChatView {
 		private var webcam:VideoChatVideoView;
@@ -21,6 +24,7 @@ package org.bigbluebutton.air.video.views {
 			webcam = new VideoChatVideoView();
 			webcam.percentWidth = 100;
 			webcam.percentHeight = 100;
+			videoStream.addChild(webcam.videoViewVideo);
 			this.videoGroup.addElement(webcam);
 			var topActionBarHeight:Number = FlexGlobals.topLevelApplication.topActionBar.height;
 			var bottomMenuHeight:Number = FlexGlobals.topLevelApplication.bottomMenu.height;
@@ -52,6 +56,18 @@ package org.bigbluebutton.air.video.views {
 		
 		public function get streamlist():List {
 			return videoStreamsList;
+		}
+		
+		public function get streamListScroller():Scroller {
+			return streamListScroller0;
+		}
+		
+		public function get videoStream():VideoDisplay {
+			return videostream;
+		}
+		
+		public function get video():Video {
+			return webcam.videoViewVideo;
 		}
 		
 		public function getDisplayedUserID():String {

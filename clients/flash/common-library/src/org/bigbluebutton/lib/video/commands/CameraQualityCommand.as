@@ -1,10 +1,13 @@
 package org.bigbluebutton.lib.video.commands {
 	
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.video.services.VideoConnection;
-	import robotlegs.bender.bundles.mvcs.Command;
-	import flash.utils.Timer;
 	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
+	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.video.models.VideoProfile;
+	import org.bigbluebutton.lib.video.services.VideoConnection;
+	
+	import robotlegs.bender.bundles.mvcs.Command;
 	
 	public class CameraQualityCommand extends Command {
 		
@@ -12,7 +15,7 @@ package org.bigbluebutton.lib.video.commands {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var cameraQualitySelected:int;
+		public var cameraQualitySelected:VideoProfile;
 		
 		public function CameraQualityCommand() {
 			super();
