@@ -54,7 +54,10 @@ Template.whiteboard.rendered = ->
     resize: () ->
       adjustChatInputHeight()
     start: () ->
-      $('#whiteboard').resizable('option', 'maxWidth', $('#panels').width() - 200) # gives the chat enough space (200px)
+      if $('#chat').width() / $('#panels').width() > 0.2 # chat shrinking can't make it smaller than one fifth of the whiteboard-chat area
+        $('#whiteboard').resizable('option', 'maxWidth', $('#panels').width() - 200) # gives the chat enough space (200px)
+      else
+        $('#whiteboard').resizable('option', 'maxWidth', $('#whiteboard').width())
     stop: () ->
       $('#whiteboard').css('width', 100 * $('#whiteboard').width() / $('#panels').width() + '%') # transforms width to %
       $('#whiteboard').resizable('option', 'maxWidth', null)
