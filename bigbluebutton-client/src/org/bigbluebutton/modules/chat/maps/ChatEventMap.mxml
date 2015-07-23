@@ -28,6 +28,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import mx.events.FlexEvent;     
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ModuleStartedEvent;
       import org.bigbluebutton.modules.chat.events.ChatEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
@@ -79,6 +80,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{TranscriptEvent.TRANSCRIPT_EVENT}" >
     <MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage"/>
   </EventHandlers>      
+
+  <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
+    <EventAnnouncer generator="{TranscriptEvent}" type="{TranscriptEvent.LOAD_TRANSCRIPT}"/>
+  </EventHandlers>
   
   <Injectors target="{ChatMessageService}">
     <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>

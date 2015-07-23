@@ -115,7 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 
   <EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" arguments="{event}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp"/>
   </EventHandlers>
  
   <EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
@@ -129,7 +129,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.CAM_SETTINGS_CLOSED}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
   </EventHandlers>
-  
+
+  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="closeAllWindows"/>
+  </EventHandlers>
   <!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
 </EventMap>

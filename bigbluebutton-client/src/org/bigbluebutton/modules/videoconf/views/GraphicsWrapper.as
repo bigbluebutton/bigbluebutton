@@ -233,17 +233,6 @@ package org.bigbluebutton.modules.videoconf.views
             }
         }
 
-/*
-        override public function validateDisplayList():void {
-            super.validateDisplayList();
-
-            if (priorityMode) {
-                updateDisplayListHelperByPriority(this.width, this.height);
-            } else {
-                updateDisplayListHelper(this.width, this.height);
-            }
-        }
-*/
         public function addAvatarFor(userId:String):void {
             if (! UsersUtil.hasUser(userId)) return;
 

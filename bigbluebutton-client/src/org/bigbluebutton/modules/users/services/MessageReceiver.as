@@ -186,6 +186,14 @@ package org.bigbluebutton.modules.users.services
       var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
       e.userid = userid;
       dispatcher.dispatchEvent(e);      
+
+      // If the user was the presenter he's reconnecting and must become viewer
+      if (UserManager.getInstance().getConference().amIPresenter) {
+        sendSwitchedPresenterEvent(false, UsersUtil.getPresenterUserID());
+        UserManager.getInstance().getConference().amIPresenter = false;
+        var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+        dispatcher.dispatchEvent(viewerEvent);
+      }
     }
     
     private function handleMeetingMuted(msg:Object):void {
@@ -353,6 +361,7 @@ package org.bigbluebutton.modules.users.services
       
       if (UsersUtil.hasUser(internUserID)) {
         var bu:BBBUser = UsersUtil.getUser(internUserID);
+        bu.talking = voiceUser.talking;
         bu.voiceMuted = voiceUser.muted;
         bu.voiceJoined = true;
         
@@ -416,6 +425,9 @@ package org.bigbluebutton.modules.users.services
       trace(LOG + "*** handleGetUsersReply " + msg.msg + " **** \n");      
       var map:Object = JSON.parse(msg.msg);
       var users:Object = map.users as Array;
+
+      // since might be a reconnection, clean up users list
+      UserManager.getInstance().getConference().removeAllParticipants();
       
       if (map.count > 0) {
         trace(LOG + "number of users = [" + users.length + "]");
@@ -560,6 +572,10 @@ package org.bigbluebutton.modules.users.services
         for each(var stream:String in streams) {
           UserManager.getInstance().getConference().sharedWebcam(user.userID, stream);
         }
+      }
+
+      if (joinedUser.voiceUser.joined) {
+        userJoinedVoice(joinedUser);
       }
 
       UserManager.getInstance().getConference().presenterStatusChanged(user.userID, joinedUser.presenter);

@@ -127,4 +127,17 @@ class UsersModel {
   def getViewers(): Array[UserVO] = {
     uservos.values filter (u => u.role == VIEWER) toArray
   }
+
+  def getRegisteredUserWithUserID(userID: String): Option[RegisteredUser] = {
+    regUsers.values find (ru => userID contains ru.id)
+  }
+
+  def removeRegUser(userID: String) {
+    getRegisteredUserWithUserID(userID) match {
+      case Some(ru) => {
+        regUsers -= ru.authToken
+      }
+      case None =>
+    }
+  }
 }

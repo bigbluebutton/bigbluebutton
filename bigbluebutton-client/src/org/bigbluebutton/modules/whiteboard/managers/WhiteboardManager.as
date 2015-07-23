@@ -141,5 +141,10 @@ package org.bigbluebutton.modules.whiteboard.managers
     public function handlePageChangedEvent(e:PageLoadedEvent):void {
       displayModel.changePage(e.pageId);
     }
+
+    public function removeAnnotationsHistory():void {
+      // it will dispatch the cleanAnnotations in the displayModel later
+      whiteboardModel.clear();
+    }
 	}
 }
