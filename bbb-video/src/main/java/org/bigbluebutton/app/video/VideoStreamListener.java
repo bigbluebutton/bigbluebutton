@@ -25,10 +25,19 @@ import java.util.concurrent.TimeUnit;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
+import org.red5.server.api.scheduling.IScheduledJob;
+import org.red5.server.api.scheduling.ISchedulingService;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.IStreamPacket;
 import org.red5.server.net.rtmp.event.VideoData;
+import org.red5.server.scheduling.QuartzSchedulingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.red5.logging.Red5LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * Class to listen for the first video packet of the webcam.
@@ -46,13 +55,53 @@ import org.red5.server.net.rtmp.event.VideoData;
  *
  */
 public class VideoStreamListener implements IStreamListener {
+	private static final Logger log = Red5LoggerFactory.getLogger(VideoStreamListener.class, "video");
+	
 	private EventRecordingService recordingService;
 	private volatile boolean firstPacketReceived = false;
 	
-  private Long genTimestamp() {
-  	return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
-  }
-  
+	// Maximum time between video packets
+    private int videoTimeout = 10000;
+    private long firstPacketTime = 0L;
+    private long packetCount = 0L;
+    
+    // Last time video was received, not video timestamp
+    private long lastVideoTime;
+ 
+    private String userId;
+    
+    // Stream being observed
+    private IBroadcastStream stream;
+ 
+    // if this stream is recorded or not
+    private boolean record;
+    
+    // Scheduler
+    private QuartzSchedulingService scheduler;
+ 
+    // Event queue worker job name
+    private String timeoutJobName;
+ 
+    private volatile boolean publishing = false;
+    
+    private IScope scope;
+    
+    public VideoStreamListener(IScope scope, IBroadcastStream stream, Boolean record, String userId, int packetTimeout) {
+    	this.scope = scope;
+        this.stream = stream;
+        this.record = record;
+        this.videoTimeout = packetTimeout;
+        this.userId = userId;
+        
+        // get the scheduler
+        scheduler = (QuartzSchedulingService) scope.getParent().getContext().getBean(QuartzSchedulingService.BEAN_NAME);
+
+     }
+	
+	private Long genTimestamp() {
+		return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+	}
+	  
 	@Override
 	public void packetReceived(IBroadcastStream stream, IStreamPacket packet) {
 	      IoBuffer buf = packet.getData();
@@ -64,17 +113,28 @@ public class VideoStreamListener implements IStreamListener {
 	      }
 	      	      
 	      if (packet instanceof VideoData) {
+	          // keep track of last time video was received
+	          lastVideoTime = System.currentTimeMillis();
+	          packetCount++;
+	          
 	    	  if (! firstPacketReceived) {
 	    		  firstPacketReceived = true;
-	    		  IConnection conn = Red5.getConnectionLocal(); 
-	    		  Map<String, String> event = new HashMap<String, String>();
-	    		  event.put("module", "WEBCAM");
-	    		  event.put("timestamp", genTimestamp().toString());
-	    		  event.put("meetingId", conn.getScope().getName());
-	    		  event.put("stream", stream.getPublishedName());
-	    		  event.put("eventName", "StartWebcamShareEvent");
-	    			
-	    		  recordingService.record(conn.getScope().getName(), event);
+	    		  publishing = true;
+	    		  firstPacketTime = lastVideoTime;
+	    		  
+		          // start the worker to monitor if we are still receiving video packets
+		          timeoutJobName = scheduler.addScheduledJob(videoTimeout, new TimeoutJob());
+		          
+		          if (record) { 
+		    		  Map<String, String> event = new HashMap<String, String>();
+		    		  event.put("module", "WEBCAM");
+		    		  event.put("timestamp", genTimestamp().toString());
+		    		  event.put("meetingId", scope.getName());
+		    		  event.put("stream", stream.getPublishedName());
+		    		  event.put("eventName", "StartWebcamShareEvent");
+		    			
+		    		  recordingService.record(scope.getName(), event);
+		          }		          
 	    	  }
 	      } 
 	}
@@ -82,5 +142,45 @@ public class VideoStreamListener implements IStreamListener {
 	public void setEventRecordingService(EventRecordingService s) {
 		recordingService = s;
 	}
+	
+	public void streamStopped() {
+		this.publishing = false;
+	}
+	
+    private class TimeoutJob implements IScheduledJob {
+    	private boolean streamStopped = false;
+    	
+        public void execute(ISchedulingService service) {
+        	long now = System.currentTimeMillis();
+            if ((now - lastVideoTime) > videoTimeout) {
+            	long numSeconds = (now - lastVideoTime)/1000;
+            	
+        		Map<String, Object> logData = new HashMap<String, Object>();
+        		logData.put("meetingId", scope.getName());
+        		logData.put("userId", userId);
+        		logData.put("stream", stream.getPublishedName());
+        		logData.put("packetCount", packetCount);
+        		logData.put("publishing", publishing);
+        		logData.put("lastPacketTime (sec)", numSeconds);
+        		
+        		Gson gson = new Gson();
+        		String logStr =  gson.toJson(logData);
+        		
+                log.warn("Video packet timeout. data={}", logStr );
+                
+                if (!streamStopped) {
+                	streamStopped = true;
+                    // remove the scheduled job
+                    scheduler.removeScheduledJob(timeoutJobName);
+                    // stop / clean up
+                    if (publishing) {
+                    	stream.stop(); 	
+                    }
+                                   	
+                }
+            }
+        }
+ 
+    }
 
 }

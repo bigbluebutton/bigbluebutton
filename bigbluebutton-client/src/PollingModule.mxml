@@ -26,7 +26,6 @@
 	 xmlns:maps="org.bigbluebutton.modules.polling.maps.*"
 	  creationComplete="onCreationComplete()">
 	  
-	  <maps:PollingEventMap id="eventMap"/>
     <maps:PollEventMap id="pollEventMap"/>
   
 	<mx:Script>
@@ -38,7 +37,6 @@
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.modules.polling.events.ModuleEvent;		
-      import org.bigbluebutton.modules.polling.maps.PollingEventMap;
 			
 			private var _moduleName:String = "Polling";			
 			private var _attributes:Object;

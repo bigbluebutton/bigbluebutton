@@ -39,44 +39,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
   <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
   <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
-    
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
       
-      import flash.events.Event;
-      
-      import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
       import mx.collections.Sort;
       import mx.collections.SortField;
-      import mx.controls.Button;
-      import mx.events.FlexEvent;
-      import mx.events.ListEvent;
       
       import org.bigbluebutton.common.IBbbCanvas;
-      import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.model.FocusableImage;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.modules.present.commands.ChangePageCommand;
       import org.bigbluebutton.modules.present.commands.GoToPageCommand;
       import org.bigbluebutton.modules.present.events.CursorEvent;
       import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
       import org.bigbluebutton.modules.present.events.PageChangedEvent;
       import org.bigbluebutton.modules.present.events.PageLoadedEvent;
       import org.bigbluebutton.modules.present.events.PresenterCommands;
-      import org.bigbluebutton.modules.present.events.UploadEvent;
-      import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-      import org.bigbluebutton.modules.present.managers.Slide;
       import org.bigbluebutton.modules.present.model.Page;
       import org.bigbluebutton.modules.present.model.Presentation;
       import org.bigbluebutton.modules.present.model.PresentationModel;
       import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
       import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-      import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOG:String = "Present::SlideView - ";
@@ -116,7 +103,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				whiteboardCanvasHolder.x = 0;
 				whiteboardCanvasHolder.y = 0;
 				
-				this.setChildIndex(thumbnailView, this.numChildren - 1);       
+				this.setChildIndex(thumbnailView, this.numChildren - 1);
+				
+				/*
+				var t:Timer = new Timer(3000, 1);
+				var that:SlideView = this;
+				t.addEventListener(TimerEvent.TIMER_COMPLETE, function () {
+					var poll:PollResultsView = new PollResultsView();
+					that.addChild(poll);
+					
+					that.callLater(function():void {
+						poll.x = that.width - poll.width;
+						poll.y = that.height - poll.height;
+					});
+				});
+				t.start();
+				*/
         
         if (UsersUtil.amIPresenter()) {
           becomePresenter();
@@ -523,7 +525,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          scaleContent="false" 
                          showBusyCursor="true" 
                          completeEffect="Fade" />
-   		
    <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" 
     	                 visible="false" width="100%" height="100" 
                        y="{this.height - 100}" change="changeSlide()" />

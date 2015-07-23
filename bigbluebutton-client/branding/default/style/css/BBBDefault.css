@@ -54,6 +54,7 @@ ToolTip {
   fontWeight: bold;
   fontSize: 15;
   fontFamily: Arial;
+  textAlign: center;
   color: #e1e2e5;
 }
 
@@ -97,6 +98,12 @@ ToolTip {
   textIndent: 0;
   color: #ffffff;
   fontFamily: Arial;
+}
+
+.pollResondersLabelStyle {
+	color: #444444;
+	fontFamily: Arial;
+	fontSize: 12;
 }
 
 Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
@@ -284,7 +291,7 @@ DataGrid {
 }
 
 
-.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
+.presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
   textIndent: 0;
@@ -306,6 +313,10 @@ DataGrid {
 
 .presentationUploadButtonStyle {
   icon:   Embed('assets/images/upload.png');   
+}
+
+.pollStartButtonStyle {
+  icon:   Embed('assets/images/poll_icon.png');
 }
 
 .presentationBackButtonStyle {
@@ -403,7 +414,7 @@ DataGrid {
   icon:   Embed('assets/images/webcam-private-chat.png');
 }
 
-.presentationFileUploadWindowStyle {
+TitleWindow {
   borderColor: #b9babc;
   borderAlpha: 1;
   borderThicknessLeft: 10;
@@ -414,11 +425,8 @@ DataGrid {
   cornerRadius: 5;
   headerHeight: 20;
   backgroundAlpha: 1;
-  headerColors: #b9babc, #b9babc;
-  footerColors: #b9babc, #b9babc;
   backgroundColor: #EFEFEF;
   dropShadowEnabled: true;
-  titleStyleName: "presentationFileUploadWindowTitleStyle";
 }
 
 .presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {
@@ -504,42 +512,6 @@ DataGrid {
 
 .chromeJavaHelpImage {
 	imageSource: Embed(source='assets/images/chromePluginBlocked.png');
-}
-
-.cameraDisplaySettingsWindowStyle {
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThicknessLeft: 10;
-  borderThicknessTop: 0;
-  borderThicknessBottom: 10;
-  borderThicknessRight: 10;
-  roundedBottomCorners: true;
-  cornerRadius: 5;
-  headerHeight: 20;
-  backgroundAlpha: 1;
-  headerColors: #b9babc, #b9babc;
-  footerColors: #b9babc, #b9babc;
-  backgroundColor: #EFEFEF;
-  dropShadowEnabled: true;
-  titleStyleName: "webcamSettingsWindowTitleStyle";
-}
-
-.micSettingsWindowStyle {
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThicknessLeft: 10;
-  borderThicknessTop: 0;
-  borderThicknessBottom: 10;
-  borderThicknessRight: 10;
-  roundedBottomCorners: true;
-  cornerRadius: 5;
-  headerHeight: 20;
-  backgroundAlpha: 1;
-  headerColors: #b9babc, #b9babc;
-  footerColors: #b9babc, #b9babc;
-  backgroundColor: #EFEFEF;
-  dropShadowEnabled: true;
-  titleStyleName: "micSettingsWindowTitleStyle";
 }
 
 .webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
@@ -859,24 +831,6 @@ Alert {
 	fontFamily: Arial;
 	fontSize: 14;  
 	fontWeight: bold;    
-}
-
-.lockSettingsWindowStyle {
-	borderColor: #b9babc;
-	borderAlpha: 1;
-	borderThicknessLeft: 10;
-	borderThicknessTop: 0;
-	borderThicknessBottom: 10;
-	borderThicknessRight: 10;
-	roundedBottomCorners: true;
-	cornerRadius: 5;
-	headerHeight: 20;
-	backgroundAlpha: 1;
-	headerColors: #b9babc, #b9babc;
-	footerColors: #b9babc, #b9babc;
-	backgroundColor: #EFEFEF;
-	dropShadowEnabled: true;
-	titleStyleName: "micSettingsWindowTitleStyle";
 }
 
 .lockSettingsWindowTitleStyle {

@@ -22,84 +22,39 @@
 
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;     
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.modules.polling.events.*;
-      import org.bigbluebutton.modules.polling.managers.PollManager;
-      import org.bigbluebutton.modules.polling.model.PollingModel;
-      import org.bigbluebutton.modules.polling.service.MessageReceiver;
-      import org.bigbluebutton.modules.polling.service.MessageSender;
-      import org.bigbluebutton.modules.polling.service.NetworkPollDataService;
-      import org.bigbluebutton.modules.polling.service.PollDataProcessor;
       import org.bigbluebutton.modules.polling.service.PollingService;
-      import org.bigbluebutton.modules.polling.service.ShortCircuitPollDataService;
 			
 				]]>
 				
 	</mx:Script>
 
 	<EventHandlers type="{ModuleEvent.START}">
-		
+		<ObjectBuilder generator="{PollingService}" cache="global"/>
 	</EventHandlers>	
 	
 	<EventHandlers type="{ModuleEvent.STOP}">
 	</EventHandlers>	
 
-  <EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}">
-    
-  </EventHandlers>
-  
-  <EventHandlers type="{CreatePollEvent.CREATE_POLL}">
-    <MethodInvoker generator="{PollingService}" method="handleCreatePollEvent" arguments="{event}"/>
-  </EventHandlers>
+  <EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}"/>
 
-  <EventHandlers type="{UpdatePollEvent.UPDATE_POLL}">
-    <MethodInvoker generator="{PollingService}" method="handleUpdatePollEvent" arguments="{event}"/>
-  </EventHandlers>
-
-  <EventHandlers type="{PollEvent.START_POLL}">
+  <EventHandlers type="{StartPollEvent.START}">
     <MethodInvoker generator="{PollingService}" method="handleStartPollEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <EventHandlers type="{PollEvent.STOP_POLL}">
+  <EventHandlers type="{StopPollEvent.STOP_POLL}">
     <MethodInvoker generator="{PollingService}" method="handleStopPollEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <EventHandlers type="{PollEvent.REMOVE_POLL}">
-    <MethodInvoker generator="{PollingService}" method="handleRemovePollEvent" arguments="{event}"/>
+  <EventHandlers type="{VotePollEvent.VOTE_POLL}">
+    <MethodInvoker generator="{PollingService}" method="handleVotePollEvent" arguments="{event}"/>
   </EventHandlers>
 
-  <EventHandlers type="{RespondEvent.RESPOND_EVENT}">
-    <MethodInvoker generator="{PollingService}" method="handleRespondPollEvent" arguments="{event}"/>
+  <EventHandlers type="{ShowPollResultEvent.SHOW_POLL_RESULT}">
+    <MethodInvoker generator="{PollingService}" method="handleShowPollResultEvent" arguments="{event}"/>
   </EventHandlers>
 
-  <EventHandlers type="{GetPollsEvent.GET_POLLS}">
-    <MethodInvoker generator="{PollingService}" method="handleGetPollsEvent" arguments="{event}"/>
-  </EventHandlers>
-  
-  <Injectors target="{PollingService}">
-    <ObjectBuilder generator="{PollDataProcessor}" cache="global"/>
-    <PropertyInjector targetKey="dataService" source="{NetworkPollDataService}"/>
-  </Injectors>
-
-  <Injectors target="{NetworkPollDataService}">
-    <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
-    <PropertyInjector targetKey="sender" source="{MessageSender}"/>
-  </Injectors>
-  
-  <Injectors target="{ShortCircuitPollDataService}">
-    <PropertyInjector targetKey="processor" source="{PollDataProcessor}"/>
-  </Injectors>	
-
-  <Injectors target="{PollDataProcessor}">
-    <PropertyInjector targetKey="model" source="{PollingModel}"/>
-    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
-  </Injectors>
-  
-  <Injectors target="{MessageReceiver}">
-    <PropertyInjector targetKey="processor" source="{PollDataProcessor}"/>
-  </Injectors>
+ 
   
   <Debugger level="{Debugger.ALL}" />
 </EventMap>

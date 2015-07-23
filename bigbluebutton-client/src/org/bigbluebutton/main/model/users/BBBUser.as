@@ -283,14 +283,14 @@ package org.bigbluebutton.main.model.users
 			trace("changeStatus -> " + status.name);
 			//_status.changeStatus(status);
 			if (status.name == "presenter") {
-				presenter = status.value;
+				presenter = (status.value.toString().toUpperCase() == "TRUE") ? true : false;
 				
 				//As the lock settings are now not applied to presenters, when the presenter flag is changed, we need to apply the lock settings
 				applyLockSettings();
 			}
 			switch (status.name) {
 				case "presenter":
-					presenter = status.value;
+					presenter = (status.value.toString().toUpperCase() == "TRUE") ? true : false;
 					break;
 				case "hasStream":
 					var streamInfo:Array = String(status.value).split(/,/); 
@@ -305,10 +305,10 @@ package org.bigbluebutton.main.model.users
 					streamName = streamNameInfo[1]; 
 					break;
 				case "raiseHand":
-					raiseHand = status.value as Boolean;
-                    if (me) {
-                        UserManager.getInstance().getConference().isMyHandRaised = status.value;
-                    }
+					raiseHand = (status.value.toString().toUpperCase() == "TRUE") ? true : false;
+          if (me) {
+            UserManager.getInstance().getConference().isMyHandRaised = status.value;
+          }
 					break;
 			}
 			buildStatus();

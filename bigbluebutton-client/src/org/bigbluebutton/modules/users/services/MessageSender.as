@@ -115,7 +115,8 @@ package org.bigbluebutton.modules.users.services
       );
     }
     
-    public function removeStream(userID:String, streamName:String):void {      
+    public function removeStream(userID:String, streamName:String):void {
+		trace(LOG + "sending unshare webcam to server for user=[" + userID + "] stream=[" + streamName + "]");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.unshareWebcam", 
         function(result:String):void { // On successful result
