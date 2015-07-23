@@ -3,9 +3,13 @@ package org.bigbluebutton.modules.polling.service
 
   import com.asfusion.mate.events.Dispatcher;
   
+  import flash.accessibility.Accessibility;
   import flash.events.IEventDispatcher;
   
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.modules.chat.ChatConstants;
+  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+  import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
   import org.bigbluebutton.modules.polling.events.PollStartedEvent;
   import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
@@ -15,6 +19,7 @@ package org.bigbluebutton.modules.polling.service
   import org.bigbluebutton.modules.polling.model.SimpleAnswerResult;
   import org.bigbluebutton.modules.polling.model.SimplePoll;
   import org.bigbluebutton.modules.polling.model.SimplePollResult;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class PollDataProcessor
   {
@@ -68,18 +73,38 @@ package org.bigbluebutton.modules.polling.service
           var pollId:String = poll.id;
           
           var answers:Array = poll.answers as Array;
+          var accessibleAnswers:String = ResourceUtil.getInstance().getString("bbb.polling.results.accessible.header") + "<br />";
           
           var ans:Array = new Array();
           
           for (var j:int = 0; j < answers.length; j++) {
             var a:Object = answers[j];
             ans.push(new SimpleAnswerResult(a.id as Number, a.key, a.num_votes as Number));
+            accessibleAnswers += ResourceUtil.getInstance().getString("bbb.polling.results.accessible.answer", [ResourceUtil.getInstance().getString("bbb.polling.answer."+a.key), a.num_votes]) + "<br />";
           }
           
 		  var numRespondents:Number = poll.num_respondents;
 		  var numResponders:Number = poll.num_responders;
 		  
-          dispatcher.dispatchEvent(new PollShowResultEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));            
+          dispatcher.dispatchEvent(new PollShowResultEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));
+          
+          if (Accessibility.active) {
+            var pollResultMessage:ChatMessageVO = new ChatMessageVO();
+            pollResultMessage.chatType = ChatConstants.PUBLIC_CHAT;
+            pollResultMessage.fromUserID = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
+            pollResultMessage.fromUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
+            pollResultMessage.fromColor = "86187";
+            pollResultMessage.fromTime = new Date().getTime();
+            pollResultMessage.fromTimezoneOffset = new Date().getTimezoneOffset();
+            pollResultMessage.toUserID = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
+            pollResultMessage.toUsername = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
+            pollResultMessage.message = accessibleAnswers;
+            
+            var pollResultMessageEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+            pollResultMessageEvent.message = pollResultMessage;
+            pollResultMessageEvent.history = false;
+            dispatcher.dispatchEvent(pollResultMessageEvent);
+          }
         }      
       }    
     }
