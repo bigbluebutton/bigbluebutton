@@ -22,7 +22,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="600" height="400"
+	xmlns:common="org.bigbluebutton.common.*"
+    width="600" height="400"
 	initialize="init()"
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -80,12 +81,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
 			
-			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:DeskshareOptions;
 									
 			private function init():void{
 				dsOptions = new DeskshareOptions();
-				baseIndex = dsOptions.baseTabIndex;
 			}
 									
 			private function onCreationComplete():void{
@@ -105,10 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				resourcesChanged();
 				
-				titleBarOverlay.tabIndex = baseIndex;
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				closeBtn.tabIndex = baseIndex+3;
+				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -308,6 +304,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
+
+	<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
+
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 		
@@ -318,7 +317,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   selected="false"
 				   height="90%" 
 				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-				   tabIndex="{baseIndex+4}"/>
+				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"/>
 	</mx:HBox>
 </CustomMdiWindow>

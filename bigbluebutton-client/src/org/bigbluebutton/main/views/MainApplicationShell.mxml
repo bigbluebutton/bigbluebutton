@@ -27,10 +27,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:mate="http://mate.asfusion.com/"
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
+		xmlns:common="org.bigbluebutton.common.*"
 		width="100%" height="100%" 
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		creationComplete="initializeShell()" 
-		xmlns:common="org.bigbluebutton.common.*">
+		creationComplete="initializeShell()" >
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
@@ -125,8 +125,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
-			
-			[Bindable] private var baseIndex:int = 100000;
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
@@ -568,7 +566,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
-					(event.button as UIComponent).tabIndex = baseIndex + addedBtns.numChildren + 10;
+					(event.button as UIComponent).tabIndex = tabIndexer.startIndex + addedBtns.numChildren + 10;
 					addedBtns.addChild(event.button as UIComponent);
 					//realignButtons();
 				}
@@ -640,6 +638,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</mx:Script>
+	
+	<common:TabIndexer id="tabIndexer" startIndex="100000"
+					   tabIndices="{[langSelector, logBtn]}"/>
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
@@ -686,8 +687,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				height="20"
 				width="180"
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle"
-				tabIndex="{baseIndex}"/>
+				styleName="languageSelectorStyle"/>
 		<mx:Button
 				width="20"
 				height="20"
@@ -696,8 +696,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
 				id="logBtn"
 				icon="{logs_icon}"
-				click="openLogWindow()"
-				tabIndex="{baseIndex+1}"/>
+				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>

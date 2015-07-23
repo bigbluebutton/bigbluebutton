@@ -25,7 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	       xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
 	       showCloseButton="false"
 	       implements="org.bigbluebutton.common.IBbbModuleWindow" 
-	       initialize="init()"
 	       creationComplete="onCreationComplete()"
 	       xmlns:components="org.bigbluebutton.modules.chat.view.components.*" 
 		   xmlns:mate="http://mate.asfusion.com/" 
@@ -61,11 +60,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispState:String;
 			[Bindable] public var chatOptions:ChatOptions;
 			
-			[Bindable] private var baseIndex:int;
-			private function init():void{
-				baseIndex = chatOptions.baseTabIndex;
-			}
-			
 			public function getPrefferedPosition():String{
 				return chatOptions.position;
 			} 
@@ -76,11 +70,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispState = FlexGlobals.topLevelApplication.stage.displayState;
 				
 				hotkeyCapture();
-				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.tabIndex = chatOptions.baseTabIndex;
 				
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				closeBtn.tabIndex = baseIndex+3;
+				minimizeBtn.tabIndex = chatOptions.baseTabIndex+1;
+				maximizeRestoreBtn.tabIndex = chatOptions.baseTabIndex+2;
+				closeBtn.tabIndex = chatOptions.baseTabIndex+3;
 
 				resourcesChanged(); // update the window controls once they've been created
 			}
