@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.videoconf.events
 
     public function ConnectedEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
     {
-      super(VIDEO_CONNECTED, true, false);
+      super(type, true, false);
     }
   }
 }

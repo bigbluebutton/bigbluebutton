@@ -439,8 +439,8 @@ package org.bigbluebutton.modules.videoconf.maps
     public function connectedToVideoApp():void{
       trace("VideoEventMapDelegate:: [" + me + "] Connected to video application.");
       _ready = true;
-		  addToolbarButton();
-		  openWebcamWindows();
+      addToolbarButton();
+      openWebcamWindows();
     }
 
     public function handleCameraSetting(event:BBBEvent):void {
