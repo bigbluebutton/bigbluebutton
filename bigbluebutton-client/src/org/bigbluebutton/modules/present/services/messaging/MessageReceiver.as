@@ -304,6 +304,7 @@ package org.bigbluebutton.modules.present.services.messaging
         presos.addItem(presVO);
       }
       
+      service.removeAllPresentations();
       service.addPresentations(presos);
     }
     

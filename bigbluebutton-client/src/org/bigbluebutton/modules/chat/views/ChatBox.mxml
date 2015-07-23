@@ -62,6 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
   <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
   <mate:Listener type="{ShortcutEvent.CHAT_DEBUG}" method="chatDebugInfo" />
+  <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
 	
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 
@@ -85,6 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.UserJoinedEvent;
 			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.chat.ChatConstants;
@@ -236,6 +238,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           scrollToEndOfMessage();
         }
       }
+
+      private function refreshChat(e:BBBEvent):void {
+        if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
+          if (publicChat) chatMessages = new ChatConversation();
+        }
+      }
+
       private function handleUserJoinedEvent(event:UserJoinedEvent):void {
         // Handle user joining so that the user can start to talk if the person rejoins
         if (!publicChat && event.userID == chatWithUserID) {

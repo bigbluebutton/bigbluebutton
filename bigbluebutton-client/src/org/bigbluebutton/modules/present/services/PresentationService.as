@@ -151,6 +151,10 @@ package org.bigbluebutton.modules.present.services
         trace(LOG + "Switching presentation but presentation [" + presVO.id + "] is not current [" + presVO.isCurrent() + "]");
       }
     }
+    
+    public function removeAllPresentations():void {
+      model.removeAllPresentations();
+    }
 	
 	public function removePresentation(presentationID:String):void {
 		var removedEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_REMOVED_EVENT);

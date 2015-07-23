@@ -23,13 +23,10 @@ package org.bigbluebutton.modules.videoconf.events
   public class ConnectedEvent extends Event
   {
     public static const VIDEO_CONNECTED:String = "connected to video app event";
-    
-	public var reconnection:Boolean = false;
-	
-    public function ConnectedEvent(reconnection:Boolean)
+
+    public function ConnectedEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
     {
       super(VIDEO_CONNECTED, true, false);
-	  this.reconnection = reconnection;
     }
   }
 }
