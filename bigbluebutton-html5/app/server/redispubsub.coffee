@@ -336,7 +336,9 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "poll_started_message"
-        addPollToCollection message.payload
+        if Meteor.Meetings.findOne({meetingId: message.payload.meeting_id})?
+          users = Meteor.Users.find({meetingId: message.payload.meeting_id}, {fields:{"user.userid": 1, _id: 0}} ).fetch()
+          addPollToCollection message.payload.poll, message.payload.requester_id, users
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server

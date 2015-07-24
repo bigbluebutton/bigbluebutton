@@ -1,9 +1,13 @@
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
-@addPollToCollection = (payload) ->
-  console.log "showing a message"
-  console.log payload
+@addPollToCollection = (poll, requester_id, users) ->
+  entry =
+    poll_info:
+      "poll": poll
+      "requester": requester_id
+      "users": users
+  Meteor.Polls.insert(entry)
 
 @clearPollCollection = (meetingId) ->
   if meetingId?
