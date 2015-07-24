@@ -141,5 +141,37 @@ Template.main.events
     $('.signOutIcon').blur()
     $("#logoutModal").foundation('reveal', 'open');
 
+Template.main.gestures
+  'panstart #container': (event, template) ->
+    if isPortraitMobile() and isPanHorizontal(event)
+      setInSession 'panStarted', true
+      if getInSession('initTransform') + event.deltaX >= 0 and
+      getInSession('initTransform') + event.deltaX <= $('.left-drawer').width()
+        $('.left-drawer').css('transform', 'translateX(' + (getInSession('initTransform') + event.deltaX) + 'px)')
+  'panend #container': (event, template) ->
+    if isPortraitMobile() and isPanHorizontal(event)
+      setInSession 'panStarted', false
+      if parseInt($('.left-drawer').css('transform').split(',')[4]) < $('.left-drawer').width() / 2
+        $('.left-drawer').css('transform', 'translateX(0px)')
+      else
+        $('.left-drawer').css('transform', 'translateX(' + $('.left-drawer').width() + 'px)')
+      $('.left-drawer').addClass('sl-left-drawer')
+      $('.sl-left-drawer').removeClass('left-drawer')
+  'panright #container, panleft #container': (event, template) ->
+    if isPortraitMobile() and isPanHorizontal(event)
+      if !getInSession('panStarted') # panright/panleft is always triggered once right before panstart
+        if $('.sl-left-drawer').css('transform') isnt 'none' # menu is already transformed
+          setInSession 'initTransform', parseInt($('.sl-left-drawer').css('transform').split(',')[4]) # translateX value
+        else if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+          setInSession 'initTransform', $('.sl-left-drawer').width()
+        else
+          setInSession 'initTransform', 0
+        $('.sl-left-drawer').addClass('left-drawer')
+        $('.left-drawer').removeClass('sl-left-drawer') # to prevent animations from Sled library
+        $('.left-drawer').removeClass('sl-left-drawer-content-delay') # makes the menu content movable too
+      if getInSession('initTransform') + event.deltaX >= 0 and
+      getInSession('initTransform') + event.deltaX <= $('.left-drawer').width()
+        $('.left-drawer').css('transform', 'translateX(' + (getInSession('initTransform') + event.deltaX) + 'px)')
+
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()

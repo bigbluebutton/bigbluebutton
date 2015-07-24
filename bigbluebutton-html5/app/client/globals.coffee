@@ -34,6 +34,10 @@
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
 
+# checks if the pan gesture is mostly horizontal
+@isPanHorizontal = (event) ->
+  Math.abs(event.deltaX) > Math.abs(event.deltaY)
+
 # helper to determine whether user has joined any type of audio
 Handlebars.registerHelper "amIInAudio", ->
   BBB.amIInAudio()
