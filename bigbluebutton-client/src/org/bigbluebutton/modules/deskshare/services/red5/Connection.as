@@ -45,8 +45,8 @@ package org.bigbluebutton.modules.deskshare.services.red5
 	public class Connection {
     public static const LOG:String = "Deskshare::Connection - ";
     
-		private var nc:NetConnection;
-		private var uri:String;
+    private var nc:NetConnection;
+    private var uri:String;
     private var retryTimer:Timer = null;
     private var retryCount:int = 0;
     private const MAX_RETRIES:int = 5;
@@ -248,7 +248,6 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				break;
 				
 				case "NetConnection.Connect.NetworkChange":
-					LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
           trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 					
@@ -334,10 +333,13 @@ package org.bigbluebutton.modules.deskshare.services.red5
      */		
     public function appletStarted(videoWidth:Number, videoHeight:Number):void{
       trace(LOG + "Got applet started");
-      var event:AppletStartedEvent = new AppletStartedEvent();
-      event.videoWidth = videoWidth;
-      event.videoHeight = videoHeight;
-      dispatcher.dispatchEvent(event);
+	  if (nc != null && nc.connected) {
+		  var event:AppletStartedEvent = new AppletStartedEvent();
+		  event.videoWidth = videoWidth;
+		  event.videoHeight = videoHeight;
+		  dispatcher.dispatchEvent(event);		  
+	  }
+
     }
     
     /**
