@@ -98,5 +98,5 @@ re_weburl = new RegExp(
     "(?::\\d{2,5})?" +
     // resource path
     "(?:[/?#]\\S*)?" +
-  "$", "i"
+  "$", "img"
 );
