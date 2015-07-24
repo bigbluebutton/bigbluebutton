@@ -65,7 +65,6 @@
 //
 
 re_weburl = new RegExp(
-  "^" +
     // protocol identifier
     "(?:(?:https?|ftp)://)" +
     // user:pass authentication
@@ -97,6 +96,5 @@ re_weburl = new RegExp(
     // port number
     "(?::\\d{2,5})?" +
     // resource path
-    "(?:[/?#]\\S*)?" +
-  "$", "img"
+    "(?:[/?#]\\S*)?", "img"
 );
