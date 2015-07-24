@@ -73,7 +73,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 			
       private function allModulesLoaded(e:ModuleLoadEvent):void{
-        parent.removeChild(this);
+        if (parent != null)
+          parent.removeChild(this);
       }
 			
       private function testRTMP(e:PortTestEvent):void{

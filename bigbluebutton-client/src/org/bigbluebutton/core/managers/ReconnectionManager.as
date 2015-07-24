@@ -31,12 +31,14 @@ package org.bigbluebutton.core.managers
   import mx.events.CloseEvent;
   import mx.managers.PopUpManager;
   import mx.utils.ObjectUtil;
+  import mx.collections.ArrayCollection;
 
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.main.views.ReconnectionPopup;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class ReconnectionManager
   {
@@ -48,6 +50,7 @@ package org.bigbluebutton.core.managers
     public static const DESKSHARE_CONNECTION:String = "DESKSHARE_CONNECTION";
 
     private var _connections:Dictionary = new Dictionary();
+    private var _reestablished:ArrayCollection = new ArrayCollection();
     private var _reconnectTimer:Timer = new Timer(10000, 1);
     private var _reconnectTimeout:Timer = new Timer(5000, 1);
     private var _dispatcher:Dispatcher = new Dispatcher();
@@ -141,10 +144,13 @@ package org.bigbluebutton.core.managers
         reconnect();
       }
 
+      _reestablished.addItem(type);
       if (connectionDictEmpty) {
+        var msg:String = connectionReestablishedMessage();
+
         _dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT, 
-          "Connection reestablished", 
-          "Connection has been reestablished successfully"));
+          ResourceUtil.getInstance().getString('bbb.connection.reestablished'), 
+          msg));
 
         _reconnectTimeout.reset();
         removePopUp();
@@ -164,6 +170,31 @@ package org.bigbluebutton.core.managers
         PopUpManager.removePopUp(_popup);
         _popup = null;
       }
+    }
+
+    private function connectionReestablishedMessage():String {
+      var msg:String = "";
+      for each (var conn:String in _reestablished) {
+        switch (conn) {
+          case BIGBLUEBUTTON_CONNECTION:
+            msg += ResourceUtil.getInstance().getString('bbb.connection.bigbluebutton');
+            break;
+          case SIP_CONNECTION:
+            msg += ResourceUtil.getInstance().getString('bbb.connection.sip');
+            break;
+          case VIDEO_CONNECTION:
+            msg += ResourceUtil.getInstance().getString('bbb.connection.video');
+            break;
+          case DESKSHARE_CONNECTION:
+            msg += ResourceUtil.getInstance().getString('bbb.connection.deskshare');
+            break;
+          default:
+            break;
+        }
+        msg += " ";
+      }
+      _reestablished.removeAll();
+      return msg;
     }
   }
 }
