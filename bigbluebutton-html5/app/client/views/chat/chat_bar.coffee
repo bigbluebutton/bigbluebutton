@@ -122,15 +122,16 @@ Template.chatbar.helpers
       return Meteor.Users.findOne({userId: getInSession('inChatWith')})?
 
 # When chatbar gets rendered, launch the auto-check for unread chat
-Template.chatbar.rendered = -> detectUnreadChat()
+Template.chatbar.rendered = ->
+  detectUnreadChat()
 
-# When "< Public" is clicked, go to public chat 
+# When "< Public" is clicked, go to public chat
 Template.chatbar.events
   'click .toPublic': (event) ->
     setInSession 'inChatWith', 'PUBLIC_CHAT'
     setInSession 'chats', getInSession('chats').map((chat) ->
       if chat.userId is "PUBLIC_CHAT"
-        chat.gotMail = false 
+        chat.gotMail = false
         chat.number = 0
       chat
     )
@@ -144,10 +145,28 @@ Template.message.rendered = ->
   $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
   false
 
+Template.chatInput.rendered = ->
+  $('.panel-footer').resizable
+    handles: 'n'
+    minHeight: 70
+    resize: (event, ui) ->
+      if $('.panel-footer').css('top') is '0px'
+        $('.panel-footer').height(70) # prevents the element from shrinking vertically for 1-2 px
+      else
+        $('.panel-footer').css('top', parseInt($('.panel-footer').css('top')) + 1 + 'px')
+      $('#chatbody').height($('#chat').height() - $('.panel-footer').height() - 45)
+      $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+    start: (event, ui) ->
+      $('#newMessageInput').css('overflow', '')
+      $('.panel-footer').resizable('option', 'maxHeight', Math.max($('.panel-footer').height(), $('#chat').height() / 2))
+    stop: (event, ui) ->
+      setInSession 'chatInputMinHeight', $('.panel-footer').height() + 1
+
 Template.chatInput.events
   'click #sendMessageButton': (event) ->
     $('#sendMessageButton').blur()
     sendMessage()
+    adjustChatInputHeight()
 
   'keypress #newMessageInput': (event) -> # user pressed a button inside the chatbox
     key = (if event.charCode then event.charCode else (if event.keyCode then event.keyCode else 0))
@@ -163,6 +182,11 @@ Template.chatInput.events
       sendMessage()
       $('#newMessageInput').val("")
       return false
+
+Template.chatInputControls.rendered = ->
+  $('#newMessageInput').on('keydown paste cut', () -> setTimeout(() ->
+    adjustChatInputHeight()
+  , 0))
 
 Template.message.helpers
   sanitizeAndFormat: (str) ->

@@ -9,19 +9,13 @@
     border-right: 0px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    -webkit-order: 2;
-    order: 2;
-    -webkit-flex: 7 7 70%;
-    -moz-flex: 7 7 70%;
-    -ms-flex: 7 7 70%;
-    flex: 7 7 70%;
-    min-width: 50%;
+    width: 70%;
     height: 100%;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     -webkit-order: 1;
     order: 1;
-    width: 100%;
+    width: 100% !important; // overrides any width value set manually in landscape
   }
   &:-webkit-full-screen {
     width: 100%;
