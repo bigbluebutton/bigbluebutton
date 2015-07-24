@@ -6,7 +6,8 @@ Template.slide.rendered = ->
     setInSession 'slideOriginalHeight', this.height
     $(window).resize( ->
       # redraw the whiteboard to adapt to the resized window
-      redrawWhiteboard()
+      if !$('.panel-footer').hasClass('ui-resizable-resizing') # not in the middle of resizing the message input
+        redrawWhiteboard()
     )
     if currentSlide?.slide?.png_uri?
       createWhiteboardPaper (wpm) ->
