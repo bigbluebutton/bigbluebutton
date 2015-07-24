@@ -22,7 +22,6 @@ package org.bigbluebutton.modules.deskshare.services.red5
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.AsyncErrorEvent;
-	import flash.events.EventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.TimerEvent;
@@ -32,7 +31,6 @@ package org.bigbluebutton.modules.deskshare.services.red5
 	import flash.net.SharedObject;
 	import flash.utils.Timer;
 	
-	import mx.events.MetadataEvent;
 	import mx.utils.ObjectUtil;
 	
 	import org.bigbluebutton.common.LogUtil;
@@ -59,7 +57,8 @@ package org.bigbluebutton.modules.deskshare.services.red5
     private var room:String;
     private var logoutOnUserCommand:Boolean = false;
     private var reconnecting:Boolean = false;
-    
+    private var wasPresenterBeforeDisconnect:Boolean = false;
+	
     private var dispatcher:Dispatcher = new Dispatcher();    
 
     public function Connection(room:String) {
@@ -197,6 +196,10 @@ package org.bigbluebutton.modules.deskshare.services.red5
           ce.status = ConnectionEvent.SUCCESS;
           if (reconnecting) {
             reconnecting = false;
+			if (wasPresenterBeforeDisconnect) {
+				wasPresenterBeforeDisconnect = false;
+				stopSharingDesktop(room, room)				
+			}
 
             var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
             attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
@@ -214,8 +217,16 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				case "NetConnection.Connect.Closed":
           trace(LOG + "Deskshare connection closed.");
           ce.status = ConnectionEvent.CLOSED;
-          stopViewing();
-          if (!logoutOnUserCommand) {
+		  if (UsersUtil.amIPresenter()) {
+			  // Let's keep our presenter status before disconnected. We can't
+			  // tell the other user's to stop desktop sharing as our connection is broken. (ralam july 24, 2015)
+			  wasPresenterBeforeDisconnect = true;
+			  
+		  } else {
+			  stopViewing();
+		  }
+          
+          if (!logoutOnUserCommand) { 
             reconnecting = true;
 
             var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
