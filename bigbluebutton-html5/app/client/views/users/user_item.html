@@ -54,38 +54,50 @@
       <i class="icon fi-lock usericon"></i>
     </span>
   {{/if}}
-
-  {{#if user.presenter}}
-    <span rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter">
-      <i class="icon fi-projection-screen usericon"></i>
-    </span>
-  {{else}}
-    {{#if equals user.role "MODERATOR"}}
-      <span rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator">
-        <i class="icon fi-torso usericon"></i>
-      </span>
-    {{/if}}
-  {{/if}}
-
-  {{#if user.raise_hand}}
-    {{#if isCurrentUser userId}}
-      <span class="ion-android-hand usericon" rel="tooltip" data-placement="bottom" title="Lower your hand"></span>
-    {{else}}
-      <span class="ion-android-hand usericon" rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand"></span>
-    {{/if}}
-  {{/if}}
 </template>
 
 <template name="usernameEntry">
-  {{#if isCurrentUser userId}}
-    <span class="userCurrent usernameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
-      {{user.name}} {{#if user.presenter}} (presenter) {{/if}} (you)
-    </span>
-  {{else}}
-    <span class="usernameEntry" rel="tooltip" data-placement="bottom" title="{{user.name}}">
-      {{user.name}} {{#if user.presenter}} (presenter) {{/if}}
-    </span>
-  {{/if}}
+    <div class="status">
+      {{#if user.raise_hand}}
+        {{#if isCurrentUser userId}}
+          <span rel="tooltip" data-placement="bottom" title="Lower your hand">
+            <i class="icon ion-android-hand statusIcon"></i>
+          </span>
+        {{else}}
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} has raised their hand">
+            <i class="icon ion-android-hand statusIcon"></i>
+          </span>
+        {{/if}}
+      {{else}}
+        {{#if user.presenter}}
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter">
+            <i class="icon fi-projection-screen statusIcon"></i>
+          </span>
+        {{else}}
+          {{#if equals user.role "MODERATOR"}}
+            <span rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator">
+              <i class="icon fi-torso statusIcon"></i>
+            </span>
+          {{/if}}
+        {{/if}}
+      {{/if}}
+    </div>
+    
+    {{#if isCurrentUser userId}}
+      <span class="userCurrent usernameEntry {{#if hasGotUnreadMailClass 'PUBLIC_CHAT'}}gotUnreadMail{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
+        <span class="userName">{{user.name}} {{#if user.presenter}} (presenter) {{/if}} (you)</span>
+      </span>
+      {{#if hasGotUnreadMailClass 'PUBLIC_CHAT' }} 
+        <div class="unreadChatNumber">{{getNumberOfUnreadMessages 'PUBLIC_CHAT'}}</div>
+      {{/if}}
+    {{else}}
+      <span class="usernameEntry {{#if hasGotUnreadMailClass user.userid}}gotUnreadMail{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}}">
+        <span class="userName"> {{user.name}} {{#if user.presenter}} (presenter) {{/if}}</span>
+      </span>
+      {{#if hasGotUnreadMailClass user.userid }} 
+        <div class="unreadChatNumber">{{getNumberOfUnreadMessages user.userid}}</div>
+      {{/if}}
+    {{/if}}
 </template>
 
 <template name="userItem">
