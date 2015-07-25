@@ -45,9 +45,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
-			import org.as3commons.logging.util.jsonXify;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.api.JSLog;
 			import org.bigbluebutton.modules.phone.PhoneModel;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
@@ -104,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = new Object();       
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
-        LOGGER.info("WebRtc Echo test passed. {0}", [jsonXify(logData)]);
+        JSLog.info("WebRtc Echo test passed.", logData);
 
 				setCurrentState("connecting");
 				lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endingecho');
@@ -120,7 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = new Object();       
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
-        LOGGER.warn("WebRtc Echo test failed.", [jsonXify(logData)]);
+        JSLog.info("WebRtc Echo test failed.", logData);
         
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO));
@@ -188,7 +188,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var logData:Object = new Object();       
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
-        LOGGER.info("WebRtc call started. {0}", [jsonXify(logData)]);
+        JSLog.info("WebRtc call started.", logData);
         
         onCancelClicked();
       }

@@ -27,6 +27,7 @@ package org.bigbluebutton.main.model.modules
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.vo.Config;
   import org.bigbluebutton.core.vo.ConfigBuilder;
+  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.ConfigEvent;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
@@ -99,7 +100,7 @@ package org.bigbluebutton.main.model.modules
         doPortTesting();
       } else {
         var logData:Object = new Object();
-		LOGGER.fatal("Failed to get meeting and user info from Enter API {0}", [logData]);
+        JSLog.critical("Failed to get meeting and user info from Enter API", logData);
         
         dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
       }
@@ -127,6 +128,7 @@ package org.bigbluebutton.main.model.modules
       logData.meetingName = meetingInfo.meetingName;
       logData.meetingId = meetingInfo.meetingId;
 	  LOGGER.fatal("Cannot connect to Red5 using RTMP and RTMPT {0}", [jsonXify(logData)]);
+      JSLog.critical("Cannot connect to Red5 using RTMP and RTMPT", logData);
       
       dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
     }
@@ -142,7 +144,8 @@ package org.bigbluebutton.main.model.modules
       logData.username = meetingInfo.username;
       logData.meetingName = meetingInfo.meetingName;
       logData.meetingId = meetingInfo.meetingId;
-      LOGGER.debug("Successfully connected on test connection. {0}", [jsonXify(logData)]);
+	  LOGGER.debug("Successfully connected on test connection. {0}", [jsonXify(logData)]);
+      JSLog.debug("Successfully connected on test connection.", logData);
       
       var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
       portEvent.port = port;

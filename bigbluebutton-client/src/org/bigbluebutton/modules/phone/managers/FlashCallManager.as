@@ -9,6 +9,7 @@
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -263,21 +264,23 @@
       
       switch (state) {
         case CALLING_INTO_CONFERENCE:
+          JSLog.info("Successfully joined the voice conference.", logData);
           LOGGER.info("Successfully joined the voice conference. {0}", [jsonXify(logData)]);
           state = IN_CONFERENCE;
           dispatcher.dispatchEvent(new FlashJoinedVoiceConferenceEvent());
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
           break;
         case CONNECTING_TO_LISTEN_ONLY_STREAM:
-		  LOGGER.info("Successfully connected to the listen only stream. {0}", [jsonXify(logData)]);
+          JSLog.info("Successfully connected to the listen only stream.", logData);
+          LOGGER.info("Successfully connected to the listen only stream. {0}", [jsonXify(logData)]);
           state = ON_LISTEN_ONLY_STREAM;
           dispatcher.dispatchEvent(new FlashJoinedListenOnlyVoiceConferenceEvent());
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
           break;
         case CALLING_INTO_ECHO_TEST:
           state = IN_ECHO_TEST;
-		  LOGGER.debug("Successfully called into the echo test application.  [{0}] : [{1}] : [{2}]", [event.publishStreamName, event.playStreamName, event.codec]);
-          LOGGER.debug("Successfully called into the echo test application. {0}", [jsonXify(logData)]);
+          LOGGER.debug("Successfully called into the echo test application.  [{0}] : [{1}] : [{2}]", [event.publishStreamName, event.playStreamName, event.codec]);
+          JSLog.info("Successfully called into the echo test application.", logData);
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
           
           LOGGER.debug("Successfully called into the echo test application.");
@@ -301,11 +304,13 @@
           break;
         case ON_LISTEN_ONLY_STREAM:
           state = INITED;
+          JSLog.info("Flash user left the listen only stream.", logData);
           LOGGER.debug("Flash user left the listen only stream. {0}", [jsonXify(logData)]);
 		      dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
           break;
         case IN_ECHO_TEST:
           state = INITED;
+          JSLog.info("Flash echo test stopped.", logData);
           LOGGER.info("Flash echo test stopped. {0}", [jsonXify(logData)]);
           dispatcher.dispatchEvent(new FlashEchoTestStoppedEvent());
           break;
@@ -315,6 +320,7 @@
           break;
         case CALLING_INTO_ECHO_TEST:
           state = INITED;
+          JSLog.error("Unsuccessfully called into the echo test application.", logData);
           LOGGER.error("Unsuccessfully called into the echo test application.", [jsonXify(logData)]);
           dispatcher.dispatchEvent(new FlashEchoTestFailedEvent());
           break;

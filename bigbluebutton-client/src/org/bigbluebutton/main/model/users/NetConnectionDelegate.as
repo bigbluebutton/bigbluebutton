@@ -34,11 +34,12 @@ package org.bigbluebutton.main.model.users
 	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-
+		
 	public class NetConnectionDelegate
 	{
 		private static const LOGGER:ILogger = getClassLogger(NetConnectionDelegate);
@@ -153,7 +154,7 @@ package org.bigbluebutton.main.model.users
 
       var logData:Object = new Object();
       logData.user = UsersUtil.getUserData();
-      LOGGER.fatal("Validate auth token timed out. {0}", [jsonXify(logData)]);
+      JSLog.critical("Validate auth token timed out.", logData);
       
       if (tokenValid) {
         authenticated = true;
@@ -279,8 +280,7 @@ package org.bigbluebutton.main.model.users
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					LOGGER.debug("Connection to viewers application succeeded.");
-          
-          LOGGER.debug("Successfully connected to BBB App. {0}", [jsonXify(logData)]);
+          JSLog.debug("Successfully connected to BBB App.", logData);
           
           validateToken();
 			
@@ -321,7 +321,7 @@ package org.bigbluebutton.main.model.users
 					break;
 				
 				case "NetConnection.Connect.NetworkChange":
-          LOGGER.warn("Detected network change to BBB App {0}", [jsonXify(logData)]);
+          JSLog.warn("Detected network change to BBB App", logData);
           LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 					
@@ -365,12 +365,12 @@ package org.bigbluebutton.main.model.users
 			if (this.logoutOnUserCommand) {
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
-        LOGGER.debug("User logged out from BBB App. {0}", [jsonXify(logData)]);
+        JSLog.debug("User logged out from BBB App.", logData);
 				sendUserLoggedOutEvent();
 			} else {
         logData.reason = reason;
         logData.user = UsersUtil.getUserData();
-		LOGGER.warn("User disconnected from BBB App. {0}", [jsonXify(logData)]);
+        JSLog.warn("User disconnected from BBB App.", logData);
         var e:ConnectionFailedEvent = new ConnectionFailedEvent(reason);
         dispatcher.dispatchEvent(e);        
       }

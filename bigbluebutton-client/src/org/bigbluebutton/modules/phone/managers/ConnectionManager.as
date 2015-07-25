@@ -28,9 +28,9 @@ package org.bigbluebutton.modules.phone.managers {
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
@@ -113,22 +113,22 @@ package org.bigbluebutton.modules.phone.managers {
       
       switch (statusCode) {
         case "NetConnection.Connect.Success":
-		  LOGGER.debug("Connection success");
-		  LOGGER.debug("Successfully connected to BBB Voice {0}", [jsonXify(logData)]);
+          LOGGER.debug("Connection success");
+          JSLog.debug("Successfully connected to BBB Voice", logData);
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));           
           break;
         case "NetConnection.Connect.Failed":
           LOGGER.debug("Connection failed");
-		  LOGGER.error("Failed to connect to BBB Voice {0}", [jsonXify(logData)]);
+          JSLog.error("Failed to connect to BBB Voice", logData);
           dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED));
           break;
         case "NetConnection.Connect.NetworkChange":
-		  LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
-		  LOGGER.warn("Detected network change to BBB Voice {0}", [jsonXify(logData)]);
+          LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+          JSLog.warn("Detected network change to BBB Voice", logData);
           break;
         case "NetConnection.Connect.Closed":
-		  LOGGER.debug("Connection closed");
-		  LOGGER.debug("Disconnected from BBB Voice {0}", [jsonXify(logData)]);
+          LOGGER.debug("Connection closed");
+          JSLog.debug("Disconnected from BBB Voice", logData);
           handleConnectionClosed();
           break;
       }
