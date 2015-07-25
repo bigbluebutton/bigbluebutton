@@ -113,15 +113,17 @@ package org.bigbluebutton.main.model.users {
 
 		public function addUser(newuser:BBBUser):void {
 			trace("Adding new user [" + newuser.userID + "]");
-			if (! hasUser(newuser.userID)) {
+			if (hasUser(newuser.userID)) {
+				removeUser(newuser.userID);
+			} else {
 				trace("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
-				if (newuser.userID == me.userID) {
-					newuser.me = true;
-				}						
-				
-				users.addItem(newuser);
-				users.refresh();
-			}					
+			}
+			if (newuser.userID == me.userID) {
+				newuser.me = true;
+			}
+			
+			users.addItem(newuser);
+			users.refresh();
 		}
 		
 		public function setCamPublishing(publishing:Boolean):void {

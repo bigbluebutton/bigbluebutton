@@ -41,6 +41,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.sampler.NewObjectSample;			
 			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.UIComponent;			
+			import mx.utils.ObjectUtil;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -71,6 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private static const VIDEO_WIDTH_PADDING:int = 7;
 			private static const VIDEO_HEIGHT_PADDING:int = 65;
+
+			public static const LOG:String = "Deskshare::DesktopViewWindow - ";
 
 			// The following code block is to deal with a bug in FLexLib 
 			// with MDI windows not responding well to being maximized
@@ -178,10 +181,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{
+				trace(LOG + "onAsyncError " + e.toString());
 				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
+				trace(LOG + "onNetStatus info=" + e.info.text);
+			
 				switch(e.info.code){
 				case "NetStream.Play.Start":
 					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
