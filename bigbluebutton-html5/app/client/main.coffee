@@ -145,21 +145,29 @@ Template.main.gestures
   'panstart #container': (event, template) ->
     if isPortraitMobile() and isPanHorizontal(event)
       setInSession 'panStarted', true
-      if getInSession('initTransform') + event.deltaX >= 0 and
+      if getInSession('panIsValid') and
+      getInSession('initTransform') + event.deltaX >= 0 and
       getInSession('initTransform') + event.deltaX <= $('.left-drawer').width()
         $('.left-drawer').css('transform', 'translateX(' + (getInSession('initTransform') + event.deltaX) + 'px)')
   'panend #container': (event, template) ->
-    if isPortraitMobile() and isPanHorizontal(event)
+    if isPortraitMobile()
       setInSession 'panStarted', false
-      if parseInt($('.left-drawer').css('transform').split(',')[4]) < $('.left-drawer').width() / 2
-        $('.left-drawer').css('transform', 'translateX(0px)')
-      else
-        $('.left-drawer').css('transform', 'translateX(' + $('.left-drawer').width() + 'px)')
+      if getInSession('panIsValid') and $('.left-drawer').css('transform') isnt 'none'
+        if parseInt($('.left-drawer').css('transform').split(',')[4]) < $('.left-drawer').width() / 2
+          $('.left-drawer').css('transform', 'translateX(0px)')
+        else
+          $('.left-drawer').css('transform', 'translateX(' + $('.left-drawer').width() + 'px)')
       $('.left-drawer').addClass('sl-left-drawer')
       $('.sl-left-drawer').removeClass('left-drawer')
   'panright #container, panleft #container': (event, template) ->
     if isPortraitMobile() and isPanHorizontal(event)
       if !getInSession('panStarted') # panright/panleft is always triggered once right before panstart
+        if event.type is 'panleft' or
+        event.center.x <= $('#container').width() / 10
+          setInSession 'panIsValid', true
+        else
+          setInSession 'panIsValid', false
+        setInSession 'eventType', event.type
         if $('.sl-left-drawer').css('transform') isnt 'none' # menu is already transformed
           setInSession 'initTransform', parseInt($('.sl-left-drawer').css('transform').split(',')[4]) # translateX value
         else if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
@@ -169,7 +177,8 @@ Template.main.gestures
         $('.sl-left-drawer').addClass('left-drawer')
         $('.left-drawer').removeClass('sl-left-drawer') # to prevent animations from Sled library
         $('.left-drawer').removeClass('sl-left-drawer-content-delay') # makes the menu content movable too
-      if getInSession('initTransform') + event.deltaX >= 0 and
+      if getInSession('panIsValid') and
+      getInSession('initTransform') + event.deltaX >= 0 and
       getInSession('initTransform') + event.deltaX <= $('.left-drawer').width()
         $('.left-drawer').css('transform', 'translateX(' + (getInSession('initTransform') + event.deltaX) + 'px)')
 
