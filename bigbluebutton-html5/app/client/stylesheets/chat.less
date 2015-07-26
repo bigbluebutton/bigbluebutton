@@ -66,14 +66,15 @@
 
 #chat {
   @media @landscape {
-    -webkit-flex: 3 3 30%;
-    -moz-flex: 3 3 30%;
-    -ms-flex: 3 3 30%;
-    flex: 3 3 30%;
+    -webkit-flex: 1 1;
+    -moz-flex: 1 1;
+    -ms-flex: 1 1;
+    flex: 1 1;
     height: 100%;
     border-top: 0px;
     border-right: 0px;
     border-top-left-radius: 0px;
+    overflow: hidden;
   }
   order: 3;
 }
@@ -169,14 +170,14 @@
   float: left;
   width: 75%;
   resize: none;
-  padding-top: 5px;
+  padding-top: 0px;
   padding-bottom: 0px;
 
   border:1px solid extract(@lightGrey, 3);
   margin: 0px;
 
   @media @landscape {
-    height: 40px; /* same height as send button */
+    height: 100%; /* same height as send button */
   }
   @media @mobile-portrait {
     font-size: 4vw;
@@ -197,7 +198,7 @@
   position: relative;
   background: extract(@white, 1);
   padding: 0;
-  border-top: 1px solid #E5E5E5;
+  border-top: 1px solid extract(@lightGrey, 3);
 }
 
 #sendMessageButton {
@@ -229,6 +230,8 @@
   @media @landscape {
     height: 50px;
     padding: 0px;
+    position: absolute;
+    bottom: 10px;
     &:hover {
       background: #3A82D4;
     }
@@ -242,5 +245,18 @@
 #chatbar-contents {
   @media @landscape {
     min-width: 140px;
+  }
+}
+
+.button-group {
+  @media @landscape {
+    height: 100%;
+  }
+}
+
+#chatInput {
+  @media @landscape {
+    height: 100%;
+    padding-bottom: 10px;
   }
 }
