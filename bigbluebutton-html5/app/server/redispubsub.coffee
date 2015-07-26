@@ -336,9 +336,11 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "poll_started_message"
-        if Meteor.Meetings.findOne({meetingId: message.payload.meeting_id})?
-          users = Meteor.Users.find({meetingId: message.payload.meeting_id}, {fields:{"user.userid": 1, _id: 0}} ).fetch()
-          addPollToCollection message.payload.poll, message.payload.requester_id, users
+        if message.payload.meeting_id? and message.payload.requester_id? and message.payload.poll?
+          if Meteor.Meetings.findOne({meetingId: message.payload.meeting_id})?
+            #initializing the list of current users
+            users = Meteor.Users.find({meetingId: message.payload.meeting_id}, {fields:{"user.userid": 1, _id: 0}} ).fetch()
+            addPollToCollection message.payload.poll, message.payload.requester_id, users, message.payload.meeting_id
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server

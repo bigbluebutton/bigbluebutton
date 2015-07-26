@@ -1,15 +1,18 @@
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
-@addPollToCollection = (poll, requester_id, users) ->
+@addPollToCollection = (poll, requester_id, users, meetingId) ->
+  #copying all the userids into an array
   _users = []
-  i = 0
-  while i < users.length
-    _users.push users[i].user.userid
-    i++
-
+  for user in users
+    _users.push user.user.userid
+  #adding the initial number of votes for each answer
+  for answer in poll.answers
+    answer.number = 0
+  #adding all together and inserting into the Polls collection
   entry =
     poll_info:
+      "meetingId": meetingId
       "poll": poll
       "requester": requester_id
       "users": _users
