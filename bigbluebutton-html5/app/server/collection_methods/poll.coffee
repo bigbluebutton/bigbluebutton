@@ -2,11 +2,17 @@
 # Private methods on server
 # --------------------------------------------------------------------------------------------
 @addPollToCollection = (poll, requester_id, users) ->
+  _users = []
+  i = 0
+  while i < users.length
+    _users.push users[i].user.userid
+    i++
+
   entry =
     poll_info:
       "poll": poll
       "requester": requester_id
-      "users": users
+      "users": _users
   Meteor.Polls.insert(entry)
 
 @clearPollCollection = (meetingId) ->
