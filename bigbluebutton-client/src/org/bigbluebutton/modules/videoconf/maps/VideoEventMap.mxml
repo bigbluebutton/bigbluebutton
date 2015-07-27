@@ -115,7 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 
   <EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" arguments="{event}"/>
   </EventHandlers>
  
   <EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
