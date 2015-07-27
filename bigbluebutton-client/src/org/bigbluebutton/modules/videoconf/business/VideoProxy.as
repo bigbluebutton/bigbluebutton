@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -98,21 +99,36 @@ package org.bigbluebutton.modules.videoconf.business
     
 		private function onNetStatus(event:NetStatusEvent):void{
 			trace("[" + event.info.code + "] for [" + _url + "]");
+			var logData:Object = new Object();
+			logData.user = UsersUtil.getUserData();
+			
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
 					connected = true;
-					//ns = new NetStream(nc);
           			onConnectedToVideoApp();
 					break;
 				case "NetStream.Play.Failed":
+					if (reconnect) {
+						JSLog.warn("NetStream.Play.Failed from bbb-video", logData);
+					}
 					disconnect();
 					break;
 				case "NetStream.Play.Stop":
+					if (reconnect) {
+						JSLog.warn("NetStream.Play.Stop from bbb-video", logData);
+					}
 					disconnect();
 					break;		
 				case "NetConnection.Connect.Closed":
+					if (reconnect) {
+						JSLog.warn("Disconnected from bbb-video", logData);
+					}
+					
 					disconnect();
-					break;						
+					break;		
+				case "NetConnection.Connect.NetworkChange":
+					JSLog.warn("Detected network change on bbb-video", logData);
+					break;
         		default:
 					LogUtil.debug("[" + event.info.code + "] for [" + _url + "]");
 					trace("[" + event.info.code + "] for [" + _url + "]");
@@ -135,11 +151,8 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
 			ns.client = this;
 			ns.attachCamera(e.camera);
-//		Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)	
-//			if (Capabilities.version.search("11,0") != -1) {
+
 			if ((BBB.getFlashPlayerVersion() >= 11) && e.videoProfile.enableH264) {
-//			if (BBB.getFlashPlayerVersion() >= 11) {
-				LogUtil.info("Using H264 codec for video.");
 				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
 				var h264profile:String = H264Profile.MAIN;
 				if (e.videoProfile.h264Profile != "main") {
