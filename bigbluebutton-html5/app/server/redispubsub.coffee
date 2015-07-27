@@ -342,6 +342,11 @@ class Meteor.RedisPubSub
             users = Meteor.Users.find({meetingId: message.payload.meeting_id}, {fields:{"user.userid": 1, _id: 0}} ).fetch()
             addPollToCollection message.payload.poll, message.payload.requester_id, users, message.payload.meeting_id
 
+      if message.header.name is "poll_stopped_message"
+        meetingId = message.payload.meeting_id
+        poll_id = message.payload.poll_id
+        clearPollCollection meetingId, poll_id
+
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
