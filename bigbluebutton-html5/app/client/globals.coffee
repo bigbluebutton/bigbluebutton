@@ -260,12 +260,11 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   if parseFloat($('.shield').css('opacity')) is 0.5 # triggered during a pan gesture
     $('.shield').css('opacity', '')
 
-  if $('.shield').hasClass('animatedShield') # triggered during a pan gesture
-    $('.shield').removeClass('animatedShield')
-  else if $('.shield').hasClass('darken')
-    $('.shield').removeClass('darken')
-  else
+  if !$('.shield').hasClass('darken') and !$('.shield').hasClass('animatedShield')
     $('.shield').addClass('darken')
+  else
+    $('.shield').removeClass('darken')
+    $('.shield').removeClass('animatedShield')
 
 @removeFullscreenStyles = ->
   $('#whiteboard-paper').removeClass('verticallyCentered')
