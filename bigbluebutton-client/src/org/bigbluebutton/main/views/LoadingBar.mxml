@@ -24,6 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOADING_STARTED}" method="moduleLoadingStarted" />
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
+	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
 	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
 	<mate:Listener type="{PortTestEvent.PORT_TEST_UPDATE}" method="testRTMPupdate" />
 	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
@@ -69,6 +70,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
         //LogUtil.debug("Progress: " + totalProgress);
         this.setProgress(totalProgress/numModules, 100);
+      }
+
+      private function allModulesLoaded(e:ModuleLoadEvent):void{
+        if (parent != null) parent.removeChild(this);
       }
 						
       private function testRTMP(e:PortTestEvent):void{
