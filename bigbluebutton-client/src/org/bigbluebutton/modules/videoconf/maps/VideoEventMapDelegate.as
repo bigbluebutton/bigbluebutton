@@ -284,6 +284,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     public function connectToVideoApp():void {
       proxy = new VideoProxy(uri);
+	  proxy.reconnectWhenDisconnected(true);
       proxy.connect();
     }
 
@@ -404,6 +405,7 @@ package org.bigbluebutton.modules.videoconf.maps
     public function stopModule():void {
       trace("VideoEventMapDelegate:: stopping video module");
       closeAllWindows();
+	  proxy.reconnectWhenDisconnected(false);
       proxy.disconnect();
     }
 
@@ -436,11 +438,16 @@ package org.bigbluebutton.modules.videoconf.maps
       }
     }
 
-    public function connectedToVideoApp():void{
+    public function connectedToVideoApp(event: ConnectedEvent):void{
       trace("VideoEventMapDelegate:: [" + me + "] Connected to video application.");
       _ready = true;
-      addToolbarButton();
-      openWebcamWindows();
+		if (event.reconnection) {
+		 closeAllWindows()
+		} else {
+			addToolbarButton();					  
+		}
+		openWebcamWindows();
+	
     }
 
     public function handleCameraSetting(event:BBBEvent):void {
