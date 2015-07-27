@@ -111,13 +111,13 @@ package org.bigbluebutton.modules.videoconf.business
 					if (reconnect) {
 						JSLog.warn("NetStream.Play.Failed from bbb-video", logData);
 					}
-					disconnect();
+					//disconnect();
 					break;
 				case "NetStream.Play.Stop":
 					if (reconnect) {
 						JSLog.warn("NetStream.Play.Stop from bbb-video", logData);
 					}
-					disconnect();
+					//disconnect();
 					break;		
 				case "NetConnection.Connect.Closed":
 					if (reconnect) {
