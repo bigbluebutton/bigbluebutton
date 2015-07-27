@@ -114,6 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.Guest;
+			import org.bigbluebutton.main.model.ImageLoader;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -840,49 +841,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function onCanvasResize():void {
+				if (canvasBackground == null) {
+					return;
+				}
+
 				var canvasAspectRatio:Number = mdiCanvas.width / mdiCanvas.height;
 
-				if (canvasAspectRatio >= canvasBackgroundAspectRatio) {
-					canvasBackground.width = Math.max(mdiCanvas.width, canvasBackgroundOriginalWidth);
-					canvasBackground.height = Math.ceil(canvasBackground.width / canvasBackgroundAspectRatio);
+				// this is the case when the image is a banner that should be positioned in the top, and
+				// be shown entirely
+				if (canvasBackgroundAspectRatio > 2 || canvasAspectRatio >= canvasBackgroundAspectRatio) {
+					canvasBackground.width = mdiCanvas.width;
+					canvasBackground.height = Math.ceil(mdiCanvas.width / canvasBackgroundAspectRatio);
 				} else {
-					canvasBackground.height = Math.max(mdiCanvas.height, canvasBackgroundOriginalHeight);
-					canvasBackground.width = Math.ceil(canvasBackground.height * canvasBackgroundAspectRatio);
+					canvasBackground.height = mdiCanvas.height;
+					canvasBackground.width = Math.ceil(mdiCanvas.height * canvasBackgroundAspectRatio);
 				}
 			}
 
+			private var canvasBackground:DisplayObject = null;
 			private var canvasBackgroundAspectRatio:Number = NaN;
-			private var canvasBackgroundOriginalWidth:Number;
-			private var canvasBackgroundOriginalHeight:Number;
-
-			private function onCanvasBackgroundLoaded():void {
-				if (isNaN(canvasBackgroundAspectRatio)) {
-					var candidate:Number = canvasBackground.width / canvasBackground.height;
-
-					if (isNaN(candidate))
-						return;
-
-					canvasBackgroundAspectRatio = candidate;
-					canvasBackgroundOriginalWidth = canvasBackground.width;
-					canvasBackgroundOriginalHeight = canvasBackground.height;
-
-					onCanvasResize();
-				}
-			}
 
 			private function loadBackground():void {
 				var backgroundCandidate:String = BBB.initConfigManager().config.branding.background;
-				if (backgroundCandidate == "") {
-					hideBackground();
-				} else {
-					canvasBackground.source = backgroundCandidate;
+				if (backgroundCandidate != "") {
+					var imageLoader:ImageLoader = new ImageLoader();
+					imageLoader.load(backgroundCandidate, function(obj:DisplayObject, width:Number, height:Number):void {
+						canvasBackground = obj;
+						canvasBackgroundAspectRatio = width / height;
+						backgroundPlaceHolder.rawChildren.addChild(canvasBackground);
+						backgroundPlaceHolder.invalidateDisplayList();
+						onCanvasResize();
+					});
 				}
 			}
 
-			private function hideBackground():void {
-				canvasBackground.visible = canvasBackground.includeInLayout = false;
-			}
-			
 			private function openLockSettingsWindow(event:LockControlEvent):void {
 				var conference:Conference = UserManager.getInstance().getConference();
 				var lsv:LockSettingsVO = conference.getLockSettings();
@@ -937,7 +929,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  width="100%" 
 					  height="100%"
 					  resize="onCanvasResize()">
-		<mx:Image id="canvasBackground" updateComplete="onCanvasBackgroundLoaded()" ioError="hideBackground()" />
+		<mx:Canvas id="backgroundPlaceHolder" width="100%" height="100%" />
 		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
