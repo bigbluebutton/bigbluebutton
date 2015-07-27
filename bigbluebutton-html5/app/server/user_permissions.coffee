@@ -4,7 +4,7 @@ presenter =
 
   #poll
   subscribePoll: true
-
+  subscribeAnswers: true
 # holds the values for whether the moderator user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
 moderator =
@@ -35,6 +35,7 @@ moderator =
 
   #poll
   subscribePoll: true
+  subscribeAnswers: false
 
 
 # holds the values for whether the viewer user is allowed to perform an action (true)
@@ -73,6 +74,7 @@ viewer = (meetingId, userId) ->
   
   #poll
   subscribePoll: true
+  subscribeAnswers: false
 
 # carries out the decision making for actions affecting users. For the list of
 # actions and the default value - see 'viewer' and 'moderator' in the beginning of the file

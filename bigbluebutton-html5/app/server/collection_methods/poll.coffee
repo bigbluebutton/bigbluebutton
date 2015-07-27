@@ -21,8 +21,8 @@
 @clearPollCollection = (meetingId, poll_id) ->
   if meetingId? and poll_id? and Meteor.Polls.findOne({"poll_info.meetingId": meetingId, "poll_info.poll.id": poll_id})?
     Meteor.Polls.remove({
-    	"poll_info.meetingId": meetingId, 
-    	"poll_info.poll.id": poll_id}, 
-    	Meteor.log.info "cleared Polls Collection (meetingId: #{meetingId}!")
+      "poll_info.meetingId": meetingId, 
+      "poll_info.poll.id": poll_id}, 
+      Meteor.log.info "cleared Polls Collection (meetingId: #{meetingId}!")
   else
     Meteor.Polls.remove({}, Meteor.log.info "cleared Polls Collection (all meetings)!")
