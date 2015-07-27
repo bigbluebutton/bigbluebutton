@@ -257,7 +257,12 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       setInSession 'chats', chats
 
 @toggleShield = ->
-  if $('.shield').hasClass('darken')
+  if parseFloat($('.shield').css('opacity')) is 0.5 # triggered during a pan gesture
+    $('.shield').css('opacity', '')
+
+  if $('.shield').hasClass('animatedShield') # triggered during a pan gesture
+    $('.shield').removeClass('animatedShield')
+  else if $('.shield').hasClass('darken')
     $('.shield').removeClass('darken')
   else
     $('.shield').addClass('darken')

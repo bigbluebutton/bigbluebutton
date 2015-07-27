@@ -158,11 +158,14 @@ Template.main.gestures
           $('.shield').css('opacity', '')
           $('.left-drawer').removeClass('sl-left-drawer-out')
           $('.left-drawer').css('transform', '')
+          $('.toggleUserlistButton').removeClass('sl-toggled-on')
+          $('.shield').removeClass('darken') # in case it was opened by clicking a button
         else
           $('.left-drawer').css('transform', 'translateX(' + $('.left-drawer').width() + 'px)')
           $('.shield').css('opacity', 0.5)
           $('.left-drawer').addClass('sl-left-drawer-out')
           $('.left-drawer').css('transform', '')
+          $('.toggleUserlistButton').addClass('sl-toggled-on')
       $('.left-drawer').addClass('sl-left-drawer')
       $('.sl-left-drawer').removeClass('left-drawer')
   'panright #container, panleft #container': (event, template) ->
