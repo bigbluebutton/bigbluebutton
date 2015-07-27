@@ -71,23 +71,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var phoneOptions:PhoneOptions = new PhoneOptions();
 			
 			private function startPhone():void {
-				trace(LOG + "startPhone 1 enabled=[" + enabled + "] selected=[" + selected + "]");
+				trace(LOG + "startPhone enabled=[" + enabled + "] selected=[" + selected + "]");
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
-				trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
 				if (this.selected) {
-					if(disableMyMic || defaultListenOnlyMode){
-						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-						command.mic = !disableMyMic;
-						dispatcher.dispatchEvent(command);
-					} else {
-						trace(LOG + "Sending Show Audio Selection command");
-						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
-					}
+					joinAudio();
 				} else {
-					trace(LOG + "Sending Leave Conference command");
-					dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
+					leaveAudio();
 				}				
 			}
 
@@ -95,7 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var conference:Conference = UserManager.getInstance().getConference();
 				var me:BBBUser = conference.getMyUser();
 				
-				return me.disableMyMic && !(me.presenter || me.moderator);
+				return (me.disableMyMic || phoneOptions.presenterShareOnly) && !(me.presenter || me.moderator);
 			}
 
 			private function get defaultListenOnlyMode():Boolean {
@@ -106,7 +97,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.selected = true;
 				startPhone();
 			}
-			
 			
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == ACTIVE_STATE)
@@ -121,27 +111,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				else
           this.styleName = "voiceConfDefaultButtonStyle";			
 			}
+
+			private function joinAudio():void {
+				if (phoneOptions.skipCheck || disableMyMic || defaultListenOnlyMode) {
+					var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+					command.mic = !disableMyMic;
+					dispatcher.dispatchEvent(command);
+				} else {
+					trace(LOG + "Sending Show Audio Selection command");
+					dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
+				}
+			}
+
+			private function leaveAudio():void {
+				trace(LOG + "Sending Leave Conference command");
+				dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
+			}
 			
 			private function onCreationComplete():void {
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
-					if (phoneOptions.skipCheck || disableMyMic || defaultListenOnlyMode) {
-						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-						if (
-							(phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
-							|| disableMyMic
-							|| defaultListenOnlyMode
-						) {
-							command.mic = false;
-						} else {
-							command.mic = true;
-						}
-						
-						dispatcher.dispatchEvent(command);
-					} else {
-						trace(LOG + "Sending Show Audio Selection command");
-						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
-					}
+					joinAudio();
 				} else {
 					joinDefaultListenOnlyMode();
 				}
