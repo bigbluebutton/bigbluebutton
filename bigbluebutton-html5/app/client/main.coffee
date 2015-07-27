@@ -154,9 +154,15 @@ Template.main.gestures
       setInSession 'panStarted', false
       if getInSession('panIsValid') and $('.left-drawer').css('transform') isnt 'none'
         if parseInt($('.left-drawer').css('transform').split(',')[4]) < $('.left-drawer').width() / 2
-          $('.left-drawer').css('transform', 'translateX(0px)')
+          $('.shield').removeClass('animatedShield')
+          $('.shield').css('opacity', '')
+          $('.left-drawer').removeClass('sl-left-drawer-out')
+          $('.left-drawer').css('transform', '')
         else
           $('.left-drawer').css('transform', 'translateX(' + $('.left-drawer').width() + 'px)')
+          $('.shield').css('opacity', 0.5)
+          $('.left-drawer').addClass('sl-left-drawer-out')
+          $('.left-drawer').css('transform', '')
       $('.left-drawer').addClass('sl-left-drawer')
       $('.sl-left-drawer').removeClass('left-drawer')
   'panright #container, panleft #container': (event, template) ->
@@ -181,6 +187,9 @@ Template.main.gestures
       getInSession('initTransform') + event.deltaX >= 0 and
       getInSession('initTransform') + event.deltaX <= $('.left-drawer').width()
         $('.left-drawer').css('transform', 'translateX(' + (getInSession('initTransform') + event.deltaX) + 'px)')
+        if !getInSession('panStarted')
+          $('.shield').addClass('animatedShield')
+        $('.shield').css('opacity', 0.5 * (getInSession('initTransform') + event.deltaX) / $('.left-drawer').width())
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()
