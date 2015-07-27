@@ -57,11 +57,14 @@ Meteor.publish 'chat', (meetingId, userid, authToken) ->
     return
 
 Meteor.publish 'bbb_poll', (meetingId, userid, authToken) ->
+  #checking if it is allowed to see Poll Collection in general
   if isAllowedTo('subscribePoll', meetingId, userid, authToken)
+    #checking if it is allowed to see a number of votes (presenter only)
     if isAllowedTo('subscribeAnswers', meetingId, userid, authToken)
-      Meteor.log.info "publishing Poll for #{meetingId} #{userid} #{authToken}"
+      Meteor.log.info "publishing Poll for presenter: #{meetingId} #{userid} #{authToken}"
       return Meteor.Polls.find({"poll_info.meetingId": meetingId, "poll_info.users": userid})
     else
+      Meteor.log.info "publishing Poll for viewer: #{meetingId} #{userid} #{authToken}"
       return Meteor.Polls.find({"poll_info.meetingId": meetingId, "poll_info.users": userid},
         {fields: {"poll_info.poll.answers.number": 0}})
   else

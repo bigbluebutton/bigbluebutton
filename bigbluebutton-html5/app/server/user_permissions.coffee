@@ -5,6 +5,7 @@ presenter =
   #poll
   subscribePoll: true
   subscribeAnswers: true
+
 # holds the values for whether the moderator user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
 moderator =
@@ -36,7 +37,6 @@ moderator =
   #poll
   subscribePoll: true
   subscribeAnswers: false
-
 
 # holds the values for whether the viewer user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
