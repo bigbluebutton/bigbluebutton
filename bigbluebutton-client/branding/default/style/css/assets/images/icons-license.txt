@@ -36,3 +36,6 @@ I'm unavailable for custom icon design work. But your
 suggestions are always welcome!
 <mailto:p@yusukekamiyamane.com>
 ====================
+Some of the client icons were generated using the following online tool:
+
+http://romannurik.github.io/AndroidAssetStudio/icons-launcher.html#foreground.type=clipart&foreground.space.trim=1&foreground.space.pad=0.15&foreground.clipart=res%2Fclipart%2Ficons%2Fnavigation_refresh.svg&foreColor=4b4b4b%2C0&crop=0&backgroundShape=none&backColor=ffffff%2C100&effects=none
