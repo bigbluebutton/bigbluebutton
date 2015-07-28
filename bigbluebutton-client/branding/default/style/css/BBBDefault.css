@@ -855,6 +855,7 @@ Alert {
   successImage:   Embed(source='assets/images/status_success.png');
   warningImage:   Embed(source='assets/images/status_warning.png');
   failImage:      Embed(source='assets/images/status_fail.png');
+  refreshImage:   Embed(source='assets/images/status_refresh.png');
 }
 
 .warningButtonStyle {
@@ -869,5 +870,10 @@ Alert {
 
 .statusMessageStyle {
   fontSize: 12;
+  paddingTop: 0;
+}
+
+.statusTimeStyle {
+  fontSize: 10;
   paddingTop: 0;
 }

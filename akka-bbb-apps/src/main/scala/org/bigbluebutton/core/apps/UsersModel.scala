@@ -96,6 +96,10 @@ class UsersModel {
     uservos.values find (u => u.role == MODERATOR)
   }
 
+  def noPresenter(): Boolean = {
+    !getCurrentPresenter().isDefined
+  }
+
   def getCurrentPresenter(): Option[UserVO] = {
     uservos.values find (u => u.presenter == true)
   }
@@ -126,5 +130,18 @@ class UsersModel {
 
   def getViewers(): Array[UserVO] = {
     uservos.values filter (u => u.role == VIEWER) toArray
+  }
+
+  def getRegisteredUserWithUserID(userID: String): Option[RegisteredUser] = {
+    regUsers.values find (ru => userID contains ru.id)
+  }
+
+  def removeRegUser(userID: String) {
+    getRegisteredUserWithUserID(userID) match {
+      case Some(ru) => {
+        regUsers -= ru.authToken
+      }
+      case None =>
+    }
   }
 }
