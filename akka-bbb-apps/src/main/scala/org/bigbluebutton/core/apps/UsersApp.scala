@@ -302,7 +302,7 @@ trait UsersApp {
       outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingModel.isMeetingMuted()))
 
       // Become presenter if the only moderator		
-      if (usersModel.numModerators == 1) {
+      if ((usersModel.numModerators == 1) || (usersModel.noPresenter())) {
         if (ru.role == Role.MODERATOR) {
           assignNewPresenter(msg.userID, ru.name, msg.userID)
         }

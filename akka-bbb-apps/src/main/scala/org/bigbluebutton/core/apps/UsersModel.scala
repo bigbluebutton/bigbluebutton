@@ -96,6 +96,10 @@ class UsersModel {
     uservos.values find (u => u.role == MODERATOR)
   }
 
+  def noPresenter(): Boolean = {
+    !getCurrentPresenter().isDefined
+  }
+
   def getCurrentPresenter(): Option[UserVO] = {
     uservos.values find (u => u.presenter == true)
   }
