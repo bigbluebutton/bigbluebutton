@@ -174,7 +174,10 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   if BBB.isUserPresenter(getInSession('userId'))
     return 'presenter-whiteboard'
   else
-    return 'viewer-whiteboard'
+    if BBB.isPollGoing(getInSession('userId'))
+      return 'poll-whiteboard'
+    else
+      return 'viewer-whiteboard'
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
