@@ -5,7 +5,7 @@ var callTimeout = null; // function that will run if there is no call establishe
 var conferenceIdNumber = "1008";
 var conferenceUsername = "FreeSWITCH User";
 var toDisplayDisconnectCallback = true; // if a call is dropped only display the error the first time
-var voiceBridge = extension = "79463";
+var voiceBridge = extension = "77054";
 var wasCallSuccessful = false; // when the websocket connection is closed this determines whether a call was ever successfully established
 
 // save a copy of the hangup function registered for the verto object
@@ -44,12 +44,10 @@ function callIntoConference(voiceBridge, conferenceUsername, conferenceIdNumber,
 		// runs when a web socket is disconnected
 		console.log("11111");
 		callbacks.onWSClose = function(v, success) {
-			console.log("22222");
-				console.log("33333");
-				if(toDisplayDisconnectCallback) { // will only display the error the first time
-					if(wasCallSuccessful) { // a call was established through the websocket
-						console.log("4444");
-						// the connection was dropped in an already established call
+			if(toDisplayDisconnectCallback) { // will only display the error the first time
+				if(wasCallSuccessful) { // a call was established through the websocket
+					console.log("4444");
+					// the connection was dropped in an already established call
 					console.log("websocket disconnected");
 					callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
 					toDisplayDisconnectCallback = false;
@@ -152,11 +150,11 @@ function docall(extension, conferenceUsername, conferenceIdNumber, callbacks) {
 		outgoingBandwidth: outgoingBandwidth,
 		incomingBandwidth: incomingBandwidth,
 		useVideo: true,
-		useStereo: true,
-		useCamera: true,
-		useMic: true,
-		dedEnc: true,
-		mirrorInput: true,
+		useStereo: false,
+		useCamera: "screen",
+		useMic: false,
+		dedEnc: false,
+		mirrorInput: false,
 	});
 
 	if (callbacks != null) { // add user supplied callbacks to the current call
@@ -283,7 +281,7 @@ function makeVerto(callbacks, stunsConfig) {
 	var hostName = "192.168.23.45";
 	//var socketUrl = "ws://" + hostName + ":5066";
 	var socketUrl = "wss://" + hostName + ":" + vertoPort;
-	var login = "1009";
+	var login = "1008";
 	var password = "fred";
 	var minWidth = "320";
 	var minHeight = "240";
@@ -354,22 +352,6 @@ function webrtc_hangup(userCallback) {
 
 // supplement my own that insert my own button and handler
 $(document).ready(function() {
-	$("body").append("<button id='joinAudio' style='position:absolute; top:0px; left:0px; width:500px; height:30px;'>joinAudio</button>");
-	$("#joinAudio").click(function() {
-		wasCallSuccessful = false;
-		var debuggerCallback = function(message) {
-			console.log("CALLBACK: "+JSON.stringify(message));
-		}
-		callIntoConference(extension, conferenceUsername, conferenceIdNumber, debuggerCallback);
-	});
-
-	$("body").append("<button id='hangUp' style='position:absolute; top:30px; left:0px; width:500px; height:30px;'>hangUp</button>");
-	$("#hangUp").click(function() {
-		console.log("hangup button");
-		leaveWebRTCVoiceConference();
-		cur_call = null;
-	});
-
 	$("body").append("<button id='shareScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>shareScreen</button>");
 	$("#shareScreen").click(function() {
 		console.log("shareScreen button");

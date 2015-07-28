@@ -70,6 +70,8 @@
                 optional: []
             }
         };
+        console.log("____in getScreenConstraints and error=" + error + " and sourceId=" + sourceId +
+            " and chromeMediaSource = " + screen_constraints.video.mandatory.chromeMediaSource);
 
         if (sourceId) {
             screen_constraints.video.mandatory.chromeMediaSourceId = sourceId;
@@ -79,6 +81,8 @@
     }
 
     function postMessage() {
+        console.log("___in postMessage and iframe isLoaded=" + iframe.isLoaded);
+
         if (!iframe.isLoaded) {
             setTimeout(postMessage, 100);
             return;

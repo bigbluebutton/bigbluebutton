@@ -14,17 +14,17 @@ function screenStart(state, callback) {
 			doshare(state);
 			goto_page("main");
 			console.log("logged in. starting screenshare");
-			$("#webcam").show()
-			$("#webcam").css("z-index","1000")
+			// $("#webcam").show()
+			// $("#webcam").css("z-index","1000")
 		}
 		console.log("ccc");
 		// set up verto
 		$.verto.init({}, init);
 	} else {
 		console.log("ddddd");
-		console.log("already logged into verto, going straight to making a call");
+		console.log("already logged into verto, going straight to making a call and state=" + state);
 		cur_call = true;
-		doshare(state);
+		doshare(true);
 		goto_page("main");
 		$("#webcam").show()
 		$("#webcam").css("z-index","1000")
@@ -32,7 +32,7 @@ function screenStart(state, callback) {
 
 	console.log("eee" + state);
 	if (state) {
-			callback({'status':'success', 'message': 'screenshare started'});
+		callback({'status':'success', 'message': 'screenshare started'});
 	} else {
 		callback({'status':'success', 'message': 'screenshare ended'});
 	}
@@ -50,8 +50,8 @@ function doshare(on) {
 		return;
 	}
 
-	$('#ext').trigger('change');
-	$("#main_info").html("Trying");
+	// $('#ext').trigger('change');
+	// $("#main_info").html("Trying");
 	check_vid_res();
 	outgoingBandwidth = "5120";
 	incomingBandwidth = "5120";
@@ -60,6 +60,7 @@ function doshare(on) {
 	//var sharedev = $("#useshare").find(":selected").val();
 
 	if (sharedev !== "screen") {
+		alert("not screen");
 		console.log("Attempting Screen Capture with non-screen device....");
 		share_call = verto.newCall({
 			destination_number: extension + "-screen",
@@ -70,8 +71,8 @@ function doshare(on) {
 			useCamera: sharedev,
 			useVideo: true,
 			screenShare: true,
-			dedEnc: $("#use_dedenc").is(':checked'),
-			mirrorInput: $("#mirror_input").is(':checked')
+			dedEnc: false, // $("#use_dedenc").is(':checked'),
+			mirrorInput: false //$("#mirror_input").is(':checked')
 		});
 		return;
 	}
@@ -81,28 +82,28 @@ function doshare(on) {
 
 		// TODO anton remove this hardcoded screen_constraints
 		//var NEW_screen_constraints = {
-         //   audio: false,
-         //   video: {
-         //       mandatory: {
-         //           chromeMediaSource: error ? 'screen' : 'desktop',
-         //           maxWidth: window.screen.width > 1920 ? window.screen.width : 1920,
-         //           maxHeight: window.screen.height > 1080 ? window.screen.height : 1080
-         //       },
-         //       optional: []
-         //   }
-        //};
+		//   audio: false,
+		//   video: {
+		//       mandatory: {
+		//           chromeMediaSource: error ? 'screen' : 'desktop',
+		//           maxWidth: window.screen.width > 1920 ? window.screen.width : 1920,
+		//           maxHeight: window.screen.height > 1080 ? window.screen.height : 1080
+		//       },
+		//       optional: []
+		//   }
+		//};
 
-		var NEW_screen_constraints = {
-			audio: false,
-			video: {
-				mandatory: {
-					chromeMediaSource: error ? 'screen' : 'desktop',
-					maxWidth: window.screen.width > 1920 ? window.screen.width : 1920,
-					maxHeight: window.screen.height > 1080 ? window.screen.height : 1080
-				},
-				optional: []
-			}
-		};
+		//var NEW_screen_constraints = {
+		//	audio: false,
+		//	video: {
+		//		mandatory: {
+		//			chromeMediaSource: error ? 'screen' : 'desktop',
+		//			maxWidth: window.screen.width > 1920 ? window.screen.width : 320,
+		//			maxHeight: window.screen.height > 1080 ? window.screen.height : 240
+		//		},
+		//		optional: []
+		//	}
+		//};
 		var videoParamsCustom = {
 			maxHeight: 240,
 			maxWidth: 320,
@@ -122,11 +123,12 @@ function doshare(on) {
 			incomingBandwidth: incomingBandwidth,
 			videoParams: videoParamsCustom, //TODO anton
 			//videoParams: screen_constraints.video.mandatory, //TODO anton
-			useCamera: true,
+			useCamera: "screen",
+			//useCamera: true,
 			useVideo: true,
 			screenShare: true,
-			dedEnc: true,
-			mirrorInput: true,
+			dedEnc: false, //true,
+			mirrorInput: false, //true,
 			tag: "webcam"
 		});
 	});
