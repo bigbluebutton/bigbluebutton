@@ -19,13 +19,12 @@ Template.whiteboard.helpers
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
       return ''
-  
   isPollStarted: ->
-    poll = getInSession('poll')
-    if poll is true
+    if BBB.isPollGoing(getInSession('userId'))
       return true
     else
-      return
+      return false
+
 
 
 Template.whiteboard.events
