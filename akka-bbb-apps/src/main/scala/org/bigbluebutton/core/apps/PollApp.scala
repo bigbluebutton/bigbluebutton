@@ -68,6 +68,9 @@ trait PollApp {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
     shape += "num_respondents" -> new Integer(result.numRespondents)
     shape += "num_responders" -> new Integer(result.numResponders)
+    shape += "type" -> "poll_result"
+    shape += "id" -> result.id
+    shape += "status" -> "DRAW_END"
 
     val answers = new ArrayBuffer[java.util.HashMap[String, Object]];
     result.answers.foreach(ans => {
