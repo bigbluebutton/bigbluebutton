@@ -1,5 +1,6 @@
 agnito:raphael@0.1.0
 aldeed:simple-schema@1.3.2
+aldeed:template-extension@3.4.3
 amplify@1.0.0
 arunoda:npm@0.2.6
 autoupdate@1.2.1
@@ -12,6 +13,7 @@ brentjanderson:winston-client@0.2.1
 callback-hook@1.0.3
 cfs:http-methods@0.0.27
 check@1.0.5
+chriswessels:hammer@3.1.1
 clinical:nightwatch@2.0.1
 coffeescript@1.0.6
 ddp@1.1.0
