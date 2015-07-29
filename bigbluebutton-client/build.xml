@@ -40,6 +40,14 @@
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
+	<target name="git-revision" description="Store git revision in ${GIT_VERSION}">
+		<exec executable="git" outputproperty="GIT_VERSION" failifexecutionfails="false" errorproperty="">
+			<arg value="describe"/>
+			<arg value="--always"/>
+			<arg value="HEAD"/>
+		</exec>
+	</target>
+	
 	<target name="init-ant-contrib">
 		<property name="ant-contrib.jar" location="${BASE_DIR}/build/lib/ant-contrib-0.6.jar"/>
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
@@ -179,7 +187,7 @@
 		</sequential>
 	</macrodef>
 	
-	<target name="build-bbb-main" description="Compile BigBlueButton Main">
+	<target name="build-bbb-main" depends="git-revision" description="Compile BigBlueButton Main">
 		<build-main src="${SRC_DIR}" target="${BBB_MAIN}" />
 		
 		<echo message="Copying common assets for BBB Main" />
@@ -305,6 +313,8 @@
 					-->
 					<resource-bundle-list>bundles.txt</resource-bundle-list>
 	        			<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
+						
+					<define name="GIT::version" value="'${GIT_VERSION}'"/>
 				
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
 						<include name="libs" />
