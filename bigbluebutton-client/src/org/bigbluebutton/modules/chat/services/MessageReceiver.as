@@ -35,6 +35,8 @@ package org.bigbluebutton.modules.chat.services
   {
     
 	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
+
+    private var welcomed:Boolean = false;
     
     public var dispatcher:IEventDispatcher;
     
@@ -67,9 +69,12 @@ package org.bigbluebutton.modules.chat.services
       for (var i:int = 0; i < chats.length; i++) {
         handleChatReceivePublicMessageCommand(chats[i], true);
       }
-         
-      var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
-      dispatcher.dispatchEvent(pcEvent);
+
+      if (!welcomed) {
+        var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
+        dispatcher.dispatchEvent(pcEvent);
+        welcomed = true;
+      }
     }
         
     private function handleChatReceivePublicMessageCommand(message:Object, history:Boolean = false):void {

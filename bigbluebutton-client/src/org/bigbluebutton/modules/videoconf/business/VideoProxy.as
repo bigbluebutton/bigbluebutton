@@ -36,9 +36,13 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+	import org.bigbluebutton.main.api.JSLog;
 
 	
 	public class VideoProxy
@@ -48,15 +52,12 @@ package org.bigbluebutton.modules.videoconf.business
 		public var videoOptions:VideoConfOptions;
 		
 		private var nc:NetConnection;
-		private var ns:NetStream;
 		private var _url:String;
 		private var camerasPublishing:Object = new Object();
-		private var connected:Boolean = false;
-    	private var reconnect:Boolean = false;
+		private var reconnect:Boolean = false;
 		private var reconnecting:Boolean = false;
-		
-		private var autoReconnectTimer:Timer = new Timer(1000, 1);
-		
+		private var dispatcher:Dispatcher = new Dispatcher();
+
 		private function parseOptions():void {
 			videoOptions = new VideoConfOptions();
 			videoOptions.parseOptions();	
@@ -91,32 +92,70 @@ package org.bigbluebutton.modules.videoconf.business
 			LOGGER.debug("VIDEO WEBCAM onIOError");
 		}
 		
-    private function onConnectedToVideoApp():void{
-      var dispatcher:Dispatcher = new Dispatcher();
-      dispatcher.dispatchEvent(new ConnectedEvent(reconnecting));
-	  reconnecting = false;
-    }
+		private function onConnectedToVideoApp():void{
+			dispatcher.dispatchEvent(new ConnectedEvent(reconnecting));
+			if (reconnecting) {
+				reconnecting = false;
+				
+				var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
+				attemptSucceeded.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+				dispatcher.dispatchEvent(attemptSucceeded);
+			}
+		}
     
 		private function onNetStatus(event:NetStatusEvent):void{
+
 			LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
+			var logData:Object = new Object();
+			logData.user = UsersUtil.getUserData();
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
-					connected = true;
-					//ns = new NetStream(nc);
           			onConnectedToVideoApp();
 					break;
 				case "NetStream.Play.Failed":
-					disconnect();
+					if (reconnect) {
+						JSLog.warn("NetStream.Play.Failed from bbb-video", logData);
+					}
+					
 					break;
 				case "NetStream.Play.Stop":
-					disconnect();
+					if (reconnect) {
+						JSLog.warn("NetStream.Play.Stop from bbb-video", logData);
+					}
+					
 					break;		
 				case "NetConnection.Connect.Closed":
+					dispatcher.dispatchEvent(new StopBroadcastEvent());
+					
+					if (reconnect) {
+						reconnecting = true;
+
+						var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+						disconnectedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						disconnectedEvent.payload.callback = connect;
+						disconnectedEvent.payload.callbackParameters = [];
+						dispatcher.dispatchEvent(disconnectedEvent);
+					}
+					break;
+					
+				case "NetConnection.Connect.Failed":
+					if (reconnecting) {
+						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+						attemptFailedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						dispatcher.dispatchEvent(attemptFailedEvent);
+					}
+					
+					if (reconnect) {
+						JSLog.warn("Disconnected from bbb-video", logData);
+					}
+					
 					disconnect();
-					break;						
+					break;		
+				case "NetConnection.Connect.NetworkChange":
+					JSLog.warn("Detected network change on bbb-video", logData);
+					break;
         		default:
 					LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
-					connected = false;
 					break;
 			}
 		}
@@ -129,17 +168,14 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function startPublishing(e:StartBroadcastEvent):void{
-			ns = new NetStream(nc);
+			var ns:NetStream = new NetStream(nc);
 			ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 			ns.addEventListener( IOErrorEvent.IO_ERROR, onIOError );
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
 			ns.client = this;
 			ns.attachCamera(e.camera);
-//		Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)	
-//			if (Capabilities.version.search("11,0") != -1) {
+
 			if ((BBB.getFlashPlayerVersion() >= 11) && e.videoProfile.enableH264) {
-//			if (BBB.getFlashPlayerVersion() >= 11) {
-				LOGGER.info("Using H264 codec for video.");
 				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
 				var h264profile:String = H264Profile.MAIN;
 				if (e.videoProfile.h264Profile != "main") {
@@ -165,7 +201,6 @@ package org.bigbluebutton.modules.videoconf.business
 					case "5.1": h264Level = H264Level.LEVEL_5_1; break;
 				}
 				
-				LOGGER.info("Codec used: {0}", [h264Level]);
 				
 				h264.setProfileLevel(h264profile, h264Level);
 				ns.videoStreamSettings = h264;
@@ -200,18 +235,6 @@ package org.bigbluebutton.modules.videoconf.business
       		LOGGER.debug("VideoProxy:: disconnecting from Video application");
       		stopAllBroadcasting();
 			if (nc != null) nc.close();
-			
-			if (reconnect) {
-				var reconnectTimer:Timer = new Timer(1000, 1);
-				reconnectTimer.addEventListener("timer", reconnectTimerHandler);
-				reconnectTimer.start();
-			}
-		}
-		
-		private function reconnectTimerHandler(event:TimerEvent):void {
-			LOGGER.debug("rtmptRetryTimerHandler: {0}", [event]);
-			reconnecting = true;
-			connect();
 		}
 		
 		public function onBWCheck(... rest):Number { 

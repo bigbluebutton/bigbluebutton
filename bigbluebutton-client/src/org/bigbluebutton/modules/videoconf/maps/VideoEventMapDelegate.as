@@ -110,7 +110,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
 	public function handleStreamStoppedEvent(event:StreamStoppedEvent):void {
 		if (UserManager.getInstance().getConference().amIThisUser(event.userId)) {
-			closePublishWindowWithStream(event.userId, event.streamId);
+			closePublishWindowByStream(event.streamId);
 		} else {
 			closeViewWindowWithStream(event.userId, event.streamId);
 		}
@@ -262,11 +262,19 @@ package org.bigbluebutton.modules.videoconf.maps
       _graphics.removeGraphicsFor(userID);
     }
 
-    private function closePublishWindowWithStream(userID:String, stream:String):int {
-      return _graphics.removeVideoByStreamName(userID, stream);
+    private function closePublishWindowByStream(stream:String):int {
+      return _graphics.removeVideoByStreamName(UsersUtil.getMyUserID(), stream);
+    }
+    
+    private function closePublishWindow():void {
+      closeWindow(UsersUtil.getMyUserID());
     }
 
     private function openViewWindowFor(userID:String):void {
+      if (!proxy.connection.connected) {
+        return;
+      }
+      
       LOGGER.debug("VideoEventMapDelegate:: [{0}] openViewWindowFor:: Opening VIEW window for [{1}] [{2}]", [me, userID, UsersUtil.getUserName(userID)]);
 
       var bbbUser:BBBUser = UsersUtil.getUser(userID);
@@ -305,49 +313,21 @@ package org.bigbluebutton.modules.videoconf.maps
 
     public function stopPublishing(e:StopBroadcastEvent):void{
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Stop publishing. ready = [{1}]", [me, _ready]);
-      if(streamList.length <= 1) {
-        setStopLastBroadcasting();
-      } else {
-        UsersUtil.setIAmPublishing(true);
-      }
+      checkLastBroadcasting();
       streamList.removeItem(e.stream);
       stopBroadcasting(e.stream);
       button.setCamAsInactive(e.camId);
     }
 
-    private function stopAllBroadcasting():void {
-      LOGGER.debug("[VideoEventMapDelegate:stopAllBroadcasting]");
-      setStopLastBroadcasting();
-      streamList = new ArrayList();
-      proxy.stopAllBroadcasting();
-
-      var userID:String = UsersUtil.getMyUserID();
-      _graphics.removeGraphicsFor(userID);
-
-      var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
-      broadcastEvent.stream = "";
-      broadcastEvent.userid = UsersUtil.getMyUserID();
-      broadcastEvent.avatarURL = UsersUtil.getAvatarURL();
-      _dispatcher.dispatchEvent(broadcastEvent);
-
-      if (proxy.videoOptions.showButton) {
-        //Make toolbar button enabled again
-        button.setAllCamAsInactive();
-      }
-      if (options.displayAvatar) {
-        LOGGER.debug("VideoEventMapDelegate:: [{0}] Opening avatar", [me]);
-        openAvatarWindowFor(UsersUtil.getMyUserID());
-      }
+    private function checkLastBroadcasting():void {
+      LOGGER.debug("[VideoEventMapDelegate:checkLastBroadcasting]");
+      _isPublishing = streamList.length > 0;
+      UsersUtil.setIAmPublishing(streamList.length > 0);
     }
 
-    private function setStopLastBroadcasting():void {
-      LOGGER.debug("[VideoEventMapDelegate:setStopLastBroadcasting]");
-      _isPublishing = false;
-      UsersUtil.setIAmPublishing(false);
-    }
-
-    private function stopBroadcasting(stream:String):void {
-      LOGGER.debug("Stopping broadcast of stream [{0}]", [stream]);
+    private function stopBroadcasting(stream:String = ""):void {
+      if (stream == null) stream = "";
+      LOGGER.debug("Stopping broadcast{0}", [(stream.length > 0? " of stream [" + stream + "]": "")]);
 
       proxy.stopBroadcasting(stream);
 
@@ -357,11 +337,20 @@ package org.bigbluebutton.modules.videoconf.maps
       broadcastEvent.avatarURL = UsersUtil.getAvatarURL();
       _dispatcher.dispatchEvent(broadcastEvent);
 
-      var camId:int = closePublishWindowWithStream(UsersUtil.getMyUserID(), stream);
+      if (stream.length > 0) {
+        var camId:int = closePublishWindowByStream(stream);
 
-      if (proxy.videoOptions.showButton) {
-        //Make toolbar button enabled again
-        button.publishingStatus(button.STOP_PUBLISHING, camId);
+        if (proxy.videoOptions.showButton) {
+          //Make toolbar button enabled again
+          button.publishingStatus(button.STOP_PUBLISHING, camId);
+        }
+      } else {
+        closePublishWindow();
+        
+        if (proxy.videoOptions.showButton) {
+          // make toolbar button enabled again
+          button.setAllCamAsInactive();
+        }
       }
 
       if (streamList.length == 0 && options.displayAvatar) {
@@ -373,7 +362,7 @@ package org.bigbluebutton.modules.videoconf.maps
     public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
       LOGGER.debug("Closing publish window");
       if (_isPublishing || _chromeWebcamPermissionDenied) {
-        stopAllBroadcasting();
+        stopBroadcasting();
       }
     }
 
@@ -388,7 +377,7 @@ package org.bigbluebutton.modules.videoconf.maps
 
     public function handleStopAllShareCameraRequestEvent(event:StopShareCameraRequestEvent):void {
       LOGGER.debug("[VideoEventMapDelegate:handleStopAllShareCameraRequestEvent]");
-      stopAllBroadcasting();
+      stopBroadcasting();
     }
 
     public function handleStopShareCameraRequestEvent(event:StopShareCameraRequestEvent):void {
@@ -425,7 +414,7 @@ package org.bigbluebutton.modules.videoconf.maps
     public function closeAllWindows():void{
       LOGGER.debug("VideoEventMapDelegate:: closing all windows");
       if (_isPublishing) {
-        stopAllBroadcasting();
+        stopBroadcasting();
       }
 
       _graphics.shutdown();
@@ -446,7 +435,7 @@ package org.bigbluebutton.modules.videoconf.maps
         LOGGER.debug("****************** Switching to viewer. Show video button?=[{0}]", [UsersUtil.amIPresenter()]);
         displayToolbarButton();
         if (_isPublishing && options.presenterShareOnly) {
-          stopAllBroadcasting();
+          stopBroadcasting();
         }
       }
     }
@@ -454,17 +443,13 @@ package org.bigbluebutton.modules.videoconf.maps
     public function connectedToVideoApp(event: ConnectedEvent):void{
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Connected to video application.", [me]);
       _ready = true;
-	  if (event.reconnection) {
-		  LOGGER.debug("VideoEventMapDelegate:: Got reconnected event.");
-		  stopAllBroadcasting();
-		  LOGGER.debug("VideoEventMapDelegate:: Closing all webcam windows.");
-		  closeAllWindows()
-		  openWebcamWindows();
-	  } else {
-		  addToolbarButton();
-		  openWebcamWindows();		  
-	  }
-
+		if (event.reconnection) {
+		 closeAllWindows()
+		} else {
+			addToolbarButton();					  
+		}
+		openWebcamWindows();
+	
     }
 
     public function handleCameraSetting(event:BBBEvent):void {

@@ -30,7 +30,9 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.main.api.JSLog;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
 	import org.bigbluebutton.modules.phone.events.FlashVoiceConnectionStatusEvent;
@@ -49,6 +51,8 @@ package org.bigbluebutton.modules.phone.managers {
 		
 		private var registered:Boolean = false;
     private var closedByUser:Boolean = false;
+
+		private var reconnecting:Boolean = false;
     
 		private var dispatcher:Dispatcher;
 		
@@ -99,11 +103,39 @@ package org.bigbluebutton.modules.phone.managers {
       }			
 		}
 		
+    private function handleConnectionSuccess():void {
+      if (reconnecting) {
+        var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
+        attemptSucceeded.payload.type = ReconnectionManager.SIP_CONNECTION;
+        dispatcher.dispatchEvent(attemptSucceeded);
+      }
+      dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));
+      reconnecting = false;
+    }
+
+    private function handleConnectionFailed():void {
+      if (reconnecting) {
+        var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+        attemptFailedEvent.payload.type = ReconnectionManager.SIP_CONNECTION;
+        dispatcher.dispatchEvent(attemptFailedEvent);
+      }
+      dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED, reconnecting));
+    }
+
     private function handleConnectionClosed():void {
       if (!closedByUser) {
+        reconnecting = true;
+
+        var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+        disconnectedEvent.payload.type = ReconnectionManager.SIP_CONNECTION;
+        disconnectedEvent.payload.callback = connect;
+        disconnectedEvent.payload.callbackParameters = [];
+        dispatcher.dispatchEvent(disconnectedEvent);
+
         dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.DISCONNECTED));
       }
     }
+
 		private function netStatus (event:NetStatusEvent ):void {		 
       var info : Object = event.info;
       var statusCode : String = info.code;
@@ -115,12 +147,12 @@ package org.bigbluebutton.modules.phone.managers {
         case "NetConnection.Connect.Success":
           LOGGER.debug("Connection success");
           JSLog.debug("Successfully connected to BBB Voice", logData);
-          dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.CONNECTED));           
+          handleConnectionSuccess();
           break;
         case "NetConnection.Connect.Failed":
           LOGGER.debug("Connection failed");
           JSLog.error("Failed to connect to BBB Voice", logData);
-          dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.FAILED));
+          handleConnectionFailed();
           break;
         case "NetConnection.Connect.NetworkChange":
           LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");

@@ -27,13 +27,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class PollResultObject extends DrawObject {
 	private static const LOGGER:ILogger = getClassLogger(PollResultObject);      
 
 	//private const h:uint = 100;
     //private const w:uint = 280;
-    private const bgFill:uint = 0XCECECE; //0xFFFFFF;
+    private const bgFill:uint = 0xFFFFFF;
     private const colFill:uint = 0x000000;
     private const vpadding:Number = 10;
     private const hpadding:Number = 5;
@@ -225,6 +226,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     private function findFontSize(textField:TextField, defaultSize:Number):int {
       var tFormat:TextFormat = new TextFormat();
       tFormat.size = defaultSize;
+	  tFormat.font = "arial";
       tFormat.align = TextFormatAlign.CENTER;
       textField.setTextFormat(tFormat);
       var size:Number = defaultSize;
@@ -258,15 +260,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       var arrayEnd:Number = (ao.points as Array).length;
       var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
       var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
-      var pwidth:Number = denormalize((ao.points as Array)[2], parentWidth) - startX;
-      var pheight:Number = denormalize((ao.points as Array)[3], parentHeight) - startY;
+      var pwidth:Number = denormalize((ao.points as Array)[2], parentWidth);
+      var pheight:Number = denormalize((ao.points as Array)[3], parentHeight);
            
       var answers:Array = ao.result as Array;
       var ans:Array = new Array();
       for (var j:int = 0; j < answers.length; j++) {
 	      var ar:Object = answers[j];
-	      var rs:Object = {a: ar.key, v: ar.num_votes as Number};
-		  LOGGER.debug("poll result a=[{0}] v=[{1}]", [ar.key, ar.num_votes]);
+	      var rs:Object = {a: ResourceUtil.getInstance().getString('bbb.polling.answer.' + ar.key), v: ar.num_votes as Number};
+	      LOGGER.debug("poll result a=[{0}] v=[{1}]", [ar.key, ar.num_votes]);
 	      ans.push(rs);
       }
       

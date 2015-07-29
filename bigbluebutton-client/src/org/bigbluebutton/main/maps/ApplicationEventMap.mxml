@@ -30,6 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		-->
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
+		<ObjectBuilder generator="{ReconnectionManager}" cache="global" />
 		<!--
 		Disabling temporarily the stream monitor
 		-->
@@ -69,6 +70,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
   </EventHandlers>
 
+  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+    <MethodInvoker generator="{ReconnectionManager}" method="onDisconnected" arguments="{[event.payload.type, event.payload.callback, event.payload.callbackParameters]}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT}">
+    <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptFailed" arguments="{event.payload.type}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT}">
+    <MethodInvoker generator="{ReconnectionManager}" method="onConnectionAttemptSucceeded" arguments="{event.payload.type}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.CANCEL_RECONNECTION_EVENT}">
+    <MethodInvoker generator="{ReconnectionManager}" method="onCancelReconnection" />
+  </EventHandlers>
+
 
   
 	<mx:Script>
@@ -76,7 +93,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     import mx.events.FlexEvent;
     
     import org.bigbluebutton.core.managers.ConfigManager;
+    import org.bigbluebutton.core.managers.ReconnectionManager;
     import org.bigbluebutton.core.services.SkinningService;
+    import org.bigbluebutton.main.events.BBBEvent;
     import org.bigbluebutton.main.events.ConfigEvent;
     import org.bigbluebutton.main.events.LogoutEvent;
     import org.bigbluebutton.main.events.ModuleLoadEvent;

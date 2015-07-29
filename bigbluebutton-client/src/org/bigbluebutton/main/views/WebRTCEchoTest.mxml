@@ -116,12 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function noButtonClicked():void {
 				userClosed = true;
 				LOGGER.warn("Echo test failed.");
-        
-        var logData:Object = new Object();       
-        logData.reason = "User requested.";
-        logData.user = UsersUtil.getUserData();
-        JSLog.info("WebRtc Echo test failed.", logData);
-        
+                
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO));
 				onCancelClicked();

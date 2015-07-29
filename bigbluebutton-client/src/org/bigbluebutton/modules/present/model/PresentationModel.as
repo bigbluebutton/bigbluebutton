@@ -11,7 +11,6 @@ package org.bigbluebutton.modules.present.model
     
     private static var instance:PresentationModel = null;
     
-    private var _pages:ArrayCollection = new ArrayCollection();
     private var _presentations:ArrayCollection = new ArrayCollection();   
     private var _presenter: Presenter;
     
@@ -48,10 +47,6 @@ package org.bigbluebutton.modules.present.model
       return _presenter;
     }
     
-    public function addPage(page: Page):void {
-      _pages.addItem(page);
-    }
-    
     public function addPresentation(p: Presentation):void {
       _presentations.addItem(p);
     }
@@ -66,6 +61,10 @@ package org.bigbluebutton.modules.present.model
       }   
       
       return null;      
+    }
+    
+    public function removeAllPresentations():void {
+      _presentations.removeAll();
     }
     
     public function replacePresentation(p: Presentation):void {

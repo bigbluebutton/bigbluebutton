@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.TimerEvent;
@@ -30,20 +31,23 @@ package org.bigbluebutton.modules.deskshare.services.red5
 	import flash.net.SharedObject;
 	import flash.utils.Timer;
 	
+	import mx.utils.ObjectUtil;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 
 	
 	public class Connection {
-		private static const LOGGER:ILogger = getClassLogger(Connection);
+	private static const LOGGER:ILogger = getClassLogger(Connection);
 
-		private var nc:NetConnection;
-		private var uri:String;
-    private const connectionTimeout:int = 5000;
+    private var nc:NetConnection;
+    private var uri:String;
     private var retryTimer:Timer = null;
     private var retryCount:int = 0;
     private const MAX_RETRIES:int = 5;
@@ -52,7 +56,10 @@ package org.bigbluebutton.modules.deskshare.services.red5
     private var width:Number;
     private var height:Number;
     private var room:String;
-    
+    private var logoutOnUserCommand:Boolean = false;
+    private var reconnecting:Boolean = false;
+    private var wasPresenterBeforeDisconnect:Boolean = false;
+	
     private var dispatcher:Dispatcher = new Dispatcher();    
 
     public function Connection(room:String) {
@@ -90,6 +97,8 @@ package org.bigbluebutton.modules.deskshare.services.red5
       nc.objectEncoding = ObjectEncoding.AMF0;
       nc.client = this;
       
+      nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, debugAsyncErrorHandler);
+      nc.addEventListener(NetStatusEvent.NET_STATUS, debugNetStatusHandler);
       nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
       nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
       
@@ -110,12 +119,6 @@ package org.bigbluebutton.modules.deskshare.services.red5
       }
    
 			nc.connect(getURI(), UsersUtil.getInternalMeetingID());
-      
-      if (!retry) {
-        retryTimer = new Timer(connectionTimeout, 1);
-        retryTimer.addEventListener(TimerEvent.TIMER_COMPLETE, connectTimeoutHandler);
-        retryTimer.start();
-      }
 		}
 		
     private function connectTimeoutHandler(e:TimerEvent):void {
@@ -180,6 +183,11 @@ package org.bigbluebutton.modules.deskshare.services.red5
 			
 			switch(event.info.code){
 				case "NetConnection.Connect.Failed":
+					if (reconnecting) {
+						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+						attemptFailedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+						dispatcher.dispatchEvent(attemptFailedEvent);
+					}
 					ce.status = ConnectionEvent.FAILED;
           
           dispatcher.dispatchEvent(ce);
@@ -187,6 +195,17 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				
 				case "NetConnection.Connect.Success":
           ce.status = ConnectionEvent.SUCCESS;
+          if (reconnecting) {
+            reconnecting = false;
+			if (wasPresenterBeforeDisconnect) {
+				wasPresenterBeforeDisconnect = false;
+				stopSharingDesktop(room, room)				
+			}
+
+            var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
+            attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+            dispatcher.dispatchEvent(attemptSucceeded);
+          }
           dispatcher.dispatchEvent(ce);
           connectionSuccessHandler();
 				break;
@@ -199,7 +218,24 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				case "NetConnection.Connect.Closed":
           LOGGER.debug("Deskshare connection closed.");
           ce.status = ConnectionEvent.CLOSED;
-//          dispatcher.dispatchEvent(ce);
+		  if (UsersUtil.amIPresenter()) {
+			  // Let's keep our presenter status before disconnected. We can't
+			  // tell the other user's to stop desktop sharing as our connection is broken. (ralam july 24, 2015)
+			  wasPresenterBeforeDisconnect = true;
+			  
+		  } else {
+			  stopViewing();
+		  }
+          
+          if (!logoutOnUserCommand) { 
+            reconnecting = true;
+
+            var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+            disconnectedEvent.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
+            disconnectedEvent.payload.callback = connect;
+            disconnectedEvent.payload.callbackParameters = [];
+            dispatcher.dispatchEvent(disconnectedEvent);
+          }
 				break;
 				
 				case "NetConnection.Connect.InvalidApp":
@@ -253,6 +289,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
     }
     
     public function disconnect():void{
+      logoutOnUserCommand = true;
       if (nc != null) nc.close();
     }
     
@@ -261,9 +298,19 @@ package org.bigbluebutton.modules.deskshare.services.red5
       var deskSOName:String = room + "-deskSO";
       deskSO = SharedObject.getRemote(deskSOName, uri, false);
       deskSO.client = this;
+      deskSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, debugAsyncErrorHandler);
+      deskSO.addEventListener(NetStatusEvent.NET_STATUS, debugNetStatusHandler);
       deskSO.connect(nc);
       
       checkIfStreamIsPublishing(room);
+    }
+
+    private function debugNetStatusHandler(e:NetStatusEvent):void {
+	  LOGGER.debug("netStatusHandler target={0} info={1}", [e.target, ObjectUtil.toString(e.info)]);
+    }
+
+    private function debugAsyncErrorHandler(e:AsyncErrorEvent):void {
+	  LOGGER.debug("asyncErrorHandler target={0} info={1}", [e.target, e.text]);
     }
     
     public function getConnection():NetConnection{
@@ -285,10 +332,13 @@ package org.bigbluebutton.modules.deskshare.services.red5
      */		
     public function appletStarted(videoWidth:Number, videoHeight:Number):void{
       LOGGER.debug("Got applet started");
-      var event:AppletStartedEvent = new AppletStartedEvent();
-      event.videoWidth = videoWidth;
-      event.videoHeight = videoHeight;
-      dispatcher.dispatchEvent(event);
+	  if (nc != null && nc.connected) {
+		  var event:AppletStartedEvent = new AppletStartedEvent();
+		  event.videoWidth = videoWidth;
+		  event.videoHeight = videoHeight;
+		  dispatcher.dispatchEvent(event);		  
+	  }
+
     }
     
     /**

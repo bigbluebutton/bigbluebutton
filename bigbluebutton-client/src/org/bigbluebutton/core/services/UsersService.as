@@ -66,7 +66,7 @@ package org.bigbluebutton.core.services
           // dispatch event
         }
       } else {
-        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.name]);
+        LOGGER.debug("*** failed to get user name=[{0}] **** \n", [vu.name]);
       }       
     }
     

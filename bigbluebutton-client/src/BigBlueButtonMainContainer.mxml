@@ -44,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.core.EventBroadcaster;
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
@@ -71,13 +72,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  protected function init():void {
         setupTooltips();
         setupAPI();
-		EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-		BBB.initConfigManager();
+        EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
+        BBB.initConfigManager();
         BBB.initVideoProfileManager();
         globalModifier = ExternalInterface.call("determineGlobalModifier");
       }
       
       private function configLoadedEventHandler(e:Event):void {
+	  	LogUtil.initLogging();
         LOGGER.debug("***** Config Loaded ****");
         mainShell.initOptions(null);
         ShortcutOptions.initialize();

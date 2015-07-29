@@ -72,11 +72,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         //LogUtil.debug("Progress: " + totalProgress);
         this.setProgress(totalProgress/numModules, 100);
       }
-			
+
       private function allModulesLoaded(e:ModuleLoadEvent):void{
-        parent.removeChild(this);
+        if (parent != null) parent.removeChild(this);
       }
-			
+						
       private function testRTMP(e:PortTestEvent):void{
         //- Cannot get locale string this early in loading process
         portUpdateStr += "."

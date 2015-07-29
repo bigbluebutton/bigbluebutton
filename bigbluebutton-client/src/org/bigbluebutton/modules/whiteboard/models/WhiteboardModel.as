@@ -135,11 +135,16 @@ package org.bigbluebutton.modules.whiteboard.models
       
 		}
 		
-		public function clear(wbId:String):void {
+		public function clear(wbId:String = null):void {
       LOGGER.debug("Clearing whiteboard");
-      var wb:Whiteboard = getWhiteboard(wbId);
-      if (wb != null) {
-        wb.clear();
+      if (wbId != null) {
+        var wb:Whiteboard = getWhiteboard(wbId);
+        if (wb != null) {
+          wb.clear();
+          _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
+        }
+      } else {
+        _whiteboards.removeAll();
         _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
       }
       

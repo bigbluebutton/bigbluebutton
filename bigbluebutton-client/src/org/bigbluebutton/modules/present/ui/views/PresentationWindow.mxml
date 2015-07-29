@@ -39,7 +39,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresentation])}"
-	xmlns:views="org.bigbluebutton.modules.present.ui.views.*"
+	xmlns:views="org.bigbluebutton.modules.present.ui.views.*" 
+	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
 	>
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -616,6 +617,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
 			}
 			
+			private function quickPollClicked(e:MouseEvent):void {
+				sendStartPollEvent(Button(e.target).label);
+			}
+			
 			private function onPollStartButtonClicked():void {
 				openPollTypeMenu();
 			}
@@ -640,39 +645,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			}
 			
+			private function sendStartPollEvent(pollType:String):void {
+				// Let's reset the page to display full size so we can display the result
+				// on the bottom right-corner.
+				onResetZoom();
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatchEvent(new StartPollEvent(pollType));				
+			}
+			
 			private function menuClickHandler(e:MenuEvent):void {
 				if(pollMenuData[e.index] != undefined) {
 					// start the requested poll
 					var pollEvent:StartPollEvent = null;
 					switch (e.index) {
 						case 0:
-							pollEvent = new StartPollEvent("YN");
+							sendStartPollEvent("YN");
 							break;
 						case 1:
-							pollEvent = new StartPollEvent("TF");
+							sendStartPollEvent("TF");
 							break;
 						case 2:
-							pollEvent = new StartPollEvent("A-2");
+							sendStartPollEvent("A-2");
 							break;
 						case 3:
-							pollEvent = new StartPollEvent("A-3");
+							sendStartPollEvent("A-3");
 							break;
 						case 4:
-							pollEvent = new StartPollEvent("A-4");
+							sendStartPollEvent("A-4");
 							break;
 						case 5:
-							pollEvent = new StartPollEvent("A-5");
+							sendStartPollEvent("A-5");
 							break;
 						case 6:
-							pollEvent = new StartPollEvent("A-6");
+							sendStartPollEvent("A-6");
 							break;
 						case 7:
-							pollEvent = new StartPollEvent("A-7");
+							sendStartPollEvent("A-7");
 							break;
 					}
-					var dispatcher:Dispatcher = new Dispatcher();
-					//dispatcher.
-					dispatchEvent(pollEvent);
+
 				}
 			}
 			
@@ -759,30 +770,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}" 
 					   click="onPollStartButtonClicked()" tabIndex="{baseIndex+6}"/>
+			<poll:QuickPollButton id="quickPollBtn" height="30" tabIndex="{baseIndex+7}"
+								  click="quickPollClicked(event)" />
 			<mx:Spacer width="100%" id="spacer1"/>
 			<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"
-					   tabIndex="{baseIndex+7}"/>
+					   tabIndex="{baseIndex+8}"/>
 			<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"
-					   tabIndex="{baseIndex+8}"/>
+					   tabIndex="{baseIndex+9}"/>
 			<mx:Button id="forwardButton" visible="false" width="45" height="30" styleName="presentationForwardButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"
-					   tabIndex="{baseIndex+9}"/>    				
+					   tabIndex="{baseIndex+10}"/>    				
 			<mx:Spacer width="50%" id="spacer3"/>
 			<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
 						minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
 						useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
 						dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
-						tabIndex="{baseIndex+10}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
+						tabIndex="{baseIndex+11}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
 			<mx:Button id="btnFitToWidth" visible="false" width="30" height="30" styleName="presentationFitToWidthButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
 					   click="onFitToPage(false)"
-					   tabIndex="{baseIndex+11}"/>
+					   tabIndex="{baseIndex+12}"/>
 			<mx:Button id="btnFitToPage" visible="false" width="30" height="30" styleName="presentationFitToPageButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
 					   click="onFitToPage(true)"
-					   tabIndex="{baseIndex+12}"/>
+					   tabIndex="{baseIndex+13}"/>
 			<!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
 			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>

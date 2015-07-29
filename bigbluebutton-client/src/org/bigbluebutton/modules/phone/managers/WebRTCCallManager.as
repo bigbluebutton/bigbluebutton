@@ -13,6 +13,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSAPI;
+  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.modules.phone.PhoneModel;
   import org.bigbluebutton.modules.phone.PhoneOptions;
@@ -188,6 +189,11 @@ package org.bigbluebutton.modules.phone.managers
         errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
       }
       
+	  var logData:Object = new Object();       
+	  logData.reason = errorString;
+	  logData.user = UsersUtil.getUserData();
+	  JSLog.warn("WebRtc Echo test failed.", logData);
+	  
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     

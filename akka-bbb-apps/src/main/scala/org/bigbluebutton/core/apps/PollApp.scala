@@ -68,6 +68,9 @@ trait PollApp {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
     shape += "num_respondents" -> new Integer(result.numRespondents)
     shape += "num_responders" -> new Integer(result.numResponders)
+    shape += "type" -> "poll_result"
+    shape += "id" -> result.id
+    shape += "status" -> "DRAW_END"
 
     val answers = new ArrayBuffer[java.util.HashMap[String, Object]];
     result.answers.foreach(ans => {
@@ -81,12 +84,13 @@ trait PollApp {
     val gson = new Gson()
     shape += "result" -> gson.toJson(answers.toArray)
 
-    // Hardcode poll result display location for now. 
+    // Hardcode poll result display location for now to display result
+    // in bottom-right corner.
     val display = new ArrayList[Double]()
-    display.add(21.845575)
-    display.add(23.145401)
-    display.add(46.516006)
-    display.add(61.42433)
+    display.add(66.0)
+    display.add(60.0)
+    display.add(34.0)
+    display.add(40.0)
 
     shape += "points" -> display
     shape.toMap

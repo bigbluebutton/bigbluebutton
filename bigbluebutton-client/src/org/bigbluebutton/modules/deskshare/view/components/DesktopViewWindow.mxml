@@ -187,6 +187,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
+				LOGGER.debug("onNetStatus info={0}", [e.info.text]);
+			
 				switch(e.info.code){
 				case "NetStream.Play.Start":
 					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);

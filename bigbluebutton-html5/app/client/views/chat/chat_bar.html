@@ -2,13 +2,7 @@
   <div id="{{id}}" {{visibility name}} class="component">
     <div class="chatBodyContainer">
       {{#if inPrivateChat}}
-        <div class="privateChatTab">
-          {{> makeButton id="close" btn_class="secondary tiny round toPublic " i_class="ion-ios-arrow-left" rel="tooltip"
-          data_placement="bottom" title="Back to public" label="Public"}}
-          <div class="privateChatName">
-            {{privateChatName}}
-          </div>
-        </div>
+        {{> privateChatTab}}
       {{/if}}
       <div id="chatbody">
         <ul class="chat" {{messageFontSize}}>
@@ -24,6 +18,16 @@
     {{#if userExists}}
       <div class="panel-footer">{{> chatInput}}</div>
     {{/if}}
+  </div>
+</template>
+
+<template name="privateChatTab">
+  <div class="privateChatTab">
+    {{> makeButton id="close" btn_class="secondary tiny toPublic " i_class="ion-ios-arrow-left" rel="tooltip"
+      data_placement="bottom" title="Back to public" label="Public" notification="PUBLIC_CHAT"}}
+    <div class="privateChatName">
+      {{privateChatName}}
+    </div>
   </div>
 </template>
 
