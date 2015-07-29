@@ -179,6 +179,11 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
     else
       return 'viewer-whiteboard'
 
+Handlebars.registerHelper "getPollQuestions", ->
+  polls = BBB.getCurrentPoll(getInSession('userId'))
+  if polls? and polls isnt undefined
+    return polls.poll_info.poll.answers
+
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
   str = str.replace re_weburl, "<a href='event:$&'><u>$&</u></a>"
