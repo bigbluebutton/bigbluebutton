@@ -103,9 +103,7 @@ package org.bigbluebutton.modules.videoconf.business
 			trace(LOG + "[" + event.info.code + "] for [" + _url + "]");
 			var logData:Object = new Object();
 			logData.user = UsersUtil.getUserData();
-			logData.eventCode = event.info.code;
-			logData.reconnecting = reconnecting;
-			logData.reconnect = reconnect;
+			logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + ",reconnect=" + reconnect + "]";
 			
 			JSLog.warn("NetStatus event from bbb-video", logData);
 			
