@@ -24,15 +24,11 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
-	import flash.events.TimerEvent;
 	import flash.media.H264Level;
 	import flash.media.H264Profile;
 	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	import flash.utils.Timer;
-	
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
@@ -107,6 +103,12 @@ package org.bigbluebutton.modules.videoconf.business
 			trace(LOG + "[" + event.info.code + "] for [" + _url + "]");
 			var logData:Object = new Object();
 			logData.user = UsersUtil.getUserData();
+			logData.eventCode = event.info.code;
+			logData.reconnecting = reconnecting;
+			logData.reconnect = reconnect;
+			
+			JSLog.warn("NetStatus event from bbb-video", logData);
+			
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
           			onConnectedToVideoApp();
@@ -145,7 +147,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
 					
 					if (reconnect) {
-						JSLog.warn("Disconnected from bbb-video", logData);
+						JSLog.warn("NetConnection.Connect.Failed from bbb-video", logData);
 					}
 					
 					disconnect();
