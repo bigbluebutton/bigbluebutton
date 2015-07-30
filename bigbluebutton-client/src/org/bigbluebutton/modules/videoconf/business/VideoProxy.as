@@ -30,8 +30,8 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	
-	import mx.logging.ILogger;
-	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
