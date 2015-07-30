@@ -24,25 +24,23 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
-	import flash.events.TimerEvent;
 	import flash.media.H264Level;
 	import flash.media.H264Profile;
 	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	import flash.utils.Timer;
 	
-	import org.as3commons.logging.api.ILogger;
-	import org.as3commons.logging.api.getClassLogger;
+	import mx.logging.ILogger;
+	
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-	import org.bigbluebutton.main.api.JSLog;
 
 	
 	public class VideoProxy
@@ -108,6 +106,10 @@ package org.bigbluebutton.modules.videoconf.business
 			LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
 			var logData:Object = new Object();
 			logData.user = UsersUtil.getUserData();
+			logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + ",reconnect=" + reconnect + "]";
+			
+			JSLog.warn("NetStatus event from bbb-video", logData);
+			
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
           			onConnectedToVideoApp();
@@ -146,7 +148,7 @@ package org.bigbluebutton.modules.videoconf.business
 					}
 					
 					if (reconnect) {
-						JSLog.warn("Disconnected from bbb-video", logData);
+						JSLog.warn("NetConnection.Connect.Failed from bbb-video", logData);
 					}
 					
 					disconnect();

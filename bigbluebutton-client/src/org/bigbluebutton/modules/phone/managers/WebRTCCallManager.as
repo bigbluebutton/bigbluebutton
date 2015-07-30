@@ -190,8 +190,8 @@ package org.bigbluebutton.modules.phone.managers
       }
       
 	  var logData:Object = new Object();       
-	  logData.reason = errorString;
 	  logData.user = UsersUtil.getUserData();
+	  logData.user.reason = errorString;
 	  JSLog.warn("WebRtc Echo test failed.", logData);
 	  
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
