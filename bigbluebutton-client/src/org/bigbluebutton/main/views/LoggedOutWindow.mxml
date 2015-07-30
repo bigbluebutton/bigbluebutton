@@ -26,14 +26,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="168" y="86" layout="vertical" width="400" height="110" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
-      import mx.core.FlexGlobals;
-      import mx.managers.PopUpManager;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
 			
-      private static const LOG:String = "Main::LoggedOutWindow - ";
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private static const LOGGER:ILogger = getClassLogger(LoggedOutWindow);      
       
 			[Bindable] private var message:String = "You have logged out of the conference";
 			private var urlLoader:URLLoader;
@@ -46,7 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        	var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
        	var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
        	var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-				LogUtil.debug("Log out url: " + pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+				LOGGER.debug("Log out url: {0}//{1}/bigbluebutton/api/signOut", [pageHost, pageURL]);
 				request.method = URLRequestMethod.GET;
 				urlLoader = new URLLoader();
 				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
@@ -57,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function getLogoutUrl():String {
         var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
         if (logoutUrl == null) {
-          trace(LOG + "URL=[" + FlexGlobals.topLevelApplication.url + "]");
+          LOGGER.debug("URL=[{0}]", [FlexGlobals.topLevelApplication.url]);
           var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
           var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
           logoutUrl = pageHost + "//" + pageURL;
@@ -66,12 +68,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         return logoutUrl;
       }
       
-			private function handleComplete(e:Event):void {	
-        trace(LOG + "Client URL=[" + FlexGlobals.topLevelApplication.url + "]");
+			private function handleComplete(e:Event):void {
+				LOGGER.debug("Client URL=[{0}]", [FlexGlobals.topLevelApplication.url]);
        
-        var request:URLRequest = new URLRequest(getLogoutUrl());
-        trace(LOG + "Logging out to: " + getLogoutUrl());
-        navigateToURL(request, '_self');          
+        		var request:URLRequest = new URLRequest(getLogoutUrl());
+				LOGGER.debug("Logging out to: {0}", [getLogoutUrl()]);
+        		navigateToURL(request, '_self');          
         
 				PopUpManager.removePopUp(this);				
 			}

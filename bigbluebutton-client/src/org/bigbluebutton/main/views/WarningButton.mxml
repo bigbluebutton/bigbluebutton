@@ -39,14 +39,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			import mx.controls.ToolTip;
 			import mx.core.FlexGlobals;
-			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.managers.ToolTipManager;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private static const LOG:String = "WarningButton - ";
+			private static const LOGGER:ILogger = getClassLogger(WarningButton);      
 			
 			[Bindable]
 			private var messages:Array = new Array();

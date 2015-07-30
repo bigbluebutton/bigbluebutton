@@ -3,11 +3,15 @@ package org.bigbluebutton.modules.polling.views {
 	
 	import mx.controls.Button;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	
 	public class QuickPollButton extends Button {
+		private static const LOGGER:ILogger = getClassLogger(QuickPollButton);      
+
 		public function QuickPollButton() {
 			super();
 			visible = false;
@@ -27,7 +31,7 @@ package org.bigbluebutton.modules.polling.views {
 		private function parseSlideText(text:String):void {
 			var regEx:RegExp = new RegExp("\n[^\s]+[\.\)]", "g");
 			var matchedArray:Array = text.match(regEx);
-			trace("Parse Result: " + matchedArray.length + " " + matchedArray.join(" "));
+			LOGGER.debug("Parse Result: {0} {1}", [matchedArray.length, matchedArray.join(" ")]);
 			if (matchedArray.length > 2) {
 				label = "A-" + (matchedArray.length < 8 ? matchedArray.length : 7);
 				visible = true;

@@ -23,16 +23,13 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
-	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
@@ -44,7 +41,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	
 	public class WhiteboardManager
 	{
-    private static const LOG:String = "WB::WhiteboardManager - ";
+	private static const LOGGER:ILogger = getClassLogger(WhiteboardManager);      
     
     /* Injected by Mate */
     public var whiteboardModel:WhiteboardModel;
@@ -92,7 +89,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		private function addHighlighterCanvas(e:TimerEvent):void {
-      trace(LOG + "Adding Whiteboard Overlay Canvas");
+      		LOGGER.debug("Adding Whiteboard Overlay Canvas");
 			PresentationAPI.getInstance().addOverlayCanvas(highlighterCanvas);
 		}	
 

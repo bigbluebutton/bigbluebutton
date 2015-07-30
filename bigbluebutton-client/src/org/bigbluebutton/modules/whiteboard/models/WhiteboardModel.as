@@ -22,18 +22,18 @@ package org.bigbluebutton.modules.whiteboard.models
 	
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardShapesEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 
 	public class WhiteboardModel
 	{
-    private static const LOG:String = "WB::WhiteboardModel - ";    
+		private static const LOGGER:ILogger = getClassLogger(WhiteboardModel);      
 		private var _whiteboards:ArrayCollection = new ArrayCollection();
 
     private var _dispatcher:IEventDispatcher;
@@ -51,7 +51,7 @@ package org.bigbluebutton.modules.whiteboard.models
     }
     
 		public function addAnnotation(annotation:Annotation):void {
-      trace(LOG + "*** Adding annotation [" + annotation.id + "," + annotation.type + "," + annotation.status + "] ****");
+      LOGGER.debug("*** Adding annotation [{0},{1},{2}] ****", [annotation.id, annotation.type, annotation.status]);
       var wb:Whiteboard;
       if (annotation.status == DrawObject.DRAW_START || annotation.type == DrawObject.POLL
 		  || annotation.status == TextObject.TEXT_CREATED) {
@@ -70,7 +70,7 @@ package org.bigbluebutton.modules.whiteboard.models
          }
        }
 			 
-       trace(LOG + "*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
+       LOGGER.debug("*** Dispatching WhiteboardUpdate.BOARD_UPDATED Event ****");
        var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
        event.annotation = annotation;
        _dispatcher.dispatchEvent(event);
@@ -86,13 +86,13 @@ package org.bigbluebutton.modules.whiteboard.models
     
     
     public function addAnnotationFromHistory(whiteboardId:String, annotation:Array):void {                
-      trace(LOG + "addAnnotationFromHistory: wb id=[" + whiteboardId + "]");
+      LOGGER.debug("addAnnotationFromHistory: wb id=[{0}]", [whiteboardId]);
       var wb:Whiteboard = getWhiteboard(whiteboardId);
       if (wb != null) {
-        trace(LOG + "Whiteboard is already present. Adding shapes.");
+        LOGGER.debug("Whiteboard is already present. Adding shapes.");
         addShapes(wb, annotation);
       } else {
-        trace(LOG + "Whiteboard is NOT present. Creating WB and adding shapes.");
+        LOGGER.debug("Whiteboard is NOT present. Creating WB and adding shapes.");
         wb = new Whiteboard(whiteboardId);
         addShapes(wb, annotation);
         _whiteboards.addItem(wb);
@@ -126,7 +126,7 @@ package org.bigbluebutton.modules.whiteboard.models
     }
         
 		public function undo(wbId:String):void {
-      trace(LOG + "Undoing whiteboard");
+      LOGGER.debug("Undoing whiteboard");
       var wb:Whiteboard = getWhiteboard(wbId);
       if (wb != null) {
         wb.undo();
@@ -136,7 +136,7 @@ package org.bigbluebutton.modules.whiteboard.models
 		}
 		
 		public function clear(wbId:String = null):void {
-      trace(LOG + "Clearing whiteboard");
+      LOGGER.debug("Clearing whiteboard");
       if (wbId != null) {
         var wb:Whiteboard = getWhiteboard(wbId);
         if (wb != null) {

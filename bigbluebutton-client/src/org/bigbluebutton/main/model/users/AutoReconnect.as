@@ -20,32 +20,35 @@ package org.bigbluebutton.main.model.users
 {
   import flash.events.TimerEvent;
   import flash.utils.Timer;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
 
   public class AutoReconnect
   {
-    public static const LOG:String = "AutoReconnect - ";
+    private static const LOGGER:ILogger = getClassLogger(AutoReconnect);      
 
     private var _backoff:Number = 2000;
     private var _reconnectCallback:Function;
     private var _reconnectParameters:Array;
 
     public function onDisconnect(callback:Function, parameters:Array):void {
-      trace(LOG + "onDisconnect, parameters=" + parameters.toString());
+      LOGGER.debug("onDisconnect, parameters={0}", [parameters.toString()]);
       _reconnectCallback = callback;
       _reconnectParameters = parameters;
       attemptReconnect(0);
     }
 
     public function onConnectionAttemptFailed():void {
-      trace(LOG + "onConnectionAttemptFailed");
+	  LOGGER.warn("onConnectionAttemptFailed");
       attemptReconnect(_backoff);
     }
 
     private function attemptReconnect(backoff:Number):void {
-      trace(LOG + "attemptReconnect backoff=" + backoff);
+	  LOGGER.debug("attemptReconnect backoff={0}", [backoff]);
       var retryTimer:Timer = new Timer(backoff, 1);
       retryTimer.addEventListener(TimerEvent.TIMER, function():void {
-        trace(LOG + "Reconnecting");
+		LOGGER.debug("Reconnecting");
         _reconnectCallback.apply(null, _reconnectParameters);
       });
       retryTimer.start();

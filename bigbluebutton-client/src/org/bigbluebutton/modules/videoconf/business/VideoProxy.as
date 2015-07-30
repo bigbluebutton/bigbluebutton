@@ -29,20 +29,23 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-	import org.bigbluebutton.main.api.JSLog;
 
 	
 	public class VideoProxy
 	{	
-		public static const LOG:String = "VideoProxy - ";
+		private static const LOGGER:ILogger = getClassLogger(VideoProxy);
 		
 		public var videoOptions:VideoConfOptions;
 		
@@ -80,11 +83,11 @@ package org.bigbluebutton.modules.videoconf.business
 	    }
 	    
 		private function onAsyncError(event:AsyncErrorEvent):void{
-			trace("VIDEO WEBCAM onAsyncError");
+			LOGGER.debug("VIDEO WEBCAM onAsyncError");
 		}
 		
 		private function onIOError(event:NetStatusEvent):void{
-			trace("VIDEO WEBCAM onIOError");
+			LOGGER.debug("VIDEO WEBCAM onIOError");
 		}
 		
 		private function onConnectedToVideoApp():void{
@@ -100,7 +103,7 @@ package org.bigbluebutton.modules.videoconf.business
     
 		private function onNetStatus(event:NetStatusEvent):void{
 
-			trace(LOG + "[" + event.info.code + "] for [" + _url + "]");
+			LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
 			var logData:Object = new Object();
 			logData.user = UsersUtil.getUserData();
 			logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + ",reconnect=" + reconnect + "]";
@@ -154,7 +157,7 @@ package org.bigbluebutton.modules.videoconf.business
 					JSLog.warn("Detected network change on bbb-video", logData);
 					break;
         		default:
-					trace("[" + event.info.code + "] for [" + _url + "]");
+					LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);
 					break;
 			}
 		}
@@ -210,7 +213,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function stopBroadcasting(stream:String):void{
-      trace("Closing netstream for webcam publishing");
+			LOGGER.debug("Closing netstream for webcam publishing");
       			if (camerasPublishing[stream] != null) {
 	      			var ns:NetStream = camerasPublishing[stream];
 				ns.attachCamera(null);
@@ -231,7 +234,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 
 		public function disconnect():void {
-      		trace("VideoProxy:: disconnecting from Video application");
+      		LOGGER.debug("VideoProxy:: disconnecting from Video application");
       		stopAllBroadcasting();
 			if (nc != null) nc.close();
 		}
@@ -245,7 +248,7 @@ package org.bigbluebutton.modules.videoconf.business
 			if (rest.length > 0) p_bw = rest[0]; 
 			// your application should do something here 
 			// when the bandwidth check is complete 
-			trace("bandwidth = " + p_bw + " Kbps."); 
+			LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
 		}
 		
 

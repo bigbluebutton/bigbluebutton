@@ -19,30 +19,29 @@
 package org.bigbluebutton.core.managers
 {
   import com.asfusion.mate.events.Dispatcher;
-
+  
   import flash.display.DisplayObject;
   import flash.events.TimerEvent;
   import flash.utils.Dictionary;
   import flash.utils.Timer;
-
-  import mx.controls.Alert;
+  
+  import mx.collections.ArrayCollection;
   import mx.core.FlexGlobals;
   import mx.core.IFlexDisplayObject;
-  import mx.events.CloseEvent;
   import mx.managers.PopUpManager;
-  import mx.utils.ObjectUtil;
-  import mx.collections.ArrayCollection;
-
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.main.events.BBBEvent;
-  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.ClientStatusEvent;
+  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.main.views.ReconnectionPopup;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class ReconnectionManager
   {
-    public static const LOG:String = "ReconnectionManager - ";
+	private static const LOGGER:ILogger = getClassLogger(AutoReconnect);      
 
     public static const BIGBLUEBUTTON_CONNECTION:String = "BIGBLUEBUTTON_CONNECTION";
     public static const SIP_CONNECTION:String = "SIP_CONNECTION";
@@ -75,7 +74,7 @@ package org.bigbluebutton.core.managers
     }
 
     private function timeout(e:TimerEvent = null):void {
-      trace(LOG + "timeout");
+      LOGGER.debug("timeout");
       _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
       _dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
     }
@@ -88,7 +87,7 @@ package org.bigbluebutton.core.managers
 
     public function onDisconnected(type:String, callback:Function, parameters:Array):void {
       if (!_canceled) {
-        trace(LOG + "onDisconnected, type=" + type + ", parameters=" + parameters.toString());
+		LOGGER.warn("onDisconnected, type={0}, parameters={1}" + [type, parameters.toString()]);
 
         var obj:Object = new Object();
         obj.callback = callback;
@@ -106,7 +105,7 @@ package org.bigbluebutton.core.managers
     }
 
     public function onConnectionAttemptFailed(type:String):void {
-      trace(LOG + "onConnectionAttemptFailed, type=" + type);
+      LOGGER.warn("onConnectionAttemptFailed, type={0}", [type]);
       if (_connections.hasOwnProperty(type)) {
         _connections[type].reconnect.onConnectionAttemptFailed();
       }
@@ -128,15 +127,15 @@ package org.bigbluebutton.core.managers
       };
       
       if (map.hasOwnProperty(type)) {
-        trace(LOG + "dispatchReconnectionSucceededEvent, type=" + type);
+        LOGGER.debug("dispatchReconnectionSucceededEvent, type={0}", [type]);
         _dispatcher.dispatchEvent(new BBBEvent(map[type]));
       } else {
-        trace(LOG + "dispatchReconnectionSucceededEvent, couldn't find a map value for type " + type);
+		LOGGER.debug("dispatchReconnectionSucceededEvent, couldn't find a map value for type {0}", [type]);
       }
     }
 
     public function onConnectionAttemptSucceeded(type:String):void {
-      trace(LOG + "onConnectionAttemptSucceeded, type=" + type);
+	  LOGGER.debug("onConnectionAttemptSucceeded, type={0}", [type]);
       dispatchReconnectionSucceededEvent(type);
 
       delete _connections[type];

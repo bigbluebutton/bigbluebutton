@@ -18,36 +18,33 @@
 */
 package org.bigbluebutton.util.i18n
 {
-	import com.adobe.utils.StringUtil;
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
-	import flash.events.IOErrorEvent;
 	import flash.external.ExternalInterface;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.utils.Dictionary;
 	
-	import mx.controls.Alert;
 	import mx.core.FlexGlobals;
 	import mx.events.ResourceEvent;
-	import mx.managers.BrowserManager;
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
-	import mx.utils.StringUtil;
 	import mx.utils.URLUtil;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
 	import org.bigbluebutton.main.events.AppVersionEvent;
 
 	public class ResourceUtil extends EventDispatcher {
-		private static var instance:ResourceUtil = null;
+		private static const LOGGER:ILogger = getClassLogger(ResourceUtil);
+
 		public static const LOCALES_FILE:String = "client/conf/locales.xml";
 		public static const VERSION:String = "0.9.0";
     
+		private static var instance:ResourceUtil = null;
 		private var inited:Boolean = false;
 		
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
@@ -81,8 +78,8 @@ package org.bigbluebutton.util.i18n
 			var _urlLoader:URLLoader = new URLLoader();     
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
       
-      var localeReqURL:String = buildRequestURL() + LOCALES_FILE + "?a=" + date.time;
-      LogUtil.debug("Loading " + localeReqURL);
+      		var localeReqURL:String = buildRequestURL() + LOCALES_FILE + "?a=" + date.time;
+	  		LOGGER.debug("Loading {0}", [localeReqURL]);
 			_urlLoader.load(new URLRequest(localeReqURL));
 		}
 		
@@ -105,7 +102,7 @@ package org.bigbluebutton.util.i18n
 		
 		private function parse(xml:XML):void{		 	
 			var list:XMLList = xml.locale;
-			LogUtil.debug("--- Supported locales --- \n" + xml.toString() + "\n --- \n");
+			LOGGER.debug("--- Supported locales --- \n{0}\n --- \n", [xml.toString()]);
 			var locale:XML;
 						
 			for each(locale in list){
@@ -139,16 +136,16 @@ package org.bigbluebutton.util.i18n
 		}
 		
 		public function setPreferredLocale(locale:String):void {
-			LogUtil.debug("Setting up preferred locale " + locale);
+			LOGGER.debug("Setting up preferred locale {0}", [locale]);
 			if (isPreferredLocaleAvailable(locale)) {
-				LogUtil.debug("The locale " + locale + " is available");
+				LOGGER.debug("The locale {0} is available", [locale]);
 				preferredLocale = locale;
 			}else{
-				LogUtil.debug("The locale " + preferredLocale + " isn't available. Default will be: " + MASTER_LOCALE);
+				LOGGER.debug("The locale {0} isn't available. Default will be: {1}", [preferredLocale, MASTER_LOCALE]);
 				preferredLocale = MASTER_LOCALE;
 			}
 			localeIndex = getIndexForLocale(preferredLocale);
-			LogUtil.debug("Setting up preferred locale index " + localeIndex);
+			LOGGER.debug("Setting up preferred locale index {0}", [localeIndex]);
 			changeLocale(preferredLocale);
 		}
 		
@@ -166,13 +163,13 @@ package org.bigbluebutton.util.i18n
 			
 			var date:Date = new Date();
 			var localeURI:String = buildRequestURL() + 'client/locale/' + language + '_resources.swf?a=' + date.time;
-			LogUtil.debug("Loading locale at [ " + localeURI + " ]");
+			LOGGER.debug("Loading locale at [ {0} ]", [localeURI]);
 			return resourceManager.loadResourceModule( localeURI, false);
 		}		
 		
 		public static function getInstance():ResourceUtil {
 			if (instance == null) {
-				LogUtil.debug("Setting up supported locales.");
+				LOGGER.debug("Setting up supported locales.");
 				instance = new ResourceUtil(new SingletonEnforcer);
 			} 
 			return instance;
@@ -187,14 +184,14 @@ package org.bigbluebutton.util.i18n
 		private function localeChangeComplete(event:ResourceEvent):void {
 			// Set the preferred locale and master as backup.
 			if (preferredLocale != MASTER_LOCALE) {
-				LogUtil.debug("Loaded locale [" + preferredLocale + "] but setting [" + MASTER_LOCALE + "] as fallback");
+				LOGGER.debug("Loaded locale [{0}] but setting [{1}] as fallback", [preferredLocale, MASTER_LOCALE]);
 				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
 				localeIndex = getIndexForLocale(preferredLocale);
 			} else {
 				if (preferredLocale != MASTER_LOCALE) {
-					LogUtil.debug("Failed to load locale [" + preferredLocale + "].");
+					LOGGER.debug("Failed to load locale [{0}].", [preferredLocale]);
 				}
-				LogUtil.debug("Using [" + MASTER_LOCALE + "] locale.");
+				LOGGER.debug("Using [{0}] locale.", [MASTER_LOCALE]);
 				resourceManager.localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
 				localeIndex = getIndexForLocale(preferredLocale);
@@ -215,7 +212,7 @@ package org.bigbluebutton.util.i18n
 		 * @param event
 		 */        
 		private function handleResourceNotLoaded(event:ResourceEvent):void{
-			LogUtil.warn("Resource locale [" + preferredLocale + "] could not be loaded.");
+			LOGGER.warn("Resource locale [{0}] could not be loaded.", [preferredLocale]);
 			resourceManager.localeChain = [MASTER_LOCALE];
 			preferredLocale = MASTER_LOCALE;
 			localeIndex = getIndexForLocale(preferredLocale);

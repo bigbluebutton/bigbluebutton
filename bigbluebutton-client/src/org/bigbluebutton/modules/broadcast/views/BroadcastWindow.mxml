@@ -30,10 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
-			import mx.core.UIComponent;
-			import mx.events.ResizeEvent;
-			import mx.skins.Border;			
-			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
 			import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 			import org.bigbluebutton.modules.broadcast.models.Stream;

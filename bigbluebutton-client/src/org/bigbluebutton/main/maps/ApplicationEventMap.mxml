@@ -95,15 +95,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     import org.bigbluebutton.core.managers.ConfigManager;
     import org.bigbluebutton.core.managers.ReconnectionManager;
     import org.bigbluebutton.core.services.SkinningService;
-    import org.bigbluebutton.core.services.StreamMonitor;
     import org.bigbluebutton.main.events.BBBEvent;
     import org.bigbluebutton.main.events.ConfigEvent;
     import org.bigbluebutton.main.events.LogoutEvent;
     import org.bigbluebutton.main.events.ModuleLoadEvent;
     import org.bigbluebutton.main.events.PortTestEvent;
-    import org.bigbluebutton.main.events.ShortcutEvent;
     import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-    import org.bigbluebutton.main.model.PortTestProxy;
     import org.bigbluebutton.main.model.modules.ModulesProxy;
 		
 	]]>

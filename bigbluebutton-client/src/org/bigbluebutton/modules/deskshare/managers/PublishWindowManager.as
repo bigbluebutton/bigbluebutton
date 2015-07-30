@@ -24,14 +24,17 @@ package org.bigbluebutton.modules.deskshare.managers
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
 			
 	public class PublishWindowManager {		
+		private static const LOGGER:ILogger = getClassLogger(PublishWindowManager);
+
 		private var shareWindow:DesktopPublishWindow;
 		private var globalDispatcher:Dispatcher;
 		private var service:DeskshareService;
@@ -44,7 +47,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var autoPublishTimer:Timer;
 		
 		public function PublishWindowManager(service:DeskshareService) {
-			LogUtil.debug("PublishWindowManager init");
+			LOGGER.debug("PublishWindowManager init");
 			globalDispatcher = new Dispatcher();
 			this.service = service;
 		}
@@ -54,7 +57,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 																			
 		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
-			LogUtil.debug("DS:PublishWindowManager::opening desk share window, autostart=" + autoStart + " autoFullScreen=" + autoFullScreen);
+			LOGGER.debug("DS:PublishWindowManager::opening desk share window, autostart={0} autoFullScreen={1}", [autoStart, autoFullScreen]);
 
 			shareWindow = new DesktopPublishWindow();
 			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);

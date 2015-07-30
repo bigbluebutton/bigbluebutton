@@ -23,7 +23,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.modules.layout.views.ToolbarComponent;

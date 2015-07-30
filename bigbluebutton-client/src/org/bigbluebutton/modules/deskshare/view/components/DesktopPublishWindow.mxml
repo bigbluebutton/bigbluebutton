@@ -47,9 +47,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			import mx.core.UIComponent;			
+			
+			import mx.core.UIComponent;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -66,6 +70,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
+
 			public static const SCALE:Number = 5;
 			private static const VID_HEIGHT_PAD:Number = 73;
 			private static const VID_WIDTH_PAD:Number = 6;
@@ -177,7 +183,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function shareScreen(fullScreen:Boolean):void {
-				LogUtil.debug("Calling shareScreen");
+				LOGGER.debug("Calling shareScreen");
 				btnFSPublish.enabled = false;
 				btnRegionPublish.enabled = false;
 //				useSVC2Check.enabled = false;
@@ -191,7 +197,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var captureX:Number = 0;
 				var captureY:Number = 0;				
 				sharingFullScreen = fullScreen;
-				LogUtil.debug("Calling startApplet");
+				LOGGER.debug("Calling startApplet");
 				ExternalInterface.call("startApplet", uri , useTLS , room, fullScreen, true /*useSVC2Check.selected*/);
 			}
 			
@@ -244,7 +250,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onAppletStart(event:AppletStartedEvent):void{
 				if (!connection.connected) return;
 				
-				trace("DeskShareWindow::onAppletStart");
+				LOGGER.debug("DeskShareWindow::onAppletStart");
 				startPreviewStream(connection, room, event.videoWidth, event.videoHeight);
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
 				streamEvent.videoWidth = event.videoWidth;
@@ -279,7 +285,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vidH = captureHeight;
 				}
 
-				trace("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
+				LOGGER.debug("deskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
 				video = new Video(vidW, vidH);
 				video.width = vidW;
 				video.height = vidH;
@@ -318,20 +324,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				trace("VIdeoWindow::asyncerror " + e.toString());
+				LOGGER.debug("VIdeoWindow::asyncerror {0}", [e.toString()]);
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
 				case "NetStream.Publish.Start":
-					trace("NetStream.Publish.Start for broadcast stream " + stream);
+					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);
 					break;
 				case "NetStream.Play.UnpublishNotify":
-					trace("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);
 					stopSharing();
 					break;
 				case "NetStream.Play.Start":
-					trace("Netstatus: " + e.info.code);
+					LOGGER.debug("Netstatus: {0}", [e.info.code]);
 					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
 				}
 			}
@@ -344,18 +350,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function callStopApplet():void {
         if (!calledStopApplet) {
           calledStopApplet = true;
-          trace("Calling stopApplet in callStopApplet()");
+          LOGGER.debug("Calling stopApplet in callStopApplet()");
           ExternalInterface.call("stopApplet");
         }
       }
       private function closeWindow():void {		
-        trace("Calling stopApplet in closeWindow()");
+		LOGGER.debug("Calling stopApplet in closeWindow()");
         callStopApplet();
         dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));				
       }		
       
       private function restartJava():void {
-        trace("Calling stopApplet in restartJava()");
+		LOGGER.debug("Calling stopApplet in restartJava()");
         callStopApplet();
         shareScreen(sharingFullScreen);
       }

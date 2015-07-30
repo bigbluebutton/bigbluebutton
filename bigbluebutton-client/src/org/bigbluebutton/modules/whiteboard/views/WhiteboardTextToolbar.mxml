@@ -34,25 +34,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Menu;
-			import mx.events.MenuEvent;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.FocusManager;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.hamcrest.object.nullValue;
 			
+			private static const LOGGER:ILogger = getClassLogger(WhiteboardTextToolbar);      
 			public var canvas:WhiteboardCanvas;
 			public var textColor:uint;
 			public var bgColor:uint;
@@ -66,7 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var normalAlpha:Number = 0.55;
 			private var focusedAlpha:Number = 1.0;
 			private var hasFocus:Boolean;
-			private var fontSizes:Array = ["12", "14", "16", "18", "22", "24", "32", "36"];
+			[Bindable] private var fontSizes:Array = ["12", "14", "16", "18", "22", "24", "32", "36"];
 			
 			public function init():void {
 				this.alpha = normalAlpha;
@@ -142,7 +138,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			protected function setTextSize(size:Number):void {
 				enableTextToolbar();
 				this.textSize = size;
-				LogUtil.debug("Text size set to: " + size);
+				LOGGER.debug("Text size set to: " + size);
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 			}
 						

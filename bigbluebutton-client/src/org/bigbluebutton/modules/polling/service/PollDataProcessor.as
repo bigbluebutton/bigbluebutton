@@ -1,12 +1,11 @@
 package org.bigbluebutton.modules.polling.service
 {
-
   import com.asfusion.mate.events.Dispatcher;
   
   import flash.accessibility.Accessibility;
-  import flash.events.IEventDispatcher;
   
-  import org.bigbluebutton.core.UsersUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
@@ -23,7 +22,7 @@ package org.bigbluebutton.modules.polling.service
 
   public class PollDataProcessor
   {
-    private static const LOG:String = "Poll::PollDataProcessor - ";
+	private static const LOGGER:ILogger = getClassLogger(PollDataProcessor);      
     
 	private var model:PollingModel;
 	private var dispatcher:Dispatcher;
@@ -34,7 +33,7 @@ package org.bigbluebutton.modules.polling.service
 	}
 	
     public function handlePollStartedMesage(msg:Object):void {
-      trace(LOG + "*** Poll started " + msg.msg + " **** \n");
+      LOGGER.debug("*** Poll started {0} **** \n", [msg.msg]);
       
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
@@ -58,13 +57,13 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollStoppedMesage(msg:Object):void {
-      trace(LOG + "*** Poll stopped " + msg.msg + " **** \n");
+      LOGGER.debug("*** Poll stopped {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       dispatcher.dispatchEvent(new PollStoppedEvent());
     }
     
     public function handlePollShowResultMessage(msg:Object):void {
-      trace(LOG + "*** Poll show result " + msg.msg + " **** \n");
+      LOGGER.debug("*** Poll show result {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;
@@ -110,7 +109,7 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollUserVotedMessage(msg:Object):void {
-      trace(LOG + "*** Poll user voted " + msg.msg + " **** \n");
+      LOGGER.debug("*** Poll user voted {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;

@@ -23,16 +23,13 @@ package org.bigbluebutton.modules.classyaudio.managers
 	
 	import flash.events.ActivityEvent;
 	import flash.events.AsyncErrorEvent;
-	import flash.events.Event;
-	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.StatusEvent;
 	import flash.media.Microphone;
 	import flash.media.SoundCodec;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.managers.UserManager;
+	
 	import org.bigbluebutton.modules.classyaudio.events.MicMutedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.PlayStreamStatusEvent;
 	

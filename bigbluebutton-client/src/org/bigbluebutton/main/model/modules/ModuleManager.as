@@ -25,8 +25,9 @@ package org.bigbluebutton.main.model.modules
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -34,7 +35,7 @@ package org.bigbluebutton.main.model.modules
 	
 	public class ModuleManager
 	{
-    private static const LOG:String = "Core::ModuleManager - ";
+		private static const LOGGER:ILogger = getClassLogger(ModuleManager);      
     
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
 		public static const MODULE_LOAD_PROGRESS:String = "MODULE_LOAD_PROGRESS";
@@ -96,7 +97,7 @@ package org.bigbluebutton.main.model.modules
 		private function startModule(name:String):void {
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				trace(LOG + 'Starting module ' + name);
+				LOGGER.debug('Starting module {0}', [name]);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
@@ -104,14 +105,14 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		private function stopModule(name:String):void {
-      trace(LOG + 'Stopping module ' + name);
+      		LOGGER.debug('Stopping module {0}', [name]);
       
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LogUtil.debug('Stopping ' + name);
+				LOGGER.debug('Stopping {0}', [name]);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				if(bbb == null) { //Still has null object reference on logout sometimes.
-					LogUtil.debug('Module ' + name + ' was null skipping');
+					LOGGER.debug('Module {0} was null skipping', [name]);
 					return;
 				}
 				bbb.stop();
@@ -119,14 +120,14 @@ package org.bigbluebutton.main.model.modules
 		}
 						
 		public function loadModule(name:String):void {
-			trace(LOG + 'BBBManager Loading ' + name);
+			LOGGER.debug('BBBManager Loading {0}', [name]);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (!m.loaded) {
 					m.load(loadModuleResultHandler);
 				}
 			} else {
-				LogUtil.debug(name + " not found.");
+				LOGGER.debug("{0} not found.", [name]);
 			}
 		}
 				
@@ -138,12 +139,12 @@ package org.bigbluebutton.main.model.modules
 						modulesDispatcher.sendLoadProgressEvent(name, progress);
 					break;	
 					case MODULE_LOAD_READY:
-						trace(LOG + 'Module ' + name + " loaded.");		
+						LOGGER.debug("Module {0} loaded.", [name]);		
 						modulesDispatcher.sendModuleLoadReadyEvent(name)	
 					break;				
 				}
 			} else {
-				LogUtil.debug(name + " not found.");
+				LOGGER.warn("{0} not found.", [name]);
 			}
 			
 			if (allModulesLoaded()) {
@@ -166,13 +167,13 @@ package org.bigbluebutton.main.model.modules
 		public function moduleStarted(name:String, started:Boolean):void {			
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				trace(LOG + 'Setting ' + name + ' started to ' + started);
+				LOGGER.debug('Setting {0} started to {1}', [name, started]);
 			}	
 		}
 		
 		public function startUserServices():void {
 			configParameters.application = configParameters.application.replace(/rtmp:/gi, _protocol + ":");
-			trace(LOG + "**** Using " + _protocol + " to connect to " + configParameters.application + "******");
+			LOGGER.debug("**** Using {0} to connect to {1}******", [_protocol, configParameters.application]);
 			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host, _protocol.toUpperCase() == "RTMPT");
 		}
 		

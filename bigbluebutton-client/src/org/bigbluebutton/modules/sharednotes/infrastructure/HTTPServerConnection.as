@@ -25,8 +25,13 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	
 	public class HTTPServerConnection extends ServerConnection
 	{
+		private static const LOGGER:ILogger = getClassLogger(HTTPServerConnection);      
+
 		public static var syncURL:String = "";
 		private var loader:URLLoader = new URLLoader();		// used for connecting to the server
 		
@@ -55,7 +60,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 				loader.load(request);
 				pendingResponse = true;
 			} catch (error:Error) {
-				trace("Unable to load requested document.");
+				LOGGER.debug("Unable to load requested document.");
 			}
 		}
 	}

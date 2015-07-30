@@ -18,8 +18,6 @@
  */
 package org.bigbluebutton.core.managers
 {
-    import com.asfusion.mate.events.Dispatcher;
-    
     import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.net.URLLoader;
@@ -28,12 +26,13 @@ package org.bigbluebutton.core.managers
     import mx.core.FlexGlobals;
     import mx.utils.URLUtil;
     
-    import org.bigbluebutton.common.LogUtil;
-    import org.bigbluebutton.core.EventBroadcaster;
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.core.model.VideoProfile;
     
     public class VideoProfileManager extends EventDispatcher {
-        
+		private static const LOGGER:ILogger = getClassLogger(VideoProfileManager);      
+
         public static const PROFILES_XML:String = "client/conf/profiles.xml";
         public static const DEFAULT_FALLBACK_LOCALE:String = "en_US";
         private var _profiles:Array = new Array();
@@ -43,7 +42,7 @@ package org.bigbluebutton.core.managers
             urlLoader.addEventListener(Event.COMPLETE, handleComplete);
             var date:Date = new Date();
             var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
-            trace("VideoProfileManager::loadProfiles [" + localeReqURL + "]");
+            LOGGER.debug("VideoProfileManager::loadProfiles [{0}]", [localeReqURL]);
             urlLoader.load(new URLRequest(localeReqURL));
         }       
         
@@ -55,7 +54,7 @@ package org.bigbluebutton.core.managers
         }
     
         private function handleComplete(e:Event):void{
-            trace("VideoProfileManager::handleComplete [" + new XML(e.target.data) + "]");
+            LOGGER.debug("VideoProfileManager::handleComplete [{0}]", [new XML(e.target.data)]);
       
             // first clear the array
             _profiles.splice(0);

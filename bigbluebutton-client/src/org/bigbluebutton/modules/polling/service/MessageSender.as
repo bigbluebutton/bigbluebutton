@@ -18,31 +18,30 @@
  */
 package org.bigbluebutton.modules.polling.service
 {
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 
 	public class MessageSender
 	{	
-    private static const LOG:String = "Poll::MessageSender - ";
-      
+	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
     public function startPoll(pollId:String, pollType: String):void
     {
       var map:Object = new Object();
       map["pollId"] = pollId;
       map["pollType"] = pollType;
       
-      var jsonMsg:String = JSON.stringify(map);
-      
-      trace(LOG + "startPoll [" + jsonMsg + "]");
+      LOGGER.debug("startPoll [{0}]", [jsonXify(map)]);
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.startPoll", 
         function(result:String):void { 
-          LogUtil.debug(result); 
+			LOGGER.debug(result); 
         },	                   
         function(status:String):void {
-          LogUtil.error(status); 
+			LOGGER.error(status); 
         },
         map
       );
@@ -53,17 +52,15 @@ package org.bigbluebutton.modules.polling.service
       var map:Object = new Object();
       map["pollId"] = pollId;
       
-      var jsonMsg:String = JSON.stringify(map);
-      
-      trace(LOG + "stopPoll [" + jsonMsg + "]");
+      LOGGER.debug("stopPoll [{0}]", [jsonXify(map)]);
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.stopPoll", 
         function(result:String):void { 
-          LogUtil.debug(result); 
+			LOGGER.debug(result); 
         },	                   
         function(status:String):void {
-          LogUtil.error(status); 
+			LOGGER.error(status); 
         },
         map
       );
@@ -75,17 +72,15 @@ package org.bigbluebutton.modules.polling.service
       map["pollId"] = pollId;
       map["answerId"] = answerId;
       
-      var jsonMsg:String = JSON.stringify(map);
-      
-      trace(LOG + "votePoll [" + jsonMsg + "]");
+      LOGGER.debug("votePoll [{0}]", [jsonXify(map)]);
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.votePoll", 
         function(result:String):void { 
-          LogUtil.debug(result); 
+			LOGGER.debug(result); 
         },	                   
         function(status:String):void {
-          LogUtil.error(status); 
+			LOGGER.error(status); 
         },
         map
       );
@@ -96,17 +91,15 @@ package org.bigbluebutton.modules.polling.service
       map["pollId"] = pollId;
       map["show"] = show;
       
-      var jsonMsg:String = JSON.stringify(map);
-       
-      trace(LOG + "showPollResult [" + jsonMsg + "]");
+	  LOGGER.debug("showPollResult [{0}]", [jsonXify(map)]);
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.showPollResult", 
         function(result:String):void { 
-          LogUtil.debug(result); 
+			LOGGER.debug(result); 
         },	                   
         function(status:String):void {
-          LogUtil.error(status); 
+			LOGGER.error(status); 
         },
         map
       );      
