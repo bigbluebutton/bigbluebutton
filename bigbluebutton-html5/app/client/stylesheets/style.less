@@ -378,11 +378,11 @@ body {
 .signOutIcon {
   @media @landscape {
     &:hover {
-    color: #2A5E7C;
-  }
-  &:focus {
-    color: #2A5E7C;
-  }
+      color: #2A5E7C;
+    }
+    &:focus {
+      color: #2A5E7C;
+    }
     height: 28px;
     width: 75px;
     margin-left: 10px;
@@ -405,6 +405,9 @@ body {
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
     left: 10%;
     width: 10%;
+  }
+  .muteIcon:hover {
+    color: #2A5E7C;
   }
 }
 
@@ -433,14 +436,19 @@ body {
   z-index: 1001;
 }
 
-.toggleUserlistButton {
+.toggleUserlistButton, .toggleMenuButton {
   outline: none;
+  &:hover {
+    span {
+      background-color: #2A5E7C;
+    }
+  }
 }
 
 .settingsIcon {
   @media @landscape {
     &:hover {
-    color: #2A5E7C;
+      color: #2A5E7C;
     }
     &:focus {
       color: #2A5E7C;
