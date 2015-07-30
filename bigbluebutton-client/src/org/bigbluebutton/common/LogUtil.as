@@ -40,38 +40,53 @@ package org.bigbluebutton.common
 		/**
 		 * Initialises logging from the application configuration.
 		 */
-		public static function initLogging():void
+		public static function initLogging(force:Boolean = false):void
 		{
-			var lxml:XML=BBB.initConfigManager().config.logging;
-			if (lxml.@enabled != undefined)
-			{
-				loggingEnabled=(lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
-			}
-			if (lxml.@target != undefined)
-			{
-				loggingTargetName=lxml.@target.toString().toLowerCase();
-			}
-			if (loggingEnabled)
-			{
-				var logTarget:IFormattingLogTarget;
-				switch (loggingTargetName)
-				{
-					case TRACE:
-						logTarget=new TraceTarget();
-						break;
-					case LOG_WINDOW:
-						logTarget=new LogWindowTarget();
-						break;
-					case JSNLOG:
-						logTarget=new JSNLogTarget();
-						break;
-					default:
-						// no logging target set						
-						break;
-				}
+			var logTarget:IFormattingLogTarget;
 
+			if (force)
+			{
+				logTarget=new TraceTarget();
+			}
+			else
+			{
+				var lxml:XML=BBB.initConfigManager().config.logging;
+				if (lxml.@enabled != undefined)
+				{
+					loggingEnabled=(lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (lxml.@target != undefined)
+				{
+					loggingTargetName=lxml.@target.toString().toLowerCase();
+				}
+				if (loggingEnabled)
+				{
+					switch (loggingTargetName)
+					{
+						case TRACE:
+							logTarget=new TraceTarget();
+							break;
+						case LOG_WINDOW:
+							logTarget=new LogWindowTarget();
+							break;
+						case JSNLOG:
+							logTarget=new JSNLogTarget();
+							break;
+						default:
+							// no logging target set						
+							break;
+					}
+				}
+			}
+
+			if (logTarget)
+			{
 				logTarget.format=DEFAULT_FORMAT;
 				LOGGER_FACTORY.setup=new SimpleTargetSetup(logTarget);
+			}
+			else
+			{
+				disableLogging();
 			}
 		}
 
