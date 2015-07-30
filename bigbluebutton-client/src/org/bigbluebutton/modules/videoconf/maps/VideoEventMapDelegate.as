@@ -429,7 +429,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function switchToViewer(event:MadePresenterEvent):void{
-      LOGGER.debug("VideoEventMapDelegate:: [{0}] Got Switch to viewer event. ready = [{1}]" [me, _ready]);
+      LOGGER.debug("VideoEventMapDelegate:: [{0}] Got Switch to viewer event. ready = [{1}]", [me, _ready]);
 
       if (options.showButton){
         LOGGER.debug("****************** Switching to viewer. Show video button?=[{0}]", [UsersUtil.amIPresenter()]);
