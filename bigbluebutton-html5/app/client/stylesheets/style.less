@@ -79,7 +79,9 @@ body {
       padding-left: 1% !important;
       padding-right: 1% !important;
       background-color: white;
-      border-bottom: 1px solid extract(@lightGrey, 1);
+      &:not(.toggleMenuButton):not(.toggleUserlistButton) {
+        border-bottom: 1px solid extract(@lightGrey, 1);
+      }
     }
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
       height: 100px !important;
