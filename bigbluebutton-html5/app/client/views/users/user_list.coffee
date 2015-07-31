@@ -5,6 +5,14 @@ Template.usersList.helpers
       return "Users: #{numberUsers}"
     # do not display the label if there are just a few users
 
-Template.usersList.events
-  "click .closeUserlistIcon": (event, template) ->
-    toggleUsersList()
+Template.usersList.rendered = ->
+  $('.sl-left-drawer').resizable
+    handles: 'e'
+    maxWidth: 600
+    minWidth: 200
+    resize: () ->
+      adjustChatInputHeight()
+  Tracker.autorun (comp) ->
+    setInSession 'userListRenderedTime', TimeSync.serverTime()
+    if getInSession('userListRenderedTime') isnt undefined
+      comp.stop()

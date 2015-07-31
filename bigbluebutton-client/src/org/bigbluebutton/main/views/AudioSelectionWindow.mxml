@@ -36,17 +36,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.managers.PopUpManager;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
+
 			private var phoneOptions:PhoneOptions = new PhoneOptions;
 			
 			private function init():void {
@@ -72,7 +74,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onMicClick():void {
-				trace("AudioSelectionWindow - Share Microphone Clicked");
+				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
 				var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
 				command.mic = true;
@@ -82,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onListenClick():void {
-				trace("AudioSelectionWindow - Share Microphone Clicked");
+				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
 				var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
 				command.mic = false;
@@ -92,7 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCancelClicked():void {
-				trace("AudioSelectionWindow - Cancel clicked");
+				LOGGER.debug("AudioSelectionWindow - Cancel clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
 				

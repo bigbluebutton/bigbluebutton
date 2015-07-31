@@ -36,25 +36,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;		
-			import flash.system.Security;
-			import flash.system.SecurityPanel;
-			import flash.ui.Keyboard;		
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.ui.Keyboard;
+			
 			import mx.controls.sliderClasses.Slider;
-			import mx.core.IFlexDisplayObject;
 			import mx.events.CloseEvent;
-			import mx.events.ItemClickEvent;
 			import mx.events.SliderEvent;
-			import mx.managers.PopUpManager;	
+			import mx.managers.PopUpManager;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-			import org.bigbluebutton.modules.phone.events.CallEchoTestAppEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestFailedEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestHasAudioEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestNoAudioEvent;
@@ -65,7 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.FlashStopEchoTestCommand;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-      private static const LOG:String = "Phone::FlashMicSettings - ";
+			private static const LOGGER:ILogger = getClassLogger(FlashMicSettings);      
       
       [Bindable] private var FLASH_MIC_SETTING_STATE:String = "flashMicSettingsState";
       [Bindable] private var FLASH_ECHO_TEST_STATE:String = "flashEchoTestState";     
@@ -122,7 +117,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         reInitialize();
         
         mic = Microphone.getMicrophone(comboMicList.selectedIndex);
-        trace(LOG + "Changing microphone. mic.index[" + mic.index + "] name=[" + mic.name + "]");
+        LOGGER.debug("Changing microphone. mic.index[{0}] name=[{1}]", [mic.index, mic.name]);
         mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler)
         nsStream.attachAudio(mic);  
 				
@@ -134,11 +129,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function micStatusEventHandler(event:StatusEvent):void {					
         switch(event.code) {
           case "Microphone.Muted":						
-            trace(LOG + "Access to microphone has been denied.");
+			LOGGER.debug("Access to microphone has been denied.");
             statusText.text = "You did not allow Flash to access your mic.";
             break;
           case "Microphone.Unmuted":         
-            trace(LOG + "Access to the microphone has been allowed.");
+			LOGGER.debug("Access to the microphone has been allowed.");
             // Comment these next 2-lines. We don't want the user hearing audio
             // while testing mic levels. (richard mar 26, 2014)
             // mic.setLoopBack(true);
@@ -149,7 +144,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             microphoneList = Microphone.names;
             break;
           default:
-            LogUtil.debug("unknown micStatusHandler event: " + event);
+            LOGGER.debug("unknown micStatusHandler event: {0}", [event]);
         }
       }	
       
@@ -160,7 +155,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
 			private function onCreationComplete():void {
-        trace(LOG + "onCreationComplete. Seeting state to [flashMicSettingsTest]");
+        LOGGER.debug("onCreationComplete. Seeting state to [flashMicSettingsTest]");
         microphoneList = Microphone.names;
         setupForMicLoopbackTest();
 			}						
@@ -256,7 +251,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onCancelClicked():void {
-        trace(LOG + "onCancelClicked closing popup");
+		LOGGER.debug("onCancelClicked closing popup");
         cleanUp();
         stopEchoTest();
         var dispatcher:Dispatcher = new Dispatcher();
@@ -296,7 +291,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
      
       private function yesButtonClicked():void {
-        trace(LOG + "Echo test passed.");    
+        LOGGER.debug("Echo test passed.");    
         cleanUp();
         dispatchEvent(new FlashEchoTestHasAudioEvent());
         var dispatcher:Dispatcher = new Dispatcher();
@@ -305,21 +300,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function noButtonClicked():void {
-        trace(LOG + "Echo test failed.");
+		LOGGER.debug("Echo test failed.");
         dispatchEvent(new FlashEchoTestNoAudioEvent());
         testMicrophoneLoopback();
         setupForMicLoopbackTest();
       }
             
       private function flashMicSettingsCreated():void {        
-        trace(LOG + "Available microphones: " + microphoneList);         
+		LOGGER.debug("Available microphones: {0}", [microphoneList]);         
         testMicrophoneLoopback();				         
       }
       
       private function setupForEchoTestFailed():void
       {
         dotTimer.stop();
-        trace(LOG + "Setting state to " + FLASH_MIC_TEST_FAILED_STATE);
+		LOGGER.debug("Setting state to {0}", [FLASH_MIC_TEST_FAILED_STATE]);
         setCurrentState(FLASH_MIC_TEST_FAILED_STATE);			
       }
 			

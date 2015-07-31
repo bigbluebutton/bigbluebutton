@@ -94,7 +94,7 @@ package org.bigbluebutton.modules.polling.views
 			var answers:Array = poll.answers; 
 			for (var j:int = 0; j < answers.length; j++) {
 				var a:SimpleAnswer = answers[j] as SimpleAnswer;
-				resultData.push({a:a.key, v:0});
+				resultData.push({a:ResourceUtil.getInstance().getString('bbb.polling.answer.' + a.key), v:0});
 			}
 			
 			_pollGraphic.data = resultData;
@@ -109,7 +109,7 @@ package org.bigbluebutton.modules.polling.views
 			var answers:Array = e.result.answers; 
 			for (var j:int = 0; j < answers.length; j++) {
 				var a:SimpleAnswerResult = answers[j] as SimpleAnswerResult;
-				resultData.push({a:a.key, v:a.numVotes});
+				resultData.push({a:ResourceUtil.getInstance().getString('bbb.polling.answer.' + a.key), v:a.numVotes});
 			}
 			
 			_pollGraphic.data = resultData;

@@ -63,6 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
   <mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
   <mate:Listener type="{ShortcutEvent.CHAT_DEBUG}" method="chatDebugInfo" />
+  <mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" receive="refreshChat(event)"/>
 	
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
 
@@ -75,17 +76,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.TextEvent;
 			
 			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Button;
-			import mx.core.ScrollPolicy;
 			
-			import org.bigbluebutton.common.LogUtil;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.UserJoinedEvent;
 			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.chat.ChatConstants;
@@ -97,13 +97,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 			import org.bigbluebutton.modules.chat.model.ChatConversation;
-			import org.bigbluebutton.modules.chat.model.ChatMessage;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
 			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-      private static const LOG:String = "Chat::ChatBox - ";
+			private static const LOGGER:ILogger = getClassLogger(ChatBox);      
       
       public var publicChat:Boolean = false;
       public var chatWithUserID:String;
@@ -179,7 +177,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(Capabilities.hasAccessibility)
 					Accessibility.updateProperties();
 				
-        trace(LOG + " onCreationComplete. Apply lock settings");
+        LOGGER.debug(" onCreationComplete. Apply lock settings");
         applyLockSettings();
 			}
 			
@@ -234,6 +232,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           scrollToEndOfMessage();
         }
       }
+
+      private function refreshChat(e:BBBEvent):void {
+        if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
+          if (publicChat) chatMessages = new ChatConversation();
+        }
+      }
+
       private function handleUserJoinedEvent(event:UserJoinedEvent):void {
         // Handle user joining so that the user can start to talk if the person rejoins
         if (!publicChat && event.userID == chatWithUserID) {
@@ -411,7 +416,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
 				
 				if (keyCombos[keyPress]) {
-					LogUtil.debug("WATERFALL: Caught shortcut in chat box, " + keyCombos[keyPress]);
+					LOGGER.debug("WATERFALL: Caught shortcut in chat box, {0}", [keyCombos[keyPress]]);
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
 					event.otherUserID = chatWithUserID;
 					globalDispatcher.dispatchEvent(event);
@@ -531,19 +536,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				spacerNeeded = false;
 				indicatorNeeded = false
 				repeat = false;
-				LogUtil.debug("Done with navigationMaintenance(); description is now " + chatMessagesList.accessibilityProperties.description);
+				LOGGER.debug("Done with navigationMaintenance(); description is now {0}", [chatMessagesList.accessibilityProperties.description]);
 			}
 			
 			// General-purpose developer method, used during testing of ChatBox accessibility
 			private function chatDebugInfo(e:ShortcutEvent):void{
-				LogUtil.debug("----CHAT DEBUG INFORMATION----");
+				LOGGER.debug("----CHAT DEBUG INFORMATION----");
 					var num:int = chatMessages.numMessages();
-					LogUtil.debug("Printing all chat messages of the " + num + " present:");
+					LOGGER.debug("Printing all chat messages of the {0} present:", [num]);
 					for (var i:int = 0; i < num; i++){
 						if (chatMessages.messages.getItemAt(i) != null)
-							LogUtil.debug("Message " + i + ": " + chatMessages.messages.getItemAt(i).toString());
+							LOGGER.debug("Message {0}: {1}", [i, chatMessages.messages.getItemAt(i).toString()]);
 						else
-							LogUtil.debug("Message " + i + " is NULL");
+							LOGGER.debug("Message {0} is NULL", [i]);
 					}
 					
 					/*
@@ -560,7 +565,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//LogUtil.debug("navToLatest is: " + navToLatest);
 					//LogUtil.debug(" is: " + ); 
 				
-				LogUtil.debug("------------------------------");
+				LOGGER.debug("------------------------------");
 			}
      
       private function sendPublicChatMessage(message:String):void {

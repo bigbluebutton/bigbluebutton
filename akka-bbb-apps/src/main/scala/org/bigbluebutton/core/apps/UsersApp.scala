@@ -228,6 +228,7 @@ trait UsersApp {
       }
 
       usersModel.removeUser(msg.userId)
+      usersModel.removeRegUser(msg.userId)
 
       log.info("Ejecting user from meeting:  mid=[" + mProps.meetingID + "]uid=[" + msg.userId + "]")
       outGW.send(new UserEjectedFromMeeting(mProps.meetingID, mProps.recorded, msg.userId, msg.ejectedBy))
@@ -273,7 +274,20 @@ trait UsersApp {
   def handleUserJoin(msg: UserJoining): Unit = {
     val regUser = usersModel.getRegisteredUserWithToken(msg.authToken)
     regUser foreach { ru =>
-      val vu = new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false)
+      // if there was a phoneUser with the same userID, reuse the VoiceUser value object
+      val vu = usersModel.getUser(msg.userID) match {
+        case Some(u) => {
+          if (u.voiceUser.joined) {
+            u.voiceUser.copy()
+          } else {
+            new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false)
+          }
+        }
+        case None => {
+          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false)
+        }
+      }
+
       val uvo = new UserVO(msg.userID, ru.externId, ru.name,
         ru.role, raiseHand = false, presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
@@ -289,7 +303,7 @@ trait UsersApp {
       outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingModel.isMeetingMuted()))
 
       // Become presenter if the only moderator		
-      if (usersModel.numModerators == 1) {
+      if ((usersModel.numModerators == 1) || (usersModel.noPresenter())) {
         if (ru.role == Role.MODERATOR) {
           assignNewPresenter(msg.userID, ru.name, msg.userID)
         }
@@ -319,7 +333,11 @@ trait UsersApp {
             log.info("Presenter left meeting:  mid=[" + mProps.meetingID + "] uid=[" + u.userID + "]. Making user=[" + mod.userID + "] presenter.")
             assignNewPresenter(mod.userID, mod.name, mod.userID)
           }
-
+        }
+        // add VoiceUser again to the list as a phone user since we still didn't get the event from FreeSWITCH
+        val vu = u.voiceUser
+        if (vu.joined) {
+          this.context.self ! (new UserJoinedVoiceConfMessage(mProps.voiceBridge, vu.userId, msg.userID, vu.callerName, vu.callerNum, vu.muted, vu.talking));
         }
       }
 
@@ -338,12 +356,16 @@ trait UsersApp {
         log.info("Voice user=[" + msg.voiceUserId + "] is already in conf=[" + mProps.voiceBridge + "]. Must be duplicate message.")
       }
       case None => {
-        // No current web user. This means that the user called in through
-        // the phone. We need to generate a new user as we are not able
-        // to match with a web user.
-        val webUserId = usersModel.generateWebUserId
+        val webUserId = if (msg.userId != msg.callerIdName) {
+          msg.userId
+        } else {
+          // No current web user. This means that the user called in through
+          // the phone. We need to generate a new user as we are not able
+          // to match with a web user.
+          usersModel.generateWebUserId
+        }
         val vu = new VoiceUser(msg.voiceUserId, webUserId, msg.callerIdName, msg.callerIdNum,
-          true, false, false, false)
+          true, false, msg.muted, msg.talking)
 
         val sessionId = "PHONE-" + webUserId;
 

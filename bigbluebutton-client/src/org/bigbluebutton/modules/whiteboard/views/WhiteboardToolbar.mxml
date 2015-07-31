@@ -63,37 +63,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Listener;            
-      import flash.ui.Keyboard;		
-      import mx.containers.ControlBar;
-      import mx.events.MoveEvent;
-      import mx.events.ResizeEvent;
-      import mx.managers.CursorManager;			
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.present.events.NavigationEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-			import org.bigbluebutton.modules.present.ui.views.SlideView;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
-			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
-			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
-			import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Listener;
+		
+		import mx.events.MoveEvent;
+		import mx.events.ResizeEvent;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.main.events.MadePresenterEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
+		import org.bigbluebutton.modules.present.events.NavigationEvent;
+		import org.bigbluebutton.modules.present.events.UploadEvent;
+		import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+		import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+		import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
+		import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
+		import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+		import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+		import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+		import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			[Bindable] private var hand_icon:Class = images.hand_icon;
@@ -119,7 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
-      private static const LOG:String = "WB::WhiteboardToolbar - ";
+			private static const LOGGER:ILogger = getClassLogger(WhiteboardToolbar);      
       
 			private var mousedOver:Boolean = false;
 			private var slideLoaded:Boolean = false;
@@ -219,7 +211,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
-				trace(LOG + "Ctrl-Z got into undoShortcut");
+				LOGGER.debug("Ctrl-Z got into undoShortcut");
 				sendUndoCommand();
 			}
 			
@@ -230,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function positionToolbar(window:PresentationWindow):void {
-        trace(LOG + "Positioning whiteboard toolbar");
+        		LOGGER.debug("Positioning whiteboard toolbar");
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);

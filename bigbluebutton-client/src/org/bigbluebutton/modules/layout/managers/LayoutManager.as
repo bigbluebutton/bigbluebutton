@@ -18,45 +18,41 @@
 */
 package org.bigbluebutton.modules.layout.managers
 {
-  import com.asfusion.mate.events.Dispatcher;  
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
   import flash.net.FileReference;
-  import flash.net.URLLoader;
-  import flash.net.URLRequest;
-  import flash.utils.Dictionary;
-  import flash.utils.Timer; 
+  import flash.utils.Timer;
+  
+  import mx.controls.Alert;
+  import mx.events.ResizeEvent;
+  
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent; 
-  import mx.controls.Alert;
-  import mx.events.ResizeEvent;  
-  import org.bigbluebutton.common.LogUtil;
-  import org.bigbluebutton.core.EventBroadcaster;
+  import flexlib.mdi.events.MDIManagerEvent;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.core.model.Config;
-  import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.model.LayoutOptions;
-  import org.bigbluebutton.modules.layout.events.LayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
   import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
-  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
-  import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
-  import org.bigbluebutton.modules.layout.model.WindowLayout;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class LayoutManager extends EventDispatcher {
-    private static const LOG:String = "Layout::LayoutManager - ";
+		private static const LOGGER:ILogger = getClassLogger(LayoutManager);      
     
 		private var _canvas:MDICanvas = null;
 		private var _globalDispatcher:Dispatcher = new Dispatcher();
@@ -107,7 +103,7 @@ package org.bigbluebutton.modules.layout.managers
 
 					//trace(LOG + " layouts loaded successfully");
 				} else {
-					trace(LOG + " layouts not loaded (" + e.error.message + ")");
+					LOGGER.debug("layouts not loaded ({0})", [e.error.message]);
 				}
 			});
 			loader.loadFromUrl(layoutUrl);

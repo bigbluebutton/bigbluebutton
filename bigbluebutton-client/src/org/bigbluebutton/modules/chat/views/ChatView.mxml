@@ -36,39 +36,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
+      
       import flash.accessibility.Accessibility;
       import flash.events.Event;
       import flash.events.FocusEvent;
-      import flash.external.ExternalInterface;
       import flash.media.Sound;
-      import flash.media.SoundChannel;
-      import flexlib.controls.tabBarClasses.SuperTab;
-      import flexlib.controls.textClasses.StringBoundaries;
-      import flexlib.events.SuperTabEvent;
-      import mx.collections.ArrayCollection;
-      import mx.containers.ControlBar;
+      
       import mx.controls.Button;
-      import mx.core.Container;
-      import mx.core.UIComponent;
-      import mx.events.IndexChangedEvent;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.BBB;
+      
+      import flexlib.controls.tabBarClasses.SuperTab;
+      import flexlib.events.SuperTabEvent;
+      
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.model.users.BBBUser;
-      import org.bigbluebutton.modules.chat.ChatUtil;
-      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.modules.chat.model.business.UserVO;
-      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.util.i18n.ResourceUtil;			
 					
 	    private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';

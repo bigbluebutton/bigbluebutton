@@ -29,17 +29,21 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.LogUtil;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
 			import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
-			
+
+			private static const LOGGER:ILogger = getClassLogger(UsersModule);
+
 			private var _moduleName:String = "Users Module";
 			private var _attributes:Object;
 			private var dispatcher:Dispatcher;
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("UsersModule Initialized");		
+				LOGGER.debug("UsersModule Initialized");		
 			}
 			
 			public function get moduleName():String {
@@ -64,7 +68,7 @@
 			}
 			
 			public function stop():void {
-				LogUtil.debug("UsersModule is stopping");
+				LOGGER.debug("UsersModule is stopping");
 				
 				var endEvent:StopUsersModuleEvent = new StopUsersModuleEvent(StopUsersModuleEvent.STOP_USERS_MODULE);
 				dispatcher.dispatchEvent(endEvent);

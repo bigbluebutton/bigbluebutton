@@ -20,11 +20,12 @@
 package org.bigbluebutton.modules.videoconf.business
 {
 	import flash.events.MouseEvent;
-	import flash.utils.Dictionary;	
+	import flash.utils.Dictionary;
+	
 	import mx.containers.HBox;
-	import mx.controls.Button;	
+	import mx.controls.Button;
+	
 	import org.bigbluebutton.common.Images;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class TalkingButtonOverlay extends HBox
 	{

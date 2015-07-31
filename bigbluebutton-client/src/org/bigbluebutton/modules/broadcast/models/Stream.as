@@ -27,10 +27,13 @@ package org.bigbluebutton.modules.broadcast.models
 	
 	import mx.core.UIComponent;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.broadcast.views.BroadcastWindow;
 
 	public class Stream {
+		private static const LOGGER:ILogger = getClassLogger(Stream);
+
 		private var uri:String;
 		private var streamId:String;
 		private var streamName:String;
@@ -85,30 +88,30 @@ package org.bigbluebutton.modules.broadcast.models
 		private function netstreamStatus(evt:NetStatusEvent):void {
 			switch(evt.info.code) {			
 				case "NetStream.Play.StreamNotFound":
-					LogUtil.debug("NetStream.Play.StreamNotFound");
+					LOGGER.warn("NetStream.Play.StreamNotFound");
 					break;			
 				case "NetStream.Play.Failed":
-					LogUtil.debug("NetStream.Play.Failed");
+					LOGGER.error("NetStream.Play.Failed");
 					break;
 				case "NetStream.Play.Start":	
-					LogUtil.debug("NetStream.Play.Start");
+					LOGGER.debug("NetStream.Play.Start");
 					break;
 				case "NetStream.Play.Stop":			
-					LogUtil.debug("NetStream.Play.Stop");
+					LOGGER.debug("NetStream.Play.Stop");
 					break;
 				case "NetStream.Buffer.Full":
-					LogUtil.debug("NetStream.Buffer.Full");
+					LOGGER.warn("NetStream.Buffer.Full");
 					break;
 				default:
 			}			 
 		} 
 		
 		private function nsAsyncErrorHandler(event:AsyncErrorEvent):void {
-			LogUtil.debug("nsAsyncErrorHandler: " + event);
+			LOGGER.debug("nsAsyncErrorHandler: {0}", [event]);
 		}
 		
 		private function connect():void {
-			LogUtil.debug("Connecting " + uri);
+			LOGGER.debug("Connecting {0}", [uri]);
 			nc = new NetConnection();
 			nc.proxyType = "best";
 			nc.connect(uri);
@@ -120,25 +123,25 @@ package org.bigbluebutton.modules.broadcast.models
 		private function netStatus(evt:NetStatusEvent ):void {		 			
 			switch(evt.info.code) {				
 				case "NetConnection.Connect.Success":
-					LogUtil.debug("Successfully connected to broadcast application.");
+					LOGGER.debug("Successfully connected to broadcast application.");
 					displayVideo();
 					break;				
 				case "NetConnection.Connect.Failed":
-					LogUtil.debug("Failed to connect to broadcast application.");
+					LOGGER.error("Failed to connect to broadcast application.");
 					break;				
 				case "NetConnection.Connect.Closed":
-					trace("Connection to broadcast application has closed.");
+					LOGGER.debug("Connection to broadcast application has closed.");
 					break;				
 				case "NetConnection.Connect.Rejected":
-					LogUtil.debug("Connection to broadcast application was rejected.");
+					LOGGER.warn("Connection to broadcast application was rejected.");
 					break;					
 				default:	
-					LogUtil.debug("Connection to broadcast application failed. " + evt.info.code);
+					LOGGER.error("Connection to broadcast application failed. {0}", [evt.info.code]);
 			}			
 		}
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
-			LogUtil.debug("securityErrorHandler: " + event);
+			LOGGER.debug("securityErrorHandler: {0}", [event]);
 		}
 		
 		public function onBWCheck(... rest):Number { 
@@ -150,7 +153,7 @@ package org.bigbluebutton.modules.broadcast.models
 			if (rest.length > 0) p_bw = rest[0]; 
 			// your application should do something here 
 			// when the bandwidth check is complete 
-			LogUtil.debug("bandwidth = " + p_bw + " Kbps."); 
+			LOGGER.debug("bandwidth = {0} Kbps.", [p_bw]); 
 		}
 		
 		public function stop():void {
@@ -162,12 +165,11 @@ package org.bigbluebutton.modules.broadcast.models
 		}
 		
 		public function onCuePoint(infoObject:Object):void {
-			LogUtil.debug("onCuePoint");
+			LOGGER.debug("onCuePoint");
 		}
 		
 		public function onMetaData(info:Object):void {
-			LogUtil.debug("****metadata: width=" + info.width + " height=" + info.height);
-      trace("****metadata: width=" + info.width + " height=" + info.height);
+			LOGGER.debug("****metadata: width={0} height={1}" + [info.width, info.height]);
 			videoWidth = info.width;
 			videoHeight = info.height;
       
@@ -181,7 +183,7 @@ package org.bigbluebutton.modules.broadcast.models
     }
     
 		public function onPlayStatus(infoObject:Object):void {
-			LogUtil.debug("onPlayStatus");
+			LOGGER.debug("onPlayStatus");
 		}		
 		
     private function centerToWindow():void{

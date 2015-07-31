@@ -30,12 +30,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.controls.Alert;
-			
-			import org.bigbluebutton.common.LogUtil;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-			import org.bigbluebutton.modules.present.maps.PresentEventMap;
 			
+			private static const LOGGER:ILogger = getClassLogger(PresentModule);
+
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			private var _moduleName:String = "Presentation";
@@ -61,9 +62,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function get mode():String{
 				if (_attributes.mode == null){
 					_attributes.mode = "LIVE";
-					LogUtil.debug("Setting Present mode: " + _attributes.mode);
+					LOGGER.debug("Setting Present mode: {0}", [_attributes.mode]);
 				}
-				LogUtil.debug("Present mode: " + _attributes.mode);
+				LOGGER.debug("Present mode: {0}" + [_attributes.mode]);
 				return _attributes.mode;
 			}
 			
@@ -76,7 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function start(attributes:Object):void{
-				LogUtil.debug("present attr: " + attributes.username);
+				LOGGER.debug("present attr: {0}", [attributes.username]);
 				_attributes = attributes;
 				
 				var e:PresentModuleEvent = new PresentModuleEvent(PresentModuleEvent.START_MODULE);

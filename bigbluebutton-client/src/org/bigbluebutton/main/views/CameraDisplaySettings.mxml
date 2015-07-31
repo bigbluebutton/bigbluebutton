@@ -34,16 +34,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.collections.ArrayCollection;
 		import mx.collections.ArrayList;
 		import mx.events.CloseEvent;
-		import mx.events.ItemClickEvent;
 		import mx.managers.PopUpManager;
 		
 		import org.bigbluebutton.common.Images;
-		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.BBB;
-		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.main.events.BBBEvent;
-		import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		static public var PADDING_HORIZONTAL:Number = 6;

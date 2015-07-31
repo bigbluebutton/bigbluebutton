@@ -18,18 +18,16 @@
  */
 package org.bigbluebutton.modules.whiteboard.services
 {
-  import org.bigbluebutton.common.LogUtil;
-  import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.modules.present.events.PresentationEvent;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.whiteboard.commands.GetWhiteboardShapesCommand;
-  import org.bigbluebutton.modules.whiteboard.events.PageEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class WhiteboardService
   {
-    private static const LOG:String = "WB::WhiteboardService - ";
+	private static const LOGGER:ILogger = getClassLogger(WhiteboardService);      
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
@@ -59,7 +57,7 @@ package org.bigbluebutton.modules.whiteboard.services
     public function clearBoard():void {
       var wbId:String = whiteboardModel.getCurrentWhiteboardId();
       if (wbId != null) {
-        trace(LOG + "Clear shape for wb [" + wbId + "]");
+        LOGGER.debug("Clear shape for wb [{0}]", [wbId]);
         sender.clearBoard(wbId);
       }
     }

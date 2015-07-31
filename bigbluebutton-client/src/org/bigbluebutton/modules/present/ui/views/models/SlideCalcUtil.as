@@ -18,8 +18,6 @@
  */
 package org.bigbluebutton.modules.present.ui.views.models
 {
-	import org.bigbluebutton.common.LogUtil;
-
 	public class SlideCalcUtil
 	{
 		public static const HUNDRED_PERCENT:Number = 100;
