@@ -18,7 +18,7 @@
     {{#if isPollStarted}}
       <div class="polling">
         {{#each getPollQuestions}}
-          {{> makeButton btn_class="pollButtons" rel="tooltip" data_placement="top" label=key}}
+          {{> makeButton btn_class="pollButtons" rel="tooltip" data_placement="top" label=key answer=id}}
         {{/each}}
       </div>
     {{/if}}

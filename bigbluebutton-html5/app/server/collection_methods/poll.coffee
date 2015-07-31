@@ -1,4 +1,31 @@
 # --------------------------------------------------------------------------------------------
+# Public methods on server
+# --------------------------------------------------------------------------------------------
+Meteor.methods
+
+  publishVoteMessage: (meetingId, pollAnswerId, requesterUserId, requesterToken) ->
+    if isAllowedTo("subscribePoll", meetingId, requesterUserId, requesterToken)
+      eventName = "vote_poll_user_request_message"
+
+      result = Meteor.Polls.findOne({"poll_info.users": requesterUserId, "poll_info.meetingId": meetingId, "poll_info.poll.answers.id": pollAnswerId},
+        {fields: {"poll_info.poll.id": 1, _id: 0}})
+      _poll_id = result.poll_info.poll.id
+
+      message =
+        header:
+          timestamp: new Date().getTime()
+          name: eventName
+        payload:
+          meeting_id: meetingId
+          user_id: requesterUserId
+          poll_id: _poll_id
+          question_id: 0
+          answer_id: pollAnswerId
+
+      publish Meteor.config.redis.channels.toBBBApps.polling, message
+
+
+# --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
 @addPollToCollection = (poll, requester_id, users, meetingId) ->

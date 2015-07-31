@@ -54,6 +54,11 @@ Template.whiteboard.events
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
 
+  'click .pollButtons': (event) ->
+    _key = @.label
+    _id = @.answer
+    BBB.sendPollResponseMessage(_key, _id)
+
 Template.whiteboard.rendered = ->
   $('#whiteboard').resizable
     handles: 'e'
