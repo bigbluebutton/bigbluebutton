@@ -254,11 +254,10 @@
 				if (myMenu) myMenu.hide();
 				
 				myMenu = Menu.createMenu(null, myMenuData, true);
-				
-				myMenu.variableRowHeight = true;
-				myMenu.show(this.x + settingsBtn.x + settingsBtn.width + 2, this.y + this.height);
+				myMenu.variableRowHeight = false;
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
 				myMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+				myMenu.show();
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
@@ -269,6 +268,9 @@
 			
 			private function menuShowHandler(e:MenuEvent):void {
 				myMenu.setFocus();
+				var menuXY:Point = settingsBtn.localToGlobal(new Point(settingsBtn.width + 2, settingsBtn.height - myMenu.height));
+				myMenu.x = menuXY.x;
+				myMenu.y = menuXY.y;
 			}
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
