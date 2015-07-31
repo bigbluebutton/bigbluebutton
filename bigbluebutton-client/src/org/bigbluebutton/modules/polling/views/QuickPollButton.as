@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.polling.views {
 					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
 				}
 				label = constructedLabel;
+				name = "A-"+len;
 				visible = true;
 			} else {
 				visible = false;
