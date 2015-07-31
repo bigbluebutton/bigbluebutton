@@ -251,7 +251,11 @@
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
 				// but it would require an extra listener for the MenuCloseEvent.
-				if (myMenu) myMenu.hide();
+				if (myMenu) {
+					myMenu.removeEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+					myMenu.removeEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+					myMenu.hide();
+				}
 				
 				myMenu = Menu.createMenu(null, myMenuData, true);
 				myMenu.variableRowHeight = false;
