@@ -83,16 +83,17 @@
 			public function onCreationComplete():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
 
-				textArea.addEventListener("SHARED_NOTES_SAVED", function(e:Event):void {
+				richTextEditor.addEventListener("SHARED_NOTES_SAVED", function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
 				});
 
-				textArea.addEventListener(Event.CHANGE, function(e:Event):void {
+				richTextEditor.addEventListener(Event.CHANGE, function(e:Event):void {
 					if (!sendUpdateTimer.running) {
 						sendUpdateTimer.reset();
 						sendUpdateTimer.start();
 					}
 				});
+
 				// the following code was used to decide which event to listen for updates in the text area
 				//textArea.addEventListener(flash.events.Event.CHANGE, onTextAreaEvent);
 				//textArea.addEventListener(KeyboardEvent.KEY_DOWN, onTextAreaEvent);
@@ -110,6 +111,10 @@
 				updateTitle();
 			}
 
+			private function initRichTextEditor():void {
+				richTextEditor.linkTextInput.visible = false;
+			}
+
 			private function onTextAreaEvent(e:Event):void {
 				trace("Text area event " + e.type + " on user " + UsersUtil.getMyUserID());
 			}
@@ -122,7 +127,7 @@
 				var note:Object = notes[noteId];
 				_document = note["document"];
 				_noteName = note["name"];
-				textArea.text = _document;
+				richTextEditor.htmlText = _document;
 				updateTitle();
 			}
 
@@ -156,6 +161,7 @@
 					_document = result;
 					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
 //					trace("SharedNotes: patching local with server modifications");
+					richTextEditor.htmlText = textArea.text;
 				}
 			}
 
@@ -171,13 +177,33 @@
 			
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
-				textArea.saveNotesToFile(title);
+				var filename:String = title.replace(/\s+/g, '-').toLowerCase();
+				var _fileRef:FileReference = new FileReference();
+				_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
+					dispatchEvent(new Event("SHARED_NOTES_SAVED"));
+				});
+
+				var cr:String = String.fromCharCode(13);
+				var lf:String = String.fromCharCode(10);
+				var crlf:String = String.fromCharCode(13, 10);
+
+				var textToExport:String = richTextEditor.text;
+				textToExport = textToExport.replace(new RegExp(crlf, "g"), '\n');
+				textToExport = textToExport.replace(new RegExp(cr, "g"), '\n');
+				textToExport = textToExport.replace(new RegExp(lf, "g"), '\n');
+				textToExport = textToExport.replace(new RegExp('\n', "g"), crlf);
+
+				_fileRef.save(textToExport, filename+".txt");
 			}
 
 			protected function btnNew_clickHandler(event:MouseEvent):void
 			{
 				var noteNameWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, SharedNotesNameWindow, true);
 				PopUpManager.centerPopUp(noteNameWindow);
+			}
+
+			protected function btnToolbar_clickHandler(event:MouseEvent):void {
+				richTextEditor.showControlBar = !richTextEditor.showControlBar;
 			}
 
 			public function getPrefferedPosition():String{
@@ -202,11 +228,13 @@
 	</mx:Script>
 
 	<mx:VBox width="100%" height="100%">
-		<components:PatchableTextArea width="100%" height="100%" paddingBottom="0" id="textArea" editable="true" verticalScrollPolicy="auto"/>
+		<mx:RichTextEditor width="100%" height="100%" id="richTextEditor" showControlBar="false" dropShadowEnabled="false" headerHeight="0" borderThicknessLeft="0" borderThicknessRight="0" borderThicknessTop="0" borderThicknessBottom="0" initialize="initRichTextEditor()"/>
 
 		<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
-			<mx:Button id="btnNew" width="26" height="26" click="btnNew_clickHandler(event)" icon="@Embed(source='images/ic_note_add_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+			<mx:Button id="btnNew" width="26" height="26" click="btnNew_clickHandler(event)" icon="@Embed(source='images/ic_note_add_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.format.toolTip')}"/>
+			<mx:Button width="26" height="26" click="btnToolbar_clickHandler(event)" icon="@Embed(source='images/ic_note_format_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}"/>
 			<mx:Button width="26" height="26" click="btnSave_clickHandler(event)" icon="@Embed(source='images/ic_save_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
 		</mx:HBox>
 	</mx:VBox>
+	<components:PatchableTextArea visible="false" id="textArea" text="{richTextEditor.htmlText}"/>
 </containers:MDIWindow>
