@@ -25,6 +25,6 @@ sanjo:jasmine
 pagebakers:ionicons
 ewall:foundation
 maibaum:foundation-icons
-gthacoder:sled
 chriswessels:hammer@3.1.1
 fastclick
+gthacoder:sledjs@0.0.1
