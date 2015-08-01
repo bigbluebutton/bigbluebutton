@@ -24,7 +24,7 @@ Meteor.methods
             answer_id: pollAnswerId
 
         Meteor.Polls.update({"poll_info.users": requesterUserId, "poll_info.meetingId": meetingId, "poll_info.poll.answers.id": pollAnswerId},
-          { $pull: {"poll_info.users": requesterUserId}}, { multi: true });
+          { $pull: {"poll_info.users": requesterUserId}});
 
         Meteor.log.info "publishing Poll response to redis"
         publish Meteor.config.redis.channels.toBBBApps.polling, message
@@ -40,7 +40,11 @@ Meteor.methods
     _users.push user.user.userid
   #adding the initial number of votes for each answer
   for answer in poll.answers
-    answer.number = 0
+    answer.num_votes = 0
+  #adding the initial number of responders and respondents to the poll, which will be displayed for presenter (in HTML5 client) when he starts the poll
+  poll.num_responders = -1
+  poll.num_respondents = -1
+
   #adding all together and inserting into the Polls collection
   entry =
     poll_info:
@@ -56,6 +60,13 @@ Meteor.methods
     Meteor.Polls.remove({
       "poll_info.meetingId": meetingId, 
       "poll_info.poll.id": poll_id}, 
-      Meteor.log.info "cleared Polls Collection (meetingId: #{meetingId}!")
+      Meteor.log.info "cleared Polls Collection (meetingId: #{meetingId}, pollId: #{poll_id}!)")
   else
     Meteor.Polls.remove({}, Meteor.log.info "cleared Polls Collection (all meetings)!")
+
+@updatePollCollection = (poll, meetingId, requesterId) ->
+  if poll.answers? and poll.num_responders? and poll.num_respondents? and poll.id? and meetingId? and requesterId?
+    Meteor.Polls.update({"poll_info.meetingId": meetingId, "poll_info.requester": requesterId, "poll_info.poll.id": poll.id},
+      {$set:
+        {"poll_info.poll.answers": poll.answers, "poll_info.poll.num_responders": poll.num_responders, "poll_info.poll.num_respondents": poll.num_respondents}
+      }, Meteor.log.info "updating Polls Collection (meetingId: #{meetingId}, pollId: #{poll.id}!)")

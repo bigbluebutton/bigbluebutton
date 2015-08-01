@@ -347,6 +347,13 @@ class Meteor.RedisPubSub
         poll_id = message.payload.poll_id
         clearPollCollection meetingId, poll_id
 
+      if message.header.name is "user_voted_poll_message"
+        if message.payload?.poll? and message.payload.meeting_id? and message.payload.presenter_id?
+          pollObj = message.payload.poll
+          meetingId = message.payload.meeting_id
+          requesterId = message.payload.presenter_id
+          updatePollCollection pollObj, meetingId, requesterId
+
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------

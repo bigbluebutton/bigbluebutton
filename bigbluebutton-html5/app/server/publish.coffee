@@ -66,7 +66,7 @@ Meteor.publish 'bbb_poll', (meetingId, userid, authToken) ->
     else
       Meteor.log.info "publishing Poll for viewer: #{meetingId} #{userid} #{authToken}"
       return Meteor.Polls.find({"poll_info.meetingId": meetingId, "poll_info.users": userid},
-        {fields: {"poll_info.poll.answers.number": 0}})
+        {fields: {"poll_info.poll.answers.num_votes": 0}})
   else
     @error new Meteor.Error(402, "The user was not authorized to subscribe for 'bbb_poll'")
     return
