@@ -211,9 +211,11 @@ Template.main.gestures
 
       $('.left-drawer').addClass('sl-left-drawer')
       $('.sl-left-drawer').removeClass('left-drawer')
+      $('.sl-left-drawer').addClass('sl-left-drawer-content-delay')
 
       $('.right-drawer').addClass('sl-right-drawer')
       $('.sl-right-drawer').removeClass('right-drawer')
+      $('.sl-right-drawer').addClass('sl-right-drawer-content-delay')
 
   'panright #container, panleft #container': (event, template) ->
     if isPortraitMobile() and isPanHorizontal(event)
