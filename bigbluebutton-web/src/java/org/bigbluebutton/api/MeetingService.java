@@ -247,9 +247,13 @@ public class MeetingService implements MessageListener {
 		return meetings.isEmpty() ? Collections.<Meeting>emptySet() : Collections.unmodifiableCollection(meetings.values());
 	}
 	
+	public Collection<UserSession> getSessions() {
+		log.debug("Num sessions = [" + sessions.size() + "]");
+		return sessions.isEmpty() ? Collections.<UserSession>emptySet() : Collections.unmodifiableCollection(sessions.values());
+	}
+	
 	public void createMeeting(Meeting m) {
     handle(new CreateMeeting(m));
-//		handleCreateMeeting(m);
 	}
 
 	private void handleCreateMeeting(Meeting m) {
