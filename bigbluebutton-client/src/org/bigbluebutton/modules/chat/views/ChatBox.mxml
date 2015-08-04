@@ -22,8 +22,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-  xmlns:chat="org.bigbluebutton.modules.chat.views.*"
-  implements="org.bigbluebutton.modules.chat.views.IChatTab"
+	xmlns:common="org.bigbluebutton.common.*"
+    xmlns:chat="org.bigbluebutton.modules.chat.views.*"
+    implements="org.bigbluebutton.modules.chat.views.IChatTab"
 	click="setMessageRead()" verticalScrollPolicy="off"
 	creationComplete="onCreationComplete()">
 
@@ -140,9 +141,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var spacerNeeded:Boolean = false;
 			private var indicatorNeeded:Boolean = false
 			private var repeat:Boolean = false;
-			
-			[Bindable]
-			public var baseIndex:int;
 			
 		      [Bindable]
 		      private var chatListHeight:Number = 100;
@@ -674,11 +672,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	</mx:Script>
 
+  <common:TabIndexer id="tabIndexer" tabIndices="{[chatMessagesList, txtMsgArea, sendBtn, cmpColorPicker]}"/>
+	
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
     <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
              itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
              dataProvider="{chatMessages.messages}"
-             tabIndex="{baseIndex}"
              accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
   </mx:HBox>
   
@@ -687,19 +686,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:TextArea id="txtMsgArea" width="100%" height="100%"
                  styleName="chatControlBarTextMsgStyle" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
-                 tabIndex="{baseIndex+1}"
 				 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
     <mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
       <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
                  styleName="chatControlBarSendButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
                  click="sendMessages()"
-                 tabIndex="{baseIndex+2}"
                  accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>  
 		<mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}" includeInLayout="{chatOptions.colorPickerIsVisible}" 
 						toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"
-						tabIndex="{baseIndex+3}" />
+						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
     </mx:VBox>
   </mx:HBox>	
 </mx:VBox>
