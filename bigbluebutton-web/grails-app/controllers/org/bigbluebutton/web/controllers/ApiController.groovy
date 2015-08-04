@@ -822,6 +822,87 @@ class ApiController {
       }
     }
   }
+
+  /************************************
+   *    GETSESSIONS API
+   ************************************/
+  def getSessionsHandler = {
+    String API_CALL = "getSessions"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    println("##### GETSESSIONS API CALL ####")
+    
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+    
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+    // END - backward compatibility
+    
+    ApiErrors errors = new ApiErrors()
+        
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");
+    }
+
+    if (errors.hasErrors()) {
+        respondWithErrors(errors)
+        return
+    }
+    
+    // Do we agree on the checksum? If not, complain.       
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+        respondWithErrors(errors)
+        return
+    }
+        
+    Collection<Meeting> sssns = meetingService.getSessions();
+    
+    if (sssns == null || sssns.isEmpty()) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {  
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+              sessions()
+              messageKey("noSessions")
+              message("no sessions were found on this server")
+            }
+          }
+        }
+      }
+    } else {
+      println("#### Has sessions [" + sssns.size() + "] #####")
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {  
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+                sessions {
+                  for (m in sssns) {
+                    meeting {
+                      meetingID(m.meetingID)
+                      meetingName(m.conferencename)
+                      userName(m.fullname)
+                    }
+                  }
+                }
+              }
+            }
+          }
+      }
+    }
+  }
+
   
   def getDefaultConfigXML = {
  
