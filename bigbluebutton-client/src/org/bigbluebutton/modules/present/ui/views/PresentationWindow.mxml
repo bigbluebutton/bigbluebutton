@@ -69,11 +69,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -173,16 +173,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         } else {
           becomeViewer();
         }
-		
-				pollMenuData = [];
-				pollMenuData.push({label: "Yes/No"});
-				pollMenuData.push({label: "True/False"});
-				pollMenuData.push({label: "A/B"});
-				pollMenuData.push({label: "A/B/C"});
-				pollMenuData.push({label: "A/B/C/D"});
-				pollMenuData.push({label: "A/B/C/D/E"});
-				pollMenuData.push({label: "A/B/C/D/E/F"});
-			}
+        
+        setPollMenuData();
+      }
 			
       private function addWhiteboardToolbar(event:TimerEvent):void {
         LOGGER.debug("Sending event to add whiteboard canvas.");
@@ -531,6 +524,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					Accessibility.updateProperties();
 
 				addContextMenuItems();
+				
+				setPollMenuData();
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -611,7 +606,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function quickPollClicked(e:MouseEvent):void {
-				sendStartPollEvent(Button(e.target).label);
+				sendStartPollEvent(Button(e.target).name);
+			}
+			
+			private function setPollMenuData():void {
+				var resourceUtil:ResourceUtil = ResourceUtil.getInstance();
+				pollMenuData = [];
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.answer.Yes") + "/" + resourceUtil.getString("bbb.polling.answer.No")});
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.answer.True") + "/" + resourceUtil.getString("bbb.polling.answer.False")});
+				var constructedLabel:String = ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65));
+				for (var i:int=1; i<6; i++) {
+					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
+					pollMenuData.push({label: constructedLabel});
+				}
 			}
 			
 			private function onPollStartButtonClicked():void {

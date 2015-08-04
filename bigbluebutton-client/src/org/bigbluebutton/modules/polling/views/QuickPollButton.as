@@ -8,6 +8,7 @@ package org.bigbluebutton.modules.polling.views {
 	import org.bigbluebutton.modules.present.events.PageLoadedEvent;
 	import org.bigbluebutton.modules.present.model.Page;
 	import org.bigbluebutton.modules.present.model.PresentationModel;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class QuickPollButton extends Button {
 		private static const LOGGER:ILogger = getClassLogger(QuickPollButton);      
@@ -32,8 +33,14 @@ package org.bigbluebutton.modules.polling.views {
 			var regEx:RegExp = new RegExp("\n[^\s]+[\.\)]", "g");
 			var matchedArray:Array = text.match(regEx);
 			LOGGER.debug("Parse Result: {0} {1}", [matchedArray.length, matchedArray.join(" ")]);
-			if (matchedArray.length > 2) {
-				label = "A-" + (matchedArray.length < 8 ? matchedArray.length : 7);
+			if (matchedArray.length > 1) {
+				var constructedLabel:String = ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65));
+				var len:int = matchedArray.length < 7 ? matchedArray.length : 6;
+				for (var i:int=1; i<len; i++) {
+					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
+				}
+				label = constructedLabel;
+				name = "A-"+len;
 				visible = true;
 			} else {
 				visible = false;
