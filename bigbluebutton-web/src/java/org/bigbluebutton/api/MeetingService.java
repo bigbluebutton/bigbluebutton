@@ -229,6 +229,7 @@ public class MeetingService implements MessageListener {
 	  		
 				destroyMeeting(m.getInternalId());			
 				meetings.remove(m.getInternalId());
+				removeUserSessions(m.getInternalId());
 				continue;
 			}
 			
@@ -471,7 +472,7 @@ public class MeetingService implements MessageListener {
 	
 	public void endMeeting(String meetingId) {		
 		log.info("Received request to end meeting=[{}]", meetingId);
-    handle(new EndMeeting(meetingId));
+		handle(new EndMeeting(meetingId));
 	}
 	
 	private void processEndMeeting(EndMeeting message) {
