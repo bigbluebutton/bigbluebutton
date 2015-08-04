@@ -100,14 +100,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var javaTimer:Timer;
 			
 			[Bindable] private var cursor:Sprite;
-			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:DeskshareOptions;
 			
       private var calledStopApplet:Boolean = false;
       
 			private function init():void {
 				dsOptions = new DeskshareOptions();
-				baseIndex = dsOptions.baseTabIndex;
 			}
 			
 			private function onCreationComplete():void {
@@ -135,12 +133,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				resourcesChanged();
 				
-				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
 				titleBarOverlay.focusEnabled = true;
-								
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				closeBtn.tabIndex = baseIndex+3;
 			}
 			
 			private function remoteFocus(e:ShortcutEvent):void{
@@ -423,6 +417,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 
+	<dspub:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}"
+					  tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnFSPublish, btnClosePublish, btnRegionPublish]}"/>
+
 	<!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
 	<mx:VBox id="javaHelpArea" includeInLayout="false" visible="false" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
 		<mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chromeHint.title')}" />
@@ -440,23 +437,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                                toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" 
                                label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
                                visible="true" 
-                               click="shareScreen(true)" 
-                               tabIndex="{baseIndex+4}"/>
+                               click="shareScreen(true)" />
                     <mx:Spacer width="100%"/>
                     <mx:Button id="btnClosePublish" 
                                toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
                                label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" 
                                visible="true" 
                                enabled="false" 
-                               click="stopSharing()" 
-                               tabIndex="{baseIndex+5}"/>
+                               click="stopSharing()" />
                     <mx:Spacer width="100%"/>
                     <mx:Button id="btnRegionPublish"
                                toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
                                label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
                                visible="true" 
                                click="shareScreen(false)" 
-                               tabIndex="{baseIndex+6}"
                                focusEnabled="false"
                                tabEnabled="false"/>
                     <mx:Spacer width="100%"/>                      
