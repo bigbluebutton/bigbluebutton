@@ -210,11 +210,11 @@ Handlebars.registerHelper "getPollQuestions", ->
         return -1
       else if b.user.raise_hand
         return 1
-      else if a.user.phone_user and b.user.phone_user
+      else if not a.user.phone_user and not b.user.phone_user
 
-      else if a.user.phone_user
+      else if not a.user.phone_user
         return -1
-      else if b.user.phone_user
+      else if not b.user.phone_user
         return 1
 
       #Check name (case-insensitive) in the event of a tie up above. If the name 
