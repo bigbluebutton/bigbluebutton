@@ -101,6 +101,7 @@
 				});
 				if(noteId == "MAIN_WINDOW"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && UsersUtil.amIModerator();
+					this.enabled = false;
 				}
 
 				updateTitle();
@@ -117,6 +118,7 @@
 			public function addRemoteDocument(notes:Object):void{
 				_document = notes[noteId];
 				textArea.text = _document;
+				if (!this.enabled) this.enabled = true;
 			}
 
 			private function sendPatch():void {
