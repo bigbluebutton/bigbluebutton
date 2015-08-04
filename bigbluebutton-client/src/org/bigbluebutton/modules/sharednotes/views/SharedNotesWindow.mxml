@@ -31,12 +31,14 @@
 
 	
 	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch" />
+	<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
 
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.utils.getTimer;
+			import flash.events.FocusEvent;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 
@@ -102,9 +104,22 @@
 				if(noteId == "MAIN_WINDOW"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && UsersUtil.amIModerator();
 					this.enabled = false;
+					this.addEventListener(FocusEvent.FOCUS_IN, onFocus);
 				}
 
 				updateTitle();
+			}
+
+			private function gotCurrentDocument():void {
+				if(noteId == "MAIN_WINDOW"){
+					this.removeEventListener(FocusEvent.FOCUS_IN, onFocus);
+				}
+			}
+
+			private function onFocus(e:FocusEvent):void {
+				if (!this.enabled) {
+					_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+				}
 			}
 
 			private function onTextAreaEvent(e:Event):void {
