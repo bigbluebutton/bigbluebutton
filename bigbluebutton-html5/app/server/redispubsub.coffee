@@ -109,6 +109,8 @@ class Meteor.RedisPubSub
           users = message.payload.users
           for user in users
             user.timeOfJoining = message.header.current_time # TODO this might need to be removed
+            if user.raise_hand is true and typeof user.raise_hand is 'boolean'
+              user.raise_hand = new Date()
             userJoined meetingId, user
         return
 
@@ -284,7 +286,7 @@ class Meteor.RedisPubSub
         userId = message.payload.userid
         meetingId = message.payload.meeting_id
         if userId? and meetingId?
-          Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": 0}})
+          Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}})
         return
 
       if message.header.name is "recording_status_changed_message"
