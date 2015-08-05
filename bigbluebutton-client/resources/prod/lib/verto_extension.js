@@ -2,10 +2,10 @@ var callback = function(message){console.log(message);}; // holds the user's cal
 var callICEConnected = false;
 var callPurposefullyEnded = false; // used to determine whether the user ended the call or the call was ended from somewhere else outside
 var callTimeout = null; // function that will run if there is no call established
-var conferenceIdNumber = "1008";
-var conferenceUsername = "FreeSWITCH User";
+var conferenceIdNumber = "1008"; //TODO
+var conferenceUsername = "FreeSWITCH User"; //TODO
 var toDisplayDisconnectCallback = true; // if a call is dropped only display the error the first time
-var voiceBridge = extension = "77054";
+var voiceBridge = extension = "77054"; //TODO
 var wasCallSuccessful = false; // when the websocket connection is closed this determines whether a call was ever successfully established
 
 // save a copy of the hangup function registered for the verto object
@@ -125,8 +125,6 @@ function docall(extension, conferenceUsername, conferenceIdNumber, callbacks) {
 		return;
 	}
 
-	//$("#main_info").html("Trying");
-	//$("#vqual_hd").prop("checked", true)
 	check_vid_res();
 	outgoingBandwidth = "5120";
 	incomingBandwidth = "5120";
@@ -261,21 +259,20 @@ function make_call(voiceBridge, conferenceUsername, conferenceIdNumber, userCall
 
 function makeVerto(callbacks, stunsConfig) {
 	var vertoPort = "8082";
-	//var hostName = window.location.hostname;
-	var hostName = "192.168.23.45";
-	//var socketUrl = "ws://" + hostName + ":5066";
-	var socketUrl = "wss://" + hostName + ":" + vertoPort;
-	var login = "1008";
-	var password = "fred";
-	var minWidth = "320";
-	var minHeight = "240";
-	var maxWidth = "320";
-	var maxHeight = "240";
+	//var hostName = window.location.hostname; //TODO
+	var hostName = "192.168.23.45"; //TODO
+	//var socketUrl = "ws://" + hostName + ":5066"; //TODO
+	var socketUrl = "wss://" + hostName + ":" + vertoPort; //TODO
+	var login = "1008"; //TODO
+	var password = "fred"; //TODO
+	var minWidth = "320"; //TODO
+	var minHeight = "240"; //TODO
+	var maxWidth = "1920";
+	var maxHeight = "1080";
 
 	console.log("stuns info is");
 	console.log(stunsConfig);
 
-	//$("#vqual_hd").prop("checked", true);
 	check_vid_res();
 	// create verto object and log in
 	verto = new $.verto({
@@ -338,7 +335,10 @@ function webrtc_hangup(userCallback) {
 // supplement my own that insert my own button and handler
 $(document).ready(function() {
 	console.log("document ready");
+
+	//TODO
 	$("body").append("<button id='shareScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>shareScreen</button>");
+
 	//$("#joinAudio").click(function() {
 	//	wasCallSuccessful = false;
 	//	var debuggerCallback = function(message) {
@@ -366,18 +366,12 @@ $(document).ready(function() {
 		$("#shareScreen").show();
 		$("#stopScreen").hide();
 	});
-	$("#stopScreen").hide();
-
-	//$("#webcamPreview").click(function() {
-	//	doWebcamPreview();
-	//});
-    //
-	//$("#desksharePreview").click(function() {
-	//	doDesksharePreview();
-	//});
+	// $("#stopScreen").hide();
 });
 
 function doWebcamPreview() {
+	//TODO
+
 	// var hdConstraints = {
 	// 	video: {
 	// 		mandatory: {
@@ -394,6 +388,8 @@ function doWebcamPreview() {
 	// 		}
 	// 	}
 	// };
+
+	//TODO
 	var vgaConstraints = {
 		"audio": false,
 		"video": {

@@ -34,7 +34,7 @@ function doshare(on) {
 
 	outgoingBandwidth = incomingBandwidth = "5120";
 	// outgoingBandwidth = incomingBandwidth = "default";
-	var sharedev = "screen"; // $("#useshare").find(":selected").val();
+	var sharedev = "screen";
 
 	if (sharedev !== "screen") {
 		console.log("Attempting Screen Capture with non-screen device....");
@@ -47,8 +47,8 @@ function doshare(on) {
 			useCamera: sharedev,
 			useVideo: true,
 			screenShare: true,
-			dedEnc: false, //$("#use_dedenc").is(':checked'),
-			mirrorInput: false //$("#mirror_input").is(':checked')
+			dedEnc: false,
+			mirrorInput: false
 		});
 		return;
 	}
@@ -61,14 +61,6 @@ function doshare(on) {
 				return console.error(error);
 			}
 
-			//var videoParamsCustom = {
-			//	maxHeight: 240,
-			//	maxWidth: 320,
-			//	minFrameRate: 30,
-			//	minHeight: 240,
-			//	minWidth: 320
-			//};
-
 			console.log('screen_constraints', screen_constraints);
 			share_call = verto.newCall({
 				destination_number: extension + "-screen",
@@ -76,8 +68,7 @@ function doshare(on) {
 				caller_id_number: conferenceIdNumber + " (screen)",
 				outgoingBandwidth: outgoingBandwidth,
 				incomingBandwidth: incomingBandwidth,
-				//videoParams: videoParamsCustom, //TODOTODO
-				videoParams: screen_constraints.mandatory, //TODOTODO
+				videoParams: screen_constraints.mandatory,
 				useVideo: true,
 				screenShare: true,
 				dedEnc: true,
@@ -89,7 +80,7 @@ function doshare(on) {
 
 function doDesksharePreview() {
 	getChromeExtensionStatus(function(status) {
-		// sourceId = null;
+		// sourceId = null; //TODO
 		getScreenConstraints(function(error, screen_constraints) {
 			if(error) {
 				return console.error(error);
@@ -113,10 +104,11 @@ function vertoScreenStart() {
 	alert("start");
 	// screenStart(true, function () {
 	// });
+	screenStart(true, function(){});
 }
 
 function vertoScreenStop() {
 	alert("stop");
-	// screenStart(true, function () {
-	// });
+	screenStart(false, function () {
+	});
 }
