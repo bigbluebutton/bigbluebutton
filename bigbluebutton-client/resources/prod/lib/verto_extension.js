@@ -42,34 +42,28 @@ function callIntoConference(voiceBridge, conferenceUsername, conferenceIdNumber,
 	}
 	if(!isLoggedIntoVerto()) { // start the verto log in procedure
 		// runs when a web socket is disconnected
-		console.log("11111");
 		callbacks.onWSClose = function(v, success) {
-			if(toDisplayDisconnectCallback) { // will only display the error the first time
-				if(wasCallSuccessful) { // a call was established through the websocket
-					console.log("4444");
+			if(wasCallSuccessful) { // a call was established through the websocket
+				if(toDisplayDisconnectCallback) { // will only display the error the first time
 					// the connection was dropped in an already established call
 					console.log("websocket disconnected");
 					callback({'status':'failed', 'errorcode': 1001}); // WebSocket disconnected
 					toDisplayDisconnectCallback = false;
 				}
 			} else {
-				console.log("5555");
 				// this callback was triggered and a call was never successfully established
 				console.log("websocket connection could not be established");
 				callback({'status':'failed', 'errorcode': 1002}); // Could not make a WebSocket connection
 			}
 		}
-		console.log("66666");
 		// runs when the websocket is successfully created
 		callbacks.onWSLogin = function(v, success) {
-			console.log("7777");
 			display("");
 			cur_call = null;
 			ringing = false;
 			console.log("Inside onWSLogin");
 
 			if (success) {
-				console.log("888888");
 				online(true);
 				console.log("starting call");
 				toDisplayDisconnectCallback = true; // yes, display an error if the socket closes
@@ -77,23 +71,17 @@ function callIntoConference(voiceBridge, conferenceUsername, conferenceIdNumber,
 				webrtc_call(voiceBridge, conferenceUsername, conferenceIdNumber, callback);
 
 				if (!window.location.hash) {
-					console.log("99999");
 					goto_page("main");
 				}
 			} else {
-				console.log("10_10");
 				callback({'status':'failed', 'errorcode': '10XX'}); // eror logging verto into freeswitch
 				goto_page("main");
 				goto_dialog("login-error");
 			}
 		}
-
-		console.log("11_11");
 		// set up verto
 		$.verto.init({}, init);
 	} else {
-
-		console.log("12_12");
 		console.log("already logged into verto, going straight to making a call");
 		webrtc_call(voiceBridge, conferenceUsername, conferenceIdNumber, callback);
 	}
@@ -137,8 +125,8 @@ function docall(extension, conferenceUsername, conferenceIdNumber, callbacks) {
 		return;
 	}
 
-	$("#main_info").html("Trying");
-
+	//$("#main_info").html("Trying");
+	//$("#vqual_hd").prop("checked", true)
 	check_vid_res();
 	outgoingBandwidth = "5120";
 	incomingBandwidth = "5120";
@@ -150,9 +138,9 @@ function docall(extension, conferenceUsername, conferenceIdNumber, callbacks) {
 		outgoingBandwidth: outgoingBandwidth,
 		incomingBandwidth: incomingBandwidth,
 		useVideo: true,
-		useStereo: false,
-		useCamera: "screen",
-		useMic: false,
+		useStereo: true,
+		useCamera: true,
+		useMic: true,
 		dedEnc: false,
 		mirrorInput: false,
 	});
@@ -164,16 +152,12 @@ function docall(extension, conferenceUsername, conferenceIdNumber, callbacks) {
 
 // check if logged into verto by seeing if there is a ready websocket connection
 function isLoggedIntoVerto() {
-	var result = (verto != null ? (ref = verto.rpcClient) != null ? ref.socketReady() : void 0 : void 0)
-	console.log("in isLoggedIntoVerto" + result);
-	if (result == undefined)
-		return false;
-	return result;
+	return (verto != null ? (ref = verto.rpcClient) != null ? ref.socketReady() : void 0 : void 0);
 }
 
 // overwrite and substitute my own init function
 init = function() {
-	console.log("doing init()");
+	//$("#webcam").show();
 	cur_call = null;
 	share_call = null;
 	$(".sharediv").show();
@@ -291,6 +275,7 @@ function makeVerto(callbacks, stunsConfig) {
 	console.log("stuns info is");
 	console.log(stunsConfig);
 
+	//$("#vqual_hd").prop("checked", true);
 	check_vid_res();
 	// create verto object and log in
 	verto = new $.verto({
@@ -352,16 +337,29 @@ function webrtc_hangup(userCallback) {
 
 // supplement my own that insert my own button and handler
 $(document).ready(function() {
+	console.log("document ready");
 	$("body").append("<button id='shareScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>shareScreen</button>");
+	//$("#joinAudio").click(function() {
+	//	wasCallSuccessful = false;
+	//	var debuggerCallback = function(message) {
+	//		console.log("CALLBACK: "+JSON.stringify(message));
+	//	}
+	//	callIntoConference(extension, conferenceUsername, conferenceIdNumber, debuggerCallback);
+	//});
+	//
+	//$("#hangUp").click(function() {
+	//	console.log("hangup button");
+	//	leaveWebRTCVoiceConference();
+	//	cur_call = null;
+	//});
+
 	$("#shareScreen").click(function() {
 		console.log("shareScreen button");
-		//alert(1);
 		screenStart(true, function(){});
 		$("#shareScreen").hide();
 		$("#stopScreen").show();
 	});
 
-	$("body").append("<button id='stopScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>stopScreen</button>");
 	$("#stopScreen").click(function() {
 		console.log("stopScreen button");
 		screenStart(false, function(){});
@@ -369,4 +367,96 @@ $(document).ready(function() {
 		$("#stopScreen").hide();
 	});
 	$("#stopScreen").hide();
+
+	//$("#webcamPreview").click(function() {
+	//	doWebcamPreview();
+	//});
+    //
+	//$("#desksharePreview").click(function() {
+	//	doDesksharePreview();
+	//});
 });
+
+function doWebcamPreview() {
+	// var hdConstraints = {
+	// 	video: {
+	// 		mandatory: {
+	// 			minWidth: 1280,
+	// 			minHeight: 720
+	// 		}
+	// 	}
+	// };
+	// var vgaConstraints = {
+	// 	video: {
+	// 		mandatory: {
+	// 			maxWidth: 640,
+	// 			maxHeight: 360
+	// 		}
+	// 	}
+	// };
+	var vgaConstraints = {
+		"audio": false,
+		"video": {
+			"mandatory": {
+				"minWidth": 320,
+				"maxWidth": 320,
+				"minHeight": 240,
+				"maxHeight": 240,
+				"minFrameRate": 30
+			},
+			"optional": []
+		}
+	};
+	var hdConstraints = {
+		"audio": false,
+		"video": {
+			"mandatory": {
+				"minWidth": 1280,
+				"maxWidth": 1280,
+				"minHeight": 720,
+				"maxHeight": 720,
+				"minFrameRate": 30
+			},
+			"optional": []
+		}
+	};
+	var maxConstraints = {
+		"audio": false,
+		"video": {
+			"mandatory": {
+				"maxWidth": screen.width > 1920 ? screen.width : 1920,
+				"maxHeight": screen.height > 1080 ? screen.height : 1080,
+				"minWidth": screen.width > 1920 ? screen.width : 1920,
+				"maxWidth": screen.height > 1080 ? screen.height : 1080,
+				"minFrameRate": 30
+			},
+			"optional": []
+		}
+	};
+
+	//var screen_constraints = vgaConstraints;
+	//var screen_constraints = hdConstraints;
+	//console.log("screen constraints", screen_constraints)
+	//navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+	//navigator.getUserMedia(screen_constraints, function(stream) {
+	//	var video = document.querySelector('video');
+	//	video.src = URL.createObjectURL(stream);
+	//	video.play();
+	//}, function(error) {
+	//	return console.error(JSON.stringify(error, null, '\t'));
+	//});
+}
+
+function checkSupport(callback) {
+	if(!isWebRTCAvailable()) {
+		callback({'status': 'failed', 'errorcode': 1003}); // Browser version not supported
+	}
+
+	if (!navigator.getUserMedia) {
+		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+	}
+
+	if (!navigator.getUserMedia){
+		callback({'status': 'failed', 'errorcode': '10XX'}); // getUserMedia not supported in this browser
+	}
+}
