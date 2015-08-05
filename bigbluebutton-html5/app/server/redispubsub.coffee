@@ -232,6 +232,12 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "send_whiteboard_shape_message"
+
+        #Meteor stringifies an array of JSONs (...shape.result) in this message
+        #parsing the String and reassigning the value
+        if message.payload.shape.shape_type is "poll_result" and typeof message.payload.shape.shape.result is 'string'
+          message.payload.shape.shape.result = JSON.parse message.payload.shape.shape.result
+
         shape = message.payload.shape
         whiteboardId = shape?.wb_id
         addShapeToCollection meetingId, whiteboardId, shape
