@@ -17,9 +17,9 @@ package org.bigbluebutton.air.video.views {
 	import mx.core.FlexGlobals;
 	import mx.utils.ObjectUtil;
 	
-	import org.bigbluebutton.air.common.views.VideoView;
+	import org.bigbluebutton.air.common.views.VideoViewAir;
 	
-	public class VideoChatVideoView extends VideoView {
+	public class VideoChatVideoView extends VideoViewAir {
 		private var _userName:TextField;
 		
 		private var _shape:Shape;
@@ -31,7 +31,6 @@ package org.bigbluebutton.air.video.views {
 				var videoParent:DisplayObjectContainer = video.parent;
 				video.parent.removeChild(video);
 				resizeForPortrait();
-				var topActionBarHeight:Number = FlexGlobals.topLevelApplication.topActionBar.height;
 				video.x = (videoParent.width - video.width) / 2;
 				addLoadingImage();
 				if (!videoParent.contains(_loader)) {
@@ -40,10 +39,6 @@ package org.bigbluebutton.air.video.views {
 				videoParent.addChild(video);
 			}
 			identifyVideoStream(video.x, video.height + video.y, name);
-		}
-		
-		public function get videoViewVideo() {
-			return video;
 		}
 		
 		private function identifyVideoStream(x:Number, y:Number, name:String):void {

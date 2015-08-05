@@ -28,7 +28,8 @@ package org.bigbluebutton.air.video.views {
 			this.videoGroup.addElement(webcam);
 			var topActionBarHeight:Number = FlexGlobals.topLevelApplication.topActionBar.height;
 			var bottomMenuHeight:Number = FlexGlobals.topLevelApplication.bottomMenu.height;
-			webcam.startStream(connection, name, streamName, userID, width, height, screenHeight, screenWidth, topActionBarHeight, bottomMenuHeight);
+			webcam.initializeScreenSizeValues(width, height, screenHeight, screenWidth, topActionBarHeight, bottomMenuHeight);
+			webcam.startStream(connection, name, streamName, userID);
 			webcam.setVideoPosition(name);
 		}
 		

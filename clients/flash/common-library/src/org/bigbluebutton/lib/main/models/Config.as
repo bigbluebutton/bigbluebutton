@@ -29,6 +29,10 @@ package org.bigbluebutton.lib.main.models {
 			return _config.version;
 		}
 		
+		public function get displayAvatar():Boolean {
+			return _config.displayAvatar;
+		}
+		
 		public function get porttest():Object {
 			var p:Object = new Object();
 			p.host = _config.porttest.@host;

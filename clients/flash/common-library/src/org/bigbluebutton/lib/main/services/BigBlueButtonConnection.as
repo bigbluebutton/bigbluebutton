@@ -50,19 +50,15 @@ package org.bigbluebutton.lib.main.services {
 		}
 		
 		private function getMyUserId():void {
-			baseConnection.connection.call("participants.getMyUserId",
-										   new Responder(function(result:String):void {
-											   trace("Success connected: My user ID is [" + result + "]");
-											   _userId = result as String;
-											   connectionSuccessSignal.dispatch();
-										   },
-										   function(status:Object):void {
-											   trace("Error occurred");
-											   trace(ObjectUtil.toString(status));
-											   connectionFailureSignal.dispatch("Failed to get the userId");
-										   }
-										   )
-										   );
+			baseConnection.connection.call("participants.getMyUserId", new Responder(function(result:String):void {
+				trace("Success connected: My user ID is [" + result + "]");
+				_userId = result as String;
+				connectionSuccessSignal.dispatch();
+			}, function(status:Object):void {
+				trace("Error occurred");
+				trace(ObjectUtil.toString(status));
+				connectionFailureSignal.dispatch("Failed to get the userId");
+			}));
 		}
 		
 		public function get connectionFailureSignal():ISignal {
@@ -98,16 +94,7 @@ package org.bigbluebutton.lib.main.services {
 			_conferenceParameters = params;
 			_tried_tunneling = tunnel;
 			var uri:String = _applicationURI + "/" + _conferenceParameters.room;
-			var connectParams:Array = [
-				_conferenceParameters.username,
-				_conferenceParameters.role,
-				_conferenceParameters.room,
-				_conferenceParameters.voicebridge,
-				_conferenceParameters.record,
-				_conferenceParameters.externUserID,
-				_conferenceParameters.internalUserID
-				];
-			trace("++ main connection connect");
+			var connectParams:Array = [_conferenceParameters.username, _conferenceParameters.role, _conferenceParameters.room, _conferenceParameters.voicebridge, _conferenceParameters.record, _conferenceParameters.externUserID, _conferenceParameters.internalUserID];
 			baseConnection.connect.apply(null, new Array(uri).concat(connectParams));
 		}
 		

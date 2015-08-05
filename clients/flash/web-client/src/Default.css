@@ -12,6 +12,13 @@ s|Button {
 	alpha: 1;
 }
 
+s|Group.videoTextFieldStyle
+{
+	fontSize:10;
+	indent: 20;
+	loadingImageSource: "assets/res/drawable-mdpi/videoLoading.png";
+}
+
 s|Button {
 	skinClass: ClassReference("org.bigbluebutton.web.common.skins.BetterButtonSkin");
 	alpha: 0.5;
@@ -25,6 +32,36 @@ s|ItemRenderer.chatItemStyle {
 	selectionColor: #FFFFFF;
 	rollOverColor: #FFFFFF;
 	alternatingItemColors: #FFFFFF;
+}
+
+/*
+https://www.iconfinder.com/icons/172512/mute_icon#size=128
+*/
+.muteOverlayBtn
+{
+	upSkin:        Embed('assets/images/audio_20_white.png');
+	overSkin:      Embed('assets/images/audio_20_white.png');
+	downSkin:      Embed('assets/images/audio_20_white.png');
+	disabledSkin:  Embed('assets/images/audio_20_white.png');
+}
+
+/*
+https://www.iconfinder.com/icons/172499/low_volume_icon#size=128
+*/
+.unmuteOverlayBtn
+{
+	upSkin:        Embed('assets/images/audio_muted_20_white.png');
+	overSkin:      Embed('assets/images/audio_muted_20_white.png');
+	downSkin:      Embed('assets/images/audio_muted_20_white.png');
+	disabledSkin:  Embed('assets/images/audio_muted_20_white.png');
+}
+
+.closeBtnFocus, .closeBtnNoFocus
+{
+	upSkin:        Embed(source="assets/images/3_closeButton.png");
+	overSkin:      Embed(source='assets/images/3_closeButton.png');
+	downSkin:      Embed(source='assets/images/3_closeButton.png');
+	disabledSkin:  Embed(source='assets/images/3_closeButton.png');
 }
 
 s|Label.chatNameTimeStyle {
@@ -49,6 +86,16 @@ s|RichEditableText.msgTextStyle {
 	
 }
 
+.videoToolbarBackgroundTalkingStyle {
+	backgroundColor: #20c600;
+	backgroundAlpha: 0.6;
+}
+
+.videoToolbarBackgroundNotTalkingStyle {
+	backgroundColor: #42444c;
+	backgroundAlpha: 0.6;
+}
+
 .userButtonStyle:disabled {
 	borderAlpha: 0;
 	backgroundAlpha: 0;
@@ -67,6 +114,17 @@ s|RichEditableText.msgTextStyle {
 
 .statusModeratorStyle {
 	icon: Embed(source="assets/images/moderator.png");
+}
+
+.videoToolbarBackgroundNotTalkingStyle {
+	backgroundColor: #42444c;
+	backgroundAlpha: 0.6;
+}
+
+.videoToolbarLabelStyle {
+	textIndent: 0;
+	color: #ffffff;
+	fontFamily: Arial;
 }
 
 .nameLabelMeStyle {

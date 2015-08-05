@@ -66,8 +66,10 @@ package org.bigbluebutton.lib.video.models
 			trace("stream name: " + streamName);
 			var pattern:RegExp = new RegExp("([a-z0-9]+)-([A-Za-z0-9_]+)-\\d+", "");
 			if (pattern.test(streamName)) {
+				trace("good profiel " + profiles);
 				var profileID:String = pattern.exec(streamName)[1]
 				for each (var profile:VideoProfile in _profiles) {
+					trace("another profile, is it me?");
 					if (profile.id == profileID) {
 						return profile;
 					}

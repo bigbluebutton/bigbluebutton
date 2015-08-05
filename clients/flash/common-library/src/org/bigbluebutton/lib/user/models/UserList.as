@@ -1,9 +1,12 @@
 package org.bigbluebutton.lib.user.models {
 	
 	import mx.collections.ArrayCollection;
+	
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
+	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
+	
 	import spark.collections.Sort;
 	
 	public class UserList {
@@ -15,11 +18,13 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const MUTE:int = 4;
 		
-		public static const RAISE_HAND:int = 5;
+		public static const TALKING:int = 5;
 		
-		public static const LOCKED:int = 6;
+		public static const RAISE_HAND:int = 6;
 		
-		public static const LISTEN_ONLY:int = 7;
+		public static const LOCKED:int = 7;
+		
+		public static const LISTEN_ONLY:int = 8;
 		
 		private var _users:ArrayCollection;
 		
@@ -326,6 +331,7 @@ package org.bigbluebutton.lib.user.models {
 			if (user != null) {
 				user.talking = talking;
 			}
+			userChangeSignal.dispatch(user, TALKING);
 		}
 		
 		/**

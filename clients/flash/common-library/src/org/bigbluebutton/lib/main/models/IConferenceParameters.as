@@ -1,6 +1,7 @@
 package org.bigbluebutton.lib.main.models {
 	
 	import flash.net.NetConnection;
+	
 	import org.osflash.signals.ISignal;
 	
 	public interface IConferenceParameters {
@@ -37,6 +38,8 @@ package org.bigbluebutton.lib.main.models {
 		function set record(record:Boolean):void;
 		function get authToken():String;
 		function set authToken(authToken:String):void;
+		function get avatarUrl():String;
+		function set avatarUrl(value:String):void;
 		function load(obj:Object):void;
 	}
 }
