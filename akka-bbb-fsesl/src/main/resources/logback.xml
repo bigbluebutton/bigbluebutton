@@ -20,8 +20,9 @@
       
     <logger name="akka" level="INFO" />
     <logger name="org.bigbluebutton" level="DEBUG" />
-
-    <root level="DEBUG">
+    <logger name="org.freeswitch.esl" level="WARN" />
+    
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE" />
     </root>
