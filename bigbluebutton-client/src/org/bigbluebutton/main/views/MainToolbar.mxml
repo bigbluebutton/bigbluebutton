@@ -21,9 +21,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:mate="http://mate.asfusion.com/" visible="{showToolbar}"
-	enabled="true" xmlns:views="org.bigbluebutton.main.views.*"
-	initialize="init()" creationComplete="onCreationComplete()" >   
+	xmlns:mate="http://mate.asfusion.com/" xmlns:common="org.bigbluebutton.common.*"
+	xmlns:views="org.bigbluebutton.main.views.*"
+	enabled="true" visible="{showToolbar}"
+	initialize="init()" creationComplete="onCreationComplete()">   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
@@ -73,7 +74,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var showHelpBtn:Boolean = false;
 			[Bindable] private var showToolbar:Boolean = false;
 			[Bindable] public var toolbarOptions:LayoutOptions = new LayoutOptions();		
-			[Bindable] private var baseIndex:int;
 			[Bindable] private var numButtons:int;
       
 			/*
@@ -91,7 +91,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					AlertAccImpl.enableAccessibility();
 				}
 				
-				baseIndex = 101;
 				numButtons = 0;
                 
                 // Accessibility isn't active till a few second after the client starts to load so we need a delay
@@ -251,7 +250,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				for each (var button:UIComponent in addedBtns.getChildren()){
 					var toolbarComponent:IBbbToolbarComponent = button as IBbbToolbarComponent;
 					
-					
 					/*if (toolbarComponent.getAlignment() == ALIGN_LEFT){ 
 						addedBtns.setChildIndex(button, 0);
 						//(addedBtns.getChildAt(0) as Button).tabIndex = 0;
@@ -260,7 +258,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
 						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
 					}*/
-					button.tabIndex = baseIndex + 5;
+					button.tabIndex = quickLinksIndexer.startIndex + 5;
 					//for (var i:int = 0; i < addedBtns.numChildren; i++){
 					//	(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
 					//}
@@ -329,25 +327,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		]]>
 	</mx:Script>
+	
+	<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn]}"/>
+	<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
+					   tabIndices="{[recordBtn, muteMeBtn, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+
     
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
-                       tabIndex="{baseIndex+1}" height="22" styleName="quickWindowLinkStyle" />
+                       height="22" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="webcamLinkButton" click="onQuickLinkClicked('webcams')" label="{ResourceUtil.getInstance().getString('bbb.videodock.quickLink.label')}" 
                        accessibilityDescription="{webcamLinkButton.label}" toolTip="{webcamLinkButton.label}"
-                       tabIndex="{baseIndex+2}" height="22" styleName="quickWindowLinkStyle" />
+                       height="22" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="presentationLinkBtn" click="onQuickLinkClicked('presentation')" label="{ResourceUtil.getInstance().getString('bbb.presentation.quickLink.label')}"
                        accessibilityDescription="{presentationLinkBtn.label}" toolTip="{presentationLinkBtn.label}"
-                       tabIndex="{baseIndex+3}" height="22" styleName="quickWindowLinkStyle" />
+                       height="22" styleName="quickWindowLinkStyle" />
         <mx:LinkButton id="chatLinkBtn" click="onQuickLinkClicked('chat')" label="{ResourceUtil.getInstance().getString('bbb.chat.quickLink.label')}" 
                        accessibilityDescription="{chatLinkBtn.label}" toolTip="{chatLinkBtn.label}"
-                       tabIndex="{baseIndex+4}" height="22" styleName="quickWindowLinkStyle" />
+                       height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
-	<views:RecordButton id="recordBtn" tabIndex="{baseIndex+numButtons+10}" />
+	<views:RecordButton id="recordBtn"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
-	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+11}"/>
+	<views:MuteMeButton id="muteMeBtn"  height="20"/>
 	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 
 <!--
@@ -355,13 +358,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
-             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
-             tabIndex="{baseIndex+numButtons+13}" />
+             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"/>
 	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" includeInLayout="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
-                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+14}" 
+                   styleName="helpLinkButtonStyle"
                    toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"
-                 tabIndex="{baseIndex+numButtons+15}" />
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="confirmLogout()" height="22"/>
 </mx:ApplicationControlBar>

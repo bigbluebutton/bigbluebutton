@@ -52,7 +52,12 @@ class UrlMappings {
 		"/api/getMeetings"(controller:"api") {
 			action = [GET:'getMeetingsHandler', POST:'getMeetingsHandler']
 		}
-		
+	
+	
+        "/api/getSessions"(controller:"api") {
+            action = [GET:'getSessionsHandler', POST:'getSessionsHandler']
+        }
+        	
 		"/api/getRecordings"(controller:"api") {
 			action = [GET:'getRecordingsHandler', POST:'getRecordingsHandler']
 		}

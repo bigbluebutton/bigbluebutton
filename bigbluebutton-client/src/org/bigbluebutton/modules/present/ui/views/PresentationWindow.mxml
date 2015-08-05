@@ -69,11 +69,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -134,7 +134,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable] private var currentPresentation:String = "";
 			
-			[Bindable] private var baseIndex:int; 
 			[Bindable] private var presentOptions:PresentOptions;
 			
 			private var keyCombos:Object;
@@ -145,7 +144,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function init():void{
 				presentOptions = new PresentOptions();
-				baseIndex = presentOptions.baseTabIndex;;
 			}
 			
 			private function onCreationComplete():void{
@@ -161,13 +159,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				resourcesChanged();
 				
-				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.tabIndex = presentOptions.baseTabIndex;
 				
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				closeBtn.tabIndex = baseIndex+3;
-				
-				slideView.slideLoader.tabIndex = baseIndex+4;
 				hotkeyCapture();
                 
         //Necessary now because of module loading race conditions
@@ -180,16 +173,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         } else {
           becomeViewer();
         }
-		
-				pollMenuData = [];
-				pollMenuData.push({label: "Yes/No"});
-				pollMenuData.push({label: "True/False"});
-				pollMenuData.push({label: "A/B"});
-				pollMenuData.push({label: "A/B/C"});
-				pollMenuData.push({label: "A/B/C/D"});
-				pollMenuData.push({label: "A/B/C/D/E"});
-				pollMenuData.push({label: "A/B/C/D/E/F"});
-			}
+        
+        setPollMenuData();
+      }
 			
       private function addWhiteboardToolbar(event:TimerEvent):void {
         LOGGER.debug("Sending event to add whiteboard canvas.");
@@ -538,6 +524,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					Accessibility.updateProperties();
 
 				addContextMenuItems();
+				
+				setPollMenuData();
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -618,7 +606,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function quickPollClicked(e:MouseEvent):void {
-				sendStartPollEvent(Button(e.target).label);
+				sendStartPollEvent(Button(e.target).name);
+			}
+			
+			private function setPollMenuData():void {
+				var resourceUtil:ResourceUtil = ResourceUtil.getInstance();
+				pollMenuData = [];
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.answer.Yes") + "/" + resourceUtil.getString("bbb.polling.answer.No")});
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.answer.True") + "/" + resourceUtil.getString("bbb.polling.answer.False")});
+				var constructedLabel:String = ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65));
+				for (var i:int=1; i<6; i++) {
+					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
+					pollMenuData.push({label: constructedLabel});
+				}
 			}
 			
 			private function onPollStartButtonClicked():void {
@@ -756,46 +756,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		]]>
 	</mx:Script>
+	
+	<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
+					 tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, uploadPres, pollStartBtn, quickPollBtn, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
   	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
 	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true"
-		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" tabIndex="{baseIndex+4}"/>			    
+		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>			    
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" height="{controlBarHeight}" styleName="presentationWindowControlsStyle">
 		<mx:HBox id="presenterControls" x="0" y="0" width="100%" height="100%" horizontalAlign="center">
 			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
-					   click="onUploadButtonClicked()" tabIndex="{baseIndex+5}"/>
+					   click="onUploadButtonClicked()"/>
 			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}" 
-					   click="onPollStartButtonClicked()" tabIndex="{baseIndex+6}"/>
-			<poll:QuickPollButton id="quickPollBtn" height="30" tabIndex="{baseIndex+7}"
+					   click="onPollStartButtonClicked()"/>
+			<poll:QuickPollButton id="quickPollBtn" height="30"
 								  click="quickPollClicked(event)" />
 			<mx:Spacer width="100%" id="spacer1"/>
 			<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"
-					   tabIndex="{baseIndex+8}"/>
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"/>
 			<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"
-					   tabIndex="{baseIndex+9}"/>
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"/>
 			<mx:Button id="forwardButton" visible="false" width="45" height="30" styleName="presentationForwardButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"
-					   tabIndex="{baseIndex+10}"/>    				
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"/>    				
 			<mx:Spacer width="50%" id="spacer3"/>
 			<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
 						minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
 						useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
 						dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
-						tabIndex="{baseIndex+11}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
+						accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
 			<mx:Button id="btnFitToWidth" visible="false" width="30" height="30" styleName="presentationFitToWidthButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
-					   click="onFitToPage(false)"
-					   tabIndex="{baseIndex+12}"/>
+					   click="onFitToPage(false)"/>
 			<mx:Button id="btnFitToPage" visible="false" width="30" height="30" styleName="presentationFitToPageButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
-					   click="onFitToPage(true)"
-					   tabIndex="{baseIndex+13}"/>
+					   click="onFitToPage(true)"/>
 			<!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
 			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>
