@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.core.services.UsersService;
   import org.bigbluebutton.core.vo.LockSettingsVO;
+  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
@@ -521,8 +522,15 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleUserUnsharedWebcam(msg: Object):void {
-      LOGGER.debug("*** handleUserUnsharedWebcam {0} **** \n", [msg.msg]);      
-      var map:Object = JSON.parse(msg.msg);
+      LOGGER.debug("*** handleUserUnsharedWebcam {0} **** \n", [msg.msg]);    
+	  var map:Object = JSON.parse(msg.msg);
+	  
+	  var logData:Object = new Object();
+	  logData.user = UsersUtil.getUserData();
+	  logData.user.webcamStream = map.webcamStream;
+	  logData.user.serverTimestamp = map.serverTimestamp;
+	  JSLog.warn("UserUnsharedWebcam server message", logData);
+      
       UserManager.getInstance().getConference().unsharedWebcam(map.userId, map.webcamStream);
 	  sendStreamStoppedEvent(map.userId, map.webcamStream);
     }
