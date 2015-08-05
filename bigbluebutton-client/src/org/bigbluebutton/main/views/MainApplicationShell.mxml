@@ -28,10 +28,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		xmlns:common="org.bigbluebutton.common.*"
-		width="100%" height="100%" 
+		width="100%" height="{parentApplication.height - 1}"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		creationComplete="initializeShell()" >
+		creationComplete="initializeShell()">
+
+	<!--
+	height="{parentApplication.height - 1}" : The container height is set to fix height because the percentHeight
+	generates a script execution timeout in the GraphicsWrapper class. We also remove one pixel to force the first
+	update as the height property needs a value different from thec current one to be updated.
 		
+	-->
+	
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
