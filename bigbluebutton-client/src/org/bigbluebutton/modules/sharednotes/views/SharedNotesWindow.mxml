@@ -38,7 +38,6 @@
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.utils.getTimer;
-			import flash.events.FocusEvent;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 
@@ -77,6 +76,7 @@
 			private var options:SharedNotesOptions = new SharedNotesOptions();
 
 			private var sendUpdateTimer:Timer;
+			private var getDocumentTimer:Timer = new Timer(5000);
 			
 			public function onCreationComplete():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
@@ -104,7 +104,8 @@
 				if(noteId == "MAIN_WINDOW"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && UsersUtil.amIModerator();
 					this.enabled = false;
-					this.addEventListener(FocusEvent.FOCUS_IN, onFocus);
+					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
+					getDocumentTimer.start();
 				}
 
 				updateTitle();
@@ -112,13 +113,15 @@
 
 			private function gotCurrentDocument():void {
 				if(noteId == "MAIN_WINDOW"){
-					this.removeEventListener(FocusEvent.FOCUS_IN, onFocus);
+					getDocumentTimer.stop();
 				}
 			}
 
-			private function onFocus(e:FocusEvent):void {
+			private function checkCurrentDocument(e:Event):void {
 				if (!this.enabled) {
 					_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+				} else {
+					getDocumentTimer.stop();
 				}
 			}
 
