@@ -21,10 +21,7 @@ package org.bigbluebutton.app.video;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.mina.core.buffer.IoBuffer;
-import org.red5.server.api.IConnection;
-import org.red5.server.api.Red5;
 import org.red5.server.api.scheduling.IScheduledJob;
 import org.red5.server.api.scheduling.ISchedulingService;
 import org.red5.server.api.scope.IScope;
@@ -34,7 +31,6 @@ import org.red5.server.api.stream.IStreamPacket;
 import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.scheduling.QuartzSchedulingService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 
 import com.google.gson.Gson;
@@ -83,6 +79,8 @@ public class VideoStreamListener implements IStreamListener {
     private String timeoutJobName;
  
     private volatile boolean publishing = false;
+    
+    private volatile boolean streamPaused = false;
     
     private IScope scope;
     
@@ -136,6 +134,27 @@ public class VideoStreamListener implements IStreamListener {
 		    		  recordingService.record(scope.getName(), event);
 		          }		          
 	    	  }
+	    	  
+	    	  
+	    	  if (streamPaused) {
+	    		  streamPaused = false;
+	    		  long now = System.currentTimeMillis();
+	    		  long numSeconds = (now - lastVideoTime)/1000;
+	            	
+	    		  Map<String, Object> logData = new HashMap<String, Object>();
+	    		  logData.put("meetingId", scope.getName());
+	    		  logData.put("userId", userId);
+	    		  logData.put("stream", stream.getPublishedName());
+	    		  logData.put("packetCount", packetCount);
+	    		  logData.put("publishing", publishing);
+	    		  logData.put("pausedFor (sec)", numSeconds);
+	        		
+	    		  Gson gson = new Gson();
+	    		  String logStr =  gson.toJson(logData);
+	        		
+	              log.warn("Video stream restarted. data={}", logStr );	    		  
+	    	  }
+	    	  
 	      } 
 	}
 	
@@ -152,7 +171,8 @@ public class VideoStreamListener implements IStreamListener {
     	
         public void execute(ISchedulingService service) {
         	long now = System.currentTimeMillis();
-            if ((now - lastVideoTime) > videoTimeout) {
+            if ((now - lastVideoTime) > videoTimeout && !streamPaused) {
+            	streamPaused = true;
             	long numSeconds = (now - lastVideoTime)/1000;
             	
         		Map<String, Object> logData = new HashMap<String, Object>();
@@ -168,6 +188,12 @@ public class VideoStreamListener implements IStreamListener {
         		
                 log.warn("Video packet timeout. data={}", logStr );
                 
+                if (!publishing) {
+                    // remove the scheduled job
+                    scheduler.removeScheduledJob(timeoutJobName);                	
+                }
+                
+/*                
                 if (!streamStopped) {
                 	streamStopped = true;
                     // remove the scheduled job
@@ -175,9 +201,10 @@ public class VideoStreamListener implements IStreamListener {
                     // stop / clean up
                     if (publishing) {
                     	stream.stop(); 	
-                    }
-                                   	
+                    }                                   	
                 }
+*/                
+                
             }
         }
  
