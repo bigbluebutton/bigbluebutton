@@ -68,9 +68,9 @@ public class OAuthMessage {
             this.parameters = new ArrayList<Map.Entry<String, String>>();
         } else {
             this.parameters = new ArrayList<Map.Entry<String, String>>(parameters.size());
-            for (Map.Entry p : parameters) {
+            for (Map.Entry parameter : parameters) {
                 this.parameters.add(new OAuth.Parameter(
-                        toString(p.getKey()), toString(p.getValue())));
+                        toString(parameter.getKey()), toString(parameter.getValue())));
             }
         }
 

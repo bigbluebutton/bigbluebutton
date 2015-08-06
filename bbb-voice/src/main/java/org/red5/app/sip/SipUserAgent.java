@@ -366,9 +366,9 @@ public class SipUserAgent extends CallListenerAdapter {
         launchMediaApplication();
 
         if (call == callTransfer) {
-            StatusLine statusLine = resp.getStatusLine();
-            int code = statusLine.getCode();
-            String reason = statusLine.getReason();
+            StatusLine status_line = resp.getStatusLine();
+            int code = status_line.getCode();
+            String reason = status_line.getReason();
             this.call.notify(code, reason);
         }
 
