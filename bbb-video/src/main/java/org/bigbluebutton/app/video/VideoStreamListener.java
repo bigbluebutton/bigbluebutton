@@ -170,28 +170,29 @@ public class VideoStreamListener implements IStreamListener {
     	private boolean streamStopped = false;
     	
         public void execute(ISchedulingService service) {
+    		Map<String, Object> logData = new HashMap<String, Object>();
+    		logData.put("meetingId", scope.getName());
+    		logData.put("userId", userId);
+    		logData.put("stream", stream.getPublishedName());
+    		logData.put("packetCount", packetCount);
+    		logData.put("publishing", publishing);
+    		
+    		Gson gson = new Gson();
+    		
         	long now = System.currentTimeMillis();
             if ((now - lastVideoTime) > videoTimeout && !streamPaused) {
             	streamPaused = true;
             	long numSeconds = (now - lastVideoTime)/1000;
             	
-        		Map<String, Object> logData = new HashMap<String, Object>();
-        		logData.put("meetingId", scope.getName());
-        		logData.put("userId", userId);
-        		logData.put("stream", stream.getPublishedName());
-        		logData.put("packetCount", packetCount);
-        		logData.put("publishing", publishing);
+
         		logData.put("lastPacketTime (sec)", numSeconds);
         		
-        		Gson gson = new Gson();
+        		
         		String logStr =  gson.toJson(logData);
         		
                 log.warn("Video packet timeout. data={}", logStr );
                 
-                if (!publishing) {
-                    // remove the scheduled job
-                    scheduler.removeScheduledJob(timeoutJobName);                	
-                }
+
                 
 /*                
                 if (!streamStopped) {
@@ -205,6 +206,13 @@ public class VideoStreamListener implements IStreamListener {
                 }
 */                
                 
+            }
+            
+            String logStr =  gson.toJson(logData);
+            if (!publishing) {
+            	log.warn("Removing scheduled job. data={}", logStr );
+                // remove the scheduled job
+                scheduler.removeScheduledJob(timeoutJobName);                	
             }
         }
  
