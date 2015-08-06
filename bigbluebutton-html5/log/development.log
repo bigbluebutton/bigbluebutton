@@ -3234,3 +3234,102 @@
 {"level":"info","message":"marking user [ozocjh16sqiu] as offline in meeting[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438518484464]","timestamp":"2015-08-02T12:42:26.949Z"}
 {"message":"eventType=  user_left_message  ","level":"info","timestamp":"2015-08-02T12:42:26.986Z"}
 {"level":"info","message":"marking user [s46uitxay1gb_2] as offline in meeting[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438518484464]","timestamp":"2015-08-02T12:42:26.987Z"}
+{"level":"info","message":"server start","timestamp":"2015-08-06T13:32:18.861Z"}
+{"level":"info","message":"cleared Meetings Collection (all meetings)!","timestamp":"2015-08-06T13:32:18.997Z"}
+{"level":"info","message":"cleared Slides Collection (all meetings)!","timestamp":"2015-08-06T13:32:19.004Z"}
+{"level":"info","message":"cleared Shapes Collection (all meetings)!","timestamp":"2015-08-06T13:32:19.015Z"}
+{"level":"info","message":"cleared Presentations Collection (all meetings)!","timestamp":"2015-08-06T13:32:19.018Z"}
+{"level":"info","message":"constructor RedisPubSub","timestamp":"2015-08-06T13:32:19.025Z"}
+{"level":"info","message":"Subscribing message on channel: bigbluebutton:from-bbb-apps:*","timestamp":"2015-08-06T13:32:19.027Z"}
+{"level":"info","message":"created pubsub","timestamp":"2015-08-06T13:32:19.029Z"}
+{"level":"info","message":"Subscribed to bigbluebutton:from-bbb-apps:*","timestamp":"2015-08-06T13:32:19.047Z"}
+{"level":"info","message":"Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!","timestamp":"2015-08-06T13:32:19.347Z"}
+{"level":"info","message":"added meeting _id=[2aCgw2hGtyz92ai7p]:meetingId=[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934]:name=[Demo Meeting]:duration=[0]:voiceConf=[79651] roomLockSettings:[{\"disablePrivChat\":false,\"disableCam\":false,\"disableMic\":false,\"lockOnJoin\":true,\"lockedLayout\":false,\"disablePubChat\":false}].","timestamp":"2015-08-06T13:32:19.351Z"}
+{"message":"eventType=  get_users_reply  ","level":"info","timestamp":"2015-08-06T13:32:19.355Z"}
+{"message":"eventType=  new_permission_settings  ","level":"info","timestamp":"2015-08-06T13:32:19.411Z"}
+{"message":"eventType=  end_and_kick_all_message  ","level":"info","timestamp":"2015-08-06T13:32:52.285Z"}
+{"message":"eventType=  meeting_destroyed_event  ","level":"info","timestamp":"2015-08-06T13:32:52.325Z"}
+{"level":"info","message":"there are 0 users in the meeting","timestamp":"2015-08-06T13:32:52.327Z"}
+{"level":"info","message":"there are 0 users in the meeting","timestamp":"2015-08-06T13:32:52.331Z"}
+{"level":"info","message":"end of meeting 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934. Clear the meeting data from all collections","timestamp":"2015-08-06T13:32:52.333Z"}
+{"level":"info","message":"cleared Users Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.334Z"}
+{"level":"info","message":"cleared Slides Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.337Z"}
+{"level":"info","message":"cleared Presentations Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.340Z"}
+{"level":"info","message":"end of meeting 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934. Clear the meeting data from all collections","timestamp":"2015-08-06T13:32:52.343Z"}
+{"level":"info","message":"cleared Users Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.344Z"}
+{"level":"info","message":"cleared Shapes Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.348Z"}
+{"level":"info","message":"cleared Chat Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.355Z"}
+{"level":"info","message":"cleared Slides Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.357Z"}
+{"level":"info","message":"cleared Meetings Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.359Z"}
+{"level":"info","message":"cleared Presentations Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.363Z"}
+{"level":"info","message":"cleared Shapes Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.367Z"}
+{"level":"info","message":"cleared Chat Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.369Z"}
+{"level":"info","message":"cleared Meetings Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438867630934!","timestamp":"2015-08-06T13:32:52.372Z"}
+{"message":"eventType=  meeting_created_message  ","level":"info","timestamp":"2015-08-06T13:35:36.065Z"}
+{"level":"info","message":"added meeting _id=[KoWNkRQ2RqLRHmnjP]:meetingId=[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974]:name=[Demo Meeting]:duration=[0]:voiceConf=[73883] roomLockSettings:[{\"disablePrivChat\":false,\"disableCam\":false,\"disableMic\":false,\"lockOnJoin\":true,\"lockedLayout\":false,\"disablePubChat\":false}].","timestamp":"2015-08-06T13:35:36.070Z"}
+{"message":"eventType=  user_registered_message  ","level":"info","timestamp":"2015-08-06T13:35:36.344Z"}
+{"message":"eventType=  permisssion_setting_initialized_message  ","level":"info","timestamp":"2015-08-06T13:35:37.944Z"}
+{"message":"eventType=  validate_auth_token_reply  ","level":"info","timestamp":"2015-08-06T13:35:38.000Z"}
+{"level":"info","message":"a non-html5 user got validate_auth_token_reply.","timestamp":"2015-08-06T13:35:38.002Z"}
+{"message":"eventType=  user_joined_message  ","level":"info","timestamp":"2015-08-06T13:35:38.028Z"}
+{"level":"info","message":"NOTE: got user_joined_message ","timestamp":"2015-08-06T13:35:38.031Z"}
+{"level":"info","message":"joining user userid=[sige7i278qig_2], id=[QB6BNiYkksm9f4WxT]:prof. Users.size is now 1","timestamp":"2015-08-06T13:35:38.037Z"}
+{"message":"eventType=  presenter_assigned_message  ","level":"info","timestamp":"2015-08-06T13:35:38.048Z"}
+{"message":"eventType=  user_status_changed_message  ","level":"info","timestamp":"2015-08-06T13:35:38.057Z"}
+{"message":"eventType=  get_users_reply  ","level":"info","timestamp":"2015-08-06T13:35:38.107Z"}
+{"message":"eventType=  get_recording_status_reply  ","level":"info","timestamp":"2015-08-06T13:35:38.129Z"}
+{"level":"info","message":"----removed slide[d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1438868136048/1] from 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974","timestamp":"2015-08-06T13:35:49.266Z"}
+{"level":"info","message":"----removed slide[d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1438868136048/1] from 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974","timestamp":"2015-08-06T13:35:49.276Z"}
+{"message":"eventType=  user_registered_message  ","level":"info","timestamp":"2015-08-06T13:35:54.568Z"}
+{"userid":"ea5bj9pxcncg","authToken":"kixhls67jxyt","meetingid":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974","level":"info","message":"sending a validate_auth_token with","timestamp":"2015-08-06T13:35:56.158Z"}
+{"level":"info","message":"added user dummy html5 user with: userid=[ea5bj9pxcncg], id=[uYDsJkTC54SmqWT8e] Users.size is now 2","timestamp":"2015-08-06T13:35:56.163Z"}
+{"message":"eventType=  validate_auth_token_reply  ","level":"info","timestamp":"2015-08-06T13:35:56.166Z"}
+{"message":"eventType=  user_joined_message  ","level":"info","timestamp":"2015-08-06T13:35:56.171Z"}
+{"level":"info","message":"user.validated for user ea5bj9pxcncg in meeting 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974 just became true","timestamp":"2015-08-06T13:35:56.172Z"}
+{"level":"info","message":"in user_joined_message the validStatus of the user was true","timestamp":"2015-08-06T13:35:56.172Z"}
+{"level":"info","message":"UPDATING USER ea5bj9pxcncg, authToken=kixhls67jxyt, locked=true","timestamp":"2015-08-06T13:35:56.173Z"}
+{"level":"info","message":"added a system message in chat for user ea5bj9pxcncg","timestamp":"2015-08-06T13:35:56.177Z"}
+{"level":"info","message":"in isAllowedTo: action-subscribeChat, userId=ea5bj9pxcncg, authToken=kixhls67jxyt validated:true","timestamp":"2015-08-06T13:35:56.347Z"}
+{"level":"info","message":"user={\"_id\":\"uYDsJkTC54SmqWT8e\",\"meetingId\":\"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974\",\"userId\":\"ea5bj9pxcncg\",\"authToken\":\"kixhls67jxyt\",\"clientType\":\"HTML5\",\"validated\":\"true\",\"user\":{\"userid\":\"ea5bj9pxcncg\",\"presenter\":false,\"name\":\"sdw\",\"_sort_name\":\"sdw\",\"phone_user\":false,\"raise_hand\":false,\"has_stream\":false,\"role\":\"VIEWER\",\"listenOnly\":false,\"extern_userid\":\"ea5bj9pxcncg\",\"permissions\":null,\"locked\":true,\"time_of_joining\":null,\"connection_status\":\"online\",\"voiceUser\":{\"web_userid\":\"ea5bj9pxcncg\",\"callernum\":\"sdw\",\"userid\":\"ea5bj9pxcncg\",\"talking\":false,\"joined\":false,\"callername\":\"sdw\",\"locked\":false,\"muted\":false},\"webcam_stream\":{}}}","timestamp":"2015-08-06T13:35:56.348Z"}
+{"level":"info","message":"user permissions viewer case","timestamp":"2015-08-06T13:35:56.348Z"}
+{"level":"info","message":"publishing chat for 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974 ea5bj9pxcncg kixhls67jxyt","timestamp":"2015-08-06T13:35:56.350Z"}
+{"level":"info","message":"publishing slides for 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974","timestamp":"2015-08-06T13:35:56.441Z"}
+{"level":"info","message":"publishing meetings for 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974","timestamp":"2015-08-06T13:35:56.460Z"}
+{"level":"info","message":"publishing presentations for 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974","timestamp":"2015-08-06T13:35:56.476Z"}
+{"level":"info","message":"attempt publishing users for 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974, ea5bj9pxcncg, kixhls67jxyt","timestamp":"2015-08-06T13:35:56.482Z"}
+{"level":"info","message":"found it from the first time ea5bj9pxcncg","timestamp":"2015-08-06T13:35:56.486Z"}
+{"level":"info","message":"in isAllowedTo: action-subscribeUsers, userId=ea5bj9pxcncg, authToken=kixhls67jxyt validated:true","timestamp":"2015-08-06T13:35:56.489Z"}
+{"level":"info","message":"user={\"_id\":\"uYDsJkTC54SmqWT8e\",\"meetingId\":\"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974\",\"userId\":\"ea5bj9pxcncg\",\"authToken\":\"kixhls67jxyt\",\"clientType\":\"HTML5\",\"validated\":\"true\",\"user\":{\"userid\":\"ea5bj9pxcncg\",\"presenter\":false,\"name\":\"sdw\",\"_sort_name\":\"sdw\",\"phone_user\":false,\"raise_hand\":false,\"has_stream\":false,\"role\":\"VIEWER\",\"listenOnly\":false,\"extern_userid\":\"ea5bj9pxcncg\",\"permissions\":null,\"locked\":true,\"time_of_joining\":null,\"connection_status\":\"online\",\"voiceUser\":{\"web_userid\":\"ea5bj9pxcncg\",\"callernum\":\"sdw\",\"userid\":\"ea5bj9pxcncg\",\"talking\":false,\"joined\":false,\"callername\":\"sdw\",\"locked\":false,\"muted\":false},\"webcam_stream\":{}}}","timestamp":"2015-08-06T13:35:56.491Z"}
+{"level":"info","message":"user permissions viewer case","timestamp":"2015-08-06T13:35:56.491Z"}
+{"level":"info","message":"ea5bj9pxcncg was allowed to subscribe to 'users'","timestamp":"2015-08-06T13:35:56.499Z"}
+{"level":"info","message":"username of the subscriber: sdw, connection_status becomes online","timestamp":"2015-08-06T13:35:56.500Z"}
+{"level":"info","message":"whiteboard clean status 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974","timestamp":"2015-08-06T13:35:56.554Z"}
+{"level":"info","message":"\na user lost connection: session.id=gbHigXv95qt7JRRkm userId = ea5bj9pxcncg, username=sdw, meeting=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974","timestamp":"2015-08-06T13:36:20.283Z"}
+{"level":"info","message":"username of the user losing connection: sdw, connection_status: becomes offline","timestamp":"2015-08-06T13:36:20.289Z"}
+{"level":"info","message":"sending a user_leaving_request for 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974:ea5bj9pxcncg","timestamp":"2015-08-06T13:36:20.292Z"}
+{"message":"eventType=  user_left_message  ","level":"info","timestamp":"2015-08-06T13:36:20.302Z"}
+{"level":"info","message":"marking user [ea5bj9pxcncg] as offline in meeting[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974]","timestamp":"2015-08-06T13:36:20.303Z"}
+{"message":"eventType=  user_left_message  ","level":"info","timestamp":"2015-08-06T13:36:21.973Z"}
+{"level":"info","message":"marking user [sige7i278qig_2] as offline in meeting[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974]","timestamp":"2015-08-06T13:36:21.973Z"}
+{"message":"eventType=  end_and_kick_all_message  ","level":"info","timestamp":"2015-08-06T13:37:39.761Z"}
+{"level":"info","message":"there are 2 users in the meeting","timestamp":"2015-08-06T13:37:39.762Z"}
+{"message":"eventType=  meeting_destroyed_event  ","level":"info","timestamp":"2015-08-06T13:37:39.763Z"}
+{"level":"info","message":"marking user [sige7i278qig_2] as offline in meeting[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974]","timestamp":"2015-08-06T13:37:39.764Z"}
+{"level":"info","message":"marking user [ea5bj9pxcncg] as offline in meeting[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974]","timestamp":"2015-08-06T13:37:39.766Z"}
+{"level":"info","message":"there are 2 users in the meeting","timestamp":"2015-08-06T13:37:39.784Z"}
+{"level":"info","message":"marking user [sige7i278qig_2] as offline in meeting[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974]","timestamp":"2015-08-06T13:37:39.785Z"}
+{"level":"info","message":"end of meeting 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974. Clear the meeting data from all collections","timestamp":"2015-08-06T13:37:39.786Z"}
+{"level":"info","message":"cleared Users Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.786Z"}
+{"level":"info","message":"marking user [ea5bj9pxcncg] as offline in meeting[183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974]","timestamp":"2015-08-06T13:37:39.787Z"}
+{"level":"info","message":"cleared Slides Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.793Z"}
+{"level":"info","message":"cleared Presentations Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.795Z"}
+{"level":"info","message":"cleared Shapes Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.795Z"}
+{"level":"info","message":"end of meeting 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974. Clear the meeting data from all collections","timestamp":"2015-08-06T13:37:39.796Z"}
+{"level":"info","message":"cleared Users Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.796Z"}
+{"level":"info","message":"cleared Chat Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.796Z"}
+{"level":"info","message":"cleared Slides Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.797Z"}
+{"level":"info","message":"cleared Meetings Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.797Z"}
+{"level":"info","message":"cleared Presentations Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.798Z"}
+{"level":"info","message":"cleared Shapes Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.799Z"}
+{"level":"info","message":"cleared Chat Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.800Z"}
+{"level":"info","message":"cleared Meetings Collection (meetingId: 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1438868135974!","timestamp":"2015-08-06T13:37:39.800Z"}
