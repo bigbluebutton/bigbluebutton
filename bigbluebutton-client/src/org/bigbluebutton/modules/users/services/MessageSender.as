@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
+  import org.bigbluebutton.main.api.JSLog;
   
   public class MessageSender {
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
@@ -117,6 +118,12 @@ package org.bigbluebutton.modules.users.services
     
     public function removeStream(userID:String, streamName:String):void {
 	  LOGGER.debug("sending unshare webcam to server for user=[{0}] stream=[{1}]", [userID, streamName]);
+	  
+	  var logData:Object = new Object();
+	  logData.user = UsersUtil.getUserData();
+	  
+	  JSLog.warn("User stopped sharing webcam event.", logData);
+	  
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.unshareWebcam", 
         function(result:String):void { // On successful result

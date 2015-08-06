@@ -1,5 +1,7 @@
 package org.bigbluebutton.red5.client;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -381,7 +383,9 @@ public class UserClientMessageSender {
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("userId", msg.userId);
 		args.put("webcamStream", msg.stream);
-		args.put("serverTimestamp", System.currentTimeMillis());
+		
+		String timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(Calendar.getInstance().getTime());
+		args.put("serverTimestamp", timeStamp );
 			
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
