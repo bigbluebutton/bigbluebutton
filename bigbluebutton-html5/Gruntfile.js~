@@ -21,27 +21,7 @@ module.exports = function(grunt) {
           '!app/.meteor/**/*',
           '!app/packages/**/*'
         ]
-      },
-	options: {
-          'max_line_length': {
-            'level': 'ignore'
-          },
-	'no_trailing_semicolons': {
-            'level': 'ignore'
-          },
-	'indentation': {
-            'level': 'ignore'
-          },
-	'no_unnecessary_fat_arrows': {
-            'level': 'ignore'
-          },
-	'no_tabs': {
-            'level': 'ignore'
-          },
-	'no_trailing_whitespace': {
-            'level': 'ignore'
-          }
-	}
+      }
     }
   });
 
