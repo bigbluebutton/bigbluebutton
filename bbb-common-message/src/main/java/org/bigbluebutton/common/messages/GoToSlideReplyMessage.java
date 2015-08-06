@@ -47,7 +47,7 @@ public class GoToSlideReplyMessage {
 						
 						if(pageObj.has(Constants.WIDTH_RATIO)
 								&& pageObj.has(Constants.HEIGHT_RATIO)
-								&& pageObj.has("png_uri")
+								&& pageObj.has("svg_uri")
 								&& pageObj.has("txt_uri")
 								&& pageObj.has("num")
 								&& pageObj.has(Constants.Y_OFFSET)
@@ -59,7 +59,7 @@ public class GoToSlideReplyMessage {
 								) {
 							int wRatio = pageObj.get(Constants.WIDTH_RATIO).getAsInt();
 							int hRatio = pageObj.get(Constants.HEIGHT_RATIO).getAsInt();
-							String pngUri = pageObj.get("png_uri").getAsString();
+							String svgUri = pageObj.get("svg_uri").getAsString();
 							String txtUri = pageObj.get("txt_uri").getAsString();
 							int num = pageObj.get("num").getAsInt();
 							int xOffset = pageObj.get(Constants.X_OFFSET).getAsInt();
@@ -71,7 +71,7 @@ public class GoToSlideReplyMessage {
 
 							page.put(Constants.WIDTH_RATIO, wRatio);
 							page.put(Constants.HEIGHT_RATIO, hRatio);
-							page.put("png_uri", pngUri);
+							page.put("svg_uri", svgUri);
 							page.put("txt_uri", txtUri);
 							page.put("num", num);
 							page.put(Constants.X_OFFSET, xOffset);

@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.ImageToSwfSlide;
-import org.bigbluebutton.presentation.PngImageCreator;
+import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -45,7 +45,7 @@ public class ImageToSwfSlidesGenerationService {
 	private SwfSlidesGenerationProgressNotifier notifier;
 	private PageConverter jpgToSwfConverter;
 	private PageConverter pngToSwfConverter;
-	private PngImageCreator pngImageCreator;
+	private SvgImageCreator svgImageCreator;
 	private ThumbnailCreator thumbnailCreator;
 	private TextFileCreator textFileCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
@@ -69,7 +69,7 @@ public class ImageToSwfSlidesGenerationService {
 		/* adding accessibility */
 		createTextFiles(pres);
 		createThumbnails(pres);
-		createPngImages(pres);
+		createSvgImages(pres);
 		
 		notifier.sendConversionCompletedMessage(pres);
 	}
@@ -95,10 +95,10 @@ public class ImageToSwfSlidesGenerationService {
 		thumbnailCreator.createThumbnails(pres);
 	}
 	
-	private void createPngImages(UploadedPresentation pres) {
-		log.debug("Creating PNG images.");
-		notifier.sendCreatingPngImagesUpdateMessage(pres);
-		pngImageCreator.createPngImages(pres);
+	private void createSvgImages(UploadedPresentation pres) {
+		log.debug("Creating SVG images.");
+		notifier.sendCreatingSvgImagesUpdateMessage(pres);
+		svgImageCreator.createSvgImages(pres);
 	}
 	
 	private void convertImageToSwf(UploadedPresentation pres, PageConverter pageConverter) {
@@ -184,8 +184,8 @@ public class ImageToSwfSlidesGenerationService {
 		this.textFileCreator = textFileCreator;
 	}
 	
-	public void setPngImageCreator(PngImageCreator pngImageCreator) {
-		this.pngImageCreator = pngImageCreator;
+	public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
+		this.svgImageCreator = svgImageCreator;
 	}
 	
 	public void setMaxConversionTime(int minutes) {

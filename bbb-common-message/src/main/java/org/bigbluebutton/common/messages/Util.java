@@ -328,7 +328,7 @@ public class Util {
 			JsonObject pageObj = (JsonObject)pagesIter.next();
 			if (pageObj.has("id") && pageObj.has("num") 
 					&& pageObj.has("thumb_uri") && pageObj.has("swf_uri")
-					&& pageObj.has("txt_uri") && pageObj.has("png_uri")
+					&& pageObj.has("txt_uri") && pageObj.has("svg_uri")
 					&& pageObj.has("current") && pageObj.has("x_offset")
 					&& pageObj.has("y_offset") && pageObj.has("width_ratio")
 					&& pageObj.has("height_ratio")) {
@@ -340,7 +340,7 @@ public class Util {
 				String pageThumbUri = pageObj.get("thumb_uri").getAsString();
 				String pageSwfUri = pageObj.get("swf_uri").getAsString();
 				String pageTxtUri = pageObj.get("txt_uri").getAsString();
-				String pagePngUri = pageObj.get("png_uri").getAsString();
+				String pageSvgUri = pageObj.get("svg_uri").getAsString();
 				
 				Boolean currentPage = pageObj.get("current").getAsBoolean();
 				Double xOffset = pageObj.get("x_offset").getAsDouble();
@@ -353,7 +353,7 @@ public class Util {
 				page.put("thumbUri", pageThumbUri);
 				page.put("swfUri", pageSwfUri);
 				page.put("txtUri", pageTxtUri);
-				page.put("pngUri", pagePngUri);
+				page.put("svgUri", pageSvgUri);
 				page.put("current", currentPage);
 				page.put("xOffset", xOffset);
 				page.put("yOffset", yOffset);
@@ -527,7 +527,7 @@ public class Util {
 		final String NUM = "num";
 		final String HEIGHT_RATIO = "height_ratio";
 		final String X_OFFSET = "x_offset";
-		final String PNG_URI = "png_uri";
+		final String SVG_URI = "svg_uri";
 		final String THUMB_URI = "thumb_uri";
 		final String TXT_URI = "txt_uri";
 		final String CURRENT = "current";
@@ -539,7 +539,7 @@ public class Util {
 				&& page.has(NUM)
 				&& page.has(HEIGHT_RATIO)
 				&& page.has(X_OFFSET)
-				&& page.has(PNG_URI)
+				&& page.has(SVG_URI)
 				&& page.has(THUMB_URI)
 				&& page.has(CURRENT)
 				&& page.has(TXT_URI)
@@ -553,7 +553,7 @@ public class Util {
 			double num = page.get(NUM).getAsDouble();
 			double heightRatio = page.get(HEIGHT_RATIO).getAsDouble();
 			double xOffset = page.get(X_OFFSET).getAsDouble();
-			String pngUri = page.get(PNG_URI).getAsString();
+			String svgUri = page.get(SVG_URI).getAsString();
 			String thumbUri = page.get(THUMB_URI).getAsString();
 			boolean current = page.get(CURRENT).getAsBoolean();
 			String txtUri = page.get(TXT_URI).getAsString();
@@ -565,7 +565,7 @@ public class Util {
 			finalPage.put(NUM, num);
 			finalPage.put(HEIGHT_RATIO, heightRatio);
 			finalPage.put(X_OFFSET, xOffset);
-			finalPage.put(PNG_URI, pngUri);
+			finalPage.put(SVG_URI, svgUri);
 			finalPage.put(THUMB_URI, thumbUri);
 			finalPage.put(CURRENT, current);
 			finalPage.put(TXT_URI, txtUri);
