@@ -125,7 +125,7 @@ allowStartStopRecording=true
 #----------------------------------------------------
 # This URL is where the BBB client is accessible. When a user sucessfully
 # enters a name and password, she is redirected here to load the client.
-bigbluebutton.web.serverURL= http://10.100.95.62/bigbluebutton/
+bigbluebutton.web.serverURL=http://10.100.95.62
 
 
 #----------------------------------------------------
