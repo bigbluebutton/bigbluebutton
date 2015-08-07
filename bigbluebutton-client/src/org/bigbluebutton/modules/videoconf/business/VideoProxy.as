@@ -108,7 +108,7 @@ package org.bigbluebutton.modules.videoconf.business
 			logData.user = UsersUtil.getUserData();
 			logData.user.eventCode = event.info.code + "[reconnecting=" + reconnecting + ",reconnect=" + reconnect + "]";
 			
-			JSLog.warn("NetStatus event from bbb-video", logData);
+//			JSLog.warn("NetStatus event from bbb-video", logData);
 			
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
@@ -154,7 +154,7 @@ package org.bigbluebutton.modules.videoconf.business
 					disconnect();
 					break;		
 				case "NetConnection.Connect.NetworkChange":
-					JSLog.warn("Detected network change on bbb-video", logData);
+//					JSLog.warn("Detected network change on bbb-video", logData);
 					break;
         		default:
 					LOGGER.debug("[{0}] for [{1}]", [event.info.code, _url]);

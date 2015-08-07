@@ -126,7 +126,7 @@ public class UsersMessageReceiver implements MessageHandler{
 				}
 			}
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_VOICE_CONF_SYSTEM_CHAN)) {
-			System.out.println("Voice message: " + channel + " " + message);
+			//System.out.println("Voice message: " + channel + " " + message);
 			JsonParser parser = new JsonParser();
 			JsonObject obj = (JsonObject) parser.parse(message);
 			if (obj.has("header") && obj.has("payload")) {

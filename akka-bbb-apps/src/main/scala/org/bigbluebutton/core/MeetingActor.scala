@@ -31,7 +31,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   val presModel = new PresentationModel()
 
   import context.dispatcher
-  context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
+  context.system.scheduler.schedule(2 seconds, 30 seconds, self, "MonitorNumberOfWebUsers")
 
   outGW.send(new GetUsersInVoiceConference(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
 
@@ -223,7 +223,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   def handleMonitorNumberOfWebUsers() {
-    println("BACK TIMER")
+    //    println("BACK TIMER")
     if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
         log.info("MonitorNumberOfWebUsers empty for meeting [" + mProps.meetingID + "]. Ejecting all users from voice.")
@@ -233,7 +233,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
     val now = timeNowInMinutes
 
-    println("(" + meetingModel.startedOn + "+" + mProps.duration + ") - " + now + " = " + ((meetingModel.startedOn + mProps.duration) - now) + " < 15")
+    //    println("(" + meetingModel.startedOn + "+" + mProps.duration + ") - " + now + " = " + ((meetingModel.startedOn + mProps.duration) - now) + " < 15")
 
     if (mProps.duration > 0 && (((meetingModel.startedOn + mProps.duration) - now) < 15)) {
       log.warning("MEETING WILL END IN 15 MINUTES!!!!")

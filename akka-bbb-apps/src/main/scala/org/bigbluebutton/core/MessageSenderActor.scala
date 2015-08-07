@@ -572,13 +572,13 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
 
   private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
     val json = UsersMessageToJsonConverter.validateAuthTokenReplyToJson(msg)
-    println("************** Publishing [" + json + "] *******************")
+    //println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
   private def handleValidateAuthTokenTimedOut(msg: ValidateAuthTokenTimedOut) {
     val json = UsersMessageToJsonConverter.validateAuthTokenTimeoutToJson(msg)
-    println("************** Publishing [" + json + "] *******************")
+    //println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
