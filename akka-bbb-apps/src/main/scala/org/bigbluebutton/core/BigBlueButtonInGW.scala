@@ -234,10 +234,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
         val swfUri = presBaseUrl + "/slide/" + i
 
         val txtUri = presBaseUrl + "/textfiles/" + i
-        val pngUri = presBaseUrl + "/png/" + i
+        val svgUri = presBaseUrl + "/svg/" + i
 
         val p = new Page(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
-          txtUri = txtUri, pngUri = pngUri,
+          txtUri = txtUri, svgUri = svgUri,
           current = current)
         pages += (p.id -> p)
       }
