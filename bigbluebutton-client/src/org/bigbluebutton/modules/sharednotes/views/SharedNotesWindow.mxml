@@ -87,7 +87,7 @@
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
 				});
 
-				richTextEditor.addEventListener(Event.CHANGE, function(e:Event):void {
+				richTextEditor.addEventListener(mx.events.FlexEvent.VALUE_COMMIT, function(e:FlexEvent):void {
 					if (!sendUpdateTimer.running) {
 						sendUpdateTimer.reset();
 						sendUpdateTimer.start();
@@ -128,27 +128,27 @@
 				var note:Object = notes[noteId];
 				_document = note["document"];
 				_noteName = note["name"];
-				// TODO: Check for concurrency here
 				richTextEditor.htmlText = _document;
 				updateTitle();
 			}
 
 			private function sendPatch():void {
-				var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
+				var clientText:String = new String(richTextEditor.htmlText); // a snapshot of the client text
 				LogUtil.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
-					textArea.editable = false;
+					richTextEditor.textArea.editable = false;
+					// Why this?
 					onSyncing();
 //					trace("ADD LOCAL");
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.noteId = noteId;
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
-					sendPatchEvent.beginIndex = textArea.selectionBeginIndex;
-					sendPatchEvent.endIndex = textArea.selectionEndIndex;
+					sendPatchEvent.beginIndex = richTextEditor.textArea.selectionBeginIndex;
+					sendPatchEvent.endIndex = richTextEditor.textArea.selectionEndIndex;
 					//patchHistory.push(messageToSend.patchData);
 					_dispatcher.dispatchEvent(sendPatchEvent);
 					_document = clientText;
-					textArea.editable = true;
+					richTextEditor.textArea.editable = true;
 					onSynced();
 				}
 			}
@@ -161,9 +161,10 @@
 //					trace("SharedNotesWindow: before the patch\n" + _document);
 //					trace("SharedNotesWindow: after the patch\n" + result);
 					_document = result;
-					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
+					// TODO: We need to review this and make the patch on the htmlText
+//					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
 //					trace("SharedNotes: patching local with server modifications");
-					richTextEditor.htmlText = textArea.text;
+					richTextEditor.htmlText = _document;
 				}
 			}
 
@@ -189,13 +190,13 @@
 				var lf:String = String.fromCharCode(10);
 				var crlf:String = String.fromCharCode(13, 10);
 
-				var textToExport:String = richTextEditor.text;
+				var textToExport:String = richTextEditor.htmlText;
 				textToExport = textToExport.replace(new RegExp(crlf, "g"), '\n');
 				textToExport = textToExport.replace(new RegExp(cr, "g"), '\n');
 				textToExport = textToExport.replace(new RegExp(lf, "g"), '\n');
 				textToExport = textToExport.replace(new RegExp('\n', "g"), crlf);
 
-				_fileRef.save(textToExport, filename+".txt");
+				_fileRef.save(textToExport, filename+".html");
 			}
 
 			protected function btnNew_clickHandler(event:MouseEvent):void
@@ -232,11 +233,12 @@
 	<mx:VBox width="100%" height="100%">
 		<mx:RichTextEditor width="100%" height="100%" id="richTextEditor" showControlBar="false" dropShadowEnabled="false" headerHeight="0" borderThicknessLeft="0" borderThicknessRight="0" borderThicknessTop="0" borderThicknessBottom="0" minWidth="120" minHeight="100" initialize="initRichTextEditor()"/>
 
+		<!--components:PatchableTextArea visible="false" id="textArea" text="{richTextEditor.htmlText}"/-->
+
 		<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
 			<mx:Button id="btnNew" width="26" height="26" click="btnNew_clickHandler(event)" icon="@Embed(source='images/ic_note_add_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
 			<mx:Button width="26" height="26" click="btnToolbar_clickHandler(event)" icon="@Embed(source='images/ic_note_format_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}"/>
 			<mx:Button width="26" height="26" click="btnSave_clickHandler(event)" icon="@Embed(source='images/ic_save_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
 		</mx:HBox>
 	</mx:VBox>
-	<components:PatchableTextArea visible="false" id="textArea" text="{richTextEditor.htmlText}"/>
 </containers:MDIWindow>
