@@ -59,8 +59,8 @@ public class GotoSlidePresentationRecordEvent extends
 		eventMap.put("txtUri", txtUri);
 	}
 	
-	public void setPngUri(String pngUri) {
-		eventMap.put("pngUri", pngUri);
+	public void setSvgUri(String svgUri) {
+		eventMap.put("svgUri", svgUri);
 	}
 	
 	public void setXOffset(double offset) {
