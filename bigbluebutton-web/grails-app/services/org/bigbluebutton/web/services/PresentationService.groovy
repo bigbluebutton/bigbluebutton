@@ -94,8 +94,8 @@ class PresentationService {
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "slide-${id}.swf")
 	}
 
-	def showPngImage(String conf, String room, String presentationName, String id) {
-		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "pngs" + File.separatorChar + "slide${id}.png")
+	def showSvgImage(String conf, String room, String presentationName, String id) {
+		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
 	}
 
 	def showPresentation = {conf, room, filename ->
@@ -125,9 +125,9 @@ class PresentationService {
 		thumbDir.listFiles().length
 	}
 
-	def numberOfPngs = {conf, room, name ->
-		def PngsDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "pngs")
-		PngsDir.listFiles().length
+	def numberOfSvgs = {conf, room, name ->
+		def SvgsDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "svgs")
+		SvgsDir.listFiles().length
 	}
 
 	def numberOfTextfiles = {conf, room, name ->
@@ -166,8 +166,8 @@ class PresentationService {
 /*** Helper classes **/
 import java.io.FilenameFilter;
 import java.io.File;
-class PngFilter implements FilenameFilter {
+class SvgFilter implements FilenameFilter {
     public boolean accept(File dir, String name) {
-        return (name.endsWith(".png"));
+        return (name.endsWith(".svg"));
     }
 }

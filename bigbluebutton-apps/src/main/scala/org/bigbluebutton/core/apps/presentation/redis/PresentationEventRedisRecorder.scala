@@ -63,7 +63,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 	  event.setThumbUri(msg.page.thumbUri);
 	  event.setSwfUri(msg.page.swfUri);
 	  event.setTxtUri(msg.page.txtUri);
-	  event.setPngUri(msg.page.pngUri);
+	  event.setSvgUri(msg.page.svgUri);
 	  event.setXOffset(msg.page.xOffset);
 	  event.setYOffset(msg.page.yOffset);
 	  event.setWidthRatio(msg.page.widthRatio);
@@ -82,7 +82,7 @@ class PresentationEventRedisRecorder(recorder: RecorderApplication) extends OutM
 		event.setThumbUri(msg.page.thumbUri);
 		event.setSwfUri(msg.page.swfUri);
 		event.setTxtUri(msg.page.txtUri);
-		event.setPngUri(msg.page.pngUri);
+		event.setSvgUri(msg.page.svgUri);
 		event.setXOffset(msg.page.xOffset);
 		event.setYOffset(msg.page.yOffset);
 		event.setWidthRatio(msg.page.widthRatio);
