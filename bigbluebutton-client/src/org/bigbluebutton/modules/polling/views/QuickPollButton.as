@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.polling.views {
 		}
 		
 		private function parseSlideText(text:String):void {
-			var regEx:RegExp = new RegExp("\n[^\s]+[\.\)]", "g");
+			var regEx:RegExp = new RegExp("\n[^\s][\.\)]", "g");
 			var matchedArray:Array = text.match(regEx);
 			LOGGER.debug("Parse Result: {0} {1}", [matchedArray.length, matchedArray.join(" ")]);
 			if (matchedArray.length > 1) {
