@@ -114,6 +114,9 @@
 			private function initRichTextEditor():void {
 				richTextEditor.linkTextInput.visible = false;
 				richTextEditor.linkTextInput.height = 0;
+				// Bullets are messy: issue #1715
+				richTextEditor.bulletButton.visible = false;
+				richTextEditor.bulletButton.height = 0;
 			}
 
 			private function onTextAreaEvent(e:Event):void {
