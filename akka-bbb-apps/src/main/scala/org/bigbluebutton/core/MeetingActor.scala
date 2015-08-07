@@ -374,13 +374,19 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     println("isRecording=" + meetingModel.isRecording())
     println("recorded=" + mProps.recorded)
 
-    meetingModel.setRTMPBroadcastingUrl(msg.streamname)
-    meetingModel.broadcastingRTMPStarted()
+    // only valid if not broadcasting yet
+    if (!meetingModel.isBroadcastingRTMP()) {
+      // println("START broadcast ALLOWED" + meetingModel.isBroadcastingRTMP())
+      meetingModel.setRTMPBroadcastingUrl(msg.streamname)
+      meetingModel.broadcastingRTMPStarted()
 
-    // Notify viewers in the meeting that there's an rtmp stream to view
-    outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
-      true, msg.videoWidth, msg.videoHeight, System.currentTimeMillis().toString()))
-    println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE1 " + meetingModel.getRTMPBroadcastingUrl())
+      // Notify viewers in the meeting that there's an rtmp stream to view
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+        true, msg.videoWidth, msg.videoHeight, System.currentTimeMillis().toString()))
+      println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE1 " + meetingModel.getRTMPBroadcastingUrl())
+    } else {
+      // println("START broadcast NOT ALLOWED" + meetingModel.isBroadcastingRTMP())
+    }
   }
 
   private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
@@ -388,11 +394,18 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     println("isRecording=" + meetingModel.isRecording())
     println("recorded=" + mProps.recorded)
 
-    meetingModel.broadcastingRTMPStoppped()
+    // only valid if currently broadcasting
+    if (meetingModel.isBroadcastingRTMP()) {
+      // println("STOP broadcast ALLOWED" + meetingModel.isBroadcastingRTMP())
+      meetingModel.broadcastingRTMPStopped()
 
-    // notify viewers that RTMP broadcast stopped
-    outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
-      false, msg.videoWidth, msg.videoHeight, System.currentTimeMillis().toString()))
+      // notify viewers that RTMP broadcast stopped
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+        false, msg.videoWidth, msg.videoHeight, System.currentTimeMillis().toString()))
+    } else {
+      // println("STOP broadcast NOT ALLOWED" + meetingModel.isBroadcastingRTMP())
+    }
+
     println("DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE")
   }
 

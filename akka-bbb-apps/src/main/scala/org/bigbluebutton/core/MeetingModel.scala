@@ -41,7 +41,7 @@ class MeetingModel {
     broadcastingRTMP
   }
 
-  def broadcastingRTMPStoppped() {
+  def broadcastingRTMPStopped() {
     broadcastingRTMP = false
   }
 
