@@ -79,7 +79,9 @@ body {
       padding-left: 1% !important;
       padding-right: 1% !important;
       background-color: white;
-      border-bottom: 1px solid extract(@lightGrey, 1);
+      &:not(.toggleMenuButton):not(.toggleUserlistButton) {
+        border-bottom: 1px solid extract(@lightGrey, 1);
+      }
     }
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
       height: 100px !important;
@@ -131,18 +133,12 @@ body {
       color: extract(@white, 1);
       font-size: 35px;
       height: 72px;
-      max-width: 70%;
       margin-left: auto;
       margin-right: auto;
       height: 110px;
       padding-top: 55px; // half the height
       padding-left: 30px;
-    }
-    @media @desktop-portrait {
-      max-width: calc(~'100% - 155px'); // navbar width minus the space for 3 buttons
-    }
-    @media @landscape {
-      max-width: calc(~'100% - 125px'); // navbar width minus the space for 4 buttons
+      padding-right: 30px;
     }
     @media @landscape, @desktop-portrait {
       color: extract(@darkGrey, 1);
@@ -150,6 +146,43 @@ body {
       height: 50px;
       padding-top: 25px; // half the height
       padding-left: 15px;
+      padding-right: 15px;
+    }
+    &.defaultTitle {
+      @media @landscape, @desktop-portrait {
+        left: 51.2px;
+      }
+      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+        left: 10%;
+      }
+
+      @media @landscape {
+        max-width: calc(~'100% - 174px'); // leaves room for 3 buttons (including margins)
+      }
+      @media @desktop-portrait {
+        max-width: calc(~'100% - 102.4px'); // leaves room for 2 buttons
+      }
+      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+        width: 80%;
+      }
+    }
+    &.shiftedTitle {
+      @media @landscape, @desktop-portrait {
+        left: 102.4px;
+      }
+      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+        left: 20%;
+      }
+
+      @media @landscape {
+        max-width: calc(~'100% - 225px'); // leaves room for 4 buttons (including margins)
+      }
+      @media @desktop-portrait {
+        max-width: calc(~'100% - 153.6px'); // leaves for 3 buttons
+      }
+      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+        width: 70%;
+      }
     }
   }
 }
@@ -347,11 +380,11 @@ body {
 .signOutIcon {
   @media @landscape {
     &:hover {
-    color: #2A5E7C;
-  }
-  &:focus {
-    color: #2A5E7C;
-  }
+      color: #2A5E7C;
+    }
+    &:focus {
+      color: #2A5E7C;
+    }
     height: 28px;
     width: 75px;
     margin-left: 10px;
@@ -362,6 +395,29 @@ body {
   float: right;
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     display: none;
+  }
+}
+
+.audioNavbarSection {
+  position: absolute;
+  top: 0;
+  @media @landscape, @desktop-portrait {
+    left: 51.2px;
+  }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    left: 10%;
+    width: 10%;
+  }
+  .muteIcon:hover {
+    color: #2A5E7C;
+  }
+}
+
+.muteIcon, .leaveAudioButton {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
@@ -382,14 +438,19 @@ body {
   z-index: 1001;
 }
 
-.toggleUserlistButton {
+.toggleUserlistButton, .toggleMenuButton {
   outline: none;
+  &:hover {
+    span {
+      background-color: #2A5E7C;
+    }
+  }
 }
 
 .settingsIcon {
   @media @landscape {
     &:hover {
-    color: #2A5E7C;
+      color: #2A5E7C;
     }
     &:focus {
       color: #2A5E7C;
