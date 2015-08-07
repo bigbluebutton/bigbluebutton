@@ -130,7 +130,7 @@ package org.bigbluebutton.modules.users.services
           LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-		  LOGGER.error(status); 
+		  LOGGER.error(status);  
         },
         streamName
       );

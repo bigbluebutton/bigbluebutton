@@ -32,6 +32,8 @@ package org.bigbluebutton.core.managers
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.main.events.LogoutEvent;
@@ -87,8 +89,14 @@ package org.bigbluebutton.core.managers
 
     public function onDisconnected(type:String, callback:Function, parameters:Array):void {
       if (!_canceled) {
-		LOGGER.warn("onDisconnected, type={0}, parameters={1}" + [type, parameters.toString()]);
+		LOGGER.warn("onDisconnected, type={0}, parameters={1}", [type, parameters.toString()]);
 
+		var logData:Object = new Object();
+		logData.user = UsersUtil.getUserData();
+		logData.user.connection = type;
+		
+		JSLog.warn("Connection disconnected", logData);
+		
         var obj:Object = new Object();
         obj.callback = callback;
         obj.callbackParameters = parameters;
@@ -106,6 +114,13 @@ package org.bigbluebutton.core.managers
 
     public function onConnectionAttemptFailed(type:String):void {
       LOGGER.warn("onConnectionAttemptFailed, type={0}", [type]);
+	  
+	  var logData:Object = new Object();
+	  logData.user = UsersUtil.getUserData();
+	  logData.user.connection = type;
+	  
+	  JSLog.warn("Reconnect attempt on connection failed.", logData);
+	  
       if (_connections.hasOwnProperty(type)) {
         _connections[type].reconnect.onConnectionAttemptFailed();
       }
@@ -136,6 +151,12 @@ package org.bigbluebutton.core.managers
 
     public function onConnectionAttemptSucceeded(type:String):void {
 	  LOGGER.debug("onConnectionAttemptSucceeded, type={0}", [type]);
+	  var logData:Object = new Object();
+	  logData.user = UsersUtil.getUserData();
+	  logData.user.connection = type;
+	  
+	  JSLog.warn("Reconnect succeeded.", logData);
+	  
       dispatchReconnectionSucceededEvent(type);
 
       delete _connections[type];
