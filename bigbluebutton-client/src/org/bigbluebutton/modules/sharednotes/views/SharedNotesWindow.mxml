@@ -87,7 +87,7 @@
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
 				});
 
-				richTextEditor.addEventListener(mx.events.FlexEvent.VALUE_COMMIT, function(e:FlexEvent):void {
+				richTextEditor.addEventListener(Event.CHANGE, function(e:Event):void {
 					if (!sendUpdateTimer.running) {
 						sendUpdateTimer.reset();
 						sendUpdateTimer.start();
