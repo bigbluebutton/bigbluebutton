@@ -807,6 +807,17 @@ check_configuration() {
 		fi
 	fi
 
+        libreoffice_version=`dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g'`
+
+        if [[ "$libreoffice_version" > 1.0 ]]; then
+            if [[ "$libreoffice_version" < 4.4 ]]; then
+                echo "# Warning: Detected your running an older version of LibreOffice: $libreoffice_version"
+                echo "#"
+                echo "# Recommend updated to the latest version of LibreOffice 4.x (4.4 or later)"
+                echo
+            fi
+        fi
+
 }
 
 
