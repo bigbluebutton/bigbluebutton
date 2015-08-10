@@ -142,6 +142,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
 			
+			private var pollResultsPopUp:PollResultsModal
+			
 			private function init():void{
 				presentOptions = new PresentOptions();
 			}
@@ -698,9 +700,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// the event for this doesn't exist yet
 				if (UsersUtil.amIPresenter()) {
 					// display the results view
-					var popUp:PollResultsModal = PopUpManager.createPopUp(this, PollResultsModal, true) as PollResultsModal;
-					popUp.setPoll(e.poll);
-					PopUpManager.centerPopUp(popUp);
+					pollResultsPopUp = PopUpManager.createPopUp(this, PollResultsModal, true) as PollResultsModal;
+					pollResultsPopUp.setPoll(e.poll);
+					PopUpManager.centerPopUp(pollResultsPopUp);
 				} else {
 					//switch to vote state
 					setControlBarState("vote");
@@ -748,6 +750,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function pollStoppedHandler(e:PollStoppedEvent):void {
 				setControlBarState("presenter");
+				PopUpManager.removePopUp(pollResultsPopUp);
 			}
 			
 			private function pollShowResultHandler(e:PollShowResultEvent):void {

@@ -321,8 +321,6 @@ trait UsersApp {
         outGW.send(new UserLeft(msg.meetingID, mProps.recorded, u))
 
         if (u.presenter) {
-          // Stop poll if one is running as presenter left.
-          this.context.self ! StopPollRequest(mProps.meetingID, u.userID)
 
           /* The current presenter has left the meeting. Find a moderator and make
 	       * him presenter. This way, if there is a moderator in the meeting, there
@@ -471,6 +469,9 @@ trait UsersApp {
   }
 
   def assignNewPresenter(newPresenterID: String, newPresenterName: String, assignedBy: String) {
+    // Stop poll if one is running as presenter left.
+    this.context.self ! StopPollRequest(mProps.meetingID, assignedBy)
+
     if (usersModel.hasUser(newPresenterID)) {
 
       usersModel.getCurrentPresenter match {
