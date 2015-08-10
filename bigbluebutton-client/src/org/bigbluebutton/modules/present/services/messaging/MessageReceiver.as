@@ -125,7 +125,7 @@ package org.bigbluebutton.modules.present.services.messaging
       if (! map.hasOwnProperty("current")) missing.push("Missing [current] param.");
       if (! map.hasOwnProperty("swfUri")) missing.push("Missing [swfUri] param.");
       if (! map.hasOwnProperty("txtUri")) missing.push("Missing [txtUri] param.");
-      if (! map.hasOwnProperty("pngUri")) missing.push("Missing [pngUri] param.");
+      if (! map.hasOwnProperty("svgUri")) missing.push("Missing [svgUri] param.");
       if (! map.hasOwnProperty("thumbUri")) missing.push("Missing [thumbUri] param.");
       if (! map.hasOwnProperty("xOffset")) missing.push("Missing [xOffset] param.");
       if (! map.hasOwnProperty("yOffset")) missing.push("Missing [yOffset] param.");
@@ -139,7 +139,7 @@ package org.bigbluebutton.modules.present.services.messaging
 //      }
       
       if (map.hasOwnProperty("id") && map.hasOwnProperty("num") && map.hasOwnProperty("current") &&
-        map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("pngUri") &&
+        map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("svgUri") &&
         map.hasOwnProperty("thumbUri") && map.hasOwnProperty("xOffset") && map.hasOwnProperty("yOffset") &&
         map.hasOwnProperty("widthRatio") && map.hasOwnProperty("heightRatio")) {
         return true;
@@ -158,7 +158,7 @@ package org.bigbluebutton.modules.present.services.messaging
       page.current = map.current;
       page.swfUri = map.swfUri;
       page.txtUri = map.txtUri;
-      page.pngUri = map.pngUri;
+      page.svgUri = map.svgUri;
       page.thumbUri = map.thumbUri;
       page.xOffset = map.xOffset;
       page.yOffset = map.yOffset;

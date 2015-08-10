@@ -11,7 +11,7 @@ package org.bigbluebutton.modules.present.model
     private var _num: int;
     private var _swfUri: String;
     private var _txtUri: String;
-    private var _pngUri: String;
+    private var _svgUri: String;
     private var _thumbUri: String;
     
     public var current: Boolean;
@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.present.model
 	
     public function Page(id: String, num: int, current: Boolean,
                 swfUri: String, thumbUri: String, txtUri: String,
-                pngUri: String, x: Number, y: Number,
+                svgUri: String, x: Number, y: Number,
                 width: Number, height: Number) {
        _id = id;
        _num = num;
@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.present.model
        _swfUri = swfUri;
        _thumbUri = thumbUri;
        _txtUri = txtUri;
-       _pngUri = pngUri;
+       _svgUri = svgUri;
        this.xOffset = x;
        this.yOffset = y;
        this.widthRatio = width;
