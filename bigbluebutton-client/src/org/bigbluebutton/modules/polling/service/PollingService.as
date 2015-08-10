@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.polling.service
 {
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
 	import org.bigbluebutton.modules.polling.events.StartPollEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
@@ -29,7 +31,7 @@ package org.bigbluebutton.modules.polling.service
 
 	public class PollingService
 	{	
-		private static const LOG:String = "Poll::PollingService - ";
+		private static const LOGGER:ILogger = getClassLogger(PollingService);      
 
 	    private var dataService:IPollDataService;
     	private var model:PollingModel;
@@ -46,7 +48,7 @@ package org.bigbluebutton.modules.polling.service
 		}
 			
 		public function handleStartModuleEvent(module:PollingModule):void {
-       		trace(LOG + " module started event");
+       		LOGGER.debug("module started event");
 		}
 			
 

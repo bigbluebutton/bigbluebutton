@@ -35,20 +35,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import mx.containers.Canvas;
-      import mx.controls.Button;
-      import mx.controls.Image;
-      import mx.controls.Label;
-      import mx.core.UIComponent;      
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
-      import org.bigbluebutton.modules.deskshare.events.CursorEvent;
-      import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-      import org.bigbluebutton.modules.deskshare.services.DeskshareService;
-      import org.bigbluebutton.modules.deskshare.services.red5.Connection;
-      import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
-      import org.bigbluebutton.util.QueryStringParameters;
+			import mx.core.UIComponent;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
+			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.deskshare.services.DeskshareService;
+			import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
+			import org.bigbluebutton.util.QueryStringParameters;
+			
+			private static const LOGGER:ILogger = getClassLogger(DeskshareStandalone);
+
 			private var videoHolder:UIComponent;
 
 			private var cursor:Shape = new Shape();;
@@ -87,17 +87,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
-        trace("DeskshareSA::onAppletStart.");
+				LOGGER.debug("DeskshareSA::onAppletStart.");
 				startVideo(service.getConnection(), room, event.videoWidth, event.videoHeight);
 			}
 
 			private function onViewStreamStart(event:ViewStreamEvent):void {
-        trace("DeskshareSA::onViewStreamStart.");
+				LOGGER.debug("DeskshareSA::onViewStreamStart.");
 				startVideo(service.getConnection(), room, event.videoWidth, event.videoHeight);
 			}
 			
 			private function onAppletStop(event:ViewStreamEvent):void {
-        trace("DeskshareSA::onAppletStop.");
+				LOGGER.debug("DeskshareSA::onAppletStop.");
 				var url:URLRequest = new URLRequest(logoutURL);
 				navigateToURL(url, '_self');
 			}
@@ -152,7 +152,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         showStatusText(warningText, true, "0x000000");
 
-        trace("CONNECT STATUS EVENT [" + event.status + "]");
+        LOGGER.debug("CONNECT STATUS EVENT [{0}]", [event.status]);
       }
       
 			private function startVideo(connection:NetConnection, stream:String, videoWidth:Number, videoHeight:Number):void{	
@@ -171,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
 				videoHolder = new UIComponent();
         
-        trace("DeskshareSA::Determine how to display video = [" + videoWidth + "x" + videoHeight + "] display=[" + this.width + "x" + this.height + "]");
+        LOGGER.debug("DeskshareSA::Determine how to display video = [{0}x{1}] display=[{2}x{3}]", [videoWidth, videoHeight, this.width, this.height]);
         determineHowToDisplayVideo();
                 
 				ns.play(stream);	
@@ -179,7 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
       private function onMetaData(info:Object):void {
-        trace("DeskshareSA:: ****metadata: width=" + info.width + " height=" + info.height);
+        LOGGER.debug("DeskshareSA:: ****metadata: width={0} height={1}", [info.width, info.height]);
         videoWidth = info.width;
         videoHeight = info.height;
         
@@ -211,18 +211,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				trace("DeskshareSA::::asyncerror " + e.toString());
+				LOGGER.debug("DeskshareSA::::asyncerror {0}", [e.toString()]);
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
   				case "NetStream.Play.Start":
-  					trace("DeskshareSA::NetStream.Publish.Start for broadcast stream " + stream);
-  					trace("DeskshareSA::Dispatching start viewing event");
+  					LOGGER.debug("DeskshareSA::NetStream.Publish.Start for broadcast stream {0}", [stream]);
+					LOGGER.debug("DeskshareSA::Dispatching start viewing event");
   					service.sendStartedViewingNotification(stream);
   					break;
   				case "NetStream.Play.UnpublishNotify":
-  					trace("DeskshareSA::NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					LOGGER.debug("DeskshareSA::NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);
   					stopViewing();
   					break;
           case "NetStream.DRM.UpdateNeeded":
@@ -235,7 +235,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             break;
 				} 
         
-        trace("NET STATUS EVENT [" + e.info.code + "]");
+		LOGGER.debug("NET STATUS EVENT [{0}]", [e.info.code]);
 			}
       
       //----------------------------
@@ -245,9 +245,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         videoHolder.x = video.x = (this.width - video.width) / 4;
         videoHolder.y = video.y = (this.height - video.height) / 4;
                
-        trace("DeskshareSA::Center video = [" + video.width + "x" + video.height 
-                                + "] display=[" + this.width + "x" + this.height + "]"
-                                + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
+		LOGGER.debug("DeskshareSA::Center video = [{0}x{1}] display=[{2}x{3}]" + "loc=[{4},{5}]",
+					 [video.width, video.height, this.width, this.height, videoHolder.x, videoHolder.y]);
         
         videoHolder.addChild(video);
         videoHolder.addChild(cursor);	
@@ -269,16 +268,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
-        trace("DeskshareSA::fitToWidthAndAdjustHeightToMaintainAspectRatio");
+		LOGGER.debug("DeskshareSA::fitToWidthAndAdjustHeightToMaintainAspectRatio");
         videoHolder.width = video.width = width;
         // Maintain aspect-ratio
         videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
         videoHolder.x = video.x = 0;
         videoHolder.y = video.y = 0;
         
-        trace("DeskshareSA::Disp video = [" + video.width + "x" + video.height 
-          + "] display=[" + this.width + "x" + this.height + "]"
-          + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
+		LOGGER.debug("DeskshareSA::Disp video = [{0}x{1}] display=[{2}x{3}]" + "loc=[{4},{5}]",
+			[video.width, video.height, this.width, this.height, videoHolder.x, videoHolder.y]);
         
         videoHolder.addChild(video);	
         videoHolder.addChild(cursor);	
@@ -288,7 +286,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-        trace("DeskshareSA::fitToHeightAndAdjustWidthToMaintainAspectRatio");
+		LOGGER.debug("DeskshareSA::fitToHeightAndAdjustWidthToMaintainAspectRatio");
         videoHolder.height = video.height = height;
         // Maintain aspect-ratio
         videoHolder.width = video.width = (videoWidth * video.height) / videoHeight;
@@ -301,11 +299,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         videoHolder.x = video.x = (width - video.width) / 4;
         videoHolder.y = video.y = (height - video.height) / 4;	
         
-        trace("DeskshareSA::Disp video = [" + video.width + "x" + video.height 
-          + "] display=[" + this.width + "x" + this.height + "]"
-          + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
-        
-        videoHolder.addChild(video);	
+		LOGGER.debug("DeskshareSA::Disp video = [{0}x{1}] display=[{2}x{3}]" + "loc=[{4},{5}]",
+			[video.width, video.height, this.width, this.height, videoHolder.x, videoHolder.y]);
+
+		videoHolder.addChild(video);	
         videoHolder.addChild(cursor);	
         videoHolder.addChild(cursorImg);
         

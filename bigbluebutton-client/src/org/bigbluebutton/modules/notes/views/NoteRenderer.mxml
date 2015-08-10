@@ -28,7 +28,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
       import mx.binding.utils.ChangeWatcher;
       
-      import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.modules.notes.models.Note;
 
 			[Bindable] private var rolledOver:Boolean = false;					

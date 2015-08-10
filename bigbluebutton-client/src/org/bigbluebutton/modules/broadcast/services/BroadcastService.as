@@ -18,15 +18,14 @@
  */
 package org.bigbluebutton.modules.broadcast.services
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.events.BBBEvent;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 
 	public class BroadcastService {	
-    private var sender:MessageSender;
-    private var receiver:MessageReceiver;
+		private static const LOGGER:ILogger = getClassLogger(BroadcastService);      
+
+		private var sender:MessageSender;
+    	private var receiver:MessageReceiver;
     
     public function BroadcastService() {
       sender = new MessageSender();
@@ -34,15 +33,15 @@ package org.bigbluebutton.modules.broadcast.services
     }
     
 		public function playStream(uri:String, streamID:String, streamName:String):void {
-      trace("BroadcastService::playStream"); 
+      LOGGER.debug("BroadcastService::playStream"); 
       if (sender == null) {
-        trace("SENDER is NULL!!!!");
+        LOGGER.warn("SENDER is NULL!!!!");
       }
       sender.playStream(uri, streamID, streamName);
 		}
 		
 		public function stopStream():void {
-      trace("BroadcastService::stopStream"); 
+      LOGGER.debug("BroadcastService::stopStream"); 
 			sender.stopStream();
 		}
 		

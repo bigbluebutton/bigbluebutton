@@ -5,24 +5,23 @@ package org.bigbluebutton.modules.layout.services
   import flash.events.TimerEvent;
   import flash.utils.Timer;
   
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
-  import org.bigbluebutton.core.EventConstants;
-  import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.core.events.CoreEvent;
-  import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
-  import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class MessageReceiver implements IMessageListener
   {
-    private var _dispatcher:Dispatcher;
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
+
+	private var _dispatcher:Dispatcher;
     
     public function MessageReceiver()
     {
@@ -60,7 +59,7 @@ package org.bigbluebutton.modules.layout.services
     }
     
     private function onReceivedFirstLayout(message:Object):void {
-      trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "]"); 
+      LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]); 
 
       lockLayout(message.locked, message.setById);
       
@@ -91,7 +90,7 @@ package org.bigbluebutton.modules.layout.services
     }
     
     private function lockLayout(locked:Boolean, setById:String):void {
-      trace("LayoutService: received locked layout message. locked=[" + locked + "] by=[" + setById + "]");
+	  LOGGER.debug("LayoutService: received locked layout message. locked = [{0}] by= [{1}]", [locked, setById]); 
       _dispatcher.dispatchEvent(new LayoutLockedEvent(locked, setById));
     }
   }

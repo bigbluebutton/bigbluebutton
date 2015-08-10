@@ -20,12 +20,12 @@ package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
   
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.TranscriptEvent;
@@ -34,7 +34,9 @@ package org.bigbluebutton.modules.chat.services
   public class MessageReceiver implements IMessageListener
   {
     
-    private static const LOG:String = "Chat::MessageReceiver - ";
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
+
+    private var welcomed:Boolean = false;
     
     public var dispatcher:IEventDispatcher;
     
@@ -61,19 +63,22 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleChatRequestMessageHistoryReply(message:Object):void {
-      trace(LOG + "Handling chat history message [" + message.msg + "]");
+      LOGGER.debug("Handling chat history message [{0}]", [message.msg]);
       var chats:Array = JSON.parse(message.msg) as Array;
       
       for (var i:int = 0; i < chats.length; i++) {
         handleChatReceivePublicMessageCommand(chats[i], true);
       }
-         
-      var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
-      dispatcher.dispatchEvent(pcEvent);
+
+      if (!welcomed) {
+        var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
+        dispatcher.dispatchEvent(pcEvent);
+        welcomed = true;
+      }
     }
         
     private function handleChatReceivePublicMessageCommand(message:Object, history:Boolean = false):void {
-      trace(LOG + "Handling public chat message [" + message.message + "]");
+      LOGGER.debug("Handling public chat message [{0}]", [message.message]);
       
       var msg:ChatMessageVO = new ChatMessageVO();
       msg.chatType = message.chatType;
@@ -97,7 +102,7 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleChatReceivePrivateMessageCommand(message:Object):void {
-      trace(LOG + "Handling private chat message");
+      LOGGER.debug("Handling private chat message");
       
       var msg:ChatMessageVO = new ChatMessageVO();
       msg.chatType = message.chatType;

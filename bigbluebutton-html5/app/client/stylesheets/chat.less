@@ -11,9 +11,21 @@
     height: 45px;
     min-height: 45px;
     .btn {
+      &:hover {
+        color: #3896D3;
+        background-color:white;
+        border-bottom: 1px solid #E5E5E5;
+      }
+      &:focus {
+        background-color:white;
+        border-bottom: 1px solid #E5E5E5;
+      }
+      padding: 0.625rem 0.5rem 0.6875rem 0.5rem;
       background-color: inherit;
       margin: 0;
       height: 45px;
+      outline: none;
+      min-width: 50px;
     }
     span {
       position: relative;
@@ -29,23 +41,40 @@
     }
   }
   .privateChatName {
+    width: calc(~'100% - 105px');
+    min-width: 101px;
+    text-align: right;
     float: right;
     padding: 0.65rem 1.25rem 0.6rem 0.3rem;
     font-family: "Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
     font-size: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.toPublic .unreadChatNumber {
+  @media @desktop-portrait, @landscape {
+    padding: 2px;
+    position: absolute;
+    top: 31%;
+    left: 100%;
+    margin: 0;
   }
 }
 
 #chat {
   @media @landscape {
-    -webkit-flex: 3 3 30%;
-    -moz-flex: 3 3 30%;
-    -ms-flex: 3 3 30%;
-    flex: 3 3 30%;
+    -webkit-flex: 1 1;
+    -moz-flex: 1 1;
+    -ms-flex: 1 1;
+    flex: 1 1;
     height: 100%;
     border-top: 0px;
     border-right: 0px;
     border-top-left-radius: 0px;
+    overflow: hidden;
   }
   order: 3;
 }
@@ -136,23 +165,19 @@
   }
 }
 
-.gotUnreadMail {
-  background: extract(@yellow, 2) !important;
-}
-
 #newMessageInput {
   display: block;
   float: left;
   width: 75%;
   resize: none;
-  padding-top: 5px;
+  padding-top: 0px;
   padding-bottom: 0px;
 
   border:1px solid extract(@lightGrey, 3);
   margin: 0px;
 
   @media @landscape {
-    height: 40px; /* same height as send button */
+    height: 100%; /* same height as send button */
   }
   @media @mobile-portrait {
     font-size: 4vw;
@@ -173,22 +198,24 @@
   position: relative;
   background: extract(@white, 1);
   padding: 0;
-  border-top: 1px solid #E5E5E5;
+  border-top: 1px solid extract(@lightGrey, 3);
 }
 
 #sendMessageButton {
   width: 20%; /* 75% for the message input, 5% margin between the two */
   color: extract(@black, 1);
-  background-color: extract(@white, 1);
+  background-color: #3896D3;
   font-weight: bold;
   height: 50px;
   margin: 0px;
   border: 1px solid extract(@lightGrey, 3);
-
   @media @desktop-portrait {
     width: 20%; /* 75% for the message input, 5% margin between the two */
     font-size: 30px;
     height: 60px;
+    &:hover {
+      background: #3A82D4;
+    }
   }
   @media @mobile-portrait {
     width: 15vw;
@@ -203,6 +230,11 @@
   @media @landscape {
     height: 50px;
     padding: 0px;
+    position: absolute;
+    bottom: 10px;
+    &:hover {
+      background: #3A82D4;
+    }
   }
 }
 
@@ -213,5 +245,18 @@
 #chatbar-contents {
   @media @landscape {
     min-width: 140px;
+  }
+}
+
+.button-group {
+  @media @landscape {
+    height: 100%;
+  }
+}
+
+#chatInput {
+  @media @landscape {
+    height: 100%;
+    padding-bottom: 10px;
   }
 }

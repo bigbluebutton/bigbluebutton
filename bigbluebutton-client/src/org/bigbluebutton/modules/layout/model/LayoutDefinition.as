@@ -17,27 +17,25 @@
 *
 */
 package org.bigbluebutton.modules.layout.model {
+	import flash.utils.Dictionary;
+	
+	import flexlib.mdi.containers.MDICanvas;
+	import flexlib.mdi.containers.MDIWindow;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.managers.UserManager;
 
 	public class LayoutDefinition {
-
-		import flash.utils.Dictionary;
-		import flash.utils.getQualifiedClassName;
 		
-		import flexlib.mdi.containers.MDICanvas;
-		import flexlib.mdi.containers.MDIWindow;
-		
-		import org.bigbluebutton.common.LogUtil;
-		import org.bigbluebutton.common.Role;
-		import org.bigbluebutton.core.managers.UserManager;
-		import org.bigbluebutton.modules.layout.managers.OrderManager;
-		
-    private static const LOG:String = "Layout::LayoutDefinition - ";
+		private static const LOGGER:ILogger = getClassLogger(LayoutDefinition);
     
 		[Bindable] public var name:String;
 		// default is a reserved word in actionscript
 		[Bindable] public var defaultLayout:Boolean = false;
     
-    public var currentLayout:Boolean = false;
+   		public var currentLayout:Boolean = false;
     
 		private var _layoutsPerRole:Dictionary = new Dictionary();
 		
@@ -94,7 +92,7 @@ package org.bigbluebutton.modules.layout.model {
 			} else if (hasPresenterLayout) {
 				return _layoutsPerRole[Role.PRESENTER];
 			} else {
-				LogUtil.error("There's no layout that fits the participants profile");
+				LOGGER.error("There's no layout that fits the participants profile");
         //trace(LOG + "getMyLayout There's no layout that fits the participants profile");
 				return null;
 			}

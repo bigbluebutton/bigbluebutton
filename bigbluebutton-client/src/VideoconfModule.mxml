@@ -22,22 +22,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.OpenWindowEvent;
-      import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-      import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
-      import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
+			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
+			import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
+			import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
+			
+			private static const LOGGER:ILogger = getClassLogger(VideoconfModule);
+
 			private var _moduleName:String = "Videoconf Module";			
 			private var _attributes:Object; 
 		
 			private function onCreationComplete():void {
-				LogUtil.debug("VideoconfModule initialized");	
+				LOGGER.debug("VideoconfModule initialized");	
 			}
 			
 			public function get moduleName():String {
@@ -56,9 +55,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (_attributes.mode == null) {					
 					//_attributes.mode = "PLAYBACK"
 					_attributes.mode = "LIVE"
-					LogUtil.debug('Setting NotesModule mode: ' + _attributes.mode);
+					LOGGER.debug('Setting NotesModule mode: {0}', [_attributes.mode]);
 				}
-				LogUtil.debug('VideoconfVModule mode: ' + _attributes.mode);
+				LOGGER.debug('VideoconfVModule mode: {0}', [_attributes.mode]);
 				return _attributes.mode;
 			}
 						
@@ -76,7 +75,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function start(attributes:Object):void {	
-        trace("Starting Video Module");
+				LOGGER.debug("Starting Video Module");
         _attributes = attributes;
         
         var globalDispatcher:Dispatcher = new Dispatcher();

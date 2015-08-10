@@ -39,11 +39,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
-			import mx.styles.StyleManager;
 			import mx.styles.IStyleManager2;
+			import mx.styles.StyleManager;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -54,6 +58,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private static const LOGGER:ILogger = getClassLogger(ToolbarPopupButton);      
 
 			public const OFF_STATE:Number = 0;
 			public const ON_STATE:Number = 1;
@@ -152,13 +158,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function openPublishWindow():void{
 				this.enabled = false;
 				if(_currentState == ON_STATE) {
-					trace("[ToolbarPopupButton:openPublishWindow] Close window");
+					LOGGER.debug("[ToolbarPopupButton:openPublishWindow] Close window");
 					switchStateToNormal();
 					var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent(StopShareCameraRequestEvent.STOP_SHARE_ALL_CAMERA_REQUEST);
 					dispatchEvent(stopShareCameraRequestEvent);
 					this.enabled = true;		
 				} else {
-					trace("Share camera");
+					LOGGER.debug("Share camera");
 					if(numberOfCamerasOff > 0)
 						numberOfCamerasOff--;
 					_currentState = ON_STATE;

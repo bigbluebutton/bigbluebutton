@@ -7,23 +7,22 @@ package org.bigbluebutton.modules.present.services
   import org.bigbluebutton.modules.present.commands.ChangePageCommand;
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.PageChangedEvent;
-  import org.bigbluebutton.modules.present.events.PageMovedEvent;
   import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.present.model.Page;
   import org.bigbluebutton.modules.present.model.Presentation;
   import org.bigbluebutton.modules.present.model.PresentationModel;
-  import org.bigbluebutton.modules.present.services.messages.CursorMovedMessage;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   import org.bigbluebutton.modules.present.services.messaging.MessageReceiver;
   import org.bigbluebutton.modules.present.services.messaging.MessageSender;
-  import org.bigbluebutton.modules.whiteboard.events.GetCurrentPresentationInfo;
+  import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.api.ILogger;
 
   public class PresentationService
   {
-    private static const LOG:String = "Present::PresentationService - ";
+	private static const LOGGER:ILogger = getClassLogger(PresentationService);      
     private static const NUM_PRELOAD:uint = 3;
     private var model:PresentationModel;
     private var sender:MessageSender;
@@ -77,7 +76,7 @@ package org.bigbluebutton.modules.present.services
     private function copyPageVOToPage(p: PageVO):Page {
       var page:Page = new Page(p.id, p.num, p.current,
                                p.swfUri, p.thumbUri, p.txtUri,
-                               p.pngUri, p.xOffset, p.yOffset,
+                               p.svgUri, p.xOffset, p.yOffset,
                                p.widthRatio, p.heightRatio);      
       return page;      
     }
@@ -92,10 +91,10 @@ package org.bigbluebutton.modules.present.services
     public function addPresentation(pres:PresentationVO):void {
       var presentation:Presentation = presentationVOToPresentation(pres);
       model.addPresentation(presentation);    
-      trace(LOG + "Added new presentation [" + presentation.id + "]");
+      LOGGER.debug("Added new presentation [{0}]", [presentation.id]);
       
       if (presentation.current) {
-        trace(LOG + "Making presentation [" + presentation.id +"] current [" + presentation.current + "]"); 
+        LOGGER.debug("Making presentation [{0}] current [{1}]", [presentation.id, presentation.current]); 
         var event: PresentationChangedEvent = new PresentationChangedEvent(pres.id);
         dispatcher.dispatchEvent(event);
         
@@ -104,7 +103,7 @@ package org.bigbluebutton.modules.present.services
           var changePageCommand: ChangePageCommand = new ChangePageCommand(curPage.id, NUM_PRELOAD);
           dispatcher.dispatchEvent(changePageCommand);          
           
-          trace(LOG + "Sending page moved event to position page [" + curPage.id + "] current=[" + curPage.current + "]");
+		  LOGGER.debug("Sending page moved event to position page [{0}] current=[{1}]", [curPage.id, curPage.current]);
           var pageChangedEvent: PageChangedEvent = new PageChangedEvent(curPage.id);
           dispatcher.dispatchEvent(pageChangedEvent); 
         }        
@@ -130,11 +129,11 @@ package org.bigbluebutton.modules.present.services
       if (curPres != null) {
         curPres.current = false;
       } else {
-        trace(LOG + "No previous active presentation.");
+        LOGGER.debug("No previous active presentation.");
       }
             
       if (presVO.isCurrent()) {
-        trace(LOG + "Making presentation [" + presVO.id + "] the  active presentation.");
+        LOGGER.debug("Making presentation [{0}] the  active presentation.", [presVO.id]);
         var newPres:Presentation = presentationVOToPresentation(presVO);
         PresentationModel.getInstance().replacePresentation(newPres);
         
@@ -148,8 +147,12 @@ package org.bigbluebutton.modules.present.services
           
         }        
       } else {
-        trace(LOG + "Switching presentation but presentation [" + presVO.id + "] is not current [" + presVO.isCurrent() + "]");
+        LOGGER.debug("Switching presentation but presentation [{0}] is not current [{0}]", [presVO.id, presVO.isCurrent()]);
       }
+    }
+    
+    public function removeAllPresentations():void {
+      model.removeAllPresentations();
     }
 	
 	public function removePresentation(presentationID:String):void {

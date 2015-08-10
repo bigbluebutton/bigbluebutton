@@ -228,13 +228,6 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
       var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
       resultArray(i) = info
 
-      //remove later
-      println("for a meeting:" + id)
-      println("Meeting Name = " + meetings.get(id).head.mProps.meetingName)
-      println("isRecorded = " + meetings.get(id).head.mProps.recorded)
-      println("voiceBridge = " + voiceBridge)
-      println("duration = " + duration)
-
       //send the users
       self ! (new GetUsers(id, "nodeJSapp"))
 

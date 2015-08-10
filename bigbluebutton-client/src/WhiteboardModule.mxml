@@ -24,19 +24,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
 			import com.asfusion.mate.events.Dispatcher;
-						
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
-					
+
+			private static const LOGGER:ILogger = getClassLogger(WhiteboardModule);
+
 			private var _moduleName:String = "Highlighter Module";			
 			private var _attributes:Object;
 			
 			private var globalDispatcher:Dispatcher;
 			
 			private function init():void{
-				LogUtil.debug("HighlighterModule::init");
+				LOGGER.debug("HighlighterModule::init");
 			}
 			
 			public function get moduleName():String {
@@ -59,8 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _attributes.userrole as String;
 			}
 			
-			public function start(attributes:Object):void {	
-				LogUtil.debug("highlighter attr: " + attributes.username);
+			public function start(attributes:Object):void {
+				LOGGER.debug("highlighter attr: {0}", [attributes.username]);
 				_attributes = attributes;
 				globalDispatcher = new Dispatcher();
 				//eventMap.createHighlighterCanvas();

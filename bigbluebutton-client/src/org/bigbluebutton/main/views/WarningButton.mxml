@@ -33,16 +33,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
+			import flash.globalization.DateTimeFormatter;
+			import flash.globalization.DateTimeStyle;
+			import flash.globalization.LocaleID;
+
 			import mx.controls.ToolTip;
 			import mx.core.FlexGlobals;
-			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.managers.ToolTipManager;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private static const LOG:String = "WarningButton - ";
+			private static const LOGGER:ILogger = getClassLogger(WarningButton);      
 			
 			[Bindable]
 			private var messages:Array = new Array();
@@ -57,24 +62,38 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleSuccessMessageEvent(e:ClientStatusEvent):void {
-				if(isUniqueMessage("success", e.title, e.message)) {
-					messages.push({type:"success",title:e.title,message:e.message});
-					showNotification();
-				}
+				handleMessageEvent("success", e);
 			}
 			
 			private function handleWarningMessageEvent(e:ClientStatusEvent):void {
-				if(isUniqueMessage("warning", e.title, e.message)) {
-					messages.push({type:"warning",title:e.title,message:e.message});
-					showNotification();
-				}
+				handleMessageEvent("warning", e);
 			}
 			
 			private function handleFailMessageEvent(e:ClientStatusEvent):void {
-				if(isUniqueMessage("fail", e.title, e.message)) {
-					messages.push({type:"fail",title:e.title,message:e.message});
-					showNotification();
+				handleMessageEvent("fail", e);
+			}
+			
+			private function handleMessageEvent(type:String, e:ClientStatusEvent):void {
+				var index:Number = getMessageIndex(type, e.title, e.message);
+				var obj:Object;
+				if (index != -1) {
+					obj = messages.splice(index, 1)[0];
+					obj.occurrences++;
+				} else {
+					obj = {
+						type: type,
+						title: e.title,
+						message: e.message,
+						occurrences: 1
+					};
 				}
+
+				var dtf:DateTimeFormatter = new DateTimeFormatter(LocaleID.DEFAULT, DateTimeStyle.NONE, DateTimeStyle.MEDIUM);
+				var time:String = dtf.format(new Date());
+				obj.time = time;
+
+				messages.push(obj);
+				showNotification();
 			}
 			
 			private function showNotification():void {
@@ -91,12 +110,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			private function isUniqueMessage(type:String, title:String, message:String):Boolean {
+			private function getMessageIndex(type:String, title:String, message:String):int {
 				for (var i:Number=0; i<messages.length; i++) {
 					if (messages[i].type == type && messages[i].title == title && messages[i].message == message)
-						return false;
+						return i;
 				}
-				return true;
+				return -1;
 			}
 			
 			private function handleButtonClick():void {

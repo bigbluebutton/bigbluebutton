@@ -1,29 +1,25 @@
 package org.bigbluebutton.modules.videoconf.views
 {
   import com.asfusion.mate.events.Dispatcher;
-
+  
   import flash.events.AsyncErrorEvent;
-  import flash.events.Event;
   import flash.events.NetStatusEvent;
   import flash.filters.ConvolutionFilter;
-  import flash.text.TextField;
-  import flash.media.Camera;
-  import flash.media.Video;
   import flash.net.NetConnection;
   import flash.net.NetStream;
-  import mx.utils.ObjectUtil;
-
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.model.VideoProfile;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
   import org.bigbluebutton.main.views.VideoWithWarnings;
-  import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
   import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 
   public class UserVideo extends UserGraphic {
-    private static const LOG:String = "Videoconf::UserVideo - ";
+	private static const LOGGER:ILogger = getClassLogger(UserVideo);      
 
     protected var _camIndex:int = -1;
 
@@ -65,15 +61,15 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     protected function getVideoProfile(stream:String):VideoProfile {
-      trace("Parsing stream name [" + stream + "]");
+      LOGGER.debug("Parsing stream name [{0}]", [stream]);
       var pattern:RegExp = new RegExp("([A-Za-z0-9]+)-([A-Za-z0-9_]+)-\\d+", "");
       if (pattern.test(stream)) {
-        trace("The stream name is well formatted");
-        trace("Video profile resolution is [" + pattern.exec(stream)[1] + "]");
-        trace("Userid [" + pattern.exec(stream)[2] + "]");
+        LOGGER.debug("The stream name is well formatted");
+        LOGGER.debug("Video profile resolution is [{0}]", [pattern.exec(stream)[1]]);
+		LOGGER.debug("Userid [{0}]", [pattern.exec(stream)[2]]);
         return BBB.getVideoProfileById(pattern.exec(stream)[1]);
       } else {
-        trace("Bad stream name format");
+		LOGGER.debug("Bad stream name format");
         var profile:VideoProfile = BBB.defaultVideoProfile;
         if (profile == null) {
           profile = BBB.fallbackVideoProfile;
@@ -140,7 +136,7 @@ package org.bigbluebutton.modules.videoconf.views
       _ns.receiveAudio(false);
       
       _videoProfile = getVideoProfile(streamName);
-      trace("Remote video profile: " + _videoProfile.toString());
+      LOGGER.debug("Remote video profile: {0}", [_videoProfile.toString()]);
       if (_videoProfile == null) {
         throw("Invalid video profile");
         return;
@@ -153,7 +149,7 @@ package org.bigbluebutton.modules.videoconf.views
         var filter:ConvolutionFilter = new ConvolutionFilter();
         filter.matrixX = 3;
         filter.matrixY = 3;
-        trace("Applying convolution filter =[" + options.convolutionFilter + "]");
+        LOGGER.debug("Applying convolution filter =[{0}]", [options.convolutionFilter]);
         filter.matrix = options.convolutionFilter;
         filter.bias =  options.filterBias;
         filter.divisor = options.filterDivisor;
@@ -169,30 +165,30 @@ package org.bigbluebutton.modules.videoconf.views
     private function onNetStatus(e:NetStatusEvent):void{
       switch(e.info.code){
         case "NetStream.Publish.Start":
-          trace("NetStream.Publish.Start for broadcast stream " + _streamName);
+          LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [_streamName]);
           break;
         case "NetStream.Play.UnpublishNotify":
           shutdown();
           break;
         case "NetStream.Play.Start":
-          trace("Netstatus: " + e.info.code);
+			LOGGER.debug("Netstatus: {0}", [e.info.code ]);
           _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.VIDEO_STARTED));
           break;
         case "NetStream.Play.FileStructureInvalid":
-          trace("The MP4's file structure is invalid.");
+		  LOGGER.error("The MP4's file structure is invalid.");
           break;
         case "NetStream.Play.NoSupportedTrackFound":
-          trace("The MP4 doesn't contain any supported tracks");
+		  LOGGER.error("The MP4 doesn't contain any supported tracks");
           break;
       }
     }
 
     private function onAsyncError(e:AsyncErrorEvent):void{
-      trace(LOG + e.text);
+		LOGGER.debug(e.text);
     }
     
     private function onMetaData(info:Object):void {
-      trace(LOG + " width=" + info.width + " height=" + info.height);
+		LOGGER.debug("width={0} height={1}", [info.width, info.height]);
     }
 
     override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {

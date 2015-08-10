@@ -18,42 +18,44 @@
  */
 package org.bigbluebutton.modules.chat.services
 {
-  import flash.events.IEventDispatcher; 
-  import org.bigbluebutton.common.LogUtil;
+  import flash.events.IEventDispatcher;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.managers.ConnectionManager;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
   public class MessageSender
   {
-    private static const LOG:String = "Chat::MessageSender - ";
+	private static const LOGGER:ILogger = getClassLogger(MessageSender);
     
     public var dispatcher:IEventDispatcher;
     
     public function getPublicChatMessages():void
     {  
-      trace(LOG + "Sending [chat.getPublicMessages] to server.");
+      LOGGER.debug("Sending [chat.getPublicMessages] to server.");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("chat.sendPublicChatHistory", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+          LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         }
       );
     }
     
     public function sendPublicMessage(message:ChatMessageVO):void
     {  
-      trace(LOG + "Sending [chat.sendPublicMessage] to server. [" + message.message + "]");
+	  LOGGER.debug("Sending [chat.sendPublicMessage] to server. [{0}]", [message.message]);
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("chat.sendPublicMessage", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message.toObj()
       );
@@ -61,15 +63,15 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPrivateMessage(message:ChatMessageVO):void
     {  
-      trace(LOG + "Sending [chat.sendPrivateMessage] to server.");
-      trace(LOG + "Sending fromUserID [" + message.fromUserID + "] to toUserID [" + message.toUserID + "]");
+	  LOGGER.debug("Sending [chat.sendPrivateMessage] to server.");
+	  LOGGER.debug("Sending fromUserID [{0}] to toUserID [{1}]", [message.fromUserID, message.toUserID]);
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("chat.sendPrivateMessage", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message.toObj()
       );

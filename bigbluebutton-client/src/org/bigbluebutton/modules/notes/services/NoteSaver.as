@@ -33,15 +33,16 @@ package org.bigbluebutton.modules.notes.services
   import mx.utils.Base64Decoder;
   import mx.utils.Base64Encoder;
   
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.notes.events.SaveErrorEvent;
   import org.bigbluebutton.modules.notes.events.SaveSuccessEvent;
   import org.bigbluebutton.modules.notes.models.Note;
-  import org.bigbluebutton.modules.notes.models.NotesOptions;
   
   public class NoteSaver
   {
-    private static const LOG:String = "NoteSaver - ";
+	private static const LOGGER:ILogger = getClassLogger(NoteSaver);      
     
     private var _serverURL:String;
 
@@ -70,7 +71,7 @@ package org.bigbluebutton.modules.notes.services
     }
     
     public function save():void {
-      trace(LOG + " save");
+      LOGGER.debug(" save");
       
       //_request.url = _serverURL + "/save";
       _request.url = _serverURL;
@@ -88,14 +89,14 @@ package org.bigbluebutton.modules.notes.services
       var dec:Base64Decoder = new Base64Decoder();
       dec.decode(_vars.text)
       var decNote:String = dec.toByteArray().toString();
-      trace("Saving note [" + _vars.noteID + "][" + _vars.note + "] to [" + _request.url + "]");
+      LOGGER.debug("Saving note [{0}][{1}] to [{2}]", [_vars.noteID, _vars.note, _request.url]);
       
       _request.data = _vars;
       
       try {
         _loader.load(_request);
       } catch (error:Error) {
-        trace("Unable to load requested document.");
+        LOGGER.debug("Unable to load requested document.");
         var errorEvent:SaveErrorEvent = new SaveErrorEvent();
         errorEvent.reason = SaveErrorEvent.FAILED_TO_SAVE;
         errorEvent.noteID = _note.noteID;
@@ -113,13 +114,13 @@ package org.bigbluebutton.modules.notes.services
       var xml:XML = new XML(event.target.data);
       
       if (saveSuccess(xml)) {
-        trace("SAVED noteID [" + _note.noteID + "] on [" + xml.timestamp + "]");
+        LOGGER.debug("SAVED noteID [{0}] on [{1}]", [_note.noteID, xml.timestamp]);
         var successEvent:SaveSuccessEvent = new SaveSuccessEvent();
         successEvent.noteID = _note.noteID;
         successEvent.timestamp = xml.timestamp;
         _dispatcher.dispatchEvent(successEvent);        
       } else {
-        trace("NOT SAVED");
+        LOGGER.debug("NOT SAVED");
       } 
     }
     
@@ -129,15 +130,15 @@ package org.bigbluebutton.modules.notes.services
     }
     
     private function openHandler(event:Event):void {
-      trace("openHandler: " + event);
+		LOGGER.debug("openHandler: {0}", [event]);
     }
     
     private function progressHandler(event:ProgressEvent):void {
-      trace("progressHandler loaded:" + event.bytesLoaded + " total: " + event.bytesTotal);
+      LOGGER.debug("progressHandler loaded:{0} total: {1}", [event.bytesLoaded, event.bytesTotal]);
     }
     
     private function securityErrorHandler(event:SecurityErrorEvent):void {
-      trace("securityErrorHandler: " + event);
+      LOGGER.error("securityErrorHandler: {0}", [event]);
       var errorEvent:SaveErrorEvent = new SaveErrorEvent();
       errorEvent.reason = SaveErrorEvent.SECURITY_ERROR;
       errorEvent.noteID = _note.noteID;
@@ -145,11 +146,11 @@ package org.bigbluebutton.modules.notes.services
     }
     
     private function httpStatusHandler(event:HTTPStatusEvent):void {
-      trace("httpStatusHandler: " + event);
+      LOGGER.debug("httpStatusHandler: {0}", [event]);
     }
     
     private function ioErrorHandler(event:IOErrorEvent):void {
-      trace("ioErrorHandler: " + event);
+      LOGGER.error("ioErrorHandler: {0}", [event]);
       var errorEvent:SaveErrorEvent = new SaveErrorEvent();
       errorEvent.reason = SaveErrorEvent.IO_ERROR;
       errorEvent.noteID = _note.noteID;

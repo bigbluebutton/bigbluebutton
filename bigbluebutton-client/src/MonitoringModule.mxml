@@ -9,9 +9,9 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
-			import mx.controls.Alert;
 			import com.asfusion.mate.events.Dispatcher;
+			
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.main.events.BBBEvent;
 			
 			private var _moduleId:String = "MonitoringModule";

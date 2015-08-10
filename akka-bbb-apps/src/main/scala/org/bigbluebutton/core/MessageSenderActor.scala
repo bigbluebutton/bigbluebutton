@@ -216,7 +216,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     res += "thumb_uri" -> page.thumbUri
     res += "swf_uri" -> page.swfUri
     res += "txt_uri" -> page.txtUri
-    res += "png_uri" -> page.pngUri
+    res += "svg_uri" -> page.svgUri
     res += "current" -> page.current
     res += "x_offset" -> page.xOffset
     res += "y_offset" -> page.yOffset
@@ -572,13 +572,13 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
 
   private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
     val json = UsersMessageToJsonConverter.validateAuthTokenReplyToJson(msg)
-    println("************** Publishing [" + json + "] *******************")
+    //println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
   private def handleValidateAuthTokenTimedOut(msg: ValidateAuthTokenTimedOut) {
     val json = UsersMessageToJsonConverter.validateAuthTokenTimeoutToJson(msg)
-    println("************** Publishing [" + json + "] *******************")
+    //println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 

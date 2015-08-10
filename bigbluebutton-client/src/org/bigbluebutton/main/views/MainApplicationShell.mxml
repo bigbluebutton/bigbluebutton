@@ -27,11 +27,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		xmlns:mate="http://mate.asfusion.com/"
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
-		width="100%" height="100%" 
+		xmlns:common="org.bigbluebutton.common.*"
+		width="100%" height="{parentApplication.height - 1}"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		creationComplete="initializeShell()" 
-		xmlns:common="org.bigbluebutton.common.*">
+		creationComplete="initializeShell()">
+
+	<!--
+	height="{parentApplication.height - 1}" : The container height is set to fix height because the percentHeight
+	generates a script execution timeout in the GraphicsWrapper class. We also remove one pixel to force the first
+	update as the height property needs a value different from thec current one to be updated.
 		
+	-->
+	
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
@@ -63,24 +70,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flash.events.MouseEvent;
+			import flash.events.Event;
+			import flash.events.FullScreenEvent;
+			import flash.events.IOErrorEvent;
+			import flash.events.TextEvent;
 			import flash.geom.Point;
 			
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
 			import mx.collections.ArrayCollection;
-			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
-			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -92,41 +101,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
-			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
-			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
-			import org.bigbluebutton.modules.phone.events.PerformEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.util.logging.Logger;
 	
-      private static const LOG:String = "Main::MainApplicationShell - ";
+			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
-			private var logs:Logger = new Logger();
 			private var logWindow:LogWindow;
 			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
-			
-			[Bindable] private var baseIndex:int = 100000;
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
@@ -158,6 +158,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var confirmingLogout:Boolean = false;
 			private var chromeBrowser:ChromeWebcamPermissionImage = null;
+			
+			public function getLogWindow() : LogWindow
+			{
+				if (logWindow == null){
+					logWindow = new LogWindow();
+				}
+				return logWindow;
+			}
       
 			public function initOptions(e:Event):void {
 				UserManager.getInstance().getConference().configLockSettings();
@@ -198,14 +206,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-					trace("Received locale version fron config.xml");
+					LOGGER.debug("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					trace("Received locale version fron locale file.");
+					LOGGER.debug("Received locale version fron locale file.");
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					trace("Comparing locale versions.");
+					LOGGER.debug("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					if (sendStartModulesEvent) {
             
@@ -216,7 +224,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function sendStartAllModulesEvent():void{
-				trace("Sending start all modules event");
+				LOGGER.debug("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
@@ -224,21 +232,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function fullScreenHandler(evt:FullScreenEvent):void {
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
-					LogUtil.debug("Switching to full screen");
+					LOGGER.debug("Switching to full screen");
 					/* Do something specific here if we switched to full screen mode. */
 				
 				} else {
-					LogUtil.debug("Switching to normal screen");
+					LOGGER.debug("Switching to normal screen");
 					/* Do something specific here if we switched to normal mode. */
 				}
 			}			
 			
 			private function openLogWindow():void {
-				if (logWindow == null){
-					logWindow = new LogWindow();
-					logWindow.logs = logs;
-				}
-				mdiCanvas.windowManager.add(logWindow);
+				mdiCanvas.windowManager.add(getLogWindow());
 				mdiCanvas.windowManager.absPos(logWindow, 50, 50);
 				logWindow.width = mdiCanvas.width - 100;
 				logWindow.height = mdiCanvas.height - 100;
@@ -264,16 +268,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function toggleFullScreen():void{
-	   			LogUtil.debug("Toggling fullscreen");
+				LOGGER.debug("Toggling fullscreen");
 	   			try {
 					switch (stage.displayState) {
 						case StageDisplayState.FULL_SCREEN:
-							LogUtil.debug("full screen mode");
+							LOGGER.debug("full screen mode");
 							// If already in full screen mode, switch to normal mode.
 							stage.displayState = StageDisplayState.NORMAL;
 							break;
 						default:
-							LogUtil.debug("Normal screen mode");
+							LOGGER.debug("Normal screen mode");
 							// If not in full screen mode, switch to full screen mode.
 							stage.displayState = StageDisplayState.FULL_SCREEN;
 							break;
@@ -355,7 +359,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   			Alert.okLabel ="OK";
 				var version:String = "old-locales";
 				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-				trace("Locale from config=" + localeVersion + ", from locale file=" + version);
+				LOGGER.debug("Locale from config={0}, from locale file={1}", [localeVersion, version]);
 
 				if ((version == "old-locales") || (version == "") || (version == null)) {
 					wrongLocaleVersion();
@@ -511,7 +515,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           mdiCanvas.removeAllWindows();
           var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
           var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-          trace(LOG + "SingOut to [" + pageHost + "//" + pageURL + "/bigbluebutton/api/signOut]");
+          LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
           var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
           var urlLoader:URLLoader = new URLLoader();
           urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
@@ -523,7 +527,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function getLogoutUrl():String {
         var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
         if (logoutUrl == null) {
-          trace(LOG + "URL=[" + FlexGlobals.topLevelApplication.url + "]");
+          LOGGER.debug("URL=[{0}]", [FlexGlobals.topLevelApplication.url]);
           var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
           var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
           logoutUrl = pageHost + "//" + pageURL;
@@ -539,20 +543,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
 			private function redirectToLogoutUrl ():void {
-        var logoutURL:String = getLogoutUrl();
+        		var logoutURL:String = getLogoutUrl();
 				var request:URLRequest = new URLRequest(logoutURL);
-				trace(LOG + "Logging out to: " + logoutURL);
+				LOGGER.debug("Logging out to: {0}", [logoutURL]);
 				navigateToURL(request, '_self');
 			}
 			
 
 			private function handleLogoutError(e:Event):void {
-				LogUtil.debug("Call to signOut URL failed.");
+				LOGGER.debug("Call to signOut URL failed.");
 				redirectToLogoutUrl();
 			}
 			
 			private function handleLogoutComplete(e:Event):void {	
-				LogUtil.debug("Call to signOut URL succeeded.");
+				LOGGER.debug("Call to signOut URL succeeded.");
 				redirectToLogoutUrl();
 			}
 			
@@ -568,7 +572,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
-					(event.button as UIComponent).tabIndex = baseIndex + addedBtns.numChildren + 10;
+					(event.button as UIComponent).tabIndex = tabIndexer.startIndex + addedBtns.numChildren + 10;
 					addedBtns.addChild(event.button as UIComponent);
 					//realignButtons();
 				}
@@ -584,6 +588,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
         showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
+        globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
       }
 			
 			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {
@@ -633,13 +638,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void{
-				trace("Clicked on link[" + e.text + "] from footer");
+				LOGGER.debug("Clicked on link[{0}] from footer", [e.text]);
 				if (ExternalInterface.available) {
 					ExternalInterface.call("chatLinkClicked", e.text);
 				}
 			}
 		]]>
 	</mx:Script>
+	
+	<common:TabIndexer id="tabIndexer" startIndex="100000"
+					   tabIndices="{[langSelector, logBtn]}"/>
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
@@ -686,8 +694,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				height="20"
 				width="180"
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle"
-				tabIndex="{baseIndex}"/>
+				styleName="languageSelectorStyle"/>
 		<mx:Button
 				width="20"
 				height="20"
@@ -696,8 +703,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
 				id="logBtn"
 				icon="{logs_icon}"
-				click="openLogWindow()"
-				tabIndex="{baseIndex+1}"/>
+				click="openLogWindow()"/>
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>

@@ -21,7 +21,8 @@ package org.bigbluebutton.modules.chat.services
   import flash.events.IEventDispatcher;
   import flash.external.ExternalInterface;
   
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.MeetingModel;
@@ -32,7 +33,7 @@ package org.bigbluebutton.modules.chat.services
 
   public class ChatMessageService
   {
-    private static const LOG:String = "Chat::ChatMessageService - ";
+	private static const LOGGER:ILogger = getClassLogger(ChatMessageService);      
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
@@ -40,7 +41,7 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPublicMessageFromApi(message:Object):void
     {
-      trace(LOG + "sendPublicMessageFromApi");
+      LOGGER.debug("sendPublicMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
       msgVO.chatType = ChatConstants.PUBLIC_CHAT;
       msgVO.fromUserID = message.fromUserID;
@@ -56,7 +57,7 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPrivateMessageFromApi(message:Object):void
     {
-      trace(LOG + "sendPrivateMessageFromApi");
+	  LOGGER.debug("sendPrivateMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
       msgVO.chatType = ChatConstants.PUBLIC_CHAT;
       msgVO.fromUserID = message.fromUserID;
@@ -89,7 +90,7 @@ package org.bigbluebutton.modules.chat.services
     private static const SPACE:String = " ";
     
     public function sendWelcomeMessage():void {
-      trace(LOG + "sendWelcomeMessage");
+	  LOGGER.debug("sendWelcomeMessage");
       var welcome:String = BBB.initUserConfigManager().getWelcomeMessage();
       if (welcome != "") {
         var welcomeMsg:ChatMessageVO = new ChatMessageVO();

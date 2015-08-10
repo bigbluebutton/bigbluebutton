@@ -39,7 +39,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{ResourceUtil.getInstance().getString('bbb.presentation.titleWithPres',[currentPresentation])}"
-	xmlns:views="org.bigbluebutton.modules.present.ui.views.*"
+	xmlns:views="org.bigbluebutton.modules.present.ui.views.*" 
+	xmlns:poll="org.bigbluebutton.modules.polling.views.*"
 	>
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -68,23 +69,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
-			import flexlib.containers.DockableToolBar;
 			import flexlib.mdi.events.MDIWindowEvent;
 			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.containers.TitleWindow;
 			import mx.controls.Menu;
-			import mx.core.Application;
-			import mx.effects.Move;
 			import mx.events.MenuEvent;
-			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
-			import mx.rpc.events.*;
 			
-			import org.bigbluebutton.common.IBbbCanvas;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.UsersUtil;
@@ -94,9 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
 			import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
-			import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollEvent;
-			import org.bigbluebutton.modules.polling.events.StopPollEvent;
 			import org.bigbluebutton.modules.polling.events.VotePollEvent;
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
@@ -105,19 +96,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationChangedEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.events.PresenterCommands;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.model.Page;
-			import org.bigbluebutton.modules.present.model.Presentation;
 			import org.bigbluebutton.modules.present.model.PresentationModel;
-			import org.bigbluebutton.modules.present.ui.views.PresentOptions;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              		
-      private static const LOG:String = "Present::PresentationWindow - ";
+			private static const LOGGER:ILogger = getClassLogger(PresentationWindow);      
       
       public static const TITLE:String = "Presentation";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page...";
@@ -148,7 +134,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			[Bindable] private var currentPresentation:String = "";
 			
-			[Bindable] private var baseIndex:int; 
 			[Bindable] private var presentOptions:PresentOptions;
 			
 			private var keyCombos:Object;
@@ -157,9 +142,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollMenuData:Array;
 			private var pollMenu:Menu;
 			
+			private var pollResultsPopUp:PollResultsModal
+			
 			private function init():void{
 				presentOptions = new PresentOptions();
-				baseIndex = presentOptions.baseTabIndex;;
 			}
 			
 			private function onCreationComplete():void{
@@ -175,13 +161,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				resourcesChanged();
 				
-				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.tabIndex = presentOptions.baseTabIndex;
 				
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				closeBtn.tabIndex = baseIndex+3;
-				
-				slideView.slideLoader.tabIndex = baseIndex+4;
 				hotkeyCapture();
                 
         //Necessary now because of module loading race conditions
@@ -194,19 +175,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         } else {
           becomeViewer();
         }
-		
-				pollMenuData = [];
-				pollMenuData.push({label: "Yes/No"});
-				pollMenuData.push({label: "True/False"});
-				pollMenuData.push({label: "A/B"});
-				pollMenuData.push({label: "A/B/C"});
-				pollMenuData.push({label: "A/B/C/D"});
-				pollMenuData.push({label: "A/B/C/D/E"});
-				pollMenuData.push({label: "A/B/C/D/E/F"});
-			}
+        
+        setPollMenuData();
+      }
 			
       private function addWhiteboardToolbar(event:TimerEvent):void {
-        trace(LOG + "Sending event to add whiteboard canvas.");
+        LOGGER.debug("Sending event to add whiteboard canvas.");
          // Tell the WhiteboardManager to add the toolbar
          var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
          e.window = this;
@@ -214,10 +188,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
             
 			private function hotkeyCapture():void{
-			    LogUtil.debug("Entering hotkeyCapture");
+			    LOGGER.debug("Entering hotkeyCapture");
 			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 			    ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-			    LogUtil.debug("Leaving hotkeyCapture");
+				LOGGER.debug("Leaving hotkeyCapture");
 		    }
 			
 			private function loadKeyCombos(modifier:String):void {
@@ -310,11 +284,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       private function bindToKeyboardEvents(event:NavigationEvent):void {
          if (event.bindToKeyboard) {
-            trace("******************************************** Binding to keyboard events ********************");
-            bindKeyboardEvents();
+			 LOGGER.debug("******************************************** Binding to keyboard events ********************");
+             bindKeyboardEvents();
          } else {
-            LogUtil.debug("********************************************* Unbinding to keyboard events *****************");
-            unbindKeyboardEvents();
+			 LOGGER.debug("********************************************* Unbinding to keyboard events *****************");
+             unbindKeyboardEvents();
          }
       }
             
@@ -498,20 +472,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function gotoPreviousSlide():void {
         var curPage:Page = PresentationModel.getInstance().getCurrentPage();
         if (curPage != null) {
-          trace(LOG + "Go to previous page. Current page [" + curPage.id + "]");
+          LOGGER.debug("Go to previous page. Current page [{0}]", [curPage.id]);
           dispatchEvent(new GoToPrevPageCommand(curPage.id));
         } else {
-          trace(LOG + "Go to previous page. CanNOT find current page.");
+          LOGGER.debug("Go to previous page. CanNOT find current page.");
         }
 			}
 			
 			private function gotoNextSlide():void {
           var curPage:Page = PresentationModel.getInstance().getCurrentPage();
           if (curPage != null) {
-            trace(LOG + "Go to next page. Current page [" + curPage.id + "]");
+            LOGGER.debug("Go to next page. Current page [{0}]", [curPage.id]);
             dispatchEvent(new GoToNextPageCommand(curPage.id));
           } else {
-            trace(LOG + "Go to next page. CanNOT find current page.");
+            LOGGER.debug("Go to next page. CanNOT find current page.");
           }
 			}
 			
@@ -524,7 +498,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
-        LogUtil.debug("OVERLAYING WHITEBOARD CANVAS");
+        LOGGER.debug("OVERLAYING WHITEBOARD CANVAS");
         e.canvas.acceptOverlayCanvas(slideView);
         slideView.acceptOverlayCanvas(e.canvas);
       }
@@ -552,6 +526,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					Accessibility.updateProperties();
 
 				addContextMenuItems();
+				
+				setPollMenuData();
 			}
 			
 			private function localeChanged(e:Event):void{
@@ -631,6 +607,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
 			}
 			
+			private function quickPollClicked(e:MouseEvent):void {
+				sendStartPollEvent(Button(e.target).name);
+			}
+			
+			private function setPollMenuData():void {
+				var resourceUtil:ResourceUtil = ResourceUtil.getInstance();
+				pollMenuData = [];
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.answer.Yes") + "/" + resourceUtil.getString("bbb.polling.answer.No")});
+				pollMenuData.push({label: resourceUtil.getString("bbb.polling.answer.True") + "/" + resourceUtil.getString("bbb.polling.answer.False")});
+				var constructedLabel:String = ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65));
+				for (var i:int=1; i<6; i++) {
+					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
+					pollMenuData.push({label: constructedLabel});
+				}
+			}
+			
 			private function onPollStartButtonClicked():void {
 				openPollTypeMenu();
 			}
@@ -708,9 +700,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// the event for this doesn't exist yet
 				if (UsersUtil.amIPresenter()) {
 					// display the results view
-					var popUp:PollResultsModal = PopUpManager.createPopUp(this, PollResultsModal, true) as PollResultsModal;
-					popUp.setPoll(e.poll);
-					PopUpManager.centerPopUp(popUp);
+					pollResultsPopUp = PopUpManager.createPopUp(this, PollResultsModal, true) as PollResultsModal;
+					pollResultsPopUp.setPoll(e.poll);
+					PopUpManager.centerPopUp(pollResultsPopUp);
 				} else {
 					//switch to vote state
 					setControlBarState("vote");
@@ -731,7 +723,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function voteButtonClickHandler(e:MouseEvent):void {
 				//still have to figure out how to determine which button was pressed
-				trace("vote clicked - answer is " + e.target.name);
+				LOGGER.debug("vote clicked - answer is {0}", [e.target.name]);
 				setControlBarState("presenter");
 				dispatchEvent(new VotePollEvent(Number(e.target.name)));
 			}
@@ -758,6 +750,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function pollStoppedHandler(e:PollStoppedEvent):void {
 				setControlBarState("presenter");
+				PopUpManager.removePopUp(pollResultsPopUp);
 			}
 			
 			private function pollShowResultHandler(e:PollShowResultEvent):void {
@@ -766,44 +759,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		]]>
 	</mx:Script>
+	
+	<pres:TabIndexer startIndex="{presentOptions.baseTabIndex + 1}"
+					 tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, slideView.slideLoader, uploadPres, pollStartBtn, quickPollBtn, backButton, btnSlideNum, forwardButton, zoomSlider, btnFitToWidth, btnFitToPage]}"/>
   	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
 	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true"
-		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" tabIndex="{baseIndex+4}"/>			    
+		mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>			    
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" height="{controlBarHeight}" styleName="presentationWindowControlsStyle">
 		<mx:HBox id="presenterControls" x="0" y="0" width="100%" height="100%" horizontalAlign="center">
 			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
-					   click="onUploadButtonClicked()" tabIndex="{baseIndex+5}"/>
+					   click="onUploadButtonClicked()"/>
 			<mx:Button id="pollStartBtn" visible="false" height="30" styleName="pollStartButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.polling.startButton.tooltip')}" 
-					   click="onPollStartButtonClicked()" tabIndex="{baseIndex+6}"/>
+					   click="onPollStartButtonClicked()"/>
+			<poll:QuickPollButton id="quickPollBtn" height="30"
+								  click="quickPollClicked(event)" />
 			<mx:Spacer width="100%" id="spacer1"/>
 			<mx:Button id="backButton" visible="false" width="45" height="30" styleName="presentationBackButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"
-					   tabIndex="{baseIndex+7}"/>
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"/>
 			<mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"
-					   tabIndex="{baseIndex+8}"/>
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.btnSlideNum.toolTip')}"/>
 			<mx:Button id="forwardButton" visible="false" width="45" height="30" styleName="presentationForwardButtonStyle"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"
-					   tabIndex="{baseIndex+9}"/>    				
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"/>    				
 			<mx:Spacer width="50%" id="spacer3"/>
 			<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}" styleName="presentationZoomSliderStyle"
 						minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
 						useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
 						dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"
-						tabIndex="{baseIndex+10}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
+						accessibilityName="{ResourceUtil.getInstance().getString('bbb.presentation.slider')}"/>
 			<mx:Button id="btnFitToWidth" visible="false" width="30" height="30" styleName="presentationFitToWidthButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
-					   click="onFitToPage(false)"
-					   tabIndex="{baseIndex+11}"/>
+					   click="onFitToPage(false)"/>
 			<mx:Button id="btnFitToPage" visible="false" width="30" height="30" styleName="presentationFitToPageButtonStyle"
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
-					   click="onFitToPage(true)"
-					   tabIndex="{baseIndex+12}"/>
+					   click="onFitToPage(true)"/>
 			<!-- This spacer is to prevent the whiteboard toolbar from overlapping the fit-ot-page button -->
 			<mx:Spacer width="30" height="30" id="spacer4"/>
 		</mx:HBox>

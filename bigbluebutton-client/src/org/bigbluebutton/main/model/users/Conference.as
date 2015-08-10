@@ -20,7 +20,8 @@ package org.bigbluebutton.main.model.users {
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.model.Config;
@@ -37,7 +38,7 @@ package org.bigbluebutton.main.model.users {
 	  public var dialNumber:String;
 	  [Bindable] public var record:Boolean;
     
-    private static const LOG:String = "main.model.users::Conference - ";
+	  private static const LOGGER:ILogger = getClassLogger(Conference);
     
 	  private var lockSettings:LockSettingsVO;
 	
@@ -112,16 +113,18 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function addUser(newuser:BBBUser):void {
-			trace("Adding new user [" + newuser.userID + "]");
-			if (! hasUser(newuser.userID)) {
-				trace("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
-				if (newuser.userID == me.userID) {
-					newuser.me = true;
-				}						
-				
-				users.addItem(newuser);
-				users.refresh();
-			}					
+			LOGGER.debug("Adding new user [{0}]", [newuser.userID]);
+			if (hasUser(newuser.userID)) {
+				removeUser(newuser.userID);
+			} else {
+				LOGGER.debug("Am I this new user [{0}, {1}]", [newuser.userID,me.userID]);
+			}
+			if (newuser.userID == me.userID) {
+				newuser.me = true;
+			}
+			
+			users.addItem(newuser);
+			users.refresh();
 		}
 		
 		public function setCamPublishing(publishing:Boolean):void {
@@ -216,7 +219,7 @@ package org.bigbluebutton.main.model.users {
 		public function isUserPresenter(userID:String):Boolean {
 			var user:Object = getUserIndex(userID);
 			if (user == null) {
-				LogUtil.warn("User not found with id=" + userID);
+				LOGGER.warn("User not found with id={0}", [userID]);
 				return false;
 			}
 			var a:BBBUser = user.participant as BBBUser;
@@ -226,7 +229,7 @@ package org.bigbluebutton.main.model.users {
 		public function removeUser(userID:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
-				trace("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
+				LOGGER.debug("removing user[{0},{1}]", [p.participant.name, p.participant.userID]);
 				users.removeItemAt(p.index);
 				//sort();
 				users.refresh();
@@ -493,7 +496,7 @@ package org.bigbluebutton.main.model.users {
 				lockOnJoinConfigurable = false; //If not set, default to false
 			}
 			
-			trace(LOG + " init lock settings from config");
+			LOGGER.debug("init lock settings from config");
       
 			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout, lockOnJoin, lockOnJoinConfigurable);
 			

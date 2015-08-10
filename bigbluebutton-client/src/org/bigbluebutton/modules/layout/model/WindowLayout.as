@@ -17,24 +17,21 @@
 *
 */
 package org.bigbluebutton.modules.layout.model {
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	import flash.utils.getQualifiedClassName;
+	
+	import mx.effects.Move;
+	import mx.effects.Parallel;
+	import mx.effects.Resize;
+	
+	import flexlib.mdi.containers.MDICanvas;
+	import flexlib.mdi.containers.MDIWindow;
+	
+	import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 	public class WindowLayout {
 
-		import flexlib.mdi.containers.MDICanvas;
-		import flexlib.mdi.containers.MDIWindow;
-		import mx.effects.Fade;
-		import mx.effects.Move;
-		import mx.effects.Parallel;
-		import mx.effects.Resize;
-		import mx.events.EffectEvent;
-		import flash.display.DisplayObject;
-		import flash.display.DisplayObjectContainer;
-		import flash.utils.Dictionary;
-		import flash.utils.getQualifiedClassName;
-		import flash.utils.Timer;
-		import flash.events.TimerEvent;
-		import org.bigbluebutton.common.LogUtil;
-		import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 		[Bindable] public var name:String;
 		[Bindable] public var width:Number;

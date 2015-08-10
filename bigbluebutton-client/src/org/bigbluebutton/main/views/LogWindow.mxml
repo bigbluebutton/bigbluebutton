@@ -28,30 +28,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.TextArea;
-			import flexlib.controls.Highlighter;
-			import org.bigbluebutton.util.logging.Logger;
-			import mx.logging.Log;
-			import mx.logging.LogEventLevel;
-			import mx.collections.ArrayCollection;
-			import mx.managers.PopUpManager;
 			
-			[Bindable]
-			public var logs:Logger;
+			import flexlib.controls.Highlighter;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.LOGGER_FACTORY;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.as3commons.logging.setup.SimpleTargetSetup;
+			import org.bigbluebutton.util.logging.LogWindowTarget;
+			
+			private static const LOGGER:ILogger = getClassLogger(LogWindow);      
 			private var highlighter:Highlighter;
 			private var textField:TextField;
 			
 			private function changeTarget():void {
 				if (!chkFlag.selected) {
-					logs.enableLogging(true)
+					var logWindowTarget : LogWindowTarget = new LogWindowTarget();
+					logWindowTarget.format = "{dateUTC} {time} :: {name} :: [{logLevel}] {message}";
+					LOGGER_FACTORY.setup = new SimpleTargetSetup(logWindowTarget);
 				} else {
-					logs.enableLogging(false)
+					LOGGER_FACTORY.setup = null;
 				}
 			}
 			
 			private function displayLogMessages():void {
 				this.textField = this.getTextField(this.txtOutput);
 				highlighter = new Highlighter(this.textField);
-				txtOutput.text = logs.messages;
 			}
 			
 			private function filter():void{

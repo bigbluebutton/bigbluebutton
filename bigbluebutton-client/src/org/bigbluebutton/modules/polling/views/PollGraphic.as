@@ -25,7 +25,12 @@ package org.bigbluebutton.modules.polling.views
 	
 	import mx.core.UIComponent;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	
 	public class PollGraphic extends UIComponent {
+		private static const LOGGER:ILogger = getClassLogger(PollGraphic);      
+
 		private const sx:int = 0;
 		private const sy:int = 0;
 		//private const h:uint = 100;
@@ -90,12 +95,12 @@ package org.bigbluebutton.modules.polling.views
 				graphics.endFill();
 				
 				var actualRH:Number = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
-				trace("as raw " + actualRH +" int " + int(actualRH));
+				LOGGER.debug("as raw {0} int {1}" + [actualRH, int(actualRH)]);
 				// Current problem is that the rowHeight is truncated. It would be nice if the extra pixels 
 				// could be distributed for a more even look.
 				var avgRowHeight:int = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
 				var extraVPixels:int = unscaledHeight - (_data.length * (avgRowHeight+vpadding) + vpadding);
-				trace("extraVPixels " + extraVPixels);
+				LOGGER.debug("extraVPixels {0}", [extraVPixels]);
 				var largestVal:int = -1;
 				var totalCount:Number = 0;
 				//find largest value

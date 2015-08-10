@@ -23,11 +23,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
   import flash.text.TextFormat;
   import flash.text.TextFormatAlign;
   
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   
   public class PollResultObject extends DrawObject {
-    //private const h:uint = 100;
+	private static const LOGGER:ILogger = getClassLogger(PollResultObject);      
+
+	//private const h:uint = 100;
     //private const w:uint = 280;
     private const bgFill:uint = 0xFFFFFF;
     private const colFill:uint = 0x000000;
@@ -83,12 +88,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         graphics.endFill();
         
         var actualRH:Number = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
-        trace("PollGraphic - as raw " + actualRH +" int " + int(actualRH));
+        LOGGER.debug("PollGraphic - as raw {0} int {1}", [actualRH, int(actualRH)]);
         // Current problem is that the rowHeight is truncated. It would be nice if the extra pixels 
         // could be distributed for a more even look.
         var avgRowHeight:int = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
         var extraVPixels:int = unscaledHeight - (_data.length * (avgRowHeight+vpadding) + vpadding);
-        trace("PollGraphic - extraVPixels " + extraVPixels);
+		LOGGER.debug("PollGraphic - extraVPixels {0}", [extraVPixels]);
         var largestVal:int = -1;
         var totalCount:Number = 0;
         //find largest value
@@ -250,7 +255,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     
     override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number, zoom:Number):void {
       var ao:Object = a.annotation;
-      trace("RESULT = " + JSON.stringify(a));
+	  LOGGER.debug("RESULT = {0}", [jsonXify(a)]);
 
       var arrayEnd:Number = (ao.points as Array).length;
       var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
@@ -262,8 +267,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       var ans:Array = new Array();
       for (var j:int = 0; j < answers.length; j++) {
 	      var ar:Object = answers[j];
-	      var rs:Object = {a: ar.key, v: ar.num_votes as Number};
-	      trace("poll result a=[" + ar.key + "] v=[" + ar.num_votes +"]");
+	      var rs:Object = {a: ResourceUtil.getInstance().getString('bbb.polling.answer.' + ar.key), v: ar.num_votes as Number};
+	      LOGGER.debug("poll result a=[{0}] v=[{1}]", [ar.key, ar.num_votes]);
 	      ans.push(rs);
       }
       

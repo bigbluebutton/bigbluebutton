@@ -807,10 +807,16 @@ class ApiController {
 				              meetingName(m.getName())
 				              createTime(m.getCreateTime())
 											createDate(formatPrettyDate(m.getCreateTime()))
+                      voiceBridge(m.getTelVoice())
+                      dialNumber(m.getDialNumber())
                       attendeePW(m.getViewerPassword())
                       moderatorPW(m.getModeratorPassword())
                       hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
                       running(m.isRunning() ? "true" : "false")
+                      participantCount(m.getNumUsers())
+                      listenerCount(m.getNumListenOnly())
+                      voiceParticipantCount(m.getNumVoiceJoined())
+                      videoCount(m.getNumVideos())
 											duration(m.duration)
 											hasUserJoined(m.hasUserJoined())
                     }
@@ -822,6 +828,87 @@ class ApiController {
       }
     }
   }
+
+  /************************************
+   *    GETSESSIONS API
+   ************************************/
+  def getSessionsHandler = {
+    String API_CALL = "getSessions"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    println("##### GETSESSIONS API CALL ####")
+    
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+    
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+    // END - backward compatibility
+    
+    ApiErrors errors = new ApiErrors()
+        
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");
+    }
+
+    if (errors.hasErrors()) {
+        respondWithErrors(errors)
+        return
+    }
+    
+    // Do we agree on the checksum? If not, complain.       
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+        respondWithErrors(errors)
+        return
+    }
+        
+    Collection<Meeting> sssns = meetingService.getSessions();
+    
+    if (sssns == null || sssns.isEmpty()) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {  
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+              sessions()
+              messageKey("noSessions")
+              message("no sessions were found on this server")
+            }
+          }
+        }
+      }
+    } else {
+      println("#### Has sessions [" + sssns.size() + "] #####")
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {  
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+                sessions {
+                  for (m in sssns) {
+                    meeting {
+                      meetingID(m.meetingID)
+                      meetingName(m.conferencename)
+                      userName(m.fullname)
+                    }
+                  }
+                }
+              }
+            }
+          }
+      }
+    }
+  }
+
   
   def getDefaultConfigXML = {
  
@@ -1652,6 +1739,7 @@ class ApiController {
     // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
     ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
 	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
+	recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 	
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -1987,6 +2075,7 @@ class ApiController {
             returncode(RESP_CODE_SUCCESS)
 			      meetingName(meeting.getName())
             meetingID(meeting.getExternalId())
+            internalMeetingID(meeting.getInternalId())
 			      createTime(meeting.getCreateTime())
 						createDate(formatPrettyDate(meeting.getCreateTime()))
 			      voiceBridge(meeting.getTelVoice())
@@ -2001,6 +2090,9 @@ class ApiController {
             startTime(meeting.getStartTime())
             endTime(meeting.getEndTime())
             participantCount(meeting.getNumUsers())
+            listenerCount(meeting.getNumListenOnly())
+            voiceParticipantCount(meeting.getNumVoiceJoined())
+            videoCount(meeting.getNumVideos())
             maxUsers(meeting.getMaxUsers())
             moderatorCount(meeting.getNumModerators())
             attendees() {
@@ -2009,6 +2101,10 @@ class ApiController {
                   userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
+                  isPresenter("${att.isPresenter()}")
+                  isListeningOnly("${att.isListeningOnly()}")
+                  hasJoinedVoice("${att.isVoiceJoined()}")
+                  hasVideo("${att.hasVideo()}")
 				  customdata(){
 					  meeting.getUserCustomData(att.externalUserId).each{ k,v ->
 						  "$k"("$v")
@@ -2042,6 +2138,8 @@ class ApiController {
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             createTime(meeting.getCreateTime())
+            voiceBridge(meeting.getTelVoice())
+            dialNumber(meeting.getDialNumber())
 						createDate(formatPrettyDate(meeting.getCreateTime()))
 						hasUserJoined(meeting.hasUserJoined())
 						duration(meeting.duration)

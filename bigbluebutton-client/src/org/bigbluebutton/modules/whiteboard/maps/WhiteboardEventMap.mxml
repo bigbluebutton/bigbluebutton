@@ -23,6 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" xmlns:mate="org.bigbluebutton.common.mate.*">
 	<mx:Script>
 		<![CDATA[
+      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ModuleStartedEvent;
       import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
       import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -120,6 +121,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{PageLoadedEvent.PAGE_LOADED_EVENT}" >
     <MethodInvoker generator="{WhiteboardManager}" method="handlePageChangedEvent" arguments="{event}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}" >
+    <MethodInvoker generator="{WhiteboardManager}" method="removeAnnotationsHistory" />
   </EventHandlers>
   
     <Injectors target="{WhiteboardManager}">

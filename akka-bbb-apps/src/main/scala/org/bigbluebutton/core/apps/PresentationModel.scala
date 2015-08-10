@@ -10,7 +10,7 @@ case class Page(id: String, num: Int,
   thumbUri: String = "",
   swfUri: String,
   txtUri: String,
-  pngUri: String,
+  svgUri: String,
   current: Boolean = false,
   xOffset: Double = 0, yOffset: Double = 0,
   widthRatio: Double = 100D, heightRatio: Double = 100D)

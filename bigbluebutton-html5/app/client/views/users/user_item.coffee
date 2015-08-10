@@ -26,5 +26,49 @@ Template.displayUserIcons.helpers
 Template.usernameEntry.events
   'click .usernameEntry': (event) ->
     userIdSelected = @.userId
-    unless userIdSelected is null or userIdSelected is BBB.getCurrentUser()?.userId
-      setInSession "inChatWith", userIdSelected
+    unless userIdSelected is null
+      if userIdSelected is BBB.getCurrentUser()?.userId
+        setInSession "inChatWith", "PUBLIC_CHAT"
+      else
+        setInSession "inChatWith", userIdSelected
+    if isLandscape()
+      $("#newMessageInput").focus()
+    if isPortrait() or isPortraitMobile()
+      toggleUsersList()
+      $("#newMessageInput").focus()
+
+  'click .gotUnreadMail': (event) ->
+    _this = @
+    currentId = getInSession('userId')
+    if currentId isnt undefined and currentId is _this.userId
+      _id = "PUBLIC_CHAT"
+    else 
+      _id = _this.userId
+    chats = getInSession('chats')
+    if chats isnt undefined
+      for chat in chats
+        if chat.userId is _id
+          chat.gotMail = false
+          chat.number = 0
+          break
+      setInSession 'chats', chats
+
+Template.usernameEntry.helpers
+  hasGotUnreadMailClass: (userId) ->
+    chats = getInSession('chats')
+    if chats isnt undefined
+      for chat in chats
+        if chat.userId is userId and chat.gotMail
+          return true
+    return false
+
+  getNumberOfUnreadMessages: (userId) ->
+    chats = getInSession('chats')
+    if chats isnt undefined
+      for chat in chats
+        if chat.userId is userId and chat.gotMail
+          if chat.number > 9
+            return "9+"
+          else
+            return chat.number
+    return
