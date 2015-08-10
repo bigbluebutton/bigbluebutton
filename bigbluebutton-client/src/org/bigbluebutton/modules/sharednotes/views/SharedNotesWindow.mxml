@@ -54,7 +54,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.sharednotes.views.components.PatchableTextArea;
+			import org.bigbluebutton.modules.sharednotes.views.components.CustomRichTextEditor;
 			import org.bigbluebutton.modules.sharednotes.views.SharedNotesNameWindow;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
@@ -83,11 +83,11 @@
 			public function onCreationComplete():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
 
-				richTextEditor.addEventListener("SHARED_NOTES_SAVED", function(e:Event):void {
+				customRichTextEditor.addEventListener("SHARED_NOTES_SAVED", function(e:Event):void {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
 				});
 
-				richTextEditor.addEventListener(Event.CHANGE, function(e:Event):void {
+				customRichTextEditor.addEventListener(Event.CHANGE, function(e:Event):void {
 					if (!sendUpdateTimer.running) {
 						sendUpdateTimer.reset();
 						sendUpdateTimer.start();
@@ -111,12 +111,12 @@
 				updateTitle();
 			}
 
-			private function initRichTextEditor():void {
-				richTextEditor.linkTextInput.visible = false;
-				richTextEditor.linkTextInput.height = 0;
+			private function initCustomRichTextEditor():void {
+				customRichTextEditor.linkTextInput.visible = false;
+				customRichTextEditor.linkTextInput.height = 0;
 				// Bullets are messy: issue #1715
-				richTextEditor.bulletButton.visible = false;
-				richTextEditor.bulletButton.height = 0;
+				customRichTextEditor.bulletButton.visible = false;
+				customRichTextEditor.bulletButton.height = 0;
 			}
 
 			private function onTextAreaEvent(e:Event):void {
@@ -131,27 +131,28 @@
 				var note:Object = notes[noteId];
 				_document = note["document"];
 				_noteName = note["name"];
-				richTextEditor.htmlText = _document;
+				customRichTextEditor.htmlText = _document;
 				updateTitle();
 			}
 
 			private function sendPatch():void {
-				var clientText:String = new String(richTextEditor.htmlText); // a snapshot of the client text
+				var clientText:String = new String(customRichTextEditor.htmlText); // a snapshot of the client text
 				LogUtil.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
-					richTextEditor.textArea.editable = false;
+					customRichTextEditor.textArea.editable = false;
 					// Why this?
 					onSyncing();
 //					trace("ADD LOCAL");
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.noteId = noteId;
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
-					sendPatchEvent.beginIndex = richTextEditor.textArea.selectionBeginIndex;
-					sendPatchEvent.endIndex = richTextEditor.textArea.selectionEndIndex;
+					// TODO: We must review this
+					sendPatchEvent.beginIndex = customRichTextEditor.textArea.selectionBeginIndex;
+					sendPatchEvent.endIndex = customRichTextEditor.textArea.selectionEndIndex;
 					//patchHistory.push(messageToSend.patchData);
 					_dispatcher.dispatchEvent(sendPatchEvent);
 					_document = clientText;
-					richTextEditor.textArea.editable = true;
+					customRichTextEditor.textArea.editable = true;
 					onSynced();
 				}
 			}
@@ -164,10 +165,8 @@
 //					trace("SharedNotesWindow: before the patch\n" + _document);
 //					trace("SharedNotesWindow: after the patch\n" + result);
 					_document = result;
-					// TODO: We need to review this and make the patch on the htmlText
-//					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
 //					trace("SharedNotes: patching local with server modifications");
-					richTextEditor.htmlText = _document;
+					customRichTextEditor.patch(e.patch);
 				}
 			}
 
@@ -183,23 +182,7 @@
 			
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
-				var filename:String = title.replace(/\s+/g, '-').toLowerCase();
-				var _fileRef:FileReference = new FileReference();
-				_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
-					dispatchEvent(new Event("SHARED_NOTES_SAVED"));
-				});
-
-				var cr:String = String.fromCharCode(13);
-				var lf:String = String.fromCharCode(10);
-				var crlf:String = String.fromCharCode(13, 10);
-
-				var textToExport:String = richTextEditor.htmlText;
-				textToExport = textToExport.replace(new RegExp(crlf, "g"), '\n');
-				textToExport = textToExport.replace(new RegExp(cr, "g"), '\n');
-				textToExport = textToExport.replace(new RegExp(lf, "g"), '\n');
-				textToExport = textToExport.replace(new RegExp('\n', "g"), crlf);
-
-				_fileRef.save(textToExport, filename+".html");
+				customRichTextEditor.saveNotesToFile(title);
 			}
 
 			protected function btnNew_clickHandler(event:MouseEvent):void
@@ -209,7 +192,7 @@
 			}
 
 			protected function btnToolbar_clickHandler(event:MouseEvent):void {
-				richTextEditor.showControlBar = !richTextEditor.showControlBar;
+				customRichTextEditor.showControlBar = !customRichTextEditor.showControlBar;
 			}
 
 			public function getPrefferedPosition():String{
@@ -234,9 +217,7 @@
 	</mx:Script>
 
 	<mx:VBox width="100%" height="100%">
-		<mx:RichTextEditor width="100%" height="100%" id="richTextEditor" showControlBar="false" dropShadowEnabled="false" headerHeight="0" borderThicknessLeft="0" borderThicknessRight="0" borderThicknessTop="0" borderThicknessBottom="0" minWidth="120" minHeight="100" initialize="initRichTextEditor()"/>
-
-		<!--components:PatchableTextArea visible="false" id="textArea" text="{richTextEditor.htmlText}"/-->
+		<components:CustomRichTextEditor width="100%" height="100%" id="customRichTextEditor" showControlBar="false" dropShadowEnabled="false" headerHeight="0" borderThicknessLeft="0" borderThicknessRight="0" borderThicknessTop="0" borderThicknessBottom="0" minWidth="120" minHeight="100" initialize="initCustomRichTextEditor()"/>
 
 		<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
 			<mx:Button id="btnNew" width="26" height="26" click="btnNew_clickHandler(event)" icon="@Embed(source='images/ic_note_add_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
