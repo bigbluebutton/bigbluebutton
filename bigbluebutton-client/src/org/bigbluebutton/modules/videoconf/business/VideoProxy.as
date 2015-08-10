@@ -208,7 +208,7 @@ package org.bigbluebutton.modules.videoconf.business
 				ns.videoStreamSettings = h264;
 			}
 			
-			ns.publish(e.stream);
+			ns.publish(e.stream, "live");
 			camerasPublishing[e.stream] = ns;
 		}
 		
