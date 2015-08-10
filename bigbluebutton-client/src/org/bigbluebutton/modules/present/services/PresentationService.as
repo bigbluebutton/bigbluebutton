@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.present.services
     private function copyPageVOToPage(p: PageVO):Page {
       var page:Page = new Page(p.id, p.num, p.current,
                                p.swfUri, p.thumbUri, p.txtUri,
-                               p.pngUri, p.xOffset, p.yOffset,
+                               p.svgUri, p.xOffset, p.yOffset,
                                p.widthRatio, p.heightRatio);      
       return page;      
     }
