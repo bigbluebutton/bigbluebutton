@@ -18,8 +18,17 @@ class MeetingModel {
 
   private var voiceRecordingFilename: String = ""
   private var rtmpBroadcastingUrl: String = ""
+  private var deskShareStarted = false
 
   val startedOn = timeNowInMinutes;
+
+  def getDeskShareStarted(): Boolean = {
+    return deskShareStarted
+  }
+
+  def setDeskShareStarted(b: Boolean) {
+    deskShareStarted = b
+  }
 
   def recordingStarted() {
     recording = true

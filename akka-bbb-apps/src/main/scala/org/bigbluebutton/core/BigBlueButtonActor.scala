@@ -54,11 +54,11 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
-    //    println("searching meeeting with voiceConfId=" + voiceConfId)
-    //    meetings.values.find(m => {
-    //      println("^^^^^^" + m.mProps.voiceBridge)
-    //      m.mProps.voiceBridge == voiceConfId
-    //    })
+    // println("searching meeeting with voiceConfId=" + voiceConfId)
+    // meetings.values.find(m => {
+    //   println("^^^^^^" + m.mProps.voiceBridge)
+    //   m.mProps.voiceBridge == voiceConfId
+    // })
     meetings.values.find(m => m.mProps.voiceBridge == voiceConfId)
   }
 
@@ -263,7 +263,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
   private def handleDeskShareRecordingStartedRequest(msg: DeskShareRecordingStartedRequest) {
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
-//    println("\nBBBActor: handleDeskShareRecordingStartedRequest" + msg.conferenceName + msg.filename + "\n")
+    //    println("\nBBBActor: handleDeskShareRecordingStartedRequest" + msg.conferenceName + msg.filename + "\n")
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
@@ -279,7 +279,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
   private def handleDeskShareRecordingStoppedRequest(msg: DeskShareRecordingStoppedRequest) {
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
-//    println("\nBBBActor: handleDeskShareRecordingStoppedRequest" + msg.conferenceName + msg.filename + "\n")
+    //    println("\nBBBActor: handleDeskShareRecordingStoppedRequest" + msg.conferenceName + msg.filename + "\n")
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
@@ -298,8 +298,8 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
       var originalConfId = msg.conferenceName.replace(DESKSHARE_CONFERENCE_NAME_SUFFIX, "")
-      println("\nBBBActor: handleDeskShareStartedRequest" + msg.conferenceName + msg.callerId
-        + originalConfId + msg.callerIdName + "\n")
+      // println("\nBBBActor: handleDeskShareStartedRequest" + msg.conferenceName + msg.callerId
+      //   + originalConfId + "\n")
       findMeetingWithVoiceConfId(originalConfId) foreach { m =>
         {
           m.actorRef ! msg
@@ -312,7 +312,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
-//    println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.callerId + msg.callerIdName + "\n")
+    //    println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.callerId + msg.callerIdName + "\n")
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
@@ -328,7 +328,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
-//    println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.streamname + msg.timestamp + "\n")
+    //    println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.streamname + msg.timestamp + "\n")
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {
@@ -344,7 +344,7 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
   }
 
   private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
-//    println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.streamname + msg.timestamp + "\n")
+    //    println("\nBBBActor: handleDeskShareStoppedRequest" + msg.conferenceName + msg.streamname + msg.timestamp + "\n")
     val DESKSHARE_CONFERENCE_NAME_SUFFIX = "-DESKSHARE"
 
     if (msg.conferenceName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX)) {

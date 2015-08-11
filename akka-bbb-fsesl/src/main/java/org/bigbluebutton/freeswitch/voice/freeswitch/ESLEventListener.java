@@ -298,26 +298,26 @@ public class ESLEventListener implements IEslEventListener {
 
     private String getDeskShareRecordFilenameFromEvent(EslEvent e) {
         String rawPath = e.getEventHeaders().get("Path");
-//        System.out.println("raw=" + rawPath);
+        // System.out.println("raw=" + rawPath);
         String path = rawPath.substring(rawPath.lastIndexOf("}") + 1);
-//        System.out.println("path="+path);
+        // System.out.println("path="+path);
         return path;
     }
 
     // Distinguish between recording to a file:
-    // {channels=2,samplerate=48000,vw=1920,vh=1080,fps=15.00}rtmp://192.168.0.109/live/abc/dev-test
-    // and broadcasting a stream:
     // /path/to/a/file.mp4
+    // and broadcasting a stream:
+    // {channels=2,samplerate=48000,vw=1920,vh=1080,fps=15.00}rtmp://192.168.0.109/live/abc/dev-test
     private Boolean isRTMPStream(EslEvent e) {
         String path = e.getEventHeaders().get("Path");
 
         if (path.contains("rtmp") && path.contains("channels")
                 && path.contains("samplerate") && path.contains("vw")
                 && path.contains("vh") && path.contains("fps")) {
-            System.out.println("\n\n\n\nSTREAM\n\n\n");
+            // System.out.println("\n\n\n\nSTREAM\n\n\n");
             return true;
         } else {
-            System.out.println("\n\n\n\nFILE\n\n\n");
+            // System.out.println("\n\n\n\nFILE\n\n\n");
             return false;
         }
     }
