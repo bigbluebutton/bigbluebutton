@@ -103,7 +103,8 @@ ToolTip {
 .pollResondersLabelStyle {
 	color: #444444;
 	fontFamily: Arial;
-	fontSize: 12;
+	fontSize: 13;
+	fontWeight: bold;
 }
 
 Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
