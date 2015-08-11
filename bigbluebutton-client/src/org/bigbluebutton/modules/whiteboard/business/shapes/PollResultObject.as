@@ -79,7 +79,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
     
     private function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-//      graphics.clear();
+      graphics.clear();
     
       if (_data != null && _data.length > 0) {
         graphics.lineStyle(2);
