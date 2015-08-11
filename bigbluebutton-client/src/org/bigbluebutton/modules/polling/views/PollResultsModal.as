@@ -34,7 +34,7 @@ package org.bigbluebutton.modules.polling.views
 			super();
 			
 			styleName = "micSettingsWindowStyle";
-			width = 300;
+			width = 400;
 			height = 300;
 			setStyle("verticalGap", 15);
 			showCloseButton = false;
@@ -56,23 +56,25 @@ package org.bigbluebutton.modules.polling.views
 			hrule.percentWidth = 100;
 			addChild(hrule);
 			
+			_pollGraphic = new PollGraphic();
+			_pollGraphic.data = null;
+			_pollGraphic.width = 300;
+			_pollGraphic.minWidth = 130;
+			addChild(_pollGraphic);
+			
 			_respondersLabel = new Label();
 			_respondersLabel.styleName = "pollResondersLabelStyle";
 			_respondersLabel.text = " ";// ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.novotes');
 			addChild(_respondersLabel);
-			
-			_pollGraphic = new PollGraphic();
-			_pollGraphic.data = null;
-			_pollGraphic.width = 200;
-			_pollGraphic.minWidth = 130;
-			addChild(_pollGraphic);
 			
 			hrule = new HRule();
 			hrule.percentWidth = 100;
 			addChild(hrule);
 			
 			var botBox:HBox = new HBox();
+			botBox.percentWidth = 90;
 			botBox.setStyle("gap", 10);
+			botBox.setStyle("horizontalAlign", "right");
 			
 			_publishBtn = new Button();
 			_publishBtn.label = ResourceUtil.getInstance().getString('bbb.polling.publishButton.label');
@@ -113,7 +115,11 @@ package org.bigbluebutton.modules.polling.views
 			}
 			
 			_pollGraphic.data = resultData;
-			_respondersLabel.text = ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.text', [e.result.numResponders + "/" + e.result.numRespondents]);
+			if (e.result.numResponders != e.result.numRespondents) {
+				_respondersLabel.text = e.result.numResponders + "/" + e.result.numRespondents;
+			} else {
+				_respondersLabel.text = ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.finished');
+			}
 		}
 		
 		private function handlePublishClick(e:MouseEvent):void {

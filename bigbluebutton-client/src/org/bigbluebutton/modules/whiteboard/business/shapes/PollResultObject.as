@@ -36,11 +36,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     //private const w:uint = 280;
     private const bgFill:uint = 0xFFFFFF;
     private const colFill:uint = 0x000000;
-    private const vpadding:Number = 10;
-    private const hpadding:Number = 5;
-    private const labelStartWidth:int = 40;
-    private const percentStartWidth:int = 40;
-	
+    private const vPaddingPercent:Number = 0.25;
+    private const hPaddingPercent:Number = 0.1;
+    private const labelWidthPercent:Number = 0.3;
+    private const labelMaxWidthInPixels:int = 40;
+    
     private var sampledata:Array = [{a:"A", v:3}, {a:"B", v:1}, {a:"C", v:5}, {a:"D", v:8}];
     private var _data:Array;
     private var _textFields:Array;
@@ -79,7 +79,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     }
     
     private function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-//      graphics.clear();
+      graphics.clear();
     
       if (_data != null && _data.length > 0) {
         graphics.lineStyle(2);
@@ -87,13 +87,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         graphics.drawRect(0, 0, unscaledWidth, unscaledHeight);
         graphics.endFill();
         
+        var vpadding:int = (unscaledHeight*vPaddingPercent)/(_data.length+1);
+        var hpadding:int = (unscaledWidth*hPaddingPercent)/(4);
+        
         var actualRH:Number = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
         LOGGER.debug("PollGraphic - as raw {0} int {1}", [actualRH, int(actualRH)]);
         // Current problem is that the rowHeight is truncated. It would be nice if the extra pixels 
         // could be distributed for a more even look.
         var avgRowHeight:int = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
         var extraVPixels:int = unscaledHeight - (_data.length * (avgRowHeight+vpadding) + vpadding);
-		LOGGER.debug("PollGraphic - extraVPixels {0}", [extraVPixels]);
+        LOGGER.debug("PollGraphic - extraVPixels {0}", [extraVPixels]);
         var largestVal:int = -1;
         var totalCount:Number = 0;
         //find largest value
@@ -109,6 +112,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var percentArray:Array = new Array();
         var minFontSize:int = 20;
         var currFontSize:int;
+        
+        var startingLabelWidth:Number = Math.min(labelWidthPercent*unscaledWidth, labelMaxWidthInPixels);
         
         graphics.lineStyle(2);
         graphics.beginFill(colFill, 1.0);
@@ -126,7 +131,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           // add row label
           answerText = _textFields[currTFIdx++];
           answerText.text = _data[j].a;
-          answerText.width = labelStartWidth;
+          answerText.width = startingLabelWidth;
           answerText.height = curRowHeight;
           answerText.selectable = false;
           //addChild(answerText);
@@ -141,7 +146,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           percentText = _textFields[currTFIdx++];;// new TextField();
           var percentNum:Number = (totalCount == 0 ? 0 : ((_data[j].v/totalCount)*100));
           percentText.text = Math.round(percentNum).toString() + "%";
-          percentText.width = percentStartWidth;
+          percentText.width = startingLabelWidth;
           percentText.height = curRowHeight;
           percentText.selectable = false;
           //addChild(percentText);

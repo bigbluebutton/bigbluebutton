@@ -30,8 +30,23 @@ package org.bigbluebutton.modules.polling.views {
 		}
 		
 		private function parseSlideText(text:String):void {
-			var regEx:RegExp = new RegExp("\n[^\s][\.\)]", "g");
-			var matchedArray:Array = text.match(regEx);
+			var numRegex:RegExp = new RegExp("\n[^\s][\.\)]", "g");
+			var ynRegex:RegExp = new RegExp((ResourceUtil.getInstance().getString("bbb.polling.answer.Yes")+
+				"\s*/\s*"+
+				ResourceUtil.getInstance().getString("bbb.polling.answer.No")).toLowerCase());
+			var nyRegex:RegExp = new RegExp((ResourceUtil.getInstance().getString("bbb.polling.answer.No")+
+				"\s*/\s*"+
+				ResourceUtil.getInstance().getString("bbb.polling.answer.Yes")).toLowerCase());
+			var tfRegex:RegExp = new RegExp((ResourceUtil.getInstance().getString("bbb.polling.answer.True")+
+				"\s*/\s*"+
+				ResourceUtil.getInstance().getString("bbb.polling.answer.False")).toLowerCase());
+			var ftRegex:RegExp = new RegExp((ResourceUtil.getInstance().getString("bbb.polling.answer.False")+
+				"\s*/\s*"+
+				ResourceUtil.getInstance().getString("bbb.polling.answer.True")).toLowerCase());
+			
+			text = text.toLowerCase();
+			
+			var matchedArray:Array = text.match(numRegex);
 			LOGGER.debug("Parse Result: {0} {1}", [matchedArray.length, matchedArray.join(" ")]);
 			if (matchedArray.length > 1) {
 				var constructedLabel:String = ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65));
@@ -41,6 +56,18 @@ package org.bigbluebutton.modules.polling.views {
 				}
 				label = constructedLabel;
 				name = "A-"+len;
+				visible = true;
+			} else if (text.search(ynRegex) > -1 || text.search(nyRegex) > -1) {
+				label = ResourceUtil.getInstance().getString("bbb.polling.answer.Yes")+
+						"/"+
+						ResourceUtil.getInstance().getString("bbb.polling.answer.No");
+				name = "YN";
+				visible = true;
+			} else if (text.search(tfRegex) > -1 || text.search(ftRegex) > -1) {
+				label = ResourceUtil.getInstance().getString("bbb.polling.answer.True")+
+					"/"+
+					ResourceUtil.getInstance().getString("bbb.polling.answer.False");
+				name = "TF";
 				visible = true;
 			} else {
 				visible = false;
