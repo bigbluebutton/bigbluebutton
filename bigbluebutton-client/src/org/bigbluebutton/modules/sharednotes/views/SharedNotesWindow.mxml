@@ -87,6 +87,14 @@
 					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
 				});
 
+				/*
+				 * This is a workaround on a Flex issue,
+				 * for more details see http://dev.mconf.org/redmine/issues/1712
+				 */
+				this.addEventListener(flexlib.mdi.events.MDIWindowEvent.FOCUS_END, function(e:MDIWindowEvent):void {
+					customRichTextEditor.htmlText = _document;
+				});
+
 				customRichTextEditor.addEventListener(Event.CHANGE, function(e:Event):void {
 					if (!sendUpdateTimer.running) {
 						sendUpdateTimer.reset();
@@ -114,7 +122,8 @@
 			private function initCustomRichTextEditor():void {
 				customRichTextEditor.linkTextInput.visible = false;
 				customRichTextEditor.linkTextInput.height = 0;
-				// Bullets are messy: issue #1715
+
+				// Bullets are messy: http://dev.mconf.org/redmine/issues/1715
 				customRichTextEditor.bulletButton.visible = false;
 				customRichTextEditor.bulletButton.height = 0;
 			}
