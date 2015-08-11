@@ -473,7 +473,7 @@
 					switch(keyCombos[keyPress]) {
 						case FOCUS_USERS_LIST:
 							remoteFocusUsers();
-							break;	
+							break;
 						case MAKE_PRESENTER:
 							remoteMakePresenter();
 							break;
