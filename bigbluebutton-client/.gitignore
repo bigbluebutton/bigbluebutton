@@ -4,9 +4,11 @@ bundles.txt
 build/
 bin/
 bin-debug/
+bin-release/
 client/
 locale/.tx/
 bbbResources.properties.*
 asdoc/
 hs_err_pid*
 html-templateBackup/
+html-template/

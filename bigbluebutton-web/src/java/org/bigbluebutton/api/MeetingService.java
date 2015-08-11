@@ -225,6 +225,7 @@ public class MeetingService implements MessageListener {
 	  		
 				destroyMeeting(m.getInternalId());			
 				meetings.remove(m.getInternalId());
+				removeUserSessions(m.getInternalId());
 				continue;
 			}
 			
@@ -257,9 +258,13 @@ public class MeetingService implements MessageListener {
 		return meetings.isEmpty() ? Collections.<Meeting>emptySet() : Collections.unmodifiableCollection(meetings.values());
 	}
 	
+	public Collection<UserSession> getSessions() {
+		log.debug("Num sessions = [" + sessions.size() + "]");
+		return sessions.isEmpty() ? Collections.<UserSession>emptySet() : Collections.unmodifiableCollection(sessions.values());
+	}
+	
 	public void createMeeting(Meeting m) {
     handle(new CreateMeeting(m));
-//		handleCreateMeeting(m);
 	}
 
 	private void handleCreateMeeting(Meeting m) {
@@ -459,7 +464,7 @@ public class MeetingService implements MessageListener {
 	
 	public void endMeeting(String meetingId) {		
 		log.info("Received request to end meeting=[{}]", meetingId);
-    handle(new EndMeeting(meetingId));
+		handle(new EndMeeting(meetingId));
 	}
 	
 	private void processEndMeeting(EndMeeting message) {

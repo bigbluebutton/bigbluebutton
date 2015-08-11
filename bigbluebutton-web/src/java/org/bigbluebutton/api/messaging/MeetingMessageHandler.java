@@ -14,9 +14,10 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.common.messages.BbbAppsIsAliveMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -64,7 +65,7 @@ public class MeetingMessageHandler implements MessageHandler {
 					  }
 				}				
 			}
-	  } else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SYSTEM_CHANNEL)) {
+	  } else if (channel.equalsIgnoreCase(MessagingConstants.BBB_APPS_KEEP_ALIVE_CHANNEL)) {
 	  	
 			if (obj.has("header") && obj.has("payload")) {
 				JsonObject header = (JsonObject) obj.get("header");
@@ -74,9 +75,9 @@ public class MeetingMessageHandler implements MessageHandler {
 					String messageName = header.get("name").getAsString();
 //					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
 				  for (MessageListener listener : listeners) {
-					  if (MessagingConstants.KEEP_ALIVE_REPLY.equalsIgnoreCase(messageName)){
-						  String pongId = payload.get("keep_alive_id").getAsString();
-						  listener.handle(new KeepAliveReply(pongId));
+					  if (BbbAppsIsAliveMessage.BBB_APPS_IS_ALIVE.equalsIgnoreCase(messageName)){
+						  BbbAppsIsAliveMessage msg = BbbAppsIsAliveMessage.fromJson(message);
+						  listener.handle(new KeepAliveReply(msg.startedOn, msg.timestamp));
 					  } 
 				  }
 				}				

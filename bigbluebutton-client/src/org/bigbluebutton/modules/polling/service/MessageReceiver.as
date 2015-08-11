@@ -18,42 +18,29 @@
  */
 package org.bigbluebutton.modules.polling.service
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.polling.events.PollEvent;
-  import org.bigbluebutton.modules.polling.model.Poll;
-  import org.bigbluebutton.modules.polling.model.PollingModel;
 
   public class MessageReceiver implements IMessageListener
   {
-    private static const LOG:String = "Poll::MessageReceiver - ";
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
     
-    /* Injected by Mate */
-    public var processor:PollDataProcessor;
+    private var processor:PollDataProcessor;
     
-    public function MessageReceiver() {
-      trace(LOG + " registering message listener");
+    public function MessageReceiver(processor:PollDataProcessor) {
+      LOGGER.debug("registering message listener");
+	  this.processor = processor;
       BBB.initConnectionManager().addMessageListener(this);
     }
 
     public function onMessage(messageName:String, message:Object):void {
-      trace(LOG + "received message " + messageName);
+      LOGGER.debug("received message {0}", [messageName]);
 
       switch (messageName) {
-        case "pollGetPollsReply":
-          processor.handleGetPollsReply(message);
-          break;
-        case "pollCreatedMessage":
-          processor.handlePollCreatedMesage(message);
-          break;			
-        case "pollUpdatedMessage":
-          processor.handlePollUpdatedMesage(message);
-          break;
-        case "pollDestroyedMessage":
-          processor.handlePollDestroyedMesage(message);
+        case "pollShowResultMessage":
+          processor.handlePollShowResultMessage(message);
           break;
         case "pollStartedMessage":
           processor.handlePollStartedMesage(message);
@@ -61,13 +48,10 @@ package org.bigbluebutton.modules.polling.service
         case "pollStoppedMessage":
           processor.handlePollStoppedMesage(message);
           break;
-        case "pollResultUpdatedMessage":
-          processor.handlePollResultUpdatedMesage(message);
+        case "pollUserVotedMessage":
+          processor.handlePollUserVotedMessage(message);
           break;
       }
     }
-
-
-   
   }
 }

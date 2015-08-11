@@ -28,21 +28,22 @@ package org.bigbluebutton.modules.notes.services
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
-  import flash.utils.ByteArray;  
+  
   import mx.collections.ArrayCollection;
   import mx.utils.Base64Decoder;
-  import mx.utils.Base64Encoder; 
+  import mx.utils.Base64Encoder;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.notes.events.RetrieveNotesErrorEvent;
   import org.bigbluebutton.modules.notes.events.RetrieveNotesSuccessEvent;
-  import org.bigbluebutton.modules.notes.events.SaveErrorEvent;
-  import org.bigbluebutton.modules.notes.events.SaveSuccessEvent;
   import org.bigbluebutton.modules.notes.models.Note;
   import org.bigbluebutton.modules.notes.models.NotesOptions;
   
   public class RetrieveNotesService
   {
-    private static const LOG:String = "RetrieveNotesService - ";
+	private static const LOGGER:ILogger = getClassLogger(RetrieveNotesService);      
     
     private var _options:NotesOptions;
     private var _request:URLRequest = new URLRequest();
@@ -64,7 +65,7 @@ package org.bigbluebutton.modules.notes.services
     }
        
     public function retrieveNotes():void {
-      trace(LOG + " retrieveNotes");
+      LOGGER.debug("retrieveNotes");
       
       //_request.url = _options.saveURL + "/notes";
       _request.url = _options.saveURL;
@@ -79,7 +80,7 @@ package org.bigbluebutton.modules.notes.services
         _request.data = _vars;
         _loader.load(_request);
       } catch (error:Error) {
-        trace("Unable to load requested document.");
+		LOGGER.debug("Unable to load requested document.");
         var errorEvent:RetrieveNotesErrorEvent = new RetrieveNotesErrorEvent();
         _dispatcher.dispatchEvent(errorEvent);
       }
@@ -107,12 +108,12 @@ package org.bigbluebutton.modules.notes.services
       var list:XMLList = getNotes(xml);
       var item:XML;
       for each(item in list){
-        trace("Saving note [" + item.noteID + "][" + item.text + "]");
+		LOGGER.debug("Saving note [{0}][{1}]", [item.noteID, item.text]);
         var note:Note = new Note();
         var dec:Base64Decoder = new Base64Decoder();
         dec.decode(item.text)
         var decNote:String = dec.toByteArray().toString();
-        trace("Saving note [" + item.noteID + "][" + decNote + "]");
+		LOGGER.debug("Saving note [{0}][{1}]", [item.noteID, decNote]);
         note.note = decNote;
         note.noteID =  item.noteID;
         note.saved = true;
@@ -123,34 +124,33 @@ package org.bigbluebutton.modules.notes.services
     }
     
     private function getNotes(xml:XML):XMLList{
-      trace("*** [" + xml.toXMLString() + "]");
+	  LOGGER.debug("*** [{0}]", [xml.toXMLString()]);
       return xml.notes.note;
     }
         
     private function openHandler(event:Event):void {
-      trace("openHandler: " + event);
+	  LOGGER.debug("openHandler: {0}", [event]);
     }
     
     private function progressHandler(event:ProgressEvent):void {
-      trace("progressHandler loaded:" + event.bytesLoaded + " total: " + event.bytesTotal);
+      LOGGER.debug("progressHandler loaded:{0} total: {1}" + [event.bytesLoaded, event.bytesTotal]);
     }
     
     private function securityErrorHandler(event:SecurityErrorEvent):void {
-      trace("securityErrorHandler: " + event);
+	  LOGGER.error("securityErrorHandler: {0}", [event]);
       var errorEvent:RetrieveNotesErrorEvent = new RetrieveNotesErrorEvent();
       _dispatcher.dispatchEvent(errorEvent);
     }
     
     private function httpStatusHandler(event:HTTPStatusEvent):void {
-      trace("httpStatusHandler: " + event);
+      LOGGER.debug("httpStatusHandler: {0}", [event]);
     }
     
     private function ioErrorHandler(event:IOErrorEvent):void {
-      trace("ioErrorHandler: " + event);
+	  LOGGER.error("ioErrorHandler: {0}", [event]);
       var errorEvent:RetrieveNotesErrorEvent = new RetrieveNotesErrorEvent();
       _dispatcher.dispatchEvent(errorEvent);
     }
-    
 
   }
 }

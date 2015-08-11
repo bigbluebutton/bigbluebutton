@@ -9,10 +9,10 @@ Meteor.methods
 		eventName = null
 		action = ->
 			if chatType is "PUBLIC_CHAT"
-				eventName = "send_public_chat_message_request"
+				eventName = "send_public_chat_message"
 				return 'chatPublic'
 			else
-				eventName = "send_private_chat_message_request"
+				eventName = "send_private_chat_message"
 				if recipient is requesterUserId
 					return 'chatSelf' #not allowed
 				else

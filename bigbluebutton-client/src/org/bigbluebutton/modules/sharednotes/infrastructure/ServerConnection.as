@@ -18,15 +18,18 @@
  */
 package org.bigbluebutton.modules.sharednotes.infrastructure
 {
-	import com.adobe.serialization.json.JSON;
-	
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 
 	public class ServerConnection
 	{
+		private static const LOGGER:ILogger = getClassLogger(ServerConnection);      
+
 		public static const SYNCING_EVENT : String = "SN_SYNCING_EVENT";
 		public static const SYNCED_EVENT : String = "SN_SYNCED_EVENT";
 		
@@ -59,7 +62,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		
 		protected function receive(data:String):void { 
 			if (data.indexOf("c,") == 0) {
-				trace("Received connection data: " + data);
+				LOGGER.debug("Received connection data: {0}", [data]);
 				//var clientData:Object = JSON.decode(data.substring(2));
 				//client.initClient(clientData.id, this, clientData.initialDocument);
 				connectionTimeout.stop();
@@ -70,7 +73,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 				//client.receiveMessage(message);
 			}
 			else {
-				trace("unrecognized data: " + data);
+				LOGGER.debug("unrecognized data: {0}", [data]);
 			}
 		}
 		

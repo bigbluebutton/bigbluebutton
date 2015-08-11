@@ -1,8 +1,13 @@
+.DS_Store
+._.DS_Store*
 .metadata/
 record-and-playback/playback-client-js/testmeeting/
 record-and-playback/playback-web/playback-web-0.1.war
 record-and-playback/.project
 push_to_git.py
+**/target/*
+.vagrant/*
+**/.settings/*
 */.gradle
 bbb-lti/.classpath
 bbb-lti/.project
@@ -16,3 +21,5 @@ bbb-api-demo/.project
 bigbluebutton-web/.settings*
 bigbluebutton-web/.classpath
 bigbluebutton-web/.project
+akka-bbb-apps/akka-bbb-apps*.log
+bigbluebutton-html5/log/development.log

@@ -25,14 +25,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     x="168" y="86" layout="vertical" width="400" height="150" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
 			
-			import org.bigbluebutton.common.LogUtil;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.util.i18n.ResourceUtil; 
 			
+			private static const LOGGER:ILogger = getClassLogger(OldLocaleWarnWindow);      
 			private const windowTitleDefault:String = "Warning: Old Language Version";
 			private const reminder1Default:String = "You have an old language translation of BigBlueButton.";
 			private const reminder2Default:String = "Please clear your browser cache and try again.";
@@ -60,7 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
 				var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
 				var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-				LogUtil.debug("Log out url: " + pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+				LOGGER.debug("Log out url: {0}//{1}/bigbluebutton/api/signOut", [pageHost, pageURL]);
 				request.method = URLRequestMethod.GET;
 				var urlLoader:URLLoader = new URLLoader();
 				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	

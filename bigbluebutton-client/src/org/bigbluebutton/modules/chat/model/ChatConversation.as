@@ -22,7 +22,6 @@ package org.bigbluebutton.modules.chat.model
   
   import mx.collections.ArrayCollection;
   
-  import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.modules.chat.ChatUtil;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 

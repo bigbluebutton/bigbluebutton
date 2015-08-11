@@ -20,22 +20,26 @@ package org.bigbluebutton.modules.present.business
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.*;
+	import flash.events.Event;
+	import flash.events.HTTPStatusEvent;
+	import flash.events.IOErrorEvent;
+	import flash.events.ProgressEvent;
+	import flash.events.SecurityErrorEvent;
 	import flash.net.FileReference;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.present.events.UploadCompletedEvent;
-	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.UploadIoErrorEvent;
 	import org.bigbluebutton.modules.present.events.UploadProgressEvent;
 	import org.bigbluebutton.modules.present.events.UploadSecurityErrorEvent;
 	
 	public class FileUploadService {
 		public static const ID:String = "FileUploadService";
-		private static const LOG:String = "Present::FileUploadService - ";
+		private static const LOGGER:ILogger = getClassLogger(FileUploadService);
 
 		public static const UPLOAD_PROGRESS:String = "UPLOAD_PROGRESS";
 		public static const UPLOAD_COMPLETED:String = "UPLOAD_COMPLETED";
@@ -122,7 +126,7 @@ package org.bigbluebutton.modules.present.business
 		 */
 		private function onUploadIoError(event:IOErrorEvent):void {
 			if(event.errorID != 2038){ //upload works despite of this error.
-				trace(LOG + "onUploadIoError text: " + event.text + ", errorID: " + event.errorID);
+				LOGGER.error("onUploadIoError text: {0}, errorID: {1}", [event.text, event.errorID]);
 				dispatcher.dispatchEvent(new UploadIoErrorEvent());
 			}
 			
@@ -135,7 +139,7 @@ package org.bigbluebutton.modules.present.business
 		 */		
 		private function onUploadSecurityError(event:SecurityErrorEvent) : void {
 			dispatcher.dispatchEvent(new UploadSecurityErrorEvent());
-			LogUtil.error("A security error occured while trying to upload the presentation. " + event.toString());
+			LOGGER.error("A security error occured while trying to upload the presentation. {0}", [event.toString()]);
 		}		
 	}
 }

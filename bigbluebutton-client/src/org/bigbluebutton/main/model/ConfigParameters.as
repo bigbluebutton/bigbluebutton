@@ -23,19 +23,19 @@ package org.bigbluebutton.main.model
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
 	
-	import mx.core.Application;
 	import mx.core.FlexGlobals;
-	import mx.managers.BrowserManager;
 	import mx.utils.URLUtil;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters {
-    public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
+		private static const LOGGER:ILogger = getClassLogger(ConfigParameters);
+		
+		public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
 		
 		private var _urlLoader:URLLoader;
 		
@@ -69,7 +69,7 @@ package org.bigbluebutton.main.model
 			var date:Date = new Date();
       var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
       
-      trace("ConfigParameters:: [" + localeReqURL + "]");
+	  LOGGER.debug("ConfigParameters:: [{0}]", [localeReqURL]);
       _urlLoader.load(new URLRequest(localeReqURL));
 		}
 		
@@ -87,7 +87,7 @@ package org.bigbluebutton.main.model
 		}
 		
 		private function parse(xml:XML):void{
-      trace("ConfigParameters:: parse [" + xml + "]");
+      		LOGGER.debug("ConfigParameters:: parse [{0}]", [xml]);
 			rawXML = xml;
 			
 			portTestHost = xml.porttest.@host;

@@ -18,7 +18,17 @@ task resolveDeps(type: Copy) {
 }
 
 repositories {
+    ivy {
+        // URL can refer to a local directory
+        //url "${System.properties['user.home']}/.ivy2/local"
+        url "/home/ubuntu/.ivy2/local"
+        layout "pattern", {
+            artifact "[organisation]/[module]/[revision]/[artifact].[ext]"
+            m2compatible = true
+        }
+    }
   mavenCentral()
+  mavenLocal()
   add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
     name = 'remote'
     returnFirst = true
@@ -31,7 +41,7 @@ repositories {
       name = "blindside-repos"
       addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
       addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
-    }			  
+    }             
     add(new org.apache.ivy.plugins.resolver.URLResolver()) {
       name = "testng_ibiblio_maven2"
       m2compatible = true
@@ -67,8 +77,8 @@ dependencies {
   providedCompile 'org.springframework:spring-core:4.0.8.RELEASE@jar'
 
   // Red5
-  providedCompile 'org/red5:red5-server:1.0.5-RELEASE@jar'
-  providedCompile 'org.red5:red5-server-common:1.0.5-RELEASE@jar'
+  providedCompile 'org.red5:red5-server:1.0.6-SNAPSHOT@jar'
+  providedCompile 'org.red5:red5-server-common:1.0.6-SNAPSHOT@jar'
   
   // Logging
   providedCompile 'ch.qos.logback:logback-core:1.1.2@jar'
@@ -99,23 +109,10 @@ dependencies {
   //compile 'redis.clients:jedis:2.0.0'
   providedCompile 'commons-pool:commons-pool:1.5.6'
  
-  // Libraries needed to run the scala tools
-  scalaTools 'org.scala-lang:scala-compiler:2.9.2'
-  scalaTools 'org.scala-lang:scala-library:2.9.2'
-
-  // Libraries needed for scala api
-  compile 'org.scala-lang:scala-library:2.9.2'
-
-  // workaround for http://issues.gradle.org/browse/GRADLE-1273
-  //compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
-  //compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
-		  
-   // Freeswitch ESL Client
-   compile 'org/freeswitch:fs-esl-client:0.8.2@jar'
-   compile 'org.jboss.netty:netty:3.2.1.Final@jar'
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'org.apache.commons:commons-lang3:3.2'
 
+  compile 'org.bigbluebutton:bbb-common-message:0.0.11'
 }
 
 test {

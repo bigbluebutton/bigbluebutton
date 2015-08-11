@@ -24,20 +24,20 @@ package org.bigbluebutton.core.managers
 	import flash.events.EventDispatcher;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.net.navigateToURL;
 	
 	import mx.core.FlexGlobals;
 	import mx.utils.URLUtil;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.EventBroadcaster;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	
 	public class ConfigManager2 extends EventDispatcher {
-    private static const LOG:String = "Main::ConfigManager2 - ";
+		private static const LOGGER:ILogger = getClassLogger(ConfigManager2);      
     
-    public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
+        public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
     
 		private var _config:Config = null;
 				
@@ -46,7 +46,7 @@ package org.bigbluebutton.core.managers
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
       var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
-      trace(LOG + "::loadConfig [" + localeReqURL + "]");
+      LOGGER.debug("::loadConfig [{0}]", [localeReqURL]);
 			urlLoader.load(new URLRequest(localeReqURL));			
 		}		
 		
@@ -58,17 +58,17 @@ package org.bigbluebutton.core.managers
     }
     
 		private function handleComplete(e:Event):void{
-      trace(LOG + "handleComplete [" + new XML(e.target.data) + "]");
+      LOGGER.debug("handleComplete [{0}]", [new XML(e.target.data)]);
       
       var xml:XML = new XML(e.target.data)
       
       if (xml.returncode == "FAILED") {
         
-        trace(LOG + "Getting configXML failed [" + xml + "]");        
+        LOGGER.debug("Getting configXML failed [{0}]", [xml]);        
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.response.logoutURL));
       } else { 
-        trace(LOG + "Getting configXML passed [" + xml + "]");
+        LOGGER.debug("Getting configXML passed [{0}]", [xml]);
 			  _config = new Config(new XML(e.target.data));
 			  EventBroadcaster.getInstance().dispatchEvent(new Event("configLoadedEvent", true));	
       }

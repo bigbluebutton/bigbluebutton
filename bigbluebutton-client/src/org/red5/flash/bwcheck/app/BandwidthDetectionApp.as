@@ -2,12 +2,10 @@ package org.red5.flash.bwcheck.app
 {
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
-	import flash.net.Responder;
+	import flash.net.ObjectEncoding;
 	
 	import mx.core.Application;
 	
-	import org.bigbluebutton.common.LogUtil;
-
 	import org.red5.flash.bwcheck.ClientServerBandwidth;
 	import org.red5.flash.bwcheck.ServerClientBandwidth;
 	import org.red5.flash.bwcheck.events.BandwidthDetectEvent;

@@ -5,9 +5,12 @@
   import flash.external.ExternalInterface;
   import flash.media.Microphone;
   
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.main.api.JSLog;
+  import org.bigbluebutton.main.events.ClientStatusEvent;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
   import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
@@ -17,10 +20,8 @@
   import org.bigbluebutton.modules.phone.events.FlashEchoTestStartedEvent;
   import org.bigbluebutton.modules.phone.events.FlashEchoTestStoppedEvent;
   import org.bigbluebutton.modules.phone.events.FlashErrorEvent;
-  import org.bigbluebutton.modules.phone.events.FlashJoinVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.FlashJoinedListenOnlyVoiceConferenceEvent;
   import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-  import org.bigbluebutton.modules.phone.events.FlashLeaveVoiceConferenceCommand;
   import org.bigbluebutton.modules.phone.events.FlashLeftVoiceConferenceEvent;
   import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
   import org.bigbluebutton.modules.phone.events.FlashStartEchoTestCommand;
@@ -31,7 +32,7 @@
 
   public class FlashCallManager
   {
-    private static const LOG:String = "Phone::FlashCallManager - ";   
+	private static const LOGGER:ILogger = getClassLogger(FlashCallManager);
     
     private static const INITED:String = "INITED";
     private static const DO_ECHO_TEST:String = "DO_ECHO_TEST";
@@ -98,30 +99,30 @@
       */
       if (mic) {
         if (options.skipCheck) {
-          trace(LOG + "Calling into voice conference. skipCheck=[" + options.skipCheck + "] echoTestDone=[" + echoTestDone + "]");
+          LOGGER.debug("Calling into voice conference. skipCheck=[{0}] echoTestDone=[{1}]", [options.skipCheck, echoTestDone]);
 
           streamManager.useDefaultMic();
           callIntoVoiceConference();
         } else {
-          trace(LOG + "Performing echo test. echoTestDone=[" + echoTestDone + "]");
+          LOGGER.debug("Performing echo test. echoTestDone=[{0}]", [echoTestDone]);
           doEchoTest();
         }
       } else {
-        trace(LOG + "Flash connecting to listen only voice conference");
+        LOGGER.debug("Flash connecting to listen only voice conference");
         joinListenOnlyCall();
       }
     }
        
     private function joinListenOnlyCall():void {
       if (options.listenOnlyMode) {
-        trace(LOG + "Joining listen only call");
+        LOGGER.debug("Joining listen only call");
         callToListenOnlyStream();
       }
     }
 
     private function leaveListenOnlyCall():void {
       if (state == ON_LISTEN_ONLY_STREAM) {
-        trace(LOG + "Leaving listen only call");
+        LOGGER.debug("Leaving listen only call");
         hangup();
       }
     }
@@ -131,15 +132,15 @@
         var destination:String = UsersUtil.getVoiceBridge();
         
         if (destination != null && destination != "") {
-          trace(LOG + "Connecting to listen only stream =[" + destination + "]");
+          LOGGER.debug("Connecting to listen only stream =[{0}]", [destination]);
           state = CONNECTING_TO_LISTEN_ONLY_STREAM;
           connectionManager.doCall(destination, true);
         } else {
-          trace(LOG + "Invalid voice conference [" + destination + "]");
+          LOGGER.debug("Invalid voice conference [" + destination + "]");
           dispatcher.dispatchEvent(new FlashErrorEvent(FlashErrorEvent.INVALID_VOICE_DESTINATION));
         }
       } else {
-        trace(LOG + "Need to connect before we can join the voice conference.");
+        LOGGER.debug("Need to connect before we can join the voice conference.");
         state = CALL_TO_LISTEN_ONLY_STREAM;
         connect();
       }
@@ -150,15 +151,15 @@
         var destination:String = UsersUtil.getVoiceBridge();
         
         if (destination != null && destination != "") {
-          trace(LOG + "Calling into voice conference =[" + destination + "]");
+          LOGGER.debug("Calling into voice conference =[{0}]", [destination]);
           state = CALLING_INTO_CONFERENCE;
           connectionManager.doCall(destination);             
         } else {
-          trace(LOG + "Invalid voice conference [" + destination + "]");
+          LOGGER.debug("Invalid voice conference [{0}]", [destination]);
           dispatcher.dispatchEvent(new FlashErrorEvent(FlashErrorEvent.INVALID_VOICE_DESTINATION));
         }
       } else {
-        trace(LOG + "Need to connect before we can join the voice conference.");
+        LOGGER.debug("Need to connect before we can join the voice conference.");
         state = JOIN_VOICE_CONFERENCE;
         connect();
       }
@@ -168,15 +169,15 @@
       if (isConnected()) {
         var destination:String = options.echoTestApp;
         if (destination != null && destination != "") {
-          trace(LOG + "Calling into echo test =[" + destination + "]");
+          LOGGER.debug("Calling into echo test =[{0}]", [destination]);
           state = CALLING_INTO_ECHO_TEST;
           connectionManager.doCall(destination);
         } else {
-          trace(LOG + "Invalid echo test destination [" + destination + "]");
+          LOGGER.warn("Invalid echo test destination [{0}]", [destination]);
           dispatcher.dispatchEvent(new FlashErrorEvent(FlashErrorEvent.INVALID_ECHO_TEST_DESTINATION));
         }
       } else {
-        trace(LOG + "Need to connect before we can call into echo test.");
+        LOGGER.debug("Need to connect before we can call into echo test.");
         state = DO_ECHO_TEST;
         connect();
       }
@@ -184,12 +185,12 @@
     
     private function printMics():void {
       for (var i:int = 0; i < micNames.length; i++) {
-        trace(LOG + "*** MIC [" + i + "] = [" + micNames[i] + "]");
+        LOGGER.debug("*** MIC [{0}] = [{1}]", [i, micNames[i]]);
       }
     }
     
     public function userRequestedHangup():void {
-      trace(LOG + "userRequestedHangup, current state: " + state);
+      LOGGER.debug("userRequestedHangup, current state: {0}", [state]);
       if (usingFlash || state == ON_LISTEN_ONLY_STREAM) {
         streamManager.stopStreams();
         connectionManager.disconnect(true);        
@@ -207,28 +208,28 @@
     }
     
     private function hangup():void {
-      trace(LOG + "hangup, current state: " + state);
+      LOGGER.debug("hangup, current state: {0}", [state]);
       streamManager.stopStreams();
       connectionManager.doHangUp();
     }
     
     private function hangupEchoThenJoinVoiceConference():void {
-      trace(LOG + "hangup EchoThenJoinVoiceConference, current state: " + state);
+      LOGGER.debug("hangup EchoThenJoinVoiceConference, current state: {0}", [state]);
       state = STOP_ECHO_THEN_JOIN_CONF;
       hangup();
     }
     
     public function handleFlashStartEchoTestCommand(event:FlashStartEchoTestCommand):void {
-      trace(LOG + "handling FlashStartEchoTestCommand. mic index=[" + event.micIndex + "] name=[" + event.micName + "]");
+      LOGGER.debug("handling FlashStartEchoTestCommand. mic index=[{0}] name=[{1}]", [event.micIndex, event.micName]);
       useMicIndex = event.micIndex;
       useMicName = event.micName;
-      trace(LOG + "Setting up preferred micriphone.");
+      LOGGER.debug("Setting up preferred micriphone.");
       streamManager.usePreferredMic(event.micIndex, event.micName);
       callIntoEchoTest();
     }
     
     public function handleFlashStopEchoTestCommand(event:FlashStopEchoTestCommand):void {
-      trace(LOG + "handling FlashStopEchoTestCommand, current state: " + state);
+      LOGGER.debug("handling FlashStopEchoTestCommand, current state: {0}", [state]);
       if (state == IN_ECHO_TEST) {
          hangup();
       }
@@ -240,7 +241,7 @@
     }
     
     public function handleFlashEchoTestHasAudioEvent(event:FlashEchoTestHasAudioEvent):void {
-      trace(LOG + "handling handleFlashEchoTestHasAudioEvent, current state: " + state);
+      LOGGER.debug("handling handleFlashEchoTestHasAudioEvent, current state: {0}", [state]);
       if (state == IN_ECHO_TEST) {
         hangupEchoThenJoinVoiceConference();
       } else {
@@ -250,7 +251,7 @@
     }
     
     public function handleFlashEchoTestNoAudioEvent(event:FlashEchoTestNoAudioEvent):void {
-      trace(LOG + "handling FlashEchoTestNoAudioEvent, current state: " + state);
+      LOGGER.debug("handling FlashEchoTestNoAudioEvent, current state: {0}", [state]);
       if (state == IN_ECHO_TEST) {
         hangup();
       }
@@ -258,36 +259,36 @@
     }
     
     public function handleFlashCallConnectedEvent(event:FlashCallConnectedEvent):void {      
-      trace(LOG + "handling FlashCallConnectedEvent, current state: " + state);
+      LOGGER.debug("handling FlashCallConnectedEvent, current state: {0}", [state]);
       var logData:Object = new Object();       
       logData.user = UsersUtil.getUserData();
       
       switch (state) {
         case CALLING_INTO_CONFERENCE:
           JSLog.info("Successfully joined the voice conference.", logData);
-          trace(LOG + "Successfully joined the voice conference.");
+          LOGGER.info("Successfully joined the voice conference. {0}", [jsonXify(logData)]);
           state = IN_CONFERENCE;
           dispatcher.dispatchEvent(new FlashJoinedVoiceConferenceEvent());
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
           break;
         case CONNECTING_TO_LISTEN_ONLY_STREAM:
           JSLog.info("Successfully connected to the listen only stream.", logData);
-          trace(LOG + "Successfully connected to the listen only stream.");
+          LOGGER.info("Successfully connected to the listen only stream. {0}", [jsonXify(logData)]);
           state = ON_LISTEN_ONLY_STREAM;
           dispatcher.dispatchEvent(new FlashJoinedListenOnlyVoiceConferenceEvent());
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
           break;
         case CALLING_INTO_ECHO_TEST:
           state = IN_ECHO_TEST;
-          trace(LOG + "Successfully called into the echo test application.  [" + event.publishStreamName + "] : [" + event.playStreamName + "] : [" + event.codec + "]");
+          LOGGER.debug("Successfully called into the echo test application.  [{0}] : [{1}] : [{2}]", [event.publishStreamName, event.playStreamName, event.codec]);
           JSLog.info("Successfully called into the echo test application.", logData);
           streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec, event.listenOnlyCall);
           
-          trace(LOG + "Successfully called into the echo test application.");
+          LOGGER.debug("Successfully called into the echo test application.");
           dispatcher.dispatchEvent(new FlashEchoTestStartedEvent());
           break;
         default:
-          trace(LOG + "unhandled state: " + state);
+          LOGGER.debug("unhandled state: {0}", [state]);
           break;
       }      
     }
@@ -296,7 +297,7 @@
       var logData:Object = new Object();       
       logData.user = UsersUtil.getUserData();
       
-      trace(LOG + "Flash call disconnected, current state: " + state);
+      LOGGER.debug("Flash call disconnected, current state: {0}", [state]);
       switch (state) {
         case IN_CONFERENCE:
           state = INITED;
@@ -305,49 +306,49 @@
         case ON_LISTEN_ONLY_STREAM:
           state = INITED;
           JSLog.info("Flash user left the listen only stream.", logData);
-          trace(LOG + "Flash user left the listen only stream.");
+          LOGGER.debug("Flash user left the listen only stream. {0}", [jsonXify(logData)]);
 		      dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
           break;
         case IN_ECHO_TEST:
           state = INITED;
           JSLog.info("Flash echo test stopped.", logData);
-          trace(LOG + "Flash echo test stopped.");
+          LOGGER.info("Flash echo test stopped. {0}", [jsonXify(logData)]);
           dispatcher.dispatchEvent(new FlashEchoTestStoppedEvent());
           break;
         case STOP_ECHO_THEN_JOIN_CONF:
-          trace(LOG + "Flash echo test stopped, now joining the voice conference.");
+          LOGGER.debug("Flash echo test stopped, now joining the voice conference.");
           callIntoVoiceConference();
           break;
         case CALLING_INTO_ECHO_TEST:
           state = INITED;
           JSLog.error("Unsuccessfully called into the echo test application.", logData);
-          trace(LOG + "Unsuccessfully called into the echo test application.");
+          LOGGER.error("Unsuccessfully called into the echo test application.", [jsonXify(logData)]);
           dispatcher.dispatchEvent(new FlashEchoTestFailedEvent());
           break;
         default:
-          trace(LOG + "unhandled state: " + state);
+          LOGGER.debug("unhandled state: " + state);
           break;
       }
     }
     
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
-      trace(LOG + "Handling JoinVoiceConferenceCommand.");
+      LOGGER.debug("Handling JoinVoiceConferenceCommand.");
       switch(state) {
         case INITED:
           if (usingFlash || !event.mic) {
             startCall(event.mic);
           } else {
-            trace(LOG + "ignoring join voice conf as usingFlash=[" + usingFlash + "] or eventMic=[" + !event.mic + "]");
+            LOGGER.debug("ignoring join voice conf as usingFlash=[{0}] or eventMic=[{1}]", [usingFlash, !event.mic]);
           }
           break;
 		
         default:
-          trace("Ignoring join voice as state=[" + state + "]");
+          LOGGER.debug("Ignoring join voice as state=[{0}]", [state]);
       }
     }
     
     public function handleLeaveVoiceConferenceCommand(event:LeaveVoiceConferenceCommand):void {
-      trace(LOG + "Handling LeaveVoiceConferenceCommand, current state: " + state + ", using flash: " + usingFlash);
+      LOGGER.debug("Handling LeaveVoiceConferenceCommand, current state: {0}, using flash: {1}", [state, usingFlash]);
       if (!usingFlash && state != ON_LISTEN_ONLY_STREAM) {
         // this is the case when the user was connected to webrtc and then leaves the conference
         return;
@@ -356,10 +357,10 @@
     }
     
 	public function handleBecomeViewer():void {
-    trace(LOG + "Handling BecomeViewer, current state: " + state + ", using flash: " + usingFlash);
+    LOGGER.debug("Handling BecomeViewer, current state: {0}, using flash: {1}", [state, usingFlash]);
 		if (options.presenterShareOnly) {
 			if (!usingFlash || state != IN_CONFERENCE || UsersUtil.amIModerator()) return;
-      trace(LOG + "handleBecomeViewer leaving flash with mic and joining listen only stream");
+      LOGGER.debug("handleBecomeViewer leaving flash with mic and joining listen only stream");
 			hangup();
 			
 			var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
@@ -368,29 +369,62 @@
 		}
 	}
 	
+    public function handleFlashVoiceConnected():void {
+      switch (state) {
+        case JOIN_VOICE_CONFERENCE:
+          callIntoVoiceConference();
+          break;
+        case DO_ECHO_TEST:
+          callIntoEchoTest();
+          break;
+        case CALL_TO_LISTEN_ONLY_STREAM:
+          callToListenOnlyStream();
+          break;
+        case ON_LISTEN_ONLY_STREAM:
+          callToListenOnlyStream();
+          break;
+        case IN_CONFERENCE:
+		  LOGGER.debug("Reconnected while transmiting mic. Automatic retransmission not implemented.");
+          state = INITED;
+          break;
+
+        default:
+          LOGGER.debug("unhandled state: {0}", [state]);
+          break;
+      }
+    }
+
     public function handleFlashVoiceConnectionStatusEvent(event:FlashVoiceConnectionStatusEvent):void {
-      trace(LOG + "Connection status event. status=[" + event.status + "]");
-      if (event.status == FlashVoiceConnectionStatusEvent.CONNECTED) {
-        switch (state) {
-          case JOIN_VOICE_CONFERENCE:
-            callIntoVoiceConference();
-            break;
-          case DO_ECHO_TEST:
-            callIntoEchoTest();
-            break;
-          case CALL_TO_LISTEN_ONLY_STREAM:
-            callToListenOnlyStream();
-            break;
-          default:
-            trace(LOG + "unhandled state: " + state);
-            break;
-        }
+      LOGGER.debug("Connection status event. status=[{0}]", [event.status]);
+      switch (event.status) {
+        case FlashVoiceConnectionStatusEvent.CONNECTED:
+          handleFlashVoiceConnected();
+          break;
+
+        case FlashVoiceConnectionStatusEvent.FAILED:
+        case FlashVoiceConnectionStatusEvent.DISCONNECTED:
+          // If reconnection is under way the state should de kept
+          if(!event.reconnecting) {
+            state = INITED;
+          }
+          dispatcher.dispatchEvent(new FlashLeftVoiceConferenceEvent());
+          break;
+
+        default:
+          LOGGER.debug("unhandled state: {0}", [state]);
       }
     }
     
     public function handleUseFlashModeCommand():void {
       usingFlash = true;
       startCall(true);
+    }
+
+    public function handleFlashLeftVoiceConference():void {
+      if (isConnected()) {
+        streamManager.stopStreams();
+        connectionManager.disconnect(true);
+      }
     }
   }
 }

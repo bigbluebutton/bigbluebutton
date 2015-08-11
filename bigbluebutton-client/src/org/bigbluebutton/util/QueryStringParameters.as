@@ -19,9 +19,13 @@
 package org.bigbluebutton.util
 {
 	import flash.external.ExternalInterface;
-	import org.bigbluebutton.common.LogUtil;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	
 	public class QueryStringParameters {
+		private static const LOGGER:ILogger = getClassLogger(QueryStringParameters);
+
 		private var params:Array;
 		
 		public function collectParameters():void {
@@ -36,7 +40,7 @@ package org.bigbluebutton.util
 				params = url.split("&");
 									
 			} catch(e:Error) {
-				LogUtil.error(e.toString());
+				LOGGER.error(e.toString());
 			}
 		}
 		
@@ -45,7 +49,7 @@ package org.bigbluebutton.util
 						
 			for (var i:int = 0; i < params.length; i++) {
 				var tempA:Array = params[i].split("=");
-				trace(String(tempA[0]).toUpperCase() + " " + String(tempA[1]).toUpperCase());
+				LOGGER.debug("{0} {1}", [String(tempA[0]).toUpperCase(), String(tempA[1]).toUpperCase()]);
 
 				if (String(tempA[0]).toUpperCase() == key.toUpperCase()) {
 					value = String(tempA[1])
