@@ -62,51 +62,53 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			validateNow();
 		}
 
-		/*
 		public function restoreCursor(endIndex:Number, oldPosition:Number, oldVerticalPosition:Number):void {
 			var cursorLine:Number = 0;
+
 			if (endIndex == 0 && text.length == 0) {
 				cursorLine = 0;
 			} else if (endIndex == text.length) {
-				cursorLine = textField.getLineIndexOfChar(endIndex - 1);
+				cursorLine = 0; // textField.getLineIndexOfChar(endIndex - 1);
 			} else {
-				cursorLine = textField.getLineIndexOfChar(endIndex);
+				cursorLine = 0; // textField.getLineIndexOfChar(endIndex);
 			}
 
-			var relativePositon:Number = cursorLine - verticalScrollPosition;
+			var relativePositon:Number = cursorLine - textArea.verticalScrollPosition;
 
 			var desloc:Number = relativePositon - oldPosition;
-			verticalScrollPosition += desloc;
+			textArea.verticalScrollPosition += desloc;
 			
 			trace("relative: " + relativePositon);
 			trace("old: " + oldPosition);
-			trace("vertical: " + verticalScrollPosition);
+			trace("vertical: " + textArea.verticalScrollPosition);
 		}
 
 		public function getOldPosition():Number {
 			var oldPosition:Number = 0;
+
 			if (textArea.selectionEndIndex == 0 && text.length == 0) {
 				oldPosition = 0;
 			} else if (textArea.selectionEndIndex == text.length) {
-				oldPosition = textField.getLineIndexOfChar(textArea.selectionEndIndex - 1);
+				oldPosition = 0; // textField.getLineIndexOfChar(textArea.selectionEndIndex - 1);
 			} else {
-				oldPosition = textField.getLineIndexOfChar(textArea.selectionEndIndex);
+				oldPosition = 0; // textField.getLineIndexOfChar(textArea.selectionEndIndex);
 			}
 
-			oldPosition -= verticalScrollPosition;
+			oldPosition -= textArea.verticalScrollPosition;
 			return oldPosition;
 		}
 
-		public function patchClientText(patch:String, beginIndex:Number, endIndex:Number):void {
+		public function patchClientText(patch:String):void {
 			var results:Array;
 
+			textArea.selectable = false;
 			_lastBegin = textArea.selectionBeginIndex;
 			_lastEnd = textArea.selectionEndIndex;
 			var oldPosition:Number = getOldPosition();
-			var oldVerticalPosition:Number = verticalScrollPosition;
+			var oldVerticalPosition:Number = textArea.verticalScrollPosition;
 
 			trace("Initial Position: " + _lastBegin + " " + _lastEnd);
-			results = DiffPatch.patchClientText(patch, text, textArea.selectionBeginIndex, textArea.selectionEndIndex);
+			results = DiffPatch.patchClientText(patch, text, _lastBegin, _lastEnd);
 
 			if (results[0][0] == _lastBegin && results[0][1] > _lastEnd) {
 				var str1:String = text.substring(_lastBegin,_lastEnd);
@@ -130,11 +132,9 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			trace("Length: " + text.length); 
 			restoreCursor(_lastEnd, oldPosition, oldVerticalPosition);
 			validateNow();
-			textField.selectable = true;
-			// textField.stage.focus = InteractiveObject(textField);
-			textField.setSelection(_lastBegin, _lastEnd);
+			textArea.selectable = true;
+			textArea.setSelection(_lastBegin, _lastEnd);
 			validateNow();
 		}
-		*/
 	}
 }
