@@ -109,7 +109,7 @@ package org.bigbluebutton.modules.present.model
 
     public function get txtData():String {
       if (_txtLoaded) return _txtLoader.data;
-      return null;
+      return "";
     }
     
     private function loadTxt():void {
