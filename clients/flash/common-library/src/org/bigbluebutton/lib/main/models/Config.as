@@ -30,7 +30,7 @@ package org.bigbluebutton.lib.main.models {
 		}
 		
 		public function get displayAvatar():Boolean {
-			return _config.displayAvatar;
+			return (String(getConfigFor("VideoConfModule").@displayAvatar).toUpperCase() == 'TRUE') ? true : false;
 		}
 		
 		public function get porttest():Object {
