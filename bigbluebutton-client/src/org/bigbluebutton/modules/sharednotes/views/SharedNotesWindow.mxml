@@ -149,7 +149,6 @@
 				LogUtil.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
 					customRichTextEditor.textArea.editable = false;
-					// Why this?
 					onSyncing();
 //					trace("ADD LOCAL");
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();

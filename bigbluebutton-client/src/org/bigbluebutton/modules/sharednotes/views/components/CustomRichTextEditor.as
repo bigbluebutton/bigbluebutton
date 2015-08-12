@@ -1,13 +1,13 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- * 
+ *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- * 
+ *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 	import flash.net.FileReference;
 	import flash.text.*;
 
+	import mx.core.mx_internal;
 	import mx.controls.RichTextEditor;
 
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
@@ -52,32 +53,22 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			_fileRef.save(textToExport, filename+".html");
 		}
 
-		public function patch(patch:String):void {
-			var result:String;
-
-			trace("Initial Position: " + _lastBegin + " " + _lastEnd);
-			result = DiffPatch.patch(patch, htmlText);
-
-			htmlText = result;
-			validateNow();
-		}
-
-		public function restoreCursor(endIndex:Number, oldPosition:Number, oldVerticalPosition:Number):void {
+		public function restoreCursor(endIndex:Number, oldPosition:Number):void {
 			var cursorLine:Number = 0;
 
 			if (endIndex == 0 && text.length == 0) {
 				cursorLine = 0;
 			} else if (endIndex == text.length) {
-				cursorLine = 0; // textField.getLineIndexOfChar(endIndex - 1);
+				cursorLine = textArea.mx_internal::getTextField().getLineIndexOfChar(endIndex - 1);
 			} else {
-				cursorLine = 0; // textField.getLineIndexOfChar(endIndex);
+				cursorLine = textArea.mx_internal::getTextField().getLineIndexOfChar(endIndex);
 			}
 
 			var relativePositon:Number = cursorLine - textArea.verticalScrollPosition;
 
 			var desloc:Number = relativePositon - oldPosition;
 			textArea.verticalScrollPosition += desloc;
-			
+
 			trace("relative: " + relativePositon);
 			trace("old: " + oldPosition);
 			trace("vertical: " + textArea.verticalScrollPosition);
@@ -89,33 +80,38 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			if (textArea.selectionEndIndex == 0 && text.length == 0) {
 				oldPosition = 0;
 			} else if (textArea.selectionEndIndex == text.length) {
-				oldPosition = 0; // textField.getLineIndexOfChar(textArea.selectionEndIndex - 1);
+				oldPosition = textArea.mx_internal::getTextField().getLineIndexOfChar(textArea.selectionEndIndex - 1);
 			} else {
-				oldPosition = 0; // textField.getLineIndexOfChar(textArea.selectionEndIndex);
+				oldPosition = textArea.mx_internal::getTextField().getLineIndexOfChar(textArea.selectionEndIndex);
 			}
 
 			oldPosition -= textArea.verticalScrollPosition;
 			return oldPosition;
 		}
 
-		public function patchClientText(patch:String):void {
+		public function patch(patch:String):void {
 			var results:Array;
 
-			textArea.selectable = false;
+			// We Shouldn't?
+//			textArea.selectable = false;
+
 			_lastBegin = textArea.selectionBeginIndex;
 			_lastEnd = textArea.selectionEndIndex;
 			var oldPosition:Number = getOldPosition();
-			var oldVerticalPosition:Number = textArea.verticalScrollPosition;
 
 			trace("Initial Position: " + _lastBegin + " " + _lastEnd);
-			results = DiffPatch.patchClientText(patch, text, _lastBegin, _lastEnd);
+
+			var oldText:String = text;
+			htmlText = DiffPatch.patch(patch, htmlText);
+			validateNow();
+
+			var plainPatch:String = DiffPatch.diff(oldText, text);
+			results = DiffPatch.patchClientText(plainPatch, oldText, _lastBegin, _lastEnd);
 
 			if (results[0][0] == _lastBegin && results[0][1] > _lastEnd) {
-				var str1:String = text.substring(_lastBegin,_lastEnd);
-				var str2:String = results[1].substring(_lastBegin,_lastEnd);
-				trace("STRING 1: " + str1);
-				trace("STRING 2: " + str2);
-				
+				var str1:String = oldText.substring(_lastBegin, _lastEnd);
+				var str2:String = results[1].substring(_lastBegin, _lastEnd);
+
 				if (str1 != str2) {
 					_lastEnd = results[0][1];
 				}
@@ -124,14 +120,12 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 				_lastBegin = results[0][0];
 				_lastEnd = results[0][1];
 			}
-			text = results[1];
-			validateNow();
-			
 			trace("Final Position: " + results[0][0] + " " + results[0][1]);
-			
-			trace("Length: " + text.length); 
-			restoreCursor(_lastEnd, oldPosition, oldVerticalPosition);
+
+			trace("Length: " + text.length);
+			restoreCursor(_lastEnd, oldPosition);
 			validateNow();
+
 			textArea.selectable = true;
 			textArea.setSelection(_lastBegin, _lastEnd);
 			validateNow();
