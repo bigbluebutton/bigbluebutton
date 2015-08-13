@@ -98,6 +98,12 @@ class @WhiteboardPollModel extends WhiteboardToolModel
 
     test = [@obj, @obj2, @obj3]
 
+    calculatedData = calculateFontAndWidth(leftCell, textArray, calcFontSize, width, height, x, y)
+    calcFontSize = calculatedData[0]
+    maxLeftWidth = calculatedData[1]
+    maxRightWidth = calculatedData[2]
+    maxLineHeight = calculatedData[3]
+
     test
 
 
@@ -108,3 +114,59 @@ class @WhiteboardPollModel extends WhiteboardToolModel
   # @param  {number} y2 the y value of the bottom right corner
   # @param  {boolean} square (draw a square or not)
   update: (startingData) ->
+
+
+  calculateFontAndWidth = (leftCell, textArray, calcFontSize, width, height, x, y) ->
+    calculatedData = []
+    #Initializing a tspan for finding a proper font-size
+    svgNSi = "http://www.w3.org/2000/svg"
+    tempSpanEl = document.createElementNS(svgNSi, "tspan")
+    tempSpanEl.setAttributeNS null, "x", x
+    tempSpanEl.setAttributeNS null, "y", y
+    tempTextNode = document.createTextNode("")
+    tempSpanEl.appendChild tempTextNode
+
+    #maximum line width can be either 1/3 of the line or 40px
+    #maximum line height is 75% of the initial size of the box divided by the number of lines
+    maxLineWidth = width/3
+    maxLineHeight = height*0.75/textArray?.length
+
+    #calculating a proper font-size
+    flag = true
+    while flag
+      flag = false
+      for i in [0..textArray.length-1]
+        for j in [0..textArray[i].length-1]
+          tempSpanEl.firstChild.nodeValue = textArray[i][j]
+          leftCell.appendChild tempSpanEl
+          if tempSpanEl.getBBox().width > 40 or tempSpanEl.getBBox().width > maxLineWidth or tempSpanEl.getBBox().height > maxLineHeight
+            calcFontSize -= 1
+            leftCell.style['font-size'] = calcFontSize
+            flag = true
+          leftCell.removeChild(leftCell.firstChild)
+
+    calculatedData.push calcFontSize
+
+    #looking for a maximum width and height of the left and right text elements
+    maxLeftWidth = 0
+    maxRightWidth = 0
+    maxLineHeight = 0
+    for line in textArray
+      tempSpanEl.firstChild.nodeValue = line[0]
+      leftCell.appendChild tempSpanEl
+      if tempSpanEl.getBBox().width > maxLeftWidth
+        maxLeftWidth += tempSpanEl.getBBox().width
+        if tempSpanEl.getBBox().height > maxLineHeight
+          maxLineHeight = tempSpanEl.getBBox().height
+      leftCell.removeChild(leftCell.firstChild)
+
+      tempSpanEl.firstChild.nodeValue = line[2]
+      leftCell.appendChild tempSpanEl
+      if tempSpanEl.getBBox().width > maxRightWidth
+        maxRightWidth += tempSpanEl.getBBox().width
+        if tempSpanEl.getBBox().height > maxLineHeight
+          maxLineHeight = tempSpanEl.getBBox().height
+      leftCell.removeChild(leftCell.firstChild)
+
+    calculatedData.push maxLeftWidth, maxRightWidth, maxLineHeight
+    calculatedData
