@@ -115,14 +115,15 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     widthPadding = width*0.1/(textArray[0].length+1)
     #Vertical padding
     heightPadding = height*0.25/(textArray.length+1)
-
     #Initial coordinates of the key column
     yLeft = y+heightPadding+barHeight/2
     xLeft = x + widthPadding + 1
-
     #Initial coordinates of the line bar column
     xBar = x+maxLeftWidth+widthPadding*2
     yBar = y + heightPadding
+    #Initial coordinates of the percentage column
+    yRight = y+heightPadding+barHeight/2
+    xRight = x + widthPadding*3 + maxLeftWidth + maxRightWidth + barWidth + 1
 
     for line in textArray
       #Adding an element to the left column
@@ -130,6 +131,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       tempSpanEl.setAttributeNS null, "x", xLeft
       tempSpanEl.setAttributeNS null, "y", yLeft
       tempSpanEl.setAttributeNS null, "dy", maxLineHeight/2
+
       tempTextNode = document.createTextNode(line[0])
       tempSpanEl.appendChild tempTextNode
       leftCell.appendChild tempSpanEl
@@ -140,9 +142,20 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       @obj3.attr "fill", "#000000"
       @obj3.attr "stroke-width", zoomStroke(formatThickness(0))
 
+      #Adding an element to the right column
+      tempSpanEl = document.createElementNS(svgNSi, "tspan")
+      tempSpanEl.setAttributeNS null, "x", xRight
+      tempSpanEl.setAttributeNS null, "y", yRight
+      tempSpanEl.setAttributeNS null, "dy", maxLineHeight/2
+      tempTextNode = document.createTextNode(line[2])
+      tempSpanEl.appendChild tempTextNode
+      rightCell.appendChild tempSpanEl
+      console.log tempSpanEl.getBBox().width
+
       #changing the Y coordinate for all the objects
       yBar = yBar + barHeight + heightPadding
       yLeft = yLeft + heightPadding + barHeight
+      yRight = yRight + heightPadding + barHeight
 
     test
 
@@ -203,7 +216,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       tempSpanEl.firstChild.nodeValue = line[2]
       leftCell.appendChild tempSpanEl
       if tempSpanEl.getBBox().width > maxRightWidth
-        maxRightWidth += tempSpanEl.getBBox().width
+        maxRightWidth = tempSpanEl.getBBox().width
         if tempSpanEl.getBBox().height > maxLineHeight
           maxLineHeight = tempSpanEl.getBBox().height
       leftCell.removeChild(leftCell.firstChild)
