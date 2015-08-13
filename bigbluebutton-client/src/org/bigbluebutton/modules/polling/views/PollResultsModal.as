@@ -16,6 +16,7 @@ package org.bigbluebutton.modules.polling.views
 	import mx.core.ScrollPolicy;
 	import mx.managers.PopUpManager;
 	
+	import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
 	import org.bigbluebutton.modules.polling.events.PollVotedEvent;
 	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
@@ -26,6 +27,7 @@ package org.bigbluebutton.modules.polling.views
 	
 	public class PollResultsModal extends TitleWindow {
 		private var _voteListener:Listener;
+		private var _stopPollListener:Listener;
 		
 		private var _respondersLabel:Label;
 		private var _respondersLabelDots:Label;
@@ -108,6 +110,10 @@ package org.bigbluebutton.modules.polling.views
 			_voteListener.type = PollVotedEvent.POLL_VOTED;
 			_voteListener.method = handlePollVotedEvent;
 			
+			_stopPollListener = new Listener();
+			_stopPollListener.type = PollStoppedEvent.POLL_STOPPED;
+			_stopPollListener.method = handlePollStoppedEvent;
+			
 			_dotTimer = new Timer(200, 0);
 			_dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
 			_dotTimer.start();
@@ -149,22 +155,30 @@ package org.bigbluebutton.modules.polling.views
 			}
 		}
 		
+		private function handlePollStoppedEvent(e:PollStoppedEvent):void {
+			close();
+		}
+		
 		private function handlePublishClick(e:MouseEvent):void {
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new ShowPollResultEvent(true));
-			close()
+			close();
 		}
 		
 		private function handleCloseClick(e:MouseEvent):void {
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new StopPollEvent());
-			close()
+			close();
 		}
 		
 		private function close():void {
 			_voteListener.type = null;
 			_voteListener.method = null;
 			_voteListener = null;
+			
+			_stopPollListener.type = null;
+			_stopPollListener.method = null;
+			_stopPollListener = null;
 			
 			PopUpManager.removePopUp(this);
 		}
