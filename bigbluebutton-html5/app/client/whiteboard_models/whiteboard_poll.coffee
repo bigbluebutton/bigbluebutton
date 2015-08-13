@@ -103,7 +103,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     maxLeftWidth = calculatedData[1]
     maxRightWidth = calculatedData[2]
     maxLineHeight = calculatedData[3]
-    maxBarWidth = width*0.9-maxLeftWidth-maxRightWidth
+    barWidth = width*0.9-maxLeftWidth-maxRightWidth
     barHeight = height*0.75/textArray.length
     svgNSi = "http://www.w3.org/2000/svg"
 
@@ -111,24 +111,38 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     leftCell.style['font-size'] = calcFontSize
     rightCell.style['font-size'] = calcFontSize
 
-    #Vertical padding
-    heightPadding = height*0.25/(textArray.length+1)
     #Horizontal padding
     widthPadding = width*0.1/(textArray[0].length+1)
+    #Vertical padding
+    heightPadding = height*0.25/(textArray.length+1)
 
+    #Initial coordinates of the key column
+    yLeft = y+heightPadding+barHeight/2
+    xLeft = x + widthPadding + 1
 
+    #Initial coordinates of the line bar column
     xBar = x+maxLeftWidth+widthPadding*2
     yBar = y + heightPadding
 
     for line in textArray
+      #Adding an element to the left column
+      tempSpanEl = document.createElementNS(svgNSi, "tspan")
+      tempSpanEl.setAttributeNS null, "x", xLeft
+      tempSpanEl.setAttributeNS null, "y", yLeft
+      tempSpanEl.setAttributeNS null, "dy", maxLineHeight/2
+      tempTextNode = document.createTextNode(line[0])
+      tempSpanEl.appendChild tempTextNode
+      leftCell.appendChild tempSpanEl
 
       #drawing a black graph bar
-      @obj3 = @paper.rect(xBar, yBar, maxBarWidth, barHeight, 2)
+      @obj3 = @paper.rect(xBar, yBar, barWidth, barHeight, 2)
       @obj3.attr "stroke", formatColor(color)
       @obj3.attr "fill", "#000000"
       @obj3.attr "stroke-width", zoomStroke(formatThickness(0))
 
+      #changing the Y coordinate for all the objects
       yBar = yBar + barHeight + heightPadding
+      yLeft = yLeft + heightPadding + barHeight
 
     test
 
@@ -181,7 +195,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       tempSpanEl.firstChild.nodeValue = line[0]
       leftCell.appendChild tempSpanEl
       if tempSpanEl.getBBox().width > maxLeftWidth
-        maxLeftWidth += tempSpanEl.getBBox().width
+        maxLeftWidth = tempSpanEl.getBBox().width
         if tempSpanEl.getBBox().height > maxLineHeight
           maxLineHeight = tempSpanEl.getBBox().height
       leftCell.removeChild(leftCell.firstChild)
