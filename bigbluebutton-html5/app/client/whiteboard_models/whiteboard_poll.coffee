@@ -103,6 +103,32 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     maxLeftWidth = calculatedData[1]
     maxRightWidth = calculatedData[2]
     maxLineHeight = calculatedData[3]
+    maxBarWidth = width*0.9-maxLeftWidth-maxRightWidth
+    barHeight = height*0.75/textArray.length
+    svgNSi = "http://www.w3.org/2000/svg"
+
+    #setting a font style for the text elements
+    leftCell.style['font-size'] = calcFontSize
+    rightCell.style['font-size'] = calcFontSize
+
+    #Vertical padding
+    heightPadding = height*0.25/(textArray.length+1)
+    #Horizontal padding
+    widthPadding = width*0.1/(textArray[0].length+1)
+
+
+    xBar = x+maxLeftWidth+widthPadding*2
+    yBar = y + heightPadding
+
+    for line in textArray
+
+      #drawing a black graph bar
+      @obj3 = @paper.rect(xBar, yBar, maxBarWidth, barHeight, 2)
+      @obj3.attr "stroke", formatColor(color)
+      @obj3.attr "fill", "#000000"
+      @obj3.attr "stroke-width", zoomStroke(formatThickness(0))
+
+      yBar = yBar + barHeight + heightPadding
 
     test
 
