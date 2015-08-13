@@ -659,8 +659,6 @@ case class PatchDocumentReply(
     requesterID: String,
     noteID: String,
     patch: String,
-    beginIndex: Int,
-    endIndex: Int,
     version:String = Versions.V_0_0_1
 ) extends IOutMessage
 

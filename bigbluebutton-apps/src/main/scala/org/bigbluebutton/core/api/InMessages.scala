@@ -513,9 +513,7 @@ case class PatchDocumentRequest(
     meetingID: String, 
     requesterID: String,
     noteID: String,
-    patch: String,
-    beginIndex: Int,
-    endIndex: Int
+    patch: String
 ) extends InMessage
 
 case class GetCurrentDocumentRequest(

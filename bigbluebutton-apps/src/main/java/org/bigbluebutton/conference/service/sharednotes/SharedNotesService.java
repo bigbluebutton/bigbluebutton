@@ -49,13 +49,11 @@ public class SharedNotesService {
 		log.debug("SharedNotesService.patchDocument");
 		String noteID = msg.get("noteID").toString();
 		String patch = msg.get("patch").toString();
-		Integer beginIndex = (Integer) msg.get("beginIndex");
-		Integer endIndex = (Integer) msg.get("endIndex");
 
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
 
-		application.patchDocument(meetingID, requesterID, noteID, patch, beginIndex, endIndex);
+		application.patchDocument(meetingID, requesterID, noteID, patch);
 	}
 
 	public void createAdditionalNotes(Map<String, Object> msg) {
