@@ -8,7 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetPresentationInfoReplyMessage implements IPublishedMessage {
+public class GetPresentationInfoReplyMessage implements IBigBlueButtonMessage {
 	public static final String GET_PRESENTATION_INFO_REPLY = "get_presentation_info_reply";
 	public static final String VERSION = "0.0.1";
 

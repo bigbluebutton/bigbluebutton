@@ -4,7 +4,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class RegisterUserMessage implements IPublishedMessage {
+public class RegisterUserMessage implements IBigBlueButtonMessage {
 	public static final String REGISTER_USER = "register_user_request";
 	public final String VERSION = "0.0.1";
 
