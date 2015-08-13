@@ -72,7 +72,31 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       shape: "poll_result"
       data: [x1, y1, x2, y2, @obj.attrs["stroke"], @obj.attrs["stroke-width"], @obj.attrs["fill"]]
 
-    test = [@obj]
+    #Initializing a text element for further calculations and for the left column of keys
+    @obj2 = @paper.text(x, y, "")
+    @obj2.attr
+      "fill": "#000000"
+      "font-family": "Arial"
+      "font-size": calcFontSize
+    @obj2.node.style["text-anchor"] = "start" # force left align
+    @obj2.node.style["textAnchor"] = "start"  # for firefox, 'cause they like to be different
+    leftCell = @obj2.node
+    while leftCell? and leftCell.hasChildNodes()
+      leftCell.removeChild(leftCell.firstChild)
+
+    #Initializing a text element for the right column of percentages
+    @obj3 = @paper.text(x, y, "")
+    @obj3.attr
+      "fill": "#000000"
+      "font-family": "Arial"
+      "font-size": calcFontSize
+    @obj3.node.style["text-anchor"] = "end" # force left align
+    @obj3.node.style["textAnchor"] = "end"  # for firefox, 'cause they like to be different
+    rightCell = @obj3.node
+    while rightCell? and rightCell.hasChildNodes()
+      rightCell.removeChild(rightCell.firstChild)
+
+    test = [@obj, @obj2, @obj3]
 
     test
 
