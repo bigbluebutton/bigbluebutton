@@ -4,6 +4,8 @@ package org.bigbluebutton.modules.polling.views
 	import com.asfusion.mate.events.Listener;
 	
 	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
 	import mx.containers.HBox;
 	import mx.containers.TitleWindow;
@@ -26,9 +28,12 @@ package org.bigbluebutton.modules.polling.views
 		private var _voteListener:Listener;
 		
 		private var _respondersLabel:Label;
+		private var _respondersLabelDots:Label;
 		private var _pollGraphic:PollGraphic;
 		private var _publishBtn:Button;
 		private var _closeBtn:Button;
+		
+		private var _dotTimer:Timer;
 		
 		public function PollResultsModal() {
 			super();
@@ -62,10 +67,23 @@ package org.bigbluebutton.modules.polling.views
 			_pollGraphic.minWidth = 130;
 			addChild(_pollGraphic);
 			
+			var respondersBox:HBox = new HBox();
+			respondersBox.setStyle("horizontalGap", 0);
+			
 			_respondersLabel = new Label();
+			_respondersLabel.setStyle("textAlign", "right");
 			_respondersLabel.styleName = "pollResondersLabelStyle";
-			_respondersLabel.text = " ";// ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.novotes');
-			addChild(_respondersLabel);
+			_respondersLabel.text = ResourceUtil.getInstance().getString('bbb.polling.respondersLabel.novotes');
+			respondersBox.addChild(_respondersLabel);
+			
+			_respondersLabelDots = new Label();
+			_respondersLabelDots.width = 20;
+			_respondersLabelDots.setStyle("textAlign", "left");
+			_respondersLabelDots.styleName="pollResondersLabelStyle";
+			_respondersLabelDots.text = "";
+			respondersBox.addChild(_respondersLabelDots);
+			
+			addChild(respondersBox);
 			
 			hrule = new HRule();
 			hrule.percentWidth = 100;
@@ -89,6 +107,10 @@ package org.bigbluebutton.modules.polling.views
 			_voteListener = new Listener();
 			_voteListener.type = PollVotedEvent.POLL_VOTED;
 			_voteListener.method = handlePollVotedEvent;
+			
+			_dotTimer = new Timer(200, 0);
+			_dotTimer.addEventListener(TimerEvent.TIMER, dotAnimate);
+			_dotTimer.start();
 		}
 		
 		public function setPoll(poll:SimplePoll):void {
@@ -107,6 +129,11 @@ package org.bigbluebutton.modules.polling.views
 		}
 		
 		private function handlePollVotedEvent(e:PollVotedEvent):void {
+			_dotTimer.stop();
+			_dotTimer = null;
+			_respondersLabelDots.visible = false;
+			_respondersLabelDots.includeInLayout = false;
+			
 			var resultData:Array = new Array();
 			var answers:Array = e.result.answers; 
 			for (var j:int = 0; j < answers.length; j++) {
@@ -140,6 +167,14 @@ package org.bigbluebutton.modules.polling.views
 			_voteListener = null;
 			
 			PopUpManager.removePopUp(this);
+		}
+		
+		private function dotAnimate(e:TimerEvent):void {
+			if (_respondersLabelDots.text.length > 5) {
+				_respondersLabelDots.text = "";
+			} else {
+				_respondersLabelDots.text += ".";
+			}
 		}
 	}
 }
