@@ -101,14 +101,14 @@ function doDesksharePreview() {
 }
 
 function vertoScreenStart() {
-	alert("start");
+	console.log("vertoScreenStart");
 	// screenStart(true, function () {
 	// });
 	screenStart(true, function(){});
 }
 
 function vertoScreenStop() {
-	alert("stop");
+	console.log("vertoScreenStop");
 	screenStart(false, function () {
 	});
 }

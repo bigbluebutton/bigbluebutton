@@ -265,8 +265,8 @@ function makeVerto(callbacks, stunsConfig) {
 	var socketUrl = "wss://" + hostName + ":" + vertoPort; //TODO
 	var login = "1008"; //TODO
 	var password = "fred"; //TODO
-	var minWidth = "320"; //TODO
-	var minHeight = "240"; //TODO
+	var minWidth = "640";
+	var minHeight = "480";
 	var maxWidth = "1920";
 	var maxHeight = "1080";
 
@@ -337,7 +337,8 @@ $(document).ready(function() {
 	console.log("document ready");
 
 	//TODO
-	$("body").append("<button id='shareScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>shareScreen</button>");
+	// $("body").append("<button id='stopScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>stopScreen</button>");
+	// $("body").append("<button id='shareScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>shareScreen</button>");
 
 	//$("#joinAudio").click(function() {
 	//	wasCallSuccessful = false;
@@ -353,19 +354,19 @@ $(document).ready(function() {
 	//	cur_call = null;
 	//});
 
-	$("#shareScreen").click(function() {
-		console.log("shareScreen button");
-		screenStart(true, function(){});
-		$("#shareScreen").hide();
-		$("#stopScreen").show();
-	});
+	// $("#shareScreen").click(function() {
+	// 	console.log("shareScreen button");
+	// 	screenStart(true, function(){});
+	// 	$("#shareScreen").hide();
+	// 	$("#stopScreen").show();
+	// });
 
-	$("#stopScreen").click(function() {
-		console.log("stopScreen button");
-		screenStart(false, function(){});
-		$("#shareScreen").show();
-		$("#stopScreen").hide();
-	});
+	// $("#stopScreen").click(function() {
+	// 	console.log("stopScreen button");
+	// 	screenStart(false, function(){});
+	// 	$("#shareScreen").show();
+	// 	$("#stopScreen").hide();
+	// });
 	// $("#stopScreen").hide();
 });
 
@@ -431,16 +432,16 @@ function doWebcamPreview() {
 	};
 
 	//var screen_constraints = vgaConstraints;
-	//var screen_constraints = hdConstraints;
-	//console.log("screen constraints", screen_constraints)
-	//navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-	//navigator.getUserMedia(screen_constraints, function(stream) {
-	//	var video = document.querySelector('video');
-	//	video.src = URL.createObjectURL(stream);
-	//	video.play();
-	//}, function(error) {
-	//	return console.error(JSON.stringify(error, null, '\t'));
-	//});
+	// var screen_constraints = hdConstraints;
+	// console.log("screen constraints", screen_constraints)
+	// navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+	// navigator.getUserMedia(screen_constraints, function(stream) {
+	// 	var video = document.querySelector('video');
+	// 	video.src = URL.createObjectURL(stream);
+	// 	video.play();
+	// }, function(error) {
+	// 	return console.error(JSON.stringify(error, null, '\t'));
+	// });
 }
 
 function checkSupport(callback) {
