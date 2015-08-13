@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -58,6 +58,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		
 		public function handleStopModuleEvent():void {
 			LogUtil.debug("Deskshare Module stopping");
+
 			publishWindowManager.stopSharing();
 			viewWindowManager.stopViewing();		
 			service.disconnect();
@@ -111,7 +112,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			var option:DeskshareOptions = new DeskshareOptions();
 			option.parseOptions();
 			publishWindowManager.startSharing(option.publishURI , option.useTLS , module.getRoom(), autoStart, option.autoFullScreen);
-			sharing = true;
+			// sharing = true; //TODO must uncomment this for the non-webrtc desktop share
 		}
 		
 		public function handleShareWindowCloseEvent():void {
@@ -127,10 +128,10 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function handleStreamStartEvent(e:ViewStreamEvent):void{
-			if (sharing) return;
+			// if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
 			LogUtil.debug("Received start vieweing command");
 
-			sharing = true;
+			// sharing = true; //TODO must uncomment this for the non-webrtc desktop share
 			viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
 		}
 
