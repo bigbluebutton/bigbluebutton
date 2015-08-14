@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+          xmlns:mate="http://mate.asfusion.com/"
+          verticalScrollPolicy="off"
+          horizontalScrollPolicy="off"
+          horizontalAlign="center"
+          showCloseButton="true"
+          close="onCancelClicked()"
+          creationComplete="onCreationComplete()"
+          width="250"
+          title="{ResourceUtil.getInstance().getString('bbb.layout.window.name')}">
+
+  
+  <mx:Script>
+    <![CDATA[
+      import com.asfusion.mate.events.Dispatcher;
+
+      import mx.managers.PopUpManager;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.modules.layout.events.LayoutEvent;
+
+      private function addButton_clickHandler():void {
+        var e:LayoutEvent = new LayoutEvent(LayoutEvent.ADD_CURRENT_LAYOUT_EVENT);
+        if (textInput.text != ResourceUtil.getInstance().getString('bbb.layout.combo.customName')) {
+          e.layoutName = textInput.text;
+        }
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatcher.dispatchEvent(e);
+
+        PopUpManager.removePopUp(this);
+
+      }
+
+      private function onCreationComplete():void {
+        textInput.setFocus();
+      }
+
+      private function onCancelClicked():void {
+        PopUpManager.removePopUp(this);
+      }
+    ]]>
+  </mx:Script>
+
+  <mx:HBox width="100%" height="100%">
+      <mx:TextInput id="textInput" restrict="a-zA-Z0-9 " maxChars="20" width="100%" text="{ResourceUtil.getInstance().getString('bbb.layout.combo.customName')}"/>
+      <mx:Button id="addButton" click="addButton_clickHandler()" icon="@Embed(source='assets/images/ic_add_circle_outline_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}"/>
+  </mx:HBox>
+</mx:TitleWindow>

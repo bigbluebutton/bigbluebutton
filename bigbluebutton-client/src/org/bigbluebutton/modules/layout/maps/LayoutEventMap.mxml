@@ -122,7 +122,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </EventHandlers>
 
     <EventHandlers type="{LayoutEvent.ADD_CURRENT_LAYOUT_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="addCurrentLayoutToList" />
+   		<MethodInvoker generator="{LayoutManager}" method="addCurrentLayoutToList" arguments="{event.layoutName}"/>
     </EventHandlers>
   
   <EventHandlers type="{EventConstants.SWITCH_LAYOUT_REQ}">

@@ -135,9 +135,20 @@ package org.bigbluebutton.modules.layout.managers
 			loader.loadFromLocalFile();
 		}
 
-		public function addCurrentLayoutToList():void {
-				var newLayout:LayoutDefinition = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
-				newLayout.name += " " + (++_customLayoutsCount);
+		public function addCurrentLayoutToList(layoutName:String):void {
+				//Layout Name Window Popup calls this function
+				//if we have a user set name
+				var newLayout:LayoutDefinition
+				if(layoutName != ""){
+					newLayout = LayoutDefinition.getLayout(_canvas, layoutName);
+				}
+
+				//if the user set the name empty
+				else{
+					newLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
+					newLayout.name += " " + (++_customLayoutsCount);
+				}
+
 				_layoutModel.addLayout(newLayout);
 				updateCurrentLayout(newLayout);
 				broadcastLayouts();
