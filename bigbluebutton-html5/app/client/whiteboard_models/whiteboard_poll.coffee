@@ -96,8 +96,6 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     while rightCell? and rightCell.hasChildNodes()
       rightCell.removeChild(rightCell.firstChild)
 
-    test = [@obj, @obj2, @obj3]
-
     calculatedData = calculateFontAndWidth(leftCell, textArray, calcFontSize, width, height, x, y)
     calcFontSize = calculatedData[0]
     maxLeftWidth = calculatedData[1]
@@ -124,7 +122,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     #Initial coordinates of the percentage column
     yRight = y+heightPadding+barHeight/2
     xRight = x + widthPadding*3 + maxLeftWidth + maxRightWidth + barWidth + 1
-
+    test = [@obj, @obj2, @obj3]
     for line in textArray
       #Adding an element to the left column
       tempSpanEl = document.createElementNS(svgNSi, "tspan")
@@ -137,11 +135,11 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       leftCell.appendChild tempSpanEl
 
       #drawing a black graph bar
-      @obj3 = @paper.rect(xBar, yBar, barWidth, barHeight, 2)
-      @obj3.attr "stroke", formatColor(color)
-      @obj3.attr "fill", "#000000"
-      @obj3.attr "stroke-width", zoomStroke(formatThickness(0))
-
+      @obj4 = @paper.rect(xBar, yBar, barWidth, barHeight, 2)
+      @obj4.attr "stroke", formatColor(color)
+      @obj4.attr "fill", "#000000"
+      @obj4.attr "stroke-width", zoomStroke(formatThickness(0))
+      test.push @obj4
       #Adding an element to the right column
       tempSpanEl = document.createElementNS(svgNSi, "tspan")
       tempSpanEl.setAttributeNS null, "x", xRight
