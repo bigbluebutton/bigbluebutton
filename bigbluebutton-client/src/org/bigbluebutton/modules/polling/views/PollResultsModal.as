@@ -135,8 +135,10 @@ package org.bigbluebutton.modules.polling.views
 		}
 		
 		private function handlePollVotedEvent(e:PollVotedEvent):void {
-			_dotTimer.stop();
-			_dotTimer = null;
+			if (_dotTimer && _dotTimer.running) {
+				_dotTimer.stop();
+				_dotTimer = null;
+			}
 			_respondersLabelDots.visible = false;
 			_respondersLabelDots.includeInLayout = false;
 			
