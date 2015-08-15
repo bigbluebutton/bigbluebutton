@@ -29,15 +29,18 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     backgroundColor = "#ffffff"
     vPadding = 10
     hPadding = 5
-    calcFontSize = 30
+    calcFontSize = 22
     votesTotal = 0
+    maxNumVotes = 0
     textArray = []
 
     #creating an array of text objects for the labels, percentages and number inside line bars
     if startingData.result? and startingData.result.length > 1
-      #counting the total number of votes
+      #counting the total number of votes and finding the biggest number of votes
       for i in [0..startingData.result.length-1]
         votesTotal += startingData.result[i].num_votes
+        if maxNumVotes < startingData.result[i].num_votes
+          maxNumVotes = startingData.result[i].num_votes
         textArray[i] = []
       #filling the array with proper text objects to display
       for i in [0..startingData.result.length-1]
@@ -101,14 +104,13 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     maxLeftWidth = calculatedData[1]
     maxRightWidth = calculatedData[2]
     maxLineHeight = calculatedData[3]
-    barWidth = width*0.9-maxLeftWidth-maxRightWidth
+    maxBarWidth = width*0.9-maxLeftWidth-maxRightWidth
     barHeight = height*0.75/textArray.length
     svgNSi = "http://www.w3.org/2000/svg"
 
     #setting a font style for the text elements
     leftCell.style['font-size'] = calcFontSize
     rightCell.style['font-size'] = calcFontSize
-
     #Horizontal padding
     widthPadding = width*0.1/(textArray[0].length+1)
     #Vertical padding
@@ -121,34 +123,39 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     yBar = y + heightPadding
     #Initial coordinates of the percentage column
     yRight = y+heightPadding+barHeight/2
-    xRight = x + widthPadding*3 + maxLeftWidth + maxRightWidth + barWidth + 1
+    xRight = x + widthPadding*3 + maxLeftWidth + maxRightWidth + maxBarWidth + 1
     test = [@obj, @obj2, @obj3]
-    for line in textArray
+
+
+    for i in [0..textArray.length-1]
       #Adding an element to the left column
       tempSpanEl = document.createElementNS(svgNSi, "tspan")
       tempSpanEl.setAttributeNS null, "x", xLeft
       tempSpanEl.setAttributeNS null, "y", yLeft
       tempSpanEl.setAttributeNS null, "dy", maxLineHeight/2
-
-      tempTextNode = document.createTextNode(line[0])
+      tempTextNode = document.createTextNode(textArray[i][0])
       tempSpanEl.appendChild tempTextNode
       leftCell.appendChild tempSpanEl
 
       #drawing a black graph bar
-      @obj4 = @paper.rect(xBar, yBar, barWidth, barHeight, 2)
-      @obj4.attr "stroke", formatColor(color)
-      @obj4.attr "fill", "#000000"
-      @obj4.attr "stroke-width", zoomStroke(formatThickness(0))
-      test.push @obj4
+      if maxNumVotes is 0 or startingData.result[i].num_votes is 0
+        barWidth = 2
+      else
+        barWidth = startingData.result[i].num_votes / maxNumVotes * maxBarWidth
+      @obj5 = @paper.rect(xBar, yBar, barWidth, barHeight, 2)
+      @obj5.attr "stroke", formatColor(color)
+      @obj5.attr "fill", "#000000"
+      @obj5.attr "stroke-width", zoomStroke(formatThickness(0))
+      test.push @obj5
+
       #Adding an element to the right column
       tempSpanEl = document.createElementNS(svgNSi, "tspan")
       tempSpanEl.setAttributeNS null, "x", xRight
       tempSpanEl.setAttributeNS null, "y", yRight
       tempSpanEl.setAttributeNS null, "dy", maxLineHeight/2
-      tempTextNode = document.createTextNode(line[2])
+      tempTextNode = document.createTextNode(textArray[i][2])
       tempSpanEl.appendChild tempTextNode
       rightCell.appendChild tempSpanEl
-      console.log tempSpanEl.getBBox().width
 
       #changing the Y coordinate for all the objects
       yBar = yBar + barHeight + heightPadding
@@ -159,11 +166,6 @@ class @WhiteboardPollModel extends WhiteboardToolModel
 
 
   # Update the poll dimensions
-  # @param  {number} x1 the x value of the top left corner
-  # @param  {number} y1 the y value of the top left corner
-  # @param  {number} x2 the x value of the bottom right corner
-  # @param  {number} y2 the y value of the bottom right corner
-  # @param  {boolean} square (draw a square or not)
   update: (startingData) ->
 
 
