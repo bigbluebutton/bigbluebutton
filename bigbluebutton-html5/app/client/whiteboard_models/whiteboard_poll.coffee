@@ -162,6 +162,37 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       yLeft = yLeft + heightPadding + barHeight
       yRight = yRight + heightPadding + barHeight
 
+
+    #Initializing a text element for the number of votes text field inside the line bar
+    @obj4 = @paper.text(x, y, "")
+    @obj4.attr
+      "fill": "#000000"
+      "font-family": "Arial"
+      "font-size": calcFontSize
+    centerCell = @obj4.node
+    while centerCell? and centerCell.hasChildNodes()
+      centerCell.removeChild(centerCell.firstChild)
+
+    #Initial coordinates of the text inside the bar column
+    xNumVotes = x+maxLeftWidth+widthPadding*2
+    yNumVotes = y + heightPadding
+    for i in [0..textArray.length-1]
+      if maxNumVotes is 0 or startingData.result[i].num_votes is 0
+        barWidth = 2
+      else
+        barWidth = startingData.result[i].num_votes / maxNumVotes * maxBarWidth
+
+      tempSpanEl = document.createElementNS(svgNSi, "tspan")
+      tempSpanEl.setAttributeNS null, "x", xNumVotes + barWidth/2
+      tempSpanEl.setAttributeNS null, "y", yNumVotes + barHeight/2
+      tempSpanEl.setAttributeNS null, "dy", maxLineHeight/2
+      tempSpanEl.setAttributeNS null, "fill", "white"
+      tempTextNode = document.createTextNode(startingData.result[i].num_votes)
+      tempSpanEl.appendChild tempTextNode
+      centerCell.appendChild tempSpanEl
+      yNumVotes = yNumVotes + barHeight + heightPadding
+
+    test.push @obj4
     test
 
 
