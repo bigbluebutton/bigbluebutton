@@ -10,7 +10,7 @@ Meteor.startup ->
   clearSlidesCollection()
   clearPresentationsCollection()
   clearPollCollection()
-  
+
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->
     Meteor.log.info "created pubsub")

@@ -5,30 +5,27 @@ class @WhiteboardPollModel extends WhiteboardToolModel
 
     # the defintion of this shape, kept so we can redraw the shape whenever needed
     # format: x1, y1, x2, y2, stroke color, thickness, fill
-    @definition = [0, 0, 0, 0, "#000", "0px", "#ffffff"]
+    @definition = [0, 0, 0, 0, "#000000", "2px", "#ffffff"]
     @paper
 
   # Creates a polling in the paper
-  # @param  {number} x1               the x value of the top left corner
-  # @param  {number} y1               the y value of the top left corner
-  # @param  {number} x2               the x value of the bottom right corner
-  # @param  {number} y2               the y value of the bottom right corner
-  # @param  {string} colour           the colour of the object
-  # @param  {number} thickness        the thickness of the object's line(s)
-  # @param  {string} backgroundColor  the background color of the poll element
-  # @param  {number} vPadding         the vertical padding of the poll element
-  # @param  {number} hPadding         the horizontal padding of the poll element
+  # @param  {number} x1                the x value of the top left corner
+  # @param  {number} y1                the y value of the top left corner
+  # @param  {number} x2                the x value of the bottom right corner
+  # @param  {number} y2                the y value of the bottom right corner
+  # @param  {number} thickness         the thickness of the object's line(s)
+  # @param  {string} backgroundColor   the background color of the base poll rectangle
+  # @param  {number} calcFontSize      the default font-size of the text objects
   make: (startingData) =>
     #data needed to create the first base rectangle filled with white color
     x1 = startingData.points[0]
     y1 = startingData.points[1]
     x2 = startingData.points[2] + startingData.points[0] - 0.001
     y2 = startingData.points[3] + startingData.points[1] - 0.001
-    color = startingData.color
     thickness = 2
     backgroundColor = "#ffffff"
-    vPadding = 10
-    hPadding = 5
+    verticalPadding = 0
+    horizontalPadding = 0
     calcFontSize = 22
     votesTotal = 0
     maxNumVotes = 0
@@ -68,7 +65,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
 
     #creating a base rectangle
     @obj = @paper.rect(x, y, width, height, 1)
-    @obj.attr "stroke", formatColor(color)
+    @obj.attr "stroke", "#000000"
     @obj.attr "fill", backgroundColor
     @obj.attr "stroke-width", zoomStroke(formatThickness(thickness))
     @definition =
@@ -93,12 +90,13 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       "fill": "#000000"
       "font-family": "Arial"
       "font-size": calcFontSize
-    @obj3.node.style["text-anchor"] = "end" # force left align
+    @obj3.node.style["text-anchor"] = "end" # force right align
     @obj3.node.style["textAnchor"] = "end"  # for firefox, 'cause they like to be different
     rightCell = @obj3.node
     while rightCell? and rightCell.hasChildNodes()
       rightCell.removeChild(rightCell.firstChild)
 
+    #Calculating a proper font-size, and the maximum widht and height of the objects
     calculatedData = calculateFontAndWidth(leftCell, textArray, calcFontSize, width, height, x, y)
     calcFontSize = calculatedData[0]
     maxLeftWidth = calculatedData[1]
@@ -108,23 +106,23 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     barHeight = height*0.75/textArray.length
     svgNSi = "http://www.w3.org/2000/svg"
 
-    #setting a font style for the text elements
+    #setting a font size for the text elements on the left and on the right
     leftCell.style['font-size'] = calcFontSize
     rightCell.style['font-size'] = calcFontSize
     #Horizontal padding
-    widthPadding = width*0.1/(textArray[0].length+1)
+    verticalPadding = width*0.1/(textArray[0].length+1)
     #Vertical padding
-    heightPadding = height*0.25/(textArray.length+1)
+    horizontalPadding = height*0.25/(textArray.length+1)
     #Initial coordinates of the key column
-    yLeft = y+heightPadding+barHeight/2
-    xLeft = x + widthPadding + 1
+    yLeft = y+horizontalPadding+barHeight/2
+    xLeft = x + verticalPadding + 1
     #Initial coordinates of the line bar column
-    xBar = x+maxLeftWidth+widthPadding*2
-    yBar = y + heightPadding
+    xBar = x+maxLeftWidth+verticalPadding*2
+    yBar = y + horizontalPadding
     #Initial coordinates of the percentage column
-    yRight = y+heightPadding+barHeight/2
-    xRight = x + widthPadding*3 + maxLeftWidth + maxRightWidth + maxBarWidth + 1
-    test = [@obj, @obj2, @obj3]
+    yRight = y+horizontalPadding+barHeight/2
+    xRight = x + verticalPadding*3 + maxLeftWidth + maxRightWidth + maxBarWidth + 1
+    objects = [@obj, @obj2, @obj3]
 
 
     for i in [0..textArray.length-1]
@@ -142,11 +140,11 @@ class @WhiteboardPollModel extends WhiteboardToolModel
         barWidth = 2
       else
         barWidth = startingData.result[i].num_votes / maxNumVotes * maxBarWidth
-      @obj5 = @paper.rect(xBar, yBar, barWidth, barHeight, 2)
-      @obj5.attr "stroke", formatColor(color)
-      @obj5.attr "fill", "#000000"
-      @obj5.attr "stroke-width", zoomStroke(formatThickness(0))
-      test.push @obj5
+      @obj4 = @paper.rect(xBar, yBar, barWidth, barHeight, 2)
+      @obj4.attr "stroke", "#000000"
+      @obj4.attr "fill", "#000000"
+      @obj4.attr "stroke-width", zoomStroke(formatThickness(0))
+      objects.push @obj4
 
       #Adding an element to the right column
       tempSpanEl = document.createElementNS(svgNSi, "tspan")
@@ -158,24 +156,23 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       rightCell.appendChild tempSpanEl
 
       #changing the Y coordinate for all the objects
-      yBar = yBar + barHeight + heightPadding
-      yLeft = yLeft + heightPadding + barHeight
-      yRight = yRight + heightPadding + barHeight
-
+      yBar = yBar + barHeight + horizontalPadding
+      yLeft = yLeft + horizontalPadding + barHeight
+      yRight = yRight + horizontalPadding + barHeight
 
     #Initializing a text element for the number of votes text field inside the line bar
-    @obj4 = @paper.text(x, y, "")
-    @obj4.attr
+    @obj5 = @paper.text(x, y, "")
+    @obj5.attr
       "fill": "#000000"
       "font-family": "Arial"
       "font-size": calcFontSize
-    centerCell = @obj4.node
+    centerCell = @obj5.node
     while centerCell? and centerCell.hasChildNodes()
       centerCell.removeChild(centerCell.firstChild)
 
     #Initial coordinates of the text inside the bar column
-    xNumVotes = x+maxLeftWidth+widthPadding*2
-    yNumVotes = y + heightPadding
+    xNumVotes = x+maxLeftWidth+verticalPadding*2
+    yNumVotes = y + horizontalPadding
     for i in [0..textArray.length-1]
       if maxNumVotes is 0 or startingData.result[i].num_votes is 0
         barWidth = 2
@@ -190,10 +187,10 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       tempTextNode = document.createTextNode(startingData.result[i].num_votes)
       tempSpanEl.appendChild tempTextNode
       centerCell.appendChild tempSpanEl
-      yNumVotes = yNumVotes + barHeight + heightPadding
+      yNumVotes = yNumVotes + barHeight + horizontalPadding
 
-    test.push @obj4
-    test
+    objects.push @obj5
+    objects
 
 
   # Update the poll dimensions

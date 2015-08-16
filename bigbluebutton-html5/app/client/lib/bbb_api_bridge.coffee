@@ -22,7 +22,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
       callback res
     else
       res
-  
+
   BBB.isPollGoing = (userId) ->
     if userId isnt undefined and Meteor.Polls.findOne({"poll_info.users": userId})
       return true

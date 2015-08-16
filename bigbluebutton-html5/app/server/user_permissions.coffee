@@ -71,7 +71,7 @@ viewer = (meetingId, userId) ->
   chatPrivate: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePrivChat) or
                 !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
                 Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
-  
+
   #poll
   subscribePoll: true
   subscribeAnswers: false
