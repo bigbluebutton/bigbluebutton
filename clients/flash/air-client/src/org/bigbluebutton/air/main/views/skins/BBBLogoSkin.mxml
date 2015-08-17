@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Image")]
+	</fx:Metadata>
+
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="invalid" />
+		<s:State name="ready" />
+		<s:State name="loading" />
+		<s:State name="uninitialized" />
+	</s:states>
+
+	<!-- SkinParts
+	name=progressIndicator, type=spark.components.supportClasses.Range, required=false
+	name=imageDisplay, type=spark.primitives.BitmapImage, required=true
+	-->
+	<s:BitmapImage id="imageDisplay"
+				   left="0"
+				   top="0"
+				   right="0"
+				   bottom="0"
+				   source="{getStyle('imageSource')}" />
+</s:Skin>

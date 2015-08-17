@@ -20,9 +20,12 @@ package org.bigbluebutton.modules.chat.views
 {
   import mx.controls.List;
   
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
+  
   public class AdvancedList extends List
   {
-    private static const LOG:String = "Chat::AdvancedList - ";
+	private static const LOGGER:ILogger = getClassLogger(AdvancedList);      
 	  
     public function AdvancedList()
     {

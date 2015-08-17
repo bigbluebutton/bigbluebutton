@@ -1,10 +1,12 @@
 package org.bigbluebutton.modules.phone
 {
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.phone.models.WebRTCModel;
 
   public class PhoneModel
   {
-    private static const LOG:String = "PhoneModel - ";
+	private static const LOGGER:ILogger = getClassLogger(PhoneModel);      
     
     private static var instance:PhoneModel = null;
     

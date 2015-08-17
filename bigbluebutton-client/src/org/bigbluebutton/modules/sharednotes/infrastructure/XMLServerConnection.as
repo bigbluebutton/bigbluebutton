@@ -25,9 +25,14 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 	import flash.net.XMLSocket;
 	import flash.utils.Timer;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	
 	public class XMLServerConnection extends ServerConnection
 	{
 		public static var serverURL:String = "192.168.0.104";
+		private static const LOGGER:ILogger = getClassLogger(XMLServerConnection);      
+
 		public static const XML_CONNECTION_FAILED:String = "XML_CONNECTION_FAILED";
 		private static const MAXIMUM_CONNECTION_ATTEMPTS:int = 5;
 		
@@ -66,7 +71,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			} catch(e:Error) {
 				//socket.close();
 				if (connectionAttempts > 0) {
-					trace(e.message);
+					LOGGER.debug(e.message);
 					connectionAttempts--;
 					timeoutTimer.start();
 				} else {

@@ -18,55 +18,70 @@
 */
 package org.bigbluebutton.modules.polling.service
 {
-	
-	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.modules.polling.events.CreatePollEvent;
-	import org.bigbluebutton.modules.polling.events.GetPollsEvent;
-	import org.bigbluebutton.modules.polling.events.PollEvent;
-	import org.bigbluebutton.modules.polling.events.RespondEvent;
-	import org.bigbluebutton.modules.polling.events.UpdatePollEvent;
-	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
+	import org.bigbluebutton.modules.polling.events.StartPollEvent;
+	import org.bigbluebutton.modules.polling.events.StopPollEvent;
+	import org.bigbluebutton.modules.polling.events.VotePollEvent;
+	import org.bigbluebutton.modules.polling.model.PollingModel;
+	import org.bigbluebutton.modules.polling.model.SimplePoll;
+	import org.bigbluebutton.modules.present.model.Presentation;
+	import org.bigbluebutton.modules.present.model.PresentationModel;
 
 	public class PollingService
 	{	
-		private static const LOG:String = "Poll::PollingService - ";
+		private static const LOGGER:ILogger = getClassLogger(PollingService);      
 
-    /* Injected by Mate */
-    public var dataService:IPollDataService;
-
+	    private var dataService:IPollDataService;
+    	private var model:PollingModel;
+    	private var sender:MessageSender;
+		private var dataProcessor:PollDataProcessor;
+		private var receiver:MessageReceiver;
+		
+		public function PollingService() {
+			model = new PollingModel();
+			sender = new MessageSender();
+			dataService = new NetworkPollDataService(sender);
+			dataProcessor = new PollDataProcessor(model);
+			receiver = new MessageReceiver(dataProcessor);
+		}
+			
 		public function handleStartModuleEvent(module:PollingModule):void {
-       trace(LOG + " module started event");
+       		LOGGER.debug("module started event");
 		}
-		
-    public function handleGetPollsEvent(event:GetPollsEvent):void {
-      dataService.getPolls();
-    }
-    
-		public function handleCreatePollEvent(event:CreatePollEvent):void {
-      dataService.createPoll(event.poll);
-		}
-		
-    public function handleUpdatePollEvent(event:UpdatePollEvent):void {
-      dataService.updatePoll(event.poll);
-    }
+			
 
-    public function handleStartPollEvent(event:PollEvent):void {
-      dataService.startPoll(event.pollID);
+    private function generatePollId():String {
+      var curPres:Presentation = PresentationModel.getInstance().getCurrentPresentation();
+      if (curPres != null) {
+        var date:Date = new Date();
+        var pollId: String = curPres.id + "/" + curPres.getCurrentPage().num + "/" + date.time;
+        return pollId;
+      }
+      
+      return null;
     }
     
-    public function handleStopPollEvent(event:PollEvent):void {
-      dataService.stopPoll(event.pollID);
+    public function handleStartPollEvent(event:StartPollEvent):void {
+      var pollId:String = generatePollId();
+      if (pollId == null) return;
+      dataService.startPoll(pollId, event.pollType);
     }
     
-    public function handleRemovePollEvent(event:PollEvent):void {
-      dataService.removePoll(event.pollID);
+    public function handleStopPollEvent(event:StopPollEvent):void {
+      var curPoll:SimplePoll = model.getCurrentPoll();
+      dataService.stopPoll(curPoll.id);
     }
     
-    public function handleRespondPollEvent(event:RespondEvent):void {
-      dataService.respondPoll(event.response);
+    public function handleVotePollEvent(event:VotePollEvent):void {
+      var curPoll:SimplePoll = model.getCurrentPoll();
+      dataService.votePoll(curPoll.id, event.answerId);
+    }
+    
+    public function handleShowPollResultEvent(event:ShowPollResultEvent):void {
+      var curPoll:SimplePoll = model.getCurrentPoll();
+      dataService.showPollResult(curPoll.id, event.show);
     }
     
 

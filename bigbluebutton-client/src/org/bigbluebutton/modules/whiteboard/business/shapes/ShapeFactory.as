@@ -18,8 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-  import flash.display.Shape;  
-  import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   
@@ -64,6 +62,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             return new Line(a.id, a.type, a.status);
         }  else if (a.type == DrawObject.TRIANGLE) {
             return new Triangle(a.id, a.type, a.status);
+        }  else if (a.type == DrawObject.POLL) {
+            return new PollResultObject(a.id, a.type, a.status);
         }
             
         return null;

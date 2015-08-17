@@ -27,15 +27,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.binding.utils.ChangeWatcher;
 			import mx.core.UITextField;
 			import mx.core.mx_internal;
 			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.chat.model.ChatMessage;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			
+			private static const LOGGER:ILogger = getClassLogger(ChatMessageRenderer);      
+
 			private function onLinkClick(e:TextEvent):void{
-        trace("Clicked on link[" + e.text + "] from chat");
+        LOGGER.debug("Clicked on link[{0}] from chat", [e.text]);
         if (ExternalInterface.available) {
           ExternalInterface.call("chatLinkClicked", e.text);
         } 

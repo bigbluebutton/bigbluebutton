@@ -31,19 +31,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
-			import org.bigbluebutton.modules.deskshare.maps.DeskshareEventMap;
 			
+			private static const LOGGER:ILogger = getClassLogger(DeskShareModule);
+
 			private var _moduleName:String = "Desk Share";
 			private var _attributes:Object;
 			
 			private var globalDispatcher:Dispatcher = new Dispatcher();;
 			
 			private function onCreationComplete():void{
-				LogUtil.debug("DeskShareModule initialized");
+				LOGGER.debug("DeskShareModule initialized");
 			}
 			
 			public function get moduleName():String{
@@ -61,9 +62,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function get mode():String{
 				if (_attributes.mode == null){
 					_attributes.mode = "LIVE";
-					LogUtil.debug("Setting DeskShare mode: " + _attributes.mode);
+					LOGGER.debug("Setting DeskShare mode: {0}", [_attributes.mode]);
 				}
-				LogUtil.debug("DeskShare mode: " + _attributes.mode);
+				LOGGER.debug("DeskShare mode: {0}", [_attributes.mode]);
 				return _attributes.mode;
 			}
 			
@@ -76,7 +77,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function start(attributes:Object):void{
-				LogUtil.debug("desk share attr: " + attributes.username);
+				LOGGER.debug("desk share attr: {0}", [attributes.username]);
 				_attributes = attributes;
 				
 				var startEvent:ModuleEvent = new ModuleEvent(ModuleEvent.START);
@@ -85,7 +86,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function stop():void{
-				LogUtil.debug("STOPPING DESKSHARE MODULE!!!");
+				LOGGER.debug("STOPPING DESKSHARE MODULE!!!");
 				var stopEvent:ModuleEvent = new ModuleEvent(ModuleEvent.STOP);				
 				globalDispatcher.dispatchEvent(stopEvent);
 			}
@@ -100,7 +101,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function tunnel():Boolean {
 				if (_attributes.protocol == "RTMPT") {
-					LogUtil.debug("Use tunneling for desktop sharing");
+					LOGGER.debug("Use tunneling for desktop sharing");
 					return true;
 				}
 				return false;

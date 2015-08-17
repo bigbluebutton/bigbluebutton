@@ -23,7 +23,7 @@
 				num: slideObject.num
 				x_offset: slideObject.x_offset
 				current: slideObject.current
-				png_uri: slideObject.png_uri
+				svg_uri: slideObject.svg_uri
 				txt_uri: slideObject.txt_uri
 				id: slideObject.id
 				width_ratio: slideObject.width_ratio

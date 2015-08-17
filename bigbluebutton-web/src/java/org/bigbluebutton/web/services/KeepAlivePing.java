@@ -1,8 +1,7 @@
 package org.bigbluebutton.web.services;
 
-public class KeepAlivePing extends KeepAliveMessage {
+public class KeepAlivePing implements KeepAliveMessage {
 
-	public KeepAlivePing(String id) {
-		super(id);
+	public KeepAlivePing() {
 	}
 }

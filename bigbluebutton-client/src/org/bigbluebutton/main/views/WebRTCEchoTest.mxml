@@ -39,23 +39,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
-      import mx.managers.PopUpManager;     
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.main.api.JSAPI;
-      import org.bigbluebutton.main.api.JSLog;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.modules.phone.PhoneModel;
-      import org.bigbluebutton.modules.phone.PhoneOptions;
-      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.models.Constants;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.bigbluebutton.core.UsersUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.managers.PopUpManager;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.main.api.JSLog;
+			import org.bigbluebutton.modules.phone.PhoneModel;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestStartedEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCJoinedVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.models.Constants;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
       
-			private static const LOG:String = "Phone::WebRTCEchoTest - ";
+			private static const LOGGER:ILogger = getClassLogger(WebRTCEchoTest);      
 			private static var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
 			private var dotTimer:Timer;
@@ -98,7 +99,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function yesButtonClicked():void {
 				userClosed = true;
-				trace(LOG + "Echo test passed.");
+				LOGGER.debug("Echo test passed.");
         
         var logData:Object = new Object();       
         logData.reason = "User requested.";
@@ -114,13 +115,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function noButtonClicked():void {
 				userClosed = true;
-				trace(LOG + "Echo test failed.");
-        
-        var logData:Object = new Object();       
-        logData.reason = "User requested.";
-        logData.user = UsersUtil.getUserData();
-        JSLog.info("WebRtc Echo test failed.", logData);
-        
+				LOGGER.warn("Echo test failed.");
+                
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_NO_AUDIO));
 				onCancelClicked();

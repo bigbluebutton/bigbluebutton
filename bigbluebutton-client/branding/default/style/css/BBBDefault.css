@@ -54,6 +54,7 @@ ToolTip {
   fontWeight: bold;
   fontSize: 15;
   fontFamily: Arial;
+  textAlign: center;
   color: #e1e2e5;
 }
 
@@ -97,6 +98,13 @@ ToolTip {
   textIndent: 0;
   color: #ffffff;
   fontFamily: Arial;
+}
+
+.pollResondersLabelStyle {
+	color: #444444;
+	fontFamily: Arial;
+	fontSize: 16;
+	fontWeight: bold;
 }
 
 Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraDisplaySettingsWindowProfileComboStyle, .cameraDisplaySettingsWindowCameraSelector, .languageSelectorStyle, .testJavaLinkButtonStyle, .recordButtonStyleNormal, .recordButtonStyleStart, .recordButtonStyleStop, .micSettingsWindowHelpButtonStyle {
@@ -284,7 +292,7 @@ DataGrid {
 }
 
 
-.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
+.presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
   textIndent: 0;
@@ -306,6 +314,10 @@ DataGrid {
 
 .presentationUploadButtonStyle {
   icon:   Embed('assets/images/upload.png');   
+}
+
+.pollStartButtonStyle {
+  icon:   Embed('assets/images/poll_icon.png');
 }
 
 .presentationBackButtonStyle {
@@ -403,7 +415,7 @@ DataGrid {
   icon:   Embed('assets/images/webcam-private-chat.png');
 }
 
-.presentationFileUploadWindowStyle {
+TitleWindow {
   borderColor: #b9babc;
   borderAlpha: 1;
   borderThicknessLeft: 10;
@@ -414,11 +426,8 @@ DataGrid {
   cornerRadius: 5;
   headerHeight: 20;
   backgroundAlpha: 1;
-  headerColors: #b9babc, #b9babc;
-  footerColors: #b9babc, #b9babc;
   backgroundColor: #EFEFEF;
   dropShadowEnabled: true;
-  titleStyleName: "presentationFileUploadWindowTitleStyle";
 }
 
 .presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {
@@ -504,42 +513,6 @@ DataGrid {
 
 .chromeJavaHelpImage {
 	imageSource: Embed(source='assets/images/chromePluginBlocked.png');
-}
-
-.cameraDisplaySettingsWindowStyle {
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThicknessLeft: 10;
-  borderThicknessTop: 0;
-  borderThicknessBottom: 10;
-  borderThicknessRight: 10;
-  roundedBottomCorners: true;
-  cornerRadius: 5;
-  headerHeight: 20;
-  backgroundAlpha: 1;
-  headerColors: #b9babc, #b9babc;
-  footerColors: #b9babc, #b9babc;
-  backgroundColor: #EFEFEF;
-  dropShadowEnabled: true;
-  titleStyleName: "webcamSettingsWindowTitleStyle";
-}
-
-.micSettingsWindowStyle {
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThicknessLeft: 10;
-  borderThicknessTop: 0;
-  borderThicknessBottom: 10;
-  borderThicknessRight: 10;
-  roundedBottomCorners: true;
-  cornerRadius: 5;
-  headerHeight: 20;
-  backgroundAlpha: 1;
-  headerColors: #b9babc, #b9babc;
-  footerColors: #b9babc, #b9babc;
-  backgroundColor: #EFEFEF;
-  dropShadowEnabled: true;
-  titleStyleName: "micSettingsWindowTitleStyle";
 }
 
 .webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
@@ -861,24 +834,6 @@ Alert {
 	fontWeight: bold;    
 }
 
-.lockSettingsWindowStyle {
-	borderColor: #b9babc;
-	borderAlpha: 1;
-	borderThicknessLeft: 10;
-	borderThicknessTop: 0;
-	borderThicknessBottom: 10;
-	borderThicknessRight: 10;
-	roundedBottomCorners: true;
-	cornerRadius: 5;
-	headerHeight: 20;
-	backgroundAlpha: 1;
-	headerColors: #b9babc, #b9babc;
-	footerColors: #b9babc, #b9babc;
-	backgroundColor: #EFEFEF;
-	dropShadowEnabled: true;
-	titleStyleName: "micSettingsWindowTitleStyle";
-}
-
 .lockSettingsWindowTitleStyle {
 	fontFamily: Arial;
 	fontSize: 20;  
@@ -901,6 +856,7 @@ Alert {
   successImage:   Embed(source='assets/images/status_success.png');
   warningImage:   Embed(source='assets/images/status_warning.png');
   failImage:      Embed(source='assets/images/status_fail.png');
+  refreshImage:   Embed(source='assets/images/status_refresh.png');
 }
 
 .warningButtonStyle {
@@ -915,5 +871,10 @@ Alert {
 
 .statusMessageStyle {
   fontSize: 12;
+  paddingTop: 0;
+}
+
+.statusTimeStyle {
+  fontSize: 10;
   paddingTop: 0;
 }

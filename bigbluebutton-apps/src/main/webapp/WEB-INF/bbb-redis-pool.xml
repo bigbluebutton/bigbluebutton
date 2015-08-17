@@ -35,7 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="2" value="${redis.port}"/>
     </bean>
 	    
-    <bean id="config" class="org.bigbluebutton.conference.service.recorder.GenericObjectPoolConfigWrapper">
+    <bean id="config" class="org.bigbluebutton.red5.pubsub.redis.GenericObjectPoolConfigWrapper">
 	  <!-- Action to take when trying to acquire a connection and all connections are taken -->
 	  <property name="whenExhaustedAction">
 	    <!-- Fail-fast behaviour, we don't like to keep the kids waiting -->

@@ -43,14 +43,13 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
-			import mx.core.IFlexDisplayObject;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
-			import mx.managers.PopUpManager;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -64,14 +63,14 @@
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.main.views.LockSettings;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(UsersWindow);      
+
 			private var dispatcher:Dispatcher;
 			
 			private var keyCombos:Object;
@@ -252,14 +251,17 @@
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
 				// but it would require an extra listener for the MenuCloseEvent.
-				if (myMenu) myMenu.hide();
+				if (myMenu) {
+					myMenu.removeEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+					myMenu.removeEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+					myMenu.hide();
+				}
 				
 				myMenu = Menu.createMenu(null, myMenuData, true);
-				
-				myMenu.variableRowHeight = true;
-				myMenu.show(this.x + settingsBtn.x + settingsBtn.width + 2, this.y + this.height);
+				myMenu.variableRowHeight = false;
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
 				myMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+				myMenu.show();
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
@@ -270,6 +272,9 @@
 			
 			private function menuShowHandler(e:MenuEvent):void {
 				myMenu.setFocus();
+				var menuXY:Point = settingsBtn.localToGlobal(new Point(settingsBtn.width + 2, settingsBtn.height - myMenu.height));
+				myMenu.x = menuXY.x;
+				myMenu.y = menuXY.y;
 			}
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
@@ -278,7 +283,7 @@
 			}
 			
 			private function lockSettings():void {
-				LogUtil.traceObject("Action: lockSettings");
+				LOGGER.debug("Action: lockSettings");
 				
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.OPEN_LOCK_SETTINGS);
 				dispatcher.dispatchEvent(event);
