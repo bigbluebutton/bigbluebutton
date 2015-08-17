@@ -6,9 +6,9 @@ import scala.collection.mutable.ArrayBuffer
 object PollType {
   val YesNoPollType = "YN"
   val TrueFalsePollType = "TF"
+  val CustomPollType = "CUSTOM"
   val LetterPollType = "A-"
   val NumberPollType = "1-"
-
 }
 
 object PollFactory {
@@ -70,7 +70,30 @@ object PollFactory {
     questionOption
   }
 
-  private def createQuestion(qType: String): Option[Question] = {
+  private def buildAnswers(answers: Seq[String]): Array[Answer] = {
+    val ans = new Array[Answer](answers.length)
+    for (i <- 0 until answers.length) {
+      ans(i) = new Answer(i, answers(i), Some(answers(i)))
+    }
+
+    ans
+  }
+
+  private def processCustomPollType(qType: String, multiResponse: Boolean, answers: Option[Seq[String]]): Option[Question] = {
+    var questionOption: Option[Question] = None
+
+    answers.foreach { ans =>
+      val someAnswers = buildAnswers(ans)
+      val question = new Question(0, PollType.CustomPollType, multiResponse, None, someAnswers)
+      questionOption = Some(question)
+    }
+
+    questionOption
+  }
+
+  private def createQuestion(qType: String, answers: Option[Seq[String]]): Option[Question] = {
+    println("**** Creating quesion")
+
     val qt = qType.toUpperCase()
     var questionOption: Option[Question] = None
 
@@ -78,19 +101,21 @@ object PollFactory {
       questionOption = Some(processYesNoPollType(qt))
     } else if (qt.matches(PollType.TrueFalsePollType)) {
       questionOption = Some(processTrueFalsePollType(qt))
+    } else if (qt.matches(PollType.CustomPollType)) {
+      questionOption = processCustomPollType(qt, false, answers)
     } else if (qt.startsWith(PollType.LetterPollType)) {
       questionOption = processLetterPollType(qt, false)
     } else if (qt.startsWith(PollType.NumberPollType)) {
-      processNumberPollType(qt, false)
+      questionOption = processNumberPollType(qt, false)
     }
 
     questionOption
   }
 
-  def createPoll(id: String, pollType: String, numRespondents: Int): Option[Poll] = {
+  def createPoll(id: String, pollType: String, numRespondents: Int, answers: Option[Seq[String]]): Option[Poll] = {
     var poll: Option[Poll] = None
 
-    createQuestion(pollType) match {
+    createQuestion(pollType, answers) match {
       case Some(question) => {
         poll = Some(new Poll(id, Array(question), numRespondents, None))
       }

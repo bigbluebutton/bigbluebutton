@@ -12,7 +12,12 @@ package org.bigbluebutton.modules.polling.service
 	public function NetworkPollDataService(sender: MessageSender) {
 		this.sender = sender;
 	}
-	
+
+    public function startCustomPoll(pollId:String, pollType: String, answers: Array):void
+    {
+      sender.startCustomPoll(pollId, pollType, answers);
+    }
+
     public function startPoll(pollId:String, pollType: String):void
     {
       sender.startPoll(pollId, pollType);

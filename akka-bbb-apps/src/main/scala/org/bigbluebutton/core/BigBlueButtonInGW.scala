@@ -23,8 +23,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, recorderApp, messageSender, voiceEventRecorder), "bigbluebutton-actor")
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
-    if (message.isInstanceOf[StartCustomPollRequestMessage]) {
-
+    message match {
+      case msg: StartCustomPollRequestMessage => {
+        bbbActor ! new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId, msg.payload.pollType, msg.payload.answers)
+      }
     }
   }
 

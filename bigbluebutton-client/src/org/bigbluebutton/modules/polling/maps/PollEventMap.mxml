@@ -38,6 +38,10 @@
 
   <EventHandlers type="{InitPollModuleEvent.INITIALIZE_POLL_MODULE}"/>
 
+    <EventHandlers type="{StartCustomPollEvent.START}">
+      <MethodInvoker generator="{PollingService}" method="handleStartCustomPollEvent" arguments="{event}"/>
+    </EventHandlers>
+	
   <EventHandlers type="{StartPollEvent.START}">
     <MethodInvoker generator="{PollingService}" method="handleStartPollEvent" arguments="{event}"/>
   </EventHandlers>

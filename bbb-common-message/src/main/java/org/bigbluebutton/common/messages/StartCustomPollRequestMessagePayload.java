@@ -7,5 +7,5 @@ public class StartCustomPollRequestMessagePayload {
 	public ArrayList<String> answers;
 	public String pollId;
 	public String requesterId;
-
+	public String meetingId;
 }

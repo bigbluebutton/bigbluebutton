@@ -135,6 +135,28 @@ trait PollApp {
     }
   }
 
+  def handleStartCustomPollRequest(msg: StartCustomPollRequest) {
+    log.debug("Received StartCustomPollRequest for pollType=[" + msg.pollType + "]")
+
+    presModel.getCurrentPage() foreach { page =>
+      val pollId = page.id + "/" + System.currentTimeMillis()
+
+      val numRespondents = usersModel.numUsers() - 1 // subtract the presenter
+      PollFactory.createPoll(pollId, msg.pollType, numRespondents, Some(msg.answers)) foreach (poll => pollModel.addPoll(poll))
+
+      pollModel.getSimplePoll(pollId) match {
+        case Some(poll) => {
+          pollModel.startPoll(poll.id)
+          outGW.send(new PollStartedMessage(mProps.meetingID, mProps.recorded, msg.requesterId, pollId, poll))
+        }
+        case None => {
+          val result = new RequestResult(StatusCodes.NOT_FOUND, Some(Array(ErrorCodes.RESOURCE_NOT_FOUND)))
+          sender ! new StartPollReplyMessage(mProps.meetingID, mProps.recorded, result, msg.requesterId, pollId)
+        }
+      }
+    }
+  }
+
   def handleStartPollRequest(msg: StartPollRequest) {
     log.debug("Received StartPollRequest for pollType=[" + msg.pollType + "]")
 
@@ -142,7 +164,7 @@ trait PollApp {
       val pollId = page.id + "/" + System.currentTimeMillis()
 
       val numRespondents = usersModel.numUsers() - 1 // subtract the presenter
-      PollFactory.createPoll(pollId, msg.pollType, numRespondents) foreach (poll => pollModel.addPoll(poll))
+      PollFactory.createPoll(pollId, msg.pollType, numRespondents, None) foreach (poll => pollModel.addPoll(poll))
 
       pollModel.getSimplePoll(pollId) match {
         case Some(poll) => {

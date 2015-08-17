@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.polling.events.ShowPollResultEvent;
+	import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
 	import org.bigbluebutton.modules.polling.events.StartPollEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.events.VotePollEvent;
@@ -62,7 +63,13 @@ package org.bigbluebutton.modules.polling.service
       
       return null;
     }
-    
+
+    public function handleStartCustomPollEvent(event:StartCustomPollEvent):void {
+      var pollId:String = generatePollId();
+      if (pollId == null) return;
+      dataService.startCustomPoll(pollId, event.pollType, event.answers);
+    }
+
     public function handleStartPollEvent(event:StartPollEvent):void {
       var pollId:String = generatePollId();
       if (pollId == null) return;
