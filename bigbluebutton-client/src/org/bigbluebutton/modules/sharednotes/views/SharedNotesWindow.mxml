@@ -99,10 +99,12 @@
 			private function initCustomRichTextEditor():void {
 				customRichTextEditor.linkTextInput.visible = false;
 				customRichTextEditor.linkTextInput.height = 0;
+				customRichTextEditor.linkTextInput.width = 0;
 
 				// Bullets are messy: http://dev.mconf.org/redmine/issues/1715
 				customRichTextEditor.bulletButton.visible = false;
 				customRichTextEditor.bulletButton.height = 0;
+				customRichTextEditor.bulletButton.width = 0;
 			}
 
 			public function get noteId():String{
@@ -118,6 +120,7 @@
 			}
 
 			private function sendPatch():void {
+				customRichTextEditor.clearEmptyTags();
 				var clientText:String = new String(customRichTextEditor.htmlText); // a snapshot of the client text
 //				trace("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {

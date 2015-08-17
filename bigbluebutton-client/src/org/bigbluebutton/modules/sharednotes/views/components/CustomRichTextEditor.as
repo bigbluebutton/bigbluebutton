@@ -130,5 +130,12 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			textArea.setSelection(_lastBegin, _lastEnd);
 			validateNow();
 		}
+
+		// This should handle bug #1742.
+		public function clearEmptyTags():void {
+			var pattern:RegExp = new RegExp("<(\\w+)><\\\/\\1>", "g");
+			htmlText = htmlText.replace(pattern, "");
+			validateNow();
+		}
 	}
 }
