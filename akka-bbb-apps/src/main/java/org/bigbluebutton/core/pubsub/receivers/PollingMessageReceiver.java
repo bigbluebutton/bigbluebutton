@@ -2,6 +2,7 @@ package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.*;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
@@ -40,6 +41,10 @@ public class PollingMessageReceiver implements MessageHandler{
 					} else if (ShowPollResultRequestMessage.SHOW_POLL_RESULT_REQUEST.equals(messageName)){
 						ShowPollResultRequestMessage msg = ShowPollResultRequestMessage.fromJson(message);
 						bbbGW.showPollResult(msg.meetingId, msg.requesterId, msg.pollId, msg.show);
+					} else if (StartCustomPollRequestMessage.START_CUSTOM_POLL_REQUEST.equals(messageName)){
+						Gson gson = new Gson();
+						StartCustomPollRequestMessage msg = gson.fromJson(message, StartCustomPollRequestMessage.class);
+						bbbGW.handleBigBlueButtonMessage(msg);
 					}
 				}
 			}

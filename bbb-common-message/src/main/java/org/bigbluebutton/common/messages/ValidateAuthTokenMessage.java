@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class ValidateAuthTokenMessage implements IPublishedMessage {
+public class ValidateAuthTokenMessage implements IBigBlueButtonMessage {
 	public static final String VALIDATE_AUTH_TOKEN  = "validate_auth_token";
 	public static final String VERSION = "0.0.1";
 	

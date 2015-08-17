@@ -69,11 +69,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.geom.Point;
 			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -87,6 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
 			import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
+			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollEvent;
 			import org.bigbluebutton.modules.polling.events.VotePollEvent;
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
@@ -621,6 +622,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					constructedLabel += "/" + ResourceUtil.getInstance().getString("bbb.polling.answer."+String.fromCharCode(65+i));
 					pollMenuData.push({label: constructedLabel});
 				}
+				pollMenuData.push({label: "Custom"});
 			}
 			
 			private function onPollStartButtonClicked():void {
@@ -647,6 +649,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			}
 			
+			private function sendStartCustomPollEvent(pollType:String):void {
+				// Let's reset the page to display full size so we can display the result
+				// on the bottom right-corner.
+				onResetZoom();
+				var dispatcher:Dispatcher = new Dispatcher();
+				var answers:Array = new Array("Red", "Green", "Blue");
+				dispatchEvent(new StartCustomPollEvent(pollType, answers));				
+			}
+			
 			private function sendStartPollEvent(pollType:String):void {
 				// Let's reset the page to display full size so we can display the result
 				// on the bottom right-corner.
@@ -658,7 +669,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function menuClickHandler(e:MenuEvent):void {
 				if(pollMenuData[e.index] != undefined) {
 					// start the requested poll
-					var pollEvent:StartPollEvent = null;
 					switch (e.index) {
 						case 0:
 							sendStartPollEvent("YN");
@@ -682,7 +692,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							sendStartPollEvent("A-6");
 							break;
 						case 7:
-							sendStartPollEvent("A-7");
+							sendStartCustomPollEvent("Custom");
+							//sendStartPollEvent("A-7");
+							break;
+						case 8:
+							sendStartCustomPollEvent("Custom");
 							break;
 					}
 
@@ -713,7 +727,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var numBtns:int = e.poll.answers.length;
 					for (var i:int=0; i<numBtns; i++) {
 							voteBtn = new Button();
-							voteBtn.label = ResourceUtil.getInstance().getString('bbb.polling.answer.'+e.poll.answers[i].key);
+							var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.'+e.poll.answers[i].key);
+
+							if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+								localizedKey = e.poll.answers[i].key;
+							} 
+							
+							voteBtn.label = localizedKey;
 							voteBtn.name = e.poll.answers[i].id;
 							voteBtn.addEventListener(MouseEvent.CLICK, voteButtonClickHandler);
 							pollVoteBox.addChild(voteBtn);

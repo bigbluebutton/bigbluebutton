@@ -82,10 +82,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.UserJoinedEvent;
 			import org.bigbluebutton.main.events.UserLeftEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.chat.ChatConstants;
@@ -99,6 +99,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.chat.model.ChatConversation;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(ChatBox);      
@@ -568,25 +569,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LOGGER.debug("------------------------------");
 			}
      
+      private function sendStartCustomPollEvent(answers:Array):void {
+        var dispatcher:Dispatcher = new Dispatcher();
+        dispatchEvent(new StartCustomPollEvent("Custom", answers));				
+      }
+			
       private function sendPublicChatMessage(message:String):void {
-        var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-        var cm:ChatMessageVO = new ChatMessageVO();
-        cm.chatType = ChatConstants.PUBLIC_CHAT;
-        cm.fromUserID = UsersUtil.getMyUserID();
-        cm.fromUsername = UsersUtil.getMyUsername();
-		// get the color value from ColorPicker
-        cm.fromColor =  cmpColorPicker.selectedColor.toString();
-        // Get the current UTC time and the timezone for this sender.
-        // The receiver will have to convert this to local time.
-        var now:Date = new Date();
-        cm.fromTime = now.valueOf();
-        cm.fromTimezoneOffset = now.getTimezoneOffset();
-        
-        //cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
-        cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
-        
-        publicEvent.chatMessage = cm;
-        globalDispatcher.dispatchEvent(publicEvent);
+		//var pollRegex:RegExp = /^@poll\s+?((?:[^,]+?\s*?,\s*?)*?[^,]+?)\s*?$/;
+		var pollRegex:RegExp = /^@poll\s+?(.+)\s*?$/;
+		var matchedArray:Array = message.match(pollRegex);
+		
+		if (pollRegex.test(message)) {
+			var tmpAnswers: Array = matchedArray[1].split(",");
+			var answers:Array = new Array();
+			for (var i:int = 0; i < tmpAnswers.length; i++) {
+				var t:String = tmpAnswers[i] as String;
+				answers.push(StringUtil.trim(t));
+			}
+			sendStartCustomPollEvent(answers);
+		} else {
+			var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
+			var cm:ChatMessageVO = new ChatMessageVO();
+			cm.chatType = ChatConstants.PUBLIC_CHAT;
+			cm.fromUserID = UsersUtil.getMyUserID();
+			cm.fromUsername = UsersUtil.getMyUsername();
+			// get the color value from ColorPicker
+			cm.fromColor =  cmpColorPicker.selectedColor.toString();
+			// Get the current UTC time and the timezone for this sender.
+			// The receiver will have to convert this to local time.
+			var now:Date = new Date();
+			cm.fromTime = now.valueOf();
+			cm.fromTimezoneOffset = now.getTimezoneOffset();
+			
+			//cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
+			cm.message = ExternalInterface.call('parseURLs', (ChatUtil.cleanup(message)));
+			
+			publicEvent.chatMessage = cm;
+			globalDispatcher.dispatchEvent(publicEvent);			
+		}
       }
       
       private function sendPrivateChatMessage(message:String):void {

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SendSlideGeneratedMessage implements IPublishedMessage {
+public class SendSlideGeneratedMessage implements IBigBlueButtonMessage {
 	public static final String SEND_SLIDE_GENERATED = "send_slide_generated";
 	public static final String VERSION = "0.0.1";
 

@@ -1,10 +1,12 @@
 package org.bigbluebutton.core.api;
 
 import java.util.Map;
-
+import org.bigbluebutton.common.messages.*;
 
 public interface IBigBlueButtonInGW {
 
+	void handleBigBlueButtonMessage(IBigBlueButtonMessage message);
+	
 	void isAliveAudit(String aliveID);
 	void statusMeetingAudit(String meetingID);
 	void endMeeting(String meetingID);

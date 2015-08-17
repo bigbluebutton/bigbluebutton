@@ -5,7 +5,7 @@ import com.google.gson.JsonParser;
 
 public class MessageFromJsonConverter {
 
-	public static IPublishedMessage convert(String message) {
+	public static IBigBlueButtonMessage convert(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 		
@@ -41,7 +41,7 @@ public class MessageFromJsonConverter {
 		return null;
 	}
 		
-	private static IPublishedMessage processValidateAuthTokenMessage(JsonObject header, JsonObject payload) {
+	private static IBigBlueButtonMessage processValidateAuthTokenMessage(JsonObject header, JsonObject payload) {
 		String id = payload.get(Constants.MEETING_ID).getAsString();
 		String userid = payload.get(Constants.USER_ID).getAsString();
 		String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
@@ -51,7 +51,7 @@ public class MessageFromJsonConverter {
 		    sessionId);
 	}
 	
-	private static IPublishedMessage processCreateMeeting(JsonObject payload) {
+	private static IBigBlueButtonMessage processCreateMeeting(JsonObject payload) {
 		String id = payload.get(Constants.MEETING_ID).getAsString();
 		String externalId = payload.get(Constants.EXTERNAL_MEETING_ID).getAsString();
 		String name = payload.get(Constants.NAME).getAsString();
@@ -70,17 +70,17 @@ public class MessageFromJsonConverter {
 				          moderatorPassword, viewerPassword, createTime, createDate);
 	}
 	
-	private static IPublishedMessage processDestroyMeeting(JsonObject payload) {
+	private static IBigBlueButtonMessage processDestroyMeeting(JsonObject payload) {
 		String id = payload.get(Constants.MEETING_ID).getAsString();		
 		return new DestroyMeetingMessage(id);
 	}
 	
-	private static IPublishedMessage processEndMeetingMessage(JsonObject payload) {
+	private static IBigBlueButtonMessage processEndMeetingMessage(JsonObject payload) {
 		String id = payload.get(Constants.MEETING_ID).getAsString();		
 		return new EndMeetingMessage(id);
 	}	
 	
-	private static IPublishedMessage processKeepAlive(JsonObject payload) {
+	private static IBigBlueButtonMessage processKeepAlive(JsonObject payload) {
 		String id = payload.get(Constants.KEEP_ALIVE_ID).getAsString();		
 		return new KeepAliveMessage(id);
 	}

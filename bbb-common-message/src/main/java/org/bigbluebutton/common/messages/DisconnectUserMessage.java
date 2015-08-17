@@ -4,7 +4,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class DisconnectUserMessage implements IPublishedMessage {
+public class DisconnectUserMessage implements IBigBlueButtonMessage {
 	public static final String DISCONNECT_USER = "disconnect_user_message";
 	public final String VERSION = "0.0.1";
 

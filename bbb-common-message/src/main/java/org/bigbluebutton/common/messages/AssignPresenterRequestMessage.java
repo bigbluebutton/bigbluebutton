@@ -4,7 +4,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class AssignPresenterRequestMessage implements IPublishedMessage {
+public class AssignPresenterRequestMessage implements IBigBlueButtonMessage {
 	public static final String ASSIGN_PRESENTER_REQUEST = "assign_presenter_request_message";
 	public final String VERSION = "0.0.1";
 
