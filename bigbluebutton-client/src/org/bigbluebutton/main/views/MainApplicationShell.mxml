@@ -676,42 +676,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</views:MainCanvas>	
 	
 	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlBar">
-		<mx:Label
-				htmlText="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}"
-				link="onFooterLinkClicked(event)"
-				id="copyrightLabel2" truncateToFit="true"
-				selectable="true" paddingRight="10"/>
-		<mx:Spacer width="100%" id="spacer" />
-		<mx:Label 
-				id="lblWebRTC"
-				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"
-				visible="false"
-				includeInLayout="false" />
-		<mx:Label
-				text="{'['+ResourceUtil.getInstance().getString('bbb.mainshell.notification.tunnelling')+']'}"
-				id="isTunnellingLbl"
-				visible="{isTunneling}"
-				includeInLayout="{isTunneling}" />
-		<views:WarningButton id="warningBtn" 
-				width="23"
-				height="20"/>
-		<views:LanguageSelector id="langSelector" 
-				visible="false" 
-				height="20"
-				width="180"
-				accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"
-				styleName="languageSelectorStyle"
-				tabIndex="{baseIndex}"/>
-		<mx:Button
-				width="20"
-				height="20"
-				visible="{layoutOptions.showLogButton}"
-				includeInLayout="{layoutOptions.showLogButton}"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}"
-				id="logBtn"
-				icon="{logs_icon}"
-				click="openLogWindow()"
-				tabIndex="{baseIndex+1}"/>
-		<mx:HBox id="addedBtns" />
-	</mx:ControlBar>
+		  <mx:Image source="{imgCls}"/>
+		  <mx:Text id="copyrightLabel2">
+			 <mx:htmlText>
+				<![CDATA[<span><pre>Crosswired - Powered by:</pre>  <a href=http://www.khalibre.com target=_blank>www.khalibre.com</a></span>]]>
+			 </mx:htmlText>
+		  </mx:Text>
+		  <mx:Spacer width="20"/>
+		  <mx:Spacer width="100%" id="spacer" />
+		  <mx:Label
+			text="[Tunnelling]"
+			id="isTunnellingLbl"
+			visible="{isTunneling}"
+			includeInLayout="{isTunneling}" />
+
+		  <mx:Button
+			width="20"
+			height="20"
+			visible="true"
+			includeInLayout="true"
+			toolTip="{ResourceUtil.getInstance().getString(bbb.mainshell.logBtn.toolTip)}"
+			id="logBtn"
+			icon="{logs_icon}"
+			click="openLogWindow()"
+			tabIndex="{baseIndex}"/>
+		  <mx:Button
+			id="btnNetwork"
+			icon="{statsIcon}"
+			width="20"
+			height="20"
+			mouseOver="openNetworkStatsWindow()"
+			mouseOut="closeNetworkStatsWindow()"
+			tabFocusEnabled="false"
+			visible="true"
+			includeInLayout="true" />
+		  <mx:HBox id="addedBtns" />
+		 </mx:ControlBar>
 </mx:VBox>

@@ -144,7 +144,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function startUpload():void {
         var fileSize:Number = fileToUpload.size;
-        var maxFileSizeBytes:Number = maxFileSize * 1000000;
+        var maxFileSizeBytes:Number = maxFileSize * 30000000;
 
         fileFormatHintLbl.visible = false;
         fileFormatHintLbl.includeInLayout = false;
