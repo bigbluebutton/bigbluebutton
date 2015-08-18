@@ -72,9 +72,25 @@ body {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
   }
   .btn {
-    @media @desktop-portrait, @landscape {
-      height: 50px !important;
+
+    @media @tablet-landscape {
+      height: 50px;
       width: 51.2px;
+    }
+    @media @phone-landscape {
+      height: 67px;
+      width: 67px;
+    }
+    @media @desktop-landscape {
+      height: 50px;
+      width: 51.2px;
+    }
+    @media @desktop-portrait {
+      height: 50px;
+      width: 51.2px;
+    }
+
+    @media @desktop-portrait, @landscape {
       top: 0 !important;
       padding-left: 1% !important;
       padding-right: 1% !important;
@@ -110,7 +126,15 @@ body {
     }
     span { background-color: #469DCF; }
   }
-  @media @landscape {
+
+  @media @tablet-landscape {
+    height: 50px;
+  }
+  @media @phone-landscape {
+    height: 67px;
+  }
+
+  @media @desktop-landscape {
     height: 50px;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
@@ -140,11 +164,29 @@ body {
       padding-left: 30px;
       padding-right: 30px;
     }
-    @media @landscape, @desktop-portrait {
-      color: extract(@darkGrey, 1);
+
+    @media @tablet-landscape {
+      font-size: 18px;
+      height: 50px;
+      padding-top: 25px; // half the height
+    }
+    @media @phone-landscape {
+      font-size: 28px;
+      height: 67px;
+      padding-top: 33.5px; // half the height
+    }
+    @media @desktop-landscape {
       font-size: 16px;
       height: 50px;
       padding-top: 25px; // half the height
+    }
+    @media @desktop-portrait {
+      height: 50px;
+      padding-top: 25px; // half the height
+    }
+
+    @media @landscape, @desktop-portrait {
+      color: extract(@darkGrey, 1);
       padding-left: 15px;
       padding-right: 15px;
     }
@@ -219,11 +261,26 @@ body {
   font-weight: bold;
   line-height: 2em;
   margin: 0;
+
+  @media @tablet-landscape {
+    font-size: 18px;
+    height: 50px;
+  }
+  @media @phone-landscape {
+    font-size: 28px;
+    height: 67px;
+  }
+  @media @phone-portrait, @phone-portrait-with-keyboard {
+    font-size: 36px;
+  }
+  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+    font-size: 3px;
+  }
+
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
     padding-top: 20px;
     color: white;
-    font-size: 4vw;
     height: 110px;
   }
   @media @desktop-portrait {
@@ -237,7 +294,8 @@ body {
     padding-bottom: 5px;
     padding-top: 5px;
   }
-  @media @desktop-portrait, @landscape {
+
+  @media @desktop-portrait, @desktop-landscape {
     font-size: 18px;
     height: 50px;
   }
@@ -557,7 +615,10 @@ body {
     padding-right: 10px;
   }
   i {
-    @media @desktop-portrait, @landscape {
+    @media @phone-landscape {
+      font-size: 45px;
+    }
+    @media @desktop-portrait, @desktop-landscape, @tablet-landscape {
       font-size: 30px;
     }
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
