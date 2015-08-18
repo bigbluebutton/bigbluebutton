@@ -120,7 +120,6 @@
 			}
 
 			private function sendPatch():void {
-				customRichTextEditor.clearEmptyTags();
 				var clientText:String = new String(customRichTextEditor.htmlText); // a snapshot of the client text
 //				trace("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
