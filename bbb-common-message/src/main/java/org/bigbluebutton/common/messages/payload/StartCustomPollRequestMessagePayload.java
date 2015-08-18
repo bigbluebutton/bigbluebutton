@@ -1,4 +1,4 @@
-package org.bigbluebutton.common.messages;
+package org.bigbluebutton.common.messages.payload;
 
 import java.util.ArrayList;
 

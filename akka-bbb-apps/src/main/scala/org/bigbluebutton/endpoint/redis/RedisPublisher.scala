@@ -23,7 +23,7 @@ class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
 
   // publish after 2 seconds every 2 or 5 seconds
   //system.scheduler.schedule(2 seconds, 2 seconds)(redis.publish("time", System.currentTimeMillis()))
-  //  system.scheduler.schedule(2 seconds, 5 seconds)(redis.publish("bigbluebutton:to-bbb-apps:users", "pattern value"))
+  //system.scheduler.schedule(10 seconds, 5 seconds)(redis.publish("bigbluebutton:to-bbb-apps:users", "pattern value"))
 
   def publish(channel: String, data: String) {
     println("PUBLISH TO [" + channel + "]: \n [" + data + "]")

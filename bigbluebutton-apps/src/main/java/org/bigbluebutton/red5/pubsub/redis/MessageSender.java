@@ -4,10 +4,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Protocol;
 
 public class MessageSender {
 	private static Logger log = Red5LoggerFactory.getLogger(MessageSender.class, "bigbluebutton");
@@ -19,11 +23,17 @@ public class MessageSender {
 	private final Executor runExec = Executors.newSingleThreadExecutor();
 	private BlockingQueue<MessageToSend> messages = new LinkedBlockingQueue<MessageToSend>();
 	
+	private String host;
+	private int port;
+	
 	public void stop() {
 		sendMessage = false;
 	}
 	
-	public void start() {	
+	public void start() {
+		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+		        Protocol.DEFAULT_DATABASE, "red5-publisher");
+		
 		log.info("Redis message publisher starting!");
 		try {
 			sendMessage = true;
@@ -60,7 +70,7 @@ public class MessageSender {
 		  		} catch(Exception e){
 		  			log.warn("Cannot publish the message to redis", e);
 		  		} finally {
-		  			redisPool.returnResource(jedis);
+		  			jedis.close();
 		  		}	    	
 		    }
 		};
@@ -68,7 +78,11 @@ public class MessageSender {
 		runExec.execute(task);
 	}
 	
-	public void setRedisPool(JedisPool redisPool){
-		this.redisPool = redisPool;
+	public void setHost(String host){
+		this.host = host;
+	}
+	
+	public void setPort(int port) {
+		this.port = port;
 	}
 }
