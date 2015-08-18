@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.polling.views
 		//private const h:uint = 100;
 		//private const w:uint = 280;
 		private const bgFill:uint = 0xFFFFFF;
-		private const colFill:uint = 0x000000;
+		private const colFill:uint = 0x333333;
 		private const vPaddingPercent:Number = 0.25;
 		private const hPaddingPercent:Number = 0.1;
 		private const labelWidthPercent:Number = 0.3;
@@ -89,7 +89,7 @@ package org.bigbluebutton.modules.polling.views
 			graphics.clear();
 			
 			if (_data != null && _data.length > 0) {
-				graphics.lineStyle(2);
+				graphics.lineStyle(2, colFill);
 				graphics.beginFill(bgFill, 1.0);
 				graphics.drawRect(sx, sy, unscaledWidth, unscaledHeight);
 				graphics.endFill();
@@ -221,7 +221,7 @@ package org.bigbluebutton.modules.polling.views
 					countText.text = _data[j].v;
 					countText.width = rectWidth;
 					countText.height = curRowHeight;
-					countText.textColor = 0xFFFFFF;
+					countText.textColor = bgFill;
 					countText.selectable = false;
 					//addChild(countText);
 					findFontSize(countText, minFontSize);
