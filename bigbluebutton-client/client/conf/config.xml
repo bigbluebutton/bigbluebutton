@@ -1,0 +1,161 @@
+<?xml version="1.0" ?>
+<config>
+    <localeversion suppressWarning="false">0.9.0</localeversion>
+    <version>VERSION</version>
+    <help url="https://vc3.crosswired.net/help.html"/>
+    <javaTest url="https://vc3.crosswired.net/testjava.html"/>
+    <porttest host="vc3.crosswired.net" application="video/portTest" timeout="10000"/>    
+    <bwMon server="vc3.crosswired.net" application="video/bwTest"/>
+    <application uri="rtmp://vc3.crosswired.net/bigbluebutton" host="https://vc3.crosswired.net/bigbluebutton/api/enter"/>
+    <language userSelectionEnabled="true" />
+    <skinning enabled="true" url="https://vc3.crosswired.net/client/branding/css/BBBDefault.css.swf" />
+    <shortcutKeys showButton="true" />
+    <browserVersions chrome="CHROME_VERSION" firefox="FIREFOX_VERSION" flash="FLASH_VERSION" java="1.7.0_51" />
+    <layout showLogButton="false" defaultLayout="bbb.layout.name.defaultlayout"
+            showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
+            showLogoutWindow="true" showLayoutTools="true" confirmLogout="true"
+            showRecordingNotification="true"/>
+    <meeting muteOnStart="false" />
+    <lock disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
+          disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
+            
+		<modules>
+		 
+		<module name="ChatModule" url="https://vc3.crosswired.net/client/ChatModule.swf?v=VERSION" 
+			uri="rtmp://vc3.crosswired.net/bigbluebutton" 
+			dependsOn="UsersModule"	
+			privateEnabled="true"  
+			fontSize="12"
+			position="top-right"
+			baseTabIndex="701"
+			colorPickerIsVisible="false"
+		/>
+
+		<module name="UsersModule" url="https://vc3.crosswired.net/client/UsersModule.swf?v=VERSION" 
+			uri="rtmp://vc3.crosswired.net/bigbluebutton" 
+			allowKickUser="true"
+			enableRaiseHand="true"
+			enableSettingsButton="true"
+			baseTabIndex="301"
+		/>
+
+		
+		<module name="DeskShareModule" 
+			url="https://vc3.crosswired.net/client/DeskShareModule.swf?v=VERSION" 
+			uri="rtmp://vc3.crosswired.net/deskShare"
+			showButton="true"
+			autoStart="false"
+			autoFullScreen="false"
+			baseTabIndex="201"
+		/>
+		
+		<module name="PhoneModule" url="https://vc3.crosswired.net/client/PhoneModule.swf?v=VERSION" 
+			uri="rtmp://vc3.crosswired.net/sip" 
+			autoJoin="true"
+			listenOnlyMode="true"
+			presenterShareOnly="false"
+			skipCheck="false"
+			showButton="true"
+			enabledEchoCancel="true"
+			useWebRTCIfAvailable="true"
+			showPhoneOption="false"
+			echoTestApp="9196"
+			dependsOn="UsersModule"
+		/>
+
+		<module name="VideoconfModule" url="https://vc3.crosswired.net/client/VideoconfModule.swf?v=VERSION" 
+			uri="rtmp://vc3.crosswired.net/video"
+			dependson = "UsersModule"
+			videoQuality = "100"
+			presenterShareOnly = "false"
+			controlsForPresenter = "false"
+			resolutions = "320x240,640x480,1280x720"
+			autoStart = "false"
+			skipCamSettingsCheck="false"
+			showButton = "true"
+			showCloseButton = "true"
+			publishWindowVisible = "true"
+			viewerWindowMaxed = "false"
+			viewerWindowLocation = "top"
+			camKeyFrameInterval = "30"
+			camModeFps = "10"
+			camQualityBandwidth = "0"
+			camQualityPicture = "90"
+			smoothVideo="false"
+			applyConvolutionFilter="false"
+			convolutionFilter="-1, 0, -1, 0, 6, 0, -1, 0, -1"
+			filterBias="0"
+			filterDivisor="4"
+			enableH264 = "true"
+			h264Level = "2.1"
+			h264Profile = "main"		
+			displayAvatar = "false"
+			focusTalking = "false"
+			glowColor = "0x4A931D"
+			glowBlurSize = "30.0"	
+		/>
+		
+		<module name="WhiteboardModule" url="https://vc3.crosswired.net/client/WhiteboardModule.swf?v=VERSION" 
+			uri="rtmp://vc3.crosswired.net/bigbluebutton" 
+			dependsOn="PresentModule"
+			baseTabIndex="601"
+			whiteboardAccess="presenter"
+			keepToolbarVisible="false"
+		/>
+<!--
+
+    <module name="PollingModule" url="https://vc3.crosswired.net/client/PollingModule.swf?v=VERSION" 
+      uri="rtmp://vc3.crosswired.net/bigbluebutton" 
+      dependsOn="PresentModule"
+    />
+    		
+-->
+		<module name="PresentModule" url="https://vc3.crosswired.net/client/PresentModule.swf?v=VERSION" 
+			uri="rtmp://vc3.crosswired.net/bigbluebutton" 
+			host="https://vc3.crosswired.net" 
+			showPresentWindow="true"
+			showWindowControls="true"
+			openExternalFileUploadDialog="false"
+			dependsOn="UsersModule"
+			baseTabIndex="501"
+			maxFileSize="30"
+		/>
+
+		<module name="VideodockModule" url="https://vc3.crosswired.net/client/VideodockModule.swf?v=VERSION"
+			uri="rtmp://vc3.crosswired.net/bigbluebutton" 
+			dependsOn="VideoconfModule, UsersModule"
+			autoDock="true"
+			showControls="true"
+			maximizeWindow="false"
+			position="bottom-right"
+			width="172"
+			height="179"
+			layout="smart"
+			oneAlwaysBigger="false"
+			baseTabIndex="401"
+		/>
+		
+		<module name="LayoutModule" url="https://vc3.crosswired.net/client/LayoutModule.swf?v=VERSION"
+			uri="rtmp://vc3.crosswired.net/bigbluebutton"
+			layoutConfig="https://vc3.crosswired.net/client/conf/layout.xml"
+			enableEdit="false"
+		/>
+
+<!--
+    <module name="NotesModule" url="https://vc3.crosswired.net/client/NotesModule.swf?v=VERSION"
+      saveURL="https://vc3.crosswired.net"
+      position="top-left"
+    />
+    
+    <module name="BroadcastModule" url="https://vc3.crosswired.net/client/BroadcastModule.swf?v=VERSION"
+      uri="rtmp://vc3.crosswired.net/bigbluebutton"
+      streamsUri="https://vc3.crosswired.net/streams.xml"
+      position="top-left"
+      showStreams="true"
+      autoPlay="false"
+      dependsOn="UsersModule"
+    />
+-->
+    		
+	</modules>
+</config>
