@@ -87,10 +87,11 @@ trait PollApp {
     // Hardcode poll result display location for now to display result
     // in bottom-right corner.
     val display = new ArrayList[Double]()
+    val shapeHeight = 6.66 * answers.size
     display.add(66.0)
-    display.add(60.0)
+    display.add(100 - shapeHeight)
     display.add(34.0)
-    display.add(40.0)
+    display.add(shapeHeight)
 
     shape += "points" -> display
     shape.toMap
