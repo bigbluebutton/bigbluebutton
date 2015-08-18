@@ -159,7 +159,7 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 	 */
 	var configuration = {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
-		wsServers: 'ws://' + server + '/ws',
+		wsServers: 'wss://' + server + '/ws',
 		displayName: username,
 		register: false,
 		traceSip: true,
