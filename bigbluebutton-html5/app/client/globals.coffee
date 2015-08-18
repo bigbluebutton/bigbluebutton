@@ -198,13 +198,12 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
 @toggleChatbar = ->
-  if getInSession("display_chatbar") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
+  setInSession "display_chatbar", !getInSession "display_chatbar"
+  if !getInSession("display_chatbar")
+    $('#whiteboard').css('width', '100%')
   else
-    setInSession "display_chatbar", !getInSession "display_chatbar"
-  setTimeout(redrawWhiteboard, 0)
+    $('#whiteboard').css('width', '')
+  setTimeout redrawWhiteboard, 0
 
 @toggleMic = (event) ->
   BBB.toggleMyMic()
