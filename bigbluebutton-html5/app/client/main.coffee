@@ -53,7 +53,7 @@ Template.header.events
     toggleCam @
 
   "click .toggleUserlistButton": (event) ->
-    if isLandscape()
+    if isLandscape() or isLandscapeMobile()
       toggleUsersList()
     else
       if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
