@@ -122,7 +122,7 @@ package org.bigbluebutton.modules.polling.views
 				
 				var startingLabelWidth:Number = Math.min(labelWidthPercent*unscaledWidth, labelMaxWidthInPixels);
 				
-				graphics.lineStyle(2);
+				graphics.lineStyle(2, colFill);
 				graphics.beginFill(colFill, 1.0);
 				for (var j:int=0, vp:int=extraVPixels, ry:int=0, curRowHeight:int=0; j<_data.length; j++) {
 					ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
@@ -219,16 +219,21 @@ package org.bigbluebutton.modules.polling.views
 					// add vote count in middle of rect
 					countText = _textFields[currTFIdx++]; // new TextField();
 					countText.text = _data[j].v;
-					countText.width = rectWidth;
+					countText.width = startingLabelWidth;
 					countText.height = curRowHeight;
-					countText.textColor = bgFill;
 					countText.selectable = false;
 					//addChild(countText);
 					findFontSize(countText, minFontSize);
 					countText.width = countText.textWidth+4;
 					countText.height = countText.textHeight+4;
-					countText.x = barStartX+rectWidth/2-countText.width/2;
 					countText.y = ry-countText.height/2;
+					if (countText.width > rectWidth) {
+						countText.x = barStartX + rectWidth + hpadding/2;
+						countText.textColor = colFill;
+					} else {
+						countText.x = barStartX + rectWidth/2 - countText.width/2;
+						countText.textColor = bgFill;
+					}
 				}
 				
 				graphics.endFill();

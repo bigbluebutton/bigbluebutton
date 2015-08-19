@@ -84,7 +84,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       graphics.clear();
     
       if (_data != null && _data.length > 0) {
-        graphics.lineStyle(2, marginFill);
+        graphics.lineStyle(0, marginFill);
         graphics.beginFill(marginFill, 1.0);
         graphics.drawRect(0, 0, unscaledWidth, unscaledHeight);
         graphics.endFill();
@@ -227,7 +227,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           // add vote count in middle of rect
           countText = _textFields[currTFIdx++]; // new TextField();
           countText.text = _data[j].v;
-          countText.width = rectWidth;
+          countText.width = startingLabelWidth;
           countText.height = curRowHeight;
           countText.textColor = bgFill;
           countText.selectable = false;
@@ -235,8 +235,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           findFontSize(countText, minFontSize);
           countText.width = countText.textWidth+4;
           countText.height = countText.textHeight+4;
-          countText.x = graphX + barStartX + rectWidth/2 - countText.width/2;
           countText.y = ry-countText.height/2;
+          if (countText.width > rectWidth) {
+            countText.x = barStartX + rectWidth + hpadding/2;
+            countText.textColor = colFill;
+          } else {
+            countText.x = barStartX + rectWidth/2 - countText.width/2;
+            countText.textColor = bgFill;
+          }
         }
         
         graphics.endFill();
