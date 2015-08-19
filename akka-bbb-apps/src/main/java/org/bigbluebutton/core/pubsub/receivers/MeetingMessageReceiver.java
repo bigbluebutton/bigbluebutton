@@ -2,6 +2,7 @@ package org.bigbluebutton.core.pubsub.receivers;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.bigbluebutton.common.messages.CreateMeetingMessage;
 import org.bigbluebutton.common.messages.DestroyMeetingMessage;
 import org.bigbluebutton.common.messages.EndMeetingMessage;
@@ -96,6 +97,11 @@ public class MeetingMessageReceiver implements MessageHandler {
 				System.out.println("Failed to decode message: [" + message + "]");
 			}
 		} else if (channel.equalsIgnoreCase(MessagingConstants.TO_SYSTEM_CHANNEL)) {
+/*			if (PubSubPingMessage.START_CUSTOM_POLL_REQUEST.equals(messageName)){
+				Gson gson = new Gson();
+				StartCustomPollRequestMessage msg = gson.fromJson(message, StartCustomPollRequestMessage.class);
+				bbbGW.handleBigBlueButtonMessage(msg);
+*/				
 			IBigBlueButtonMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
