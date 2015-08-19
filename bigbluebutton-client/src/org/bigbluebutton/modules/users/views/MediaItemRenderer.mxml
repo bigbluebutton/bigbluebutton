@@ -214,6 +214,12 @@
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;
 						lockBtn.includeInLayout = rolledOver;
+					} else if ( data.role == BBBUser.MODERATOR ){
+						//If it can't be clicked, only show image
+						lockImg.visible = false;
+						lockImg.includeInLayout = false;
+						lockBtn.visible = false;
+						lockBtn.includeInLayout = false;
 					} else {
 						//If it can't be clicked, only show image
 						lockImg.visible = true;
@@ -221,6 +227,7 @@
 						lockBtn.visible = false;
 						lockBtn.includeInLayout = false;
 					}
+
 					
 					if (data.hasStream) {
 						// if it's myself or if I'm watching all the streams from the given user, then don't activate the button
