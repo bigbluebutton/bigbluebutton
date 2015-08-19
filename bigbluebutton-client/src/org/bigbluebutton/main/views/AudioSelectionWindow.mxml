@@ -71,6 +71,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vboxMic.percentWidth = 50;
 					vboxListen.percentWidth = 50;
 				}
+				
+				// If Puffin browser is deteted
+				if (ExternalInterface.call("determineBrowser")[0] == "Puffin") {
+					vruleListen.visible = vruleListen.includeInLayout = vboxMic.visible = vboxMic.includeInLayout = false;
+					vboxListen.percentWidth = 100;
+					if (!phoneOptions.showPhoneOption) {
+						this.width = this.width/2;
+					}
+				}
 			}
 			
 			private function onMicClick():void {
