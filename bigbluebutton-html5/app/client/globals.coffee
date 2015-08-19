@@ -201,8 +201,10 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   setInSession "display_chatbar", !getInSession "display_chatbar"
   if !getInSession("display_chatbar")
     $('#whiteboard').css('width', '100%')
+    $('#whiteboard .ui-resizable-handle').css('display', 'none')
   else
     $('#whiteboard').css('width', '')
+    $('#whiteboard .ui-resizable-handle').css('display', '')
   setTimeout redrawWhiteboard, 0
 
 @toggleMic = (event) ->
