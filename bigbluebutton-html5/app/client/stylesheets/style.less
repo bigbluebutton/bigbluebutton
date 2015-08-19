@@ -284,9 +284,9 @@ body {
     height: 110px;
   }
   @media @desktop-portrait {
-    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    background-color: white;
     padding-top: 10px;
-    color: white;
+    color: extract(@darkGrey, 1);
   }
   @media @landscape {
     border-bottom: 1px solid extract(@lightGrey, 1);
@@ -390,6 +390,17 @@ body {
   }
 }
 
+.titleArea {
+  width: 100%;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 110px;
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
+  @media @desktop-portrait {
+    height: 50px;
+  }
+}
+
 /* Notifications */
 #browser-icon-container {
   float: left;
@@ -483,6 +494,9 @@ body {
   float: right;
   @media @landscape {
     display: none;
+  }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
   }
 }
 
