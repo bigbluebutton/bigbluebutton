@@ -36,6 +36,8 @@ public class BbbAppsIsAliveMonitorService {
 	
 	private MessageSender sender;
 	
+	private final String SYSTEM_NAME = "BbbAppsRed5";
+	
 	public void setMessageSender(MessageSender sender) {
 		this.sender = sender;
 	}
@@ -54,8 +56,11 @@ public class BbbAppsIsAliveMonitorService {
 		scheduledThreadPool.shutdownNow();
 	}
 	
-	public void handleKeepAliveMessage(Long startedOn, Long timestamp) {
-		queueMessage(new KeepAliveMessage(startedOn, timestamp));
+	public void handleKeepAliveMessage(String system, Long timestamp) {
+		log.info("Handle keep alive.");
+		if (system.equals(SYSTEM_NAME)) {
+			queueMessage(new KeepAliveMessage(system, timestamp));
+		}		
 	}
 	
 	private void queueMessage(IKeepAliveMessage msg) {
@@ -98,12 +103,16 @@ public class BbbAppsIsAliveMonitorService {
   }
   
   private void processKeepAliveMessage(KeepAliveMessage msg) {
-	  lastKeepAliveMessage = msg.timestamp;
+	  log.debug("Received keep alive.");
+	  lastKeepAliveMessage = System.currentTimeMillis(); //msg.timestamp;
   }
   
   private void processCheckIsAliveTimer(CheckIsAliveTimer msg) {
-	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 10000)) {
-		  log.warn("BBB Apps is down. Disconnecting all clients.");
+	  Long now = System.currentTimeMillis();
+	  log.debug("Checking keep alive. now=" + now + " lk=" + lastKeepAliveMessage + " diff=" + (now - lastKeepAliveMessage > 10000));
+	  
+	  if (lastKeepAliveMessage != 0 && (now - lastKeepAliveMessage > 10000)) {
+		  log.error("BBB Apps is down. Disconnecting all clients.");
 		  service.sendMessage(new DisconnectAllMessage());
 	  }
   }
@@ -120,7 +129,7 @@ public class BbbAppsIsAliveMonitorService {
 	     	header.replyTo = "BbbRed5";
 	     	header.version = "0.0.1";
 	     	PubSubPingMessagePayload payload = new PubSubPingMessagePayload();
-	     	payload.system = "BbbAppsRed5";
+	     	payload.system = SYSTEM_NAME;
 	     	payload.timestamp = System.currentTimeMillis();
 	     	msg.header = header;
 	     	msg.payload = payload;

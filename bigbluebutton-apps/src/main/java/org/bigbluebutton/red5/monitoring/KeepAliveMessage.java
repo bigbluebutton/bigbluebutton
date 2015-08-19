@@ -2,11 +2,11 @@ package org.bigbluebutton.red5.monitoring;
 
 public class KeepAliveMessage implements IKeepAliveMessage {
 
-	public final Long startedOn;
+	public final String system;
 	public final Long timestamp;
 	
-	public KeepAliveMessage(Long startedOn, Long timestamp) {
-		this.startedOn = startedOn;
+	public KeepAliveMessage(String system, Long timestamp) {
+		this.system = system;
 		this.timestamp = timestamp;
 	}
 }
