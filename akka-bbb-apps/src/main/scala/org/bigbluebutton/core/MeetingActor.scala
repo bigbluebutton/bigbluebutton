@@ -316,9 +316,9 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   // If the meeting is recorded, tell FS to record video
   private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
     println("\nMeetingActor-handleDeskShareStartedRequest " + "mProps.recorded=" + mProps.recorded +
-      " dsStarted=" + meetingModel.getDeskShareInProgress() + "\n")
+      " dsStarted=" + meetingModel.getDeskShareStarted() + "\n")
 
-    if (!meetingModel.getDeskShareInProgress()) {
+    if (!meetingModel.getDeskShareStarted()) {
       val timestamp = System.currentTimeMillis().toString()
       val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp +
         "/" + mProps.meetingID + "/" + mProps.meetingID + "-" + timestamp
@@ -336,7 +336,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       } else {
         println("IS NOT RECORDING")
       }
-      meetingModel.setDeskShareInProgress(true)
+      meetingModel.setDeskShareStarted(true)
     }
 
   }
@@ -345,7 +345,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     println("\nMeetingActor-handleDeskShareStoppedRequest " + "mProps.recorded=" + mProps.recorded + "\n")
     val timestamp = System.currentTimeMillis().toString()
 
-    meetingModel.setDeskShareInProgress(false)
+    meetingModel.setDeskShareStarted(false)
 
     // Tell FreeSwitch to stop broadcasting to RTMP
     outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, meetingModel.getRTMPBroadcastingUrl(), timestamp))
@@ -380,9 +380,6 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
     // only valid if not broadcasting yet
     if (!meetingModel.isBroadcastingRTMP()) {
       println("START broadcast ALLOWED when isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
-
-      meetingModel.setDeskShareVideoWidth(msg.videoWidth)
-      meetingModel.setDeskShareVideoHeight(msg.videoHeight)
       meetingModel.setRTMPBroadcastingUrl(msg.streamname)
       meetingModel.broadcastingRTMPStarted()
 
