@@ -8,26 +8,29 @@ class MeetingModel {
   private var permissionsInited = false
   private var permissions = new Permissions()
   private var recording = false;
-  private var broadcastingRTMP = false
   private var muted = false;
   private var meetingEnded = false
+  private var voiceRecordingFilename: String = ""
 
   val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
   private var lastWebUserLeftOnTimestamp: Long = 0
 
-  private var voiceRecordingFilename: String = ""
+  // Desktop Sharing
+  private var broadcastingRTMP = false
   private var rtmpBroadcastingUrl: String = ""
-  private var deskShareStarted = false
+  private var deskShareInProgress = false
+  private var deskShareVideoHeight = 0
+  private var deskShareVideoWidth = 0
 
   val startedOn = timeNowInMinutes;
 
-  def getDeskShareStarted(): Boolean = {
-    return deskShareStarted
+  def getDeskShareInProgress(): Boolean = {
+    return deskShareInProgress
   }
 
-  def setDeskShareStarted(b: Boolean) {
-    deskShareStarted = b
+  def setDeskShareInProgress(b: Boolean) {
+    deskShareInProgress = b
   }
 
   def recordingStarted() {
@@ -52,6 +55,22 @@ class MeetingModel {
 
   def broadcastingRTMPStopped() {
     broadcastingRTMP = false
+  }
+
+  def setDeskShareVideoHeight(height: Int) {
+    deskShareVideoHeight = height
+  }
+
+  def getDeskShareVideoHeight(): Int = {
+    deskShareVideoHeight
+  }
+
+  def setDeskShareVideoWidth(width: Int) {
+    deskShareVideoWidth = width
+  }
+
+  def getDeskShareVideoWidth(): Int = {
+    deskShareVideoWidth
   }
 
   def lastWebUserLeft() {

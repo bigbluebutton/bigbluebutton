@@ -19,6 +19,7 @@ class DeskShareEventRedisPublisher(service: MessageSender) extends OutMessageLis
       case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
       case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
       case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
+      case msg: DeskShareNotifySingleViewerRTMP => handleDeskShareNotifySingleViewerRTMP(msg)
       case _ => // do nothing
     }
   }
@@ -50,6 +51,12 @@ class DeskShareEventRedisPublisher(service: MessageSender) extends OutMessageLis
   private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
     println("_____publish to bigbluebutton-apps(red5) __handleDeskShareNotifyViewersRTMP____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareNotifyViewersRTMPToJson(msg)
+    service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
+  }
+
+  private def handleDeskShareNotifySingleViewerRTMP(msg: DeskShareNotifySingleViewerRTMP) {
+    println("_____publish to bigbluebutton-apps(red5) __handleDeskShareNotifySingleViewerRTMP____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareNotifySingleViewerRTMPToJson(msg)
     service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
   }
 }

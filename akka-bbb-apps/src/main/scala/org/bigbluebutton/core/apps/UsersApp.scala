@@ -294,6 +294,13 @@ trait UsersApp {
           assignNewPresenter(msg.userID, ru.name, msg.userID)
         }
       }
+
+      // If there is an ongoing DeskShare session, send the details (rtmp of stream, etc...) to the joining user's client
+      if (meetingModel.getDeskShareInProgress()) {
+        outGW.send(new DeskShareNotifySingleViewerRTMP(mProps.meetingID, uvo.userID, meetingModel.getRTMPBroadcastingUrl(),
+          true, meetingModel.getDeskShareVideoWidth(), meetingModel.getDeskShareVideoHeight(), System.currentTimeMillis().toString()))
+      }
+
       webUserJoined
       startRecordingIfAutoStart()
     }
