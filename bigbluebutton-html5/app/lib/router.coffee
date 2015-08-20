@@ -56,6 +56,7 @@
               Meteor.subscribe 'presentations', meetingId, onReady: =>
                 Meteor.subscribe 'users', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
                   Meteor.subscribe 'whiteboard-clean-status', meetingId, onReady: =>
+                    Meteor.subscribe 'bbb_poll', meetingId,  userId, authToken, onReady: =>
                     # done subscribing
                     onLoadComplete()
 

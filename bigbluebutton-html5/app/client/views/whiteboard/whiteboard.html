@@ -15,6 +15,13 @@
         {{> makeButton btn_class="soaringButton fullscreenButton whiteboardFullscreenButton" i_class="ion-arrow-expand"}}
       {{/if}}
     </div>
+    {{#if isPollStarted}}
+      <div class="polling">
+        {{#each getPollQuestions}}
+          {{> makeButton btn_class="pollButtons" rel="tooltip" data_placement="top" label=key answer=id}}
+        {{/each}}
+      </div>
+    {{/if}}
     {{#if isCurrentUserPresenter}}
       <div id="controllers">
         <div id="switchSlideSection">
