@@ -5,7 +5,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
 
     # the defintion of this shape, kept so we can redraw the shape whenever needed
     # format: x1, y1, x2, y2, stroke color, thickness, fill
-    @definition = [0, 0, 0, 0, "#000000", "2px", "#ffffff"]
+    @definition = [0, 0, 0, 0, "#333333", "2px", "#ffffff"]
     @paper
 
   # Creates a polling in the paper
@@ -26,7 +26,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     backgroundColor = "#ffffff"
     verticalPadding = 0
     horizontalPadding = 0
-    calcFontSize = 22
+    calcFontSize = 20
     votesTotal = 0
     maxNumVotes = 0
     textArray = []
@@ -64,18 +64,29 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     height = (y2 * @gh + @yOffset) - y
 
     #creating a base rectangle
-    @obj = @paper.rect(x, y, width, height, 1)
-    @obj.attr "stroke", "#000000"
+    @obj = @paper.rect(x, y, width, height, 0)
+    @obj.attr "stroke", "#333333"
     @obj.attr "fill", backgroundColor
     @obj.attr "stroke-width", zoomStroke(formatThickness(thickness))
     @definition =
       shape: "poll_result"
       data: [x1, y1, x2, y2, @obj.attrs["stroke"], @obj.attrs["stroke-width"], @obj.attrs["fill"]]
 
+    #Calculating a proper font-size, and the maximum widht and height of the objects
+    calculatedData = calculateFontAndWidth(textArray, calcFontSize, width, height, x, y)
+    calcFontSize = calculatedData[0]
+    maxLeftWidth = calculatedData[1]
+    maxRightWidth = calculatedData[2]
+    maxLineHeight = calculatedData[3]
+    maxDigitWidth = calculatedData[4]
+    maxBarWidth = width*0.9-maxLeftWidth-maxRightWidth
+    barHeight = height*0.75/textArray.length
+    svgNSi = "http://www.w3.org/2000/svg"
+
     #Initializing a text element for further calculations and for the left column of keys
     @obj2 = @paper.text(x, y, "")
     @obj2.attr
-      "fill": "#000000"
+      "fill": "#333333"
       "font-family": "Arial"
       "font-size": calcFontSize
     @obj2.node.style["text-anchor"] = "start" # force left align
@@ -87,7 +98,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     #Initializing a text element for the right column of percentages
     @obj3 = @paper.text(x, y, "")
     @obj3.attr
-      "fill": "#000000"
+      "fill": "#333333"
       "font-family": "Arial"
       "font-size": calcFontSize
     @obj3.node.style["text-anchor"] = "end" # force right align
@@ -96,34 +107,37 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     while rightCell? and rightCell.hasChildNodes()
       rightCell.removeChild(rightCell.firstChild)
 
-    #Calculating a proper font-size, and the maximum widht and height of the objects
-    calculatedData = calculateFontAndWidth(leftCell, textArray, calcFontSize, width, height, x, y)
-    calcFontSize = calculatedData[0]
-    maxLeftWidth = calculatedData[1]
-    maxRightWidth = calculatedData[2]
-    maxLineHeight = calculatedData[3]
-    maxBarWidth = width*0.9-maxLeftWidth-maxRightWidth
-    barHeight = height*0.75/textArray.length
-    svgNSi = "http://www.w3.org/2000/svg"
 
     #setting a font size for the text elements on the left and on the right
     leftCell.style['font-size'] = calcFontSize
     rightCell.style['font-size'] = calcFontSize
     #Horizontal padding
-    verticalPadding = width*0.1/(textArray[0].length+1)
+    horizontalPadding = width*0.1/4
     #Vertical padding
-    horizontalPadding = height*0.25/(textArray.length+1)
-    #Initial coordinates of the key column
-    yLeft = y+horizontalPadding+barHeight/2
-    xLeft = x + verticalPadding + 1
-    #Initial coordinates of the line bar column
-    xBar = x+maxLeftWidth+verticalPadding*2
-    yBar = y + horizontalPadding
-    #Initial coordinates of the percentage column
-    yRight = y+horizontalPadding+barHeight/2
-    xRight = x + verticalPadding*3 + maxLeftWidth + maxRightWidth + maxBarWidth + 1
-    objects = [@obj, @obj2, @obj3]
+    verticalPadding = height*0.25/(textArray.length+1)
 
+    #*****************************************************************************************************
+    #******************************************MAGIC NUMBER***********************************************
+    #There is no automatic vertical centering in SVG. 
+    #To center the text element we have to move it down by the half of its height.
+    #But every text element has its own padding by default.
+    #The height we receive by calling getBBox() includes padding, but the anchor point doesn't consider it.
+    #This way the text element is moved down a little bit too much and we have to move it up a bit.
+    #Number 3.5 seems to work fine.
+    # Oleksandr Zhurbenko. August 19, 2015
+    magicNumber = 3.5
+    #*****************************************************************************************************
+
+    #Initial coordinates of the key column
+    yLeft = y+verticalPadding+barHeight/2 - magicNumber
+    xLeft = x + horizontalPadding + 1
+    #Initial coordinates of the line bar column
+    xBar = x+maxLeftWidth+horizontalPadding*2
+    yBar = y + verticalPadding
+    #Initial coordinates of the percentage column
+    yRight = y+verticalPadding+barHeight/2 - magicNumber
+    xRight = x + horizontalPadding*3 + maxLeftWidth + maxRightWidth + maxBarWidth + 1
+    objects = [@obj, @obj2, @obj3]
 
     for i in [0..textArray.length-1]
       #Adding an element to the left column
@@ -140,9 +154,9 @@ class @WhiteboardPollModel extends WhiteboardToolModel
         barWidth = 2
       else
         barWidth = startingData.result[i].num_votes / maxNumVotes * maxBarWidth
-      @obj4 = @paper.rect(xBar, yBar, barWidth, barHeight, 2)
-      @obj4.attr "stroke", "#000000"
-      @obj4.attr "fill", "#000000"
+      @obj4 = @paper.rect(xBar, yBar, barWidth, barHeight, 0)
+      @obj4.attr "stroke", "#333333"
+      @obj4.attr "fill", "#333333"
       @obj4.attr "stroke-width", zoomStroke(formatThickness(0))
       objects.push @obj4
 
@@ -156,14 +170,14 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       rightCell.appendChild tempSpanEl
 
       #changing the Y coordinate for all the objects
-      yBar = yBar + barHeight + horizontalPadding
-      yLeft = yLeft + horizontalPadding + barHeight
-      yRight = yRight + horizontalPadding + barHeight
+      yBar = yBar + barHeight + verticalPadding
+      yLeft = yLeft + barHeight + verticalPadding
+      yRight = yRight + barHeight + verticalPadding
 
     #Initializing a text element for the number of votes text field inside the line bar
     @obj5 = @paper.text(x, y, "")
     @obj5.attr
-      "fill": "#000000"
+      "fill": "#333333"
       "font-family": "Arial"
       "font-size": calcFontSize
     centerCell = @obj5.node
@@ -171,42 +185,43 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       centerCell.removeChild(centerCell.firstChild)
 
     #Initial coordinates of the text inside the bar column
-    xNumVotes = x+maxLeftWidth+verticalPadding*2
-    yNumVotes = y + horizontalPadding
+    xNumVotesDefault = x+maxLeftWidth+horizontalPadding*2
+    xNumVotesMovedRight = xNumVotesDefault + barWidth/2 + horizontalPadding + maxDigitWidth/2
+    yNumVotes = y + verticalPadding - magicNumber
+    color = "white"
+    #Drawing the text element with the number of votes inside of the black line bars
+    #Or outside if a line bar is too small
     for i in [0..textArray.length-1]
       if maxNumVotes is 0 or startingData.result[i].num_votes is 0
         barWidth = 2
       else
         barWidth = startingData.result[i].num_votes / maxNumVotes * maxBarWidth
+      if barWidth < maxDigitWidth + 8
+        xNumVotes = xNumVotesMovedRight
+        color = "#333333"
+      else
+        xNumVotes = xNumVotesDefault
+        color = "white"
 
       tempSpanEl = document.createElementNS(svgNSi, "tspan")
       tempSpanEl.setAttributeNS null, "x", xNumVotes + barWidth/2
       tempSpanEl.setAttributeNS null, "y", yNumVotes + barHeight/2
       tempSpanEl.setAttributeNS null, "dy", maxLineHeight/2
-      tempSpanEl.setAttributeNS null, "fill", "white"
+      tempSpanEl.setAttributeNS null, "fill", color
       tempTextNode = document.createTextNode(startingData.result[i].num_votes)
       tempSpanEl.appendChild tempTextNode
       centerCell.appendChild tempSpanEl
-      yNumVotes = yNumVotes + barHeight + horizontalPadding
+      yNumVotes = yNumVotes + barHeight + verticalPadding
 
     objects.push @obj5
     objects
 
 
-  # Update the poll dimensions
+  # Update the poll dimensions. Does nothing.
   update: (startingData) ->
 
-
-  calculateFontAndWidth = (leftCell, textArray, calcFontSize, width, height, x, y) ->
+calculateFontAndWidth = (textArray, calcFontSize, width, height, x, y) ->
     calculatedData = []
-    #Initializing a tspan for finding a proper font-size
-    svgNSi = "http://www.w3.org/2000/svg"
-    tempSpanEl = document.createElementNS(svgNSi, "tspan")
-    tempSpanEl.setAttributeNS null, "x", x
-    tempSpanEl.setAttributeNS null, "y", y
-    tempTextNode = document.createTextNode("")
-    tempSpanEl.appendChild tempTextNode
-
     #maximum line width can be either 1/3 of the line or 40px
     #maximum line height is 75% of the initial size of the box divided by the number of lines
     maxLineWidth = width/3
@@ -218,14 +233,12 @@ class @WhiteboardPollModel extends WhiteboardToolModel
       flag = false
       for i in [0..textArray.length-1]
         for j in [0..textArray[i].length-1]
-          tempSpanEl.firstChild.nodeValue = textArray[i][j]
-          leftCell.appendChild tempSpanEl
-          if tempSpanEl.getBBox().width > 40 or tempSpanEl.getBBox().width > maxLineWidth or tempSpanEl.getBBox().height > maxLineHeight
+          test = getRenderedTextSize(textArray[i][j], calcFontSize)
+          spanWidth = test[0]
+          spanHeight = test[1]
+          if spanWidth > 40 or spanWidth > maxLineWidth or spanHeight > maxLineHeight
             calcFontSize -= 1
-            leftCell.style['font-size'] = calcFontSize
             flag = true
-          leftCell.removeChild(leftCell.firstChild)
-
     calculatedData.push calcFontSize
 
     #looking for a maximum width and height of the left and right text elements
@@ -233,21 +246,39 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     maxRightWidth = 0
     maxLineHeight = 0
     for line in textArray
-      tempSpanEl.firstChild.nodeValue = line[0]
-      leftCell.appendChild tempSpanEl
-      if tempSpanEl.getBBox().width > maxLeftWidth
-        maxLeftWidth = tempSpanEl.getBBox().width
-        if tempSpanEl.getBBox().height > maxLineHeight
-          maxLineHeight = tempSpanEl.getBBox().height
-      leftCell.removeChild(leftCell.firstChild)
+      test = getRenderedTextSize(line[0], calcFontSize)
+      spanWidth = test[0]
+      spanHeight = test[1]
+      if spanWidth > maxLeftWidth
+        maxLeftWidth = spanWidth
+      if spanHeight > maxLineHeight
+        maxLineHeight = spanHeight
+      test = getRenderedTextSize(line[2], calcFontSize)
+      spanWidth = test[0] 
+      spanHeight = test[1]
+      if spanWidth > maxRightWidth
+        maxRightWidth = spanWidth
+      if spanHeight > maxLineHeight
+        maxLineHeight = spanHeight
 
-      tempSpanEl.firstChild.nodeValue = line[2]
-      leftCell.appendChild tempSpanEl
-      if tempSpanEl.getBBox().width > maxRightWidth
-        maxRightWidth = tempSpanEl.getBBox().width
-        if tempSpanEl.getBBox().height > maxLineHeight
-          maxLineHeight = tempSpanEl.getBBox().height
-      leftCell.removeChild(leftCell.firstChild)
-
-    calculatedData.push maxLeftWidth, maxRightWidth, maxLineHeight
+    test = getRenderedTextSize("0", calcFontSize)
+    spanWidth = test[0]
+    spanHeight = test[1]
+    maxDigitWidth = spanWidth
+    calculatedData.push maxLeftWidth, maxRightWidth, maxLineHeight, maxDigitWidth
     calculatedData
+
+
+  getRenderedTextSize = (string, fontSize) ->
+    paper = Raphael(0, 0, 0, 0)
+    paper.canvas.style.visibility = 'hidden'
+    el = paper.text(0, 0, string)
+    el.attr "font-family", "Arial"
+    el.attr "font-size", fontSize
+    bBox = el.getBBox()
+    paper.remove()
+    arrayTest = []
+    arrayTest.push bBox.width
+    arrayTest.push bBox.height
+    paper.remove()
+    arrayTest
