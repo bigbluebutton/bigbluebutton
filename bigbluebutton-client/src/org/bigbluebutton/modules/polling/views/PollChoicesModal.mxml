@@ -35,16 +35,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var _presentatonWindow : PresentationWindow;
+			private var _presentationWindow : PresentationWindow;
 			
-			public function setPresentatonWindow( window : PresentationWindow ):void {
-				_presentatonWindow = window;
+			public function setPresentationWindow(window:PresentationWindow):void {
+				_presentationWindow = window;
 			}
 			
 			protected function publishButton_clickHandler(event:MouseEvent):void {
 				var answers : Array = buildAnswsers();
 				if (ArrayUtils.isNotEmpty(answers)) {
-					_presentatonWindow.slideView.onZoomSlide(100);
+					_presentationWindow.slideView.onZoomSlide(100);
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatchEvent(new StartCustomPollEvent("Custom", answers));
 					PopUpManager.removePopUp(this);
