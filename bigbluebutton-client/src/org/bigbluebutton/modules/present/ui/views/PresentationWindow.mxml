@@ -730,6 +730,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							voteBtn = new Button();
 							voteBtn.percentWidth = btnWidth;
 							voteBtn.height = 70;
+							voteBtn.setStyle("fontSize", 14);
 							voteBtn.tabIndex = ++ti;
 							
 							var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.'+e.poll.answers[i].key);
