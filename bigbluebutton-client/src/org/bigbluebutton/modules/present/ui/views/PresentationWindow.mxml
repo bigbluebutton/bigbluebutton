@@ -31,8 +31,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
 	showControls="true" resize="resizeHandler()"
-  styleNameFocus="presentationWindowStyleFocus"
-  styleNameNoFocus="presentationWindowStyleNoFocus"
+  	styleNameFocus="presentationWindowStyleFocus"
+  	styleNameNoFocus="presentationWindowStyleNoFocus"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	initialize="init()"
 	creationComplete="onCreationComplete()" 
@@ -48,7 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleBecomePresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleBecomeViewer" />
 	<mate:Listener type="{PresentationChangedEvent.PRESENTATION_CHANGED_EVENT}" method="handlePresentationChangedEvent" />
-  <mate:Listener type="{NavigationEvent.BIND_KEYBOARD_EVENT}" method="bindToKeyboardEvents" />
+  	<mate:Listener type="{NavigationEvent.BIND_KEYBOARD_EVENT}" method="bindToKeyboardEvents" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
@@ -87,9 +87,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.polling.events.PollShowResultEvent;
 			import org.bigbluebutton.modules.polling.events.PollStartedEvent;
 			import org.bigbluebutton.modules.polling.events.PollStoppedEvent;
-			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollEvent;
 			import org.bigbluebutton.modules.polling.events.VotePollEvent;
+			import org.bigbluebutton.modules.polling.views.PollChoicesModal;
 			import org.bigbluebutton.modules.polling.views.PollResultsModal;
 			import org.bigbluebutton.modules.present.commands.GoToNextPageCommand;
 			import org.bigbluebutton.modules.present.commands.GoToPrevPageCommand;
@@ -144,6 +144,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollMenu:Menu;
 			
 			private var pollResultsPopUp:PollResultsModal
+			private var pollChoicesPopUp:PollChoicesModal
 			
 			private function init():void{
 				presentOptions = new PresentOptions();
@@ -652,10 +653,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function sendStartCustomPollEvent(pollType:String):void {
 				// Let's reset the page to display full size so we can display the result
 				// on the bottom right-corner.
-				onResetZoom();
-				var dispatcher:Dispatcher = new Dispatcher();
-				var answers:Array = new Array("Red", "Green", "Blue");
-				dispatchEvent(new StartCustomPollEvent(pollType, answers));				
+				pollChoicesPopUp = PopUpManager.createPopUp(this, PollChoicesModal, true) as PollChoicesModal;
+				pollChoicesPopUp.setPresentatonWindow(this);
+				PopUpManager.centerPopUp(pollChoicesPopUp);
 			}
 			
 			private function sendStartPollEvent(pollType:String):void {
@@ -693,10 +693,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							break;
 						case 7:
 							sendStartCustomPollEvent("Custom");
-							//sendStartPollEvent("A-7");
 							break;
-						case 8:
-							sendStartCustomPollEvent("Custom");
+						default:
+							LOGGER.warn("Wrong poll menu selected index {0}", [e.index]);
 							break;
 					}
 
