@@ -654,7 +654,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Let's reset the page to display full size so we can display the result
 				// on the bottom right-corner.
 				pollChoicesPopUp = PopUpManager.createPopUp(this, PollChoicesModal, true) as PollChoicesModal;
-				pollChoicesPopUp.setPresentatonWindow(this);
+				pollChoicesPopUp.setPresentationWindow(this);
 				PopUpManager.centerPopUp(pollChoicesPopUp);
 			}
 			
