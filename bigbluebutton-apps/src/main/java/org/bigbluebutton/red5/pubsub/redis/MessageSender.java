@@ -16,13 +16,12 @@ import redis.clients.jedis.Protocol;
 public class MessageSender {
 	private static Logger log = Red5LoggerFactory.getLogger(MessageSender.class, "bigbluebutton");
 	
-	private JedisPool redisPool;
-	private volatile boolean sendMessage = false;
-	
+	private volatile boolean sendMessage = false;	
 	private final Executor msgSenderExec = Executors.newSingleThreadExecutor();
 	private final Executor runExec = Executors.newSingleThreadExecutor();
 	private BlockingQueue<MessageToSend> messages = new LinkedBlockingQueue<MessageToSend>();
 	
+	private JedisPool redisPool;
 	private String host;
 	private int port;
 	
@@ -31,8 +30,10 @@ public class MessageSender {
 	}
 	
 	public void start() {
+		// Set the name of this client to be able to distinguish when doing
+		// CLIENT LIST on redis-cli
 		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
-		        Protocol.DEFAULT_DATABASE, "red5-publisher");
+		        Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
 		
 		log.info("Redis message publisher starting!");
 		try {

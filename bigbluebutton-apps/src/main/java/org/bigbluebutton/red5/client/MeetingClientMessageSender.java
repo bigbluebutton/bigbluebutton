@@ -101,8 +101,6 @@ public class MeetingClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 	  	  
-		System.out.println("RedisPubSubMessageHandler - processMeetingHasEndedMessage \n" + message.get("msg") + "\n");
-
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingHasEnded", message);
 	  	service.sendMessage(m); 
 	}
@@ -116,8 +114,6 @@ public class MeetingClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 	  	  
-		System.out.println("RedisPubSubMessageHandler - processMeetingStateMessage \n" + message.get("msg") + "\n");
-
 		DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "meetingState", message);
 	  	service.sendMessage(m);   
 	}
@@ -138,8 +134,6 @@ public class MeetingClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 	  	  
-		System.out.println("RedisPubSubMessageHandler - processNewPermissionsSettingMessage \n" + message.get("msg") + "\n");
-
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "permissionsSettingsChanged", message);
 	  	service.sendMessage(m);   	 
 	}	
@@ -152,8 +146,6 @@ public class MeetingClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 	  	  
-		System.out.println("RedisPubSubMessageHandler - processMeetingMutedMessage \n" + message.get("msg") + "\n");
-
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingMuted", message);
 	  	service.sendMessage(m);    
 	}
@@ -166,21 +158,16 @@ public class MeetingClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 	  	  
-		System.out.println("RedisPubSubMessageHandler - handleMeetingEnded \n" + message.get("msg") + "\n");
-
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingEnded", message);
 	  	service.sendMessage(m); 
 	}
 	
 	private void processDisconnectAllUsersMessage(DisconnectAllUsersMessage msg) {
-		System.out.println("RedisPubSubMessageHandler - processDisconnectAllUsersMessage mid=[" + msg.meetingId + "]");
 		DisconnectAllClientsMessage dm = new DisconnectAllClientsMessage(msg.meetingId);
 		service.sendMessage(dm);	  	 
 	}
 	
-	private void processDisconnectUserMessage(DisconnectUserMessage msg) {
-		System.out.println("RedisPubSubMessageHandler - handleDisconnectUser mid=[" + msg.meetingId + "], uid=[" + msg.userId + "]\n");
-		  
+	private void processDisconnectUserMessage(DisconnectUserMessage msg) {		  
 		DisconnectClientMessage m = new DisconnectClientMessage(msg.meetingId, msg.userId);
 		service.sendMessage(m);	  	 
 	}
@@ -194,9 +181,7 @@ public class MeetingClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserLockedMessage \n" + message.get("msg") + "\n");
-		  	    
+	  	    		  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLocked", message);
 		service.sendMessage(m);
 	}

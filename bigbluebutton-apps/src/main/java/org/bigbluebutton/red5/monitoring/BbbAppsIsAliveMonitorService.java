@@ -57,7 +57,6 @@ public class BbbAppsIsAliveMonitorService {
 	}
 	
 	public void handleKeepAliveMessage(String system, Long timestamp) {
-		log.info("Handle keep alive.");
 		if (system.equals(SYSTEM_NAME)) {
 			queueMessage(new KeepAliveMessage(system, timestamp));
 		}		
@@ -103,16 +102,14 @@ public class BbbAppsIsAliveMonitorService {
   }
   
   private void processKeepAliveMessage(KeepAliveMessage msg) {
-	  log.debug("Received keep alive.");
-	  lastKeepAliveMessage = System.currentTimeMillis(); //msg.timestamp;
+	  lastKeepAliveMessage = System.currentTimeMillis();
   }
   
   private void processCheckIsAliveTimer(CheckIsAliveTimer msg) {
 	  Long now = System.currentTimeMillis();
-	  log.debug("Checking keep alive. now=" + now + " lk=" + lastKeepAliveMessage + " diff=" + (now - lastKeepAliveMessage > 10000));
-	  
+
 	  if (lastKeepAliveMessage != 0 && (now - lastKeepAliveMessage > 10000)) {
-		  log.error("BBB Apps is down. Disconnecting all clients.");
+		  log.error("BBB Apps Red5 pubsub error!");
 		  service.sendMessage(new DisconnectAllMessage());
 	  }
   }

@@ -18,20 +18,21 @@
 */
 package org.bigbluebutton.core.service.recorder;
 
-import org.apache.commons.pool.impl.GenericObjectPool;
-
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Protocol;
 
 public class RedisDispatcher implements Recorder {
 
 	private static final String COLON=":";
 	private JedisPool redisPool;
-	private GenericObjectPoolConfigWrapper config;
-	
+
 	public RedisDispatcher(String host, int port, String password) {
-		setupConfig();
-		redisPool = new JedisPool(config.getConfig(), host, port);
+		// Set the name of this client to be able to distinguish when doing
+		// CLIENT LIST on redis-cli
+		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+		        Protocol.DEFAULT_DATABASE, "BbbAppsAkkaRec");
 	}
 		
 	@Override
@@ -42,22 +43,8 @@ public class RedisDispatcher implements Recorder {
 			jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
 			jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());
 		} finally {
-			redisPool.returnResource(jedis);
+			jedis.close();
 		}						
 	}
 		
-	private void setupConfig() {
-		config = new GenericObjectPoolConfigWrapper();
-		config.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_FAIL);
-		config.setMaxActive(12);
-		config.setMaxIdle(6);
-		config.setMinIdle(1);
-		config.setTestOnBorrow(true);
-		config.setTestOnReturn(true);
-		config.setTestWhileIdle(true);
-		config.setNumTestsPerEvictionRun(12);
-		config.setTimeBetweenEvictionRunsMillis(60000);
-		config.setMaxWait(5000);
-	}
-
 }

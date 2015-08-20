@@ -147,7 +147,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   }
 
   private def handlePubSubPong(msg: PubSubPong) {
-    val json = encoder.encodePubSubPingMessage(msg.system, msg.timestamp)
+    val json = encoder.encodePubSubPongMessage(msg.system, msg.timestamp)
     service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, json)
   }
 

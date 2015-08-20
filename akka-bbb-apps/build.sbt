@@ -48,11 +48,10 @@ libraryDependencies ++= {
 	  "commons-codec"             %  "commons-codec"     % "1.8",
 	  "joda-time"                 %  "joda-time"         % "2.3",
 	  "com.google.code.gson"      %  "gson"              % "1.7.1",
-	  "redis.clients"             %  "jedis"             % "2.1.0",
+	  "redis.clients"             %  "jedis"             % "2.7.2",
       "org.apache.commons"        %  "commons-lang3"     % "3.2",
-      "org.bigbluebutton"         %  "bbb-common-message" % "0.0.13-SNAPSHOT"
+      "org.bigbluebutton"         %  "bbb-common-message" % "0.0.13"
 	)}
-
 
 seq(Revolver.settings: _*)
 

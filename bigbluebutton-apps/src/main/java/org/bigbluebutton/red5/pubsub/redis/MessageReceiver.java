@@ -30,7 +30,9 @@ public class MessageReceiver {
 		try {
 			receiveMessage = true;
 			jedis = new Jedis(host, port);
-			jedis.clientSetname("red5-psubscriber");
+			// Set the name of this client to be able to distinguish when doing
+			// CLIENT LIST on redis-cli
+			jedis.clientSetname("BbbRed5AppsSub");
 			
 			Runnable messageReceiver = new Runnable() {
 			    public void run() {
