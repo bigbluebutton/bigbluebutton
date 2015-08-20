@@ -143,6 +143,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var pollResultsPopUp:PollResultsModal
 			
+			[Embed(source="../../../polling/sounds/Poll.mp3")] 
+			private var noticeSoundClass:Class;
+			private var noticeSound:Sound = new noticeSoundClass() as Sound;
+			
 			private function init():void{
 				presentOptions = new PresentOptions();
 			}
@@ -718,6 +722,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							voteBtn.addEventListener(MouseEvent.CLICK, voteButtonClickHandler);
 							pollVoteBox.addChild(voteBtn);
 					}
+					noticeSound.play();
 				}
 			}
 			
