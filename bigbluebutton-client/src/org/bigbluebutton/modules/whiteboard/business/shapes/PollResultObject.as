@@ -293,7 +293,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       var ans:Array = new Array();
       for (var j:int = 0; j < answers.length; j++) {
 	      var ar:Object = answers[j];
-	      var rs:Object = {a: ResourceUtil.getInstance().getString('bbb.polling.answer.' + ar.key), v: ar.num_votes as Number};
+		  var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.' + ar.key);
+		  
+		  if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+			  localizedKey = ar.key;
+		  } 
+	      var rs:Object = {a: localizedKey, v: ar.num_votes as Number};
 	      LOGGER.debug("poll result a=[{0}] v=[{1}]", [ar.key, ar.num_votes]);
 	      ans.push(rs);
       }

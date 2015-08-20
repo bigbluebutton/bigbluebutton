@@ -6,7 +6,7 @@ import org.bigbluebutton.common.messages.CreateMeetingMessage;
 import org.bigbluebutton.common.messages.DestroyMeetingMessage;
 import org.bigbluebutton.common.messages.EndMeetingMessage;
 import org.bigbluebutton.common.messages.GetAllMeetingsRequest;
-import org.bigbluebutton.common.messages.IPublishedMessage;
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.common.messages.KeepAliveMessage;
 import org.bigbluebutton.common.messages.MessageFromJsonConverter;
 import org.bigbluebutton.common.messages.MessagingConstants;
@@ -33,7 +33,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 //		LOG.debug("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
 //			System.out.println("Meeting message: " + channel + " " + message);
-			IPublishedMessage msg = MessageFromJsonConverter.convert(message);
+			IBigBlueButtonMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
 				if (msg instanceof EndMeetingMessage) {
@@ -96,7 +96,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 				System.out.println("Failed to decode message: [" + message + "]");
 			}
 		} else if (channel.equalsIgnoreCase(MessagingConstants.TO_SYSTEM_CHANNEL)) {
-			IPublishedMessage msg = MessageFromJsonConverter.convert(message);
+			IBigBlueButtonMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
 				if (msg instanceof KeepAliveMessage) {

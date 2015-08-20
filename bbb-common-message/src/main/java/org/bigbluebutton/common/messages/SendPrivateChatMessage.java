@@ -5,7 +5,7 @@ import java.util.Map;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class SendPrivateChatMessage implements IPublishedMessage {
+public class SendPrivateChatMessage implements IBigBlueButtonMessage {
 	public static final String SEND_PRIVATE_CHAT_MESSAGE = "send_private_chat_message";
 	public static final String VERSION = "0.0.1";
 

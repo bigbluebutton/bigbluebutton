@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class ResizeAndMoveSlideMessage implements IPublishedMessage {
+public class ResizeAndMoveSlideMessage implements IBigBlueButtonMessage {
 	public static final String RESIZE_AND_MOVE_SLIDE = "resize_and_move_slide";
 	public static final String VERSION = "0.0.1";
 
