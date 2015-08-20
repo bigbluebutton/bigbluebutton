@@ -83,7 +83,13 @@
 }
 
 #user-contents {
-  height: calc(~'100% - 50px'); /* user-contents = user-contens - meetingTitle */
+  @media @phone-landscape {
+    height: calc(~'100% - 46px');
+  }
+  @media @tablet-landscape, @desktop-landscape,
+  @mobile-portrait, @mobile-portrait-with-keyboard, @desktop-portrait {
+    height: calc(~'100% - 50px'); /* user-contents = user-contens - meetingTitle */
+  }
   @media @landscape, @desktop-portrait{
     background-color: #34495E;
   }

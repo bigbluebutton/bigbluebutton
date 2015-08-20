@@ -202,7 +202,7 @@
 }
 
 #sendMessageButton {
-  width: 20%; /* 75% for the message input, 5% margin between the two */
+  width: 25%;
   color: extract(@black, 1);
   background-color: #3896D3;
   font-weight: bold;
@@ -210,31 +210,44 @@
   margin: 0px;
   border: 1px solid extract(@lightGrey, 3);
   @media @desktop-portrait {
-    width: 20%; /* 75% for the message input, 5% margin between the two */
     font-size: 30px;
-    height: 60px;
     &:hover {
       background: #3A82D4;
     }
+    padding-left: 7%;
   }
-  @media @mobile-portrait {
-    width: 15vw;
-    height: 8vw;
-    font-size: 4vw;
+  @media @phone-portrait {
+    font-size: 20px;
+    padding-left: 5%;
   }
-  @media @mobile-portrait-with-keyboard {
-    width: 19vw;
-    height: 21vh;
-    font-size: 3vh;
+  @media @tablet-portrait {
+    font-size: 25px;
+    padding-left: 7%;
+  }
+  @media @phone-portrait-with-keyboard {
+    font-size: 20px;
+    padding-left: 7%;
+  }
+  @media @tablet-portrait-with-keyboard {
+    font-size: 25px;
+    padding-left: 7%;
   }
   @media @landscape {
-    height: 50px;
     padding: 0px;
     position: absolute;
     bottom: 10px;
     &:hover {
       background: #3A82D4;
     }
+  }
+  @media @phone-landscape {
+    font-size: 14px;
+  }
+  @media @tablet-landscape {
+    font-size: 18px;
+  }
+  @media @desktop-landscape {
+    font-size: 15px;
   }
 }
 

@@ -73,11 +73,15 @@ Template.header.events
     toggleRightDrawer()
     toggleRightArrowClockwise()
 
+  "click .btn": (event) ->
+    $(".ui-tooltip").hide()
+
 Template.menu.events
   'click .slideButton': (event) ->
     toggleShield()
     toggleRightDrawer()
     toggleRightArrowClockwise()
+    $('.slideButton').blur()
 
   'click .toggleChatButton': (event) ->
     toggleChatbar()
