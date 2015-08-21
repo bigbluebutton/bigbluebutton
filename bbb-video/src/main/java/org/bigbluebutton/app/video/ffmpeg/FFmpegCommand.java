@@ -22,6 +22,7 @@ public class FFmpegCommand {
     private String ffmpegPath;
     private String input;
     private String output;
+    private Boolean audioEnabled;
 
     /* Analyze duration is a special parameter that MUST come before the input */
     private String analyzeDuration;
@@ -39,6 +40,7 @@ public class FFmpegCommand {
         };
 
         this.ffmpegPath = null;
+        this.audioEnabled = false;
     }
 
     public String[] getFFmpegCommand(boolean shouldBuild) {
@@ -70,6 +72,10 @@ public class FFmpegCommand {
             Map.Entry pairs = (Map.Entry)argsIter.next();
             comm.add(pairs.getKey());
             comm.add(pairs.getValue());
+        }
+
+        if (!this.audioEnabled) {
+            comm.add("-an");
         }
 
         if(!x264Params.isEmpty()) {
@@ -188,4 +194,9 @@ public class FFmpegCommand {
 
         this.args.put("-q:v", scale.toString());
     }
+
+    public void setAudioEnabled(Boolean enabled) {
+        this.audioEnabled = enabled;
+    }
+
 }

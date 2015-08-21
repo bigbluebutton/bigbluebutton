@@ -51,6 +51,7 @@ public class H263Converter implements ProcessMonitorObserver{
 		ffmpeg.setCodec("flv1"); // Sorensen H263
 		ffmpeg.setFormat("flv");
 		ffmpeg.setOutput(output);
+		ffmpeg.setAudioEnabled(false);
 		ffmpeg.setLoglevel("quiet");
 		ffmpeg.setAnalyzeDuration("10000"); // 10ms
 
