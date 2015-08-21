@@ -21,8 +21,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx"
-				width="350"
-				layout="vertical">
+				width="350" layout="vertical"
+				show="{focusManager.setFocus(choiceFirst)}">
 	<fx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -65,36 +65,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</fx:Script>
 	
 	<mx:Label id="modalTitle" styleName="micSettingsWindowTitleStyle"
-			  text="Enter Polling Choices" width="100%"/>
+			  text="{ResourceUtil.getInstance().getString('bbb.polling.customChoices.title')}" width="100%"/>
 	
 	<mx:HRule width="100%"/>
 	
-	<mx:Label text="Enter your polling choices below"/>
-	
-	<mx:HBox width="100%">
-		<mx:Label text="1"/>
+	<mx:VBox width="100%" paddingTop="20" paddingBottom="20" paddingLeft="16" paddingRight="16">
 		<mx:TextInput id="choiceFirst" width="100%"/>
-	</mx:HBox>
-	<mx:HBox width="100%">
-		<mx:Label text="2"/>
 		<mx:TextInput id="choiceSecond" width="100%"/>
-	</mx:HBox>
-	<mx:HBox width="100%">
-		<mx:Label text="3"/>
 		<mx:TextInput id="choiceThird" width="100%"/>
-	</mx:HBox>
-	<mx:HBox width="100%">
-		<mx:Label text="4"/>
 		<mx:TextInput id="choiceFourth" width="100%"/>
-	</mx:HBox>
-	<mx:HBox width="100%">
-		<mx:Label text="5"/>
 		<mx:TextInput id="choiceFifth" width="100%"/>
-	</mx:HBox>
-	<mx:HBox width="100%">
-		<mx:Label text="6"/>
 		<mx:TextInput id="choiceSixth" width="100%"/>
-	</mx:HBox>
+	</mx:VBox>
 
 	<mx:HRule width="100%"/>
 	
