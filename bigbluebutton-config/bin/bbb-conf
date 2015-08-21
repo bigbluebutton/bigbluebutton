@@ -1262,7 +1262,7 @@ if [ $CHECK ]; then
 	PORT_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
 	echo "  		Port test (tunnel): $PORT_IP"
 
-	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*(:\/\///;s/\/.*//;p}')
+	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*:\/\///;s/\/.*//;p}')
 	WEBRTC_ENABLED_CLIENT=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                              Red5: $RED5_IP"
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
@@ -1305,7 +1305,7 @@ if [ $CHECK ]; then
 	fi
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*(:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
 		echo
 		echo "/var/www/bigbluebutton/check/conf/config.xml (client check)"
 		echo "                      client check: $CHECK_URL"
