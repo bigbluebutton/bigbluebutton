@@ -19,6 +19,13 @@ Template.whiteboard.helpers
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
       return ''
+  isPollStarted: ->
+    if BBB.isPollGoing(getInSession('userId'))
+      return true
+    else
+      return false
+
+
 
 Template.whiteboard.events
   'click .previousSlide':(event) ->
@@ -46,6 +53,11 @@ Template.whiteboard.events
 
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
+
+  'click .pollButtons': (event) ->
+    _key = @.label
+    _id = @.answer
+    BBB.sendPollResponseMessage(_key, _id)
 
 Template.whiteboard.rendered = ->
   $('#whiteboard').resizable

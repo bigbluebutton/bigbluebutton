@@ -4,5 +4,6 @@ Meteor.Meetings = new Meteor.Collection("meetings")
 Meteor.Presentations = new Meteor.Collection("presentations")
 Meteor.Shapes = new Meteor.Collection("shapes")
 Meteor.Slides = new Meteor.Collection("slides")
+Meteor.Polls = new Meteor.Collection("bbb_poll")
 
 Meteor.WhiteboardCleanStatus = new Meteor.Collection("whiteboard-clean-status")
