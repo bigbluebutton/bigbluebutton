@@ -34,6 +34,7 @@ class MeetingModel {
 
   def setDeskShareStarted(b: Boolean) {
     deskShareStarted = b
+    println("---deskshare status changed to:" + b)
   }
 
   def muteMeeting() {

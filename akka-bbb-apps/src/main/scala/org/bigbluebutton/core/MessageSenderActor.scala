@@ -11,6 +11,7 @@ import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.DeskShareMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 import org.bigbluebutton.common.messages.PresentationRemovedMessage
 import org.bigbluebutton.core.apps.Page
@@ -109,7 +110,41 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     case msg: WhiteboardEnabledEvent => handleWhiteboardEnabledEvent(msg)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
+    case msg: DeskShareStartRecording => handleDeskShareStartRecording(msg)
+    case msg: DeskShareStopRecording => handleDeskShareStopRecording(msg)
+    case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
+    case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
+    case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
     case _ => // do nothing
+  }
+
+  private def handleDeskShareStartRecording(msg: DeskShareStartRecording) {
+    println("_____publish to FS__handleDeskShareStartRecording____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareStartRecordingToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
+  }
+
+  private def handleDeskShareStopRecording(msg: DeskShareStopRecording) {
+    println("_____publish to FS__handleDeskShareStopRecording____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareStopRecordingToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
+  }
+
+  private def handleDeskShareStopRTMPBroadcast(msg: DeskShareStopRTMPBroadcast) {
+    println("_____publish to FS__handleDeskShareStopRTMPBroadcast____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareStopRTMPBroadcastToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
+  }
+
+  private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
+    println("_____publish to bigbluebutton-apps(red5) __handleDeskShareNotifyViewersRTMP____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareNotifyViewersRTMPToJson(msg)
+    service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
+  }
+  private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
+    println("_____publish to FS__handleDeskShareStartRTMPBroadcast____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareStartRTMPBroadcastToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 
   private def handleGetChatHistoryReply(msg: GetChatHistoryReply) {
