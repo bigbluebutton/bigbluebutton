@@ -134,6 +134,7 @@ Template.main.rendered = ->
 
 Template.main.events
   'click .shield': (event) ->
+    $(".tooltip").hide()
     toggleShield()
     closeMenus()
 

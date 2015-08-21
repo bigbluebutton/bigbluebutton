@@ -85,8 +85,8 @@
     }
   }
 }
-#saveSettings { 
-  border-radius: 3px; 
+#saveSettings {
+  border-radius: 3px;
   padding: 5px 10px 5px 10px;
 
   @media @desktop-portrait, @landscape {
@@ -98,4 +98,68 @@
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     font-size: 250%;
   }
+}
+
+#logoutModal {
+  margin-top: 0px;
+  margin-right: 0px;
+  top: 5% !important;
+  right: 5%;
+  position: fixed;
+  text-align: center;
+  @media @desktop-landscape {
+    width: 20%;
+  }
+  @media @phone-landscape {
+    width: 50%;
+    height: 50%;
+    min-height: 0; // overrides the value from Foundation
+    left: 45%;
+  }
+  @media @tablet-landscape {
+    width: 30%;
+    height: 40%;
+    p {
+      font-size: 120%;
+    }
+  }
+  @media @desktop-portrait {
+    width: 40%;
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    width: 90%;
+    height: 40%;
+    min-height: 0; // overrides the value from Foundation
+    left: 5%;
+    p {
+      font-size: 150%;
+    }
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    width: 90%;
+    height: 20%;
+    min-height: 0; // overrides the value from Foundation
+    left: 5%;
+    p {
+      font-size: 150%;
+    }
+  }
+  .logoutButton {
+    padding: 0px;
+    @media @desktop-portrait, @landscape {
+      width: 50px;
+      height: 30px;
+    }
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      width: 20%;
+      font-size: 150%;
+    }
+    background-color: rgb(229, 229, 229);
+    color: rgb(121, 121, 121);
+    font-weight: bold;
+    border-radius: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  #yes { border: 2px solid rgb(71, 164, 255); }
 }

@@ -302,14 +302,15 @@ body {
   }
   @media @phone-portrait, @phone-portrait-with-keyboard {
     font-size: 18px;
+    padding-top: 8px;
   }
   @media @tablet-portrait, @tablet-portrait-with-keyboard {
-    font-size: 18px;
+    font-size: 20px;
+    padding-top: 7px;
   }
 
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-    padding-top: 8px;
     color: white;
     height: 50px;
   }
@@ -627,45 +628,6 @@ body {
       top: 20%;
     }
   }
-}
-
-#logoutModal {
-  margin-top: 0px;
-  margin-right: 0px;
-  top: 5% !important;
-  right: 5%;
-  position: fixed;
-  text-align: center;
-  @media @landscape {
-    width: 20%;
-  }
-  @media @desktop-portrait {
-    width: 40%;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    width: 90%;
-    p {
-      font-size: 250%;
-    }
-  }
-  .logoutButton {
-    padding: 0px;
-    @media @desktop-portrait, @landscape {
-      width: 50px;
-      height: 30px;
-    }
-    @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      width: 20%;
-      font-size: 200%;
-    }
-    background-color: rgb(229, 229, 229);
-    color: rgb(121, 121, 121);
-    font-weight: bold;
-    border-radius: 10px;
-    margin-left: 5px;
-    margin-right: 5px;
-  }
-  #yes { border: 2px solid rgb(71, 164, 255); }
 }
 
 .top-bar {
