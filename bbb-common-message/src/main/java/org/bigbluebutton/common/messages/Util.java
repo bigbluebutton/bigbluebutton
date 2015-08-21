@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class Util {
 	public Map<String, Boolean> extractPermission(JsonObject vu) {
@@ -73,7 +76,7 @@ public class Util {
 				&& user.has(Constants.RAISE_HAND) && user.has(Constants.PHONE_USER)
 				&& user.has(Constants.PRESENTER) && user.has(Constants.LOCKED)
 				&& user.has(Constants.EXTERN_USERID) && user.has(Constants.ROLE)
-				&& user.has(Constants.VOICEUSER)){
+				&& user.has(Constants.VOICEUSER) && user.has(Constants.WEBCAM_STREAM)){
 				
 			Map<String, Object> userMap = new HashMap<String, Object>();					
 
@@ -87,11 +90,15 @@ public class Util {
 			Boolean locked = user.get(Constants.LOCKED).getAsBoolean();
 			String extUserId = user.get(Constants.EXTERN_USERID).getAsString();
 			String role = user.get(Constants.ROLE).getAsString();
-						  
+			
+			JsonArray webcamStreamJArray = user.get(Constants.WEBCAM_STREAM).getAsJsonArray();
+			ArrayList<String> webcamStreams = extractWebcamStreams(webcamStreamJArray);
+			
 			userMap.put("userId", userid);
 			userMap.put("name", username);
 			userMap.put("listenOnly", listenOnly);
 			userMap.put("hasStream", hasStream);
+			userMap.put("webcamStream", webcamStreams);
 			userMap.put("raiseHand", raiseHand);
 			userMap.put("externUserID", extUserId);
 			userMap.put("phoneUser", phoneUser);
@@ -169,6 +176,19 @@ public class Util {
 		return collection;
 			
 	}
+
+	public ArrayList<String> extractWebcamStreams(JsonArray webcamStreams) {
+		ArrayList<String> collection = new ArrayList<String>();
+	
+	    Iterator<JsonElement> webcamStreamsIter = webcamStreams.iterator();
+	    while (webcamStreamsIter.hasNext()){
+			JsonElement stream = webcamStreamsIter.next();
+			collection.add(stream.getAsString());
+	    }
+		
+		return collection;
+			
+	}
 	
 	public ArrayList<String> extractUserids(JsonArray users) {
 		ArrayList<String> collection = new ArrayList<String>();
@@ -183,6 +203,8 @@ public class Util {
 			
 	}	
 
+
+	
 	public Map<String, Object> extractAnnotation(JsonObject annotationElement) {
 		//NON-TEXT SHAPE
 		if (annotationElement.has(Constants.ID)
@@ -306,7 +328,7 @@ public class Util {
 			JsonObject pageObj = (JsonObject)pagesIter.next();
 			if (pageObj.has("id") && pageObj.has("num") 
 					&& pageObj.has("thumb_uri") && pageObj.has("swf_uri")
-					&& pageObj.has("txt_uri") && pageObj.has("png_uri")
+					&& pageObj.has("txt_uri") && pageObj.has("svg_uri")
 					&& pageObj.has("current") && pageObj.has("x_offset")
 					&& pageObj.has("y_offset") && pageObj.has("width_ratio")
 					&& pageObj.has("height_ratio")) {
@@ -318,7 +340,7 @@ public class Util {
 				String pageThumbUri = pageObj.get("thumb_uri").getAsString();
 				String pageSwfUri = pageObj.get("swf_uri").getAsString();
 				String pageTxtUri = pageObj.get("txt_uri").getAsString();
-				String pagePngUri = pageObj.get("png_uri").getAsString();
+				String pageSvgUri = pageObj.get("svg_uri").getAsString();
 				
 				Boolean currentPage = pageObj.get("current").getAsBoolean();
 				Double xOffset = pageObj.get("x_offset").getAsDouble();
@@ -331,7 +353,7 @@ public class Util {
 				page.put("thumbUri", pageThumbUri);
 				page.put("swfUri", pageSwfUri);
 				page.put("txtUri", pageTxtUri);
-				page.put("pngUri", pagePngUri);
+				page.put("svgUri", pageSvgUri);
 				page.put("current", currentPage);
 				page.put("xOffset", xOffset);
 				page.put("yOffset", yOffset);
@@ -395,6 +417,57 @@ public class Util {
 		}
 		return collection;
 	}
+	
+	public Map<String, Object> extractPollResultAnnotation(JsonObject annotationElement) {
+		if (annotationElement.has("result") && annotationElement.has("whiteboardId")
+				&& annotationElement.has("points")) {
+			Map<String, Object> finalAnnotation = new HashMap<String, Object>();
+			
+			String whiteboardId = annotationElement.get("whiteboardId").getAsString();
+			Integer numRespondents = annotationElement.get(NUM_RESPONDENTS).getAsInt();
+			Integer numResponders = annotationElement.get(NUM_RESPONDERS).getAsInt();
+			
+			String resultJson = annotationElement.get("result").getAsString();
+			JsonParser parser = new JsonParser();
+		    JsonArray resultJsonArray = parser.parse(resultJson).getAsJsonArray();
+		    
+			ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+			Iterator<JsonElement> resultIter = resultJsonArray.iterator();
+
+			while (resultIter.hasNext()){
+				JsonObject p = (JsonObject)resultIter.next();
+				Map<String, Object> vote = new HashMap<String, Object>();
+				Integer vid = p.get("id").getAsInt();
+				Integer vvotes = p.get("num_votes").getAsInt();
+				String vkey = p.get("key").getAsString();
+				vote.put("id", vid);
+				vote.put("num_votes", vvotes);
+				vote.put("key", vkey);
+				
+				collection.add(vote);
+			}
+			
+			JsonArray pointsJsonArray = annotationElement.get("points").getAsJsonArray();
+			ArrayList<Float> pointsArray = new ArrayList<Float>();
+			Iterator<JsonElement> pointIter = pointsJsonArray.iterator();
+			while (pointIter.hasNext()){
+				JsonElement p = pointIter.next();
+				Float pf = p.getAsFloat();
+				if (pf != null) {
+					pointsArray.add(pf);
+				}
+			}
+			
+			finalAnnotation.put("whiteboardId", whiteboardId);
+			finalAnnotation.put(NUM_RESPONDENTS, numRespondents);
+			finalAnnotation.put(NUM_RESPONDERS, numResponders);
+			finalAnnotation.put("result", collection);
+			finalAnnotation.put("points", pointsArray);
+			
+			return finalAnnotation;
+		}
+		return null;
+	}
 
 	public Map<String, Object> extractOuterAnnotation(JsonObject annotationElement) {
 
@@ -414,8 +487,14 @@ public class Util {
 			finalAnnotation.put("status", status);
 
 			JsonElement shape = annotationElement.get("shape");
-			Map<String, Object> shapesMap = extractAnnotation((JsonObject)shape);
-
+			Map<String, Object> shapesMap;
+			
+			if (type.equals("poll_result")) {
+				shapesMap = extractPollResultAnnotation((JsonObject)shape);
+			} else {
+				shapesMap = extractAnnotation((JsonObject)shape);
+			}
+			
 			if (shapesMap != null) {
 				finalAnnotation.put("shapes", shapesMap);
 			}
@@ -448,7 +527,7 @@ public class Util {
 		final String NUM = "num";
 		final String HEIGHT_RATIO = "height_ratio";
 		final String X_OFFSET = "x_offset";
-		final String PNG_URI = "png_uri";
+		final String SVG_URI = "svg_uri";
 		final String THUMB_URI = "thumb_uri";
 		final String TXT_URI = "txt_uri";
 		final String CURRENT = "current";
@@ -460,7 +539,7 @@ public class Util {
 				&& page.has(NUM)
 				&& page.has(HEIGHT_RATIO)
 				&& page.has(X_OFFSET)
-				&& page.has(PNG_URI)
+				&& page.has(SVG_URI)
 				&& page.has(THUMB_URI)
 				&& page.has(CURRENT)
 				&& page.has(TXT_URI)
@@ -474,7 +553,7 @@ public class Util {
 			double num = page.get(NUM).getAsDouble();
 			double heightRatio = page.get(HEIGHT_RATIO).getAsDouble();
 			double xOffset = page.get(X_OFFSET).getAsDouble();
-			String pngUri = page.get(PNG_URI).getAsString();
+			String svgUri = page.get(SVG_URI).getAsString();
 			String thumbUri = page.get(THUMB_URI).getAsString();
 			boolean current = page.get(CURRENT).getAsBoolean();
 			String txtUri = page.get(TXT_URI).getAsString();
@@ -486,7 +565,7 @@ public class Util {
 			finalPage.put(NUM, num);
 			finalPage.put(HEIGHT_RATIO, heightRatio);
 			finalPage.put(X_OFFSET, xOffset);
-			finalPage.put(PNG_URI, pngUri);
+			finalPage.put(SVG_URI, svgUri);
 			finalPage.put(THUMB_URI, thumbUri);
 			finalPage.put(CURRENT, current);
 			finalPage.put(TXT_URI, txtUri);
@@ -497,4 +576,102 @@ public class Util {
 
 		return null;
 	}
+
+	public Map<String, Object> decodeSimplePollAnswer(JsonObject answer) {
+		Map<String, Object> answerMap = new HashMap<String, Object>();
+		if (answer.has(Constants.ID) && answer.has(KEY)) {
+			String id = answer.get(Constants.ID).getAsString();
+			String key = answer.get(KEY).getAsString();
+			
+			answerMap.put(Constants.ID, id);
+			answerMap.put(KEY, key);				
+		}
+	
+		
+		return answerMap;
+	}
+	
+	public static final String ANSWERS = "answers";
+	public static final String KEY = "key";
+	public static final String NUM_VOTES = "num_votes";
+	public static final String NUM_RESPONDERS = "num_responders";
+	public static final String NUM_RESPONDENTS = "num_respondents";
+	
+	public Map<String, Object> decodeSimplePoll(JsonObject poll) {
+		Map<String, Object> pollMap = new HashMap<String, Object>();
+		
+		if (poll.has(Constants.ID) && poll.has(ANSWERS)) {
+			String id = poll.get(Constants.ID).getAsString();			
+			JsonArray answers = poll.get(ANSWERS).getAsJsonArray();
+			
+			ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+			
+			Iterator<JsonElement> answersIter = answers.iterator();
+			while (answersIter.hasNext()){
+				JsonElement qElem = answersIter.next();
+
+				Map<String, Object> answerMap = decodeSimplePollAnswer((JsonObject)qElem);
+
+				if (answerMap != null) {
+					collection.add(answerMap);
+				}
+			}
+			
+			pollMap.put(Constants.ID, id);
+			pollMap.put(ANSWERS, collection);			
+		}
+
+		
+		return pollMap;
+	}
+
+	public Map<String, Object> decodeSimplePollAnswerVote(JsonObject answer) {
+		Map<String, Object> answerMap = new HashMap<String, Object>();
+		if (answer.has(Constants.ID) && answer.has(KEY)) {
+			String id = answer.get(Constants.ID).getAsString();
+			String key = answer.get(KEY).getAsString();
+			Integer numVotes = answer.get(NUM_VOTES).getAsInt();
+			
+			answerMap.put(Constants.ID, id);
+			answerMap.put(KEY, key);		
+			answerMap.put(NUM_VOTES, numVotes);
+		}
+
+		return answerMap;
+	}
+	
+	public Map<String, Object> decodeSimplePollResult(JsonObject poll) {
+		Map<String, Object> pollMap = new HashMap<String, Object>();
+		
+		if (poll.has(Constants.ID) && poll.has(ANSWERS)) {
+			String id = poll.get(Constants.ID).getAsString();	
+			Integer numRespondents = poll.get(NUM_RESPONDENTS).getAsInt();
+			Integer numResponders = poll.get(NUM_RESPONDERS).getAsInt();
+			
+			JsonArray answers = poll.get(ANSWERS).getAsJsonArray();
+			
+			ArrayList<Map<String, Object>> collection = new ArrayList<Map<String, Object>>();
+			
+			Iterator<JsonElement> answersIter = answers.iterator();
+			while (answersIter.hasNext()){
+				JsonElement qElem = answersIter.next();
+
+				Map<String, Object> answerMap = decodeSimplePollAnswerVote((JsonObject)qElem);
+
+				if (answerMap != null) {
+					collection.add(answerMap);
+				}
+			}
+			
+			pollMap.put(Constants.ID, id);
+			pollMap.put(NUM_RESPONDENTS, numRespondents);
+			pollMap.put(NUM_RESPONDERS, numResponders);
+			pollMap.put(ANSWERS, collection);			
+		}
+
+		
+		return pollMap;
+	}
+	
+	
 }

@@ -34,6 +34,9 @@ public class RedisMessageReceiver {
 		DeskShareMessageReceiver deskShareRx = new DeskShareMessageReceiver(bbbGW);
 		receivers.add(deskShareRx);
 
+		PollingMessageReceiver pollRx = new PollingMessageReceiver(bbbGW);
+		receivers.add(pollRx);
+
 		MeetingMessageReceiver meetingRx = new MeetingMessageReceiver(bbbGW);
 		receivers.add(meetingRx);
 	}

@@ -18,11 +18,13 @@
  */
 package org.bigbluebutton.modules.present.ui.views.models
 {
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 
-	
 	public class SlideViewModel
 	{
+		private static const LOGGER:ILogger = getClassLogger(SlideViewModel);
+
 		public static const MAX_ZOOM_PERCENT:Number = 400;
 		public static const HUNDRED_PERCENT:Number = 100;
 		
@@ -153,7 +155,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function switchToFitToPage(ftp:Boolean):void {
-			LogUtil.debug("switchToFitToPage");
+			LOGGER.debug("switchToFitToPage");
 			
 			this.fitToPage = ftp;
 			calculateViewportSize();

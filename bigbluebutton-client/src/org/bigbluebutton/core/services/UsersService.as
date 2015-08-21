@@ -1,12 +1,14 @@
 package org.bigbluebutton.core.services
 {
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.model.users.UsersModel;
   import org.bigbluebutton.core.vo.UserVO;
   import org.bigbluebutton.core.vo.VoiceUserVO;
 
   public class UsersService
   {
-    private static const LOG:String = "Users::UsersService - ";
+	private static const LOGGER:ILogger = getClassLogger(UsersService);      
     
     private static var instance:UsersService = null;
     
@@ -30,13 +32,13 @@ package org.bigbluebutton.core.services
        var vu: VoiceUserVO = msgProc.processUserJoinedVoiceMessage(user);
        
        if (vu != null) {
-         trace(LOG + "*** got voice user joined. name=[" + vu.name + "] **** \n");
+         LOGGER.debug("*** got voice user joined. name=[{0}] **** \n", [vu.name]);
          var u: UserVO = UsersModel.getInstance().userJoinedVoice(vu);
          if (u != null) {
            // dispatch event
          }
        } else {
-         trace(LOG + "*** failed to get voice user name=[" + vu.name + "] **** \n");
+         LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.name]);
        }      
     }
     
@@ -44,13 +46,13 @@ package org.bigbluebutton.core.services
       var vu: VoiceUserVO = msgProc.processUserLeftVoiceMessage(user);
       
       if (vu != null) {
-        trace(LOG + "*** got voice user left. name=[" + vu.name + "] **** \n");
+        LOGGER.debug("*** got voice user left. name=[{0}] **** \n", [vu.name]);
         var u: UserVO = UsersModel.getInstance().userLeftVoice(vu);
         if (u != null) {
           // dispatch event
         }
       } else {
-        trace(LOG + "*** failed to get voice user name=[" + vu.name + "] **** \n");
+        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.name]);
       }       
     }
     
@@ -58,13 +60,13 @@ package org.bigbluebutton.core.services
       var vu: UserVO = msgProc.processUserJoinedMessage(user);
       
       if (vu != null) {
-        trace(LOG + "*** got user joined. name=[" + vu.name + "] **** \n");
+        LOGGER.debug("*** got user joined. name=[{0}] **** \n", [vu.name]);
         var u: UserVO = UsersModel.getInstance().userJoined(vu);
         if (u != null) {
           // dispatch event
         }
       } else {
-        trace(LOG + "*** failed to get voice user name=[" + vu.name + "] **** \n");
+        LOGGER.debug("*** failed to get user name=[{0}] **** \n", [vu.name]);
       }       
     }
     
@@ -72,13 +74,13 @@ package org.bigbluebutton.core.services
       var vu:UserVO = msgProc.processUserLeftMessage(user);
       
       if (vu != null) {
-        trace(LOG + "*** got user left. name=[" + vu.name + "] **** \n");
+        LOGGER.debug("*** got user left. name=[{0}] **** \n", [vu.name]);
         var u: UserVO = UsersModel.getInstance().userLeft(vu);
         if (u != null) {
           // dispatch event
         }
       } else {
-        trace(LOG + "*** failed to get voice user name=[" + vu.name + "] **** \n");
+        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.name]);
       }       
     }
     
@@ -86,13 +88,13 @@ package org.bigbluebutton.core.services
       var vu: Object = msgProc.processUserMutedMessage(msg);
       
       if (vu != null) {
-        trace(LOG + "*** got user name=[" + vu.userId + "] **** \n");
+        LOGGER.debug("*** got user name=[{0}] **** \n", [vu.userId]);
         var u: UserVO = UsersModel.getInstance().userMuted(vu.userId, vu.voiceId, vu.muted);
         if (u != null) {
           // dispatch event
         }
       } else {
-        trace(LOG + "*** failed to get voice user name=[" + vu.userId + "] **** \n");
+        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.userId]);
       }       
     }
     
@@ -100,13 +102,13 @@ package org.bigbluebutton.core.services
       var vu: Object = msgProc.processUserTalkingMessage(msg);
       
       if (vu != null) {
-        trace(LOG + "*** got user name=[" + vu.userId + "] **** \n");
+        LOGGER.debug("*** got user name=[{0}] **** \n", [vu.userId]);
         var u: UserVO = UsersModel.getInstance().userTalking(vu.userId, vu.voiceId, vu.talking);
         if (u != null) {
           // dispatch event
         }
       } else {
-        trace(LOG + "*** failed to get voice user name=[" + vu.userId + "] **** \n");
+        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.userId]);
       }      
     }
     

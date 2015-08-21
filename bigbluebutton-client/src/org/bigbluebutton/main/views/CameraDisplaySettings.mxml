@@ -20,6 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
                 xmlns:view="org.bigbluebutton.main.views.*"
+				xmlns:common="org.bigbluebutton.common.*"
                 layout="absolute" 
                 verticalScrollPolicy="off" horizontalScrollPolicy="off"
                 width="630" height="450" creationComplete="onCreationComplete()" styleName="cameraDisplaySettingsWindowStyle" 
@@ -33,16 +34,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.collections.ArrayCollection;
 		import mx.collections.ArrayList;
 		import mx.events.CloseEvent;
-		import mx.events.ItemClickEvent;
 		import mx.managers.PopUpManager;
 		
 		import org.bigbluebutton.common.Images;
-		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.BBB;
-		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.main.events.BBBEvent;
-		import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		static public var PADDING_HORIZONTAL:Number = 6;
@@ -68,11 +65,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var selectedCam:int;
 		private var aspectRatio:Number = 1;
 		
-        [Bindable]private var baseIndex:int; 
-    override public function move(x:Number, y:Number):void
-    {
-       return;
-    }
+	    override public function move(x:Number, y:Number):void
+	    {
+	       return;
+	    }
       
 		private function onCreationComplete():void {
             tabIndex = 51;
@@ -203,10 +199,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
     ]]>
   </mx:Script>
+	
+  <common:TabIndexer startIndex="1" tabIndices="{[textArea, cmbCameraSelector, cmbVideoProfile, btnStartPublish, btnClosePublish]}"/>
   
   <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
     <mx:TextArea width="100%" borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.webcamSettings')}" 
-                   styleName="webcamSettingsWindowTitleStyle" tabIndex="{baseIndex}"/>
+                   styleName="webcamSettingsWindowTitleStyle" id="textArea"/>
     <mx:HRule width="100%"/>
     <mx:Spacer height="1"/>
     
@@ -215,9 +213,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:Box>
         
 		<mx:HBox width="100%" height="10%" horizontalAlign="center" horizontalGap="13" paddingRight="5"> 	
-			<mx:ComboBox id="cmbCameraSelector" styleName="cameraDisplaySettingsWindowCameraSelector" dataProvider="{camerasAvailable}" width="150" visible="true" labelField="label" change="updateCamera()" tabIndex="{baseIndex+1}" height="30"/>
+			<mx:ComboBox id="cmbCameraSelector" styleName="cameraDisplaySettingsWindowCameraSelector" dataProvider="{camerasAvailable}" width="150" visible="true" labelField="label" change="updateCamera()" height="30"/>
 			<mx:ComboBox id="cmbVideoProfile" styleName="cameraDisplaySettingsWindowProfileComboStyle" 
-						 dataProvider="{_videoProfiles}" visible="false" change="updateCamera()" tabIndex="{baseIndex+2}"
+						 dataProvider="{_videoProfiles}" visible="false" change="updateCamera()"
                          toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.cmbResolution.tooltip')}" height="30" />
     </mx:HBox>
     
@@ -226,10 +224,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <mx:HBox width="100%" height="10%" horizontalAlign="right" horizontalGap="13" paddingRight="5" paddingBottom="5" paddingTop="1">
       <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
                  click="startPublishing()" enabled="false" styleName="cameraDisplaySettingsWindowStartBtn" 
-                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" tabIndex="{baseIndex+3}"  />
+                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}"/>
       <mx:Button id="btnClosePublish"   
                  click="onCancelClicked()" 
-                 enabled="true" tabIndex="{baseIndex+4}"
+                 enabled="true"
                  label="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.label')}"
                  accessibilityName="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.accessName')}"/>
     </mx:HBox>

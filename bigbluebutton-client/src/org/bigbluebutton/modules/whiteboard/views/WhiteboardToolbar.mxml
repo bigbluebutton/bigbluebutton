@@ -25,6 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     xmlns:mx="http://www.adobe.com/2006/mxml" 
     xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
     xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
+	xmlns:common="org.bigbluebutton.common.*"
     xmlns:mate="http://mate.asfusion.com/" 
     creationComplete="onCreationComplete()"
     visible="{showWhiteboardToolbar}" 
@@ -62,37 +63,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Listener;            
-      import flash.ui.Keyboard;		
-      import mx.containers.ControlBar;
-      import mx.events.MoveEvent;
-      import mx.events.ResizeEvent;
-      import mx.managers.CursorManager;			
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.present.events.NavigationEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-			import org.bigbluebutton.modules.present.ui.views.SlideView;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
-			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
-			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
-			import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+		import com.asfusion.mate.events.Listener;
+		
+		import mx.events.MoveEvent;
+		import mx.events.ResizeEvent;
+		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.main.events.MadePresenterEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
+		import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
+		import org.bigbluebutton.modules.present.events.NavigationEvent;
+		import org.bigbluebutton.modules.present.events.UploadEvent;
+		import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+		import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+		import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
+		import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
+		import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+		import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+		import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+		import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			[Bindable] private var hand_icon:Class = images.hand_icon;
@@ -115,11 +108,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
 			[Bindable] public var wbOptions:WhiteboardOptions;
-			[Bindable] private var baseIndex:int;
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
-      private static const LOG:String = "WB::WhiteboardToolbar - ";
+			private static const LOGGER:ILogger = getClassLogger(WhiteboardToolbar);      
       
 			private var mousedOver:Boolean = false;
 			private var slideLoaded:Boolean = false;
@@ -132,7 +124,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function init():void{
 				wbOptions = new WhiteboardOptions();
-				baseIndex = wbOptions.baseTabIndex;
 			}
 			
       private function onCreationComplete():void {
@@ -220,7 +211,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
-				trace(LOG + "Ctrl-Z got into undoShortcut");
+				LOGGER.debug("Ctrl-Z got into undoShortcut");
 				sendUndoCommand();
 			}
 			
@@ -231,7 +222,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function positionToolbar(window:PresentationWindow):void {
-        trace(LOG + "Positioning whiteboard toolbar");
+        		LOGGER.debug("Positioning whiteboard toolbar");
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
@@ -340,39 +331,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
+	<common:TabIndexer startIndex="{wbOptions.baseTabIndex}"
+					   tabIndices="{[panzoomBtn, scribbleBtn, rectangleBtn, circleBtn, triangleBtn, lineBtn, textBtn, clearBtn, undoBtn, cpik, sld]}"/>
+	
 	<!-- Now, every 'tool' has two types of identifiers, one is found in WhiteboardConstants
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
     <wbBtns:PanZoomButton id="panzoomBtn" 
-    					  tabIndex="{baseIndex}" 
     					  visible="{showWhiteboardToolbar}"/>
     <mx:Spacer height="10" visible="{showWhiteboardToolbar}"/>
 	<wbBtns:ScribbleButton id="scribbleBtn" 
-						   tabIndex="{baseIndex+1}" 
 						   visible="{showWhiteboardToolbar}"/>
 	<wbBtns:RectangleButton id="rectangleBtn" 
-							tabIndex="{baseIndex+2}" 
 							visible="{showWhiteboardToolbar}"/>
 	<wbBtns:CircleButton id="circleBtn" 
-						 tabIndex="{baseIndex+3}" 
 						 visible="{showWhiteboardToolbar}"/>
 	<wbBtns:TriangleButton id="triangleBtn" 
-						   tabIndex="{baseIndex+4}" 
 						   visible="{showWhiteboardToolbar}"/>
 	<wbBtns:LineButton id="lineBtn" 
-					   tabIndex="{baseIndex+5}" 
 					   visible="{showWhiteboardToolbar}"/>
 	<wbBtns:TextButton id="textBtn" 
-					   tabIndex="{baseIndex+6}" 
 					   visible="{showWhiteboardToolbar}"/>
 		
 	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
 	<wbBtns:ClearButton id="clearBtn" 
-						tabIndex="{baseIndex+7}" 
 						visible="{showWhiteboardToolbar}"/>
 	<wbBtns:UndoButton id="undoBtn" 
-					   tabIndex="{baseIndex+8}" 
 					   visible="{showWhiteboardToolbar}"/>
 	
 	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
@@ -391,7 +376,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ColorPicker change="changeColor(event)" id="cpik"  visible="{showWhiteboardToolbar}"
                   selectedColor="0x000000" width="30" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"
-                  tabIndex="{baseIndex+9}"
 				  accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
 	<mx:Spacer height="3" visible="{showWhiteboardToolbar}"/>
@@ -400,7 +384,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" 
 				minimum="1" maximum="30" 
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
-				tabIndex="{baseIndex+10}"
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness.accessibilityName')}" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="30" visible="{showWhiteboardToolbar}"/>
 	

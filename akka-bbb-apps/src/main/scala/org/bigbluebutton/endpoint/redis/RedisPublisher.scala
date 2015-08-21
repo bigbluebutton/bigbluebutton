@@ -14,9 +14,9 @@ class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
   val redis = RedisClient(redisHost, redisPort)(system)
 
   val futurePong = redis.ping()
-  println("Ping sent!")
+  //  println("Ping sent!")
   futurePong.map(pong => {
-    println(s"Redis replied with a $pong")
+    //    println(s"Redis replied with a $pong")
   })
 
   Await.result(futurePong, 5 seconds)

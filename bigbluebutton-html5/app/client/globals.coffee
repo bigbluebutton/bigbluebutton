@@ -15,9 +15,9 @@
 
 # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
 @colourToHex = (value) ->
-	hex = parseInt(value).toString(16)
-	hex = "0" + hex while hex.length < 6
-	"##{hex}"
+  hex = parseInt(value).toString(16)
+  hex = "0" + hex while hex.length < 6
+  "##{hex}"
 
 # color can be a number (a hex converted to int) or a string (e.g. "#ffff00")
 @formatColor = (color) ->
@@ -33,6 +33,10 @@
 
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
+
+# checks if the pan gesture is mostly horizontal
+@isPanHorizontal = (event) ->
+  Math.abs(event.deltaX) > Math.abs(event.deltaY)
 
 # helper to determine whether user has joined any type of audio
 Handlebars.registerHelper "amIInAudio", ->
@@ -70,15 +74,11 @@ Handlebars.registerHelper "getShapesForSlide", ->
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
-  # retrieve all users with raised hands
-  # raised hand is an object, so we can't simply search for true
-  # sort users by who has raised their hand first, place them at the top
-  raised = Meteor.Users.find({'user.raise_hand': {$not: {$in: [0, false, null]} }}, {sort: {'user.raise_hand': 1} }).fetch()
-  # find all users with a lowered hand
-  # when a hand is lowered, it is not always just false, it can be zero, or null
-  lowered = Meteor.Users.find({'user.raise_hand': $in: [0, false, null]}, {sort: {'user._sort_name': 1} }).fetch()
-  # add the users with lowered hands, to the list of people with raised hands
-  raised.concat lowered
+  users = Meteor.Users.find().fetch()
+  if users?.length > 1
+    getSortedUserList(users)
+  else
+    users
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
   (BBB.currentPresentationName() or "Loading presentation...")
@@ -152,11 +152,14 @@ Handlebars.registerHelper "pointerLocation", ->
 Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
 
-Handlebars.registerHelper "visibility", (section) ->
+###Handlebars.registerHelper "visibility", (section) ->
   if getInSession "display_#{section}"
     style: 'display:block;'
   else
-    style: 'display:none;'
+    style: 'display:none;'###
+
+Handlebars.registerHelper "visibility", (section) ->
+  style: 'display:block;'
 
 Handlebars.registerHelper 'containerPosition', (section) ->
   if getInSession 'display_usersList'
@@ -171,14 +174,71 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   if BBB.isUserPresenter(getInSession('userId'))
     return 'presenter-whiteboard'
   else
-    return 'viewer-whiteboard'
+    if BBB.isPollGoing(getInSession('userId'))
+      return 'poll-whiteboard'
+    else
+      return 'viewer-whiteboard'
+
+Handlebars.registerHelper "getPollQuestions", ->
+  polls = BBB.getCurrentPoll(getInSession('userId'))
+  if polls? and polls isnt undefined
+    return polls.poll_info.poll.answers
+
+@getSortedUserList = (users) ->
+  if users?.length > 1
+    users.sort (a, b) ->
+      if a.user.role is "MODERATOR" and b.user.role is "MODERATOR"
+        if a.user.raise_hand and b.user.raise_hand
+          aTime = a.user.raise_hand.getTime()
+          bTime = b.user.raise_hand.getTime()
+          if aTime < bTime
+            return -1
+          else
+            return 1
+        else if a.user.raise_hand
+          return -1
+        else if b.user.raise_hand
+          return 1
+      else if a.user.role is "MODERATOR"
+        return -1
+      else if b.user.role is "MODERATOR"
+        return 1
+      else if a.user.raise_hand and b.user.raise_hand
+        aTime = a.user.raise_hand.getTime()
+        bTime = b.user.raise_hand.getTime()
+        if aTime < bTime
+          return -1
+        else 
+          return 1
+      else if a.user.raise_hand
+        return -1
+      else if b.user.raise_hand
+        return 1
+      else if not a.user.phone_user and not b.user.phone_user
+
+      else if not a.user.phone_user
+        return -1
+      else if not b.user.phone_user
+        return 1
+
+      #Check name (case-insensitive) in the event of a tie up above. If the name 
+      #is the same then use userID which should be unique making the order the same 
+      #across all clients.
+
+      if a.user._sort_name < b.user._sort_name
+        return -1
+      else if a.user._sort_name > b.user._sort_name
+        return 1
+      else if a.user.userid.toLowerCase() > b.user.userid.toLowerCase()
+        return -1
+      else if a.user.userid.toLowerCase() < b.user.userid.toLowerCase()
+        return 1
+
+  users
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
-  www = /(^|[^\/])(www\.[\S]+($|\b))/img
-  http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
-  str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
-  str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
+  str = str.replace re_weburl, "<a href='event:$&'><u>$&</u></a>"
 
 @setInSession = (k, v) -> SessionAmplify.set k, v
 
@@ -202,13 +262,62 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @toggleMic = (event) ->
   BBB.toggleMyMic()
 
-# toggle state of session variable
 @toggleUsersList = ->
-  setInSession "display_usersList", !getInSession "display_usersList"
+  if $('.sl-left-drawer').hasClass('hiddenInLandscape')
+    $('.sl-left-drawer').removeClass('hiddenInLandscape')
+  else
+    $('.sl-left-drawer').addClass('hiddenInLandscape')
   setTimeout(redrawWhiteboard, 0)
 
-@toggleMenu = ->
-  setInSession 'display_menu', !getInSession 'display_menu'
+@populateNotifications = (msg) ->
+  myUserId = getInSession "userId"
+  users = Meteor.Users.find().fetch()
+
+  # assuming that I only have access only to private messages where I am the sender or the recipient
+  myPrivateChats = Meteor.Chat.find({'message.chat_type': 'PRIVATE_CHAT'}).fetch()
+
+  uniqueArray = []
+  for chat in myPrivateChats
+    if chat.message.to_userid is myUserId
+      uniqueArray.push({userId: chat.message.from_userid, username: chat.message.from_username})
+    if chat.message.from_userid is myUserId
+      uniqueArray.push({userId: chat.message.to_userid, username: chat.message.to_username})
+
+  #keep unique entries only
+  uniqueArray = uniqueArray.filter((itm, i, a) ->
+      i is a.indexOf(itm)
+    )
+
+  if msg.message.to_userid is myUserId
+    new_msg_userid = msg.message.from_userid
+  if msg.message.from_userid is myUserId
+    new_msg_userid = msg.message.to_userid
+
+  chats = getInSession('chats')
+  if chats is undefined
+    initChats = [
+      userId: "PUBLIC_CHAT"
+      gotMail: false
+      number: 0;
+    ]
+    setInSession 'chats', initChats
+
+  #insert the unique entries in the collection
+  for u in uniqueArray
+    chats = getInSession('chats')
+    if chats.filter((chat) -> chat.userId == u.userId).length is 0 and u.userId is new_msg_userid
+      chats.push {userId: u.userId, gotMail: false, number: 0}
+      setInSession 'chats', chats
+
+@toggleShield = ->
+  if parseFloat($('.shield').css('opacity')) is 0.5 # triggered during a pan gesture
+    $('.shield').css('opacity', '')
+
+  if !$('.shield').hasClass('darken') and !$('.shield').hasClass('animatedShield')
+    $('.shield').addClass('darken')
+  else
+    $('.shield').removeClass('darken')
+    $('.shield').removeClass('animatedShield')
 
 @removeFullscreenStyles = ->
   $('#whiteboard-paper').removeClass('verticallyCentered')
@@ -253,9 +362,13 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
       removeFullscreenStyles()
       redrawWhiteboard()
 
-@closePushMenus = ->
-  setInSession 'display_usersList', false
-  setInSession 'display_menu', false
+@closeMenus = ->
+  if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+    toggleLeftDrawer()
+    toggleLeftArrowClockwise()
+  else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
@@ -315,7 +428,7 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 @clearSessionVar = (callback) ->
   amplify.store('authToken', null)
   amplify.store('bbbServerVersion', null)
-  amplify.store('chatTabs', null)
+  amplify.store('chats', null)
   amplify.store('dateOfBuild', null)
   amplify.store('display_chatPane', null)
   amplify.store('display_chatbar', null)
@@ -339,9 +452,11 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
-  if not getInSession "inChatWith" then setInSession "inChatWith", 'PUBLIC_CHAT'
+
+  #if it is a desktop version of the client
   if isPortraitMobile() or isLandscapeMobile()
     setInSession "messageFontSize", Meteor.config.app.mobileFont
+  #if this is a mobile version of the client
   else
     setInSession "messageFontSize", Meteor.config.app.desktopFont
   setInSession 'display_slidingMenu', false
@@ -351,7 +466,33 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   else
     setInSession 'display_usersList', false
   setInSession 'display_menu', false
+  setInSession 'chatInputMinHeight', 0
+
+  #keep notifications and an opened private chat tab if page was refreshed
+  #reset to default if that's a new user
+  if loginOrRefresh()
+    initChats = [
+      userId: "PUBLIC_CHAT"
+      gotMail: false
+      number: 0
+    ]
+    setInSession 'chats', initChats
+    setInSession "inChatWith", 'PUBLIC_CHAT'
+
   TimeSync.loggingEnabled = false # suppresses the log messages from timesync
+
+#true if it is a new user, false if the client was just refreshed
+@loginOrRefresh = ->
+  userId = getInSession 'userId'
+  checkId = getInSession 'checkId'
+  if checkId is undefined
+    setInSession 'checkId', userId
+    return true
+  else if userId isnt checkId
+    setInSession 'checkId', userId
+    return true
+  else
+    return false
 
 @onLoadComplete = ->
   document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
@@ -374,7 +515,14 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   navigator.userAgent.match(/webOS/i)
 
 @isLandscape = ->
-  window.matchMedia('(orientation: landscape)').matches
+  not isMobile() and
+  window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
+
+@isPortrait = ->
+  not isMobile() and
+  window.matchMedia('(orientation: portrait)').matches and       # browser is portrait
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
 
 # Checks if the view is portrait and a mobile device is being used
 @isPortraitMobile = () ->
@@ -385,8 +533,8 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 # Checks if the view is landscape and mobile device is being used
 @isLandscapeMobile = () ->
   isMobile() and
-  window.matchMedia('(orientation: landscape)').matches and     # browser is landscape
-  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches   # device is landscape
+  window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
 
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
@@ -405,3 +553,22 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
     return 'IE'
   else
     return null
+
+# changes the height of the chat input area if needed (based on the textarea content)
+@adjustChatInputHeight = () ->
+  $('#newMessageInput').css('height', 'auto')
+  projectedHeight = $('#newMessageInput')[0].scrollHeight + 23
+  if projectedHeight isnt $('.panel-footer').height() and
+  projectedHeight >= getInSession('chatInputMinHeight')
+    $('#newMessageInput').css('overflow', 'hidden') # prevents a scroll bar
+
+    # resizes the chat input area
+    $('.panel-footer').css('top', - (projectedHeight - 70) + 'px')
+    $('.panel-footer').css('height', projectedHeight + 'px')
+
+    $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
+
+    # resizes the chat messages container
+    $('#chatbody').height($('#chat').height() - projectedHeight - 45)
+    $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+  $('#newMessageInput').css('height', '')

@@ -4,41 +4,34 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
-import org.bigbluebutton.core.apps.UsersApp
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.apps.PresentationApp
-import org.bigbluebutton.core.apps.LayoutApp
-import org.bigbluebutton.core.apps.ChatApp
-import org.bigbluebutton.core.apps.WhiteboardApp
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.PollApp
-import org.bigbluebutton.core.apps.ChatModel
-import org.bigbluebutton.core.apps.LayoutModel
-
-case object StopMeetingActor
-case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
-  voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String,
-  red5DeskShareIP: String, red5DeskShareApp: String)
+import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
+import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
+import org.bigbluebutton.core.apps.PresentationModel
 
 object MeetingActor {
-  def props(mProps: MeetingProperties, outGW: MessageOutGateway): Props =
+  def props(mProps: MeetingProperties, outGW: OutMessageGateway): Props =
     Props(classOf[MeetingActor], mProps: MeetingProperties, outGW)
 }
 
-class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
+class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     extends Actor with UsersApp with PresentationApp
-    with LayoutApp with ChatApp with MeetingMessageHandler
+    with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with ActorLogging {
 
   val chatModel = new ChatModel()
   val layoutModel = new LayoutModel()
   val meetingModel = new MeetingModel()
+  val usersModel = new UsersModel()
+  val pollModel = new PollModel()
+  val wbModel = new WhiteboardModel()
+  val presModel = new PresentationModel()
 
   import context.dispatcher
-  context.system.scheduler.schedule(2 seconds, 5 seconds, self, "MonitorNumberOfWebUsers")
+  context.system.scheduler.schedule(2 seconds, 30 seconds, self, "MonitorNumberOfWebUsers")
 
   outGW.send(new GetUsersInVoiceConference(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
 
@@ -173,8 +166,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleSetRecordingStatus(msg)
     case msg: GetRecordingStatus =>
       handleGetRecordingStatus(msg)
-    case msg: CreatePollRequest =>
-      handleCreatePollRequest(msg)
+    case msg: StartCustomPollRequest =>
+      handleStartCustomPollRequest(msg)
     case msg: StartPollRequest =>
       handleStartPollRequest(msg)
     case msg: StopPollRequest =>
@@ -183,10 +176,12 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
       handleShowPollResultRequest(msg)
     case msg: HidePollResultRequest =>
       handleHidePollResultRequest(msg)
-    case msg: VotePollRequest =>
-      handleVotePollRequest(msg)
+    case msg: RespondToPollRequest =>
+      handleRespondToPollRequest(msg)
     case msg: GetPollRequest =>
       handleGetPollRequest(msg)
+    case msg: GetCurrentPollRequest =>
+      handleGetCurrentPollRequest(msg)
 
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit
@@ -211,13 +206,13 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   def webUserJoined() {
-    if (users.numWebUsers > 0) {
+    if (usersModel.numWebUsers > 0) {
       meetingModel.resetLastWebUserLeftOn()
     }
   }
 
   def startRecordingIfAutoStart() {
-    if (mProps.recorded && !meetingModel.isRecording() && mProps.autoStartRecording && users.numWebUsers == 1) {
+    if (mProps.recorded && !meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 1) {
       log.info("Auto start recording for meeting=[" + mProps.meetingID + "]")
       meetingModel.recordingStarted()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
@@ -225,7 +220,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   def stopAutoStartedRecording() {
-    if (mProps.recorded && meetingModel.isRecording() && mProps.autoStartRecording && users.numWebUsers == 0) {
+    if (mProps.recorded && meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 0) {
       log.info("Last web user left. Auto stopping recording for meeting=[{}", mProps.meetingID)
       meetingModel.recordingStopped()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
@@ -233,7 +228,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
   }
 
   def startCheckingIfWeNeedToEndVoiceConf() {
-    if (users.numWebUsers == 0) {
+    if (usersModel.numWebUsers == 0) {
       meetingModel.lastWebUserLeft()
       log.debug("MonitorNumberOfWebUsers started for meeting [" + mProps.meetingID + "]")
     }
@@ -241,7 +236,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
   def handleMonitorNumberOfWebUsers() {
     // println("BACK TIMER")
-    if (users.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
+    if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
         log.info("MonitorNumberOfWebUsers empty for meeting [" + mProps.meetingID + "]. Ejecting all users from voice.")
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
@@ -251,7 +246,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: MessageOutGateway)
 
     val now = timeNowInMinutes
 
-    println("(" + meetingModel.startedOn + "+" + mProps.duration + ") - " + now + " = " + ((meetingModel.startedOn + mProps.duration) - now) + " < 15")
+    //    println("(" + meetingModel.startedOn + "+" + mProps.duration + ") - " + now + " = " + ((meetingModel.startedOn + mProps.duration) - now) + " < 15")
 
     if (mProps.duration > 0 && (((meetingModel.startedOn + mProps.duration) - now) < 15)) {
       log.warning("MEETING WILL END IN 15 MINUTES!!!!")

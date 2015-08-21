@@ -4,7 +4,7 @@
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
 
 This program is free software; you can redistribute it and/or modify it under the
 terms of the GNU Lesser General Public License as published by the Free Software
@@ -22,7 +22,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="600" height="400"
+	xmlns:common="org.bigbluebutton.common.*"
+    width="600" height="400"
 	initialize="init()"
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -37,13 +38,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.sampler.NewObjectSample;			
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.core.UIComponent;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
-			import mx.core.UIComponent;			
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
@@ -72,6 +76,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoHeight:Number;
 			private var videoWidth:Number;
 			
+			private static const LOGGER:ILogger = getClassLogger(DesktopViewWindow);      
+
 			private static const VIDEO_WIDTH_PADDING:int = 7;
 			private static const VIDEO_HEIGHT_PADDING:int = 65;
 
@@ -86,11 +92,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var nc:NetConnection;
 
 			[Bindable] private var baseIndex:int;
+
 			[Bindable] private var dsOptions:DeskshareOptions;
 									
 			private function init():void{
 				dsOptions = new DeskshareOptions();
-				baseIndex = dsOptions.baseTabIndex;
 			}
 
 			private function displayVideo():void{
@@ -110,7 +116,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				resourcesChanged();
 
-				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
@@ -202,37 +208,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.receiveAudio(false);
 
 				video = new Video(videoWidth, videoHeight);
-//				video.smoothing = true;
+
 				video.attachNetStream(ns);
 				ns.play(streamID);
 				displayVideo();
 				this.title = "Viewing Remote Desktop";
 			}
 
-			private function onAsyncError(e:AsyncErrorEvent):void{
-				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
-			}
-
-			private function onNetStatus(e:NetStatusEvent):void{
-
-				var logData3:Object = new Object();
-				JSLog.debug("___ DesktopViewWindow::onNetStatus " + e.info.code, logData3);
-				switch(e.info.code){
-					case "NetStream.Play.Start":
-						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
-						LogUtil.debug("Dispatching start viewing event");
-						var dispatcher: Dispatcher  = new Dispatcher();
-						var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
-
-						viewEvent.stream = streamID;
-						dispatcher.dispatchEvent(viewEvent);
-						break;
-					case "NetStream.Play.UnpublishNotify":
-						LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
-						stopViewing();
-						break;
-				}
-			}
+			
 
 			private function netStatusHandler(event:NetStatusEvent):void {
 //				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
@@ -269,7 +252,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.NetworkChange":
-						LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 						trace(LOG + "Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 						break;
 				}
@@ -299,6 +281,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					bottomBar.y = (this.height - bottomBar.height) / 2;
 					bottomBar.x = (this.width - bottomBar.width) / 2;
+				}
+			}
+
+
+						
+			private function onAsyncError(e:AsyncErrorEvent):void{
+				LOGGER.debug("VIdeoWindow::asyncerror {0}", [e.toString()]);
+			}
+			
+			private function onNetStatus(e:NetStatusEvent):void{
+				LOGGER.debug("onNetStatus info={0}", [e.info.text]);
+			
+				switch(e.info.code){
+				case "NetStream.Play.Start":
+					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);
+					LOGGER.debug("Dispatching start viewing event");
+					var dispatcher: Dispatcher  = new Dispatcher();
+        			var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
+
+        			viewEvent.stream = stream;
+					dispatcher.dispatchEvent(viewEvent);
+					break;
+				case "NetStream.Play.UnpublishNotify":
+					LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);
+					stopViewing();
+					break;
 				}
 			}
 
@@ -424,6 +432,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
+
+	<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
+
 	<mx:Move id="cursorMove" target="{cursorImg}"/>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 		
@@ -434,7 +445,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   selected="false"
 				   height="90%" 
 				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-				   tabIndex="{baseIndex+4}"/>
+				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}"/>
 	</mx:HBox>
 </CustomMdiWindow>

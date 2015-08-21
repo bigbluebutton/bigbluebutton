@@ -87,7 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 		
 	<EventHandlers type="{ViewWindowEvent.CLOSE}">
-		<MethodInvoker generator="{DeskshareManager}" 	method="handleViewWindowCloseEvent"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleViewWindowCloseEvent"/>
 	</EventHandlers>
 			
 	<EventHandlers type="{ModuleEvent.STOP}">		

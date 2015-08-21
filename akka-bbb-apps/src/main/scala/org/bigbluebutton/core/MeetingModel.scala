@@ -3,6 +3,11 @@ package org.bigbluebutton.core
 import org.bigbluebutton.core.api.Permissions
 import java.util.concurrent.TimeUnit
 
+case object StopMeetingActor
+case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
+  voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
+  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, red5DeskShareIP: String, red5DeskShareApp: String)
+
 class MeetingModel {
   private var audioSettingsInited = false
   private var permissionsInited = false
@@ -11,6 +16,7 @@ class MeetingModel {
   private var broadcastingRTMP = false
   private var muted = false;
   private var meetingEnded = false
+  private var meetingMuted = false
 
   val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
@@ -28,6 +34,18 @@ class MeetingModel {
 
   def setDeskShareStarted(b: Boolean) {
     deskShareStarted = b
+  }
+
+  def muteMeeting() {
+    meetingMuted = true
+  }
+
+  def unmuteMeeting() {
+    meetingMuted = false
+  }
+
+  def isMeetingMuted(): Boolean = {
+    meetingMuted
   }
 
   def recordingStarted() {

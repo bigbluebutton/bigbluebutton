@@ -9,6 +9,7 @@ Meteor.startup ->
   clearShapesCollection()
   clearSlidesCollection()
   clearPresentationsCollection()
+  clearPollCollection()
 
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->

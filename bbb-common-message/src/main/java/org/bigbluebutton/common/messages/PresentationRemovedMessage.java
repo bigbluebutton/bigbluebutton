@@ -44,7 +44,7 @@ public class PresentationRemovedMessage implements ISubscribedMessage {
 					if (payload.has(MEETING_ID)
 						&& payload.has(PRESENTATION_ID)) {
 						String meetingId = payload.get(MEETING_ID).getAsString();
-						String presentationId = payload.get(MEETING_ID).getAsString();
+						String presentationId = payload.get(PRESENTATION_ID).getAsString();
 						return new 	PresentationRemovedMessage(meetingId, presentationId);					
 					}
 				}

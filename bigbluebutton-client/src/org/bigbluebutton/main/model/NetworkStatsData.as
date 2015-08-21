@@ -19,11 +19,6 @@
 package org.bigbluebutton.main.model
 {
 	
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.main.events.NetworkStatsEvent;
-	
 	import flash.events.EventDispatcher;
 	
 	public class NetworkStatsData extends EventDispatcher

@@ -2,16 +2,15 @@ package org.bigbluebutton.modules.present.model
 {
   import mx.collections.ArrayCollection;
   
-  import org.bigbluebutton.modules.present.model.Page;
-  import org.bigbluebutton.modules.present.model.Presentation;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   
   public class PresentationModel
   {
-    private static const LOG:String = "Present::PresentationModel - ";
+	private static const LOGGER:ILogger = getClassLogger(PresentationModel);      
     
     private static var instance:PresentationModel = null;
     
-    private var _pages:ArrayCollection = new ArrayCollection();
     private var _presentations:ArrayCollection = new ArrayCollection();   
     private var _presenter: Presenter;
     
@@ -48,10 +47,6 @@ package org.bigbluebutton.modules.present.model
       return _presenter;
     }
     
-    public function addPage(page: Page):void {
-      _pages.addItem(page);
-    }
-    
     public function addPresentation(p: Presentation):void {
       _presentations.addItem(p);
     }
@@ -68,10 +63,14 @@ package org.bigbluebutton.modules.present.model
       return null;      
     }
     
+    public function removeAllPresentations():void {
+      _presentations.removeAll();
+    }
+    
     public function replacePresentation(p: Presentation):void {
       var oldPres:Presentation = removePresentation(p.id);
       if (oldPres == null) {
-        trace(LOG + "Could not find presentation [" + p.id + "] to remove.");
+        LOGGER.debug("Could not find presentation [{0}] to remove.", [p.id]);
       }
       addPresentation(p);
     }
@@ -97,13 +96,13 @@ package org.bigbluebutton.modules.present.model
     }
     
     public function getCurrentPresentation():Presentation {
-      trace("***** Call to getCurrentPresentation() *****");
+	  LOGGER.debug("***** Call to getCurrentPresentation() *****");
       for (var i:int = 0; i < _presentations.length; i++) {
         var pres: Presentation = _presentations.getItemAt(i) as Presentation;
-        trace(LOG + "Is presentation [" + pres.name + "] current [" + pres.current + "]?");
+        LOGGER.debug("Is presentation [{0}] current [{1}]?", [pres.name, pres.current]);
         if (pres.current) return pres;
       }
-      trace(LOG + "No current presentation.");
+      LOGGER.debug("No current presentation.");
       return null;
     }
     
@@ -121,7 +120,7 @@ package org.bigbluebutton.modules.present.model
       if (pres != null) {
         return pres.getCurrentPage();
       }
-      trace(LOG + "Could not find current page.");
+      LOGGER.debug("Could not find current page.");
       return null;
     }
     
@@ -130,10 +129,10 @@ package org.bigbluebutton.modules.present.model
       if (ids.length > 1) {
         var presId:String = ids[0];
         var pageNum:int = int(ids[1]);
-        trace(LOG + "page id [" + id + "] ids= [" + presId + "," + pageNum + "] " + ids[1]);
+        LOGGER.debug("page id [{0}] ids= [{1},{2}] {3}", [id, presId, pageNum, ids[1]]);
         var pres:Presentation = getPresentation(presId);
         var nextPage:int = pageNum + 1;
-        trace(LOG + "Next page [" + presId + "/" + nextPage + "]");
+        LOGGER.debug("Next page [{0}/{1}]", [presId, nextPage]);
         if (pres != null) {
           return pres.getPage(presId + "/" + nextPage);
         }       
@@ -147,10 +146,10 @@ package org.bigbluebutton.modules.present.model
       if (ids.length > 1) {
         var presId:String = ids[0];
         var pageNum:int = int(ids[1]);
-        trace(LOG + "page id [" + id + "] ids= [" + presId + "," + pageNum + "] " + ids[1]);
+        LOGGER.debug("page id [{0}] ids= [{1},{2}] {3}", [id, presId, pageNum, ids[1]]);
         var pres:Presentation = getPresentation(presId);
         var prevPage:int = pageNum - 1;
-        trace(LOG + "Prev page [" + presId + "/" + prevPage + "]");
+        LOGGER.debug("Prev page [{0}/{1}]", [presId, prevPage]);
         if (pres != null) {
           return pres.getPage(presId + "/" + prevPage);
         }
@@ -180,7 +179,7 @@ package org.bigbluebutton.modules.present.model
           return pres;
         }
       }
-      trace(LOG + "Could not find presentation [" + presId + "].");
+      LOGGER.debug("Could not find presentation [{0}].", [presId]);
       return null;      
     }
   }

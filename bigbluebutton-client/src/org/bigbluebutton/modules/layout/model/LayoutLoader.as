@@ -18,25 +18,22 @@
 */
 package org.bigbluebutton.modules.layout.model
 {
-	import flash.events.EventDispatcher;
 	import flash.events.Event;
-	import flash.events.ProgressEvent;
+	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
+	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.FileReference;
-
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.EventBroadcaster;
-	import org.bigbluebutton.core.model.Config;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
-	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class LayoutLoader extends EventDispatcher {
-    private static const LOG:String = "Layout::LayoutLoader - ";
+		private static const LOGGER:ILogger = getClassLogger(LayoutLoader);      
     
 		private var _fileRef:FileReference;
 		
@@ -48,7 +45,7 @@ package org.bigbluebutton.modules.layout.model
 			try {
 				urlLoader.load(new URLRequest(layoutUrl + "?a=" + date.time));
 			} catch (e:Error) {
-				trace(LOG + " exception while loading the layout definition file (" + e + ")");
+				LOGGER.debug(" exception while loading the layout definition file ({0})", [e]);
 			}
 		}
 		
@@ -62,7 +59,7 @@ package org.bigbluebutton.modules.layout.model
 		}
 		
 		private function onComplete(evt:Event):void {
-			trace(LOG + " completed, parsing...");
+			LOGGER.debug("completed, parsing...");
 			var layouts:LayoutDefinitionFile = new LayoutDefinitionFile();
 			var event:LayoutsLoadedEvent = new LayoutsLoadedEvent();
 			try {
@@ -81,18 +78,18 @@ package org.bigbluebutton.modules.layout.model
 		}
 		
 		private function onFileSelected(evt:Event):void { 
-			trace(LOG + " file selected");
+			LOGGER.debug("file selected");
 			_fileRef.addEventListener(ProgressEvent.PROGRESS, onProgress);
 			_fileRef.addEventListener(Event.COMPLETE, onComplete);
 			_fileRef.load();
 		} 
         
 		private function onProgress(evt:ProgressEvent):void {
-			trace(LOG + " loaded " + evt.bytesLoaded + " of " + evt.bytesTotal + " bytes"); 
+			LOGGER.debug("loaded {0} of {1} bytes", [evt.bytesLoaded, evt.bytesTotal]); 
 		} 
 
 		private function onCancel(evt:Event):void {
-			trace(LOG + " the browse request was canceled by the user"); 
+			LOGGER.debug("the browse request was canceled by the user"); 
 		} 
 		
 		private function onIOError(evt:IOErrorEvent):void {

@@ -3,20 +3,14 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
 import com.google.gson.Gson
-
-case class CurrentPresenter(userId: String, name: String, assignedBy: String)
-
-case class CurrentPresentationInfo(presenter: CurrentPresenter,
-  presentations: Seq[Presentation])
-case class CursorLocation(xPercent: Double = 0D, yPercent: Double = 0D)
+import org.bigbluebutton.core.OutMessageGateway
 
 trait PresentationApp {
   this: MeetingActor =>
 
-  val outGW: MessageOutGateway
+  val outGW: OutMessageGateway
 
   private var cursorLocation = new CursorLocation
-  private val presModel = new PresentationModel
 
   def handlePreuploadedPresentations(msg: PreuploadedPresentations) {
     val pres = msg.presentations
@@ -83,10 +77,8 @@ trait PresentationApp {
   def handleGetPresentationInfo(msg: GetPresentationInfo) {
     //      println("PresentationApp : handleGetPresentationInfo GetPresentationInfo for meeting [" + msg.meetingID + "] [" + msg.requesterID + "]" )
 
-    val curPresenter = getCurrentPresenter;
-    val presenter = new CurrentPresenter(curPresenter.presenterID,
-      curPresenter.presenterName,
-      curPresenter.assignedBy)
+    val curPresenter = usersModel.getCurrentPresenterInfo();
+    val presenter = new CurrentPresenter(curPresenter.presenterID, curPresenter.presenterName, curPresenter.assignedBy)
     val presentations = presModel.getPresentations
     val presentationInfo = new CurrentPresentationInfo(presenter, presentations)
     outGW.send(new GetPresentationInfoOutMsg(mProps.meetingID, mProps.recorded, msg.requesterID, presentationInfo, msg.replyTo))
@@ -110,9 +102,15 @@ trait PresentationApp {
     presModel.changePage(msg.page) foreach { page =>
       //        println("Switching page for meeting=[" +  msg.meetingID + "] page=[" + page.id + "]")
       outGW.send(new GotoSlideOutMsg(mProps.meetingID, mProps.recorded, page))
+
     }
     //      println("*** After change page ****")
     //      printPresentations
+
+    usersModel.getCurrentPresenter() foreach { pres =>
+      this.context.self ! StopPollRequest(mProps.meetingID, pres.userID)
+    }
+
   }
 
   def handleSharePresentation(msg: SharePresentation) {

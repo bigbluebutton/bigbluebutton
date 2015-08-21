@@ -1,52 +1,7 @@
 package org.bigbluebutton.red5.pubsub;
 
 import java.util.Map;
-import org.bigbluebutton.common.messages.AssignPresenterRequestMessage;
-import org.bigbluebutton.common.messages.BroadcastLayoutRequestMessage;
-import org.bigbluebutton.common.messages.ClearWhiteboardRequestMessage;
-import org.bigbluebutton.common.messages.EjectUserFromMeetingRequestMessage;
-import org.bigbluebutton.common.messages.EjectUserFromVoiceRequestMessage;
-import org.bigbluebutton.common.messages.EnableWhiteboardRequestMessage;
-import org.bigbluebutton.common.messages.GetChatHistoryRequestMessage;
-import org.bigbluebutton.common.messages.GetCurrentLayoutRequestMessage;
-import org.bigbluebutton.common.messages.GetLockSettingsMessage;
-import org.bigbluebutton.common.messages.GetPresentationInfoMessage;
-import org.bigbluebutton.common.messages.GetRecordingStatusRequestMessage;
-import org.bigbluebutton.common.messages.GetSlideInfoMessage;
-import org.bigbluebutton.common.messages.GetUsersRequestMessage;
-import org.bigbluebutton.common.messages.GoToSlideMessage;
-import org.bigbluebutton.common.messages.InitAudioSettingsMessage;
-import org.bigbluebutton.common.messages.InitPermissionsSettingMessage;
-import org.bigbluebutton.common.messages.IsMeetingMutedRequestMessage;
-import org.bigbluebutton.common.messages.IsWhiteboardEnabledRequestMessage;
-import org.bigbluebutton.common.messages.LockLayoutRequestMessage;
-import org.bigbluebutton.common.messages.LockMuteUserRequestMessage;
-import org.bigbluebutton.common.messages.LockUserMessage;
-import org.bigbluebutton.common.messages.MessagingConstants;
-import org.bigbluebutton.common.messages.MuteAllExceptPresenterRequestMessage;
-import org.bigbluebutton.common.messages.MuteAllRequestMessage;
-import org.bigbluebutton.common.messages.MuteUserRequestMessage;
-import org.bigbluebutton.common.messages.RemovePresentationMessage;
-import org.bigbluebutton.common.messages.RequestWhiteboardAnnotationHistoryRequestMessage;
-import org.bigbluebutton.common.messages.ResizeAndMoveSlideMessage;
-import org.bigbluebutton.common.messages.SendConversionCompletedMessage;
-import org.bigbluebutton.common.messages.SendConversionUpdateMessage;
-import org.bigbluebutton.common.messages.SendCursorUpdateMessage;
-import org.bigbluebutton.common.messages.SendLockSettingsMessage;
-import org.bigbluebutton.common.messages.SendPageCountErrorMessage;
-import org.bigbluebutton.common.messages.SendPrivateChatMessage;
-import org.bigbluebutton.common.messages.SendPublicChatMessage;
-import org.bigbluebutton.common.messages.SendSlideGeneratedMessage;
-import org.bigbluebutton.common.messages.SendWhiteboardAnnotationRequestMessage;
-import org.bigbluebutton.common.messages.SetRecordingStatusRequestMessage;
-import org.bigbluebutton.common.messages.SetUserStatusRequestMessage;
-import org.bigbluebutton.common.messages.SharePresentationMessage;
-import org.bigbluebutton.common.messages.UserLeavingMessage;
-import org.bigbluebutton.common.messages.UserLoweredHandMessage;
-import org.bigbluebutton.common.messages.UserRaisedHandMessage;
-import org.bigbluebutton.common.messages.UserShareWebcamRequestMessage;
-import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
-import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
+import org.bigbluebutton.common.messages.*;
 import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
 public class MessagePublisher {
@@ -55,6 +10,31 @@ public class MessagePublisher {
 	
 	public void setMessageSender(MessageSender sender) {
 		this.sender = sender;
+	}
+	
+	// Polling 
+	public void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId) {
+		VotePollUserRequestMessage msg = new VotePollUserRequestMessage(meetingId, userId, pollId, questionId, answerId);
+		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
+	}
+
+	public void sendPollingMessage(String json) {		
+		sender.send(MessagingConstants.TO_POLLING_CHANNEL, json);
+	}
+	
+	public void startPoll(String meetingId, String requesterId, String pollId, String pollType) {
+		StartPollRequestMessage msg = new StartPollRequestMessage(meetingId, requesterId, pollId, pollType);
+		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
+	}
+	
+	public void stopPoll(String meetingId, String userId, String pollId) {
+		StopPollRequestMessage msg = new StopPollRequestMessage(meetingId, userId, pollId);
+		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
+	}
+	
+	public void showPollResult(String meetingId, String requesterId, String pollId, Boolean show) {
+		ShowPollResultRequestMessage msg = new ShowPollResultRequestMessage(meetingId, requesterId, pollId, show);
+		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
 	}
 	
 	public void initLockSettings(String meetingID, Map<String, Boolean> permissions) {

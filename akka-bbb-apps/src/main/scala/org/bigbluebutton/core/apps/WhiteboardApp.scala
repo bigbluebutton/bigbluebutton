@@ -3,15 +3,14 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
+import org.bigbluebutton.core.OutMessageGateway
 
 case class Whiteboard(id: String, shapes: Seq[AnnotationVO])
 
 trait WhiteboardApp {
   this: MeetingActor =>
 
-  val outGW: MessageOutGateway
-
-  private val wbModel = new WhiteboardModel
+  val outGW: OutMessageGateway
 
   def handleSendWhiteboardAnnotationRequest(msg: SendWhiteboardAnnotationRequest) {
     val status = msg.annotation.status
@@ -34,6 +33,7 @@ trait WhiteboardApp {
       && ((WhiteboardKeyUtil.RECTANGLE_TYPE == shapeType)
         || (WhiteboardKeyUtil.ELLIPSE_TYPE == shapeType)
         || (WhiteboardKeyUtil.TRIANGLE_TYPE == shapeType)
+        || (WhiteboardKeyUtil.POLL_RESULT_TYPE == shapeType)
         || (WhiteboardKeyUtil.LINE_TYPE == shapeType))) {
       //        println("Received [" + shapeType +"] draw end status")
       wbModel.addAnnotation(wbId, shape)

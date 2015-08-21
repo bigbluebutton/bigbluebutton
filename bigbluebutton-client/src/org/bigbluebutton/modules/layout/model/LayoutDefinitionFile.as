@@ -18,12 +18,6 @@
 */
 package org.bigbluebutton.modules.layout.model
 {
-
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.EventBroadcaster;
-	import org.bigbluebutton.core.model.Config;
-	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
-	
 	public class LayoutDefinitionFile {
 		private var _layouts:Array = new Array();
 		

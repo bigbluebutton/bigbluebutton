@@ -1,10 +1,12 @@
 package org.bigbluebutton.core.api;
 
 import java.util.Map;
-
+import org.bigbluebutton.common.messages.*;
 
 public interface IBigBlueButtonInGW {
 
+	void handleBigBlueButtonMessage(IBigBlueButtonMessage message);
+	
 	void isAliveAudit(String aliveID);
 	void statusMeetingAudit(String meetingID);
 	void endMeeting(String meetingID);
@@ -17,6 +19,11 @@ public interface IBigBlueButtonInGW {
 	void getAllMeetings(String meetingID);
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
 	
+	// Polling
+	void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId);
+	void startPoll(String meetingId, String requesterId, String pollId, String pollType);
+	void stopPoll(String meetingId, String userId, String pollId);
+	void showPollResult(String meetingId, String requesterId, String pollId, Boolean show);
 	
 	// Lock
 	void initLockSettings(String meetingID, Map<String, Boolean> settings);

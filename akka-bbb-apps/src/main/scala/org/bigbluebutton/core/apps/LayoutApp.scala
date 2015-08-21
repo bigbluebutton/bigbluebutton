@@ -3,11 +3,12 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
+import org.bigbluebutton.core.OutMessageGateway
 
 trait LayoutApp {
   this: MeetingActor =>
 
-  val outGW: MessageOutGateway
+  val outGW: OutMessageGateway
 
   def handleGetCurrentLayoutRequest(msg: GetCurrentLayoutRequest) {
     outGW.send(new GetCurrentLayoutReply(msg.meetingID, mProps.recorded, msg.requesterID,
@@ -45,14 +46,14 @@ trait LayoutApp {
   def affectedUsers(): Array[UserVO] = {
     if (layoutModel.doesLayoutApplyToViewersOnly()) {
       val au = ArrayBuffer[UserVO]()
-      users.getUsers foreach { u =>
+      usersModel.getUsers foreach { u =>
         if (!u.presenter && u.role != Role.MODERATOR) {
           au += u
         }
       }
       au.toArray
     } else {
-      users.getUsers
+      usersModel.getUsers
     }
 
   }

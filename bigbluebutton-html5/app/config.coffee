@@ -21,7 +21,7 @@ config.app = {}
 
 #default font sizes for mobile / desktop
 config.app.mobileFont = 24
-config.app.desktopFont = 12
+config.app.desktopFont = 14
 
 # Will offer the user to join the audio when entering the meeting
 config.app.autoJoinAudio = false
@@ -43,6 +43,7 @@ config.redis.channels.toBBBApps.presentation = "bigbluebutton:to-bbb-apps:presen
 config.redis.channels.toBBBApps.users = "bigbluebutton:to-bbb-apps:users"
 config.redis.channels.toBBBApps.voice = "bigbluebutton:to-bbb-apps:voice"
 config.redis.channels.toBBBApps.whiteboard = "bigbluebutton:to-bbb-apps:whiteboard"
+config.redis.channels.toBBBApps.polling = "bigbluebutton:to-bbb-apps:polling"
 
 # Logging
 config.log = {}

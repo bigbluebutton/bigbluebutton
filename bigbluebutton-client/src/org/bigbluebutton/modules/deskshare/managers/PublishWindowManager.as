@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,15 +24,17 @@ package org.bigbluebutton.modules.deskshare.managers
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	import flash.external.ExternalInterface;
-
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
 
 	public class PublishWindowManager {		
+		private static const LOGGER:ILogger = getClassLogger(PublishWindowManager);
+
 		private var shareWindow:DesktopPublishWindow;
 		private var globalDispatcher:Dispatcher;
 		private var service:DeskshareService;
@@ -45,7 +47,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var autoPublishTimer:Timer;
 		
 		public function PublishWindowManager(service:DeskshareService) {
-			LogUtil.debug("PublishWindowManager init");
+			LOGGER.debug("PublishWindowManager init");
 			globalDispatcher = new Dispatcher();
 			this.service = service;
 		}
@@ -55,7 +57,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 
 		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
-			LogUtil.debug("DS:PublishWindowManager::opening desk share window, autostart=" + autoStart + " autoFullScreen=" + autoFullScreen);
+			LOGGER.debug("DS:PublishWindowManager::opening desk share window, autostart={0} autoFullScreen={1}", [autoStart, autoFullScreen]);
 
 			var result:String;
 			if (ExternalInterface.available) {
@@ -76,7 +78,6 @@ package org.bigbluebutton.modules.deskshare.managers
 //				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 //				autoPublishTimer.start();
 //			}
-
 		}
 		
 		private function autopublishTimerHandler(event:TimerEvent):void {				

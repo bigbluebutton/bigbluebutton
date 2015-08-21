@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class UserConnectedToGlobalAudio implements IPublishedMessage {
+public class UserConnectedToGlobalAudio implements IBigBlueButtonMessage {
 	public static final String USER_CONNECTED_TO_GLOBAL_AUDIO = "user_connected_to_global_audio";
 	public static final String VERSION = "0.0.1";
 

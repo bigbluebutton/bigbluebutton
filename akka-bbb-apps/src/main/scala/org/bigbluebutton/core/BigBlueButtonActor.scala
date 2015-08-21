@@ -19,17 +19,19 @@ import org.bigbluebutton.core.recorders.events.VoiceUserLockedRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceUserMutedRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceStartRecordingRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceUserTalkingRecordEvent
+import org.bigbluebutton.core.service.recorder.RecorderApplication
 
 object BigBlueButtonActor extends SystemConfiguration {
-  def props(system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder): Props =
-    Props(classOf[BigBlueButtonActor], system, outGW, voiceEventRecorder)
+  def props(system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder): Props =
+    Props(classOf[BigBlueButtonActor], system, recorderApp, messageSender, voiceEventRecorder)
 }
 
-class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder) extends Actor with ActorLogging {
+class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends Actor with ActorLogging {
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
+  private val outGW = new OutMessageGateway("bbbActorOutGW", recorderApp, messageSender)
 
   def receive = {
     case msg: CreateMeeting => handleCreateMeeting(msg)
@@ -200,7 +202,8 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
     meetings.get(msg.meetingID) match {
       case None => {
         log.info("New meeting create request [" + msg.mProps.meetingName + "]")
-        var m = RunningMeeting(msg.mProps, outGW)
+        val moutGW = new OutMessageGateway("meetingOutGW-" + msg.meetingID, recorderApp, messageSender)
+        var m = RunningMeeting(msg.mProps, moutGW)
 
         meetings += m.mProps.meetingID -> m
         outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.recorded, m.mProps.meetingName,
@@ -237,13 +240,6 @@ class BigBlueButtonActor(val system: ActorSystem, outGW: MessageOutGateway, voic
 
       var info = new MeetingInfo(id, name, recorded, voiceBridge, duration)
       resultArray(i) = info
-
-      //remove later
-      println("for a meeting:" + id)
-      println("Meeting Name = " + meetings.get(id).head.mProps.meetingName)
-      println("isRecorded = " + meetings.get(id).head.mProps.recorded)
-      println("voiceBridge = " + voiceBridge)
-      println("duration = " + duration)
 
       //send the users
       self ! (new GetUsers(id, "nodeJSapp"))

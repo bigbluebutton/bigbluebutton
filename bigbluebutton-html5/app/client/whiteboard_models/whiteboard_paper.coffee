@@ -179,14 +179,23 @@ class Meteor.WhiteboardPaperModel
     data.thickness *= @adjustedWidth / 1000
 
     tool = null
-
+    #TODO pay attention to this array, data in this array slows down the whiteboard
+    #console.log @current
+    #console.log @
     @current[shape] = @_createTool(shape)
     toolModel = @current[shape]
     tool = @current[shape].make(data)
 
-    if tool?
+    if tool? and shape isnt "poll_result"
       @current.shapes ?= @raphaelObj.set()
       @current.shapes.push(tool)
+      @current.shapeDefinitions.push(toolModel.getDefinition())
+
+    #We have a separate case for Poll as it returns an array instead of just one object
+    if tool? and shape is "poll_result"
+      @current.shapes ?= @raphaelObj.set()
+      for obj in tool
+        @current.shapes.push(obj)
       @current.shapeDefinitions.push(toolModel.getDefinition())
 
   # Update the cursor position on screen
@@ -263,6 +272,8 @@ class Meteor.WhiteboardPaperModel
         model = WhiteboardTriangleModel
       when "text"
         model = WhiteboardTextModel
+      when "poll_result"
+        model = WhiteboardPollModel
 
     if model?
       [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()

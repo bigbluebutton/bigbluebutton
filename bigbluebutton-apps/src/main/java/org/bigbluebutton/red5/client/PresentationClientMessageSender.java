@@ -151,7 +151,7 @@ public class PresentationClientMessageSender {
 			args.put("current", msg.page.get("current"));
 			args.put("swfUri", msg.page.get("swf_uri"));
 			args.put("txtUri", msg.page.get("txt_uri"));
-			args.put("pngUri", msg.page.get("png_uri"));
+			args.put("svgUri", msg.page.get("svg_uri"));
 			args.put("thumbUri", msg.page.get("thumb_uri"));
 			args.put("xOffset", msg.page.get("x_offset"));
 			args.put("yOffset", msg.page.get("y_offset"));
@@ -301,7 +301,7 @@ public class PresentationClientMessageSender {
 			args.put("xOffset", msg.page.get(Constants.X_OFFSET));
 			args.put("num", msg.page.get("num"));
 			args.put("heightRatio", msg.page.get(Constants.HEIGHT_RATIO));
-			args.put("pngUri", msg.page.get("png_uri"));
+			args.put("svgUri", msg.page.get("svg_uri"));
 			args.put("thumbUri", msg.page.get("thumb_uri"));
 			args.put(Constants.CURRENT, msg.page.get(Constants.CURRENT));
 			args.put("txtUri", msg.page.get("txt_uri"));

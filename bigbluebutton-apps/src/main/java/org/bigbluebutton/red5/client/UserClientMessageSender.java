@@ -1,9 +1,10 @@
 package org.bigbluebutton.red5.client;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage;
 import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage;
 import org.bigbluebutton.common.messages.GetRecordingStatusReplyMessage;
@@ -28,6 +29,8 @@ import org.bigbluebutton.common.messages.ValidateAuthTokenTimeoutMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -35,6 +38,8 @@ import com.google.gson.JsonParser;
 
 
 public class UserClientMessageSender {
+	private static Logger log = Red5LoggerFactory.getLogger(UserClientMessageSender.class, "bigbluebutton");
+	
 	private ConnectionInvokerService service;
 	
 	public UserClientMessageSender(ConnectionInvokerService service) {
@@ -201,7 +206,7 @@ public class UserClientMessageSender {
 			  Iterator<String> usersIter = msg.users.iterator();
 			  while (usersIter.hasNext()){
 					String user = usersIter.next();
-				  	System.out.println("RedisPubSubMessageHandler - processBroadcastLayoutMessage \n" + message + "\n");
+				  	log.debug("RedisPubSubMessageHandler - processBroadcastLayoutMessage \n" + message + "\n");
 				  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, user, "syncLayout", args);
 					service.sendMessage(m);
 			  }
@@ -231,7 +236,7 @@ public class UserClientMessageSender {
 		  Gson gson = new Gson();
 	  	  message.put("msg", gson.toJson(args));
 	  	  
-	  	  System.out.println("RedisPubSubMessageHandler - handleValidateAuthTokenReply \n" + message.get("msg") + "\n");
+	  	log.debug("RedisPubSubMessageHandler - handleValidateAuthTokenReply \n" + message.get("msg") + "\n");
 	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenReply", message);
 		  service.sendMessage(m);	 
 	}
@@ -245,7 +250,7 @@ public class UserClientMessageSender {
 		  Gson gson = new Gson();
 	  	  message.put("msg", gson.toJson(args));
 	  	  
-	  	  System.out.println("RedisPubSubMessageHandler - processValidateAuthTokenTimeoutMessage \n" + message.get("msg") + "\n");
+	  	log.debug("RedisPubSubMessageHandler - processValidateAuthTokenTimeoutMessage \n" + message.get("msg") + "\n");
 	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenTimedOut", message);
 		  service.sendMessage(m);	 
 	}
@@ -370,9 +375,8 @@ public class UserClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserSharedWebcamMessage \n" + message.get("msg") + "\n");
-		
-	  	    
+		log.debug("RedisPubSubMessageHandler - processUserSharedWebcamMessage \n" + message.get("msg") + "\n");
+			  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userSharedWebcam", message);
 		service.sendMessage(m);
 	}
@@ -381,12 +385,15 @@ public class UserClientMessageSender {
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("userId", msg.userId);
 		args.put("webcamStream", msg.stream);
+		
+		String timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(Calendar.getInstance().getTime());
+		args.put("serverTimestamp", timeStamp );
 			
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserUnharedWebcamMessage \n" + message.get("msg") + "\n");
+		log.debug("RedisPubSubMessageHandler - processUserUnharedWebcamMessage \n" + message.get("msg") + "\n");
 		  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userUnsharedWebcam", message);
 		service.sendMessage(m);

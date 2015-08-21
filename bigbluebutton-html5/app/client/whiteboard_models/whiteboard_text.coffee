@@ -105,7 +105,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
             tempText = tspanEl.firstChild.nodeValue
             tempText = tempText.slice(0, (tempText.length - words[i - 1].length - 2)) #the -2 is because we also strip off white space
             tspanEl.firstChild.nodeValue = tempText
-          #setting up coordinates for the first line of text      
+          #setting up coordinates for the first line of text
           if i is 0
             dy = calcFontSize
             cumulY += dy
@@ -166,7 +166,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
     tempSpanEl.setAttributeNS null, "dy", dy
     tempTextNode = document.createTextNode(str)
     tempSpanEl.appendChild tempTextNode
-    
+
     num = 0
     while num < temp.length
       #creating a textNode and adding it to the cell to check the width
@@ -196,7 +196,7 @@ class @WhiteboardTextModel extends WhiteboardToolModel
           while cell? and cell.hasChildNodes()
             cell.removeChild(cell.firstChild)
           count++
-      else 
+      else
         temp3.push temp[num]
       while cell? and cell.hasChildNodes()
         cell.removeChild(cell.firstChild)

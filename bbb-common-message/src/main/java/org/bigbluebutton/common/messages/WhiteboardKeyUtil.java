@@ -10,4 +10,5 @@ public class WhiteboardKeyUtil {
 	public static final String TEXT_CREATED_STATUS = "textCreated";
 	public static final String DRAW_START_STATUS = "DRAW_START";
 	public static final String DRAW_END_STATUS = "DRAW_END";
+	public static final String POLL_RESULT_TYPE = "poll_result";
 }

@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -21,14 +21,17 @@ package org.bigbluebutton.modules.deskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopViewWindow;
 			
 	public class ViewerWindowManager {		
+		private static const LOGGER:ILogger = getClassLogger(ViewerWindowManager);
+
 		private var viewWindow:DesktopViewWindow;
 		private var service:DeskshareService;
 		private var isViewing:Boolean = false;
@@ -44,7 +47,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 				
 		public function handleStartedViewingEvent(stream:String):void{
-			LogUtil.debug("ViewerWindowManager handleStartedViewingEvent");
+			LOGGER.debug("ViewerWindowManager handleStartedViewingEvent");
 			service.sendStartedViewingNotification(stream);
 		}
 						
@@ -55,7 +58,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 			
 		public function handleViewWindowCloseEvent():void {
-			LogUtil.debug("ViewerWindowManager Received stop viewing command");				
+			LOGGER.debug("ViewerWindowManager Received stop viewing command");				
 			closeWindow(viewWindow);
 			isViewing = false;	
 		}
@@ -65,12 +68,13 @@ package org.bigbluebutton.modules.deskshare.managers
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
 		}
-			
+
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
-			LogUtil.debug("ViewerWindowManager::startViewing");
+			LOGGER.debug("ViewerWindowManager::startViewing");
+
 			viewWindow = new DesktopViewWindow();
 			viewWindow.startVideo(rtmp, videoWidth, videoHeight);
-			
+
 			openWindow(viewWindow);
 			isViewing = true;
 		}

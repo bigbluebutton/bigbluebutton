@@ -18,8 +18,6 @@
 */
 package org.bigbluebutton.modules.chat.model {
 	
-	import org.bigbluebutton.common.LogUtil;
-	
 	public class ChatMessage {
 		[Bindable] public var lastSenderId:String;
 		[Bindable] public var senderId:String;

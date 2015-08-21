@@ -6,9 +6,34 @@ import org.bigbluebutton.core.api.Role._
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.api.VoiceUser
 import org.bigbluebutton.core.util.RandomStringGenerator
+import org.bigbluebutton.core.api.Presenter
+import org.bigbluebutton.core.api.RegisteredUser
 
 class UsersModel {
   private var uservos = new collection.immutable.HashMap[String, UserVO]
+
+  private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
+
+  private var locked = false
+  private var meetingMuted = false
+
+  private var currentPresenter = new Presenter("system", "system", "system")
+
+  def setCurrentPresenterInfo(pres: Presenter) {
+    currentPresenter = pres
+  }
+
+  def getCurrentPresenterInfo(): Presenter = {
+    currentPresenter
+  }
+
+  def addRegisteredUser(token: String, regUser: RegisteredUser) {
+    regUsers += token -> regUser
+  }
+
+  def getRegisteredUserWithToken(token: String): Option[RegisteredUser] = {
+    regUsers.get(token)
+  }
 
   def generateWebUserId: String = {
     val webUserId = RandomStringGenerator.randomAlphanumericString(6)
@@ -71,6 +96,10 @@ class UsersModel {
     uservos.values find (u => u.role == MODERATOR)
   }
 
+  def noPresenter(): Boolean = {
+    !getCurrentPresenter().isDefined
+  }
+
   def getCurrentPresenter(): Option[UserVO] = {
     uservos.values find (u => u.presenter == true)
   }
@@ -101,5 +130,18 @@ class UsersModel {
 
   def getViewers(): Array[UserVO] = {
     uservos.values filter (u => u.role == VIEWER) toArray
+  }
+
+  def getRegisteredUserWithUserID(userID: String): Option[RegisteredUser] = {
+    regUsers.values find (ru => userID contains ru.id)
+  }
+
+  def removeRegUser(userID: String) {
+    getRegisteredUserWithUserID(userID) match {
+      case Some(ru) => {
+        regUsers -= ru.authToken
+      }
+      case None =>
+    }
   }
 }

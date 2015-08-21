@@ -14,11 +14,23 @@ import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.util.Success
 import scala.util.Failure
+import org.bigbluebutton.core.service.recorder.RecorderApplication
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
+import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 
-class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voiceEventRecorder: VoiceEventRecorder,
-    val red5DeskShareIP: String, val red5DeskShareApp: String) extends IBigBlueButtonInGW {
+class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender,
+    voiceEventRecorder: VoiceEventRecorder, val red5DeskShareIP: String, val red5DeskShareApp: String) extends IBigBlueButtonInGW {
+
   val log = system.log
-  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, outGW, voiceEventRecorder), "bigbluebutton-actor")
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, recorderApp, messageSender, voiceEventRecorder), "bigbluebutton-actor")
+
+  def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
+    message match {
+      case msg: StartCustomPollRequestMessage => {
+        bbbActor ! new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId, msg.payload.pollType, msg.payload.answers)
+      }
+    }
+  }
 
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,
@@ -234,10 +246,10 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
         val swfUri = presBaseUrl + "/slide/" + i
 
         val txtUri = presBaseUrl + "/textfiles/" + i
-        val pngUri = presBaseUrl + "/png/" + i
+        val svgUri = presBaseUrl + "/svg/" + i
 
         val p = new Page(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
-          txtUri = txtUri, pngUri = pngUri,
+          txtUri = txtUri, svgUri = svgUri,
           current = current)
         pages += (p.id -> p)
       }
@@ -329,7 +341,7 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
    * Message Interface for Whiteboard
    * *****************************************************************
    */
-  private def buildAnnotation(annotation: Map[String, Object]): Option[AnnotationVO] = {
+  private def buildAnnotation(annotation: scala.collection.mutable.Map[String, Object]): Option[AnnotationVO] = {
     var shape: Option[AnnotationVO] = None
 
     val id = annotation.getOrElse("id", null).asInstanceOf[String]
@@ -346,7 +358,7 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
   }
 
   def sendWhiteboardAnnotation(meetingID: String, requesterID: String, annotation: java.util.Map[String, Object]) {
-    val ann = mapAsScalaMap(annotation).toMap
+    val ann: scala.collection.mutable.Map[String, Object] = mapAsScalaMap(annotation)
 
     buildAnnotation(ann) match {
       case Some(shape) => {
@@ -462,4 +474,24 @@ class BigBlueButtonInGW(val system: ActorSystem, outGW: MessageOutGateway, voice
     bbbActor ! new DeskShareRTMPBroadcastStoppedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
   }
 
+  // Polling
+  def votePoll(meetingId: String, userId: String, pollId: String, questionId: Integer, answerId: Integer) {
+    bbbActor ! new RespondToPollRequest(meetingId, userId, pollId, questionId, answerId)
+  }
+
+  def startPoll(meetingId: String, requesterId: String, pollId: String, pollType: String) {
+    bbbActor ! new StartPollRequest(meetingId, requesterId, pollType)
+  }
+
+  def stopPoll(meetingId: String, userId: String, pollId: String) {
+    bbbActor ! new StopPollRequest(meetingId, userId)
+  }
+
+  def showPollResult(meetingId: String, requesterId: String, pollId: String, show: java.lang.Boolean) {
+    if (show) {
+      bbbActor ! new ShowPollResultRequest(meetingId, requesterId, pollId)
+    } else {
+      bbbActor ! new HidePollResultRequest(meetingId, requesterId, pollId)
+    }
+  }
 }

@@ -134,7 +134,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             public function shutdown():void {
-                trace("[UserGraphicHolder:shutdown]");
                 video.shutdown();
             }
 

@@ -18,8 +18,13 @@
 */
 package org.bigbluebutton.common
 {
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+
 	public class Role
 	{
+		private static const LOGGER:ILogger = getClassLogger(Role);
+		
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
 		public static const MODERATOR:String = "MODERATOR";	
@@ -43,7 +48,7 @@ package org.bigbluebutton.common
 				Role.userrole = PRESENTER;
 				Role.isPresenter = true;
 			}
-			else LogUtil.error("TRYING TO SET INVALID USER ROLE:" + role);
+			LOGGER.error("TRYING TO SET INVALID USER ROLE: {0}", [role]);
 		}
 		
 		/**

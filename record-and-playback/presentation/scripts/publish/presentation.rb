@@ -437,6 +437,84 @@ def storeTextShape
 	$originalOriginY = $originY
 end
 
+def storePollResultShape(xml, shape)
+  origin_x = $shapeDataPoints[0].to_f / 100 * $vbox_width
+  origin_y = $shapeDataPoints[1].to_f / 100 * $vbox_height
+  width = $shapeDataPoints[2].to_f / 100 * $vbox_width
+  height = $shapeDataPoints[3].to_f / 100 * $vbox_height
+
+  result = JSON.load(shape.at_xpath('result').text)
+  num_responders = shape.at_xpath('num_responders').text.to_i
+  presentation = shape.at_xpath('presentation').text
+
+  $global_shape_count += 1
+  $poll_result_count += 1
+
+  dat_file = "#{$process_dir}/poll_result#{$poll_result_count}.dat"
+  gpl_file = "#{$process_dir}/poll_result#{$poll_result_count}.gpl"
+  pdf_file = "#{$process_dir}/poll_result#{$poll_result_count}.pdf"
+  svg_file = "#{$process_dir}/presentation/#{presentation}/poll_result#{$poll_result_count}.svg"
+
+  # Use gnuplot to generate an SVG image for the graph
+  File.open(dat_file, 'w') do |d|
+    result.each do |r|
+      d.puts("#{r['id']} #{r['num_votes']}")
+    end
+  end
+  File.open(dat_file, 'r') do |d|
+    BigBlueButton.logger.debug("gnuplot data:")
+    BigBlueButton.logger.debug(d.readlines(nil)[0])
+  end
+  File.open(gpl_file, 'w') do |g|
+    g.puts('reset')
+    g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\"")
+    g.puts('unset key')
+    g.puts('set style data boxes')
+    g.puts('set style fill solid border -1')
+    g.puts('set boxwidth 0.9 relative')
+    g.puts('set yrange [0:*]')
+    g.puts('unset border')
+    g.puts('unset ytics')
+    xtics = result.map{ |r| "\"#{r['key'].gsub('%', '%%')}\" #{r['id']}" }.join(', ')
+    g.puts("set xtics rotate by 90 scale 0 right (#{xtics})")
+    x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
+    g.puts("set x2tics rotate by 90 scale 0 left (#{x2tics})")
+    g.puts('set linetype 1 linewidth 1 linecolor rgb "black"')
+    result.each do |r|
+      if r['num_votes'].to_f / num_responders <= 0.5
+        g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} left rotate by 90 offset 0,character 0.5 front")
+      else
+        g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} right rotate by 90 offset 0,character -0.5 textcolor rgb \"white\" front")
+      end
+    end
+    g.puts("set output \"#{pdf_file}\"")
+    g.puts("plot \"#{dat_file}\"")
+  end
+  File.open(gpl_file, 'r') do |d|
+    BigBlueButton.logger.debug("gnuplot script:")
+    BigBlueButton.logger.debug(d.readlines(nil)[0])
+  end
+  ret = BigBlueButton.exec_ret('gnuplot', '-d', gpl_file)
+  raise "Failed to generate plot pdf" if ret != 0
+  ret = BigBlueButton.exec_ret('pdftocairo', '-svg', pdf_file, svg_file)
+  raise "Failed to convert poll to svg" if ret != 0
+
+  xml.g(class: 'shape', id: "draw#{$global_shape_count}",
+      shape: "poll_result#{$poll_result_count}", style: 'visibility:hidden',
+      timestamp: $shapeCreationTime, undo: $shapeUndoTime) do
+
+    # Outer box to act as poll result backdrop
+    xml.rect(x: origin_x + 2, y: origin_y + 2, width: width - 4, height: height - 4,
+        'fill' => 'white', 'stroke' => 'black', 'stroke-width' => 4)
+
+    # Poll image
+    xml.image('xlink:href' => "presentation/#{presentation}/poll_result#{$poll_result_count}.svg",
+        height: width, width: height, x: $vbox_width, y: origin_y,
+        transform: "rotate(90, #{$vbox_width}, #{origin_y})")
+
+  end
+end
+
 #
 # Calculate the offsets based on the start and stop recording events, so it's easier
 # to translate the timestamps later based on these offsets
@@ -614,7 +692,7 @@ def processShapesAndClears
 		$xml.svg(:id => :svgfile, :style => 'position:absolute; height:600px; width:800px;', :xmlns => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', :version => '1.1', :viewBox => :'0 0 800 600') do
 
 			# This is for the first image. It is a placeholder for an image that doesn't exist.
-			$xml.image(:id => :image0, :in => 0, :out => $first_slide_start, :src => "logo.png", :width => 800)
+			$xml.image(:id => :image0, :class => 'slide', :in => 0, :out => $first_slide_start, :src => "logo.png", :width => 800)
 			$xml.g(:class => :canvas, :id => :canvas0, :image => :image0, :display => :none)
 			$presentation_name = ""
 			
@@ -625,7 +703,7 @@ def processShapesAndClears
 			# Print out the gathered/detected images. 
 			$slides_compiled.each do |key, val|
 				$val = val
-				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3], :x => 0)
+				$xml.image(:id => "image#{$val[2].to_i}", :class => 'slide', :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3], :x => 0)
 				$canvas_number+=1
 				$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
 					
@@ -654,14 +732,17 @@ def processShapesAndClears
                                                         $pageNumber = shape.xpath(".//pageNumber")[0].text()
                                                         $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 
-                                                        if($shapeType == "text")
+                                                        case $shapeType
+                                                        when 'pencil', 'rectangle', 'ellipse', 'triangle', 'line'
+                                                                $shapeThickness = shape.xpath(".//thickness")[0].text()
+                                                                colour = shape.xpath(".//color")[0].text()
+                                                        when 'text'
                                                                 $textValue = shape.xpath(".//text")[0].text()
                                                                 $textFontType = "Arial"
                                                                 $textFontSize = shape.xpath(".//fontSize")[0].text()
                                                                 colour = shape.xpath(".//fontColor")[0].text()
-                                                        else
-                                                                $shapeThickness = shape.xpath(".//thickness")[0].text()
-                                                                colour = shape.xpath(".//color")[0].text()
+                                                        when 'poll_result'
+                                                          # Just hand the 'shape' xml object to the poll rendering code.
                                                         end
 							
 							# figure out undo time
@@ -713,16 +794,12 @@ def processShapesAndClears
 								end
 							end
 							
-							# Process the pencil shapes.
-							if $shapeType.eql? "pencil"
+                                                        case $shapeType
+                                                        when 'pencil'
 								storePencilShape()
-
-							# Process the line shapes.
-							elsif $shapeType.eql? "line"
+                                                        when 'line'
 								storeLineShape()
-
-							# Process the rectangle shapes
-							elsif $shapeType.eql? "rectangle"
+                                                        when 'rectangle'
 								square = shape.xpath(".//square")
 								if square.length > 0
 									$is_square = square[0].text()
@@ -730,13 +807,9 @@ def processShapesAndClears
 									$is_square = 'false'
 								end
 								storeRectShape()
-
-							# Process the triangle shapes
-							elsif $shapeType.eql? "triangle"
+                                                        when 'triangle'
 								storeTriangleShape()
-
-							# Process the ellipse shapes
-							elsif $shapeType.eql? "ellipse"
+                                                        when 'ellipse'
 								circle = shape.xpath(".//circle")
 								if circle.length > 0
 									$is_circle = circle[0].text()
@@ -744,12 +817,13 @@ def processShapesAndClears
 									$is_circle = 'false'
 								end
 								storeEllipseShape()
-							
-							elsif $shapeType.eql? "text"
+                                                        when 'text'
 								$textBoxWidth = shape.xpath(".//textBoxWidth")[0].text()
 								$textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
 								storeTextShape()
-							end # end if pencil (and other shapes)
+                                                        when 'poll_result'
+                                                          storePollResultShape($xml, shape)
+							end
 						end # end if(in_this_image)
 					end # end shape_events.each do |shape|
 				end
@@ -801,6 +875,7 @@ $pencil_count = 0
 $line_count = 0
 $ellipse_count = 0
 $text_count = 0
+$poll_result_count = 0
 $global_shape_count = -1
 $global_slide_count = 1
 $global_page_count = 0
@@ -882,9 +957,6 @@ if ($playback == "presentation")
 			BigBlueButton.logger.info("Copied audio.ogg file")
 		end
 
-		BigBlueButton.logger.info("Copying files to package dir")
-		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
-		BigBlueButton.logger.info("Copied files to package dir")
 
 		processing_time = File.read("#{$process_dir}/processing_time")
 
@@ -974,6 +1046,10 @@ if ($playback == "presentation")
 	
 		# Write panzooms.xml to file
 		File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
+
+		BigBlueButton.logger.info("Copying files to package dir")
+		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
+		BigBlueButton.logger.info("Copied files to package dir")
 
 	        BigBlueButton.logger.info("Publishing slides")
 		# Now publish this recording files by copying them into the publish folder.

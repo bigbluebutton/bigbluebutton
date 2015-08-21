@@ -48,23 +48,36 @@ Template.header.events
     $(".tooltip").hide()
     toggleNavbar()
 
-  "click .usersListIcon": (event) ->
-    $(".tooltip").hide()
-    toggleUsersList()
-
   "click .videoFeedIcon": (event) ->
     $(".tooltip").hide()
     toggleCam @
 
   "click .toggleUserlistButton": (event) ->
-    toggleUsersList()
+    if isLandscape()
+      toggleUsersList()
+    else
+      if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
+        toggleRightDrawer()
+        toggleRightArrowClockwise()
+      else
+        toggleShield()
+      toggleLeftDrawer()
+      toggleLeftArrowClockwise()
 
   "click .toggleMenuButton": (event) ->
-    toggleMenu()
+    if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+      toggleLeftDrawer()
+      toggleLeftArrowClockwise()
+    else
+      toggleShield()
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
 Template.menu.events
   'click .slideButton': (event) ->
-    toggleMenu()
+    toggleShield()
+    toggleRightDrawer()
+    toggleRightArrowClockwise()
 
   'click .toggleChatButton': (event) ->
     toggleChatbar()
@@ -117,7 +130,8 @@ Template.main.rendered = ->
 
 Template.main.events
   'click .shield': (event) ->
-    closePushMenus()
+    toggleShield()
+    closeMenus()
 
   'click .settingsIcon': (event) ->
     setInSession("tempFontSize", getInSession("messageFontSize"))
@@ -126,6 +140,178 @@ Template.main.events
   'click .signOutIcon': (event) ->
     $('.signOutIcon').blur()
     $("#logoutModal").foundation('reveal', 'open');
+
+Template.main.gestures
+  'panstart #container': (event, template) ->
+    if isPortraitMobile() and isPanHorizontal(event)
+      panIsValid = getInSession('panIsValid')
+      initTransformValue = getInSession('initTransform')
+      menuPanned = getInSession('menuPanned')
+      screenWidth = $('#container').width()
+
+      setInSession 'panStarted', true
+
+      if panIsValid and
+      menuPanned is 'left' and
+      initTransformValue + event.deltaX >= 0 and
+      initTransformValue + event.deltaX <= $('.left-drawer').width()
+        $('.left-drawer').css('transform', 'translateX(' + (initTransformValue + event.deltaX) + 'px)')
+
+      else if panIsValid and
+      menuPanned is 'right' and
+      initTransformValue + event.deltaX >= screenWidth - $('.right-drawer').width() and
+      initTransformValue + event.deltaX <= screenWidth
+        $('.right-drawer').css('transform', 'translateX(' + (initTransformValue + event.deltaX) + 'px)')
+
+  'panend #container': (event, template) ->
+    if isPortraitMobile()
+      panIsValid = getInSession('panIsValid')
+      menuPanned = getInSession('menuPanned')
+      leftDrawerWidth = $('.left-drawer').width()
+      screenWidth = $('#container').width()
+
+      setInSession 'panStarted', false
+
+      if panIsValid and
+      menuPanned is 'left' and
+      $('.left-drawer').css('transform') isnt 'none'
+
+        if parseInt($('.left-drawer').css('transform').split(',')[4]) < leftDrawerWidth / 2
+          $('.shield').removeClass('animatedShield')
+          $('.shield').css('opacity', '')
+          $('.left-drawer').removeClass('sl-left-drawer-out')
+          $('.left-drawer').css('transform', '')
+          $('.toggleUserlistButton').removeClass('sl-toggled-on')
+          $('.shield').removeClass('darken') # in case it was opened by clicking a button
+        else
+          $('.left-drawer').css('transform', 'translateX(' + leftDrawerWidth + 'px)')
+          $('.shield').css('opacity', 0.5)
+          $('.left-drawer').addClass('sl-left-drawer-out')
+          $('.left-drawer').css('transform', '')
+          $('.toggleUserlistButton').addClass('sl-toggled-on')
+
+      if panIsValid and
+      menuPanned is 'right' and
+      parseInt($('.right-drawer').css('transform').split(',')[4]) isnt leftDrawerWidth
+
+        if parseInt($('.right-drawer').css('transform').split(',')[4]) > screenWidth - $('.right-drawer').width() / 2
+          $('.shield').removeClass('animatedShield')
+          $('.shield').css('opacity', '')
+          $('.right-drawer').css('transform', 'translateX(' + screenWidth + 'px)')
+          $('.right-drawer').removeClass('sl-right-drawer-out')
+          $('.right-drawer').css('transform', '')
+          $('.toggleMenuButton').removeClass('sl-toggled-on')
+          $('.shield').removeClass('darken') # in case it was opened by clicking a button
+        else
+          $('.shield').css('opacity', 0.5)
+          $('.right-drawer').css('transform', 'translateX(' + (screenWidth - $('.right-drawer').width()) + 'px)')
+          $('.right-drawer').addClass('sl-right-drawer-out')
+          $('.right-drawer').css('transform', '')
+          $('.toggleMenuButton').addClass('sl-toggled-on')
+
+      $('.left-drawer').addClass('sl-left-drawer')
+      $('.sl-left-drawer').removeClass('left-drawer')
+
+      $('.right-drawer').addClass('sl-right-drawer')
+      $('.sl-right-drawer').removeClass('right-drawer')
+
+  'panright #container, panleft #container': (event, template) ->
+    if isPortraitMobile() and isPanHorizontal(event)
+
+      # panright/panleft is always triggered once right before panstart
+      if !getInSession('panStarted')
+
+        # opening the left-hand menu
+        if event.type is 'panright' and
+        event.center.x <= $('#container').width() * 0.1
+          setInSession 'panIsValid', true
+          setInSession 'menuPanned', 'left'
+
+        # closing the left-hand menu
+        else if event.type is 'panleft' and
+        event.center.x < $('#container').width() * 0.9
+          setInSession 'panIsValid', true
+          setInSession 'menuPanned', 'left'
+
+        # opening the right-hand menu
+        else if event.type is 'panleft' and
+        event.center.x >= $('#container').width() * 0.9
+          setInSession 'panIsValid', true
+          setInSession 'menuPanned', 'right'
+
+        # closing the right-hand menu
+        else if event.type is 'panright' and
+        event.center.x > $('#container').width() * 0.1
+          setInSession 'panIsValid', true
+          setInSession 'menuPanned', 'right'
+
+        else
+          setInSession 'panIsValid', false
+
+        setInSession 'eventType', event.type
+
+        if getInSession('menuPanned') is 'left'
+          if $('.sl-left-drawer').css('transform') isnt 'none' # menu is already transformed
+            setInSession 'initTransform', parseInt($('.sl-left-drawer').css('transform').split(',')[4]) # translateX value
+          else if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+            setInSession 'initTransform', $('.sl-left-drawer').width()
+          else
+            setInSession 'initTransform', 0
+          $('.sl-left-drawer').addClass('left-drawer')
+          $('.left-drawer').removeClass('sl-left-drawer') # to prevent animations from Sled library
+          $('.left-drawer').removeClass('sl-left-drawer-content-delay') # makes the menu content movable too
+
+        else if getInSession('menuPanned') is 'right'
+          if $('.sl-right-drawer').css('transform') isnt 'none' # menu is already transformed
+            setInSession 'initTransform', parseInt($('.sl-right-drawer').css('transform').split(',')[4]) # translateX value
+          else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
+            setInSession 'initTransform', $('.sl-right-drawer').width()
+          else
+            setInSession 'initTransform', 0
+          $('.sl-right-drawer').addClass('right-drawer')
+          $('.right-drawer').removeClass('sl-right-drawer') # to prevent animations from Sled library
+          $('.right-drawer').removeClass('sl-right-drawer-content-delay') # makes the menu content movable too
+
+      initTransformValue = getInSession('initTransform')
+      panIsValid = getInSession('panIsValid')
+      menuPanned = getInSession('menuPanned')
+      leftDrawerWidth = $('.left-drawer').width()
+      rightDrawerWidth = $('.right-drawer').width()
+      screenWidth = $('#container').width()
+
+      # moving the left-hand menu
+      if panIsValid and
+      menuPanned is 'left' and
+      initTransformValue + event.deltaX >= 0 and
+      initTransformValue + event.deltaX <= leftDrawerWidth
+
+        if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
+          toggleRightDrawer()
+          toggleRightArrowClockwise()
+
+        $('.left-drawer').css('transform', 'translateX(' + (initTransformValue + event.deltaX) + 'px)')
+
+        if !getInSession('panStarted')
+          $('.shield').addClass('animatedShield')
+        $('.shield').css('opacity',
+          0.5 * (initTransformValue + event.deltaX) / leftDrawerWidth)
+
+      # moving the right-hand menu
+      else if panIsValid and
+      menuPanned is 'right' and
+      initTransformValue + event.deltaX >= screenWidth - rightDrawerWidth and
+      initTransformValue + event.deltaX <= screenWidth
+
+        if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
+          toggleLeftDrawer()
+          toggleLeftArrowClockwise()
+
+        $('.right-drawer').css('transform', 'translateX(' + (initTransformValue + event.deltaX) + 'px)')
+
+        if !getInSession('panStarted')
+          $('.shield').addClass('animatedShield')
+        $('.shield').css('opacity',
+          0.5 * (screenWidth - initTransformValue - event.deltaX) / rightDrawerWidth)
 
 Template.makeButton.rendered = ->
   $('button[rel=tooltip]').tooltip()

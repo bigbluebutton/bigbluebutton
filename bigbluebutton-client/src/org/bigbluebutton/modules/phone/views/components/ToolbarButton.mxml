@@ -40,6 +40,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -57,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-      private static const LOG:String = "Phone::ToolbarButton - ";
+			private static const LOGGER:ILogger = getClassLogger(ToolbarButton);      
       
 			private var dispatcher:Dispatcher = new Dispatcher();
 			private var mic:Microphone;
@@ -72,11 +74,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var conference:Conference = UserManager.getInstance().getConference();
 				var thisUser:BBBUser = conference.getMyUser();
 				
-				trace(LOG + "startPhone 1 enabled=[" + enabled + "] selected=[" + selected + "]");
+				LOGGER.debug("startPhone 1 enabled=[{0}] selected=[{1}]", [enabled, selected]);
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
-				trace(LOG + "startPhone 2 enabled=[" + enabled + "] selected=[" + selected + "]");
+				LOGGER.debug("startPhone 2 enabled=[{0}] selected=[{1}]", [enabled, selected]);
 				if (this.selected) {
 					if(thisUser.disableMyMic){
 						var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
@@ -85,11 +87,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					} else {
 						//trace(LOG + "Sending Join Conference command");
 						//dispatcher.dispatchEvent(new JoinVoiceConferenceCommand());
-						trace(LOG + "Sending Show Audio Selection command");
+						LOGGER.debug("Sending Show Audio Selection command");
 						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
 					}
 				} else {
-					trace(LOG + "Sending Leave Conference command");
+					LOGGER.debug("Sending Leave Conference command");
 					dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 				}				
 			}
@@ -133,7 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						
 						dispatcher.dispatchEvent(command);
 					} else {
-						trace(LOG + "Sending Show Audio Selection command");
+						LOGGER.debug("Sending Show Audio Selection command");
 						dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
 					}
 				}
@@ -143,7 +145,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         this.selected = true;
         this.enabled = true;
 
-        trace(LOG + "onUserJoinedConference enabled=[" + enabled + "] selected=[" + selected + "]");
+        LOGGER.debug("onUserJoinedConference enabled=[{0}] selected=[{1}]", [enabled, selected]);
         _currentState = ACTIVE_STATE;
         this.styleName = "voiceConfActiveButtonStyle";
         this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');	        
@@ -152,41 +154,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onUserLeftConference():void {
         this.selected = false;
         this.enabled = true;
-        trace(LOG + "onUserLeftConference enabled=[" + enabled + "] selected=[" + selected + "]");
+		LOGGER.debug("onUserLeftConference enabled=[{0}] selected=[{1}]", [enabled, selected]);
         _currentState = DEFAULT_STATE;
         this.styleName = "voiceConfDefaultButtonStyle";
         this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');    
       }
       
       private function handleFlashJoinedVoiceConferenceEvent(event:FlashJoinedVoiceConferenceEvent):void {
-        trace(LOG + "User has joined the conference using flash");
+        LOGGER.debug("User has joined the conference using flash");
         onUserJoinedConference();
       }
       	
       private function handleFlashJoinedListenOnlyConferenceEvent(event:FlashJoinedListenOnlyVoiceConferenceEvent):void {
-        trace(LOG + "User has joined the listen only conference using flash");
+		LOGGER.debug("User has joined the listen only conference using flash");
         onUserJoinedConference();
       }
       
       private function handleFlashLeftVoiceConferenceEvent(event:FlashLeftVoiceConferenceEvent):void {
-        trace(LOG + "User has left the conference using flash");
+		LOGGER.debug("User has left the conference using flash");
         onUserLeftConference();
       }
       
       private function handleWebRTCCallStartedEvent(event: WebRTCCallEvent):void {
-        trace(LOG + "User has joined the conference using webrtc");
+		LOGGER.debug("User has joined the conference using webrtc");
         onUserJoinedConference();
       }
 						
-			private function handleWebRTCCallEndedEvent(event:WebRTCCallEvent):void {
-        trace(LOG + "User has left the conference using webrtc");
+	  private function handleWebRTCCallEndedEvent(event:WebRTCCallEvent):void {
+		LOGGER.debug("User has left the conference using webrtc");
         onUserLeftConference();
-			}
+	  }
 			
 			private function handleClosedAudioSelectionWindowEvent(event:AudioSelectionWindowEvent):void {
 				this.selected = false;
 				this.enabled = true;
-        trace(LOG + "onClosedAudioSelection enabled=[" + enabled + "] selected=[" + selected + "]");
+				LOGGER.debug("onClosedAudioSelection enabled=[{0}] selected=[{1}]", [enabled, selected]);
 				_currentState = DEFAULT_STATE;
         this.styleName = "voiceConfDefaultButtonStyle";
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');

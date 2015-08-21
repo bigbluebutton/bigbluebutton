@@ -450,7 +450,7 @@ class ApiController {
 				returncode(RESP_CODE_SUCCESS)
 				messageKey("successfullyJoined")
 				message("You have joined successfully.")
-				meeting_id(us.meetingID)
+				meeting_id() { mkp.yield(us.meetingID) }
 				user_id(us.internalUserId)
 				auth_token(us.authToken)
 			  }
@@ -803,16 +803,22 @@ class ApiController {
                 meetings {
                   for (m in mtgs) {
                     meeting {
-                      meetingID(m.getExternalId())
-				              meetingName(m.getName())
-				              createTime(m.getCreateTime())
-											createDate(formatPrettyDate(m.getCreateTime()))
-                      attendeePW(m.getViewerPassword())
-                      moderatorPW(m.getModeratorPassword())
+                      meetingID() { mkp.yield(m.getExternalId()) } 
+                      meetingName() { mkp.yield(m.getName()) }
+                      createTime(m.getCreateTime())
+                      createDate(formatPrettyDate(m.getCreateTime()))
+                      voiceBridge() { mkp.yield(m.getTelVoice()) }
+                      dialNumber() { mkp.yield(m.getDialNumber()) }
+                      attendeePW() { mkp.yield(m.getViewerPassword()) }
+                      moderatorPW() { mkp.yield(m.getModeratorPassword()) }
                       hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
                       running(m.isRunning() ? "true" : "false")
-											duration(m.duration)
-											hasUserJoined(m.hasUserJoined())
+                      participantCount(m.getNumUsers())
+                      listenerCount(m.getNumListenOnly())
+                      voiceParticipantCount(m.getNumVoiceJoined())
+                      videoCount(m.getNumVideos())
+                      duration(m.duration)
+                      hasUserJoined(m.hasUserJoined())
                     }
                   }
                 }
@@ -822,6 +828,87 @@ class ApiController {
       }
     }
   }
+
+  /************************************
+   *    GETSESSIONS API
+   ************************************/
+  def getSessionsHandler = {
+    String API_CALL = "getSessions"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    println("##### GETSESSIONS API CALL ####")
+    
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+    
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+    // END - backward compatibility
+    
+    ApiErrors errors = new ApiErrors()
+        
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");
+    }
+
+    if (errors.hasErrors()) {
+        respondWithErrors(errors)
+        return
+    }
+    
+    // Do we agree on the checksum? If not, complain.       
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+        respondWithErrors(errors)
+        return
+    }
+        
+    Collection<Meeting> sssns = meetingService.getSessions();
+    
+    if (sssns == null || sssns.isEmpty()) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {  
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+              sessions()
+              messageKey("noSessions")
+              message("no sessions were found on this server")
+            }
+          }
+        }
+      }
+    } else {
+      println("#### Has sessions [" + sssns.size() + "] #####")
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {  
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+                sessions {
+                  for (m in sssns) {
+                    meeting {
+                      meetingID() { mkp.yield(m.meetingID) }
+                      meetingName() { mkp.yield(m.conferencename) }
+                      userName() { mkp.yield(m.fullname) }
+                    }
+                  }
+                }
+              }
+            }
+          }
+      }
+    }
+  }
+
   
   def getDefaultConfigXML = {
  
@@ -1305,10 +1392,10 @@ class ApiController {
               subscriptions() {
                 list.each{ item ->
                   subscription(){
-                    subscriptionID(item.get("subscriptionID"))
-                    event(item.get("event"))
-                    callbackURL(item.get("callbackURL"))
-                    active(item.get("active"))  
+                    subscriptionID() { mkp.yield(item.get("subscriptionID")) }
+                    event() { mkp.yield(item.get("event")) }
+                    callbackURL() { mkp.yield(item.get("callbackURL")) }
+                    active()  { mkp.yield(item.get("active")) } 
                   }
                 }
               }
@@ -1356,7 +1443,7 @@ class ApiController {
 				response() {
 				  returncode("FAILED")
 				  message("Could not find conference.")
-				  logoutURL(logoutUrl)
+				  logoutURL() { mkp.yield(logoutUrl) }
 				}
 			  }
 			}
@@ -1364,9 +1451,7 @@ class ApiController {
 		} else {
 			UserSession us = meetingService.getUserSession(session['user-token']);
 			log.info("Found session for " + us.fullname)
-			println ("Found session for " + us.fullname)
-			println us.configXML
-			
+		
 			response.addHeader("Cache-Control", "no-cache")
 			render text: us.configXML, contentType: 'text/xml'
 		}
@@ -1469,10 +1554,10 @@ class ApiController {
               defaultLayout = us.defaultLayout
               avatarURL = us.avatarURL
               customdata = array {
-								userCustomData.each { k, v ->
-									// Somehow we need to prepend something (custdata) for the JSON to work
-									custdata "$k" : v
-								}
+                 userCustomData.each { k, v ->
+                      // Somehow we need to prepend something (custdata) for the JSON to work
+                      custdata "$k" : v
+				 }
               }
             }
           }
@@ -1639,7 +1724,7 @@ class ApiController {
 	
     // Do we agree on the checksum? If not, complain.   
     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
-        errors.checksumError()
+      errors.checksumError()
       respondWithErrors(errors)
       return
     }
@@ -1652,6 +1737,7 @@ class ApiController {
     // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
     ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
 	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
+	recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 	
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -1678,8 +1764,8 @@ class ApiController {
               recs.values().each { r ->
 				  recording() {
                   recordID(r.getId())
-				  meetingID(r.getMeetingID())
-				  name(''){
+				  meetingID() { mkp.yield(r.getMeetingID()) }
+				  name('') {
 					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
 				  }
                   published(r.isPublished())
@@ -1985,30 +2071,38 @@ class ApiController {
         render(contentType:"text/xml") {
           response() {
             returncode(RESP_CODE_SUCCESS)
-			      meetingName(meeting.getName())
-            meetingID(meeting.getExternalId())
-			      createTime(meeting.getCreateTime())
-						createDate(formatPrettyDate(meeting.getCreateTime()))
-			      voiceBridge(meeting.getTelVoice())
-			      dialNumber(meeting.getDialNumber())
-            attendeePW(meeting.getViewerPassword())
-            moderatorPW(meeting.getModeratorPassword())
+            meetingName() { mkp.yield(meeting.getName()) }
+            meetingID() { mkp.yield(meeting.getExternalId()) }
+            internalMeetingID(meeting.getInternalId())
+            createTime(meeting.getCreateTime())
+            createDate(formatPrettyDate(meeting.getCreateTime()))
+            voiceBridge() { mkp.yield(meeting.getTelVoice()) }
+            dialNumber() { mkp.yield(meeting.getDialNumber()) }
+            attendeePW() { mkp.yield(meeting.getViewerPassword()) }
+            moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
             running(meeting.isRunning() ? "true" : "false")
-						duration(meeting.duration)
-						hasUserJoined(meeting.hasUserJoined())
-			      recording(meeting.isRecord() ? "true" : "false")
+            duration(meeting.duration)
+            hasUserJoined(meeting.hasUserJoined())
+            recording(meeting.isRecord() ? "true" : "false")
             hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
             startTime(meeting.getStartTime())
             endTime(meeting.getEndTime())
             participantCount(meeting.getNumUsers())
+            listenerCount(meeting.getNumListenOnly())
+            voiceParticipantCount(meeting.getNumVoiceJoined())
+            videoCount(meeting.getNumVideos())
             maxUsers(meeting.getMaxUsers())
             moderatorCount(meeting.getNumModerators())
             attendees() {
               meeting.getUsers().each { att ->
                 attendee() {
-                  userID("${att.externalUserId}")
-                  fullName("${att.fullname}")
+                  userID() { mkp.yield("${att.externalUserId}") }
+                  fullName() { mkp.yield("${att.fullname}") }
                   role("${att.role}")
+                  isPresenter("${att.isPresenter()}")
+                  isListeningOnly("${att.isListeningOnly()}")
+                  hasJoinedVoice("${att.isVoiceJoined()}")
+                  hasVideo("${att.hasVideo()}")
 				  customdata(){
 					  meeting.getUserCustomData(att.externalUserId).each{ k,v ->
 						  "$k"("$v")
@@ -2038,13 +2132,15 @@ class ApiController {
         render(contentType:"text/xml") {
           response() {
             returncode(RESP_CODE_SUCCESS)
-            meetingID(meeting.getExternalId())
-            attendeePW(meeting.getViewerPassword())
-            moderatorPW(meeting.getModeratorPassword())
+            meetingID() { mkp.yield(meeting.getExternalId()) }
+            attendeePW() { mkp.yield(meeting.getViewerPassword()) }
+            moderatorPW() { mkp.yield(meeting.getModeratorPassword()) }
             createTime(meeting.getCreateTime())
-						createDate(formatPrettyDate(meeting.getCreateTime()))
-						hasUserJoined(meeting.hasUserJoined())
-						duration(meeting.duration)
+            voiceBridge() { mkp.yield(meeting.getTelVoice()) }
+            dialNumber()  { mkp.yield(meeting.getDialNumber()) }
+            createDate(formatPrettyDate(meeting.getCreateTime()))
+            hasUserJoined(meeting.hasUserJoined())
+            duration(meeting.duration)
             hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
             messageKey(msgKey == null ? "" : msgKey)
             message(msg == null ? "" : msg)
