@@ -243,7 +243,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
       if (recordVideoStream) {
         IConnection conn = Red5.getConnectionLocal();
         String scopeName;
-        if (conn != null) {
+        if (conn != null && conn.getScope() != null) {
   	       scopeName = conn.getScope().getName();
         } else {
   	       log.info("Connection local was null, using scope name from the stream: {}", stream);
