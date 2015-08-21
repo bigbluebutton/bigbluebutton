@@ -74,15 +74,11 @@ Handlebars.registerHelper "getShapesForSlide", ->
 
 # retrieves all users in the meeting
 Handlebars.registerHelper "getUsersInMeeting", ->
-  # retrieve all users with raised hands
-  # raised hand is an object, so we can't simply search for true
-  # sort users by who has raised their hand first, place them at the top
-  raised = Meteor.Users.find({'user.raise_hand': {$not: {$in: [0, false, null]} }}, {sort: {'user.raise_hand': 1} }).fetch()
-  # find all users with a lowered hand
-  # when a hand is lowered, it is not always just false, it can be zero, or null
-  lowered = Meteor.Users.find({'user.raise_hand': $in: [0, false, null]}, {sort: {'user._sort_name': 1} }).fetch()
-  # add the users with lowered hands, to the list of people with raised hands
-  raised.concat lowered
+  users = Meteor.Users.find().fetch()
+  if users?.length > 1
+    getSortedUserList(users)
+  else
+    users
 
 Handlebars.registerHelper "getWhiteboardTitle", ->
   (BBB.currentPresentationName() or "Loading presentation...")
@@ -178,14 +174,71 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
   if BBB.isUserPresenter(getInSession('userId'))
     return 'presenter-whiteboard'
   else
-    return 'viewer-whiteboard'
+    if BBB.isPollGoing(getInSession('userId'))
+      return 'poll-whiteboard'
+    else
+      return 'viewer-whiteboard'
+
+Handlebars.registerHelper "getPollQuestions", ->
+  polls = BBB.getCurrentPoll(getInSession('userId'))
+  if polls? and polls isnt undefined
+    return polls.poll_info.poll.answers
+
+@getSortedUserList = (users) ->
+  if users?.length > 1
+    users.sort (a, b) ->
+      if a.user.role is "MODERATOR" and b.user.role is "MODERATOR"
+        if a.user.raise_hand and b.user.raise_hand
+          aTime = a.user.raise_hand.getTime()
+          bTime = b.user.raise_hand.getTime()
+          if aTime < bTime
+            return -1
+          else
+            return 1
+        else if a.user.raise_hand
+          return -1
+        else if b.user.raise_hand
+          return 1
+      else if a.user.role is "MODERATOR"
+        return -1
+      else if b.user.role is "MODERATOR"
+        return 1
+      else if a.user.raise_hand and b.user.raise_hand
+        aTime = a.user.raise_hand.getTime()
+        bTime = b.user.raise_hand.getTime()
+        if aTime < bTime
+          return -1
+        else 
+          return 1
+      else if a.user.raise_hand
+        return -1
+      else if b.user.raise_hand
+        return 1
+      else if not a.user.phone_user and not b.user.phone_user
+
+      else if not a.user.phone_user
+        return -1
+      else if not b.user.phone_user
+        return 1
+
+      #Check name (case-insensitive) in the event of a tie up above. If the name 
+      #is the same then use userID which should be unique making the order the same 
+      #across all clients.
+
+      if a.user._sort_name < b.user._sort_name
+        return -1
+      else if a.user._sort_name > b.user._sort_name
+        return 1
+      else if a.user.userid.toLowerCase() > b.user.userid.toLowerCase()
+        return -1
+      else if a.user.userid.toLowerCase() < b.user.userid.toLowerCase()
+        return 1
+
+  users
 
 # transform plain text links into HTML tags compatible with Flash client
 @linkify = (str) ->
-  www = /(^|[^\/])(www\.[\S]+($|\b))/img
-  http = /\b(https?:\/\/[0-9a-z+|.,:;\/&?_~%#=@!-]*[0-9a-z+|\/&_~%#=@-])/img
-  str = str.replace http, "<a href='event:$1'><u>$1</u></a>"
-  str = str.replace www, "$1<a href='event:http://$2'><u>$2</u></a>"
+  str = str.replace re_weburl, "<a href='event:$&'><u>$&</u></a>"
 
 @setInSession = (k, v) -> SessionAmplify.set k, v
 

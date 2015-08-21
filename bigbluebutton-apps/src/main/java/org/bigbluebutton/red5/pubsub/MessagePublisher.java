@@ -1,7 +1,6 @@
 package org.bigbluebutton.red5.pubsub;
 
 import java.util.Map;
-
 import org.bigbluebutton.common.messages.*;
 import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
@@ -19,6 +18,10 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());
 	}
 
+	public void sendPollingMessage(String json) {		
+		sender.send(MessagingConstants.TO_POLLING_CHANNEL, json);
+	}
+	
 	public void startPoll(String meetingId, String requesterId, String pollId, String pollType) {
 		StartPollRequestMessage msg = new StartPollRequestMessage(meetingId, requesterId, pollId, pollType);
 		sender.send(MessagingConstants.TO_POLLING_CHANNEL, msg.toJson());

@@ -61,6 +61,9 @@
             transparency: shapeObject.shape.transparency
             thickness: shapeObject.shape.thickness
             color: shapeObject.shape.color
+            result: shapeObject.shape.result
+            num_respondents: shapeObject.shape.num_respondents
+            num_responders: shapeObject.shape.num_responders
 
       id = Meteor.Shapes.insert(entry)
 

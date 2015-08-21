@@ -22,11 +22,47 @@ package org.bigbluebutton.modules.polling.service
 	import org.as3commons.logging.api.getClassLogger;
 	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 
 	public class MessageSender
 	{	
 	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
+	
+	public function startCustomPoll(pollId:String, pollType: String, answers:Array):void
+	{
+
+		
+		var header:Object = new Object();		
+		header["timestamp"] = (new Date()).time;
+		header["name"] = "start_custom_poll_request_message";
+		header["version"] = "0.0.1";
+		
+		var payload:Object = new Object();
+		payload["pollType"] = pollType;
+		payload["answers"] = answers;
+		payload["meetingId"] = UsersUtil.getInternalMeetingID();
+		payload["pollId"] = pollId;
+		payload["requesterId"] = UsersUtil.getMyUserID();
+		
+		var map:Object = new Object();
+		map["header"] = header;
+		map["payload"] = payload;
+		
+		LOGGER.debug("startCustomPoll [{0}]", [jsonXify(map)]);
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage("poll.sendPollingMessage", 
+			function(result:String):void { 
+				LOGGER.debug(result); 
+			},	                   
+			function(status:String):void {
+				LOGGER.error(status); 
+			},
+			JSON.stringify(map)
+		);
+	}
+	
     public function startPoll(pollId:String, pollType: String):void
     {
       var map:Object = new Object();
