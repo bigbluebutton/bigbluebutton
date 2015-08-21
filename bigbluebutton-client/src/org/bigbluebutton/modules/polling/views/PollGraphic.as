@@ -36,11 +36,11 @@ package org.bigbluebutton.modules.polling.views
 		//private const h:uint = 100;
 		//private const w:uint = 280;
 		private const bgFill:uint = 0xFFFFFF;
-		private const colFill:uint = 0x000000;
+		private const colFill:uint = 0x333333;
 		private const vPaddingPercent:Number = 0.25;
 		private const hPaddingPercent:Number = 0.1;
 		private const labelWidthPercent:Number = 0.3;
-		private const labelMaxWidthInPixels:int = 40;
+		private const labelMaxWidthInPixels:int = 100;
 		
 		private var sampledata:Array = [{a:"A", v:3}, 
 									{a:"B", v:1},
@@ -89,7 +89,7 @@ package org.bigbluebutton.modules.polling.views
 			graphics.clear();
 			
 			if (_data != null && _data.length > 0) {
-				graphics.lineStyle(2);
+				graphics.lineStyle(2, colFill);
 				graphics.beginFill(bgFill, 1.0);
 				graphics.drawRect(sx, sy, unscaledWidth, unscaledHeight);
 				graphics.endFill();
@@ -117,12 +117,13 @@ package org.bigbluebutton.modules.polling.views
 				var percentText:TextField;
 				var answerArray:Array = new Array();
 				var percentArray:Array = new Array();
-				var minFontSize:int = 20;
+				var minFontSize:int = 30;
 				var currFontSize:int;
 				
-				var startingLabelWidth:Number = Math.min(labelWidthPercent*unscaledWidth, labelMaxWidthInPixels);
+				//var startingLabelWidth:Number = Math.min(labelWidthPercent*unscaledWidth, labelMaxWidthInPixels);
+				var startingLabelWidth:Number = labelWidthPercent*unscaledWidth;
 				
-				graphics.lineStyle(2);
+				graphics.lineStyle(2, colFill);
 				graphics.beginFill(colFill, 1.0);
 				for (var j:int=0, vp:int=extraVPixels, ry:int=0, curRowHeight:int=0; j<_data.length; j++) {
 					ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
@@ -143,7 +144,7 @@ package org.bigbluebutton.modules.polling.views
 					answerText.selectable = false;
 					//addChild(answerText);
 					answerArray.push(answerText);
-					currFontSize = findFontSize(answerText, 20);
+					currFontSize = findFontSize(answerText, minFontSize);
 					if (currFontSize < minFontSize) minFontSize = currFontSize;
 					//rowText.height = rowText.textHeight;
 					answerText.x = hpadding;
@@ -158,7 +159,7 @@ package org.bigbluebutton.modules.polling.views
 					percentText.selectable = false;
 					//addChild(percentText);
 					percentArray.push(percentText);
-					currFontSize = findFontSize(percentText, 20);
+					currFontSize = findFontSize(percentText, minFontSize);
 					if (currFontSize < minFontSize) minFontSize = currFontSize;
 					//percentText.height = percentText.textHeight;
 					//percentText.x = unscaledWidth-percentStartWidth/2-percentText.width/2;
@@ -219,16 +220,21 @@ package org.bigbluebutton.modules.polling.views
 					// add vote count in middle of rect
 					countText = _textFields[currTFIdx++]; // new TextField();
 					countText.text = _data[j].v;
-					countText.width = rectWidth;
+					countText.width = startingLabelWidth;
 					countText.height = curRowHeight;
-					countText.textColor = 0xFFFFFF;
 					countText.selectable = false;
 					//addChild(countText);
 					findFontSize(countText, minFontSize);
 					countText.width = countText.textWidth+4;
 					countText.height = countText.textHeight+4;
-					countText.x = barStartX+rectWidth/2-countText.width/2;
 					countText.y = ry-countText.height/2;
+					if (countText.width > rectWidth) {
+						countText.x = barStartX + rectWidth + hpadding/2;
+						countText.textColor = colFill;
+					} else {
+						countText.x = barStartX + rectWidth/2 - countText.width/2;
+						countText.textColor = bgFill;
+					}
 				}
 				
 				graphics.endFill();

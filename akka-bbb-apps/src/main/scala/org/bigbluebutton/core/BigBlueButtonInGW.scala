@@ -15,10 +15,24 @@ import scala.concurrent.duration._
 import scala.util.Success
 import scala.util.Failure
 import org.bigbluebutton.core.service.recorder.RecorderApplication
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage
+import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
+import org.bigbluebutton.common.messages.PubSubPingMessage
 
 class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
   val log = system.log
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, recorderApp, messageSender, voiceEventRecorder), "bigbluebutton-actor")
+
+  def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
+    message match {
+      case msg: StartCustomPollRequestMessage => {
+        bbbActor ! new StartCustomPollRequest(msg.payload.meetingId, msg.payload.requesterId, msg.payload.pollType, msg.payload.answers)
+      }
+      case msg: PubSubPingMessage => {
+        bbbActor ! new PubSubPing(msg.payload.system, msg.payload.timestamp)
+      }
+    }
+  }
 
   // Meeting
   def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,

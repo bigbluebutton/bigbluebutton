@@ -7,6 +7,8 @@ import org.bigbluebutton.core.MeetingProperties
 
 trait InMessage { val meetingID: String }
 
+case class PubSubPing(system: String, timestamp: Long)
+
 case class IsMeetingActorAliveMessage(meetingId: String)
 case class KeepAliveMessage(aliveID: String)
 case class CreateMeeting(meetingID: String, mProps: MeetingProperties) extends InMessage
@@ -78,6 +80,7 @@ case class PresentationConversionCompleted(meetingID: String, messageKey: String
 
 // Polling
 //case class CreatePollRequest(meetingID: String, requesterId: String, pollId: String, pollType: String) extends InMessage
+case class StartCustomPollRequest(meetingID: String, requesterId: String, pollType: String, answers: Seq[String]) extends InMessage
 case class StartPollRequest(meetingID: String, requesterId: String, pollType: String) extends InMessage
 case class StopPollRequest(meetingID: String, requesterId: String) extends InMessage
 case class ShowPollResultRequest(meetingID: String, requesterId: String, pollId: String) extends InMessage

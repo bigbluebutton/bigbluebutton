@@ -109,6 +109,8 @@ class Meteor.RedisPubSub
           users = message.payload.users
           for user in users
             user.timeOfJoining = message.header.current_time # TODO this might need to be removed
+            if user.raise_hand is true and typeof user.raise_hand is 'boolean'
+              user.raise_hand = new Date()
             userJoined meetingId, user
         return
 
@@ -230,6 +232,12 @@ class Meteor.RedisPubSub
         return
 
       if message.header.name is "send_whiteboard_shape_message"
+
+        #Meteor stringifies an array of JSONs (...shape.result) in this message
+        #parsing the String and reassigning the value
+        if message.payload.shape.shape_type is "poll_result" and typeof message.payload.shape.shape.result is 'string'
+          message.payload.shape.shape.result = JSON.parse message.payload.shape.shape.result
+
         shape = message.payload.shape
         whiteboardId = shape?.wb_id
         addShapeToCollection meetingId, whiteboardId, shape
@@ -284,7 +292,7 @@ class Meteor.RedisPubSub
         userId = message.payload.userid
         meetingId = message.payload.meeting_id
         if userId? and meetingId?
-          Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": 0}})
+          Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}})
         return
 
       if message.header.name is "recording_status_changed_message"
@@ -334,6 +342,31 @@ class Meteor.RedisPubSub
           unless message.header.name is "disconnect_all_users_message"
             removeMeetingFromCollection meetingId
         return
+
+      if message.header.name is "poll_started_message"
+        if message.payload.meeting_id? and message.payload.requester_id? and message.payload.poll?
+          if Meteor.Meetings.findOne({meetingId: message.payload.meeting_id})?
+            #initializing the list of current users
+            users = Meteor.Users.find({meetingId: message.payload.meeting_id}, {fields:{"user.userid": 1, _id: 0}} ).fetch()
+            addPollToCollection message.payload.poll, message.payload.requester_id, users, message.payload.meeting_id
+
+      if message.header.name is "poll_stopped_message"
+        meetingId = message.payload.meeting_id
+        poll_id = message.payload.poll_id
+        clearPollCollection meetingId, poll_id
+
+      if message.header.name is "user_voted_poll_message"
+        if message.payload?.poll? and message.payload.meeting_id? and message.payload.presenter_id?
+          pollObj = message.payload.poll
+          meetingId = message.payload.meeting_id
+          requesterId = message.payload.presenter_id
+          updatePollCollection pollObj, meetingId, requesterId
+
+      if message.header.name is "poll_show_result_message"
+        if message.payload.poll.id? and message.payload.meeting_id?
+          poll_id = message.payload.poll.id
+          meetingId = message.payload.meeting_id
+          clearPollCollection meetingId, poll_id 
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server

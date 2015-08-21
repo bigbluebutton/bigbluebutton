@@ -23,6 +23,19 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     else
       res
 
+  BBB.isPollGoing = (userId) ->
+    if userId isnt undefined and Meteor.Polls.findOne({"poll_info.users": userId})
+      return true
+    else
+      return false
+
+  BBB.getCurrentPoll = (userId) ->
+    if userId isnt undefined and Meteor.Polls.findOne({"poll_info.users": userId})
+      return Meteor.Polls.findOne({"poll_info.users": userId})
+
+  BBB.sendPollResponseMessage = (key, pollAnswerId) ->
+    Meteor.call "publishVoteMessage", BBB.getMeetingId(), pollAnswerId, getInSession("userId"), getInSession("authToken")
+
   BBB.getMeetingId = ->
     Meteor.Meetings.findOne()?.meetingId
 

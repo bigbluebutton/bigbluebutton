@@ -1,6 +1,6 @@
 package org.bigbluebutton.common.messages;
 
-public class CreateMeetingMessage implements IPublishedMessage {
+public class CreateMeetingMessage implements IBigBlueButtonMessage {
 	public static final String CREATE_MEETING_REQUEST_EVENT  = "create_meeting_request";
 	public static final String VERSION = "0.0.1";
 	

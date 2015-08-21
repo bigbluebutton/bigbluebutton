@@ -2,13 +2,10 @@ package org.bigbluebutton.red5.pubsub.redis;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
 public class MessageReceiver {
@@ -16,11 +13,14 @@ public class MessageReceiver {
 	
 	private ReceivedMessageHandler handler;
 	
-	private JedisPool redisPool;
+	private Jedis jedis;
 	private volatile boolean receiveMessage = false;
 	
 	private final Executor msgReceiverExec = Executors.newSingleThreadExecutor();
 
+	private String host;
+	private int port;
+	
 	public void stop() {
 		receiveMessage = false;
 	}
@@ -29,7 +29,10 @@ public class MessageReceiver {
 		log.info("Ready to receive messages from Redis pubsub.");
 		try {
 			receiveMessage = true;
-			final Jedis jedis = redisPool.getResource();
+			jedis = new Jedis(host, port);
+			// Set the name of this client to be able to distinguish when doing
+			// CLIENT LIST on redis-cli
+			jedis.clientSetname("BbbRed5AppsSub");
 			
 			Runnable messageReceiver = new Runnable() {
 			    public void run() {
@@ -45,8 +48,12 @@ public class MessageReceiver {
 		}			
 	}
 	
-	public void setRedisPool(JedisPool redisPool){
-		this.redisPool = redisPool;
+	public void setHost(String host){
+		this.host = host;
+	}
+	
+	public void setPort(int port) {
+		this.port = port;
 	}
 	
 	public void setMessageHandler(ReceivedMessageHandler handler) {

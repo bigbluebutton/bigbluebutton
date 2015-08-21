@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.deskshare.model
 {
+	import flash.external.ExternalInterface;
+	
 	import org.bigbluebutton.core.BBB;
 	
 	public class DeskshareOptions
@@ -52,7 +54,11 @@ package org.bigbluebutton.modules.deskshare.model
 					baseTabIndex = 201;
 				}
 				if (vxml.@showButton != undefined){
-					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false; 
+					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+					// If we are using Puffin browser
+					if (ExternalInterface.call("determineBrowser")[0] == "Puffin") {
+						showButton = false;
+					}
 				}
 			}
 		}

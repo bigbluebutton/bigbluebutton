@@ -56,6 +56,13 @@ public class PollingService {
 		red5GW.showPollResult(meetingID, userId, pollId, show);
 	}
 	
+	public void sendPollingMessage(String json) {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String userId = getBbbSession().getInternalUserID();
+							
+		red5GW.sendPollingMessage(json);
+	}
+	
 	public void startPoll(Map<String, Object> message) {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String userId = getBbbSession().getInternalUserID();

@@ -34,8 +34,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
 	//private const h:uint = 100;
     //private const w:uint = 280;
+    private const marginFill:uint = 0xFFFFFF;
     private const bgFill:uint = 0xFFFFFF;
-    private const colFill:uint = 0x000000;
+    private const colFill:uint = 0x333333;
+    private const margin:Number = 0.025;
     private const vPaddingPercent:Number = 0.25;
     private const hPaddingPercent:Number = 0.1;
     private const labelWidthPercent:Number = 0.3;
@@ -82,20 +84,31 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       graphics.clear();
     
       if (_data != null && _data.length > 0) {
-        graphics.lineStyle(2);
-        graphics.beginFill(bgFill, 1.0);
+        graphics.lineStyle(0, marginFill);
+        graphics.beginFill(marginFill, 1.0);
         graphics.drawRect(0, 0, unscaledWidth, unscaledHeight);
         graphics.endFill();
         
-        var vpadding:int = (unscaledHeight*vPaddingPercent)/(_data.length+1);
-        var hpadding:int = (unscaledWidth*hPaddingPercent)/(4);
+        var calcMargin:int = unscaledWidth * margin;
+        var graphX:int = calcMargin;
+        var graphY:int = calcMargin;
+        var graphWidth:int = unscaledWidth - calcMargin*2;
+        var graphHeight:int = unscaledHeight - calcMargin*2;
         
-        var actualRH:Number = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
+        graphics.lineStyle(2, colFill);
+        graphics.beginFill(bgFill, 1.0);
+        graphics.drawRect(calcMargin, calcMargin, graphWidth, graphHeight);
+        graphics.endFill();
+        
+        var vpadding:int = (graphHeight*vPaddingPercent)/(_data.length+1);
+        var hpadding:int = (graphWidth*hPaddingPercent)/(4);
+        
+        var actualRH:Number = (graphHeight-vpadding*(_data.length+1)) / _data.length;
         LOGGER.debug("PollGraphic - as raw {0} int {1}", [actualRH, int(actualRH)]);
         // Current problem is that the rowHeight is truncated. It would be nice if the extra pixels 
         // could be distributed for a more even look.
-        var avgRowHeight:int = (unscaledHeight-vpadding*(_data.length+1)) / _data.length;
-        var extraVPixels:int = unscaledHeight - (_data.length * (avgRowHeight+vpadding) + vpadding);
+        var avgRowHeight:int = (graphHeight-vpadding*(_data.length+1)) / _data.length;
+        var extraVPixels:int = graphHeight - (_data.length * (avgRowHeight+vpadding) + vpadding);
         LOGGER.debug("PollGraphic - extraVPixels {0}", [extraVPixels]);
         var largestVal:int = -1;
         var totalCount:Number = 0;
@@ -110,14 +123,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var percentText:TextField;
         var answerArray:Array = new Array();
         var percentArray:Array = new Array();
-        var minFontSize:int = 20;
+        var minFontSize:int = 30;
         var currFontSize:int;
         
-        var startingLabelWidth:Number = Math.min(labelWidthPercent*unscaledWidth, labelMaxWidthInPixels);
-        
-        graphics.lineStyle(2);
+        //var startingLabelWidth:Number = Math.min(labelWidthPercent*graphWidth, labelMaxWidthInPixels);
+		var startingLabelWidth:Number = labelWidthPercent*graphWidth;
+		
+        graphics.lineStyle(2, colFill);
         graphics.beginFill(colFill, 1.0);
-        for (var j:int=0, vp:int=extraVPixels, ry:int=0, curRowHeight:int=0; j<_data.length; j++) {
+        for (var j:int=0, vp:int=extraVPixels, ry:int=graphY, curRowHeight:int=0; j<_data.length; j++) {
           ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
           
           curRowHeight = avgRowHeight;
@@ -136,10 +150,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           answerText.selectable = false;
           //addChild(answerText);
           answerArray.push(answerText);
-          currFontSize = findFontSize(answerText, 20);
+          currFontSize = findFontSize(answerText, minFontSize);
           if (currFontSize < minFontSize) minFontSize = currFontSize;
           //rowText.height = rowText.textHeight;
-          answerText.x = hpadding;
+          answerText.x = graphX + hpadding;
           //rowText.y = ry-rowText.height/2;
           
           // add percentage
@@ -151,17 +165,17 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           percentText.selectable = false;
           //addChild(percentText);
           percentArray.push(percentText);
-          currFontSize = findFontSize(percentText, 20);
+          currFontSize = findFontSize(percentText, minFontSize);
           if (currFontSize < minFontSize) minFontSize = currFontSize;
           //percentText.height = percentText.textHeight;
-          //percentText.x = unscaledWidth-percentStartWidth/2-percentText.width/2;
+          //percentText.x = graphWidth-percentStartWidth/2-percentText.width/2;
           //percentText.y = ry-percentText.height/2;
         }
         
         var maxAnswerWidth:int = 0;
         var maxPercentWidth:int = 0;
         
-        for (j=0, vp=extraVPixels, ry=0, curRowHeight=0; j<_data.length; j++) {
+        for (j=0, vp=extraVPixels, ry=graphY, curRowHeight=0; j<_data.length; j++) {
           ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
           
           curRowHeight = avgRowHeight;
@@ -177,6 +191,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           findFontSize(answerText, minFontSize);
           answerText.width = answerText.textWidth+4;
           answerText.height = answerText.textHeight+4;
+          answerText.textColor = colFill;
           answerText.y = ry-answerText.height/2;
           if (answerText.width > maxAnswerWidth) maxAnswerWidth = answerText.width;
           
@@ -184,17 +199,18 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           findFontSize(percentText, minFontSize);
           percentText.width = percentText.textWidth+4;
           percentText.height = percentText.textHeight+4;
-          percentText.x = unscaledWidth - hpadding - percentText.width;
+          percentText.textColor = colFill;
+          percentText.x = graphX + graphWidth - hpadding - percentText.width;
           percentText.y = ry-percentText.height/2;
           if (percentText.width > maxPercentWidth) maxPercentWidth = percentText.width;
           
         }
         
         var countText:TextField;
-        var maxBarWidth:int = unscaledWidth - (hpadding*4) - maxAnswerWidth - maxPercentWidth;
-        var barStartX:int = maxAnswerWidth + (hpadding*2);
+        var maxBarWidth:int = graphWidth - (hpadding*4) - maxAnswerWidth - maxPercentWidth;
+        var barStartX:int = graphX + maxAnswerWidth + (hpadding*2);
         
-        for (j=0, vp=extraVPixels, ry=0, curRowHeight=0; j<_data.length; j++) {
+        for (j=0, vp=extraVPixels, ry=graphY, curRowHeight=0; j<_data.length; j++) {
           ry += Math.round(curRowHeight/2)+vpadding; // add the last row's height plus padding
           
           curRowHeight = avgRowHeight;
@@ -212,16 +228,22 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           // add vote count in middle of rect
           countText = _textFields[currTFIdx++]; // new TextField();
           countText.text = _data[j].v;
-          countText.width = rectWidth;
+          countText.width = startingLabelWidth;
           countText.height = curRowHeight;
-          countText.textColor = 0xFFFFFF;
+          countText.textColor = bgFill;
           countText.selectable = false;
           //addChild(countText);
           findFontSize(countText, minFontSize);
           countText.width = countText.textWidth+4;
           countText.height = countText.textHeight+4;
-          countText.x = barStartX+rectWidth/2-countText.width/2;
           countText.y = ry-countText.height/2;
+          if (countText.width > rectWidth) {
+            countText.x = barStartX + rectWidth + hpadding/2;
+            countText.textColor = colFill;
+          } else {
+            countText.x = barStartX + rectWidth/2 - countText.width/2;
+            countText.textColor = bgFill;
+          }
         }
         
         graphics.endFill();
@@ -231,7 +253,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     private function findFontSize(textField:TextField, defaultSize:Number):int {
       var tFormat:TextFormat = new TextFormat();
       tFormat.size = defaultSize;
-	  tFormat.font = "arial";
+      tFormat.font = "arial";
       tFormat.align = TextFormatAlign.CENTER;
       textField.setTextFormat(tFormat);
       var size:Number = defaultSize;
@@ -272,7 +294,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       var ans:Array = new Array();
       for (var j:int = 0; j < answers.length; j++) {
 	      var ar:Object = answers[j];
-	      var rs:Object = {a: ResourceUtil.getInstance().getString('bbb.polling.answer.' + ar.key), v: ar.num_votes as Number};
+		  var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.' + ar.key);
+		  
+		  if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+			  localizedKey = ar.key;
+		  } 
+	      var rs:Object = {a: localizedKey, v: ar.num_votes as Number};
 	      LOGGER.debug("poll result a=[{0}] v=[{1}]", [ar.key, ar.num_votes]);
 	      ans.push(rs);
       }

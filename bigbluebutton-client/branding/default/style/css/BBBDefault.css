@@ -103,7 +103,7 @@ ToolTip {
 .pollResondersLabelStyle {
 	color: #444444;
 	fontFamily: Arial;
-	fontSize: 13;
+	fontSize: 16;
 	fontWeight: bold;
 }
 
@@ -877,4 +877,10 @@ Alert {
 .statusTimeStyle {
   fontSize: 10;
   paddingTop: 0;
+}
+
+PollChoicesModal {
+	fontSize: 14;
+	paddingLeft: 16;
+	paddingRight: 16;
 }

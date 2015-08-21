@@ -27,16 +27,25 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import javax.imageio.ImageIO;
+
 import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
+import org.bigbluebutton.common.converters.ToJsonEncoder;
+import org.bigbluebutton.common.messages.MessageHeader;
+import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.PubSubPingMessage;
+import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -46,6 +55,7 @@ public class RedisMessagingService implements MessagingService {
 	
 	private RedisStorageService storeService;
 	private MessageSender sender;
+	private ToJsonEncoder encoder = new ToJsonEncoder();
 	
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
 		storeService.recordMeetingInfo(meetingId, info);	
@@ -86,10 +96,9 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 
-  public void sendKeepAlive(String keepAliveId) {
-		KeepAliveMessage msg = new KeepAliveMessage(keepAliveId);
-		String json = MessageToJson.keepAliveMessageToJson(msg);
-		sender.send(MessagingConstants.TO_SYSTEM_CHANNEL, json);		
+  public void sendKeepAlive(String system, Long timestamp) {
+   	String json = encoder.encodePubSubPingMessage("BbbWeb", System.currentTimeMillis());	
+	sender.send(MessagingConstants.TO_SYSTEM_CHANNEL, json);		
   }
 	
   public void send(String channel, String message) {

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GetLockSettingsMessage implements IPublishedMessage {
+public class GetLockSettingsMessage implements IBigBlueButtonMessage {
 	public static final String GET_LOCK_SETTINGS = "get_lock_settings";
 	public static final String VERSION = "0.0.1";
 

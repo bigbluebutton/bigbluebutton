@@ -1,6 +1,9 @@
 package org.bigbluebutton.red5.monitoring;
 
-import org.bigbluebutton.common.messages.BbbAppsIsAliveMessage;
+import org.bigbluebutton.common.converters.FromJsonDecoder;
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
+import org.bigbluebutton.common.messages.PubSubPongMessage;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -8,11 +11,14 @@ public class BbbAppsIsKeepAliveHandler {
 
 	private BbbAppsIsAliveMonitorService monitorService;
 	
+	private final FromJsonDecoder decoder = new FromJsonDecoder();
+	
 	public void setBbbAppsIsAliveMonitorService(BbbAppsIsAliveMonitorService s) {
 		monitorService = s;
 	}
 	
 	public void handleKeepAliveMessage(String message) {
+		
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 
@@ -22,7 +28,8 @@ public class BbbAppsIsKeepAliveHandler {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				switch (messageName) {
-					case BbbAppsIsAliveMessage.BBB_APPS_IS_ALIVE:
+					case PubSubPongMessage.PUBSUB_PONG:
+						
 						processBbbAppsIsAliveMessage(message);
 						break;
 				}
@@ -31,10 +38,13 @@ public class BbbAppsIsKeepAliveHandler {
 	}
 	
 	private void processBbbAppsIsAliveMessage(String json) {
-		BbbAppsIsAliveMessage msg = BbbAppsIsAliveMessage.fromJson(json);
-
+		IBigBlueButtonMessage msg = decoder.decodeMessage(json);
+		
 		if (msg != null) {
-			monitorService.handleKeepAliveMessage(msg.startedOn, msg.timestamp);
-		}		
+			PubSubPongMessage m = (PubSubPongMessage) msg;
+			monitorService.handleKeepAliveMessage(m.payload.system, m.payload.timestamp);
+		} else {
+			System.out.println("***** 1 Failed to decode pong message");
+		}
 	}
 }
