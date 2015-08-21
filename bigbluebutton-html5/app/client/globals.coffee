@@ -178,6 +178,12 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 Handlebars.registerHelper "getPollQuestions", ->
   polls = BBB.getCurrentPoll(getInSession('userId'))
   if polls? and polls isnt undefined
+    number = polls.poll_info.poll.answers.length
+    widthStyle = "width: calc(75%/" + number + ");"
+    marginStyle = "margin-left: calc(25%/" + (number*2) + ");" + "margin-right: calc(23%/" + (number*2) + ");"
+    buttonStyle = widthStyle + marginStyle
+    for answer in polls.poll_info.poll.answers
+      answer.style = buttonStyle
     return polls.poll_info.poll.answers
 
 @getSortedUserList = (users) ->
