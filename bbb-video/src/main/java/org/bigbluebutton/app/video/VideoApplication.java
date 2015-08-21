@@ -64,6 +64,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private long relayTimeout;
 
 	private final Map<String, H263Converter> h263Converters = new HashMap<String, H263Converter>();
+	private final Map<String, String> h263Users = new HashMap<String, String>();
 
 	private final Map<String, VideoRotator> videoRotators = new HashMap<String, VideoRotator>();
 
@@ -149,6 +150,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String connId = Red5.getConnectionLocal().getSessionId();
+		String userId = getUserId();
 		
 		Map<String, Object> logData = new HashMap<String, Object>();
 		logData.put("meetingId", getMeetingId());
@@ -163,6 +165,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		
 		log.info("User leaving bbb-video: data={}", logStr);
 		
+		clearH263UserVideo(userId);
 		super.appDisconnect(conn);
 	}
 
@@ -267,6 +270,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
       if(h263Converters.containsKey(streamName)) {
         // Stop converter
         h263Converters.remove(streamName).stopConverter();
+        clearH263Users(streamName);
       }
 
       if(videoRotators.containsKey(streamName)) {
@@ -313,17 +317,22 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
 
 		if(isH263Stream(stream)) {
-			log.trace("Detected H263 stream request [{}]", streamName);
+			log.debug("Detected H263 stream request [{}]", streamName);
 
 			synchronized (h263Converters) {
 				// Check if a new stream converter is necessary
+				H263Converter converter;
 				if(!h263Converters.containsKey(streamName)) {
-					H263Converter converter = new H263Converter(streamName);
+					converter = new H263Converter(streamName);
 					h263Converters.put(streamName, converter);
 				}
 				else {
-					H263Converter converter = h263Converters.get(streamName);
+					converter = h263Converters.get(streamName);
+				}
+
+				if(!isH263UserListening(getUserId())){
 					converter.addListener();
+					addH263User(getUserId(),streamName);
 				}
 			}
 		}
@@ -362,13 +371,19 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public void streamSubscriberClose(ISubscriberStream stream) {
 		String streamName = stream.getBroadcastStreamPublishName();
 		streamName = streamName.replaceAll(H263Converter.H263PREFIX, "");
+		String userId = getUserId();
 
 		if(isH263Stream(stream)) {
+			log.debug("Detected H263 stream close [{}]", streamName);
+
 			synchronized (h263Converters) {
 				// Remove prefix
 				if(h263Converters.containsKey(streamName)) {
 					H263Converter converter = h263Converters.get(streamName);
-					converter.removeListener();
+					if (isH263UserListening(userId)){
+						converter.removeListener();
+						removeH263User(userId);
+					}
 				}
 				else {
 					log.warn("Converter not found for H263 stream [{}]", streamName);
@@ -423,4 +438,43 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 			}
 		}
 	}
+
+    private void removeH263User(String userId){
+        if (h263Users.containsKey(userId)){
+            log.debug("REMOVE |Removing h263 user from h263User's list [uid={}]",userId);
+            h263Users.remove(userId);
+        }
+    }
+
+    private void addH263User(String userId, String streamName){
+        log.debug("ADD |Add h263 user to h263User's list [uid={} streamName={}]",userId,streamName);
+        h263Users.put(userId,streamName);
+    }
+
+    private void clearH263UserVideo(String userId) {
+        /*
+         * If this is an h263User, clear it's video.
+         * */
+        synchronized (h263Converters){
+            if (h263Users.containsKey(userId)){
+                String streamName = h263Users.get(userId);
+                H263Converter converter = h263Converters.get(streamName);
+                converter.removeListener();
+                removeH263User(userId);
+                log.debug("h263's user data cleared.");
+            }
+        }
+    }
+
+    private void clearH263Users(String streamName) {
+        /*
+         * Remove all the users associated with the streamName
+         * */
+        while( h263Users.values().remove(streamName) );
+    }
+
+    private boolean isH263UserListening(String userId) {
+        return (h263Users.containsKey(userId));
+    }
+
 }

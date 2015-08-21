@@ -2,6 +2,7 @@ package org.bigbluebutton.app.video.converter;
 
 import org.bigbluebutton.app.video.ffmpeg.FFmpegCommand;
 import org.bigbluebutton.app.video.ffmpeg.ProcessMonitor;
+import org.bigbluebutton.app.video.ffmpeg.ProcessMonitorObserver;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
@@ -15,7 +16,7 @@ import org.slf4j.Logger;
  * Converted streams are published in the same scope as the original ones,
  * with 'h263/' appended in the beginning.
  */
-public class H263Converter {
+public class H263Converter implements ProcessMonitorObserver{
 
 	private static Logger log = Red5LoggerFactory.getLogger(H263Converter.class, "video");
 
@@ -50,10 +51,9 @@ public class H263Converter {
 		ffmpeg.setCodec("flv1"); // Sorensen H263
 		ffmpeg.setFormat("flv");
 		ffmpeg.setOutput(output);
-		ffmpeg.setLoglevel("warning");
+		ffmpeg.setLoglevel("quiet");
 		ffmpeg.setAnalyzeDuration("10000"); // 10ms
 
-		this.addListener();
 	}
 
 	/**
@@ -61,7 +61,8 @@ public class H263Converter {
 	 */
 	private void startConverter() {
 		String[] command = ffmpeg.getFFmpegCommand(true);
-		processMonitor = new ProcessMonitor(command);
+		processMonitor = new ProcessMonitor(command,"FFMPEG");
+		processMonitor.setProcessMonitorObserver(this);
 		processMonitor.start();
 	}
 
@@ -71,7 +72,7 @@ public class H263Converter {
 	 */
 	public synchronized void addListener() {
 		this.numListeners++;
-		log.trace("Adding listener to [{}] ; [{}] current listeners ", origin, this.numListeners);
+		log.debug("Adding listener to [{}] ; [{}] current listeners ", origin, this.numListeners);
 
 		if(this.numListeners.equals(1)) {
 			log.debug("First listener just joined, must start H263Converter for [{}]", origin);
@@ -85,7 +86,7 @@ public class H263Converter {
 	 */
 	public synchronized void removeListener() {
 		this.numListeners--;
-		log.trace("Removing listener from [{}] ; [{}] current listeners ", origin, this.numListeners);
+		log.debug("Removing listener from [{}] ; [{}] current listeners ", origin, this.numListeners);
 
 		if(this.numListeners <= 0) {
 			log.debug("No more listeners, may close H263Converter for [{}]", origin);
@@ -100,8 +101,25 @@ public class H263Converter {
 	public synchronized void stopConverter() {
 		this.numListeners = 0;
 		if(processMonitor != null) {
-			processMonitor.destroy();
+			processMonitor.forceDestroy();
 			processMonitor = null;
 		}
 	}
+
+    private synchronized void clearConverterData(){
+        if(processMonitor!=null){
+            log.debug("Clearing process monitor's data.");
+            this.numListeners = 0;
+            processMonitor=null;
+        }
+    }
+
+    @Override
+    public void handleProcessFinishedUnsuccessfully(String processName, String processOutput){}
+
+    @Override
+    public void handleProcessFinishedWithSuccess(String processName, String processOutput){
+        log.debug("{} finished successfully [output={}]. ",processName,processOutput);
+        //clearConverterData();
+    }
 }

@@ -94,7 +94,7 @@ public class VideoRotator {
 		log.debug("Spawn FFMpeg to rotate [{}] stream [{}]", direction.name(), streamName);
 		String[] command = ffmpeg.getFFmpegCommand(true);
 		if (processMonitor == null) {
-			processMonitor = new ProcessMonitor(command);
+			processMonitor = new ProcessMonitor(command,"FFMPEG");
 		}
 		processMonitor.start();
 	}
