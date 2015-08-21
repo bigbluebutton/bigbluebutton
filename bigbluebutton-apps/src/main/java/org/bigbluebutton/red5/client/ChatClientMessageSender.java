@@ -72,8 +72,6 @@ public class ChatClientMessageSender {
 		messageInfo.put(ChatKeyUtil.FROM_COLOR, msg.messageInfo.get(ChatKeyUtil.FROM_COLOR));
 		messageInfo.put(ChatKeyUtil.MESSAGE, msg.messageInfo.get(ChatKeyUtil.MESSAGE));
 
-		System.out.println("RedisPubSubMessageHandler - processSendPublicChatMessage \n" +messageInfo.toString()+ "\n");
-
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "ChatReceivePublicMessageCommand", messageInfo);
 		service.sendMessage(m);
 	}
@@ -90,8 +88,6 @@ public class ChatClientMessageSender {
 		messageInfo.put(ChatKeyUtil.FROM_COLOR, msg.messageInfo.get(ChatKeyUtil.FROM_COLOR));
 		messageInfo.put(ChatKeyUtil.MESSAGE, msg.messageInfo.get(ChatKeyUtil.MESSAGE));
 
-		System.out.println("RedisPubSubMessageHandler - processSendPrivateChatMessage \n" +messageInfo.toString()+ "\n");
-
 		String toUserId = msg.messageInfo.get(ChatKeyUtil.TO_USERID);
 		DirectClientMessage receiver = new DirectClientMessage(msg.meetingId, toUserId, "ChatReceivePrivateMessageCommand", messageInfo);
 		service.sendMessage(receiver);
@@ -102,8 +98,6 @@ public class ChatClientMessageSender {
 
 	private void processGetChatHistoryReply(GetChatHistoryReplyMessage gch) {
 
-		System.out.println("RedisPubSubMessageHandler - processGetChatHistory \n" +gch.toString()+ "\n");
-
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("meetingId", gch.meetingId);
 		args.put("requester_id", gch.requesterId);
@@ -112,10 +106,6 @@ public class ChatClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args.get("chat_history")));
-
-		System.out.println("*************************************************************************************\n");
-		System.out.println("RedisPubSubMessageHandler - processGetChatHistoryReply \n" + gson.toJson(args) + "\n");
-		System.out.println("*************************************************************************************\n");
 
 		DirectClientMessage m = new DirectClientMessage(gch.meetingId, gch.requesterId, "ChatRequestMessageHistoryReply", message);
 		service.sendMessage(m);

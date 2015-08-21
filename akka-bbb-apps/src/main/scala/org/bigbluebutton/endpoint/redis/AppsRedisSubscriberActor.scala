@@ -9,6 +9,7 @@ import akka.actor.ActorRef
 import akka.actor.actorRef2Scala
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.pubsub.receivers.RedisMessageReceiver
+import redis.api.servers.ClientSetname
 
 object AppsRedisSubscriberActor extends SystemConfiguration {
 
@@ -27,6 +28,10 @@ class AppsRedisSubscriberActor(msgReceiver: RedisMessageReceiver, redisHost: Str
     extends RedisSubscriberActor(
       new InetSocketAddress(redisHost, redisPort),
       channels, patterns) {
+
+  // Set the name of this client to be able to distinguish when doing
+  // CLIENT LIST on redis-cli
+  write(ClientSetname("BbbAppsAkkaSub").encodedRequest)
 
   def onMessage(message: Message) {
     log.error(s"SHOULD NOT BE RECEIVING: $message")

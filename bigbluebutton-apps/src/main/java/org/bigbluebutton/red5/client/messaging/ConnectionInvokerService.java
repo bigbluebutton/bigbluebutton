@@ -157,7 +157,6 @@ public class ConnectionInvokerService {
 			if (meetingScope.hasChildScope(ScopeType.SHARED_OBJECT, msg.getSharedObjectName())) {
 				ISharedObject so = getSharedObject(meetingScope, msg.getSharedObjectName());
 				if (so != null) {
-					System.out.println("*********** Sending [" + msg.getMessageName() + "] using shared object.");
 					so.sendMessage(msg.getMessageName(), msg.getMessage());
 				} else {
 					System.out.println("**** Cannot get SO for [" + msg.getSharedObjectName() + "]");
@@ -180,8 +179,6 @@ public class ConnectionInvokerService {
 					IConnection conn = getConnection(meetingScope, sessionId);
 					if (conn != null) {
 						if (conn.isConnected()) {
-						  log.debug("Sending message=[" + msg.getMessageName() + "] to [" + sessionId 
-						      + "] session on meeting=[" + msg.getMeetingID() + "]");
 							List<Object> params = new ArrayList<Object>();
 							params.add(msg.getMessageName());
 							params.add(msg.getMessage());

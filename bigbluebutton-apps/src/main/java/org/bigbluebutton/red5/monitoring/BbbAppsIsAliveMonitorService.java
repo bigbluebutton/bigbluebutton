@@ -7,10 +7,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.bigbluebutton.common.messages.MessageHeader;
+import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.PubSubPingMessage;
+import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DisconnectAllMessage;
+import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class BbbAppsIsAliveMonitorService {
 	private static Logger log = LoggerFactory.getLogger(BbbAppsIsAliveMonitorService.class);
@@ -27,6 +34,14 @@ public class BbbAppsIsAliveMonitorService {
 	private ConnectionInvokerService service;
 	private Long lastKeepAliveMessage = 0L;
 	
+	private MessageSender sender;
+	
+	private final String SYSTEM_NAME = "BbbAppsRed5";
+	
+	public void setMessageSender(MessageSender sender) {
+		this.sender = sender;
+	}
+	
 	public void setConnectionInvokerService(ConnectionInvokerService s) {
 		this.service = s;
 	}
@@ -41,8 +56,10 @@ public class BbbAppsIsAliveMonitorService {
 		scheduledThreadPool.shutdownNow();
 	}
 	
-	public void handleKeepAliveMessage(Long startedOn, Long timestamp) {
-		queueMessage(new KeepAliveMessage(startedOn, timestamp));
+	public void handleKeepAliveMessage(String system, Long timestamp) {
+		if (system.equals(SYSTEM_NAME)) {
+			queueMessage(new KeepAliveMessage(system, timestamp));
+		}		
 	}
 	
 	private void queueMessage(IKeepAliveMessage msg) {
@@ -85,12 +102,14 @@ public class BbbAppsIsAliveMonitorService {
   }
   
   private void processKeepAliveMessage(KeepAliveMessage msg) {
-	  lastKeepAliveMessage = msg.timestamp;
+	  lastKeepAliveMessage = System.currentTimeMillis();
   }
   
   private void processCheckIsAliveTimer(CheckIsAliveTimer msg) {
-	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 10000)) {
-		  log.warn("BBB Apps is down. Disconnecting all clients.");
+	  Long now = System.currentTimeMillis();
+
+	  if (lastKeepAliveMessage != 0 && (now - lastKeepAliveMessage > 10000)) {
+		  log.error("BBB Apps Red5 pubsub error!");
 		  service.sendMessage(new DisconnectAllMessage());
 	  }
   }
@@ -99,6 +118,20 @@ public class BbbAppsIsAliveMonitorService {
 	    public void run() {
 	     	CheckIsAliveTimer ping = new CheckIsAliveTimer();
 	     	queueMessage(ping);
+	     	
+	     	PubSubPingMessage msg = new PubSubPingMessage();
+	     	MessageHeader header = new MessageHeader();
+	     	header.name = PubSubPingMessage.PUBSUB_PING;
+	     	header.timestamp = System.nanoTime();
+	     	header.replyTo = "BbbRed5";
+	     	header.version = "0.0.1";
+	     	PubSubPingMessagePayload payload = new PubSubPingMessagePayload();
+	     	payload.system = SYSTEM_NAME;
+	     	payload.timestamp = System.currentTimeMillis();
+	     	msg.header = header;
+	     	msg.payload = payload;
+	     	Gson gson = new Gson();
+	     	sender.send(MessagingConstants.TO_SYSTEM_CHANNEL, gson.toJson(msg));
 	    }
 	  }
 }

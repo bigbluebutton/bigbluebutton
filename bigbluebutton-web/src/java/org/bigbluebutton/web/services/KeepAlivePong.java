@@ -2,11 +2,11 @@ package org.bigbluebutton.web.services;
 
 public class KeepAlivePong implements KeepAliveMessage {
 
-	public final Long startedOn;
+	public final String system;
 	public final Long timestamp;
 	
-	public KeepAlivePong(Long startedOn, Long timestamp) {
-		this.startedOn = startedOn;
+	public KeepAlivePong(String system, Long timestamp) {
+		this.system = system;
 		this.timestamp = timestamp;
 	}
 }

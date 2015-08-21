@@ -2,8 +2,10 @@ package org.bigbluebutton.api.messaging;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -13,11 +15,14 @@ public class MessageReceiver {
 	
 	private ReceivedMessageHandler handler;
 	
-	private JedisPool redisPool;
+	private Jedis jedis;
 	private volatile boolean receiveMessage = false;
 	
 	private final Executor msgReceiverExec = Executors.newSingleThreadExecutor();
 	private final Executor runExec = Executors.newSingleThreadExecutor();
+	
+	private String host;
+	private int port;
 	
 	public void stop() {
 		receiveMessage = false;
@@ -27,7 +32,10 @@ public class MessageReceiver {
 		log.info("Ready to receive messages from Redis pubsub.");
 		try {
 			receiveMessage = true;
-			final Jedis jedis = redisPool.getResource();
+			jedis = new Jedis(host, port);
+			// Set the name of this client to be able to distinguish when doing
+			// CLIENT LIST on redis-cli
+			jedis.clientSetname("BbbWebSub");
 			
 			Runnable messageReceiver = new Runnable() {
 			    public void run() {
@@ -42,8 +50,12 @@ public class MessageReceiver {
 		}			
 	}
 	
-	public void setRedisPool(JedisPool redisPool){
-		this.redisPool = redisPool;
+	public void setHost(String host){
+		this.host = host;
+	}
+	
+	public void setPort(int port) {
+		this.port = port;
 	}
 	
 	public void setMessageHandler(ReceivedMessageHandler handler) {

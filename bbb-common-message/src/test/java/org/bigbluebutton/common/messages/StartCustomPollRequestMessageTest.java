@@ -2,6 +2,7 @@ package org.bigbluebutton.common.messages;
 
 import java.util.ArrayList;
 
+import org.bigbluebutton.common.messages.payload.StartCustomPollRequestMessagePayload;
 import org.junit.*;
 
 import com.google.gson.Gson;

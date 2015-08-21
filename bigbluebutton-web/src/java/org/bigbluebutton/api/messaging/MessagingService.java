@@ -36,5 +36,5 @@ public interface MessagingService {
 	boolean removeSubscription(String meetingId, String subscriptionId);
 	List<Map<String,String>> listSubscriptions(String meetingId);
 	void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken);
-	void sendKeepAlive(String keepAliveId);
+	void sendKeepAlive(String system, Long timestamp);
 }
