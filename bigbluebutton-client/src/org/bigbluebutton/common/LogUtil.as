@@ -25,11 +25,13 @@ package org.bigbluebutton.common
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.util.logging.JSNLogTarget;
 	import org.bigbluebutton.util.logging.LogWindowTarget;
+	import org.bigbluebutton.util.logging.ServerLogTarget;
 
 	public class LogUtil
 	{
 		public static const TRACE:String="trace";
 		public static const LOG_WINDOW:String="logwindow";
+		public static const SERVER:String="server";
 		public static const JSNLOG:String="jsnlog";
 
 		private static const DEFAULT_FORMAT:String="{dateUTC} {time} :: {name} :: [{logLevel}] {message}";
@@ -40,7 +42,7 @@ package org.bigbluebutton.common
 		/**
 		 * Initialises logging from the application configuration.
 		 */
-		public static function initLogging(force:Boolean = false):void
+		public static function initLogging(force:Boolean=false):void
 		{
 			var logTarget:IFormattingLogTarget;
 
@@ -68,6 +70,9 @@ package org.bigbluebutton.common
 							break;
 						case LOG_WINDOW:
 							logTarget=new LogWindowTarget();
+							break;
+						case SERVER:
+							logTarget=new ServerLogTarget(String(lxml.@uri));
 							break;
 						case JSNLOG:
 							logTarget=new JSNLogTarget();
