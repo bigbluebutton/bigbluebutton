@@ -19,7 +19,8 @@
 package org.bigbluebutton.common
 {
 	import org.as3commons.logging.api.LOGGER_FACTORY;
-	import org.as3commons.logging.setup.SimpleTargetSetup;
+	import org.as3commons.logging.setup.LevelTargetSetup;
+	import org.as3commons.logging.setup.LogSetupLevel;
 	import org.as3commons.logging.setup.target.IFormattingLogTarget;
 	import org.as3commons.logging.setup.target.TraceTarget;
 	import org.bigbluebutton.core.BBB;
@@ -27,6 +28,19 @@ package org.bigbluebutton.common
 	import org.bigbluebutton.util.logging.LogWindowTarget;
 	import org.bigbluebutton.util.logging.ServerLogTarget;
 
+	/**
+	 * The logging can be configured in config.xml. The <logging> tag can be configured like the following
+	 *
+	 * <logging enabled="true" target="trace" level="info" uri="http://HOST"/>
+	 * - enabled : true or false
+	 * - target  : + trace     : write logs using trace function
+	 *             + logwindow : write logs in LogWindow view
+	 *             + server    : send logs to the server
+	 *             + jsnlog    : uses jsnlog javascript library (experimental)
+	 * - level   : none|fatal_only|fatal|error_only|error|warn_only|warn|info_only|info|debug_only|debug|all
+	 *             for more information about "level" please check the org.as3commons.logging.setup.LogSetupLevel class
+	 * - uri     : HOST will contain the URL of the logging server
+	 */
 	public class LogUtil
 	{
 		public static const TRACE:String="trace";
@@ -37,6 +51,7 @@ package org.bigbluebutton.common
 		private static const DEFAULT_FORMAT:String="{dateUTC} {time} :: {name} :: [{logLevel}] {message}";
 
 		private static var loggingEnabled:Boolean;
+		private static var logLevel:String="info";
 		private static var loggingTargetName:String="trace";
 
 		/**
@@ -53,6 +68,7 @@ package org.bigbluebutton.common
 			else
 			{
 				var lxml:XML=BBB.initConfigManager().config.logging;
+				logLevel=String(lxml.@level).toUpperCase();
 				if (lxml.@enabled != undefined)
 				{
 					loggingEnabled=(lxml.@enabled.toString().toUpperCase() == "TRUE") ? true : false;
@@ -87,7 +103,7 @@ package org.bigbluebutton.common
 			if (logTarget)
 			{
 				logTarget.format=DEFAULT_FORMAT;
-				LOGGER_FACTORY.setup=new SimpleTargetSetup(logTarget);
+				LOGGER_FACTORY.setup=new LevelTargetSetup(logTarget, LogSetupLevel[logLevel.toUpperCase()]);
 			}
 			else
 			{
