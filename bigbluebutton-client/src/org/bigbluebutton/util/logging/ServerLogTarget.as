@@ -18,12 +18,16 @@
  */
 package org.bigbluebutton.util.logging
 {
+	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	import flash.events.TimerEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
-	
+	import flash.utils.Timer;
+
+	import org.as3commons.lang.ArrayUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getLogger;
 	import org.as3commons.logging.setup.target.IFormattingLogTarget;
@@ -43,6 +47,11 @@ package org.bigbluebutton.util.logging
 		/** Formatter used to format the message */
 		private var _formatter:LogMessageFormatter;
 
+		private var _timer:Timer;
+
+		/** A flag to check whether */
+		private var _sending:Boolean;
+
 		// URL Variables
 		private const CLIENT:String="flex3";
 
@@ -56,6 +65,7 @@ package org.bigbluebutton.util.logging
 		public function ServerLogTarget(uri:String)
 		{
 			_serverUri=uri;
+			_queue=[];
 			_variables=new URLVariables();
 		}
 
@@ -81,24 +91,71 @@ package org.bigbluebutton.util.logging
 				_request.data=_variables;
 
 				var loader:URLLoader=new URLLoader();
-				loader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorEventHandler);
+				loader.addEventListener(IOErrorEvent.IO_ERROR, function(event:IOErrorEvent):void
+				{
+					addToQueue(formattedMessage)
+				});
 				loader.load(_request);
 			}
-			else {
+			else
+			{
 				addToQueue(formattedMessage);
 			}
 		}
 
-		public function ioErrorEventHandler(event:IOErrorEvent):void
-		{
-			// @TODO : add to queue and check with time if the connection is back
-		}
-		
 		/**
-		 * Adds a log message to queue list 
+		 * Adds a log message to queue list
 		 */
-		private function addToQueue(message : String) : void {
+		private function addToQueue(message:String):void
+		{
+			// We probably need to use shared object to locally store logs when the network is down
+			if (_queue.length == 0)
+			{
+				_timer=new Timer(200);
+				_timer.addEventListener(TimerEvent.TIMER, timerHandler);
+				_timer.start();
+			}
 			_queue.push(message);
+		}
+
+		private function removeFromQueue(message:String):void
+		{
+			ArrayUtils.removeItem(_queue, message);
+			if (_queue.length == 0)
+			{
+				_timer.stop();
+				_timer.removeEventListener(TimerEvent.TIMER, timerHandler);
+			}
+		}
+
+		private function timerHandler(event:TimerEvent):void
+		{
+			if (!_sending)
+			{
+				_sending=true;
+				_variables.message=_queue[0];
+
+				// We will alwasy recycle the URLRequest instance and use it to send logging HTTP requests
+				if (!_request)
+				{
+					_request=new URLRequest(_serverUri + "/" + CLIENT + "/" + UsersUtil.getInternalMeetingID() + "/" + UsersUtil.getMyUserID());
+					_request.method=URLRequestMethod.POST;
+				}
+				_request.data=_variables;
+
+				var loader:URLLoader=new URLLoader();
+				loader.addEventListener(IOErrorEvent.IO_ERROR, function(event:Event):void
+				{
+					_sending=false;
+					// swallow and wait for the next iteration
+				});
+				loader.addEventListener(Event.COMPLETE, function(event:Event):void
+				{
+					removeFromQueue(_variables.message);
+					_sending=false;
+				});
+				loader.load(_request);
+			}
 		}
 	}
 }
