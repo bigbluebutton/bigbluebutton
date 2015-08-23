@@ -121,11 +121,11 @@ public class KeepAliveService implements MessageListener {
   private void processMessage(final KeepAliveMessage msg) {
   	Runnable task = new Runnable() {
   		public void run() {
-  	  	if (msg instanceof KeepAlivePing) {
-  	  		processPing((KeepAlivePing) msg);
-  	  	} else if (msg instanceof KeepAlivePong) {
-  	  		processPong((KeepAlivePong) msg);
-  	  	}  			
+	  	  	if (msg instanceof KeepAlivePing) {
+	  	  		processPing((KeepAlivePing) msg);
+	  	  	} else if (msg instanceof KeepAlivePong) {
+	  	  		processPong((KeepAlivePong) msg);
+	  	  	}  			
   		}
   	};
   	
