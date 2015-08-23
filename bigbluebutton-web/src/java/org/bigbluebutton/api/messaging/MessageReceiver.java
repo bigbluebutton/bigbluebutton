@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class MessageReceiver {
 	private static Logger log = LoggerFactory.getLogger(MessageReceiver.class);
@@ -40,7 +41,12 @@ public class MessageReceiver {
 			Runnable messageReceiver = new Runnable() {
 			    public void run() {
 			    	if (receiveMessage) {
-			    		jedis.psubscribe(new PubSubListener(), MessagingConstants.FROM_BBB_APPS_PATTERN); 
+			    		try {
+			    			jedis.psubscribe(new PubSubListener(), MessagingConstants.FROM_BBB_APPS_PATTERN);
+			    		} catch(JedisConnectionException ex) {
+			    			log.warn("Exception on Jedis connection. Resubscribing to pubsub.");
+			    			start();
+			    		}			    		 
 			    	}
 			    }
 			};
