@@ -176,7 +176,7 @@
 			}
 			
 			private function changeButtons(presenter:Boolean):void {
-				raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand;
+				raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableEmojiStatus;
 			}
 			
 			/*
