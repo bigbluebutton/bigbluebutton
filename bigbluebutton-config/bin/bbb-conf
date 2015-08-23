@@ -1230,13 +1230,13 @@ check_state() {
         	fi
 	fi
 
-	RED5_PID_TOP=$(ps -u red5 | grep java | cut -d" " -f1)
+	RED5_PID_PS=$(ps -u red5 | grep java | sed 's/^[ ]*//g' | cut -d" " -f1)
 	RED5_PID_FILE=$(cat /var/run/red5.pid)
 
-	if [[ "$RED5_PID_TOP" != "$RED5_PID_FILE" ]]; then
+	if [[ "$RED5_PID_PS" != "$RED5_PID_FILE" ]]; then
 		echo "# Error: red5 process ID does not match value in PID file"
 		echo "#"
-		echo "#         pid from top: $RED5_PID_TOP"
+		echo "#         pid from top: $RED5_PID_PS"
 		echo "#    /var/run/red5.pid: $RED5_PID_FILE"  
 		echo "#"
 	fi
@@ -1631,6 +1631,13 @@ if [ $CLEAN ]; then
 	mv /var/log/syslog /tmp/syslog.$$
 	echo "" > /var/log/syslog
 	chown syslog:adm /var/log/syslog
+
+	if [ -d /var/log/bbb-fsesl-akka ]; then
+		rm -f /var/log/bbb-fsesl-akka/*
+  fi
+	if [ -d /var/log/bbb-apps-akka ]; then
+		rm -f /var/log/bbb-apps-akka/*
+  fi
 
 	display_bigbluebutton_status
 
