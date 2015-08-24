@@ -376,7 +376,14 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function removeAllParticipants():void {
-			users.removeAll();
+			//users.removeAll();
+			//users.refresh();
+			
+			for (var i:int = 0; i < users.length; i++) {
+				users.removeItemAt(i);
+				//sort();
+				users.refresh();
+			}
 		}		
 	
     public function emojiStatus(userId: String, emoji: String):void {

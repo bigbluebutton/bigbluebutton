@@ -132,6 +132,9 @@ trait UsersApp {
       case Some(u) => {
         //        println("Sending mute user request uid=[" + msg.userID + "] mute=[" + msg.mute + "]")
         log.info("Muting user:  mid=[" + mProps.meetingID + "] uid=[" + u.userID + "]")
+        log.info("Mute user request :  mid=[" + mProps.meetingID + "] uid=[" + u.userID + "] role=["
+          + u.role + "] joinedWeb=[" + u.joinedWeb + "] listenOnly=[" + u.listenOnly +
+          "] vid=[" + u.voiceUser.userId + "] extId=[" + u.externUserID + "]")
         outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, msg.requesterID, u.userID, mProps.voiceBridge, u.voiceUser.userId, msg.mute))
       }
       case None => {
@@ -284,7 +287,7 @@ trait UsersApp {
           if (u.voiceUser.joined) {
             u.voiceUser.copy()
           } else {
-            new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false, u.listenOnly)
+            new VoiceUser(u.voiceUser.userId, msg.userID, ru.name, ru.name, false, false, false, false, u.listenOnly)
           }
         }
         case None => {
@@ -392,6 +395,9 @@ trait UsersApp {
             mProps.voiceBridge, vu.userId, meetingModel.isMeetingMuted()))
         }
 
+        log.info("User joined from phone:  mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "] role=["
+          + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + meetingModel.getPermissions().lockOnJoin
+          + "] permissions.lockOnJoinConfigurable=[" + meetingModel.getPermissions().lockOnJoinConfigurable + "]")
       }
     }
   }
@@ -461,6 +467,11 @@ trait UsersApp {
       val nv = user.voiceUser.copy(muted = msg.muted, talking = talking)
       val nu = user.copy(voiceUser = nv)
       usersModel.addUser(nu)
+
+      log.info("user muted :  mid=[" + mProps.meetingID + "] uid=[" + nu.userID + "] role=["
+        + nu.role + "] joinedWeb=[" + nu.joinedWeb + "] listenOnly=[" + nu.listenOnly +
+        "] vid=[" + nu.voiceUser.userId + "] extId=[" + nu.externUserID + "]")
+
       //      println("Received voice muted=[" + msg.muted + "] wid=[" + msg.userId + "]" )
       outGW.send(new UserVoiceMuted(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
     }
