@@ -150,18 +150,46 @@
   height: 80px;
   margin-bottom: 0px;
   overflow: hidden;
-  /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
-  width: 379px;
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    width: 100px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    width: calc(~'100% - 70px');
+  }
+  @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+    width: calc(~'100% - 70px');
+  }
   .displayButtons {
-    height: 35px;
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 35px;
+      width: 35px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 70px;
+      width: 84px;
+    }
+    @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+      height: 35px;
+      width: 84px;
+    }
     margin: 0px;
-    padding:0px;
-    text-align:center;
-    width:84px;
+    padding: 0px;
+    text-align: center;
+    i {
+      @media @phone-portrait-with-keyboard, @phone-portrait {
+        font-size: 16px; // overrides the value from Foundation
+      }
+      @media @tablet-portrait-with-keyboard, @tablet-portrait {
+        font-size: 30px; // overrides the value from Foundation
+      }
+      @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+        font-size: 16px; // overrides the value from Foundation
+      }
+    }
   }
   #displayLabel {
     text-align: center;
-    width: 169px;
+    //width: 169px;
   }
 }
 

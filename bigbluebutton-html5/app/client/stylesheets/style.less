@@ -181,8 +181,6 @@ body {
       color: extract(@white, 1);
       margin-left: auto;
       margin-right: auto;
-      padding-left: 10px;
-      padding-right: 10px;
     }
     @media @phone-portrait-with-keyboard, @phone-portrait {
       height: 50px;
@@ -224,8 +222,15 @@ body {
       @media @landscape, @desktop-portrait {
         left: 51.2px;
       }
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+      @media @phone-portrait, @phone-portrait-with-keyboard {
         left: 50px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        left: 55px;
+        padding-left: 11px;
+        padding-right: 11px;
       }
 
       @media @landscape {
@@ -234,16 +239,26 @@ body {
       @media @desktop-portrait {
         max-width: calc(~'100% - 102.4px'); // leaves room for 2 buttons
       }
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+      @media @phone-portrait, @phone-portrait-with-keyboard {
         width: calc(~'100% - 100px');
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        width: calc(~'100% - 110px');
       }
     }
     &.shiftedTitle {
       @media @landscape, @desktop-portrait {
         left: 102.4px;
       }
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+      @media @phone-portrait, @phone-portrait-with-keyboard {
         left: 100px;
+        padding-left: 10px;
+        padding-right: 60px;
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        left: 110px;
+        padding-left: 11px;
+        padding-right: 66px;
       }
 
       @media @landscape {
@@ -252,8 +267,11 @@ body {
       @media @desktop-portrait {
         max-width: calc(~'100% - 153.6px'); // leaves for 3 buttons
       }
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+      @media @phone-portrait, @phone-portrait-with-keyboard {
         width: calc(~'100% - 150px');
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        width: calc(~'100% - 165px');
       }
     }
   }
@@ -528,9 +546,13 @@ body {
   @media @landscape, @desktop-portrait {
     left: 51.2px;
   }
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    left: 10%;
-    width: 10%;
+  @media @phone-portrait, @phone-portrait-with-keyboard {
+    left: 50px;
+    width: 50px;
+  }
+  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+    left: 55px;
+    width: 55px;
   }
   .muteIcon:hover {
     color: #2A5E7C;

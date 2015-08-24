@@ -6,18 +6,57 @@
   p {
     margin-bottom: 0px;
   }
-  @media @desktop-portrait, @landscape {
+  @media @desktop-portrait, @desktop-landscape {
     min-width: 430px;
     top: 20% !important;
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    width: 90%;
-    height: 50%;
+  @media @phone-landscape {
+    left: 25px;
+    top: 25px;
+    width: calc(~'100% - 50px');
+    min-height: 0; // overrides the value from Foundation
+    height: calc(~'100% - 50px');
   }
+  @media @tablet-landscape {
+    top: 50px;
+    width: 600px;
+    min-height: 0; // overrides the value from Foundation
+    height: calc(~'100% - 100px');
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    left: 25px;
+    top: 50px;
+    width: calc(~'100% - 50px');
+    min-height: 0; // overrides the value from Foundation
+    height: calc(~'100% - 100px');
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    left: 50px;
+    top: 100px;
+    width: calc(~'100% - 100px');
+    min-height: 0; // overrides the value from Foundation
+    height: calc(~'100% - 200px');
+  }
+
   .bar {
     padding: 10px;
   }
   .topBar {
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 50px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 55px;
+    }
+    @media @phone-landscape {
+      height: 50px;
+    }
+    @media @tablet-landscape {
+      height: 50px;
+    }
+    @media @desktop-landscape, @desktop-portrait {
+      height: 55px;
+    }
     border-bottom: 1px solid grey;
     p:first-child {
       text-align: center;
@@ -26,12 +65,26 @@
       float: right;
       text-align: right;
       .closeSettings {
-        @media @desktop-portrait, @landscape {
+        @media @desktop-portrait, @desktop-landscape {
           margin-top: 10px;
           font-size: 30px;
         }
-        @media @mobile-portrait-with-keyboard, @mobile-portrait {
-          font-size: 450%;
+        @media @phone-landscape {
+          font-size: 30px;
+        }
+        @media @tablet-landscape {
+          font-size: 33px;
+          right: 15px;
+        }
+        @media @phone-portrait-with-keyboard, @phone-portrait {
+          font-size: 45px;
+          top: 2px;
+          right: 10px;
+        }
+        @media @tablet-portrait-with-keyboard, @tablet-portrait {
+          font-size: 350%;
+          top: 0;
+          right: 20px;
         }
       }
     }
@@ -39,15 +92,39 @@
   .bottomBar {
     border-top: 1px solid grey;
     text-align: right;
-    @media @desktop-portrait, @landscape {
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 50px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 55px;
+    }
+    @media @phone-landscape {
+      height: 50px;
+    }
+    @media @tablet-landscape {
+      height: 50px;
+    }
+    @media @desktop-portrait, @desktop-landscape {
       height: 69px;
     }
     .closeSettings {
-      @media @desktop-portrait, @landscape {
+      @media @desktop-portrait, @desktop-landscape {
         font-size: 16px;
       }
-      @media @mobile-portrait-with-keyboard, @mobile-portrait {
-        font-size: 250%;
+      @media @phone-landscape {
+        font-size: 16px;
+      }
+      @media @tablet-landscape {
+        font-size: 20px;
+        margin-right: 5px;
+      }
+      @media @phone-portrait-with-keyboard, @phone-portrait {
+        font-size: 25px;
+        margin-right: 5px; // margin between the Cancel and Save buttons
+      }
+      @media @tablet-portrait-with-keyboard, @tablet-portrait {
+        font-size: 30px;
+        margin-right: 10px; // margin between the Cancel and Save buttons
       }
       position: inherit;
     }
@@ -56,26 +133,78 @@
   .settingsBody {
     padding: 10px;
     text-align: center;
-    @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      font-size: 200%;
-      height: 70%;
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 15px;
+      height: calc(~'100% - 100px');
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 27px;
+      height: calc(~'100% - 110px');
+    }
+    @media @phone-landscape {
+      font-size: 15px;
+      height: calc(~'100% - 100px');
+    }
+    @media @tablet-landscape {
+      font-size: 20px;
+      height: calc(~'100% - 100px');
     }
   }
   .modalTitle {
     font-style: bold;
-    font-size: 30px;
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 20px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 25px;
+    }
+    @media @phone-landscape {
+      font-size: 20px;
+    }
+    @media @tablet-landscape {
+      font-size: 25px;
+    }
+    @media @desktop-landscape, @desktop-portrait {
+      font-size: 30px;
+    }
   }
   .joinAudioButton {
-    width: 80px;
-    height: 70px;
-    margin-left: 5px;
-    margin-right: 5px;
-    margin-bottom: 5px;
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      width: 80px;
+      height: 70px;
+      margin-left: 5px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      width: 80px;
+      height: 70px;
+      margin-left: 5px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+    @media @phone-landscape {
+      height: 30px;
+      width: 30px;
+      margin-bottom: 5px;
+    }
+    @media @tablet-landscape {
+      height: 50px;
+      width: 50px;
+      margin-bottom: 5px;
+    }
+    @media @desktop-portrait, @desktop-landscape {
+      width: 80px;
+      height: 70px;
+      margin-left: 5px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
   }
 }
 .desktopSettingsFieldset {
   margin: auto;
-  width: 400px;
+  width: calc(~'100% - 50px');
   padding: 0px;
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 30%;
@@ -84,19 +213,52 @@
       height: 80%;
     }
   }
+  .settingsButton {
+    i {
+      @media @phone-landscape {
+        font-size: 15px;
+      }
+      @media @tablet-landscape {
+        font-size: 27px;
+      }
+      @media @phone-portrait-with-keyboard, @phone-portrait {
+        font-size: 27px;
+      }
+      @media @tablet-portrait-with-keyboard, @tablet-portrait {
+        font-size: 35px;
+      }
+    }
+  }
 }
 #saveSettings {
   border-radius: 3px;
   padding: 5px 10px 5px 10px;
 
-  @media @desktop-portrait, @landscape {
+  @media @desktop-portrait, @desktop-landscape {
     margin-top: 5px;
     font-size: 16px;
     width: 80px;
     height: 35px;
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    font-size: 250%;
+  @media @phone-landscape {
+    font-size: 25px;
+    margin-bottom: 0px; // overrides the value from Foundation
+    bottom: 5px;
+  }
+  @media @tablet-landscape {
+    font-size: 25px;
+    margin-bottom: 0px; // overrides the value from Foundation
+    bottom: 5px;
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    font-size: 25px;
+    margin-bottom: 0px; // overrides the value from Foundation
+    bottom: 5px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    font-size: 30px;
+    margin-bottom: 0px; // overrides the value from Foundation
+    bottom: 5px;
   }
 }
 
