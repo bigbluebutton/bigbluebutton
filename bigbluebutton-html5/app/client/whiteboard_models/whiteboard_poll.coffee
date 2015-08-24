@@ -32,7 +32,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     textArray = []
 
     #creating an array of text objects for the labels, percentages and number inside line bars
-    if startingData.result? and startingData.result.length > 1
+    if startingData.result?
       #counting the total number of votes and finding the biggest number of votes
       for i in [0..startingData.result.length-1]
         votesTotal += startingData.result[i].num_votes
