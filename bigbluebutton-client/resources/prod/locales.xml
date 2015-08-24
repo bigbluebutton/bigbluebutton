@@ -49,5 +49,5 @@
 	<locale code="tr_TR" name="Turkish"/>
 	<locale code="uk_UA" name="Ukrainian"/>
 	<locale code="vi_VN" name="Vietnamese"/>
-        <locale code="cy_GB" name="Welsh"/>
+	<locale code="cy_GB" name="Welsh"/>
 </locales>
