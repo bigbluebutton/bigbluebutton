@@ -27,18 +27,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 
-    <bean id="redisStorageService" class="org.bigbluebutton.api.messaging.RedisStorageService">
-      <property name="redisPool"> <ref bean="redisPool"/></property>
+    <bean id="redisStorageService" class="org.bigbluebutton.api.messaging.RedisStorageService"
+                    init-method="start" destroy-method="stop">
+      <property name="host" value="${redisHost}" />
+      <property name="port" value="${redisPort}" />
     </bean>
     	
     <bean id="messageSender" class="org.bigbluebutton.api.messaging.MessageSender" 
                     init-method="start" destroy-method="stop">
-    	<property name="redisPool"> <ref bean="redisPool"/></property>
+      <property name="host" value="${redisHost}" />
+      <property name="port" value="${redisPort}" />
   	</bean>
 
     <bean id="redisMessageReceiver" class="org.bigbluebutton.api.messaging.MessageReceiver" 
                     init-method="start" destroy-method="stop">
-    	<property name="redisPool"> <ref bean="redisPool"/></property>
+       <property name="host" value="${redisHost}" />
+       <property name="port" value="${redisPort}" />
     	<property name="messageHandler"> <ref local="redisMessageHandler"/> </property>
   	</bean>
 

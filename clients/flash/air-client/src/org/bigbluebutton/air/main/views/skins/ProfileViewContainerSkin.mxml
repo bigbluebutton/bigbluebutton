@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- containers\spark\mySkins\MyBorderSkin.mxml -->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:s="library://ns.adobe.com/flex/spark">
+
+	<fx:Metadata>
+		[HostComponent("spark.components.SkinnableContainer")]
+	</fx:Metadata>
+
+	<!-- Define the skin states. -->
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="disabled" />
+	</s:states>
+
+	<!-- Define a Rect to fill the area of the skin. -->
+	<s:Rect radiusX="{getStyle('radiusX')}"
+			radiusY="{getStyle('radiusY')}"
+			height="100%"
+			width="100%">
+		<s:stroke>
+			<s:LinearGradientStroke weight="{getStyle('weight')}" />
+		</s:stroke>
+		<s:fill>
+			<s:LinearGradient>
+				<s:entries>
+					<mx:GradientEntry color="{getStyle('fillColor')}" />
+				</s:entries>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+
+	<!-- Define the content area of the container. -->
+	<s:Group id="contentGroup"
+			 left="0"
+			 right="0"
+			 top="{getStyle('top')}"
+			 bottom="{getStyle('bottom')}">
+		<s:layout>
+			<s:VerticalLayout />
+		</s:layout>
+	</s:Group>
+</s:Skin>

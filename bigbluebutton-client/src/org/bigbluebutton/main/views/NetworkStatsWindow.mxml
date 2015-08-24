@@ -33,19 +33,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
-
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.utils.Timer;
-
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.model.NetworkStatsData;
-		
+			
 			import mx.effects.Fade;
 			import mx.events.EffectEvent;
 			import mx.formatters.NumberFormatter;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.main.model.NetworkStatsData;
+
+			private static const LOGGER:ILogger = getClassLogger(NetworkStatsWindow);      
 
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			private var _updateTimer:Timer = new Timer(1000);
@@ -82,7 +85,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onResize():void {
-				LogUtil.debug("width=" + width + " height=" + height);
+				LOGGER.debug("width={0} height={1}", [width, height]);
 			}
 			
 			public function appear():void {

@@ -23,7 +23,7 @@
 				num: slideObject.num
 				x_offset: slideObject.x_offset
 				current: slideObject.current
-				png_uri: slideObject.png_uri
+				img_uri: if slideObject.svg_uri isnt undefined then slideObject.svg_uri else slideObject.png_uri
 				txt_uri: slideObject.txt_uri
 				id: slideObject.id
 				width_ratio: slideObject.width_ratio

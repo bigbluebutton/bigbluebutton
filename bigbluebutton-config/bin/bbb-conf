@@ -49,6 +49,7 @@
 #   2014-01-13 FFD  Working on updates for 0.9.0 
 #   2014-03-10 GUG  Enable Webrtc
 #   2015-03-12 FFD  Added start/stop of HTML5 server
+#   2014-01-13 FFD  Working on updates for 1.0.0
 
 #set -x
 #set -e
@@ -77,6 +78,23 @@ if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
 	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
 	exit 1
+fi
+
+if [ ! -f /var/www/bigbluebutton/client/conf/config.xml ]; then
+	echo "#"
+	echo "# BigBlueButton does not appear to be installed.  Could not"
+	echo "# locate:"
+	echo "#"
+	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+	exit 1
+fi
+
+if cat /var/www/bigbluebutton/client/conf/config.xml | grep "ChatModule" | grep -q https; then
+	PROTOCOL_HTTP=https
+	PROTOCOL_RTMP=rtmps
+else
+	PROTOCOL_HTTP=http
+	PROTOCOL_RTMP=rtmp
 fi
 
 #
@@ -255,6 +273,12 @@ stop_bigbluebutton () {
 		/etc/init.d/bbb-record-core stop
 	fi
 
+	if [ -f /etc/init/bbb-apps-akka.conf ]; then
+        	service bbb-apps-akka stop
+	fi
+	if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
+        	service bbb-fsesl-akka stop
+	fi
 }
 
 start_bigbluebutton () {
@@ -296,13 +320,19 @@ start_bigbluebutton () {
 		fi
         fi
 
+	if [ -f /etc/init/bbb-apps-akka.conf ]; then
+        	service bbb-apps-akka start
+	fi
+	if [ -f /etc/init/bbb-fsesl-akka.conf ]; then
+        	service bbb-fsesl-akka start
+	fi
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
 	#
 	echo -n "Waiting for BigBlueButton to finish starting up (this may take a minute): "
 
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
         if ! nc -z -w 1 127.0.0.1 9123; then
@@ -700,7 +730,7 @@ check_configuration() {
 	#
 	# Check if the IP resolves to a different host
 	#
- 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+ 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
  	
 	HOSTS=$(which host)
@@ -742,7 +772,7 @@ check_configuration() {
 	fi
 
 	BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
 		WEBHOOKS_SALT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
@@ -776,6 +806,17 @@ check_configuration() {
 			echo 
 		fi
 	fi
+
+        libreoffice_version=`dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g'`
+
+        if [[ "$libreoffice_version" > 1.0 ]]; then
+            if [[ "$libreoffice_version" < 4.4 ]]; then
+                echo "# Warning: Detected your running an older version of LibreOffice: $libreoffice_version"
+                echo "#"
+                echo "# Recommend updated to the latest version of LibreOffice 4.x (4.4 or later)"
+                echo
+            fi
+        fi
 
 }
 
@@ -1146,7 +1187,7 @@ check_state() {
 	fi
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-		CHECK_HOST=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		CHECK_HOST=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
 		echo "# Warning: The client self check is installed and accessible from:"
 		echo "#"
 		echo "#    http://$CHECK_HOST/check"
@@ -1189,6 +1230,17 @@ check_state() {
         	fi
 	fi
 
+	RED5_PID_PS=$(ps -u red5 | grep java | sed 's/^[ ]*//g' | cut -d" " -f1)
+	RED5_PID_FILE=$(cat /var/run/red5.pid)
+
+	if [[ "$RED5_PID_PS" != "$RED5_PID_FILE" ]]; then
+		echo "# Error: red5 process ID does not match value in PID file"
+		echo "#"
+		echo "#         pid from top: $RED5_PID_PS"
+		echo "#    /var/run/red5.pid: $RED5_PID_FILE"  
+		echo "#"
+	fi
+
 	exit 0
 }
 
@@ -1221,7 +1273,7 @@ if [ $CHECK ]; then
 	PORT_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
 	echo "  		Port test (tunnel): $PORT_IP"
 
-	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
+	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*:\/\///;s/\/.*//;p}')
 	WEBRTC_ENABLED_CLIENT=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                              Red5: $RED5_IP"
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
@@ -1233,12 +1285,9 @@ if [ $CHECK ]; then
 	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
 
-#        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
-#        echo "          host for bbb-web interface: $HOST"
-
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1 | cut -d' ' -f1)
 	echo "                       server name: $NGINX_IP"
 
 	PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
@@ -1267,7 +1316,7 @@ if [ $CHECK ]; then
 	fi
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
 		echo
 		echo "/var/www/bigbluebutton/check/conf/config.xml (client check)"
 		echo "                      client check: $CHECK_URL"
@@ -1439,7 +1488,7 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/rtmp:\/\/\([^\"\/]*\)\([\"\/]\)/rtmp:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+	sudo sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
 	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
@@ -1448,15 +1497,17 @@ if [ -n "$HOST" ]; then
 	# Update configuration for BigBlueButton client
 	#
 	echo "Assigning $HOST for http:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/http:\/\/\([^\"\/]*\)\([\"\/]\)/http:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+	sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
 
+        echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
+        sudo sed -i "s/publishURI=\"[^\"]*\"/publishURI=\"$HOST\"/" /var/www/bigbluebutton/client/conf/config.xml
 
 	#
 	# Update configuration for BigBlueButton web app
 	#
 	echo "Assigning $HOST for web application URL in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
 
-	sudo sed -i "s/bigbluebutton.web.serverURL=http:\/\/.*/bigbluebutton.web.serverURL=http:\/\/$HOST/g" \
+	sudo sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
     # 3 paramenter: the file, the variable name, the new value
@@ -1475,7 +1526,7 @@ if [ -n "$HOST" ]; then
 
 	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
 		echo "Assigning $HOST for api demos in ${SERVLET_DIR}/demo/bbb_api_conf.jsp"
-		sudo sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
+		sudo sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
 			${SERVLET_DIR}/demo/bbb_api_conf.jsp
 	fi
 	
@@ -1514,7 +1565,7 @@ if [ -n "$HOST" ]; then
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
 		echo "Assigning $HOST for client self check to /var/www/bigbluebutton/check/conf/config.xml"
-		sed -i "s/rtmp:\/\/\([^\"\/]*\)\//rtmp:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
+		sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\//$PROTOCOL_RTMP:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
 		sed -i "s/rtmpt:\/\/\([^\"\/]*\)\//rtmpt:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
 	fi
 
@@ -1580,6 +1631,13 @@ if [ $CLEAN ]; then
 	mv /var/log/syslog /tmp/syslog.$$
 	echo "" > /var/log/syslog
 	chown syslog:adm /var/log/syslog
+
+	if [ -d /var/log/bbb-fsesl-akka ]; then
+		rm -f /var/log/bbb-fsesl-akka/*
+  fi
+	if [ -d /var/log/bbb-apps-akka ]; then
+		rm -f /var/log/bbb-apps-akka/*
+  fi
 
 	display_bigbluebutton_status
 

@@ -1,9 +1,12 @@
 package org.bigbluebutton.modules.present.model
 {
   import mx.collections.ArrayCollection;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
 
   public class Presentation {  
-    private static const LOG:String = "Present::Presentation - ";
+	private static const LOGGER:ILogger = getClassLogger(Presentation);      
     
     private var _id:String;
     private var _name:String;
@@ -37,12 +40,12 @@ package org.bigbluebutton.modules.present.model
     public function getCurrentPage():Page {
       for (var i: int = 0; i < _pages.length; i++) {
         var p: Page = _pages.getItemAt(i) as Page;
-        trace(LOG + "Is page [" + p.num + "] current [" + p.current + "]?");
+        LOGGER.debug("Is page [{0}] current [{1}]?", [p.num, p.current]);
         if (p.current) {
           return p;
         }
       }  
-      trace(LOG + "Could not find current page.");
+      LOGGER.debug("Could not find current page.");
       return null;
     }
     

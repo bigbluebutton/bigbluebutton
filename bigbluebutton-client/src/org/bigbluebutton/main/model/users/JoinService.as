@@ -20,28 +20,27 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.*;
+	import flash.events.Event;
+	import flash.events.HTTPStatusEvent;
+	import flash.events.IOErrorEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
-	import flash.net.navigateToURL;
-	import mx.collections.ArrayCollection;	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.model.Me;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.model.MeBuilder;
 	import org.bigbluebutton.core.model.MeetingBuilder;
 	import org.bigbluebutton.core.model.MeetingModel;
-	import org.bigbluebutton.core.model.StunOption;
-	import org.bigbluebutton.core.model.users.User;
 	import org.bigbluebutton.core.model.users.UsersModel;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
         	
 	public class JoinService
 	{  
-    private static const LOG:String = "Users::JoinService - ";
+		private static const LOGGER:ILogger = getClassLogger(JoinService);      
     
 		private var request:URLRequest = new URLRequest();
 		private var vars:URLVariables = new URLVariables();
@@ -56,7 +55,7 @@ package org.bigbluebutton.main.model.users
 		public function load(url:String):void {
 			var date:Date = new Date();
 //			url += "?a=" + date.time
-			LogUtil.debug("JoinService:load(...) " + url);
+			LOGGER.debug("JoinService:load(...) {0}", [url]);
       request = new URLRequest(url);
       request.method = URLRequestMethod.GET;		
             
@@ -71,11 +70,11 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function httpStatusHandler(event:HTTPStatusEvent):void {
-			LogUtil.debug("httpStatusHandler: " + event);
+			LOGGER.debug("httpStatusHandler: {0}", [event]);
 		}
 
 		private function ioErrorHandler(event:IOErrorEvent):void {
-			trace("ioErrorHandler: " + event);
+			LOGGER.error("ioErrorHandler: {0}", [event]);
 			var e:ConnectionFailedEvent = new ConnectionFailedEvent(ConnectionFailedEvent.USER_LOGGED_OUT);
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(e);
@@ -83,15 +82,15 @@ package org.bigbluebutton.main.model.users
 		
 		private function handleComplete(e:Event):void {			
       var result:Object = JSON.parse(e.target.data);
-      trace(LOG + "Enter response = " + JSON.stringify(result));
+      LOGGER.debug("Enter response = {0}" + [jsonXify(result)]);
             
 			var returncode:String = result.response.returncode;
 			if (returncode == 'FAILED') {
-				trace(LOG + "Join FAILED = " + JSON.stringify(result));						
+				LOGGER.error("Join FAILED = {0}", [jsonXify(result)]);						
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
 			} else if (returncode == 'SUCCESS') {
-				trace("Join SUCESS = " + JSON.stringify(result));
+				LOGGER.debug("Join SUCESS = {0}", [jsonXify(result)]);
         var response:Object = new Object();
         response.username = result.response.fullname;
         response.conference = result.response.conference; 
@@ -123,12 +122,12 @@ package org.bigbluebutton.main.model.users
        
 				if (result.response.customdata) {
           var cdata:Array = result.response.customdata as Array;
-          trace(LOG + "num custom data = " + cdata.length);
+          LOGGER.debug("num custom data = {0}", [cdata.length]);
           for each (var item:Object in cdata) {
-            trace(LOG + item.toString());
+            LOGGER.debug(item.toString());
             for (var id:String in item) {
               var value:String = item[id] as String;
-              trace(id + " = " + value);
+              LOGGER.debug("{0} = {1}", [id, value]);
               response.customdata[id] = value;
             }                        
           }

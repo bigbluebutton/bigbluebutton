@@ -1,29 +1,34 @@
 <template name="header">
   <nav id="navbar" class="myNavbar top-bar" role="navigation">
     {{> makeButton btn_class="btn toggleUserlistButton navbarButton sl-hamburger sl-ham-la-cw sl-portrait-mobile sl-portrait-keyboard" rel="tooltip" title="Toggle Userlist" span=true notification="all_chats"}}
-    
-    {{#if amIInAudio}}
-      {{#if amIListenOnlyAudio}}
-        {{> makeButton btn_class="navbarButton leaveAudioButton" i_class="icon fi-volume-none" rel="tooltip" title="Exit Audio"}}
-      {{else}}
-        {{#if isCurrentUserMuted}}
-          <!-- if you are muted the button representing your status will show volume off -->
-          {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic-off" rel="tooltip" title="Unmute"}}
-        {{else}}
-          {{#if isCurrentUserTalking}}
-            <!-- you are talking. Display a high volume/volume up representing voice activity -->
-            {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic" rel="tooltip" title="Mute"}}
-          {{else}}
-            <!-- you are not talking. Display low volume/volume down representing no voice activity -->
-            {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic-outline" rel="tooltip" title="Mute"}}
-          {{/if}}
-        {{/if}}
-      {{/if}}
-    {{/if}}
 
-    <span class="navbarTitle">
-      {{getWhiteboardTitle}}
-    </span>
+      {{#if amIInAudio}}
+        <div class="audioNavbarSection">
+          {{#if amIListenOnlyAudio}}
+            {{> makeButton btn_class="navbarButton leaveAudioButton" i_class="icon fi-volume-none" rel="tooltip" title="Exit Audio"}}
+          {{else}}
+            {{#if isCurrentUserMuted}}
+              <!-- if you are muted the button representing your status will show volume off -->
+              {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic-off" rel="tooltip" title="Unmute"}}
+            {{else}}
+              {{#if isCurrentUserTalking}}
+                <!-- you are talking. Display a high volume/volume up representing voice activity -->
+                {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic" rel="tooltip" title="Mute"}}
+              {{else}}
+                <!-- you are not talking. Display low volume/volume down representing no voice activity -->
+                {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic-outline" rel="tooltip" title="Mute"}}
+              {{/if}}
+            {{/if}}
+          {{/if}}
+        </div>
+        <span class="navbarTitle shiftedTitle">
+          {{getWhiteboardTitle}}
+        </span>
+      {{else}}
+        <span class="navbarTitle defaultTitle">
+          {{getWhiteboardTitle}}
+        </span>
+      {{/if}}
 
     <div class="rightNavbarSection">
       {{> makeButton id="settingsIcon" btn_class="settingsIcon navbarButton" i_class="ion-gear-b" rel="tooltip"
@@ -32,9 +37,7 @@
       {{> makeButton id="logout" btn_class="signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
       title="Logout"}}
     </div>
-    <button class="btn toggleMenuButton navbarButton sl-hamburger sl-ham-ra-cw sl-portrait-mobile sl-portrait-keyboard">
-      <span></span>
-    </button>
+    {{> makeButton btn_class="btn toggleMenuButton navbarButton sl-hamburger sl-ham-ra-cw sl-portrait-mobile sl-portrait-keyboard" rel="tooltip" title="Toggle Menu" span=true}}
   </nav>
 </template>
 

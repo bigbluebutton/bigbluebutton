@@ -18,15 +18,14 @@
 */
 package org.bigbluebutton.modules.layout.services
 {
-  import flash.events.IEventDispatcher;
-  
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	
   public class LayoutService
   {
-    private static const LOG:String = "Layout::LayoutService - ";
+	private static const LOGGER:ILogger = getClassLogger(LayoutService);      
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
@@ -36,7 +35,7 @@ package org.bigbluebutton.modules.layout.services
     }
 		
     public function broadcastLayout(layout:LayoutDefinition):void {
-      trace(LOG + " - broadcast layout");
+      LOGGER.debug("broadcast layout");
       sender.broadcastLayout(layout);
     }
 		
@@ -45,7 +44,7 @@ package org.bigbluebutton.modules.layout.services
     }
     
     private function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition=null):void {
-      trace(LOG + " - lock layout");
+      LOGGER.debug("lock layout");
       sender.lockLayout(lock, viewersOnly, layout);
     }
   }

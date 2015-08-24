@@ -16,6 +16,7 @@
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true"
             showRecordingNotification="true"/>
     <meeting muteOnStart="false" />
+    <logging enabled="true" target="trace"/>
     <lock disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
           disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
             
@@ -96,14 +97,12 @@
 			whiteboardAccess="presenter"
 			keepToolbarVisible="false"
 		/>
-<!--
-
-    <module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
-      uri="rtmp://HOST/bigbluebutton" 
-      dependsOn="PresentModule"
-    />
-    		
--->
+		
+		<module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="PresentModule"
+		/>
+		
 		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 

@@ -18,13 +18,17 @@
  */
 package org.bigbluebutton.core.model
 {
-    import org.bigbluebutton.common.LogUtil;
-    import org.bigbluebutton.util.i18n.ResourceUtil;
     import flash.utils.Dictionary;
+    
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
+    import org.bigbluebutton.util.i18n.ResourceUtil;
 
     public class VideoProfile
     {
-        private var _fallbackLanguage:String;
+		private static const LOGGER:ILogger = getClassLogger(VideoProfile);
+
+		private var _fallbackLanguage:String;
 
         private static var _nextId:int = -1;
         private var _id:String;
@@ -85,8 +89,8 @@ package org.bigbluebutton.core.model
                 _h264Profile = vxml.h264Profile.toString();
             }
 
-            trace("This is a new video profile");
-            trace(this.toString());
+			LOGGER.debug("This is a new video profile");
+			LOGGER.debug(this.toString());
         }
 
         public function toString():String {

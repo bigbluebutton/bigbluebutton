@@ -23,32 +23,29 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
 	implements="org.bigbluebutton.common.IBigBlueButtonModule" 
 	xmlns:polling="org.bigbluebutton.modules.polling.*"
-	 xmlns:maps="org.bigbluebutton.modules.polling.maps.*"
-	  creationComplete="onCreationComplete()">
+	xmlns:maps="org.bigbluebutton.modules.polling.maps.*"
+	creationComplete="onCreationComplete()">
 	  
-	  <maps:PollingEventMap id="eventMap"/>
     <maps:PollEventMap id="pollEventMap"/>
   
 	<mx:Script>
 		<![CDATA[
-		
-      import mx.controls.Alert;
-      import com.asfusion.mate.events.Dispatcher;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.OpenWindowEvent;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.modules.polling.events.ModuleEvent;		
-      import org.bigbluebutton.modules.polling.maps.PollingEventMap;
+			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
+			import org.bigbluebutton.modules.polling.events.ModuleEvent;		
+
+			private static const LOGGER:ILogger = getClassLogger(PollingModule);
+
 			private var _moduleName:String = "Polling";			
 			private var _attributes:Object;
 			
 			public var globalDispatcher:Dispatcher = new Dispatcher();
-			public static const LOGNAME:String = "[PollingModule] ";
 			
-				
 			private function onCreationComplete():void {
-				LogUtil.debug(LOGNAME + "initialized");	
+				LOGGER.debug("module initialized");
 			}
 			
 			public function get moduleName():String {
@@ -65,10 +62,9 @@
 				return _attributes.username;
 			}
 						
-		public function getRoom():String{
+			public function getRoom():String{
 				return _attributes.room;
 			}
-			
 			
 			public function get userid():Number {
 				return _attributes.userid as Number;
@@ -79,22 +75,18 @@
 			}
 			
 			public function start(attributes:Object):void {	
-				
-				trace(LOGNAME +" started [Username: " + attributes.username + " Role: " +attributes.userrole + " Room:" +attributes.room+ "]" );
+				LOGGER.debug("PollingModule started [Username: {0} Role: {1} Room:{2}]", [attributes.username, attributes.userrole, attributes.room]);
 				
 				_attributes = attributes;
 				//eventMap.module = this;
-				trace(LOGNAME + "inside start() dispatching ModuleEvent");
+				LOGGER.debug("inside start() dispatching ModuleEvent");
 				var startEvent:ModuleEvent = new ModuleEvent(ModuleEvent.START);
 				startEvent.module = this;
 				globalDispatcher.dispatchEvent(startEvent);
-				
 			}
 			
-			
-			
 			public function stop():void {
-				trace(LOGNAME + "STOPPING Polling MODULE");	
+				LOGGER.debug("STOPPING Polling MODULE");
 			}
 			
 			public function getMeetingInfo():String{

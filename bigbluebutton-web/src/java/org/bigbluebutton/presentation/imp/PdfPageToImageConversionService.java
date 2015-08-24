@@ -41,7 +41,7 @@ public class PdfPageToImageConversionService {
 		log.debug("Creating temporary pdf " + tempPdfFile.getAbsolutePath());
 		
 		if (extractor.extractPage(presentationFile, tempPdfFile, page)) {
-			File tempPngFile = new File(tempDir.getAbsolutePath() + "/temp-" + page + ".png");
+			File tempPngFile = new File(tempDir.getAbsolutePath() + "/temp-" + page + ".svg");
 			log.debug("Creating PNG " + tempPngFile.getAbsolutePath());
 			
 			if (pdfToImageConverter.convert(tempPdfFile, tempPngFile, 1)) {

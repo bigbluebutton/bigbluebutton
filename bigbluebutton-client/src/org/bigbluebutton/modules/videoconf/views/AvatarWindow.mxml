@@ -44,13 +44,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
+			import org.as3commons.logging.api.getClassLogger;
+			import org.as3commons.logging.api.ILogger;
+			import org.bigbluebutton.modules.users.views.UsersWindow;
     		import flexlib.mdi.events.MDIWindowEvent;
       
 			import mx.core.UIComponent;
 			import mx.events.ResizeEvent;
       
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -70,6 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(AvatarWindow);      
+
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
 			
@@ -190,12 +194,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 			
       private function handleMadePresenterEvent(event:MadePresenterEvent):void {
-        trace("******** Avatar: HandleMadePresenter event *********");
+        LOGGER.debug("******** Avatar: HandleMadePresenter event *********");
         updateControlButtons();
       }
       
       private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
-        trace("******** Avatar: handleSwitchedPresenterEvent event *********");
+		  LOGGER.debug("******** Avatar: handleSwitchedPresenterEvent event *********");
         updateControlButtons();
       }
       
@@ -241,7 +245,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function closeThisWindow():void {
-				trace("* Closing avatar window for user [" + userID + "] *");
+				LOGGER.debug("* Closing avatar window for user [{0}] *", [userID]);
 			}
 			
 			

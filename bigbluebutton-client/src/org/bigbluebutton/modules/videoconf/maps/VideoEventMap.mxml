@@ -23,23 +23,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-      import org.bigbluebutton.core.events.ConnectAppEvent;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
-      import org.bigbluebutton.main.events.UserJoinedEvent;
-      import org.bigbluebutton.main.events.UserLeftEvent;
-      import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-      import org.bigbluebutton.modules.users.events.ViewCameraEvent;
-      import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
-      import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
-      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-      import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
-      import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
-      import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
-      import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;		
+			import org.bigbluebutton.core.events.ConnectAppEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+			import org.bigbluebutton.main.events.UserJoinedEvent;
+			import org.bigbluebutton.main.events.UserLeftEvent;
+			import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+			import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
+			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
+			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
+			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
+			import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
+			import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;		
 		]]>
 	</mx:Script>
 	
@@ -58,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
   
   <EventHandlers type="{ConnectAppEvent.CONNECT_VIDEO_APP}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectToVideoApp" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectToVideoApp"/>
   </EventHandlers>
   
 	<EventHandlers type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}">
@@ -86,6 +86,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID, event.stream, event.user]}" />
 	</EventHandlers>
 	
+	<EventHandlers type="{StreamStoppedEvent.STREAM_STOPPED}">
+		<MethodInvoker generator="{VideoEventMapDelegate}" method="handleStreamStoppedEvent" arguments="{event}" />
+	</EventHandlers>
+	
 	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID, event.stream, event.viewedName]}" />
 	</EventHandlers>
@@ -111,7 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 
   <EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" arguments="{event}"/>
   </EventHandlers>
  
   <EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
@@ -125,7 +129,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.CAM_SETTINGS_CLOSED}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
   </EventHandlers>
-  
+
+  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="closeAllWindows"/>
+  </EventHandlers>
   <!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
 </EventMap>

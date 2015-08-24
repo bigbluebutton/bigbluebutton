@@ -9,13 +9,13 @@ Template.slide.rendered = ->
       if !$('.panel-footer').hasClass('ui-resizable-resizing') # not in the middle of resizing the message input
         redrawWhiteboard()
     )
-    if currentSlide?.slide?.png_uri?
+    if currentSlide?.slide?.img_uri?
       createWhiteboardPaper (wpm) ->
         displaySlide wpm
         Tracker.autorun (comp) -> # whiteboard is redrawn every time user becomes a presenter or loses that status
           if BBB.isUserPresenter(getInSession('userId')) isnt undefined
             redrawWhiteboard()
-  pic.src = currentSlide?.slide?.png_uri
+  pic.src = currentSlide?.slide?.img_uri
 
 @createWhiteboardPaper = (callback) =>
   @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper')
@@ -25,7 +25,7 @@ Template.slide.rendered = ->
   currentSlide = getCurrentSlideDoc()
   wpm.create()
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
-  wpm._displayPage(currentSlide?.slide?.png_uri, getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
+  wpm._displayPage(currentSlide?.slide?.img_uri, getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   manuallyDisplayShapes()
   wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
 

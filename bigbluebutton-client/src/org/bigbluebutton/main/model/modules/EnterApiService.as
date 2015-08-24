@@ -2,28 +2,22 @@ package org.bigbluebutton.main.model.modules
 {
   import com.asfusion.mate.events.Dispatcher;
   
-  import flash.events.*;
+  import flash.events.Event;
+  import flash.events.HTTPStatusEvent;
+  import flash.events.IOErrorEvent;
   import flash.net.URLLoader;
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
-  import flash.net.navigateToURL;
-  import mx.collections.ArrayCollection;	
-  import org.bigbluebutton.common.LogUtil;
-  import org.bigbluebutton.core.BBB;
-  import org.bigbluebutton.core.model.Me;
-  import org.bigbluebutton.core.model.MeBuilder;
-  import org.bigbluebutton.core.model.MeetingBuilder;
-  import org.bigbluebutton.core.model.MeetingModel;
-  import org.bigbluebutton.core.model.StunOption;
-  import org.bigbluebutton.core.model.users.User;
-  import org.bigbluebutton.core.model.users.UsersModel;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.main.events.MeetingNotFoundEvent;
-  import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
   
   public class EnterApiService
-  {    
-    private static const LOG:String = "Modules::EnterApiService - ";
+  {
+	private static const LOGGER:ILogger = getClassLogger(EnterApiService);
     
     private var request:URLRequest = new URLRequest();
     private var vars:URLVariables = new URLVariables();
@@ -38,7 +32,7 @@ package org.bigbluebutton.main.model.modules
     
     public function load(url:String):void {
       var date:Date = new Date();
-      trace(LOG + "load " + url);
+      LOGGER.debug("load {0}", [url]);
       request = new URLRequest(url);
       request.method = URLRequestMethod.GET;		
       
@@ -53,25 +47,25 @@ package org.bigbluebutton.main.model.modules
     }
     
     private function httpStatusHandler(event:HTTPStatusEvent):void {
-      LogUtil.debug(LOG + "httpStatusHandler: " + event);
+      LOGGER.debug("httpStatusHandler: {0}", [event]);
     }
     
     private function ioErrorHandler(event:IOErrorEvent):void {
-      trace(LOG + "ioErrorHandler: " + event);
+      LOGGER.error("ioErrorHandler: {0}", [event]);
       if (_resultListener != null) _resultListener(false, null);
     }
     
     private function handleComplete(e:Event):void {			
       var result:Object = JSON.parse(e.target.data);
-      trace(LOG + "Enter response = " + JSON.stringify(result));
+      LOGGER.debug("Enter response = {0}", [jsonXify(result)]);
       
       var returncode:String = result.response.returncode;
       if (returncode == 'FAILED') {
-        trace(LOG + "Enter API call FAILED = " + JSON.stringify(result));						
+        LOGGER.error("Enter API call FAILED = {0}", [jsonXify(result)]);						
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(new MeetingNotFoundEvent(result.response.logoutURL));			
       } else if (returncode == 'SUCCESS') {
-        trace(LOG + "Enter API call SUCESS = " + JSON.stringify(result));
+        LOGGER.debug("Enter API call SUCESS = {0}", [jsonXify(result)]);
         var response:Object = new Object();
         response.username = result.response.fullname;
         response.userId = result.response.internalUserID;

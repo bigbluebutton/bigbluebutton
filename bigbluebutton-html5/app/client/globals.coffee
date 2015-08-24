@@ -34,6 +34,10 @@
 @getTime = -> # returns epoch in ms
   (new Date).valueOf()
 
+# checks if the pan gesture is mostly horizontal
+@isPanHorizontal = (event) ->
+  Math.abs(event.deltaX) > Math.abs(event.deltaY)
+
 # helper to determine whether user has joined any type of audio
 Handlebars.registerHelper "amIInAudio", ->
   BBB.amIInAudio()
@@ -312,10 +316,14 @@ Handlebars.registerHelper "getPollQuestions", ->
       setInSession 'chats', chats
 
 @toggleShield = ->
-  if $('.shield').hasClass('darken')
-    $('.shield').removeClass('darken')
-  else
+  if parseFloat($('.shield').css('opacity')) is 0.5 # triggered during a pan gesture
+    $('.shield').css('opacity', '')
+
+  if !$('.shield').hasClass('darken') and !$('.shield').hasClass('animatedShield')
     $('.shield').addClass('darken')
+  else
+    $('.shield').removeClass('darken')
+    $('.shield').removeClass('animatedShield')
 
 @removeFullscreenStyles = ->
   $('#whiteboard-paper').removeClass('verticallyCentered')

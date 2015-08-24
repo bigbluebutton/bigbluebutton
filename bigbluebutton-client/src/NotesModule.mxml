@@ -28,16 +28,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.modules.notes.events.NotesModuleStartEvent;
+			import com.asfusion.mate.events.Dispatcher;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
+			import org.bigbluebutton.modules.notes.events.NotesModuleStartEvent;
+			
+			private static const LOGGER:ILogger = getClassLogger(NotesModule);
+
 			private var _moduleName:String = "Layout Module";
 			private var _dispatcher:Dispatcher = new Dispatcher();
       
 			private function onCreationComplete():void {
-				LogUtil.debug(_moduleName + " initialized");	
+				LOGGER.debug("{0} initialized", [_moduleName]);	
 			}
 			
 			public function get moduleName():String {

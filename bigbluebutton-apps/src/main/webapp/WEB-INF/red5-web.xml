@@ -3,7 +3,7 @@
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-Copyright (c) 2014 BigBlueButton Inc. and by respective authors (see below).
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
 
 This program is free software; you can redistribute it and/or modify it under the
 terms of the GNU Lesser General Public License as published by the Free Software
@@ -19,203 +19,105 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:lang="http://www.springframework.org/schema/lang"
-       xsi:schemaLocation="
-             http://www.springframework.org/schema/beans 
-             http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-             http://www.springframework.org/schema/lang 
-             http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:lang="http://www.springframework.org/schema/lang"
+             xsi:schemaLocation="
+                         http://www.springframework.org/schema/beans 
+                         http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                         http://www.springframework.org/schema/lang 
+                         http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
-	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-	    <property name="locations">
-	    	<list>
-	    	 	<value>/WEB-INF/red5-web.properties</value>
-	    	 	<value>/WEB-INF/bigbluebutton.properties</value>
-	    	</list>
-	    </property>
-	</bean>
-	
-	<bean id="web.context" class="org.red5.server.Context" autowire="byType" />
-	
-	<bean id="web.scope" class="org.red5.server.scope.WebScope"
-		 init-method="register">
-		<property name="server" ref="red5.server" />
-		<property name="parent" ref="global.scope" />
-		<property name="context" ref="web.context" />
-		<property name="handler" ref="web.handler" />
-		<property name="contextPath" value="${webapp.contextPath}" />
-		<property name="virtualHosts" value="${webapp.virtualHosts}" />
-	</bean>
+    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+            <property name="locations">
+                <list>
+                    <value>/WEB-INF/red5-web.properties</value>
+                    <value>/WEB-INF/bigbluebutton.properties</value>
+                </list>
+            </property>
+    </bean>
 
-	<bean id="web.handler" class="org.bigbluebutton.conference.BigBlueButtonApplication">
-		<property name="applicationListeners">
-    		<set>
-				<ref bean="participantsHandler" />
-				<ref bean="whiteboardApplication" />
-    		</set>
-  		</property>	  
-  		<property name="recorderApplication"> 
-  		  <ref bean="recorderApplication"/>
-  		</property>	
-  		<property name="connInvokerService"> 
-  		  <ref bean="connInvokerService"/>
-  		</property>		
-  		<property name="bigBlueButtonInGW"> 
-  		  <ref bean="bbbInGW"/>
-  		</property>
-	</bean>
-	
-	<bean id="connInvokerService" class="org.bigbluebutton.conference.meeting.messaging.red5.ConnectionInvokerService" 
-	      init-method="start" destroy-method="stop"/>
+    <bean id="web.context" class="org.red5.server.Context" autowire="byType" />
 
-  <bean id="lock.service" class="org.bigbluebutton.conference.service.lock.LockService">
-    <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
-  </bean>
-  	
-    <bean id="bbbInGW" class="org.bigbluebutton.core.BigBlueButtonInGW">
-        <constructor-arg index="0" ref="bbbGW"/>
-        <constructor-arg index="1" ref="preuploadedPresentationsUtil"/>
+    <bean id="web.scope" class="org.red5.server.scope.WebScope"
+         init-method="register">
+        <property name="server" ref="red5.server" />
+        <property name="parent" ref="global.scope" />
+        <property name="context" ref="web.context" />
+        <property name="handler" ref="web.handler" />
+        <property name="contextPath" value="${webapp.contextPath}" />
+        <property name="virtualHosts" value="${webapp.virtualHosts}" />
+    </bean>
+
+    <bean id="web.handler" class="org.bigbluebutton.red5.BigBlueButtonApplication">
+        <property name="applicationListeners">
+                <set> <ref bean="whiteboardApplication" /> </set>
+        </property>
+        <property name="connInvokerService"><ref bean="connInvokerService"/></property>
+        <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
+    </bean>
+
+    <bean id="connInvokerService" class="org.bigbluebutton.red5.client.messaging.ConnectionInvokerService" 
+                init-method="start" destroy-method="stop"/>
+
+    <bean id="layout.service" class="org.bigbluebutton.red5.service.LayoutService">
+        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
+    </bean> 
+    
+    <bean id="lock.service" class="org.bigbluebutton.red5.service.LockService">
+        <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>
     
-    <bean id="preuploadedPresentationsUtil" class="org.bigbluebutton.conference.service.presentation.PreuploadedPresentationsUtil">
-      <property name="bigBlueButtonDirectory" value="${default.BigBlueButtonDirectory}"/>
-    </bean>
-              
-    <bean id="bbbGW" class="org.bigbluebutton.core.BigBlueButtonGateway">
-        <constructor-arg index="0" ref="outMsgGW"/>
+    <bean id="chat.service" class="org.bigbluebutton.red5.service.ChatService">
+        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean>
     
-    <bean id="collectorGW" class="org.bigbluebutton.core.CollectorGateway">
-        <constructor-arg index="0" ref="collDispatcher"/>
+    <bean id="participants.service" class="org.bigbluebutton.red5.service.ParticipantsService">
+        <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
     
-    <bean id="collDispatcher" class="org.bigbluebutton.core.api.ConsoleDispatcher"/>
-
-    <bean id="redisLpushDispatcher" class="org.bigbluebutton.core.api.RedisLpushDispatcher" 
-           init-method="start" destroy-method="stop">
-      <property name="redisPool"><ref bean="redisPool" /> </property>
+    <bean id="presentationApplication" class="org.bigbluebutton.red5.service.PresentationApplication">
+        <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>
 
-      
-    <bean id="outMsgGW" class="org.bigbluebutton.core.api.MessageOutGateway">
-        <property name="listeners">
-            <set>
-                <ref bean="presentationRed5ClientSender" />  
-                <ref bean="presentationRedisRecorder" />
-                <ref bean="presentationRedisPublisher" />
-                <ref bean="usersRed5ClientSender" />   
-                <ref bean="usersRedisRecorder" />
-                <ref bean="usersRedisPublisher" />
-                <ref bean="meetingEventRedisPublisher" />  
-                <ref bean="layoutRed5ClientSender" /> 
-                <ref bean="pollRed5ClientSender" />
-                <ref bean="pollRedisRecorder" />  
-                <ref bean="pollRedisPublisher"/>  
-                <ref bean="whiteboardRed5ClientSender"/> 
-                <ref bean="whiteboardRedisRecorder"/>
-                <ref bean="whiteboardEventRedisPublisher"/>
-                <ref bean="chatRed5ClientSender"/>   
-                <ref bean="chatRedisRecorder"/>
-                <ref bean="chatRedisPublisher"/>
-                <ref bean="fsConfService"/>                    
-                <ref bean="whiteboardEventRedisPublisher"/>             
-            </set>        
-         </property> 
-    </bean>
-
-    <bean id="presentationRed5ClientSender" class="org.bigbluebutton.core.apps.presentation.red5.PresentationClientMessageSender">
-      <constructor-arg index="0" ref="connInvokerService"/>
-    </bean>
-        
-    <bean id="presentationRedisRecorder" class="org.bigbluebutton.core.apps.presentation.redis.PresentationEventRedisRecorder">
-        <constructor-arg index="0" ref="recorderApplication"/>
-    </bean>
-
-    <bean id="presentationRedisPublisher" class="org.bigbluebutton.core.apps.presentation.redis.PresentationEventRedisPublisher">
-      <constructor-arg ref="redisMessageSender" />
+    <bean id="presentation.service" class="org.bigbluebutton.red5.service.PresentationService">
+        <property name="presentationApplication"> <ref local="presentationApplication"/></property>
     </bean>
     
-    <bean id="usersRedisRecorder" class="org.bigbluebutton.core.apps.users.redis.UsersEventRedisRecorder">
-        <constructor-arg index="0" ref="recorderApplication"/>
-    </bean>
-        
-    <bean id="usersRed5ClientSender" class="org.bigbluebutton.core.apps.users.red5.UsersClientMessageSender">
-      <constructor-arg index="0" ref="connInvokerService"/>
+    <bean id="whiteboardApplication" class="org.bigbluebutton.red5.service.WhiteboardApplication">
+        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean>
 
-    <bean id="usersRedisPublisher" class="org.bigbluebutton.core.apps.users.redis.UsersEventRedisPublisher">
-      <constructor-arg ref="redisMessageSender" />
+    <bean id="poll.service" class="org.bigbluebutton.red5.service.PollingService">
+        <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
     </bean>
     
-    <bean id="pollRed5ClientSender" class="org.bigbluebutton.core.apps.poll.red5.PollClientMessageSender">
-      <constructor-arg index="0" ref="connInvokerService"/>
+    <bean id="whiteboard.service" class="org.bigbluebutton.red5.service.WhiteboardService">
+        <property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
+    </bean>
+    
+    <bean id="voice.service" class="org.bigbluebutton.red5.service.VoiceService">
+        <property name="red5Publisher" ref="red5Publisher"/>
+    </bean>
+    
+    <bean id="red5Publisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
+        <property name="messageSender" ref="red5RedisSender"/>
     </bean>
 
-    <bean id="layoutRed5ClientSender" class="org.bigbluebutton.core.apps.layout.red5.LayoutClientMessageSender">
-      <constructor-arg index="0" ref="connInvokerService"/>
+    <bean id="redisPubSubMessageHandler" class="org.bigbluebutton.red5.pubsub.redis.RedisPubSubMessageHandler">
+        <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+        <property name="bbbAppsIsKeepAliveHandler"> <ref bean="bbbAppsIsKeepAliveHandler"/></property>
     </bean>
 
-    <bean id="whiteboardRed5ClientSender" class="org.bigbluebutton.core.apps.whiteboard.red5.WhiteboardClientMessageSender">
-      <constructor-arg index="0" ref="connInvokerService"/>
-    </bean>
-    
-    <bean id="whiteboardRedisRecorder" class="org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardEventRedisRecorder">
-        <constructor-arg index="0" ref="recorderApplication"/>
-    </bean>
-    
-    <bean id="whiteboardEventRedisPublisher" class="org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardEventRedisPublisher">
-      <constructor-arg ref="redisMessageSender"/>
-    </bean>    
-    
-    <bean id="chatRed5ClientSender" class="org.bigbluebutton.core.apps.chat.red5.ChatClientMessageSender">
-      <constructor-arg index="0" ref="connInvokerService"/>
-    </bean>
-    
-    <bean id="chatRedisRecorder" class="org.bigbluebutton.core.apps.chat.redis.ChatEventRedisRecorder">
-        <constructor-arg index="0" ref="recorderApplication"/>
+    <bean id="bbbAppsIsAliveMonitorService" class="org.bigbluebutton.red5.monitoring.BbbAppsIsAliveMonitorService"
+                init-method="start" destroy-method="stop">
+        <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+        <property name="messageSender" ref="red5RedisSender"/>
     </bean>
 
-    <bean id="chatRedisPublisher" class="org.bigbluebutton.core.apps.chat.redis.ChatEventRedisPublisher">
-      <constructor-arg ref="redisMessageSender"/>
-    </bean>  
-            
-    <bean id="meetingEventRedisPublisher" class="org.bigbluebutton.core.meeting.MeetingEventRedisPublisher">
-      <constructor-arg ref="redisMessageSender" />
-    </bean>
-
-    <bean id="pollRedisPublisher" class="org.bigbluebutton.core.apps.poll.redis.PollEventRedisPublisher">
-        <constructor-arg index="0" ref="redisMessageSender"/>
+    <bean id="bbbAppsIsKeepAliveHandler" class="org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler">
+        <property name="bbbAppsIsAliveMonitorService"> <ref bean="bbbAppsIsAliveMonitorService"/></property>
     </bean>
     
-    <bean id="pollRedisRecorder" class="org.bigbluebutton.core.apps.poll.redis.PollEventRedisRecorder">
-        <constructor-arg index="0" ref="recorderApplication"/>
-    </bean>
-
-    <bean id="pollMessageHandler" class="org.bigbluebutton.conference.service.poll.messaging.redis.PollRedisMessageHandler">
-      <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
-    </bean>
-            
-    <bean id="meetingMessageHandler" class="org.bigbluebutton.conference.meeting.messaging.redis.MeetingMessageHandler">
-      <property name="bigBlueButtonInGW"> <ref bean="bbbInGW"/></property>
-    </bean>
-    
-
-        
-	<import resource="bbb-redis-pool.xml"/>
-	<import resource="bbb-redis-recorder.xml"/>
-	<import resource="bbb-app-chat.xml" />
-	<import resource="bbb-app-layout.xml" />
-	<import resource="bbb-app-poll.xml" />
-	<import resource="bbb-app-presentation.xml" />
-	<import resource="bbb-app-whiteboard.xml" />
-	<import resource="bbb-app-users.xml" />
-	
-	<import resource="bbb-voice-app.xml" />
-  <import resource="bbb-voice-freeswitch.xml" />
-  	
-  	<import resource="bbb-redis-messaging.xml"/>
-  	<!--
-  	<import resource="spring/applicationContext-redis.xml"/>
-  	-->
+    <import resource="bbb-redis-pool.xml"/>
+    <import resource="bbb-red5-redis-pubsub.xml"/>
 </beans>

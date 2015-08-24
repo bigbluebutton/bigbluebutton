@@ -1,9 +1,12 @@
 package org.bigbluebutton.main.api
 {
   import flash.external.ExternalInterface;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
 
   public class JSAPI {
-    private static const LOG:String = "JSAPI - ";
+	private static const LOGGER:ILogger = getClassLogger(JSAPI);
     
     private static var instance:JSAPI = null;
     

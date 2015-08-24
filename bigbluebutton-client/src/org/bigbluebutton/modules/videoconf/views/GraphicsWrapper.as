@@ -1,25 +1,25 @@
 package org.bigbluebutton.modules.videoconf.views
 {
     import flash.display.DisplayObject;
-    import flash.net.NetConnection;
-    import flash.events.Event;
     import flash.events.MouseEvent;
+    import flash.net.NetConnection;
+    
     import mx.containers.Canvas;
-    import mx.core.UIComponent;
     import mx.events.FlexEvent;
-    import mx.utils.ObjectUtil;
-
+    
+    import org.as3commons.logging.api.ILogger;
+    import org.as3commons.logging.api.getClassLogger;
     import org.bigbluebutton.core.UsersUtil;
     import org.bigbluebutton.core.model.VideoProfile;
     import org.bigbluebutton.main.model.users.BBBUser;
     import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-    import org.bigbluebutton.modules.videoconf.views.UserGraphicHolder;
-    import org.bigbluebutton.common.LogUtil;
 
 
     public class GraphicsWrapper extends Canvas {
 
-        private var _options:VideoConfOptions = new VideoConfOptions();
+		private static const LOGGER:ILogger = getClassLogger(GraphicsWrapper);      
+
+		private var _options:VideoConfOptions = new VideoConfOptions();
         private var priorityWeight:Number = _options.priorityRatio;
         private var priorityMode:Boolean = false;
         private var priorityItem:DisplayObject = null;
@@ -223,7 +223,7 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
         override protected function updateDisplayList(w:Number, h:Number):void {
-            trace("[GraphicsWrapper::updateDisplayList]");
+            LOGGER.debug("[GraphicsWrapper::updateDisplayList]");
             super.updateDisplayList(w, h);
 
             if (priorityMode) {
@@ -233,17 +233,6 @@ package org.bigbluebutton.modules.videoconf.views
             }
         }
 
-/*
-        override public function validateDisplayList():void {
-            super.validateDisplayList();
-
-            if (priorityMode) {
-                updateDisplayListHelperByPriority(this.width, this.height);
-            } else {
-                updateDisplayListHelper(this.width, this.height);
-            }
-        }
-*/
         public function addAvatarFor(userId:String):void {
             if (! UsersUtil.hasUser(userId)) return;
 
@@ -260,7 +249,7 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
         private function addVideoForHelper(userId:String, connection:NetConnection, streamName:String):void {
-            trace("[GraphicsWrapper:addVideoForHelper] streamName " + streamName);
+			LOGGER.debug("[GraphicsWrapper:addVideoForHelper] streamName {0}", [streamName]);
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
@@ -353,11 +342,11 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
         public function removeAvatarFor(userId:String):void {
-            trace("[GraphicsWrapper:removeAvatarFor] userId " + userId);
+			LOGGER.debug("[GraphicsWrapper:removeAvatarFor] userId {0}", [userId]);
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
                 if (item.user && item.user.userID == userId && item.visibleComponent is UserAvatar) {
-                    trace("[GraphicsWrapper:removeAvatarFor] removing graphic");
+					LOGGER.debug("[GraphicsWrapper:removeAvatarFor] removing graphic");
                     removeChildHelper(item);
                     // recursive call to remove all avatars for userId
                     removeAvatarFor(userId);
@@ -367,7 +356,7 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
         public function removeVideoByCamIndex(userId:String, camIndex:int):String {
-            trace("[GraphicsWrapper:removeVideoByCamIndex] userId " + userId + " camIndex " + camIndex);
+			LOGGER.debug("[GraphicsWrapper:removeVideoByCamIndex] userId {0} camIndex {1}", [userId, camIndex]);
             var streamName:String = "";
 
             for (var i:int = 0; i < numChildren; ++i) {
@@ -396,11 +385,11 @@ package org.bigbluebutton.modules.videoconf.views
         }
 
         public function removeGraphicsFor(userId:String):void {
-            trace("[GraphicsWrapper:removeGraphicsFor] userId " + userId);
+			LOGGER.debug("[GraphicsWrapper:removeGraphicsFor] userId {0}", [userId]);
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
                 if (item.user && item.user.userID == userId) {
-                    trace("[GraphicsWrapper:removeGraphicsFor] removing graphic");
+					LOGGER.debug("[GraphicsWrapper:removeGraphicsFor] removing graphic");
                     removeChildHelper(item);
                     // recursive call to remove all graphics for userId
                     removeGraphicsFor(userId);

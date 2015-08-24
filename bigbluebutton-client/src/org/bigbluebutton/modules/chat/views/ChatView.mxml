@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     initialize="init()"
     xmlns:flexlib="http://code.google.com/p/flexlib/"
     width="100%" height="100%" xmlns:containers="flexlib.containers.*"
-    verticalScrollPolicy="off">
+    verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*">
 
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
@@ -36,39 +36,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;
+      
       import flash.accessibility.Accessibility;
       import flash.events.Event;
       import flash.events.FocusEvent;
-      import flash.external.ExternalInterface;
       import flash.media.Sound;
-      import flash.media.SoundChannel;
-      import flexlib.controls.tabBarClasses.SuperTab;
-      import flexlib.controls.textClasses.StringBoundaries;
-      import flexlib.events.SuperTabEvent;
-      import mx.collections.ArrayCollection;
-      import mx.containers.ControlBar;
+      
       import mx.controls.Button;
-      import mx.core.Container;
-      import mx.core.UIComponent;
-      import mx.events.IndexChangedEvent;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.BBB;
+      
+      import flexlib.controls.tabBarClasses.SuperTab;
+      import flexlib.events.SuperTabEvent;
+      
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.model.users.BBBUser;
-      import org.bigbluebutton.modules.chat.ChatUtil;
-      import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.modules.chat.model.business.UserVO;
-      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.util.i18n.ResourceUtil;			
 					
 	    private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
@@ -81,8 +66,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
       [Bindable] public var chatOptions:ChatOptions;
 	  
-	    [Bindable] private var baseIndex:int;
-      
 		  private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
 		  private var publicWaiting:Boolean = false;
 		  private var publicFocus:Boolean = false;
@@ -99,7 +82,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatOptions = new ChatOptions();
 				noticeLabel = ResourceUtil.getInstance().getString('bbb.chat.chatTabs.accessibleNotice');
 				// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
-				baseIndex = chatOptions.getBaseIndex() + 4;
 			}
 			
 
@@ -268,7 +250,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatBox.id = chatWithUserID;
 		    chatBox.name = chatWithUserID;
 				chatBox.chatWithUserID = chatWithUserID;
-				chatBox.baseIndex = baseIndex+10;
+				chatBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
 		        
 		    if (publicChat) {
 		      chatBox.label = PUBLIC_CHAT_USERNAME
@@ -300,7 +282,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				tabBox.label = OPTION_TAB_ID;
 				tabBox.name = OPTION_TAB_ID;
 				tabBox.chatOptions = chatOptions;
-				tabBox.baseIndex = baseIndex + 10;
+				tabBox.tabIndexer.startIndex = tabIndexer.startIndex + 10;
 				tabBox.addEventListener(KeyboardEvent.KEY_DOWN, tabBox.accessibleClick);
 				chatTabs.addChild(tabBox);
 				
@@ -364,9 +346,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
+	
+	<common:TabIndexer id="tabIndexer" startIndex="{chatOptions.getBaseIndex() + 4}" tabIndices="{[chatTabs]}"/>
+	
 	<containers:SuperTabNavigator includeInLayout="false" id="chatTabs" 
                                 width="100%" height="100%" change="onTabNavChange()" 
                                 tabClose="onTabClose(event)" minTabWidth="20"
-								  dragEnabled="false" popUpButtonPolicy="off" tabIndex="{baseIndex}"
+								  dragEnabled="false" popUpButtonPolicy="off"
 								  />
 </mx:VBox>

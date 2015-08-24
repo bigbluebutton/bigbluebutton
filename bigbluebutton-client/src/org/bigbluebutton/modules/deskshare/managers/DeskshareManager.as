@@ -21,13 +21,16 @@ package org.bigbluebutton.modules.deskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 			
 	public class DeskshareManager {		
+		private static const LOGGER:ILogger = getClassLogger(DeskshareManager);
+
 		private var publishWindowManager:PublishWindowManager;
 		private var viewWindowManager:ViewerWindowManager;
 		private var toolbarButtonManager:ToolbarButtonManager;
@@ -45,7 +48,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 		
 		public function handleStartModuleEvent(module:DeskShareModule):void {
-			LogUtil.debug("Deskshare Module starting");
+			LOGGER.debug("Deskshare Module starting");
 			this.module = module;			
 			service.handleStartModuleEvent(module);
       
@@ -56,24 +59,24 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 		
 		public function handleStopModuleEvent():void {
-			LogUtil.debug("Deskshare Module stopping");
+			LOGGER.debug("Deskshare Module stopping");
 			publishWindowManager.stopSharing();
 			viewWindowManager.stopViewing();		
 			service.disconnect();
 		}
 		
     public function handleStreamStoppedEvent():void {
-      LogUtil.debug("Sending deskshare stopped command");
+	  LOGGER.debug("Sending deskshare stopped command");
       service.stopSharingDesktop(module.getRoom(), module.getRoom());
     }
     
 		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void {
-			LogUtil.debug("Sending startViewing command");
+			LOGGER.debug("Sending startViewing command");
 			service.sendStartViewingNotification(videoWidth, videoHeight);
 		}
 		    
 		public function handleStartedViewingEvent(stream:String):void {
-			LogUtil.debug("handleStartedViewingEvent [" + stream + "]");
+			LOGGER.debug("handleStartedViewingEvent [{0}]", [stream]);
 			service.sendStartedViewingNotification(stream);
 		}
 		
@@ -90,12 +93,12 @@ package org.bigbluebutton.modules.deskshare.managers
     }
     
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
-			LogUtil.debug("Got MadePresenterEvent ");
+			LOGGER.debug("Got MadePresenterEvent ");
       initDeskshare();
 		}
 		
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
-			LogUtil.debug("Got MadeViewerEvent ");
+			LOGGER.debug("Got MadeViewerEvent ");
 			toolbarButtonManager.removeToolbarButton();
 			if (sharing) {
 				publishWindowManager.stopSharing();
@@ -104,7 +107,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 		
 		public function handleStartSharingEvent(autoStart:Boolean):void {
-			LogUtil.debug("DeskshareManager::handleStartSharingEvent");
+			LOGGER.debug("DeskshareManager::handleStartSharingEvent");
 			//toolbarButtonManager.disableToolbarButton();
 			toolbarButtonManager.startedSharing();
 			var option:DeskshareOptions = new DeskshareOptions();
@@ -121,13 +124,13 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function handleViewWindowCloseEvent():void {
-			LogUtil.debug("Received stop viewing command");		
+			LOGGER.debug("Received stop viewing command");		
 			viewWindowManager.handleViewWindowCloseEvent();		
 		}
 					
 		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
 			if (sharing) return;
-			LogUtil.debug("Received start vieweing command");
+			LOGGER.debug("Received start vieweing command");
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
     
