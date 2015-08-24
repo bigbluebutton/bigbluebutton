@@ -27,6 +27,7 @@ import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage
 import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
+import org.bigbluebutton.common.converters.ToJsonEncoder
 
 object MessageSenderActor {
   def props(meetingId: String, msgSender: MessageSender): Props =
@@ -35,6 +36,8 @@ object MessageSenderActor {
 
 class MessageSenderActor(val meetingId: String, val service: MessageSender)
     extends Actor with ActorLogging {
+
+  val encoder = new ToJsonEncoder()
 
   def receive = {
     case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)
@@ -49,6 +52,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: MeetingHasEnded => handleMeetingHasEnded(msg)
     case msg: MeetingDestroyed => handleMeetingDestroyed(msg)
     case msg: KeepAliveMessageReply => handleKeepAliveMessageReply(msg)
+    case msg: PubSubPong => handlePubSubPong(msg)
     case msg: StartRecording => handleStartRecording(msg)
     case msg: StopRecording => handleStopRecording(msg)
     case msg: GetAllMeetingsReply => handleGetAllMeetingsReply(msg)
@@ -175,6 +179,11 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   private def handleMeetingDestroyed(msg: MeetingDestroyed) {
     val json = MeetingMessageToJsonConverter.meetingDestroyedToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+
+  private def handlePubSubPong(msg: PubSubPong) {
+    val json = encoder.encodePubSubPongMessage(msg.system, msg.timestamp)
+    service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, json)
   }
 
   private def handleKeepAliveMessageReply(msg: KeepAliveMessageReply) {

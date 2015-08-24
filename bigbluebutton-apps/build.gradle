@@ -18,15 +18,10 @@ task resolveDeps(type: Copy) {
 }
 
 repositories {
-    ivy {
-        // URL can refer to a local directory
-        //url "${System.properties['user.home']}/.ivy2/local"
-        url "/home/ubuntu/.ivy2/local"
-        layout "pattern", {
-            artifact "[organisation]/[module]/[revision]/[artifact].[ext]"
-            m2compatible = true
+        ivy {
+            // URL can refer to a local directory
+            url "./lib"
         }
-    }
   mavenCentral()
   mavenLocal()
   add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
@@ -57,7 +52,6 @@ repositories {
     mavenRepo name: "jboss", urls: "http://repository.jboss.org/nexus/content/groups/public-jboss"
     mavenRepo name: "sonatype-snapshot", urls: "http://oss.sonatype.org/content/repositories/snapshots"
     mavenRepo name: "sonatype-releases", urls: "http://oss.sonatype.org/content/repositories/releases"
-
   }
 }
 
@@ -88,7 +82,6 @@ dependencies {
   providedCompile 'org.slf4j:jul-to-slf4j:1.7.9@jar'
   providedCompile 'org.slf4j:slf4j-api:1.7.9@jar'
   	
-  compile "redis.clients:jedis:2.1.0"
   compile "org.codehaus.jackson:jackson-core-asl:$jacksonVersion"
   compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
   compile "javax.servlet:com.springsource.javax.servlet.jsp.jstl:1.2.0"
@@ -106,13 +99,13 @@ dependencies {
   compile 'org.easymock:easymock:2.4@jar'
   
   //redis
-  //compile 'redis.clients:jedis:2.0.0'
-  providedCompile 'commons-pool:commons-pool:1.5.6'
+  compile "redis.clients:jedis:2.7.2"
+  compile 'org.apache.commons:commons-pool2:2.3'
  
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'org.apache.commons:commons-lang3:3.2'
 
-  compile 'org.bigbluebutton:bbb-common-message:0.0.12'
+  compile 'org.bigbluebutton:bbb-common-message:0.0.13'
 }
 
 test {

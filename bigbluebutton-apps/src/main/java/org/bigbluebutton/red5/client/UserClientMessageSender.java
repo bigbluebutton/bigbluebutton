@@ -188,7 +188,7 @@ public class UserClientMessageSender {
 			  Iterator<String> usersIter = msg.users.iterator();
 			  while (usersIter.hasNext()){
 					String user = usersIter.next();
-				  	System.out.println("RedisPubSubMessageHandler - processLockLayoutMessage \n" + message + "\n");
+				  	
 				  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, user, "layoutLocked", args);
 					service.sendMessage(m);
 			  }
@@ -206,7 +206,7 @@ public class UserClientMessageSender {
 			  Iterator<String> usersIter = msg.users.iterator();
 			  while (usersIter.hasNext()){
 					String user = usersIter.next();
-				  	log.debug("RedisPubSubMessageHandler - processBroadcastLayoutMessage \n" + message + "\n");
+				  	
 				  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, user, "syncLayout", args);
 					service.sendMessage(m);
 			  }
@@ -221,7 +221,6 @@ public class UserClientMessageSender {
 			  args.put("setById", msg.setByUserid);	    
 			  args.put("layout", msg.layout);
 			  		  	  
-		  	  System.out.println("RedisPubSubMessageHandler - processGetCurrentLayoutReplyMessage \n" + message + "\n");
 		  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requestedByUserid, "getCurrentLayoutResponse", args);
 			  service.sendMessage(m);	
 		}		
@@ -236,7 +235,6 @@ public class UserClientMessageSender {
 		  Gson gson = new Gson();
 	  	  message.put("msg", gson.toJson(args));
 	  	  
-	  	log.debug("RedisPubSubMessageHandler - handleValidateAuthTokenReply \n" + message.get("msg") + "\n");
 	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenReply", message);
 		  service.sendMessage(m);	 
 	}
@@ -250,7 +248,6 @@ public class UserClientMessageSender {
 		  Gson gson = new Gson();
 	  	  message.put("msg", gson.toJson(args));
 	  	  
-	  	log.debug("RedisPubSubMessageHandler - processValidateAuthTokenTimeoutMessage \n" + message.get("msg") + "\n");
 	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenTimedOut", message);
 		  service.sendMessage(m);	 
 	}
@@ -263,8 +260,6 @@ public class UserClientMessageSender {
 		  Gson gson = new Gson();
 	  	  message.put("msg", gson.toJson(args));
 	  	    
-	  	System.out.println("RedisPubSubMessageHandler - handleUserLeft \n" + message.get("msg") + "\n");
-			
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantLeft", message);
 	  	service.sendMessage(m); 
 	}
@@ -276,16 +271,12 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - joinMeetingReply \n" + message.get("msg") + "\n");
-		
+	  	    		
 	  	String userId = msg.user.get("userId").toString();
 	  	
 	  	DirectClientMessage jmr = new DirectClientMessage(msg.meetingId, userId, "joinMeetingReply", message);
 	  	service.sendMessage(jmr);
-		  	  
-	  	System.out.println("RedisPubSubMessageHandler - handleUserJoined \n" + message.get("msg") + "\n");
-		  	    
+		  	  		  	    
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantJoined", message);
 	  	service.sendMessage(m);
 	}
@@ -299,9 +290,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processPresenterAssignedMessage \n" + message.get("msg") + "\n");
-		
+	  	    		
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "assignPresenterCallback", message);
 		service.sendMessage(m);	
 	}
@@ -313,9 +302,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserRaisedHandMessage \n" + message.get("msg") + "\n");
-		
+	  	    		
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userRaisedHand", message);
 		service.sendMessage(m);	
 	}
@@ -328,9 +315,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserListeningOnlyMessage \n" + message.get("msg") + "\n");
-		
+	  	    		
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "user_listening_only", message);
 		service.sendMessage(m);	
 	}	
@@ -343,9 +328,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserLoweredHandMessage \n" + message.get("msg") + "\n");
-		
+	  	    		
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLoweredHand", message);
 		service.sendMessage(m);	
 	}
@@ -359,9 +342,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserStatusChangedMessage \n" + message.get("msg") + "\n");
-			  	    
+	  	    			  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantStatusChange", message);
 		service.sendMessage(m);
 	}
@@ -374,9 +355,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-		log.debug("RedisPubSubMessageHandler - processUserSharedWebcamMessage \n" + message.get("msg") + "\n");
-			  	    
+	  	    			  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userSharedWebcam", message);
 		service.sendMessage(m);
 	}
@@ -392,9 +371,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-		log.debug("RedisPubSubMessageHandler - processUserUnharedWebcamMessage \n" + message.get("msg") + "\n");
-		  	    
+	  	    		  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userUnsharedWebcam", message);
 		service.sendMessage(m);
 	}
@@ -407,9 +384,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserJoinedVoiceMessage \n" + message.get("msg") + "\n");
-		  	    
+	  	    		  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userJoinedVoice", message);
 		service.sendMessage(m);	
 	}
@@ -422,9 +397,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserLeftVoiceMessage \n" + message.get("msg") + "\n");
-		  	    
+	  	    		  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLeftVoice", message);
 		service.sendMessage(m);	
 	}
@@ -442,9 +415,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserVoiceMutedMessage \n" + message.get("msg") + "\n");
-		  	    
+	  	    		  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserMuted", message);
 		service.sendMessage(m);		
 	}
@@ -462,9 +433,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processUserVoiceTalkingMessage \n" + message.get("msg") + "\n");
-		  	    
+	  	     	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "voiceUserTalking", message);
 		service.sendMessage(m);		
 	}	
@@ -477,9 +446,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processRecordingStatusChangedMessage \n" + message.get("msg") + "\n");
-		  	    
+	  	     	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "recordingStatusChanged", message);
 		service.sendMessage(m);		
 	}	
@@ -492,9 +459,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	    
-	  	System.out.println("RedisPubSubMessageHandler - processGetRecordingStatusReplyMessage \n" + message.get("msg") + "\n");
-		  	    
+	  	    	    
 	  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "getRecordingStatusReply", message);
 		service.sendMessage(m);		
 	}
@@ -507,11 +472,7 @@ public class UserClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-	  	
-		System.out.println("*************************************************************************************\n");
-	  	System.out.println("RedisPubSubMessageHandler - processGetUsersReplyMessage \n" + message.get("msg") + "\n");
-	  	System.out.println("*************************************************************************************\n");
-		  	    
+	  			  	    
 	  	DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "getUsersReply", message);
 		service.sendMessage(m);
 	}

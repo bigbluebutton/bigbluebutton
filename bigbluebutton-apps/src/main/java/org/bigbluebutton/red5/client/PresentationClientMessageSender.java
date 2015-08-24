@@ -87,9 +87,7 @@ public class PresentationClientMessageSender {
 			Map<String, Object> message = new HashMap<String, Object>();
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
-			  	    
-			System.out.println("RedisPubSubMessageHandler - processPresentationRemovedMessage \n" + message.get("msg") + "\n");
-				  	    
+			  	      	    
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "removePresentationCallback", message);
 			service.sendMessage(m);		
 		}
@@ -106,9 +104,7 @@ public class PresentationClientMessageSender {
 			Map<String, Object> message = new HashMap<String, Object>();
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
-			  	    
-			System.out.println("RedisPubSubMessageHandler - processGetPresentationInfoReplyMessage \n" + message.get("msg") + "\n");
-				  	    
+			  	    	  	    
 			DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "getPresentationInfoReply", message);
 			service.sendMessage(m);		
 		}		
@@ -131,9 +127,6 @@ public class PresentationClientMessageSender {
 			Map<String, Object> message = new HashMap<String, Object>();
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
-
-//			System.out.println("RedisPubSubMessageHandler - processPresentationSharedMessage \n"
-//			+ message.get("msg") + "\n");
 
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "sharePresentationCallback", message);
 			service.sendMessage(m);
@@ -162,9 +155,6 @@ public class PresentationClientMessageSender {
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
 
-//			System.out.println("RedisPubSubMessageHandler - processPresentationPageResized \n"
-//			+ message.get("msg") + "\n");
-
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "moveCallback", message);
 			service.sendMessage(m);
 		}
@@ -190,9 +180,6 @@ public class PresentationClientMessageSender {
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
 
-//			System.out.println("RedisPubSubMessageHandler - processPresentationConversionDone \n"
-//			+ message.get("msg") + "\n");
-
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "conversionCompletedUpdateMessageCallback", message);
 			service.sendMessage(m);
 		}
@@ -211,9 +198,6 @@ public class PresentationClientMessageSender {
 			Map<String, Object> message = new HashMap<String, Object>();
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
-
-//			System.out.println("RedisPubSubMessageHandler - processGetSlideInfoReply \n"
-//			+ message.get("msg") + "\n");
 
 			DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "getSlideInfoReply", message);
 			service.sendMessage(m);
@@ -236,9 +220,6 @@ public class PresentationClientMessageSender {
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
 
-//			System.out.println("RedisPubSubMessageHandler - processPresentationConversionProgress \n"
-//			+ message.get("msg") + "\n");
-
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "PresentationCursorUpdateCommand", message);
 			service.sendMessage(m);
 		}
@@ -260,9 +241,6 @@ public class PresentationClientMessageSender {
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
 
-//			System.out.println("RedisPubSubMessageHandler - processPresentationConversionProgress \n"
-//			+ message.get("msg") + "\n");
-
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "generatedSlideUpdateMessageCallback", message);
 			service.sendMessage(m);
 		}
@@ -281,9 +259,6 @@ public class PresentationClientMessageSender {
 			Map<String, Object> message = new HashMap<String, Object>();
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
-
-//			System.out.println("RedisPubSubMessageHandler - processPresentationConversionProgress \n"
-//			+ message.get("msg") + "\n");
 
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "conversionUpdateMessageCallback", message);
 			service.sendMessage(m);
@@ -310,9 +285,6 @@ public class PresentationClientMessageSender {
 			Map<String, Object> message = new HashMap<String, Object>();
 			Gson gson = new Gson();
 			message.put("msg", gson.toJson(args));
-
-			System.out.println("RedisPubSubMessageHandler - processGoToSlideMessage \n"
-			+ message.get("msg") + "\n");
 
 			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "goToSlideCallback", message);
 			service.sendMessage(m);

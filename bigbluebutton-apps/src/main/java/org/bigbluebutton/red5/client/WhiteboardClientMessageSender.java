@@ -105,10 +105,6 @@ public class WhiteboardClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 
-		System.out.println("RedisPubSubMessageHandler - processGetWhiteboardShapesReplyMessage \n"
-		+ message.get("msg").toString() + "\n");
-
-		//directed message
 		DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "WhiteboardRequestAnnotationHistoryReply", message);
 		service.sendMessage(m);
 	}
@@ -121,9 +117,6 @@ public class WhiteboardClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 
-		System.out.println("RedisPubSubMessageHandler - processClearWhiteboardReply \n" + message.toString() + "\n");
-
-		//directed message
 		DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "WhiteboardIsWhiteboardEnabledReply", message);
 		service.sendMessage(m);
 
@@ -140,8 +133,6 @@ public class WhiteboardClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 
-		System.out.println("RedisPubSubMessageHandler - processClearWhiteboardReply \n" + message.toString() + "\n");
-
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "WhiteboardClearCommand", message);
 		service.sendMessage(m);
 	}
@@ -154,8 +145,6 @@ public class WhiteboardClientMessageSender {
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
-
-		System.out.println("RedisPubSubMessageHandler - processUndoWhiteboardReply \n" + message.toString() + "\n");
 
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "WhiteboardUndoCommand", message);
 		service.sendMessage(m);

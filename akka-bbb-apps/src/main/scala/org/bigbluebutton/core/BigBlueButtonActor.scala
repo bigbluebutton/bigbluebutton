@@ -37,6 +37,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
     case msg: CreateMeeting => handleCreateMeeting(msg)
     case msg: DestroyMeeting => handleDestroyMeeting(msg)
     case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
+    case msg: PubSubPing => handlePubSubPingMessage(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
     case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
@@ -178,6 +179,10 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
 
   private def handleKeepAliveMessage(msg: KeepAliveMessage): Unit = {
     outGW.send(new KeepAliveMessageReply(msg.aliveID))
+  }
+
+  private def handlePubSubPingMessage(msg: PubSubPing): Unit = {
+    outGW.send(new PubSubPong(msg.system, msg.timestamp))
   }
 
   private def handleDestroyMeeting(msg: DestroyMeeting) {

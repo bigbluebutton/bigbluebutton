@@ -2,6 +2,7 @@ package org.bigbluebutton.api.messaging;
 
 import java.util.Set;
 
+import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.bigbluebutton.api.messaging.messages.MeetingEnded;
@@ -14,9 +15,13 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.common.converters.FromJsonDecoder;
 import org.bigbluebutton.common.messages.BbbAppsIsAliveMessage;
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
+import org.bigbluebutton.common.messages.PubSubPongMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -25,6 +30,7 @@ public class MeetingMessageHandler implements MessageHandler {
 	private static Logger log = LoggerFactory.getLogger(MeetingMessageHandler.class);
 	
 	private Set<MessageListener> listeners;
+	private final FromJsonDecoder decoder = new FromJsonDecoder();
 	
 	public void setMessageListeners(Set<MessageListener> listeners) {
 		this.listeners = listeners;
@@ -65,7 +71,7 @@ public class MeetingMessageHandler implements MessageHandler {
 					  }
 				}				
 			}
-	  } else if (channel.equalsIgnoreCase(MessagingConstants.BBB_APPS_KEEP_ALIVE_CHANNEL)) {
+	  } else if (channel.equalsIgnoreCase(MessagingConstants.FROM_SYSTEM_CHANNEL)) {
 	  	
 			if (obj.has("header") && obj.has("payload")) {
 				JsonObject header = (JsonObject) obj.get("header");
@@ -73,15 +79,25 @@ public class MeetingMessageHandler implements MessageHandler {
 				
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
-//					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
-				  for (MessageListener listener : listeners) {
-					  if (BbbAppsIsAliveMessage.BBB_APPS_IS_ALIVE.equalsIgnoreCase(messageName)){
-						  BbbAppsIsAliveMessage msg = BbbAppsIsAliveMessage.fromJson(message);
-						  listener.handle(new KeepAliveReply(msg.startedOn, msg.timestamp));
-					  } 
+					IMessage rxMsg = null;
+					if (PubSubPongMessage.PUBSUB_PONG.equals(messageName)) {
+							IBigBlueButtonMessage msg = decoder.decodeMessage(message);
+							if (msg != null) {
+								PubSubPongMessage m = (PubSubPongMessage) msg;
+								rxMsg = new KeepAliveReply(m.payload.system, m.payload.timestamp);
+							} else {
+								System.out.println("***** 1 Failed to decode pong message");
+							}
+					}
+					//System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
+					if (rxMsg != null) {
+						for (MessageListener listener : listeners) {
+						   listener.handle(rxMsg);
+						} 						
+					}
+
 				  }
 				}				
-			}
 		 } else if (channel.equalsIgnoreCase(MessagingConstants.FROM_USERS_CHANNEL)) {	
 				if (obj.has("header") && obj.has("payload")) {
 					JsonObject header = (JsonObject) obj.get("header");
@@ -92,7 +108,7 @@ public class MeetingMessageHandler implements MessageHandler {
 						System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
 					  
 						if (MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageName)) {
-              System.out.println("Handling [" + messageName + "] message.");
+							System.out.println("Handling [" + messageName + "] message.");
 							String meetingId = payload.get("meeting_id").getAsString();
 							JsonObject user = (JsonObject) payload.get("user");
 							

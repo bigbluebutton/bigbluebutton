@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="350" layout="vertical"
+				show="{focusManager.setFocus(choiceFirst)}">
+	<fx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.managers.PopUpManager;
+			
+			import org.as3commons.lang.ArrayUtils;
+			import org.as3commons.lang.StringUtils;
+			import org.bigbluebutton.modules.polling.events.StartCustomPollEvent;
+			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var _presentationWindow : PresentationWindow;
+			
+			public function setPresentationWindow(window:PresentationWindow):void {
+				_presentationWindow = window;
+			}
+			
+			protected function publishButton_clickHandler(event:MouseEvent):void {
+				var answers : Array = buildAnswsers();
+				if (ArrayUtils.isNotEmpty(answers)) {
+					_presentationWindow.slideView.onZoomSlide(100);
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatchEvent(new StartCustomPollEvent("Custom", answers));
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			private function buildAnswsers():Array {
+				var result : Array = [];
+				for each( var choice : String in [choiceFirst.text, choiceSecond.text, choiceThird.text, choiceFourth.text, choiceFifth.text, choiceSixth.text]) {
+					if(!StringUtils.isBlank(StringUtils.trim(choice))) {
+						result.push(StringUtils.trim(choice));
+					}
+				}
+				return result;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:Label id="modalTitle" styleName="micSettingsWindowTitleStyle"
+			  text="{ResourceUtil.getInstance().getString('bbb.polling.customChoices.title')}" width="100%"/>
+	
+	<mx:HRule width="100%"/>
+	
+	<mx:VBox width="100%" paddingTop="20" paddingBottom="20" paddingLeft="16" paddingRight="16">
+		<mx:TextInput id="choiceFirst" width="100%"/>
+		<mx:TextInput id="choiceSecond" width="100%"/>
+		<mx:TextInput id="choiceThird" width="100%"/>
+		<mx:TextInput id="choiceFourth" width="100%"/>
+		<mx:TextInput id="choiceFifth" width="100%"/>
+		<mx:TextInput id="choiceSixth" width="100%"/>
+	</mx:VBox>
+
+	<mx:HRule width="100%"/>
+	
+	<mx:HBox width="100%" horizontalGap="10" horizontalAlign="right">
+		<mx:Button id="publishButton" click="publishButton_clickHandler(event)"
+				   label="{ResourceUtil.getInstance().getString('bbb.polling.startButton.label')}"/>
+		<mx:Button id="closeButton" click="PopUpManager.removePopUp(this)"
+				   label="{ResourceUtil.getInstance().getString('bbb.polling.closeButton.label')}"/>
+	</mx:HBox>
+	
+</mx:TitleWindow>

@@ -62,6 +62,8 @@ public class KeepAliveService implements MessageListener {
 	
 	private Long lastKeepAliveMessage = 0L;
 	
+	private final String SYSTEM = "BbbWeb";
+	
 	public void start() {	
 		scheduledThreadPool.scheduleWithFixedDelay(task, 5000, runEvery, TimeUnit.MILLISECONDS);
 		processKeepAliveMessage();
@@ -131,29 +133,33 @@ public class KeepAliveService implements MessageListener {
   }
   	
   private void processPing(KeepAlivePing msg) {
+	  service.sendKeepAlive(SYSTEM, System.currentTimeMillis());
+	  
 	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 10000)) {
-		  log.warn("BBB Apps is down. Making service unavailable.");
+		  log.error("BBB Web pubsub error!");
 	   		// BBB-Apps has gone down. Mark it as unavailable. (ralam - april 29, 2014)
 	   		available = false;
 	  }		
   }
   	
   private void processPong(KeepAlivePong msg) {
-	  log.debug("Received BBB Apps Is Alive.");
-	  lastKeepAliveMessage = msg.timestamp;  		
+	  lastKeepAliveMessage = System.currentTimeMillis();  		
 	  available = true;
   }
   
-  private void handleKeepAliveReply(Long startedOn, Long timestamp) {
-   	KeepAlivePong pong = new KeepAlivePong(startedOn, timestamp);
-   	queueMessage(pong);
+  private void handleKeepAliveReply(String system, Long timestamp) {
+	  if (system.equals("BbbWeb")) {
+		   	KeepAlivePong pong = new KeepAlivePong(system, timestamp);
+		   	queueMessage(pong);		  
+	  }
+
   }
   
 	@Override
   public void handle(IMessage message) {
 		if (message instanceof KeepAliveReply) {
 			KeepAliveReply msg = (KeepAliveReply) message;
-			handleKeepAliveReply(msg.startedOn, msg.timestamp);
+			handleKeepAliveReply(msg.system, msg.timestamp);
 		}
   }
 }

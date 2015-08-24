@@ -111,6 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="bbbAppsIsAliveMonitorService" class="org.bigbluebutton.red5.monitoring.BbbAppsIsAliveMonitorService"
                 init-method="start" destroy-method="stop">
         <property name="connectionInvokerService"> <ref bean="connInvokerService"/></property>
+        <property name="messageSender" ref="red5RedisSender"/>
     </bean>
 
     <bean id="bbbAppsIsKeepAliveHandler" class="org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler">

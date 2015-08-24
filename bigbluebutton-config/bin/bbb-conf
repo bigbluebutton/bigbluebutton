@@ -332,7 +332,7 @@ start_bigbluebutton () {
 	#
 	echo -n "Waiting for BigBlueButton to finish starting up (this may take a minute): "
 
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
         if ! nc -z -w 1 127.0.0.1 9123; then
@@ -730,7 +730,7 @@ check_configuration() {
 	#
 	# Check if the IP resolves to a different host
 	#
- 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+ 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
  	
 	HOSTS=$(which host)
@@ -772,7 +772,7 @@ check_configuration() {
 	fi
 
 	BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
 		WEBHOOKS_SALT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
@@ -1230,6 +1230,17 @@ check_state() {
         	fi
 	fi
 
+	RED5_PID_PS=$(ps -u red5 | grep java | sed 's/^[ ]*//g' | cut -d" " -f1)
+	RED5_PID_FILE=$(cat /var/run/red5.pid)
+
+	if [[ "$RED5_PID_PS" != "$RED5_PID_FILE" ]]; then
+		echo "# Error: red5 process ID does not match value in PID file"
+		echo "#"
+		echo "#         pid from top: $RED5_PID_PS"
+		echo "#    /var/run/red5.pid: $RED5_PID_FILE"  
+		echo "#"
+	fi
+
 	exit 0
 }
 
@@ -1262,7 +1273,7 @@ if [ $CHECK ]; then
 	PORT_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
 	echo "  		Port test (tunnel): $PORT_IP"
 
-	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*(:\/\///;s/\/.*//;p}')
+	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*:\/\///;s/\/.*//;p}')
 	WEBRTC_ENABLED_CLIENT=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                              Red5: $RED5_IP"
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
@@ -1276,7 +1287,7 @@ if [ $CHECK ]; then
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1 | cut -d' ' -f1)
 	echo "                       server name: $NGINX_IP"
 
 	PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
@@ -1305,7 +1316,7 @@ if [ $CHECK ]; then
 	fi
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*(:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
 		echo
 		echo "/var/www/bigbluebutton/check/conf/config.xml (client check)"
 		echo "                      client check: $CHECK_URL"
@@ -1620,6 +1631,13 @@ if [ $CLEAN ]; then
 	mv /var/log/syslog /tmp/syslog.$$
 	echo "" > /var/log/syslog
 	chown syslog:adm /var/log/syslog
+
+	if [ -d /var/log/bbb-fsesl-akka ]; then
+		rm -f /var/log/bbb-fsesl-akka/*
+  fi
+	if [ -d /var/log/bbb-apps-akka ]; then
+		rm -f /var/log/bbb-apps-akka/*
+  fi
 
 	display_bigbluebutton_status
 

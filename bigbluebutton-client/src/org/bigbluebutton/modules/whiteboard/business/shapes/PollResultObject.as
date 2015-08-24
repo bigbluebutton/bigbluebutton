@@ -123,11 +123,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         var percentText:TextField;
         var answerArray:Array = new Array();
         var percentArray:Array = new Array();
-        var minFontSize:int = 20;
+        var minFontSize:int = 30;
         var currFontSize:int;
         
-        var startingLabelWidth:Number = Math.min(labelWidthPercent*graphWidth, labelMaxWidthInPixels);
-        
+        //var startingLabelWidth:Number = Math.min(labelWidthPercent*graphWidth, labelMaxWidthInPixels);
+		var startingLabelWidth:Number = labelWidthPercent*graphWidth;
+		
         graphics.lineStyle(2, colFill);
         graphics.beginFill(colFill, 1.0);
         for (var j:int=0, vp:int=extraVPixels, ry:int=graphY, curRowHeight:int=0; j<_data.length; j++) {
@@ -149,7 +150,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           answerText.selectable = false;
           //addChild(answerText);
           answerArray.push(answerText);
-          currFontSize = findFontSize(answerText, 20);
+          currFontSize = findFontSize(answerText, minFontSize);
           if (currFontSize < minFontSize) minFontSize = currFontSize;
           //rowText.height = rowText.textHeight;
           answerText.x = graphX + hpadding;
@@ -164,7 +165,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
           percentText.selectable = false;
           //addChild(percentText);
           percentArray.push(percentText);
-          currFontSize = findFontSize(percentText, 20);
+          currFontSize = findFontSize(percentText, minFontSize);
           if (currFontSize < minFontSize) minFontSize = currFontSize;
           //percentText.height = percentText.textHeight;
           //percentText.x = graphWidth-percentStartWidth/2-percentText.width/2;

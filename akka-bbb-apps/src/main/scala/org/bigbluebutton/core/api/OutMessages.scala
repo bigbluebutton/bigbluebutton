@@ -25,6 +25,7 @@ case class MeetingDestroyed(meetingID: String) extends IOutMessage
 case class DisconnectAllUsers(meetingID: String) extends IOutMessage
 case class DisconnectUser(meetingID: String, userId: String) extends IOutMessage
 case class KeepAliveMessageReply(aliveID: String) extends IOutMessage
+case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
 case object IsAliveMessage extends IOutMessage
 
 // Permissions
