@@ -26,7 +26,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     backgroundColor = "#ffffff"
     verticalPadding = 0
     horizontalPadding = 0
-    calcFontSize = 20
+    calcFontSize = 30
     votesTotal = 0
     maxNumVotes = 0
     textArray = []
@@ -236,7 +236,7 @@ calculateFontAndWidth = (textArray, calcFontSize, width, height, x, y) ->
           test = getRenderedTextSize(textArray[i][j], calcFontSize)
           spanWidth = test[0]
           spanHeight = test[1]
-          if spanWidth > 40 or spanWidth > maxLineWidth or spanHeight > maxLineHeight
+          if spanWidth > maxLineWidth or spanHeight > maxLineHeight
             calcFontSize -= 1
             flag = true
     calculatedData.push calcFontSize
