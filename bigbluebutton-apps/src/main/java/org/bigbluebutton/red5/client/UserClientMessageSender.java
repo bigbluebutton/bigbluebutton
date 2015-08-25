@@ -12,13 +12,12 @@ import org.bigbluebutton.common.messages.GetUsersReplyMessage;
 import org.bigbluebutton.common.messages.LockLayoutMessage;
 import org.bigbluebutton.common.messages.PresenterAssignedMessage;
 import org.bigbluebutton.common.messages.RecordingStatusChangedMessage;
+import org.bigbluebutton.common.messages.UserEmojiStatusMessage;
 import org.bigbluebutton.common.messages.UserJoinedMessage;
 import org.bigbluebutton.common.messages.UserJoinedVoiceMessage;
 import org.bigbluebutton.common.messages.UserLeftMessage;
 import org.bigbluebutton.common.messages.UserLeftVoiceMessage;
 import org.bigbluebutton.common.messages.UserListeningOnlyMessage;
-import org.bigbluebutton.common.messages.UserLoweredHandMessage;
-import org.bigbluebutton.common.messages.UserRaisedHandMessage;
 import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
 import org.bigbluebutton.common.messages.UserStatusChangedMessage;
 import org.bigbluebutton.common.messages.UserUnsharedWebcamMessage;
@@ -92,22 +91,16 @@ public class UserClientMessageSender {
 						  processUserStatusChangedMessage(usm);
 					  }
 					  break;
-				  case UserRaisedHandMessage.USER_RAISED_HAND:
-					  UserRaisedHandMessage urhm = UserRaisedHandMessage.fromJson(message);
+				  case UserEmojiStatusMessage.USER_EMOJI_STATUS:
+					  UserEmojiStatusMessage urhm = UserEmojiStatusMessage.fromJson(message);
 					  if (urhm != null) {
-						  processUserRaisedHandMessage(urhm);
+						  processUserEmojiStatusMessage(urhm);
 					  }
 					  break;
 				  case UserListeningOnlyMessage.USER_LISTENING_ONLY:
 					  UserListeningOnlyMessage ulom = UserListeningOnlyMessage.fromJson(message);
 					  if (ulom != null) {
 						  processUserListeningOnlyMessage(ulom);
-					  }
-					  break;
-				  case UserLoweredHandMessage.USER_LOWERED_HAND:
-					  UserLoweredHandMessage ulhm = UserLoweredHandMessage.fromJson(message);
-					  if (ulhm != null) {
-						  processUserLoweredHandMessage(ulhm);
 					  }
 					  break;
 				  case UserSharedWebcamMessage.USER_SHARED_WEBCAM:
@@ -295,7 +288,7 @@ public class UserClientMessageSender {
 		service.sendMessage(m);	
 	}
 	
-	private void processUserRaisedHandMessage(UserRaisedHandMessage msg) {	  			
+	private void processUserEmojiStatusMessage(UserEmojiStatusMessage msg) {	  			
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("userId", msg.userId);
 		
@@ -303,7 +296,7 @@ public class UserClientMessageSender {
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
 	  	    		
-	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userRaisedHand", message);
+	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userEmojiStatus", message);
 		service.sendMessage(m);	
 	}
 	
@@ -320,19 +313,6 @@ public class UserClientMessageSender {
 		service.sendMessage(m);	
 	}	
 	
-	private void processUserLoweredHandMessage(UserLoweredHandMessage msg) {	  	
-		Map<String, Object> args = new HashMap<String, Object>();	
-		args.put("userId", msg.userId);
-		args.put("loweredBy", msg.loweredBy);
-			
-		Map<String, Object> message = new HashMap<String, Object>();
-		Gson gson = new Gson();
-		message.put("msg", gson.toJson(args));
-	  	    		
-	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLoweredHand", message);
-		service.sendMessage(m);	
-	}
-
 	private void processUserStatusChangedMessage(UserStatusChangedMessage msg) {	  	
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("userID", msg.userId);

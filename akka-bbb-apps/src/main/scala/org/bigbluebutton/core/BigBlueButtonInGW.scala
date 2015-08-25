@@ -18,6 +18,7 @@ import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
+import org.bigbluebutton.core.api.UserEmojiStatus
 
 class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
   val log = system.log
@@ -159,12 +160,8 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   }
 
   // Users
-  def userRaiseHand(meetingId: String, userId: String) {
-    bbbActor ! new UserRaiseHand(meetingId, userId)
-  }
-
-  def lowerHand(meetingId: String, userId: String, loweredBy: String) {
-    bbbActor ! new UserLowerHand(meetingId, userId, loweredBy)
+  def userEmojiStatus(meetingId: String, userId: String, emojiStatus: String) {
+    bbbActor ! new UserEmojiStatus(meetingId, userId, emojiStatus)
   }
 
   def ejectUserFromMeeting(meetingId: String, userId: String, ejectedBy: String) {

@@ -2,7 +2,7 @@ package org.bigbluebutton.core.models
 
 import org.bigbluebutton.core.api.Role._
 
-case class Status(isPresenter: Boolean = false, handRaised: Boolean = false)
+case class Status(isPresenter: Boolean = false, emojiStatus: String = "none")
 
 case class CallerId(num: String = "", name: String = "")
 

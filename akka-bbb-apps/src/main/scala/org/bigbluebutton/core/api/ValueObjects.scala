@@ -47,7 +47,7 @@ case class User(
   presenter: Boolean,
   callerId: CallerId,
   phoneCaller: Boolean,
-  handRaised: Boolean,
+  emojiStatus: String,
   muted: Boolean,
   talking: Boolean)
 
@@ -86,7 +86,7 @@ case class UserVO(
   externUserID: String,
   name: String,
   role: Role.Role,
-  raiseHand: Boolean,
+  emojiStatus: String,
   presenter: Boolean,
   hasStream: Boolean,
   locked: Boolean,

@@ -71,7 +71,7 @@ public class Util {
 	public Map<String, Object> extractUser(JsonObject user) {
 		if (user.has(Constants.USER_ID) && user.has(Constants.NAME)
 				&& user.has(Constants.HAS_STREAM) && user.has(Constants.LISTENONLY)
-				&& user.has(Constants.RAISE_HAND) && user.has(Constants.PHONE_USER)
+				&& user.has(Constants.EMOJI_STATUS) && user.has(Constants.PHONE_USER)
 				&& user.has(Constants.PRESENTER) && user.has(Constants.LOCKED)
 				&& user.has(Constants.EXTERN_USERID) && user.has(Constants.ROLE)
 				&& user.has(Constants.VOICEUSER) && user.has(Constants.WEBCAM_STREAM)){
@@ -82,7 +82,7 @@ public class Util {
 			String username = user.get(Constants.NAME).getAsString();
 			Boolean hasStream = user.get(Constants.HAS_STREAM).getAsBoolean();
 			Boolean listenOnly = user.get(Constants.LISTENONLY).getAsBoolean();
-			Boolean raiseHand = user.get(Constants.RAISE_HAND).getAsBoolean();
+			String emojiStatus = user.get(Constants.EMOJI_STATUS).getAsString();
 			Boolean phoneUser = user.get(Constants.PHONE_USER).getAsBoolean();
 			Boolean presenter = user.get(Constants.PRESENTER).getAsBoolean();
 			Boolean locked = user.get(Constants.LOCKED).getAsBoolean();
@@ -97,7 +97,7 @@ public class Util {
 			userMap.put("listenOnly", listenOnly);
 			userMap.put("hasStream", hasStream);
 			userMap.put("webcamStream", webcamStreams);
-			userMap.put("raiseHand", raiseHand);
+			userMap.put("emojiStatus", emojiStatus);
 			userMap.put("externUserID", extUserId);
 			userMap.put("phoneUser", phoneUser);
 			userMap.put("locked", locked);

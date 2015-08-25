@@ -54,20 +54,12 @@ public class ParticipantsService {
 		red5InGW.getUsers(meetingId, userId);
 	}
 	
-	public void userRaiseHand() {
+	public void userEmojiStatus(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();
 		String userId = getBbbSession().getInternalUserID();
-		red5InGW.userRaiseHand(meetingId, userId);
-	}
-	
-	public void lowerHand(Map<String, String> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = scope.getName();
-		String userId = (String) msg.get("userId");
-		String loweredBy = (String) msg.get("loweredBy");
-
-		red5InGW.lowerHand(meetingId, userId, loweredBy);
+		String emojiStatus = (String) msg.get("emojiStatus");
+		red5InGW.userEmojiStatus(meetingId, userId, emojiStatus);
 	}
 	
 	public void ejectUserFromMeeting(Map<String, String> msg) {

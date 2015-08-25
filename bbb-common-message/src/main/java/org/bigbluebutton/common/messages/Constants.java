@@ -16,10 +16,9 @@ public class Constants {
   public static final String AUTH_TOKEN                      = "auth_token";
   public static final String ROLE                            = "role";
   public static final String EXT_USER_ID                     = "external_user_id";
-  public static final String EXTERN_USERID                  = "extern_userid";
+  public static final String EXTERN_USERID                   = "extern_userid";
   public static final String REQUESTER_ID                    = "requester_id";
   public static final String REPLY_TO                        = "reply_to";
-  public static final String LOWERED_BY                      = "lowered_by";
   public static final String STREAM                          = "stream";
   public static final String LOCKED                          = "locked";
   public static final String SETTINGS                        = "settings";
@@ -63,14 +62,14 @@ public class Constants {
   public static final String USER                            = "user";
   public static final String MUTED                           = "muted";
   public static final String VOICE_USER                      = "voice_user";
-  public static final String VOICEUSER                      = "voiceUser";
+  public static final String VOICEUSER                       = "voiceUser";
   public static final String RECORDING_FILE                  = "recording_file";
   public static final String ANNOTATION                      = "annotation";
   public static final String WHITEBOARD_ID                   = "whiteboard_id";
   public static final String ENABLE                          = "enable";
   public static final String PRESENTER                       = "presenter";
   public static final String USERS                           = "users";
-  public static final String RAISE_HAND                      = "raise_hand";
+  public static final String EMOJI_STATUS                    = "emoji_status";
   public static final String HAS_STREAM                      = "has_stream";
   public static final String WEBCAM_STREAM                   = "webcam_stream";
   public static final String PHONE_USER                      = "phone_user"; 
@@ -126,5 +125,3 @@ public class Constants {
   public static final String PERM_LOCK_ON_JOIN_CONFIG        = "lockOnJoinConfigurable";
   public static final String ENABLED                         = "enabled";
 }
-
-
