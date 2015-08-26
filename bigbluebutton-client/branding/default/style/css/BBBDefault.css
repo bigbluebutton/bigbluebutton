@@ -529,7 +529,7 @@ TitleWindow {
 
 .micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
   fontFamily: Arial;
-  fontSize: 12;    
+  fontSize: 14;    
 }
 
 .micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
@@ -883,4 +883,12 @@ PollChoicesModal {
 	fontSize: 14;
 	paddingLeft: 16;
 	paddingRight: 16;
+}
+
+.chatOptionsLabel {
+	fontSize: 12;
+	color: #000000;
+	textRollOverColor: #000000;
+	textSelectedColor: #000000;
+	fontFamily: Arial;
 }
