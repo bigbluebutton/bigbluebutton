@@ -119,9 +119,6 @@ Template.main.rendered = ->
       of: '.signOutIcon'
   )
 
-  Meteor.NotificationControl = new NotificationControl('notificationArea')
-  $(document).foundation() # initialize foundation javascript
-
   $(window).resize( ->
     $('#dialog').dialog('close')
   )
