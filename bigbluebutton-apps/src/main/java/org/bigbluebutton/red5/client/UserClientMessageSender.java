@@ -291,7 +291,8 @@ public class UserClientMessageSender {
 	private void processUserEmojiStatusMessage(UserEmojiStatusMessage msg) {	  			
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("userId", msg.userId);
-		
+		args.put("emojiStatus", msg.emojiStatus);
+	
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
 		message.put("msg", gson.toJson(args));
@@ -303,7 +304,7 @@ public class UserClientMessageSender {
 	private void processUserListeningOnlyMessage(UserListeningOnlyMessage msg) {	  			
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("userId", msg.userId);
-		 args.put("listenOnly", msg.listenOnly);
+		args.put("listenOnly", msg.listenOnly);
 		 
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();

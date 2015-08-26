@@ -18,7 +18,6 @@ import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
-import org.bigbluebutton.core.api.UserEmojiStatus
 
 class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
   val log = system.log
