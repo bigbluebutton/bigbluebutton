@@ -225,8 +225,8 @@ var getMeetingID = function() {
   });
 }
 
-var raiseHand = function(raiseHand) {
-  BBB.raiseHand(raiseHand);
+var emojiStatus = function(emojiStatus) {
+  BBB.emojiStatus(emojiStatus);
 }
 
 var muteMe = function() {

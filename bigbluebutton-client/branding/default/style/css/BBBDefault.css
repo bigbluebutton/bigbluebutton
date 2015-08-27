@@ -884,3 +884,13 @@ PollChoicesModal {
 	paddingLeft: 16;
 	paddingRight: 16;
 }
+
+EmojiGrid {
+	backgroundColor: #ffffff;
+	paddingBottom: 10;
+	paddingLeft: 10;
+	paddingRight: 10;
+	paddingTop: 10;
+	verticalGap: 6;
+	horizontalGap: 6;
+}
