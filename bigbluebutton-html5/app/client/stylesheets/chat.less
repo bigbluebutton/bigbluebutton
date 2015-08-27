@@ -150,18 +150,54 @@
   height: 80px;
   margin-bottom: 0px;
   overflow: hidden;
-  /* Static font sizes are used everywhere in this control. This is the maximum amount of space required */
-  width: 379px;
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    width: 100px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    width: calc(~'100% - 70px');
+  }
+  @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+    width: calc(~'100% - 70px');
+  }
+  #displayLabel {
+    padding: 0;
+  }
+  tr {
+    td {
+      padding: 0;
+      text-align: center;
+    }
+  }
   .displayButtons {
-    height: 35px;
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 35px;
+      width: 35px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 70px;
+      width: 84px;
+    }
+    @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+      height: 35px;
+      width: 84px;
+    }
     margin: 0px;
-    padding:0px;
-    text-align:center;
-    width:84px;
+    padding: 0px;
+    text-align: center;
+    i {
+      @media @phone-portrait-with-keyboard, @phone-portrait {
+        font-size: 16px; // overrides the value from Foundation
+      }
+      @media @tablet-portrait-with-keyboard, @tablet-portrait {
+        font-size: 30px; // overrides the value from Foundation
+      }
+      @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+        font-size: 16px; // overrides the value from Foundation
+      }
+    }
   }
   #displayLabel {
     text-align: center;
-    width: 169px;
   }
 }
 
@@ -202,7 +238,7 @@
 }
 
 #sendMessageButton {
-  width: 20%; /* 75% for the message input, 5% margin between the two */
+  width: 25%;
   color: extract(@white, 1);
   background-color: #3896D3;
   font-weight: bold;
@@ -210,31 +246,44 @@
   margin: 0px;
   border: 1px solid extract(@lightGrey, 3);
   @media @desktop-portrait {
-    width: 20%; /* 75% for the message input, 5% margin between the two */
     font-size: 30px;
-    height: 60px;
     &:hover {
       background: #3A82D4;
     }
+    padding-left: 7%;
   }
-  @media @mobile-portrait {
-    width: 15vw;
-    height: 8vw;
-    font-size: 4vw;
+  @media @phone-portrait {
+    font-size: 20px;
+    padding-left: 5%;
   }
-  @media @mobile-portrait-with-keyboard {
-    width: 19vw;
-    height: 21vh;
-    font-size: 3vh;
+  @media @tablet-portrait {
+    font-size: 25px;
+    padding-left: 7%;
+  }
+  @media @phone-portrait-with-keyboard {
+    font-size: 20px;
+    padding-left: 7%;
+  }
+  @media @tablet-portrait-with-keyboard {
+    font-size: 25px;
+    padding-left: 7%;
   }
   @media @landscape {
-    height: 50px;
     padding: 0px;
     position: absolute;
     bottom: 10px;
     &:hover {
       background: #3A82D4;
     }
+  }
+  @media @phone-landscape {
+    font-size: 14px;
+  }
+  @media @tablet-landscape {
+    font-size: 18px;
+  }
+  @media @desktop-landscape {
+    font-size: 15px;
   }
 }
 

@@ -257,13 +257,14 @@ Handlebars.registerHelper "getPollQuestions", ->
   # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
 @toggleChatbar = ->
-  if getInSession("display_chatbar") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
+  setInSession "display_chatbar", !getInSession "display_chatbar"
+  if !getInSession("display_chatbar")
+    $('#whiteboard').css('width', '100%')
+    $('#whiteboard .ui-resizable-handle').css('display', 'none')
   else
-    setInSession "display_chatbar", !getInSession "display_chatbar"
-  setTimeout(redrawWhiteboard, 0)
+    $('#whiteboard').css('width', '')
+    $('#whiteboard .ui-resizable-handle').css('display', '')
+  setTimeout redrawWhiteboard, 0
 
 @toggleMic = (event) ->
   BBB.toggleMyMic()
@@ -541,6 +542,25 @@ Handlebars.registerHelper "getPollQuestions", ->
   isMobile() and
   window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
   window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
+
+@isLandscapePhone = () ->
+  # @phone-landscape media query:
+  window.matchMedia('(orientation: landscape)').matches and
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 959px)').matches
+
+@isPortraitPhone = () ->
+  # @phone-portrait media query:
+  (window.matchMedia('(orientation: portrait)').matches and
+  window.matchMedia('(max-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 480px)').matches) or
+  # @phone-portrait-with-keyboard media query:
+  (window.matchMedia('(orientation: landscape)').matches and
+  window.matchMedia('(max-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 480px)').matches)
+
+@isPhone = () ->
+  isLandscapePhone() or isPortraitPhone()
 
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->

@@ -190,28 +190,80 @@
 }
 
 .whiteboardFullscreenButton {
-  top: 10px;
-  right: 10px;
-  @media @landscape {
+  @media @desktop-landscape {
     height: 50px;
     width: 50px;
+    top: 5px;
+    right: 5px;
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    height: 100px;
-    width: 10%;
+  @media @phone-landscape {
+    height: 45px;
+    width: 45px;
+    top: 5px;
+    right: 5px;
+  }
+  @media @tablet-landscape {
+    height: 50px;
+    width: 50px;
+    top: 5px;
+    right: 5px;
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    height: 50px;
+    width: 50px;
+    top: 2px;
+    right: 2px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 53px;
+    width: 53px;
+    top: 5px;
+    right: 5px;
+  }
+  @media @desktop-portrait {
+    height: 50px;
+    width: 50px;
+    top: 5px;
+    right: 5px;
   }
 }
 
 .raiseHandButton {
-  bottom: 10px;
-  right: 10px;
-  @media @desktop-portrait, @landscape {
+  @media @desktop-landscape {
+    height: 40px;
+    width: 40px;
+    bottom: 5px;
+    right: 5px;
+  }
+  @media @phone-landscape {
+    height: 45px;
+    width: 45px;
+    bottom: 5px;
+    right: 5px;
+  }
+  @media @tablet-landscape {
     height: 50px;
     width: 50px;
+    bottom: 5px;
+    right: 5px;
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    height: 100px;
-    width: 10%;
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    height: 50px;
+    width: 50px;
+    bottom: 2px;
+    right: 2px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 53px;
+    width: 53px;
+    bottom: 5px;
+    right: 5px;
+  }
+  @media @desktop-portrait {
+    height: 40px;
+    width: 40px;
+    bottom: 5px;
+    right: 5px;
   }
 }
 
@@ -243,6 +295,18 @@
     outline:0;
   }
   i {
+    @media @phone-landscape {
+      font-size: 29px;
+    }
+    @media @desktop-portrait, @desktop-landscape, @tablet-landscape {
+      font-size: 30px;
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 35px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 40px;
+    }
     color: white;
   }
 }

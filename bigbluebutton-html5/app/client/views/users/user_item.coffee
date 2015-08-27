@@ -22,7 +22,7 @@ Template.displayUserIcons.helpers
                     settings.disablePubChat
     return locked and lockInAction
 
-# Opens a private chat tab when a username from the userlist is clicked 
+# Opens a private chat tab when a username from the userlist is clicked
 Template.usernameEntry.events
   'click .usernameEntry': (event) ->
     userIdSelected = @.userId
@@ -31,18 +31,20 @@ Template.usernameEntry.events
         setInSession "inChatWith", "PUBLIC_CHAT"
       else
         setInSession "inChatWith", userIdSelected
-    if isLandscape()
-      $("#newMessageInput").focus()
     if isPortrait() or isPortraitMobile()
-      toggleUsersList()
+      toggleLeftDrawer()
+      toggleLeftArrowClockwise()
+      toggleShield()
+    setTimeout () -> # waits until the end of execution queue
       $("#newMessageInput").focus()
+    , 0
 
   'click .gotUnreadMail': (event) ->
     _this = @
     currentId = getInSession('userId')
     if currentId isnt undefined and currentId is _this.userId
       _id = "PUBLIC_CHAT"
-    else 
+    else
       _id = _this.userId
     chats = getInSession('chats')
     if chats isnt undefined
