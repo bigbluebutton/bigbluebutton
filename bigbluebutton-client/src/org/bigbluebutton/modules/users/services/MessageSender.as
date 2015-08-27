@@ -124,6 +124,10 @@ package org.bigbluebutton.modules.users.services
 	  
 	  JSLog.warn("User stopped sharing webcam event.", logData);
 	  
+	  logData.streamId = streamName;
+	  logData.message = "User stopped sharing webcam";
+	  LOGGER.info(JSON.stringify(logData));
+	  
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.unshareWebcam", 
         function(result:String):void { // On successful result

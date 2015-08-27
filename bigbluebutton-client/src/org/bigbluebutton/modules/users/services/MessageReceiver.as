@@ -531,6 +531,9 @@ package org.bigbluebutton.modules.users.services
 	  logData.user.serverTimestamp = map.serverTimestamp;
 	  JSLog.warn("UserUnsharedWebcam server message", logData);
       
+	  logData.message = "UserUnsharedWebcam server message";
+	  LOGGER.info(JSON.stringify(logData));
+	  
       UserManager.getInstance().getConference().unsharedWebcam(map.userId, map.webcamStream);
 	  sendStreamStoppedEvent(map.userId, map.webcamStream);
     }

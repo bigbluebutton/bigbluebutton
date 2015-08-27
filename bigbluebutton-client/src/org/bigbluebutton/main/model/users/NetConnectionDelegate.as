@@ -68,7 +68,8 @@ package org.bigbluebutton.main.model.users
     
     private var authenticated: Boolean = false;
     private var reconnecting:Boolean = false;
-    
+	private var numNetworkChangeCount:int = 0;
+	
 		public function NetConnectionDelegate():void
 		{
 			dispatcher = new Dispatcher();
@@ -159,6 +160,9 @@ package org.bigbluebutton.main.model.users
       logData.user = UsersUtil.getUserData();
       JSLog.critical("Validate auth token timed out.", logData);
       
+	  logData.message = "Validate auth token timed out.";
+	  LOGGER.info(JSON.stringify(logData));
+	  
       if (tokenValid) {
         authenticated = true;
         LOGGER.debug("*** handleValidateAuthTokenTimedOut. valid=[{0}] **** \n", [tokenValid]);
@@ -306,6 +310,7 @@ package org.bigbluebutton.main.model.users
       
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
+					numNetworkChangeCount = 0;
 					LOGGER.debug("Connection to viewers application succeeded.");
           JSLog.debug("Successfully connected to BBB App.", logData);
           
@@ -327,7 +332,8 @@ package org.bigbluebutton.main.model.users
 					break;
 					
 				case "NetConnection.Connect.Closed":	
-          LOGGER.debug("Connection to viewers application closed");
+					logData.message = "NetConnection.Connect.Closed on bbb-apps";
+					LOGGER.info(JSON.stringify(logData));
           sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
 											
 					break;
@@ -348,8 +354,12 @@ package org.bigbluebutton.main.model.users
 					break;
 				
 				case "NetConnection.Connect.NetworkChange":
-          JSLog.warn("Detected network change to BBB App", logData);
-          LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+					numNetworkChangeCount++;
+					if (numNetworkChangeCount % 20 == 0) {
+						logData.message = "Detected network change on bbb-apps";
+						logData.numNetworkChangeCount = numNetworkChangeCount;
+						LOGGER.info(JSON.stringify(logData));
+					}
 					break;
 					
 				default :
