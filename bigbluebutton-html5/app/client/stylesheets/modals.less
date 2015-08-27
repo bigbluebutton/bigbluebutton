@@ -7,28 +7,34 @@
   @media @phone-landscape, @tablet-landscape,
   @phone-portrait-with-keyboard, @phone-portrait,
   @tablet-portrait-with-keyboard, @tablet-portrait {
-    // overriding the values from Foundation:
-    min-height: 0;
-    margin-left: 0;
-    margin-right: 0;
+    min-height: 0; // overrides the value from Foundation
   }
 
   p {
     margin-bottom: 0px;
   }
   @media @desktop-portrait, @desktop-landscape {
-    min-width: 430px;
+    width: 430px;
     top: 20% !important;
   }
   @media @phone-landscape {
-    left: 50px;
+    // in landscape, we don't use margins for centering the window
+    margin-left: 0;
+    margin-right: 0;
+
     top: 2px;
-    width: calc(~'100% - 100px');
+    @media (max-device-width: 600px) { // extremely small screen
+      width: calc(~'100% - 100px');
+      left: 50px;
+    }
+    @media (min-device-width: 601px) {
+      width: 400px;
+      left: calc(~'50% - 200px');
+    }
   }
   @media @tablet-landscape {
-    left: 100px;
-    top: 5px;
-    width: calc(~'100% - 200px');
+    top: 55px;
+    width: 600px;
   }
   @media @phone-portrait-with-keyboard, @phone-portrait {
     left: 20px;
