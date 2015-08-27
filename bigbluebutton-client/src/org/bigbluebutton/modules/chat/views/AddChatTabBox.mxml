@@ -43,6 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.modules.chat.events.ChatNoiseEnabledEvent;
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -63,6 +64,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 } else {
                     LOGGER.debug("fontSize in config.xml not found: {0}", [chatOptions.fontSize]);
                 }
+                chatNoiseCheckBox.visible = Accessibility.active;
             }
             
             public function accessibleClick(event:KeyboardEvent):void{
@@ -78,6 +80,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 dispatchEvent(e);
             }
             
+            private function changeChatNoise():void {
+                LOGGER.debug("changing chat noise, active=" + chatNoiseCheckBox.selected);
+                dispatchEvent(new ChatNoiseEnabledEvent(chatNoiseCheckBox.selected));
+            }
+			
             protected function openPrivateChat(event:Event):void{
                 if (usersList.selectedIndex == -1) return;
                 
@@ -117,23 +124,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         ]]>
     </mx:Script>
     
-	<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize]}"/>
-
-	<mx:HBox width="100%" height="100%">
-        <mx:VBox  height="100%" width="50%" enabled="true">
-            <mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
-            <mx:List id="usersList" height="100%" width="100%" dataProvider="{users}" dragEnabled="false" 
-                     visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
-                     itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
-                     itemClick="openPrivateChat(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"/>
-            <mx:VBox id="optionsBox" height="100%" width="50%" >
-                <mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
-                <mx:HBox width="100%">
-                    <mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
-                    <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
-								 selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
-                </mx:HBox>
-            </mx:VBox>
-        </mx:VBox>
-    </mx:HBox>	
+	<common:TabIndexer id="tabIndexer" startIndex="1" tabIndices="{[usersList, cmbFontSize, chatNoiseCheckBox]}"/>
+    
+    <mx:Label id="lblSelect" styleName="chatOptionsLabel"
+			  text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" 
+			  visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"/>
+    <mx:List id="usersList" height="50%" width="50%" dataProvider="{users}" dragEnabled="false" 
+             visible="{chatOptions.privateEnabled}" includeInLayout="{chatOptions.privateEnabled}"
+             itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
+             itemClick="openPrivateChat(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.usersList.toolTip')}"/>
+    <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
+    <mx:HBox width="100%">
+        <mx:Label styleName="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
+        <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
+                     selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
+    </mx:HBox>
+	<mx:CheckBox id="chatNoiseCheckBox"  label="Audible Chat Notification" labelPlacement="left" 
+				 selected="true" change="changeChatNoise()" styleName="chatOptionsLabel" />
 </mx:VBox>

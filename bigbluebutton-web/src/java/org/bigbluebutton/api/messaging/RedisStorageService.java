@@ -4,16 +4,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Protocol;
 
 public class RedisStorageService {
 	private static Logger log = LoggerFactory.getLogger(RedisStorageService.class);
 	
 	private JedisPool redisPool;
+	private String host;
+	private int port;
+	
+	public void stop() {
 
+	}
+	
+	public void start() {
+		// Set the name of this client to be able to distinguish when doing
+		// CLIENT LIST on redis-cli
+		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+		        Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
+					
+	}
+	
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
 		Jedis jedis = redisPool.getResource();
 		try {
@@ -26,7 +43,7 @@ public class RedisStorageService {
 		} catch (Exception e){
 			log.warn("Cannot record the info meeting:"+meetingId,e);
 		} finally {
-			redisPool.returnResource(jedis);
+			jedis.close();
 		}		
 	}
 	
@@ -36,7 +53,7 @@ public class RedisStorageService {
 			jedis.del("meeting-" + meetingId);
 			jedis.srem("meetings", meetingId);
 		} finally {
-			redisPool.returnResource(jedis);
+			jedis.close();
 		}
 	}
 	
@@ -53,7 +70,7 @@ public class RedisStorageService {
 		} catch (Exception e){
 			log.warn("Cannot list subscriptions:" + meetingId, e);
 		} finally {
-			redisPool.returnResource(jedis);
+			jedis.close();
 		}
 
 		return list;	
@@ -68,7 +85,7 @@ public class RedisStorageService {
 			log.warn("Cannot rmove subscription:" + meetingId, e);
 			unsubscribed = false;
 		} finally {
-			redisPool.returnResource(jedis);
+			jedis.close();
 		}
 
 		return unsubscribed; 	
@@ -93,13 +110,17 @@ public class RedisStorageService {
 		} catch (Exception e){
 			log.warn("Cannot store subscription:" + meetingId, e);
 		} finally {
-			redisPool.returnResource(jedis);
+			jedis.close();
 		}
 
 		return sid; 	
 	}
 	
-	public void setRedisPool(JedisPool redisPool){
-		this.redisPool=redisPool;
+	public void setHost(String host){
+		this.host = host;
+	}
+	
+	public void setPort(int port) {
+		this.port = port;
 	}
 }

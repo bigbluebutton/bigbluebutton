@@ -102,6 +102,7 @@
   padding-top:10px;
   padding-bottom:10px;
   border-top: 1px solid extract(@lightGrey, 3);
+  font-size: 0; /* to remove default 4px gaps between the buttons caused by display: inline-block */
 }
 
 .pollButtons {
@@ -110,9 +111,17 @@
   font-weight: bold;
   border: 1px solid extract(@lightGrey, 3);
   height: 100%;
-  margin: 0 1rem 0 1rem;
-  padding: auto;
-
+  padding-left: 0rem !important;  /*overwriting the default foundation padding */
+  padding-right: 0rem !important; /*overwriting the default foundation padding */
+  max-width: calc(~'100%/6');     /* the actual width and margins are calculated in the code */
+  /* truncating the text inside the buttons */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* the end of truncating */
+  span {
+    max-width: 80%;
+  }
   &:hover {
     background: #3A82D4;
   }
@@ -277,6 +286,7 @@
   padding: 0;
   border-radius: 50%;
   background: #3896D3;
+  opacity: 0.55;
   &:hover {
     background: #3A82D4;
   }
