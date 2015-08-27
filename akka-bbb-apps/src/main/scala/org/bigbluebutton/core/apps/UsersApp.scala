@@ -207,7 +207,7 @@ trait UsersApp {
 
   def handleUserEmojiStatus(msg: UserEmojiStatus) {
     usersModel.getUser(msg.userId) foreach { user =>
-      val uvo = user.copy()
+      val uvo = user.copy(emojiStatus = msg.emojiStatus)
       usersModel.addUser(uvo)
       outGW.send(new UserChangedEmojiStatus(mProps.meetingID, mProps.recorded, msg.emojiStatus, uvo.userID))
     }
