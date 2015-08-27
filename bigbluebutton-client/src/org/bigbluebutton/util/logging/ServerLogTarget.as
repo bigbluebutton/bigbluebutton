@@ -39,7 +39,7 @@ package org.bigbluebutton.util.logging
 		private var _serverUri:String;
 
 		/** Default format used if non is passed in */
-		public static const DEFAULT_FORMAT:String="{time} {shortName}{atPerson} {message}";
+		public static const DEFAULT_FORMAT:String="{logTime} {gmt} {message}";
 
 		/** Logger used to notify if JSNLog doesn't work */
 		private static const LOGGER:ILogger=getLogger(ServerLogTarget);
@@ -71,7 +71,8 @@ package org.bigbluebutton.util.logging
 
 		public function set format(format:String):void
 		{
-			_formatter=new LogMessageFormatter(format || DEFAULT_FORMAT);
+			_formatter=new LogMessageFormatter(DEFAULT_FORMAT);
+			//_formatter=new LogMessageFormatter(format || DEFAULT_FORMAT);
 		}
 
 		public function log(name:String, shortName:String, level:int, timeStamp:Number, message:*, parameters:Array, person:String):void
