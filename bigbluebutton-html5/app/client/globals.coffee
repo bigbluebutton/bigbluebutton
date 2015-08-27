@@ -543,6 +543,25 @@ Handlebars.registerHelper "getPollQuestions", ->
   window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
   window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
 
+@isLandscapePhone = () ->
+  # @phone-landscape media query:
+  window.matchMedia('(orientation: landscape)').matches and
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 959px)').matches
+
+@isPortraitPhone = () ->
+  # @phone-portrait media query:
+  (window.matchMedia('(orientation: portrait)').matches and
+  window.matchMedia('(max-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 480px)').matches) or
+  # @phone-portrait-with-keyboard media query:
+  (window.matchMedia('(orientation: landscape)').matches and
+  window.matchMedia('(max-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 480px)').matches)
+
+@isPhone = () ->
+  isLandscapePhone() or isPortraitPhone()
+
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
   #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1
