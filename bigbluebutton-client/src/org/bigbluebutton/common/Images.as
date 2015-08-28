@@ -142,9 +142,6 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/participant-mute.png")]
         public var participant_mute:Class;
         
-        [Embed(source="assets/images/raisehand.png")]
-        public var raisehand:Class;
-        
         [Embed(source="assets/images/mic_muted.png")]
         public var sound_mute:Class;
         

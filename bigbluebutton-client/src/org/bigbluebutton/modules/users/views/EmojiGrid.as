@@ -16,101 +16,87 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.users.views
-{
+package org.bigbluebutton.modules.users.views {
+	
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.MouseEvent;
-	
-	import mx.containers.Box;
 	import mx.containers.Tile;
 	import mx.containers.VBox;
 	import mx.controls.Button;
+	import mx.core.ScrollPolicy;
 	import mx.events.FlexMouseEvent;
 	import mx.managers.PopUpManager;
-	
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
-
-	public class EmojiGrid extends VBox
-	{
-		private const EMOJIS:Array=["raiseHand", "smile", "happy", "unhappy", "confused"];
-
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+	
+	public class EmojiGrid extends VBox {
+		private const EMOJIS:Array = ["raiseHand", "smile", "happy", "unhappy", "confused"];
+		
 		private var dispatcher:Dispatcher;
 		
 		private var images:Images;
-
-		public function EmojiGrid()
-		{
+		
+		public function EmojiGrid() {
 			dispatcher = new Dispatcher();
 			images = new Images();
-
 			addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler, false, 0, true);
-
-			width=140;
-			maxHeight=80;
-
+			this.horizontalScrollPolicy = ScrollPolicy.OFF;
+			this.verticalScrollPolicy = ScrollPolicy.OFF;
+			width = 140;
+			maxHeight = 80;
 			drawEmoji();
-			if (UserManager.getInstance().getConference().myEmojiStatus != "none")
-			{
+			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
 				addRemoveEmoji();
 			}
 		}
-
-		private function drawEmoji():void
-		{
-			var tile : Tile = new Tile();
+		
+		private function drawEmoji():void {
+			var tile:Tile = new Tile();
 			tile.width = 140;
 			tile.styleName = "emojiGridTile";
-			
-			for each (var emoji:String in EMOJIS)
-			{
-				var button:Button=new Button();
-				button.id="btn" + emoji;
-				button.width=24;
-				button.height=24;
-				button.toggle=true;
+			tile.horizontalScrollPolicy = ScrollPolicy.OFF;
+			this.verticalScrollPolicy = ScrollPolicy.OFF;
+			for each (var emoji:String in EMOJIS) {
+				var button:Button = new Button();
+				button.id = "btn" + emoji;
+				button.width = 24;
+				button.height = 24;
+				button.toggle = true;
 				button.setStyle("icon", images["emoji_" + emoji]);
-				button.selected=(UserManager.getInstance().getConference().myEmojiStatus == emoji);
-				button.enabled=!button.selected;
-				button.toolTip=emoji;
+				button.selected = (UserManager.getInstance().getConference().myEmojiStatus == emoji);
+				button.enabled = !button.selected;
+				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + emoji);
 				addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
 				tile.addChild(button);
 			}
 			this.addChild(tile);
 		}
-
-		private function addRemoveEmoji():void
-		{
-			var box : Box = new Box();
-			box.width = this.width - 20;
-			
-			var button : Button = new Button();
-			button.id "btnnone";
+		
+		private function addRemoveEmoji():void {
+			var button:Button = new Button();
+			button.id = "btnnone";
+			button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.remove');
 			addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
-			box.addChild(button);
-			addChild(box);
+			addChild(button);
 		}
-
-		protected function buttonMouseEventHandler(event:MouseEvent):void
-		{
-			var emoji:String=String(event.target.id).replace("btn", "");
-			var e:EmojiStatusEvent=new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, emoji);
+		
+		protected function buttonMouseEventHandler(event:MouseEvent):void {
+			var emoji:String = String(event.target.id).replace("btn", "");
+			var e:EmojiStatusEvent = new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, emoji);
 			dispatcher.dispatchEvent(e);
 			hide();
 		}
-
-		protected function mouseDownOutsideHandler(event:FlexMouseEvent):void
-		{
+		
+		protected function mouseDownOutsideHandler(event:FlexMouseEvent):void {
 			hide();
 		}
-
+		
 		/**
 		 * Hides the menu
 		 */
-		public function hide():void
-		{
+		public function hide():void {
 			PopUpManager.removePopUp(this);
 		}
 	}

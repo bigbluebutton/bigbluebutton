@@ -7,7 +7,7 @@ package org.bigbluebutton.core.model.users
     private var _name: String;
     private var _externId: String;
     private var _role: String;
-    private var _handRaised: Boolean;
+    private var _emojiStatus: String;
     private var _presenter: Boolean;
     private var _hasStream: Boolean;
     private var _webcamStream: String;

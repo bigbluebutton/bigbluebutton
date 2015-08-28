@@ -232,7 +232,7 @@
 			
 			private function openSettings():void {
 				paramsMenuData = [];
-				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.emoji_raiseHand, handler:resetEmojiStatuses});
+				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.resetAllStatuses'), icon: images.cancel, handler:resetEmojiStatuses});
 				
 				if (!roomMuted) {
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
@@ -380,13 +380,8 @@
 					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.users.maximizeRestoreBtn.accessibilityName");
 				}
 				
-				// FIXME : fix labels
 				if (emojiStatusBtn) {
-					if (UserManager.getInstance().getConference().myEmojiStatus) {
-						emojiStatusBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip2');
-					} else {
-						emojiStatusBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip');
-					}
+					emojiStatusBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip');
 				}
 				
 				addContextMenuItems();
@@ -523,8 +518,8 @@
 	
 	<mx:ControlBar width="100%">
 		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}"
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="openEmojiStatusMenu()"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()"
 				   visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+15}" />
