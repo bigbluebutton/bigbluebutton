@@ -5,7 +5,7 @@ class @NotificationControl
 
   constructor: (c) ->
     container = if c[0] is '#' then c.substr(1) else c # prepend '#' to the identifier
-    $("body").prepend( # create container for notifications
+    $("#whiteboard").prepend( # create container for notifications
       '<!-- Drawing area for notifications. Must have "data-alert" atrribute, I do not know why, typically only for actual notifications -->' +
       "<div id=\"#{container}\" data-alert></div>")
 

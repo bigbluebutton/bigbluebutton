@@ -1,5 +1,5 @@
 
-var userID, callerIdName, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
+var userID, callerIdName, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
 var inEchoTest = true;
 
 function webRTCCallback(message) {
@@ -419,6 +419,17 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			callback({'status':'started'});
 		} else {
 			callback({'status':'waitingforice'});
+			console.log('Waiting for ICE negotiation');
+			iceConnectedTimeout = setTimeout(function() {
+				console.log('60 seconds without ICE finishing');
+				callback({'status':'failed', 'errorcode': 1010}); // Failure on call
+				currentSession = null;
+				if (userAgent != null) {
+					var userAgentTemp = userAgent;
+					userAgent = null;
+					userAgentTemp.stop();
+				}
+			}, 60000);
 		}
 		clearTimeout(callTimeout);
 	});
@@ -426,6 +437,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 		console.log('received ice negotiation failed');
 		callback({'status':'failed', 'errorcode': 1007}); // Failure on call
 		currentSession = null;
+		clearTimeout(iceConnectedTimeout);
 		if (userAgent != null) {
 			var userAgentTemp = userAgent;
 			userAgent = null;
@@ -441,6 +453,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 		console.log('Received ICE status changed to connected');
 		if (callICEConnected === false) {
 			callICEConnected = true;
+			clearTimeout(iceConnectedTimeout);
 			if (callActive === true) {
 				callback({'status':'started'});
 			}
@@ -452,6 +465,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 		console.log('Received ICE status changed to completed');
 		if (callICEConnected === false) {
 			callICEConnected = true;
+			clearTimeout(iceConnectedTimeout);
 			if (callActive === true) {
 				callback({'status':'started'});
 			}

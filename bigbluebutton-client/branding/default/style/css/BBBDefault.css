@@ -529,7 +529,7 @@ TitleWindow {
 
 .micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle, .webcamPermissionSettingsTextStyle {
   fontFamily: Arial;
-  fontSize: 12;    
+  fontSize: 14;    
 }
 
 .micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
@@ -885,6 +885,14 @@ PollChoicesModal {
 	paddingRight: 16;
 }
 
+.chatOptionsLabel {
+	fontSize: 12;
+	color: #000000;
+	textRollOverColor: #000000;
+	textSelectedColor: #000000;
+	fontFamily: Arial;
+}
+
 EmojiGrid {
 	backgroundColor: #ffffff;
 	horizontalAlign: center;
@@ -898,3 +906,4 @@ EmojiGrid {
 	verticalGap: 6;
 	horizontalGap: 6;
 }
+

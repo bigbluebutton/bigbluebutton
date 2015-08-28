@@ -477,11 +477,13 @@ def storePollResultShape(xml, shape)
     g.puts('unset ytics')
     xtics = result.map{ |r| "\"#{r['key'].gsub('%', '%%')}\" #{r['id']}" }.join(', ')
     g.puts("set xtics rotate by 90 scale 0 right (#{xtics})")
-    x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
-    g.puts("set x2tics rotate by 90 scale 0 left (#{x2tics})")
+    if num_responders > 0
+      x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
+      g.puts("set x2tics rotate by 90 scale 0 left (#{x2tics})")
+    end
     g.puts('set linetype 1 linewidth 1 linecolor rgb "black"')
     result.each do |r|
-      if r['num_votes'].to_f / num_responders <= 0.5
+      if r['num_votes'] == 0 or r['num_votes'].to_f / num_responders <= 0.5
         g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} left rotate by 90 offset 0,character 0.5 front")
       else
         g.puts("set label \"#{r['num_votes']}\" at #{r['id']},#{r['num_votes']} right rotate by 90 offset 0,character -0.5 textcolor rgb \"white\" front")

@@ -5,7 +5,8 @@ Template.settingsModal.helpers
 
 Template.logoutModal.events
   "click #yes": -> userLogout(getInSession("meetingId"), getInSession("userId"))
-  "click #no": -> $("#logoutModal").foundation('reveal', 'close');
+  "click #no": -> $("#logoutModal").foundation('reveal', 'close')
+  "click .logoutButton": -> $(".tooltip").hide()
 
 Template.settingsAudio.events
   "click #exitAudio": -> exitVoiceCall()

@@ -73,3 +73,8 @@ Template.whiteboard.rendered = ->
     stop: () ->
       $('#whiteboard').css('width', 100 * $('#whiteboard').width() / $('#panels').width() + '%') # transforms width to %
       $('#whiteboard').resizable('option', 'maxWidth', null)
+
+  # whiteboard element needs to be available
+  Meteor.NotificationControl = new NotificationControl('notificationArea')
+
+  $(document).foundation() # initialize foundation javascript

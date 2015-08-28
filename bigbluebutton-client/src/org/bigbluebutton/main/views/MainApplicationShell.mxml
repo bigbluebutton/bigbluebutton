@@ -457,7 +457,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
           chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
             chromeBrowser.x = 20;
-            chromeBrowser.y = 80;
+            chromeBrowser.y = 130;
           });          
         }
       }
