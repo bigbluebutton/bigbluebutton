@@ -60,16 +60,16 @@
   				 * make sure to delete the bindings yourself or you'll have memory leaks.
   				 * 		Chad
   				 */
-  				//BindingUtils.bindSetter(updateButton, data, "presenter");
-  				//BindingUtils.bindSetter(updateButton, data, "raiseHand");
+  				//BindingUtils.bindSetter(updateButtons, data, "presenter");
+  				//BindingUtils.bindSetter(updateButtons, data, "raiseHand");
 				
 				/* I had to bind to an Image property which is in turn bound through MXML to the data properties. 
 				 * This really needs to be changed, but it's the only way I could get it work.
 				 * 		Chad
 				 */
-  				BindingUtils.bindSetter(updateButton, presenterInd, "includeInLayout");
-  				BindingUtils.bindSetter(updateButton, moderatorInd, "includeInLayout");
-  				BindingUtils.bindSetter(updateButton, emojiStatusHandInd, "includeInLayout");
+  				BindingUtils.bindSetter(updateButtons, presenterInd, "includeInLayout");
+  				BindingUtils.bindSetter(updateButtons, moderatorInd, "includeInLayout");
+  				BindingUtils.bindSetter(updateButtons, emojiStatusHandInd, "includeInLayout");
   				
   				// The next two lines should be listening for the same data to change and be updating at the same 
   				// time, but the FlexEvent.DATA_CHANGE wasn't working consistently.
@@ -77,80 +77,93 @@
   				ChangeWatcher.watch(this, "data", dataChangeHandler);
   				
   				if (data != null) // if data has already been set
-  					updateButton(); //initialize state
+  					updateButtons(); //initialize state
   					
   				validateNow();
   			}
   			
   			private function dataChangeHandler(e:Event):void {
   				if (data != null) {
-  					updateButton(); //reassess data state on change
+  					updateButtons(); //reassess data state on change
 				}
   			}
   			
-  			private function updateButton(unneeded:Object = null):void {
+  			private function updateButtons(unneeded:Object = null):void {
 	  			if (data != null) {
-					// @FIXME : load the correct emoji instead of hand icon, use the correct emoji image
-	  				if (rolledOver && data.hasEmojiStatus) {
-						roleBtn.setStyle("icon", images.hand_new);
-						roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
-						roleImg.visible = false;
-						roleBtn.visible = true;
-						roleBtn.enabled = true;
-					} else if (rolledOver && !data.presenter && !data.phoneUser) {
-						roleBtn.setStyle("icon", images.presenter_new);
-						roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
-						roleImg.visible = false;
-						roleBtn.visible = true;
-						roleBtn.enabled = true;
-					} else if (data.hasEmojiStatus /* && data.emojiStatusTime */) {
-						// @FIXME : use a different column for displaying the emoji
-						roleImg.source = images.hand_new;
-						roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
-						roleImg.visible = true;
-						roleBtn.visible = false;
-						roleBtn.enabled = false;
-					} else if (data.presenter) {
-						roleImg.source = images.presenter_new;
-						roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
-						roleImg.visible = true;
-						roleBtn.visible = false;
-						roleBtn.enabled = false;
-	  				} else if (data.role == Role.MODERATOR) {
-	  					roleImg.source = images.moderator;
-	  					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-	  					roleImg.visible = true;
-	  					roleBtn.visible = false;
-	  					roleBtn.enabled = false;
-	  				} else {
-	  					roleImg.source = null;
-	  					roleImg.toolTip = "";
-	  					roleImg.visible = true;
-	  					roleBtn.visible = false;
-	  					roleBtn.enabled = false;
-	  				}
+	  				updateRoleComponents();
+					updateEmojiComponents();
 	  			}
   			}
+			
+			private function updateRoleComponents() : void {
+				if (rolledOver && !data.presenter && !data.phoneUser) {
+					roleBtn.setStyle("icon", images.presenter_new);
+					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
+					roleImg.visible = false;
+					roleBtn.visible = true;
+					roleBtn.enabled = true;
+				} else if (data.presenter) {
+					roleImg.source = images.presenter_new;
+					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
+					roleImg.visible = true;
+					roleBtn.visible = false;
+					roleBtn.enabled = false;
+				} else if (data.role == Role.MODERATOR) {
+					roleImg.source = images.moderator;
+					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
+					roleImg.visible = true;
+					roleBtn.visible = false;
+					roleBtn.enabled = false;
+				} else {
+					roleImg.source = null;
+					roleImg.toolTip = "";
+					roleImg.visible = true;
+					roleBtn.visible = false;
+					roleBtn.enabled = false;
+				}
+			}
+			
+			private function updateEmojiComponents() : void {
+				if (rolledOver && data.hasEmojiStatus) {
+					emojiBtn.setStyle("icon", images.hand_new);
+					emojiBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
+					emojiImg.visible = false;
+					emojiBtn.visible = true;
+					emojiBtn.enabled = true;
+				} else if (data.hasEmojiStatus) {
+					// @FIXME : use a specific emoji icon
+					emojiImg.source = images.hand_new;
+					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
+					emojiImg.visible = true;
+					emojiBtn.visible = false;
+					emojiBtn.enabled = false;
+				}
+				else {
+					emojiImg.source = null;
+					emojiImg.toolTip = "";
+					emojiImg.visible = true;
+					emojiBtn.visible = false;
+					emojiBtn.enabled = false;
+				}
+			}
   			
   			private function onRollOver(e:UsersRollEvent):void{
 				if (moderator && (e.userID == data.userID) && !data.phoneUser) {
 					rolledOver = true;
-					updateButton();
+					updateButtons();
 				}
 			}
 			
 			private function onRollOut(e:UsersRollEvent):void{
 				if (moderator && rolledOver) {
 					rolledOver = false;
-					updateButton();
+					updateButtons();
 				}
 			}
   			
 			// @FIXME update for emoji status
   			private function roleBtnClicked():void {
-                if (data.hasEmojiStatus) {
-                    dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none"));
-                } else if (!data.presenter) {
+                if (!data.presenter) {
     				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
     				e.userid = data.userID;
     				e.username = data.name;
@@ -158,13 +171,21 @@
                 }
         	}
 			
+			private function emojiBtnClicked() : void {
+				if (data.hasEmojiStatus) {
+					dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", data.userID));
+				}
+			}
+			
 			// Need to refresh the roleBtn toolTip text on locale change
 			private function localeChanged(e:Event):void {
-				updateButton();
+				updateButtons();
 			}
 		]]>
 	</mx:Script>
-	<!-- @TODO create a new image or button for emoji status -->
+	<mx:Image id="emojiImg" visible="true" width="16" height="16" includeInLayout="{emojiImg.visible}" />
+	<mx:Button id="emojiBtn" visible="false" enabled="false" width="20" height="20" click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
+	
 	<mx:Image id="roleImg" visible="true" width="16" height="16" includeInLayout="{roleImg.visible}" />
 	<mx:Button id="roleBtn" visible="false" enabled="false" width="20" height="20" click="roleBtnClicked()" includeInLayout="{roleBtn.visible}" />
 	

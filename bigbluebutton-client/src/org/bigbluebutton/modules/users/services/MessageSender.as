@@ -79,6 +79,7 @@ package org.bigbluebutton.modules.users.services
 	{
 		var message:Object = new Object();
 		message["emojiStatus"] = emoji;
+		message["userId"] = userID;
 		
 		var _nc:ConnectionManager=BBB.initConnectionManager();
 		_nc.sendMessage("participants.userEmojiStatus", function(result:String):void

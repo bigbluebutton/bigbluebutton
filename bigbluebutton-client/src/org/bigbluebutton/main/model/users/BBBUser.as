@@ -207,9 +207,8 @@ package org.bigbluebutton.main.model.users
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
 			else if (role == Role.MODERATOR)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-			// FIXME : use emoji label instead of raiseHand
 			else if (hasEmojiStatus)
-				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
+				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + _emojiStatus);
 			else
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.viewer');
 		}
@@ -240,12 +239,11 @@ package org.bigbluebutton.main.model.users
 			var isPresenter:String="";
 			var hasEmoji:String = "";
 			if (hasStream)
-				showingWebcam=ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
+				showingWebcam=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.streamIcon.toolTip');
 			if (presenter)
-				isPresenter=ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
-			// @FIXME : use emoji tooltip
+				isPresenter=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presIcon.toolTip');
 			if (hasEmojiStatus)
-				hasEmoji = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
+				hasEmoji = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.'+ emojiStatus +'.toolTip');
 
 			status = showingWebcam + isPresenter + hasEmoji;
 		}

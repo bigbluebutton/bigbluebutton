@@ -25,16 +25,23 @@ package org.bigbluebutton.main.model.users.events
 		public static const EMOJI_STATUS:String="EMOJI_STATUS_EVENT";
 
 		private var _status:String;
+		private var _userId:String;
 
-		public function EmojiStatusEvent(type:String, emoji:String)
+		public function EmojiStatusEvent(type:String, emoji:String, userId:String="")
 		{
 			super(type, true, false);
 			_status=emoji;
+			_userId=userId;
 		}
 
 		public function get status():String
 		{
 			return _status;
+		}
+
+		public function get userId():String
+		{
+			return _userId;
 		}
 	}
 }

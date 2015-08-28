@@ -57,7 +57,7 @@ public class ParticipantsService {
 	public void userEmojiStatus(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();
-		String userId = getBbbSession().getInternalUserID();
+		String userId = (String) msg.get("userId");
 		String emojiStatus = (String) msg.get("emojiStatus");
 		red5InGW.userEmojiStatus(meetingId, userId, emojiStatus);
 	}

@@ -202,7 +202,8 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function emojiStatus(e:EmojiStatusEvent):void {
-      sender.emojiStatus(UserManager.getInstance().getConference().getMyUserId(), e.status);
+	  // If the userId is not set in the event then the event has been dispatched for the current user
+      sender.emojiStatus(e.userId != ""? e.userId : UserManager.getInstance().getConference().getMyUserId(), e.status);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{

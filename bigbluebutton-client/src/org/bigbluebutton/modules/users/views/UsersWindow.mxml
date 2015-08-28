@@ -357,7 +357,7 @@
 			private function resetEmojiStatuses():void {
 				for (var i:int = 0; i < users.length; i++) {
 					var p:BBBUser = users.getItemAt(i) as BBBUser;
-					if (p.hasEmojiStatus) dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none"));
+					if (p.hasEmojiStatus) dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", p.userID));
         		}
 			}
 			
