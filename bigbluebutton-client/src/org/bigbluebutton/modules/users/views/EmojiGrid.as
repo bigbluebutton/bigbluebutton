@@ -45,7 +45,7 @@ package org.bigbluebutton.modules.users.views {
 			this.horizontalScrollPolicy = ScrollPolicy.OFF;
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
 			width = 140;
-			maxHeight = 80;
+			minHeight = 80;
 			drawEmoji();
 			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
 				addRemoveEmoji();
@@ -77,9 +77,11 @@ package org.bigbluebutton.modules.users.views {
 		private function addRemoveEmoji():void {
 			var button:Button = new Button();
 			button.id = "btnnone";
+			button.height = 64;
+			button.height = 24;
 			button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.remove');
-			addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
-			addChild(button);
+			button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
+			this.addChild(button);
 		}
 		
 		protected function buttonMouseEventHandler(event:MouseEvent):void {
