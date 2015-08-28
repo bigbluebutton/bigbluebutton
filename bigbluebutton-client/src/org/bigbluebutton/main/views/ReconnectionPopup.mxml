@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     horizontalScrollPolicy="off"
     horizontalAlign="center"
     width="250"
-    title="Network failure">
+    title="{ResourceUtil.getInstance().getString('bbb.connection.failure')}">
   
   <mx:Script>
     <![CDATA[
@@ -42,13 +42,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     >
       <mx:Image id="typeImg" source="{typeImg.getStyle('refreshImage')}" width="34" height="34" styleName="statusImageStyle" />
     </mx:Box>
-    <!-- <mx:Text
-        selectable="false"
-        text="{ResourceUtil.getInstance().getString('reconnecting')}"
-        width="100%"/> -->
     <mx:Text
         selectable="false"
-        text="Reconnecting"
+        text="{ResourceUtil.getInstance().getString('bbb.connection.reconnecting')}"
         width="100%"/>
   </mx:HBox>
 </mx:Panel> 

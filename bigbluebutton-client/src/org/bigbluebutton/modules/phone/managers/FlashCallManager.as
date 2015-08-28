@@ -430,5 +430,12 @@
       usingFlash = true;
       startCall(true);
     }
+
+    public function handleFlashLeftVoiceConference():void {
+      if (isConnected()) {
+        streamManager.stopStreams();
+        connectionManager.disconnect(true);
+      }
+    }
   }
 }
