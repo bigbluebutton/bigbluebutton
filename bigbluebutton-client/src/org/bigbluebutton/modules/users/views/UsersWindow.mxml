@@ -232,7 +232,7 @@
 			
 			private function openSettings():void {
 				paramsMenuData = [];
-				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new, handler:resetEmojiStatuses});
+				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.emoji_raiseHand, handler:resetEmojiStatuses});
 				
 				if (!roomMuted) {
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
@@ -522,7 +522,7 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
-		<mx:Button id="emojiStatusBtn" icon="{images.hand_new}" width="30" height="30"
+		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="openEmojiStatusMenu()"
 				   visible="true" tabIndex="{partOptions.baseTabIndex+10}" />

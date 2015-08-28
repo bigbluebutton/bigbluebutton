@@ -52,9 +52,6 @@ package org.bigbluebutton.common
 	[Embed(source="assets/images/sound_new.png")]
 	public var sound_new:Class;
 	
-	[Embed(source="assets/images/hand_new.png")]
-	public var hand_new:Class;
-	
 	[Embed(source="assets/images/moderator.png")]
 	public var moderator:Class;
 	
@@ -312,5 +309,20 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/presenter_white.png")]
 		public var presenter_white:Class;
+		
+		[Embed(source="assets/images/emoji_raiseHand.png")]
+		public var emoji_raiseHand:Class;
+		
+		[Embed(source="assets/images/emoji_smile.png")]
+		public var emoji_smile:Class;
+		
+		[Embed(source="assets/images/emoji_happy.png")]
+		public var emoji_happy:Class;
+		
+		[Embed(source="assets/images/emoji_unhappy.png")]
+		public var emoji_unhappy:Class;
+		
+		[Embed(source="assets/images/emoji_confused.png")]
+		public var emoji_confused:Class;
 	}
 }

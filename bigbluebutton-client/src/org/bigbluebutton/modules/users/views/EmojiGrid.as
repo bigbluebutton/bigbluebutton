@@ -24,22 +24,27 @@ package org.bigbluebutton.modules.users.views
 	
 	import mx.containers.Box;
 	import mx.containers.Tile;
+	import mx.containers.VBox;
 	import mx.controls.Button;
 	import mx.events.FlexMouseEvent;
 	import mx.managers.PopUpManager;
 	
+	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 
-	public class EmojiGrid extends Tile
+	public class EmojiGrid extends VBox
 	{
-		private const EMOJIS:Array=["raiseHand", "smile", "confused", "sad"];
+		private const EMOJIS:Array=["raiseHand", "smile", "happy", "unhappy", "confused"];
 
 		private var dispatcher:Dispatcher;
+		
+		private var images:Images;
 
 		public function EmojiGrid()
 		{
-			dispatcher=new Dispatcher();
+			dispatcher = new Dispatcher();
+			images = new Images();
 
 			addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler, false, 0, true);
 
@@ -55,6 +60,10 @@ package org.bigbluebutton.modules.users.views
 
 		private function drawEmoji():void
 		{
+			var tile : Tile = new Tile();
+			tile.width = 140;
+			tile.styleName = "emojiGridTile";
+			
 			for each (var emoji:String in EMOJIS)
 			{
 				var button:Button=new Button();
@@ -62,12 +71,14 @@ package org.bigbluebutton.modules.users.views
 				button.width=24;
 				button.height=24;
 				button.toggle=true;
+				button.setStyle("icon", images["emoji_" + emoji]);
 				button.selected=(UserManager.getInstance().getConference().myEmojiStatus == emoji);
 				button.enabled=!button.selected;
 				button.toolTip=emoji;
 				addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
-				addChild(button);
+				tile.addChild(button);
 			}
+			this.addChild(tile);
 		}
 
 		private function addRemoveEmoji():void

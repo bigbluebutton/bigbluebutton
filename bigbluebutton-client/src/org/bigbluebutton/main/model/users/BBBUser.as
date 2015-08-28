@@ -149,7 +149,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function get hasEmojiStatus():Boolean {
-			return _emojiStatus != "none";
+			return _emojiStatus != "none" && _emojiStatus != "null";
 		}
 		
 		private var _role:String = Role.VIEWER;
