@@ -126,7 +126,7 @@
 			private function updateEmojiComponents() : void {
 				if (rolledOver && data.hasEmojiStatus) {
 					emojiBtn.setStyle("icon", images["emoji_" + data.emojiStatus]);
-					emojiBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.lowerHand') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
+					emojiBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.clearStatus') + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
 					emojiImg.visible = false;
 					emojiBtn.visible = true;
 					emojiBtn.enabled = true;

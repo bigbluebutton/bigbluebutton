@@ -79,7 +79,7 @@ package org.bigbluebutton.modules.users.views {
 			button.id = "btnnone";
 			button.height = 64;
 			button.height = 24;
-			button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.remove');
+			button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear');
 			button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
 			this.addChild(button);
 		}

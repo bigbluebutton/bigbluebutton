@@ -232,7 +232,7 @@
 			
 			private function openSettings():void {
 				paramsMenuData = [];
-				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.resetAllStatuses'), icon: images.cancel, handler:resetEmojiStatuses});
+				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), handler:resetEmojiStatuses});
 				
 				if (!roomMuted) {
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
