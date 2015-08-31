@@ -38,6 +38,7 @@ public class VideoRotator {
 		this.streamName = getStreamName(origin);
 		this.direction = getDirection(origin);
 
+		log.debug("Setting up VideoRotator: StreamName={}, Direction={}",this.streamName,this.direction);
 		IConnection conn = Red5.getConnectionLocal();
 		String ip = conn.getHost();
 		String conf = conn.getScope().getName();
@@ -65,7 +66,7 @@ public class VideoRotator {
 	private String getStreamName(String streamName) {
 		String parts[] = streamName.split("/");
 		if(parts.length > 1)
-			return StringUtils.join(parts, '/', 1, parts.length);
+			return parts[parts.length-1];
 		return "";
 	}
 
@@ -109,4 +110,8 @@ public class VideoRotator {
 			processMonitor = null;
 		}
 	}
+
+    public static boolean isRotatedStream(String streamName){
+        return (getDirection(streamName) != null);
+    }
 }

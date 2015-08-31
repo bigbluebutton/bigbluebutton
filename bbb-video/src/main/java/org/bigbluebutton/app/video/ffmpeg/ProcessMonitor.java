@@ -20,6 +20,7 @@ public class ProcessMonitor implements Runnable {
     private Thread thread = null;
     private ProcessMonitorObserver observer;
     private String name;
+    private Boolean alive;
 
     public ProcessMonitor(String[] command, String name) {
         this.command = command;
@@ -27,6 +28,7 @@ public class ProcessMonitor implements Runnable {
         this.inputStreamMonitor = null;
         this.errorStreamMonitor = null;
         this.name = name;
+        this.alive = false;
     }
     
     public String toString() {
@@ -51,6 +53,12 @@ public class ProcessMonitor implements Runnable {
 
             if(this.process == null) {
                 log.debug("process is null");
+                return;
+            }
+
+            if (!this.alive){
+                log.debug("Process status was changed to 'not alive' between it's triggering and system execution. Killing it...");
+                this.forceDestroy();
                 return;
             }
 
@@ -93,6 +101,7 @@ public class ProcessMonitor implements Runnable {
     public synchronized void start() {
         if(this.thread == null){
             this.thread = new Thread(this);
+            this.alive = true;
             this.thread.start();
         }else{
             log.debug("Can't start a new process monitor: It is already running.");
@@ -116,6 +125,7 @@ public class ProcessMonitor implements Runnable {
     public int getPid(){
         Field f;
         int pid;
+        if (this.process == null) return -1;
         try {
            f = this.process.getClass().getDeclaredField("pid");
            f.setAccessible(true);
@@ -131,7 +141,14 @@ public class ProcessMonitor implements Runnable {
     public synchronized void forceDestroy(){
         if (this.thread != null) {
             try {
-               Runtime.getRuntime().exec("kill -9 "+ getPid());
+               this.alive=false;
+               int pid = getPid();
+               if (pid < 0){
+                   log.debug("Process doesn't exist. Not destroying it...");
+                   return;
+               }
+               else
+                   Runtime.getRuntime().exec("kill -9 "+ pid);
             } catch (IOException e) {
                log.debug("Failed to force-kill {} process",this.name);
                e.printStackTrace();

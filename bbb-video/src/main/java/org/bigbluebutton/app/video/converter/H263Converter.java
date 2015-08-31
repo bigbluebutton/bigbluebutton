@@ -61,10 +61,12 @@ public class H263Converter implements ProcessMonitorObserver{
 	 * Launches the process monitor responsible for FFmpeg.
 	 */
 	private void startConverter() {
-		String[] command = ffmpeg.getFFmpegCommand(true);
-		processMonitor = new ProcessMonitor(command,"FFMPEG");
-		processMonitor.setProcessMonitorObserver(this);
-		processMonitor.start();
+		if (processMonitor == null){
+			String[] command = ffmpeg.getFFmpegCommand(true);
+			processMonitor = new ProcessMonitor(command,"FFMPEG");
+			processMonitor.setProcessMonitorObserver(this);
+			processMonitor.start();
+		}else log.debug("No need to start transcoder, it is already running");
 	}
 
 	/**
@@ -100,11 +102,12 @@ public class H263Converter implements ProcessMonitorObserver{
 	 * listeners to zero.
 	 */
 	public synchronized void stopConverter() {
-		this.numListeners = 0;
 		if(processMonitor != null) {
+			this.numListeners = 0;
 			processMonitor.forceDestroy();
 			processMonitor = null;
-		}
+			log.debug("Transcoder force-stopped");
+		}else log.debug("No need to stop transcoder, it already stopped");
 	}
 
     private synchronized void clearConverterData(){
