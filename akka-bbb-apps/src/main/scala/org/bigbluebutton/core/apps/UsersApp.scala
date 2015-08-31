@@ -205,19 +205,11 @@ trait UsersApp {
     au.toArray
   }
 
-  def handleUserRaiseHand(msg: UserRaiseHand) {
+  def handleUserEmojiStatus(msg: UserEmojiStatus) {
     usersModel.getUser(msg.userId) foreach { user =>
-      val uvo = user.copy(raiseHand = true)
+      val uvo = user.copy(emojiStatus = msg.emojiStatus)
       usersModel.addUser(uvo)
-      outGW.send(new UserRaisedHand(mProps.meetingID, mProps.recorded, uvo.raiseHand, uvo.userID))
-    }
-  }
-
-  def handleUserLowerHand(msg: UserLowerHand) {
-    usersModel.getUser(msg.userId) foreach { user =>
-      val uvo = user.copy(raiseHand = false)
-      usersModel.addUser(uvo)
-      outGW.send(new UserLoweredHand(mProps.meetingID, mProps.recorded, uvo.raiseHand, uvo.userID, msg.loweredBy))
+      outGW.send(new UserChangedEmojiStatus(mProps.meetingID, mProps.recorded, msg.emojiStatus, uvo.userID))
     }
   }
 
@@ -289,7 +281,7 @@ trait UsersApp {
       }
 
       val uvo = new UserVO(msg.userID, ru.externId, ru.name,
-        ru.role, raiseHand = false, presenter = false,
+        ru.role, emojiStatus = "none", presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
         webcamStreams = new ListSet[String](), phoneUser = false, vu, listenOnly = false)
 
@@ -368,7 +360,7 @@ trait UsersApp {
         val sessionId = "PHONE-" + webUserId;
 
         val uvo = new UserVO(webUserId, webUserId, msg.callerIdName,
-          Role.VIEWER, raiseHand = false, presenter = false,
+          Role.VIEWER, emojiStatus = "none", presenter = false,
           hasStream = false, locked = getInitialLockStatus(Role.VIEWER), webcamStreams = new ListSet[String](),
           phoneUser = true, vu, listenOnly = false)
 

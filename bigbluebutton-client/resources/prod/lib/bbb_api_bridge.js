@@ -77,14 +77,14 @@
      * Raise user's hand.
      *
      * Param:
-     *   raiseHand - [true/false]
+     *   emojiStatus - [string]
      * 
      */
-    BBB.raiseHand = function(raiseHand) {
+    BBB.emojiStatus = function(emojiStatus) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        console.log("Request to raise hand [" + raiseHand + "]");
-        swfObj.raiseHandRequest(raiseHand);
+        console.log("Request to change emoji status [" + emojiStatus + "]");
+        swfObj.emojiStatusRequest(emojiStatus);
       }    
     }
         

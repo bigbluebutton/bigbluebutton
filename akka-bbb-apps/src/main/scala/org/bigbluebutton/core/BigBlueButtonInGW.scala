@@ -159,12 +159,8 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   }
 
   // Users
-  def userRaiseHand(meetingId: String, userId: String) {
-    bbbActor ! new UserRaiseHand(meetingId, userId)
-  }
-
-  def lowerHand(meetingId: String, userId: String, loweredBy: String) {
-    bbbActor ! new UserLowerHand(meetingId, userId, loweredBy)
+  def userEmojiStatus(meetingId: String, userId: String, emojiStatus: String) {
+    bbbActor ! new UserEmojiStatus(meetingId, userId, emojiStatus)
   }
 
   def ejectUserFromMeeting(meetingId: String, userId: String, ejectedBy: String) {

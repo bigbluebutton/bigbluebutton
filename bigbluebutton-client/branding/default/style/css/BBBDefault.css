@@ -892,3 +892,20 @@ PollChoicesModal {
 	textSelectedColor: #000000;
 	fontFamily: Arial;
 }
+
+EmojiGrid {
+	backgroundColor: #ffffff;
+	horizontalAlign: center;
+	paddingRight: 10;
+	paddingTop: 10;
+}
+
+.emojiGridTile {
+	paddingBottom: 10;
+	paddingLeft: 10;
+	paddingRight: 4;
+	paddingTop: 4;
+	verticalGap: 6;
+	horizontalGap: 6;
+}
+

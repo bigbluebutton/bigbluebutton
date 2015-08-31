@@ -102,11 +102,8 @@ package org.bigbluebutton.modules.users.services
         case "voiceUserTalking":
           handleVoiceUserTalking(message);
           break;
-        case "userRaisedHand":
-          handleUserRaisedHand(message);
-          break;
-        case "userLoweredHand":
-          handleUserLoweredHand(message);
+        case "userEmojiStatus":
+          handleEmojiStatusHand(message);
           break;
         case "userSharedWebcam":
           handleUserSharedWebcam(message);
@@ -503,16 +500,10 @@ package org.bigbluebutton.modules.users.services
       dispatcher.dispatchEvent(roleEvent);   
     }
 
-    private function handleUserRaisedHand(msg: Object): void {
-      LOGGER.debug("*** handleUserRaisedHand {0} **** \n", [msg.msg]);      
+    private function handleEmojiStatusHand(msg: Object): void {
+      LOGGER.debug("*** handleEmojiStatusHand {0} **** \n", [msg.msg]);      
       var map:Object = JSON.parse(msg.msg);      
-      UserManager.getInstance().getConference().raiseHand(map.userId, true);
-    }
-
-    private function handleUserLoweredHand(msg: Object):void {
-      LOGGER.debug("*** handleUserLoweredHand {0} **** \n", [msg.msg]);      
-      var map:Object = JSON.parse(msg.msg);      
-      UserManager.getInstance().getConference().raiseHand(map.userId, false);
+      UserManager.getInstance().getConference().emojiStatus(map.userId, map.emojiStatus);
     }
 
     private function handleUserSharedWebcam(msg: Object):void {
@@ -580,7 +571,7 @@ package org.bigbluebutton.modules.users.services
       }
 
       UserManager.getInstance().getConference().presenterStatusChanged(user.userID, joinedUser.presenter);
-      UserManager.getInstance().getConference().raiseHand(user.userID, joinedUser.raiseHand);
+      UserManager.getInstance().getConference().emojiStatus(user.userID, joinedUser.emojiStatus);
            
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user.userID;

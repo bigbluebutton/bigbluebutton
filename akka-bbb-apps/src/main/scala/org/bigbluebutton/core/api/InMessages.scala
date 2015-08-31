@@ -32,8 +32,7 @@ case class RegisterUser(meetingID: String, userID: String, name: String, role: R
 case class UserJoining(meetingID: String, userID: String, authToken: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
-case class UserRaiseHand(meetingID: String, userId: String) extends InMessage
-case class UserLowerHand(meetingID: String, userId: String, loweredBy: String) extends InMessage
+case class UserEmojiStatus(meetingID: String, userId: String, emojiStatus: String) extends InMessage
 case class EjectUserFromMeeting(meetingID: String, userId: String, ejectedBy: String) extends InMessage
 case class UserShareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class UserUnshareWebcam(meetingID: String, userId: String, stream: String) extends InMessage

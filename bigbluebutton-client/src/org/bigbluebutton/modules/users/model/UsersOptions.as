@@ -35,7 +35,7 @@ package org.bigbluebutton.modules.users.model
 		public var allowKickUser:Boolean = true;
 		
 		[Bindable]
-		public var enableRaiseHand:Boolean = true;
+		public var enableEmojiStatus:Boolean = true;
 
 		[Bindable]
 		public var enableSettingsButton:Boolean = true;
@@ -54,8 +54,8 @@ package org.bigbluebutton.modules.users.model
 			if (vxml.@allowKickUser != undefined) {
 				allowKickUser = (vxml.@allowKickUser.toString().toUpperCase() == "TRUE") ? true : false;
 			}
-			if (vxml.@enableRaiseHand != undefined) {
-				enableRaiseHand = (vxml.@enableRaiseHand.toString().toUpperCase() == "TRUE") ? true : false;
+			if (vxml.@enableEmojiStatus != undefined) {
+				enableEmojiStatus = (vxml.@enableEmojiStatus.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 			if (vxml.@enableSettingsButton != undefined) {
 				enableSettingsButton = (vxml.@enableSettingsButton.toString().toUpperCase() == "TRUE") ? true : false;
