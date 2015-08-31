@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.events.TimerEvent;
 	import flash.media.H264Level;
 	import flash.media.H264Profile;
 	import flash.media.H264VideoStreamSettings;
@@ -31,15 +32,19 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.net.NetStream;
 	import flash.system.Capabilities;
 	import flash.utils.Dictionary;
+	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 	import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
 	import org.bigbluebutton.modules.videoconf.services.messaging.MessageSender;
@@ -49,15 +54,17 @@ package org.bigbluebutton.modules.videoconf.business
 	
 	public class VideoProxy
 	{		
+		public static const LOG:String = "VideoProxy - ";
+
 		public var videoOptions:VideoConfOptions;
 		
 		// NetConnection used for stream publishing
 		private var nc:NetConnection;
-		// NetStream used for stream publishing
-		private var ns:NetStream;
 		private var _url:String;
 		private var camerasPublishing:Object = new Object();
-		private var connected:Boolean = false;
+		private var logoutOnUserCommand:Boolean = false;
+		private var reconnecting:Boolean = false;
+		private var dispatcher:Dispatcher = new Dispatcher();
 
 		// Message sender to request stream path
 		private var msgSender:MessageSender;
@@ -110,20 +117,43 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
     private function onConnectedToVideoApp():void{
-      var dispatcher:Dispatcher = new Dispatcher();
       dispatcher.dispatchEvent(new ConnectedEvent(ConnectedEvent.VIDEO_CONNECTED));
     }
     
 		private function onNetStatus(event:NetStatusEvent):void{
+			trace(LOG + "[" + event.info.code + "] for [" + _url + "]");
 			switch(event.info.code){
 				case "NetConnection.Connect.Success":
-					connected = true;
-					//ns = new NetStream(nc);
+					if (reconnecting) {
+						reconnecting = false;
+
+						var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
+						attemptSucceeded.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						dispatcher.dispatchEvent(attemptSucceeded);
+					}
           onConnectedToVideoApp();
 					break;
-        default:
-					LogUtil.debug("[" + event.info.code + "] for [" + _url + "]");
-					connected = false;
+					
+				case "NetConnection.Connect.Closed":
+					if (!logoutOnUserCommand) {
+						dispatcher.dispatchEvent(new StopBroadcastEvent());
+
+						reconnecting = true;
+
+						var disconnectedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_DISCONNECTED_EVENT);
+						disconnectedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						disconnectedEvent.payload.callback = connect;
+						disconnectedEvent.payload.callbackParameters = [];
+						dispatcher.dispatchEvent(disconnectedEvent);
+					}
+					break;
+					
+				case "NetConnection.Connect.Failed":
+					if (reconnecting) {
+						var attemptFailedEvent:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT);
+						attemptFailedEvent.payload.type = ReconnectionManager.VIDEO_CONNECTION;
+						dispatcher.dispatchEvent(attemptFailedEvent);
+					}
 					break;
 			}
 		}
@@ -349,6 +379,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 
 		public function disconnect():void {
+			logoutOnUserCommand = true;
 			trace("VideoProxy:: disconnecting from Video application");
 			stopAllBroadcasting();
 			// Close publish NetConnection

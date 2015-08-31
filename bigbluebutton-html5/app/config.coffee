@@ -14,12 +14,19 @@ config.defaultWelcomeMessageFooter = "This server is running a build of <a href=
 config.maxUsernameLength = 30
 config.maxChatLength = 140
 
+config.lockOnJoin = true
+
 ## Application configurations
 config.app = {}
 
 #default font sizes for mobile / desktop
 config.app.mobileFont = 24
 config.app.desktopFont = 12
+
+# Will offer the user to join the audio when entering the meeting
+config.app.autoJoinAudio = false
+# The amount of time the client will wait before making another call to successfully hangup the WebRTC conference call
+config.app.WebRTCHangupRetryInterval = 2000
 
 # Configs for redis
 config.redis = {}

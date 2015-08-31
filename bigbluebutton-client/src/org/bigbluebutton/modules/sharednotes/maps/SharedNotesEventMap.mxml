@@ -24,6 +24,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
 			import org.bigbluebutton.modules.sharednotes.events.StopSharedNotesModuleEvent;
 			import org.bigbluebutton.modules.sharednotes.managers.SharedNotesManager;
@@ -92,6 +93,14 @@
 
 	<EventHandlers type="{SharedNotesEvent.REQUEST_ADDITIONAL_NOTES_SET_EVENT}">
 		<MethodInvoker generator="{SharedNotesManager}" method="requestAdditionalNotesSet" arguments="{event}"/>
+	</EventHandlers>
+
+	<EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAllAdditionalNotes"/>
+	</EventHandlers>
+
+	<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}">
+		<EventAnnouncer generator="{GetCurrentDocumentEvent}" type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}"/>
 	</EventHandlers>
 
 	<Injectors target="{SharedNotesManager}">

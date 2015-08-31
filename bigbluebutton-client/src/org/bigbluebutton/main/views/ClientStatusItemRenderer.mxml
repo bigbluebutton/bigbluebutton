@@ -20,7 +20,11 @@
 						break
 				}
 				titleLbl.text = value.title;
+				if (value.occurrences > 1) {
+					titleLbl.text = "(" + value.occurrences + ") " + titleLbl.text;
+				}
 				messageTxt.htmlText = value.message;
+				timeLbl.text = value.time;
 				
 				validateNow();
 			}
@@ -30,5 +34,8 @@
 	<mx:VBox width="100%" verticalGap="0">
 		<mx:Label id="titleLbl" width="100%" styleName="statusTitleStyle"/>
 		<mx:Text id="messageTxt" width="100%" styleName="statusMessageStyle"/>
+	</mx:VBox>
+	<mx:VBox height="100%" verticalAlign="bottom">
+		<mx:Label id="timeLbl" width="100%" styleName="statusTimeStyle"/>
 	</mx:VBox>
 </mx:HBox>

@@ -76,6 +76,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
 	<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
 	<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
+
+	<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -440,6 +442,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function removeGuestWindow(evt:BBBEvent):void {
 				if (guestWindow != null) {
 					guestWindow.remove(evt.payload.userId);
+				}
+			}
+
+			private function closeWaitWindow(evt:BBBEvent):void {
+				if(waitWindow != null) {
+					trace(LOG + "closeWaitWindow");
+					waitWindow.removeWindow();
 				}
 			}
 
@@ -823,6 +832,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function handleInvalidAuthToken(event:InvalidAuthTokenEvent):void {
         showlogoutWindow(ResourceUtil.getInstance().getString('bbb.mainshell.invalidAuthToken'));
+        globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.CANCEL_RECONNECTION_EVENT));
       }
 			
 			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {

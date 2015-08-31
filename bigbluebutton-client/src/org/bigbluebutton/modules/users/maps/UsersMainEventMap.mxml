@@ -144,6 +144,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
     <MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
   </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
+    <MethodInvoker generator="{UserService}" method="onReconnecting" />
+  </EventHandlers>
   <!-- End Lock Events -->
 
   <!-- Guest Events -->
