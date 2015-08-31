@@ -25,6 +25,7 @@ require '../lib/recordandplayback'
 require 'rubygems'
 require 'yaml'
 require 'fileutils'
+require 'nokogiri'
 
 # Number of seconds to delay archiving (red5 race condition workaround)
 ARCHIVE_DELAY_SECONDS = 120
@@ -222,9 +223,15 @@ def publish_processed_meeting(recording_dir)
 
       step_succeeded = (ret == 0 and File.exists?(published_done))
 
+      doc = Nokogiri::XML(File.open("/var/bigbluebutton/published/presentation/#{meeting_id}/metadata.xml"))
+      link = doc.xpath("//playback//link/text()")
+      duration = doc.xpath("//playback//duration/text()")
+
       BigBlueButton.redis_publisher.put_publish_ended publish_type, meeting_id, {
         "success" => step_succeeded,
-        "step_time" => step_time
+        "step_time" => step_time,
+        "playback_url" => link,
+        "playback_duration" => duration
       }
 
       if step_succeeded
