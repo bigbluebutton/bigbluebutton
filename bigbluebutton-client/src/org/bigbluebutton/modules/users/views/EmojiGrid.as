@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.users.views {
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class EmojiGrid extends VBox {
-		private const EMOJIS:Array = ["raiseHand", "smile", "happy", "unhappy", "confused"];
+		private const EMOJIS:Array = ["smile", "happy", "sad", "confused", "neutral", "raiseHand", "away"];
 		
 		private var dispatcher:Dispatcher;
 		
