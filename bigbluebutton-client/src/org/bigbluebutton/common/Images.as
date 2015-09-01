@@ -316,8 +316,14 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/emoji_happy.png")]
 		public var emoji_happy:Class;
 		
-		[Embed(source="assets/images/emoji_unhappy.png")]
-		public var emoji_unhappy:Class;
+		[Embed(source="assets/images/emoji_sad.png")]
+		public var emoji_sad:Class;
+		
+		[Embed(source="assets/images/emoji_neutral.png")]
+		public var emoji_neutral:Class;
+		
+		[Embed(source="assets/images/emoji_away.png")]
+		public var emoji_away:Class;
 		
 		[Embed(source="assets/images/emoji_confused.png")]
 		public var emoji_confused:Class;

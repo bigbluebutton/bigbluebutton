@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.users.views {
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class EmojiGrid extends VBox {
-		private const EMOJIS:Array = ["raiseHand", "smile", "happy", "unhappy", "confused"];
+		private const EMOJIS:Array = ["smile", "happy", "sad", "confused", "neutral", "raiseHand", "away"];
 		
 		private var dispatcher:Dispatcher;
 		
@@ -66,7 +66,7 @@ package org.bigbluebutton.modules.users.views {
 				button.toggle = true;
 				button.setStyle("icon", images["emoji_" + emoji]);
 				button.selected = (UserManager.getInstance().getConference().myEmojiStatus == emoji);
-				button.enabled = !button.selected;
+				button.toggle = button.selected;
 				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + emoji);
 				addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
 				tile.addChild(button);
@@ -79,15 +79,20 @@ package org.bigbluebutton.modules.users.views {
 			button.id = "btnnone";
 			button.height = 64;
 			button.height = 24;
-			button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.remove');
+			button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear');
 			button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
 			this.addChild(button);
 		}
 		
 		protected function buttonMouseEventHandler(event:MouseEvent):void {
-			var emoji:String = String(event.target.id).replace("btn", "");
-			var e:EmojiStatusEvent = new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, emoji);
-			dispatcher.dispatchEvent(e);
+			var clickedButton:Button = event.target as Button;
+			if (!clickedButton.toggle) {
+				var emoji:String = String(event.target.id).replace("btn", "");
+				var e:EmojiStatusEvent = new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, emoji);
+				dispatcher.dispatchEvent(e);
+			} else {
+				dispatcher.dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none"));
+			}
 			hide();
 		}
 		
