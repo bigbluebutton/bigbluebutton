@@ -230,8 +230,7 @@ def publish_processed_meeting(recording_dir)
       BigBlueButton.redis_publisher.put_publish_ended publish_type, meeting_id, {
         "success" => step_succeeded,
         "step_time" => step_time,
-        "playback_url" => link,
-        "playback_duration" => duration
+        "playback" => {"url" => link, "length" => duration}
       }
 
       if step_succeeded
