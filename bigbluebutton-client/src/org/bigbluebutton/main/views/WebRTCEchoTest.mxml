@@ -226,7 +226,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					<mx:TextArea id="lblConnectMessage" editable="false" textAlign="right" borderSkin="{null}"
 								 width="{lblConnectMessageMock.width + 4}" height="{lblConnectDots.height}"
 								 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-					<mx:Text id="lblConnectMessageMock" visible="false" includeInLayout="false" />
+					<mx:Text id="lblConnectMessageMock" visible="false" includeInLayout="false" styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
 					<mx:Label id="lblConnectDots" width="20" textAlign="left" styleName="micSettingsWindowSpeakIntoMicLabelStyle" text="" />
 				</mx:HBox>
 			</mx:AddChild>
