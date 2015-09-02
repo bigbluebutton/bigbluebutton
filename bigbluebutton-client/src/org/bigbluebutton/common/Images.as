@@ -310,9 +310,6 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/emoji_raiseHand.png")]
 		public var emoji_raiseHand:Class;
 		
-		[Embed(source="assets/images/emoji_smile.png")]
-		public var emoji_smile:Class;
-		
 		[Embed(source="assets/images/emoji_happy.png")]
 		public var emoji_happy:Class;
 		
