@@ -26,12 +26,25 @@ public class MessageSender {
 	
 	public void stop() {
 		sendMessage = false;
+		redisPool.destroy();
 	}
-	
+		
 	public void start() {	
+		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+		config.setMaxTotal(32);
+		config.setMaxIdle(8);
+		config.setMinIdle(1);
+		config.setTestOnBorrow(true);
+		config.setTestOnReturn(true);
+		config.setTestWhileIdle(true);
+		config.setNumTestsPerEvictionRun(12);
+		config.setMaxWaitMillis(5000);
+		config.setTimeBetweenEvictionRunsMillis(60000);
+		config.setBlockWhenExhausted(true);
+		
 		// Set the name of this client to be able to distinguish when doing
 		// CLIENT LIST on redis-cli
-		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+		redisPool = new JedisPool(config, host, port, Protocol.DEFAULT_TIMEOUT, null,
 		        Protocol.DEFAULT_DATABASE, "BbbWebPub");
 		
 		log.info("Redis message publisher starting!");
@@ -68,9 +81,12 @@ public class MessageSender {
 				try {
 					jedis.publish(channel, message);
 				} catch(Exception e){
-					log.warn("Cannot publish the message to redis", e);
+					log.warn("Cannot publish the message to pubsub", e);
 				} finally {
-					jedis.close();
+					if (jedis != null) {
+						jedis.close();
+					}
+					
 				}		  	
 		  }
 		};
