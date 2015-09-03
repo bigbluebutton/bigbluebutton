@@ -54,6 +54,7 @@ package org.bigbluebutton.util.i18n
 		
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		private static var MASTER_LOCALE:String = "en_US";
+		private static var DEFAULT_LOCALE_IDENTIFIER:String = "default";
 		
 		[Bindable] public var locales:Array = new Array();
 		
@@ -108,6 +109,11 @@ package org.bigbluebutton.util.i18n
 			LogUtil.debug("--- Supported locales --- \n" + xml.toString() + "\n --- \n");
 			var locale:XML;
 						
+			locales.push({
+				code: DEFAULT_LOCALE_IDENTIFIER,
+				name: ""
+			});
+			
 			for each(locale in list){
 				locales.push({
 					code: locale.@code,
@@ -137,6 +143,10 @@ package org.bigbluebutton.util.i18n
 		}
 		
 		public function setPreferredLocale(locale:String):void {
+			if (locale == DEFAULT_LOCALE_IDENTIFIER) {
+				locale = getDefaultLocale();
+			}
+			
 			LogUtil.debug("Setting up preferred locale " + locale);
 			if (isPreferredLocaleAvailable(locale)) {
 				LogUtil.debug("The locale " + locale + " is available");
@@ -151,12 +161,23 @@ package org.bigbluebutton.util.i18n
 		
 		private function localesCompareFunction(a:Object, b:Object):int {
 			var sorter:Collator = new Collator(preferredLocale, CollatorMode.SORTING);
+			// position the "Default language" option at the top of the list
+			if (a.code == DEFAULT_LOCALE_IDENTIFIER) {
+				return -1;
+			}
+			if (b.code == DEFAULT_LOCALE_IDENTIFIER) {
+				return 1;
+			}
 			return sorter.compare(a.name, b.name);
 		}
 		
 		private function reloadLocaleNames():void {
 			for each (var item:* in locales) {
-				item.name = ResourceUtil.getInstance().getString("bbb.langSelector." + item.code, null, preferredLocale);
+				if (item.code == DEFAULT_LOCALE_IDENTIFIER) {
+					item.name = ResourceUtil.getInstance().getString("bbb.langSelector." + item.code, null, getDefaultLocale());
+				} else {
+					item.name = ResourceUtil.getInstance().getString("bbb.langSelector." + item.code, null, preferredLocale);
+				}
 			}
 			locales.sort(localesCompareFunction);
 		}
@@ -245,8 +266,12 @@ package org.bigbluebutton.util.i18n
 			 * the key is available in the locale and thus not bother falling back to the master locale.
 			 *    (ralam dec 15, 2011).
 			 */
-			var localeTxt:String = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, null);
-			if ((localeTxt == "") || (localeTxt == null)) {
+			if (resourceManager.getObject(BBB_RESOURCE_BUNDLE, resourceName, locale) == undefined) {
+				locale = MASTER_LOCALE;
+			}
+			
+			var localeTxt:String = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
+			if (locale != MASTER_LOCALE && (localeTxt == "" || localeTxt == null)) {
 				localeTxt = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
 			}
 			return localeTxt;
