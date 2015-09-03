@@ -36,6 +36,8 @@ package org.bigbluebutton.modules.layout.events
     public static const APPLY_DEFAULT_LAYOUT_EVENT:String = 'APPLY_DEFAULT_LAYOUT_EVENT';
     public static const INVALIDATE_LAYOUT_EVENT:String = 'INVALIDATE_LAYOUT_EVENT';
 
+    public var layoutName:String = "";
+
     public function LayoutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
     {
       super(type, bubbles, cancelable);

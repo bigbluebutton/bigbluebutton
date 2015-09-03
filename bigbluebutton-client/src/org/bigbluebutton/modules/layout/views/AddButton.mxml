@@ -33,11 +33,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			import flash.events.Event;
 			
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.managers.PopUpManager;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.modules.layout.views.CustomLayoutNameWindow;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			
@@ -45,7 +49,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onClick(e:Event):void {
-				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.ADD_CURRENT_LAYOUT_EVENT));
+				var layoutNameWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, CustomLayoutNameWindow, true);
+				PopUpManager.centerPopUp(layoutNameWindow);
 			}
 			
 			public function refreshRole(amIModerator:Boolean):void {
