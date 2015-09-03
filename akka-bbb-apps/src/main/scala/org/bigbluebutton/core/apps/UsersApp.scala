@@ -22,6 +22,8 @@ trait UsersApp {
   }
 
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
+    log.info("Handling UserConnectedToGlobalAudio: mid=[" + mProps.meetingID + "] uid=[" + msg.userid + "]")
+
     val user = usersModel.getUserWithExternalId(msg.userid)
     user foreach { u =>
       val vu = u.voiceUser.copy(talking = false)
@@ -33,12 +35,20 @@ trait UsersApp {
   }
 
   def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
+    log.info("Handling UserDisconnectedToGlobalAudio: mid=[" + mProps.meetingID + "] uid=[" + msg.userid + "]")
+
     val user = usersModel.getUserWithExternalId(msg.userid)
     user foreach { u =>
-      val uvo = u.copy(listenOnly = false)
-      usersModel.addUser(uvo)
-      log.info("UserDisconnectedToGlobalAudio: mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "]")
-      outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.userID, uvo.listenOnly))
+      if (!u.joinedWeb) {
+        val userLeaving = usersModel.removeUser(u.userID)
+        userLeaving foreach (u => outGW.send(new UserLeft(mProps.meetingID, mProps.recorded, u)))
+      } else {
+        val uvo = u.copy(listenOnly = false)
+        usersModel.addUser(uvo)
+        log.info("UserDisconnectedToGlobalAudio: mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "]")
+        outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.userID, uvo.listenOnly))
+      }
+
     }
   }
 
@@ -267,23 +277,23 @@ trait UsersApp {
     val regUser = usersModel.getRegisteredUserWithToken(msg.authToken)
     regUser foreach { ru =>
       // if there was a phoneUser with the same userID, reuse the VoiceUser value object
-      val vu = usersModel.getUser(msg.userID) match {
+      val vu = usersModel.getUserWithExternalId(ru.externId) match {
         case Some(u) => {
           if (u.voiceUser.joined) {
             u.voiceUser.copy()
           } else {
-            new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false)
+            new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false, u.listenOnly)
           }
         }
         case None => {
-          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false)
+          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false, false)
         }
       }
 
       val uvo = new UserVO(msg.userID, ru.externId, ru.name,
         ru.role, emojiStatus = "none", presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
-        webcamStreams = new ListSet[String](), phoneUser = false, vu, listenOnly = false)
+        webcamStreams = new ListSet[String](), phoneUser = false, vu, listenOnly = vu.listenOnly, true)
 
       usersModel.addUser(uvo)
 
@@ -326,8 +336,8 @@ trait UsersApp {
         }
         // add VoiceUser again to the list as a phone user since we still didn't get the event from FreeSWITCH
         val vu = u.voiceUser
-        if (vu.joined) {
-          this.context.self ! (new UserJoinedVoiceConfMessage(mProps.voiceBridge, vu.userId, msg.userID, vu.callerName, vu.callerNum, vu.muted, vu.talking));
+        if (vu.joined || u.listenOnly) {
+          this.context.self ! (new UserJoinedVoiceConfMessage(mProps.voiceBridge, vu.userId, u.userID, u.externUserID, vu.callerName, vu.callerNum, vu.muted, vu.talking, u.listenOnly));
         }
       }
 
@@ -355,22 +365,23 @@ trait UsersApp {
           usersModel.generateWebUserId
         }
         val vu = new VoiceUser(msg.voiceUserId, webUserId, msg.callerIdName, msg.callerIdNum,
-          true, false, msg.muted, msg.talking)
+          true, false, msg.muted, msg.talking, msg.listenOnly)
 
         val sessionId = "PHONE-" + webUserId;
 
-        val uvo = new UserVO(webUserId, webUserId, msg.callerIdName,
+        val uvo = new UserVO(webUserId, msg.externUserId, msg.callerIdName,
           Role.VIEWER, emojiStatus = "none", presenter = false,
           hasStream = false, locked = getInitialLockStatus(Role.VIEWER), webcamStreams = new ListSet[String](),
-          phoneUser = true, vu, listenOnly = false)
+          phoneUser = true, vu, listenOnly = msg.listenOnly, false)
 
         usersModel.addUser(uvo)
         log.info("New user joined voice for user [" + uvo.name + "] userid=[" + webUserId + "]")
         outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
 
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, uvo))
-        if (meetingModel.isMeetingMuted())
+        if (meetingModel.isMeetingMuted()) {
           outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, uvo.userID, uvo.userID, mProps.voiceBridge, vu.userId, meetingModel.isMeetingMuted()))
+        }
 
       }
     }
@@ -386,10 +397,10 @@ trait UsersApp {
   def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) = {
     log.info("Received user joined voice for user [" + msg.callerIdName + "] userid=[" + msg.userId + "]")
 
-    usersModel.getUserWithExternalId(msg.userId) match {
+    usersModel.getUserWithExternalId(msg.externUserId) match {
       case Some(user) => {
-        val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, true, false, msg.muted, msg.talking)
-        val nu = user.copy(voiceUser = vu)
+        val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, true, false, msg.muted, msg.talking, msg.listenOnly)
+        val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
         usersModel.addUser(nu)
         log.info("User joined voice for user [" + nu.name + "] userid=[" + msg.userId + "]")
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
@@ -416,7 +427,7 @@ trait UsersApp {
 
   def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
     usersModel.getUserWithVoiceUserId(msg.voiceUserId) foreach { user =>
-      val vu = new VoiceUser(user.userID, user.userID, user.name, user.name, false, false, false, false)
+      val vu = new VoiceUser(user.userID, user.userID, user.name, user.name, false, false, false, false, false)
       val nu = user.copy(voiceUser = vu)
       usersModel.addUser(nu)
 

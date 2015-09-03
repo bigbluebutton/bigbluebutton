@@ -419,8 +419,8 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
     callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
 
-    bbbActor ! new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, callerIdName,
-      callerIdNum, muted, talking)
+    bbbActor ! new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
+      callerIdNum, muted, talking, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )
 
   }
 
