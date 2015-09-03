@@ -26,6 +26,8 @@ package org.bigbluebutton.util.i18n
 	import flash.events.IEventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.external.ExternalInterface;
+	import flash.globalization.Collator;
+	import flash.globalization.CollatorMode;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
@@ -53,9 +55,7 @@ package org.bigbluebutton.util.i18n
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		private static var MASTER_LOCALE:String = "en_US";
 		
-		[Bindable] public var localeCodes:Array = new Array();
-		[Bindable] public var localeNames:Array = new Array();
-		[Bindable] public var localeIndex:Number;
+		[Bindable] public var locales:Array = new Array();
 		
 		private var eventDispatcher:IEventDispatcher;
 		private var resourceManager:IResourceManager;
@@ -109,8 +109,10 @@ package org.bigbluebutton.util.i18n
 			var locale:XML;
 						
 			for each(locale in list){
-				localeCodes.push(locale.@code);
-				localeNames.push(locale.@name);
+				locales.push({
+					code: locale.@code,
+					name: locale.@name
+				});
 			}							
 		}
 		
@@ -119,23 +121,19 @@ package org.bigbluebutton.util.i18n
 		}
 		
 		private function isPreferredLocaleAvailable(prefLocale:String):Boolean {
-			for (var i:Number = 0; i < localeCodes.length; i++){
-				if (prefLocale == localeCodes[i]) 
+			for each(var item:* in locales) {
+				if (prefLocale == item.code) 
 					return true;
 			}
 			return false;
 		}
 		
 		private function getIndexForLocale(prefLocale:String):int {
-			for (var i:Number = 0; i < localeCodes.length; i++){
-				if (prefLocale == localeCodes[i]) 
+			for (var i:Number = 0; i < locales.length; i++) {
+				if (prefLocale == locales[i].code) 
 					return i;
 			}
 			return -1;
-		}
-		
-		public function getPreferredLocaleName():String {
-			return localeNames[localeIndex];
 		}
 		
 		public function setPreferredLocale(locale:String):void {
@@ -147,9 +145,20 @@ package org.bigbluebutton.util.i18n
 				LogUtil.debug("The locale " + preferredLocale + " isn't available. Default will be: " + MASTER_LOCALE);
 				preferredLocale = MASTER_LOCALE;
 			}
-			localeIndex = getIndexForLocale(preferredLocale);
-			LogUtil.debug("Setting up preferred locale index " + localeIndex);
+
 			changeLocale(preferredLocale);
+		}
+		
+		private function localesCompareFunction(a:Object, b:Object):int {
+			var sorter:Collator = new Collator(preferredLocale, CollatorMode.SORTING);
+			return sorter.compare(a.name, b.name);
+		}
+		
+		private function reloadLocaleNames():void {
+			for each (var item:* in locales) {
+				item.name = ResourceUtil.getInstance().getString("bbb.langSelector." + item.code, null, preferredLocale);
+			}
+			locales.sort(localesCompareFunction);
 		}
 		
 		private function loadMasterLocale(locale:String):void {					
@@ -189,7 +198,6 @@ package org.bigbluebutton.util.i18n
 			if (preferredLocale != MASTER_LOCALE) {
 				LogUtil.debug("Loaded locale [" + preferredLocale + "] but setting [" + MASTER_LOCALE + "] as fallback");
 				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
-				localeIndex = getIndexForLocale(preferredLocale);
 			} else {
 				if (preferredLocale != MASTER_LOCALE) {
 					LogUtil.debug("Failed to load locale [" + preferredLocale + "].");
@@ -197,7 +205,6 @@ package org.bigbluebutton.util.i18n
 				LogUtil.debug("Using [" + MASTER_LOCALE + "] locale.");
 				resourceManager.localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
-				localeIndex = getIndexForLocale(preferredLocale);
 			}
 			sendAppAndLocaleVersions();
 			update();
@@ -218,11 +225,12 @@ package org.bigbluebutton.util.i18n
 			LogUtil.warn("Resource locale [" + preferredLocale + "] could not be loaded.");
 			resourceManager.localeChain = [MASTER_LOCALE];
 			preferredLocale = MASTER_LOCALE;
-			localeIndex = getIndexForLocale(preferredLocale);
 			update();
 		}
 		
 		public function update():void{
+			reloadLocaleNames();
+
 			var dispatcher:Dispatcher = new Dispatcher;
 			dispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_CHANGED));
 			dispatchEvent(new Event(Event.CHANGE));
@@ -244,12 +252,16 @@ package org.bigbluebutton.util.i18n
 			return localeTxt;
 		}
 		
-		public function getCurrentLanguageCode():String{
+		public function getCurrentLanguageCode():String {
 			return preferredLocale;
 		}
-				
-		public function getLocaleCodeForIndex(index:int):String {
-			return localeCodes[index];
+		
+		public function getCurrentLanguage():Object {
+			return locales[getCurrentLanguageIndex()];
+		}
+
+		public function getCurrentLanguageIndex():int {
+			return getIndexForLocale(preferredLocale);
 		}
 	}
 }

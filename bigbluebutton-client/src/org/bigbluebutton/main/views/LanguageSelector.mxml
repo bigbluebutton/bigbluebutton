@@ -22,73 +22,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 		xmlns:mate="http://mate.asfusion.com/"
-		dataProvider="{localeNames}" 
-		selectedIndex="{ResourceUtil.getInstance().localeIndex}"
+		dataProvider="{ResourceUtil.getInstance().locales}"
 		change="changeLanguage()"
-		close="changeLanguage()"
+		labelField="name"
 		rowCount="15" width="120" height="22">
 
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 
-	<mx:itemRenderer >
-		<mx:Component >
-			<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml"
-					mouseOver="highlightItem()" 
-					mouseOut="removeHighlightItem()"
-					enabled="true"
-					width="100%"
-					paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"
-					horizontalScrollPolicy="off">
-				<mx:Script>
-					<![CDATA[
-						import org.bigbluebutton.util.i18n.ResourceUtil;
-						
-						private function highlightItem():void {
-							boxCont.setStyle("backgroundColor", "0xB2E1FF");
-						}
-						private function removeHighlightItem():void {
-							if(data == ResourceUtil.getInstance().getPreferredLocaleName())
-								boxCont.setStyle("backgroundColor", "0x7FCEFF");
-							else
-								boxCont.setStyle("backgroundColor", "0xFFFFFF");
-						}
-					]]>
-				</mx:Script>
-				<mx:Box paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" id="boxCont" width="100%" horizontalScrollPolicy="off" backgroundColor="{data == ResourceUtil.getInstance().getPreferredLocaleName() ? 0x7FCEFF : 0xFFFFFF}">
-					<mx:Label id="langSelector" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" text="{data}" width="150"/>
-				</mx:Box>
-			</mx:Box>
-		</mx:Component>
-	</mx:itemRenderer>
-
-
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 
-			public var codes:Array = ResourceUtil.getInstance().localeCodes;
-			[Bindable] public var localeNames:Array = ResourceUtil.getInstance().localeNames;
-
-			private function localeChanged(e:LocaleChangeEvent):void{
-				var cod:String 
-
-				for each(cod in codes){
-					localeNames.pop();
-				}	
-
-				for each(cod in codes){
-					localeNames.push(ResourceUtil.getInstance().getString("bbb.langSelector." + cod));
-
-				}
-				text = ResourceUtil.getInstance().getString("bbb.langSelector." + codes[ResourceUtil.getInstance().localeIndex]);
+			private function localeChanged(e:LocaleChangeEvent):void {
+				selectedIndex = ResourceUtil.getInstance().getCurrentLanguageIndex();
 			}
 
 			private function changeLanguage():void {
-				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
+				ResourceUtil.getInstance().setPreferredLocale(selectedItem.code);
 			}
-
 		]]>
 	</mx:Script>
 </mx:ComboBox>
