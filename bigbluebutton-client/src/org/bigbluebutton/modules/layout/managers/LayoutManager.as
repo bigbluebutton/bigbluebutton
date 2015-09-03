@@ -136,15 +136,12 @@ package org.bigbluebutton.modules.layout.managers
 		}
 
 		public function addCurrentLayoutToList(layoutName:String):void {
-				//Layout Name Window Popup calls this function
-				//if we have a user set name
-				var newLayout:LayoutDefinition
-				if(layoutName != ""){
+				// Layout Name Window Popup calls this function
+				var newLayout:LayoutDefinition;
+				if (layoutName != "") {
 					newLayout = LayoutDefinition.getLayout(_canvas, layoutName);
-				}
-
-				//if the user set the name empty
-				else{
+				} else {
+					// if the user set the name empty
 					newLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
 					newLayout.name += " " + (++_customLayoutsCount);
 				}
