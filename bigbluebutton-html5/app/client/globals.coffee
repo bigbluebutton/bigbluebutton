@@ -214,7 +214,7 @@ Handlebars.registerHelper "getPollQuestions", ->
         bTime = b.user.raise_hand.getTime()
         if aTime < bTime
           return -1
-        else 
+        else
           return 1
       else if a.user.raise_hand
         return -1
@@ -227,8 +227,8 @@ Handlebars.registerHelper "getPollQuestions", ->
       else if not b.user.phone_user
         return 1
 
-      #Check name (case-insensitive) in the event of a tie up above. If the name 
-      #is the same then use userID which should be unique making the order the same 
+      #Check name (case-insensitive) in the event of a tie up above. If the name
+      #is the same then use userID which should be unique making the order the same
       #across all clients.
 
       if a.user._sort_name < b.user._sort_name
@@ -376,52 +376,6 @@ Handlebars.registerHelper "getPollQuestions", ->
   else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
     toggleRightDrawer()
     toggleRightArrowClockwise()
-
-# Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
-# retry if a call is in progress, send the leave voice conference message to BBB
-@exitVoiceCall = (event) ->
-  # To be called when the hangup is initiated
-  hangupCallback = ->
-    console.log "Exiting Voice Conference"
-
-  # Checks periodically until a call is established so we can successfully end the call
-  # clean state
-  getInSession("triedHangup", false)
-  # function to initiate call
-  (checkToHangupCall = (context) ->
-    # if an attempt to hang up the call is made when the current session is not yet finished, the request has no effect
-    # keep track in the session if we haven't tried a hangup
-    if BBB.getCallStatus() isnt null and !getInSession("triedHangup")
-      console.log "Attempting to hangup on WebRTC call"
-      if BBB.amIListenOnlyAudio() # notify BBB-apps we are leaving the call call if we are listen only
-        Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), false)
-      BBB.leaveVoiceConference hangupCallback
-      getInSession("triedHangup", true) # we have hung up, prevent retries
-      notification_WebRTCAudioExited()
-    else
-      console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
-      setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
-  )(@) # automatically run function
-  return false
-
-# close the daudio UI, then join the conference. If listen only send the request to the server
-@joinVoiceCall = (event, {isListenOnly} = {}) ->
-  if !isWebRTCAvailable()
-    notification_WebRTCNotSupported()
-    return
-
-  isListenOnly ?= true
-
-  # create voice call params
-  joinCallback = (message) ->
-    console.log "Beginning WebRTC Conference Call"
-
-  notification_WebRTCAudioJoining()
-  if isListenOnly
-    Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
-  BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
-
-  return false
 
 # Starts the entire logout procedure.
 # meeting: the meeting the user is in
