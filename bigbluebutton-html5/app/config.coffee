@@ -45,6 +45,9 @@ config.redis.channels.toBBBApps.voice = "bigbluebutton:to-bbb-apps:voice"
 config.redis.channels.toBBBApps.whiteboard = "bigbluebutton:to-bbb-apps:whiteboard"
 config.redis.channels.toBBBApps.polling = "bigbluebutton:to-bbb-apps:polling"
 
+# IP address of FreeSWITCH server for use of mod_verto and WebRTC deshsharing
+config.vertoServerAddress = "HOST"
+
 # Logging
 config.log = {}
 
