@@ -48,6 +48,9 @@ config.redis.channels.toBBBApps.polling = "bigbluebutton:to-bbb-apps:polling"
 # IP address of FreeSWITCH server for use of mod_verto and WebRTC deshsharing
 config.vertoServerAddress = "HOST"
 
+# The Chrome extension key signed to the Chrome Extension
+config.deskshareExtensionKey = "your-extension-key"
+
 # Logging
 config.log = {}
 
