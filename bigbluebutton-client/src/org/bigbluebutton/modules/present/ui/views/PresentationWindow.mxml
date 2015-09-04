@@ -743,7 +743,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							voteBtn.addEventListener(MouseEvent.CLICK, voteButtonClickHandler);
 							pollVoteBox.addChild(voteBtn);
 					}
-					noticeSound.play();
+					
+					var tSC:SoundChannel = noticeSound.play(0, 0, new SoundTransform(0.25));
 				}
 			}
 			
