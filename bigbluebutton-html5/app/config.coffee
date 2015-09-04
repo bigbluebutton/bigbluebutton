@@ -51,6 +51,9 @@ config.vertoServerAddress = "HOST"
 # The Chrome extension key signed to the Chrome Extension
 config.deskshareExtensionKey = "your-extension-key"
 
+# Allows a caller to access a FreeSWITCH dialplan
+config.freeswitchProfilePassword = "1234"
+
 # Logging
 config.log = {}
 
