@@ -155,7 +155,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     BBB.isUserRaisingHand(BBB.getCurrentUser()?.userId)
 
   BBB.isMeetingRecording = ->
-    MEteor.Meetings.findOne()?.recorded
+    Meteor.Meetings.findOne()?.recorded
 
 
   ###
