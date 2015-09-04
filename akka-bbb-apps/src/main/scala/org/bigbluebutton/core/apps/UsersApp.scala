@@ -87,11 +87,11 @@ trait UsersApp {
           //send the reply
           outGW.send(new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, true, msg.correlationId))
 
-          //join the user
-          handleUserJoin(new UserJoining(mProps.meetingID, msg.userId, msg.token))
-
-          //send the presentation
           log.info("ValidateToken success: mid=[" + mProps.meetingID + "] uid=[" + msg.userId + "]")
+
+          //join the user
+          this.context.self ! new UserJoining(mProps.meetingID, msg.userId, msg.token)
+
         }
       case None => {
         log.info("ValidateToken failed: mid=[" + mProps.meetingID + "] uid=[" + msg.userId + "]")
