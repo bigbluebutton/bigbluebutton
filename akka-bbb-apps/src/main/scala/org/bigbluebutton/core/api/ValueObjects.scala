@@ -93,7 +93,8 @@ case class UserVO(
   webcamStreams: Set[String],
   phoneUser: Boolean,
   voiceUser: VoiceUser,
-  listenOnly: Boolean)
+  listenOnly: Boolean,
+  joinedWeb: Boolean)
 
 case class VoiceUser(
   userId: String,
@@ -103,7 +104,8 @@ case class VoiceUser(
   joined: Boolean,
   locked: Boolean,
   muted: Boolean,
-  talking: Boolean)
+  talking: Boolean,
+  listenOnly: Boolean)
 
 case class MeetingConfig(name: String,
   id: MeetingID,

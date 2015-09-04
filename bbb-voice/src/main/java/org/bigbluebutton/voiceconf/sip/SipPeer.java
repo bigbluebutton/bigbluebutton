@@ -155,6 +155,7 @@ public class SipPeer implements SipRegisterAgentListener {
 
         if (ca != null) {
             if (ca.isListeningToGlobal()) {
+            	log.debug("User is in listen only mode.");
                 String destination = ca.getDestination();
                 ListenOnlyUser lou = GlobalCall.removeUser(clientId, destination);
                 if (lou != null) {
