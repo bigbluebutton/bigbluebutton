@@ -35,7 +35,7 @@
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			allowKickUser="true"
-			enableRaiseHand="true"
+			enableEmojiStatus="true"
 			enableSettingsButton="true"
 			baseTabIndex="301"
 		/>

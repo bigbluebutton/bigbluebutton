@@ -6,7 +6,7 @@ package org.bigbluebutton.core.vo
     public var externId: String;
     public var name: String;
     public var role: String;
-    public var handRaised: Boolean;
+    public var emojiStatus: String;
     public var presenter: Boolean;
     public var hasStream: Boolean;
     public var webcamStream: String;
@@ -20,7 +20,7 @@ package org.bigbluebutton.core.vo
       nu.externId = externId;
       nu.name = name;
       nu.role = role;
-      nu.handRaised = handRaised;
+      nu.emojiStatus = emojiStatus;
       nu.presenter = presenter;
       nu.hasStream = hasStream;
       nu.webcamStream = webcamStream;

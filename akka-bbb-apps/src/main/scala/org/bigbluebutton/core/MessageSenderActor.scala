@@ -90,8 +90,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: ValidateAuthTokenReply => handleValidateAuthTokenReply(msg)
     case msg: ValidateAuthTokenTimedOut => handleValidateAuthTokenTimedOut(msg)
     case msg: UserJoined => handleUserJoined(msg)
-    case msg: UserRaisedHand => handleUserRaisedHand(msg)
-    case msg: UserLoweredHand => handleUserLoweredHand(msg)
+    case msg: UserChangedEmojiStatus => handleChangedUserEmojiStatus(msg)
     case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
     case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
     case msg: UserStatusChange => handleUserStatusChange(msg)
@@ -513,13 +512,8 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
-  private def handleUserRaisedHand(msg: UserRaisedHand) {
-    val json = UsersMessageToJsonConverter.userRaisedHandToJson(msg)
-    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
-  }
-
-  private def handleUserLoweredHand(msg: UserLoweredHand) {
-    val json = UsersMessageToJsonConverter.userLoweredHandToJson(msg)
+  private def handleChangedUserEmojiStatus(msg: UserChangedEmojiStatus) {
+    val json = UsersMessageToJsonConverter.userChangedEmojiStatusToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 

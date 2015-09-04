@@ -169,6 +169,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
   }
 
   private def handlePubSubPingMessage(msg: PubSubPing): Unit = {
+    //log.info("PubSubPing from [" + msg.system + "]")
     outGW.send(new PubSubPong(msg.system, msg.timestamp))
   }
 

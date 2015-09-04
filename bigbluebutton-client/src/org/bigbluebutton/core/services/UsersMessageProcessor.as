@@ -46,7 +46,7 @@ package org.bigbluebutton.core.services
       nu.externId = u.externUserID;
       nu.name = u.name;
       nu.role = u.role;
-      nu.handRaised = u.handRaised;
+      nu.emojiStatus = u.emojiStatus;
       nu.presenter = u.presenter;
       nu.hasStream = u.hasStream;
       nu.webcamStream = u.webcamStream;

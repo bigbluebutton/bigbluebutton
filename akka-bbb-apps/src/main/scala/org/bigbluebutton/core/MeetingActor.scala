@@ -68,10 +68,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleChangeUserStatus(msg)
     case msg: EjectUserFromMeeting =>
       handleEjectUserFromMeeting(msg)
-    case msg: UserRaiseHand =>
-      handleUserRaiseHand(msg)
-    case msg: UserLowerHand =>
-      handleUserLowerHand(msg)
+    case msg: UserEmojiStatus =>
+      handleUserEmojiStatus(msg)
     case msg: UserShareWebcam =>
       handleUserShareWebcam(msg)
     case msg: UserUnshareWebcam =>

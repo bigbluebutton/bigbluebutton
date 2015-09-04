@@ -20,6 +20,17 @@
 /* mobile device in portrait orientation: portrait browser window + portrait device screen */
 @mobile-portrait: ~"all and (orientation: portrait) and (max-device-aspect-ratio: 1/1)";
 
+/* more specific media queries */
+@phone-portrait: ~"all and (orientation: portrait) and (max-device-aspect-ratio: 1/1) and (max-device-width: 480px)";
+@phone-portrait-with-keyboard: ~"all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) and (max-device-width: 480px)";
+
+@tablet-portrait: ~"all and (orientation: portrait) and (max-device-aspect-ratio: 1/1) and (min-device-width: 481px)";
+@tablet-portrait-with-keyboard: ~"all and (orientation: landscape) and (max-device-aspect-ratio: 1/1) and (min-device-width: 481px)";
+
+@phone-landscape: ~"all and (orientation: landscape) and (min-device-aspect-ratio: 1/1) and (max-device-width: 959px)";
+@tablet-landscape: ~"all and (orientation: landscape) and (min-device-aspect-ratio: 1/1) and (min-device-width: 960px) and (max-device-width: 1366px)";
+@desktop-landscape: ~"all and (orientation: landscape) and (min-device-aspect-ratio: 1/1) and (min-device-width: 1367px)";
+
 /* Fix for FireFox - some ionicons did not display properly */
 @font-face {
   font-family: 'ionicons';

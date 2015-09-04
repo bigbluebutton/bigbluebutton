@@ -35,8 +35,7 @@ public interface IBigBlueButtonInGW {
 	// Users
 	void validateAuthToken(String meetingId, String userId, String token, String correlationId, String sessionId);
 	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken);
-	void userRaiseHand(String meetingId, String userId);	
-	void lowerHand(String meetingId, String userId, String loweredBy);
+	void userEmojiStatus(String meetingId, String userId, String emojiStatus);	
 	void shareWebcam(String meetingId, String userId, String stream);
 	void unshareWebcam(String meetingId, String userId, String stream);
 	void setUserStatus(String meetingID, String userID, String status, Object value);

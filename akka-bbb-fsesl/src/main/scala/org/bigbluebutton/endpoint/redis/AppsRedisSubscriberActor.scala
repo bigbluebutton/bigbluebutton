@@ -44,7 +44,7 @@ class AppsRedisSubscriberActor(val system: ActorSystem, msgReceiver: RedisMessag
   def checkPongMessage() {
     val now = System.currentTimeMillis()
 
-    if (lastPongReceivedOn != 0 && (now - lastPongReceivedOn > 10000)) {
+    if (lastPongReceivedOn != 0 && (now - lastPongReceivedOn > 30000)) {
       log.error("FSESL pubsub error!");
     }
   }

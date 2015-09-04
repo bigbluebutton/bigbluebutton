@@ -43,17 +43,17 @@ package org.bigbluebutton.main.model.users
     
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userID:String = "UNKNOWN USER";
-    [Bindable] public var externUserID:String = "UNKNOWN USER";
+    	[Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
 		[Bindable] public var talking:Boolean = false;
 		[Bindable] public var phoneUser:Boolean = false;
-    [Bindable] public var listenOnly:Boolean = false;
+    	[Bindable] public var listenOnly:Boolean = false;
     
 		[Bindable] public var disableMyCam:Boolean = false;
 		[Bindable] public var disableMyMic:Boolean = false;
 		[Bindable] public var disableMyPrivateChat:Boolean = false;
 		[Bindable] public var disableMyPublicChat:Boolean = false;
-    [Bindable] public var lockedLayout:Boolean = false;
+    	[Bindable] public var lockedLayout:Boolean = false;
     
 		[Bindable]
 		public function get hasStream():Boolean {
@@ -135,16 +135,21 @@ package org.bigbluebutton.main.model.users
 			verifyUserStatus();
 		}
 		
-		public var raiseHandTime:Date;
-		private var _raiseHand:Boolean = false;
+		public var emojiStatusTime:Date;
+		private var _emojiStatus:String = "none";
+		
 		[Bindable]
-		public function get raiseHand():Boolean {
-			return _raiseHand;
+		public function get emojiStatus():String {
+			return _emojiStatus;
 		}
-		public function set raiseHand(r:Boolean):void {
-			_raiseHand = r;
-			raiseHandTime = (r ? new Date() : null);
+		public function set emojiStatus(r:String):void {
+			_emojiStatus = r;
+			emojiStatusTime = (r ? new Date() : null);
 			verifyUserStatus();
+		}
+		
+		public function get hasEmojiStatus():Boolean {
+			return _emojiStatus != "none" && _emojiStatus != "null";
 		}
 		
 		private var _role:String = Role.VIEWER;
@@ -202,8 +207,8 @@ package org.bigbluebutton.main.model.users
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
 			else if (role == Role.MODERATOR)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-			else if (raiseHand)
-				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
+			else if (hasEmojiStatus)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + _emojiStatus);
 			else
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.viewer');
 		}
@@ -228,29 +233,29 @@ package org.bigbluebutton.main.model.users
 		}
 		 
 		private var _status:StatusCollection = new StatusCollection();
-			
-		public function buildStatus():void{
-			var showingWebcam:String = "";
-			var isPresenter:String = "";
-			var handRaised:String = "";
+
+		public function buildStatus():void {
+			var showingWebcam:String="";
+			var isPresenter:String="";
+			var hasEmoji:String = "";
 			if (hasStream)
-				showingWebcam = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
+				showingWebcam=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.streamIcon.toolTip');
 			if (presenter)
-				isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
-			if (raiseHand)
-				handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
-			
-			status = showingWebcam + isPresenter + handRaised;
+				isPresenter=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presIcon.toolTip');
+			if (hasEmojiStatus)
+				hasEmoji = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.'+ emojiStatus +'.toolTip');
+
+			status = showingWebcam + isPresenter + hasEmoji;
 		}
 	
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
 		}
 		
-    public function userRaiseHand(raised: Boolean):void {
-      raiseHand = raised;
+    public function userEmojiStatus(emoji: String):void {
+      emojiStatus = emoji;
       if (me) {
-        UserManager.getInstance().getConference().isMyHandRaised = raised;
+        UserManager.getInstance().getConference().myEmojiStatus = emoji;
       }
       buildStatus();
     }
@@ -281,37 +286,38 @@ package org.bigbluebutton.main.model.users
 		applyLockSettings();
 		buildStatus();
     }
-    
+
 		public function changeStatus(status:Status):void {
 			LOGGER.debug("changeStatus -> {0}", [status.name]);
 			//_status.changeStatus(status);
 			if (status.name == "presenter") {
-				presenter = (status.value.toString().toUpperCase() == "TRUE") ? true : false;
-				
+				presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;
+
 				//As the lock settings are now not applied to presenters, when the presenter flag is changed, we need to apply the lock settings
 				applyLockSettings();
 			}
 			switch (status.name) {
 				case "presenter":
-					presenter = (status.value.toString().toUpperCase() == "TRUE") ? true : false;
+					presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;
 					break;
 				case "hasStream":
-					var streamInfo:Array = String(status.value).split(/,/); 
+					var streamInfo:Array=String(status.value).split(/,/);
 					/**
 					 * Cannot use this statement as new Boolean(expression)
 					 * return true if the expression is a non-empty string not
 					 * when the string equals "true". See Boolean class def.
-					 * 
+					 *
 					 * hasStream = new Boolean(String(streamInfo[0]));
-					 */					
-					var streamNameInfo:Array = String(streamInfo[1]).split(/=/);
-					streamName = streamNameInfo[1]; 
+					 */
+					var streamNameInfo:Array=String(streamInfo[1]).split(/=/);
+					streamName=streamNameInfo[1];
 					break;
-				case "raiseHand":
-					raiseHand = (status.value.toString().toUpperCase() == "TRUE") ? true : false;
-          if (me) {
-            UserManager.getInstance().getConference().isMyHandRaised = status.value;
-          }
+				// @FIXME : check the coming status from the server
+				case "emojiStatus":
+					emojiStatus = status.value.toString();
+					if (me) {
+						UserManager.getInstance().getConference().myEmojiStatus=status.value.toString();
+					}
 					break;
 			}
 			buildStatus();
@@ -335,7 +341,7 @@ package org.bigbluebutton.main.model.users
             n._viewingStream = user._viewingStream;
 			n.streamNames = user.streamNames;
 			n.presenter = user.presenter;
-			n.raiseHand = user.raiseHand;
+			n.emojiStatus = user.emojiStatus;
 			n.role = user.role;	
 			n.room = user.room;
 			n.customdata = user.customdata;

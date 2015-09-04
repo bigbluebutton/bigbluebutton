@@ -102,13 +102,14 @@ public class BbbAppsIsAliveMonitorService {
   }
   
   private void processKeepAliveMessage(KeepAliveMessage msg) {
+	  //log.info("BBB Apps Red5 pubsub pong!" + msg.system);
 	  lastKeepAliveMessage = System.currentTimeMillis();
   }
   
   private void processCheckIsAliveTimer(CheckIsAliveTimer msg) {
 	  Long now = System.currentTimeMillis();
 
-	  if (lastKeepAliveMessage != 0 && (now - lastKeepAliveMessage > 10000)) {
+	  if (lastKeepAliveMessage != 0 && (now - lastKeepAliveMessage > 30000)) {
 		  log.error("BBB Apps Red5 pubsub error!");
 		  service.sendMessage(new DisconnectAllMessage());
 	  }

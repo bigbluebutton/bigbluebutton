@@ -74,34 +74,24 @@ package org.bigbluebutton.modules.users.services
         message
       );
     }
-    
-    public function raiseHand(userID:String, raise:Boolean):void {    
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      if (raise) {
-        _nc.sendMessage("participants.userRaiseHand", 
-          function(result:String):void { // On successful result
-			LOGGER.debug(result); 
-          },	                   
-          function(status:String):void { // status - On error occurred
-			LOGGER.error(status); 
-          }
-        );        
-      } else {
-        var message:Object = new Object();
-        message["userId"] = userID;
-        message["loweredBy"] = userID;
 
-        _nc.sendMessage("participants.lowerHand", 
-          function(result:String):void { // On successful result
-			LOGGER.debug(result); 
-          },	                   
-          function(status:String):void { // status - On error occurred
-			LOGGER.error(status); 
-          },
-          message
-        );        
-      }  
-    }
+	public function emojiStatus(userID:String, emoji:String):void
+	{
+		var message:Object = new Object();
+		message["emojiStatus"] = emoji;
+		message["userId"] = userID;
+		
+		var _nc:ConnectionManager=BBB.initConnectionManager();
+		_nc.sendMessage("participants.userEmojiStatus", function(result:String):void
+		{ // On successful result
+			LOGGER.debug(result);
+		}, function(status:String):void
+		{ // status - On error occurred
+			LOGGER.error(status);
+		},
+		message
+		);
+	}
     
     public function addStream(userID:String, streamName:String):void {
       var _nc:ConnectionManager = BBB.initConnectionManager();

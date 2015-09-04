@@ -59,8 +59,7 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
     case msg: UserJoinedVoice => handleUserJoinedVoice(msg)
     case msg: UserLeftVoice => handleUserLeftVoice(msg)
     case msg: RecordingStatusChanged => handleRecordingStatusChanged(msg)
-    case msg: UserRaisedHand => handleUserRaisedHand(msg)
-    case msg: UserLoweredHand => handleUserLoweredHand(msg)
+    case msg: UserChangedEmojiStatus => handleChangedUserEmojiStatus(msg)
     case msg: UserSharedWebcam => handleUserSharedWebcam(msg)
     case msg: UserUnsharedWebcam => handleUserUnsharedWebcam(msg)
     case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
@@ -297,15 +296,9 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
 
   }
 
-  private def handleUserRaisedHand(msg: UserRaisedHand) {
+  private def handleChangedUserEmojiStatus(msg: UserChangedEmojiStatus) {
     val status = UserStatusChange(msg.meetingID, msg.recorded,
-      msg.userID, "raiseHand", true: java.lang.Boolean)
-    handleUserStatusChange(status)
-  }
-
-  private def handleUserLoweredHand(msg: UserLoweredHand) {
-    val status = UserStatusChange(msg.meetingID, msg.recorded,
-      msg.userID, "raiseHand", false: java.lang.Boolean)
+      msg.userID, "emojiStatus", msg.emojiStatus)
     handleUserStatusChange(status)
   }
 

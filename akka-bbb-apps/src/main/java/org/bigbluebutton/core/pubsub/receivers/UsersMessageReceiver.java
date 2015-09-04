@@ -23,9 +23,8 @@ import org.bigbluebutton.common.messages.UserJoinedVoiceConfMessage;
 import org.bigbluebutton.common.messages.UserLeavingMessage;
 import org.bigbluebutton.common.messages.UserLeftVoiceConfMessage;
 import org.bigbluebutton.common.messages.UserLockedInVoiceConfMessage;
-import org.bigbluebutton.common.messages.UserLoweredHandMessage;
 import org.bigbluebutton.common.messages.UserMutedInVoiceConfMessage;
-import org.bigbluebutton.common.messages.UserRaisedHandMessage;
+import org.bigbluebutton.common.messages.UserEmojiStatusMessage;
 import org.bigbluebutton.common.messages.UserShareWebcamRequestMessage;
 import org.bigbluebutton.common.messages.UserTalkingInVoiceConfMessage;
 import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
@@ -61,11 +60,8 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case AssignPresenterRequestMessage.ASSIGN_PRESENTER_REQUEST:
 						  processAssignPresenterRequestMessage(message);
 						  break;
-					  case UserRaisedHandMessage.USER_RAISED_HAND:
-						  processUserRaisedHandMessage(message);
-						  break;
-					  case UserLoweredHandMessage.USER_LOWERED_HAND:
-						  processUserLoweredHandMessage(message);
+					  case UserEmojiStatusMessage.USER_EMOJI_STATUS:
+						  processUserEmojiStatusMessage(message);
 						  break;
 					  case EjectUserFromMeetingRequestMessage.EJECT_USER_FROM_MEETING_REQUEST:
 						  processEjectUserFromMeetingRequestMessage(message);
@@ -215,17 +211,10 @@ public class UsersMessageReceiver implements MessageHandler{
 		}
 	}
 	
-	private void processUserRaisedHandMessage(String message) {
-		UserRaisedHandMessage urhm = UserRaisedHandMessage.fromJson(message);
-		if (urhm != null) {
-			bbbInGW.userRaiseHand(urhm.meetingId, urhm.userId);;
-		}
-	}
-	
-	private void processUserLoweredHandMessage(String message) {
-		UserLoweredHandMessage ulhm = UserLoweredHandMessage.fromJson(message);
-		if (ulhm != null) {
-			bbbInGW.lowerHand(ulhm.meetingId, ulhm.userId, ulhm.loweredBy);
+	private void processUserEmojiStatusMessage(String message) {
+		UserEmojiStatusMessage uesm = UserEmojiStatusMessage.fromJson(message);
+		if (uesm != null) {
+			bbbInGW.userEmojiStatus(uesm.meetingId, uesm.userId, uesm.emojiStatus);
 		}
 	}
 	

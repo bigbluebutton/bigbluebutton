@@ -41,6 +41,10 @@
   </nav>
 </template>
 
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
 <template name="main">
   <div id="container" class="{{containerPosition}}">
     {{#if isDisconnected}}
@@ -50,6 +54,7 @@
         {{> usersList id="users" name="usersList"}}
       </div>
       <div class="sl-right-drawer sl-portrait-mobile sl-portrait-keyboard">
+        <div class="titleArea"></div>
         {{> menu id="menu"}}
       </div>
       <div id="main">
@@ -57,7 +62,9 @@
         <div id="panels">
           <div class="shield"></div>
           {{> whiteboard id="whiteboard" name="whiteboard"}}
-          {{> chatbar id="chat" title="Chat" name="chatbar"}}
+          {{#if getInSession "display_chatbar"}}
+            {{> chatbar id="chat" title="Chat" name="chatbar"}}
+          {{/if}}
         </div>
         {{> modals}}
       </div>
