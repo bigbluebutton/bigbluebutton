@@ -228,6 +228,7 @@ public class UserClientMessageSender {
 		  Gson gson = new Gson();
 	  	  message.put("msg", gson.toJson(args));
 	  	  
+	  	  log.info("validateAuthTokenReply - " + gson.toJson(args));
 	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenReply", message);
 		  service.sendMessage(m);	 
 	}
@@ -241,6 +242,7 @@ public class UserClientMessageSender {
 		  Gson gson = new Gson();
 	  	  message.put("msg", gson.toJson(args));
 	  	  
+	  	  log.info("validateAuthTokenTimedOut - " + gson.toJson(args));
 	  	  DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "validateAuthTokenTimedOut", message);
 		  service.sendMessage(m);	 
 	}
@@ -266,6 +268,8 @@ public class UserClientMessageSender {
 		message.put("msg", gson.toJson(args));
 	  	    		
 	  	String userId = msg.user.get("userId").toString();
+	  	
+	  	log.info("joinMeetingReply - " + gson.toJson(args));
 	  	
 	  	DirectClientMessage jmr = new DirectClientMessage(msg.meetingId, userId, "joinMeetingReply", message);
 	  	service.sendMessage(jmr);
