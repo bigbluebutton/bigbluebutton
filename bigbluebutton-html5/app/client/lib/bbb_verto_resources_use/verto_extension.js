@@ -316,7 +316,6 @@ this.makeVerto = function(callbacks, stunsConfig, videoTag) {
 	console.log("stuns info is");
 	console.log(stunsConfig);
 
-	check_vid_res();
 	// create verto object and log in
 	verto = new $.verto({
 		login: login,
@@ -333,7 +332,6 @@ this.makeVerto = function(callbacks, stunsConfig, videoTag) {
 		iceServers: stunsConfig, // use user supplied stun configuration
 		// iceServers: true, // use stun, use default verto configuration
 	}, callbacks);
-	refresh_devices();
 }
 
 // sets verto to begin using the resolution that the user selected

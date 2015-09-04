@@ -129,6 +129,9 @@ Template.main.rendered = ->
   if Meteor.config.app.autoJoinAudio
     onAudioJoinHelper()
 
+  makeWebcamResolutions();
+  makeDeskshareResolutions();
+
 Template.main.events
   'click .shield': (event) ->
     $(".tooltip").hide()
