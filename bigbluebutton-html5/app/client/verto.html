@@ -1,0 +1,33 @@
+<template name="verto">
+	Verto&trade; IN CALL
+		<video id="webcam" autoplay="autoplay" controls></video>
+		<table id="conf_list"></table>
+
+		<hr/>
+		<div>
+			<fieldset>
+				<legend><b>Webcam Video Quality</b>:</legend>
+				<div id="webcamResolutions"></div>
+			</fieldset>
+		</div><br>
+		<hr/>
+
+		<hr/>
+		<div>
+			<fieldset>
+				<legend><b>Deskshare Video Quality</b>:</legend>
+				<div id="deskshareResolutions"></div>
+			</fieldset>
+		</div><br>
+		<hr/>
+
+		<button id='joinAudio'>joinAudio</button>
+		<button id='hangUp'>hangUp</button>
+		<button id='shareScreen'>shareScreen</button>
+		<button id='stopScreen'>stopScreen</button>
+		<button id='desksharePreview'>desksharePreview</button>
+		<button id="webcamPreview">Preview Webcam</button>
+		<br/>
+		<button id="getAdjustedResolutions">getAdjustedResolutions</button>
+		<p id="adjustedResolutions"></p>
+</template>
