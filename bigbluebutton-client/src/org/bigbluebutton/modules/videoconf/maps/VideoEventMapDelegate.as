@@ -78,6 +78,10 @@ package org.bigbluebutton.modules.videoconf.maps
     private var streamList:ArrayList = new ArrayList();
     private var numberOfWindows:Object = new Object();
 
+	private var _restream:Boolean = false;
+	private var _cameraIndex:int;
+	private var _videoProfile:VideoProfile;
+	
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
       _dispatcher = dispatcher;
@@ -454,12 +458,26 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function handleCameraSetting(event:BBBEvent):void {
-      var cameraIndex:int = event.payload.cameraIndex;
-      var videoProfile:VideoProfile = event.payload.videoProfile;
-      LOGGER.debug("VideoEventMapDelegate::handleCameraSettings [{0},{1}]", [cameraIndex, videoProfile.id]);
-      initCameraWithSettings(cameraIndex, videoProfile);
+	  _cameraIndex = event.payload.cameraIndex;
+      _videoProfile = event.payload.videoProfile;
+	  _restream = event.payload.restream;
+      LOGGER.debug("VideoEventMapDelegate::handleCameraSettings [{0},{1}]", [_cameraIndex, _videoProfile.id]);
+      initCameraWithSettings(_cameraIndex, _videoProfile);
     }
 
+	public function handleEraseCameraSetting(event:BBBEvent):void {
+		_cameraIndex = -1;
+		_videoProfile = null;
+		_restream = event.payload.restream;
+	}
+	
+	public function handleRestream(event:BBBEvent):void {
+		if(_restream){
+			LOGGER.debug("VideoEventMapDelegate::handleRestream [{0},{1}]", [_cameraIndex, _videoProfile.id]);
+			initCameraWithSettings(_cameraIndex, _videoProfile);
+		}
+	}
+	
     private function initCameraWithSettings(camIndex:int, videoProfile:VideoProfile):void {
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
       camSettings.camIndex = camIndex;
