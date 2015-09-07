@@ -496,9 +496,10 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     }
 
     private void addH263PublishedStream(String streamName){
-        log.debug("Publishing an h263 stream. StreamName={}.",streamName);
-        if(streamName.contains(H263Converter.H263PREFIX))
+        if (streamName.contains(H263Converter.H263PREFIX)) {
+            log.debug("Publishing an h263 stream. StreamName={}.",streamName);
             h263PublishedStreams.put(streamName, getUserId());
+        }
     }
 
     private void removeH263PublishedStream(String streamName){
