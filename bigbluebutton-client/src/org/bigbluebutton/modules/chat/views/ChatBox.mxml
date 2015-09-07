@@ -670,7 +670,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 	  
 	  private function showMessageTooLong(messageLength : int):void {
-		  msgTooLongLabel.text = "The message is " + (messageLength - chatOptions.maxMessageLength).toString() + " character(s) too long";
+		  msgTooLongLabel.text = ResourceUtil.getInstance().getString('bbb.chat.chatMessage.tooLong', [(messageLength - chatOptions.maxMessageLength).toString()]);
 		  msgTooLongLabel.includeInLayout = msgTooLongLabel.visible = true;
 		  if (chatCtrlBar.height != 80) {
 			  chatCtrlBar.height = 80;
