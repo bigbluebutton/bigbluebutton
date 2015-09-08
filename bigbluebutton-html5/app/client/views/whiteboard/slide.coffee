@@ -13,7 +13,7 @@ Template.slide.rendered = ->
       createWhiteboardPaper (wpm) ->
         displaySlide wpm
         Tracker.autorun (comp) -> # whiteboard is redrawn every time user becomes a presenter or loses that status
-          if BBB.isUserPresenter(getInSession('userId')) and BBB.isUserPresenter(getInSession('userId')) isnt undefined
+          if BBB.isUserPresenter(getInSession('userId'))
             redrawWhiteboard()
   pic.src = currentSlide?.slide?.img_uri
 

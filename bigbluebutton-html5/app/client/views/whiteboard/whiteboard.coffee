@@ -21,18 +21,7 @@ Template.whiteboard.helpers
     else
       return false
 
-
-
 Template.whiteboard.events
-  'click .previousSlide':(event) ->
-    BBB.goToPreviousPage()
-
-  'click .nextSlide':(event) ->
-    BBB.goToNextPage()
-
-  'click .switchSlideButton': (event) ->
-    $('.tooltip').hide()
-
   'click .whiteboardFullscreenButton': (event, template) ->
     enterWhiteboardFullscreen()
 
@@ -50,10 +39,35 @@ Template.whiteboard.events
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
 
+Template.presenterBottomControllers.events
+  'click .previousSlide':(event) ->
+    console.log "previous"
+    BBB.goToPreviousPage()
+
+  'click .nextSlide':(event) ->
+    console.log "next"
+    BBB.goToNextPage()
+
+  'click .switchSlideButton': (event) ->
+    $('.tooltip').hide()
+
+Template.polling.events
   'click .pollButtons': (event) ->
     _key = @.label
     _id = @.answer
     BBB.sendPollResponseMessage(_key, _id)
+
+Template.polling.rendered = ->
+  redrawWhiteboard()
+
+Template.polling.destroyed = ->
+  setTimeout(redrawWhiteboard, 0)
+
+Template.presenterBottomControllers.rendered = ->
+  redrawWhiteboard()
+
+Template.presenterBottomControllers.destroyed = ->
+  setTimeout(redrawWhiteboard, 0)
 
 Template.whiteboard.rendered = ->
   $('#whiteboard').resizable
