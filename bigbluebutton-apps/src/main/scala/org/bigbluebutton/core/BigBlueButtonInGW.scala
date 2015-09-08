@@ -503,8 +503,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
     sharedNotesGW.getCurrentDocument(meetingId, userId)
   }
   
-  def createAdditionalNotes(meetingId: String, userId: String) {
-    sharedNotesGW.createAdditionalNotes(meetingId, userId)
+  def createAdditionalNotes(meetingId: String, userId: String, noteName: String) {
+    sharedNotesGW.createAdditionalNotes(meetingId, userId, noteName)
   }
   def destroyAdditionalNotes(meetingId: String, userId: String, noteId: String) {
     sharedNotesGW.destroyAdditionalNotes(meetingId, userId, noteId)

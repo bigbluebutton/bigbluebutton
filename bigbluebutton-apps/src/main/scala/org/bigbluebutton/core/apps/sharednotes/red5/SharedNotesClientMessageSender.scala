@@ -49,6 +49,7 @@ class SharedNotesClientMessageSender(service: ConnectionInvokerService) extends 
   private def handleCreateAdditionalNotesReply(msg: CreateAdditionalNotesReply) {
     val message = new java.util.HashMap[String, Object]()
     message.put("noteID", msg.noteID)
+    message.put("noteName", msg.noteName)
 
     val m = new BroadcastClientMessage(msg.meetingID, "CreateAdditionalNotesCommand", message);
     service.sendMessage(m);

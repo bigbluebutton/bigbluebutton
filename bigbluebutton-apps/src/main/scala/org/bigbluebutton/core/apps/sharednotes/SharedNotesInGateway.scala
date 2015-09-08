@@ -14,8 +14,8 @@ class SharedNotesInGateway(bbbGW: BigBlueButtonGateway) {
     bbbGW.accept(new GetCurrentDocumentRequest(meetingId, userId));
   }
   
-  def createAdditionalNotes(meetingId: String, userId: String) {
-    bbbGW.accept(new CreateAdditionalNotesRequest(meetingId, userId));
+  def createAdditionalNotes(meetingId: String, userId: String, noteName: String) {
+    bbbGW.accept(new CreateAdditionalNotesRequest(meetingId, userId, noteName));
   }
   
   def destroyAdditionalNotes(meetingId: String, userId: String, noteId: String) {

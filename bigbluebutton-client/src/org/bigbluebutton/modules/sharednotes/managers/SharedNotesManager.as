@@ -47,7 +47,7 @@ package org.bigbluebutton.modules.sharednotes.managers {
 		}
 
 		public function createAdditionalNotes(e:SharedNotesEvent):void {
-			sender.createAdditionalNotes();
+			sender.createAdditionalNotes(e.noteName);
 		}
 
 		public function destroyAdditionalNotes(notesId:String):void {

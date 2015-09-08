@@ -36,6 +36,8 @@ package org.bigbluebutton.modules.sharednotes.events
 		public static const SEND_PATCH_EVENT:String = 'SHARED_NOTES_SEND_PATCH';
 		public static const RECEIVE_PATCH_EVENT:String = 'SHARED_NOTES_RECEIVE_PATCH';
 
+		public var noteName:String = "";
+
 		public function SharedNotesEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, null, bubbles, cancelable);

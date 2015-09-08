@@ -58,7 +58,7 @@ package org.bigbluebutton.modules.sharednotes.maps
             for(var id:String in e.document){
                 LogUtil.debug("NoteId:" + id +":"+e.document[id] + ":" + e.type);
                 if(id != window.noteId && !windows.hasOwnProperty(id)){
-                    createAdditionalNotes(id);
+                    createAdditionalNotes(id, "");
                     windows[id].addRemoteDocument(e.document);
                 }
             }
@@ -84,11 +84,12 @@ package org.bigbluebutton.modules.sharednotes.maps
 			}).join("\n");
 		}
 
-		public function createAdditionalNotes(notesId:String):void {
+		public function createAdditionalNotes(notesId:String, noteName:String):void {
 			trace(NAME + ": creating additional notes " + notesId);
 
 			if(!windows.hasOwnProperty(notesId)) {
 				var newWindow:AdditionalSharedNotesWindow = new AdditionalSharedNotesWindow(notesId);
+				newWindow.noteName = noteName;
 				windows[notesId] = newWindow;
 
 				var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);

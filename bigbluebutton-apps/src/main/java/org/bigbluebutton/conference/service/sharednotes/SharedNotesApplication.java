@@ -40,8 +40,8 @@ public class SharedNotesApplication {
 		bbbInGW.getCurrentDocument(meetingID, requesterID);
 	}
 
-	public void createAdditionalNotes(String meetingID, String requesterID) {
-		bbbInGW.createAdditionalNotes(meetingID, requesterID);
+	public void createAdditionalNotes(String meetingID, String requesterID, String noteName) {
+		bbbInGW.createAdditionalNotes(meetingID, requesterID, noteName);
 	}
 
 	public void destroyAdditionalNotes(String meetingID, String requesterID, String noteID) {

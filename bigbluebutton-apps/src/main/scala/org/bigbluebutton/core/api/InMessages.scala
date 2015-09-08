@@ -557,7 +557,8 @@ case class GetCurrentDocumentRequest(
 
 case class CreateAdditionalNotesRequest(
     meetingID: String, 
-    requesterID: String
+    requesterID: String,
+    noteName: String
 ) extends InMessage
 
 case class DestroyAdditionalNotesRequest(

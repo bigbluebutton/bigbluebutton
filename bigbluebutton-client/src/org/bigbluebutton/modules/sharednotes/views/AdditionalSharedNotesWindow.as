@@ -33,6 +33,10 @@ package org.bigbluebutton.modules.sharednotes.views
 			return this._windowName;
 		}
 
+		public function set noteName(name:String):void {
+			this._noteName = name;
+		}
+
 		override public function onCreationComplete():void {
 			super.onCreationComplete();
 
@@ -65,7 +69,11 @@ package org.bigbluebutton.modules.sharednotes.views
 		}
 
 		override protected function updateTitle():void {
-			title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + noteId;
+			if (_noteName.length > 0) {
+				title = _noteName;
+			} else {
+				title = ResourceUtil.getInstance().getString('bbb.sharedNotes.title') + " " + noteId;
+			}
 		}
 	}
 }

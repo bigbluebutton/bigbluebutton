@@ -50,13 +50,17 @@ package org.bigbluebutton.modules.sharednotes.services
       );
     }
     
-    public function createAdditionalNotes():void {
+    public function createAdditionalNotes(noteName:String):void {
       trace(LOG + "Sending [sharednotes.createAdditionalNotes] to server.");
+      var message:Object = new Object();
+      message["noteName"] = noteName;
+
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
         "sharednotes.createAdditionalNotes",
         onSuccessDebugger,
-        onErrorDebugger
+        onErrorDebugger,
+        message
       );
     }
 

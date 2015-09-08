@@ -122,7 +122,7 @@ public interface IBigBlueButtonInGW {
 	void patchDocument(String meetingID, String requesterID, String noteID,
 			String patch, int beginIndex, int endIndex);
 	void getCurrentDocument(String meetingID, String requesterID);
-	void createAdditionalNotes(String meetingID, String requesterID);
+	void createAdditionalNotes(String meetingID, String requesterID, String noteName);
 	void destroyAdditionalNotes(String meetingID, String requesterID,
 			String noteID);
 	void requestAdditionalNotesSet(String meetingID, String requesterID,

@@ -41,8 +41,11 @@
 			import mx.accessibility.AlertAccImpl;
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
 			import mx.events.ResizeEvent;
 			import mx.events.SliderEvent;
+			import mx.managers.PopUpManager;
 			import mx.utils.ObjectUtil;
 			import flexlib.mdi.containers.MDICanvas;
 			
@@ -52,12 +55,12 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.sharednotes.views.components.PatchableTextArea;
+			import org.bigbluebutton.modules.sharednotes.views.SharedNotesNameWindow;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
 			import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
-			import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 			import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -71,6 +74,7 @@
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
 			protected var _notesId:String="MAIN_WINDOW";
+			protected var _noteName:String = "";
 
 			private var options:SharedNotesOptions = new SharedNotesOptions();
 
@@ -122,8 +126,11 @@
 			}
 
 			public function addRemoteDocument(notes:Object):void{
-				_document = notes[noteId];
+				var note:Object = notes[noteId];
+				_document = note["document"];
+				_noteName = note["name"];
 				textArea.text = _document;
+				updateTitle();
 			}
 
 			private function sendPatch():void {
@@ -176,7 +183,8 @@
 
 			protected function btnNew_clickHandler(event:MouseEvent):void
 			{
-				_dispatcher.dispatchEvent(new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REQUEST_EVENT));
+				var noteNameWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, SharedNotesNameWindow, true);
+				PopUpManager.centerPopUp(noteNameWindow);
 			}
 
 			public function getPrefferedPosition():String{
