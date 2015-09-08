@@ -494,9 +494,8 @@ class BigBlueButtonInGW(bbbGW: BigBlueButtonGateway, presUtil: PreuploadedPresen
   
   val sharedNotesGW = new SharedNotesInGateway(bbbGW)
   
-  def patchDocument(meetingId: String, userId: String, noteId: String,
-      patch: String, beginIndex: Int, endIndex: Int) {
-    sharedNotesGW.patchDocument(meetingId, userId, noteId, patch, beginIndex, endIndex)
+  def patchDocument(meetingId: String, userId: String, noteId: String, patch: String) {
+    sharedNotesGW.patchDocument(meetingId, userId, noteId, patch)
   }
   
   def getCurrentDocument(meetingId: String, userId: String) {

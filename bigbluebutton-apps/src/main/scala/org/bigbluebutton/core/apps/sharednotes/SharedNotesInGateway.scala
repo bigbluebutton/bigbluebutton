@@ -5,9 +5,8 @@ import org.bigbluebutton.core.api._
 
 class SharedNotesInGateway(bbbGW: BigBlueButtonGateway) {
 
-  def patchDocument(meetingId: String, userId: String, noteId: String,
-      patch: String, beginIndex: Int, endIndex: Int) {
-    bbbGW.accept(new PatchDocumentRequest(meetingId, userId, noteId, patch, beginIndex, endIndex));
+  def patchDocument(meetingId: String, userId: String, noteId: String, patch: String) {
+    bbbGW.accept(new PatchDocumentRequest(meetingId, userId, noteId, patch));
   }
   
   def getCurrentDocument(meetingId: String, userId: String) {

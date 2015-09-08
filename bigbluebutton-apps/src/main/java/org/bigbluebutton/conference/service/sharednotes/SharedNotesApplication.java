@@ -32,8 +32,8 @@ public class SharedNotesApplication {
 		bbbInGW = inGW;
 	}
 
-	public void patchDocument(String meetingID, String requesterID, String noteID, String patch, Integer beginIndex, Integer endIndex) {
-		bbbInGW.patchDocument(meetingID, requesterID, noteID, patch, beginIndex, endIndex);
+	public void patchDocument(String meetingID, String requesterID, String noteID, String patch) {
+		bbbInGW.patchDocument(meetingID, requesterID, noteID, patch);
 	}
 
 	public void currentDocument(String meetingID, String requesterID) {
