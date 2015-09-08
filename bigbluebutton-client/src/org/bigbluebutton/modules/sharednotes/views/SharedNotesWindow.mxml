@@ -31,6 +31,7 @@
 
 	
 	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch" />
+	<mate:Listener type="{CurrentDocumentEvent}" method="gotCurrentDocument"/>
 
 	<mx:Script>
 		<![CDATA[
@@ -79,6 +80,7 @@
 			private var options:SharedNotesOptions = new SharedNotesOptions();
 
 			private var sendUpdateTimer:Timer;
+			private var getDocumentTimer:Timer = new Timer(5000);
 			
 			public function onCreationComplete():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
@@ -109,6 +111,20 @@
 				updateTitle();
 			}
 
+			private function gotCurrentDocument():void {
+				if(noteId == "MAIN_WINDOW"){
+					getDocumentTimer.stop();
+				}
+			}
+
+			private function checkCurrentDocument(e:Event):void {
+				if (!this.enabled) {
+					_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+				} else {
+					getDocumentTimer.stop();
+				}
+			}
+
 			private function onTextAreaEvent(e:Event):void {
 				trace("Text area event " + e.type + " on user " + UsersUtil.getMyUserID());
 			}
@@ -116,6 +132,9 @@
 			private function updateRoleDependentProperties(role:String):void {
 				if(noteId == "MAIN_WINDOW"){
 					btnNew.visible = btnNew.includeInLayout = options.enableMultipleNotes && role == Role.MODERATOR;
+					this.enabled = false;
+					getDocumentTimer.addEventListener(TimerEvent.TIMER, checkCurrentDocument);
+					getDocumentTimer.start();
 				} else {
 					showCloseButton = role == Role.MODERATOR;
 				}
@@ -130,6 +149,7 @@
 				_document = note["document"];
 				_noteName = note["name"];
 				textArea.text = _document;
+				if (!this.enabled) this.enabled = true;
 				updateTitle();
 			}
 
