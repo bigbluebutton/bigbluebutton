@@ -297,6 +297,7 @@ trait UsersApp {
 
       wUser.foreach { w =>
         if (!w.joinedWeb) {
+          val user = usersModel.removeUser(w.userID)
           outGW.send(new UserLeft(msg.meetingID, mProps.recorded, w))
         }
       }
