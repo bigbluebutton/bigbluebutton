@@ -104,6 +104,10 @@ if ($playback == "presentation_export")
     metadata_xml.write(doc.to_xml(:indent => 2))
     metadata_xml.close
 
+    # After all the processing we'll add the published format and raw sizes to the metadata file
+    BigBlueButton.add_raw_size_to_metadata(package_dir, raw_archive_dir)
+    BigBlueButton.add_download_size_to_metadata(package_dir)
+
     if not FileTest.directory?(publish_dir)
       FileUtils.mkdir_p publish_dir
     end

@@ -127,6 +127,10 @@ done_files.each do |df|
         metadata_xml.write(metaxml)
         metadata_xml.close
 
+        # After all the processing we'll add the published format and raw sizes to the metadata file
+        BigBlueButton.add_raw_size_to_metadata(meeting_publish_dir, meeting_raw_dir)
+        BigBlueButton.add_download_size_to_metadata(meeting_publish_dir)
+
         BigBlueButton.logger.info("Publishing mconf_encrypted")
 
         # Now publish this recording    

@@ -379,6 +379,7 @@ public class MeetingService implements MessageListener {
 					plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
 							getDurationRecording(r.getPlaybackDuration(),
 									r.getEndTime(), r.getStartTime()),
+									r.getPlaybackSize(),
 							r.getPlaybackExtensions()));
 				}
 				r.setPlaybacks(plays);
@@ -387,6 +388,7 @@ public class MeetingService implements MessageListener {
 				if (!r.getDownloadFormat().isEmpty()) {
 					downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
 							r.getDownloadMd5(), r.getDownloadKey(),
+							r.getDownloadSize(),
 							getDurationRecording(r.getEndTime(), r.getStartTime())));
 				}
 				r.setDownloads(downloads);
@@ -398,11 +400,13 @@ public class MeetingService implements MessageListener {
 					rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
 							getDurationRecording(r.getPlaybackDuration(), 
 									r.getEndTime(), r.getStartTime()),
+									r.getPlaybackSize(),
 							r.getPlaybackExtensions()));
 				}
 				if (!r.getDownloadFormat().isEmpty()) {
 					rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
 							r.getDownloadMd5(), r.getDownloadKey(),
+							r.getDownloadSize(),
 							getDurationRecording(r.getEndTime(), r.getStartTime())));
 				}
 			}
