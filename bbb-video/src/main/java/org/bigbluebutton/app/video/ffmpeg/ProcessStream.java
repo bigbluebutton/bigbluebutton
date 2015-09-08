@@ -26,7 +26,7 @@ public class ProcessStream implements Runnable {
             InputStreamReader isr = new InputStreamReader(this.stream);
             BufferedReader ibr = new BufferedReader(isr);
             while ((line = ibr.readLine()) != null) {
-                log.debug(line);
+                //log.debug(line);
             }
 
             close();
