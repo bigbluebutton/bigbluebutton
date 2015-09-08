@@ -163,6 +163,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			camEvent.payload.cameraIndex = selectedCam;
 			camEvent.payload.videoProfile = selectedVideoProfile;
 			camEvent.payload.publishInClient = publishInClient;
+			camEvent.payload.restream = true;
 			
 			globalDispatcher.dispatchEvent(camEvent);
 			
