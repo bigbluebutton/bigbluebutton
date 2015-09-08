@@ -165,54 +165,37 @@ module BigBlueButton
     end
     size.to_s
   end
-
-  def self.add_raw_size_to_metadata(dir_name, raw_dir_name)
-    size = BigBlueButton.get_dir_size(raw_dir_name)
-    metadata_file = dir_name + "/metadata.xml"
-
-    begin
-      doc = Nokogiri::XML(open(metadata_file).read) do |config|
-        config.noblanks
-      end
-    rescue Exception => e
-      BigBlueButton.logger.error "Something went wrong: #{$!}"
-      raise e
-    end
-
-    if not doc.at_xpath("//recording/raw_size")
-      raw_size_node = Nokogiri::XML::Node.new "raw_size", doc
-      raw_size_node.content = size
-
-      doc.at("//recording") << raw_size_node
-
-      metadata_xml = File.new(metadata_file, "w")
-      metadata_xml.write(doc.to_xml(:indent => 2))
-      metadata_xml.close
+  
+  def self.add_tag_to_xml(xml_filename, parent_xpath, tag, content)
+    if File.exist? xml_filename
+      doc = Nokogiri::XML(File.open(xml_filename)) { |x| x.noblanks }
+      
+      node = doc.at_xpath("#{parent_xpath}/#{tag}")
+      node.remove if not node.nil?
+      
+      node = Nokogiri::XML::Node.new tag, doc
+      node.content = content
+      
+      doc.at(parent_xpath) << node
+      
+      xml_file = File.new(xml_filename, "w")
+      xml_file.write(doc.to_xml(:indent => 2))
+      xml_file.close
     end
   end
 
-  def self.add_size_to_metadata(dir_name)
+  def self.add_raw_size_to_metadata(dir_name, raw_dir_name)
+    size = BigBlueButton.get_dir_size(raw_dir_name)
+    BigBlueButton.add_tag_to_xml("#{dir_name}/metadata.xml", "//recording", "raw_size", size)
+  end
+
+  def self.add_playback_size_to_metadata(dir_name)
     size = BigBlueButton.get_dir_size(dir_name)
-    metadata_file = dir_name + "/metadata.xml"
+    BigBlueButton.add_tag_to_xml("#{dir_name}/metadata.xml", "//recording/playback", "size", size)
+  end
 
-    begin
-      doc = Nokogiri::XML(open(metadata_file).read) do |config|
-        config.noblanks
-      end
-    rescue Exception => e
-      BigBlueButton.logger.error "Something went wrong: #{$!}"
-      raise e
-    end
-
-    if not doc.at_xpath("//recording/playback/size")
-      size_node = Nokogiri::XML::Node.new "size", doc
-      size_node.content = size
-
-      doc.at("//recording/playback") << size_node
-
-      metadata_xml = File.new(metadata_file, "w")
-      metadata_xml.write(doc.to_xml(:indent => 2))
-      metadata_xml.close
-    end
+  def self.add_download_size_to_metadata(dir_name)
+    size = BigBlueButton.get_dir_size(dir_name)
+    BigBlueButton.add_tag_to_xml("#{dir_name}/metadata.xml", "//recording/download", "size", size)
   end
 end

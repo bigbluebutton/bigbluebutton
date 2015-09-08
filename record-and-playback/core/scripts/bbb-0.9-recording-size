@@ -39,14 +39,14 @@ def do_recording_size_update(recording_dir, raw_recording_dir, format_dir)
   format = match[1]
 
   BigBlueButton.logger.info("Processing #{format} recording #{meeting_id}")
-
-  if format.eql?("presentation")
-    BigBlueButton.logger.info("Adding raw size to recording #{meeting_id}")
-    raw_dir = raw_recording_dir + "/#{meeting_id}"
-    BigBlueButton.add_raw_size_to_metadata(recording_dir, raw_dir)
+  BigBlueButton.logger.info("Adding raw size to recording #{meeting_id}")
+  raw_dir = "#{raw_recording_dir}/#{meeting_id}"
+  BigBlueButton.add_raw_size_to_metadata(recording_dir, raw_dir)
+  if format == "mconf_encrypted"
+    BigBlueButton.add_download_size_to_metadata(recording_dir)
+  else
+    BigBlueButton.add_playback_size_to_metadata(recording_dir)
   end
-  
-  BigBlueButton.add_size_to_metadata(recording_dir)
 end
 
 BigBlueButton.logger.info("Updating size of 0.9.0 recordings")

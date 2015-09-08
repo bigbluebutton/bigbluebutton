@@ -985,7 +985,7 @@ if ($playback == "presentation")
 		raw_dir = "#{recording_dir}/raw/#{$meeting_id}"
 		# After all the processing we'll add the published format and raw sizes to the metadata file
 		BigBlueButton.add_raw_size_to_metadata(package_dir, raw_dir)
-		BigBlueButton.add_size_to_metadata(package_dir)
+		BigBlueButton.add_playback_size_to_metadata(package_dir)
 
 		FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
 		BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
@@ -1023,4 +1023,3 @@ rescue Exception => e
 
         exit 1
 end
-
