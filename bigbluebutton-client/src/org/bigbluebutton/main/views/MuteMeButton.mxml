@@ -91,6 +91,7 @@ $Id: $
         if (UsersUtil.amIModerator()  || UsersUtil.amIPresenter()){
           // Ignore lock setting changes as 
           // or presenter we are moderator.
+			LOGGER.debug("Ignoring lock seetings.");
           return; 
         }
 				updateMuteMeBtn();
@@ -115,7 +116,10 @@ $Id: $
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
-//        LOGGER.debug("allowMuteUnmute [ voiceJoined=[" + conference.voiceJoined + "], disableMic=[" + me.disableMyMic + "]");
+				if (conference != null && me != null) {
+					LOGGER.debug("allowMuteUnmute [ voiceJoined=[" + conference.voiceJoined + "], disableMic=[" + me.disableMyMic + "]");
+				}
+        
 				return (conference.voiceJoined && !me.disableMyMic);
 			}
 			
