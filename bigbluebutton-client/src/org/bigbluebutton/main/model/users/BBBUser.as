@@ -138,7 +138,7 @@ package org.bigbluebutton.main.model.users
 		public var emojiStatusTime:Date;
 		private var _emojiStatus:String = "none";
 		
-		[Bindable]
+		[Bindable("emojiStatusChange")]
 		public function get emojiStatus():String {
 			return _emojiStatus;
 		}
@@ -146,8 +146,10 @@ package org.bigbluebutton.main.model.users
 			_emojiStatus = r;
 			emojiStatusTime = (r ? new Date() : null);
 			verifyUserStatus();
+			dispatchEvent(new Event("emojiStatusChange")); 
 		}
 		
+		[Bindable("emojiStatusChange")]
 		public function get hasEmojiStatus():Boolean {
 			return _emojiStatus != null && _emojiStatus != "none" && _emojiStatus != "null";
 		}
