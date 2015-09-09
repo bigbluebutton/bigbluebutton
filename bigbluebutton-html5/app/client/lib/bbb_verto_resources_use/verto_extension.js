@@ -206,6 +206,7 @@ this.isLoggedIntoVerto = function () {
 
 // overwrite and substitute my own init function
 this.init = function(videoTag) {
+	videoTag = window.videoTag;
 	cur_call = null;
 	share_call = null;
 	incomingBandwidth = "default";

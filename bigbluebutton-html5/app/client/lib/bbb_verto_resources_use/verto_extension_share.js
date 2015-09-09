@@ -159,6 +159,7 @@ this.getDeskshareConstraintsFromResolution = function(resolution, constraints) {
 }
 
 this.screenStart = function(state, callback, videoTag) {
+	window.videoTag = videoTag;
 	if (state) {
 		if(!isLoggedIntoVerto()) { // start the verto log in procedure
 			// runs when the websocket is successfully created
