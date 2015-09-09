@@ -7,14 +7,11 @@ Template.slide.rendered = ->
     $(window).resize( ->
       # redraw the whiteboard to adapt to the resized window
       if !$('.panel-footer').hasClass('ui-resizable-resizing') # not in the middle of resizing the message input
-        redrawWhiteboard()
+        scaleWhiteboard()
     )
     if currentSlide?.slide?.img_uri?
       createWhiteboardPaper (wpm) ->
         displaySlide wpm
-        Tracker.autorun (comp) -> # whiteboard is redrawn every time user becomes a presenter or loses that status
-          if BBB.isUserPresenter(getInSession('userId'))
-            redrawWhiteboard()
   pic.src = currentSlide?.slide?.img_uri
 
 @createWhiteboardPaper = (callback) =>

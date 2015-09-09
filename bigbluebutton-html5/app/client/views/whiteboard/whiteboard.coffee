@@ -1,5 +1,5 @@
-# redraw the whiteboard to adapt to the resized window
-@redrawWhiteboard = (callback) ->
+# scale the whiteboard to adapt to the resized window
+@scaleWhiteboard = (callback) ->
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   wpm = whiteboardPaperModel
   wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
@@ -58,16 +58,16 @@ Template.polling.events
     BBB.sendPollResponseMessage(_key, _id)
 
 Template.polling.rendered = ->
-  redrawWhiteboard()
+  scaleWhiteboard()
 
 Template.polling.destroyed = ->
-  setTimeout(redrawWhiteboard, 0)
+  setTimeout(scaleWhiteboard, 0)
 
 Template.presenterBottomControllers.rendered = ->
-  redrawWhiteboard()
+  scaleWhiteboard()
 
 Template.presenterBottomControllers.destroyed = ->
-  setTimeout(redrawWhiteboard, 0)
+  setTimeout(scaleWhiteboard, 0)
 
 Template.whiteboard.rendered = ->
   $('#whiteboard').resizable

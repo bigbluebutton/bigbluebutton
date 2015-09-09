@@ -263,7 +263,7 @@ Handlebars.registerHelper "getPollQuestions", ->
     setInSession "display_chatbar", true
   else
     setInSession "display_chatbar", !getInSession "display_chatbar"
-  setTimeout(redrawWhiteboard, 0)
+  setTimeout(scaleWhiteboard, 0)
 
 @toggleMic = (event) ->
   BBB.toggleMyMic()
@@ -273,7 +273,7 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('.sl-left-drawer').removeClass('hiddenInLandscape')
   else
     $('.sl-left-drawer').addClass('hiddenInLandscape')
-  setTimeout(redrawWhiteboard, 0)
+  setTimeout(scaleWhiteboard, 0)
 
 @populateNotifications = (msg) ->
   myUserId = getInSession "userId"
@@ -360,13 +360,13 @@ Handlebars.registerHelper "getPollQuestions", ->
       $('#whiteboard').unbind('webkitfullscreenchange')
       $('.fullscreenButton').removeClass('iconChrome')
       removeFullscreenStyles()
-      redrawWhiteboard()
+      scaleWhiteboard()
   $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
     if document.mozFullScreenElement is null
       $(document).unbind('mozfullscreenchange')
       $('.fullscreenButton').removeClass('iconFirefox')
       removeFullscreenStyles()
-      redrawWhiteboard()
+      scaleWhiteboard()
 
 @closeMenus = ->
   if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
