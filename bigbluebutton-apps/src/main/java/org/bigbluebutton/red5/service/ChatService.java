@@ -21,16 +21,18 @@ package org.bigbluebutton.red5.service;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
 import org.bigbluebutton.red5.BigBlueButtonSession;
 import org.bigbluebutton.red5.Constants;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
-import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;
+import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
+import org.slf4j.Logger;
 
 public class ChatService {	
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
 	private MessagePublisher red5BBBInGw;
+	private int maxMessageLength;
 
 	public void sendPublicChatHistory() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
@@ -70,13 +72,23 @@ public class ChatService {
 	
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
-		
-		red5BBBInGw.sendPublicMessage(meetingID, requesterID, message);
+
+		// The message is being ignored in the red5 application to avoid copying it to any another application which that may cause a memory issue
+		if (chatText.length() <= maxMessageLength) {
+			red5BBBInGw.sendPublicMessage(meetingID, requesterID, message);
+		}
+		else {
+			log.warn("sendPublicMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
+		}
 	}
 	
 	public void setRed5Publisher(MessagePublisher inGW) {
 		red5BBBInGw = inGW;
 	}
+	
+	public void setMaxMessageLength(int maxLength) {
+		maxMessageLength = maxLength;
+}
 	
 
 	public void sendPrivateMessage(Map<String, Object> msg){
@@ -103,7 +115,13 @@ public class ChatService {
 	
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
-		
-		red5BBBInGw.sendPrivateMessage(meetingID, requesterID, message);
+
+		// The message is being ignored in the red5 application to avoid copying it to any another application which that may cause a memory issue
+		if (chatText.length() <= maxMessageLength) {
+			red5BBBInGw.sendPrivateMessage(meetingID, requesterID, message);
+		}
+		else {
+			log.warn("sendPrivateMessage maximum allowed message length exceeded (length: [" + chatText.length() + "], message: [" + chatText + "])");
+		}
 	}
 }
