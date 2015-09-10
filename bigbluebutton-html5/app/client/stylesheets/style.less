@@ -9,9 +9,11 @@ body {
   right: 0;
   @media @landscape {
     height: 100%;
-    min-width: 768px;
     position: absolute;
     top: 0;
+  }
+  @media @desktop-landscape {
+    min-width: 768px;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     position: relative;
@@ -59,6 +61,21 @@ body {
       height:25%;
     }
   }
+
+  i {
+    @media @phone-landscape {
+      font-size: 29px;
+    }
+    @media @desktop-portrait, @desktop-landscape, @tablet-landscape {
+      font-size: 30px;
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 35px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 40px;
+    }
+  }
 }
 
 .myNavbar {
@@ -72,9 +89,25 @@ body {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
   }
   .btn {
-    @media @desktop-portrait, @landscape {
-      height: 50px !important;
+
+    @media @tablet-landscape {
+      height: 50px;
       width: 51.2px;
+    }
+    @media @phone-landscape {
+      height: 47px;
+      width: 47px;
+    }
+    @media @desktop-landscape {
+      height: 50px;
+      width: 51.2px;
+    }
+    @media @desktop-portrait {
+      height: 50px;
+      width: 51.2px;
+    }
+
+    @media @desktop-portrait, @landscape {
       top: 0 !important;
       padding-left: 1% !important;
       padding-right: 1% !important;
@@ -84,10 +117,15 @@ body {
       }
     }
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      height: 100px !important;
-      width: 10%;
-      min-width: 60px;
       .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 50px !important;
+      width: 50px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 55px !important;
+      width: 55px;
     }
     .push-menu-icon {
       .icon-bar {
@@ -110,12 +148,22 @@ body {
     }
     span { background-color: #469DCF; }
   }
-  @media @landscape {
+
+  @media @tablet-landscape {
     height: 50px;
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    min-width: 630px;
-    height: 110px;
+  @media @phone-landscape {
+    height: 47px;
+  }
+
+  @media @desktop-landscape {
+    height: 50px;
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    height: 50px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 55px;
   }
   @media @desktop-portrait {
     min-width: 400px;
@@ -131,20 +179,42 @@ body {
     position: absolute;
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
       color: extract(@white, 1);
-      font-size: 35px;
-      height: 72px;
       margin-left: auto;
       margin-right: auto;
-      height: 110px;
-      padding-top: 55px; // half the height
-      padding-left: 30px;
-      padding-right: 30px;
     }
-    @media @landscape, @desktop-portrait {
-      color: extract(@darkGrey, 1);
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 50px;
+      padding-top: 25px; // half the height
+      font-size: 18px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 55px;
+      padding-top: 27.5px; // half the height
+      font-size: 21px;
+    }
+
+    @media @tablet-landscape {
+      font-size: 18px;
+      height: 50px;
+      padding-top: 25px; // half the height
+    }
+    @media @phone-landscape {
+      font-size: 18px;
+      height: 47px;
+      padding-top: 23.5px; // half the height
+    }
+    @media @desktop-landscape {
       font-size: 16px;
       height: 50px;
       padding-top: 25px; // half the height
+    }
+    @media @desktop-portrait {
+      height: 50px;
+      padding-top: 25px; // half the height
+    }
+
+    @media @landscape, @desktop-portrait {
+      color: extract(@darkGrey, 1);
       padding-left: 15px;
       padding-right: 15px;
     }
@@ -152,8 +222,15 @@ body {
       @media @landscape, @desktop-portrait {
         left: 51.2px;
       }
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
-        left: 10%;
+      @media @phone-portrait, @phone-portrait-with-keyboard {
+        left: 50px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        left: 55px;
+        padding-left: 11px;
+        padding-right: 11px;
       }
 
       @media @landscape {
@@ -162,16 +239,26 @@ body {
       @media @desktop-portrait {
         max-width: calc(~'100% - 102.4px'); // leaves room for 2 buttons
       }
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
-        width: 80%;
+      @media @phone-portrait, @phone-portrait-with-keyboard {
+        width: calc(~'100% - 100px');
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        width: calc(~'100% - 110px');
       }
     }
     &.shiftedTitle {
       @media @landscape, @desktop-portrait {
         left: 102.4px;
       }
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
-        left: 20%;
+      @media @phone-portrait, @phone-portrait-with-keyboard {
+        left: 100px;
+        padding-left: 10px;
+        padding-right: 60px;
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        left: 110px;
+        padding-left: 11px;
+        padding-right: 66px;
       }
 
       @media @landscape {
@@ -180,8 +267,11 @@ body {
       @media @desktop-portrait {
         max-width: calc(~'100% - 153.6px'); // leaves for 3 buttons
       }
-      @media @mobile-portrait, @mobile-portrait-with-keyboard {
-        width: 70%;
+      @media @phone-portrait, @phone-portrait-with-keyboard {
+        width: calc(~'100% - 150px');
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        width: calc(~'100% - 165px');
       }
     }
   }
@@ -219,17 +309,33 @@ body {
   font-weight: bold;
   line-height: 2em;
   margin: 0;
+
+  @media @tablet-landscape {
+    font-size: 18px;
+    height: 50px;
+  }
+  @media @phone-landscape {
+    font-size: 19px;
+    height: 47px;
+  }
+  @media @phone-portrait, @phone-portrait-with-keyboard {
+    font-size: 18px;
+    padding-top: 8px;
+  }
+  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+    font-size: 20px;
+    padding-top: 7px;
+  }
+
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
     .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-    padding-top: 20px;
     color: white;
-    font-size: 4vw;
-    height: 110px;
+    height: 50px;
   }
   @media @desktop-portrait {
-    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    background-color: white;
     padding-top: 10px;
-    color: white;
+    color: extract(@darkGrey, 1);
   }
   @media @landscape {
     border-bottom: 1px solid extract(@lightGrey, 1);
@@ -237,7 +343,8 @@ body {
     padding-bottom: 5px;
     padding-top: 5px;
   }
-  @media @desktop-portrait, @landscape {
+
+  @media @desktop-portrait, @desktop-landscape {
     font-size: 18px;
     height: 50px;
   }
@@ -322,13 +429,43 @@ body {
       margin-left: 20px;
     }
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    height: 110px;
-    font-size: 40px;
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    height: 50px;
+    font-size: 18px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 50px;
+    font-size: 18px;
   }
   @media @desktop-portrait {
     height: 50px;
     font-size: 20px;
+  }
+
+  i {
+    @media @phone-landscape {
+      font-size: 29px;
+    }
+    @media @desktop-portrait, @desktop-landscape, @tablet-landscape {
+      font-size: 30px;
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 30px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 25px;
+    }
+  }
+}
+
+.titleArea {
+  width: 100%;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 50px;
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
+  @media @desktop-portrait {
+    height: 50px;
   }
 }
 
@@ -374,7 +511,12 @@ body {
     flex-flow: column;
   }
   width: 100%;
-  height: calc(~'100% - 50px'); // 50px for narbar height
+  @media @desktop-landscape {
+    height: calc(~'100% - 50px'); // 50px for narbar height
+  }
+  @media @phone-landscape, @tablet-landscape {
+    height: calc(~'100% - 47px'); // 47px for narbar height
+  }
 }
 
 .signOutIcon {
@@ -404,9 +546,13 @@ body {
   @media @landscape, @desktop-portrait {
     left: 51.2px;
   }
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    left: 10%;
-    width: 10%;
+  @media @phone-portrait, @phone-portrait-with-keyboard {
+    left: 50px;
+    width: 50px;
+  }
+  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+    left: 55px;
+    width: 55px;
   }
   .muteIcon:hover {
     color: #2A5E7C;
@@ -426,6 +572,9 @@ body {
   @media @landscape {
     display: none;
   }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
 }
 
 .pressedButton {
@@ -440,11 +589,6 @@ body {
 
 .toggleUserlistButton, .toggleMenuButton {
   outline: none;
-  &:hover {
-    span {
-      background-color: #2A5E7C;
-    }
-  }
 }
 
 .settingsIcon {
@@ -472,79 +616,113 @@ body {
 }
 
 #notificationArea {
+
   height: auto;
-  left:0;
-  margin: auto;
-  margin-top: 0px;
-  @media @landscape {
-    width: 50%;
-  }
-  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-    width: 90%;
-  }
-  @media @landscape, @desktop-portrait {
-    top: 57px; // height of navbar (50px), 2 pixels for navbar margin, 5 pixels for neat whitespace
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    top: 130px; // height of navbar (130px), 20 pixels for neat whitespace
-  }
   overflow-y: hidden;
-  position: fixed;
-  right:0;
+  position: absolute;
   text-align: center;
   z-index: 1; // in front of the whiteboard
+
+  // Phone
+  @media @phone-landscape, @phone-portrait-with-keyboard, @phone-portrait {
+    margin-left: 5px;
+    margin-right: 5px;
+    width: calc(~'100% - 10px');
+  }
+  @media @phone-landscape {
+    top: 5px;
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    top: 3px;
+  }
+
+  // Tablet
+  @media @tablet-landscape, @tablet-portrait-with-keyboard, @tablet-portrait {
+    top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    width: calc(~'100% - 10px');
+  }
+
+  // Desktop
+  @media @desktop-landscape, @desktop-portrait {
+    top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    width: calc(~'100% - 10px');
+  }
 }
 
 .bbbNotification {
-  margin-bottom: 5px;
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    font-size: 50px;
-  }
-  .close {
-    @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      font-size: 100px;
-      top: 20%;
-    }
-  }
-}
 
-#logoutModal {
-  margin-top: 0px;
-  margin-right: 0px;
-  top: 5% !important;
-  right: 5%;
-  position: fixed;
-  text-align: center;
-  @media @landscape {
-    width: 20%;
+  margin-bottom: 0; // overrides the value from Foundation
+
+  // Phone
+  @media @phone-landscape, @phone-portrait-with-keyboard, @phone-portrait {
+    font-size: 18px; // same size as the navbar title
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 25px;
+    padding-right: 25px;
   }
-  @media @desktop-portrait {
-    width: 40%;
+
+  // Tablet
+  @media @tablet-landscape {
+    font-size: 18px; // same size as the navbar title
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 35px;
+    padding-right: 35px;
   }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    width: 90%;
-    p {
-      font-size: 250%;
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    font-size: 21px; // same size as the navbar title
+    padding-top: 11px;
+    padding-bottom: 11px;
+    padding-left: 38px;
+    padding-right: 38px;
+  }
+
+  // Desktop
+  @media @desktop-landscape, @desktop-portrait {
+    font-size: 14px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    padding-left: 33px;
+    padding-right: 33px;
+  }
+
+  .close {
+
+    // overriding the values from Foundation
+    margin-bottom: 0;
+    padding: 0;
+
+    // Phone
+    @media @phone-landscape, @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 35px;
+      top: 19px;
+      right: 4px;
+    }
+
+    // Tablet
+    @media @tablet-landscape {
+      font-size: 40px;
+      top: 17px;
+      right: 10px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 45px;
+      top: 18px;
+      right: 11px;
+    }
+
+    // Desktop
+    @media @desktop-landscape, @desktop-portrait {
+      font-size: 30px;
+      top: 19px;
+      right: 10px;
     }
   }
-  .logoutButton {
-    padding: 0px;
-    @media @desktop-portrait, @landscape {
-      width: 50px;
-      height: 30px;
-    }
-    @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      width: 20%;
-      font-size: 200%;
-    }
-    background-color: rgb(229, 229, 229);
-    color: rgb(121, 121, 121);
-    font-weight: bold;
-    border-radius: 10px;
-    margin-left: 5px;
-    margin-right: 5px;
-  }
-  #yes { border: 2px solid rgb(71, 164, 255); }
 }
 
 .top-bar {
@@ -555,14 +733,6 @@ body {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     padding-left: 10px;
     padding-right: 10px;
-  }
-  i {
-    @media @desktop-portrait, @landscape {
-      font-size: 30px;
-    }
-    @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      font-size: 80px;
-    }
   }
 }
 
@@ -597,7 +767,13 @@ body {
 
 .sl-left-drawer {
   height: 100%;
-  @media @landscape {
+  @media @tablet-landscape {
+    width: 200px;
+  }
+  @media @phone-landscape {
+    width: 200px;
+  }
+  @media @desktop-landscape {
     width: 300px;
   }
 }
@@ -626,7 +802,7 @@ body {
     top: 50px;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    top: 110px;
+    top: 50px;
   }
   @media @landscape {
     display: none;

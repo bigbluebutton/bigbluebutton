@@ -45,8 +45,11 @@
     height: 27px;
     font-size: 4.5mm;
   }
-  @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    font-size: 4vw;
+  @media @phone-portrait, @phone-portrait-with-keyboard {
+    font-size: 15px;
+  }
+  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+    font-size: 17px;
   }
 }
 
@@ -83,7 +86,13 @@
 }
 
 #user-contents {
-  height: calc(~'100% - 50px'); /* user-contents = user-contens - meetingTitle */
+  @media @phone-landscape {
+    height: calc(~'100% - 46px');
+  }
+  @media @tablet-landscape, @desktop-landscape,
+  @mobile-portrait, @mobile-portrait-with-keyboard, @desktop-portrait {
+    height: calc(~'100% - 50px'); /* user-contents = user-contens - meetingTitle */
+  }
   @media @landscape, @desktop-portrait{
     background-color: #34495E;
   }
@@ -92,7 +101,7 @@
     height: 100%;
 
     #content:hover {
-        @media @landscape, @desktop-portrait { 
+        @media @landscape, @desktop-portrait {
           background-color: #2C4155;
         }
       }
@@ -135,8 +144,17 @@
 
 .toggleUserlistButton, .toggleMenuButton {
   span {
-    @media @landscape, @desktop-portrait {
+    @media @tablet-landscape {
       width: 26px;
+    }
+    @media @phone-landscape {
+      width: 35px;
+    }
+    @media @desktop-landscape {
+      width: 26px;
+    }
+
+    @media @landscape, @desktop-portrait {
       margin-left: auto;
       margin-right: auto;
       height: 8%;

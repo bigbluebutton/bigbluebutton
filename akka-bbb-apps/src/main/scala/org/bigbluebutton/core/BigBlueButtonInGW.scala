@@ -159,12 +159,8 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   }
 
   // Users
-  def userRaiseHand(meetingId: String, userId: String) {
-    bbbActor ! new UserRaiseHand(meetingId, userId)
-  }
-
-  def lowerHand(meetingId: String, userId: String, loweredBy: String) {
-    bbbActor ! new UserLowerHand(meetingId, userId, loweredBy)
+  def userEmojiStatus(meetingId: String, userId: String, emojiStatus: String) {
+    bbbActor ! new UserEmojiStatus(meetingId, userId, emojiStatus)
   }
 
   def ejectUserFromMeeting(meetingId: String, userId: String, ejectedBy: String) {
@@ -423,8 +419,8 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
     callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
 
-    bbbActor ! new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, callerIdName,
-      callerIdNum, muted, talking)
+    bbbActor ! new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
+      callerIdNum, muted, talking, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )
 
   }
 

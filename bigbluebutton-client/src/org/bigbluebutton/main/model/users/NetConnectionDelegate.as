@@ -166,10 +166,10 @@ package org.bigbluebutton.main.model.users
         LOGGER.debug("*** handleValidateAuthTokenTimedOut. valid=[{0}] **** \n", [tokenValid]);
         dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
       }
-      if (reconnecting) {
-        onReconnect();
-        reconnecting = false;
-      }
+	  if (reconnecting) {
+		  onReconnect();
+		  reconnecting = false;
+	  }
     }
     
     private function handleValidateAuthTokenReply(msg: Object):void {
@@ -185,20 +185,20 @@ package org.bigbluebutton.main.model.users
         LOGGER.debug("*** handleValidateAuthTokenReply. valid=[{0}] **** \n", [tokenValid]);
         dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
       }
-      if (reconnecting) {
-        onReconnect();
-        reconnecting = false;
-      }
+	  if (reconnecting) {
+		  onReconnect();
+		  reconnecting = false;
+	  }
     }
 
-    private function onReconnect():void {
-      if (authenticated) {
-        onReconnectSuccess();
-      } else {
-        onReconnectFailed();
-      }
-    }
-
+	private function onReconnect():void {
+		if (authenticated) {
+			onReconnectSuccess();
+		} else {
+			onReconnectFailed();
+		}
+	}
+	
     private function onReconnectSuccess():void {
       var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
       attemptSucceeded.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
@@ -308,7 +308,7 @@ package org.bigbluebutton.main.model.users
 				case "NetConnection.Connect.Success":
 					LOGGER.debug("Connection to viewers application succeeded.");
           JSLog.debug("Successfully connected to BBB App.", logData);
-          
+
           validateToken();
 			
 					break;

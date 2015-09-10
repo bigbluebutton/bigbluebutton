@@ -66,27 +66,27 @@ package org.bigbluebutton.main.model.users {
 			else if (b.presenter)
 				return 1;*/
 			if (a.role == Role.MODERATOR && b.role == Role.MODERATOR) {
-				if (a.raiseHand && b.raiseHand) {
-					if (a.raiseHandTime < b.raiseHandTime) 
+				if (a.hasEmojiStatus && b.hasEmojiStatus) {
+					if (a.emojiStatusTime < b.emojiStatusTime) 
 						return -1;
 					else
 						return 1;
-				} else if (a.raiseHand)
+				} else if (a.hasEmojiStatus)
 					return -1;
-				else if (b.raiseHand)
+				else if (b.hasEmojiStatus)
 					return 1;
 			} else if (a.role == Role.MODERATOR)
 				return -1;
 			else if (b.role == Role.MODERATOR)
 				return 1;
-			else if (a.raiseHand && b.raiseHand) {
-				if (a.raiseHandTime < b.raiseHandTime) 
+			else if (a.hasEmojiStatus && b.hasEmojiStatus) {
+				if (a.emojiStatusTime < b.emojiStatusTime) 
 					return -1;
 				else
 					return 1;
-			} else if (a.raiseHand)
+			} else if (a.hasEmojiStatus)
 				return -1;
-			else if (b.raiseHand)
+			else if (b.hasEmojiStatus)
 				return 1;
 			else if (!a.phoneUser && !b.phoneUser) {
 				
@@ -271,12 +271,12 @@ package org.bigbluebutton.main.model.users {
 		}
 		
         [Bindable]
-        public function get isMyHandRaised():Boolean {
-            return me.raiseHand;
+        public function get myEmojiStatus():String {
+            return me.emojiStatus;
         }
         
-        public function set isMyHandRaised(raiseHand:Boolean):void {
-            me.raiseHand = raiseHand;
+        public function set myEmojiStatus(emoji:String):void {
+            me.emojiStatus = emoji;
         }
         
 		public function amIThisUser(userID:String):Boolean {
@@ -376,13 +376,20 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function removeAllParticipants():void {
-			users.removeAll();
+			//users.removeAll();
+			//users.refresh();
+			
+			for (var i:int = 0; i < users.length; i++) {
+				users.removeItemAt(i);
+				//sort();
+				users.refresh();
+			}
 		}		
 	
-    public function raiseHand(userId: String, raised: Boolean):void {
+    public function emojiStatus(userId: String, emoji: String):void {
       var aUser:BBBUser = getUser(userId);			
       if (aUser != null) {
-        aUser.userRaiseHand(raised)
+        aUser.userEmojiStatus(emoji)
       }	
       
       users.refresh();      

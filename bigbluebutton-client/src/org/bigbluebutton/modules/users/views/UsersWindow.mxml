@@ -43,8 +43,10 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
+			import mx.core.FlexGlobals;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -59,9 +61,8 @@
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
@@ -82,8 +83,9 @@
 			[Bindable]
 			private var roomLocked:Boolean = false;
 			
-			private var myMenu:Menu;
-			
+			private var paramsMenu:Menu;
+			private var paramsMenuData:Array = [];
+
 			[Bindable]
 			public var partOptions:UsersOptions;
 			
@@ -102,8 +104,6 @@
 			private const MUTE_ALL_USER:String = "Mute All User";
 			
 			private var muteMeRolled:Boolean = false;
-			
-			private var myMenuData:Array = [];
 			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
@@ -176,7 +176,7 @@
 			}
 			
 			private function changeButtons(presenter:Boolean):void {
-				raiseHandBtn.visible = raiseHandBtn.includeInLayout = partOptions.enableRaiseHand;
+				emojiStatusBtn.visible = emojiStatusBtn.includeInLayout = partOptions.enableEmojiStatus;
 			}
 			
 			/*
@@ -222,59 +222,55 @@
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
-			private function raiseHand():void{
-				var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-				if (UserManager.getInstance().getConference().isMyHandRaised) {
-					e.raised = false;
-					raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip2');
-				} else {
-					e.raised = true;
-					raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip');
-				}
-				dispatchEvent(e);
+			private function openEmojiStatusMenu() : void
+			{
+				var grid : EmojiGrid = PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication), EmojiGrid, false) as EmojiGrid;
+				var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - grid.height));
+				grid.x = menuXY.x;
+				grid.y = menuXY.y;
 			}
 			
 			private function openSettings():void {
-				myMenuData = [];
-				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new, handler:lowerHands});
+				paramsMenuData = [];
+				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.clearAllStatus'), handler:resetEmojiStatuses});
 				
 				if (!roomMuted) {
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
+					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted, handler: muteAll});
 					if (UserManager.getInstance().getConference().getPresenter())
-						myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler:muteAlmostAll});
+						paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted, handler:muteAlmostAll});
 				} else
-					myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
+					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
 								
-				myMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
+				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
 				
 				
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
 				// but it would require an extra listener for the MenuCloseEvent.
-				if (myMenu) {
-					myMenu.removeEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-					myMenu.removeEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
-					myMenu.hide();
+				if (paramsMenu) {
+					paramsMenu.removeEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+					paramsMenu.removeEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+					paramsMenu.hide();
 				}
 				
-				myMenu = Menu.createMenu(null, myMenuData, true);
-				myMenu.variableRowHeight = false;
-				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
-				myMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
-				myMenu.show();
+				paramsMenu = Menu.createMenu(null, paramsMenuData, true);
+				paramsMenu.variableRowHeight = false;
+				paramsMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				paramsMenu.addEventListener(MenuEvent.MENU_SHOW, menuShowHandler);
+				paramsMenu.show();
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
-				if(myMenuData[e.index] != undefined && myMenuData[e.index].handler != undefined) {
-					myMenuData[e.index].handler();
+				if(paramsMenuData[e.index] != undefined && paramsMenuData[e.index].handler != undefined) {
+					paramsMenuData[e.index].handler();
 				}
 			}
 			
 			private function menuShowHandler(e:MenuEvent):void {
-				myMenu.setFocus();
-				var menuXY:Point = settingsBtn.localToGlobal(new Point(settingsBtn.width + 2, settingsBtn.height - myMenu.height));
-				myMenu.x = menuXY.x;
-				myMenu.y = menuXY.y;
+				paramsMenu.setFocus();
+				var menuXY:Point = settingsBtn.localToGlobal(new Point(settingsBtn.width + 2, settingsBtn.height - paramsMenu.height));
+				paramsMenu.x = menuXY.x;
+				paramsMenu.y = menuXY.y;
 			}
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
@@ -358,10 +354,10 @@
 				}
 			}
 			
-			private function lowerHands():void {
+			private function resetEmojiStatuses():void {
 				for (var i:int = 0; i < users.length; i++) {
 					var p:BBBUser = users.getItemAt(i) as BBBUser;
-					if (p.raiseHand) dispatchEvent(new LowerHandEvent(p.userID));
+					if (p.hasEmojiStatus) dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "none", p.userID));
         		}
 			}
 			
@@ -384,12 +380,8 @@
 					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.users.maximizeRestoreBtn.accessibilityName");
 				}
 				
-				if (raiseHandBtn) {
-					if (UserManager.getInstance().getConference().isMyHandRaised) {
-						raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip2');
-					} else {
-						raiseHandBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip');
-					}
+				if (emojiStatusBtn) {
+					emojiStatusBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip');
 				}
 				
 				addContextMenuItems();
@@ -444,9 +436,9 @@
 			}
 			
 			public function remoteRaiseHand(e:ShortcutEvent):void{
-				raiseHand();
+				dispatchEvent(new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, "raiseHand"));
 			}
-			
+
 			private function remoteMinimize():void{
 				if (!minimized){
 					this.minimize();
@@ -525,8 +517,9 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
-		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
-				   width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
+		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()"
 				   visible="true" tabIndex="{partOptions.baseTabIndex+10}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+15}" />

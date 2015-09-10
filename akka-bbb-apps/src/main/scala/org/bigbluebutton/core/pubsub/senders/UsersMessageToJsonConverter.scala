@@ -16,7 +16,7 @@ object UsersMessageToJsonConverter {
     wuser += "extern_userid" -> user.externUserID
     wuser += "name" -> user.name
     wuser += "role" -> user.role.toString()
-    wuser += "raise_hand" -> user.raiseHand
+    wuser += "emoji_status" -> user.emojiStatus
     wuser += "presenter" -> user.presenter
     wuser += "has_stream" -> user.hasStream
     wuser += "locked" -> user.locked
@@ -169,24 +169,13 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def userRaisedHandToJson(msg: UserRaisedHand): String = {
+  def userChangedEmojiStatusToJson(msg: UserChangedEmojiStatus): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.raisedHand)
+    payload.put(Constants.EMOJI_STATUS, msg.emojiStatus)
     payload.put(Constants.USER_ID, msg.userID)
 
-    val header = Util.buildHeader(MessageNames.USER_RAISED_HAND, None)
-    Util.buildJson(header, payload)
-  }
-
-  def userLoweredHandToJson(msg: UserLoweredHand): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.RAISE_HAND, msg.raisedHand)
-    payload.put(Constants.USER_ID, msg.userID)
-    payload.put(Constants.LOWERED_BY, msg.loweredBy)
-
-    val header = Util.buildHeader(MessageNames.USER_LOWERED_HAND, None)
+    val header = Util.buildHeader(MessageNames.USER_EMOJI_STATUS, None)
     Util.buildJson(header, payload)
   }
 

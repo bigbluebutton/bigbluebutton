@@ -45,8 +45,7 @@ case class GetUsersReply(meetingID: String, requesterID: String, users: Array[Us
 case class ValidateAuthTokenTimedOut(meetingID: String, requesterId: String, token: String, valid: Boolean, correlationId: String) extends IOutMessage
 case class ValidateAuthTokenReply(meetingID: String, requesterId: String, token: String, valid: Boolean, correlationId: String) extends IOutMessage
 case class UserJoined(meetingID: String, recorded: Boolean, user: UserVO) extends IOutMessage
-case class UserRaisedHand(meetingID: String, recorded: Boolean, raisedHand: Boolean, userID: String) extends IOutMessage
-case class UserLoweredHand(meetingID: String, recorded: Boolean, raisedHand: Boolean, userID: String, loweredBy: String) extends IOutMessage
+case class UserChangedEmojiStatus(meetingID: String, recorded: Boolean, emojiStatus: String, userID: String) extends IOutMessage
 case class UserListeningOnly(meetingID: String, recorded: Boolean, userID: String, listenOnly: Boolean) extends IOutMessage
 case class UserSharedWebcam(meetingID: String, recorded: Boolean, userID: String, stream: String) extends IOutMessage
 case class UserUnsharedWebcam(meetingID: String, recorded: Boolean, userID: String, stream: String) extends IOutMessage

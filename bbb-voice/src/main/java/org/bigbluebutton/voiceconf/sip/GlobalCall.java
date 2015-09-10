@@ -10,11 +10,14 @@ import org.slf4j.Logger;
 public class GlobalCall {
     private static final Logger log = Red5LoggerFactory.getLogger( GlobalCall.class, "sip" );
 
-    private static Map<String,String> roomToStreamMap = new ConcurrentHashMap<String, String>();
-    private static Map<String,Codec> roomToCodecMap = new ConcurrentHashMap<String, Codec>();
-    private static Map<String,KeepGlobalAudioAlive> globalAudioKeepAliverMap = new ConcurrentHashMap<String, KeepGlobalAudioAlive>();
+    // Configure hashmap properly (ralam sept 1, 2015)
+    // https://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
+    //
+    private static Map<String,String> roomToStreamMap = new ConcurrentHashMap<String, String>(8, 0.9f, 1);
+    private static Map<String,Codec> roomToCodecMap = new ConcurrentHashMap<String, Codec>(8, 0.9f, 1);
+    private static Map<String,KeepGlobalAudioAlive> globalAudioKeepAliverMap = new ConcurrentHashMap<String, KeepGlobalAudioAlive>(8, 0.9f, 1);
 
-    private static Map<String, VoiceConfToListenOnlyUsersMap> voiceConfToListenOnlyUsersMap = new ConcurrentHashMap<String, VoiceConfToListenOnlyUsersMap>();
+    private static Map<String, VoiceConfToListenOnlyUsersMap> voiceConfToListenOnlyUsersMap = new ConcurrentHashMap<String, VoiceConfToListenOnlyUsersMap>(8, 0.9f, 1);
     
     public static synchronized boolean reservePlaceToCreateGlobal(String roomName) {
         if (roomToStreamMap.containsKey(roomName)) {

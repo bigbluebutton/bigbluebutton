@@ -47,7 +47,7 @@ case class User(
   presenter: Boolean,
   callerId: CallerId,
   phoneCaller: Boolean,
-  handRaised: Boolean,
+  emojiStatus: String,
   muted: Boolean,
   talking: Boolean)
 
@@ -86,14 +86,15 @@ case class UserVO(
   externUserID: String,
   name: String,
   role: Role.Role,
-  raiseHand: Boolean,
+  emojiStatus: String,
   presenter: Boolean,
   hasStream: Boolean,
   locked: Boolean,
   webcamStreams: Set[String],
   phoneUser: Boolean,
   voiceUser: VoiceUser,
-  listenOnly: Boolean)
+  listenOnly: Boolean,
+  joinedWeb: Boolean)
 
 case class VoiceUser(
   userId: String,
@@ -103,7 +104,8 @@ case class VoiceUser(
   joined: Boolean,
   locked: Boolean,
   muted: Boolean,
-  talking: Boolean)
+  talking: Boolean,
+  listenOnly: Boolean)
 
 case class MeetingConfig(name: String,
   id: MeetingID,

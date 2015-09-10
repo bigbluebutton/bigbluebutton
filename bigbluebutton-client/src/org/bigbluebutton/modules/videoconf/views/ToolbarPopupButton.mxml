@@ -48,6 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Webcam;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -86,9 +87,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function init():void{
 				dispatcher = new Dispatcher();
-				numberOfCamerasOff = Camera.names.length;
-				for(var i:int = 0; i < Camera.names.length; i++) {
-					dp.push({label: Camera.names[i], status: OFF_STATE});
+				numberOfCamerasOff = Webcam.availableCameras;
+				for(var i:int = 0; i < Webcam.availableCameras; i++) {
+					dp.push({label: Webcam.getName(i), status: OFF_STATE});
 				}
 
 				dataMenu = Menu.createMenu(this, dp, false);
@@ -140,11 +141,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				else {
 					if(camID != -1) {
 						dp[camID].status = OFF_STATE;
-						if(numberOfCamerasOff < Camera.names.length)
+						if(numberOfCamerasOff < Webcam.availableCameras)
 							numberOfCamerasOff++;
 						
 					}
-					if(numberOfCamerasOff == Camera.names.length) {
+					if(numberOfCamerasOff == Webcam.availableCameras) {
 						switchStateToNormal();
 					}
 				}
@@ -162,6 +163,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					switchStateToNormal();
 					var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent(StopShareCameraRequestEvent.STOP_SHARE_ALL_CAMERA_REQUEST);
 					dispatchEvent(stopShareCameraRequestEvent);
+					
+					var camEvent:BBBEvent = new BBBEvent(BBBEvent.ERASE_CAMERA_SETTING);
+					camEvent.payload.restream = false;
+					dispatchEvent(camEvent);
+					
 					this.enabled = true;		
 				} else {
 					LOGGER.debug("Share camera");
@@ -180,9 +186,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.setFocus();
 				this.enabled = true;
 				if(e.payload['clicked'] == "cancel") {
-					if(numberOfCamerasOff < Camera.names.length)
+					if(numberOfCamerasOff < Webcam.availableCameras)
 						numberOfCamerasOff++;
-					if(numberOfCamerasOff == Camera.names.length) {
+					if(numberOfCamerasOff == Webcam.availableCameras) {
 						switchStateToNormal();
 					}
 				}
@@ -238,8 +244,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 	
 			public function setAllCamAsInactive():void {
-				numberOfCamerasOff = Camera.names.length;
-				for(var i:int = 0; i < Camera.names.length; i++) {
+				numberOfCamerasOff = Webcam.availableCameras;
+				for(var i:int = 0; i < Webcam.availableCameras; i++) {
 					setCamAsInactive(i);
 				}
 				switchStateToNormal();
