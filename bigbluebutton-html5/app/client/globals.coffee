@@ -184,7 +184,7 @@ Handlebars.registerHelper "getPollQuestions", ->
   if polls? and polls isnt undefined
     number = polls.poll_info.poll.answers.length
     widthStyle = "width: calc(75%/" + number + ");"
-    marginStyle = "margin-left: calc(25%/" + (number*2) + ");" + "margin-right: calc(23%/" + (number*2) + ");"
+    marginStyle = "margin-left: calc(25%/" + (number*2) + ");" + "margin-right: calc(25%/" + (number*2) + ");"
     buttonStyle = widthStyle + marginStyle
     for answer in polls.poll_info.poll.answers
       answer.style = buttonStyle
@@ -264,7 +264,7 @@ Handlebars.registerHelper "getPollQuestions", ->
   else
     $('#whiteboard').css('width', '')
     $('#whiteboard .ui-resizable-handle').css('display', '')
-  setTimeout redrawWhiteboard, 0
+  setTimeout(scaleWhiteboard, 0)
 
 @toggleMic = (event) ->
   BBB.toggleMyMic()
@@ -274,7 +274,7 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('.sl-left-drawer').removeClass('hiddenInLandscape')
   else
     $('.sl-left-drawer').addClass('hiddenInLandscape')
-  setTimeout(redrawWhiteboard, 0)
+  setTimeout(scaleWhiteboard, 0)
 
 @populateNotifications = (msg) ->
   myUserId = getInSession "userId"
@@ -361,13 +361,13 @@ Handlebars.registerHelper "getPollQuestions", ->
       $('#whiteboard').unbind('webkitfullscreenchange')
       $('.fullscreenButton').removeClass('iconChrome')
       removeFullscreenStyles()
-      redrawWhiteboard()
+      scaleWhiteboard()
   $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
     if document.mozFullScreenElement is null
       $(document).unbind('mozfullscreenchange')
       $('.fullscreenButton').removeClass('iconFirefox')
       removeFullscreenStyles()
-      redrawWhiteboard()
+      scaleWhiteboard()
 
 @closeMenus = ->
   if $('.sl-left-drawer').hasClass('sl-left-drawer-out')

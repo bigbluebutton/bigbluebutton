@@ -16,22 +16,30 @@
       {{/if}}
     </div>
     {{#if isPollStarted}}
-      <div class="polling">
-        {{#each getPollQuestions}}
-          {{> makeButton btn_class="pollButtons" rel="tooltip" data_placement="top" label=key answer=id style=style }}
-        {{/each}}
-      </div>
+      {{> polling}}
     {{/if}}
     {{#if isCurrentUserPresenter}}
-      <div id="controllers">
-        <div id="switchSlideSection">
-          {{> makeButton btn_class="switchSlideButton previousSlide" i_class="ion-arrow-left-a" rel="tooltip" data_placement="top" title="Previous"}}
-          <span id="presentationProgress">
-            {{presentationProgress}}
-          </span>
-          {{> makeButton btn_class="switchSlideButton nextSlide" i_class="ion-arrow-right-a" rel="tooltip" data_placement="top" title="Next"}}
-        </div>
-      </div>
+      {{> presenterBottomControllers}}
     {{/if}}
+  </div>
+</template>
+
+<template name="presenterBottomControllers">
+  <div id="controllers">
+    <div id="switchSlideSection">
+      {{> makeButton btn_class="switchSlideButton previousSlide" i_class="ion-arrow-left-a" rel="tooltip" data_placement="top" title="Previous"}}
+      <span id="presentationProgress">
+        {{presentationProgress}}
+      </span>
+        {{> makeButton btn_class="switchSlideButton nextSlide" i_class="ion-arrow-right-a" rel="tooltip" data_placement="top" title="Next"}}
+    </div>
+  </div>
+</template>
+
+<template name="polling">
+  <div class="polling">
+    {{#each getPollQuestions}}
+      {{> makeButton btn_class="pollButtons" rel="tooltip" data_placement="top" label=key answer=id style=style }}
+    {{/each}}
   </div>
 </template>
