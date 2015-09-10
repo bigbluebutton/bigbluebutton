@@ -84,6 +84,7 @@
     align-items: center;
     -webkit-align-items: center;
     -ms-align-items: center;
+    border-bottom: 1px solid extract(@lightGrey, 3);
   }
 }
 
@@ -101,7 +102,6 @@
   text-align: center;
   padding-top:10px;
   padding-bottom:10px;
-  border-top: 1px solid extract(@lightGrey, 3);
   font-size: 0; /* to remove default 4px gaps between the buttons caused by display: inline-block */
 }
 
@@ -111,8 +111,9 @@
   font-weight: bold;
   border: 1px solid extract(@lightGrey, 3);
   height: 100%;
-  padding-left: 0rem !important;  /*overwriting the default foundation padding */
-  padding-right: 0rem !important; /*overwriting the default foundation padding */
+  padding-left: 0;  /*overwriting the default foundation padding */
+  padding-right: 0; /*overwriting the default foundation padding */
+  margin-bottom: 0; /*overwriting the default foundation margin */
   max-width: calc(~'100%/6');     /* the actual width and margins are calculated in the code */
   /* truncating the text inside the buttons */
   overflow: hidden;
