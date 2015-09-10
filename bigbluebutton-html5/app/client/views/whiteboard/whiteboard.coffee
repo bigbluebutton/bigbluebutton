@@ -41,11 +41,9 @@ Template.whiteboard.events
 
 Template.presenterBottomControllers.events
   'click .previousSlide':(event) ->
-    console.log "previous"
     BBB.goToPreviousPage()
 
   'click .nextSlide':(event) ->
-    console.log "next"
     BBB.goToNextPage()
 
   'click .switchSlideButton': (event) ->
