@@ -163,6 +163,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					switchStateToNormal();
 					var stopShareCameraRequestEvent:StopShareCameraRequestEvent = new StopShareCameraRequestEvent(StopShareCameraRequestEvent.STOP_SHARE_ALL_CAMERA_REQUEST);
 					dispatchEvent(stopShareCameraRequestEvent);
+					
+					var camEvent:BBBEvent = new BBBEvent(BBBEvent.ERASE_CAMERA_SETTING);
+					camEvent.payload.restream = false;
+					dispatchEvent(camEvent);
+					
 					this.enabled = true;		
 				} else {
 					LOGGER.debug("Share camera");

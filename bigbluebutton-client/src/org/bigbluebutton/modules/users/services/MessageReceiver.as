@@ -380,17 +380,21 @@ package org.bigbluebutton.modules.users.services
       
       var user:BBBUser = UserManager.getInstance().getConference().getUser(webUserId);
       
-      LOGGER.debug("Notify others that user [{0}, {1}] is leaving!!!!", [user.userID, user.name]);
-      
-      // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
-      // around when the user already left.
-      user.isLeavingFlag = true;
-      
-      var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
-      joinEvent.userID = user.userID;
-      dispatcher.dispatchEvent(joinEvent);	
-      
-      UserManager.getInstance().getConference().removeUser(webUserId);	        
+	  if (user != null) {
+		  LOGGER.debug("Notify others that user [{0}, {1}] is leaving!!!!", [user.userID, user.name]);
+		  
+		  // Flag that the user is leaving the meeting so that apps (such as avatar) doesn't hang
+		  // around when the user already left.
+		  user.isLeavingFlag = true;
+		  
+		  var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
+		  joinEvent.userID = user.userID;
+		  dispatcher.dispatchEvent(joinEvent);	
+		  
+		  UserManager.getInstance().getConference().removeUser(webUserId);	    
+	  }
+	  
+    
     }
     
     public function handleParticipantJoined(msg:Object):void {
