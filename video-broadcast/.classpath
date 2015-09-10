@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/aopalliance-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-pool-1.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/easymock-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/gson-1.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jcip-annotations-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.9.jar"/>
+	<classpathentry kind="lib" path="lib/jedis-2.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/jul-to-slf4j-1.7.9.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.7.9.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/mina-core-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/mina-integration-beans-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/mina-integration-jmx-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/red5-io-1.0.5-RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/red5-server-1.0.5-RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/red5-server-common-1.0.5-RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.9.jar"/>
+	<classpathentry kind="lib" path="lib/spring-aop-4.0.8.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-beans-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-context-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-core-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-web-4.0.8.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/bbb-common-message-0.0.5.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
