@@ -100,13 +100,13 @@ public class FreeswitchApplication {
 
 	public void deskShareRecording(String voiceConfId, String filePath, Boolean record){
 		DeskShareRecordCommand dsrc = new DeskShareRecordCommand(voiceConfId, USER, record, filePath);
-		System.out.println("______in FS app deskShareRecording__" + dsrc.getCommand() +  "____");
+		System.out.println("\n______FreeswitchApplication::deskShareRecording__" + dsrc.getCommand() + "____\n");
 		queueMessage(dsrc);
 	}
 
 	public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast){
 		DeskShareBroadcastRTMPCommand rtmp = new DeskShareBroadcastRTMPCommand(voiceConfId, USER, streamUrl, timestamp, broadcast);
-		System.out.println("______in FS app deskShareRecording__" + rtmp.getCommand() +  "____");
+		System.out.println("\n______FreeswitchApplication::deskShareBroadcastRTMP___" + rtmp.getCommand() + "____\n");
 		queueMessage(rtmp);
 	}
 
@@ -133,11 +133,10 @@ public class FreeswitchApplication {
 					} else if (command instanceof RecordConferenceCommand) {
 						manager.record((RecordConferenceCommand) command);
 					} else if (command instanceof DeskShareRecordCommand) {
-						System.out.println("Sending DeskShareRecordCommand for conference = [" + command.getRoom() + "]");
-						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$Sending DeskShareRECORDCommand for conference = [" + command.getRoom() + "]");
+						System.out.println("^^^^(send to FS) Sending DeskShareRecordCommand for conference = [" + command.getRoom() + "]");
 						manager.record((DeskShareRecordCommand)command);
 					} else if (command instanceof DeskShareBroadcastRTMPCommand) {
-						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$Sending DeskShareBroadcastRTMPCommand for conference = [" + command.getRoom() + "]");
+						System.out.println("^^^^(send to FS) Sending DeskShareBroadcastRTMPCommand for conference = [" + command.getRoom() + "]");
 						manager.broadcastRTMP((DeskShareBroadcastRTMPCommand)command);
 					} else if (command instanceof BroadcastConferenceCommand) {
 						manager.broadcast((BroadcastConferenceCommand) command);

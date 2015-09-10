@@ -85,12 +85,10 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 					System.out.println("************** FreeswitchConferenceEventListener VoiceStartRecordingEvent recording=[" + evt.startRecord() + "]");
 					vcs.voiceConfRecordingStarted(evt.getRoom(), evt.getRecordingFilename(), evt.startRecord(), evt.getTimestamp());
 				} else if (event instanceof DeskShareStartedEvent) {
-					System.out.println("********START******\n\n\n\n\n\n\n FreeswitchConferenceEventListener ");
 					DeskShareStartedEvent evt = (DeskShareStartedEvent) event;
 					System.out.println("************** FreeswitchConferenceEventListener DeskShareStartedEvent");
 					vcs.deskShareStarted(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
 				} else if (event instanceof DeskShareEndedEvent) {
-					System.out.println("********END******\n\n\n\n\n FreeswitchConferenceEventListener ");
 					DeskShareEndedEvent evt = (DeskShareEndedEvent) event;
 					System.out.println("************** FreeswitchConferenceEventListener DeskShareEndedEvent");
 					vcs.deskShareEnded(evt.getRoom(), evt.getCallerIdNum(), evt.getCallerIdName());
