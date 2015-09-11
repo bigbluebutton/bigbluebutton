@@ -295,6 +295,19 @@ def publish_processed_meeting(recording_dir)
       rec = doc[:recording]
       play = rec[:playback] 
       meta = rec[:meta]
+      down = rec[:down]
+
+      if play == nil
+        play = {:null=>"null"}
+      end
+
+      if meta == nil
+        meta = {:null=>"null"}
+      end
+
+      if down == nil
+        down = {:null=>"null"}
+      end
 
       ## the implementation of the play, meta and down hashes is pending use of a try,
       ## as a nil value will cause the publish_ended to be skipped
@@ -303,7 +316,8 @@ def publish_processed_meeting(recording_dir)
         "success" => step_succeeded,
         "step_time" => step_time,
         "playback" => play,
-        "metadata" => meta
+        "metadata" => meta,
+        "download" => down
       }
 
       if step_succeeded
