@@ -27,8 +27,73 @@ require 'yaml'
 require 'fileutils'
 require 'nokogiri'
 
+
 # Number of seconds to delay archiving (red5 race condition workaround)
 ARCHIVE_DELAY_SECONDS = 120
+
+
+# modified from http://stackoverflow.com/questions/1230741/convert-a-nokogiri-document-to-a-ruby-hash/1231297#1231297
+class Hash
+  class << self
+    def from_xml(xml_io) 
+      begin
+        result = Nokogiri::XML(xml_io)
+        return { result.root.name.to_sym => xml_node_to_hash(result.root)} 
+      rescue Exception => e
+        # raise your custom exception here
+      end
+    end 
+
+    def xml_node_to_hash(node) 
+      # If we are at the root of the document, start the hash 
+      if node.element?
+        result_hash = {}
+        if node.attributes != {}
+          result_hash[:attributes] = {}
+          node.attributes.keys.each do |key|
+            result_hash[:attributes][node.attributes[key].name.to_sym] = prepare(node.attributes[key].value)
+          end
+        end
+        if node.children.size > 0
+          node.children.each do |child| 
+            result = xml_node_to_hash(child) 
+
+            if child.name == "text"
+              unless child.next_sibling || child.previous_sibling
+                return prepare(result)
+              end
+            elsif result_hash[child.name.to_sym]
+              if result_hash[child.name.to_sym].is_a?(Object::Array)
+                result_hash[child.name.to_sym] << prepare(result)
+              else
+                result_hash[child.name.to_sym] = [result_hash[child.name.to_sym]] << prepare(result)
+              end
+            else 
+              result_hash[child.name.to_sym] = prepare(result)
+            end
+          end
+
+          return result_hash 
+        else 
+          return result_hash
+        end 
+      else 
+        return prepare(node.content.to_s) 
+      end 
+    end          
+
+    def prepare(data)
+      (data.class == String && data.to_i.to_s == data) ? data.to_i : data
+    end
+  end
+  
+  def to_struct(struct_name)
+      Struct.new(struct_name,*keys).new(*values)
+  end
+end
+
+
+
 
 def archive_recorded_meeting(recording_dir)
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
@@ -223,14 +288,22 @@ def publish_processed_meeting(recording_dir)
 
       step_succeeded = (ret == 0 and File.exists?(published_done))
 
-      doc = Nokogiri::XML(File.open("/var/bigbluebutton/published/presentation/#{meeting_id}/metadata.xml"))
-      link = doc.xpath("//playback//link/text()")
-      duration = doc.xpath("//playback//duration/text()")
+
+      file_xml = File.open("/var/bigbluebutton/published/presentation/#{meeting_id}/metadata.xml") 
+      doc = Hash.from_xml(file_xml)
+      
+      rec = doc[:recording]
+      play = rec[:playback] 
+      meta = rec[:meta]
+
+      ## the implementation of the play, meta and down hashes is pending use of a try,
+      ## as a nil value will cause the publish_ended to be skipped
 
       BigBlueButton.redis_publisher.put_publish_ended publish_type, meeting_id, {
         "success" => step_succeeded,
         "step_time" => step_time,
-        "playback" => {"url" => link, "length" => duration}
+        "playback" => play,
+        "metadata" => meta
       }
 
       if step_succeeded
