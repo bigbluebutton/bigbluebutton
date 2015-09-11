@@ -56,7 +56,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     public function onMessage(messageName:String, message:Object):void {
-//      trace("Presentation: received message " + messageName);
+      //LOGGER.info("Presentation: received message " + messageName);
       
       switch (messageName) {
         case "PresentationCursorUpdateCommand":

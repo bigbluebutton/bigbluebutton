@@ -11,6 +11,7 @@ package org.bigbluebutton.modules.phone.managers
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.main.api.JSLog;
@@ -194,12 +195,20 @@ package org.bigbluebutton.modules.phone.managers
 	  logData.user.reason = errorString;
 	  JSLog.warn("WebRtc Echo test failed.", logData);
 	  
+	  LOGGER.info(jsonXify(logData));
+	  
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
     public function handleWebRTCEchoTestEndedUnexpectedly():void {
       model.state = Constants.INITED;
       var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.endedunexpectedly");
+	  
+	  var logData:Object = new Object();       
+	  logData.user = UsersUtil.getUserData();
+	  logData.user.reason = errorString;
+	  LOGGER.info(jsonXify(logData));
+	  
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
@@ -216,12 +225,24 @@ package org.bigbluebutton.modules.phone.managers
       if (!errorString) {
         errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
       }
+	  
+	  var logData:Object = new Object();       
+	  logData.user = UsersUtil.getUserData();
+	  logData.user.reason = errorString;
+	  LOGGER.info(jsonXify(logData));
+	  
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
     public function handleWebRTCMediaFailedEvent():void {
       model.state = Constants.INITED;
       var errorString:String = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.mediamissing");
+	  
+	  var logData:Object = new Object();       
+	  logData.user = UsersUtil.getUserData();
+	  logData.user.reason = errorString;
+	  LOGGER.info(jsonXify(logData));
+	  
       sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
