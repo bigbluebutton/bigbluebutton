@@ -159,14 +159,19 @@ function createUA(username, server, callback, makeCallFunc) {
 
 function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc) {
 	console.log("Creating new user agent");
-
+	var wsServer;
+	if (window.location.protocol == 'https:') {
+		wsServer = 'wss://' + server + '/wss';
+	} else {
+		wsServer = 'ws://' + server + '/ws';
+	}
 	/* VERY IMPORTANT 
 	 *	- You must escape the username because spaces will cause the connection to fail
 	 *	- We are connecting to the websocket through an nginx redirect instead of directly to 5066
 	 */
 	var configuration = {
 		uri: 'sip:' + encodeURIComponent(username) + '@' + server,
-		wsServers: 'ws://' + server + '/ws',
+		wsServers: wsServer,
 		displayName: username,
 		register: false,
 		traceSip: true,
