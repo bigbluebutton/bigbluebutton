@@ -219,6 +219,7 @@ package org.bigbluebutton.modules.videoconf.business
 			if(!playConnectionDict[newUrl]){
 				// Create new NetConnection and store it
 				var connection:NetConnection = new NetConnection();
+				connection.proxyType = "best";
 				connection.client = this;
 				connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 				connection.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
