@@ -71,6 +71,8 @@ class Meteor.RedisPubSub
       "presentation_conversion_progress_message"
       "presentation_page_generated_message"
       "presentation_page_changed_message"
+      "BbbPubSubPongMessage"
+      "bbb_apps_is_alive_message"
     ]
 
     if message?.header? and message?.payload?
