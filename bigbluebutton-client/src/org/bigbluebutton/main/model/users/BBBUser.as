@@ -383,8 +383,6 @@ package org.bigbluebutton.main.model.users
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
-			LOGGER.debug("Applying lock settings to myself. " + me + "," + amNotModerator + "," + !userLocked);
-			
 			if (lockAppliesToMe) {
 				LOGGER.debug("Applying lock settings to myself.");
 				//If it's sharing webcam, stop it
