@@ -54,8 +54,8 @@ object UsersMessageToJsonConverter {
     val args = new java.util.HashMap[String, java.lang.Boolean]();
     args.put("disableCam", perms.disableCam: java.lang.Boolean);
     args.put("disableMic", perms.disableMic: java.lang.Boolean);
-    args.put("disablePrivChat", perms.disablePrivChat: java.lang.Boolean);
-    args.put("disablePubChat", perms.disablePubChat: java.lang.Boolean);
+    args.put("disablePrivateChat", perms.disablePrivChat: java.lang.Boolean);
+    args.put("disablePublicChat", perms.disablePubChat: java.lang.Boolean);
     args.put("lockedLayout", perms.lockedLayout: java.lang.Boolean);
     args.put("lockOnJoin", perms.lockOnJoin: java.lang.Boolean);
     args.put("lockOnJoinConfigurable", perms.lockOnJoinConfigurable: java.lang.Boolean);

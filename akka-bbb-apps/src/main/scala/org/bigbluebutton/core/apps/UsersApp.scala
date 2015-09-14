@@ -165,12 +165,14 @@ trait UsersApp {
   }
 
   def handleSetLockSettings(msg: SetLockSettings) {
-    //    println("*************** Received new lock settings ********************")
+    println("*************** Received new lock settings ********************")
     if (!permissionsEqual(msg.settings)) {
       newPermissions(msg.settings)
       outGW.send(new NewPermissionsSetting(mProps.meetingID, msg.setByUser, meetingModel.getPermissions, usersModel.getUsers))
 
       handleLockLayout(msg.settings.lockedLayout, msg.setByUser)
+    } else {
+      println("Permissions hasn't changed.")
     }
   }
 

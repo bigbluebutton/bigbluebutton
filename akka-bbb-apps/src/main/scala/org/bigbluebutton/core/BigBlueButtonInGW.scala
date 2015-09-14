@@ -90,6 +90,7 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   }
 
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
+    println("*************** Received new lock settings 1 ********************")
     // Convert java.util.Map to scala.collection.immutable.Map
     // settings.mapValues -> convaert java Map to scala mutable Map
     // v => v.booleanValue() -> convert java Boolean to Scala Boolean

@@ -489,6 +489,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
 
   private def handleNewPermissionsSetting(msg: NewPermissionsSetting) {
     val json = UsersMessageToJsonConverter.newPermissionsSettingToJson(msg)
+    println("New permission: " + json)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 
