@@ -135,7 +135,9 @@ this.getScreenConstraints = function(callback) {
     // this statement verifies chrome extension availability
     // if installed and available then it will invoke extension API
     // otherwise it will fallback to command-line based screen capturing API
-    if (chromeMediaSource == 'desktop' && !sourceId) {
+    // without a previous sourceId, Chrome will prompt the user to choose again
+    sourceId = null;
+    if (chromeMediaSource == 'desktop') {
         getSourceId(function() {
             screen_constraints.mandatory.chromeMediaSourceId = sourceId;
             callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
