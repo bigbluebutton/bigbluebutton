@@ -22,6 +22,8 @@ trait UsersApp {
   }
 
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
+    log.info("Handling UserConnectedToGlobalAudio: mid=[" + mProps.meetingID + "] uid=[" + msg.userid + "]")
+
     val user = usersModel.getUserWithExternalId(msg.userid)
     user foreach { u =>
       val vu = u.voiceUser.copy(talking = false)
@@ -33,12 +35,20 @@ trait UsersApp {
   }
 
   def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
+    log.info("Handling UserDisconnectedToGlobalAudio: mid=[" + mProps.meetingID + "] uid=[" + msg.userid + "]")
+
     val user = usersModel.getUserWithExternalId(msg.userid)
     user foreach { u =>
-      val uvo = u.copy(listenOnly = false)
-      usersModel.addUser(uvo)
-      log.info("UserDisconnectedToGlobalAudio: mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "]")
-      outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.userID, uvo.listenOnly))
+      if (!u.joinedWeb) {
+        val userLeaving = usersModel.removeUser(u.userID)
+        userLeaving foreach (u => outGW.send(new UserLeft(mProps.meetingID, mProps.recorded, u)))
+      } else {
+        val uvo = u.copy(listenOnly = false)
+        usersModel.addUser(uvo)
+        log.info("UserDisconnectedToGlobalAudio: mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "]")
+        outGW.send(new UserListeningOnly(mProps.meetingID, mProps.recorded, uvo.userID, uvo.listenOnly))
+      }
+
     }
   }
 
@@ -77,11 +87,11 @@ trait UsersApp {
           //send the reply
           outGW.send(new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, true, msg.correlationId))
 
-          //join the user
-          handleUserJoin(new UserJoining(mProps.meetingID, msg.userId, msg.token))
-
-          //send the presentation
           log.info("ValidateToken success: mid=[" + mProps.meetingID + "] uid=[" + msg.userId + "]")
+
+          //join the user
+          this.context.self ! new UserJoining(mProps.meetingID, msg.userId, msg.token)
+
         }
       case None => {
         log.info("ValidateToken failed: mid=[" + mProps.meetingID + "] uid=[" + msg.userId + "]")
@@ -122,6 +132,9 @@ trait UsersApp {
       case Some(u) => {
         //        println("Sending mute user request uid=[" + msg.userID + "] mute=[" + msg.mute + "]")
         log.info("Muting user:  mid=[" + mProps.meetingID + "] uid=[" + u.userID + "]")
+        log.info("Mute user request :  mid=[" + mProps.meetingID + "] uid=[" + u.userID + "] role=["
+          + u.role + "] joinedWeb=[" + u.joinedWeb + "] listenOnly=[" + u.listenOnly +
+          "] vid=[" + u.voiceUser.userId + "] extId=[" + u.externUserID + "]")
         outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, msg.requesterID, u.userID, mProps.voiceBridge, u.voiceUser.userId, msg.mute))
       }
       case None => {
@@ -266,24 +279,33 @@ trait UsersApp {
   def handleUserJoin(msg: UserJoining): Unit = {
     val regUser = usersModel.getRegisteredUserWithToken(msg.authToken)
     regUser foreach { ru =>
-      // if there was a phoneUser with the same userID, reuse the VoiceUser value object
-      val vu = usersModel.getUser(msg.userID) match {
+
+      val wUser = usersModel.getUserWithExternalId(ru.externId)
+
+      val vu = wUser match {
         case Some(u) => {
           if (u.voiceUser.joined) {
             u.voiceUser.copy()
           } else {
-            new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false)
+            new VoiceUser(u.voiceUser.userId, msg.userID, ru.name, ru.name, false, false, false, false, u.listenOnly)
           }
         }
         case None => {
-          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false)
+          new VoiceUser(msg.userID, msg.userID, ru.name, ru.name, false, false, false, false, false)
+        }
+      }
+
+      wUser.foreach { w =>
+        if (!w.joinedWeb) {
+          val user = usersModel.removeUser(w.userID)
+          outGW.send(new UserLeft(msg.meetingID, mProps.recorded, w))
         }
       }
 
       val uvo = new UserVO(msg.userID, ru.externId, ru.name,
         ru.role, emojiStatus = "none", presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
-        webcamStreams = new ListSet[String](), phoneUser = false, vu, listenOnly = false)
+        webcamStreams = new ListSet[String](), phoneUser = false, vu, listenOnly = vu.listenOnly, true)
 
       usersModel.addUser(uvo)
 
@@ -326,8 +348,8 @@ trait UsersApp {
         }
         // add VoiceUser again to the list as a phone user since we still didn't get the event from FreeSWITCH
         val vu = u.voiceUser
-        if (vu.joined) {
-          this.context.self ! (new UserJoinedVoiceConfMessage(mProps.voiceBridge, vu.userId, msg.userID, vu.callerName, vu.callerNum, vu.muted, vu.talking));
+        if (vu.joined || u.listenOnly) {
+          this.context.self ! (new UserJoinedVoiceConfMessage(mProps.voiceBridge, vu.userId, u.userID, u.externUserID, vu.callerName, vu.callerNum, vu.muted, vu.talking, u.listenOnly));
         }
       }
 
@@ -343,11 +365,12 @@ trait UsersApp {
   def handleUserJoinedVoiceFromPhone(msg: UserJoinedVoiceConfMessage) = {
     val user = usersModel.getUserWithVoiceUserId(msg.voiceUserId) match {
       case Some(user) => {
-        log.info("Voice user=[" + msg.voiceUserId + "] is already in conf=[" + mProps.voiceBridge + "]. Must be duplicate message.")
+        log.info("Voice user=[" + msg.voiceUserId + "] is already in conf=["
+          + mProps.voiceBridge + "]. Must be duplicate message.")
       }
       case None => {
         val webUserId = if (msg.userId != msg.callerIdName) {
-          msg.userId
+          msg.externUserId
         } else {
           // No current web user. This means that the user called in through
           // the phone. We need to generate a new user as we are not able
@@ -355,23 +378,27 @@ trait UsersApp {
           usersModel.generateWebUserId
         }
         val vu = new VoiceUser(msg.voiceUserId, webUserId, msg.callerIdName, msg.callerIdNum,
-          true, false, msg.muted, msg.talking)
+          true, false, msg.muted, msg.talking, msg.listenOnly)
 
-        val sessionId = "PHONE-" + webUserId;
-
-        val uvo = new UserVO(webUserId, webUserId, msg.callerIdName,
+        val uvo = new UserVO(webUserId, msg.externUserId, msg.callerIdName,
           Role.VIEWER, emojiStatus = "none", presenter = false,
-          hasStream = false, locked = getInitialLockStatus(Role.VIEWER), webcamStreams = new ListSet[String](),
-          phoneUser = true, vu, listenOnly = false)
+          hasStream = false, locked = getInitialLockStatus(Role.VIEWER),
+          webcamStreams = new ListSet[String](),
+          phoneUser = true, vu, listenOnly = msg.listenOnly, false)
 
         usersModel.addUser(uvo)
         log.info("New user joined voice for user [" + uvo.name + "] userid=[" + webUserId + "]")
         outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
 
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, uvo))
-        if (meetingModel.isMeetingMuted())
-          outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, uvo.userID, uvo.userID, mProps.voiceBridge, vu.userId, meetingModel.isMeetingMuted()))
+        if (meetingModel.isMeetingMuted()) {
+          outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded, uvo.userID, uvo.userID,
+            mProps.voiceBridge, vu.userId, meetingModel.isMeetingMuted()))
+        }
 
+        log.info("User joined from phone:  mid=[" + mProps.meetingID + "] uid=[" + uvo.userID + "] role=["
+          + uvo.role + "] locked=[" + uvo.locked + "] permissions.lockOnJoin=[" + meetingModel.getPermissions().lockOnJoin
+          + "] permissions.lockOnJoinConfigurable=[" + meetingModel.getPermissions().lockOnJoinConfigurable + "]")
       }
     }
   }
@@ -386,10 +413,10 @@ trait UsersApp {
   def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) = {
     log.info("Received user joined voice for user [" + msg.callerIdName + "] userid=[" + msg.userId + "]")
 
-    usersModel.getUserWithExternalId(msg.userId) match {
+    usersModel.getUserWithExternalId(msg.externUserId) match {
       case Some(user) => {
-        val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, true, false, msg.muted, msg.talking)
-        val nu = user.copy(voiceUser = vu)
+        val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName, msg.callerIdNum, true, false, msg.muted, msg.talking, msg.listenOnly)
+        val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
         usersModel.addUser(nu)
         log.info("User joined voice for user [" + nu.name + "] userid=[" + msg.userId + "]")
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
@@ -416,7 +443,7 @@ trait UsersApp {
 
   def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
     usersModel.getUserWithVoiceUserId(msg.voiceUserId) foreach { user =>
-      val vu = new VoiceUser(user.userID, user.userID, user.name, user.name, false, false, false, false)
+      val vu = new VoiceUser(user.userID, user.userID, user.name, user.name, false, false, false, false, false)
       val nu = user.copy(voiceUser = vu)
       usersModel.addUser(nu)
 
@@ -441,6 +468,11 @@ trait UsersApp {
       val nv = user.voiceUser.copy(muted = msg.muted, talking = talking)
       val nu = user.copy(voiceUser = nv)
       usersModel.addUser(nu)
+
+      log.info("user muted :  mid=[" + mProps.meetingID + "] uid=[" + nu.userID + "] role=["
+        + nu.role + "] joinedWeb=[" + nu.joinedWeb + "] listenOnly=[" + nu.listenOnly +
+        "] vid=[" + nu.voiceUser.userId + "] extId=[" + nu.externUserID + "]")
+
       //      println("Received voice muted=[" + msg.muted + "] wid=[" + msg.userId + "]" )
       outGW.send(new UserVoiceMuted(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
     }

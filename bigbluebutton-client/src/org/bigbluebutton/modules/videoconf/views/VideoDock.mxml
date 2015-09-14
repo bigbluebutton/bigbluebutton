@@ -20,16 +20,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
 		xmlns:mx="http://www.adobe.com/2006/mxml" 
-		initialize="init()" 
 		horizontalScrollPolicy="off"
 		verticalScrollPolicy="off"
-		creationComplete="onCreationComplete()" 
 		implements="org.bigbluebutton.common.IBbbModuleWindow"
 		title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
 		xmlns:mate="http://mate.asfusion.com/" styleNameFocus="videoDockStyleFocus"
 		layout="absolute" visible="true" styleNameNoFocus="videoDockStyleNoFocus"
+		showCloseButton="false"
 		horizontalAlign="center" 
 		verticalAlign="middle" >
 
@@ -38,17 +37,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private function init():void {
-
-			}
-
-			private function onCreationComplete():void {
-				this.showCloseButton = false;
-			}
-
 			public function getPrefferedPosition():String {
 				return MainCanvas.BOTTOM_LEFT;
 			}
 		]]>
 	</mx:Script>
-</MDIWindow>
+</CustomMdiWindow>

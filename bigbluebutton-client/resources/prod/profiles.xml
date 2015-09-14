@@ -45,4 +45,19 @@
         <h264Level>2.1</h264Level>
         <h264Profile>main</h264Profile>
     </profile>
+    <profile id="wide">
+        <locale>
+            <en_US>Widescreen</en_US>
+            <pt_BR>Widescreen</pt_BR>
+        </locale>
+        <width>1280</width>
+        <height>720</height>
+        <keyFrameInterval>5</keyFrameInterval>
+        <modeFps>15</modeFps>
+        <qualityBandwidth>0</qualityBandwidth>
+        <qualityPicture>90</qualityPicture>
+        <enableH264>true</enableH264>
+        <h264Level>2.1</h264Level>
+        <h264Profile>main</h264Profile>
+    </profile>
 </profiles>

@@ -44,7 +44,9 @@ package org.bigbluebutton.modules.deskshare.utils
         return null;        
      
       } else if (isJavaOk.result == "JAVA_NOT_INSTALLED") {
-        dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled")));
+        if (!isChrome42OrHigher()) {
+          dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled")));
+        }
         return ResourceUtil.getInstance().getString("bbb.clientstatus.java.notinstalled");        
       } else if (isJavaOk.result == "JAVA_OLDER") {
         dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.FAIL_MESSAGE_EVENT, ResourceUtil.getInstance().getString("bbb.clientstatus.java.title"), ResourceUtil.getInstance().getString("bbb.clientstatus.java.oldversion")));
@@ -58,5 +60,10 @@ package org.bigbluebutton.modules.deskshare.utils
     private static function checkJavaVersion(minVersion: String):Object {
       return ExternalInterface.call("checkJavaVersion", minVersion);
     }
-	}
+    
+    private static function isChrome42OrHigher():Boolean {
+      var browser:Array = ExternalInterface.call("determineBrowser");
+      return ((browser[0] == "Chrome") && (parseInt(browser[1]) >= 42));
+    }
+  }
 }

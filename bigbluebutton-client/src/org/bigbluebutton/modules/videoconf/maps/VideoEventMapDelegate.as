@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.videoconf.maps
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.common.Webcam;
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.common.events.ToolbarButtonEvent;
   import org.bigbluebutton.core.BBB;
@@ -77,6 +78,10 @@ package org.bigbluebutton.modules.videoconf.maps
     private var streamList:ArrayList = new ArrayList();
     private var numberOfWindows:Object = new Object();
 
+	private var _restream:Boolean = false;
+	private var _cameraIndex:int;
+	private var _videoProfile:VideoProfile;
+	
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
       _dispatcher = dispatcher;
@@ -164,8 +169,8 @@ package org.bigbluebutton.modules.videoconf.maps
         skipCameraSettingsCheck();
       } else {
         var dp:Object = [];
-        for(var i:int = 0; i < Camera.names.length; i++) {
-          dp.push({label: Camera.names[i], status: button.OFF_STATE});
+        for(var i:int = 0; i < Webcam.availableCameras; i++) {
+          dp.push({label: Webcam.getName(i), status: button.OFF_STATE});
         }
         button.enabled = false;
         var shareCameraRequestEvent:ShareCameraRequestEvent = new ShareCameraRequestEvent();
@@ -175,7 +180,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     private function changeDefaultCamForMac():Camera {
-      for (var i:int = 0; i < Camera.names.length; i++){
+      for (var i:int = 0; i < Webcam.availableCameras; i++){
         if (Camera.names[i] == "USB Video Class Video") {
           /** Set as default for Macs */
           return Camera.getCamera("USB Video Class Video");
@@ -453,12 +458,26 @@ package org.bigbluebutton.modules.videoconf.maps
     }
 
     public function handleCameraSetting(event:BBBEvent):void {
-      var cameraIndex:int = event.payload.cameraIndex;
-      var videoProfile:VideoProfile = event.payload.videoProfile;
-      LOGGER.debug("VideoEventMapDelegate::handleCameraSettings [{0},{1}]", [cameraIndex, videoProfile.id]);
-      initCameraWithSettings(cameraIndex, videoProfile);
+	  _cameraIndex = event.payload.cameraIndex;
+      _videoProfile = event.payload.videoProfile;
+	  _restream = event.payload.restream;
+      LOGGER.debug("VideoEventMapDelegate::handleCameraSettings [{0},{1}]", [_cameraIndex, _videoProfile.id]);
+      initCameraWithSettings(_cameraIndex, _videoProfile);
     }
 
+	public function handleEraseCameraSetting(event:BBBEvent):void {
+		_cameraIndex = -1;
+		_videoProfile = null;
+		_restream = event.payload.restream;
+	}
+	
+	public function handleRestream(event:BBBEvent):void {
+		if(_restream){
+			LOGGER.debug("VideoEventMapDelegate::handleRestream [{0},{1}]", [_cameraIndex, _videoProfile.id]);
+			initCameraWithSettings(_cameraIndex, _videoProfile);
+		}
+	}
+	
     private function initCameraWithSettings(camIndex:int, videoProfile:VideoProfile):void {
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
       camSettings.camIndex = camIndex;

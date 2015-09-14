@@ -896,15 +896,17 @@ PollChoicesModal {
 EmojiGrid {
 	backgroundColor: #ffffff;
 	horizontalAlign: center;
-	paddingBottom: 10;
+	paddingLeft: 0;
+	paddingRight: 0;
+	paddingBottom: 0;
+	paddingTop: 0;
 }
 
 .emojiGridTile {
 	paddingBottom: 10;
 	paddingLeft: 10;
-	paddingRight: 4;
-	paddingTop: 4;
+	paddingRight: 10;
+	paddingTop: 10;
 	verticalGap: 6;
 	horizontalGap: 6;
 }
-

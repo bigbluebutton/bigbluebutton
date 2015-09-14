@@ -43,7 +43,7 @@ package org.bigbluebutton.core.managers
 
   public class ReconnectionManager
   {
-	private static const LOGGER:ILogger = getClassLogger(AutoReconnect);      
+	private static const LOGGER:ILogger = getClassLogger(ReconnectionManager);      
 
     public static const BIGBLUEBUTTON_CONNECTION:String = "BIGBLUEBUTTON_CONNECTION";
     public static const SIP_CONNECTION:String = "SIP_CONNECTION";
@@ -53,7 +53,7 @@ package org.bigbluebutton.core.managers
     private var _connections:Dictionary = new Dictionary();
     private var _reestablished:ArrayCollection = new ArrayCollection();
     private var _reconnectTimer:Timer = new Timer(10000, 1);
-    private var _reconnectTimeout:Timer = new Timer(5000, 1);
+    private var _reconnectTimeout:Timer = new Timer(15000, 1);
     private var _dispatcher:Dispatcher = new Dispatcher();
     private var _popup:IFlexDisplayObject = null;
     private var _canceled:Boolean = false;
@@ -89,13 +89,14 @@ package org.bigbluebutton.core.managers
 
     public function onDisconnected(type:String, callback:Function, parameters:Array):void {
       if (!_canceled) {
-		LOGGER.warn("onDisconnected, type={0}, parameters={1}", [type, parameters.toString()]);
-
 		var logData:Object = new Object();
 		logData.user = UsersUtil.getUserData();
 		logData.user.connection = type;
 		
 		JSLog.warn("Connection disconnected", logData);
+		
+		logData.message = "Connection disconnected";
+		LOGGER.info(JSON.stringify(logData));
 		
         var obj:Object = new Object();
         obj.callback = callback;
@@ -120,6 +121,9 @@ package org.bigbluebutton.core.managers
 	  logData.user.connection = type;
 	  
 	  JSLog.warn("Reconnect attempt on connection failed.", logData);
+	  
+	  logData.message = "Reconnect attempt on connection failed.";
+	  LOGGER.info(JSON.stringify(logData));
 	  
       if (_connections.hasOwnProperty(type)) {
         _connections[type].reconnect.onConnectionAttemptFailed();
@@ -156,6 +160,9 @@ package org.bigbluebutton.core.managers
 	  logData.user.connection = type;
 	  
 	  JSLog.warn("Reconnect succeeded.", logData);
+	  
+	  logData.message = "Reconnect succeeded.";
+	  LOGGER.info(JSON.stringify(logData));
 	  
       dispatchReconnectionSucceededEvent(type);
 

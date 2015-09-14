@@ -1,12 +1,8 @@
-# redraw the whiteboard to adapt to the resized window
-@redrawWhiteboard = (callback) ->
+# scale the whiteboard to adapt to the resized window
+@scaleWhiteboard = (callback) ->
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   wpm = whiteboardPaperModel
-  wpm.clearShapes()
-  wpm.clearCursor()
-  manuallyDisplayShapes()
   wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
-  wpm.createCursor()
   if callback
     callback()
 
@@ -25,18 +21,7 @@ Template.whiteboard.helpers
     else
       return false
 
-
-
 Template.whiteboard.events
-  'click .previousSlide':(event) ->
-    BBB.goToPreviousPage()
-
-  'click .nextSlide':(event) ->
-    BBB.goToNextPage()
-
-  'click .switchSlideButton': (event) ->
-    $('.tooltip').hide()
-
   'click .whiteboardFullscreenButton': (event, template) ->
     enterWhiteboardFullscreen()
 
@@ -54,10 +39,33 @@ Template.whiteboard.events
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
 
+Template.presenterBottomControllers.events
+  'click .previousSlide':(event) ->
+    BBB.goToPreviousPage()
+
+  'click .nextSlide':(event) ->
+    BBB.goToNextPage()
+
+  'click .switchSlideButton': (event) ->
+    $('.tooltip').hide()
+
+Template.polling.events
   'click .pollButtons': (event) ->
     _key = @.label
     _id = @.answer
     BBB.sendPollResponseMessage(_key, _id)
+
+Template.polling.rendered = ->
+  scaleWhiteboard()
+
+Template.polling.destroyed = ->
+  setTimeout(scaleWhiteboard, 0)
+
+Template.presenterBottomControllers.rendered = ->
+  scaleWhiteboard()
+
+Template.presenterBottomControllers.destroyed = ->
+  setTimeout(scaleWhiteboard, 0)
 
 Template.whiteboard.rendered = ->
   $('#whiteboard').resizable

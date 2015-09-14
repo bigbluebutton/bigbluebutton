@@ -18,8 +18,9 @@ object PollFactory {
 
   private def processYesNoPollType(qType: String): Question = {
     val answers = new Array[Answer](2)
-    answers(0) = new Answer(0, "No", Some("No"))
-    answers(1) = new Answer(1, "Yes", Some("Yes"))
+
+    answers(0) = new Answer(0, "Yes", Some("Yes"))
+    answers(1) = new Answer(1, "No", Some("No"))
 
     new Question(0, PollType.YesNoPollType, false, None, answers)
   }
@@ -27,8 +28,8 @@ object PollFactory {
   private def processTrueFalsePollType(qType: String): Question = {
     val answers = new Array[Answer](2)
 
-    answers(0) = new Answer(0, "False", Some("False"))
-    answers(1) = new Answer(1, "True", Some("True"))
+    answers(0) = new Answer(0, "True", Some("True"))
+    answers(1) = new Answer(1, "False", Some("False"))
 
     new Question(0, PollType.TrueFalsePollType, false, None, answers)
   }

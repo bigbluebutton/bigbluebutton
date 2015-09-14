@@ -579,7 +579,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		var pollRegex:RegExp = /^@poll\s+?(.+)\s*?$/;
 		var matchedArray:Array = message.match(pollRegex);
 		
-		if (pollRegex.test(message)) {
+		if (UsersUtil.amIPresenter() && pollRegex.test(message)) {
 			var tmpAnswers: Array = matchedArray[1].split(",");
 			var answers:Array = new Array();
 			for (var i:int = 0; i < tmpAnswers.length; i++) {

@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.users.views {
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class EmojiGrid extends VBox {
-		private const EMOJIS:Array = ["smile", "happy", "sad", "confused", "neutral", "raiseHand", "away"];
+		private const EMOJIS:Array = ["raiseHand", "happy", "neutral", "sad", "confused", "away"];
 		
 		private var dispatcher:Dispatcher;
 		
@@ -44,17 +44,17 @@ package org.bigbluebutton.modules.users.views {
 			addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler, false, 0, true);
 			this.horizontalScrollPolicy = ScrollPolicy.OFF;
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
-			width = 140;
-			minHeight = 80;
+			width = 134;
 			drawEmoji();
 			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
 				addRemoveEmoji();
+				this.setStyle("paddingBottom", 10);
 			}
 		}
 		
 		private function drawEmoji():void {
 			var tile:Tile = new Tile();
-			tile.width = 140;
+			tile.width = 134;
 			tile.styleName = "emojiGridTile";
 			tile.horizontalScrollPolicy = ScrollPolicy.OFF;
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
@@ -68,7 +68,7 @@ package org.bigbluebutton.modules.users.views {
 				button.selected = (UserManager.getInstance().getConference().myEmojiStatus == emoji);
 				button.toggle = button.selected;
 				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + emoji);
-				addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
+				button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
 				tile.addChild(button);
 			}
 			this.addChild(tile);
