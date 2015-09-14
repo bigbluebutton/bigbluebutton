@@ -298,15 +298,15 @@ def publish_processed_meeting(recording_dir)
       down = rec[:down]
 
       if play == nil
-        play = {:null=>"null"}
+        play = {}
       end
 
       if meta == nil
-        meta = {:null=>"null"}
+        meta = {}
       end
 
       if down == nil
-        down = {:null=>"null"}
+        down = {}
       end
 
       ## the implementation of the play, meta and down hashes is pending use of a try,
