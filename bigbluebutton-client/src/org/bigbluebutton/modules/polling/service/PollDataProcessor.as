@@ -93,7 +93,7 @@ package org.bigbluebutton.modules.polling.service
               if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
                 localizedKey = answers[k].key;
               } 
-              accessibleAnswers += ResourceUtil.getInstance().getString("bbb.polling.results.accessible.answer", [localizedKey, a.num_votes]) + "<br />";
+              accessibleAnswers += ResourceUtil.getInstance().getString("bbb.polling.results.accessible.answer", [localizedKey, answers[k].num_votes]) + "<br />";
             }
             
             var pollResultMessage:ChatMessageVO = new ChatMessageVO();

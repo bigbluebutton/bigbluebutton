@@ -41,7 +41,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     private const vPaddingPercent:Number = 0.25;
     private const hPaddingPercent:Number = 0.1;
     private const labelWidthPercent:Number = 0.3;
-    private const labelMaxWidthInPixels:int = 40;
     
     private var sampledata:Array = [{a:"A", v:3}, {a:"B", v:1}, {a:"C", v:5}, {a:"D", v:8}];
     private var _data:Array;
