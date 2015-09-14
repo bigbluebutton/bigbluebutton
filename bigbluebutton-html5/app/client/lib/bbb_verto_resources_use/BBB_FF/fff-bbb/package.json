@@ -1,0 +1,12 @@
+{
+  "title": "BigBlueButton Deskshare for Firefox",
+  "name": "perroned",
+  "version": "0.0.1",
+  "description": "Enables BigBlueButton WebRTC deskshare session through Firefox",
+  "main": "boostrap.js",
+  "author": "perroned",
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "license": "MIT"
+}

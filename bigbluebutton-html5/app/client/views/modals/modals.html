@@ -25,6 +25,7 @@
       {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume"
       rel="tooltip" data_placement="bottom" title="Join Listen only"}}
     {{/if}}
+    {{> makeButton id="hangupVerto" btn_class="settingsButton" i_class="ion-volume-mute" rel="tooltip" data_placement="bottom" title="exit"}}
   </fieldset>
 </template>
 
@@ -41,6 +42,7 @@
   <div class="settingsBody">
     {{> settingsAudio}}
     {{> optionsFontSize}}
+    {{> vertoDeskshare}}
     {{{getBBBSettingsInfo}}}
   </div>
 

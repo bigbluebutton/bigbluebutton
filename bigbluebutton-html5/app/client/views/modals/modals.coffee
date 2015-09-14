@@ -17,6 +17,8 @@ Template.settingsAudio.events
 
   "click #joinMicrophone": (event) -> joinVoiceCall @, isListenOnly: false
 
+  "click #hangupVerto": (event) -> exitVoiceCall()
+
 Template.settingsModal.events
   "click .closeSettings": -> setInSession "messageFontSize", getInSession("tempFontSize")
   "click #saveSettings": -> $("#settingsModal").foundation('reveal', 'close');

@@ -353,9 +353,8 @@ this.my_check_vid_res = function() {
 }
 
 this.my_real_size = function(selectedVideoConstraints) {
-	$("#" + window.videoTag).width(selectedVideoConstraints.constraints.maxWidth);
-	$("#" + window.videoTag).height(selectedVideoConstraints.constraints.maxHeight);
-	console.log("video size changed to natural default");
+	$("#" + window.videoTag).height("100%");
+	$("#" + window.videoTag).width("100%");
 }
 
 /*

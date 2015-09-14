@@ -1,33 +1,30 @@
-<template name="verto">
-	Verto&trade; IN CALL
-		<video id="webcam" autoplay="autoplay" controls></video>
-		<table id="conf_list"></table>
+<template name="vertoDeskshare">
+	<!-- <div style="position: absolute; left: 0; top: 0; z-index:5000; background-color: aqua"> -->
+	<div>
 
-		<hr/>
+		<table id="conf_list" style="display: none;"></table>
 		<div>
 			<fieldset>
 				<legend><b>Webcam Video Quality</b>:</legend>
 				<div id="webcamResolutions"></div>
 			</fieldset>
 		</div><br>
-		<hr/>
-
-		<hr/>
 		<div>
 			<fieldset>
 				<legend><b>Deskshare Video Quality</b>:</legend>
 				<div id="deskshareResolutions"></div>
 			</fieldset>
 		</div><br>
-		<hr/>
-
-		<button id='joinAudio'>joinAudio</button>
-		<button id='hangUp'>hangUp</button>
-		<button id='shareScreen'>shareScreen</button>
-		<button id='stopScreen'>stopScreen</button>
-		<button id='desksharePreview'>desksharePreview</button>
-		<button id="webcamPreview">Preview Webcam</button>
+		<!-- <button id='joinAudio' class="vertoButton">joinAudio</button> -->
+		<!-- <button id='hangUp' class="vertoButton">hangUp</button> -->
+		<!-- <button id='shareScreen' class="vertoButton">shareScreen</button> -->
+		<!-- <button id='stopScreen' class="vertoButton">stopScreen</button> -->
+		{{> makeButton id="screenshareStart" btn_class="screenshareStart vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Share your screen"}}
+		{{> makeButton id="screenshareStop" btn_class="screenshareStop vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Stop sharing your screen"}}
+		<button id='desksharePreview' class="vertoButton">desksharePreview</button>
+		<button id="webcamPreview" class="vertoButton">Preview Webcam</button>
 		<br/>
-		<button id="getAdjustedResolutions">getAdjustedResolutions</button>
+		<button id="getAdjustedResolutions" class="vertoButton">getAdjustedResolutions</button>
 		<p id="adjustedResolutions"></p>
+	</div>
 </template>

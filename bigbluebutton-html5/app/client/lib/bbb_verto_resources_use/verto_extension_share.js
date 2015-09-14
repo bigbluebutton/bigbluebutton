@@ -5,6 +5,7 @@ this.doshare = function(on, callback, videoTag) {
 	if (!on) {
 		if (share_call) {
 			share_call.hangup();
+			share_call = null;
 		}
 		return;
 	}
