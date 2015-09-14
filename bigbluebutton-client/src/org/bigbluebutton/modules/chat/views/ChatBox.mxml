@@ -681,7 +681,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			var userManager:UserManager = UserManager.getInstance();
 			var conference:Conference = userManager.getConference();
 			var me:BBBUser = conference.getMyUser();
-			
+			LOGGER.debug("Applying lock settings.");
 			if (publicChat) {
 				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
 			} else {
