@@ -40,7 +40,7 @@ $.verto.prototype.hangup = function(callID, userCallback) {
 }
 
 // main entry point to making a verto call
-this.callIntoConference_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, videoTag) {
+this.callIntoConference_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, videoTag, isListenOnly) {
 	window.videoTag = videoTag;
 	// stores the user's callback in the global scope
 	if (userCallback) {
@@ -72,7 +72,7 @@ this.callIntoConference_verto = function(voiceBridge, conferenceUsername, confer
 				console.log("starting call");
 				toDisplayDisconnectCallback = true; // yes, display an error if the socket closes
 				wasCallSuccessful = true; // yes, a call was successfully established through the websocket
-				webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback);
+				webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, isListenOnly);
 			} else {
 				callback({'status':'failed', 'errorcode': '10XX'}); // eror logging verto into freeswitch
 			}
@@ -81,7 +81,7 @@ this.callIntoConference_verto = function(voiceBridge, conferenceUsername, confer
 		$.verto.init({}, init(videoTag));
 	} else {
 		console.log("already logged into verto, going straight to making a call");
-		webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback);
+		webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, isListenOnly);
 	}
 }
 
@@ -108,6 +108,11 @@ this.configStuns = function(callbacks, callback, videoTag) {
 	}).done(function(data) {
 		console.log("ajax request done");
 		console.log(data);
+		if(data['response'] && data.response.returncode == "FAILED") {
+			console.error(data.response.message);
+			callback({'status':'failed', 'errorcode': data.response.message});
+			return;
+		}
 		stunsConfig['stunServers'] = ( data['stunServers'] ? data['stunServers'].map(function(data) {
 			return {'url': data['url']};
 		}) : [] );
@@ -128,7 +133,7 @@ this.configStuns = function(callbacks, callback, videoTag) {
 	});
 }
 
-this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callbacks) {
+this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callbacks, isListenOnly) {
 	console.log(extension + ", " + conferenceUsername + ", " + conferenceIdNumber);
 
 	if (cur_call) { // only allow for one call
@@ -140,6 +145,7 @@ this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, 
 	outgoingBandwidth = "default";
 	incomingBandwidth = "default";
 
+	console.log("Making a call isListenOnly: "+isListenOnly);
 	cur_call = verto.newCall({
 		destination_number: extension,
 		caller_id_name: conferenceUsername,
@@ -149,7 +155,7 @@ this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, 
 		useVideo: true,
 		useStereo: true,
 		useCamera: true,
-		useMic: true,
+		useMic: isListenOnly,
 		dedEnc: false,
 		mirrorInput: false
 	});
@@ -224,7 +230,7 @@ this.leaveWebRTCVoiceConference_verto = function() {
 	webrtc_hangup_verto();
 }
 
-this.make_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, server, recall) {
+this.make_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, server, recall, isListenOnly) {
 	if (userCallback) {
 		callback = userCallback;
 	}
@@ -288,7 +294,7 @@ this.make_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNum
 		console.log("Verto is logged into FreeSWITCH, socket is available, making call");
 		callICEConnected = false;
 
-		docall_verto(voiceBridge, conferenceUsername, conferenceIdNumber, myRTCCallbacks);
+		docall_verto(voiceBridge, conferenceUsername, conferenceIdNumber, myRTCCallbacks, isListenOnly);
 
 		if(recall === false) {
 			console.log('call connecting');
@@ -392,7 +398,7 @@ var RTCPeerConnectionCallbacks = {
 };
 this.RTCPeerConnectionCallbacks = RTCPeerConnectionCallbacks;
 
-this.webrtc_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback) {
+this.webrtc_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, isListenOnly) {
 	if (userCallback) {
 		callback = userCallback;
 	}
@@ -406,7 +412,7 @@ this.webrtc_call_verto = function(voiceBridge, conferenceUsername, conferenceIdN
 	var server = window.document.location.hostname;
 	console.log("user " + conferenceUsername + " calling to " +	voiceBridge);
 	if (isLoggedIntoVerto()) {
-		make_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, "", false);
+		make_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, "", false, isListenOnly);
 	}
 }
 

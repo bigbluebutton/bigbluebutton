@@ -1,27 +1,52 @@
-Template.vertoDeskshare.events
+Template.vertoDeskshareMenu.events
 	"click .vertoButton": (event) ->
 		$("#settingsModal").foundation('reveal', 'close')
-
-	"click #desksharePreview": (event) ->
-		doDesksharePreview((->), (->), "webcam");
 
 	"click #getAdjustedResolutions": (event) ->
 		getAdjustedResolutions (result) ->
 			for i of result
 				$("#adjustedResolutions").append(i + ": " + result[i].width + "x" + result[i].height + "<br/>")
 
+	"click .screenshareShow": (event) ->
+		$("#deskshareModal").foundation('reveal', 'open');
+		$("#screenshareShow").hide()
+		$("#screenshareHide").show()
+
+	"click .screenshareHide": (event) ->
+		$("#screenshareShow").show()
+		$("#screenshareHide").hide()
+
+Template.deskshareModal.events
 	"click .screenshareStart": (event) ->
-		$("#screenshareStart").css('display', 'none')
-		$("#screenshareStop").css('display', 'block')
+		$("#deskshareModal").foundation('reveal', 'close')
+		$("#screenshareStart").hide()
+		$("#screenshareStaop").show()
 		screenStart(true, (->), "webcam")
 
 	"click .screenshareStop": (event) ->
-		$("#screenshareStop").css('display', 'none')
-		$("#screenshareStart").css('display', 'block')
+		$("#deskshareModal").foundation('reveal', 'close')
+		$("#screenshareStart").show()
+		$("#screenshareStop").hide()
 		screenStart(false, (->))
 
-	"click #webcamPreview": (event) ->
-		doWebcamPreview((->), (->), "webcam");
+	"click #desksharePreview": (event) ->
+		doDesksharePreview((->), (->), "webcam");
+
+Template.vertoWebcam.events
+	"click .vertoButton": (event) ->
+		$("#settingsModal").foundation('reveal', 'close')
+
+	"click .webcamStart": (event) ->
+		$("#webcamModal").foundation('reveal', 'open');
+		$("#webcamStart").hide()
+		$("#webcamStop").show()
+
+	"click .webcamStop": (event) ->
+		$("#webcamStart").show()
+		$("#webcamStop").hide()
+
+	# "click #webcamPreview": (event) ->
+	# 	doWebcamPreview((->), (->), "webcam");
 
 @toggleWhiteboardVideo = (display) ->
 	if display is "whiteboard"

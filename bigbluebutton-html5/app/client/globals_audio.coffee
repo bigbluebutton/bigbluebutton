@@ -52,11 +52,11 @@
 			# Always fail the first time. Retry on failure.
 			#
 			if !!navigator.mozGetUserMedia and message.errorcode is 1001
-				callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam")
+				callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam", isListenOnly)
 			#
 			# End of hacky method
 			#
-		callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam");
+		callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam", isListenOnly);
 		return
 	else
 		# create voice call params

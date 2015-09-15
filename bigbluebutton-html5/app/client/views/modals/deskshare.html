@@ -1,0 +1,14 @@
+<template name="deskshareModal">
+	<div>
+		<table id="conf_list" style="display: none;"></table>
+		<div>
+			<fieldset>
+				<legend><b>Deskshare Video Quality</b>:</legend>
+				<div id="deskshareResolutions"></div>
+			</fieldset>
+		</div><br>
+		{{> makeButton id="screenshareStart" btn_class="screenshareStart vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Share your screen"}}
+		{{> makeButton id="screenshareStop" btn_class="screenshareStop vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Stop sharing your screen"}}
+		<button id='desksharePreview' class="vertoButton">desksharePreview</button>
+	</div>
+</template>
