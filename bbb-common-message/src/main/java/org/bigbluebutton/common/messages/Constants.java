@@ -118,8 +118,8 @@ public class Constants {
   public static final String FROM_TIME                       = "from_time";
   public static final String PERM_DISABLE_CAM                = "disableCam";
   public static final String PERM_DISABLE_MIC                = "disableMic";
-  public static final String PERM_DISABLE_PRIVCHAT           = "disablePrivChat";
-  public static final String PERM_DISABLE_PUBCHAT            = "disablePubChat";
+  public static final String PERM_DISABLE_PRIVCHAT           = "disablePrivateChat";
+  public static final String PERM_DISABLE_PUBCHAT            = "disablePublicChat";
   public static final String PERM_LOCKED_LAYOUT              = "lockedLayout";
   public static final String PERM_LOCK_ON_JOIN               = "lockOnJoin";
   public static final String PERM_LOCK_ON_JOIN_CONFIG        = "lockOnJoinConfigurable";

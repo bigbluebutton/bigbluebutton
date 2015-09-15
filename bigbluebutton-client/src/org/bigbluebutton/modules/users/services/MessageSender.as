@@ -361,7 +361,6 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function saveLockSettings(newLockSettings:Object):void{   
-	  LOGGER.debug("Sending setLockSettings.");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
         "lock.setLockSettings",

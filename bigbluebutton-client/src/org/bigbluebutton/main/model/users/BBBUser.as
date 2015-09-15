@@ -23,6 +23,7 @@ package org.bigbluebutton.main.model.users
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -368,7 +369,9 @@ package org.bigbluebutton.main.model.users
 		
 		public function applyLockSettings():void {
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-			var lockAppliesToMe:Boolean = me && role != MODERATOR && !presenter && userLocked;
+			var amNotModerator:Boolean = !UsersUtil.amIModerator();
+			var amNotPresenter:Boolean = !UsersUtil.amIPresenter();
+			var lockAppliesToMe:Boolean = me && amNotModerator && amNotPresenter && !userLocked;
 			
 			disableMyCam = lockAppliesToMe && lockSettings.getDisableCam();
 			disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
