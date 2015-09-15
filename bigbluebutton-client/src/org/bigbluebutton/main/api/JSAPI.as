@@ -48,7 +48,7 @@ package org.bigbluebutton.main.api
       if (ExternalInterface.available) {
         return ExternalInterface.call("determineBrowser");
       }
-      return ["unknown", 0];
+      return ["unknown", 0, 0];
     }
   }
 }
