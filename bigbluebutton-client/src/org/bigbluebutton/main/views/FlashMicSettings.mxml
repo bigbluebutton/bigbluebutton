@@ -48,6 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.Media;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashEchoTestFailedEvent;
@@ -141,7 +142,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             //http://stackoverflow.com/questions/2936925/no-mic-activity-with-setloopback-set-to-false-as3
             //http://groups.yahoo.com/neo/groups/flexcoders/conversations/topics/144047
             mic.gain = micRecordVolume.value;
-            microphoneList = Microphone.names;
+            microphoneList = Media.getMicrophoneNames();
             break;
           default:
             LOGGER.debug("unknown micStatusHandler event: {0}", [event]);
@@ -156,7 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 			private function onCreationComplete():void {
         LOGGER.debug("onCreationComplete. Seeting state to [flashMicSettingsTest]");
-        microphoneList = Microphone.names;
+        microphoneList = Media.getMicrophoneNames();
         setupForMicLoopbackTest();
 			}						
 

@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.managers.PopUpManager;
 		
 		import org.bigbluebutton.common.Images;
-		import org.bigbluebutton.common.Webcam;
+		import org.bigbluebutton.common.Media;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.main.events.BBBEvent;
@@ -76,7 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
 			if(defaultCamera != null) {
 				var indexDefault:int = 0;
-				for (var i:int = 0; i < Webcam.availableCameras; i++){
+				for (var i:int = 0; i < Media.availableCameras; i++){
 					if(camerasArray[i].status == OFF_STATE) {
 						var myObj:Object = {}
 						myObj.label = camerasArray[i].label;
@@ -109,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				showResControls(true);
 			}
 			
-			if (Webcam.availableCameras > 1) {
+			if (Media.availableCameras > 1) {
 				showVideoControls(true);
 			}
 			

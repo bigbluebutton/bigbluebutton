@@ -1,11 +1,13 @@
  package org.bigbluebutton.modules.phone.managers
 {
   import com.asfusion.mate.events.Dispatcher;
+  
   import flash.external.ExternalInterface;
-  import flash.media.Microphone;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.as3commons.logging.util.jsonXify;
+  import org.bigbluebutton.common.Media;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.phone.PhoneOptions;
@@ -60,7 +62,7 @@
     private var usingFlash:Boolean = false;
     
     public function FlashCallManager() {
-      micNames = Microphone.names;
+      micNames = Media.getMicrophoneNames();
       connectionManager = new ConnectionManager();
       streamManager = new StreamManager(connectionManager);
       initConnectionManager();
