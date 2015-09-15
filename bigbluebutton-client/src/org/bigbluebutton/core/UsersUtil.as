@@ -155,7 +155,6 @@ package org.bigbluebutton.core
     public static function internalUserIDToExternalUserID(userID:String):String {
       var user:BBBUser = UserManager.getInstance().getConference().getUser(userID);
       if (user != null) {
-		LOGGER.debug("Found externUserID [{0}] for userID [{1}]", [user.externUserID, userID]);
         return user.externUserID;
       }
       LOGGER.warn("Could not find externUserID for userID [{0}]", [userID]);
@@ -165,7 +164,6 @@ package org.bigbluebutton.core
     public static function externalUserIDToInternalUserID(externUserID:String):String {
       var user:BBBUser = UserManager.getInstance().getConference().getUserWithExternUserID(externUserID);
       if (user != null) {
-	    LOGGER.debug("Found userID [{0}] for externUserID [{1}]", [user.userID, externUserID]);
         return user.userID;
       }
       LOGGER.warn("Could not find userID for externUserID [{0}]", [externUserID]);

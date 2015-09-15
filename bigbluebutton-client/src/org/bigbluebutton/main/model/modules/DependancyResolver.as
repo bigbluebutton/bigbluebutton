@@ -64,11 +64,6 @@ package org.bigbluebutton.main.model.modules
 													m2.getName() + " depends on " + m2.unresolvedDependancies.toString());
 				}
 			}
-			LOGGER.debug("Dependency Order: ");
-			for (var u:int = 0; u<sorted.length; u++){
-				LOGGER.debug(((sorted.getItemAt(u) as ModuleDescriptor).getName()));
-				//Alert.show((sorted.getItemAt(u) as ModuleDescriptor).getAttribute("name") as String);
-			}
 
 			return sorted;
 		}

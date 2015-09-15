@@ -127,12 +127,9 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.muteOnStart = muteOnStart;
 				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
 				
-				LOGGER.debug("_conferenceParameters.muteOnStart = {0}", [_conferenceParameters.muteOnStart]);
-				
 				// assign the meeting name to the document title
 				ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
 				
-				LOGGER.debug(" Got the user info from web api.");       
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
 				 */
@@ -165,7 +162,6 @@ package org.bigbluebutton.main.model.users
     }
     
     public function changeRecordingStatus(e:BBBEvent):void {
-      LOGGER.debug("changeRecordingStatus")
       if (this.isModerator() && !e.payload.remote) {
         var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
         sender.changeRecordingStatus(myUserId, e.payload.recording);
@@ -173,7 +169,6 @@ package org.bigbluebutton.main.model.users
     }
        
 		public function userLoggedIn(e:UsersConnectionEvent):void{
-			LOGGER.debug("userLoggedIn - Setting my userid to [{0}]", [e.userid]);
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
 			

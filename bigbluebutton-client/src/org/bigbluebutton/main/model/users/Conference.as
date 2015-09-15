@@ -113,11 +113,8 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function addUser(newuser:BBBUser):void {
-			LOGGER.debug("Adding new user [{0}]", [newuser.userID]);
 			if (hasUser(newuser.userID)) {
 				removeUser(newuser.userID);
-			} else {
-				LOGGER.debug("Am I this new user [{0}, {1}]", [newuser.userID,me.userID]);
 			}
 			if (newuser.userID == me.userID) {
 				newuser.me = true;
@@ -219,7 +216,6 @@ package org.bigbluebutton.main.model.users {
 		public function isUserPresenter(userID:String):Boolean {
 			var user:Object = getUserIndex(userID);
 			if (user == null) {
-				LOGGER.warn("User not found with id={0}", [userID]);
 				return false;
 			}
 			var a:BBBUser = user.participant as BBBUser;
@@ -229,7 +225,6 @@ package org.bigbluebutton.main.model.users {
 		public function removeUser(userID:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
-				LOGGER.debug("removing user[{0},{1}]", [p.participant.name, p.participant.userID]);
 				users.removeItemAt(p.index);
 				//sort();
 				users.refresh();
@@ -503,8 +498,6 @@ package org.bigbluebutton.main.model.users {
 				lockOnJoinConfigurable = false; //If not set, default to false
 			}
 			
-			LOGGER.debug("init lock settings from config");
-      
 			lockSettings = new LockSettingsVO(disableCam, disableMic, disablePrivateChat, disablePublicChat, lockedLayout, lockOnJoin, lockOnJoinConfigurable);
 			
 			setLockSettings(lockSettings);
