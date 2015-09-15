@@ -368,7 +368,6 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function applyLockSettings():void {
-			LOGGER.debug("Applying lock settings.");
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 			var amNotModerator:Boolean = !UsersUtil.amIModerator();
 			var amNotPresenter:Boolean = !UsersUtil.amIPresenter();
@@ -384,15 +383,12 @@ package org.bigbluebutton.main.model.users
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
 			if (lockAppliesToMe) {
-				LOGGER.debug("Applying lock settings to myself.");
 				//If it's sharing webcam, stop it
 				if (disableMyCam && hasStream){
-					LOGGER.debug("Applying lock settings to myself. Disable webcam.");
 					dispatcher.dispatchEvent(new ClosePublishWindowEvent());
 				}
 				//If it's sharing microphone, mute it
 				if (disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
-					LOGGER.debug("Applying lock settings to myself. Disable voice.");
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 					e.userid = UserManager.getInstance().getConference().getMyUserId();
 					e.mute = true;

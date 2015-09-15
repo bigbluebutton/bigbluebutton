@@ -77,7 +77,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher;
 
 			public function lockSettingsChanged(e:*):void{
-				LOGGER.debug("Handle lock settings.");
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();

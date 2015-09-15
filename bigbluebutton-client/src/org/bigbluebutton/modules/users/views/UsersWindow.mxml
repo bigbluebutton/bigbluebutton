@@ -274,7 +274,6 @@
 			}
 			
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
-				LOGGER.debug("Handle lock settings.");
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 			}
