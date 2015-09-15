@@ -2,25 +2,28 @@ Template.vertoDeskshareMenu.events
 	"click .vertoButton": (event) ->
 		$("#settingsModal").foundation('reveal', 'close')
 
-	"click #getAdjustedResolutions": (event) ->
-		getAdjustedResolutions (result) ->
-			for i of result
-				$("#adjustedResolutions").append(i + ": " + result[i].width + "x" + result[i].height + "<br/>")
-
 	"click .screenshareShow": (event) ->
 		$("#deskshareModal").foundation('reveal', 'open');
 		$("#screenshareShow").hide()
 		$("#screenshareHide").show()
 
 	"click .screenshareHide": (event) ->
+		if(!!window["deskshareStream"])
+			$("#webcam").src = null;
+			window["deskshareStream"].stop();
+		else
+			screenStart(false, (->))
+
 		$("#screenshareShow").show()
 		$("#screenshareHide").hide()
+		$("#screenshareStart").show()
+		$("#screenshareStop").hide()
 
 Template.deskshareModal.events
 	"click .screenshareStart": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')
 		$("#screenshareStart").hide()
-		$("#screenshareStaop").show()
+		$("#screenshareStop").show()
 		screenStart(true, (->), "webcam")
 
 	"click .screenshareStop": (event) ->
@@ -32,7 +35,24 @@ Template.deskshareModal.events
 	"click #desksharePreview": (event) ->
 		doDesksharePreview((->), (->), "webcam");
 
-Template.vertoWebcam.events
+Template.vertoWebcamMenu.events
+	"click .vertoButton": (event) ->
+		$("#settingsModal").foundation('reveal', 'close')
+
+	"click .webcamShow": (event) ->
+		$("#webcamModal").foundation('reveal', 'open');
+		$("#webcamShow").hide()
+		$("#webcamHide").show()
+
+	"click .webcamHide": (event) ->
+		if(!!window["webcamStream"])
+			$("#webcam").src = null;
+			window["webcamStream"].stop();
+
+		$("#webcamShow").show()
+		$("#webcamHide").hide()
+
+Template.webcamModal.events
 	"click .vertoButton": (event) ->
 		$("#settingsModal").foundation('reveal', 'close')
 
@@ -45,8 +65,13 @@ Template.vertoWebcam.events
 		$("#webcamStart").show()
 		$("#webcamStop").hide()
 
-	# "click #webcamPreview": (event) ->
-	# 	doWebcamPreview((->), (->), "webcam");
+	"click #webcamPreview": (event) ->
+		doWebcamPreview((->), (->), "webcam");
+
+	"click #getAdjustedResolutions": (event) ->
+		getAdjustedResolutions (result) ->
+			for i of result
+				$("#adjustedResolutions").append(i + ": " + result[i].width + "x" + result[i].height + "<br/>")
 
 @toggleWhiteboardVideo = (display) ->
 	if display is "whiteboard"

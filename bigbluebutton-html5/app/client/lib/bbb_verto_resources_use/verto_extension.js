@@ -169,10 +169,11 @@ this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, 
 // displays a local feed of the user's webcam
 this.doWebcamPreview = function(onSuccess, onFailure, videoTag) {
 	var selectedVideoConstraints = getChosenWebcamResolution(); // this is the video profile the user chose
-	my_real_size(selectedVideoConstraints);
 	selectedVideoConstraints = getWebcamConstraintsFromResolution(selectedVideoConstraints); // convert to a valid constraints object
 	console.log("screen constraints", selectedVideoConstraints)
 	previewLocalMedia(webcamStream, selectedVideoConstraints, videoTag, onSuccess, onFailure);
+	window.videoTag = videoTag;
+	my_real_size()
 }
 
 // return the webcam resolution that the user has selected
