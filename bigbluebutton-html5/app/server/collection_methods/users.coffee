@@ -63,18 +63,18 @@ Meteor.methods
     if isAllowedTo(action(), meetingId, requesterUserId, requesterToken)
       message =
         payload:
-          userid: toMuteUserId
+          user_id: toMuteUserId
           meeting_id: meetingId
           mute: true
           requester_id: requesterUserId
         header:
           timestamp: new Date().getTime()
-          name: "mute_user_request"
+          name: "mute_user_request_message"
           version: "0.0.1"
 
       Meteor.log.info "publishing a user mute request for #{toMuteUserId}"
 
-      publish Meteor.config.redis.channels.toBBBApps.voice, message
+      publish Meteor.config.redis.channels.toBBBApps.users, message
       updateVoiceUser meetingId, {'web_userid': toMuteUserId, talking:false, muted:true}
     return
 
@@ -92,18 +92,18 @@ Meteor.methods
     if isAllowedTo(action(), meetingId, requesterUserId, requesterToken)
       message =
         payload:
-          userid: toMuteUserId
+          user_id: toMuteUserId
           meeting_id: meetingId
           mute: false
           requester_id: requesterUserId
         header:
           timestamp: new Date().getTime()
-          name: "mute_user_request"
+          name: "mute_user_request_message"
           version: "0.0.1"
 
       Meteor.log.info "publishing a user unmute request for #{toMuteUserId}"
 
-      publish Meteor.config.redis.channels.toBBBApps.voice, message
+      publish Meteor.config.redis.channels.toBBBApps.users, message
       updateVoiceUser meetingId, {'web_userid': toMuteUserId, talking:false, muted:false}
     return
 
