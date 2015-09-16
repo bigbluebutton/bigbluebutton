@@ -243,6 +243,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
+				if (!connection.connected) return;
+
 				LogUtil.debug("DeskShareWindow::onAppletStart");
 				startPreviewStream(connection, room, event.videoWidth, event.videoHeight);
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
