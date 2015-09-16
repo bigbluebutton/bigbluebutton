@@ -1,1 +1,1 @@
-gradle resolveDeps deploy
+gradle clean war deploy

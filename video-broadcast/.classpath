@@ -30,3 +30,4 @@
 	<classpathentry kind="lib" path="lib/bbb-common-message-0.0.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
+

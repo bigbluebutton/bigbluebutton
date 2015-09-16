@@ -62,4 +62,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<!-- Maximum time, in milliseconds, to wait for a resource when exausted action is set to WHEN_EXAUSTED_BLOCK -->
 		<property name="maxWait" value="5000" />
 	</bean>
+
 </beans>

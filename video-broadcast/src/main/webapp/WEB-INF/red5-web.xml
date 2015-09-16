@@ -33,6 +33,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</property>
 	</bean>
 
+	<import resource="bbb-redis-pool.xml"/>
+
+
 	<bean id="web.context" class="org.red5.server.Context"
 		autowire="byType" />
 
@@ -45,7 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="virtualHosts" value="${webapp.virtualHosts}" />
 	</bean>
 
-	<!-- <bean id="web.handler" class="org.bigbluebutton.app.videobroadcast.VideoApplication">
+	<bean id="web.handler" class="org.bigbluebutton.app.videobroadcast.VideoApplication">
 		<property name="packetTimeout" value="10000"/>
 		<property name="recordVideoStream" value="true"/>
 		<property name="eventRecordingService" ref="redisRecorder"/>
@@ -64,9 +67,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="redisSender" class="org.bigbluebutton.red5.pubsub.MessageSender"
 					init-method="start" destroy-method="stop">
 		<property name="redisPool"> <ref bean="redisPool"/></property>
-	</bean> -->
+	</bean>
 
-	<bean id="web.handler" class="org.red5.server.adapter.ApplicationAdapter" />
-
-	<import resource="bbb-redis-pool.xml"/>
+	<!-- <bean id="web.handler" class="org.red5.server.adapter.ApplicationAdapter" />
+ -->
 </beans>

@@ -61,7 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<url-pattern>/idle/*</url-pattern>
 	</servlet-mapping>
 
-<!-- 	<listener>
+	<listener>
 		<listener-class>org.red5.logging.ContextLoggingListener</listener-class>
 	</listener>
 
@@ -81,6 +81,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<url-pattern>/streams/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint/>
-	</security-constraint> -->
+	</security-constraint>
 
 </web-app>

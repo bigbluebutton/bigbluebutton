@@ -18,4 +18,5 @@
 		<level value="DEBUG" />
 		<appender-ref ref="VIDEO-BROADCAST" />
 	</root>
+
 </configuration>
