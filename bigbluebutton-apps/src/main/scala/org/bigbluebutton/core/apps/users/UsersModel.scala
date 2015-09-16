@@ -98,4 +98,8 @@ class UsersModel {
   def getViewers():Array[UserVO] = {
     uservos.values filter (u => u.role == VIEWER ) toArray  
   }
+
+  def noPresenter(): Boolean = {
+    !getCurrentPresenter().isDefined
+  }
 }
