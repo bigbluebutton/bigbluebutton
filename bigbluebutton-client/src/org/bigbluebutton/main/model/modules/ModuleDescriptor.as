@@ -113,22 +113,17 @@ package org.bigbluebutton.main.model.modules
 			_loader.addEventListener("ready", onReady);
 			_loader.addEventListener("error", onErrorLoading);
 			_loader.url = _attributes.url;
-			LOGGER.debug("Loading {0}", [_attributes.url]);
 			_loader.loadModule();
 		}
 
 		private function onReady(event:Event):void {
-			LOGGER.debug("{0} finished loading", [getName()]);
 			var modLoader:ModuleLoader = event.target as ModuleLoader;
 			if (!(modLoader.child is IBigBlueButtonModule)) throw new Error(getName() + " is not a valid BigBlueButton module");
 			_module = modLoader.child as IBigBlueButtonModule;
 			if (_module != null) {
 				_loaded = true;
 				callbackHandler(ModuleManager.MODULE_LOAD_READY, _attributes.name);
-			} else {
-				LOGGER.error("Module loaded is null.");
-			}
-			
+			} 
 		}	
 
 		private function onLoadProgress(e:ProgressEvent):void {
@@ -148,7 +143,6 @@ package org.bigbluebutton.main.model.modules
 			if (_attributes.uri == null) return;
 			
 			_attributes.uri = _attributes.uri.replace(/rtmp:/gi, protocol + ":");
-			LOGGER.debug("{0} uri = {1}", [_attributes.name, _attributes.uri]);
 		}
 		
 		public function removeDependancy(module:String):void{

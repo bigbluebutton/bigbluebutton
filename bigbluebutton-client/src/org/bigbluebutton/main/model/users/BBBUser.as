@@ -74,23 +74,19 @@ package org.bigbluebutton.main.model.users
             throw new Error("Please use the helpers addViewingStream or removeViewingStream to handle viewingStream");
         }
         public function addViewingStream(streamName:String):Boolean {
-            LOGGER.debug("Before adding the stream {0}: {1}", [streamName, _viewingStream]);
             if (isViewingStream(streamName)) {
                 return false;
             }
 
             _viewingStream.push(streamName);
-            LOGGER.debug("After adding the stream {0}: {1}", [streamName, _viewingStream]);
             return true;
         }
         public function removeViewingStream(streamName:String):Boolean {
-            LOGGER.debug("Before removing the stream {0}: {1}", [streamName, _viewingStream]);
             if (!isViewingStream(streamName)) {
                 return false;
             }
 
             _viewingStream = _viewingStream.filter(function(item:*, index:int, array:Array):Boolean { return item != streamName; });
-            LOGGER.debug("After removing the stream {0}: {1}", [streamName, _viewingStream]);
             return true;
         }
         private function isViewingStream(streamName:String):Boolean {
@@ -284,15 +280,12 @@ package org.bigbluebutton.main.model.users
     }
     
     public function lockStatusChanged(locked: Boolean):void {
-		LOGGER.debug("lockStatusChanged -> {0}", [locked]);
 		userLocked = locked;
 		applyLockSettings();
 		buildStatus();
     }
 
 		public function changeStatus(status:Status):void {
-			LOGGER.debug("changeStatus -> {0}", [status.name]);
-			//_status.changeStatus(status);
 			if (status.name == "presenter") {
 				presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;
 

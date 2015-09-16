@@ -33,8 +33,6 @@ package org.bigbluebutton.modules.polling.service
 	}
 	
     public function handlePollStartedMesage(msg:Object):void {
-      LOGGER.debug("*** Poll started {0} **** \n", [msg.msg]);
-      
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;
@@ -57,13 +55,11 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollStoppedMesage(msg:Object):void {
-      LOGGER.debug("*** Poll stopped {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       dispatcher.dispatchEvent(new PollStoppedEvent());
     }
     
     public function handlePollShowResultMessage(msg:Object):void {
-      LOGGER.debug("*** Poll show result {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;
@@ -117,7 +113,6 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollUserVotedMessage(msg:Object):void {
-      LOGGER.debug("*** Poll user voted {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;

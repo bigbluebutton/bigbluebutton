@@ -54,6 +54,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
@@ -152,7 +153,52 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                   meetingNameLbl.toolTip = meetingTitle;
                } 
           }
+          logFlashPlayerCapabilities();
       }
+
+      private function getFlashPlayerCapabilities():Object {
+          var caps:Object = new Object();
+          caps.avHardwareDisable = Capabilities.avHardwareDisable;
+          caps.hasAccessibility = Capabilities.hasAccessibility;
+          caps.hasAudio = Capabilities.hasAudio;
+          caps.hasAudioEncoder = Capabilities.hasAudioEncoder;
+          caps.hasEmbeddedVideo = Capabilities.hasEmbeddedVideo;
+          caps.hasIME = Capabilities.hasIME;
+          caps.hasMP3 = Capabilities.hasMP3;
+          caps.hasPrinting = Capabilities.hasPrinting;
+          caps.hasScreenBroadcast = Capabilities.hasScreenBroadcast;
+          caps.hasScreenPlayback = Capabilities.hasScreenPlayback;
+          caps.hasStreamingAudio = Capabilities.hasStreamingAudio;
+          caps.hasStreamingVideo = Capabilities.hasStreamingVideo;
+          caps.hasTLS = Capabilities.hasTLS;
+          caps.hasVideoEncoder = Capabilities.hasVideoEncoder;
+          caps.isDebugger = Capabilities.isDebugger;
+          caps.isEmbeddedInAcrobat = Capabilities.isEmbeddedInAcrobat;
+          caps.language = Capabilities.language;
+          caps.localFileReadDisable = Capabilities.localFileReadDisable;
+          caps.manufacturer = Capabilities.manufacturer;
+          caps.maxLevelIDC = Capabilities.maxLevelIDC;
+          caps.os = Capabilities.os;
+          caps.pixelAspectRatio = Capabilities.pixelAspectRatio;
+          caps.playerType = Capabilities.playerType;
+          caps.screenColor = Capabilities.screenColor;
+          caps.screenDPI = Capabilities.screenDPI;
+          caps.screenResolutionX = Capabilities.screenResolutionX;
+          caps.screenResolutionY = Capabilities.screenResolutionY;
+          //caps.serverString = Capabilities.serverString;
+          caps.touchscreenType = Capabilities.touchscreenType;
+          caps.version = Capabilities.version;
+          return caps;
+     }
+
+     private function logFlashPlayerCapabilities():void {
+         var logData:Object = new Object();
+         logData.user = UsersUtil.getUserData();
+         logData.capabilities = getFlashPlayerCapabilities();
+         logData.message = "Flash Player Capabilities.";
+         LOGGER.info(JSON.stringify(logData));
+     }
+
             
 			public function addButton(name:String):Button{
 				var btn:Button = new Button();
