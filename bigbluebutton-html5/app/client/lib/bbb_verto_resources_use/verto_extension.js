@@ -78,7 +78,8 @@ this.callIntoConference_verto = function(voiceBridge, conferenceUsername, confer
 			}
 		}
 		// set up verto
-		$.verto.init({}, init(videoTag));
+		// $.verto.init({}, init(videoTag));
+		init(videoTag);
 	} else {
 		console.log("already logged into verto, going straight to making a call");
 		webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, isListenOnly);
@@ -146,15 +147,17 @@ this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, 
 	incomingBandwidth = "default";
 
 	console.log("Making a call isListenOnly: "+isListenOnly);
+	window.isListenOnly = isListenOnly;
+
 	cur_call = verto.newCall({
 		destination_number: extension,
 		caller_id_name: conferenceUsername,
 		caller_id_number: conferenceIdNumber,
 		outgoingBandwidth: outgoingBandwidth,
 		incomingBandwidth: incomingBandwidth,
-		useVideo: true,
+		useVideo: false,
 		useStereo: true,
-		useCamera: true,
+		useCamera: false,
 		useMic: isListenOnly,
 		dedEnc: false,
 		mirrorInput: false
@@ -333,10 +336,12 @@ this.makeVerto = function(callbacks, stunsConfig, videoTag) {
 		tag: videoTag,
 		ringFile: "sounds/bell_ring2.wav",
 		loginParams: {foo: true, bar: "yes"},
-		videoParams: {
-			"minWidth": minWidth,
-			"minHeight": minHeight
-		},
+		// videoParams: {
+		// 	"minWidth": minWidth,
+		// 	"minHeight": minHeight
+		// },
+		useVideo: false,
+		useCamera: false,
 		iceServers: stunsConfig, // use user supplied stun configuration
 		// iceServers: true, // use stun, use default verto configuration
 	}, callbacks);

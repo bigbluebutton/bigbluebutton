@@ -562,6 +562,18 @@ var iceTimer;
 	console.log("Video constraints", mediaParams.video);
 
 
+    if (window.isListenOnly) {
+        var stream = null;
+        if (typeof webkitMediaStream !== 'undefined') {
+            // Google Chrome
+            stream = new webkitMediaStream;
+        } else {
+            // Firefox
+            audioContext = new window.AudioContext;
+            stream = audioContext.createMediaStreamDestination().stream;
+        }
+        onSuccess(stream);
+    } else {
         getUserMedia({
             constraints: {
                 audio: mediaParams.audio,
@@ -571,6 +583,7 @@ var iceTimer;
             onsuccess: onSuccess,
             onerror: onError
         });
+    }
 
 
 

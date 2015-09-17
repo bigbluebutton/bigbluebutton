@@ -53,9 +53,6 @@ Template.vertoWebcamMenu.events
 		$("#webcamHide").hide()
 
 Template.webcamModal.events
-	"click .vertoButton": (event) ->
-		$("#settingsModal").foundation('reveal', 'close')
-
 	"click .webcamStart": (event) ->
 		$("#webcamModal").foundation('reveal', 'open');
 		$("#webcamStart").hide()
