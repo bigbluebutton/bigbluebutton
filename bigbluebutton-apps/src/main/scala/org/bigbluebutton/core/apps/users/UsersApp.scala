@@ -278,7 +278,7 @@ trait UsersApp {
       // if there was a phoneUser with the same userID, reuse the VoiceUser value object
       val vu = users.getUser(msg.userID) match {
         case Some(u) => {
-          if (u.phoneUser) {
+          if (u.voiceUser.joined) {
             u.voiceUser.copy()
           } else {
             new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
