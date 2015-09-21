@@ -69,7 +69,7 @@
     }
         
     private function initConnectionManager():void {
-      var options:PhoneOptions = new PhoneOptions();
+      options = new PhoneOptions();
       var uid:String = String(Math.floor(new Date().getTime()));
       var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-bbbID-" + UsersUtil.getMyUsername()); 
       connectionManager.setup(uid, UsersUtil.getMyUserID(), uname , UsersUtil.getInternalMeetingID(), options.uri);
@@ -198,7 +198,6 @@
     
     public function initialize():void {      
       printMics();
-      options = new PhoneOptions();
       if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
         usingFlash = false;
       } else {
