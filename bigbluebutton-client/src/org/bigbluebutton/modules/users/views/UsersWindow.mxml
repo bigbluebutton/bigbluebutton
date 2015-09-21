@@ -279,8 +279,6 @@
 			}
 			
 			private function lockSettings():void {
-				LOGGER.debug("Action: lockSettings");
-				
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.OPEN_LOCK_SETTINGS);
 				dispatcher.dispatchEvent(event);
 			}
