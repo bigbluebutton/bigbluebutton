@@ -364,7 +364,7 @@ package org.bigbluebutton.main.model.users
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 			var amNotModerator:Boolean = !UsersUtil.amIModerator();
 			var amNotPresenter:Boolean = !UsersUtil.amIPresenter();
-			var lockAppliesToMe:Boolean = me && amNotModerator && amNotPresenter && !userLocked;
+			var lockAppliesToMe:Boolean = me && amNotModerator && amNotPresenter && userLocked;
 			
 			disableMyCam = lockAppliesToMe && lockSettings.getDisableCam();
 			disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
