@@ -93,7 +93,7 @@ trait UsersApp {
           log.info("ValidateToken success: mid=[" + mProps.meetingID + "] uid=[" + msg.userId + "]")
 
           //join the user
-          this.context.self ! new UserJoining(mProps.meetingID, msg.userId, msg.token)
+          handleUserJoin(new UserJoining(mProps.meetingID, msg.userId, msg.token))
 
         }
       case None => {
@@ -367,9 +367,9 @@ trait UsersApp {
         // add VoiceUser again to the list as a phone user since we still didn't get the event from FreeSWITCH
         val vu = u.voiceUser
         if (vu.joined || u.listenOnly) {
-          this.context.self ! (new UserJoinedVoiceConfMessage(mProps.voiceBridge,
+          handleUserJoinedVoiceConfMessage((new UserJoinedVoiceConfMessage(mProps.voiceBridge,
             vu.userId, u.userID, u.externUserID, vu.callerName,
-            vu.callerNum, vu.muted, vu.talking, u.listenOnly));
+            vu.callerNum, vu.muted, vu.talking, u.listenOnly)));
         }
       }
 
