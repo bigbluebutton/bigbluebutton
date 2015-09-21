@@ -524,6 +524,7 @@ package org.bigbluebutton.main.model.users {
 		public function setLockSettings(lockSettings:LockSettingsVO):void {
 			this.lockSettings = lockSettings;
 			applyLockSettings();
+			users.refresh(); // we need to refresh after updating the lock settings to trigger the user item renderers to redraw
 		}
 		
 		public function applyLockSettings():void {
