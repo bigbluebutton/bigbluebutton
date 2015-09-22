@@ -59,6 +59,7 @@
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.model.MeetingModel;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
+			import org.bigbluebutton.main.events.BreakoutRoomsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -242,6 +243,7 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
+				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
 				
 				
 				// make sure the previous menu is closed before opening a new one
@@ -283,6 +285,10 @@
 				
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.OPEN_LOCK_SETTINGS);
 				dispatcher.dispatchEvent(event);
+			}
+
+			private function breakoutRooms():void {
+				dispatcher.dispatchEvent(new BreakoutRoomsEvent(BreakoutRoomsEvent.OPEN_BREAKOUT_ROOMS_PANEL));
 			}
 			
 			/*private function unlockAll():void {
