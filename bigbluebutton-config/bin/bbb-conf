@@ -91,7 +91,7 @@ fi
 
 if cat /var/www/bigbluebutton/client/conf/config.xml | grep "ChatModule" | grep -q https; then
 	PROTOCOL_HTTP=https
-	PROTOCOL_RTMP=rtmps
+	PROTOCOL_RTMP=rtmp
 else
 	PROTOCOL_HTTP=http
 	PROTOCOL_RTMP=rtmp
