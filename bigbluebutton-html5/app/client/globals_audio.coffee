@@ -31,12 +31,12 @@
 		return false
 
 # join the conference. If listen only send the request to the server
-@joinVoiceCall = (event, {isListenOnly} = {}) ->
+@joinVoiceCall = (event, options) ->
 	if !isWebRTCAvailable()
 		notification_WebRTCNotSupported()
 		return
 
-	isListenOnly ?= true
+	# isListenOnly ?= trueoptions
 
 	if not Meteor.config.useSIPAudio
 		#
@@ -52,11 +52,11 @@
 			# Always fail the first time. Retry on failure.
 			#
 			if !!navigator.mozGetUserMedia and message.errorcode is 1001
-				callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam", isListenOnly)
+				callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam", options)
 			#
 			# End of hacky method
 			#
-		callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam", isListenOnly);
+		callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam", options);
 		return
 	else
 		# create voice call params

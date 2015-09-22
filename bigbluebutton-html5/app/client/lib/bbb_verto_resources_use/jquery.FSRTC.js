@@ -324,7 +324,7 @@ var iceTimer;
 
     $.FSRTC.prototype.setMute = function(what) {
 	var self = this;
-	var audioTracks = self.localStream.getAudioTracks();	
+	var audioTracks = self.localStream.getAudioTracks();
 
 	for (var i = 0, len = audioTracks.length; i < len; i++ ) {
 	    switch(what) {
@@ -481,9 +481,9 @@ var iceTimer;
 	    video = {
 		mandatory: obj.options.videoParams,
 		optional: []
-            }	    	    
+            }
 	}
-	
+
 	var useVideo = obj.options.useVideo;
 
 	if (useVideo && obj.options.useCamera && obj.options.useCamera !== "none") {
@@ -506,12 +506,12 @@ var iceTimer;
 
 	return {audio: audio, video: video, useVideo: useVideo};
     }
-    
+
 
 
     $.FSRTC.prototype.call = function(profile) {
         checkCompat();
-	
+
         var self = this;
 	var screen = false;
 
@@ -562,7 +562,12 @@ var iceTimer;
 	console.log("Video constraints", mediaParams.video);
 
 
-    if (window.isListenOnly) {
+    //
+    // watchOnly
+    // listenOnly
+    // joinAudio
+    //
+    if (window.watchOnly && !window.listenOnly && !window.joinAudio) {
         var stream = null;
         if (typeof webkitMediaStream !== 'undefined') {
             // Google Chrome
@@ -573,7 +578,22 @@ var iceTimer;
             stream = audioContext.createMediaStreamDestination().stream;
         }
         onSuccess(stream);
-    } else {
+        return;
+    }
+    if (window.listenOnly && !window.watchOnly && !window.joinAudio) {
+        var stream = null;
+        if (typeof webkitMediaStream !== 'undefined') {
+            // Google Chrome
+            stream = new webkitMediaStream;
+        } else {
+            // Firefox
+            audioContext = new window.AudioContext;
+            stream = audioContext.createMediaStreamDestination().stream;
+        }
+        onSuccess(stream);
+        return;
+    }
+    if (window.joinAudio && !window.watchOnly && !window.listenOnly) {
         getUserMedia({
             constraints: {
                 audio: mediaParams.audio,
@@ -583,10 +603,8 @@ var iceTimer;
             onsuccess: onSuccess,
             onerror: onError
         });
+        return;
     }
-
-
-
 
         /*
         navigator.getUserMedia({
@@ -669,8 +687,8 @@ var iceTimer;
 			}
 
 			if (options.type == "offer") {
-			    /* new mozilla now tries to be like chrome but it takes them 10 seconds to complete the ICE 
-			       Booooooooo! This trickle thing is a waste of time...... We'll all have to re-code our engines 
+			    /* new mozilla now tries to be like chrome but it takes them 10 seconds to complete the ICE
+			       Booooooooo! This trickle thing is a waste of time...... We'll all have to re-code our engines
 			       to handle partial setups to maybe save 100m
 			    */
 			    if ((!moz || (!options.sentICESDP && peer.localDescription.sdp.match(/a=candidate/)) && !x && options.onICESDP)) {
@@ -715,8 +733,8 @@ var iceTimer;
                     }
 
                     if (options.type == "offer") {
-			/* new mozilla now tries to be like chrome but it takes them 10 seconds to complete the ICE 
-			   Booooooooo! This trickle thing is a waste of time...... We'll all have to re-code our engines 
+			/* new mozilla now tries to be like chrome but it takes them 10 seconds to complete the ICE
+			   Booooooooo! This trickle thing is a waste of time...... We'll all have to re-code our engines
 			   to handle partial setups to maybe save 100m
 			*/
 			if ((!moz || (!options.sentICESDP && peer.localDescription.sdp.match(/a=candidate/)) && !x && options.onICESDP)) {
@@ -752,7 +770,7 @@ var iceTimer;
 		}
             }
         };
-	
+
         // attachStream = MediaStream;
         if (options.attachStream) peer.addStream(options.attachStream);
 
@@ -782,7 +800,7 @@ var iceTimer;
 
         var constraints = options.constraints || {
 	    offerToReceiveAudio: true,
-	    offerToReceiveVideo: true   
+	    offerToReceiveVideo: true
         };
 
         // onOfferSDP(RTCSessionDescription)
@@ -1064,12 +1082,12 @@ var iceTimer;
 	var video = {
             mandatory: {},
             optional: []
-        }	
+        }
 
 	if (cam) {
 	    video.optional = [{sourceId: cam}];
 	}
-	
+
 	w = resList[resI][0];
 	h = resList[resI][1];
 	resI++;
@@ -1091,13 +1109,13 @@ var iceTimer;
 	getUserMedia({
 	    constraints: {
                 audio: ttl++ == 0,
-                video: video	    
+                video: video
 	    },
 	    onsuccess: function(e) {e.stop(); console.info(w + "x" + h + " supported."); $.FSRTC.validRes.push([w, h]); checkRes(cam, func);},
 	    onerror: function(e) {console.error( w + "x" + h + " not supported."); checkRes(cam, func);}
         });
     }
-    
+
 
     $.FSRTC.getValidRes = function (cam, func) {
 	var used = [];

@@ -72,6 +72,10 @@ this.doshare = function(on, callback, videoTag) {
 				console.log("new screen constraints");
 				console.log(selectedDeskshareConstraints);
 
+				window.listenOnly = false;
+				window.watchOnly = false;
+				window.joinAudio = true;
+
 				share_call = verto.newCall({
 					destination_number: extension + "-screen",
 					caller_id_name: conferenceUsername + " (Screen)",
@@ -169,7 +173,8 @@ this.screenStart = function(state, callback, videoTag) {
 				console.log("logged in. starting screenshare");
 			}
 			// set up verto
-			$.verto.init({}, init);
+			// $.verto.init({}, init);
+			init(window.videoTag);
 		} else {
 			console.log("already logged into verto, going straight to making a call");
 			doshare(state, callback, videoTag);

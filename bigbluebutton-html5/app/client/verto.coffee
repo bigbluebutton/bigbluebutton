@@ -19,6 +19,16 @@ Template.vertoDeskshareMenu.events
 		$("#screenshareStart").show()
 		$("#screenshareStop").hide()
 
+	"click #screenshareSubscribe": (event) ->
+		joinVoiceCall @, {
+			# useVideo: true
+			# useCamera: false
+			# useMic: false
+			# useRealMic: false
+			watchOnly: true
+		}
+		return false
+
 Template.deskshareModal.events
 	"click .screenshareStart": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')

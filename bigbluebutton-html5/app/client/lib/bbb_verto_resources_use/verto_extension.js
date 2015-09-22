@@ -40,7 +40,7 @@ $.verto.prototype.hangup = function(callID, userCallback) {
 }
 
 // main entry point to making a verto call
-this.callIntoConference_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, videoTag, isListenOnly) {
+this.callIntoConference_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, videoTag, options) {
 	window.videoTag = videoTag;
 	// stores the user's callback in the global scope
 	if (userCallback) {
@@ -72,7 +72,7 @@ this.callIntoConference_verto = function(voiceBridge, conferenceUsername, confer
 				console.log("starting call");
 				toDisplayDisconnectCallback = true; // yes, display an error if the socket closes
 				wasCallSuccessful = true; // yes, a call was successfully established through the websocket
-				webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, isListenOnly);
+				webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, options);
 			} else {
 				callback({'status':'failed', 'errorcode': '10XX'}); // eror logging verto into freeswitch
 			}
@@ -82,7 +82,7 @@ this.callIntoConference_verto = function(voiceBridge, conferenceUsername, confer
 		init(videoTag);
 	} else {
 		console.log("already logged into verto, going straight to making a call");
-		webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, isListenOnly);
+		webrtc_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, options);
 	}
 }
 
@@ -134,7 +134,7 @@ this.configStuns = function(callbacks, callback, videoTag) {
 	});
 }
 
-this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callbacks, isListenOnly) {
+this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, callbacks, options) {
 	console.log(extension + ", " + conferenceUsername + ", " + conferenceIdNumber);
 
 	if (cur_call) { // only allow for one call
@@ -146,22 +146,87 @@ this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, 
 	outgoingBandwidth = "default";
 	incomingBandwidth = "default";
 
-	console.log("Making a call isListenOnly: "+isListenOnly);
-	window.isListenOnly = isListenOnly;
+	// listenOnly
+	// useVideo: false
+	// useCamera: false
+	// useMic: false
+	// window.useRealMic = false
+	//
+	// Mic
+	// useVideo: false
+	// useCamera: false
+	// useMic: true
+	// window.useRealMic = true
+	//
+	// view deskshare
+	// useVideo: true
+	// useCamera: false
+	// useMic: false
+	// window.useRealMic = false
 
-	cur_call = verto.newCall({
-		destination_number: extension,
-		caller_id_name: conferenceUsername,
-		caller_id_number: conferenceIdNumber,
-		outgoingBandwidth: outgoingBandwidth,
-		incomingBandwidth: incomingBandwidth,
-		useVideo: false,
-		useStereo: true,
-		useCamera: false,
-		useMic: isListenOnly,
-		dedEnc: false,
-		mirrorInput: false
-	});
+	//
+	// options
+	// window.viewScreenShareOnly = true;
+
+	if(options.watchOnly) {
+		window.watchOnly = true;
+		window.listenOnly = false;
+		window.joinAudio = false;
+		cur_call = verto.newCall({
+			destination_number: extension,
+			caller_id_name: conferenceUsername,
+			caller_id_number: conferenceIdNumber,
+			outgoingBandwidth: outgoingBandwidth,
+			incomingBandwidth: incomingBandwidth,
+			useStereo: true,
+			useVideo: true,
+			useCamera: false,
+			useMic: false,
+			dedEnc: false,
+			mirrorInput: false
+		});
+		return;
+	}
+
+	if(options.listenOnly) {
+		window.listenOnly = true;
+		window.watchOnly = false;
+		window.joinAudio = false;
+		cur_call = verto.newCall({
+			destination_number: extension,
+			caller_id_name: conferenceUsername,
+			caller_id_number: conferenceIdNumber,
+			outgoingBandwidth: outgoingBandwidth,
+			incomingBandwidth: incomingBandwidth,
+			useStereo: true,
+			useVideo: false,
+			useCamera: false,
+			useMic: false,
+			dedEnc: false,
+			mirrorInput: false
+		});
+		return;
+	}
+
+	if(options.joinAudio) {
+		window.joinAudio = true;
+		window.watchOnly = false;
+		window.listenOnly = false;
+		cur_call = verto.newCall({
+			destination_number: extension,
+			caller_id_name: conferenceUsername,
+			caller_id_number: conferenceIdNumber,
+			outgoingBandwidth: outgoingBandwidth,
+			incomingBandwidth: incomingBandwidth,
+			useStereo: true,
+			useVideo: false,
+			useCamera: false,
+			useMic: true,
+			dedEnc: false,
+			mirrorInput: false
+		});
+		return;
+	}
 
 	if (callbacks != null) { // add user supplied callbacks to the current call
 		cur_call.rtc.options.callbacks = $.extend(cur_call.rtc.options.callbacks, callbacks);
@@ -234,7 +299,7 @@ this.leaveWebRTCVoiceConference_verto = function() {
 	webrtc_hangup_verto();
 }
 
-this.make_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, server, recall, isListenOnly) {
+this.make_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, server, recall, options) {
 	if (userCallback) {
 		callback = userCallback;
 	}
@@ -298,7 +363,7 @@ this.make_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNum
 		console.log("Verto is logged into FreeSWITCH, socket is available, making call");
 		callICEConnected = false;
 
-		docall_verto(voiceBridge, conferenceUsername, conferenceIdNumber, myRTCCallbacks, isListenOnly);
+		docall_verto(voiceBridge, conferenceUsername, conferenceIdNumber, myRTCCallbacks, options);
 
 		if(recall === false) {
 			console.log('call connecting');
@@ -404,7 +469,7 @@ var RTCPeerConnectionCallbacks = {
 };
 this.RTCPeerConnectionCallbacks = RTCPeerConnectionCallbacks;
 
-this.webrtc_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, isListenOnly) {
+this.webrtc_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, options) {
 	if (userCallback) {
 		callback = userCallback;
 	}
@@ -418,7 +483,7 @@ this.webrtc_call_verto = function(voiceBridge, conferenceUsername, conferenceIdN
 	var server = window.document.location.hostname;
 	console.log("user " + conferenceUsername + " calling to " +	voiceBridge);
 	if (isLoggedIntoVerto()) {
-		make_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, "", false, isListenOnly);
+		make_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, callback, "", false, options);
 	}
 }
 
