@@ -43,8 +43,6 @@ public class BbbAppsIsKeepAliveHandler {
 		if (msg != null) {
 			PubSubPongMessage m = (PubSubPongMessage) msg;
 			monitorService.handleKeepAliveMessage(m.payload.system, m.payload.timestamp);
-		} else {
-			System.out.println("***** 1 Failed to decode pong message");
-		}
+		} 
 	}
 }
