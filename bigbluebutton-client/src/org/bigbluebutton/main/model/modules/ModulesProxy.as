@@ -48,7 +48,6 @@ package org.bigbluebutton.main.model.modules
 		}
 						
 		public function loadModule(name:String):void {
-			LOGGER.debug('Loading {0}', [name]);
 			modulesManager.loadModule(name);
 		}
 		

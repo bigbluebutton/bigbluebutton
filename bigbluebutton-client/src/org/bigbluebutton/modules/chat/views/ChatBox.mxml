@@ -69,7 +69,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
-			import com.adobe.utils.StringUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.accessibility.AccessibilityProperties;
@@ -77,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.binding.utils.BindingUtils;
 			
+			import org.as3commons.lang.StringUtils;
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
@@ -584,7 +584,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			var answers:Array = new Array();
 			for (var i:int = 0; i < tmpAnswers.length; i++) {
 				var t:String = tmpAnswers[i] as String;
-				answers.push(StringUtil.trim(t));
+				answers.push(StringUtils.trim(t));
 			}
 			sendStartCustomPollEvent(answers);
 		} else {
@@ -634,7 +634,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function handleTextInput(e:TextEvent):void {
-		if ((e.text.length == 1) && (e.text.charCodeAt(0) == 10) /*ENTER-KEY*/) {
+		if ((e.text.length == 1) && (e.text.charCodeAt(0) == 10) /*ENTER-KEY*/ && messageCanBeSent) {
 			sendMessages();
 			e.preventDefault();
 		}     
@@ -649,25 +649,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function sendMessages():void {
 		  if(!sendBtn.enabled) {
-			  txtMsgArea.text = StringUtil.trim(txtMsgArea.text);
+			  txtMsgArea.text = StringUtils.trim(txtMsgArea.text);
 			  return;
 		  }
 		  
         // Trim the message. This will trim the '/n' char so we don't send a message when the
         // user just hits the enter key
-        var msgToSend:String = StringUtil.trim(txtMsgArea.text);
+        var msgToSend:String = StringUtils.trim(txtMsgArea.text);
         
-        if (msgToSend != ""){				
-          if (publicChat) {						
+        if (!StringUtils.isBlank(msgToSend)){
+          if (publicChat) {
             sendPublicChatMessage(msgToSend);
-          } else{						
+          } else {
             sendPrivateChatMessage(msgToSend);
           }
         }
         txtMsgArea.text = "";
         txtMsgArea.validateNow();
         txtMsgArea.setSelection(0, 0);
-      }	
+      }
+	  
+	  private function showMessageTooLong(messageLength : int):void {
+		  msgTooLongLabel.text = ResourceUtil.getInstance().getString('bbb.chat.chatMessage.tooLong', [(messageLength - chatOptions.maxMessageLength).toString()]);
+		  msgTooLongLabel.includeInLayout = msgTooLongLabel.visible = true;
+		  if (chatCtrlBar.height != 80) {
+			  chatCtrlBar.height = 80;
+			  chatListHeight -= 20;  
+		  }
+		  // The case where lock settings are set
+		  if (txtMsgArea.enabled) {
+			  sendBtn.enabled = false;
+		  }
+	  }
+	  
+	  private function hideMessageTooLong():void {
+		msgTooLongLabel.includeInLayout = msgTooLongLabel.visible = false;
+		if (chatCtrlBar.height != 60) {
+			chatCtrlBar.height = 60;
+			chatListHeight += 20;  
+		}
+		// The case where lock settings are set
+		if (txtMsgArea.enabled) {
+			sendBtn.enabled = true;
+		}
+	  }
 	  
 		private function focusChatInput(e:ShortcutEvent):void{
 			txtMsgArea.setFocus();
@@ -681,14 +706,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			var userManager:UserManager = UserManager.getInstance();
 			var conference:Conference = userManager.getConference();
 			var me:BBBUser = conference.getMyUser();
-			
 			if (publicChat) {
 				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPublicChat;
 			} else {
 				txtMsgArea.enabled = sendBtn.enabled = !me.disableMyPrivateChat;
 			}
 		}
-	]]>
+		
+		private function get messageCanBeSent() : Boolean {
+			return StringUtils.trim(txtMsgArea.text).length <= chatOptions.maxMessageLength;
+		}
+			
+		protected function txtMsgAreaChangeHandler(event:Event):void
+		{
+			if (!messageCanBeSent) {
+				showMessageTooLong(StringUtils.trim(txtMsgArea.text).length);
+			}
+			else {
+				hideMessageTooLong();
+			}
+		}
+		]]>
 		
 	</mx:Script>
 
@@ -702,11 +740,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:HBox>
   
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
-           paddingLeft="5" paddingRight="5">		
-    <mx:TextArea id="txtMsgArea" width="100%" height="100%"
-                 styleName="chatControlBarTextMsgStyle" 
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
-				 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
+           paddingLeft="5" paddingRight="5">	
+	<mx:VBox width="100%" height="100%">
+	  <mx:TextArea id="txtMsgArea" width="100%" height="100%"
+	               styleName="chatControlBarTextMsgStyle"
+				   change="txtMsgAreaChangeHandler(event)"
+	               toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
+			       accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
+	  <mx:Label id="msgTooLongLabel" width="100%" height="100%" includeInLayout="false" visible="false"/>
+	</mx:VBox>
     <mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
       <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
                  styleName="chatControlBarSendButtonStyle"

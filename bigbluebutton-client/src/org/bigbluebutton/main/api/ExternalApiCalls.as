@@ -67,7 +67,6 @@ package org.bigbluebutton.main.api
     
     
     public function handleUserKickedOutEvent(event:LogoutEvent):void {
-      LOGGER.debug("handleUserKickedOutEvent");
       var payload:Object = new Object();
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
       payload.eventName = EventConstants.USER_KICKED_OUT;
@@ -75,7 +74,6 @@ package org.bigbluebutton.main.api
     }
     
     public function handleIsUserPublishingCamRequest(event:IsUserPublishingCamRequest):void {
-      LOGGER.debug("handleIsUserPublishingCamRequest");
       var payload:Object = new Object();
       var isUserPublishing:Boolean = false;
       
@@ -95,9 +93,7 @@ package org.bigbluebutton.main.api
       broadcastEvent(payload);
     }
     
-    public function handleGetMyUserInfoRequest(event:GetMyUserInfoRequestEvent):void {
-      LOGGER.debug("handleGetMyUserInfoRequest");
-      
+    public function handleGetMyUserInfoRequest(event:GetMyUserInfoRequestEvent):void {  
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_USER_INFO_REP;
       payload.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
@@ -121,7 +117,6 @@ package org.bigbluebutton.main.api
     }    
     
     public function handleStreamStartedEvent(event:StreamStartedEvent):void {
-      LOGGER.debug("handleStreamStartedEvent");
       var vidConf:VideoConfOptions = new VideoConfOptions();
       
       var payload:Object = new Object();
@@ -187,7 +182,6 @@ package org.bigbluebutton.main.api
     }
     
     public function handleSwitchToNewRoleEvent(event:SwitchedPresenterEvent):void {
-      LOGGER.debug("Got NEW ROLE EVENT presenter = [{0}]", [event.amIPresenter]);
       var payload:Object = new Object();
       payload.eventName = EventConstants.SWITCHED_PRESENTER;
       payload.amIPresenter = event.amIPresenter;
@@ -205,7 +199,6 @@ package org.bigbluebutton.main.api
     }
 
     public function handleStartPrivateChatEvent(event:CoreEvent):void {
-      LOGGER.debug("handleStartPrivateChatEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.START_PRIVATE_CHAT;
       payload.chatWith = UsersUtil.internalUserIDToExternalUserID(event.message.chatWith);
@@ -220,51 +213,36 @@ package org.bigbluebutton.main.api
     }
 
     public function handleUserJoinedVoiceEvent(event:BBBEvent):void {
-      LOGGER.debug("handleUserJoinedVoiceEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_JOINED_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
-      
-      LOGGER.debug("Notifying external API that [{0}] has joined the voice conference.", [UsersUtil.getUserName(event.payload.userID)]);
-      
       broadcastEvent(payload);
     }
     
     public function handleUserVoiceMutedEvent(event:BBBEvent):void {
-      LOGGER.debug("handleUserVoiceMutedEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_MUTED_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.muted = event.payload.muted;
-      
-      LOGGER.debug("Notifying external API that [{0}] is now muted=[{1}]", [UsersUtil.getUserName(event.payload.userID), payload.muted]);
       broadcastEvent(payload);
     }
     
     public function handleUserLockedEvent(event:BBBEvent):void {
-      LOGGER.debug("handleUserLockedEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_LOCKED;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.locked = event.payload.locked;
-      
-      LOGGER.debug("Notifying external API that [{0}] is now locked=[{1}]", [UsersUtil.getUserName(event.payload.userID), payload.locked]);
       broadcastEvent(payload);
     }
     
     public function handleUserVoiceLeftEvent(event:BBBEvent):void {
-      LOGGER.debug("handleUserVoiceLeftEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_LEFT_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
-      
-      LOGGER.debug("Notifying external API that [{0}] has left the voice conference.", [UsersUtil.getUserName(event.payload.userID)]);
-      
       broadcastEvent(payload);
     }
             
     public function handleNewPublicChatEvent(event:CoreEvent):void {
-      LOGGER.debug("handleNewPublicChatEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_PUBLIC_CHAT;
       payload.chatType = event.message.chatType;      
@@ -283,7 +261,6 @@ package org.bigbluebutton.main.api
     }
     
     public function handleNewPrivateChatEvent(event:CoreEvent):void {
-      LOGGER.debug("handleNewPrivateChatEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_PRIVATE_CHAT;
       payload.chatType = event.message.chatType;      
@@ -304,7 +281,6 @@ package org.bigbluebutton.main.api
     }
         
     public function handleUserJoinedEvent(event:UserJoinedEvent):void {
-      LOGGER.debug("handleUserJoinedEvent");
       var payload:Object = new Object();
       var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
       
@@ -321,8 +297,6 @@ package org.bigbluebutton.main.api
     }    
 
     public function handleUserLeftEvent(event:UserLeftEvent):void {
-      LOGGER.debug("Got notification that user [{0}] has left the meeting", [event.userID]);
-      
       var payload:Object = new Object();
       var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
       
@@ -333,8 +307,6 @@ package org.bigbluebutton.main.api
       
       payload.eventName = EventConstants.USER_LEFT;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(user.userID);
-      
-      LOGGER.debug("Notifying JS API that user [{0}] has left the meeting", [payload.userID]);
       
       broadcastEvent(payload);        
     }

@@ -23,7 +23,9 @@ public class InitAudioSettingsMessage implements ISubscribedMessage {
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
-
+		payload.put(Constants.USER_ID, userId);
+		payload.put(Constants.MUTED, muted);
+		
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(INIT_AUDIO_SETTING, VERSION, null);
 
 		return MessageBuilder.buildJson(header, payload);				

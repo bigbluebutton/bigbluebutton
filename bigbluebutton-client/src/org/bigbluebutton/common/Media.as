@@ -19,12 +19,13 @@
 package org.bigbluebutton.common {
 	
 	import flash.media.Camera;
+	import flash.media.Microphone;
 	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	
-	public final class Webcam {
-		private static const LOGGER:ILogger = getClassLogger(Webcam);
+	public final class Media {
+		private static const LOGGER:ILogger = getClassLogger(Media);
 		
 		/**
 		 * Returns the number of available cameras.
@@ -36,7 +37,7 @@ package org.bigbluebutton.common {
 		/**
 		 * Returns tha name of Webcam.
 		 */
-		public static function getName(index:uint):String {
+		public static function getCameraName(index:uint):String {
 			var name:String = Camera.names[index];
 			if (StringUtils.isWhitespace(name)) {
 				// Browser based on pepper flash receives a white space string
@@ -45,6 +46,17 @@ package org.bigbluebutton.common {
 				LOGGER.debug("Automatically set Webcam name under Pepperflash: {0}", [name]);
 			}
 			return name;
+		}
+		
+		public static function getMicrophoneNames():Array {
+			var microphones:Array = Microphone.names;
+			for (var i:int = 0; i < microphones.length; i++) {
+				if (StringUtils.isWhitespace(microphones[i])) {
+					microphones[i] = "Microphone " + (i + 1).toString();
+					LOGGER.debug("Automatically set Microphone name under Pepperflash: {0}", [microphones[i]]);
+				}
+			}
+			return microphones;
 		}
 	}
 }

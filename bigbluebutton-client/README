@@ -31,3 +31,6 @@ Certain modules must have the baseTabIndex property, and for the default tab ord
 The 100-value separation guarantees enough space for a sufficient number of elements in each module. The Main Toolbar's
 base index is 1, the bottom toolbar's base index is 100,000, but you shouldn't need to change them anyway.
 Deskshare and Webcam publishing have the same base index, that is not an error.
+
+Enable logging
+    <logging enabled="true" target="server" level="info" uri="192.168.23.44:8090"/>

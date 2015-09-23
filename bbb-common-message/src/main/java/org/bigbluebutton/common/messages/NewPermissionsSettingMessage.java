@@ -30,6 +30,7 @@ public class NewPermissionsSettingMessage implements ISubscribedMessage {
 
 		return MessageBuilder.buildJson(header, payload);				
 	}
+	
 	public static NewPermissionsSettingMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);

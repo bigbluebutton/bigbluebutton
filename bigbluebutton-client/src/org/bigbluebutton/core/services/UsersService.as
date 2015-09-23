@@ -32,84 +32,66 @@ package org.bigbluebutton.core.services
        var vu: VoiceUserVO = msgProc.processUserJoinedVoiceMessage(user);
        
        if (vu != null) {
-         LOGGER.debug("*** got voice user joined. name=[{0}] **** \n", [vu.name]);
          var u: UserVO = UsersModel.getInstance().userJoinedVoice(vu);
          if (u != null) {
            // dispatch event
          }
-       } else {
-         LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.name]);
-       }      
+       } 
     }
     
     public function userLeftVoice(user: Object):void {
       var vu: VoiceUserVO = msgProc.processUserLeftVoiceMessage(user);
       
       if (vu != null) {
-        LOGGER.debug("*** got voice user left. name=[{0}] **** \n", [vu.name]);
         var u: UserVO = UsersModel.getInstance().userLeftVoice(vu);
         if (u != null) {
           // dispatch event
         }
-      } else {
-        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.name]);
-      }       
+      } 
     }
     
     public function userJoined(user: Object):void {
       var vu: UserVO = msgProc.processUserJoinedMessage(user);
       
       if (vu != null) {
-        LOGGER.debug("*** got user joined. name=[{0}] **** \n", [vu.name]);
         var u: UserVO = UsersModel.getInstance().userJoined(vu);
         if (u != null) {
           // dispatch event
         }
-      } else {
-        LOGGER.debug("*** failed to get user name=[{0}] **** \n", [vu.name]);
-      }       
+      } 
     }
     
     public function userLeft(user: Object):void {
       var vu:UserVO = msgProc.processUserLeftMessage(user);
       
       if (vu != null) {
-        LOGGER.debug("*** got user left. name=[{0}] **** \n", [vu.name]);
         var u: UserVO = UsersModel.getInstance().userLeft(vu);
         if (u != null) {
           // dispatch event
         }
-      } else {
-        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.name]);
-      }       
+      } 
     }
     
     public function userMuted(msg: Object):void {
       var vu: Object = msgProc.processUserMutedMessage(msg);
       
       if (vu != null) {
-        LOGGER.debug("*** got user name=[{0}] **** \n", [vu.userId]);
         var u: UserVO = UsersModel.getInstance().userMuted(vu.userId, vu.voiceId, vu.muted);
         if (u != null) {
           // dispatch event
         }
-      } else {
-        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.userId]);
-      }       
+      } 
     }
     
     public function userTalking(msg: Object):void {
       var vu: Object = msgProc.processUserTalkingMessage(msg);
       
       if (vu != null) {
-        LOGGER.debug("*** got user name=[{0}] **** \n", [vu.userId]);
         var u: UserVO = UsersModel.getInstance().userTalking(vu.userId, vu.voiceId, vu.talking);
         if (u != null) {
           // dispatch event
         }
-      } else {
-        LOGGER.debug("*** failed to get voice user name=[{0}] **** \n", [vu.userId]);
-      }      
+      } 
     }
     
   }

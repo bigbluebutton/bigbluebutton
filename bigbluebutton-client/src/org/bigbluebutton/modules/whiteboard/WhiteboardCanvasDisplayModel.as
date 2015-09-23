@@ -93,7 +93,6 @@ package org.bigbluebutton.modules.whiteboard
                 // LogUtil.debug("Removing shape [" + gobj.id + "]");
                 wbCanvas.removeGraphic(gobj as DisplayObject);
               } else { // no DRAW_START event was thrown for o so place gobj back on the top
-                LOGGER.debug("Not removing shape [{0}] new [{1}]", [gobj.id, o.id]);
                 _annotationsList.push(gobj);
               }              
             }
@@ -269,7 +268,6 @@ package org.bigbluebutton.modules.whiteboard
     }
     
     public function clearBoard(event:WhiteboardUpdate = null):void {
-      LOGGER.debug("Got clear event.");
       var numGraphics:int = this._annotationsList.length;
       for (var i:Number = 0; i < numGraphics; i++){
         removeLastGraphic();
@@ -278,21 +276,16 @@ package org.bigbluebutton.modules.whiteboard
     }
     
     public function undoAnnotation(id:String):void {
-	  LOGGER.debug("Got undo event.");
       /** We'll just remove the last annotation for now **/
       if (this._annotationsList.length > 0) {
-		LOGGER.debug("Got undo event. Removing last shape");
         removeLastGraphic();
       }
     }
         
     public function receivedAnnotationsHistory(wbId:String):void {
-      LOGGER.debug("**** CanvasDisplay receivedAnnotationsHistory for wbid=[{0}]", [wbId]);
       var annotations:Array = whiteboardModel.getAnnotations(wbId);
-	  LOGGER.debug("**** CanvasDisplay receivedAnnotationsHistory [{0}] *****", [annotations.length]);
       for (var i:int = 0; i < annotations.length; i++) {
         var an:Annotation = annotations[i] as Annotation;
-        LOGGER.debug("**** Drawing graphic from history [{0}] *****", [an.type]);
         if ( an.type != DrawObject.TEXT) {
            var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);  
            if (dobj != null) {
@@ -377,9 +370,7 @@ package org.bigbluebutton.modules.whiteboard
       this.width = width;
       this.height = height;
 
-      LOGGER.debug("Number of shapes in page=[{0}]", [this._annotationsList.length]);
       for (var i:int = 0; i < this._annotationsList.length; i++){
-        LOGGER.debug("Redrawing shape=[{0}]", [i]);
           redrawGraphic(this._annotationsList[i] as GraphicObject, i);
       }
       wbCanvas.textToolbar.visible = false;
@@ -398,7 +389,6 @@ package org.bigbluebutton.modules.whiteboard
        further and so that only the presenter can edit it.
     */
     public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
-      LOGGER.debug("MADE PRESENTER IS PRESENTER FALSE");
 //      var texts:Array = getAllTexts();
 //      for(var i:int = 0; i < texts.length; i++) {
 //        (texts[i] as TextObject).makeEditable(false);
@@ -415,20 +405,15 @@ package org.bigbluebutton.modules.whiteboard
                 if (o != null) {
                     var dobj:DrawObject = shapeFactory.makeDrawObject(o, whiteboardModel);  
                     if (dobj != null) {
-                      LOGGER.debug("Drawing shape=[{0}]", [gobj.id]);
                         dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight, zoomPercentage);
                         wbCanvas.addGraphic(dobj);
                         _annotationsList[objIndex] = dobj;              
                     }          
-                } else {
-                  LOGGER.debug("Could not redraw shape=[{0}]", [gobj.id]);
                 }
             } else if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
                 var origTobj:TextObject = gobj as TextObject;                
                 var an:Annotation = whiteboardModel.getAnnotation(origTobj.id);
-                if (an == null) {
-                    LOGGER.debug("Text with id [{0}] is missing.", [origTobj.id]);
-                } else {
+                if (an != null) {
                   wbCanvas.removeGraphic(origTobj as DisplayObject);
                   //          addNormalText(an);
                   var tobj:TextObject = shapeFactory.redrawTextObject(an, origTobj);
@@ -512,7 +497,6 @@ package org.bigbluebutton.modules.whiteboard
         * input to the text annotation.
         */
         private function bindToKeyboardEvents(bindToEvents:Boolean):void {
-            LOGGER.debug("**************************** Tell others to bind to keyboard events [{0}]***************************", [bindToEvents]);
             var navEvent:NavigationEvent = new NavigationEvent(NavigationEvent.BIND_KEYBOARD_EVENT);
             navEvent.bindToKeyboard = bindToEvents;
             wbCanvas.dispatchEvent(navEvent);            
@@ -562,8 +546,6 @@ package org.bigbluebutton.modules.whiteboard
         annotation["whiteboardId"] = wbId;        
         var msg:Annotation = new Annotation(tobj.id, "text", annotation);
         wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);
-      } else {
-        LOGGER.debug("Cannot get current whiteboard Id!!!!");
       }
       
 
