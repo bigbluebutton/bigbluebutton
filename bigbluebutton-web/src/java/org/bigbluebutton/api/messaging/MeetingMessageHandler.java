@@ -47,22 +47,18 @@ public class MeetingMessageHandler implements MessageHandler {
 				
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
-//					System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
 				  
 					  if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageName)) {
-					  	System.out.println("Handling [" + messageName + "] message.");
 						  String meetingId = payload.get("meeting_id").getAsString();
 						  for (MessageListener listener : listeners) {
 						    listener.handle(new MeetingStarted(meetingId));
 						  }
 					  } else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageName)) {
-					  	System.out.println("Handling [" + messageName + "] message.");
 						  String meetingId = payload.get("meeting_id").getAsString();
 						  for (MessageListener listener : listeners) {
 						    listener.handle(new MeetingEnded(meetingId));
 						  }
 					  } else if (MessagingConstants.MEETING_DESTROYED_EVENT.equalsIgnoreCase(messageName)) {
-					  	System.out.println("Handling [" + messageName + "] message.");
 						  String meetingId = payload.get("meeting_id").getAsString();
 						  log.info("Received a meeting destroyed message for meeting id=[{}]", meetingId);
 						  for (MessageListener listener : listeners) {
@@ -85,11 +81,8 @@ public class MeetingMessageHandler implements MessageHandler {
 							if (msg != null) {
 								PubSubPongMessage m = (PubSubPongMessage) msg;
 								rxMsg = new KeepAliveReply(m.payload.system, m.payload.timestamp);
-							} else {
-								System.out.println("***** 1 Failed to decode pong message");
 							}
 					}
-					//System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
 					if (rxMsg != null) {
 						for (MessageListener listener : listeners) {
 						   listener.handle(rxMsg);
@@ -105,10 +98,8 @@ public class MeetingMessageHandler implements MessageHandler {
 					
 					if (header.has("name")) {
 						String messageName = header.get("name").getAsString();
-						System.out.println("Received [" + messageName + "] message on channel [" + channel + "].");
 					  
 						if (MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageName)) {
-							System.out.println("Handling [" + messageName + "] message.");
 							String meetingId = payload.get("meeting_id").getAsString();
 							JsonObject user = (JsonObject) payload.get("user");
 							
@@ -121,7 +112,6 @@ public class MeetingMessageHandler implements MessageHandler {
 								listener.handle(new UserJoined(meetingId, userid, externuserid, username, role));
 							}
 						} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageName)) {
-						 	System.out.println("Handling [" + messageName + "] message.");
 						  String meetingId = payload.get("meeting_id").getAsString();
 						  String userid = payload.get("userid").getAsString();
 						  String status = payload.get("status").getAsString();
@@ -130,7 +120,6 @@ public class MeetingMessageHandler implements MessageHandler {
 						  	listener.handle(new UserStatusChanged(meetingId, userid, status, value));
 						  }
 						} else if (MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageName)) {
-						 	System.out.println("Handling [" + messageName + "] message.");
 							String meetingId = payload.get("meeting_id").getAsString();
 							JsonObject user = (JsonObject) payload.get("user");
 							
@@ -139,7 +128,6 @@ public class MeetingMessageHandler implements MessageHandler {
 						  	listener.handle(new UserLeft(meetingId, userid));
 						  }
 						} else if (MessagingConstants.USER_JOINED_VOICE_EVENT.equalsIgnoreCase(messageName)) {
-							System.out.println("Handling [" + messageName + "] message.");
 							String meetingId = payload.get("meeting_id").getAsString();
 							JsonObject user = (JsonObject) payload.get("user");
 							
@@ -148,7 +136,6 @@ public class MeetingMessageHandler implements MessageHandler {
 								listener.handle(new UserJoinedVoice(meetingId, userid));
 							}
 						} else if (MessagingConstants.USER_LEFT_VOICE_EVENT.equalsIgnoreCase(messageName)) {
-							System.out.println("Handling [" + messageName + "] message.");
 							String meetingId = payload.get("meeting_id").getAsString();
 							JsonObject user = (JsonObject) payload.get("user");
 							
@@ -157,7 +144,6 @@ public class MeetingMessageHandler implements MessageHandler {
 								listener.handle(new UserLeftVoice(meetingId, userid));
 							}
 						} else if (MessagingConstants.USER_LISTEN_ONLY_EVENT.equalsIgnoreCase(messageName)) {
-							System.out.println("Handling [" + messageName + "] message.");
 							String meetingId = payload.get("meeting_id").getAsString();
 							String userid = payload.get("userid").getAsString();
 							Boolean listenOnly = payload.get("listen_only").getAsBoolean();
@@ -166,7 +152,6 @@ public class MeetingMessageHandler implements MessageHandler {
 								listener.handle(new UserListeningOnly(meetingId, userid, listenOnly));
 							}
 						} else if (MessagingConstants.USER_SHARE_WEBCAM_EVENT.equalsIgnoreCase(messageName)) {
-							System.out.println("Handling [" + messageName + "] message.");
 							String meetingId = payload.get("meeting_id").getAsString();
 							String userid = payload.get("userid").getAsString();
 							String stream = payload.get("stream").getAsString();
@@ -174,7 +159,6 @@ public class MeetingMessageHandler implements MessageHandler {
 								listener.handle(new UserSharedWebcam(meetingId, userid, stream));
 							}
 						} else if (MessagingConstants.USER_UNSHARE_WEBCAM_EVENT.equalsIgnoreCase(messageName)) {
-							System.out.println("Handling [" + messageName + "] message.");
 							String meetingId = payload.get("meeting_id").getAsString();
 							String userid = payload.get("userid").getAsString();
 							String stream = payload.get("stream").getAsString();
