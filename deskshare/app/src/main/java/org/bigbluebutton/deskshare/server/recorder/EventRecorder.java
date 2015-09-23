@@ -19,13 +19,12 @@
 package org.bigbluebutton.deskshare.server.recorder;
 
 import java.util.concurrent.TimeUnit;
-
 import org.bigbluebutton.deskshare.server.recorder.event.AbstractDeskshareRecordEvent;
 import org.bigbluebutton.deskshare.server.recorder.event.RecordEvent;
 import org.bigbluebutton.deskshare.server.recorder.event.RecordStartedEvent;
 import org.bigbluebutton.deskshare.server.recorder.event.RecordStoppedEvent;
-
 import redis.clients.jedis.Jedis;
+
 
 public class EventRecorder implements RecordStatusListener {
 	private static final String COLON=":";
@@ -44,8 +43,17 @@ public class EventRecorder implements RecordStatusListener {
 	private void record(String session, RecordEvent message) {
 		Jedis jedis = new Jedis(host, port);
 		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
-		jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());						
+		String key = "recording" + COLON + session + COLON + msgid;
+		jedis.hmset(key, message.toMap());
+		/**
+		 * We set the key to expire after 14 days as we are still
+		 * recording the event into redis even if the meeting is not
+		 * recorded. (ralam sept 23, 2015) 
+		 */
+		jedis.expire(key, 14*24*60*60 /*14days*/);
+		key = "meeting" + COLON + session + COLON + "recordings";
+		jedis.rpush(key, msgid.toString());
+		jedis.expire(key, 14*24*60*60 /*14days*/);
 	}
 	
 	@Override
