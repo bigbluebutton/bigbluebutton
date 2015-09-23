@@ -82,6 +82,17 @@
       }
     </script>
     <script type="text/javascript">
+      window.onload = function() {
+        var checkRequest = $.ajax({
+           dataType: 'json',
+           url: '/html5client/check'
+        });
+        checkRequest.done(function(data) {
+          document.getElementById('html5Section').style.display='inherit';
+        });
+      };
+    </script>
+    <script type="text/javascript">
       function html5() {
         // no Flash detected on the client
 
@@ -160,8 +171,10 @@
           <a href="http://www.adobe.com/go/getflashplayer">
             <img src="//www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
           </a>
-          <p style="margin-left:50px;" >OR</p>
-          <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
+          <div id="html5Section" style="display:none">
+            <p style="margin-left:50px;" >OR</p>
+            <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
+          </div>
         </div>
       </div>
     </div>
