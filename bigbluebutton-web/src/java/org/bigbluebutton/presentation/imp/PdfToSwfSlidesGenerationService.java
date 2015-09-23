@@ -62,9 +62,7 @@ public class PdfToSwfSlidesGenerationService {
 	private boolean svgImagesRequired;
 		
 	public void generateSlides(UploadedPresentation pres) {
-		log.debug("Generating slides");		
 		determineNumberOfPages(pres);
-		log.info("Determined number of pages. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], numPages=[" + pres.getNumberOfPages() + "]");
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
 			createTextFiles(pres);
@@ -103,19 +101,16 @@ public class PdfToSwfSlidesGenerationService {
 	}
 	
 	private void createThumbnails(UploadedPresentation pres) {
-		log.info("Creating thumbnails. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
 		thumbnailCreator.createThumbnails(pres);
 	}
 	
 	private void createTextFiles(UploadedPresentation pres) {
-		log.info("Creating textfiles for accessibility. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingTextFilesUpdateMessage(pres);
 		textFileCreator.createTextFiles(pres);
 	}
 	
 	private void createSvgImages(UploadedPresentation pres) {
-		log.info("Creating SVG images. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingSvgImagesUpdateMessage(pres);
 		svgImageCreator.createSvgImages(pres);
 	}

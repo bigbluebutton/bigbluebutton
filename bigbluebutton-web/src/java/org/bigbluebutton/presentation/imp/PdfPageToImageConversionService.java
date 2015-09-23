@@ -38,16 +38,12 @@ public class PdfPageToImageConversionService {
 		tempDir.mkdir();
 
 		File tempPdfFile = new File(tempDir.getAbsolutePath() + File.separator + "temp-" + page + ".pdf");
-		log.debug("Creating temporary pdf " + tempPdfFile.getAbsolutePath());
-		
+
 		if (extractor.extractPage(presentationFile, tempPdfFile, page)) {
 			File tempPngFile = new File(tempDir.getAbsolutePath() + "/temp-" + page + ".svg");
-			log.debug("Creating PNG " + tempPngFile.getAbsolutePath());
-			
+
 			if (pdfToImageConverter.convert(tempPdfFile, tempPngFile, 1)) {
-				log.debug("Created PNG " + tempPngFile.getAbsolutePath());
 				if (imageToSwfConverter.convert(tempPngFile, output, 1)) {
-					log.debug("Created SWF " + output.getAbsolutePath());
 					return true;
 				}
 			}

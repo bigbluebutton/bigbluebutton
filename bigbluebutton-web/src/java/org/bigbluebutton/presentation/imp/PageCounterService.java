@@ -34,10 +34,8 @@ public class PageCounterService {
 	public void determineNumberOfPages(UploadedPresentation pres) throws CountingPageException {
 		int numberOfPages = 0;
 		if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
-			log.debug("Counting pages for " + pres.getFileType());
 			numberOfPages = countPages(pres);			
 		} else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-			log.debug("Counting pages for " + pres.getFileType());
 			numberOfPages = 1;
 		}
 		
@@ -76,8 +74,6 @@ public class PageCounterService {
 		}
 		
 		numPages = pageCounter.countNumberOfPages(pres.getUploadedFile());
-				
-		log.debug("There are " + numPages);
 		return numPages;
 	}
 			

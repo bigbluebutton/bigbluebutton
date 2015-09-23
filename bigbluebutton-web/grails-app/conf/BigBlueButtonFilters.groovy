@@ -29,7 +29,6 @@ class BigBlueButtonFilters {
   	}
   	serviceUnavailable(controller:'api',action:'(create|join|isMeetingRunning|end|getMeetingInfo|getMeetings|enter|signOut)') {
   		before = {
-        System.out.println("enter filter")
   			if (keepAliveService.isDown()) {
   				response.sendError(503, "BigBlueButton")
 					return false

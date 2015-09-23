@@ -266,7 +266,6 @@ public class Meeting {
 	}
 	
 	public boolean wasNeverJoined(int expiry) {
-		log.debug("WasNeverJoined - hasStarted=[" + hasStarted() + "] && !hasEnded()=[" + !hasEnded() + "] && nobodyJoined(" + expiry + ")=" + nobodyJoined(expiry));
 		return (hasStarted() && !hasEnded() && nobodyJoined(expiry));
 	}
 	
@@ -279,7 +278,6 @@ public class Meeting {
 		if (expiry == 0) return false; /* Meeting stays created infinitely */
 		
 		long now = System.currentTimeMillis();
-		log.debug("nobodyJoined - !userHasJoined=[" + !userHasJoined + "] && (now - createdTime)=[" + (now - createdTime) + "] > (expiry * MILLIS_IN_A_MINUTE)=" + (expiry * MILLIS_IN_A_MINUTE));
 
 		return (!userHasJoined && (now - createdTime) >  (expiry * MILLIS_IN_A_MINUTE));
 	}
