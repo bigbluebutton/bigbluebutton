@@ -40,7 +40,6 @@ public class PageCounterService {
 		}
 		
 		if (isNumberOfPagesValid(numberOfPages)) {
-			log.debug("Counting pages for " + pres.getFileType() + " " + numberOfPages);
 			pres.setNumberOfPages(numberOfPages);
 		}		
 	}
@@ -59,7 +58,6 @@ public class PageCounterService {
 	
 	private boolean checkIfNumberOfPagesExceedsLimit(int numberOfPages) {
 		if (numberOfPages > maxNumPages) {
-			log.warn("Number of pages greater than maximum [" + numberOfPages + ">" + maxNumPages);
 			return true;
 		}
 		return false;
