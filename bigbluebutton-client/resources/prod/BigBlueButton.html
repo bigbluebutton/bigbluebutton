@@ -88,71 +88,41 @@
            url: '/html5client/check'
         });
         checkRequest.done(function(data) {
-          document.getElementById('html5Section').style.display='inherit';
+          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus !== null && data.html5clientStatus === "running") {
+            document.getElementById('html5Section').style.display='inherit';
+          }
         });
       };
-    </script>
-    <script type="text/javascript">
+
       function html5() {
         // no Flash detected on the client
-
-        var originalPath, request;
+        var originalPath, enterRequest, authToken, meetingId, userId;
         originalPath = document.location.pathname;
 
-        // reuse code in a function to log an error when needed
-        var reportError = function() {
-          alert("Unable to load the HTML5 client!");
-          BBBLog.debug("Could not redirect to html5client (the server side does not seem to be running)");
-        }
-
-        var checkRequest = $.ajax({
+        // use the enter api to detect the meetingid, userid and authToken
+        // and reuse them to join via the HTML5 client
+        enterRequest = $.ajax({
            dataType: 'json',
-           url: '/html5client/check'
+           url: '/bigbluebutton/api/enter'
         });
 
-        checkRequest.done(function(data) {
-          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus !== null) {
-            if(data.html5clientStatus === "running") {
-              // use the enter api to detect the meetingid, userid and authToken
-              // for the attempted joining of the meeting
-              // and reuse them to join via the HTML5 client
-              var enterRequest = $.ajax({
-                 dataType: 'json',
-                 url: '/bigbluebutton/api/enter'
-              });
+        enterRequest.done(function(enterData) {
+          meetingId = enterData.response.meetingID;
+          userId = enterData.response.externUserID;
+          authToken = enterData.response.authToken;
 
-              enterRequest.done(function(enterData) {
-                var authToken, meetingId, userId;
-
-                meetingId = enterData.response.meetingID;
-                userId = enterData.response.externUserID;
-                authToken = enterData.response.authToken;
-
-                if ((meetingId != null) && (userId != null) && (authToken != null)) {
-                  // redirect to the html5 client with the received info
-                  // format <IP>/html5client/<meetingId>/<userId>/<authToken>
-                  document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
-                } else {
-                  // go back to the redirection page
-                  document.location.pathname = originalPath;
-                }
-              });
-
-              enterRequest.fail(function(enterData, textStatus, errorThrown){
-                reportError();
-              });
-            }
-            else {
-              reportError();
-            }
-          }
-          else {
-            reportError();
+          if ((meetingId != null) && (userId != null) && (authToken != null)) {
+            // redirect to the html5 client with the received info
+            // format <IP>/html5client/<meetingId>/<userId>/<authToken>
+            document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
+          } else {
+            // go back to the redirection page
+            document.location.pathname = originalPath;
           }
         });
 
-        checkRequest.fail(function(data, textStatus, errorThrown){
-          reportError();
+        enterRequest.fail(function(enterData, textStatus, errorThrown){
+          BBBLog.debug("Enter request failed");
         });
       }
     </script>
