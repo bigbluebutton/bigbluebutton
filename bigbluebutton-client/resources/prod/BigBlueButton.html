@@ -88,7 +88,7 @@
            url: '/html5client/check'
         });
         checkRequest.done(function(data) {
-          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus !== null && data.html5clientStatus === "running") {
+          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus === "running") {
             document.getElementById('html5Section').style.display='inherit';
           }
         });
