@@ -102,6 +102,28 @@ module BigBlueButton
       stop_events
     end
 
+    # Get start webrtc-deskshare events # done
+    def self.get_start_webrtc_deskshare_events(events_xml)
+      BigBlueButton.logger.info("Task: Getting start webrtc deskshare events")
+      start_events = []
+      doc = Nokogiri::XML(File.open(events_xml))
+      doc.xpath("//event[@eventname='StartWebRTCDeskShareEvent']").each do |start_event|
+        start_events << {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('stream').text}
+      end
+      start_events
+    end
+
+    # Get stop webrtc-deskshare events # done
+    def self.get_stop_webrtc_deskshare_events(events_xml)
+      BigBlueButton.logger.info("Task: Getting stop webrtc deskshare events")
+      stop_events = []
+      doc = Nokogiri::XML(File.open(events_xml))
+      doc.xpath("//event[@eventname='StopWebRTCDesktopShareEvent']").each do |stop_event|
+        stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('stream').text}
+      end
+      stop_events
+    end
+
     # Build a webcam EDL
     def self.create_webcam_edl(archive_dir)
       events = Nokogiri::XML(File.open("#{archive_dir}/events.xml"))
@@ -124,10 +146,10 @@ module BigBlueButton
         :areas => { :webcam => [] } 
       }
 
-      events.xpath('/recording/event[@module="WEBCAM"]').each do |event|
+      events.xpath('/recording/event[@module="WEBCAM"]').each do |event| #TODO
         timestamp = event['timestamp'].to_i - initial_timestamp
         case event['eventname']
-        when 'StartWebcamShareEvent'
+        when 'StartWebcamShareEvent' # TODO
           stream = event.at_xpath('stream').text
           filename = "#{video_dir}/#{stream}.flv"
 
@@ -145,7 +167,7 @@ module BigBlueButton
             }
           end
           video_edl << edl_entry
-        when 'StopWebcamShareEvent'
+        when 'StopWebcamShareEvent' # TODO
           stream = event.at_xpath('stream').text
           filename = "#{video_dir}/#{stream}.flv"
 
