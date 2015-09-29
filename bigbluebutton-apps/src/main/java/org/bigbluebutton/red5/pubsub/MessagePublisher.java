@@ -270,4 +270,14 @@ public class MessagePublisher {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
+	
+	public void sendCaptionHistory(String meetingID, String requesterID) {
+		SendCaptionHistoryMessage msg = new SendCaptionHistoryMessage(meetingID, requesterID);
+		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
+	}
+	
+	public void newCaptionLine(String meetingID, Integer lineNumber, String locale, Integer startTime, String text) {
+		NewCaptionLineMessage msg = new NewCaptionLineMessage(meetingID, lineNumber, locale, startTime, text);
+		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
+	}
 }
