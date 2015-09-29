@@ -37,6 +37,7 @@
 	<property name="POLLING" value="PollingModule" />
 	<property name="LAYOUT" value="LayoutModule" />
 	<property name="USERS" value="UsersModule" />
+	<property name="CAPTION" value="CaptionModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -275,9 +276,13 @@
 			<build-module src="${SRC_DIR}" target="${USERS}" />
 	</target>
 	
+	<target name="build-caption" description="Compile Caption Module">
+			<build-module src="${SRC_DIR}" target="${CAPTION}" />
+	</target>
+	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-present" 
-			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users"
+			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users. build-caption"
 			description="Compile main, chat, present modules">
 	</target>
 	

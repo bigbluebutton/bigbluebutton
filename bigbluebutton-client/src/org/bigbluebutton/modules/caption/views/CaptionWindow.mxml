@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<CustomMdiWindow xmlns="org.bigbluebutton.common.*" 
+			xmlns:mx="http://www.adobe.com/2006/mxml"
+			implements="org.bigbluebutton.common.IBbbModuleWindow"
+			title="Closed Caption"
+			width="400" height="300"
+			showCloseButton="false"
+			creationComplete="onCreationComplete()">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.utils.StringUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.events.CollectionEvent;
+			
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
+			import org.bigbluebutton.modules.caption.events.SendNewCaptionLineEvent;
+			import org.bigbluebutton.modules.caption.model.Transcript;
+			import org.bigbluebutton.modules.caption.model.Transcripts;
+			
+			private var transcripts:Transcripts;
+			private var currentTranscript:Transcript;
+			private var transcriptChangeWatcher:ChangeWatcher;
+			
+			private function onCreationComplete():void {
+				var requestTranscripts:RequestTranscriptsEvent = new RequestTranscriptsEvent(RequestTranscriptsEvent.REQUEST_TRANSCRIPTS_EVENT);
+				requestTranscripts.callback = setTranscripts;
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(requestTranscripts);
+			}
+			
+			private function setTranscripts(t:Transcripts):void {
+				transcripts = t;
+				onLocaleChange();
+			}
+			
+			public function getPrefferedPosition():String {
+				return MainCanvas.POPUP;
+			}
+			
+			private function onLocaleChange():void {
+				if (transcripts) {
+					if (currentTranscript) {
+						currentTranscript.transcript.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onTranscriptChange);
+						//transcriptChangeWatcher = null;
+					}
+					currentTranscript = transcripts.findLocale(localeCombo.selectedLabel);
+					//transcriptChangeWatcher = BindingUtils.bindSetter(onTranscriptChange, currentTranscript, "transcript");
+					currentTranscript.transcript.addEventListener(CollectionEvent.COLLECTION_CHANGE, onTranscriptChange);
+					refreshTextArea();
+				}
+			}
+			
+			private function onTranscriptChange(event:Event):void {
+				refreshTextArea();
+			}
+			
+			private function refreshTextArea():void {
+				transcriptArea.text = currentTranscript.transcript.source.join("\n");
+			}
+			
+			private function onNewLineTextInput(e:TextEvent):void {
+				if ((e.text.length == 1) && (e.text.charCodeAt(0) == 10) /*ENTER-KEY*/) {
+					sendLine();
+					e.preventDefault();
+				}
+			}
+			
+			private function sendLine():void {
+				// Trim the message. This will trim the '/n' char so we don't send a message when the
+				// user just hits the enter key
+				var lineToSend:String = StringUtil.trim(newLineInput.text);
+				
+				if (lineToSend != "") {
+					var newLineEvent:SendNewCaptionLineEvent = new SendNewCaptionLineEvent(SendNewCaptionLineEvent.SEND_NEW_CAPTION_LINE);
+					newLineEvent.lineNumber = currentTranscript.transcript.length;
+					newLineEvent.locale = localeCombo.selectedLabel;
+					newLineEvent.startTime = 1;
+					newLineEvent.text = lineToSend;
+					
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(newLineEvent);
+					
+					newLineInput.text = "";
+					newLineInput.setSelection(0, 0);
+				}
+			}
+			
+			private function onTranscriptTextInput(e:TextEvent):void {
+				trace("Text entered: " + e.text + ", carat begin:" + transcriptArea.selectionBeginIndex + ", end: " + transcriptArea.selectionEndIndex);
+			}
+			
+			private function onTranscriptTextChange(e:Event):void {
+				trace("transcript change");
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" horizontalAlign="center">
+		<mx:HBox width="100%">
+			<mx:ComboBox id="fontSizeCombo" dataProvider="[8, 10, 12, 14, 16]"/>
+			<mx:ColorPicker id="fontColorPicker" />
+			<mx:ComboBox id="fontTypeCombo" dataProvider="['Arial', 'Time New Roman', 'Comic Sans']"/>
+			<mx:ComboBox id="textCaseCombo" dataProvider="['Untouched', 'All Upper', 'All Lower']"/>
+			<mx:ComboBox id="localeCombo" dataProvider="['en_US','ca_FR', 'pt_PT']" change="onLocaleChange()"/>
+		</mx:HBox>
+		<mx:TextArea id="transcriptArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)"/>
+		<mx:TextArea id="newLineInput" width="100%" height="20" textInput="onNewLineTextInput(event)" />
+	</mx:VBox>
+</CustomMdiWindow>
