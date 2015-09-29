@@ -9,15 +9,15 @@ redis_port: 6379
 
 
 # # For PRODUCTION
-# log_dir: /var/log/bigbluebutton
-# recording_dir: /var/bigbluebutton/recording
-# published_dir: /var/bigbluebutton/published
-# playback_host: 10.0.3.203
+log_dir: /var/log/bigbluebutton
+recording_dir: /var/bigbluebutton/recording
+published_dir: /var/bigbluebutton/published
+playback_host: 10.0.3.203
 
 # For DEVELOPMENT
 # This allows us to run the scripts manually
-scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
-log_dir: /home/ubuntu/temp/log
-recording_dir: /home/ubuntu/temp/recording
-published_dir: /home/ubuntu/temp/published
-playback_host: 192.168.0.109
+# scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
+# log_dir: /home/ubuntu/temp/log
+# recording_dir: /home/ubuntu/temp/recording
+# published_dir: /home/ubuntu/temp/published
+# playback_host: 192.168.22.137

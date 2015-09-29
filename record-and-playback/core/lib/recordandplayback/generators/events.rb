@@ -291,19 +291,13 @@ module BigBlueButton
         case event['eventname']
         when 'DeskShareNotifyViewersRTMP'
           isBroadcasting = event.at_xpath('broadcasting').text
-          BigBlueButton.logger.error("____isBroadcasting=#{isBroadcasting}\n") ##this is the boolean
 
           if isBroadcasting == "true" #this is a start event
-            BigBlueButton.logger.info("\n^^^^START OF WEBRTC DESKSHARE")
+            BigBlueButton.logger.info("create_deskshare_edl::START OF WEBRTC DESKSHARE")
             streamPath = event.at_xpath('streamPath').text
-            BigBlueButton.logger.info("\nstreamPath=#{streamPath}")
-
             streamPathArray = streamPath.split('/')
-            BigBlueButton.logger.info("\nstreamPath=#{streamPath}")
             meeting_id = streamPathArray[5]
-            BigBlueButton.logger.info("\n meeting_id=#{meeting_id}")
             dsFilename = "#{archive_dir}/video-broadcast/#{meeting_id}.flv"
-            BigBlueButton.logger.info("\n dsFilename=#{dsFilename}")
 
             deskshare_edl << {
               :timestamp => timestamp,
@@ -314,12 +308,14 @@ module BigBlueButton
               }
             }
           elsif isBroadcasting == "false" #this is a stop event
-            BigBlueButton.logger.info("\n^^^^END OF WEBRTC DESKSHARE\n")
-            
+            BigBlueButton.logger.info("create_deskshare_edl::END OF WEBRTC DESKSHARE")
+            # deskshare_edl << {
+            #   :timestamp => 0,
+            #   :areas => { :deskshare => [] }
+            # }
 
           else #unhandled case
-            BigBlueButton.logger.error("ERROR 1245\n")
-
+            BigBlueButton.logger.error("create_deskshare_edl::ERROR 1245\n")=
           end
         end
       end

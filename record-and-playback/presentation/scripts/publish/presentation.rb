@@ -602,43 +602,24 @@ def preprocessSlideEvents
 end
 
 def processWebRTCDeskshareEvents
-	BigBlueButton.logger.info("\n\n\n BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
 	BigBlueButton.logger.info("processWebRTCDeskshareEvents - WEBRTC DESKSHARE events processing")
 	new_webrtc_deskshare_events = []
-	# BigBlueButton.logger.info("stage1")
 	$webrtc_deskshare_events.each do |webrtc_deskshare_event|
-		# BigBlueButton.logger.info("stage2" + webrtc_deskshare_event)
 		new_ds_event = webrtc_deskshare_event.clone
-		BigBlueButton.logger.info("stage2.5" + new_ds_event)
-		# BigBlueButton.logger.info("stage2.6" + new_ds_event.inspect)
-		# BigBlueButton.logger.info("stage3:" + new_ds_event[:timestamp])
-		# BigBlueButton.logger.info("stage3.5:" + new_ds_event[:timestamp].to_f)
-		# BigBlueButton.logger.info("inspect of rec_events = " + $rec_events.inspect)
 		$rec_events.each do |rec_event|
-			# BigBlueButton.logger.info("stage2.7" + rec_event.inspect)
-			# BigBlueButton.logger.info("stage6:" + new_ds_event[:timestamp]+ "____" + rec_event[:start_timestamp].to_s)
 			new_ds_event_timestamp = Integer(new_ds_event[:timestamp])
-			BigBlueButton.logger.info("stage7!" + new_ds_event[:timestamp].to_s)
 			if new_ds_event_timestamp <= rec_event[:start_timestamp]
-				BigBlueButton.logger.info("stage8!")
 				new_ds_event_timestamp = rec_event[:start_timestamp]
 				if not new_webrtc_deskshare_events.empty? and new_webrtc_deskshare_events.last()[:timestamp] == rec_event[:start_timestamp]
-					BigBlueButton.logger.info("stage9!")
 					new_webrtc_deskshare_events.pop()
 				end
-				BigBlueButton.logger.info("stage10!")
 				new_webrtc_deskshare_events << new_ds_event
 				break
-				BigBlueButton.logger.info("stage11!")
 			elsif new_ds_event_timestamp > rec_event[:start_timestamp] and new_ds_event_timestamp <= rec_event[:stop_timestamp]
-				BigBlueButton.logger.info("stage12!")
 				new_webrtc_deskshare_events << new_ds_event
-				BigBlueButton.logger.info("stage13!")
 			end
 		end
 	end
-	BigBlueButton.logger.info("returning the following:" + new_webrtc_deskshare_events.inspect)
-	BigBlueButton.logger.info(" BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB \n\n")
 	return new_webrtc_deskshare_events
 end
 
