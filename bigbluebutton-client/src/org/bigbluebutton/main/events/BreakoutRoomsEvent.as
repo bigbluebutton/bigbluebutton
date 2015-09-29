@@ -22,6 +22,7 @@ package org.bigbluebutton.main.events {
 	
 	public class BreakoutRoomsEvent extends Event {
 		public static const OPEN_BREAKOUT_ROOMS_PANEL:String = "OPEN_BREAKOUT_ROOMS_PANEL";
+		public static const CREATE_BREAKOUT_ROOMS:String = "CREATE_BREAKOUT_ROOMS";
 		
 		public function BreakoutRoomsEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false) {
 			super(type, bubbles, cancelable);
