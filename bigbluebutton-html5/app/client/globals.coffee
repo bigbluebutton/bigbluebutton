@@ -152,12 +152,6 @@ Handlebars.registerHelper "pointerLocation", ->
 Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
 
-###Handlebars.registerHelper "visibility", (section) ->
-  if getInSession "display_#{section}"
-    style: 'display:block;'
-  else
-    style: 'display:none;'###
-
 Handlebars.registerHelper "visibility", (section) ->
   style: 'display:block;'
 
