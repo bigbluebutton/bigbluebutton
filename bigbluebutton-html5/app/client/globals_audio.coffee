@@ -64,8 +64,10 @@
 			console.log "Beginning WebRTC Conference Call"
 
 		notification_WebRTCAudioJoining()
-		if isListenOnly
+		if options.isListenOnly
 			Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
-		BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
+
+		requestedListenOnly = options.isListenOnly?
+		BBB.joinVoiceConference joinCallback, requestedListenOnly # make the call #TODO should we apply role permissions to this action?
 
 		return false
