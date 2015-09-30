@@ -71,11 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</EventHandlers>
 		
 	<EventHandlers type="{ViewStreamEvent.START}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStartEvent" arguments="{event}"/>
-	</EventHandlers>
-
-	<EventHandlers type="{ViewStreamEvent.STOP}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStopEvent" arguments="{event}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStartEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ShareWindowEvent.CLOSE}">		

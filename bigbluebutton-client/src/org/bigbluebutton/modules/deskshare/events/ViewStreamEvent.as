@@ -27,7 +27,6 @@ package org.bigbluebutton.modules.deskshare.events
 		
 		public var videoWidth:Number = 0;
 		public var videoHeight:Number = 0;
-		public var rtmp:String = null;
 		
 		public function ViewStreamEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -27,8 +27,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
-	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-
+			
 	public class DeskshareManager {		
 		private static const LOGGER:ILogger = getClassLogger(DeskshareManager);
 
@@ -61,7 +60,6 @@ package org.bigbluebutton.modules.deskshare.managers
 		
 		public function handleStopModuleEvent():void {
 			LOGGER.debug("Deskshare Module stopping");
-
 			publishWindowManager.stopSharing();
 			viewWindowManager.stopViewing();		
 			service.disconnect();
@@ -115,7 +113,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			var option:DeskshareOptions = new DeskshareOptions();
 			option.parseOptions();
 			publishWindowManager.startSharing(option.publishURI , option.useTLS , module.getRoom(), autoStart, option.autoFullScreen);
-			// sharing = true; //TODO must uncomment this for the non-webrtc desktop share
+			sharing = true;
 		}
 		
 		public function handleShareWindowCloseEvent():void {
@@ -129,22 +127,13 @@ package org.bigbluebutton.modules.deskshare.managers
 			LOGGER.debug("Received stop viewing command");		
 			viewWindowManager.handleViewWindowCloseEvent();		
 		}
-
-		public function handleStreamStartEvent(e:ViewStreamEvent):void{
-			// if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
+					
+		public function handleStreamStartEvent(videoWidth:Number, videoHeight:Number):void{
+			if (sharing) return;
 			LOGGER.debug("Received start vieweing command");
-
-			// sharing = true; //TODO must uncomment this for the non-webrtc desktop share
-			viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
+			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
-
-		// public function handleStreamStopEvent(e:ViewStreamEvent):void{
-		// 	//TODO is this needed?
-		// 	LogUtil.debug("Received start vieweing command");
-		// 	if (!sharing) return;
-
-		// 	handleStopModuleEvent();
-		// 	sharing = false;
-		// }
+    
+    
 	}
 }

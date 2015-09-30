@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-	import flash.external.ExternalInterface;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.view.components.DesktopPublishWindow;
-
+			
 	public class PublishWindowManager {		
 		private static const LOGGER:ILogger = getClassLogger(PublishWindowManager);
 
@@ -51,33 +51,28 @@ package org.bigbluebutton.modules.deskshare.managers
 			globalDispatcher = new Dispatcher();
 			this.service = service;
 		}
-
+					
 		public function stopSharing():void {
 			if (shareWindow != null) shareWindow.stopSharing();
 		}
-
+																			
 		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 			LOGGER.debug("DS:PublishWindowManager::opening desk share window, autostart={0} autoFullScreen={1}", [autoStart, autoFullScreen]);
 
-			var result:String;
-			if (ExternalInterface.available) {
-				result = ExternalInterface.call("vertoScreenStart");
-			}
-
-//			shareWindow = new DesktopPublishWindow();
-//			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);
-//			shareWindow.visible = true;
-//			openWindow(shareWindow);
-//			if (autoStart || autoFullScreen) {
-//				/*
-//				* Need to have a timer to trigger auto-publishing of deskshare.
-//				*/
-//				shareWindow.btnFSPublish.enabled = false;
-//				shareWindow.btnRegionPublish.enabled = false;
-//				autoPublishTimer = new Timer(2000, 1);
-//				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-//				autoPublishTimer.start();
-//			}
+			shareWindow = new DesktopPublishWindow();
+			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);
+			shareWindow.visible = true;
+			openWindow(shareWindow);
+			if (autoStart || autoFullScreen) {
+				/*
+				* Need to have a timer to trigger auto-publishing of deskshare.
+				*/
+				shareWindow.btnFSPublish.enabled = false;
+				shareWindow.btnRegionPublish.enabled = false;
+				autoPublishTimer = new Timer(2000, 1);
+				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+				autoPublishTimer.start();
+			}			
 		}
 		
 		private function autopublishTimerHandler(event:TimerEvent):void {				

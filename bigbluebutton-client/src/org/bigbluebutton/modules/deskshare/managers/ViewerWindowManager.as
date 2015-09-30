@@ -1,7 +1,7 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 * 
-* Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
@@ -68,13 +68,12 @@ package org.bigbluebutton.modules.deskshare.managers
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
 		}
-
-		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
+			
+		public function startViewing(room:String, videoWidth:Number, videoHeight:Number):void{
 			LOGGER.debug("ViewerWindowManager::startViewing");
-
 			viewWindow = new DesktopViewWindow();
-			viewWindow.startVideo(rtmp, videoWidth, videoHeight);
-
+			viewWindow.startVideo(service.getConnection(), room, videoWidth, videoHeight);
+			
 			openWindow(viewWindow);
 			isViewing = true;
 		}
