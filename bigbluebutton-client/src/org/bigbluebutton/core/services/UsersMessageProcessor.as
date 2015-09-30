@@ -10,7 +10,6 @@ package org.bigbluebutton.core.services
 	private static const LOGGER:ILogger = getClassLogger(UsersMessageProcessor);      
     
     public function processUserJoinedVoiceMessage(voiceUser:Object):VoiceUserVO {
-	  LOGGER.debug("*** processUserJoinedVoiceMessage **** \n"); 
       if (voiceUser != null) {
         return processVoiceUser(voiceUser);
       }
@@ -19,7 +18,6 @@ package org.bigbluebutton.core.services
     }
     
     public function processUserLeftVoiceMessage(voiceUser:Object):VoiceUserVO {
-	  LOGGER.debug("*** processUserLeftVoiceMessage **** \n"); 
       if (voiceUser != null) {
         return processVoiceUser(voiceUser);
       }

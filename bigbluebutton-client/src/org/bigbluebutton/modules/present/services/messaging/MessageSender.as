@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.sendCursorUpdate", 
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
 		  LOGGER.error(status); 
@@ -57,8 +57,6 @@ package org.bigbluebutton.modules.present.services.messaging
      * 
      */		
     public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-      LOGGER.debug("move [{0},{1}][{2},{3}]", [xOffset, yOffset, widthRatio, heightRatio]);
-      
       var message:Object = new Object();
       message["xOffset"] = xOffset;
       message["yOffset"] = yOffset;
@@ -68,7 +66,7 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.resizeAndMoveSlide", 
         function(result:String):void { // On successful result
-          LOGGER.debug(result); 
+          //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
 		  LOGGER.error(status); 
@@ -85,7 +83,7 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.sharePresentation", 
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
 		  LOGGER.error(status); 
@@ -98,12 +96,10 @@ package org.bigbluebutton.modules.present.services.messaging
       var message:Object = new Object();
       message["page"] = id;      
       
-      LOGGER.debug("gotoPage [{0}]", [id]);
-      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.gotoSlide", 
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
 		  LOGGER.error(status); 
@@ -116,7 +112,7 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.getPresentationInfo", 
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
 		  LOGGER.error(status); 
@@ -132,7 +128,7 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.removePresentation", 
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
 		  LOGGER.error(status); 
@@ -145,7 +141,7 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.clear", 
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
 		  LOGGER.error(status); 
@@ -157,7 +153,7 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.getSlideInfo", 
         function(result:String):void { // On successful result
-		  LOGGER.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
 		  LOGGER.error(status); 
