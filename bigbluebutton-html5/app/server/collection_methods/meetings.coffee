@@ -84,5 +84,5 @@ Meteor.methods
             "deskshare.vw": null
             "deskshare.vh": null
             # "deskshare.voice_bridge": bridge
-            "deskshare.startedBy": startedBy
+            "deskshare.startedBy": null
         }})

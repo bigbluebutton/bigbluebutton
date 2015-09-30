@@ -120,6 +120,7 @@ Template.webcamModal.events
 # if remote deskshare has been ended disconnect and hide the video stream
 @presenterDeskshareHasEnded = ->
 	toggleWhiteboardVideo("whiteboard")
+	exitVoiceCall()
 	console.log("deskshare Ended")
 
 # if remote deskshare has been started connect and display the video stream
