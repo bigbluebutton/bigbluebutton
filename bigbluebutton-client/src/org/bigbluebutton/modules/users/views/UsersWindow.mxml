@@ -286,10 +286,10 @@
 			
 			private function handleBreakoutRoomsCreateEvent(e:BreakoutRoomsEvent):void {
 				breakoutRoomsList = new ArrayCollection();
-				breakoutRoomsList.addItem({roomName: "Room 1 (2 users)", activity: 45, actions: "LJ"});
-				breakoutRoomsList.addItem({roomName: "Room 2 (3 users)", activity: 30, actions: "LJ"});
-				breakoutRoomsList.addItem({roomName: "Room 3 (2 users)", activity: 60, actions: "LJ"});
-				roomsGrid.visible = roomsGrid.includeInLayout = true;
+				breakoutRoomsList.addItem({roomName: "Room 1", users: 3, actions: "LJ"});
+				breakoutRoomsList.addItem({roomName: "Room 2", users: 4, actions: "LJ"});
+				breakoutRoomsList.addItem({roomName: "Room 3", users: 3, actions: "LJ"});
+				roomsBox.visible = roomsBox.includeInLayout = true;
 			}
 			
 			private function lockSettings():void {
@@ -534,19 +534,19 @@
     	</mx:columns>
     </mx:DataGrid>
 	
-	<mx:Label text="Breakout Rooms  (14:32 remaining)" paddingTop="12"/>
-	
-	<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
-				 dragEnabled="false" width="100%" height="50%" draggableColumns="false"
-				 visible="false" includeInLayout="false">
-		<mx:columns>
-			<mx:DataGridColumn dataField="roomName" headerText="Room Name" />
-			<mx:DataGridColumn dataField="activity" headerText="Activity"
-							   itemRenderer="org.bigbluebutton.modules.users.views.RoomActivityRenderer" />
-			<mx:DataGridColumn dataField="actions" headerText="Actions" 
-							   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
-		</mx:columns>
-	</mx:DataGrid>
+	<mx:VBox id="roomsBox" visible="false" includeInLayout="false" paddingTop="12">
+		<mx:Label text="Breakout Rooms  (14:32 remaining)"/>
+		
+		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
+					 dragEnabled="false" width="100%" height="50%" draggableColumns="false">
+			<mx:columns>
+				<mx:DataGridColumn dataField="roomName" headerText="Room Name" />
+				<mx:DataGridColumn dataField="users" headerText="Activity"/>
+				<mx:DataGridColumn dataField="actions" headerText="Actions" 
+								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
+			</mx:columns>
+		</mx:DataGrid>		
+	</mx:VBox>
 	
 	<mx:ControlBar width="100%">
 		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
