@@ -89,6 +89,11 @@ this.doshare = function(on, callback, videoTag) {
 					mirrorInput: false,
 					tag: videoTag
 				});
+
+				setTimeout(function() {
+					console.log("starting simulation");
+					return simulatePresenterDeskshareHasStarted();
+				}, 4000);
 			});
 		});
 	}

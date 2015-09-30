@@ -19,6 +19,12 @@
         lockOnJoin: Meteor.config.lockOnJoin
         lockedLayout: false
         disablePubChat: false
+      deskshare:
+        broadcasting: false
+        timestamp: null
+        vw: 0
+        vh: 0
+        voice_bridge: null
 
     id = Meteor.Meetings.insert(entry)
     Meteor.log.info "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}]:duration=[#{duration}]:voiceConf=[#{voiceConf}]
@@ -30,7 +36,6 @@
 		Meteor.Meetings.remove({meetingId: meetingId}, Meteor.log.info "cleared Meetings Collection (meetingId: #{meetingId}!")
 	else
 		Meteor.Meetings.remove({}, Meteor.log.info "cleared Meetings Collection (all meetings)!")
-
 
 #clean up upon a meeting's end
 @removeMeetingFromCollection = (meetingId) ->
@@ -56,3 +61,28 @@
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
+
+# updates the server side database for deskshare information for a meeting
+Meteor.methods
+    simulatePresenterDeskshareHasStarted: (meetingId, bridge, startedBy) ->
+        console.log("\n\n\n\n\n\n\nmeeting started")
+        console.log("started by: #{startedBy}\n\n\n\n\n\n\n")
+        Meteor.Meetings.update({meetingId: meetingId}, {$set: {
+            "deskshare.broadcasting": true
+            "deskshare.timestamp": "now"
+            "deskshare.vw": null
+            "deskshare.vh": null
+            "deskshare.voice_bridge": bridge
+            "deskshare.startedBy": startedBy
+        }})
+
+    simulatePresenterDeskshareHasEnded: (meetingId, startedBy) ->
+        console.log "\n\n\n\n\n\n\nmeeting is being ended\n\n\n\n\n\n\n"
+        Meteor.Meetings.update({meetingId: meetingId}, {$set: {
+            "deskshare.broadcasting": false
+            "deskshare.timestamp": "now"
+            "deskshare.vw": null
+            "deskshare.vh": null
+            # "deskshare.voice_bridge": bridge
+            "deskshare.startedBy": startedBy
+        }})

@@ -211,6 +211,7 @@ var iceTimer;
     function onStreamSuccess(self, stream) {
         console.log("Stream Success");
         doCallback(self, "onStream", stream);
+        verto_onStreamCallback(self, stream);
     }
 
     function onICE(self, candidate) {
@@ -257,7 +258,6 @@ var iceTimer;
         if (self.options.useVideo) {
             self.options.useVideo.style.display = 'block';
         }
-
         var element = self.options.useAudio;
         console.log("REMOTE STREAM", stream, element);
 
@@ -533,7 +533,7 @@ var iceTimer;
                 onICEComplete: function() {
                     return onICEComplete(self);
                 },
-                onRemoteStream: screen ? function(stream) {console.error("SKIP");} : function(stream) {
+                onRemoteStream: screen ? function(stream) { verto_afterStreamPublish(); console.error("SKIP");} : function(stream) {
                     return onRemoteStream(self, stream);
                 },
                 onOfferSDP: function(sdp) {

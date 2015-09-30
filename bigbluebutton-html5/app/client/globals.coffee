@@ -456,14 +456,31 @@ Handlebars.registerHelper "getPollQuestions", ->
     return false
 
 @onLoadComplete = ->
-  document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
-  setDefaultSettings()
+    document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
+    setDefaultSettings()
 
-  Meteor.Users.find().observe({
-  removed: (oldDocument) ->
-    if oldDocument.userId is getInSession 'userId'
-      document.location = getInSession 'logoutURL'
-  })
+    Meteor.Users.find().observe({
+    removed: (oldDocument) ->
+        if oldDocument.userId is getInSession 'userId'
+            document.location = getInSession 'logoutURL'
+    })
+
+    # when the meeting information has been updated check to see if it was
+    # desksharing. If it has changed either trigger a call to receive video
+    # and display it, or end the call and hide the video
+    Meteor.Meetings.find().observe
+        changed: (newDocument, oldDocument) ->
+            console.log "Meeting information has been modified"
+            console.log "#{newDocument}"
+            if oldDocument.deskshare isnt newDocument.deskshare and newDocument.deskshare.startedBy isnt getInSession("userId")
+                console.log "Deskshare was started by: #{newDocument.deskshare.startedBy}"
+                console.log "you are: #{getInSession('userId')}"
+                if newDocument.deskshare.broadcasting
+                    console.log "Deskshare is now broadcasting"
+                    presenterDeskshareHasStarted()
+                else
+                    console.log "Deskshare broadcasting has ended"
+                    presenterDeskshareHasEnded()
 
 # Detects a mobile device
 @isMobile = ->

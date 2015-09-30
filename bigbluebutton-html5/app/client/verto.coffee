@@ -13,6 +13,8 @@ Template.vertoDeskshareMenu.events
 			window["deskshareStream"].stop();
 		else
 			screenStart(false, (->))
+			console.log("ending simulation");
+			simulatePresenterDeskshareHasEnded();
 
 		$("#screenshareShow").show()
 		$("#screenshareHide").hide()
@@ -21,10 +23,6 @@ Template.vertoDeskshareMenu.events
 
 	"click #screenshareSubscribe": (event) ->
 		joinVoiceCall @, {
-			# useVideo: true
-			# useCamera: false
-			# useMic: false
-			# useRealMic: false
 			watchOnly: true
 		}
 		return false
@@ -34,7 +32,7 @@ Template.deskshareModal.events
 		$("#deskshareModal").foundation('reveal', 'close')
 		$("#screenshareStart").hide()
 		$("#screenshareStop").show()
-		screenStart(true, (->), "webcam")
+		screenStart(true, ((m)-> console.log(m)), "webcam")
 
 	"click .screenshareStop": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')
@@ -118,3 +116,26 @@ Template.webcamModal.events
 	# 		# End of hacky method
 	# 		#
 	# 	callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam");
+
+# if remote deskshare has been ended disconnect and hide the video stream
+@presenterDeskshareHasEnded = ->
+	toggleWhiteboardVideo("whiteboard")
+	console.log("deskshare Ended")
+
+# if remote deskshare has been started connect and display the video stream
+@presenterDeskshareHasStarted = ->
+	toggleWhiteboardVideo("video")
+	console.log("deskshare started")
+	joinVoiceCall @, {
+		watchOnly: true
+	}
+
+# instead of a redis message notify the server to simulate a desksharing
+# notification
+@simulatePresenterDeskshareHasStarted = ->
+	console.log("Calling pres desk started on the server");
+	Meteor.call("simulatePresenterDeskshareHasStarted", getInSession("meetingId"), "12345", getInSession("userId"))
+
+@simulatePresenterDeskshareHasEnded = ->
+	console.log("calling server to end deskshare")
+	Meteor.call("simulatePresenterDeskshareHasEnded", getInSession("meetingId"), getInSession("userId"))

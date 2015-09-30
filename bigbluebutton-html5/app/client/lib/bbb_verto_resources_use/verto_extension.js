@@ -469,6 +469,13 @@ var RTCPeerConnectionCallbacks = {
 };
 this.RTCPeerConnectionCallbacks = RTCPeerConnectionCallbacks;
 
+this.verto_onStreamCallback = function(self, stream) {
+	clearTimeout(callTimeout);
+}
+
+this.verto_afterStreamPublish = function() {
+}
+
 this.webrtc_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, options) {
 	if (userCallback) {
 		callback = userCallback;
