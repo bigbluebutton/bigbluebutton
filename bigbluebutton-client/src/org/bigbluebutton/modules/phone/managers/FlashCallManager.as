@@ -71,7 +71,7 @@
     private function initConnectionManager():void {
       options = new PhoneOptions();
       var uid:String = String(Math.floor(new Date().getTime()));
-      var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-bbbID-" + UsersUtil.getMyUsername()); 
+      var uname:String = encodeURIComponent(UsersUtil.getMyUserID() + "-bbbID-" + UsersUtil.getMyUsername()); 
       connectionManager.setup(uid, UsersUtil.getMyUserID(), uname , UsersUtil.getInternalMeetingID(), options.uri);
     }
     

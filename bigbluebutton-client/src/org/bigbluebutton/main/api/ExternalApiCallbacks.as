@@ -174,13 +174,14 @@ package org.bigbluebutton.main.api
     private function handleGetMyUserInfoSynch():Object {
       var obj:Object = new Object();
       obj.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+	  obj.myInternalUserID = UsersUtil.getMyUserID();
       obj.myUsername = UsersUtil.getMyUsername();
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();
       obj.amIPresenter = UsersUtil.amIPresenter();
-	    obj.dialNumber = UsersUtil.getDialNumber();
-	    obj.voiceBridge = UsersUtil.getVoiceBridge();
-	    obj.customdata = UsersUtil.getCustomData();
+      obj.dialNumber = UsersUtil.getDialNumber();
+      obj.voiceBridge = UsersUtil.getVoiceBridge();
+      obj.customdata = UsersUtil.getCustomData();
       
       return obj;
     }

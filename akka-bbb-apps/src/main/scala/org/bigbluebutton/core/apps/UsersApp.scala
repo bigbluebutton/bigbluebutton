@@ -24,7 +24,7 @@ trait UsersApp {
   def handleUserConnectedToGlobalAudio(msg: UserConnectedToGlobalAudio) {
     log.info("Handling UserConnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + msg.userid)
 
-    val user = usersModel.getUserWithExternalId(msg.userid)
+    val user = usersModel.getUser(msg.userid)
     user foreach { u =>
       val vu = u.voiceUser.copy(joined = false, talking = false)
       val uvo = u.copy(listenOnly = true, voiceUser = vu)
@@ -37,7 +37,7 @@ trait UsersApp {
   def handleUserDisconnectedFromGlobalAudio(msg: UserDisconnectedFromGlobalAudio) {
     log.info("Handling UserDisconnectedToGlobalAudio: meetingId=" + mProps.meetingID + " userId=" + msg.userid)
 
-    val user = usersModel.getUserWithExternalId(msg.userid)
+    val user = usersModel.getUser(msg.userid)
     user foreach { u =>
       if (!u.joinedWeb) {
         val userLeaving = usersModel.removeUser(u.userID)
@@ -284,13 +284,17 @@ trait UsersApp {
   }
 
   def handleUserJoin(msg: UserJoining): Unit = {
+    log.debug("Received user joined meeting. metingId=" + mProps.meetingID + " userId=" + msg.userID)
+
     val regUser = usersModel.getRegisteredUserWithToken(msg.authToken)
     regUser foreach { ru =>
+      log.debug("Found registered user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " ru=" + ru)
 
-      val wUser = usersModel.getUserWithExternalId(ru.externId)
+      val wUser = usersModel.getUser(msg.userID)
 
       val vu = wUser match {
         case Some(u) => {
+          log.debug("Found  user. metingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + u)
           if (u.voiceUser.joined) {
             /*
              * User is in voice conference. Must mean that the user reconnected with audio
@@ -308,6 +312,7 @@ trait UsersApp {
           }
         }
         case None => {
+          log.debug("User not found. metingId=" + mProps.meetingID + " userId=" + msg.userID)
           /**
            * New user. Initialize voice status.
            */
@@ -319,6 +324,7 @@ trait UsersApp {
 
       wUser.foreach { w =>
         if (!w.joinedWeb) {
+          log.debug("User is in voice only. Mark as user left. metingId=" + mProps.meetingID + " userId=" + msg.userID)
           /**
            * If user is not joined through the web (perhaps reconnecting).
            * Send a user left event to clear up user list of all clients.
@@ -400,6 +406,8 @@ trait UsersApp {
   }
 
   def handleUserJoinedVoiceFromPhone(msg: UserJoinedVoiceConfMessage) = {
+    log.info("User joining from phone.  meetingId=" + mProps.meetingID + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
+
     val user = usersModel.getUserWithVoiceUserId(msg.voiceUserId) match {
       case Some(user) => {
         log.info("Voice user=" + msg.voiceUserId + " is already in conf="
@@ -407,7 +415,7 @@ trait UsersApp {
       }
       case None => {
         val webUserId = if (msg.userId != msg.callerIdName) {
-          msg.externUserId
+          msg.userId
         } else {
           // No current web user. This means that the user called in through
           // the phone. We need to generate a new user as we are not able
@@ -454,9 +462,10 @@ trait UsersApp {
   }
 
   def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) = {
-    log.info("Received user joined voice. meetingId=" + mProps.meetingID + " callername=" + msg.callerIdName + " userId=" + msg.userId)
+    log.info("Received user joined voice. meetingId=" + mProps.meetingID + " callername=" + msg.callerIdName
+      + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
 
-    usersModel.getUserWithExternalId(msg.externUserId) match {
+    usersModel.getUser(msg.userId) match {
       case Some(user) => {
         val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName,
           msg.callerIdNum, joined = true, locked = false,
@@ -464,7 +473,7 @@ trait UsersApp {
         val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
         usersModel.addUser(nu)
 
-        log.info("User joined voice. meetingId=" + mProps.meetingID + " userId=[" + user.userID + " user=" + nu)
+        log.info("User joined voice. meetingId=" + mProps.meetingID + " userId=" + user.userID + " user=" + nu)
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
 
         if (meetingModel.isMeetingMuted()) {

@@ -279,6 +279,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleUserLeftVoice(msg:Object):void {  
+      LOGGER.debug("*** handleUserLeftVoice " + msg.msg + " **** \n"); 
       var map:Object = JSON.parse(msg.msg);
       
       var webUser:Object = map.user as Object;
@@ -313,6 +314,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     private function handleUserJoinedVoice(msg:Object):void {
+		LOGGER.debug("*** handleUserJoinedVoice " + msg.msg + " **** \n"); 
       var map:Object = JSON.parse(msg.msg);
       var webUser:Object = map.user as Object;
       userJoinedVoice(webUser);
@@ -326,9 +328,9 @@ package org.bigbluebutton.modules.users.services
       UsersService.getInstance().userJoinedVoice(voiceUser);
       
       var externUserID:String = webUser.externUserID;
-      var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
+      var internUserID:String = webUser.userId;
       
-      if (UsersUtil.getMyExternalUserID() == externUserID) {
+      if (UsersUtil.getMyUserID() == internUserID) {
         _conference.muteMyVoice(voiceUser.muted);
         _conference.setMyVoiceJoined(true);
       }
@@ -379,6 +381,8 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleParticipantJoined(msg:Object):void {
+		LOGGER.info("handleParticipantJoined = " + msg.msg);
+		
       var map:Object = JSON.parse(msg.msg);
       
       var user:Object = map.user as Object;
@@ -419,7 +423,7 @@ package org.bigbluebutton.modules.users.services
       UsersService.getInstance().userJoinedVoice(voiceUser);
       
       var externUserID:String = webUser.externUserID;
-      var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
+      var internUserID:String = webUser.userId;
       
       if (UsersUtil.getMyExternalUserID() == externUserID) {
         _conference.muteMyVoice(voiceUser.muted);
@@ -518,7 +522,9 @@ package org.bigbluebutton.modules.users.services
       }		
     }
     
-    public function participantJoined(joinedUser:Object):void {      
+    public function participantJoined(joinedUser:Object):void {    
+      LOGGER.info(JSON.stringify(joinedUser));
+	  
       var user:BBBUser = new BBBUser();
       user.userID = joinedUser.userId;
       user.name = joinedUser.name;
@@ -527,6 +533,9 @@ package org.bigbluebutton.modules.users.services
       user.isLeavingFlag = false;
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
+	  
+	  LOGGER.info("User joined = " + JSON.stringify(user));
+	  
       UserManager.getInstance().getConference().addUser(user);
       
       if (joinedUser.hasStream) {

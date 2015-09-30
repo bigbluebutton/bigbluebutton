@@ -97,6 +97,7 @@ package org.bigbluebutton.main.api
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_USER_INFO_REP;
       payload.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+	  payload.myInternalUserID = UsersUtil.getMyUserID();
       payload.myUsername = UsersUtil.getMyUsername();
       payload.myAvatarURL = UsersUtil.getAvatarURL();
       payload.myRole = UsersUtil.getMyRole();
@@ -215,14 +216,16 @@ package org.bigbluebutton.main.api
     public function handleUserJoinedVoiceEvent(event:BBBEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_JOINED_VOICE;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
+	  payload.externalUserID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       broadcastEvent(payload);
     }
     
     public function handleUserVoiceMutedEvent(event:BBBEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_MUTED_VOICE;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
+	  payload.externalUserID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.muted = event.payload.muted;
       broadcastEvent(payload);
     }
@@ -230,7 +233,8 @@ package org.bigbluebutton.main.api
     public function handleUserLockedEvent(event:BBBEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_LOCKED;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
+	  payload.externalUserID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.locked = event.payload.locked;
       broadcastEvent(payload);
     }
@@ -238,7 +242,8 @@ package org.bigbluebutton.main.api
     public function handleUserVoiceLeftEvent(event:BBBEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_LEFT_VOICE;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
+	  payload.externalUserID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       broadcastEvent(payload);
     }
             
