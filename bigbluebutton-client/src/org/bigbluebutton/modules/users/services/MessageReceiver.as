@@ -423,7 +423,7 @@ package org.bigbluebutton.modules.users.services
       UsersService.getInstance().userJoinedVoice(voiceUser);
       
       var externUserID:String = webUser.externUserID;
-      var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
+      var internUserID:String = webUser.userId;
       
       if (UsersUtil.getMyExternalUserID() == externUserID) {
         _conference.muteMyVoice(voiceUser.muted);
