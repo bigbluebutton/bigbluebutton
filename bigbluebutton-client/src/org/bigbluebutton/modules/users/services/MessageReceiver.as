@@ -43,13 +43,12 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
-  import org.bigbluebutton.modules.deskshare.managers.DeskshareManager;
   import org.bigbluebutton.modules.present.events.CursorEvent;
   import org.bigbluebutton.modules.present.events.NavigationEvent;
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-  import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+  import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
   

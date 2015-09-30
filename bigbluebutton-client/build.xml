@@ -25,6 +25,7 @@
 	<property name="PRESENT" value="PresentModule" />
 	<property name="DESKSHARE" value="DeskShareModule" />
 	<property name="DESKSHARE_SA" value="DeskshareStandalone" />
+	<property name="WEBRTC_DESKSHARE" value="WebRTCDeskShareModule" />
 	<property name="CAM_PREVIEW_SA" value="WebcamPreviewStandalone" />
 	<property name="MICROPHONE_CHECK" value="MicrophoneCheck" />
 	<property name="CAMERA_CHECK" value="CameraCheck" />
@@ -212,15 +213,20 @@
 		<echo message="Compiling deskshare standalone without optimization." />
 		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE_SA}" />
 	</target>
-  
+
   <target name="build-deskshare-no-linker" description="Compile Deskshare Module without the linker">
     <echo message="Compiling deskshare without optimization." />
-    <build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" /> 
+    <build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" />
   </target>
-    
+
   <target name="build-webcam-preview-standalone" description="Compile Webcam Preview Standalone Application">
     <echo message="Compiling webcam preview standalone without optimization." />
     <build-module-no-link src="${SRC_DIR}" target="${CAM_PREVIEW_SA}" />
+  </target>
+
+  <target name="build-webrtc-deskshare" description="Compile WebRTC Deskshare Application">
+    <echo message="Compiling WebRTC Deskshare Application." />
+    <build-module-no-link src="${SRC_DIR}" target="${WEBRTC_DESKSHARE}" />
   </target>
 
   <target name="build-webcam-view-standalone" description="Compile Webcam View Standalone Application">
@@ -505,16 +511,16 @@
 
 	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
 				to be compiled withouth being optimized by using the linker -->
-	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
-	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
-			description="Build BBB client skipping compiling of locales"/>	
+	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone,
+	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb, build-webrtc-deskshare"
+			description="Build BBB client skipping compiling of locales"/>
 	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-mic-check,
-	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone, 
-	                                         compile-bbb, branding, branding-black" 
+	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone,
+	                                         compile-bbb, branding, branding-black, build-webrtc-deskshare"
 			description="Build BBB client including locales"/>
-	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
-	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"
-                        description="Build BBB client without locales"/>		
+	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone,
+	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb, build-webrtc-deskshare"
+                        description="Build BBB client without locales"/>
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
 	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />
