@@ -85,7 +85,7 @@
 				 * for more details see http://dev.mconf.org/redmine/issues/1712
 				 */
 				this.addEventListener(flexlib.mdi.events.MDIWindowEvent.FOCUS_END, function(e:MDIWindowEvent):void {
-					richTextEditor.htmlText = _document;
+					richTextEditor.refresh();
 				});
 
 				richTextEditor.addEventListener(Event.CHANGE, function(e:Event):void {

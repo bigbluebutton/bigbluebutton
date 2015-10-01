@@ -287,6 +287,7 @@
 
     import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 
+    import mx.collections.ArrayCollection;
     import mx.controls.textClasses.TextRange;
     import mx.core.mx_internal;
     import mx.core.IUITextField;
@@ -747,8 +748,10 @@
         {
             tf = previousTextFormat;
         }
-        else    
+        else {
             tf = new TextFormat();
+            var lines:ArrayCollection = getLinesList(beginIndex, endIndex);
+        }
         
         if (type == "bold" || type == "italic" || type == "underline")
         {
@@ -806,7 +809,11 @@
         }
         else
         {
-            textArea.getTextField().setTextFormat(tf,beginIndex,endIndex);
+            for each (var line:Array in lines)
+            {
+                textArea.getTextField().setTextFormat(tf,line[0],line[1]);
+            }
+            //textArea.getTextField().setTextFormat(tf,beginIndex,endIndex);
         }
         dispatchEvent(new Event("change"));
         
@@ -926,14 +933,15 @@
         systemManager.removeEventListener(
             MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);       
     }
-
-    private var _lastBegin:int = 0;
-    private var _lastEnd:int = 0;
-
-    public function saveNotesToFile(title:String):void {
+    //----------------------------------
+    //  Shared Notes
+    //----------------------------------
+    public function saveNotesToFile(title:String):void
+    {
         var filename:String = title.replace(/\s+/g, '-').toLowerCase();
         var _fileRef:FileReference = new FileReference();
-        _fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
+        _fileRef.addEventListener(Event.COMPLETE, function(e:Event):void
+        {
             dispatchEvent(new Event("SHARED_NOTES_SAVED"));
         });
 
@@ -950,14 +958,20 @@
         _fileRef.save(textToExport, filename+".html");
     }
 
-    public function restoreCursor(endIndex:Number, oldPosition:Number):void {
+    public function restoreCursor(endIndex:Number, oldPosition:Number):void
+    {
         var cursorLine:Number = 0;
 
-        if (endIndex == 0 && text.length == 0) {
+        if (endIndex == 0 && text.length == 0)
+        {
             cursorLine = 0;
-        } else if (endIndex == text.length) {
+        }
+        else if (endIndex == text.length)
+        {
             cursorLine = textArea.mx_internal::getTextField().getLineIndexOfChar(endIndex - 1);
-        } else {
+        }
+        else
+        {
             cursorLine = textArea.mx_internal::getTextField().getLineIndexOfChar(endIndex);
         }
 
@@ -971,14 +985,20 @@
         trace("vertical: " + textArea.verticalScrollPosition);
     }
 
-    public function getOldPosition():Number {
+    public function getOldPosition():Number
+    {
         var oldPosition:Number = 0;
 
-        if (textArea.selectionEndIndex == 0 && text.length == 0) {
+        if (textArea.selectionEndIndex == 0 && text.length == 0)
+        {
             oldPosition = 0;
-        } else if (textArea.selectionEndIndex == text.length) {
+        }
+        else if (textArea.selectionEndIndex == text.length)
+        {
             oldPosition = textArea.mx_internal::getTextField().getLineIndexOfChar(textArea.selectionEndIndex - 1);
-        } else {
+        }
+        else
+        {
             oldPosition = textArea.mx_internal::getTextField().getLineIndexOfChar(textArea.selectionEndIndex);
         }
 
@@ -986,14 +1006,12 @@
         return oldPosition;
     }
 
-    public function patch(patch:String):void {
+    public function patch(patch:String):void
+    {
         var results:Array;
 
-        // We Shouldn't?
-//          textArea.selectable = false;
-
-        _lastBegin = textArea.selectionBeginIndex;
-        _lastEnd = textArea.selectionEndIndex;
+        var _lastBegin:int = textArea.selectionBeginIndex;
+        var _lastEnd:int = textArea.selectionEndIndex;
         var oldPosition:Number = getOldPosition();
 
         trace("Initial Position: " + _lastBegin + " " + _lastEnd);
@@ -1005,15 +1023,19 @@
         var plainPatch:String = DiffPatch.diff(oldText, text);
         results = DiffPatch.patchClientText(plainPatch, oldText, _lastBegin, _lastEnd);
 
-        if (results[0][0] == _lastBegin && results[0][1] > _lastEnd) {
+        if (results[0][0] == _lastBegin && results[0][1] > _lastEnd)
+        {
             var str1:String = oldText.substring(_lastBegin, _lastEnd);
             var str2:String = results[1].substring(_lastBegin, _lastEnd);
 
-            if (str1 != str2) {
+            if (str1 != str2)
+            {
                 _lastEnd = results[0][1];
             }
 
-        } else {
+        }
+        else
+        {
             _lastBegin = results[0][0];
             _lastEnd = results[0][1];
         }
@@ -1027,6 +1049,49 @@
         textArea.setSelection(_lastBegin, _lastEnd);
         validateNow();
     }
+
+    public function refresh():void
+    {
+        trace("TextArea refresh")
+        textArea.htmlText = htmlText;
+    }
+
+    private function getLinesList(beginIndex:int, endIndex:int):ArrayCollection
+    {
+        var lines:ArrayCollection = new ArrayCollection();
+        var index:int = beginIndex;
+
+        while (index < endIndex)
+        {
+            var paragraphLength:int = textArea.getTextField().getParagraphLength(index) - 1;
+            var paragraphEndIndex:int = textArea.getTextField().getFirstCharInParagraph(index) +
+                    textArea.getTextField().getParagraphLength(index) - 1;
+            if (endIndex >= paragraphEndIndex + 1 && paragraphLength > 0)
+            {
+                paragraphEndIndex++;
+            }
+            if (paragraphLength > 0)
+            {
+                if (paragraphEndIndex < endIndex)
+                {
+                    lines.addItem([index, paragraphEndIndex]);
+                    index = paragraphEndIndex;
+                }
+                else
+                {
+                    lines.addItem([index, endIndex]);
+                    break;
+                }
+            }
+            else if (textArea.text.charCodeAt(paragraphEndIndex) != 13)
+            {
+                lines.addItem([index, endIndex]);
+                break;
+            }
+            index++;
+        }
+        return lines;
+    }
     
     ]]>
     </mx:Script>
@@ -1034,8 +1099,8 @@
     <mx:TextArea id="textArea" height="100%" width="100%" minHeight="0" minWidth="0"
                  change="dispatchEvent(event);"
                  valueCommit="dispatchEvent(event);"
-                 keyUp="getTextStyles()"
-                 keyDown="if (textFormatChanged) 
+                 keyUp="getTextStyles();"
+                 keyDown="if (textFormatChanged)
                     {
                         textArea.getTextField().defaultTextFormat=previousTextFormat;
                         textFormatChanged = false;
