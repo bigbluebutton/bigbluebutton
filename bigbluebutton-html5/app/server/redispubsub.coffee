@@ -96,7 +96,7 @@ class Meteor.RedisPubSub
       if message.header.name is 'user_listening_only'
         updateVoiceUser meetingId, {'web_userid': message.payload.userid, 'listen_only': message.payload.listen_only}
         # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
-        return 
+        return
 
       if message.header.name is "get_all_meetings_reply"
         Meteor.log.info "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
@@ -297,6 +297,15 @@ class Meteor.RedisPubSub
           Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}})
         return
 
+      if message.header.name is "user_emoji_status_message"
+        userId = message.payload.userid
+        meetingId = message.payload.meeting_id
+        emojiStatus = message.payload.emoji_status
+        if userId? and meetingId?
+          last_raised = new Date()
+          Meteor.Users.update({"user.userid": userId},{$set: {"user.raise_hand": last_raised, "user.emoji_status": emojiStatus}})
+        return
+
       if message.header.name is "recording_status_changed_message"
         intendedForRecording = message.payload.recorded
         currentlyBeingRecorded = message.payload.recording
@@ -368,7 +377,7 @@ class Meteor.RedisPubSub
         if message.payload.poll.id? and message.payload.meeting_id?
           poll_id = message.payload.poll.id
           meetingId = message.payload.meeting_id
-          clearPollCollection meetingId, poll_id 
+          clearPollCollection meetingId, poll_id
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server

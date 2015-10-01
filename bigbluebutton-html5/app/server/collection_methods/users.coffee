@@ -251,6 +251,7 @@ Meteor.methods
         _sort_name: user.name.toLowerCase()
         phone_user: user.phone_user
         raise_hand: user.raise_hand
+        emoji_status: user.emoji_status
         has_stream: user.has_stream
         role: user.role
         listenOnly: user.listenOnly
