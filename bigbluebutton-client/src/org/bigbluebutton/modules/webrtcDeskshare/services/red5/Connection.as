@@ -38,7 +38,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.services.red5
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.main.events.BBBEvent;
-	import org.bigbluebutton.modules.webrtcDeskshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.webrtcDeskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
 
@@ -323,22 +322,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.services.red5
 
 		public function connectionRejectedHandler(e:ConnectionEvent):void{
 		LOGGER.error("connection rejected to {0} with message {1}", [uri, e.toString()]);
-		}
-
-
-		/**
-		 * Invoked on the server once the clients' applet has started sharing and the server has started a video stream
-		 *
-		 */
-		public function appletStarted(videoWidth:Number, videoHeight:Number):void{
-			LOGGER.debug("Got applet started");
-		if (nc != null && nc.connected) {
-			var event:AppletStartedEvent = new AppletStartedEvent();
-			event.videoWidth = videoWidth;
-			event.videoHeight = videoHeight;
-			dispatcher.dispatchEvent(event);
-		}
-
 		}
 
 		/**
