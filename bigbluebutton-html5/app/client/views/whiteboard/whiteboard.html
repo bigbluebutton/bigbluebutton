@@ -6,11 +6,29 @@
     <div id="whiteboard-container" class="{{whiteboardSize}}">
       <div id="whiteboard-paper">
       </div>
-      {{#if isCurrentUserRaisingHand}}
-        {{> makeButton btn_class="lowerHand soaringButton raiseHandButton" i_class="ion-android-hand"}}
-      {{else}}
-        {{> makeButton btn_class="raiseHand soaringButton raiseHandButton" i_class="ion-android-hand"}}
-      {{/if}}
+      <div class="sl-fab-container sl-left-hr-dbl-fab">
+        <button type="submit" class="sl-fab-trigger">
+          <i class="ion-plus-round"></i>
+        </button>
+        <button type="submit" class="sl-fab-btn sadEmojiButton">
+          {{> slIcon name="sad-face" size="50"}}
+        </button>
+        <button type="submit" class="sl-fab-btn happyEmojiButton">
+          {{> slIcon name="happy-face" size="50"}}
+        </button>
+        <button type="submit" class="sl-fab-btn confusedEmojiButton">
+          {{> slIcon name="confused-face" size="50"}}
+        </button>
+        <button type="submit" class="sl-fab-btn neutralEmojiButton">
+          {{> slIcon name="neutral-face" size="50"}}
+        </button>
+        <button type="submit" class="sl-fab-btn awayEmojiButton">
+          {{> slIcon name="clock" size="50"}}
+        </button>
+        <button type="submit" class="sl-fab-btn raiseHandEmojiButton">
+          <i class="ion-android-hand"></i>
+        </button>
+      </div>
       {{#if isMobile}}
         {{> makeButton btn_class="soaringButton fullscreenButton whiteboardFullscreenButton" i_class="ion-arrow-expand"}}
       {{/if}}

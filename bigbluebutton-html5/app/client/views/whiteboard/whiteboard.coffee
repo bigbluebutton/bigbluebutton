@@ -39,6 +39,28 @@ Template.whiteboard.events
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
 
+  'click .sadEmojiButton': (event) ->
+    BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "sad")
+
+  'click .happyEmojiButton': (event) ->
+    BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "happy")
+
+  'click .confusedEmojiButton': (event) ->
+    BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "confused")
+
+  'click .neutralEmojiButton': (event) ->
+    BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "neutral")
+
+  'click .awayEmojiButton': (event) ->
+    BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "away")
+
+  'click .raiseHandEmojiButton': (event) ->
+    BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "raiseHand")
+
+  'click .sl-fab-trigger': (event) ->
+    $('.sl-fab-trigger').blur()
+    toggleFAB()
+
 Template.presenterBottomControllers.events
   'click .previousSlide':(event) ->
     BBB.goToPreviousPage()

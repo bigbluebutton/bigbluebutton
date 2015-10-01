@@ -148,6 +148,9 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.raiseHand = (meetingId, toUserId, byUserId, byAuthToken) ->
     Meteor.call('userRaiseHand', meetingId, toUserId, byUserId, byAuthToken)
 
+  BBB.setEmojiStatus = (meetingId, toUserId, byUserId, byAuthToken, status) ->
+    Meteor.call('userSetEmoji', meetingId, toUserId, byUserId, byAuthToken, status)
+
   BBB.isUserRaisingHand = (userId) ->
     BBB.getUser(userId)?.user?.raise_hand
 
