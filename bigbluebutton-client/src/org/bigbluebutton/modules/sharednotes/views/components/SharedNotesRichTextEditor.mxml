@@ -1066,7 +1066,7 @@
             var paragraphLength:int = textArea.getTextField().getParagraphLength(index) - 1;
             var paragraphEndIndex:int = textArea.getTextField().getFirstCharInParagraph(index) +
                     textArea.getTextField().getParagraphLength(index) - 1;
-            if (endIndex >= paragraphEndIndex + 1 && paragraphLength > 0)
+            if (endIndex >= paragraphEndIndex + 1 && paragraphLength > 0 && textArea.text.charCodeAt(paragraphEndIndex) != 13)
             {
                 paragraphEndIndex++;
             }
@@ -1092,6 +1092,29 @@
         }
         return lines;
     }
+
+    private function clearTextStyle():void
+    {
+        setTextStyles('bold', false);
+        boldButton.selected = false;
+        setTextStyles('italic', false);
+        italicButton.selected = false;
+        setTextStyles('underline', false);
+        underlineButton.selected = false;
+    }
+
+    private function onKeyDown(event:KeyboardEvent):void
+    {
+        if (event.keyCode == 13)
+        {
+            clearTextStyle();
+        }
+        if (textFormatChanged)
+        {
+            textArea.getTextField().defaultTextFormat=previousTextFormat;
+            textFormatChanged = false;
+        }
+    }
     
     ]]>
     </mx:Script>
@@ -1100,11 +1123,7 @@
                  change="dispatchEvent(event);"
                  valueCommit="dispatchEvent(event);"
                  keyUp="getTextStyles();"
-                 keyDown="if (textFormatChanged)
-                    {
-                        textArea.getTextField().defaultTextFormat=previousTextFormat;
-                        textFormatChanged = false;
-                    }"
+                 keyDown="onKeyDown(event);"
                  mouseDown="systemManager.addEventListener(
                     MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);"
                  />
