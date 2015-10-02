@@ -742,6 +742,7 @@
     private function setTextStyles(type:String, value:Object = null):void
     {
         var tf:TextFormat;
+        var wholeParagraph:Boolean = false;
         var beginIndex:int = textArea.getTextField().selectionBeginIndex;
         var endIndex:int = textArea.getTextField().selectionEndIndex;
         if (beginIndex == endIndex)
@@ -757,36 +758,57 @@
         {
             tf[type] = value;
         }
-        else if (type == "align" || type == "bullet")
+        else if (type == "align" || type == "bullet" || type == "font" || type == "size" || type == "color")
         {
+            wholeParagraph = true;
+            // Apply the paragraph styles to the whole paragraph instead of just 
+            // the selected text
             if (beginIndex == endIndex)
             {
                 tf = new TextFormat();
+                beginIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex);
+                beginIndex = Math.max(0, beginIndex);
+                endIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex) +
+                        textArea.getTextField().getParagraphLength(beginIndex);
+                if (textArea.text.length == 0)
+                {
+                    endIndex--;
+                }
             }
-            // Apply the paragraph styles to the whole paragraph instead of just 
-            // the selected text
-            beginIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex) - 1;
-            beginIndex = Math.max(0, beginIndex);
-            endIndex = textArea.getTextField().getFirstCharInParagraph(endIndex) +
-                textArea.getTextField().getParagraphLength(endIndex) - 1;
-            tf[type] = value;
-            previousTextFormat[type] = value;
+            else
+            {
+                beginIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex);
+                beginIndex = Math.max(0, beginIndex);
+                endIndex = textArea.getTextField().getFirstCharInParagraph(endIndex);
+                endIndex = textArea.getTextField().getFirstCharInParagraph(endIndex) +
+                textArea.getTextField().getParagraphLength(endIndex);
+            }
+            if (type == "font")
+            {
+                tf[type] = fontFamilyCombo.text;
+                previousTextFormat[type] = fontFamilyCombo.text;
+            }
+            else if (type == "size")
+            {
+                var fontSize:uint = uint(fontSizeCombo.text);
+                if (fontSize > 0)
+                {
+                    tf[type] = fontSize;
+                    previousTextFormat[type] = fontSize;
+                }
+            }
+            else if (type == "color")
+            {
+                tf[type] = uint(colorPicker.selectedColor);
+                previousTextFormat[type] = uint(colorPicker.selectedColor);
+            }
+            else
+            {
+                tf[type] = value;
+                previousTextFormat[type] = value;
+            }
             if (!endIndex)
                 textArea.getTextField().defaultTextFormat = tf;
-        }
-        else if (type == "font")
-        {
-            tf[type] = fontFamilyCombo.text;
-        }
-        else if (type == "size")
-        {
-            var fontSize:uint = uint(fontSizeCombo.text);
-            if (fontSize > 0)
-                tf[type] = fontSize;
-        }
-        else if (type == "color")
-        {
-            tf[type] = uint(colorPicker.selectedColor);
         }
         else if (type == "url")
         {
@@ -809,11 +831,17 @@
         }
         else
         {
-            for each (var line:Array in lines)
+            if (wholeParagraph)
             {
-                textArea.getTextField().setTextFormat(tf,line[0],line[1]);
+                textArea.getTextField().setTextFormat(tf,beginIndex,endIndex);
             }
-            //textArea.getTextField().setTextFormat(tf,beginIndex,endIndex);
+            else
+            {
+                for each (var line:Array in lines)
+                {
+                    textArea.getTextField().setTextFormat(tf,line[0],line[1]);
+                }
+            }
         }
         dispatchEvent(new Event("change"));
         
