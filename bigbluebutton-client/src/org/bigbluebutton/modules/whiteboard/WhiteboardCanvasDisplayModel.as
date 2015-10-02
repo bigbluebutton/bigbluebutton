@@ -62,15 +62,19 @@ package org.bigbluebutton.modules.whiteboard
 	private var zoomPercentage:Number = 1;
 	
     public function doMouseDown(mouseX:Number, mouseY:Number):void {
+      publishText();
+    }
+    
+    private function publishText():void {
       /**
-        * Check if the presenter is starting a new text annotation without committing the last one.
-        * If so, publish the last text annotation. 
-        */
+       * Check if the presenter is starting a new text annotation without committing the last one.
+       * If so, publish the last text annotation. 
+       */
       if (currentlySelectedTextObject != null && currentlySelectedTextObject.status != TextObject.TEXT_PUBLISHED) {
         sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
       }
     }
-        
+    
     public function drawGraphic(event:WhiteboardUpdate):void{
       var o:Annotation = event.annotation;
       //  LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
@@ -161,6 +165,9 @@ package org.bigbluebutton.modules.whiteboard
       }
       
       tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
+      
+      tobj._whiteboardID = whiteboardModel.getCurrentWhiteboardId();
+      
       wbCanvas.addGraphic(tobj);
       wbCanvas.stage.focus = tobj;
             _annotationsList.push(tobj);
@@ -329,7 +336,9 @@ package org.bigbluebutton.modules.whiteboard
         
         /**********************************************************/
         
-    public function changePage(wbId:String):void{
+        public function changePage(wbId:String):void{
+            publishText();
+            
 //            LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
             clearBoard();
             
@@ -541,9 +550,8 @@ package org.bigbluebutton.modules.whiteboard
       annotation["textBoxWidth"] = tobj.textBoxWidth;
       annotation["textBoxHeight"] = tobj.textBoxHeight;
       
-      var wbId:String = whiteboardModel.getCurrentWhiteboardId();
-      if (wbId != null) {
-        annotation["whiteboardId"] = wbId;        
+      if (tobj._whiteboardID != null) {
+        annotation["whiteboardId"] = tobj._whiteboardID;        
         var msg:Annotation = new Annotation(tobj.id, "text", annotation);
         wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);
       }
