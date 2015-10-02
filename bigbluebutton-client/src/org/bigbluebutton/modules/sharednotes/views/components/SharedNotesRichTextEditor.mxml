@@ -770,7 +770,7 @@
                 beginIndex = Math.max(0, beginIndex);
                 endIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex) +
                         textArea.getTextField().getParagraphLength(beginIndex);
-                if (textArea.text.length == 0)
+                if (endIndex > textArea.text.length)
                 {
                     endIndex--;
                 }
