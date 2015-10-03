@@ -57,7 +57,10 @@ Template.whiteboard.events
   'click .raiseHandEmojiButton': (event) ->
     BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "raiseHand")
 
-  'click .sl-fab-trigger': (event) ->
+  'click .clearEmojiButton': (event) ->
+    BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "none")
+
+  'click .sl-fab-trigger, click .sl-fab-btn': (event) ->
     $('.sl-fab-trigger').blur()
     toggleFAB()
 

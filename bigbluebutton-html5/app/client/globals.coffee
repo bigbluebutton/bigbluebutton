@@ -83,6 +83,9 @@ Handlebars.registerHelper "getUsersInMeeting", ->
 Handlebars.registerHelper "getWhiteboardTitle", ->
   (BBB.currentPresentationName() or "Loading presentation...")
 
+Handlebars.registerHelper "getCurrentUserEmojiStatus", ->
+  BBB.getCurrentUser()?.user?.emoji_status
+
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
 
@@ -97,6 +100,9 @@ Handlebars.registerHelper "privateChatName", ->
 
 Handlebars.registerHelper "isCurrentUserRaisingHand", ->
   BBB.isCurrentUserRaisingHand()
+
+Handlebars.registerHelper "isCurrentUserEmojiStatusSet", ->
+  BBB.isCurrentUserEmojiStatusSet()
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
   BBB.amISharingVideo()
@@ -214,7 +220,7 @@ Handlebars.registerHelper "getPollQuestions", ->
         bTime = b.user.raise_hand.getTime()
         if aTime < bTime
           return -1
-        else 
+        else
           return 1
       else if a.user.raise_hand
         return -1
@@ -227,8 +233,8 @@ Handlebars.registerHelper "getPollQuestions", ->
       else if not b.user.phone_user
         return 1
 
-      #Check name (case-insensitive) in the event of a tie up above. If the name 
-      #is the same then use userID which should be unique making the order the same 
+      #Check name (case-insensitive) in the event of a tie up above. If the name
+      #is the same then use userID which should be unique making the order the same
       #across all clients.
 
       if a.user._sort_name < b.user._sort_name

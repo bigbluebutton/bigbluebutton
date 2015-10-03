@@ -157,6 +157,12 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.isCurrentUserRaisingHand = ->
     BBB.isUserRaisingHand(BBB.getCurrentUser()?.userId)
 
+  BBB.isUserEmojiStatusSet = (userId) ->
+    BBB.getUser(userId)?.user?.emoji_status isnt "none" and BBB.getUser(userId)?.user?.emoji_status isnt undefined
+
+  BBB.isCurrentUserEmojiStatusSet = ->
+    BBB.isUserEmojiStatusSet(BBB.getCurrentUser()?.userId)
+
   BBB.isMeetingRecording = ->
     MEteor.Meetings.findOne()?.recorded
 
