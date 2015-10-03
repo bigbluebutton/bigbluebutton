@@ -770,10 +770,6 @@
                 beginIndex = Math.max(0, beginIndex);
                 endIndex = textArea.getTextField().getFirstCharInParagraph(beginIndex) +
                         textArea.getTextField().getParagraphLength(beginIndex);
-                if (endIndex > textArea.text.length)
-                {
-                    endIndex--;
-                }
             }
             else
             {
@@ -781,7 +777,11 @@
                 beginIndex = Math.max(0, beginIndex);
                 endIndex = textArea.getTextField().getFirstCharInParagraph(endIndex);
                 endIndex = textArea.getTextField().getFirstCharInParagraph(endIndex) +
-                textArea.getTextField().getParagraphLength(endIndex);
+                        textArea.getTextField().getParagraphLength(endIndex);
+            }
+            if (endIndex > textArea.text.length)
+            {
+                endIndex--;
             }
             if (type == "font")
             {
@@ -1131,16 +1131,33 @@
         underlineButton.selected = false;
     }
 
+    private function refreshTextStyle():void
+    {
+        setTextStyles('font', previousTextFormat.font);
+        setTextStyles('size', previousTextFormat.size);
+        setTextStyles('color', previousTextFormat.color);
+    }
+
     private function onKeyDown(event:KeyboardEvent):void
     {
         if (event.keyCode == 13)
         {
+            // Enter was pressed
             clearTextStyle();
         }
         if (textFormatChanged)
         {
             textArea.getTextField().defaultTextFormat=previousTextFormat;
             textFormatChanged = false;
+        }
+    }
+
+    private function onKeyUp(event:KeyboardEvent):void
+    {
+        getTextStyles();
+        if (event.keyCode == 8 || event.keyCode == 46) {
+            // Delete or backspace were pressed
+            refreshTextStyle();
         }
     }
     
@@ -1150,7 +1167,7 @@
     <mx:TextArea id="textArea" height="100%" width="100%" minHeight="0" minWidth="0"
                  change="dispatchEvent(event);"
                  valueCommit="dispatchEvent(event);"
-                 keyUp="getTextStyles();"
+                 keyUp="onKeyUp(event);"
                  keyDown="onKeyDown(event);"
                  mouseDown="systemManager.addEventListener(
                     MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);"
