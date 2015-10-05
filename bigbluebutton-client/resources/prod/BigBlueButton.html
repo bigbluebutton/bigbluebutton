@@ -26,13 +26,35 @@
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
     <script src="lib/deployJava.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript">
+      // Check for Firefox 41.0.1 to workaround Flash hang
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1210665
+      var ffHangWorkaround = function() {
+        if (navigator.userAgent.indexOf("Windows") != -1 &&
+          (navigator.userAgent.indexOf("Firefox/41.0") != -1 &&
+            navigator.buildID > "20150928" &&
+            navigator.buildID < "20151002")) {
+            console.log("Browser appears to be Firefox 41.0.1 on Windows");
+            return true;
+        }
+        return false;
+      };
+
       //swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
       var flashvars = {};
       var params = {};
       params.quality = "high";
       params.bgcolor = "#869ca7";
       params.allowfullscreen = "true";
-      params.wmode = "window";
+      if (ffHangWorkaround()) {
+        console.log("Applying Firefox Flash hang workaround");
+	// wmode = opaque causes button clicks to be sometimes unresponsive,
+	// and right-click in particular is unreliable. It disables Flash
+	// permission prompts on Linux (causing webcams, flash voice to be
+	// unusable there). But it's better than a browser hang...
+        params.wmode = "opaque";
+      } else {
+        params.wmode = "window";
+      }
       params.allowscriptaccess = "true";
       params.seamlesstabbing = "true";
       var attributes = {};
