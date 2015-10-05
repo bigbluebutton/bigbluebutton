@@ -39,25 +39,25 @@ Template.whiteboard.events
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
 
-  'click .sadEmojiButton': (event) ->
+  'click .sadEmojiButton.inactiveEmojiButton': (event) ->
     BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "sad")
 
-  'click .happyEmojiButton': (event) ->
+  'click .happyEmojiButton.inactiveEmojiButton': (event) ->
     BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "happy")
 
-  'click .confusedEmojiButton': (event) ->
+  'click .confusedEmojiButton.inactiveEmojiButton': (event) ->
     BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "confused")
 
-  'click .neutralEmojiButton': (event) ->
+  'click .neutralEmojiButton.inactiveEmojiButton': (event) ->
     BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "neutral")
 
-  'click .awayEmojiButton': (event) ->
+  'click .awayEmojiButton.inactiveEmojiButton': (event) ->
     BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "away")
 
-  'click .raiseHandEmojiButton': (event) ->
+  'click .raiseHandEmojiButton.inactiveEmojiButton': (event) ->
     BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "raiseHand")
 
-  'click .clearEmojiButton': (event) ->
+  'click .activeEmojiButton': (event) ->
     BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "none")
 
   'click .sl-fab-trigger, click .sl-fab-btn': (event) ->
