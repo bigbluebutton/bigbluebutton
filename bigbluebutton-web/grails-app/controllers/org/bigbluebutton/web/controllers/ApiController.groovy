@@ -334,6 +334,7 @@ class ApiController {
     String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
 
     String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+	String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
 	
     String externUserID = params.userID
     if (StringUtils.isEmpty(externUserID)) {
@@ -410,12 +411,17 @@ class ApiController {
 	session['user-token'] = us.meetingID + "-" + us.authToken;
 	session['logout-url'] = us.logoutUrl
 	
+	session[sessionToken] = sessionToken
+	
 	meetingService.addUserSession(session['user-token'], us);
 	
 	// Register user into the meeting.
 	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
 	
-	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
+	String tempFoo = session[sessionToken]
+	
+	println("Session user token for " + us.fullname + " [" + tempFoo + "]")
+		
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
 	//check if exists the param redirect
@@ -435,11 +441,12 @@ class ApiController {
 	}
 	
 	if (redirectClient){
-		log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
-		redirect(url: clientURL);
+	    String destUrl = clientURL + "?sessionToken=" + sessionToken
+		println("Successfully joined. Redirecting to ${destUrl}"); 		
+		redirect(url: destUrl);
 	}
 	else{
-		log.info("Successfully joined. Sending XML response.");
+		println("Successfully joined. Sending XML response.");
 		response.addHeader("Cache-Control", "no-cache")
 		withFormat {
 		  xml {
@@ -458,6 +465,219 @@ class ApiController {
 	}
   }
 
+  /***********************************************
+   * ENTER API
+   ***********************************************/
+  def enter = {
+    println("#ENTER API")
+    
+    if (StringUtils.isEmpty(params.sessionToken)) {
+      println("SessionToken is missing.")
+    }
+    
+    String sessionToken = StringUtils.strip(params.sessionToken)
+    
+    println("Session token = [" + sessionToken + "]")
+    
+    boolean reject = false;
+
+    UserSession us = null;
+    Meeting meeting = null;
+
+    if (!session["user-token"]) {
+      reject = true;
+    } else {
+      if (meetingService.getUserSession(session['user-token']) == null)
+        reject = true;
+      else {
+        us = meetingService.getUserSession(session['user-token']);
+        meeting = meetingService.getMeeting(us.meetingID);
+        if (meeting == null || meeting.isForciblyEnded()) {
+          reject = true
+        }
+      }
+    }
+
+    if (reject) {
+      log.info("No session for user in conference.")
+
+      // Determine the logout url so we can send the user there.
+      String logoutUrl = session["logout-url"]
+
+      if (! session['meeting-id']) {
+        meeting = meetingService.getMeeting(session['meeting-id']);
+      }
+
+      if (meeting != null) {
+        log.debug("Logging out from [" + meeting.getInternalId() + "]");
+        logoutUrl = meeting.getLogoutUrl();
+      }
+
+      if (StringUtils.isEmpty(logoutUrl))
+        logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {        
+        json {
+          render(contentType: "application/json") {
+            response = {
+              returncode = "FAILED"
+              message = "Could not find conference."
+              logoutURL = logoutUrl
+            }
+          }
+        }
+      }
+    } else {
+        
+        Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+    
+      // Generate a new userId for this user. This prevents old connections from
+      // removing the user when the user reconnects after being disconnected. (ralam jan 22, 2015)
+      // We use underscore (_) to associate userid with the user. We are also able to track
+      // how many times a user reconnects or refresh the browser.
+      String newInternalUserID = us.internalUserId + "_" + us.incrementConnectionNum()
+    
+      log.info("Found conference for " + us.fullname)
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {        
+        json {
+          render(contentType: "application/json") {
+            response = {
+              returncode = "SUCCESS"
+              fullname = us.fullname
+              confname = us.conferencename
+              meetingID = us.meetingID
+              externMeetingID = us.externMeetingID
+              externUserID = us.externUserID
+              internalUserID = newInternalUserID
+              authToken = us.authToken
+              role = us.role
+              conference = us.conference
+              room = us.room 
+              voicebridge = us.voicebridge
+              dialnumber = meeting.getDialNumber()
+              webvoiceconf = us.webvoiceconf
+              mode = us.mode
+              record = us.record
+              allowStartStopRecording = meeting.getAllowStartStopRecording()
+              welcome = us.welcome
+              if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
+                modOnlyMessage = meeting.moderatorOnlyMessage
+              logoutUrl = us.logoutUrl
+              defaultLayout = us.defaultLayout
+              avatarURL = us.avatarURL
+              customdata = array {
+                 userCustomData.each { k, v ->
+                      // Somehow we need to prepend something (custdata) for the JSON to work
+                      custdata "$k" : v
+                 }
+              }
+            }
+          }
+        }
+      }
+      }  
+  }
+    
+  /*************************************************
+   * SIGNOUT API
+   *************************************************/
+  def signOut = {  
+    println("#SIGNOUT API")
+  
+    if (StringUtils.isEmpty(params.sessionToken)) {
+      println("SessionToken is missing.")
+    }
+    
+    Meeting meeting = null;
+    
+    if (session["user-token"] && (meetingService.getUserSession(session['user-token']) != null)) {
+          log.info("Found session for user in conference.")
+          UserSession us = meetingService.removeUserSession(session['user-token']);
+          meeting = meetingService.getMeeting(us.meetingID);
+    }
+          
+    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+                    
+    if ((meeting == null) && (! session['meeting-id'])) {
+        meeting = meetingService.getMeeting(session['meeting-id']);
+    }
+        
+    if (meeting != null) {
+      log.debug("Logging out from [" + meeting.getInternalId() + "]");
+        logoutUrl = meeting.getLogoutUrl();
+    }     
+   
+    log.debug("Signing out. Redirecting to " + logoutUrl)
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {    
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+          }
+        }
+      }
+    }
+  }
+
+  /***********************************************
+  * CONFIG API
+  ***********************************************/
+  def configXML = {
+    println("#CONFIG_XML API")
+
+    if (StringUtils.isEmpty(params.sessionToken)) {
+      println("SessionToken is missing.")
+    }
+    
+    String sessionToken = StringUtils.strip(params.sessionToken)
+              
+      if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
+          println("No session for user in conference.")
+          
+          Meeting meeting = null;
+          
+          // Determine the logout url so we can send the user there.
+          String logoutUrl = session["logout-url"]
+                        
+          if (! session['meeting-id']) {
+              meeting = meetingService.getMeeting(session['meeting-id']);
+          }
+        
+          
+        
+          if (meeting != null) {
+              println("Logging out from [" + meeting.getInternalId() + "]");
+              logoutUrl = meeting.getLogoutUrl();
+          }
+          
+          if (StringUtils.isEmpty(logoutUrl))
+              logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+          
+          response.addHeader("Cache-Control", "no-cache")
+          withFormat {
+            xml {
+              render(contentType:"text/xml") {
+                response() {
+                  returncode("FAILED")
+                  message("Could not find conference.")
+                  logoutURL() { mkp.yield(logoutUrl) }
+                }
+              }
+            }
+          }       
+        } else {
+            UserSession us = meetingService.getUserSession(session['user-token']);
+            println("Found session for " + us.fullname)
+        
+            response.addHeader("Cache-Control", "no-cache")
+            render text: us.configXML, contentType: 'text/xml'
+        }
+
+  }
+    
   /*******************************************
    * IS_MEETING_RUNNING API
    *******************************************/
@@ -1382,164 +1602,6 @@ class ApiController {
   }
   
   /***********************************************
-  * CONFIG API
-  ***********************************************/
-  def configXML = {
-	  	  
-	  if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
-		  log.info("No session for user in conference.")
-		  
-		  Meeting meeting = null;
-		  
-		  // Determine the logout url so we can send the user there.
-		  String logoutUrl = session["logout-url"]
-						
-		  if (! session['meeting-id']) {
-			  meeting = meetingService.getMeeting(session['meeting-id']);
-		  }
-		
-		  // Log the user out of the application.
-		  session.invalidate()
-		
-		  if (meeting != null) {
-			  log.debug("Logging out from [" + meeting.getInternalId() + "]");
-			  logoutUrl = meeting.getLogoutUrl();
-		  }
-		  
-		  if (StringUtils.isEmpty(logoutUrl))
-			  logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-		  
-		  response.addHeader("Cache-Control", "no-cache")
-		  withFormat {
-			xml {
-			  render(contentType:"text/xml") {
-				response() {
-				  returncode("FAILED")
-				  message("Could not find conference.")
-				  logoutURL() { mkp.yield(logoutUrl) }
-				}
-			  }
-			}
-		  }		  
-		} else {
-			UserSession us = meetingService.getUserSession(session['user-token']);
-			log.info("Found session for " + us.fullname)
-		
-			response.addHeader("Cache-Control", "no-cache")
-			render text: us.configXML, contentType: 'text/xml'
-		}
-
-  }
-  
-  /***********************************************
-   * ENTER API
-   ***********************************************/
-  def enter = {
-    boolean reject = false;
-
-    UserSession us = null;
-    Meeting meeting = null;
-
-    if (!session["user-token"]) {
-      reject = true;
-    } else {
-      if (meetingService.getUserSession(session['user-token']) == null)
-        reject = true;
-      else {
-        us = meetingService.getUserSession(session['user-token']);
-        meeting = meetingService.getMeeting(us.meetingID);
-        if (meeting == null || meeting.isForciblyEnded()) {
-          reject = true
-        }
-      }
-    }
-
-    if (reject) {
-      log.info("No session for user in conference.")
-
-      // Determine the logout url so we can send the user there.
-      String logoutUrl = session["logout-url"]
-
-      if (! session['meeting-id']) {
-        meeting = meetingService.getMeeting(session['meeting-id']);
-      }
-
-      // Log the user out of the application.
-      session.invalidate()
-
-      if (meeting != null) {
-        log.debug("Logging out from [" + meeting.getInternalId() + "]");
-        logoutUrl = meeting.getLogoutUrl();
-      }
-
-      if (StringUtils.isEmpty(logoutUrl))
-        logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {        
-        json {
-          render(contentType: "application/json") {
-            response = {
-              returncode = "FAILED"
-              message = "Could not find conference."
-              logoutURL = logoutUrl
-            }
-          }
-        }
-      }
-    } else {
-		
-		Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
-	
-      // Generate a new userId for this user. This prevents old connections from
-      // removing the user when the user reconnects after being disconnected. (ralam jan 22, 2015)
-      // We use underscore (_) to associate userid with the user. We are also able to track
-      // how many times a user reconnects or refresh the browser.
-      String newInternalUserID = us.internalUserId + "_" + us.incrementConnectionNum()
-    
-      log.info("Found conference for " + us.fullname)
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {        
-        json {
-          render(contentType: "application/json") {
-            response = {
-              returncode = "SUCCESS"
-              fullname = us.fullname
-              confname = us.conferencename
-              meetingID = us.meetingID
-              externMeetingID = us.externMeetingID
-              externUserID = us.externUserID
-              internalUserID = newInternalUserID
-              authToken = us.authToken
-              role = us.role
-              conference = us.conference
-              room = us.room 
-              voicebridge = us.voicebridge
-              dialnumber = meeting.getDialNumber()
-              webvoiceconf = us.webvoiceconf
-              mode = us.mode
-              record = us.record
-              allowStartStopRecording = meeting.getAllowStartStopRecording()
-              welcome = us.welcome
-              if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
-                modOnlyMessage = meeting.moderatorOnlyMessage
-              logoutUrl = us.logoutUrl
-              defaultLayout = us.defaultLayout
-              avatarURL = us.avatarURL
-              customdata = array {
-                 userCustomData.each { k, v ->
-                      // Somehow we need to prepend something (custdata) for the JSON to work
-                      custdata "$k" : v
-				 }
-              }
-            }
-          }
-        }
-      }
-      }  
-  }
-
-  /***********************************************
    * STUN/TURN API
    ***********************************************/
   def stuns = {
@@ -1572,8 +1634,6 @@ class ApiController {
         meeting = meetingService.getMeeting(session['meeting-id']);
       }
 
-      // Log the user out of the application.
-      session.invalidate()
 
       if (meeting != null) {
         log.debug("Logging out from [" + meeting.getInternalId() + "]");
@@ -1627,45 +1687,7 @@ class ApiController {
       }
   }
 
-  
-  /*************************************************
-   * SIGNOUT API
-   *************************************************/
-  def signOut = {  
-	Meeting meeting = null;
-  	
-	if (session["user-token"] && (meetingService.getUserSession(session['user-token']) != null)) {
-		  log.info("Found session for user in conference.")
-		  UserSession us = meetingService.removeUserSession(session['user-token']);
-		  meeting = meetingService.getMeeting(us.meetingID);
-	}
-		  
-  	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-                    
-	if ((meeting == null) && (! session['meeting-id'])) {
-		meeting = meetingService.getMeeting(session['meeting-id']);
-	}
-	
-	// Log the user out of the application.
-	session.invalidate()
-	
-  	if (meeting != null) {
-  	  log.debug("Logging out from [" + meeting.getInternalId() + "]");
-  		logoutUrl = meeting.getLogoutUrl();
-  	}     
-   
-  	log.debug("Signing out. Redirecting to " + logoutUrl)
-    response.addHeader("Cache-Control", "no-cache")
-    withFormat {	
-      xml {
-        render(contentType:"text/xml") {
-          response() {
-            returncode(RESP_CODE_SUCCESS)
-          }
-        }
-      }
-    }
-  }
+
  
   /******************************************************
    * GET_RECORDINGS API

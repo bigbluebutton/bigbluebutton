@@ -54,7 +54,7 @@ package org.bigbluebutton.main.model.modules
 		
 		public function ModuleManager(modulesDispatcher: ModulesDispatcher)
 		{
-      this.modulesDispatcher = modulesDispatcher;
+            this.modulesDispatcher = modulesDispatcher;
 			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
 			configParameters = new ConfigParameters(handleComplete);
 		}
@@ -71,7 +71,7 @@ package org.bigbluebutton.main.model.modules
 			
 			modulesDispatcher.sendConfigParameters(configParameters);
       
-      modulesDispatcher.sendPortTestEvent();
+      		modulesDispatcher.sendPortTestEvent();
 		}
 		
 		public function useProtocol(protocol:String):void {

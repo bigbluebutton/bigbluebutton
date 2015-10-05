@@ -79,7 +79,8 @@ package org.bigbluebutton.main.model.modules
     }
     
     public function sendPortTestEvent():void {     
-      getMeetingAndUserInfo();
+      //getMeetingAndUserInfo();
+	  doPortTesting();
     }
     
     private function getMeetingAndUserInfo():void {

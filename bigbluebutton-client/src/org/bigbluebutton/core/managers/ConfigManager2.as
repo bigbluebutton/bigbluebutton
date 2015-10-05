@@ -24,6 +24,8 @@ package org.bigbluebutton.core.managers
 	import flash.events.EventDispatcher;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
 	
 	import mx.core.FlexGlobals;
 	import mx.utils.URLUtil;
@@ -33,6 +35,7 @@ package org.bigbluebutton.core.managers
 	import org.bigbluebutton.core.EventBroadcaster;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+	import org.bigbluebutton.util.QueryStringParameters;
 	
 	public class ConfigManager2 extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(ConfigManager2);      
@@ -42,12 +45,27 @@ package org.bigbluebutton.core.managers
 		private var _config:Config = null;
 				
 		public function loadConfig():void {
+			var p:QueryStringParameters = new QueryStringParameters();
+			p.collectParameters();
+			var sessionToken:String = p.getParameter("sessionToken");
+			
+			var reqVars:URLVariables = new URLVariables();
+			reqVars.sessionToken = sessionToken;
+			
 			var urlLoader:URLLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			
 			var date:Date = new Date();
-      var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
-      LOGGER.debug("::loadConfig [{0}]", [localeReqURL]);
-			urlLoader.load(new URLRequest(localeReqURL));			
+            var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+            LOGGER.debug("::loadConfig [{0}]", [localeReqURL]);
+			
+			LOGGER.debug(localeReqURL + " session=[" + sessionToken + "]"); 
+			
+			var request:URLRequest = new URLRequest(localeReqURL);
+			request.method = URLRequestMethod.GET;
+			request.data = reqVars;
+			
+			urlLoader.load(request);			
 		}		
 		
     private function buildRequestURL():String {

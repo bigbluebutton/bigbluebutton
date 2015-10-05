@@ -50,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.ShortcutOptions;
+		import org.bigbluebutton.util.QueryStringParameters;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		private static const LOGGER:ILogger = getClassLogger(BigBlueButtonMainContainer);      
@@ -69,15 +70,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
+      private var _timer:Timer;
+		
 	  protected function init():void {
         setupTooltips();
         setupAPI();
         EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-        BBB.initConfigManager();
         BBB.initVideoProfileManager();
         globalModifier = ExternalInterface.call("determineGlobalModifier");
       }
       
+      private function queryForSessionToken():void {
+		  LOGGER.debug("***** queryForSessionToken ****");
+		  _timer = new Timer(5000, 6);
+		  _timer.addEventListener(TimerEvent.TIMER, timerHandler);
+		  _timer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
+		  _timer.start();
+	  }
+	
+	  private function getSessionToken():String {
+		  var p:QueryStringParameters = new QueryStringParameters();
+		  p.collectParameters();
+		  return p.getParameter("sessionToken");
+	  }
+
+      private function timerHandler(e:TimerEvent):void{
+		  LOGGER.debug("***** timerHandler ****");
+		  if (getSessionToken() != "") {
+			  _timer.stop();
+			  BBB.initConfigManager();
+		  }
+		  
+      }
+		
+      private function completeHandler(e:TimerEvent):void {
+		  LOGGER.debug("Failed to get session token.");
+      }
+		
       private function configLoadedEventHandler(e:Event):void {
 	  	LogUtil.initLogging();
         LOGGER.debug("***** Config Loaded ****");
@@ -126,6 +155,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
 		private function onAddedToStage():void {
 			hotkeyCapture();
+			queryForSessionToken();
 		}
 		
       private function localeChanged(e:Event):void{

@@ -23,6 +23,8 @@ package org.bigbluebutton.main.model
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
 	import flash.utils.Dictionary;
 	
 	import mx.core.FlexGlobals;
@@ -31,6 +33,7 @@ package org.bigbluebutton.main.model
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
+	import org.bigbluebutton.util.QueryStringParameters;
 
 	public class ConfigParameters {
 		private static const LOGGER:ILogger = getClassLogger(ConfigParameters);
@@ -64,12 +67,26 @@ package org.bigbluebutton.main.model
 		public function ConfigParameters(loadedListener:Function, file:String = CONFIG_XML) {			
 			this.numModules = 0;
 			this.loadedListener = loadedListener;
+			
+			var p:QueryStringParameters = new QueryStringParameters();
+			p.collectParameters();
+			var sessionToken:String = p.getParameter("sessionToken");
+			
+			var reqVars:URLVariables = new URLVariables();
+			reqVars.sessionToken = sessionToken;
+			
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
-      var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+            var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
       
-      _urlLoader.load(new URLRequest(localeReqURL));
+			LOGGER.debug(localeReqURL + " session=[" + sessionToken + "]"); 
+			
+			var request:URLRequest = new URLRequest(localeReqURL);
+			request.method = URLRequestMethod.GET;
+			request.data = reqVars;
+			
+            _urlLoader.load(request);
 		}
 		
     private function buildRequestURL():String {
@@ -80,6 +97,7 @@ package org.bigbluebutton.main.model
     }
     
 		private function handleComplete(e:Event):void{
+			LOGGER.debug("handleComplete [{0}]", [new XML(e.target.data)]);
 			parse(new XML(e.target.data));	
 			buildModuleDescriptors();
 			this.loadedListener();
