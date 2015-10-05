@@ -18,9 +18,15 @@
  */
 package org.bigbluebutton.core.model
 {
+	import flash.utils.Dictionary;
+	
+	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
+
 	public class Config
 	{
 		private var config:XML = null;
+		private var _modules:Dictionary = new Dictionary();
+		private var _numModules:int;
 		
 		public function Config(config:XML)
 		{
@@ -42,6 +48,7 @@ package org.bigbluebutton.core.model
 		public function get locale():Object {
 			var v:Object = new Object();
 			v.version = config.localeversion;
+			v.suppressWarning = config.localeversion.@suppressWarning;
 			return v;
 		}
 			
@@ -53,6 +60,7 @@ package org.bigbluebutton.core.model
 			var p:Object = new Object();
 			p.host = config.porttest.@host;
 			p.application = config.porttest.@application;
+			p.timeout = config.porttest.@timeout;
 			return p;
 		}
 			
@@ -115,12 +123,38 @@ package org.bigbluebutton.core.model
 			}	
 			return found;
 		}
-			
+		
+		public function numberOfModules():int {
+			return _numModules;
+		}
+		
 		public function getConfigFor(moduleName:String):XML {
 			if (isModulePresent(moduleName)) {
 					return new XML(config.modules.module.(@name.toUpperCase() == moduleName.toUpperCase()).toXMLString());
 			}
 			return null;
+		}
+		
+		public function getModules():Dictionary{			
+			var list:XMLList = config.modules.module;
+			var item:XML;
+			for each(item in list){
+				trace("module=" + item.toXMLString());
+				var mod:ModuleDescriptor = new ModuleDescriptor(item);
+				_modules[item.@name] = mod;
+				_numModules++;
+			}
+			return _modules;
+		}
+		
+		public function getModuleFor(name:String):ModuleDescriptor {
+			for (var key:Object in _modules) {				
+				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
+				if (m.getName() == name) {
+					return m;
+				}
+			}		
+			return null;	
 		}
 	}
 }

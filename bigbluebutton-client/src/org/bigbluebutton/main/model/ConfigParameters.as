@@ -67,6 +67,9 @@ package org.bigbluebutton.main.model
 		public function ConfigParameters(loadedListener:Function, file:String = CONFIG_XML) {			
 			this.numModules = 0;
 			this.loadedListener = loadedListener;
+		}
+		
+		public function loadConfig():void {
 			
 			var p:QueryStringParameters = new QueryStringParameters();
 			p.collectParameters();
@@ -78,15 +81,15 @@ package org.bigbluebutton.main.model
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
-            var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
-      
+			var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+			
 			LOGGER.debug(localeReqURL + " session=[" + sessionToken + "]"); 
 			
 			var request:URLRequest = new URLRequest(localeReqURL);
 			request.method = URLRequestMethod.GET;
 			request.data = reqVars;
 			
-            _urlLoader.load(request);
+			_urlLoader.load(request);				
 		}
 		
     private function buildRequestURL():String {

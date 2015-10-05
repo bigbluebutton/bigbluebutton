@@ -633,6 +633,7 @@ class ApiController {
     }
     
     String sessionToken = StringUtils.strip(params.sessionToken)
+    println("SessionToken = " + sessionToken)
               
       if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
           println("No session for user in conference.")

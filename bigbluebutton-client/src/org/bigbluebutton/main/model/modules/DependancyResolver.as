@@ -32,7 +32,8 @@ package org.bigbluebutton.main.model.modules
 		private var _modules:Dictionary;
 		
 		/**
-		 * Creates a dependency tree for modules using a topological sort algorithm (Khan, 1962, http://portal.acm.org/beta/citation.cfm?doid=368996.369025)
+		 * Creates a dependency tree for modules using a topological sort algorithm 
+		 * (Khan, 1962, http://portal.acm.org/beta/citation.cfm?doid=368996.369025)
 		 */
 		public function buildDependencyTree(modules:Dictionary):ArrayCollection{
 			this._modules = modules;

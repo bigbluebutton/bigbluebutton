@@ -440,7 +440,7 @@ package org.bigbluebutton.main.model.users {
 		 * Read default lock settings from config.xml
 		 * */
 		public function configLockSettings():void {
-			var config:Config = BBB.initConfigManager().config;
+			var config:Config = BBB.getConfigManager().config;
 			
 			var disableCam:Boolean,
 			disableMic:Boolean,

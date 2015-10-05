@@ -40,13 +40,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import mx.managers.HistoryManager;
 		import mx.managers.IDragManager;
 		import mx.managers.ToolTipManager;
-		import mx.utils.URLUtil;
-		
+		import mx.utils.URLUtil;	
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.BBB;
-		import org.bigbluebutton.core.EventBroadcaster;
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.ShortcutOptions;
@@ -75,13 +73,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  protected function init():void {
         setupTooltips();
         setupAPI();
-        EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
         BBB.initVideoProfileManager();
         globalModifier = ExternalInterface.call("determineGlobalModifier");
       }
       
       private function queryForSessionToken():void {
-		  LOGGER.debug("***** queryForSessionToken ****");
+		  trace("***** queryForSessionToken ****");
 		  _timer = new Timer(5000, 6);
 		  _timer.addEventListener(TimerEvent.TIMER, timerHandler);
 		  _timer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
@@ -95,21 +92,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
 
       private function timerHandler(e:TimerEvent):void{
-		  LOGGER.debug("***** timerHandler ****");
+		  trace("***** timerHandler ****");
 		  if (getSessionToken() != "") {
 			  _timer.stop();
-			  BBB.initConfigManager();
+			  BBB.getConfigManager().loadConfig();
 		  }
 		  
       }
 		
       private function completeHandler(e:TimerEvent):void {
-		  LOGGER.debug("Failed to get session token.");
+		  trace("Failed to get session token.");
       }
 		
       private function configLoadedEventHandler(e:Event):void {
 	  	LogUtil.initLogging();
-        LOGGER.debug("***** Config Loaded ****");
+        trace("***** Config Loaded ****");
         mainShell.initOptions(null);
         ShortcutOptions.initialize();
       }

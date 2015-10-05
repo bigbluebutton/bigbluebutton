@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
-	<mate:Listener type="configLoadedEvent" method="initOptions"  />
+	<mate:Listener type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" method="initOptions"  />
 	<mate:Listener type="{FlashMicSettingsEvent.FLASH_MIC_SETTINGS}" method="handleFlashMicSettingsEvent"  />
 	<mate:Listener type="{WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING}" method="handleWebRTCEchoTestConnectingEvent"  />
 	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST}" method="handleWebRTCMediaRequestEvent"  />
@@ -101,11 +101,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
+			import org.bigbluebutton.main.events.ConfigLoadedEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.ShortcutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -177,10 +179,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					toolbarPaddingTop = 0;
 				}
 				toolbar.displayToolbar();
+				ShortcutOptions.initialize();
       
         showFooterOpt = layoutOptions.showFooter;
         
-        var locale:Object = BBB.initConfigManager().config.language;
+        var locale:Object = BBB.getConfigManager().config.language;
         langSelector.visible = locale.userSelectionEnabled
  
         if (!showFooterOpt) {
@@ -305,7 +308,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	   		}
 	   		
 			private function versionCheck():void {
-				var xml:XML = BBB.initConfigManager().config.browserVersions;
+				var xml:XML = BBB.getConfigManager().config.browserVersions;
 				if (xml.@chrome != undefined && xml.@firefox != undefined && xml.@flash != undefined) {
 					//find browser version
 					var browserVersion:Array = ExternalInterface.call("determineBrowser");

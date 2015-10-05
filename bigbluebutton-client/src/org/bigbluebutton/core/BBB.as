@@ -41,12 +41,15 @@ package org.bigbluebutton.core
 			return userConfigManager;
 		}
 		
-		public static function initConfigManager():ConfigManager2 {
+		public static function getConfigManager():ConfigManager2 {
 			if (configManager == null) {
 				configManager = new ConfigManager2();
-				configManager.loadConfig();
 			}
 			return configManager;
+		}
+		
+		public static function loadConfig():void {
+			configManager.loadConfig();
 		}
 
 		public static function initVideoProfileManager():VideoProfileManager {
@@ -58,7 +61,7 @@ package org.bigbluebutton.core
 		}
 
 		public static function getConfigForModule(module:String):XML {
-			return initConfigManager().config.getConfigFor(module);
+			return getConfigManager().config.getConfigFor(module);
 		}
 
 		public static function get videoProfiles():Array {
