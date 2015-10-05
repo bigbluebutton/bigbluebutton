@@ -108,7 +108,9 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 
 		public function drawGraphic(event:WhiteboardUpdate):void {
-			displayModel.drawGraphic(event);
+			if (event.annotation.whiteboardId == whiteboardModel.getCurrentWhiteboardId()) {
+				displayModel.drawGraphic(event);
+			}
 		}
 		
 		public function clearAnnotations():void {
