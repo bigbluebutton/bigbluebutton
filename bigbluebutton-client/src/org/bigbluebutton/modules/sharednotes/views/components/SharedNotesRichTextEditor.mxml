@@ -964,6 +964,8 @@
     //----------------------------------
     //  Shared Notes
     //----------------------------------
+    private var refreshSelection:Boolean = false;
+
     public function saveNotesToFile(title:String):void
     {
         var filename:String = title.replace(/\s+/g, '-').toLowerCase();
@@ -996,11 +998,11 @@
         }
         else if (endIndex == text.length)
         {
-            cursorLine = textArea.mx_internal::getTextField().getLineIndexOfChar(endIndex - 1);
+            cursorLine = textArea.getTextField().getLineIndexOfChar(endIndex - 1);
         }
         else
         {
-            cursorLine = textArea.mx_internal::getTextField().getLineIndexOfChar(endIndex);
+            cursorLine = textArea.getTextField().getLineIndexOfChar(endIndex);
         }
 
         var relativePositon:Number = cursorLine - textArea.verticalScrollPosition;
@@ -1023,11 +1025,11 @@
         }
         else if (textArea.selectionEndIndex == text.length)
         {
-            oldPosition = textArea.mx_internal::getTextField().getLineIndexOfChar(textArea.selectionEndIndex - 1);
+            oldPosition = textArea.getTextField().getLineIndexOfChar(textArea.selectionEndIndex - 1);
         }
         else
         {
-            oldPosition = textArea.mx_internal::getTextField().getLineIndexOfChar(textArea.selectionEndIndex);
+            oldPosition = textArea.getTextField().getLineIndexOfChar(textArea.selectionEndIndex);
         }
 
         oldPosition -= textArea.verticalScrollPosition;
@@ -1140,9 +1142,17 @@
 
     private function onKeyDown(event:KeyboardEvent):void
     {
+        if (textArea.selectionBeginIndex != textArea.selectionEndIndex)
+        {
+            var beginIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionBeginIndex);
+            var endIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionEndIndex);
+            if (beginIndex != endIndex)
+            {
+                refreshSelection = true;
+            }
+        }
         if (event.keyCode == 13)
         {
-            // Enter was pressed
             clearTextStyle();
         }
         if (textFormatChanged)
@@ -1155,9 +1165,9 @@
     private function onKeyUp(event:KeyboardEvent):void
     {
         getTextStyles();
-        if (event.keyCode == 8 || event.keyCode == 46) {
-            // Delete or backspace were pressed
+        if (event.keyCode == 8 || event.keyCode == 46 || refreshSelection) {
             refreshTextStyle();
+            refreshSelection = false;
         }
     }
     
