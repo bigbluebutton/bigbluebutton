@@ -248,6 +248,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     result =
       myUserID: BBB.getMyUserID()
       myUsername: BBB.getMyUserName()
+      myInternalUserID: BBB.getMyUserID()
       myAvatarURL: null
       myRole: BBB.getMyRole()
       amIPresenter: BBB.amIPresenter()
