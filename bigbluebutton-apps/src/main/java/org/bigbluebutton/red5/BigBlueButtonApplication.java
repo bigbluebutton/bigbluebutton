@@ -154,6 +154,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		logData.put("connId", connId);
 		logData.put("conn", remoteHost + ":" + remotePort);
 		logData.put("userId", userId);
+		logData.put("externalUserId", externalUserID);
 		logData.put("sessionId", sessionId);
 		logData.put("username", userFullname);
 		logData.put("event", "user_joining_bbb_apps");
