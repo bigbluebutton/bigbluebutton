@@ -39,6 +39,52 @@ Template.whiteboard.events
   'click .lowerHand': (event) ->
     BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
 
+  'click .sadEmojiButton.inactiveEmojiButton': (event) ->
+    if $('.sadEmojiButton').css('opacity') is '1'
+      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "sad")
+      $('.sl-fab-trigger').blur()
+      toggleFAB()
+
+  'click .happyEmojiButton.inactiveEmojiButton': (event) ->
+    if $('.happyEmojiButton').css('opacity') is '1'
+      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "happy")
+      $('.sl-fab-trigger').blur()
+      toggleFAB()
+
+  'click .confusedEmojiButton.inactiveEmojiButton': (event) ->
+    if $('.confusedEmojiButton').css('opacity') is '1'
+      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "confused")
+      $('.sl-fab-trigger').blur()
+      toggleFAB()
+
+  'click .neutralEmojiButton.inactiveEmojiButton': (event) ->
+    if $('.neutralEmojiButton').css('opacity') is '1'
+      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "neutral")
+      $('.sl-fab-trigger').blur()
+      toggleFAB()
+
+  'click .awayEmojiButton.inactiveEmojiButton': (event) ->
+    if $('.awayEmojiButton').css('opacity') is '1'
+      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "away")
+      $('.sl-fab-trigger').blur()
+      toggleFAB()
+
+  'click .raiseHandEmojiButton.inactiveEmojiButton': (event) ->
+    if $('.raiseHandEmojiButton').css('opacity') is '1'
+      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "raiseHand")
+      $('.sl-fab-trigger').blur()
+      toggleFAB()
+
+  'click .activeEmojiButton': (event) ->
+    if $('.activeEmojiButton').css('opacity') is '1'
+      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "none")
+      $('.sl-fab-trigger').blur()
+      toggleFAB()
+
+  'click .sl-fab-trigger': (event) ->
+    $('.sl-fab-trigger').blur()
+    toggleFAB()
+
 Template.presenterBottomControllers.events
   'click .previousSlide':(event) ->
     BBB.goToPreviousPage()
