@@ -405,16 +405,10 @@ class ApiController {
     } else {
         us.avatarURL = meeting.defaultAvatarURL
     }
-    	     
-	// Store the following into a session so we can handle
-	// logout, restarts properly.
-	session['meeting-id'] = us.meetingID
-	session['user-token'] = us.meetingID + "-" + us.authToken;
-	session['logout-url'] = us.logoutUrl
-	
+    	     	
 	session[sessionToken] = sessionToken
 	
-	meetingService.addUserSession(session['user-token'], us);
+	meetingService.addUserSession(sessionToken, us);
 	
 	// Register user into the meeting.
 	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
@@ -587,30 +581,22 @@ class ApiController {
   def signOut = {  
     println("#SIGNOUT API")
   
-    if (StringUtils.isEmpty(params.sessionToken)) {
-      println("SessionToken is missing.")
+    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+  
+    String sessionToken = null
+    
+    if (! StringUtils.isEmpty(params.sessionToken)) {
+      sessionToken = StringUtils.strip(params.sessionToken)
+      println("SessionToken = " + sessionToken)
     }
     
     Meeting meeting = null;
     
-    if (session["user-token"] && (meetingService.getUserSession(session['user-token']) != null)) {
+    if (sessionToken != null)) {
           log.info("Found session for user in conference.")
-          UserSession us = meetingService.removeUserSession(session['user-token']);
-          meeting = meetingService.getMeeting(us.meetingID);
+          UserSession us = meetingService.removeUserSession(sessionToken);
     }
-          
-    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-                    
-    if ((meeting == null) && (! session['meeting-id'])) {
-        meeting = meetingService.getMeeting(session['meeting-id']);
-    }
-        
-    if (meeting != null) {
-      log.debug("Logging out from [" + meeting.getInternalId() + "]");
-        logoutUrl = meeting.getLogoutUrl();
-    }     
-   
-    log.debug("Signing out. Redirecting to " + logoutUrl)
+    
     response.addHeader("Cache-Control", "no-cache")
     withFormat {    
       xml {
@@ -628,35 +614,11 @@ class ApiController {
   ***********************************************/
   def configXML = {
     println("#CONFIG_XML API")
-
-    if (StringUtils.isEmpty(params.sessionToken)) {
-      println("SessionToken is missing.")
-    }
-    
-    String sessionToken = StringUtils.strip(params.sessionToken)
-    println("SessionToken = " + sessionToken)
-              
-      if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
+        
+      if (StringUtils.isEmpty(params.sessionToken)) {
           println("No session for user in conference.")
           
-          Meeting meeting = null;
-          
-          // Determine the logout url so we can send the user there.
-          String logoutUrl = session["logout-url"]
-                        
-          if (! session['meeting-id']) {
-              meeting = meetingService.getMeeting(session['meeting-id']);
-          }
-        
-          
-        
-          if (meeting != null) {
-              println("Logging out from [" + meeting.getInternalId() + "]");
-              logoutUrl = meeting.getLogoutUrl();
-          }
-          
-          if (StringUtils.isEmpty(logoutUrl))
-              logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+          String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
           
           response.addHeader("Cache-Control", "no-cache")
           withFormat {
@@ -671,7 +633,9 @@ class ApiController {
             }
           }       
         } else {
-            UserSession us = meetingService.getUserSession(session['user-token']);
+            String sessionToken = StringUtils.strip(params.sessionToken)
+            println("SessionToken = " + sessionToken)
+            UserSession us = meetingService.getUserSession(sessionToken);
             println("Found session for " + us.fullname)
         
             response.addHeader("Cache-Control", "no-cache")
