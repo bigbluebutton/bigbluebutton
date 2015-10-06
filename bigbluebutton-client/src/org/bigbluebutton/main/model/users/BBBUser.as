@@ -23,6 +23,7 @@ package org.bigbluebutton.main.model.users
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -73,23 +74,19 @@ package org.bigbluebutton.main.model.users
             throw new Error("Please use the helpers addViewingStream or removeViewingStream to handle viewingStream");
         }
         public function addViewingStream(streamName:String):Boolean {
-            LOGGER.debug("Before adding the stream {0}: {1}", [streamName, _viewingStream]);
             if (isViewingStream(streamName)) {
                 return false;
             }
 
             _viewingStream.push(streamName);
-            LOGGER.debug("After adding the stream {0}: {1}", [streamName, _viewingStream]);
             return true;
         }
         public function removeViewingStream(streamName:String):Boolean {
-            LOGGER.debug("Before removing the stream {0}: {1}", [streamName, _viewingStream]);
             if (!isViewingStream(streamName)) {
                 return false;
             }
 
             _viewingStream = _viewingStream.filter(function(item:*, index:int, array:Array):Boolean { return item != streamName; });
-            LOGGER.debug("After removing the stream {0}: {1}", [streamName, _viewingStream]);
             return true;
         }
         private function isViewingStream(streamName:String):Boolean {
@@ -283,15 +280,12 @@ package org.bigbluebutton.main.model.users
     }
     
     public function lockStatusChanged(locked: Boolean):void {
-		LOGGER.debug("lockStatusChanged -> {0}", [locked]);
 		userLocked = locked;
 		applyLockSettings();
 		buildStatus();
     }
 
 		public function changeStatus(status:Status):void {
-			LOGGER.debug("changeStatus -> {0}", [status.name]);
-			//_status.changeStatus(status);
 			if (status.name == "presenter") {
 				presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;
 
@@ -368,7 +362,9 @@ package org.bigbluebutton.main.model.users
 		
 		public function applyLockSettings():void {
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
-			var lockAppliesToMe:Boolean = me && role != MODERATOR && !presenter && userLocked;
+			var amNotModerator:Boolean = !UsersUtil.amIModerator();
+			var amNotPresenter:Boolean = !UsersUtil.amIPresenter();
+			var lockAppliesToMe:Boolean = me && amNotModerator && amNotPresenter && userLocked;
 			
 			disableMyCam = lockAppliesToMe && lockSettings.getDisableCam();
 			disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
@@ -378,6 +374,7 @@ package org.bigbluebutton.main.model.users
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
+			
 			
 			if (lockAppliesToMe) {
 				//If it's sharing webcam, stop it

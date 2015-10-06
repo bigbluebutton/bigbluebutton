@@ -27,7 +27,7 @@ class RedisPublisher(val system: ActorSystem) extends SystemConfiguration {
   system.scheduler.schedule(10 seconds, 10 seconds)(sendPingMessage())
 
   def publish(channel: String, data: String) {
-    println("PUBLISH TO [" + channel + "]: \n [" + data + "]")
+    //println("PUBLISH TO [" + channel + "]: \n [" + data + "]")
     redis.publish(channel, data)
   }
 

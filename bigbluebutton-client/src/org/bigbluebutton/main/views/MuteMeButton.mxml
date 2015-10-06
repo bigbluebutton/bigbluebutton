@@ -115,7 +115,7 @@ $Id: $
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();
-//        LOGGER.debug("allowMuteUnmute [ voiceJoined=[" + conference.voiceJoined + "], disableMic=[" + me.disableMyMic + "]");
+        
 				return (conference.voiceJoined && !me.disableMyMic);
 			}
 			

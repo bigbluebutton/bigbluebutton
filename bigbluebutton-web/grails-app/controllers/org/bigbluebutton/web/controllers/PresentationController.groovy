@@ -29,13 +29,11 @@ class PresentationController {
   PresentationService presentationService
   
   def index = {
-    println 'in PresentationController index'
     render(view:'upload-file') 
   }
   
   def list = {						      				
     def f = confInfo()
-    println "conference info ${f.conference} ${f.room}"
     def presentationsList = presentationService.listPresentations(f.conference, f.room)
 
     if (presentationsList) {
@@ -66,12 +64,10 @@ class PresentationController {
   }
 
   def upload = {		
-    println 'PresentationController:upload'
 
     def meetingId = params.conference
     def meeting = meetingService.getNotEndedMeetingWithId(meetingId);
     if (meeting == null) {
-      println "Presentation uploaded to non-existant meeting ${meetingId}, ignoring"
       flash.message = 'meeting is not running'
       return [];
     }
@@ -108,7 +104,6 @@ class PresentationController {
 
   //handle external presentation server 
   def delegate = {		
-    println '\nPresentationController:delegate'
     
     def presentation_name = request.getParameter('presentation_name')
     def conference = request.getParameter('conference')
@@ -138,7 +133,7 @@ class PresentationController {
         response.outputStream << bytes;
       }	
     } catch (IOException e) {
-      System.out.println("Error reading file.\n" + e.getMessage());
+      log.error("Error reading file.\n" + e.getMessage());
     }
     
     return null;
@@ -161,7 +156,7 @@ class PresentationController {
 		  response.outputStream << bytes;
 		}
 	  } catch (IOException e) {
-		System.out.println("Error reading file.\n" + e.getMessage());
+		log.error("Error reading file.\n" + e.getMessage());
 	  }
 	  
 	  return null;
@@ -173,23 +168,19 @@ class PresentationController {
     def conf = params.conference
     def rm = params.room
     def thumb = params.id
-    println "Controller: Show thumbnails request for $presentationName $thumb"
     
     InputStream is = null;
     try {
       def pres = presentationService.showThumbnail(conf, rm, presentationName, thumb)
       if (pres.exists()) {
-        println "Controller: Sending thumbnails reply for $presentationName $thumb"
         
         def bytes = pres.readBytes()
         response.addHeader("Cache-Control", "no-cache")
         response.contentType = 'image'
         response.outputStream << bytes;
-      } else {
-        println "$pres does not exist."
       }
     } catch (IOException e) {
-      println("Error reading file.\n" + e.getMessage());
+      log.error("Error reading file.\n" + e.getMessage());
     }
     
     return null;
@@ -226,19 +217,17 @@ class PresentationController {
     //def filename = params.id.replace('###', '.')
     def filename = params.presentation_name
     InputStream is = null;
-    System.out.println("showing ${filename}")
     try {
       def f = confInfo()
       def pres = presentationService.showPresentation(f.conference, f.room, filename)
       if (pres.exists()) {
-        System.out.println("Found ${filename}")
         def bytes = pres.readBytes()
 
         response.contentType = 'application/x-shockwave-flash'
         response.outputStream << bytes;
       }	
     } catch (IOException e) {
-      System.out.println("Error reading file.\n" + e.getMessage());
+      log.error("Error reading file.\n" + e.getMessage());
     }
     
     return null;
@@ -246,7 +235,6 @@ class PresentationController {
   
   def thumbnail = {
     def filename = params.id.replace('###', '.')
-    System.out.println("showing ${filename} ${params.thumb}")
     def presDir = confDir() + File.separatorChar + filename
     try {
       def pres = presentationService.showThumbnail(presDir, params.thumb)
@@ -257,7 +245,7 @@ class PresentationController {
         response.outputStream << bytes;
       }	
     } catch (IOException e) {
-      System.out.println("Error reading file.\n" + e.getMessage());
+      log.error("Error reading file.\n" + e.getMessage());
     }
     
     return null;
@@ -358,7 +346,6 @@ class PresentationController {
       def rl = session["role"]
       def conf = session["conference"]
       def rm = session["room"]
-      println "Conference info: ${conf} ${rm}"
     return [conference:conf, room:rm]
   }
 }

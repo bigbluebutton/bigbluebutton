@@ -44,7 +44,7 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   
   public class MessageReceiver implements IMessageListener {
-	private static const LOGGER:ILogger = getClassLogger(IMessageListener);      
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
        
     private var service:PresentationService;
     private var dispatcher:Dispatcher;
@@ -109,7 +109,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleGotoSlideCallback(msg:Object) : void {
-      LOGGER.debug("*** handleGotoSlideCallback {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
 
       var page:PageVO = extractPage(map);
@@ -168,8 +167,7 @@ package org.bigbluebutton.modules.present.services.messaging
       return page;
     }
     
-    private function handleMoveCallback(msg:Object):void{
-      LOGGER.debug("*** handleMoveCallback {0} **** \n", [msg.msg]);      
+    private function handleMoveCallback(msg:Object):void{  
       var map:Object = JSON.parse(msg.msg);      
       if (validatePage(map)) {
         service.pageMoved(extractPage(map));
@@ -177,7 +175,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleSharePresentationCallback(msg:Object):void {
-      LOGGER.debug("*** handleSharePresentationCallback {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("presentation")) {
         var pres:Object = map.presentation as Object;
@@ -187,7 +184,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleRemovePresentationCallback(msg:Object):void {
-      LOGGER.debug("***DOING: handleRemovePresentationCallback {0} **** \n", [msg.msg]);
 	  var map:Object = JSON.parse(msg.msg);
 	  
 	  if(map.hasOwnProperty("presentationID")) {
@@ -195,8 +191,7 @@ package org.bigbluebutton.modules.present.services.messaging
 	  }
     }
     
-    private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {
-      LOGGER.debug("*** handleConversionCompletedUpdateMessageCallback {0} **** \n", [msg.msg]);      
+    private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void { 
       var map:Object = JSON.parse(msg.msg);      
       var pres:Object = map.presentation as Object;
       var presVO: PresentationVO = processUploadedPresentation(pres)
@@ -222,8 +217,7 @@ package org.bigbluebutton.modules.present.services.messaging
       return preso;
     }
     
-    private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		
-      LOGGER.debug("*** handleGeneratedSlideUpdateMessageCallback {0} **** \n", [msg.msg]);      
+    private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		  
       var map:Object = JSON.parse(msg.msg);
       var numPages:Number = map.numberOfPages;
       var pagesDone:Number = map.pagesCompleted;
@@ -231,15 +225,12 @@ package org.bigbluebutton.modules.present.services.messaging
       dispatcher.dispatchEvent(new ConversionUpdateEvent(numPages, pagesDone));	
     }
     
-    private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {
-      LOGGER.debug("*** handlePageCountExceededUpdateMessageCallback {0} **** \n", [msg.msg]);      
+    private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {     
       var map:Object = JSON.parse(msg.msg);
       dispatcher.dispatchEvent(new ConversionPageCountMaxed(map.maxNumberPages as Number));
     }
     
     private function handleConversionUpdateMessageCallback(msg:Object) : void {
-      LOGGER.debug("*** handleConversionUpdateMessageCallback {0} **** \n", [msg.msg]);
-      
       var map:Object = JSON.parse(msg.msg);
       
       var uploadEvent:UploadEvent;

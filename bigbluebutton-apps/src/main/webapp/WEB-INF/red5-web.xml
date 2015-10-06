@@ -69,6 +69,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
     <bean id="chat.service" class="org.bigbluebutton.red5.service.ChatService">
         <property name="red5Publisher"> <ref bean="red5Publisher"/></property>
+        <property name="maxMessageLength" value="1024"/>
     </bean>
     
     <bean id="participants.service" class="org.bigbluebutton.red5.service.ParticipantsService">

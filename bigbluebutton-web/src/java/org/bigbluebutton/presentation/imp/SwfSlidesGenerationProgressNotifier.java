@@ -45,9 +45,7 @@ public class SwfSlidesGenerationProgressNotifier {
 		if(messagingService != null){
 			Gson gson= new Gson();
 			String updateMsg = gson.toJson(msg);
-			log.debug("SENDING: " + updateMsg);
 			messagingService.send(MessagingConstants.TO_PRESENTATION_CHANNEL, updateMsg);
-			log.debug("SENT: " + updateMsg);
 		} else {
 			log.warn("MessagingService has not been set");
 		}

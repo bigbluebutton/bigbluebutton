@@ -44,18 +44,14 @@ package org.bigbluebutton.main.model {
 			portTest.addConnectionSuccessListener(connectionListener);
       var red5Url:String = protocol + "://" + hostname + "/" + application;
       
-      LOGGER.debug("Connecting to [{0}]", [red5Url]);
-      
 			portTest.connect();
 		}
 		
 		private function connectionListener(status:String, protocol:String, hostname:String, port:String, application:String):void {
 			uri = protocol + "://" + hostname + "/" + application;
 			if (status == "SUCCESS") {				
-				LOGGER.debug("::connectionListener - Successfully connected to {0}", [uri]);
 				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, protocol, application);			
 			} else {
-				LOGGER.error("::connectionListener - Failed to {0}", [uri]);
 				modulesDispatcher.sendPortTestFailedEvent(port, hostname, protocol, application);
 			}				 		
 		}
@@ -70,7 +66,6 @@ package org.bigbluebutton.main.model {
 			var statusCode : String = info.code;
 			
 			if (statusCode == "NetConnection.Connect.Success") {
-				LOGGER.debug("::netStatusEventHandler - Successfully connected to {0}", [uri]);
 				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, protocol, application);
 			} else if (statusCode == "NetConnection.Connect.Rejected" ||
 				 	  statusCode == "NetConnection.Connect.Failed" || 

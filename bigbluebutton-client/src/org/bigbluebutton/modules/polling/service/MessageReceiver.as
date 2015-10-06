@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.polling.service
     }
 
     public function onMessage(messageName:String, message:Object):void {
-      LOGGER.debug("received message {0}", [messageName]);
+//      LOGGER.debug("received message {0}", [messageName]);
 
       switch (messageName) {
         case "pollShowResultMessage":
