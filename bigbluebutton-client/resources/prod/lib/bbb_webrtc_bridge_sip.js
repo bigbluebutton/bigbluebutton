@@ -46,13 +46,13 @@ function callIntoConference(voiceBridge, callback, isListenOnly) {
 
 	if (!callerIdName) {
 		BBB.getMyUserInfo(function(userInfo) {
-			console.log("User info callback [myUserID=" + userInfo.myInternalUserID
+			console.log("User info callback [myUserID=" + userInfo.myUserID
 				+ ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
 				+ ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
 				+ ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge
 				+ ",isListenOnly=" + isListenOnly + "].");
-			userID = userInfo.myInternalUserID;
-			callerIdName = userInfo.myInternalUserID + "-bbbID-" + userInfo.myUsername;
+			userID = userInfo.myUserID;
+			callerIdName = userInfo.myUserID + "-bbbID-" + userInfo.myUsername;
 			if (isListenOnly) {
 				//prepend the callerIdName so it is recognized as a global audio user
 				callerIdName = "GLOBAL_AUDIO_" + callerIdName;
