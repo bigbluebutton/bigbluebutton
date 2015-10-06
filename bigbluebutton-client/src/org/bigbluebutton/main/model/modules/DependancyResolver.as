@@ -62,7 +62,7 @@ package org.bigbluebutton.main.model.modules
 				var m2:ModuleDescriptor = _modules[key2] as ModuleDescriptor;
 				if (m2.unresolvedDependancies.length != 0){
 					throw new Error("Modules have circular dependancies, please check your config file. Unresolved: " + 
-													m2.getName() + " depends on " + m2.unresolvedDependancies.toString());
+								m2.getName() + " depends on " + m2.unresolvedDependancies.toString());
 				}
 			}
 

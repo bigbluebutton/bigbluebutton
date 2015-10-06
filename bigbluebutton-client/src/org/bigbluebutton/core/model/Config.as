@@ -135,7 +135,8 @@ package org.bigbluebutton.core.model
 			return null;
 		}
 		
-		public function getModules():Dictionary{			
+		public function getModules():Dictionary{	
+			trace("Getting modules");
 			var list:XMLList = config.modules.module;
 			var item:XML;
 			for each(item in list){
