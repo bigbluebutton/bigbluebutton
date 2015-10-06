@@ -6,7 +6,10 @@ loadLib = (libname) ->
     #Meteor.log.info "Failed to load library", param
     console.log "Failed to load library", param
 
-  Meteor.Loader.loadJs("https://#{window.location.hostname}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
+  protocol = "http"
+  if window.location.origin.match(/^https/)
+    protocol = "https"
+  Meteor.Loader.loadJs("#{protocol}://#{window.location.hostname}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
 
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
