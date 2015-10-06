@@ -151,12 +151,6 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.setEmojiStatus = (meetingId, toUserId, byUserId, byAuthToken, status) ->
     Meteor.call('userSetEmoji', meetingId, toUserId, byUserId, byAuthToken, status)
 
-  BBB.isUserRaisingHand = (userId) ->
-    BBB.getUser(userId)?.user?.raise_hand
-
-  BBB.isCurrentUserRaisingHand = ->
-    BBB.isUserRaisingHand(BBB.getCurrentUser()?.userId)
-
   BBB.isUserEmojiStatusSet = (userId) ->
     BBB.getUser(userId)?.user?.emoji_status isnt "none" and BBB.getUser(userId)?.user?.emoji_status isnt undefined
 

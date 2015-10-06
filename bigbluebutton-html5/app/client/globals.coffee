@@ -98,9 +98,6 @@ Handlebars.registerHelper "privateChatName", ->
   if obj?
     obj?.user?.name
 
-Handlebars.registerHelper "isCurrentUserRaisingHand", ->
-  BBB.isCurrentUserRaisingHand()
-
 Handlebars.registerHelper "isCurrentUserEmojiStatusSet", ->
   BBB.isCurrentUserEmojiStatusSet()
 
@@ -200,31 +197,31 @@ Handlebars.registerHelper "getPollQuestions", ->
   if users?.length > 1
     users.sort (a, b) ->
       if a.user.role is "MODERATOR" and b.user.role is "MODERATOR"
-        if a.user.raise_hand and b.user.raise_hand
-          aTime = a.user.raise_hand.getTime()
-          bTime = b.user.raise_hand.getTime()
+        if a.user.set_emoji_time and b.user.set_emoji_time
+          aTime = a.user.set_emoji_time.getTime()
+          bTime = b.user.set_emoji_time.getTime()
           if aTime < bTime
             return -1
           else
             return 1
-        else if a.user.raise_hand
+        else if a.user.set_emoji_time
           return -1
-        else if b.user.raise_hand
+        else if b.user.set_emoji_time
           return 1
       else if a.user.role is "MODERATOR"
         return -1
       else if b.user.role is "MODERATOR"
         return 1
-      else if a.user.raise_hand and b.user.raise_hand
-        aTime = a.user.raise_hand.getTime()
-        bTime = b.user.raise_hand.getTime()
+      else if a.user.set_emoji_time and b.user.set_emoji_time
+        aTime = a.user.set_emoji_time.getTime()
+        bTime = b.user.set_emoji_time.getTime()
         if aTime < bTime
           return -1
         else
           return 1
-      else if a.user.raise_hand
+      else if a.user.set_emoji_time
         return -1
-      else if b.user.raise_hand
+      else if b.user.set_emoji_time
         return 1
       else if not a.user.phone_user and not b.user.phone_user
 
