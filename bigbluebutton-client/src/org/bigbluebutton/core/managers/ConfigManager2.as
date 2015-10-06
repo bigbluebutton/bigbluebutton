@@ -56,7 +56,7 @@ package org.bigbluebutton.core.managers
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			
 			var date:Date = new Date();
-            var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+            var localeReqURL:String = buildRequestURL();
             trace("::loadConfig [{0}]", [localeReqURL]);
 			
 			trace(localeReqURL + " session=[" + sessionToken + "]"); 

@@ -78,8 +78,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function queryForSessionToken():void {
-		  trace("***** queryForSessionToken ****");
-		  _timer = new Timer(5000, 6);
+		  /** We attempt to query several times to try to get the sessionToken from the browser url.
+		  * (ralam oct 6, 2015)
+		  */
+		  _timer = new Timer(500, 6);
 		  _timer.addEventListener(TimerEvent.TIMER, timerHandler);
 		  _timer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
 		  _timer.start();
@@ -92,7 +94,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
 
       private function timerHandler(e:TimerEvent):void{
-		  trace("***** timerHandler ****");
 		  if (getSessionToken() != "") {
 			  _timer.stop();
 			  BBB.getConfigManager().loadConfig();
@@ -103,14 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function completeHandler(e:TimerEvent):void {
 		  trace("Failed to get session token.");
       }
-		
-      private function configLoadedEventHandler(e:Event):void {
-	  	LogUtil.initLogging();
-        trace("***** Config Loaded ****");
-        mainShell.initOptions(null);
-        ShortcutOptions.initialize();
-      }
-      
+		      
       private var api:ExternalApiCallbacks;
       
       private function setupAPI():void {

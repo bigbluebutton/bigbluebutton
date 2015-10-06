@@ -172,6 +172,7 @@ class ApiController {
    * JOIN API
    *********************************************/
   def join = {
+    println("#JOIN API")
     String API_CALL = 'join'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
   	ApiErrors errors = new ApiErrors()

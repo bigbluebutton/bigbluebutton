@@ -50,10 +50,6 @@ package org.bigbluebutton.main.model.modules
       dispatcher = new Dispatcher();
       
     }
-    
-	public function sendConfigLoadedEvent():void {
-		dispatcher.dispatchEvent(new ConfigLoadedEvent());
-	}
 	
     public function sendLoadProgressEvent(moduleName:String, loadProgress:Number):void{
       var loadEvent:ModuleLoadEvent = new ModuleLoadEvent(ModuleLoadEvent.MODULE_LOAD_PROGRESS);

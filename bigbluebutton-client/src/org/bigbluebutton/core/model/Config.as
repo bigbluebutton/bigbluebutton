@@ -25,12 +25,13 @@ package org.bigbluebutton.core.model
 	public class Config
 	{
 		private var config:XML = null;
-		private var _modules:Dictionary = new Dictionary();
+		private var _modules:Dictionary;
 		private var _numModules:int;
 		
 		public function Config(config:XML)
 		{
 			this.config = config;
+			buildModuleDescriptors();
 		}
 
 		public function get help():Object {
@@ -134,13 +135,20 @@ package org.bigbluebutton.core.model
 			}
 			return null;
 		}
+				
+		public function getModules():Dictionary{
+			return _modules;
+		}
 		
-		public function getModules():Dictionary{	
-			trace("Getting modules");
-			var list:XMLList = config.modules.module;
+		public function getModulesXML():XMLList{
+			return config.modules.module;
+		}
+		
+		private function buildModuleDescriptors():Dictionary{	
+			_modules = new Dictionary();
+			var list:XMLList = getModulesXML();
 			var item:XML;
 			for each(item in list){
-				trace("module=" + item.toXMLString());
 				var mod:ModuleDescriptor = new ModuleDescriptor(item);
 				_modules[item.@name] = mod;
 				_numModules++;

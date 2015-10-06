@@ -64,7 +64,7 @@ package org.bigbluebutton.main.model.modules
 			var resolver:DependancyResolver = new DependancyResolver();
 			sorted = resolver.buildDependencyTree(modules);
 			
-			modulesDispatcher.sendConfigLoadedEvent();
+			modulesDispatcher.sendPortTestEvent();
 		}
 		
 		public function loadConfig():void {

@@ -63,7 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	<EventHandlers type="{ConfigLoadedEvent.CONFIG_LOADED_EVENT}" >
 		<MethodInvoker generator="{ModulesProxy}" method="handleConfigLoaded" />
-		<MethodInvoker generator="{SkinningService}" method="loadSkins" arguments="{event.config.skinning}" />
+		<MethodInvoker generator="{SkinningService}" method="loadSkins"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
