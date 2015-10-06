@@ -96,7 +96,7 @@ class Meteor.RedisPubSub
       if message.header.name is 'user_listening_only'
         updateVoiceUser meetingId, {'web_userid': message.payload.userid, 'listen_only': message.payload.listen_only}
         # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
-        return 
+        return
 
       if message.header.name is "get_all_meetings_reply"
         Meteor.log.info "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
@@ -111,8 +111,8 @@ class Meteor.RedisPubSub
           users = message.payload.users
           for user in users
             user.timeOfJoining = message.header.current_time # TODO this might need to be removed
-            if user.raise_hand is true and typeof user.raise_hand is 'boolean'
-              user.raise_hand = new Date()
+            if user.emoji_status isnt 'none' and typeof user.emoji_status is 'string'
+              user.set_emoji_time = new Date()
             userJoined meetingId, user
         return
 
@@ -282,19 +282,13 @@ class Meteor.RedisPubSub
         Meteor.Slides.update({presentationId: presentationId, "slide.current": true}, {$set: {"slide.height_ratio": heightRatio, "slide.width_ratio": widthRatio, "slide.x_offset": xOffset, "slide.y_offset": yOffset}})
         return
 
-      if message.header.name is "user_raised_hand_message"
+      if message.header.name is "user_emoji_status_message"
         userId = message.payload.userid
         meetingId = message.payload.meeting_id
+        emojiStatus = message.payload.emoji_status
         if userId? and meetingId?
-          last_raised = new Date()
-          Meteor.Users.update({"user.userid": userId},{$set: {"user.raise_hand": last_raised}})
-        return
-
-      if message.header.name is "user_lowered_hand_message"
-        userId = message.payload.userid
-        meetingId = message.payload.meeting_id
-        if userId? and meetingId?
-          Meteor.Users.update({"user.userid": userId, meetingId: meetingId},{$set: {"user.raise_hand": false}})
+          set_emoji_time = new Date()
+          Meteor.Users.update({"user.userid": userId},{$set: {"user.set_emoji_time": set_emoji_time, "user.emoji_status": emojiStatus}})
         return
 
       if message.header.name is "recording_status_changed_message"
@@ -368,7 +362,7 @@ class Meteor.RedisPubSub
         if message.payload.poll.id? and message.payload.meeting_id?
           poll_id = message.payload.poll.id
           meetingId = message.payload.meeting_id
-          clearPollCollection meetingId, poll_id 
+          clearPollCollection meetingId, poll_id
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server

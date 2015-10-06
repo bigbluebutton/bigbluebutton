@@ -130,7 +130,7 @@ package org.bigbluebutton.main.api
     
     private function handleIsUserPublishingCamRequestAsync(userID:String):void {
       var event:IsUserPublishingCamRequest = new IsUserPublishingCamRequest();
-      event.userID = UsersUtil.externalUserIDToInternalUserID(userID);
+      event.userID = userID;
       if (event.userID != null) {
         _dispatcher.dispatchEvent(event);
       } else {
@@ -144,15 +144,14 @@ package org.bigbluebutton.main.api
     }
     
     private function handleEjectUserRequest(userID:String):void {
-        var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);
-        _dispatcher.dispatchEvent(new KickUserEvent(intUserID));
+        _dispatcher.dispatchEvent(new KickUserEvent(userID));
     }
     
     private function handleIsUserPublishingCamRequestSync(userID:String):Object {
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;
       
-      var streamNames:Array = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
+      var streamNames:Array = UsersUtil.getWebcamStream(userID);
       if (streamNames && streamNames.length > 0) {
         isUserPublishing = true; 
       }
@@ -173,8 +172,8 @@ package org.bigbluebutton.main.api
     
     private function handleGetMyUserInfoSynch():Object {
       var obj:Object = new Object();
-      obj.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
-	  obj.myInternalUserID = UsersUtil.getMyUserID();
+      obj.myUserID = UsersUtil.getMyUserID();
+	  obj.myExternalUserID = UsersUtil.getMyExternalUserID();
       obj.myUsername = UsersUtil.getMyUsername();
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();
@@ -219,22 +218,21 @@ package org.bigbluebutton.main.api
       _dispatcher.dispatchEvent(new ClosePublishWindowEvent());	
     }
     
-    private function handleSwitchPresenterRequest(userID:String):void {
-      var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);   
+    private function handleSwitchPresenterRequest(userID:String):void {  
       var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-      e.userid = intUserID;
-      e.username = UsersUtil.getUserName(intUserID);
+      e.userid = userID;
+      e.username = UsersUtil.getUserName(userID);
       _dispatcher.dispatchEvent(e);
     }
     
     private function handleGetMyUserID():String {
-      return UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      return UsersUtil.getMyUserID();
     }
     
     private function handleGetPresenterUserID():String {
       var presUserID:String = UsersUtil.getPresenterUserID();
       if (presUserID != "") {
-        return UsersUtil.internalUserIDToExternalUserID(presUserID);
+        return presUserID;
       }
       // return an empty string. Meeting has no presenter.
       return "";
@@ -310,17 +308,9 @@ package org.bigbluebutton.main.api
       payload.fromTimezoneOffset = now.getTimezoneOffset();
       
       payload.message = message;
-      
-      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
-      // an external user id for it's own use.
       payload.fromUserID = UsersUtil.getMyUserID();
-      // Now get the user's name using the internal user id 
       payload.fromUsername = UsersUtil.getUserName(payload.fromUserID);
-
-      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
-      // an external user id for it's own use.
-      payload.toUserID = UsersUtil.externalUserIDToInternalUserID(toUserID);
-      // Now get the user's name using the internal user id 
+      payload.toUserID = toUserID;
       payload.toUsername = UsersUtil.getUserName(payload.toUserID);
       
       chatEvent.message = payload;
