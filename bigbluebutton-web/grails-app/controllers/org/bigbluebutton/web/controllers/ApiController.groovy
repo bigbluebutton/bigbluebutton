@@ -87,14 +87,12 @@ class ApiController {
    ***********************************/
   def create = {
     String API_CALL = 'create'
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-    log.debug params
   	
-	// BEGIN - backward compatibility
-	if (StringUtils.isEmpty(params.checksum)) {
+    // BEGIN - backward compatibility
+    if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
-	  return
-	}
+      return
+    }
 
     if(!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
@@ -103,18 +101,18 @@ class ApiController {
         return
       }
     } else {
-        invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-        return
+      invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+      return
     }
 
-	if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
-	}
-	// END - backward compatibility
+    }
+    // END - backward compatibility
 	
-	ApiErrors errors = new ApiErrors();
-	paramsProcessorUtil.processRequiredCreateParams(params, errors);
+    ApiErrors errors = new ApiErrors();
+    paramsProcessorUtil.processRequiredCreateParams(params, errors);
 
     if (errors.hasErrors()) {
       respondWithErrors(errors)
@@ -132,6 +130,7 @@ class ApiController {
     // Translate the external meeting id into an internal meeting id.
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);		
     Meeting existing = meetingService.getNotEndedMeetingWithId(internalMeetingId);
+
     if (existing != null) {
       log.debug "Existing conference found"
       Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
@@ -175,8 +174,8 @@ class ApiController {
     println("#JOIN API")
     String API_CALL = 'join'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
-  	ApiErrors errors = new ApiErrors()
-  	  
+    ApiErrors errors = new ApiErrors()
+ 	  
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
       invalid("checksumError", "You did not pass the checksum security check")
@@ -194,7 +193,7 @@ class ApiController {
       invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
       return
     }
-	
+
     if(!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
@@ -205,12 +204,12 @@ class ApiController {
       invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
       return
     }
-	
+
     if (StringUtils.isEmpty(params.password)) {
       invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
       return
     }
-	
+
     if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
       invalid("checksumError", "You did not pass the checksum security check")
       return
@@ -228,22 +227,23 @@ class ApiController {
       params.fullName = StringUtils.strip(params.fullName);
       if (StringUtils.isEmpty(params.fullName)) {
         errors.missingParamError("fullName");
-        }
+      }
     } else {
-        errors.missingParamError("fullName");
+      errors.missingParamError("fullName");
     }
+
     String fullName = params.fullName
 
     // Do we have a meeting id? If none, complain.
-    if(!StringUtils.isEmpty(params.meetingID)) {
+    if (!StringUtils.isEmpty(params.meetingID)) {
       params.meetingID = StringUtils.strip(params.meetingID);
       if (StringUtils.isEmpty(params.meetingID)) {
         errors.missingParamError("meetingID");
       }
-    }
-    else {
+    } else {
       errors.missingParamError("meetingID");
     }
+
     String externalMeetingId = params.meetingID
 
     // Do we have a password? If not, complain.
@@ -268,13 +268,14 @@ class ApiController {
     // we can't find the meeting, complain.					        
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
+
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
       // BEGIN - backward compatibility
       invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
       return;
       // END - backward compatibility
-		
+
       errors.invalidMeetingIdError();
       respondWithErrors(errors)
       return;
@@ -284,13 +285,14 @@ class ApiController {
     // In the future, the createTime param will be required
     if (params.createTime != null) {
       long createTime = 0;
-      try{
+      try {
         createTime=Long.parseLong(params.createTime);
-      } catch(Exception e){
+      } catch(Exception e) {
         log.warn("could not parse createTime param");
         createTime = -1;
       }
-      if(createTime != meeting.getCreateTime()) {
+
+      if (createTime != meeting.getCreateTime()) {
         errors.mismatchCreateTimeParam();
         respondWithErrors(errors);
         return;
@@ -303,7 +305,7 @@ class ApiController {
       invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
       return;
       // END - backward compatibility
-		
+
       errors.meetingForciblyEndedError();
       respondWithErrors(errors)
       return;
@@ -329,19 +331,16 @@ class ApiController {
     }
 	
     String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
-
     boolean redirectImm = parseBoolean(params.redirectImmediately)
-    
     String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
-
     String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
-	String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
-	
+    String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
+
     String externUserID = params.userID
     if (StringUtils.isEmpty(externUserID)) {
       externUserID = internalUserID
     }
-	
+
     //Return a Map with the user custom data
     Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
 
@@ -350,7 +349,7 @@ class ApiController {
       meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
     
     String configxml = null;
-		
+
     if (! StringUtils.isEmpty(params.configToken)) {
       Config conf = meeting.getConfig(params.configToken);
       if (conf == null) {
@@ -363,20 +362,21 @@ class ApiController {
       } else {
         configxml = conf.config;
       }
-	} else {
-		Config conf = meeting.getDefaultConfig();
-		if (conf == null) {
-			errors.noConfigFound();
-			respondWithErrors(errors);
-		} else {
-			configxml = conf.config;
-		}
-	}
-	
-	if (StringUtils.isEmpty(configxml)) {
-		errors.noConfigFound();
-		respondWithErrors(errors);
-	}
+    } else {
+      Config conf = meeting.getDefaultConfig();
+      if (conf == null) {
+        errors.noConfigFound();
+        respondWithErrors(errors);
+      } else {
+        configxml = conf.config;
+      }
+    }
+
+    if (StringUtils.isEmpty(configxml)) {
+      errors.noConfigFound();
+      respondWithErrors(errors);
+    }
+
     UserSession us = new UserSession();
     us.authToken = authToken;
     us.internalUserId = internalUserID
@@ -395,69 +395,66 @@ class ApiController {
     us.welcome = meeting.getWelcomeMessage()
     us.logoutUrl = meeting.getLogoutUrl();
     us.configXML = configxml;
-			
-	if (! StringUtils.isEmpty(params.defaultLayout)) {
-		us.defaultLayout = params.defaultLayout;
-	}
+
+    if (! StringUtils.isEmpty(params.defaultLayout)) {
+      us.defaultLayout = params.defaultLayout;
+    }
 
     if (! StringUtils.isEmpty(params.avatarURL)) {
-        us.avatarURL = params.avatarURL;
+      us.avatarURL = params.avatarURL;
     } else {
-        us.avatarURL = meeting.defaultAvatarURL
+      us.avatarURL = meeting.defaultAvatarURL
     }
     	     	
-	session[sessionToken] = sessionToken
-	
-	meetingService.addUserSession(sessionToken, us);
-	
-	// Register user into the meeting.
-	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
-	
-	String tempFoo = session[sessionToken]
-	
-	println("Session user token for " + us.fullname + " [" + tempFoo + "]")
-		
+    session[sessionToken] = sessionToken
+    meetingService.addUserSession(sessionToken, us);
+
+    // Register user into the meeting.
+    meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
+
+    String tempFoo = session[sessionToken]
+    println("Session user token for " + us.fullname + " [" + tempFoo + "]")
+
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
-	//check if exists the param redirect
-	boolean redirectClient = true;
-	String clientURL = paramsProcessorUtil.getDefaultClientUrl();
-	
-	if(! StringUtils.isEmpty(params.redirect)) {
-		try{
-			redirectClient = Boolean.parseBoolean(params.redirect);
-		}catch(Exception e){
-			redirectClient = true;
-		}
-	}
-	
-	if(!StringUtils.isEmpty(params.clientURL)){
-		clientURL = params.clientURL;
-	}
-	
-	if (redirectClient){
-	    String destUrl = clientURL + "?sessionToken=" + sessionToken
-		println("Successfully joined. Redirecting to ${destUrl}"); 		
-		redirect(url: destUrl);
-	}
-	else{
-		println("Successfully joined. Sending XML response.");
-		response.addHeader("Cache-Control", "no-cache")
-		withFormat {
-		  xml {
-			render(contentType:"text/xml") {
-			  response() {
-				returncode(RESP_CODE_SUCCESS)
-				messageKey("successfullyJoined")
-				message("You have joined successfully.")
-				meeting_id() { mkp.yield(us.meetingID) }
-				user_id(us.internalUserId)
-				auth_token(us.authToken)
-			  }
-			}
-		  }
-		}
-	}
+    // check if exists the param redirect
+    boolean redirectClient = true;
+    String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+
+    if (! StringUtils.isEmpty(params.redirect)) {
+      try {
+        redirectClient = Boolean.parseBoolean(params.redirect);
+      } catch(Exception e) {
+        redirectClient = true;
+      }
+    }
+
+    if (!StringUtils.isEmpty(params.clientURL)){
+       clientURL = params.clientURL;
+    }
+
+    if (redirectClient) {
+      String destUrl = clientURL + "?sessionToken=" + sessionToken
+      println("Successfully joined. Redirecting to ${destUrl}"); 		
+      redirect(url: destUrl);
+    } else{
+      println("Successfully joined. Sending XML response.");
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+              messageKey("successfullyJoined")
+              message("You have joined successfully.")
+              meeting_id() { mkp.yield(us.meetingID) }
+              user_id(us.internalUserId)
+              auth_token(us.authToken)
+            }
+          }
+        }
+      }
+    }
   }
 
   /***********************************************
@@ -470,8 +467,7 @@ class ApiController {
       println("SessionToken is missing.")
     }
     
-    String sessionToken = StringUtils.strip(params.sessionToken)
-    
+    String sessionToken = StringUtils.strip(params.sessionToken)   
     println("Session token = [" + sessionToken + "]")
     
     boolean reject = false;
@@ -516,7 +512,6 @@ class ApiController {
         }
       }
     } else {
-        
         Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
     
       // Generate a new userId for this user. This prevents old connections from
@@ -585,8 +580,9 @@ class ApiController {
     Meeting meeting = null;
     
     if (sessionToken != null) {
-          log.info("Found session for user in conference.")
-          UserSession us = meetingService.removeUserSession(sessionToken);
+       log.info("Found session for user in conference.")
+       UserSession us = meetingService.removeUserSession(sessionToken);
+       session.removeAttribute(sessionToken)
     }
     
     response.addHeader("Cache-Control", "no-cache")
@@ -606,34 +602,43 @@ class ApiController {
   ***********************************************/
   def configXML = {
     println("#CONFIG_XML API")
-        
-      if (StringUtils.isEmpty(params.sessionToken)) {
-          println("No session for user in conference.")
-          
-          String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-          
-          response.addHeader("Cache-Control", "no-cache")
-          withFormat {
-            xml {
-              render(contentType:"text/xml") {
-                response() {
-                  returncode("FAILED")
-                  message("Could not find conference.")
-                  logoutURL() { mkp.yield(logoutUrl) }
-                }
-              }
-            }
-          }       
-        } else {
-            String sessionToken = StringUtils.strip(params.sessionToken)
-            println("SessionToken = " + sessionToken)
-            UserSession us = meetingService.getUserSession(sessionToken);
-            println("Found session for " + us.fullname)
-        
-            response.addHeader("Cache-Control", "no-cache")
-            render text: us.configXML, contentType: 'text/xml'
-        }
 
+    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+    boolean reject = false
+    String sessionToken = null
+    UserSession us = null
+              
+    if (StringUtils.isEmpty(params.sessionToken)) {
+      println("No session for user in conference.")
+      reject = true
+    } else {
+      sessionToken = StringUtils.strip(params.sessionToken)
+      println("SessionToken = " + sessionToken)
+      if (!session[sessionToken]) {
+        reject = true
+      } else {
+        us = meetingService.getUserSession(sessionToken);
+        if (us == null) reject = true 
+      }
+    }
+    
+    if (reject) {          
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode("FAILED")
+              message("Could not find conference.")
+              logoutURL() { mkp.yield(logoutUrl) }
+            }
+          }
+        }
+      }       
+    } else {
+      response.addHeader("Cache-Control", "no-cache")
+      render text: us.configXML, contentType: 'text/xml'
+    }
   }
     
   /*******************************************

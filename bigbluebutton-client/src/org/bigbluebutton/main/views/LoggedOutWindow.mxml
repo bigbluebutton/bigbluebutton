@@ -45,10 +45,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
       private function redirect():void { 
-       	var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-       	var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-       	var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-				LOGGER.debug("Log out url: {0}//{1}/bigbluebutton/api/signOut", [pageHost, pageURL]);
+		var logoutURL:String = BBB.getLogoutURL();
+        var request:URLRequest = new URLRequest(logoutURL);
+				LOGGER.debug("Log out url: " + logoutURL);
 				request.method = URLRequestMethod.GET;
 				urlLoader = new URLLoader();
 				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
