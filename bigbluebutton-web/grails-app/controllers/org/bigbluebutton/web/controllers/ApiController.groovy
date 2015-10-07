@@ -479,13 +479,13 @@ class ApiController {
     UserSession us = null;
     Meeting meeting = null;
 
-    if (!session["user-token"]) {
+    if (!session[sessionToken]) {
       reject = true;
     } else {
-      if (meetingService.getUserSession(session['user-token']) == null)
+      if (meetingService.getUserSession(sessionToken) == null)
         reject = true;
       else {
-        us = meetingService.getUserSession(session['user-token']);
+        us = meetingService.getUserSession(sessionToken);
         meeting = meetingService.getMeeting(us.meetingID);
         if (meeting == null || meeting.isForciblyEnded()) {
           reject = true
@@ -497,19 +497,11 @@ class ApiController {
       log.info("No session for user in conference.")
 
       // Determine the logout url so we can send the user there.
-      String logoutUrl = session["logout-url"]
+      String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
 
-      if (! session['meeting-id']) {
-        meeting = meetingService.getMeeting(session['meeting-id']);
+      if (us != null) {
+        logoutUrl = us.logoutUrl
       }
-
-      if (meeting != null) {
-        log.debug("Logging out from [" + meeting.getInternalId() + "]");
-        logoutUrl = meeting.getLogoutUrl();
-      }
-
-      if (StringUtils.isEmpty(logoutUrl))
-        logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {        
@@ -592,7 +584,7 @@ class ApiController {
     
     Meeting meeting = null;
     
-    if (sessionToken != null)) {
+    if (sessionToken != null) {
           log.info("Found session for user in conference.")
           UserSession us = meetingService.removeUserSession(sessionToken);
     }

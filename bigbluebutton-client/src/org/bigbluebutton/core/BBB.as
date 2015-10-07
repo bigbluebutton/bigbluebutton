@@ -18,14 +18,17 @@
  */
 package org.bigbluebutton.core
 {
+	import flash.system.Capabilities;
+	
+	import mx.core.FlexGlobals;
+	
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.managers.VideoProfileManager;
 	import org.bigbluebutton.core.model.Session;
 	import org.bigbluebutton.core.model.VideoProfile;
-	import flash.system.Capabilities;
+	import org.bigbluebutton.util.SessionTokenUtil;
 	
 	public class BBB {
 		private static var configManager:ConfigManager2 = null;
@@ -33,7 +36,15 @@ package org.bigbluebutton.core
 		private static var session:Session = null;
 		private static var userConfigManager:UserConfigManager = null;
 		private static var videoProfileManager:VideoProfileManager = null;
-			
+		private static var sessionTokenUtil:SessionTokenUtil = null;
+		
+		public static function getSessionTokenUtil():SessionTokenUtil {
+			if (sessionTokenUtil == null) {
+				sessionTokenUtil = new SessionTokenUtil();
+			}
+			return sessionTokenUtil;
+		}
+		
 		public static function initUserConfigManager():UserConfigManager {
 			if (userConfigManager == null) {
 				userConfigManager = new UserConfigManager();
@@ -112,5 +123,20 @@ package org.bigbluebutton.core
 			}		
 		}
 		
+		public static function getLogoutURL():String {
+			var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
+			if (logoutUrl == null) {
+				var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+				var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+				var sessionToken:String = BBB.sessionTokenUtil.getSessionToken();
+				logoutUrl = pageHost + "//" + pageURL;
+				if (sessionToken != "") {
+					logoutUrl = pageHost + "//" + pageURL + "?sessionToken=" + sessionToken;
+				}
+				
+			}      
+			
+			return logoutUrl;
+		}
 	}
 }

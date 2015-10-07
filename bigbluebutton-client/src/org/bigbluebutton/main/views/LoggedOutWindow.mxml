@@ -56,23 +56,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				urlLoader.load(request);
       }
       
-      public function getLogoutUrl():String {
-        var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
-        if (logoutUrl == null) {
-          LOGGER.debug("URL=[{0}]", [FlexGlobals.topLevelApplication.url]);
-          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-          logoutUrl = pageHost + "//" + pageURL;
-        }      
-        
-        return logoutUrl;
-      }
-      
 			private function handleComplete(e:Event):void {
 				LOGGER.debug("Client URL=[{0}]", [FlexGlobals.topLevelApplication.url]);
-       
-        		var request:URLRequest = new URLRequest(getLogoutUrl());
-				LOGGER.debug("Logging out to: {0}", [getLogoutUrl()]);
+                var logoutURL:String = BBB.getLogoutURL();
+        		var request:URLRequest = new URLRequest(logoutURL);
+				LOGGER.debug("Logging out to: {0}", [logoutURL]);
         		navigateToURL(request, '_self');          
         
 				PopUpManager.removePopUp(this);				

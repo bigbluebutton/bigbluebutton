@@ -33,17 +33,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <mx:Script>
     <![CDATA[
-		import com.asfusion.mate.events.Dispatcher;
-		
-		import flash.events.Event;
-		
+		import com.asfusion.mate.events.Dispatcher;		
+		import flash.events.Event;		
 		import mx.managers.HistoryManager;
 		import mx.managers.IDragManager;
 		import mx.managers.ToolTipManager;
 		import mx.utils.URLUtil;	
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
-		import org.bigbluebutton.common.LogUtil;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
 		import org.bigbluebutton.main.events.ShortcutEvent;
@@ -88,17 +85,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	  }
 	
 	  private function getSessionToken():String {
-		  var p:QueryStringParameters = new QueryStringParameters();
-		  p.collectParameters();
-		  return p.getParameter("sessionToken");
+		  return BBB.getSessionTokenUtil().getSessionToken();
 	  }
 
       private function timerHandler(e:TimerEvent):void{
 		  if (getSessionToken() != "") {
 			  _timer.stop();
 			  BBB.getConfigManager().loadConfig();
-		  }
-		  
+		  }		  
       }
 		
       private function completeHandler(e:TimerEvent):void {

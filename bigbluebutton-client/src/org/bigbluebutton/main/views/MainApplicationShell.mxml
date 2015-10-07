@@ -516,10 +516,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           mdiCanvas.removeAllWindows(); 				
         } else {
           mdiCanvas.removeAllWindows();
-          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-          LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
-          var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+          var logoutURL:String = BBB.getLogoutURL();
+          LOGGER.debug("SignOut to " + logoutURL);
+          var request:URLRequest = new URLRequest(logoutURL);
           var urlLoader:URLLoader = new URLLoader();
           urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
           urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleLogoutError);
@@ -527,26 +526,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }	        
       }
       
-      public function getLogoutUrl():String {
-        var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();
-        if (logoutUrl == null) {
-          LOGGER.debug("URL=[{0}]", [FlexGlobals.topLevelApplication.url]);
-          var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-          var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-          logoutUrl = pageHost + "//" + pageURL;
-        }      
-        return logoutUrl;
-      }
       
-			private function handleLogout(e:ConnectionFailedEvent):void {
+      private function handleLogout(e:ConnectionFailedEvent):void {
         if (e is ConnectionFailedEvent) {
           showlogoutWindow((e as ConnectionFailedEvent).type);
         }
         else showlogoutWindow("You have logged out of the conference");	
-			}
+      }
       
 			private function redirectToLogoutUrl ():void {
-        		var logoutURL:String = getLogoutUrl();
+        		var logoutURL:String = BBB.getLogoutURL();
 				var request:URLRequest = new URLRequest(logoutURL);
 				LOGGER.debug("Logging out to: {0}", [logoutURL]);
 				navigateToURL(request, '_self');
@@ -564,12 +553,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
-				/*if (connectionLostWindow != null) return;
-				connectionLostWindow = ConnectionLostWindow(PopUpManager.createPopUp( mdiCanvas, ConnectionLostWindow, true));
-				connectionLostWindow.x = mdiCanvas.width/2 - connectionLostWindow.width/2;
-				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;*/
-				
-				//Temporary fix
 				handleLogout(e);
 			}
 			
