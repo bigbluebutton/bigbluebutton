@@ -93,7 +93,7 @@ public class PdfToSwfSlidesGenerationService {
 		if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_COUNT_EXCEPTION) {
 			builder.messageKey(ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);			
 		} else if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_EXCEEDED_EXCEPTION) {
-			builder.numberOfPages(pres.getNumberOfPages());
+			builder.numberOfPages(e.getPageCount());
 			builder.maxNumberPages(e.getMaxNumberOfPages());
 			builder.messageKey(ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY);
 		}
