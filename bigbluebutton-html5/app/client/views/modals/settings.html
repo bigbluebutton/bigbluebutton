@@ -4,16 +4,10 @@
     <legend>Audio Options</legend>
     {{#if amIInAudio}}
       {{#if amIListenOnlyAudio}}
-        <!-- display microphone with join -->
-        {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone" rel="tooltip"
-        data_placement="bottom" title="Join Microphone"}}
         <!-- display listen only with exit -->
         {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
         data_placement="bottom" title="Leave Audio Call"}}
       {{else}}
-        <!-- display microphone with exit -->
-        {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
-        data_placement="bottom" title="exit"}}
         <!-- display join listen only -->
         {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume" rel="tooltip"
         data_placement="bottom" title="Join Listen only"}}
