@@ -1,5 +1,5 @@
 
-var userID, callerIdName, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
+var userID, callerIdName=null, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
 var inEchoTest = true;
 
 function webRTCCallback(message) {
@@ -43,7 +43,8 @@ function callIntoConference(voiceBridge, callback, isListenOnly) {
 	if (isListenOnly == null) {
 		isListenOnly = false;
 	}
-
+	// reset callerIdName
+	callerIdName = null;
 	if (!callerIdName) {
 		BBB.getMyUserInfo(function(userInfo) {
 			console.log("User info callback [myUserID=" + userInfo.myUserID
@@ -238,6 +239,9 @@ function webrtc_call(username, voiceBridge, callback, isListenOnly) {
 		if ((isListenOnly||userMicMedia) && userAgent)
 			make_call(username, voiceBridge, server, callback, false, isListenOnly);
 	};
+
+	// Reset userAgent so we can successfully switch between listenOnly and listen+speak modes
+	userAgent = null;
 	if (!userAgent) {
 		createUA(username, server, callback, makeCallFunc);
 	}
