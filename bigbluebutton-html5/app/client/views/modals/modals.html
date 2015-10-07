@@ -8,9 +8,9 @@
         {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
         data_placement="bottom" title="Leave Audio Call"}}
       {{else}}
-        <!-- display join listen only -->
-        {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume" rel="tooltip"
-        data_placement="bottom" title="Join Listen only"}}
+        <!-- display microphone with exit -->
+        {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
+        data_placement="bottom" title="Leave Audio Call"}}
       {{/if}}
     {{else}}
       <!-- display both with join -->
