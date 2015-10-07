@@ -1568,19 +1568,26 @@ class ApiController {
    * STUN/TURN API
    ***********************************************/
   def stuns = {
-    boolean reject = false;
-
-    UserSession us = null;
-    Meeting meeting = null;
-
-    if (!session["user-token"]) {
+    println("#STUN/TURN API")
+    
+    boolean reject = false
+    UserSession us = null
+    Meeting meeting = null
+    String sessionToken = null
+    
+    if (!StringUtils.isEmpty(params.sessionToken)) {
+      sessionToken = StringUtils.strip(params.sessionToken)
+      println("Session token = [" + sessionToken + "]")
+    }
+    
+    if (!session[sessionToken]) {
       reject = true;
     } else {
-      if (meetingService.getUserSession(session['user-token']) == null)
+      us = meetingService.getUserSession(sessionToken)
+      if (us == null)
         reject = true;
       else {
-        us = meetingService.getUserSession(session['user-token']);
-        meeting = meetingService.getMeeting(us.meetingID);
+        meeting = meetingService.getMeeting(us.meetingID)
         if (meeting == null || meeting.isForciblyEnded()) {
           reject = true
         }
@@ -1590,23 +1597,8 @@ class ApiController {
     if (reject) {
       log.info("No session for user in conference.")
 
-      // Determine the logout url so we can send the user there.
-      String logoutUrl = session["logout-url"]
-
-      if (! session['meeting-id']) {
-        meeting = meetingService.getMeeting(session['meeting-id']);
-      }
-
-
-      if (meeting != null) {
-        log.debug("Logging out from [" + meeting.getInternalId() + "]");
-        logoutUrl = meeting.getLogoutUrl();
-      }
-
-      if (StringUtils.isEmpty(logoutUrl)) {
-        logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-      }
-      
+      String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+   
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         json {

@@ -226,6 +226,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {     
+      LOGGER.debug("handlePageCountExceededUpdateMessageCallback " + JSON.stringify(msg.msg));
       var map:Object = JSON.parse(msg.msg);
       dispatcher.dispatchEvent(new ConversionPageCountMaxed(map.maxNumberPages as Number));
     }
