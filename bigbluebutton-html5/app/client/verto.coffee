@@ -4,8 +4,6 @@ Template.vertoDeskshareMenu.events
 
 	"click .screenshareShow": (event) ->
 		$("#deskshareModal").foundation('reveal', 'open');
-		$("#screenshareShow").hide()
-		$("#screenshareHide").show()
 
 	"click .screenshareHide": (event) ->
 		if(!!window["deskshareStream"])
@@ -16,11 +14,6 @@ Template.vertoDeskshareMenu.events
 			console.log("ending simulation");
 			simulatePresenterDeskshareHasEnded();
 
-		$("#screenshareShow").show()
-		$("#screenshareHide").hide()
-		$("#screenshareStart").show()
-		$("#screenshareStop").hide()
-
 	"click #screenshareSubscribe": (event) ->
 		joinVoiceCall @, {
 			watchOnly: true
@@ -30,18 +23,17 @@ Template.vertoDeskshareMenu.events
 Template.deskshareModal.events
 	"click .screenshareStart": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')
-		$("#screenshareStart").hide()
-		$("#screenshareStop").show()
 		screenStart(true, ((m)-> console.log(m)), "webcam")
 
 	"click .screenshareStop": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')
-		$("#screenshareStart").show()
-		$("#screenshareStop").hide()
 		screenStart(false, (->))
 
 	"click #desksharePreview": (event) ->
 		doDesksharePreview((->), (->), "webcam");
+
+Handlebars.registerHelper "amISharingDesktop", ->
+	getInSession("sharingMyScreen")
 
 Template.vertoWebcamMenu.events
 	"click .vertoButton": (event) ->
@@ -87,35 +79,6 @@ Template.webcamModal.events
 		$("#videoContainer").css("display", "block")
 		$("#videoContainer").css("width", "100%")
 		$("#videoContainer").css("height", "100%")
-
-
-
-
-
-
-
-
-	# "click #hangUp": (event) ->
-	# 	leaveWebRTCVoiceConference_verto();
-	# 	cur_call = null;
-
-	# "click #joinAudio": (event) ->
-	# 	# displayVertoVideo()
-	# 	toggleWhiteboardVideo("video")
-	# 	# return
-	# 	wasCallSuccessful = false
-	# 	debuggerCallback = (message) ->
-	# 		console.log("CALLBACK: "+JSON.stringify(message));
-	# 		#
-	# 		# Beginning of hacky method to make Firefox media calls succeed.
-	# 		# Always fail the first time. Retry on failure.
-	# 		#
-	# 		if !!navigator.mozGetUserMedia and message.errorcode is 1001
-	# 			callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam")
-	# 		#
-	# 		# End of hacky method
-	# 		#
-	# 	callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam");
 
 # if remote deskshare has been ended disconnect and hide the video stream
 @presenterDeskshareHasEnded = ->
