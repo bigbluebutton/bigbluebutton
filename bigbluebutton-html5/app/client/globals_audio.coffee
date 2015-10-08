@@ -42,7 +42,8 @@
 		#
 		# "click #joinAudio": (event) ->
 		# displayVertoVideo()
-		toggleWhiteboardVideo("video")
+		if options.watchOnly?
+			toggleWhiteboardVideo("video")
 		# return
 		wasCallSuccessful = false
 		debuggerCallback = (message) ->
