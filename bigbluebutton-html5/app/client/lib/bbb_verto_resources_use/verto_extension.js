@@ -145,88 +145,44 @@ this.docall_verto = function(extension, conferenceUsername, conferenceIdNumber, 
 	my_check_vid_res();
 	outgoingBandwidth = "default";
 	incomingBandwidth = "default";
-
-	// listenOnly
-	// useVideo: false
-	// useCamera: false
-	// useMic: false
-	// window.useRealMic = false
-	//
-	// Mic
-	// useVideo: false
-	// useCamera: false
-	// useMic: true
-	// window.useRealMic = true
-	//
-	// view deskshare
-	// useVideo: true
-	// useCamera: false
-	// useMic: false
-	// window.useRealMic = false
-
-	//
-	// options
-	// window.viewScreenShareOnly = true;
+	var useVideo = useCamera = useMic = false;
 
 	if(options.watchOnly) {
 		window.watchOnly = true;
 		window.listenOnly = false;
 		window.joinAudio = false;
-		cur_call = verto.newCall({
-			destination_number: extension,
-			caller_id_name: conferenceUsername,
-			caller_id_number: conferenceIdNumber,
-			outgoingBandwidth: outgoingBandwidth,
-			incomingBandwidth: incomingBandwidth,
-			useStereo: true,
-			useVideo: true,
-			useCamera: false,
-			useMic: false,
-			dedEnc: false,
-			mirrorInput: false
-		});
-		return;
-	}
-
-	if(options.listenOnly) {
+		useVideo = true;
+		useCamera = false;
+		useMic = false;
+	} else if(options.listenOnly) {
 		window.listenOnly = true;
 		window.watchOnly = false;
 		window.joinAudio = false;
-		cur_call = verto.newCall({
-			destination_number: extension,
-			caller_id_name: conferenceUsername,
-			caller_id_number: conferenceIdNumber,
-			outgoingBandwidth: outgoingBandwidth,
-			incomingBandwidth: incomingBandwidth,
-			useStereo: true,
-			useVideo: false,
-			useCamera: false,
-			useMic: false,
-			dedEnc: false,
-			mirrorInput: false
-		});
-		return;
-	}
-
-	if(options.joinAudio) {
+		useVideo = false;
+		useCamera = false;
+		useMic = false;
+	} else if(options.joinAudio) {
 		window.joinAudio = true;
 		window.watchOnly = false;
 		window.listenOnly = false;
-		cur_call = verto.newCall({
-			destination_number: extension,
-			caller_id_name: conferenceUsername,
-			caller_id_number: conferenceIdNumber,
-			outgoingBandwidth: outgoingBandwidth,
-			incomingBandwidth: incomingBandwidth,
-			useStereo: true,
-			useVideo: false,
-			useCamera: false,
-			useMic: true,
-			dedEnc: false,
-			mirrorInput: false
-		});
-		return;
+		useVideo = false;
+		useCamera = false;
+		useMic = true;
 	}
+
+	cur_call = verto.newCall({
+		destination_number: extension,
+		caller_id_name: conferenceUsername,
+		caller_id_number: conferenceIdNumber,
+		outgoingBandwidth: outgoingBandwidth,
+		incomingBandwidth: incomingBandwidth,
+		useStereo: true,
+		useVideo: useVideo,
+		useCamera: useCamera,
+		useMic: useMic,
+		dedEnc: false,
+		mirrorInput: false
+	});
 
 	if (callbacks != null) { // add user supplied callbacks to the current call
 		cur_call.rtc.options.callbacks = $.extend(cur_call.rtc.options.callbacks, callbacks);
