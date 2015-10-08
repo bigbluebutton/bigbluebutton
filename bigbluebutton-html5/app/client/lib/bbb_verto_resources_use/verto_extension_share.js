@@ -1,11 +1,13 @@
 var deskshareStream = "deskshareStream";
 window[deskshareStream] = null;
+this.share_call = null;
 
 this.doshare = function(on, callback, videoTag) {
 	if (!on) {
 		if (share_call) {
 			share_call.hangup();
 			share_call = null;
+			setInSession("sharingMyScreen", false)
 		}
 		return;
 	}
@@ -89,6 +91,18 @@ this.doshare = function(on, callback, videoTag) {
 					mirrorInput: false,
 					tag: videoTag
 				});
+
+				var callbacks = {
+					onError: function(vertoErrorObject, errorMessage) {
+						console.error("custom callback: onError");
+						setInSession("sharingMyScreen", false)
+					},
+					onICEComplete: function(self, candidate) { // ICE candidate negotiation is complete
+						console.log("custom callback: onICEComplete");
+						setInSession("sharingMyScreen", true)
+					}
+				};
+				share_call.rtc.options.callbacks = $.extend(share_call.rtc.options.callbacks, callbacks);
 
 				setTimeout(function() {
 					console.log("starting simulation");
