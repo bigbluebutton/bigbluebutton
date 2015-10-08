@@ -129,6 +129,7 @@ Template.main.rendered = ->
   if Meteor.config.app.autoJoinAudio
     onAudioJoinHelper()
 
+Template.deskshareModal.rendered = ->
   makeWebcamResolutions();
   makeDeskshareResolutions();
 
