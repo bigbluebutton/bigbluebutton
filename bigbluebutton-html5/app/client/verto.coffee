@@ -80,13 +80,13 @@ Template.webcamModal.events
 
 @toggleWhiteboardVideo = (display) ->
 	if display is "whiteboard"
-		$("#webcam").css("display", "none")
+		$("#videoContainer").css("display", "none")
 		$("#whiteboard-container").css("display", "block")
 	else if display is "video"
 		$("#whiteboard-container").css("display", "none")
-		$("#webcam").css("display", "block")
-		$("#webcam").css("width", "100%")
-		$("#webcam").css("height", "100%")
+		$("#videoContainer").css("display", "block")
+		$("#videoContainer").css("width", "100%")
+		$("#videoContainer").css("height", "100%")
 
 
 

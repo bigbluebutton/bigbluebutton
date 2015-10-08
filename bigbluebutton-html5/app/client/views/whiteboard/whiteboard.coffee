@@ -33,12 +33,7 @@ Template.whiteboard.events
     else if document.webkitExitFullscreen
       document.webkitExitFullscreen()
 
-  'click .raiseHand': (event) ->
-    BBB.raiseHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
-
-  'click .lowerHand': (event) ->
-    BBB.lowerHand(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'))
-
+Template.emojiDisplay.events
   'click .sadEmojiButton.inactiveEmojiButton': (event) ->
     if $('.sadEmojiButton').css('opacity') is '1'
       BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "sad")
