@@ -1,11 +1,13 @@
 <template name="vertoDeskshareMenu">
-	{{> makeButton id="screenshareShow" btn_class="screenshareShow vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Share your screen"}}
-	{{> makeButton id="screenshareHide" btn_class="screenshareHide vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Stop sharing your screen"}}
-	<!--  -->
-	{{> makeButton id="screenshareSubscribe" btn_class="" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="view deskshare"}}
+	{{#if amISharingDesktop}}
+		{{> makeButton id="screenshareHide" btn_class="screenshareHide vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Stop sharing your screen"}}
+	{{else}}
+		{{> makeButton id="screenshareShow" btn_class="screenshareShow vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Share your screen"}}
+	{{/if}}
+	<!-- {{> makeButton id="screenshareSubscribe" btn_class="" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="view deskshare"}} -->
 </template>
 
 <template name="vertoWebcamMenu">
-	{{> makeButton id="webcamShow" btn_class="webcamShow vertoButton settingsButton" i_class="fi-camera" rel="tooltip" data_placement="bottom" title="Share your webcam"}}
-	{{> makeButton id="webcamHide" btn_class="webcamHide vertoButton settingsButton" i_class="fi-camera" rel="tooltip" data_placement="bottom" title="Stop sharing your webcam"}}
+	<!-- {{> makeButton id="webcamShow" btn_class="webcamShow vertoButton settingsButton" i_class="fi-camera" rel="tooltip" data_placement="bottom" title="Share your webcam"}} -->
+	<!-- {{> makeButton id="webcamHide" btn_class="webcamHide vertoButton settingsButton" i_class="fi-camera" rel="tooltip" data_placement="bottom" title="Stop sharing your webcam"}} -->
 </template>
