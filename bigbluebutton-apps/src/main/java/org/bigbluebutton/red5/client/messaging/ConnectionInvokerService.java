@@ -38,6 +38,8 @@ import org.red5.server.so.SharedObjectService;
 import org.red5.server.util.ScopeUtils;
 import org.slf4j.Logger;
 
+import com.google.gson.Gson;
+
 public class ConnectionInvokerService {
 	private static Logger log = Red5LoggerFactory.getLogger(ConnectionInvokerService.class, "bigbluebutton");
 	
@@ -162,6 +164,12 @@ public class ConnectionInvokerService {
 	}
 	
 	private void sendDirectMessage(final DirectClientMessage msg) {
+      if (log.isTraceEnabled()) {
+        Gson gson = new Gson();
+        String json = gson.toJson(msg.getMessage());
+        log.trace("Handle direct message: " + msg.getMessageName() + " msg=" + json);
+      }
+		
 	  final String sessionId = CONN + msg.getUserID();
 		Runnable sender = new Runnable() {
 			public void run() {
@@ -174,6 +182,11 @@ public class ConnectionInvokerService {
 							List<Object> params = new ArrayList<Object>();
 							params.add(msg.getMessageName());
 							params.add(msg.getMessage());
+							if (log.isTraceEnabled()) {
+								Gson gson = new Gson();
+								String json = gson.toJson(msg.getMessage());
+								log.trace("Send direct message: " + msg.getMessageName() + " msg=" + json);
+							}
 							ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
 						}
 					} else {
@@ -187,6 +200,12 @@ public class ConnectionInvokerService {
 	}
 	
 	private void sendBroadcastMessage(final BroadcastClientMessage msg) {
+      if (log.isTraceEnabled()) {
+        Gson gson = new Gson();
+        String json = gson.toJson(msg.getMessage());
+        log.trace("Handle broadcast message: " + msg.getMessageName() + " msg=" + json);
+      }
+	      
 		Runnable sender = new Runnable() {
 			public void run() {
 				IScope meetingScope = getScope(msg.getMeetingID());
@@ -194,6 +213,11 @@ public class ConnectionInvokerService {
 					List<Object> params = new ArrayList<Object>();
 					params.add(msg.getMessageName());
 					params.add(msg.getMessage());
+					if (log.isTraceEnabled()) {
+						Gson gson = new Gson();
+						String json = gson.toJson(msg.getMessage());
+						log.trace("Broadcast message: " + msg.getMessageName() + " msg=" + json);
+					}
 					ServiceUtils.invokeOnAllScopeConnections(meetingScope, "onMessageFromServer", params.toArray(), null);
 				}
 			}
@@ -209,7 +233,7 @@ public class ConnectionInvokerService {
 				return conn;
 			}
 		}
-		
+		log.warn("Failed to get connection for userId = " + userID);
 		return null;		
 	}
 	
