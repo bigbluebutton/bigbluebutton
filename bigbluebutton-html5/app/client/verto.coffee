@@ -116,3 +116,6 @@ Template.webcamModal.events
 @simulatePresenterDeskshareHasEnded = ->
 	console.log("calling server to end deskshare")
 	Meteor.call("simulatePresenterDeskshareHasEnded", getInSession("meetingId"), getInSession("userId"))
+
+Handlebars.registerHelper "canIPresentDeskshare", ->
+	Meteor.Users.findOne({userId: getInSession("userId")})?.user.presenter and not Meteor.config.useSIPAudio

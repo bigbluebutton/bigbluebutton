@@ -37,7 +37,9 @@
     {{> settingsAudio}}
     {{> optionsFontSize}}
     <br/>
-    {{> vertoDeskshareMenu}}
+    {{#if canIPresentDeskshare}}
+        {{> vertoDeskshareMenu}}
+    {{/if}}
     {{> vertoWebcamMenu}}
     <br/>
     {{{getBBBSettingsInfo}}}
