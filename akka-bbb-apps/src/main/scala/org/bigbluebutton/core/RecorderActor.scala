@@ -29,6 +29,11 @@ import org.bigbluebutton.core.recorders.events.ParticipantEndAndKickAllRecordEve
 import org.bigbluebutton.core.recorders.events.UndoShapeWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.ClearPageWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.AddShapeWhiteboardRecordEvent
+import org.bigbluebutton.core.recorders.events.DeskShareStartRTMPRecordEvent
+import org.bigbluebutton.core.recorders.events.DeskShareStopRTMPRecordEvent
+import org.bigbluebutton.core.recorders.events.DeskShareStartRecordingRecordEvent
+import org.bigbluebutton.core.recorders.events.DeskShareStopRecordingRecordEvent
+import org.bigbluebutton.core.recorders.events.DeskShareNotifyViewersRTMPRecordEvent
 // import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil
 import org.bigbluebutton.core.recorders.events.ModifyTextWhiteboardRecordEvent
@@ -69,6 +74,11 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
     case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
     case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
+    case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
+    case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
+    case msg: DeskShareStartRecording => handleDeskShareStartRecording(msg)
+    case msg: DeskShareStopRecording => handleDeskShareStopRecording(msg)
+    case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
     case _ => // do nothing
   }
 
@@ -424,4 +434,54 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
     event.setShapeId(msg.shapeId);
     recorder.record(msg.meetingID, event)
   }
+
+  private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
+    val event = new DeskShareStartRTMPRecordEvent()
+    event.setMeetingId(msg.conferenceName)
+    event.setStreamPath(msg.streamPath)
+    event.setTimestamp(TimestampGenerator.generateTimestamp)
+    println("\n\n\n\n recorder handleDeskShareStartRTMPBroadcast\n\n\n\n")
+    recorder.record(msg.conferenceName, event)
+  }
+
+  private def handleDeskShareStopRTMPBroadcast(msg: DeskShareStopRTMPBroadcast) {
+    val event = new DeskShareStopRTMPRecordEvent()
+    event.setMeetingId(msg.conferenceName)
+    event.setStreamPath(msg.streamPath)
+    event.setTimestamp(TimestampGenerator.generateTimestamp)
+    println("\n\n\n\n recorder handleDeskShareStopRTMPBroadcast\n\n\n\n")
+    recorder.record(msg.conferenceName, event)
+  }
+
+  private def handleDeskShareStartRecording(msg: DeskShareStartRecording) {
+    val event = new DeskShareStartRecordingRecordEvent()
+    event.setMeetingId(msg.conferenceName)
+    event.setFilename(msg.filename)
+    event.setTimestamp(TimestampGenerator.generateTimestamp)
+    println("\n\n\n\n recorder handleDeskShareStartRecording\n\n\n\n")
+    recorder.record(msg.conferenceName, event)
+  }
+
+  private def handleDeskShareStopRecording(msg: DeskShareStopRecording) {
+    val event = new DeskShareStopRecordingRecordEvent()
+    event.setMeetingId(msg.conferenceName)
+    event.setFilename(msg.filename)
+    event.setTimestamp(TimestampGenerator.generateTimestamp)
+    println("\n\n\n\n recorder handleDeskShareStopRecording\n\n\n\n")
+    recorder.record(msg.conferenceName, event)
+  }
+
+  private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
+    val event = new DeskShareNotifyViewersRTMPRecordEvent()
+    event.setMeetingId(msg.meetingID)
+    event.setStreamPath(msg.streamPath)
+    event.setBroadcasting(msg.broadcasting)
+    event.setVideoWidth(msg.videoWidth)
+    event.setVideoHeight(msg.videoHeight)
+    event.setTimestamp(TimestampGenerator.generateTimestamp)
+
+    println("\n\n\n\n recorder handleDeskShareNotifyViewersRTMP\n\n\n\n")
+    recorder.record(msg.meetingID, event)
+  }
+
 }

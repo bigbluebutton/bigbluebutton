@@ -57,11 +57,11 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
-    // println("searching meeeting with voiceConfId=" + voiceConfId)
-    // meetings.values.find(m => {
-    //   println("^^^^^^" + m.mProps.voiceBridge)
-    //   m.mProps.voiceBridge == voiceConfId
-    // })
+    println("searching meeeting with voiceConfId=" + voiceConfId)
+    meetings.values.find(m => {
+      println("^^^^^^" + m.mProps.voiceBridge)
+      m.mProps.voiceBridge == voiceConfId
+    })
     meetings.values.find(m => m.mProps.voiceBridge == voiceConfId)
   }
 

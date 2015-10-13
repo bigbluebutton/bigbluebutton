@@ -93,7 +93,6 @@ public class VideoStreamListener implements IStreamListener {
 
 		// get the scheduler
 		scheduler = (QuartzSchedulingService) scope.getParent().getContext().getBean(QuartzSchedulingService.BEAN_NAME);
-
 	}
 
 	private Long genTimestamp() {
@@ -115,7 +114,7 @@ public class VideoStreamListener implements IStreamListener {
 			// keep track of last time video was received
 			lastVideoTime = System.currentTimeMillis();
 			packetCount++;
-			
+
 			if (! firstPacketReceived) {
 				firstPacketReceived = true;
 				publishing = true;
@@ -130,46 +129,44 @@ public class VideoStreamListener implements IStreamListener {
 					event.put("timestamp", genTimestamp().toString());
 					event.put("meetingId", scope.getName());
 					event.put("stream", stream.getPublishedName());
-					event.put("eventName", "StartWebcamShareEvent");
-						
-					  recordingService.record(scope.getName(), event);
-				  }		          
-			  }
-			  
-			  
-			  if (streamPaused) {
-				  streamPaused = false;
-				  long now = System.currentTimeMillis();
-				  long numSeconds = (now - lastVideoTime)/1000;
-					
-				  Map<String, Object> logData = new HashMap<String, Object>();
-				  logData.put("meetingId", scope.getName());
-				  logData.put("userId", userId);
-				  logData.put("stream", stream.getPublishedName());
-				  logData.put("packetCount", packetCount);
-				  logData.put("publishing", publishing);
-				  logData.put("pausedFor (sec)", numSeconds);
-					
-				  Gson gson = new Gson();
-				  String logStr =  gson.toJson(logData);
-					
-				  log.warn("Video stream restarted. data={}", logStr );	    		  
-			  }
-			  
-		  } 
+					event.put("eventName", "StartWebRTCDeskShareEvent");
+
+					recordingService.record(scope.getName(), event);
+				}
+			}
+
+			if (streamPaused) {
+				streamPaused = false;
+				long now = System.currentTimeMillis();
+				long numSeconds = (now - lastVideoTime)/1000;
+
+				Map<String, Object> logData = new HashMap<String, Object>();
+				logData.put("meetingId", scope.getName());
+				logData.put("userId", userId);
+				logData.put("stream", stream.getPublishedName());
+				logData.put("packetCount", packetCount);
+				logData.put("publishing", publishing);
+				logData.put("pausedFor (sec)", numSeconds);
+
+				Gson gson = new Gson();
+				String logStr = gson.toJson(logData);
+
+				log.warn("Video stream restarted. data={}", logStr );
+			}
+		}
 	}
-	
+
 	public void setEventRecordingService(EventRecordingService s) {
 		recordingService = s;
 	}
-	
+
 	public void streamStopped() {
 		this.publishing = false;
 	}
-	
+
 	private class TimeoutJob implements IScheduledJob {
 		private boolean streamStopped = false;
-		
+
 		public void execute(ISchedulingService service) {
 			Map<String, Object> logData = new HashMap<String, Object>();
 			logData.put("meetingId", scope.getName());
@@ -177,22 +174,20 @@ public class VideoStreamListener implements IStreamListener {
 			logData.put("stream", stream.getPublishedName());
 			logData.put("packetCount", packetCount);
 			logData.put("publishing", publishing);
-			
+
 			Gson gson = new Gson();
-			
+
 			long now = System.currentTimeMillis();
 			if ((now - lastVideoTime) > videoTimeout && !streamPaused) {
 				streamPaused = true;
 				long numSeconds = (now - lastVideoTime)/1000;
-				
 
 				logData.put("lastPacketTime (sec)", numSeconds);
-				
-				
+
+
 				String logStr =  gson.toJson(logData);
-				
+
 				log.warn("Video packet timeout. data={}", logStr );
-				
 
 				
 /*                

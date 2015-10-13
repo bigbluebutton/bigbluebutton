@@ -318,6 +318,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp +
         "/" + mProps.meetingID + "/" + mProps.meetingID + "-" + timestamp
 
+      println("____ in handleDeskShareStartedRequest and streamPath=" + streamPath)
       // Tell FreeSwitch to broadcast to RTMP
       outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath, timestamp))
 
@@ -368,9 +369,9 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
-    // println("\nMeetingActor-handleDeskShareRTMPBroadcastStartedRequest\n")
-    // println("isRecording=" + meetingModel.isRecording())
-    // println("recorded=" + mProps.recorded)
+    println("\nMeetingActor-handleDeskShareRTMPBroadcastStartedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
 
     // only valid if not broadcasting yet
     if (!meetingModel.isBroadcastingRTMP()) {
@@ -388,9 +389,9 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
-    // println("\nMeetingActor-handleDeskShareRTMPBroadcastStoppedRequest\n")
-    // println("isRecording=" + meetingModel.isRecording())
-    // println("recorded=" + mProps.recorded)
+    println("\nMeetingActor-handleDeskShareRTMPBroadcastStoppedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
 
     // only valid if currently broadcasting
     if (meetingModel.isBroadcastingRTMP()) {

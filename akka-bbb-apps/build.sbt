@@ -49,8 +49,8 @@ libraryDependencies ++= {
 	  "joda-time"                 %  "joda-time"         % "2.3",
 	  "com.google.code.gson"      %  "gson"              % "1.7.1",
 	  "redis.clients"             %  "jedis"             % "2.7.2",
-      "org.apache.commons"        %  "commons-lang3"     % "3.2",
-      "org.bigbluebutton"         %  "bbb-common-message" % "0.0.13"
+	  "org.apache.commons"        %  "commons-lang3"     % "3.2",
+	  "org.bigbluebutton"         %  "bbb-common-message" % "0.0.14-SNAPSHOT"
 	)}
 
 seq(Revolver.settings: _*)

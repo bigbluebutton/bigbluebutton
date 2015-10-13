@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
@@ -41,7 +40,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 	private IScope appScope;
 	private IServerStream serverStream;
-	private MessagePublisher publisher;
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
@@ -52,7 +50,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public boolean appStart(IScope app) {
 		super.appStart(app);
 		log.info("BBB Video-broadcast appStart");
-		System.out.println("BBB Video-broadcast appStart\n\n\n\n\n\n\n\n\n");
+		System.out.println("BBB Video-broadcast appStart");
 		appScope = app;
 		return true;
 	}
@@ -67,11 +65,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public boolean roomConnect(IConnection conn, Object[] params) {
 		log.info("BBB Video-broadcast roomConnect"); 
 
-		log.info("\n\n\n\n\n\n video-broadcast roomConnect AAAAAAAA\n\n\n");
-
-
 		return super.roomConnect(conn, params);
-		// return true;
 	}
 
 	private String getConnectionType(String connType) {
@@ -113,20 +107,20 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		logData.put("userId", getUserId());
 		logData.put("connType", connType);
 		logData.put("connId", connId);
-		logData.put("event", "user_leaving_bbb_video"); //TODO video-broadcast
-		logData.put("description", "User leaving BBB Video."); //TODO video-broadcast
+		logData.put("event", "user_leaving_bbb_video_broadcast");
+		logData.put("description", "User leaving BBB video-broadcast.");
 		
 		Gson gson = new Gson();
 		String logStr =  gson.toJson(logData);
 		
-		log.info("User leaving bbb-video: data={}", logStr); //TODO video-broadcast
+		log.info("User leaving bbb-video-broadcast: data={}", logStr);
 		
 		super.appDisconnect(conn);
 	}
 
 	@Override
 	public void roomDisconnect(IConnection conn) {
-		log.info("BBB Video roomDisconnect"); //TODO video-broadcast
+		log.info("BBB video-broadcast roomDisconnect");
 
 		String connType = getConnectionType(Red5.getConnectionLocal().getType());
 		String connId = Red5.getConnectionLocal().getSessionId();
@@ -136,13 +130,13 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		logData.put("userId", getUserId());
 		logData.put("connType", connType);
 		logData.put("connId", connId);
-		logData.put("event", "user_leaving_bbb_video"); //TODO video-broadcast
-		logData.put("description", "User leaving BBB Video."); //TODO video-broadcast
+		logData.put("event", "user_leaving_bbb_video_broadcast");
+		logData.put("description", "User leaving BBB video-broadcast.");
 
 		Gson gson = new Gson();
 		String logStr =  gson.toJson(logData);
 
-		log.info("User leaving bbb-video: data={}", logStr); //TODO video-broadcast
+		log.info("User leaving bbb-video-broadcast: data={}", logStr);
 
 		super.roomDisconnect(conn);
 	}
@@ -162,15 +156,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis()
 		 + " " + conn.getScope().getName());
 
-		String userId = getUserId();
-		String meetingId = conn.getScope().getName();
-		String streamId = stream.getPublishedName();
-
-		publisher.userSharedWebcamMessage(meetingId, userId, streamId);
-		// VideoStreamListener listener = new VideoStreamListener(conn.getScope(), stream, recordVideoStream, userId, packetTimeout);
-		// listener.setEventRecordingService(recordingService);
-		// stream.addStreamListener(listener); 
-		// streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
+		// TODO Anton publish a message to a redis channel so that all [Flash client] users are
+		// notified that there is an rtmp stream being broadcasted.
 
 		if (recordVideoStream) {
 			recordStream(stream);
@@ -195,34 +182,29 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 		log.info("Stream broadcast closed for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
 
+		// TODO Anton publish a message to a redis channel so that all [Flash client] users are
+		// notified that there is no longer rtmp stream being broadcasted.
+
 		String userId = getUserId();
 		String meetingId = conn.getScope().getName();
 		String streamId = stream.getPublishedName();
-
-		publisher.userUnshareWebcamRequestMessage(meetingId, userId, streamId);
-
-		// IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
-		// if (listener != null) {
-		// 	((VideoStreamListener) listener).streamStopped();
-		// 	stream.removeStreamListener(listener);
-		// }
 
 		if (recordVideoStream) {
 			long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
 			log.info("Stop recording event for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
 			Map<String, String> event = new HashMap<String, String>();
-			event.put("module", "WEBCAM");
+			event.put("module", "WEBRTC-DESKSHARE");
 			event.put("timestamp", genTimestamp().toString());
 			event.put("meetingId", scopeName);
 			event.put("stream", stream.getPublishedName());
 			event.put("duration", new Long(publishDuration).toString());
-			event.put("eventName", "StopWebcamShareEvent");
+			event.put("eventName", "StopWebRTCDesktopShareEvent");
 			recordingService.record(scopeName, event);
 		}
 	}
 
 	/**
-	 * A hook to record a stream. A file is written in webapps/video/streams/ //TODO video-broadcast
+	 * A hook to record a stream. A file is written in webapps/video-broadcast/streams/
 	 * @param stream
 	 */
 	private void recordStream(IBroadcastStream stream) {
@@ -250,10 +232,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 	public void setEventRecordingService(EventRecordingService s) {
 		recordingService = s;
-	}
-
-	public void setMessagePublisher(MessagePublisher publisher) {
-		this.publisher = publisher;
 	}
 
 	/**
