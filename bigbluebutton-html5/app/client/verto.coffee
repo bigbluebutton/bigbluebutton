@@ -14,11 +14,24 @@ Template.vertoDeskshareMenu.events
 			console.log("ending simulation");
 			simulatePresenterDeskshareHasEnded();
 
-	"click #screenshareSubscribe": (event) ->
-		joinVoiceCall @, {
-			watchOnly: true
-		}
-		return false
+	"click #installChromeExtension": (event) ->
+		# do a check for Chrome desksharing extension
+		successCallback = ->
+			setInSession("gotChromeExtension", true)
+			location.reload()
+
+		failureCallback = (error) ->
+			setInSession("gotChromeExtension", false)
+			console.error error
+
+		installExtension = ->
+			!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install &&
+			chrome.webstore.install(
+				'https://chrome.google.com/webstore/detail/---',
+				successCallback,
+				failureCallback
+			);
+		installExtension()
 
 Template.deskshareModal.events
 	"click .screenshareStart": (event) ->

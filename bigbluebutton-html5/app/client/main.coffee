@@ -27,6 +27,7 @@ Meteor.startup ->
       amplify.store key, value
       return
   )
+  setInSession("gotChromeExtension", false)
 #
 Template.header.events
   "click .chatBarIcon": (event) ->
@@ -128,6 +129,15 @@ Template.main.rendered = ->
 
   if Meteor.config.app.autoJoinAudio
     onAudioJoinHelper()
+
+  checkIfChromeExtExists()
+
+@checkIfChromeExtExists = ->
+    getChromeExtensionStatus (status) ->
+        if status is "installed-enabled"
+            setInSession("chromeExtensionIsInstalled", true)
+        else
+            setInSession("chromeExtensionIsInstalled", false)
 
 Template.deskshareModal.rendered = ->
   makeWebcamResolutions();

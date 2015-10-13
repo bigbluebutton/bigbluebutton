@@ -14,23 +14,13 @@ Template.settingsAudio.events
   "click .joinAudioButton": (event) -> $("#settingsModal").foundation('reveal', 'close')
 
   "click #joinListenOnly": (event) ->
-    #   joinVoiceCall @, isListenOnly: true
     joinVoiceCall @, {
-        # useVideo: true
-        # useCamera: false
-        # useMic: false
-        # useRealMic: false
         listenOnly: true
     }
 
 
   "click #joinMicrophone": (event) ->
-    #   joinVoiceCall @, isListenOnly: false
     joinVoiceCall @, {
-        # useVideo: true
-        # useCamera: false
-        # useMic: false
-        # useRealMic: false
         joinAudio: true
     }
 

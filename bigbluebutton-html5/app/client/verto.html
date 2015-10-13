@@ -1,10 +1,17 @@
 <template name="vertoDeskshareMenu">
-	{{#if amISharingDesktop}}
-		{{> makeButton id="screenshareHide" btn_class="screenshareHide vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Stop sharing your screen"}}
-	{{else}}
-		{{> makeButton id="screenshareShow" btn_class="screenshareShow vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Share your screen"}}
-	{{/if}}
-	<!-- {{> makeButton id="screenshareSubscribe" btn_class="" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="view deskshare"}} -->
+	<fieldset class="desktopSettingsFieldset">
+		<legend>Deskshare Options</legend>
+		{{#if getInSession "chromeExtensionIsInstalled"}}
+			{{#if amISharingDesktop}}
+				{{> makeButton id="screenshareHide" btn_class="screenshareHide vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Stop sharing your screen"}}
+			{{else}}
+				{{> makeButton id="screenshareShow" btn_class="screenshareShow vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Share your screen"}}
+			{{/if}}
+		{{else}}
+			{{> makeButton id="installChromeExtension" btn_class="" label="Install BBB-DS" rel="tooltip" data_placement="bottom" title="Install BigBlueButton Deskshare Extension"}}
+			<br/><a href="https://chrome.google.com/webstore/detail/---------------------" target="_blank">Install BigBlueButton Deskshare Extension</a>
+		{{/if}}
+	</fieldset>
 </template>
 
 <template name="vertoWebcamMenu">
