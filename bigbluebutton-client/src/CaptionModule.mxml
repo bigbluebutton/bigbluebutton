@@ -31,14 +31,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import org.bigbluebutton.common.LogUtil;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.modules.caption.events.StartCaptionModuleEvent;
 			import org.bigbluebutton.modules.caption.events.StopCaptionModuleEvent;
+			
+			private static const LOGGER:ILogger = getClassLogger(CaptionModule);
 			
 			private var _moduleName:String = "Caption Module";
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("CaptionModule Initialized");
+				LOGGER.debug("CaptionModule Initialized");
 			}
 			
 			public function get moduleName():String {
@@ -46,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function start(attributes:Object):void {
-				LogUtil.debug("Dispatching StartCaptionModuleEvent");
+				LOGGER.debug("Dispatching StartCaptionModuleEvent");
 				var dispatcher:Dispatcher = new Dispatcher();
 				
 				var event:StartCaptionModuleEvent = new StartCaptionModuleEvent(StartCaptionModuleEvent.START_CAPTION_MODULE_EVENT);
@@ -55,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function stop():void {
-				LogUtil.debug("Dispatching StopCaptionModuleEvent");
+				LOGGER.debug("Dispatching StopCaptionModuleEvent");
 				var dispatcher:Dispatcher = new Dispatcher();
 				
 				var event:StopCaptionModuleEvent = new StopCaptionModuleEvent(StopCaptionModuleEvent.STOP_CAPTION_MODULE_EVENT);

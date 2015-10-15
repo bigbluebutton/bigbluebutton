@@ -282,7 +282,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-present" 
-			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users. build-caption"
+			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users, build-caption"
 			description="Compile main, chat, present modules">
 	</target>
 	

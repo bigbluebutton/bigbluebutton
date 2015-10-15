@@ -17,78 +17,80 @@
  *
  */
 package org.bigbluebutton.modules.caption.services {
-	import flash.events.IEventDispatcher; 
-	import org.bigbluebutton.common.LogUtil;
+	import flash.events.IEventDispatcher;
+	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	
 	public class MessageSender {
-		private static const LOG:String = "Caption::MessageSender - ";
+		private static const LOGGER:ILogger = getClassLogger(MessageSender);
 		
 		public function getCaptionHistory():void {
-			trace(LOG + "Sending [caption.getCaptionHistory] to server.");
+			LOGGER.debug("Sending [caption.getCaptionHistory] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("caption.getCaptionHistory", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
+					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				}
 			);
 		}
 		
 		public function sendNewCaptionLine(message:Object):void {  
-			trace(LOG + "Sending [caption.newCaptionLine] to server.");
+			LOGGER.debug("Sending [caption.newCaptionLine] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("caption.newCaptionLine", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
+					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				},
 				message
 			);
 		}
 		
 		public function deleteCaptionLine(message:Object):void {
-			trace(LOG + "Sending [caption.deleteCaptionLine] to server.");
+			LOGGER.debug("Sending [caption.deleteCaptionLine] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("caption.deleteCaptionLine", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
+					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				},
 				message
 			);
 		}
 		
 		public function correctCaptionLine(message:Object):void {
-			trace(LOG + "Sending [caption.correctCaptionLine] to server.");
+			LOGGER.debug("Sending [caption.correctCaptionLine] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("caption.correctCaptionLine", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
+					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				},
 				message
 			);
 		}
 		
 		public function updateTranscriptionList(message:Object):void {
-			trace(LOG + "Sending [caption.updateTranscriptionList] to server.");
+			LOGGER.debug("Sending [caption.updateTranscriptionList] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("caption.updateTranscriptionList", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
+					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				},
 				message
 			);

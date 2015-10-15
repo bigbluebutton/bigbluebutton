@@ -34,8 +34,8 @@ package org.bigbluebutton.modules.caption.services {
 		
 		public function onMessage(messageName:String, message:Object):void {
 			switch (messageName) {
-				case "getCaptionHistoryReply":
-					getCaptionHistoryReply(message);
+				case "sendCaptionHistoryReply":
+					sendCaptionHistoryReply(message);
 					break;
 				case "newCaptionLine":
 					newCaptionLine(message);
@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.caption.services {
 			}
 		}
 		
-		private function getCaptionHistoryReply(message:Object):void {
+		private function sendCaptionHistoryReply(message:Object):void {
 			trace(LOG + "*** getCaptionHistoryReply " + message.msg + " ****");
 			var map:Object = JSON.parse(message.msg);
 			
@@ -64,13 +64,13 @@ package org.bigbluebutton.modules.caption.services {
 		}
 		
 		private function newCaptionLine(message:Object):void {
-			trace(LOG + "*** newCaptionLine " + message.msg + " ****");
-			var map:Object = JSON.parse(message.msg);
+			trace(LOG + "*** newCaptionLine " + message + " ****");
+			//var map:Object = JSON.parse(message);
 			
 			var event:ReceiveNewCaptionLineEvent = new ReceiveNewCaptionLineEvent(ReceiveNewCaptionLineEvent.RECEIVE_NEW_CAPTION_LINE);
-			event.locale = map.locale;
-			event.lineNumber = map.lineNumber;
-			event.text = map.text;
+			event.locale = message.locale;
+			event.lineNumber = message.line_number;
+			event.text = message.text;
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);
 		}
