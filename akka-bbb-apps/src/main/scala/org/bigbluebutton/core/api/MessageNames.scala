@@ -161,5 +161,7 @@ object MessageNames {
   val MEETING_DESTROYED_EVENT = "meeting_destroyed_event"
   val KEEP_ALIVE_REPLY = "keep_alive_reply"
   val USER_LISTEN_ONLY = "user_listening_only"
-  val GET_ALL_MEETINGS_REPLY = "get_all_meetings_reply"
+  val GET_ALL_MEETINGS_REPLY = "get_all_meetings_reply_message"
+  val NEW_CAPTION_LINE = "new_caption_line_message"
+  val SEND_CAPTION_HISTORY_REPLY = "send_caption_history_reply_message"
 }

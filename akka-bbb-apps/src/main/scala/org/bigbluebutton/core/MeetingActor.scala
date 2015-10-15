@@ -8,8 +8,8 @@ import org.bigbluebutton.core.api._
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
+import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, CaptionApp }
+import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, CaptionModel }
 import org.bigbluebutton.core.apps.PresentationModel
 
 object MeetingActor {
@@ -19,7 +19,8 @@ object MeetingActor {
 
 class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     extends Actor with UsersApp with PresentationApp
-    with LayoutApp with ChatApp with WhiteboardApp with PollApp
+    with LayoutApp with ChatApp with WhiteboardApp
+    with PollApp with CaptionApp
     with ActorLogging {
 
   val chatModel = new ChatModel()
@@ -29,6 +30,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
+  val captionModel = new CaptionModel()
 
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 30 seconds, self, "MonitorNumberOfWebUsers")
@@ -168,6 +170,10 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleGetPollRequest(msg)
     case msg: GetCurrentPollRequest =>
       handleGetCurrentPollRequest(msg)
+    case msg: SendCaptionHistoryRequest =>
+      handleSendCaptionHistoryRequest(msg)
+    case msg: NewCaptionLineRequest =>
+      handleNewCaptionLineRequest(msg)
 
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit

@@ -25,7 +25,7 @@ public class NewCaptionLineMessage implements ISubscribedMessage {
 	
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
-		payload.put(Constants.MEETING_ID, meetingId); 
+		payload.put(Constants.MEETING_ID, meetingID); 
 		payload.put(Constants.LINE_NUMBER, lineNumber);
 		payload.put(Constants.LOCALE, locale);
 		payload.put(Constants.START_TIME, startTime);
@@ -49,7 +49,7 @@ public class NewCaptionLineMessage implements ISubscribedMessage {
 				if (NEW_CAPTION_LINE.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.LINE_NUMBER)
-							&& payload.has(Constants.LOCALE, locale)
+							&& payload.has(Constants.LOCALE)
 							&& payload.has(Constants.START_TIME)
 							&& payload.has(Constants.TEXT)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();

@@ -272,7 +272,7 @@ public class MessagePublisher {
 	}
 	
 	public void sendCaptionHistory(String meetingID, String requesterID) {
-		SendCaptionHistoryMessage msg = new SendCaptionHistoryMessage(meetingID, requesterID);
+		SendCaptionHistoryRequestMessage msg = new SendCaptionHistoryRequestMessage(meetingID, requesterID);
 		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
 	}
 	

@@ -11,6 +11,7 @@ import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.CaptionMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 import org.bigbluebutton.common.messages.PresentationRemovedMessage
 import org.bigbluebutton.core.apps.Page
@@ -112,6 +113,8 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     case msg: WhiteboardEnabledEvent => handleWhiteboardEnabledEvent(msg)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
+    case msg: SendCaptionHistoryReply => handleSendCaptionHistoryReply(msg)
+    case msg: NewCaptionLineEvent => handleNewCaptionLineEvent(msg)
     case _ => // do nothing
   }
 
@@ -643,5 +646,15 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   private def handleIsWhiteboardEnabledReply(msg: IsWhiteboardEnabledReply) {
     val json = WhiteboardMessageToJsonConverter.isWhiteboardEnabledReplyToJson(msg)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
+  }
+
+  private def handleSendCaptionHistoryReply(msg: SendCaptionHistoryReply) {
+    val json = CaptionMessageToJsonConverter.sendCaptionHistoryReplyToJson(msg)
+    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
+  }
+
+  private def handleNewCaptionLineEvent(msg: NewCaptionLineEvent) {
+    val json = CaptionMessageToJsonConverter.newCaptionLineEventToJson(msg)
+    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
   }
 }

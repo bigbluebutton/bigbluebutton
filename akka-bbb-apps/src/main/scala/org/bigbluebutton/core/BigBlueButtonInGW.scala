@@ -444,7 +444,12 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new VoiceConfRecordingStartedMessage(voiceConfId, recordingFile, recording, timestamp)
   }
 
-  // Polling
+  /**
+   * *******************************************************************
+   * Message Interface for Polling
+   * *****************************************************************
+   */
+
   def votePoll(meetingId: String, userId: String, pollId: String, questionId: Integer, answerId: Integer) {
     bbbActor ! new RespondToPollRequest(meetingId, userId, pollId, questionId, answerId)
   }
@@ -463,5 +468,19 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     } else {
       bbbActor ! new HidePollResultRequest(meetingId, requesterId, pollId)
     }
+  }
+
+  /**
+   * *******************************************************************
+   * Message Interface for Caption
+   * *****************************************************************
+   */
+
+  def sendCaptionHistory(meetingID: String, requesterID: String) {
+    bbbActor ! new SendCaptionHistoryRequest(meetingID, requesterID)
+  }
+
+  def newCaptionLine(meetingID: String, lineNumber: Integer, locale: String, startTime: Integer, text: String) {
+    bbbActor ! new NewCaptionLineRequest(meetingID, lineNumber, locale, startTime, text)
   }
 }

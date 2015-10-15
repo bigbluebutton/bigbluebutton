@@ -671,5 +671,22 @@ public class Util {
 		return pollMap;
 	}
 	
+	public Map<String, ArrayList<String>> extractCaptionHistory(JsonObject history) {
+		Map<String, ArrayList<String>> collection = new HashMap<String, ArrayList<String>>();
+		
+		for (Map.Entry<String,JsonElement> entry : history.entrySet()) {
+			String locale = entry.getKey();
+			JsonArray linesJSON = entry.getValue().getAsJsonArray();
+			
+			ArrayList<String> lines = new ArrayList<String>();
+			for (JsonElement line : linesJSON) {
+				lines.add(line.getAsString());
+			}
+			
+			collection.put(locale, lines);
+		}
+		
+		return collection;
+	}
 	
 }

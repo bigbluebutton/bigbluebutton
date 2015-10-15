@@ -130,6 +130,10 @@ case class WhiteboardEnabledEvent(meetingID: String, recorded: Boolean, requeste
 case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean, replyTo: String) extends IOutMessage
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
+// Chat
+case class SendCaptionHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, history: Map[String, Array[String]]) extends IOutMessage
+case class NewCaptionLineEvent(meetingID: String, recorded: Boolean, lineNumber: Integer, locale: String, startTime: Integer, text: String) extends IOutMessage
+
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)
 

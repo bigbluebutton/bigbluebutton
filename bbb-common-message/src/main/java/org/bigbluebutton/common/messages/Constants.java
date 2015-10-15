@@ -128,4 +128,5 @@ public class Constants {
   public static final String LOCALE                          = "locale";
   public static final String START_TIME                      = "start_time";
   public static final String TEXT                            = "text";
+  public static final String CAPTION_HISTORY                 = "caption_history";
 }

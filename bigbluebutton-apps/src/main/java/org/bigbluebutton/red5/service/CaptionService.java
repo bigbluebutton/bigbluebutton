@@ -28,7 +28,7 @@ import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 
 public class CaptionService {	
-	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
+	private static Logger log = Red5LoggerFactory.getLogger( CaptionService.class, "bigbluebutton" );
 	
 	private MessagePublisher red5InGW;
 
@@ -47,7 +47,7 @@ public class CaptionService {
 		red5InGW.sendCaptionHistory(meetingID, requesterID);
 	}
 	
-	public void sendPublicMessage(Map<String, Object> msg) {
+	public void newCaptionLine(Map<String, Object> msg) {
 		log.debug("Received new caption line request");
 		int lineNumber = (Integer) msg.get("lineNumber");
 		String locale = msg.get("locale").toString();

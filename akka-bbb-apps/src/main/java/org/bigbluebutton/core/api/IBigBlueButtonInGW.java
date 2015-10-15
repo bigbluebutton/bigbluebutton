@@ -111,4 +111,7 @@ public interface IBigBlueButtonInGW {
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
 	
+	// Caption
+	void sendCaptionHistory(String meetingID, String requesterID);
+	void newCaptionLine(String meetingID, Integer lineNumber, String locale, Integer startTime, String text);
 }

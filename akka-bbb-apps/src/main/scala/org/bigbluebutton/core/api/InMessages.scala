@@ -115,3 +115,7 @@ case class UndoWhiteboardRequest(meetingID: String, requesterID: String, whitebo
 case class EnableWhiteboardRequest(meetingID: String, requesterID: String, enable: Boolean) extends InMessage
 case class IsWhiteboardEnabledRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
+
+// Caption
+case class SendCaptionHistoryRequest(meetingID: String, requesterID: String) extends InMessage
+case class NewCaptionLineRequest(meetingID: String, lineNumber: Integer, locale: String, startTime: Integer, text: String) extends InMessage
