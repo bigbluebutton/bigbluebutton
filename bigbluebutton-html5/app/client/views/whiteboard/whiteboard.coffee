@@ -103,7 +103,7 @@ Template.polling.destroyed = ->
   setTimeout(scaleWhiteboard, 0)
 
 Template.presenterBottomControllers.rendered = ->
-  scaleWhiteboard()
+  setTimeout(scaleWhiteboard, 0)
 
 Template.presenterBottomControllers.destroyed = ->
   setTimeout(scaleWhiteboard, 0)
