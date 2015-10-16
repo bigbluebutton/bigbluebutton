@@ -565,6 +565,12 @@ Handlebars.registerHelper "getPollQuestions", ->
 @isPhone = () ->
   isLandscapePhone() or isPortraitPhone()
 
+# The webpage orientation is now landscape
+@orientationBecameLandscape = ->
+
+# The webpage orientation is now portrait
+@orientationBecamePortrait = ->
+
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
   #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1
