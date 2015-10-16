@@ -119,8 +119,18 @@ Template.main.rendered = ->
       of: '.signOutIcon'
   )
 
+  # keep track of the last orientation
+  lastOrientationWasLandscape = isLandscape()
   $(window).resize( ->
     $('#dialog').dialog('close')
+
+    # when the orientation switches call the handler
+    if isLandscape() and not lastOrientationWasLandscape
+        orientationBecameLandscape()
+        lastOrientationWasLandscape = true
+    else if isPortrait() and lastOrientationWasLandscape
+        orientationBecamePortrait()
+        lastOrientationWasLandscape = false
   )
 
   $('#shield').click () ->
