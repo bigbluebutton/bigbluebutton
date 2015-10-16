@@ -36,6 +36,7 @@ public class CreateBreakoutRoomsRequestTest {
     
     CreateBreakoutRoomsRequest rxMsg = gson.fromJson(json, CreateBreakoutRoomsRequest.class);
     
+    Assert.assertEquals(rxMsg.header.name, CreateBreakoutRoomsRequest.NAME);
     Assert.assertEquals(rxMsg.payload.meetingId, meetingId);
     Assert.assertEquals(rxMsg.payload.rooms.size(), 3);
     Assert.assertEquals(rxMsg.payload.durationInMinutes, durationInMinutes);
