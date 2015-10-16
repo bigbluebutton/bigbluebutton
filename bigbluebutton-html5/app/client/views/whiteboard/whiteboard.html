@@ -30,10 +30,11 @@
       {{> slide}}
     {{/each}}
 
-    <video id="webcam" autoplay="autoplay">
-        <p>Your browser doesn't support HTML5 video.</p>
-    </video>
+
     <div id="whiteboard-container" class="{{whiteboardSize}}">
+      <video id="webcam" autoplay="autoplay">
+          <p>Your browser doesn't support HTML5 video.</p>
+      </video>
       <div id="whiteboard-paper">
       </div>
       {{#if isMobile}}
