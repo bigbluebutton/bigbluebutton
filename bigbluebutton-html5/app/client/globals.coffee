@@ -585,19 +585,20 @@ Handlebars.registerHelper "getPollQuestions", ->
 
 # changes the height of the chat input area if needed (based on the textarea content)
 @adjustChatInputHeight = () ->
-  $('#newMessageInput').css('height', 'auto')
-  projectedHeight = $('#newMessageInput')[0].scrollHeight + 23
-  if projectedHeight isnt $('.panel-footer').height() and
-  projectedHeight >= getInSession('chatInputMinHeight')
-    $('#newMessageInput').css('overflow', 'hidden') # prevents a scroll bar
+  if isLandscape()
+    $('#newMessageInput').css('height', 'auto')
+    projectedHeight = $('#newMessageInput')[0].scrollHeight + 23
+    if projectedHeight isnt $('.panel-footer').height() and
+    projectedHeight >= getInSession('chatInputMinHeight')
+      $('#newMessageInput').css('overflow', 'hidden') # prevents a scroll bar
 
-    # resizes the chat input area
-    $('.panel-footer').css('top', - (projectedHeight - 70) + 'px')
-    $('.panel-footer').css('height', projectedHeight + 'px')
+      # resizes the chat input area
+      $('.panel-footer').css('top', - (projectedHeight - 70) + 'px')
+      $('.panel-footer').css('height', projectedHeight + 'px')
 
-    $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
+      $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
 
-    # resizes the chat messages container
-    $('#chatbody').height($('#chat').height() - projectedHeight - 45)
-    $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
-  $('#newMessageInput').css('height', '')
+      # resizes the chat messages container
+      $('#chatbody').height($('#chat').height() - projectedHeight - 45)
+      $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+    $('#newMessageInput').css('height', '')
