@@ -567,10 +567,10 @@ Handlebars.registerHelper "getPollQuestions", ->
 
 # The webpage orientation is now landscape
 @orientationBecameLandscape = ->
-
+  adjustChatInputHeight()
 # The webpage orientation is now portrait
 @orientationBecamePortrait = ->
-
+  adjustChatInputHeight()
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
   #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1
@@ -608,3 +608,7 @@ Handlebars.registerHelper "getPollQuestions", ->
       $('#chatbody').height($('#chat').height() - projectedHeight - 45)
       $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
     $('#newMessageInput').css('height', '')
+  else if isPortrait()
+    $('.panel-footer').attr('style','')
+    $('#chatbody').attr('style','')
+    $('#newMessageInput').attr('style','')
