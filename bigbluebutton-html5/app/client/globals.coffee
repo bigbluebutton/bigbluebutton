@@ -470,22 +470,14 @@ Handlebars.registerHelper "getPollQuestions", ->
     # and display it, or end the call and hide the video
     Meteor.Meetings.find().observe
         added:(newDocument) ->
-            console.log "Meteor.Meetings added"
-            console.log "Meeting information has been modified"
-            console.log newDocument
             if newDocument.deskshare.startedBy isnt getInSession("userId")
-                console.log "Deskshare was started by: #{newDocument.deskshare.startedBy}"
-                console.log "you are: #{getInSession('userId')}"
                 if newDocument.deskshare.broadcasting
                     console.log "Deskshare is now broadcasting"
                     presenterDeskshareHasStarted()
 
         changed: (newDocument, oldDocument) ->
-            console.log "Meeting information has been modified"
-            console.log newDocument
+            console.log "Meeting information has been modified", newDocument
             if oldDocument.deskshare isnt newDocument.deskshare and newDocument.deskshare.startedBy isnt getInSession("userId")
-                console.log "Deskshare was started by: #{newDocument.deskshare.startedBy}"
-                console.log "you are: #{getInSession('userId')}"
                 if newDocument.deskshare.broadcasting
                     console.log "Deskshare is now broadcasting"
                     presenterDeskshareHasStarted()

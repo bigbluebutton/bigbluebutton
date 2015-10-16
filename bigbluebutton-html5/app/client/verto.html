@@ -8,7 +8,9 @@
 				{{> makeButton id="screenshareShow" btn_class="screenshareShow vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Share your screen"}}
 			{{/if}}
 		{{else}}
+			{{! clicking this will automatically start installation of the extension through the webstore}}
 			{{> makeButton id="installChromeExtension" btn_class="" label="Install BBB-DS" rel="tooltip" data_placement="bottom" title="Install BigBlueButton Deskshare Extension"}}
+			{{! Provide the option to visit the webstore for the extension}}
 			<br/><a href="https://chrome.google.com/webstore/detail/---------------------" target="_blank">Install BigBlueButton Deskshare Extension</a>
 		{{/if}}
 	</fieldset>

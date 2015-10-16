@@ -1,3 +1,5 @@
+// Gather all resolutions for deskshare
+// Create menu options for each one
 this.makeDeskshareResolutions = function () {
 	var videoConstraints = getAllPresetVideoResolutions();
 	for(var i in videoConstraints) {

@@ -71,7 +71,6 @@ this.doshare = function(on, callback, videoTag) {
 				var selectedDeskshareResolution = getChosenDeskshareResolution(); // this is the video profile the user chose
 				my_real_size(selectedDeskshareResolution);
 				var selectedDeskshareConstraints = getDeskshareConstraintsFromResolution(selectedDeskshareResolution, screen_constraints); // convert to a valid constraints object
-				console.log("new screen constraints");
 				console.log(selectedDeskshareConstraints);
 
 				window.listenOnly = false;
@@ -105,7 +104,6 @@ this.doshare = function(on, callback, videoTag) {
 				share_call.rtc.options.callbacks = $.extend(share_call.rtc.options.callbacks, callbacks);
 
 				setTimeout(function() {
-					console.log("starting simulation");
 					return simulatePresenterDeskshareHasStarted();
 				}, 4000);
 			});
@@ -143,7 +141,6 @@ this.doDesksharePreview = function(onSuccess, onFailure, videoTag) {
 				var selectedDeskshareResolution = getChosenDeskshareResolution(); // this is the video profile the user chose
 				my_real_size(selectedDeskshareResolution);
 				var selectedDeskshareConstraints = getDeskshareConstraintsFromResolution(selectedDeskshareResolution, screen_constraints); // convert to a valid constraints object
-				console.log("new screen constraints");
 				console.log(selectedDeskshareConstraints);
 				previewLocalMedia(deskshareStream, selectedDeskshareConstraints, videoTag, onSuccess, onFailure);
 			});
@@ -183,13 +180,13 @@ this.screenStart = function(state, callback, videoTag) {
 			callbacks.onWSLogin = function(v, success) {
 				doshare(state, callback, videoTag);
 				callback({'status':'success', 'message': 'screenshare started'});
-				console.log("logged in. starting screenshare");
+				console.log("Logged in with verto. Starting screenshare");
 			}
 			// set up verto
 			// $.verto.init({}, init);
 			init(window.videoTag);
 		} else {
-			console.log("already logged into verto, going straight to making a call");
+			console.log("Already logged into verto, going straight to making a call");
 			doshare(state, callback, videoTag);
 			callback({'status':'success', 'message': 'screenshare started'});
 		}

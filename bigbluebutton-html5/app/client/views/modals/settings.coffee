@@ -18,7 +18,6 @@ Template.settingsAudio.events
         listenOnly: true
     }
 
-
   "click #joinMicrophone": (event) ->
     joinVoiceCall @, {
         joinAudio: true

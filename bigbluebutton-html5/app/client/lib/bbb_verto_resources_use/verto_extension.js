@@ -17,7 +17,6 @@ this.videoTag = null;
 var oldHangup = $.verto.prototype.hangup;
 // overwrite the verto hangup handler with my own handler
 $.verto.prototype.hangup = function(callID, userCallback) {
-	console.log("call state callbacks - bye");
 	if (userCallback) {
 		callback = userCallback;
 	}
@@ -276,7 +275,6 @@ this.make_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNum
 	var myRTCCallbacks = {
 		onError: function(vertoErrorObject, errorMessage) {
 			console.error("custom callback: onError");
-			console.log("current verto");
 			console.error(vertoErrorObject);
 			console.error("ERROR:");
 			console.error(errorMessage);
@@ -353,14 +351,9 @@ this.makeVerto = function(callbacks, stunsConfig, videoTag) {
 		login: login,
 		passwd: password,
 		socketUrl: socketUrl,
-		// tag: "webcam",
 		tag: videoTag,
 		ringFile: "sounds/bell_ring2.wav",
 		loginParams: {foo: true, bar: "yes"},
-		// videoParams: {
-		// 	"minWidth": minWidth,
-		// 	"minHeight": minHeight
-		// },
 		useVideo: false,
 		useCamera: false,
 		iceServers: stunsConfig, // use user supplied stun configuration
@@ -415,7 +408,7 @@ this.previewLocalMedia = function(streamHandle, videoConstraints, videoTag, onSu
 
 var RTCPeerConnectionCallbacks = {
 	iceFailed: function(e) {
-		console.log('received ice negotiation failed');
+		console.log('Received ICE negotiation failed');
 		callback({'status':'failed', 'errorcode': 1007}); // Failure on call
 		cur_call = null;
 		verto.hangup();

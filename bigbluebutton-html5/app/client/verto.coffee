@@ -6,12 +6,12 @@ Template.vertoDeskshareMenu.events
 		$("#deskshareModal").foundation('reveal', 'open');
 
 	"click .screenshareHide": (event) ->
+		# if there is a local video feed then kill it
 		if(!!window["deskshareStream"])
 			$("#webcam").src = null;
 			window["deskshareStream"].stop();
 		else
 			screenStart(false, (->))
-			console.log("ending simulation");
 			simulatePresenterDeskshareHasEnded();
 
 	"click #installChromeExtension": (event) ->
@@ -25,6 +25,7 @@ Template.vertoDeskshareMenu.events
 			console.error error
 
 		installExtension = ->
+			# if it's Chrome start installing the extension
 			!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install &&
 			chrome.webstore.install(
 				'https://chrome.google.com/webstore/detail/---',
@@ -94,7 +95,9 @@ Template.webcamModal.events
 	if display is "whiteboard"
 		$("#webcam").css("display", "none")
 		$("#whiteboard-container").css("display", "block")
+		# bring the slide down vertically to the center of the whiteboard
 		$("#whiteboard-paper").addClass("vertically-centered")
+		# scale is because sometimes the width will get shrunk
 		scaleWhiteboard()
 	else if display is "video"
 		$("#whiteboard-container").css("display", "none")
@@ -106,12 +109,10 @@ Template.webcamModal.events
 @presenterDeskshareHasEnded = ->
 	toggleWhiteboardVideo("whiteboard")
 	exitVoiceCall()
-	console.log("deskshare Ended")
 
 # if remote deskshare has been started connect and display the video stream
 @presenterDeskshareHasStarted = ->
 	toggleWhiteboardVideo("video")
-	console.log("deskshare started")
 	joinVoiceCall @, {
 		watchOnly: true
 	}
@@ -119,11 +120,9 @@ Template.webcamModal.events
 # instead of a redis message notify the server to simulate a desksharing
 # notification
 @simulatePresenterDeskshareHasStarted = ->
-	console.log("Calling pres desk started on the server");
 	Meteor.call("simulatePresenterDeskshareHasStarted", getInSession("meetingId"), "12345", getInSession("userId"))
 
 @simulatePresenterDeskshareHasEnded = ->
-	console.log("calling server to end deskshare")
 	Meteor.call("simulatePresenterDeskshareHasEnded", getInSession("meetingId"), getInSession("userId"))
 
 Handlebars.registerHelper "canIPresentDeskshare", ->
