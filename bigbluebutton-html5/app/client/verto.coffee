@@ -94,6 +94,8 @@ Template.webcamModal.events
 	if display is "whiteboard"
 		$("#webcam").css("display", "none")
 		$("#whiteboard-container").css("display", "block")
+		$("#whiteboard-paper").addClass("vertically-centered")
+		scaleWhiteboard()
 	else if display is "video"
 		$("#whiteboard-container").css("display", "none")
 		$("#webcam").css("display", "block")
