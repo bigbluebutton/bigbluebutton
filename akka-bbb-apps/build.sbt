@@ -6,7 +6,7 @@ organization := "org.bigbluebutton"
 
 version := "0.0.2"
 
-scalaVersion  := "2.11.6"
+scalaVersion  := "2.11.7"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -36,22 +36,30 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 libraryDependencies ++= {
-  val akkaVersion  = "2.3.11"
+  val akkaVersion  = "2.3.12"
+  val akkaStreamV = "1.0"
+  val scalaTestV  = "2.2.5"
   Seq(
-	  "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
-	  "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
-	  "com.typesafe.akka" 	     %%  "akka-slf4j"        % akkaVersion,
-	  "ch.qos.logback"    	      %  "logback-classic"   % "1.0.13" % "runtime",
-	  "org.pegdown" 		      %  "pegdown"           % "1.4.0",
-	  "junit" 				      %  "junit"             % "4.11",
-	  "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
-	  "commons-codec"             %  "commons-codec"     % "1.8",
-	  "joda-time"                 %  "joda-time"         % "2.3",
-	  "com.google.code.gson"      %  "gson"              % "1.7.1",
-	  "redis.clients"             %  "jedis"             % "2.7.2",
-      "org.apache.commons"        %  "commons-lang3"     % "3.2",
-      "org.bigbluebutton"         %  "bbb-common-message" % "0.0.15"
-	)}
+    "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
+    "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
+    "com.typesafe.akka" 	     %%  "akka-slf4j"        % akkaVersion,
+    "com.typesafe.akka" %% "akka-stream-experimental"             % akkaStreamV,
+    "com.typesafe.akka" %% "akka-http-core-experimental"          % akkaStreamV,
+    "com.typesafe.akka" %% "akka-http-experimental"               % akkaStreamV,
+    "com.typesafe.akka" %% "akka-http-spray-json-experimental"    % akkaStreamV,
+    "com.typesafe.akka" %% "akka-http-testkit-experimental"       % akkaStreamV,
+    "org.scalatest"     %% "scalatest"                            % scalaTestV % "test",
+    "ch.qos.logback"    	      %  "logback-classic"   % "1.0.13" % "runtime",
+    "org.pegdown" 		      %  "pegdown"           % "1.4.0",
+    "junit" 				      %  "junit"             % "4.11",
+    "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
+    "commons-codec"             %  "commons-codec"     % "1.8",
+    "joda-time"                 %  "joda-time"         % "2.3",
+    "com.google.code.gson"      %  "gson"              % "1.7.1",
+    "redis.clients"             %  "jedis"             % "2.7.2",
+    "org.apache.commons"        %  "commons-lang3"     % "3.2",
+    "org.bigbluebutton"         %  "bbb-common-message" % "0.0.15"
+  )}
 
 seq(Revolver.settings: _*)
 
