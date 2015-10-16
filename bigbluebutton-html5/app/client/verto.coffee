@@ -43,10 +43,17 @@ Template.deskshareModal.events
 		screenStart(false, (->))
 
 	"click #desksharePreview": (event) ->
-		doDesksharePreview((->), (->), "webcam");
+		success = ->
+			toggleWhiteboardVideo("video")
+			setInSession("isPreviewingDeskshare", true)
+		doDesksharePreview((-> success()), (->), "webcam");
 
-Handlebars.registerHelper "amISharingDesktop", ->
-	getInSession("sharingMyScreen")
+	"click #stopDesksharePreview": (event) ->
+		toggleWhiteboardVideo("whiteboard");
+		setInSession("isPreviewingDeskshare", false);
+		if(!!window["deskshareStream"])
+			$("#webcam").src = null;
+			window["deskshareStream"].stop();
 
 Template.vertoWebcamMenu.events
 	"click .vertoButton": (event) ->
@@ -85,13 +92,13 @@ Template.webcamModal.events
 
 @toggleWhiteboardVideo = (display) ->
 	if display is "whiteboard"
-		$("#videoContainer").css("display", "none")
+		$("#webcam").css("display", "none")
 		$("#whiteboard-container").css("display", "block")
 	else if display is "video"
 		$("#whiteboard-container").css("display", "none")
-		$("#videoContainer").css("display", "block")
-		$("#videoContainer").css("width", "100%")
-		$("#videoContainer").css("height", "100%")
+		$("#webcam").css("display", "block")
+		$("#webcam").css("width", "100%")
+		$("#webcam").css("height", "100%")
 
 # if remote deskshare has been ended disconnect and hide the video stream
 @presenterDeskshareHasEnded = ->

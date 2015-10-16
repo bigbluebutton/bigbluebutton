@@ -401,6 +401,7 @@ Handlebars.registerHelper "getPollQuestions", ->
   amplify.store('userId', null)
   amplify.store('userName', null)
   amplify.store('display_menu', null)
+  setInSession("isPreviewingDeskshare", false)
   if callback?
     callback()
 
@@ -410,6 +411,8 @@ Handlebars.registerHelper "getPollQuestions", ->
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
+  setInSession("isPreviewingDeskshare", false)
+  setInSession("sharingMyScreen", false)
 
   #if it is a desktop version of the client
   if isPortraitMobile() or isLandscapeMobile()

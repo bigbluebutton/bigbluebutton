@@ -154,13 +154,7 @@ this.doDesksharePreview = function(onSuccess, onFailure, videoTag) {
 // return the webcam resolution that the user has selected
 this.getChosenDeskshareResolution = function() {
 	var videoConstraints = getAllPresetVideoResolutions(); // retrieve all resolutions
-	var selectedVideo = null;
-	for(var i in videoConstraints) {
-		selectedVideo = videoConstraints[i];
-		if($("#deskshareQuality_"+i).is(':checked')) { // compare against all resolutions
-			break;
-		}
-	}
+	var selectedVideo = videoConstraints[$("#deskshareResolutions").find(":selected").val()];
 	return selectedVideo;
 }
 

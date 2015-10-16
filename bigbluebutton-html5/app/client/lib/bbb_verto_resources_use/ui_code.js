@@ -2,11 +2,8 @@ this.makeDeskshareResolutions = function () {
 	var videoConstraints = getAllPresetVideoResolutions();
 	for(var i in videoConstraints) {
 		v = videoConstraints[i];
-		$("#deskshareResolutions").append("<input type='radio' name='deskshareQuality' id='deskshareQuality_" + i + "' value='" + i + "'>");
-		$("#deskshareResolutions").append("<label for='deskshareQuality_" + i + "'>" + v.name + " " + v.constraints.minWidth + "x" + v.constraints.minHeight + "</label>");
-		$("#deskshareResolutions").append("<br/>");
+		$("#deskshareResolutions").append("<option value='" + i + "'>" + v.name + " " + v.constraints.minWidth + "x" + v.constraints.minHeight + "</option>");
 	}
-	$("#deskshareQuality_qvga").prop("checked", true);
 }
 
 this.makeWebcamResolutions = function () {
