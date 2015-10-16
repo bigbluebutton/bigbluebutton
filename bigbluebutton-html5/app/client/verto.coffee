@@ -28,7 +28,7 @@ Template.vertoDeskshareMenu.events
 			# if it's Chrome start installing the extension
 			!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install &&
 			chrome.webstore.install(
-				'https://chrome.google.com/webstore/detail/---',
+				"https://chrome.google.com/webstore/detail/#{Meteor.config.deskshareExtensionKey}",
 				successCallback,
 				failureCallback
 			);
@@ -95,10 +95,6 @@ Template.webcamModal.events
 	if display is "whiteboard"
 		$("#webcam").css("display", "none")
 		$("#whiteboard-container").css("display", "block")
-		# bring the slide down vertically to the center of the whiteboard
-		$("#whiteboard-paper").addClass("vertically-centered")
-		# scale is because sometimes the width will get shrunk
-		scaleWhiteboard()
 	else if display is "video"
 		$("#whiteboard-container").css("display", "none")
 		$("#webcam").css("display", "block")

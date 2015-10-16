@@ -94,7 +94,7 @@ var isChrome = !!window.chrome && !isOpera;
 this.getChromeExtensionStatus = function(callback) {
     if (isFirefox) return callback('not-chrome');
 
-    extensionid = Meteor.config.deskshareExtensionKey;
+    var extensionid = Meteor.config.deskshareExtensionKey;
 
     var image = document.createElement('img');
     image.src = 'chrome-extension://' + extensionid + '/icon.png';

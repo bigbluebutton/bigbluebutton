@@ -60,6 +60,9 @@ Handlebars.registerHelper "getCurrentSlide", ->
   presentationId = currentPresentation?.presentation?.id
   Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
 
+Handlebars.registerHelper "getExtensionId", ->
+    Meteor.config.deskshareExtensionKey
+
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
 
