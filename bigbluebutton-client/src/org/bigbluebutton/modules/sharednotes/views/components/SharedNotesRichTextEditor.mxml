@@ -282,6 +282,9 @@
     <![CDATA[
 
     import flash.events.Event;
+    import flash.events.TextEvent;
+    import flash.events.ContextMenuEvent;
+    import flash.ui.ContextMenuItem;
     import flash.net.FileReference;
     import flash.text.*;
 
@@ -294,6 +297,13 @@
     import mx.core.UITextFormat;
     use namespace mx_internal;
     
+    /**
+    * A carret position control to handle the Paste action from mouse ContextMenu to comply with the
+    * text formatting rules of the Shared Notes Rich Text Editor.
+    */
+    public var pasteCarIndex:int = -1;
+    public var retPasteCarIndex:int = -1;
+
     /**
      * The ToolTip that appears when the user hovers over the font drop-down list. To view ToolTips,
      * you must also set the <code>showToolTips</code> property of the RichTextEditor control to <code>true</code>.
@@ -758,7 +768,7 @@
         {
             tf[type] = value;
         }
-        else if (type == "align" || type == "bullet" || type == "font" || type == "size" || type == "color")
+        else if (type == "align" || type == "bullet" || type == "font" || type == "size" || type == "color" || type == 'kerning')
         {
             wholeParagraph = true;
             // Apply the paragraph styles to the whole paragraph instead of just 
@@ -801,6 +811,11 @@
             {
                 tf[type] = uint(colorPicker.selectedColor);
                 previousTextFormat[type] = uint(colorPicker.selectedColor);
+            }
+            else if(type == "kerning")
+            {
+                tf[type] = value;
+                previousTextFormat[type] = value;
             }
             else
             {
@@ -1138,15 +1153,19 @@
         setTextStyles('font', previousTextFormat.font);
         setTextStyles('size', previousTextFormat.size);
         setTextStyles('color', previousTextFormat.color);
+        setTextStyles('kerning', true);
     }
 
     private function onKeyDown(event:KeyboardEvent):void
     {
+
+        trace(event.keyCode);
+        trace(event);
         if (textArea.selectionBeginIndex != textArea.selectionEndIndex)
         {
             var beginIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionBeginIndex);
             var endIndex:int = textArea.getTextField().getLineIndexOfChar(textArea.selectionEndIndex);
-            if (beginIndex != endIndex)
+            if (beginIndex != endIndex && ((event.keyCode >= 65 && event.keyCode <= 111) || event.keyCode == 32))
             {
                 refreshSelection = true;
             }
@@ -1162,6 +1181,13 @@
         }
     }
 
+    private function onTextInput( e:TextEvent ):void
+    {
+        if( e.text.length > 0 )
+           refreshSelection = true;
+//         trace("text-input");
+    }
+
     private function onKeyUp(event:KeyboardEvent):void
     {
         getTextStyles();
@@ -1171,16 +1197,43 @@
         }
     }
     
+    private function onChange ( e:Event ):void
+    {
+        if (pasteCarIndex != -1){
+          getTextStyles();
+          refreshTextStyle();
+//        trace("The mouse pointer was either out of the Shared notes window or on the context menu");
+          retPasteCarIndex = textArea.getTextField().caretIndex;
+          textArea.setSelection(pasteCarIndex,pasteCarIndex);
+          getTextStyles();
+          refreshTextStyle();
+          pasteCarIndex = -1;
+          textArea.setSelection(retPasteCarIndex,retPasteCarIndex);
+        }
+//        trace("changed-content");
+    }
+
+    //This will happen every time the user activate the ContextMenu and can be used to ensure that mouse Paste will comply to the text formatting rules.
+    private function onRightClick ( e:MouseEvent ):void
+    {
+        pasteCarIndex = textArea.getTextField().caretIndex;
+//        trace(pasteCarIndex);
+//        trace("roll-out");
+    }
+
+
     ]]>
     </mx:Script>
     <!--- @private -->
     <mx:TextArea id="textArea" height="100%" width="100%" minHeight="0" minWidth="0"
-                 change="dispatchEvent(event);"
+                 change="onChange(event); dispatchEvent(event);"
                  valueCommit="dispatchEvent(event);"
                  keyUp="onKeyUp(event);"
                  keyDown="onKeyDown(event);"
                  mouseDown="systemManager.addEventListener(
                     MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);"
+                 textInput= "onTextInput(event);"
+                 rollOut= "onRightClick(event);"
                  />
     <mx:ControlBar> 
         <!--- @private -->
