@@ -6,6 +6,7 @@
   import flash.media.Microphone;
   
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.ClientStatusEvent;
@@ -437,6 +438,14 @@
       if (isConnected()) {
         streamManager.stopStreams();
         connectionManager.disconnect(true);
+      }
+    }
+
+    public function onReconnected():void {
+      if (state != ON_LISTEN_ONLY_STREAM) {
+        var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
+        e.userid = UsersUtil.getMyUserID();
+        dispatcher.dispatchEvent(e);
       }
     }
   }

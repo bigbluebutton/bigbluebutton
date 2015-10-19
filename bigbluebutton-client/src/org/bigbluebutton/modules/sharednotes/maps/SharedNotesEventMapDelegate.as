@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.sharednotes.maps
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.sharednotes.views.SharedNotesWindow;
 	import org.bigbluebutton.modules.sharednotes.views.AdditionalSharedNotesWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -114,8 +115,10 @@ package org.bigbluebutton.modules.sharednotes.maps
 			}
 		}
 
-		public function destroyAllAdditionalNotes():void {
-			for (var noteId:String in windows) destroyAdditionalNotes(noteId);
+		public function destroyAllAdditionalNotes(e:BBBEvent):void {
+			if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
+				for (var noteId:String in windows) destroyAdditionalNotes(noteId);
+			}
 		}
 	}
 }

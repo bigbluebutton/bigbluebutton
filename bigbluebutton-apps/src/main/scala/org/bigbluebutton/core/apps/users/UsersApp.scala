@@ -278,7 +278,7 @@ trait UsersApp {
       // if there was a phoneUser with the same userID, reuse the VoiceUser value object
       val vu = users.getUser(msg.userID) match {
         case Some(u) => {
-          if (u.phoneUser) {
+          if (u.voiceUser.joined) {
             u.voiceUser.copy()
           } else {
             new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
@@ -308,7 +308,7 @@ trait UsersApp {
         outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
         if (!waitingForAcceptance) {
           // Become presenter if the only moderator
-          if (users.numModerators == 1) {
+          if ((users.numModerators == 1) || (users.noPresenter())) {
             if (ru.role == Role.MODERATOR) {
                 assignNewPresenter(msg.userID, ru.name, msg.userID)
             }

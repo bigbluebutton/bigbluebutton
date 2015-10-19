@@ -96,7 +96,7 @@
 	</EventHandlers>
 
 	<EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
-		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAllAdditionalNotes"/>
+		<MethodInvoker generator="{SharedNotesEventMapDelegate}" method="destroyAllAdditionalNotes" arguments="{event}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{BBBEvent.RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT}">
