@@ -69,6 +69,7 @@ package org.bigbluebutton.core.services
         _lastServerToClientCheck = null;
         
         _nc = new NetConnection();
+        _nc.proxyType = "best";
         _nc.objectEncoding = flash.net.ObjectEncoding.AMF0;
         _nc.client = this;
         _nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);

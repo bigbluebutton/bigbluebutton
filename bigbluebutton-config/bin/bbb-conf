@@ -49,6 +49,7 @@
 #   2014-01-13 FFD  Working on updates for 0.9.0 
 #   2014-03-10 GUG  Enable Webrtc
 #   2015-03-12 FFD  Added start/stop of HTML5 server
+#   2014-01-13 FFD  Working on updates for 1.0.0
 
 #set -x
 #set -e
@@ -77,6 +78,23 @@ if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
 	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
 	exit 1
+fi
+
+if [ ! -f /var/www/bigbluebutton/client/conf/config.xml ]; then
+	echo "#"
+	echo "# BigBlueButton does not appear to be installed.  Could not"
+	echo "# locate:"
+	echo "#"
+	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+	exit 1
+fi
+
+if cat /var/www/bigbluebutton/client/conf/config.xml | grep "ChatModule" | grep -q https; then
+	PROTOCOL_HTTP=https
+	PROTOCOL_RTMP=rtmps
+else
+	PROTOCOL_HTTP=http
+	PROTOCOL_RTMP=rtmp
 fi
 
 #
@@ -341,8 +359,10 @@ enable_webrtc(){
 
 	# Enable port 5066 in FreeSWITCH
 	sed -i 's/^.*<!--<param name="ws-binding"  value=":5066"\/>-->.*$/\t<param name="ws-binding"  value=":5066"\/>/g' /opt/freeswitch/conf/sip_profiles/external.xml
+	sed -i 's/^.*<!--<param name="wss-binding"  value=":7443"\/>-->.*$/\t<param name="wss-binding"  value=":7443"\/>/g' /opt/freeswitch/conf/sip_profiles/external.xml
 
         sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+        sed -i "s/proxy_pass .*/proxy_pass https:\/\/$IP:7443;/g" /etc/bigbluebutton/nginx/sip-secure.nginx
 
 	echo 
 	echo "WebRTC audio enabled.  To apply settings to your server, do"
@@ -364,8 +384,10 @@ disable_webrtc(){
 
 	# Disable port 5066 in FreeSWITCH
 	sed -i 's/^.*<param name="ws-binding"  value=":5066"\/>.*$/\t<!--<param name="ws-binding"  value=":5066"\/>-->/g' /opt/freeswitch/conf/sip_profiles/external.xml
+	sed -i 's/^.*<param name="wss-binding"  value=":7443"\/>.*$/\t<!--<param name="wss-binding"  value=":7443"\/>-->/g' /opt/freeswitch/conf/sip_profiles/external.xml
 
         sed -i "s/proxy_pass .*/proxy_pass http:\/\/127.0.0.1:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+        sed -i "s/proxy_pass .*/proxy_pass http:\/\/127.0.0.1:7443;/g" /etc/bigbluebutton/nginx/sip-secure.nginx
 
 	echo 
 	echo "WebRTC audio disabled.  To apply settings to your server, do"
@@ -1149,7 +1171,7 @@ check_state() {
 	fi
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-		CHECK_HOST=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		CHECK_HOST=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
 		echo "# Warning: The client self check is installed and accessible from:"
 		echo "#"
 		echo "#    http://$CHECK_HOST/check"
@@ -1224,7 +1246,7 @@ if [ $CHECK ]; then
 	PORT_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
 	echo "  		Port test (tunnel): $PORT_IP"
 
-	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp:\/\///;s/\/.*//;p}')
+	RED5_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/uri.*video/{s/.*rtmp[s]*:\/\///;s/\/.*//;p}')
 	WEBRTC_ENABLED_CLIENT=$(grep -i useWebrtcIfAvailable /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                              Red5: $RED5_IP"
 	echo "              useWebrtcIfAvailable: $WEBRTC_ENABLED_CLIENT"
@@ -1235,9 +1257,6 @@ if [ $CHECK ]; then
 	echo "                    websocket port: $WEBRTC_SOCKET"	
 	WEBRTC_ENABLED=$(grep -i webrtc /var/www/bigbluebutton/client/conf/config.xml | cut -d '"' -f2)
 	echo "                    WebRTC enabled: $WEBRTC_ENABLED"	
-
-#        HOST=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/recordingHost/{s/.*recordingHost="http:\/\///;s/"//;p}')
-#        echo "          host for bbb-web interface: $HOST"
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
@@ -1270,7 +1289,7 @@ if [ $CHECK ]; then
 	fi
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
-		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+		CHECK_URL=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
 		echo
 		echo "/var/www/bigbluebutton/check/conf/config.xml (client check)"
 		echo "                      client check: $CHECK_URL"
@@ -1442,7 +1461,7 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/porttest host=\(\"[^\"]*\"\)/porttest host=\"$HOST\"/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for rtmp:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/rtmp:\/\/\([^\"\/]*\)\([\"\/]\)/rtmp:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+	sudo sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_RTMP:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
 
 	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
 	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
@@ -1451,7 +1470,7 @@ if [ -n "$HOST" ]; then
 	# Update configuration for BigBlueButton client
 	#
 	echo "Assigning $HOST for http:// in /var/www/bigbluebutton/client/conf/config.xml"
-	sudo sed -i "s/http:\/\/\([^\"\/]*\)\([\"\/]\)/http:\/\/$HOST\2/g" /var/www/bigbluebutton/client/conf/config.xml
+	sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
 
 
 	#
@@ -1459,7 +1478,7 @@ if [ -n "$HOST" ]; then
 	#
 	echo "Assigning $HOST for web application URL in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
 
-	sudo sed -i "s/bigbluebutton.web.serverURL=http:\/\/.*/bigbluebutton.web.serverURL=http:\/\/$HOST/g" \
+	sudo sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
     # 3 paramenter: the file, the variable name, the new value
@@ -1478,7 +1497,7 @@ if [ -n "$HOST" ]; then
 
 	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
 		echo "Assigning $HOST for api demos in ${SERVLET_DIR}/demo/bbb_api_conf.jsp"
-		sudo sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
+		sudo sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL_HTTP:\/\/$HOST\2/g" \
 			${SERVLET_DIR}/demo/bbb_api_conf.jsp
 	fi
 	
@@ -1517,7 +1536,7 @@ if [ -n "$HOST" ]; then
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
 		echo "Assigning $HOST for client self check to /var/www/bigbluebutton/check/conf/config.xml"
-		sed -i "s/rtmp:\/\/\([^\"\/]*\)\//rtmp:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
+		sed -i "s/rtmp[s]*:\/\/\([^\"\/]*\)\//$PROTOCOL_RTMP:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
 		sed -i "s/rtmpt:\/\/\([^\"\/]*\)\//rtmpt:\/\/$HOST\//g" /var/www/bigbluebutton/check/conf/config.xml
 	fi
 
