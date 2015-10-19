@@ -262,10 +262,21 @@ class ApiController {
       respondWithErrors(errors)
       return
     }
+    
+    Boolean isBreakoutRoom = false
+    if(!StringUtils.isEmpty(params.isBreakoutRoom)) {
+      isBreakoutRoom = new Boolean(StringUtils.strip(params.isBreakoutRoom))
+    }
 
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
+    if (isBreakoutRoom) {
+        // This is a join request for a breakout room. Use the passed meetingId to find the meeting.
+        internalMeetingId = externalMeetingId
+        log.info("Join request for breakout room " + internalMeetingId)
+    }
+    
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
