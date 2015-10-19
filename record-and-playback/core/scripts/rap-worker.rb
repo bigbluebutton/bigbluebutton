@@ -123,7 +123,7 @@ def process_archived_meeting(recording_dir)
     match = /([^\/]*).done$/.match(sanity_done)
     meeting_id = match[1]
 
-    step_succeeded = true
+    phase_succeeded = true
 
     # Iterate over the list of recording processing scripts to find available types
     # For now, we look for the ".rb" extension - TODO other scripting languages?
@@ -136,7 +136,7 @@ def process_archived_meeting(recording_dir)
 
       processed_fail = "#{recording_dir}/status/processed/#{meeting_id}-#{process_type}.fail"
       if File.exists?(processed_fail)
-        step_succeeded = false
+        phase_succeeded = false
         next
       end
 
@@ -164,15 +164,20 @@ def process_archived_meeting(recording_dir)
       if step_succeeded
         BigBlueButton.logger.info("Process format #{process_type} succeeded for #{meeting_id}")
         BigBlueButton.logger.info("Process took #{step_time}ms")
+
+        # when it succeeds to process a recording, publish it immediately instead
+        # of continue processing the next recordings
+        # the side-effect is that the publish phase will occur before the post_process phase
+        publish_processed_meeting(recording_dir)
       else
         BigBlueButton.logger.info("Process format #{process_type} failed for #{meeting_id}")
         BigBlueButton.logger.info("Process took #{step_time}ms")
         FileUtils.touch(processed_fail)
-        step_succeeded = false
+        phase_succeeded = false
       end
     end
 
-    if step_succeeded
+    if phase_succeeded
       post_process(meeting_id)
       FileUtils.rm(sanity_done)
     end
