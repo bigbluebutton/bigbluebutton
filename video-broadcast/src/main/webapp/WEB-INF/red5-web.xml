@@ -52,21 +52,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="packetTimeout" value="10000"/>
 		<property name="recordVideoStream" value="true"/>
 		<property name="eventRecordingService" ref="redisRecorder"/>
-		<property name="messagePublisher" ref="redisPublisher"/>
-	</bean>
-
-	<bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">
-		<property name="messageSender" ref="redisSender"/>
 	</bean>
 
 	<bean id="redisRecorder" class="org.bigbluebutton.app.videobroadcast.EventRecordingService">
 		<constructor-arg index="0" value="${redis.host}"/>
 		<constructor-arg index="1" value="${redis.port}"/>
-	</bean>
-
-	<bean id="redisSender" class="org.bigbluebutton.red5.pubsub.MessageSender"
-					init-method="start" destroy-method="stop">
-		<property name="redisPool"> <ref bean="redisPool"/></property>
 	</bean>
 
 	<!-- <bean id="web.handler" class="org.red5.server.adapter.ApplicationAdapter" />

@@ -20,20 +20,22 @@
 package org.bigbluebutton.modules.webrtcDeskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.modules.webrtcDeskshare.services.DeskshareService;
-	import org.bigbluebutton.modules.webrtcDeskshare.view.components.DesktopViewWindow;
 	import org.bigbluebutton.main.api.JSLog;
+	import org.bigbluebutton.modules.webrtcDeskshare.services.DeskshareService;
+	import org.bigbluebutton.modules.webrtcDeskshare.view.components.DesktopPublishWindow;
+	import org.bigbluebutton.modules.webrtcDeskshare.view.components.DesktopViewWindow;
 
 	public class ViewerWindowManager {
 		private static const LOGGER:ILogger = getClassLogger(ViewerWindowManager);
 
 		private var viewWindow:DesktopViewWindow;
+		private var shareWindow:DesktopPublishWindow;
 		private var service:DeskshareService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
@@ -73,11 +75,8 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
 			LOGGER.debug("ViewerWindowManager::startViewing");
 
-			var logData:Object = new Object();
-			JSLog.debug("\n\n ViewerWindowManager::startViewing ", logData);
 			viewWindow = new DesktopViewWindow();
 			viewWindow.startVideo(rtmp, videoWidth, videoHeight);
-
 			openWindow(viewWindow);
 			isViewing = true;
 		}

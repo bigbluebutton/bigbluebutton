@@ -20,18 +20,19 @@
 package org.bigbluebutton.modules.webrtcDeskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;
 	import flash.external.ExternalInterface;
+	import flash.utils.Timer;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.modules.webrtcDeskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.webrtcDeskshare.view.components.DesktopPublishWindow;
-	import org.bigbluebutton.main.api.JSLog;
 
 	public class PublishWindowManager {
 		private static const LOGGER:ILogger = getClassLogger(PublishWindowManager);
@@ -70,7 +71,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 
 
 			shareWindow = new DesktopPublishWindow();
-			shareWindow.initWindow(service.getConnection(), uri , useTLS , room, autoStart, autoFullScreen);
 			shareWindow.visible = true;
 			openWindow(shareWindow);
 //			if (autoStart || autoFullScreen) {
@@ -103,6 +103,10 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
+		}
+
+		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
+			shareWindow.coolFunction(rtmp, videoWidth, videoHeight);
 		}
 	}
 }

@@ -20,15 +20,15 @@
 package org.bigbluebutton.modules.webrtcDeskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
 	import org.bigbluebutton.modules.webrtcDeskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.webrtcDeskshare.services.DeskshareService;
-	import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
-	import org.bigbluebutton.main.api.JSLog;
 
 	public class DeskshareManager {
 		private static const LOGGER:ILogger = getClassLogger(DeskshareManager);
@@ -54,10 +54,9 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			this.module = module;
 			service.handleStartModuleEvent(module);
 
-      if (UsersUtil.amIPresenter()) {
-        initDeskshare();
-      }
-
+			if (UsersUtil.amIPresenter()) {
+				initDeskshare();
+			}
 		}
 
 		public function handleStopModuleEvent():void {
@@ -68,10 +67,10 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			service.disconnect();
 		}
 
-    public function handleStreamStoppedEvent():void {
-	  LOGGER.debug("Sending deskshare stopped command");
-      service.stopSharingDesktop(module.getRoom(), module.getRoom());
-    }
+		public function handleStreamStoppedEvent():void {
+			LOGGER.debug("Sending deskshare stopped command");
+			service.stopSharingDesktop(module.getRoom(), module.getRoom());
+		}
 
 		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void {
 			LOGGER.debug("Sending startViewing command");
@@ -83,21 +82,21 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			service.sendStartedViewingNotification(stream);
 		}
 
-    private function initDeskshare():void {
-      sharing = false;
-      var option:DeskshareOptions = new DeskshareOptions();
-      option.parseOptions();
-      if (option.autoStart) {
-        handleStartSharingEvent(true);
-      }
-      if(option.showButton){
-        toolbarButtonManager.addToolbarButton();
-      }
-    }
+		private function initDeskshare():void {
+			sharing = false;
+			var option:DeskshareOptions = new DeskshareOptions();
+			option.parseOptions();
+			if (option.autoStart) {
+				handleStartSharingEvent(true);
+			}
+			if(option.showButton){
+				toolbarButtonManager.addToolbarButton();
+			}
+		}
 
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
 			LOGGER.debug("Got MadePresenterEvent ");
-      initDeskshare();
+			initDeskshare();
 		}
 
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
@@ -133,12 +132,16 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 
 		public function handleStreamStartEvent(e:ViewStreamEvent):void{
 			// if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
-			LOGGER.debug("Received start vieweing command");
+			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
+			LOGGER.debug("Received start vieweing command when isPresenter==[{0}]",[isPresenter]);
 
-			var logData:Object = new Object();
-			JSLog.debug("\n\n DeskshareManager::handleStreamStartEvent ", logData);
+			if(isPresenter) {
+				publishWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
+			} else {
+				viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
+			}
+
 			// sharing = true; //TODO must uncomment this for the non-webrtc desktop share
-			viewWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight); //anton (should use PublishWindowManager if I am the presenter)
 		}
 
 		// public function handleStreamStopEvent(e:ViewStreamEvent):void{
