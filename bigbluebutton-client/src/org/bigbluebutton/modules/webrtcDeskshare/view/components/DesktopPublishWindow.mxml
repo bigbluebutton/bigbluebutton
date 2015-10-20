@@ -210,30 +210,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			// TODO make this function private and trigger it via message
-			public function coolFunction(rtmp:String, videoWidth:Number, videoHeight:Number):void {
-				var streamName:String = rtmp;
-				var myArray :Array = streamName.split('/');
-				myArray.forEach ( function ( item:*, i:int, arr:Array) : void {LOGGER.debug("^^^^[{0}]^^^^",[item]); } );
-
-				var meetingUrl:String = streamName.substring(0, streamName.lastIndexOf('/'));
-				stream = myArray[5];
-				LOGGER.debug("________MEETING URL=________________  [{0}]",[meetingUrl]);
-				LOGGER.debug("________stream=________________  [{0}]",[stream]);
+			public function startVideo(rtmp:String, videoWidth:Number, videoHeight:Number):void {
+				var myArray :Array = rtmp.split('/');
+				var meetingUrl:String = rtmp.substring(0, rtmp.lastIndexOf('/'));
+				stream = rtmp.substring(rtmp.lastIndexOf('/')+1, rtmp.length);
+				LOGGER.debug("DesktopPublishWindow::startVideo meetingurl=[{0}] and stream=[{1}]",[meetingUrl, stream]);
 
 				connection = new NetConnection();
 				connection.proxyType = "best";
 				connection.objectEncoding = ObjectEncoding.AMF0;
 				connection.client = this;
-				
+
 				connection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 				connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 				connection.connect(meetingUrl);
-
 			}
 
 			private function netStatusHandler(event:NetStatusEvent):void {
 				var ce:ConnectionEvent = new ConnectionEvent();
-				LOGGER.debug("__netStatusHandler   [{0}]",[event.info.code]);
+				LOGGER.debug("netStatusHandler   [{0}]",[event.info.code]);
 				switch(event.info.code){
 					case "NetConnection.Connect.Failed":
 						ce.status = ConnectionEvent.FAILED;
@@ -263,7 +258,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 
 					case "NetConnection.Connect.NetworkChange":
-						trace("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+						trace("Detected network change. User might be on a wireless and " +
+							"temporarily dropped connection. Doing nothing. Just making a note.");
 						break;
 				}
 			}
@@ -300,7 +296,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 
 				LOGGER.debug("webrtcDeskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
-				LOGGER.debug("webrtcDeskshare previewA[{0},{1}]", [vidW, vidH]);
 				video = new Video(vidW, vidH);
 				video.width = vidW;
 				video.height = vidH;
@@ -308,13 +303,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoHolder.height = vidH;
 				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
 				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
-				
-				video.y = 10;// TODO temp
-				video.x = 10;// TODO temp
-				
-				LOGGER.debug("webrtcDeskshare previewB[{0},{1}]", [videoHolder.x, videoHolder.y]);
-				LOGGER.debug("webrtcDeskshare previewC[{0},{1}]", [videoHolder.width, videoHolder.height]);
-
 
 				videoHolder.addChild(video);
 //				videoHolder.addChild(cursor);
@@ -322,18 +310,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 //				cursor.visible = false;
 				this.addChild(videoHolder);
 
-				LOGGER.debug("webrtcDeskshare preview2  [{0},{1}][{2}]", [videoHolder, video.x, video.height]);
-
 				ns = new NetStream(connection);
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
-				LOGGER.debug("webrtcDeskshare preview4  [{0}]", [ns]);
 				ns.client = this;
 				ns.bufferTime = 0;
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 				video.attachNetStream(ns);
-				LOGGER.debug("webrtcDeskshare preview5  [{0}]", [streamName]);
 
 				ns.play(stream);
 

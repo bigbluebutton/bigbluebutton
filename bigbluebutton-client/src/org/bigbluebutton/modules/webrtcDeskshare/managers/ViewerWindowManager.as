@@ -26,7 +26,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.modules.webrtcDeskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.webrtcDeskshare.view.components.DesktopPublishWindow;
 	import org.bigbluebutton.modules.webrtcDeskshare.view.components.DesktopViewWindow;

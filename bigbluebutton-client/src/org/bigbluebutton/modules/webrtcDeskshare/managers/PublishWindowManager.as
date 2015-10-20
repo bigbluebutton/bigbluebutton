@@ -106,7 +106,7 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 		}
 
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
-			shareWindow.coolFunction(rtmp, videoWidth, videoHeight);
+			shareWindow.startVideo(rtmp, videoWidth, videoHeight);
 		}
 	}
 }
