@@ -24,11 +24,17 @@ import scala.collection._
 import com.google.gson.Gson
 
 object BigBlueButtonActor extends SystemConfiguration {
-  def props(system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder): Props =
+  def props(system: ActorSystem,
+    recorderApp: RecorderApplication,
+    messageSender: MessageSender,
+    voiceEventRecorder: VoiceEventRecorder): Props =
     Props(classOf[BigBlueButtonActor], system, recorderApp, messageSender, voiceEventRecorder)
 }
 
-class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends Actor with ActorLogging {
+class BigBlueButtonActor(val system: ActorSystem,
+    recorderApp: RecorderApplication,
+    messageSender: MessageSender,
+    voiceEventRecorder: VoiceEventRecorder) extends Actor with ActorLogging {
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
 

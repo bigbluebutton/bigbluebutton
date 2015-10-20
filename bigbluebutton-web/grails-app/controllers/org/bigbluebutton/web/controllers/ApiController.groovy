@@ -81,6 +81,23 @@ class ApiController {
     }
   }
  
+  /*********************************** 
+   * BREAKOUT TEST (API) 
+   ***********************************/  
+  def breakout = {
+    if(!StringUtils.isEmpty(params.meetingId)) {
+      String meetingId = StringUtils.strip(params.meetingId);
+      println("MeetingId = " + meetingId)
+    } else {
+      println("Missing meetingId")
+      return
+    }
+    
+    if (StringUtils.isEmpty(params.password)) {
+      println("Missing password")
+      return
+    }  
+  }
         
   /*********************************** 
    * CREATE (API) 
@@ -127,8 +144,7 @@ class ApiController {
       respondWithErrors(errors)
       return
     }
-    
-    
+      
     // Translate the external meeting id into an internal meeting id.
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);		
     Meeting existing = meetingService.getNotEndedMeetingWithId(internalMeetingId);
