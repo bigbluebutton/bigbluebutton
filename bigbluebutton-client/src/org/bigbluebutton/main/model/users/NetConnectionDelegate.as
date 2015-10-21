@@ -27,8 +27,7 @@ package org.bigbluebutton.main.model.users
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.utils.Timer;
-	
+	import flash.utils.Timer;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;

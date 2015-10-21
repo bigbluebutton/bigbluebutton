@@ -37,13 +37,14 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.model.users.UsersModel;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+	import org.bigbluebutton.util.QueryStringParameters;
         	
 	public class JoinService
 	{  
 		private static const LOGGER:ILogger = getClassLogger(JoinService);      
     
 		private var request:URLRequest = new URLRequest();
-		private var vars:URLVariables = new URLVariables();
+		private var reqVars:URLVariables = new URLVariables();
 		
 		private var urlLoader:URLLoader;
 		private var _resultListener:Function;
@@ -53,14 +54,21 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function load(url:String):void {
+			var p:QueryStringParameters = new QueryStringParameters();
+			p.collectParameters();
+			var sessionToken:String = p.getParameter("sessionToken");
+			
+			reqVars.sessionToken = sessionToken;
+			
 			var date:Date = new Date();
-      request = new URLRequest(url);
-      request.method = URLRequestMethod.GET;		
+            request = new URLRequest(url);
+            request.method = URLRequestMethod.GET;
+			request.data = reqVars;
             
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
 			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-      urlLoader.load(request);	
+            urlLoader.load(request);	
 		}
 
 		public function addJoinResultListener(listener:Function):void {
