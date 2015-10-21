@@ -171,11 +171,7 @@ class ApiController {
     }
      
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);      
-		
-    if (! StringUtils.isEmpty(params.moderatorOnlyMessage)) {
-      newMeeting.setModeratorOnlyMessage(params.moderatorOnlyMessage);
-    }
-		
+
     meetingService.createMeeting(newMeeting);
     
     // See if the request came with pre-uploading of presentation.
@@ -1949,7 +1945,7 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-		  downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId());
+		  presDownloadService.downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId());
     } else {
 		  log.debug "Request body: \n" + requestBody;
 	    def xml = new XmlSlurper().parseText(requestBody);
@@ -1960,7 +1956,7 @@ class ApiController {
           // need to iterate over presentation files and process them
           module.children().each { document ->
             if (!StringUtils.isEmpty(document.@url.toString())) {
-				      downloadAndProcessDocument(document.@url.toString(), conf.getInternalId());
+				      presDownloadService.downloadAndProcessDocument(document.@url.toString(), conf.getInternalId());
             } else if (!StringUtils.isEmpty(document.@name.toString())) {
 				      def b64 = new Base64()
 				      def decodedBytes = b64.decode(document.text().getBytes())
@@ -1989,38 +1985,9 @@ class ApiController {
       fos.flush()
       fos.close()
 
-      processUploadedFile(meetingId, presId, presFilename, pres);      
+      presDownloadService.processUploadedFile(meetingId, presId, presFilename, pres);      
     }
 
-  }
-  
- def downloadAndProcessDocument(address, meetingId) {
-    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId})");
-    String presFilename = address.tokenize("/")[-1];
-    def filenameExt = presDownloadService.getFilenameExt(presFilename);
-    String presentationDir = presentationService.getPresentationDir()
-     
-    def presId = presDownloadService.generatePresentationId(presFilename)
-    File uploadDir = presDownloadService.createPresentationDirectory(meetingId, presentationDir, presId) 
-    if (uploadDir != null) {
-      def newFilename = presDownloadService.createNewFilename(presId, filenameExt)
-			def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
-				
-			if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
-				def pres = new File(newFilePath)
-				processUploadedFile(meetingId, presId, presFilename, pres);
-			} else {
-				log.error("Failed to download presentation=[${address}], meeting=[${meetingId}]")
-			}
-    } 
-  }
-
-  
-  def processUploadedFile(meetingId, presId, filename, presFile) {
-    def presentationBaseUrl = presentationService.presentationBaseUrl
-    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename, presentationBaseUrl);
-    uploadedPres.setUploadedFile(presFile);
-    presentationService.processUploadedPresentation(uploadedPres);
   }
   
   def beforeInterceptor = {

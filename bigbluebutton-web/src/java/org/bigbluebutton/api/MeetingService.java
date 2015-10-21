@@ -44,6 +44,7 @@ import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
+import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.IMessage;
@@ -63,30 +64,31 @@ import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 
 public class MeetingService implements MessageListener {
-	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
+  private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 
-	private BlockingQueue<IMessage> receivedMessages = new LinkedBlockingQueue<IMessage>();	
-	private volatile boolean processMessage = false;
-	
-	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
-	private final Executor runExec = Executors.newSingleThreadExecutor();
-	
-	/**
-	 * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
-	 */
-	private final ConcurrentMap<String, Meeting> meetings;	
-	private final ConcurrentMap<String, UserSession> sessions;
-		
-	private int defaultMeetingExpireDuration = 1;	
-	private int defaultMeetingCreateJoinDuration = 5;
-	private RecordingService recordingService;
-	private MessagingService messagingService;
-	private ExpiredMeetingCleanupTimerTask cleaner;
-	private boolean removeMeetingWhenEnded = false;
+  private BlockingQueue<IMessage> receivedMessages = new LinkedBlockingQueue<IMessage>();
+  private volatile boolean processMessage = false;
+  private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
+  private final Executor runExec = Executors.newSingleThreadExecutor();
 
+  /**
+   * http://ria101.wordpress.com/2011/12/12/concurrenthashmap-avoid-a-common-misuse/
+   */
+  private final ConcurrentMap<String, Meeting> meetings;	
+  private final ConcurrentMap<String, UserSession> sessions;
+  private int defaultMeetingExpireDuration = 1;	
+  private int defaultMeetingCreateJoinDuration = 5;
+  private RecordingService recordingService;
+  private MessagingService messagingService;
+  private ExpiredMeetingCleanupTimerTask cleaner;
+  private boolean removeMeetingWhenEnded = false;
+
+  private ParamsProcessorUtil paramsProcessorUtil;
+  
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);	
 		sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);		
@@ -437,6 +439,10 @@ public class MeetingService implements MessageListener {
 		handle(new EndMeeting(meetingId));
 	}
 	
+	private void processCreateBreakoutRoom(CreateBreakoutRoom message) {
+	  
+	}
+	
 	private void processEndMeeting(EndMeeting message) {
 		messagingService.endMeeting(message.meetingId);
 		
@@ -682,7 +688,9 @@ public class MeetingService implements MessageListener {
 	  			processEndMeeting((EndMeeting)message);
 	  		} else if (message instanceof RegisterUser) {
 	  			processRegisterUser((RegisterUser) message);
-	  		}	
+	  		}	else if (message instanceof CreateBreakoutRoom) {
+	  		  processCreateBreakoutRoom((CreateBreakoutRoom) message);
+	  		}
 	    }
 		};
 		
@@ -749,5 +757,9 @@ public class MeetingService implements MessageListener {
 	
 	public void setRemoveMeetingWhenEnded(boolean s) {
 		removeMeetingWhenEnded = s;
+	}
+	
+	public void setParamsProcessorUtil(ParamsProcessorUtil util) {
+	  this.paramsProcessorUtil = util; 
 	}
 }

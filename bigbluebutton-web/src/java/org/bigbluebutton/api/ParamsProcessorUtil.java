@@ -362,6 +362,11 @@ public class ParamsProcessorUtil {
 	    String configXML = getDefaultConfigXML();
 	    meeting.storeConfig(true, configXML);
 	    
+	    if (! StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
+	      String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
+	      meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
+	    }
+	    
 	    return meeting;
 	}
 	

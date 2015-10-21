@@ -13,7 +13,7 @@ public class CreateBreakoutRoomRequest implements IBigBlueButtonMessage {
     this.payload = payload;
   }
   
-  static class CreateBreakoutRoomRequestPayload {
+  public static class CreateBreakoutRoomRequestPayload {
     public final String meetingId;      // The main meeting internal id
     public final String name;               // The name of the breakout room
     public final String voiceConfId;        // The voice conference id

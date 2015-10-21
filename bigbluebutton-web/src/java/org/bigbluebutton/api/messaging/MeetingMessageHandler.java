@@ -2,6 +2,7 @@ package org.bigbluebutton.api.messaging;
 
 import java.util.Set;
 
+import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
@@ -67,6 +68,11 @@ public class MeetingMessageHandler implements MessageHandler {
           } else if (CreateBreakoutRoomRequest.NAME.equals(messageName)) {
             Gson gson = new Gson();
             CreateBreakoutRoomRequest msg = gson.fromJson(message, CreateBreakoutRoomRequest.class);
+            for (MessageListener listener : listeners) {
+              listener.handle(new CreateBreakoutRoom(msg.payload.meetingId, 
+                  msg.payload.name, msg.payload.voiceConfId, msg.payload.viewerPassword, 
+                  msg.payload.moderatorPassword, msg.payload.durationInMinutes, msg.payload.defaultPresentationURL));
+            }
           }
         }
       }
