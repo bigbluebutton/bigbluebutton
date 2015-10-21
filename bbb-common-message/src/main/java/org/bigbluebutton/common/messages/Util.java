@@ -15,7 +15,7 @@ public class Util {
 				&& vu.has(Constants.PERM_DISABLE_PRIVCHAT) && vu.has(Constants.PERM_DISABLE_PUBCHAT)
 				&& vu.has(Constants.PERM_LOCKED_LAYOUT) && vu.has(Constants.PERM_LOCK_ON_JOIN)
 				&& vu.has(Constants.PERM_LOCK_ON_JOIN_CONFIG)){
-				
+			
 			Map<String, Boolean> vuMap = new HashMap<String, Boolean>();
 			Boolean disableCam = vu.get(Constants.PERM_DISABLE_CAM).getAsBoolean();
 			Boolean disableMic = vu.get(Constants.PERM_DISABLE_MIC).getAsBoolean();

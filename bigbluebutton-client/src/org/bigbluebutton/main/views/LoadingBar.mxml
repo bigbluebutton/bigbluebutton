@@ -48,11 +48,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var item:XML;
         
         numModules = 0;
-		LOGGER.debug("LoadingBar.mxml numModules=[{0}]", [numModules]);
         for each(item in list){
           modules[item.@name] = 0;
           numModules++;
-          LOGGER.debug("LoadingBar.mxml numModules=[{0}] modulename=[{1}]", [numModules, item.@name]);
         }
 
         this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);

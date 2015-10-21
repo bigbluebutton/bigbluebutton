@@ -49,7 +49,6 @@ public class PdfToSwfSlide {
 	public PdfToSwfSlide createSlide() {		
 		File presentationFile = pres.getUploadedFile();
 		slide = new File(presentationFile.getParent() + File.separatorChar + "slide-" + page + ".swf");
-		log.info("Creating slide " + slide.getAbsolutePath());
 		if (! pdfToSwfConverter.convert(presentationFile, slide, page)) {
 			log.info("Failed to convert slide. Let's take an image snapshot and convert to SWF");
 			imageConvertService.convertPageAsAnImage(presentationFile, slide, page);

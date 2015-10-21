@@ -37,7 +37,16 @@ public class EventRecordingService {
 	public void record(String meetingId, Map<String, String> event) {		
 		Jedis jedis = new Jedis(host, port);
 		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording:" + meetingId + COLON + msgid, event);
-		jedis.rpush("meeting:" + meetingId + COLON + "recordings", msgid.toString());						
+		String key = "recording:" + meetingId + COLON + msgid;
+		jedis.hmset(key, event);
+		/**
+		 * We set the key to expire after 14 days as we are still
+		 * recording the event into redis even if the meeting is not
+		 * recorded. (ralam sept 23, 2015) 
+		 */
+		jedis.expire(key, 14*24*60*60 /*14days*/);
+		key = "meeting:" + meetingId + COLON + "recordings";
+		jedis.rpush(key, msgid.toString());	
+		jedis.expire(key, 14*24*60*60 /*14days*/);
 	}
 }

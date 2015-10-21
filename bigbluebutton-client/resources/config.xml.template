@@ -16,7 +16,7 @@
             showLogoutWindow="true" showLayoutTools="true" confirmLogout="true"
             showRecordingNotification="true"/>
     <meeting muteOnStart="false" />
-    <logging enabled="true" target="trace"/>
+    <logging enabled="true" target="trace" level="info" format="{dateUTC} {time} :: {name} :: [{logLevel}] {message}" uri="http://HOST"/>
     <lock disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" 
           disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false" lockOnJoin="true" lockOnJoinConfigurable="false"/>
             
@@ -30,6 +30,7 @@
 			position="top-right"
 			baseTabIndex="701"
 			colorPickerIsVisible="false"
+			maxMessageLength="1024"
 		/>
 
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 

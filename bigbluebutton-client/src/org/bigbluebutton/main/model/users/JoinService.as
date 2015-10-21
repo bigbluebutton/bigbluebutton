@@ -54,8 +54,6 @@ package org.bigbluebutton.main.model.users
 		
 		public function load(url:String):void {
 			var date:Date = new Date();
-//			url += "?a=" + date.time
-			LOGGER.debug("JoinService:load(...) {0}", [url]);
       request = new URLRequest(url);
       request.method = URLRequestMethod.GET;		
             
@@ -122,12 +120,9 @@ package org.bigbluebutton.main.model.users
        
 				if (result.response.customdata) {
           var cdata:Array = result.response.customdata as Array;
-          LOGGER.debug("num custom data = {0}", [cdata.length]);
           for each (var item:Object in cdata) {
-            LOGGER.debug(item.toString());
             for (var id:String in item) {
               var value:String = item[id] as String;
-              LOGGER.debug("{0} = {1}", [id, value]);
               response.customdata[id] = value;
             }                        
           }

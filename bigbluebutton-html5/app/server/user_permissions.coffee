@@ -38,6 +38,10 @@ moderator =
   subscribePoll: true
   subscribeAnswers: false
 
+  #emojis
+  setEmojiStatus: true
+  clearEmojiStatus: true
+
 # holds the values for whether the viewer user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
 viewer = (meetingId, userId) ->
@@ -76,6 +80,10 @@ viewer = (meetingId, userId) ->
   subscribePoll: true
   subscribeAnswers: false
 
+  #emojis
+  setEmojiStatus: true
+  clearEmojiStatus: true
+
 # carries out the decision making for actions affecting users. For the list of
 # actions and the default value - see 'viewer' and 'moderator' in the beginning of the file
 @isAllowedTo = (action, meetingId, userId, authToken) ->
@@ -103,7 +111,7 @@ viewer = (meetingId, userId) ->
       else if user.user?.role is 'MODERATOR'
         Meteor.log.info "user permissions moderator case"
         return moderator[action] or false
-      
+
       else
         Meteor.log.warn "UNSUCCESSFULL ATTEMPT FROM userid=#{userId} to perform:#{action}"
         return false

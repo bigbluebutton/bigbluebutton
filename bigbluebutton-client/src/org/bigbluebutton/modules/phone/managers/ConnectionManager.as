@@ -56,6 +56,8 @@ package org.bigbluebutton.modules.phone.managers {
     
 		private var dispatcher:Dispatcher;
 		
+		private var numNetworkChangeCount:int = 0;
+		
 		public function ConnectionManager():void {
 			dispatcher = new Dispatcher();
 		}
@@ -145,22 +147,29 @@ package org.bigbluebutton.modules.phone.managers {
       
       switch (statusCode) {
         case "NetConnection.Connect.Success":
+          numNetworkChangeCount = 0;
           LOGGER.debug("Connection success");
           JSLog.debug("Successfully connected to BBB Voice", logData);
           handleConnectionSuccess();
           break;
         case "NetConnection.Connect.Failed":
-          LOGGER.debug("Connection failed");
           JSLog.error("Failed to connect to BBB Voice", logData);
+		  logData.message = "NetConnection.Connect.Failed from bbb-voice";
+		  LOGGER.info(JSON.stringify(logData));
           handleConnectionFailed();
           break;
         case "NetConnection.Connect.NetworkChange":
-          LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
-          JSLog.warn("Detected network change to BBB Voice", logData);
+          numNetworkChangeCount++;
+          if (numNetworkChangeCount % 20 == 0) {
+             logData.message = "Detected network change on bbb-voice";
+             logData.numNetworkChangeCount = numNetworkChangeCount;
+             LOGGER.info(JSON.stringify(logData));
+          }
           break;
         case "NetConnection.Connect.Closed":
-          LOGGER.debug("Connection closed");
           JSLog.debug("Disconnected from BBB Voice", logData);
+		  logData.message = "Disconnected from BBB Voice";
+		  LOGGER.info(JSON.stringify(logData));
           handleConnectionClosed();
           break;
       }

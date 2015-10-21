@@ -48,7 +48,6 @@ package org.bigbluebutton.common
 				Role.userrole = PRESENTER;
 				Role.isPresenter = true;
 			}
-			LOGGER.error("TRYING TO SET INVALID USER ROLE: {0}", [role]);
 		}
 		
 		/**

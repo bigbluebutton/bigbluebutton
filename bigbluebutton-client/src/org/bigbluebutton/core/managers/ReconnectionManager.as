@@ -89,13 +89,14 @@ package org.bigbluebutton.core.managers
 
     public function onDisconnected(type:String, callback:Function, parameters:Array):void {
       if (!_canceled) {
-		LOGGER.warn("onDisconnected, type={0}, parameters={1}", [type, parameters.toString()]);
-
 		var logData:Object = new Object();
 		logData.user = UsersUtil.getUserData();
 		logData.user.connection = type;
 		
 		JSLog.warn("Connection disconnected", logData);
+		
+		logData.message = "Connection disconnected";
+		LOGGER.info(JSON.stringify(logData));
 		
         var obj:Object = new Object();
         obj.callback = callback;
@@ -120,6 +121,9 @@ package org.bigbluebutton.core.managers
 	  logData.user.connection = type;
 	  
 	  JSLog.warn("Reconnect attempt on connection failed.", logData);
+	  
+	  logData.message = "Reconnect attempt on connection failed.";
+	  LOGGER.info(JSON.stringify(logData));
 	  
       if (_connections.hasOwnProperty(type)) {
         _connections[type].reconnect.onConnectionAttemptFailed();
@@ -156,6 +160,9 @@ package org.bigbluebutton.core.managers
 	  logData.user.connection = type;
 	  
 	  JSLog.warn("Reconnect succeeded.", logData);
+	  
+	  logData.message = "Reconnect succeeded.";
+	  LOGGER.info(JSON.stringify(logData));
 	  
       dispatchReconnectionSucceededEvent(type);
 

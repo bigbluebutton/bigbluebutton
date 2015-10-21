@@ -26,13 +26,35 @@
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
     <script src="lib/deployJava.js?v=VERSION" language="javascript"></script>
     <script type="text/javascript">
+      // Check for Firefox 41.0.1/2 to workaround Flash hang
+      // See https://bugzilla.mozilla.org/show_bug.cgi?id=1210665
+      var ffHangWorkaround = function() {
+        if (navigator.userAgent.indexOf("Windows") != -1 &&
+          (navigator.userAgent.indexOf("Firefox/41.0") != -1 &&
+            navigator.buildID > "20150928" &&
+            navigator.buildID < "20151015")) {
+            console.log("Browser appears to be Firefox 41.0.1 or .2 on Windows");
+            return true;
+        }
+        return false;
+      };
+
       //swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
       var flashvars = {};
       var params = {};
       params.quality = "high";
       params.bgcolor = "#869ca7";
       params.allowfullscreen = "true";
-      params.wmode = "window";
+      if (ffHangWorkaround()) {
+        console.log("Applying Firefox Flash hang workaround");
+	// wmode = opaque causes button clicks to be sometimes unresponsive,
+	// and right-click in particular is unreliable. It disables Flash
+	// permission prompts on Linux (causing webcams, flash voice to be
+	// unusable there). But it's better than a browser hang...
+        params.wmode = "opaque";
+      } else {
+        params.wmode = "window";
+      }
       params.allowscriptaccess = "true";
       params.seamlesstabbing = "true";
       var attributes = {};
@@ -82,66 +104,47 @@
       }
     </script>
     <script type="text/javascript">
-      function html5() {
-        // no Flash detected on the client
-
-        var originalPath, request;
-        originalPath = document.location.pathname;
-
-        // reuse code in a function to log an error when needed
-        var reportError = function() {
-          alert("Unable to load the HTML5 client!");
-          BBBLog.debug("Could not redirect to html5client (the server side does not seem to be running)");
-        }
-
+      window.onload = function() {
         var checkRequest = $.ajax({
            dataType: 'json',
            url: '/html5client/check'
         });
-
         checkRequest.done(function(data) {
-          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus !== null) {
-            if(data.html5clientStatus === "running") {
-              // use the enter api to detect the meetingid, userid and authToken
-              // for the attempted joining of the meeting
-              // and reuse them to join via the HTML5 client
-              var enterRequest = $.ajax({
-                 dataType: 'json',
-                 url: '/bigbluebutton/api/enter'
-              });
-
-              enterRequest.done(function(enterData) {
-                var authToken, meetingId, userId;
-
-                meetingId = enterData.response.meetingID;
-                userId = enterData.response.externUserID;
-                authToken = enterData.response.authToken;
-
-                if ((meetingId != null) && (userId != null) && (authToken != null)) {
-                  // redirect to the html5 client with the received info
-                  // format <IP>/html5client/<meetingId>/<userId>/<authToken>
-                  document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
-                } else {
-                  // go back to the redirection page
-                  document.location.pathname = originalPath;
-                }
-              });
-
-              enterRequest.fail(function(enterData, textStatus, errorThrown){
-                reportError();
-              });
-            }
-            else {
-              reportError();
-            }
+          if(typeof data.html5clientStatus !== "undefined" && data.html5clientStatus === "running") {
+            document.getElementById('html5Section').style.display='inherit';
           }
-          else {
-            reportError();
+        });
+      };
+
+      function html5() {
+        // no Flash detected on the client
+        var originalPath, enterRequest, authToken, meetingId, userId;
+        originalPath = document.location.pathname;
+
+        // use the enter api to detect the meetingid, userid and authToken
+        // and reuse them to join via the HTML5 client
+        enterRequest = $.ajax({
+           dataType: 'json',
+           url: '/bigbluebutton/api/enter'
+        });
+
+        enterRequest.done(function(enterData) {
+          meetingId = enterData.response.meetingID;
+          userId = enterData.response.externUserID;
+          authToken = enterData.response.authToken;
+
+          if ((meetingId != null) && (userId != null) && (authToken != null)) {
+            // redirect to the html5 client with the received info
+            // format <IP>/html5client/<meetingId>/<userId>/<authToken>
+            document.location.pathname = "/html5client/"+meetingId+"/"+userId+"/"+authToken;
+          } else {
+            // go back to the redirection page
+            document.location.pathname = originalPath;
           }
         });
 
-        checkRequest.fail(function(data, textStatus, errorThrown){
-          reportError();
+        enterRequest.fail(function(enterData, textStatus, errorThrown){
+          BBBLog.debug("Enter request failed");
         });
       }
     </script>
@@ -158,10 +161,12 @@
         <br/>
         <div style="width:50%; margin-left: auto; margin-right: auto; ">
           <a href="http://www.adobe.com/go/getflashplayer">
-            <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+            <img src="//www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
           </a>
-          <p style="margin-left:50px;" >OR</p>
-          <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
+          <div id="html5Section" style="display:none">
+            <p style="margin-left:50px;" >OR</p>
+            <button type="button" onclick="html5();"><h3>Launch the HTML5 client instead</h3></button>
+          </div>
         </div>
       </div>
     </div>

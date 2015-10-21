@@ -148,11 +148,14 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   BBB.raiseHand = (meetingId, toUserId, byUserId, byAuthToken) ->
     Meteor.call('userRaiseHand', meetingId, toUserId, byUserId, byAuthToken)
 
-  BBB.isUserRaisingHand = (userId) ->
-    BBB.getUser(userId)?.user?.raise_hand
+  BBB.setEmojiStatus = (meetingId, toUserId, byUserId, byAuthToken, status) ->
+    Meteor.call('userSetEmoji', meetingId, toUserId, byUserId, byAuthToken, status)
 
-  BBB.isCurrentUserRaisingHand = ->
-    BBB.isUserRaisingHand(BBB.getCurrentUser()?.userId)
+  BBB.isUserEmojiStatusSet = (userId) ->
+    BBB.getUser(userId)?.user?.emoji_status isnt "none" and BBB.getUser(userId)?.user?.emoji_status isnt undefined
+
+  BBB.isCurrentUserEmojiStatusSet = ->
+    BBB.isUserEmojiStatusSet(BBB.getCurrentUser()?.userId)
 
   BBB.isMeetingRecording = ->
     MEteor.Meetings.findOne()?.recorded
@@ -248,6 +251,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     result =
       myUserID: BBB.getMyUserID()
       myUsername: BBB.getMyUserName()
+      myInternalUserID: BBB.getMyUserID()
       myAvatarURL: null
       myRole: BBB.getMyRole()
       amIPresenter: BBB.amIPresenter()

@@ -6,7 +6,7 @@ loadLib = (libname) ->
     #Meteor.log.info "Failed to load library", param
     console.log "Failed to load library", param
 
-  Meteor.Loader.loadJs("http://#{window.location.hostname}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
+  Meteor.Loader.loadJs("#{window.location.origin}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
 
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
@@ -119,8 +119,18 @@ Template.main.rendered = ->
       of: '.signOutIcon'
   )
 
+  # keep track of the last orientation
+  lastOrientationWasLandscape = isLandscape()
   $(window).resize( ->
     $('#dialog').dialog('close')
+
+    # when the orientation switches call the handler
+    if isLandscape() and not lastOrientationWasLandscape
+        orientationBecameLandscape()
+        lastOrientationWasLandscape = true
+    else if isPortrait() and lastOrientationWasLandscape
+        orientationBecamePortrait()
+        lastOrientationWasLandscape = false
   )
 
   $('#shield').click () ->
