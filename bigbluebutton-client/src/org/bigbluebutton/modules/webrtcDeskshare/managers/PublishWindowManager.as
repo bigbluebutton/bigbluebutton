@@ -30,7 +30,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.main.api.JSLog;
 	import org.bigbluebutton.modules.webrtcDeskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.webrtcDeskshare.view.components.DesktopPublishWindow;
 
@@ -64,11 +63,7 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			var result:String;
 			if (ExternalInterface.available) {
 				result = ExternalInterface.call("vertoScreenStart");
-				var logData:Object = new Object();
-				logData.uri = uri;
-				JSLog.warn("uri:", logData);
 			}
-
 
 			shareWindow = new DesktopPublishWindow();
 			shareWindow.visible = true;
@@ -77,8 +72,8 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 //				/*
 //				* Need to have a timer to trigger auto-publishing of deskshare.
 //				*/
-//				shareWindow.btnFSPublish.enabled = false;
-//				shareWindow.btnRegionPublish.enabled = false;
+//				shareWindow.btnFSPublish.enabled = false; //TODO anton remove
+//				shareWindow.btnRegionPublish.enabled = false; //TODO anton remove
 //				autoPublishTimer = new Timer(2000, 1);
 //				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 //				autoPublishTimer.start();
