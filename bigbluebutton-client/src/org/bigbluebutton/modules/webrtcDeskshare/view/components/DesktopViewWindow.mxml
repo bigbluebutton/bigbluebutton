@@ -25,7 +25,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:common="org.bigbluebutton.common.*"
 	width="600" height="400"
 	initialize="init()"
-	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopView.title')}"
@@ -33,7 +32,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	resize="fitToWindow()" >
 
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onStopViewStreamEvent" />
-	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 
 	<mx:Script>
@@ -50,7 +48,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.webrtcDeskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ViewWindowEvent;
@@ -66,8 +63,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var images:Images = new Images();
 			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
 			[Bindable] public var fitToActualSizeIcon:Class = images.mag_reset;
-
-			private var cursor:Shape;
 
 			private var video:Video;
 			private var ns:NetStream;
@@ -106,12 +101,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoHolder.percentHeight = 100;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				fitToActualSize();
-				cursor = new Shape();
-				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);
-				videoHolder.addChild(cursor);
-				videoHolder.addChild(cursorImg);
-				cursor.visible = false;
 				maximize();
 
 				resourcesChanged();
@@ -121,48 +110,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
 			}
-			private function onCreationComplete():void{
-//				videoHolder.addChild(video);
-//				this.addChild(videoHolder);
-//				videoHolder.percentWidth = 100;
-//				videoHolder.percentHeight = 100;
-//				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
-//				fitToActualSize();
-//				cursor = new Shape();
-//				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-//				cursor.graphics.drawCircle(0,0,3);
-//				videoHolder.addChild(cursor);
-//				videoHolder.addChild(cursorImg);
-//				cursor.visible = false;
-//				maximize();
-//
-//				resourcesChanged();
-//
-//				titleBarOverlay.tabIndex = baseIndex;
-//				minimizeBtn.tabIndex = baseIndex+1;
-//				maximizeRestoreBtn.tabIndex = baseIndex+2;
-//				closeBtn.tabIndex = baseIndex+3;
-			}
 
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
 				if (event.window == this) {
 					fitToWindow();
 				}
-			}
-
-			private function onUpdateCursorEvent(event:CursorEvent):void {
-				cursor.x = ((event.x/videoWidth)) * videoHolder.width;
-				cursor.y = ((event.y/videoHeight)) * videoHolder.height;
-
-				cursorImg.visible = true;
-				// DO NOT compute the x and y coordinate and assign directly to the cursorImg
-				// as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
-				if (cursor.x < videoHolder.x) cursor.x = videoHolder.x;
-				if (cursor.y < videoHolder.y) cursor.y = videoHolder.y;
-				if (cursor.x > videoHolder.x + videoHolder.width) cursor.x = videoHolder.x + videoHolder.width;
-				if (cursor.y > videoHolder.y + videoHolder.height) cursor.y = videoHolder.y + videoHolder.height;
-				cursorImg.x = cursor.x;
-				cursorImg.y = cursor.y;
 			}
 
 			public function startVideo(rtmp:String, width:Number, height:Number):void{
@@ -434,9 +386,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 
 	<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
-
-	<mx:Move id="cursorMove" target="{cursorImg}"/>
-	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
 	<mx:HBox id="bottomBar" visible="true" height="30" horizontalAlign="center" paddingTop="0" paddingBottom="0" width="100%" >
 		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"

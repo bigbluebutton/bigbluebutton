@@ -38,7 +38,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.services.red5
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.main.events.BBBEvent;
-	import org.bigbluebutton.modules.webrtcDeskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
 
 
@@ -264,13 +263,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.services.red5
 			var ce:ConnectionEvent = new ConnectionEvent();
 			ce.status = ConnectionEvent.SECURITYERROR;
 			dispatcher.dispatchEvent(ce);
-		}
-
-		public function mouseLocationCallback(x:Number, y:Number):void {
-			var event:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR_LOC_EVENT);
-			event.x = x;
-			event.y = y;
-			dispatcher.dispatchEvent(event);
 		}
 
 		/**

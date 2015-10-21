@@ -56,7 +56,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.webrtcDeskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.StopSharingButtonEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.StreamEvent;
@@ -73,7 +72,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-			[Bindable] private var cursorIcon:Class = images.cursorIcon;
 
 			private var connection:NetConnection;
 			private var uri:String;
@@ -92,7 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var autoStart:Boolean = false;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 
-			[Bindable] private var cursor:Sprite;
 			[Bindable] private var dsOptions:DeskshareOptions;
 
 			private function init():void {
@@ -101,10 +98,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
-
-				cursor = new Sprite();
-				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);
 
 				setCurrentState("dispFullRegionControlBar"); //TODO ANTON
 				resourcesChanged();
@@ -246,10 +239,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function startPreviewStream(streamName:String, capWidth:Number, capHeight:Number):void{
 				streaming = true;
 
-				// Store capture dimensions so we can position cursor properly.
-				captureWidth = capWidth;
-				captureHeight = capHeight;
-
 				videoHolder = new UIComponent();
 
 				var vidW:Number = captureWidth;
@@ -280,9 +269,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
 
 				videoHolder.addChild(video);
-//				videoHolder.addChild(cursor);
-//				videoHolder.addChild(cursorImg); //TODO anton remove
-//				cursor.visible = false;
 				this.addChild(videoHolder);
 
 				ns = new NetStream(connection);
@@ -395,6 +381,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			</mx:AddChild>
 		</mx:State>
 	</dspub:states>
-	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
 </dspub:CustomMdiWindow>
