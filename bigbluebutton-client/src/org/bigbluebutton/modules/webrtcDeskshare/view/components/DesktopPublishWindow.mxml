@@ -159,28 +159,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (streaming) {
 					stopStream();
 					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
-					dispatchEvent(streamEvent); //TODO is this used Anton
+					dispatchEvent(streamEvent);
 				}
 				streaming = false;
-
-				if (ExternalInterface.available) {
-					ExternalInterface.call("vertoScreenStop");
-				} else {
-					LOGGER.debug("Error! ExternalInterface not available (webrtcDeskshare)");
-				}
-
 				closeWindow();
 			}
 
 			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
-				if (streaming) {
-					stopStream();
-					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
-					dispatchEvent(streamEvent);
-				}
-				streaming = false;
-
-				closeWindow();
+				stopSharing();
 			}
 
 			// TODO make this function private and trigger it via message

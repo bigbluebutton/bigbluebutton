@@ -60,14 +60,10 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 			LOGGER.debug("DS:PublishWindowManager::opening desk share window, autostart={0} autoFullScreen={1}", [autoStart, autoFullScreen]);
 
-			var result:String;
-			if (ExternalInterface.available) {
-				result = ExternalInterface.call("vertoScreenStart");
-			}
-
 			shareWindow = new DesktopPublishWindow();
 			shareWindow.visible = true;
-			openWindow(shareWindow);
+			openWindow(shareWindow); //TODO anton open when there's a stream to view?!
+
 //			if (autoStart || autoFullScreen) {
 //				/*
 //				* Need to have a timer to trigger auto-publishing of deskshare.

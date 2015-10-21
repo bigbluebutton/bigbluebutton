@@ -36,9 +36,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.external.ExternalInterface;
-			
+
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbToolbarComponent;
@@ -104,12 +102,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					styleName="deskshareDefaultButtonStyle"
 					_currentState = OFF_STATE;
 
-					if (ExternalInterface.available) {
-						ExternalInterface.call("vertoScreenStop");
-					} else {
-						LOGGER.debug("Error! ExternalInterface not available (webrtcDeskshare)");
-					}
-
 					var stopSharingButtonEvent:StopSharingButtonEvent = new StopSharingButtonEvent(StopSharingButtonEvent.STOP_SHARING);
 					dispatcher.dispatchEvent(stopSharingButtonEvent);
 				}
@@ -132,8 +124,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				else
 					styleName="deskshareDefaultButtonStyle"
 			}
-
-
 
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;

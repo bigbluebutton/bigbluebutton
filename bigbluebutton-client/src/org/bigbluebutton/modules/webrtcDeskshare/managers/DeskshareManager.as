@@ -20,7 +20,9 @@
 package org.bigbluebutton.modules.webrtcDeskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
-	
+
+	import flash.external.ExternalInterface;
+
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
@@ -68,8 +70,25 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 		}
 
 		public function handleStreamStoppedEvent():void {
-			LOGGER.debug("Sending deskshare stopped command");
+			LOGGER.debug("DeskshareManager::handleStreamStoppedEvent Sending deskshare stopped command");
 			service.stopSharingDesktop(module.getRoom(), module.getRoom());
+			stopWebRTCDeskshare();
+		}
+
+		private function stopWebRTCDeskshare():void {
+			LOGGER.debug("DeskshareManager::stopWebRTCDeskshare");
+			if (ExternalInterface.available) {
+				ExternalInterface.call("vertoScreenStop");
+			} else {
+				LOGGER.error("Error! ExternalInterface not available (webrtcDeskshare)");
+			}
+		}
+
+		private function startWebRTCDeskshare():void {
+			var result:String;
+			if (ExternalInterface.available) {
+				result = ExternalInterface.call("vertoScreenStart");
+			}
 		}
 
 		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void {
@@ -114,6 +133,7 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			toolbarButtonManager.startedSharing();
 			var option:DeskshareOptions = new DeskshareOptions();
 			option.parseOptions();
+			startWebRTCDeskshare();
 			publishWindowManager.startSharing(option.publishURI , option.useTLS , module.getRoom(), autoStart, option.autoFullScreen);
 			// sharing = true; //TODO must uncomment this for the non-webrtc desktop share
 		}

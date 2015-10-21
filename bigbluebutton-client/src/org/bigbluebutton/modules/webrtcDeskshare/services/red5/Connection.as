@@ -334,6 +334,7 @@ package org.bigbluebutton.modules.webrtcDeskshare.services.red5
 		}
 
 		public function stopSharingDesktop(meetingId: String, stream: String):void {
+			LOGGER.debug("stopSharingDesktop - for meetingID:[{0}] and stream:[{1}]", [meetingId, stream]);
 			nc.call("deskshare.stopSharingDesktop", null, meetingId);
 		}
 
