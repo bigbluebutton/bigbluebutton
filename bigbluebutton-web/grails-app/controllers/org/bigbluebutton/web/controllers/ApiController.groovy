@@ -2168,9 +2168,9 @@ class ApiController {
       json {
         log.debug "Rendering as json"
         render(contentType:"text/json") {
-            returncode(RESP_CODE_FAILED)
-            messageKey(key)
-            message(msg)
+            returncode = RESP_CODE_FAILED
+            messageKey = key
+            message = msg
         }
       }
     }  
@@ -2193,9 +2193,9 @@ class ApiController {
 		  json {
 			  log.debug "Rendering as json"
 			  render(contentType:"text/json") {
-					  returncode(RESP_CODE_FAILED)
-					  messageKey(key)
-					  message(msg)
+					  returncode = RESP_CODE_FAILED
+					  messageKey = key
+					  message = msg
 			  }
 		  }
 	  }
