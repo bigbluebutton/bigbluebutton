@@ -2122,6 +2122,26 @@ class ApiController {
           }
         }
       }
+      json {
+        log.debug "Rendering as json"
+        render(contentType:"text/json") {
+          response = {
+            returncode = RESP_CODE_SUCCESS
+            meetingID = meeting.getExternalId()
+            attendeePW = meeting.getViewerPassword()
+            moderatorPW = meeting.getModeratorPassword()
+            createTime = meeting.getCreateTime()
+            voiceBridge = meeting.getTelVoice()
+            dialNumber =  meeting.getDialNumber()
+            createDate = formatPrettyDate(meeting.getCreateTime())
+            hasUserJoined = meeting.hasUserJoined()
+            duration = meeting.duration
+            hasBeenForciblyEnded = meeting.isForciblyEnded() ? "true" : "false"
+            messageKey = msgKey == null ? "" : msgKey
+            message = msg == null ? "" : msg
+          }
+        }
+      }
     }
   }
   
