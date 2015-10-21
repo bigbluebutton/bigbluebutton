@@ -57,25 +57,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			if (shareWindow != null) shareWindow.stopSharing();
 		}
 
-		public function startSharing(uri:String , useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
-			LOGGER.debug("DS:PublishWindowManager::opening desk share window, autostart={0} autoFullScreen={1}", [autoStart, autoFullScreen]);
-
-			shareWindow = new DesktopPublishWindow();
-			shareWindow.visible = true;
-			openWindow(shareWindow); //TODO anton open when there's a stream to view?!
-
-//			if (autoStart || autoFullScreen) {
-//				/*
-//				* Need to have a timer to trigger auto-publishing of deskshare.
-//				*/
-//				shareWindow.btnFSPublish.enabled = false; //TODO anton remove
-//				shareWindow.btnRegionPublish.enabled = false; //TODO anton remove
-//				autoPublishTimer = new Timer(2000, 1);
-//				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-//				autoPublishTimer.start();
-//			}
-		}
-
 		private function autopublishTimerHandler(event:TimerEvent):void {
 			shareWindow.shareScreen(true);
 		}
@@ -97,6 +78,9 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 		}
 
 		public function startViewing(rtmp:String, videoWidth:Number, videoHeight:Number):void{
+			shareWindow = new DesktopPublishWindow();
+			shareWindow.visible = true;
+			openWindow(shareWindow);
 			shareWindow.startVideo(rtmp, videoWidth, videoHeight);
 		}
 	}

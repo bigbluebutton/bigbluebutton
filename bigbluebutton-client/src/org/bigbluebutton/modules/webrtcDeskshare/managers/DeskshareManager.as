@@ -134,7 +134,8 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			var option:DeskshareOptions = new DeskshareOptions();
 			option.parseOptions();
 			startWebRTCDeskshare();
-			publishWindowManager.startSharing(option.publishURI , option.useTLS , module.getRoom(), autoStart, option.autoFullScreen);
+			//TODO anton use OPTIONS
+
 			// sharing = true; //TODO must uncomment this for the non-webrtc desktop share
 		}
 
