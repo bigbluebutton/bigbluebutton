@@ -35,7 +35,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />
-	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
@@ -80,7 +79,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var uri:String;
 			private var useTLS:Boolean;
 			private var room:String;
-			private var sharingFullScreen:Boolean = false;
 			private var streaming:Boolean = false;
 
 			private var video:Video;
@@ -156,17 +154,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function shareScreen(fullScreen:Boolean):void {
 				LOGGER.debug("Calling shareScreen");
-				btnFSPublish.enabled = false;
-				btnRegionPublish.enabled = false;
-//				useSVC2Check.enabled = false;
 				startSharing(connection, uri, useTLS , room, fullScreen);
 			}
 
 			private function startSharing(connection:NetConnection, uri:String , useTLS:Boolean , room:String, fullScreen:Boolean):void {
 				var captureX:Number = 0;
 				var captureY:Number = 0;
-				sharingFullScreen = fullScreen;
-				//ExternalInterface.call("startApplet", uri , useTLS , room, fullScreen, true /*useSVC2Check.selected*/); //TODO ANTON REMOVE THIS
 			}
 
 			public function stopSharing():void{
@@ -175,7 +168,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
 					dispatchEvent(streamEvent);
 				}
-				sharingFullScreen = false;
 				streaming = false;
 
 				closeWindow();
@@ -187,26 +179,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
 					dispatchEvent(streamEvent);
 				}
-				sharingFullScreen = false;
 				streaming = false;
 
 				closeWindow();
-			}
-
-			private function onUpdateCursorEvent(event:CursorEvent):void {
-				// DO NOT compute the x and y coordinate and assign directly to the cursorImg
-				// as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
-				cursor.x = video.x + ((event.x/captureWidth)) * video.width;
-				cursor.y = video.y + ((event.y/captureHeight)) * video.height;
-				cursorImg.visible = true;
-
-				// Do not display cursor if they are outside the capture area.
-				if (cursor.x < video.x) cursor.x = video.x;
-				if (cursor.y < video.y) cursor.y = video.y;
-				if (cursor.x > video.x + video.width) cursor.x = video.x + video.width;
-				if (cursor.y > video.y + video.height) cursor.y = video.y + video.height;
-				cursorImg.x =  cursor.x;
-				cursorImg.y = cursor.y;
 			}
 
 			// TODO make this function private and trigger it via message
@@ -322,8 +297,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.play(stream);
 
 				btnClosePublish.enabled = true;
-				btnFSPublish.enabled = false;
-				btnRegionPublish.enabled = false;
 			}
 
 			private function stopStream():void{
@@ -403,34 +376,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 
 	<dspub:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}"
-					  tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnFSPublish, btnClosePublish, btnRegionPublish]}"/>
+					  tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnClosePublish]}"/>
 	<dspub:states>
 		<mx:State name="dispFullRegionControlBar">
 			<mx:AddChild>
 			  <mx:ControlBar id="fullRegionBottomBar">
 				<mx:VBox width="100%" height="100%" horizontalAlign="center">
 				  <mx:HBox horizontalAlign="center">
-					<mx:Button id="btnFSPublish"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}"
-							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}"
-							   visible="true"
-							   click="shareScreen(true)" />
-					<mx:Spacer width="100%"/>
 					<mx:Button id="btnClosePublish"
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}"
 							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}"
 							   visible="true"
 							   enabled="false"
 							   click="stopSharing()" />
-					<mx:Spacer width="100%"/>
-					<mx:Button id="btnRegionPublish"
-							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}"
-							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}"
-							   visible="true"
-							   click="shareScreen(false)"
-							   focusEnabled="false"
-							   tabEnabled="false"/>
-					<mx:Spacer width="100%"/>
 				  </mx:HBox>
 				</mx:VBox>
 			  </mx:ControlBar>
