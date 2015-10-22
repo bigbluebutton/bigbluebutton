@@ -3,7 +3,6 @@ package org.bigbluebutton.core.apps
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.HashMap
 
-
 class BreakoutRoomModel {
   private val messages = new ArrayBuffer[Map[String, String]]()
 
@@ -18,7 +17,6 @@ class BreakoutRoomModel {
     messages append msg
   }
 }
-
 
 case class BreakoutUser(id: String, name: String)
 case class BreakoutRoom(name: String, users: Vector[BreakoutUser])

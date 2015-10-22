@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit
 
 case object StopMeetingActor
 case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
-  voiceBridge: String, duration: Long, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String)
+  voiceBridge: String, duration: Int, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
+  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, isBreakout: Boolean)
 
 class MeetingModel {
   private var audioSettingsInited = false

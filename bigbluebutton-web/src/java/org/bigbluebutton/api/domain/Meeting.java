@@ -37,7 +37,7 @@ public class Meeting {
 	private String name;
 	private String extMeetingId;
 	private String intMeetingId;	
-	private long duration = 0;	 
+	private Integer duration = 0;	 
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -144,7 +144,7 @@ public class Meeting {
 		return createdTime;
 	}
 	
-	public long getDuration() {
+	public Integer getDuration() {
 		return duration;
 	}
 	
@@ -166,6 +166,10 @@ public class Meeting {
 	
 	public boolean isRunning() {
 		return ! users.isEmpty();
+	}
+	
+	public Boolean isBreakout() {
+	  return isBreakout;
 	}
 
 	public String getName() {

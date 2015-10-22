@@ -18,30 +18,30 @@ public class CreateMeetingRequest implements IBigBlueButtonMessage {
     public final String externalId;
     public final String name;
     public final Boolean record;
-    public final String voiceBridge;
-    public final Long duration;
+    public final String voiceConfId;
+    public final Integer durationInMinutes;
     public final Boolean autoStartRecording;
     public final Boolean allowStartStopRecording;
-    public final String moderatorPass;
-    public final String viewerPass;
+    public final String moderatorPassword;
+    public final String viewerPassword;
     public final Long createTime;
     public final String createDate;
     public final Boolean isBreakout;
     
-    public CreateMeetingRequestPayload(String id, String externalId, String name, Boolean record, String voiceBridge, 
-        Long duration, Boolean autoStartRecording, 
+    public CreateMeetingRequestPayload(String id, String externalId, String name, Boolean record, String voiceConfId, 
+        Integer duration, Boolean autoStartRecording, 
         Boolean allowStartStopRecording, String moderatorPass,
         String viewerPass, Long createTime, String createDate, Boolean isBreakout) {
       this.id = id;
       this.externalId = externalId;
       this.name = name;
       this.record = record;
-      this.voiceBridge = voiceBridge;
-      this.duration = duration; 
+      this.voiceConfId = voiceConfId;
+      this.durationInMinutes = duration; 
       this.autoStartRecording = autoStartRecording;
       this.allowStartStopRecording = allowStartStopRecording;
-      this.moderatorPass = moderatorPass;
-      this.viewerPass = viewerPass;
+      this.moderatorPassword = moderatorPass;
+      this.viewerPassword = viewerPass;
       this.createTime = createTime;
       this.createDate = createDate;
       this.isBreakout = isBreakout;

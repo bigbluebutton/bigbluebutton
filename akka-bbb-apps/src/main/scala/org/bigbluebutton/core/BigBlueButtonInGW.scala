@@ -18,6 +18,7 @@ import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
+import org.bigbluebutton.messages.CreateMeetingRequest;
 
 class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
   val log = system.log
@@ -31,19 +32,19 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
       case msg: PubSubPingMessage => {
         bbbActor ! new PubSubPing(msg.payload.system, msg.payload.timestamp)
       }
+
+      case msg: CreateMeetingRequest => {
+        val mProps = new MeetingProperties(msg.payload.id, msg.payload.externalId, 
+            msg.payload.name, msg.payload.record,
+          msg.payload.voiceConfId,
+          msg.payload.durationInMinutes,
+          msg.payload.autoStartRecording, msg.payload.allowStartStopRecording,
+          msg.payload.moderatorPassword, msg.payload.viewerPassword,
+          msg.payload.createTime, msg.payload.createDate, msg.payload.isBreakout)
+
+        bbbActor ! new CreateMeeting(msg.payload.id, mProps)
+      }
     }
-  }
-
-  // Meeting
-  def createMeeting2(meetingID: String, externalMeetingID: String, meetingName: String, record: Boolean,
-    voiceBridge: String, duration: Long, autoStartRecording: Boolean,
-    allowStartStopRecording: Boolean, moderatorPass: String, viewerPass: String,
-    createTime: Long, createDate: String) {
-
-    val mProps = new MeetingProperties(meetingID, externalMeetingID, meetingName, record,
-      voiceBridge, duration, autoStartRecording, allowStartStopRecording,
-      moderatorPass, viewerPass, createTime, createDate)
-    bbbActor ! new CreateMeeting(meetingID, mProps)
   }
 
   def destroyMeeting(meetingID: String) {
