@@ -70,17 +70,5 @@ package org.bigbluebutton.modules.webrtcDeskshare.services
 		public function disconnect():void{
 			conn.disconnect();
 		}
-
-		public function sendStartViewingNotification(captureWidth:Number, captureHeight:Number):void{ //todo anton
-			conn.sendStartViewingNotification(captureWidth, captureHeight);
-		}
-
-		public function sendStartedViewingNotification(stream:String):void{
-			conn.sendStartedViewingNotification(stream);
-		}
-
-		public function stopSharingDesktop(meetingId: String, stream: String):void {
-			conn.stopSharingDesktop(meetingId, stream);
-		}
 	}
 }

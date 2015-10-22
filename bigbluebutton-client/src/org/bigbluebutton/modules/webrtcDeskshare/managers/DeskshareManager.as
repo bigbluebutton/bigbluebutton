@@ -71,7 +71,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 
 		public function handleStreamStoppedEvent():void {
 			LOGGER.debug("DeskshareManager::handleStreamStoppedEvent Sending deskshare stopped command");
-			service.stopSharingDesktop(module.getRoom(), module.getRoom());
 			stopWebRTCDeskshare();
 		}
 
@@ -85,20 +84,11 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 		}
 
 		private function startWebRTCDeskshare():void {
+			LOGGER.debug("DeskshareManager::startWebRTCDeskshare");
 			var result:String;
 			if (ExternalInterface.available) {
 				result = ExternalInterface.call("vertoScreenStart");
 			}
-		}
-
-		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void {
-			LOGGER.debug("Sending startViewing command");
-			service.sendStartViewingNotification(videoWidth, videoHeight);
-		}
-
-		public function handleStartedViewingEvent(stream:String):void {
-			LOGGER.debug("handleStartedViewingEvent [{0}]", [stream]);
-			service.sendStartedViewingNotification(stream);
 		}
 
 		private function initDeskshare():void {
@@ -164,14 +154,5 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 
 			// sharing = true; //TODO must uncomment this for the non-webrtc desktop share
 		}
-
-		// public function handleStreamStopEvent(e:ViewStreamEvent):void{
-		// 	//TODO is this needed?
-		// 	LogUtil.debug("Received start vieweing command");
-		// 	if (!sharing) return;
-
-		// 	handleStopModuleEvent();
-		// 	sharing = false;
-		// }
 	}
 }

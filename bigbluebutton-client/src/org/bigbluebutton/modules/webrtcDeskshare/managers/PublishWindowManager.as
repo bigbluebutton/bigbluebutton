@@ -22,7 +22,6 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.TimerEvent;
-	import flash.external.ExternalInterface;
 	import flash.utils.Timer;
 	
 	import org.as3commons.logging.api.ILogger;

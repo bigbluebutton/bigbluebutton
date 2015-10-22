@@ -36,8 +36,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-
 			import mx.core.UIComponent;
 
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -48,12 +46,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.webrtcDeskshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ViewWindowEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.model.DeskshareOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.main.api.JSLog;
 			import org.bigbluebutton.modules.webrtcDeskshare.services.red5.ConnectionEvent;
 
 			public static const LOG:String = "Deskshare::DesktopViewWindow - ";
@@ -130,9 +126,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				streamID = myArray[5]; // Grab the streamID from the end of the rtmp string
 				videoURL = rtmp.substring(0, rtmp.lastIndexOf('/'));
 
-				var logData:Object = new Object();
-				JSLog.debug("DesktopViewWindow::startVideo", logData);
-
 				connect(videoURL);
 			}
 
@@ -148,8 +141,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			public function connectionSuccessHandler():void{
-				var logData1:Object = new Object();
-				JSLog.debug("SUCCESS  DesktopViewWindow::connectionSuccessHandler   SUCCESS" + videoHeight + videoWidth + streamID, logData1);
+				LOGGER.debug("SUCCESS  DesktopViewWindow::connectionSuccessHandler   SUCCESS" + videoHeight + videoWidth + streamID);
 				ns = new NetStream(nc);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
 				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -171,8 +163,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function netStatusHandler(event:NetStatusEvent):void {
 //				trace(LOG + "Connected to [" + getURI() + "]. [" + event.info.code + "]");
-				var logData1:Object = new Object();
-				JSLog.debug("event.info.code=" + event.info.code, logData1);
 				var ce:ConnectionEvent = new ConnectionEvent();
 
 				switch(event.info.code){
@@ -210,8 +200,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function securityErrorHandler(event:SecurityErrorEvent):void {
-				var logData2:Object = new Object();
-				JSLog.debug("ERROR DesktopViewWindow::securityErrorHandler ", logData2);
+				LOGGER.debug("ERROR DesktopViewWindow::securityErrorHandler ");
 			}
 
 			public function stopViewing():void {
@@ -236,8 +225,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-
-
 			private function onAsyncError(e:AsyncErrorEvent):void{
 				LOGGER.debug("VIdeoWindow::asyncerror {0}", [e.toString()]);
 			}
@@ -249,11 +236,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				case "NetStream.Play.Start":
 					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);
 					LOGGER.debug("Dispatching start viewing event");
-					var dispatcher: Dispatcher  = new Dispatcher();
-					var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
 
-					viewEvent.stream = stream;
-					dispatcher.dispatchEvent(viewEvent);
+					// TODO - do we want to know when a client has displayed ds view?
+					// var dispatcher: Dispatcher  = new Dispatcher();
+					// var viewEvent:StartedViewingEvent = new StartedViewingEvent(StartedViewingEvent.STARTED_VIEWING_EVENT);
+
+					// viewEvent.stream = stream;
+					// dispatcher.dispatchEvent(viewEvent);
 					break;
 				case "NetStream.Play.UnpublishNotify":
 					LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);

@@ -32,7 +32,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ModuleEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ShareEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ShareWindowEvent;
-			import org.bigbluebutton.modules.webrtcDeskshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.StreamEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.webrtcDeskshare.events.ViewWindowEvent;
@@ -63,10 +62,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{DeskshareManager}" method="handleMadeViewerEvent" arguments="{event}"/>
 	</EventHandlers>
 
-	<EventHandlers type="{StreamEvent.START}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStartedEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
-	</EventHandlers>
-
 	<EventHandlers type="{StreamEvent.STOP}" >
 		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStoppedEvent"/>
 	</EventHandlers>
@@ -81,10 +76,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<EventHandlers type="{ShareWindowEvent.CLOSE}">
 		<MethodInvoker generator="{DeskshareManager}" method="handleShareWindowCloseEvent"/>
-	</EventHandlers>
-
-	<EventHandlers type="{StartedViewingEvent.STARTED_VIEWING_EVENT}">
-		<MethodInvoker generator="{DeskshareManager}" method="handleStartedViewingEvent" arguments="{event.stream}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ViewWindowEvent.CLOSE}">
