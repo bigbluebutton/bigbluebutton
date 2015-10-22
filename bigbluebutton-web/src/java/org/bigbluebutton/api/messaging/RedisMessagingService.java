@@ -116,8 +116,6 @@ public class RedisMessagingService implements MessagingService {
 		map.put("questionType", questionType);
 		map.put("answers", answers);
 		
-		System.out.println(gson.toJson(map));
-		
 		sender.send(MessagingConstants.TO_POLLING_CHANNEL, gson.toJson(map));		
 	}
 

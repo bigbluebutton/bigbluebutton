@@ -6,7 +6,7 @@ loadLib = (libname) ->
     #Meteor.log.info "Failed to load library", param
     console.log "Failed to load library", param
 
-  Meteor.Loader.loadJs("http://#{window.location.hostname}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
+  Meteor.Loader.loadJs("#{window.location.origin}/client/lib/#{libname}", successCallback, 10000).fail(retryMessageCallback)
 
 # These settings can just be stored locally in session, created at start up
 Meteor.startup ->
@@ -53,7 +53,7 @@ Template.header.events
     toggleCam @
 
   "click .toggleUserlistButton": (event) ->
-    if isLandscape()
+    if isLandscape() or isLandscapeMobile()
       toggleUsersList()
     else
       if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
@@ -73,11 +73,15 @@ Template.header.events
     toggleRightDrawer()
     toggleRightArrowClockwise()
 
+  "click .btn": (event) ->
+    $(".ui-tooltip").hide()
+
 Template.menu.events
   'click .slideButton': (event) ->
     toggleShield()
     toggleRightDrawer()
     toggleRightArrowClockwise()
+    $('.slideButton').blur()
 
   'click .toggleChatButton': (event) ->
     toggleChatbar()
@@ -115,11 +119,18 @@ Template.main.rendered = ->
       of: '.signOutIcon'
   )
 
-  Meteor.NotificationControl = new NotificationControl('notificationArea')
-  $(document).foundation() # initialize foundation javascript
-
+  # keep track of the last orientation
+  lastOrientationWasLandscape = isLandscape()
   $(window).resize( ->
     $('#dialog').dialog('close')
+
+    # when the orientation switches call the handler
+    if isLandscape() and not lastOrientationWasLandscape
+        orientationBecameLandscape()
+        lastOrientationWasLandscape = true
+    else if isPortrait() and lastOrientationWasLandscape
+        orientationBecamePortrait()
+        lastOrientationWasLandscape = false
   )
 
   $('#shield').click () ->
@@ -130,6 +141,7 @@ Template.main.rendered = ->
 
 Template.main.events
   'click .shield': (event) ->
+    $(".tooltip").hide()
     toggleShield()
     closeMenus()
 
@@ -211,9 +223,11 @@ Template.main.gestures
 
       $('.left-drawer').addClass('sl-left-drawer')
       $('.sl-left-drawer').removeClass('left-drawer')
+      $('.sl-left-drawer').addClass('sl-left-drawer-content-delay')
 
       $('.right-drawer').addClass('sl-right-drawer')
       $('.sl-right-drawer').removeClass('right-drawer')
+      $('.sl-right-drawer').addClass('sl-right-drawer-content-delay')
 
   'panright #container, panleft #container': (event, template) ->
     if isPortraitMobile() and isPanHorizontal(event)

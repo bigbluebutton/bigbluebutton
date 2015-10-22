@@ -83,6 +83,9 @@ Handlebars.registerHelper "getUsersInMeeting", ->
 Handlebars.registerHelper "getWhiteboardTitle", ->
   (BBB.currentPresentationName() or "Loading presentation...")
 
+Handlebars.registerHelper "getCurrentUserEmojiStatus", ->
+  BBB.getCurrentUser()?.user?.emoji_status
+
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
 
@@ -95,8 +98,8 @@ Handlebars.registerHelper "privateChatName", ->
   if obj?
     obj?.user?.name
 
-Handlebars.registerHelper "isCurrentUserRaisingHand", ->
-  BBB.isCurrentUserRaisingHand()
+Handlebars.registerHelper "isCurrentUserEmojiStatusSet", ->
+  BBB.isCurrentUserEmojiStatusSet()
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
   BBB.amISharingVideo()
@@ -182,37 +185,43 @@ Handlebars.registerHelper 'whiteboardSize', (section) ->
 Handlebars.registerHelper "getPollQuestions", ->
   polls = BBB.getCurrentPoll(getInSession('userId'))
   if polls? and polls isnt undefined
+    number = polls.poll_info.poll.answers.length
+    widthStyle = "width: calc(75%/" + number + ");"
+    marginStyle = "margin-left: calc(25%/" + (number*2) + ");" + "margin-right: calc(25%/" + (number*2) + ");"
+    buttonStyle = widthStyle + marginStyle
+    for answer in polls.poll_info.poll.answers
+      answer.style = buttonStyle
     return polls.poll_info.poll.answers
 
 @getSortedUserList = (users) ->
   if users?.length > 1
     users.sort (a, b) ->
       if a.user.role is "MODERATOR" and b.user.role is "MODERATOR"
-        if a.user.raise_hand and b.user.raise_hand
-          aTime = a.user.raise_hand.getTime()
-          bTime = b.user.raise_hand.getTime()
+        if a.user.set_emoji_time and b.user.set_emoji_time
+          aTime = a.user.set_emoji_time.getTime()
+          bTime = b.user.set_emoji_time.getTime()
           if aTime < bTime
             return -1
           else
             return 1
-        else if a.user.raise_hand
+        else if a.user.set_emoji_time
           return -1
-        else if b.user.raise_hand
+        else if b.user.set_emoji_time
           return 1
       else if a.user.role is "MODERATOR"
         return -1
       else if b.user.role is "MODERATOR"
         return 1
-      else if a.user.raise_hand and b.user.raise_hand
-        aTime = a.user.raise_hand.getTime()
-        bTime = b.user.raise_hand.getTime()
+      else if a.user.set_emoji_time and b.user.set_emoji_time
+        aTime = a.user.set_emoji_time.getTime()
+        bTime = b.user.set_emoji_time.getTime()
         if aTime < bTime
           return -1
-        else 
+        else
           return 1
-      else if a.user.raise_hand
+      else if a.user.set_emoji_time
         return -1
-      else if b.user.raise_hand
+      else if b.user.set_emoji_time
         return 1
       else if not a.user.phone_user and not b.user.phone_user
 
@@ -221,8 +230,8 @@ Handlebars.registerHelper "getPollQuestions", ->
       else if not b.user.phone_user
         return 1
 
-      #Check name (case-insensitive) in the event of a tie up above. If the name 
-      #is the same then use userID which should be unique making the order the same 
+      #Check name (case-insensitive) in the event of a tie up above. If the name
+      #is the same then use userID which should be unique making the order the same
       #across all clients.
 
       if a.user._sort_name < b.user._sort_name
@@ -251,13 +260,14 @@ Handlebars.registerHelper "getPollQuestions", ->
   # Meteor.call('userToggleCam', context._id, !context.sharingVideo)
 
 @toggleChatbar = ->
-  if getInSession("display_chatbar") and isOnlyOnePanelOpen()
-    setInSession "display_usersList", true
-    setInSession "display_whiteboard", true
-    setInSession "display_chatbar", true
+  setInSession "display_chatbar", !getInSession "display_chatbar"
+  if !getInSession("display_chatbar")
+    $('#whiteboard').css('width', '100%')
+    $('#whiteboard .ui-resizable-handle').css('display', 'none')
   else
-    setInSession "display_chatbar", !getInSession "display_chatbar"
-  setTimeout(redrawWhiteboard, 0)
+    $('#whiteboard').css('width', '')
+    $('#whiteboard .ui-resizable-handle').css('display', '')
+  setTimeout(scaleWhiteboard, 0)
 
 @toggleMic = (event) ->
   BBB.toggleMyMic()
@@ -267,7 +277,7 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('.sl-left-drawer').removeClass('hiddenInLandscape')
   else
     $('.sl-left-drawer').addClass('hiddenInLandscape')
-  setTimeout(redrawWhiteboard, 0)
+  setTimeout(scaleWhiteboard, 0)
 
 @populateNotifications = (msg) ->
   myUserId = getInSession "userId"
@@ -354,13 +364,13 @@ Handlebars.registerHelper "getPollQuestions", ->
       $('#whiteboard').unbind('webkitfullscreenchange')
       $('.fullscreenButton').removeClass('iconChrome')
       removeFullscreenStyles()
-      redrawWhiteboard()
+      scaleWhiteboard()
   $(document).bind 'mozfullscreenchange', (e) -> # target is always the document in Firefox
     if document.mozFullScreenElement is null
       $(document).unbind('mozfullscreenchange')
       $('.fullscreenButton').removeClass('iconFirefox')
       removeFullscreenStyles()
-      redrawWhiteboard()
+      scaleWhiteboard()
 
 @closeMenus = ->
   if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
@@ -536,6 +546,31 @@ Handlebars.registerHelper "getPollQuestions", ->
   window.matchMedia('(orientation: landscape)').matches and      # browser is landscape
   window.matchMedia('(min-device-aspect-ratio: 1/1)').matches    # device is landscape
 
+@isLandscapePhone = () ->
+  # @phone-landscape media query:
+  window.matchMedia('(orientation: landscape)').matches and
+  window.matchMedia('(min-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 959px)').matches
+
+@isPortraitPhone = () ->
+  # @phone-portrait media query:
+  (window.matchMedia('(orientation: portrait)').matches and
+  window.matchMedia('(max-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 480px)').matches) or
+  # @phone-portrait-with-keyboard media query:
+  (window.matchMedia('(orientation: landscape)').matches and
+  window.matchMedia('(max-device-aspect-ratio: 1/1)').matches and
+  window.matchMedia('(max-device-width: 480px)').matches)
+
+@isPhone = () ->
+  isLandscapePhone() or isPortraitPhone()
+
+# The webpage orientation is now landscape
+@orientationBecameLandscape = ->
+  adjustChatInputHeight()
+# The webpage orientation is now portrait
+@orientationBecamePortrait = ->
+  adjustChatInputHeight()
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
   #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1
@@ -556,19 +591,24 @@ Handlebars.registerHelper "getPollQuestions", ->
 
 # changes the height of the chat input area if needed (based on the textarea content)
 @adjustChatInputHeight = () ->
-  $('#newMessageInput').css('height', 'auto')
-  projectedHeight = $('#newMessageInput')[0].scrollHeight + 23
-  if projectedHeight isnt $('.panel-footer').height() and
-  projectedHeight >= getInSession('chatInputMinHeight')
-    $('#newMessageInput').css('overflow', 'hidden') # prevents a scroll bar
+  if isLandscape()
+    $('#newMessageInput').css('height', 'auto')
+    projectedHeight = $('#newMessageInput')[0].scrollHeight + 23
+    if projectedHeight isnt $('.panel-footer').height() and
+    projectedHeight >= getInSession('chatInputMinHeight')
+      $('#newMessageInput').css('overflow', 'hidden') # prevents a scroll bar
 
-    # resizes the chat input area
-    $('.panel-footer').css('top', - (projectedHeight - 70) + 'px')
-    $('.panel-footer').css('height', projectedHeight + 'px')
+      # resizes the chat input area
+      $('.panel-footer').css('top', - (projectedHeight - 70) + 'px')
+      $('.panel-footer').css('height', projectedHeight + 'px')
 
-    $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
+      $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
 
-    # resizes the chat messages container
-    $('#chatbody').height($('#chat').height() - projectedHeight - 45)
-    $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
-  $('#newMessageInput').css('height', '')
+      # resizes the chat messages container
+      $('#chatbody').height($('#chat').height() - projectedHeight - 45)
+      $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+    $('#newMessageInput').css('height', '')
+  else if isPortrait()
+    $('.panel-footer').attr('style','')
+    $('#chatbody').attr('style','')
+    $('#newMessageInput').attr('style','')

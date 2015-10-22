@@ -65,7 +65,6 @@ class PresentationService {
 		log.debug "directory ${directory.absolutePath}"
 		if( directory.exists() ){
 			directory.eachFile(){ file->
-				System.out.println(file.name)
 				if( file.isDirectory() )
 					presentationsList.add( file.name )
 			}
@@ -103,7 +102,6 @@ class PresentationService {
 	}
 
 	def showThumbnail = {conf, room, presentationName, thumb ->
-		println "Show thumbnails request for $presentationName $thumb"
 		def thumbFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
 					"thumbnails" + File.separatorChar + "thumb-${thumb}.png"
 		log.debug "showing $thumbFile"
@@ -112,7 +110,6 @@ class PresentationService {
 	}
 
 	def showTextfile = {conf, room, presentationName, textfile ->
-		println "Show textfiles request for $presentationName $textfile"
 		def txt = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
 					"textfiles" + File.separatorChar + "slide-${textfile}.txt"
 		log.debug "showing $txt"

@@ -90,8 +90,6 @@ package org.bigbluebutton.main.model.modules
       
     private function resultListener(success:Boolean, result:Object):void {
       if (success) {
-        LOGGER.debug("Saving meeting and user info {0}", [jsonXify(result)]); 
-        
         meetingInfo.username = result.username;
         meetingInfo.userId = result.userId;
         meetingInfo.meetingName = result.meetingName;
@@ -107,19 +105,16 @@ package org.bigbluebutton.main.model.modules
     }
     
     private function doPortTesting():void {
-      LOGGER.debug("Sending TEST_RTMP Event");
       var e:PortTestEvent = new PortTestEvent(PortTestEvent.TEST_RTMP);
       dispatcher.dispatchEvent(e);       
     }
     
     private function timerHandler(e:TimerEvent):void{
-	  LOGGER.debug("Sending PORT_TEST_UPDATE Event");
       var evt:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_UPDATE);
       dispatcher.dispatchEvent(evt);
     }
     
     public function sendTunnelingFailedEvent(server: String, app: String):void{
-	  LOGGER.debug("Sending TunnelingFailed Event");
       var logData:Object = new Object();
       logData.server = server;
       logData.app = app;
@@ -134,7 +129,6 @@ package org.bigbluebutton.main.model.modules
     }
     
     public function sendPortTestSuccessEvent(port:String, host:String, protocol:String, app:String):void{
-	  LOGGER.debug("Sending PORT_TEST_SUCCESS Event");
       var logData:Object = new Object();
       logData.port = port;
       logData.server = host;
@@ -144,7 +138,6 @@ package org.bigbluebutton.main.model.modules
       logData.username = meetingInfo.username;
       logData.meetingName = meetingInfo.meetingName;
       logData.meetingId = meetingInfo.meetingId;
-	  LOGGER.debug("Successfully connected on test connection. {0}", [jsonXify(logData)]);
       JSLog.debug("Successfully connected on test connection.", logData);
       
       var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
@@ -157,7 +150,6 @@ package org.bigbluebutton.main.model.modules
     }
     
     public function sendPortTestFailedEvent(port:String, host:String, protocol:String, app:String):void{
-      LOGGER.debug("Sending PORT_TEST_FAILED Event");
       var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
       portFailEvent.port = port;
       portFailEvent.hostname = host;

@@ -32,8 +32,7 @@ case class RegisterUser(meetingID: String, userID: String, name: String, role: R
 case class UserJoining(meetingID: String, userID: String, authToken: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
-case class UserRaiseHand(meetingID: String, userId: String) extends InMessage
-case class UserLowerHand(meetingID: String, userId: String, loweredBy: String) extends InMessage
+case class UserEmojiStatus(meetingID: String, userId: String, emojiStatus: String) extends InMessage
 case class EjectUserFromMeeting(meetingID: String, userId: String, ejectedBy: String) extends InMessage
 case class UserShareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class UserUnshareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
@@ -100,8 +99,8 @@ case class LockUserRequest(meetingID: String, requesterID: String, userID: Strin
 case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedBy: String) extends InMessage
 case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
   callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
-case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String,
-  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean)
+case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
+  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
 case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String)
 case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean)
 case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean)

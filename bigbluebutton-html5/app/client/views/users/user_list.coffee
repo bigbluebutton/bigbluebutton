@@ -12,7 +12,11 @@ Template.usersList.rendered = ->
     minWidth: 200
     resize: () ->
       adjustChatInputHeight()
+
   Tracker.autorun (comp) ->
     setInSession 'userListRenderedTime', TimeSync.serverTime()
     if getInSession('userListRenderedTime') isnt undefined
       comp.stop()
+
+  if isPhone()
+    $('.sl-left-drawer').addClass('hiddenInLandscape')

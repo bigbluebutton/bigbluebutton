@@ -36,7 +36,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 	
 	public void processDocument(UploadedPresentation pres) {
 		SupportedDocumentFilter sdf = new SupportedDocumentFilter(messagingService);
-		log.info("Start presentation conversion. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], timestamp=[" + System.currentTimeMillis() + "]");
+		log.info("Start presentation conversion. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " name=" + pres.getName());
 
 		if (sdf.isSupported(pres)) {
 			String fileType = pres.getFileType();
@@ -61,7 +61,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 			// TODO: error log
 		}
 		
-		log.info("End presentation conversion. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], timestamp=[" + System.currentTimeMillis() + "]");
+		log.info("End presentation conversion. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " name=" + pres.getName());
 
 	}
 	

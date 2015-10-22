@@ -26,13 +26,13 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     backgroundColor = "#ffffff"
     verticalPadding = 0
     horizontalPadding = 0
-    calcFontSize = 20
+    calcFontSize = 30
     votesTotal = 0
     maxNumVotes = 0
     textArray = []
 
     #creating an array of text objects for the labels, percentages and number inside line bars
-    if startingData.result? and startingData.result.length > 1
+    if startingData.result?
       #counting the total number of votes and finding the biggest number of votes
       for i in [0..startingData.result.length-1]
         votesTotal += startingData.result[i].num_votes
@@ -63,14 +63,28 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     width = (x2 * @gw + @xOffset) - x
     height = (y2 * @gh + @yOffset) - y
 
-    #creating a base rectangle
+    #creating a base outer rectangle
     @obj = @paper.rect(x, y, width, height, 0)
-    @obj.attr "stroke", "#333333"
     @obj.attr "fill", backgroundColor
-    @obj.attr "stroke-width", zoomStroke(formatThickness(thickness))
+    @obj.attr "stroke-width", 0
     @definition =
       shape: "poll_result"
       data: [x1, y1, x2, y2, @obj.attrs["stroke"], @obj.attrs["stroke-width"], @obj.attrs["fill"]]
+
+    #recalculated coordinates, width and height for the inner rectangle
+    width = width*0.95
+    height = height - width*0.05
+    x = x+width*0.025
+    y = y+width*0.025
+
+    #creating a base inner rectangle
+    @obj1 = @paper.rect(x, y, width, height, 0)
+    @obj1.attr "stroke", "#333333"
+    @obj1.attr "fill", backgroundColor
+    @obj1.attr "stroke-width", zoomStroke(formatThickness(thickness))
+    @definition =
+      shape: "poll_result"
+      data: [x1, y1, x2, y2, @obj.attrs["stroke"], @obj1.attrs["stroke-width"], @obj1.attrs["fill"]]
 
     #Calculating a proper font-size, and the maximum widht and height of the objects
     calculatedData = calculateFontAndWidth(textArray, calcFontSize, width, height, x, y)
@@ -137,7 +151,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
     #Initial coordinates of the percentage column
     yRight = y+verticalPadding+barHeight/2 - magicNumber
     xRight = x + horizontalPadding*3 + maxLeftWidth + maxRightWidth + maxBarWidth + 1
-    objects = [@obj, @obj2, @obj3]
+    objects = [@obj, @obj1, @obj2, @obj3]
 
     for i in [0..textArray.length-1]
       #Adding an element to the left column
@@ -236,7 +250,7 @@ calculateFontAndWidth = (textArray, calcFontSize, width, height, x, y) ->
           test = getRenderedTextSize(textArray[i][j], calcFontSize)
           spanWidth = test[0]
           spanHeight = test[1]
-          if spanWidth > 40 or spanWidth > maxLineWidth or spanHeight > maxLineHeight
+          if spanWidth > maxLineWidth or spanHeight > maxLineHeight
             calcFontSize -= 1
             flag = true
     calculatedData.push calcFontSize

@@ -105,7 +105,7 @@ dependencies {
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'org.apache.commons:commons-lang3:3.2'
 
-  compile 'org.bigbluebutton:bbb-common-message:0.0.14-SNAPSHOT'
+  compile 'org.bigbluebutton:bbb-common-message:0.0.16-SNAPSHOT'
 }
 
 test {

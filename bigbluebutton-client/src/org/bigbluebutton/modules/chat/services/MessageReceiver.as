@@ -70,11 +70,11 @@ package org.bigbluebutton.modules.chat.services
         handleChatReceivePublicMessageCommand(chats[i], true);
       }
 
-      if (!welcomed) {
+//      if (!welcomed) {
         var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
         dispatcher.dispatchEvent(pcEvent);
-        welcomed = true;
-      }
+//        welcomed = true;
+//      }
     }
         
     private function handleChatReceivePublicMessageCommand(message:Object, history:Boolean = false):void {

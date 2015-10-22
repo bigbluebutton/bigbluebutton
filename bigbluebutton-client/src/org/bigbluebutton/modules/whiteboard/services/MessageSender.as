@@ -37,7 +37,6 @@ package org.bigbluebutton.modules.whiteboard.services
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.toggleGrid", 
 				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status); 
@@ -55,7 +54,6 @@ package org.bigbluebutton.modules.whiteboard.services
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.toggleGrid", 
 				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status); 
@@ -68,14 +66,12 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function undoGraphic(wbId:String):void{
-			LOGGER.debug("WB::MessageSender: Sending [whiteboard.undo] to server.");
 	        var msg:Object = new Object();
 	        msg["whiteboardId"] = wbId;
 
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.undo", 
 				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status); 
@@ -89,14 +85,12 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function clearBoard(wbId:String):void{
-			LOGGER.debug("WB::MessageSender: Sending [whiteboard.clear] to server.");
 	        var msg:Object = new Object();
 	        msg["whiteboardId"] = wbId;
       
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.clear", 
 				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status); 
@@ -106,14 +100,12 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 
     public function requestAnnotationHistory(wbId:String):void{
-		LOGGER.debug("WB::MessageSender: Sending [whiteboard.requestAnnotationHistory] to server.");
             var msg:Object = new Object();
             msg["whiteboardId"] = wbId;
             
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.requestAnnotationHistory", 
                 function(result:String):void { // On successful result
-					LOGGER.debug(result); 
                 },	                   
                 function(status:String):void { // status - On error occurred
 					LOGGER.error(status); 
@@ -128,7 +120,6 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
-			LOGGER.debug("WB::MessageSender: Sending [whiteboard.sendAnnotation] (TEXT) to server.");
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.sendAnnotation",               
                 function(result:String):void { // On successful result
@@ -147,7 +138,6 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void {
-			LOGGER.debug("WB::MessageSender: Sending [whiteboard.sendAnnotation] (SHAPE) to server.");
             			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.sendAnnotation",               
@@ -162,11 +152,9 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		public function checkIsWhiteboardOn():void {
-			LOGGER.debug("WB::MessageSender: Sending [whiteboard.isWhiteboardEnabled] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.isWhiteboardEnabled", 
 				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
 					LOGGER.error(status); 

@@ -40,18 +40,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.api.JSAPI;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
 
 			private var phoneOptions:PhoneOptions = new PhoneOptions;
+			private var browserInfo:Array;
 			
 			private function init():void {
+				browserInfo = JSAPI.getInstance().getBrowserInfo();
+
 				var conference:Conference = UserManager.getInstance().getConference();
 				
 				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
@@ -72,8 +77,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vboxListen.percentWidth = 50;
 				}
 				
-				// If Puffin browser is deteted
-				if (ExternalInterface.call("determineBrowser")[0] == "Puffin") {
+				// If Puffin browser is deteted and version is less than 4.6
+				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
 					vruleListen.visible = vruleListen.includeInLayout = vboxMic.visible = vboxMic.includeInLayout = false;
 					vboxListen.percentWidth = 100;
 					if (!phoneOptions.showPhoneOption) {
@@ -85,9 +90,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onMicClick():void {
 				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
-				var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-				command.mic = true;
-				dispatcher.dispatchEvent(command);
+				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) >= "4.6") {
+					dispatcher.dispatchEvent(new UseFlashModeCommand());	
+				}
+				else {
+					var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+					command.mic = true;
+					dispatcher.dispatchEvent(command);
+				}
 				
 				PopUpManager.removePopUp(this);
 			}

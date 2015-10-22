@@ -80,10 +80,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleChangeUserStatus(msg)
     case msg: EjectUserFromMeeting =>
       handleEjectUserFromMeeting(msg)
-    case msg: UserRaiseHand =>
-      handleUserRaiseHand(msg)
-    case msg: UserLowerHand =>
-      handleUserLowerHand(msg)
+    case msg: UserEmojiStatus =>
+      handleUserEmojiStatus(msg)
     case msg: UserShareWebcam =>
       handleUserShareWebcam(msg)
     case msg: UserUnshareWebcam =>
@@ -213,7 +211,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
   def startRecordingIfAutoStart() {
     if (mProps.recorded && !meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 1) {
-      log.info("Auto start recording for meeting=[" + mProps.meetingID + "]")
+      log.info("Auto start recording. meetingId={}", mProps.meetingID)
       meetingModel.recordingStarted()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
     }
@@ -221,7 +219,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
   def stopAutoStartedRecording() {
     if (mProps.recorded && meetingModel.isRecording() && mProps.autoStartRecording && usersModel.numWebUsers == 0) {
-      log.info("Last web user left. Auto stopping recording for meeting=[{}", mProps.meetingID)
+      log.info("Last web user left. Auto stopping recording. meetingId={}", mProps.meetingID)
       meetingModel.recordingStopped()
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, "system", meetingModel.isRecording()))
     }
@@ -238,7 +236,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     // println("BACK TIMER")
     if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
-        log.info("MonitorNumberOfWebUsers empty for meeting [" + mProps.meetingID + "]. Ejecting all users from voice.")
+        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
 
       }
@@ -249,7 +247,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     //    println("(" + meetingModel.startedOn + "+" + mProps.duration + ") - " + now + " = " + ((meetingModel.startedOn + mProps.duration) - now) + " < 15")
 
     if (mProps.duration > 0 && (((meetingModel.startedOn + mProps.duration) - now) < 15)) {
-      log.warning("MEETING WILL END IN 15 MINUTES!!!!")
+      //  log.warning("MEETING WILL END IN 15 MINUTES!!!!")
     }
   }
 
@@ -279,14 +277,14 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   private def handleSetRecordingStatus(msg: SetRecordingStatus) {
-    log.debug("Change recording status for meeting [" + mProps.meetingID + "], recording=[" + msg.recording + "]")
+    log.info("Change recording status. meetingId=" + mProps.meetingID + " recording=" + msg.recording)
     if (mProps.allowStartStopRecording && meetingModel.isRecording() != msg.recording) {
       if (msg.recording) {
         meetingModel.recordingStarted()
       } else {
         meetingModel.recordingStopped()
       }
-      log.debug("Sending recording status for meeting [" + mProps.meetingID + "], recording=[" + msg.recording + "]")
+
       outGW.send(new RecordingStatusChanged(mProps.meetingID, mProps.recorded, msg.userId, msg.recording))
     }
   }

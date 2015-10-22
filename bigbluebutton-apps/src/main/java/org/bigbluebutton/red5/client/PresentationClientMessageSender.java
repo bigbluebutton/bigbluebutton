@@ -205,7 +205,24 @@ public class PresentationClientMessageSender {
 	}
 
 	private void processPresentationConversionError(String json) {
-
+		PresentationConversionErrorMessage msg = PresentationConversionErrorMessage.fromJson(json);
+		if (msg != null) {
+			Map<String, Object> args = new HashMap<String, Object>();
+			args.put("meetingID", msg.meetingId);
+			args.put("code", msg.code);
+			args.put("presentationID", msg.presentationId);
+			args.put("presentationName", msg.presentationName);
+			args.put("messageKey", msg.messageKey);
+			args.put("numberOfPages", msg.numPages);
+			args.put("maxNumberPages", msg.maxNumPages);
+			
+			Map<String, Object> message = new HashMap<String, Object>();
+			Gson gson = new Gson();
+			message.put("msg", gson.toJson(args));
+			
+			BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "pageCountExceededUpdateMessageCallback", message);
+			service.sendMessage(m);
+		}
 	}
 
 	private void processPresentationCursorUpdate(String json) {

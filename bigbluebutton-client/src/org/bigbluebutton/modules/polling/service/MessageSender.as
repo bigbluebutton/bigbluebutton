@@ -49,12 +49,9 @@ package org.bigbluebutton.modules.polling.service
 		map["header"] = header;
 		map["payload"] = payload;
 		
-		LOGGER.debug("startCustomPoll [{0}]", [jsonXify(map)]);
-		
 		var _nc:ConnectionManager = BBB.initConnectionManager();
 		_nc.sendMessage("poll.sendPollingMessage", 
 			function(result:String):void { 
-				LOGGER.debug(result); 
 			},	                   
 			function(status:String):void {
 				LOGGER.error(status); 
@@ -69,12 +66,9 @@ package org.bigbluebutton.modules.polling.service
       map["pollId"] = pollId;
       map["pollType"] = pollType;
       
-      LOGGER.debug("startPoll [{0}]", [jsonXify(map)]);
-      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.startPoll", 
         function(result:String):void { 
-			LOGGER.debug(result); 
         },	                   
         function(status:String):void {
 			LOGGER.error(status); 
@@ -88,12 +82,9 @@ package org.bigbluebutton.modules.polling.service
       var map:Object = new Object();
       map["pollId"] = pollId;
       
-      LOGGER.debug("stopPoll [{0}]", [jsonXify(map)]);
-      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.stopPoll", 
         function(result:String):void { 
-			LOGGER.debug(result); 
         },	                   
         function(status:String):void {
 			LOGGER.error(status); 
@@ -108,12 +99,9 @@ package org.bigbluebutton.modules.polling.service
       map["pollId"] = pollId;
       map["answerId"] = answerId;
       
-      LOGGER.debug("votePoll [{0}]", [jsonXify(map)]);
-      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.votePoll", 
         function(result:String):void { 
-			LOGGER.debug(result); 
         },	                   
         function(status:String):void {
 			LOGGER.error(status); 
@@ -127,12 +115,9 @@ package org.bigbluebutton.modules.polling.service
       map["pollId"] = pollId;
       map["show"] = show;
       
-	  LOGGER.debug("showPollResult [{0}]", [jsonXify(map)]);
-      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.showPollResult", 
         function(result:String):void { 
-			LOGGER.debug(result); 
         },	                   
         function(status:String):void {
 			LOGGER.error(status); 

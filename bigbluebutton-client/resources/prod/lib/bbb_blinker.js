@@ -116,5 +116,5 @@ function determineBrowser()
 		majorVersion = parseInt(navigator.appVersion,10);
 	}
 	
-	return [browserName, majorVersion];
+	return [browserName, majorVersion, fullVersion];
 }

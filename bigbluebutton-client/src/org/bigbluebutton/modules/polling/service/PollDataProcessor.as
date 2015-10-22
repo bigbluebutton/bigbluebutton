@@ -33,8 +33,6 @@ package org.bigbluebutton.modules.polling.service
 	}
 	
     public function handlePollStartedMesage(msg:Object):void {
-      LOGGER.debug("*** Poll started {0} **** \n", [msg.msg]);
-      
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;
@@ -57,13 +55,11 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollStoppedMesage(msg:Object):void {
-      LOGGER.debug("*** Poll stopped {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       dispatcher.dispatchEvent(new PollStoppedEvent());
     }
     
     public function handlePollShowResultMessage(msg:Object):void {
-      LOGGER.debug("*** Poll show result {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;
@@ -79,7 +75,6 @@ package org.bigbluebutton.modules.polling.service
           for (var j:int = 0; j < answers.length; j++) {
             var a:Object = answers[j];
             ans.push(new SimpleAnswerResult(a.id as Number, a.key, a.num_votes as Number));
-            accessibleAnswers += ResourceUtil.getInstance().getString("bbb.polling.results.accessible.answer", [ResourceUtil.getInstance().getString("bbb.polling.answer."+a.key), a.num_votes]) + "<br />";
           }
           
 		  var numRespondents:Number = poll.num_respondents;
@@ -88,6 +83,15 @@ package org.bigbluebutton.modules.polling.service
           dispatcher.dispatchEvent(new PollShowResultEvent(new SimplePollResult(pollId, ans, numRespondents, numResponders)));
           
           if (Accessibility.active) {
+            for (var k:int = 0; k < answers.length; k++) {
+              var localizedKey: String = ResourceUtil.getInstance().getString('bbb.polling.answer.'+answers[k].key);
+              
+              if (localizedKey == null || localizedKey == "" || localizedKey == "undefined") {
+                localizedKey = answers[k].key;
+              } 
+              accessibleAnswers += ResourceUtil.getInstance().getString("bbb.polling.results.accessible.answer", [localizedKey, answers[k].num_votes]) + "<br />";
+            }
+            
             var pollResultMessage:ChatMessageVO = new ChatMessageVO();
             pollResultMessage.chatType = ChatConstants.PUBLIC_CHAT;
             pollResultMessage.fromUserID = ResourceUtil.getInstance().getString("bbb.chat.chatMessage.systemMessage");
@@ -109,7 +113,6 @@ package org.bigbluebutton.modules.polling.service
     }
     
     public function handlePollUserVotedMessage(msg:Object):void {
-      LOGGER.debug("*** Poll user voted {0} **** \n", [msg.msg]);
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("poll")) {
         var poll:Object = map.poll;

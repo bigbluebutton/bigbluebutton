@@ -31,7 +31,6 @@ package org.bigbluebutton.main.model.users
 	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
@@ -68,7 +67,10 @@ package org.bigbluebutton.main.model.users
     
     private var authenticated: Boolean = false;
     private var reconnecting:Boolean = false;
-    
+	private var numNetworkChangeCount:int = 0;
+	
+		private var _validateTokenTimer:Timer = null;	
+	
 		public function NetConnectionDelegate():void
 		{
 			dispatcher = new Dispatcher();
@@ -115,7 +117,6 @@ package org.bigbluebutton.main.model.users
     }   
         
     public function onMessageFromServer(messageName:String, msg:Object):void {
-      LOGGER.debug("Got message from server [{0}] user=[{1}]", [messageName, UsersUtil.getMyUsername()]); 
       if (!authenticated && (messageName == "validateAuthTokenReply")) {
         handleValidateAuthTokenReply(msg)
       } else if (messageName == "validateAuthTokenTimedOut") {
@@ -126,17 +127,29 @@ package org.bigbluebutton.main.model.users
         LOGGER.debug("Ignoring message=[{0}] as our token hasn't been validated yet.", [messageName]);
       }     
     }
-		
+	
+	private function validataTokenTimerHandler(event:TimerEvent):void {
+		var logData:Object = new Object();
+		logData.user = UsersUtil.getUserData();
+		JSLog.critical("No response for validate token request.", logData);
+		logData.message = "No response for validate token request.";
+		LOGGER.info(JSON.stringify(logData));
+	}
+	
     private function validateToken():void {
       var message:Object = new Object();
       message["userId"] = _conferenceParameters.internalUserID;
       message["authToken"] = _conferenceParameters.authToken;
       
+	  _validateTokenTimer = new Timer(7000, 1);
+	  _validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
+	  _validateTokenTimer.start();
+	  
       sendMessage(
         "validateToken",// Remote function name
         // result - On successful result
         function(result:Object):void { 
-          LOGGER.debug("validating token for [{0}]", [_conferenceParameters.internalUserID]); 
+          
         },	
         // status - On error occurred
         function(status:Object):void {
@@ -148,9 +161,17 @@ package org.bigbluebutton.main.model.users
         message
       ); //_netConnection.call      
     }
-      
-    private function handleValidateAuthTokenTimedOut(msg: Object):void {
-      LOGGER.debug("*** handleValidateAuthTokenTimedOut {0} **** \n", [msg.msg]);      
+    
+	private function stopValidateTokenTimer():void {
+		if (_validateTokenTimer != null && _validateTokenTimer.running) {
+			_validateTokenTimer.stop();
+			_validateTokenTimer = null;
+		}		
+	}
+	
+    private function handleValidateAuthTokenTimedOut(msg: Object):void {  
+      stopValidateTokenTimer();
+	  
       var map:Object = JSON.parse(msg.msg);  
       var tokenValid: Boolean = map.valid as Boolean;
       var userId: String = map.userId as String;
@@ -159,46 +180,46 @@ package org.bigbluebutton.main.model.users
       logData.user = UsersUtil.getUserData();
       JSLog.critical("Validate auth token timed out.", logData);
       
+	  logData.message = "Validate auth token timed out.";
+	  LOGGER.info(JSON.stringify(logData));
+	  
       if (tokenValid) {
         authenticated = true;
-        LOGGER.debug("*** handleValidateAuthTokenTimedOut. valid=[{0}] **** \n", [tokenValid]);
       } else {
-        LOGGER.debug("*** handleValidateAuthTokenTimedOut. valid=[{0}] **** \n", [tokenValid]);
         dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
       }
-      if (reconnecting) {
-        onReconnect();
-        reconnecting = false;
-      }
+	  if (reconnecting) {
+		  onReconnect();
+		  reconnecting = false;
+	  }
     }
     
-    private function handleValidateAuthTokenReply(msg: Object):void {
-      LOGGER.debug("*** handleValidateAuthTokenReply {0} **** \n", [msg.msg]);      
+    private function handleValidateAuthTokenReply(msg: Object):void {  
+      stopValidateTokenTimer();
+		
       var map:Object = JSON.parse(msg.msg);  
       var tokenValid: Boolean = map.valid as Boolean;
       var userId: String = map.userId as String;
       
       if (tokenValid) {
         authenticated = true;
-        LOGGER.debug("*** handleValidateAuthTokenReply. valid=[{0}] **** \n", [tokenValid]);
       } else {
-        LOGGER.debug("*** handleValidateAuthTokenReply. valid=[{0}] **** \n", [tokenValid]);
         dispatcher.dispatchEvent(new InvalidAuthTokenEvent());
       }
-      if (reconnecting) {
-        onReconnect();
-        reconnecting = false;
-      }
+	  if (reconnecting) {
+		  onReconnect();
+		  reconnecting = false;
+	  }
     }
 
-    private function onReconnect():void {
-      if (authenticated) {
-        onReconnectSuccess();
-      } else {
-        onReconnectFailed();
-      }
-    }
-
+	private function onReconnect():void {
+		if (authenticated) {
+			onReconnectSuccess();
+		} else {
+			onReconnectFailed();
+		}
+	}
+	
     private function onReconnectSuccess():void {
       var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
       attemptSucceeded.payload.type = ReconnectionManager.BIGBLUEBUTTON_CONNECTION;
@@ -217,7 +238,6 @@ package org.bigbluebutton.main.model.users
     }
     
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
-      LOGGER.debug("SENDING [{0}]", [service]);
 			var responder:Responder =	new Responder(                    
 					function(result:Object):void { // On successful result
 						onSuccess("Successfully sent [" + service + "]."); 
@@ -253,8 +273,7 @@ package org.bigbluebutton.main.model.users
             
 			try {	
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
-				
-				LOGGER.debug("::Connecting to {0} [{1}]", [uri, jsonXify(_conferenceParameters)]);	
+
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
@@ -306,9 +325,9 @@ package org.bigbluebutton.main.model.users
       
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
-					LOGGER.debug("Connection to viewers application succeeded.");
+					numNetworkChangeCount = 0;
           JSLog.debug("Successfully connected to BBB App.", logData);
-          
+
           validateToken();
 			
 					break;
@@ -327,7 +346,8 @@ package org.bigbluebutton.main.model.users
 					break;
 					
 				case "NetConnection.Connect.Closed":	
-          LOGGER.debug("Connection to viewers application closed");
+					logData.message = "NetConnection.Connect.Closed on bbb-apps";
+					LOGGER.info(JSON.stringify(logData));
           sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
 											
 					break;
@@ -348,8 +368,12 @@ package org.bigbluebutton.main.model.users
 					break;
 				
 				case "NetConnection.Connect.NetworkChange":
-          JSLog.warn("Detected network change to BBB App", logData);
-          LOGGER.debug("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+					numNetworkChangeCount++;
+					if (numNetworkChangeCount % 20 == 0) {
+						logData.message = "Detected network change on bbb-apps";
+						logData.numNetworkChangeCount = numNetworkChangeCount;
+						LOGGER.info(JSON.stringify(logData));
+					}
 					break;
 					
 				default :

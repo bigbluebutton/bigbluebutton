@@ -27,12 +27,25 @@ public class MessageSender {
 	
 	public void stop() {
 		sendMessage = false;
+		redisPool.destroy();
 	}
 	
 	public void start() {
+		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+		config.setMaxTotal(32);
+		config.setMaxIdle(8);
+		config.setMinIdle(1);
+		config.setTestOnBorrow(true);
+		config.setTestOnReturn(true);
+		config.setTestWhileIdle(true);
+		config.setNumTestsPerEvictionRun(12);
+		config.setMaxWaitMillis(5000);
+		config.setTimeBetweenEvictionRunsMillis(60000);
+		config.setBlockWhenExhausted(true);
+		
 		// Set the name of this client to be able to distinguish when doing
 		// CLIENT LIST on redis-cli
-		redisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, Protocol.DEFAULT_TIMEOUT, null,
+		redisPool = new JedisPool(config, host, port, Protocol.DEFAULT_TIMEOUT, null,
 		        Protocol.DEFAULT_DATABASE, "BbbRed5AppsPub");
 		
 		log.info("Redis message publisher starting!");

@@ -63,18 +63,18 @@ Meteor.methods
     if isAllowedTo(action(), meetingId, requesterUserId, requesterToken)
       message =
         payload:
-          userid: toMuteUserId
+          user_id: toMuteUserId
           meeting_id: meetingId
           mute: true
           requester_id: requesterUserId
         header:
           timestamp: new Date().getTime()
-          name: "mute_user_request"
+          name: "mute_user_request_message"
           version: "0.0.1"
 
       Meteor.log.info "publishing a user mute request for #{toMuteUserId}"
 
-      publish Meteor.config.redis.channels.toBBBApps.voice, message
+      publish Meteor.config.redis.channels.toBBBApps.users, message
       updateVoiceUser meetingId, {'web_userid': toMuteUserId, talking:false, muted:true}
     return
 
@@ -92,69 +92,31 @@ Meteor.methods
     if isAllowedTo(action(), meetingId, requesterUserId, requesterToken)
       message =
         payload:
-          userid: toMuteUserId
+          user_id: toMuteUserId
           meeting_id: meetingId
           mute: false
           requester_id: requesterUserId
         header:
           timestamp: new Date().getTime()
-          name: "mute_user_request"
+          name: "mute_user_request_message"
           version: "0.0.1"
 
       Meteor.log.info "publishing a user unmute request for #{toMuteUserId}"
 
-      publish Meteor.config.redis.channels.toBBBApps.voice, message
+      publish Meteor.config.redis.channels.toBBBApps.users, message
       updateVoiceUser meetingId, {'web_userid': toMuteUserId, talking:false, muted:false}
     return
 
-  # meetingId: the meetingId which both users are in
-  # toLowerUserId: the userid of the user to have their hand lowered
-  # loweredByUserId: userId of person lowering
-  # loweredByToken: the authToken of the requestor
-  userLowerHand: (meetingId, toLowerUserId, loweredByUserId, loweredByToken) ->
-    action = ->
-      if toLowerUserId is loweredByUserId
-        return 'lowerOwnHand'
-      else
-        return 'lowerOthersHand'
-
-    if isAllowedTo(action(), meetingId, loweredByUserId, loweredByToken)
+  userSetEmoji: (meetingId, toRaiseUserId, raisedByUserId, raisedByToken, status) ->
+    if isAllowedTo('setEmojiStatus', meetingId, raisedByUserId, raisedByToken)
       message =
         payload:
-          userid: toLowerUserId
-          meeting_id: meetingId
-          raise_hand: false
-          lowered_by: loweredByUserId
-        header:
-          timestamp: new Date().getTime()
-          name: "user_lowered_hand_message"
-          version: "0.0.1"
-
-      # publish to pubsub
-      publish Meteor.config.redis.channels.toBBBApps.users, message
-    return
-
-  # meetingId: the meetingId which both users are in
-  # toRaiseUserId: the userid of the user to have their hand lowered
-  # raisedByUserId: userId of person lowering
-  # raisedByToken: the authToken of the requestor
-  userRaiseHand: (meetingId, toRaiseUserId, raisedByUserId, raisedByToken) ->
-    action = ->
-      if toRaiseUserId is raisedByUserId
-        return 'raiseOwnHand'
-      else
-        return 'raiseOthersHand'
-
-    if isAllowedTo(action(), meetingId, raisedByUserId, raisedByToken)
-      message =
-        payload:
+          emoji_status: status
           userid: toRaiseUserId
           meeting_id: meetingId
-          raise_hand: false
-          lowered_by: raisedByUserId
         header:
           timestamp: new Date().getTime()
-          name: "user_raised_hand_message"
+          name: "user_emoji_status_message"
           version: "0.0.1"
 
       # publish to pubsub
@@ -234,7 +196,9 @@ Meteor.methods
         name: user.name
         _sort_name: user.name.toLowerCase()
         phone_user: user.phone_user
-        raise_hand: user.raise_hand
+        emoji_status: user.emoji_status
+        set_emoji_time: user.set_emoji_time
+        emoji_status: user.emoji_status
         has_stream: user.has_stream
         role: user.role
         listenOnly: user.listenOnly
@@ -292,7 +256,8 @@ Meteor.methods
         name: user.name
         _sort_name: user.name.toLowerCase()
         phone_user: user.phone_user
-        raise_hand: user.raise_hand
+        emoji_status: user.emoji_status
+        set_emoji_time: user.set_emoji_time
         has_stream: user.has_stream
         role: user.role
         listenOnly: user.listenOnly

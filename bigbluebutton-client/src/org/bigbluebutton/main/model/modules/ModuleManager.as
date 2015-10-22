@@ -97,7 +97,6 @@ package org.bigbluebutton.main.model.modules
 		private function startModule(name:String):void {
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LOGGER.debug('Starting module {0}', [name]);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
@@ -105,14 +104,11 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		private function stopModule(name:String):void {
-      		LOGGER.debug('Stopping module {0}', [name]);
       
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LOGGER.debug('Stopping {0}', [name]);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				if(bbb == null) { //Still has null object reference on logout sometimes.
-					LOGGER.debug('Module {0} was null skipping', [name]);
 					return;
 				}
 				bbb.stop();
@@ -120,15 +116,12 @@ package org.bigbluebutton.main.model.modules
 		}
 						
 		public function loadModule(name:String):void {
-			LOGGER.debug('BBBManager Loading {0}', [name]);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (!m.loaded) {
 					m.load(loadModuleResultHandler);
 				}
-			} else {
-				LOGGER.debug("{0} not found.", [name]);
-			}
+			} 
 		}
 				
 		private function loadModuleResultHandler(event:String, name:String, progress:Number=0):void {
@@ -139,13 +132,10 @@ package org.bigbluebutton.main.model.modules
 						modulesDispatcher.sendLoadProgressEvent(name, progress);
 					break;	
 					case MODULE_LOAD_READY:
-						LOGGER.debug("Module {0} loaded.", [name]);		
 						modulesDispatcher.sendModuleLoadReadyEvent(name)	
 					break;				
 				}
-			} else {
-				LOGGER.warn("{0} not found.", [name]);
-			}
+			} 
 			
 			if (allModulesLoaded()) {
 				sendAppAndLocaleVersions();
@@ -166,14 +156,10 @@ package org.bigbluebutton.main.model.modules
 		
 		public function moduleStarted(name:String, started:Boolean):void {			
 			var m:ModuleDescriptor = getModule(name);
-			if (m != null) {
-				LOGGER.debug('Setting {0} started to {1}', [name, started]);
-			}	
 		}
 		
 		public function startUserServices():void {
 			configParameters.application = configParameters.application.replace(/rtmp:/gi, _protocol + ":");
-			LOGGER.debug("**** Using {0} to connect to {1}******", [_protocol, configParameters.application]);
 			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host, _protocol.toUpperCase() == "RTMPT");
 		}
 		

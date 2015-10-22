@@ -43,7 +43,6 @@ public class GhostscriptPageExtractor implements PageExtractor {
 							+ OUTPUT_FILE + SPACE + noPdfMarkWorkaround + SPACE + presentationFile.getAbsolutePath();
 		
         log.debug(COMMAND);
-        System.out.println(COMMAND);
         return new ExternalProcessExecutor().exec(COMMAND, 60000);
 	}	
 	

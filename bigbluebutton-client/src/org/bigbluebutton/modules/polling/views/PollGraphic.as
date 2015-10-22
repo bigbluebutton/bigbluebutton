@@ -40,7 +40,6 @@ package org.bigbluebutton.modules.polling.views
 		private const vPaddingPercent:Number = 0.25;
 		private const hPaddingPercent:Number = 0.1;
 		private const labelWidthPercent:Number = 0.3;
-		private const labelMaxWidthInPixels:int = 100;
 		
 		private var sampledata:Array = [{a:"A", v:3}, 
 									{a:"B", v:1},

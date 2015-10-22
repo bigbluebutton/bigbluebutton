@@ -435,8 +435,6 @@ class ApiController {
 	}
 	
 	if (redirectClient){
-		println("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}");
-		println "ClientURL ${clientURL}"
 		log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
 		redirect(url: clientURL);
 	}
@@ -743,8 +741,6 @@ class ApiController {
     String API_CALL = "getMeetings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
-    println("##### GETMEETINGS API CALL ####")
-    
   	// BEGIN - backward compatibility
   	if (StringUtils.isEmpty(params.checksum)) {
   		invalid("checksumError", "You did not pass the checksum security check")
@@ -793,7 +789,6 @@ class ApiController {
         }
       }
     } else {
-      println("#### Has running meetings [" + mtgs.size() + "] #####")
       response.addHeader("Cache-Control", "no-cache")
       withFormat {	
         xml {
@@ -835,8 +830,6 @@ class ApiController {
   def getSessionsHandler = {
     String API_CALL = "getSessions"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
-    
-    println("##### GETSESSIONS API CALL ####")
     
     // BEGIN - backward compatibility
     if (StringUtils.isEmpty(params.checksum)) {
@@ -886,7 +879,6 @@ class ApiController {
         }
       }
     } else {
-      println("#### Has sessions [" + sssns.size() + "] #####")
       response.addHeader("Cache-Control", "no-cache")
       withFormat {  
         xml {
@@ -956,8 +948,6 @@ class ApiController {
     String API_CALL = "setPollXML"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    println CONTROLLER_NAME + "#${API_CALL}"
-
     if (StringUtils.isEmpty(params.checksum)) {
         invalid("checksumError", "You did not pass the checksum security check")
         return
@@ -1007,8 +997,6 @@ class ApiController {
       return;
     }
     
-    println "decodedPollXML [" + decodedPollXML + "]"
-         
     if (! paramsProcessorUtil.isPostChecksumSame(API_CALL, reqParams)) {       
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -1023,9 +1011,6 @@ class ApiController {
         }
       }       
     } else {
-      println "**************** CHECKSUM PASSED **************************"
-        
-      //println "[" + decodedPollXML + "]";
 
       def pollxml = new XmlSlurper().parseText(decodedPollXML);
         
@@ -1126,7 +1111,6 @@ class ApiController {
   			}
 		  }		  
 		} else {
-      //println "**************** CHECKSUM PASSED **************************"
 			boolean defaultConfig = false;
 			
 			if (! StringUtils.isEmpty(params.defaultConfig)) {
@@ -1137,13 +1121,11 @@ class ApiController {
 				}
 			}
 			
-      //println "[" + decodedConfigXML + "]";
 
 			String token = meeting.storeConfig(defaultConfig, decodedConfigXML);
 			response.addHeader("Cache-Control", "no-cache")
 			withFormat {
 			  xml {
-				  //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
 			    render(contentType:"text/xml") {
   				  response() {
   				    returncode("SUCCESS")
@@ -1210,14 +1192,12 @@ class ApiController {
         }
       }     
     } else {
-      //println "**************** CHECKSUM PASSED **************************"
       String sid = meetingService.addSubscription(meeting.getInternalId(), meeting.getExternalId(), params.callbackURL);
 
       if(sid.isEmpty()){
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           xml {
-            //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
             render(contentType:"text/xml") {
               response() {
                 returncode("FAILED")
@@ -1232,7 +1212,6 @@ class ApiController {
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           xml {
-            //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
             render(contentType:"text/xml") {
               response() {
                 returncode("SUCCESS")
@@ -1297,14 +1276,12 @@ class ApiController {
         }
       }     
     } else {
-      //println "**************** CHECKSUM PASSED **************************"
       boolean status = meetingService.removeSubscription(meeting.getInternalId(), params.subscriptionID);
 
       if(!status){
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           xml {
-            //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
             render(contentType:"text/xml") {
               response() {
                 returncode("FAILED")
@@ -1319,7 +1296,6 @@ class ApiController {
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           xml {
-            //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
             render(contentType:"text/xml") {
               response() {
                 returncode("SUCCESS")
@@ -1379,13 +1355,11 @@ class ApiController {
         }
       }     
     } else {
-      //println "**************** CHECKSUM PASSED **************************"
       List<Map<String,String>> list = meetingService.listSubscriptions(meeting.getInternalId());
 
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          //println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
           render(contentType:"text/xml") {
             response() {
               returncode("SUCCESS")
@@ -1411,7 +1385,6 @@ class ApiController {
   * CONFIG API
   ***********************************************/
   def configXML = {
-	  println "Getting config xml"
 	  	  
 	  if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
 		  log.info("No session for user in conference.")
@@ -1972,10 +1945,8 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-		  System.out.println("No pre-uploaded presentation. Downloading default presentation.");
 		  downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId());
     } else {
-		  System.out.println("Request body: \n" + requestBody);
 		  log.debug "Request body: \n" + requestBody;
 	    def xml = new XmlSlurper().parseText(requestBody);
 		  xml.children().each { module ->

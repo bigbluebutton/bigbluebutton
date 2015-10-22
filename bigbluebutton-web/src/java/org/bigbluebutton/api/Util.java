@@ -22,7 +22,6 @@ public final class Util {
 		String meetingPath = presentationDir + File.separatorChar + meetingId + File.separatorChar + meetingId;
 		String presPath = meetingPath + File.separatorChar + presentationId;
 		File dir = new File(presPath);
-		System.out.println("Creating dir [" + presPath + "]");
 		if (dir.mkdirs()) {
 			return dir;
 		}

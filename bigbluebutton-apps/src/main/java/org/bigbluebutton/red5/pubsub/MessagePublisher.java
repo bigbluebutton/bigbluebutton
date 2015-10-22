@@ -62,13 +62,8 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
-	public void userRaiseHand(String meetingId, String userId) {
-		UserRaisedHandMessage msg = new UserRaisedHandMessage(meetingId, userId, true);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
-	}
-
-	public void lowerHand(String meetingId, String userId, String loweredBy) {
-		UserLoweredHandMessage msg = new UserLoweredHandMessage(meetingId, userId, false, loweredBy);
+	public void userEmojiStatus(String meetingId, String userId, String emojiStatus) {
+		UserEmojiStatusMessage msg = new UserEmojiStatusMessage(meetingId, userId, emojiStatus);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 

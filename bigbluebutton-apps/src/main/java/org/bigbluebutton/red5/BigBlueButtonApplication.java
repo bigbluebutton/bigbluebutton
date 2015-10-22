@@ -134,10 +134,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
 		connection.setAttribute("USER_SESSION_ID", sessionId);
         
-		String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
-        					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID + ", muted =" + muted;
-		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
-
 		red5InGW.initLockSettings(room, lsMap);
 		
 		red5InGW.initAudioSettings(room, internalUserID, muted);
@@ -148,16 +144,17 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String userFullname = bbbSession.getUsername();
 	    String connId = Red5.getConnectionLocal().getSessionId();	        
 		
-		log.info("User connected: sessionId=[" + sessionId + "], encoding=[" + connType +
-				"], meetingId= [" + meetingId
-				+ "], userId=[" + userId + "] username=[" + userFullname +"]");
+		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+		int remotePort = Red5.getConnectionLocal().getRemotePort();   
 
 
 		Map<String, Object> logData = new HashMap<String, Object>();
 		logData.put("meetingId", meetingId);
 		logData.put("connType", connType);
 		logData.put("connId", connId);
+		logData.put("conn", remoteHost + ":" + remotePort);
 		logData.put("userId", userId);
+		logData.put("externalUserId", externalUserID);
 		logData.put("sessionId", sessionId);
 		logData.put("username", userFullname);
 		logData.put("event", "user_joining_bbb_apps");
@@ -190,7 +187,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
 		int remotePort = Red5.getConnectionLocal().getRemotePort();    	
 		String clientId = Red5.getConnectionLocal().getClient().getId();
-		log.info("***** " + APP + "[clientid=" + clientId + "] disconnnected from " + remoteHost + ":" + remotePort + ".");
 
 	    BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	          
@@ -201,14 +197,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String connId = Red5.getConnectionLocal().getSessionId();
 	    
         String sessionId =  CONN + userId;
-	    
-	    log.info("User disconnected: sessionId=[" + sessionId + "], encoding=[" + connType +
-	                "], meetingId= [" + meetingId + "], userId=[" + userId + "] username=[" + userFullname +"]");
-	    
+	    	    
 	    Map<String, Object> logData = new HashMap<String, Object>();
 	    logData.put("meetingId", meetingId);
 	    logData.put("connType", connType);
 	    logData.put("connId", connId);
+	    logData.put("conn", remoteHost + ":" + remotePort);
 	    logData.put("sessionId", sessionId);
 	    logData.put("userId", userId);
 	    logData.put("username", userFullname);

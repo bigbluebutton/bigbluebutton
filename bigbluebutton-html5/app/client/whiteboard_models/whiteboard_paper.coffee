@@ -152,8 +152,8 @@ class Meteor.WhiteboardPaperModel
     if @current.shapes?
       @current.shapes.forEach (element) ->
         element.remove()
-      @currentShapes = []
-      @currentShapesDefinitions = []
+      @current.shapeDefinitions = []
+      @current.shapes.clear()
     @clearCursor()
     @createCursor()
 

@@ -20,6 +20,8 @@ import org.bigbluebutton.core.recorders.events.VoiceUserMutedRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceStartRecordingRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceUserTalkingRecordEvent
 import org.bigbluebutton.core.service.recorder.RecorderApplication
+import scala.collection._
+import com.google.gson.Gson
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder): Props =
@@ -127,7 +129,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
 
       future onComplete {
         case Success(result) => {
-          log.debug("Got response from meeting=" + msg.meetingID + "].")
+          log.info("Validate auth token response. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
           /**
            * Received a reply from MeetingActor which means hasn't hung!
            * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
@@ -135,7 +137,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
            */
         }
         case Failure(failure) => {
-          log.warning("Failed to get response to from meeting=" + msg.meetingID + "]. Meeting has probably hung.")
+          log.warning("Validate auth token timeout. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
           outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId))
         }
       }
@@ -182,19 +184,20 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
   }
 
   private def handlePubSubPingMessage(msg: PubSubPing): Unit = {
+    //log.info("PubSubPing from [" + msg.system + "]")
     outGW.send(new PubSubPong(msg.system, msg.timestamp))
   }
 
   private def handleDestroyMeeting(msg: DestroyMeeting) {
-    log.info("BBBActor received DestroyMeeting message for meeting id [" + msg.meetingID + "]")
+    log.info("Received DestroyMeeting message for meetingId={}", msg.meetingID)
     meetings.get(msg.meetingID) match {
-      case None => println("Could not find meeting id[" + msg.meetingID + "] to destroy.")
+      case None => log.info("Could not find meetingId={}", msg.meetingID)
       case Some(m) => {
         meetings -= msg.meetingID
-        log.info("Kick everyone out on meeting id[" + msg.meetingID + "].")
+        log.info("Kick everyone out on meetingId={}", msg.meetingID)
         outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
         outGW.send(new DisconnectAllUsers(msg.meetingID))
-        log.info("Destroyed meeting id[" + msg.meetingID + "].")
+        log.info("Destroyed meetingId={}", msg.meetingID)
         outGW.send(new MeetingDestroyed(msg.meetingID))
 
         // Stop the meeting actor.
@@ -206,7 +209,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
   private def handleCreateMeeting(msg: CreateMeeting): Unit = {
     meetings.get(msg.meetingID) match {
       case None => {
-        log.info("New meeting create request [" + msg.mProps.meetingName + "]")
+        log.info("Create meeting request. meetingId={}", msg.mProps.meetingID)
         val moutGW = new OutMessageGateway("meetingOutGW-" + msg.meetingID, recorderApp, messageSender)
         var m = RunningMeeting(msg.mProps, moutGW)
 
@@ -219,7 +222,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
         m.actorRef ! "StartTimer"
       }
       case Some(m) => {
-        log.info("Meeting already created [" + msg.mProps.meetingName + "]")
+        log.info("Meeting already created. meetingID={}", msg.mProps.meetingID)
         // do nothing
       }
     }

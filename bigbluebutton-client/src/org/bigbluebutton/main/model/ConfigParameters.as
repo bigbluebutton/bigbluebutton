@@ -69,7 +69,6 @@ package org.bigbluebutton.main.model
 			var date:Date = new Date();
       var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
       
-	  LOGGER.debug("ConfigParameters:: [{0}]", [localeReqURL]);
       _urlLoader.load(new URLRequest(localeReqURL));
 		}
 		
@@ -87,7 +86,6 @@ package org.bigbluebutton.main.model
 		}
 		
 		private function parse(xml:XML):void{
-      		LOGGER.debug("ConfigParameters:: parse [{0}]", [xml]);
 			rawXML = xml;
 			
 			portTestHost = xml.porttest.@host;
