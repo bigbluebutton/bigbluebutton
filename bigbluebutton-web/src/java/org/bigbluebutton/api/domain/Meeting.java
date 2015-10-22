@@ -61,6 +61,7 @@ public class Meeting {
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users; 
 	private final ConcurrentMap<String, Config> configs;
+	private final Boolean isBreakout;
 	
 	private long lastUserLeftOn = 0;
 	
@@ -83,6 +84,8 @@ public class Meeting {
    	dialNumber = builder.dialNumber;
    	metadata = builder.metadata;
    	createdTime = builder.createdTime;
+   	isBreakout = builder.isBreakout;
+   	
    	userCustomData = new HashMap<String, Object>();
 
 		users = new ConcurrentHashMap<String, User>();
@@ -371,6 +374,7 @@ public class Meeting {
     	private String dialNumber;
     	private String defaultAvatarURL;
     	private long createdTime;
+    	private boolean isBreakout;
     	
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -441,6 +445,11 @@ public class Meeting {
     	public Builder withDefaultAvatarURL(String w) {
     		defaultAvatarURL = w;
     		return this;
+    	}
+    	
+    	public Builder isBreakout(Boolean b) {
+    	  isBreakout = b;
+    	  return this;
     	}
     	   	
     	public Builder withLogoutUrl(String l) {

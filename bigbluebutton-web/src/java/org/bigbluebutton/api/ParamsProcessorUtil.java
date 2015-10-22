@@ -351,17 +351,22 @@ public class ParamsProcessorUtil {
 	    long createTime = System.currentTimeMillis();
 	    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString();
 	    
+	    boolean isBreakout = false;
+	    if (! StringUtils.isEmpty(params.get("isBreakout"))) {
+	      isBreakout = new Boolean(params.get("isBreakout"));
+      }
+	    
 	    // Create the meeting with all passed in parameters.
 	    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId, createTime)
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 	        .withDefaultAvatarURL(defaultAvatarURL).withAutoStartRecording(autoStartRec).withAllowStartStopRecording(allowStartStoptRec)
-	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
+	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).isBreakout(isBreakout).build();
 	    
 	    String configXML = getDefaultConfigXML();
 	    meeting.storeConfig(true, configXML);
-	    
+	     
 	    if (! StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
 	      String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
 	      meeting.setModeratorOnlyMessage(moderatorOnlyMessage);

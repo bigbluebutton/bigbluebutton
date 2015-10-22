@@ -61,6 +61,7 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +89,7 @@ public class MeetingService implements MessageListener {
   private boolean removeMeetingWhenEnded = false;
 
   private ParamsProcessorUtil paramsProcessorUtil;
+  private PresentationUrlDownloadService presDownloadService;
   
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);	
@@ -440,7 +442,17 @@ public class MeetingService implements MessageListener {
 	}
 	
 	private void processCreateBreakoutRoom(CreateBreakoutRoom message) {
+	  Map<String, String> params = new HashMap<String, String>();
+	  params.put("name", message.name);
+	  params.put("meetingID", message.meetingId);
+	  params.put("attendeePW", message.viewerPassword);
+	  params.put("moderatorPW", message.moderatorPassword);
+	  params.put("voiceBridge", message.voiceConfId);
+	  params.put("duration", message.durationInMinutes.toString());
 	  
+	  Meeting breakout = paramsProcessorUtil.processCreateParams(params);
+	  
+	  presDownloadService.downloadAndProcessDocument(message.defaultPresentationURL, breakout.getInternalId());
 	}
 	
 	private void processEndMeeting(EndMeeting message) {
@@ -761,5 +773,9 @@ public class MeetingService implements MessageListener {
 	
 	public void setParamsProcessorUtil(ParamsProcessorUtil util) {
 	  this.paramsProcessorUtil = util; 
+	}
+	
+	public void setPresDownloadService(PresentationUrlDownloadService presDownloadService) {
+	  this.presDownloadService = presDownloadService;
 	}
 }

@@ -46,6 +46,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="expiredMeetingCleanupTimerTask" ref="expiredMeetingCleanupTimerTask"/>
         <property name="messagingService" ref="messagingService"/>
         <property name="recordingService" ref="recordingService"/>
+        <property name="presDownloadService" ref="presDownloadService"/>
+        <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
   </bean>
 
   <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
