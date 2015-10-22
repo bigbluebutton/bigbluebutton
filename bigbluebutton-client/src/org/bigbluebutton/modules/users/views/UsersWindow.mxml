@@ -35,6 +35,7 @@
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
+	<mate:Listener type="{BreakoutRoomsEvent.CREATE_BREAKOUT_ROOMS}" method="handleBreakoutRoomsCreateEvent" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -59,6 +60,7 @@
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.model.MeetingModel;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
+			import org.bigbluebutton.main.events.BreakoutRoomsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -94,6 +96,9 @@
 			
 			[Bindable]
 			private var users:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var breakoutRoomsList:ArrayCollection = new ArrayCollection();
 			
 			private var amIModerator:Boolean = false;
 			
@@ -242,6 +247,7 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
+				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
 				
 				
 				// make sure the previous menu is closed before opening a new one
@@ -278,9 +284,21 @@
 				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 			}
 			
+			private function handleBreakoutRoomsCreateEvent(e:BreakoutRoomsEvent):void {
+				breakoutRoomsList = new ArrayCollection();
+				breakoutRoomsList.addItem({roomName: "Room 1", users: 3, actions: "LJ"});
+				breakoutRoomsList.addItem({roomName: "Room 2", users: 4, actions: "LJ"});
+				breakoutRoomsList.addItem({roomName: "Room 3", users: 3, actions: "LJ"});
+				roomsBox.visible = roomsBox.includeInLayout = true;
+			}
+			
 			private function lockSettings():void {
 				var event:LockControlEvent = new LockControlEvent(LockControlEvent.OPEN_LOCK_SETTINGS);
 				dispatcher.dispatchEvent(event);
+			}
+
+			private function breakoutRooms():void {
+				dispatcher.dispatchEvent(new BreakoutRoomsEvent(BreakoutRoomsEvent.OPEN_BREAKOUT_ROOMS_PANEL));
 			}
 			
 			/*private function unlockAll():void {
@@ -513,6 +531,21 @@
     			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
     	</mx:columns>
     </mx:DataGrid>
+	
+	<mx:VBox id="roomsBox" visible="false" includeInLayout="false" paddingTop="12"
+			 width="100%" height="50%">
+		<mx:Label text="Breakout Rooms  (14:32 remaining)"/>
+		
+		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
+					 dragEnabled="false" width="100%" height="100%" draggableColumns="false">
+			<mx:columns>
+				<mx:DataGridColumn dataField="roomName" headerText="Room Name" />
+				<mx:DataGridColumn dataField="users" headerText="Users"/>
+				<mx:DataGridColumn dataField="actions" headerText="Actions" 
+								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
+			</mx:columns>
+		</mx:DataGrid>		
+	</mx:VBox>
 	
 	<mx:ControlBar width="100%">
 		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"

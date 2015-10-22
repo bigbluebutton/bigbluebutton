@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		verticalScrollPolicy="off"
+		horizontalScrollPolicy="off"
+		verticalAlign="middle">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.Images;
+
+			[Bindable]
+			private var images:Images = new Images();
+		]]>
+	</mx:Script>
+	
+	<mx:Button id="listenImg" width="20" height="20"
+			   icon="{images.listen}" toolTip="Listen"/>
+	<mx:Button id="joinImg" width="20" height="20"
+			   icon="{images.join}" toolTip="Join"/>
+</mx:HBox>
