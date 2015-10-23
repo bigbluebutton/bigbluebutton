@@ -8,7 +8,7 @@ import org.bigbluebutton.core.api.InMessage
 
 case class BigBlueButtonEvent(val topic: String, val payload: InMessage)
 
-class MyEventBus extends EventBus with LookupClassification {
+class IncomingEventBus extends EventBus with LookupClassification {
   type Event = BigBlueButtonEvent
   type Classifier = String
   type Subscriber = ActorRef

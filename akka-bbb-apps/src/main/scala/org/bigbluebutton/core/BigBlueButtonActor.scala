@@ -46,78 +46,7 @@ class BigBlueButtonActor(val system: ActorSystem,
     case msg: PubSubPing => handlePubSubPingMessage(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
-    //    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
-    //    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
-    //    case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
-    //    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
-    //    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
-    //    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    //    case msg: InMessage => handleMeetingMessage(msg)
     //    case _ => // do nothing
-  }
-
-  private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
-    meetings.values.find(m => m.mProps.voiceBridge == voiceConfId)
-  }
-
-  private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-
-      val recEvent = new VoiceUserJoinedRecordEvent(msg.userId, msg.voiceUserId, msg.voiceConfId,
-        msg.callerIdNum, msg.callerIdName, msg.muted, msg.talking)
-      // TODO: Sess if we need to record this message
-      // voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
-    }
-  }
-
-  private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-      val recEvent = new VoiceUserLeftRecordEvent(msg.voiceUserId, msg.voiceConfId)
-      // TODO: See if we need to record this event.
-      //      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
-    }
-  }
-
-  private def handleUserLockedInVoiceConfMessage(msg: UserLockedInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-      val recEvent = new VoiceUserLockedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.locked)
-      // TODO: See if we need to record this event.
-      //voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
-    }
-  }
-
-  private def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-      val recEvent = new VoiceUserMutedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.muted)
-      // TODO: See if we need to record this event.
-      //voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
-    }
-  }
-
-  private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-      val recEvent = new VoiceStartRecordingRecordEvent(msg.voiceConfId, msg.recording)
-      recEvent.setTimestamp(msg.timestamp)
-      recEvent.setRecordingFilename(msg.recordStream)
-      // TODO: See if we need to record this event.
-      //voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
-    }
-
-  }
-
-  private def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
-    findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
-      m.actorRef ! msg
-      val recEvent = new VoiceUserTalkingRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.talking)
-      // // TODO: See if we need to record this event.
-      //voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
-    }
-
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {
@@ -141,48 +70,12 @@ class BigBlueButtonActor(val system: ActorSystem,
       //      }
     }
   }
-  /*
-  private def handleMeetingMessage(msg: InMessage): Unit = {
-    msg match {
-      case ucm: UserConnectedToGlobalAudio => {
-        val m = meetings.values.find(m => m.mProps.voiceBridge == ucm.voiceConf)
-        m foreach { mActor => mActor.actorRef ! ucm }
-      }
-      case udm: UserDisconnectedFromGlobalAudio => {
-        val m = meetings.values.find(m => m.mProps.voiceBridge == udm.voiceConf)
-        m foreach { mActor => mActor.actorRef ! udm }
-      }
-      case allOthers => {
-        meetings.get(allOthers.meetingID) match {
-          case None => handleMeetingNotFound(allOthers)
-          case Some(m) => {
-            // log.debug("Forwarding message [{}] to meeting [{}]", msg.meetingID)
-            m.actorRef ! allOthers
-          }
-        }
-      }
-    }
-  }
 
-  private def handleMeetingNotFound(msg: InMessage) {
-    msg match {
-      case vat: ValidateAuthToken => {
-        log.info("No meeting [" + vat.meetingID + "] for auth token [" + vat.token + "]")
-        outGW.send(new ValidateAuthTokenReply(vat.meetingID, vat.userId, vat.token, false, vat.correlationId))
-      }
-      case _ => {
-        log.info("No meeting [" + msg.meetingID + "] for message type [" + msg.getClass() + "]")
-        // do nothing
-      }
-    }
-  }
-*/
   private def handleKeepAliveMessage(msg: KeepAliveMessage): Unit = {
     outGW.send(new KeepAliveMessageReply(msg.aliveID))
   }
 
   private def handlePubSubPingMessage(msg: PubSubPing): Unit = {
-    log.info("PubSubPing from [" + msg.system + "]")
     outGW.send(new PubSubPong(msg.system, msg.timestamp))
   }
 
@@ -198,6 +91,10 @@ class BigBlueButtonActor(val system: ActorSystem,
         log.info("Destroyed meetingId={}", msg.meetingID)
         outGW.send(new MeetingDestroyed(msg.meetingID))
 
+        /** Unsubscribe to meeting and voice events. **/
+        eventBus.unsubscribe(m.actorRef, m.mProps.meetingID)
+        eventBus.unsubscribe(m.actorRef, m.mProps.voiceBridge)
+
         // Stop the meeting actor.
         context.stop(m.actorRef)
       }
@@ -211,6 +108,7 @@ class BigBlueButtonActor(val system: ActorSystem,
 
         var m = RunningMeeting(msg.mProps, outGW, eventBus)
 
+        /** Subscribe to meeting and voice events. **/
         eventBus.subscribe(m.actorRef, m.mProps.meetingID)
         eventBus.subscribe(m.actorRef, m.mProps.voiceBridge)
 

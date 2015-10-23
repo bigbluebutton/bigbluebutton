@@ -146,7 +146,6 @@ class MessageSenderActor(val service: MessageSender)
   }
 
   private def handlePubSubPong(msg: PubSubPong) {
-    println("**** PUBSUB PONG *****")
     val json = encoder.encodePubSubPongMessage(msg.system, msg.timestamp)
     service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, json)
   }
