@@ -228,8 +228,8 @@ package org.bigbluebutton.util.i18n
 		}
 
 		public function changeLocale(locale:String):void {
-			if (masterLocaleLoaded) {
-				trace(LOG + "Master locale is already loaded, now loading " + locale);
+			if (masterLocaleLoaded || locale == MASTER_LOCALE) {
+				trace(LOG + "Loading immediately " + locale);
 				changeLocaleHelper(locale);
 			} else {
 				trace(LOG + "Registering callback to load " + locale + " later");
