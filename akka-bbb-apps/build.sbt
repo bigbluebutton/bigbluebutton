@@ -36,7 +36,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 libraryDependencies ++= {
-  val akkaVersion  = "2.3.12"
+  val akkaVersion  = "2.3.14"
   val akkaStreamV = "1.0"
   val scalaTestV  = "2.2.5"
   Seq(

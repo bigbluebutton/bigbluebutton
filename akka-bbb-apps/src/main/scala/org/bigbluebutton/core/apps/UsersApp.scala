@@ -107,7 +107,7 @@ trait UsersApp {
      * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
      * audit to check whether the actor is still alive. (ralam feb 25, 2015)
      */
-    sender ! new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, false, msg.correlationId)
+    //sender ! new ValidateAuthTokenReply(mProps.meetingID, msg.userId, msg.token, false, msg.correlationId)
   }
 
   def handleRegisterUser(msg: RegisterUser) {

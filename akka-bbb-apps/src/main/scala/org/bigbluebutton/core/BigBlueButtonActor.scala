@@ -6,6 +6,7 @@ import akka.pattern.{ ask, pipe }
 import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.collection.mutable.HashMap
+import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.util._
 import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
@@ -25,21 +26,18 @@ import com.google.gson.Gson
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
-    recorderApp: RecorderApplication,
-    messageSender: MessageSender,
-    voiceEventRecorder: VoiceEventRecorder): Props =
-    Props(classOf[BigBlueButtonActor], system, recorderApp, messageSender, voiceEventRecorder)
+    eventBus: MyEventBus,
+    outGW: OutMessageGateway): Props =
+    Props(classOf[BigBlueButtonActor], system, eventBus, outGW)
 }
 
 class BigBlueButtonActor(val system: ActorSystem,
-    recorderApp: RecorderApplication,
-    messageSender: MessageSender,
-    voiceEventRecorder: VoiceEventRecorder) extends Actor with ActorLogging {
+    eventBus: MyEventBus, outGW: OutMessageGateway) extends Actor with ActorLogging {
+
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
-  private val outGW = new OutMessageGateway("bbbActorOutGW", recorderApp, messageSender)
 
   def receive = {
     case msg: CreateMeeting => handleCreateMeeting(msg)
@@ -48,14 +46,14 @@ class BigBlueButtonActor(val system: ActorSystem,
     case msg: PubSubPing => handlePubSubPingMessage(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
-    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
-    case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
-    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case msg: InMessage => handleMeetingMessage(msg)
-    case _ => // do nothing
+    //    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
+    //    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
+    //    case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
+    //    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
+    //    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
+    //    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
+    //    case msg: InMessage => handleMeetingMessage(msg)
+    //    case _ => // do nothing
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
@@ -68,7 +66,8 @@ class BigBlueButtonActor(val system: ActorSystem,
 
       val recEvent = new VoiceUserJoinedRecordEvent(msg.userId, msg.voiceUserId, msg.voiceConfId,
         msg.callerIdNum, msg.callerIdName, msg.muted, msg.talking)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
+      // TODO: Sess if we need to record this message
+      // voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
@@ -76,7 +75,8 @@ class BigBlueButtonActor(val system: ActorSystem,
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
       val recEvent = new VoiceUserLeftRecordEvent(msg.voiceUserId, msg.voiceConfId)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
+      // TODO: See if we need to record this event.
+      //      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
@@ -84,7 +84,8 @@ class BigBlueButtonActor(val system: ActorSystem,
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
       val recEvent = new VoiceUserLockedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.locked)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
+      // TODO: See if we need to record this event.
+      //voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
@@ -92,7 +93,8 @@ class BigBlueButtonActor(val system: ActorSystem,
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
       val recEvent = new VoiceUserMutedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.muted)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
+      // TODO: See if we need to record this event.
+      //voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
@@ -102,7 +104,8 @@ class BigBlueButtonActor(val system: ActorSystem,
       val recEvent = new VoiceStartRecordingRecordEvent(msg.voiceConfId, msg.recording)
       recEvent.setTimestamp(msg.timestamp)
       recEvent.setRecordingFilename(msg.recordStream)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
+      // TODO: See if we need to record this event.
+      //voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
 
   }
@@ -111,32 +114,34 @@ class BigBlueButtonActor(val system: ActorSystem,
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
       val recEvent = new VoiceUserTalkingRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.talking)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
+      // // TODO: See if we need to record this event.
+      //voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
 
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {
     meetings.get(msg.meetingID) foreach { m =>
-      val future = m.actorRef.ask(msg)(5 seconds)
+      m.actorRef ! msg
 
-      future onComplete {
-        case Success(result) => {
-          log.info("Validate auth token response. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
-          /**
-           * Received a reply from MeetingActor which means hasn't hung!
-           * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
-           * audit to check whether the actor is still alive. (ralam feb 25, 2015)
-           */
-        }
-        case Failure(failure) => {
-          log.warning("Validate auth token timeout. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
-          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId))
-        }
-      }
+      //      val future = m.actorRef.ask(msg)(5 seconds)
+      //      future onComplete {
+      //        case Success(result) => {
+      //          log.info("Validate auth token response. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
+      //          /**
+      //           * Received a reply from MeetingActor which means hasn't hung!
+      //           * Sometimes, the actor seems to hang and doesn't anymore accept messages. This is a simple
+      //           * audit to check whether the actor is still alive. (ralam feb 25, 2015)
+      //           */
+      //        }
+      //        case Failure(failure) => {
+      //          log.warning("Validate auth token timeout. meetingId=" + msg.meetingID + " userId=" + msg.userId + " token=" + msg.token)
+      //          outGW.send(new ValidateAuthTokenTimedOut(msg.meetingID, msg.userId, msg.token, false, msg.correlationId))
+      //        }
+      //      }
     }
   }
-
+  /*
   private def handleMeetingMessage(msg: InMessage): Unit = {
     msg match {
       case ucm: UserConnectedToGlobalAudio => {
@@ -171,13 +176,13 @@ class BigBlueButtonActor(val system: ActorSystem,
       }
     }
   }
-
+*/
   private def handleKeepAliveMessage(msg: KeepAliveMessage): Unit = {
     outGW.send(new KeepAliveMessageReply(msg.aliveID))
   }
 
   private def handlePubSubPingMessage(msg: PubSubPing): Unit = {
-    //log.info("PubSubPing from [" + msg.system + "]")
+    log.info("PubSubPing from [" + msg.system + "]")
     outGW.send(new PubSubPong(msg.system, msg.timestamp))
   }
 
@@ -203,8 +208,11 @@ class BigBlueButtonActor(val system: ActorSystem,
     meetings.get(msg.meetingID) match {
       case None => {
         log.info("Create meeting request. meetingId={}", msg.mProps.meetingID)
-        val moutGW = new OutMessageGateway("meetingOutGW-" + msg.meetingID, recorderApp, messageSender)
-        var m = RunningMeeting(msg.mProps, moutGW)
+
+        var m = RunningMeeting(msg.mProps, outGW, eventBus)
+
+        eventBus.subscribe(m.actorRef, m.mProps.meetingID)
+        eventBus.subscribe(m.actorRef, m.mProps.voiceBridge)
 
         meetings += m.mProps.meetingID -> m
         outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.recorded, m.mProps.meetingName,

@@ -5,12 +5,13 @@ import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.MeetingProperties
 
-trait InMessage { val meetingID: String }
+//trait IncomingMessage
+trait InMessage
 
-case class PubSubPing(system: String, timestamp: Long)
+case class PubSubPing(system: String, timestamp: Long) extends InMessage
+case class IsMeetingActorAliveMessage(meetingId: String) extends InMessage
+case class KeepAliveMessage(aliveID: String) extends InMessage
 
-case class IsMeetingActorAliveMessage(meetingId: String)
-case class KeepAliveMessage(aliveID: String)
 case class CreateMeeting(meetingID: String, mProps: MeetingProperties) extends InMessage
 case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage
@@ -99,13 +100,14 @@ case class LockUserRequest(meetingID: String, requesterID: String, userID: Strin
 case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedBy: String) extends InMessage
 case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
   callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
+
 case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
-  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
-case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String)
-case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean)
-case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean)
-case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean)
-case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String)
+  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean) extends InMessage
+case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String) extends InMessage
+case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean) extends InMessage
+case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean) extends InMessage
+case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean) extends InMessage
+case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String) extends InMessage
 
 // Whiteboard
 case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: String, annotation: AnnotationVO) extends InMessage

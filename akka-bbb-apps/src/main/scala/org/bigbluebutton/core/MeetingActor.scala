@@ -4,6 +4,7 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
+import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
@@ -13,11 +14,13 @@ import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollMod
 import org.bigbluebutton.core.apps.PresentationModel
 
 object MeetingActor {
-  def props(mProps: MeetingProperties, outGW: OutMessageGateway): Props =
-    Props(classOf[MeetingActor], mProps: MeetingProperties, outGW)
+  def props(mProps: MeetingProperties,
+    eventBus: MyEventBus,
+    outGW: OutMessageGateway): Props =
+    Props(classOf[MeetingActor], mProps, eventBus, outGW)
 }
 
-class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
+class MeetingActor(val mProps: MeetingProperties, val eventBus: MyEventBus, val outGW: OutMessageGateway)
     extends Actor with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with ActorLogging {

@@ -29,11 +29,11 @@ import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
 
 object MessageSenderActor {
-  def props(meetingId: String, msgSender: MessageSender): Props =
-    Props(classOf[MessageSenderActor], meetingId, msgSender)
+  def props(msgSender: MessageSender): Props =
+    Props(classOf[MessageSenderActor], msgSender)
 }
 
-class MessageSenderActor(val meetingId: String, val service: MessageSender)
+class MessageSenderActor(val service: MessageSender)
     extends Actor with ActorLogging {
 
   val encoder = new ToJsonEncoder()
@@ -146,6 +146,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   }
 
   private def handlePubSubPong(msg: PubSubPong) {
+    println("**** PUBSUB PONG *****")
     val json = encoder.encodePubSubPongMessage(msg.system, msg.timestamp)
     service.send(MessagingConstants.FROM_SYSTEM_CHANNEL, json)
   }
@@ -574,12 +575,14 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   }
 
   private def handleValidateAuthTokenReply(msg: ValidateAuthTokenReply) {
+    println("**** handleValidateAuthTokenReply *****")
     val json = UsersMessageToJsonConverter.validateAuthTokenReplyToJson(msg)
     //println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
   private def handleValidateAuthTokenTimedOut(msg: ValidateAuthTokenTimedOut) {
+    println("**** handleValidateAuthTokenTimedOut *****")
     val json = UsersMessageToJsonConverter.validateAuthTokenTimeoutToJson(msg)
     //println("************** Publishing [" + json + "] *******************")
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
