@@ -25,75 +25,9 @@ require '../lib/recordandplayback'
 require 'rubygems'
 require 'yaml'
 require 'fileutils'
-require 'nokogiri'
-
 
 # Number of seconds to delay archiving (red5 race condition workaround)
 ARCHIVE_DELAY_SECONDS = 120
-
-
-# modified from http://stackoverflow.com/questions/1230741/convert-a-nokogiri-document-to-a-ruby-hash/1231297#1231297
-class Hash
-  class << self
-    def from_xml(xml_io) 
-      begin
-        result = Nokogiri::XML(xml_io)
-        return { result.root.name.to_sym => xml_node_to_hash(result.root)} 
-      rescue Exception => e
-        # raise your custom exception here
-      end
-    end 
-
-    def xml_node_to_hash(node) 
-      # If we are at the root of the document, start the hash 
-      if node.element?
-        result_hash = {}
-        if node.attributes != {}
-          result_hash[:attributes] = {}
-          node.attributes.keys.each do |key|
-            result_hash[:attributes][node.attributes[key].name.to_sym] = prepare(node.attributes[key].value)
-          end
-        end
-        if node.children.size > 0
-          node.children.each do |child| 
-            result = xml_node_to_hash(child) 
-
-            if child.name == "text"
-              unless child.next_sibling || child.previous_sibling
-                return prepare(result)
-              end
-            elsif result_hash[child.name.to_sym]
-              if result_hash[child.name.to_sym].is_a?(Object::Array)
-                result_hash[child.name.to_sym] << prepare(result)
-              else
-                result_hash[child.name.to_sym] = [result_hash[child.name.to_sym]] << prepare(result)
-              end
-            else 
-              result_hash[child.name.to_sym] = prepare(result)
-            end
-          end
-
-          return result_hash 
-        else 
-          return result_hash
-        end 
-      else 
-        return prepare(node.content.to_s) 
-      end 
-    end          
-
-    def prepare(data)
-      (data.class == String && data.to_i.to_s == data) ? data.to_i : data
-    end
-  end
-  
-  def to_struct(struct_name)
-      Struct.new(struct_name,*keys).new(*values)
-  end
-end
-
-
-
 
 def archive_recorded_meeting(recording_dir)
   recorded_done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
@@ -288,36 +222,36 @@ def publish_processed_meeting(recording_dir)
 
       step_succeeded = (ret == 0 and File.exists?(published_done))
 
+      props = YAML::load(File.open('bigbluebutton.yml'))
+      published_dir = props['published_dir']
 
-      file_xml = File.open("/var/bigbluebutton/published/presentation/#{meeting_id}/metadata.xml") 
-      doc = Hash.from_xml(file_xml)
-      
-      rec = doc[:recording]
-      play = rec[:playback] 
-      meta = rec[:meta]
-      down = rec[:down]
-
-      if play == nil
-        play = {}
+      playback = {}
+      metadata = {}
+      download = {}
+      metadata_xml_path = "#{published_dir}/#{publish_type}/#{meeting_id}/metadata.xml"
+      if File.exists? metadata_xml_path
+        begin
+          doc = Hash.from_xml(File.open(metadata_xml_path))
+          playback = doc[:recording][:playback] if !doc[:recording][:playback].nil?
+          metadata = doc[:recording][:metadata] if !doc[:recording][:metadata].nil?
+          download = doc[:recording][:download] if !doc[:recording][:download].nil?
+        rescue Exception => e
+          BigBlueButton.logger.warn "An exception occurred while loading the extra information for the publish event"
+          BigBlueButton.logger.warn e.message
+          e.backtrace.each do |traceline|
+            BigBlueButton.logger.warn traceline
+          end
+        end
+      else
+        BigBlueButton.logger.warn "Couldn't find the metadata file at #{metadata_xml_path}"
       end
-
-      if meta == nil
-        meta = {}
-      end
-
-      if down == nil
-        down = {}
-      end
-
-      ## the implementation of the play, meta and down hashes is pending use of a try,
-      ## as a nil value will cause the publish_ended to be skipped
 
       BigBlueButton.redis_publisher.put_publish_ended publish_type, meeting_id, {
         "success" => step_succeeded,
         "step_time" => step_time,
-        "playback" => play,
-        "metadata" => meta,
-        "download" => down
+        "playback" => playback,
+        "metadata" => metadata,
+        "download" => download
       }
 
       if step_succeeded
