@@ -34,8 +34,8 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
       }
 
       case msg: CreateMeetingRequest => {
-        val mProps = new MeetingProperties(msg.payload.id, msg.payload.externalId, 
-            msg.payload.name, msg.payload.record,
+        val mProps = new MeetingProperties(msg.payload.id, msg.payload.externalId,
+          msg.payload.name, msg.payload.record,
           msg.payload.voiceConfId,
           msg.payload.durationInMinutes,
           msg.payload.autoStartRecording, msg.payload.allowStartStopRecording,
