@@ -201,6 +201,16 @@ package org.bigbluebutton.modules.users.services
         var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
         dispatcher.dispatchEvent(viewerEvent);
       }
+
+      var myRole:String = UserManager.getInstance().getConference().whatsMyRole();
+      var role:String = map.user.role;
+      // If a (pro/de)moted user refresh his browser he must reassing his role for permissions
+      if (role != myRole) {
+        UserManager.getInstance().getConference().newUserRole(userid, role);
+        UserManager.getInstance().getConference().setMyRole(role);
+        var changeMyRole:ChangeMyRole = new ChangeMyRole(role);
+        dispatcher.dispatchEvent(changeMyRole);
+      }
     }
     
     private function handleMeetingMuted(msg:Object):void {
