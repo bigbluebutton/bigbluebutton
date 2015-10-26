@@ -7,12 +7,12 @@ import org.bigbluebutton.core.bus._
 
 object RunningMeeting {
   def apply(mProps: MeetingProperties, outGW: OutMessageGateway,
-    eventBus: MyEventBus)(implicit context: ActorContext) =
+    eventBus: IncomingEventBus)(implicit context: ActorContext) =
     new RunningMeeting(mProps, outGW, eventBus)(context)
 }
 
 class RunningMeeting(val mProps: MeetingProperties, val outGW: OutMessageGateway,
-    val eventBus: MyEventBus)(implicit val context: ActorContext) {
+    val eventBus: IncomingEventBus)(implicit val context: ActorContext) {
 
   val actorRef = context.actorOf(MeetingActor.props(mProps, eventBus, outGW), mProps.meetingID)
 }

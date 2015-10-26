@@ -26,13 +26,13 @@ import com.google.gson.Gson
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
-    eventBus: MyEventBus,
+    eventBus: IncomingEventBus,
     outGW: OutMessageGateway): Props =
     Props(classOf[BigBlueButtonActor], system, eventBus, outGW)
 }
 
 class BigBlueButtonActor(val system: ActorSystem,
-    eventBus: MyEventBus, outGW: OutMessageGateway) extends Actor with ActorLogging {
+    eventBus: IncomingEventBus, outGW: OutMessageGateway) extends Actor with ActorLogging {
 
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)

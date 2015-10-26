@@ -32,7 +32,7 @@ object Boot extends App with SystemConfiguration with Service {
   override implicit val materializer = ActorMaterializer()
   override val logger = Logging(system, getClass)
 
-  val eventBus = new MyEventBus
+  val eventBus = new IncomingEventBus
   val outgoingEventBus = new OutgoingEventBus
 
   val outGW = new OutMessageGateway(outgoingEventBus)

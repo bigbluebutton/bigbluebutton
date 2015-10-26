@@ -22,7 +22,7 @@ import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages.CreateMeetingRequest;
 
 class BigBlueButtonInGW(val system: ActorSystem,
-    eventBus: MyEventBus,
+    eventBus: IncomingEventBus,
     outGW: OutMessageGateway) extends IBigBlueButtonInGW {
 
   val log = system.log

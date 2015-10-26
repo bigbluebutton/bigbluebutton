@@ -16,4 +16,6 @@ trait SystemConfiguration {
   lazy val telizePort = Try(config.getInt("services.telizePort")).getOrElse(80)
   lazy val bbbWebHost = Try(config.getString("services.bbbWebHost")).getOrElse("localhost")
   lazy val bbbWebPort = Try(config.getInt("services.bbbWebPort")).getOrElse(8888)
+  lazy val bbbWebAPI = Try(config.getString("services.bbbWebAPI")).getOrElse("localhost")
+  lazy val bbbWebSharedSecret = Try(config.getString("services.sharedSecret")).getOrElse("changeme")
 }

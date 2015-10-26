@@ -38,7 +38,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 libraryDependencies ++= {
   val akkaVersion  = "2.3.14"
   val akkaStreamV = "1.0"
-  val scalaTestV  = "2.2.5"
+  val scalaTestV  = "2.2.4"
   Seq(
     "com.typesafe.akka"        %%  "akka-actor"                           % akkaVersion,
     "com.typesafe.akka"        %%  "akka-testkit"                         % akkaVersion    % "test",
@@ -48,7 +48,7 @@ libraryDependencies ++= {
     "com.typesafe.akka"        %%  "akka-http-experimental"               % akkaStreamV,
     "com.typesafe.akka"        %%  "akka-http-spray-json-experimental"    % akkaStreamV,
     "com.typesafe.akka"        %%  "akka-http-testkit-experimental"       % akkaStreamV,
-    "org.scalatest"            %%  "scalatest"                            % scalaTestV     % "test",
+    "org.scalatest"            %   "scalatest_2.11"                       % scalaTestV     % "test",
     "ch.qos.logback"           %   "logback-classic"                      % "1.0.13"       % "runtime",
     "org.pegdown"              %   "pegdown"                              % "1.4.0",
     "junit"                    %   "junit"                                % "4.11",
