@@ -150,7 +150,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		      private var chatListHeight:Number = 100;
 
 			[Bindable]
-			private var chatToolbarHeight:Number = 50;
+			private var chatToolbarHeight:Number = 80;
 			
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();	
       
@@ -773,9 +773,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			const paddingHeight:int = 5;
 			const paddingWidth:int = 5;
 
-			chatToolbar.width = chatMessagesCanvas.width - paddingWidth * 2;
-			chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) / 2;
-			chatToolbar.y = chatMessagesCanvas.height - chatToolbar.height - paddingHeight;
+			chatToolbar.width = 45;
+			chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) - 10;
+			chatToolbar.y = 10;
 
 			if(chatMessagesList.mx_internal::scroll_verticalScrollBar != null && chatMessagesList.mx_internal::scroll_verticalScrollBar.visible){
 				chatToolbar.width -= chatMessagesList.mx_internal::scroll_verticalScrollBar.width;
@@ -798,24 +798,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:HBox>
   
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"
-           paddingLeft="5" paddingRight="5">	
+           paddingLeft="5" paddingRight="5">
 	<mx:VBox width="100%" height="100%">
 	  <mx:TextArea id="txtMsgArea" width="100%" height="100%"
-	               styleName="chatControlBarTextMsgStyle"
-				   change="txtMsgAreaChangeHandler(event)"
-	               toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
-			       accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" />
+                 styleName="chatControlBarTextMsgStyle" 
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
+				 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.input.accessibilityName')}" 
+				 />
 	  <mx:Label id="msgTooLongLabel" width="100%" height="100%" includeInLayout="false" visible="false"/>
 	</mx:VBox>
     <mx:VBox verticalScrollPolicy="off" verticalAlign="middle" height="100%" >
-      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
+      <mx:HBox horizontalGap="0">
+      		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn"
                  styleName="chatControlBarSendButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
                  click="sendMessages()"
-                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"/>  
+                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.accessibilityName')}"
+                 height="100%"/>  
+	  </mx:HBox>
 		<mx:ColorPicker id="cmpColorPicker" showTextField="false" width="100%" visible="{chatOptions.colorPickerIsVisible}" includeInLayout="{chatOptions.colorPickerIsVisible}" 
 						toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
+						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle" />
     </mx:VBox>
   </mx:HBox>	
 </mx:VBox>

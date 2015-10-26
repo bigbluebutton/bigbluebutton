@@ -44,10 +44,10 @@ ToolTip {
   cornerRadius: 5;
   borderStyle: solid;
   borderThickness: 1;
-  paddingBottom: 3;
-  paddingTop: 3;
-  paddingLeft: 3;
-  paddingRight: 3;
+  paddingBottom: 2;
+  paddingTop: 2;
+  paddingLeft: 2;
+  paddingRight: 2;
 }
 
 .meetingNameLabelStyle {
@@ -306,7 +306,7 @@ DataGrid {
 
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle,
-.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle
+.saveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle, .copyButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -325,8 +325,12 @@ DataGrid {
   fontSize: 12;
 }
 
-.sharedNotesSaveButtonStyle {
+.saveButtonStyle {
   icon: Embed('assets/images/ic_save_16px.png');
+}
+
+.copyButtonStyle{
+  icon: Embed('assets/images/ic_content_copy_black_16px.png');
 }
 
 .sharedNotesNewButtonStyle {
