@@ -67,8 +67,6 @@ package org.bigbluebutton.modules.sharednotes.services
       var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
       receivePatchEvent.noteId = message.noteID;
       receivePatchEvent.patch = message.patch;
-      receivePatchEvent.beginIndex = message.beginIndex;
-      receivePatchEvent.endIndex = message.endIndex;
       dispatcher.dispatchEvent(receivePatchEvent);
     }
         

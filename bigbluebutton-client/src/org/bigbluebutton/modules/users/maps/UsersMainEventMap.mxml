@@ -146,7 +146,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
 
   <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
-    <MethodInvoker generator="{UserService}" method="onReconnecting" />
+    <MethodInvoker generator="{UserService}" method="onReconnecting"  arguments="{event}" />
   </EventHandlers>
   <!-- End Lock Events -->
 

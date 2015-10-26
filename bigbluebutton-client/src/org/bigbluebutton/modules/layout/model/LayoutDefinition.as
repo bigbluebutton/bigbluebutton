@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.layout.model {
 		
 		static private var _ignoredWindows:Array = new Array("AvatarWindow", "PublishWindow", 
 				"VideoWindow", "DesktopPublishWindow",
-				"LogWindow", "NetworkStatsWindow");
+				"LogWindow", "NetworkStatsWindow", "ShortcutHelpWindow");
 		static private var _roles:Array = new Array(Role.VIEWER, Role.MODERATOR, Role.PRESENTER);
 		private static const LOG:String = "Layout::LayoutDefinition - ";
 				

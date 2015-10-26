@@ -273,9 +273,11 @@ package org.bigbluebutton.main.model.users
 			if (this.isModerator()) sender.changeRole(e.userid, e.role);
 		}
 
-		public function onReconnecting():void {
-			trace(LOG + "onReconnecting");
-			reconnecting = true;
+		public function onReconnecting(e:BBBEvent):void {
+			if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
+				trace(LOG + "onReconnecting");
+				reconnecting = true;
+			}
 		}
 		
 		/**

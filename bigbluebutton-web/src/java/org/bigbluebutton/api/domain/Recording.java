@@ -34,6 +34,7 @@ public class Recording {
 	private boolean published;
 	private String startTime;
 	private String endTime;
+	private String rawSize;
 	private Map<String, String> metadata = new HashMap<String, String>();
 	private ArrayList<Playback> playbacks=new ArrayList<Playback>();
 	private ArrayList<Download> downloads=new ArrayList<Download>();
@@ -43,12 +44,14 @@ public class Recording {
 	private String playbackLink;
 	private String playbackFormat;
 	private String playbackDuration;
+	private String playbackSize;
 	private GPathResult playbackExtensions;
 	
 	private String downloadLink;
 	private String downloadFormat;
 	private String downloadMd5;
 	private String downloadKey;
+	private String downloadSize;
 
 	public String getId() {
 		return id;
@@ -89,6 +92,26 @@ public class Recording {
 	public void setEndTime(String endTime) {
 		this.endTime = convertOldDateFormat(endTime);
 	}
+
+	public String getSize() {
+		int size = 0;
+		for (Playback p: playbacks) {
+			size += Integer.parseInt(p.getSize());
+		}
+		for (Download p: downloads) {
+			size += Integer.parseInt(p.getSize());
+		}
+		return String.valueOf(size);
+	}
+
+	public String getRawSize() {
+		return rawSize;
+	}
+
+	public void setRawSize(String rawSize) {
+		this.rawSize = rawSize;
+	}
+
 	public String getDownloadLink() {
 		return downloadLink;
 	}
@@ -120,6 +143,15 @@ public class Recording {
 	public void setDownloadKey(String downloadKey) {
 		this.downloadKey = downloadKey;
 	}
+
+	public String getDownloadSize() {
+		return downloadSize;
+	}
+
+	public void setDownloadSize(String downloadSize) {
+		this.downloadSize = downloadSize;
+	}
+
 	public String getPlaybackLink() {
 		return playbackLink;
 	}
@@ -142,6 +174,14 @@ public class Recording {
 	
 	public void setPlaybackDuration(String playbackDuration) {
 		this.playbackDuration = playbackDuration;
+	}
+
+	public String getPlaybackSize() {
+		return playbackSize;
+	}
+
+	public void setPlaybackSize(String playbackSize) {
+		this.playbackSize = playbackSize;
 	}
 
 	public GPathResult getPlaybackExtensions() {

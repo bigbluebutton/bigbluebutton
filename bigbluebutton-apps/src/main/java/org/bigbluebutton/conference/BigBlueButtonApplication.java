@@ -43,7 +43,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private RecorderApplication recorderApplication;
 	private ConnectionInvokerService connInvokerService;
 	private IBigBlueButtonInGW bbbGW;
-	
+
+	private final UserConnectionMapper userConnections = new UserConnectionMapper();
+
 	private final String APP = "BBB";
 	private final String CONN = "RED5-";
 	
@@ -177,7 +179,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String logStr =  gson.toJson(logData);
 		
 		log.info("User joining bbb-apps: data={}", logStr);
-		
+
+		userConnections.addUserConnection(userId, connId);
+
 		return super.roomConnect(connection, params);
         
 	}
@@ -227,9 +231,16 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	    String logStr =  gson.toJson(logData);
 	        
 	    log.info("User leaving bbb-apps: data={}", logStr);
-	      	        
-		bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
-		
+
+	    boolean removeUser = userConnections.userDisconnected(userId, connId);
+
+	    if (removeUser) {
+	        log.info("User leaving bbb-apps: data={}", logStr);
+	        bbbGW.userLeft(bbbSession.getRoom(), getBbbSession().getInternalUserID(), sessionId);
+	    } else {
+	        log.info("User not leaving bbb-apps but just disconnected: data={}", logStr);
+	    }
+
 		super.roomDisconnect(conn);
 	}
 	

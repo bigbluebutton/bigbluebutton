@@ -59,6 +59,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
     private var room:String;
     private var logoutOnUserCommand:Boolean = false;
     private var reconnecting:Boolean = false;
+    private var wasPresenterBeforeDisconnect:Boolean = false;
     
     private var dispatcher:Dispatcher = new Dispatcher();    
 
@@ -197,7 +198,10 @@ package org.bigbluebutton.modules.deskshare.services.red5
           ce.status = ConnectionEvent.SUCCESS;
           if (reconnecting) {
             reconnecting = false;
-
+            if (wasPresenterBeforeDisconnect) {
+              wasPresenterBeforeDisconnect = false;
+              stopSharingDesktop(room, room);
+            }
             var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);
             attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
             dispatcher.dispatchEvent(attemptSucceeded);
@@ -214,7 +218,13 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				case "NetConnection.Connect.Closed":
           trace(LOG + "Deskshare connection closed.");
           ce.status = ConnectionEvent.CLOSED;
-          stopViewing();
+          if (UsersUtil.amIPresenter()) {
+            // Let's keep our presenter status before disconnected. We can't
+            // tell the other user's to stop desktop sharing as our connection is broken. (ralam july 24, 2015)
+            wasPresenterBeforeDisconnect = true;
+          } else {
+            stopViewing();
+          }
           if (!logoutOnUserCommand) {
             reconnecting = true;
 
@@ -322,11 +332,13 @@ package org.bigbluebutton.modules.deskshare.services.red5
      * 
      */		
     public function appletStarted(videoWidth:Number, videoHeight:Number):void{
-      trace(LOG + "Got applet started");
-      var event:AppletStartedEvent = new AppletStartedEvent();
-      event.videoWidth = videoWidth;
-      event.videoHeight = videoHeight;
-      dispatcher.dispatchEvent(event);
+      if (nc != null && nc.connected) {
+        trace(LOG + "Got applet started");
+        var event:AppletStartedEvent = new AppletStartedEvent();
+        event.videoWidth = videoWidth;
+        event.videoHeight = videoHeight;
+        dispatcher.dispatchEvent(event);
+      }
     }
     
     /**

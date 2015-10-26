@@ -263,6 +263,7 @@ trait UsersApp {
     users.getUser(msg.userID) foreach {user =>
       val uvo = user.copy(role=msg.role)
       users.addUser(uvo)
+      updateRegUser(uvo)
       val userRole = if(msg.role == Role.MODERATOR) "MODERATOR" else "VIEWER"
       outGW.send(new UserRoleChange(meetingID, recorded, msg.userID, userRole))
     }
@@ -278,7 +279,7 @@ trait UsersApp {
       // if there was a phoneUser with the same userID, reuse the VoiceUser value object
       val vu = users.getUser(msg.userID) match {
         case Some(u) => {
-          if (u.phoneUser) {
+          if (u.voiceUser.joined) {
             u.voiceUser.copy()
           } else {
             new VoiceUser(msg.userID, msg.userID, ru.name, ru.name,  
@@ -308,7 +309,7 @@ trait UsersApp {
         outGW.send(new MeetingState(meetingID, recorded, uvo.userID, permissions, meetingMuted))
         if (!waitingForAcceptance) {
           // Become presenter if the only moderator
-          if (users.numModerators == 1) {
+          if ((users.numModerators == 1) || (users.noPresenter())) {
             if (ru.role == Role.MODERATOR) {
                 assignNewPresenter(msg.userID, ru.name, msg.userID)
             }
@@ -326,7 +327,6 @@ trait UsersApp {
 	  user foreach { u => 
 	    logger.info("User left meeting:  mid=[" + meetingID + "] uid=[" + u.userID + "]")
 	    outGW.send(new UserLeft(msg.meetingID, recorded, u)) 
-	    updateRegUser(u)
 
 	    if (u.presenter) {
 	      /* The current presenter has left the meeting. Find a moderator and make
@@ -498,6 +498,7 @@ trait UsersApp {
         if (msg.response == true) {
           val nu = user.copy(waitingForAcceptance=false)
           users.addUser(nu)
+          updateRegUser(nu)
           outGW.send(new UserJoined(meetingID, recorded, nu))
         } else {
           outGW.send(new GuestAccessDenied(meetingID, recorded, user.userID))

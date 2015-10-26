@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.sharednotes.managers {
 		}
 
 		public function patchDocument(e:SendPatchEvent):void {
-			sender.patchDocument(e.noteId, UserManager.getInstance().getConference().getMyUserId(), e.patch, e.beginIndex, e.endIndex);
+			sender.patchDocument(e.noteId, UserManager.getInstance().getConference().getMyUserId(), e.patch);
 		}
 		public function getCurrentDocument():void {
 			sender.currentDocument();

@@ -1453,6 +1453,8 @@ class ApiController {
                   published(r.isPublished())
                   startTime(r.getStartTime())
                   endTime(r.getEndTime())
+                  size(r.getSize())
+                  rawSize(r.getRawSize())
 				  metadata() {
 					 r.getMetadata().each { k,v ->
 						 "$k"(''){ 
@@ -1466,6 +1468,7 @@ class ApiController {
 							  type(item.getFormat())
 							  url(item.getUrl())
 							  length(item.getLength())
+							  size(item.getSize())
 							  mkp.yield(item.getExtensions())
 						  }
 					  }

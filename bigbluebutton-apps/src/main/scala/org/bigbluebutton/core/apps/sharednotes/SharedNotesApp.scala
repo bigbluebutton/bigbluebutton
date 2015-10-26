@@ -30,7 +30,7 @@ trait SharedNotesApp {
       notes(msg.noteID) = new Note(note.name, result(0).toString())
     }
 
-    outGW.send(new PatchDocumentReply(meetingID, recorded, msg.requesterID, msg.noteID, msg.patch, msg.beginIndex, msg.endIndex))
+    outGW.send(new PatchDocumentReply(meetingID, recorded, msg.requesterID, msg.noteID, msg.patch))
   }
   
   def handleGetCurrentDocumentRequest(msg: GetCurrentDocumentRequest) {

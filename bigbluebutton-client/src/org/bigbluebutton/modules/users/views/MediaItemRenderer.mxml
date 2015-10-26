@@ -42,6 +42,7 @@
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
@@ -92,14 +93,14 @@
 			}
 			
 			private function onRollOver(e:UsersRollEvent):void{
-				if (moderator && (e.userID == data.userID)) {
+				if ((moderator || UsersUtil.isMe(e.userID)) && (e.userID == data.userID)) {
 					rolledOver = true;
 					updateButtons();
 				}
 			}
 			
 			private function onRollOut(e:UsersRollEvent):void{
-				if (moderator && rolledOver) {
+				if ((moderator || UsersUtil.isMe(e.userID)) && rolledOver) {
 					rolledOver = false;
 					updateButtons();
 				}
@@ -115,7 +116,7 @@
 			}
 
 			private function refreshRole(amIModerator:Boolean):void {
-				lockBtn.enabled = muteBtn.enabled = settingsBtn.enabled = moderator = amIModerator;
+				lockBtn.enabled = settingsBtn.enabled = moderator = amIModerator;
 			}
 
 			private function muteMouseOverHandler():void {
@@ -199,6 +200,7 @@
 							muteImg.includeInLayout = !rolledOver;
 							muteBtn.visible = rolledOver;
 							muteBtn.includeInLayout = rolledOver;
+							muteBtn.enabled = true;
 							
 							if(data.talking && !rolledOver){
 								muteImg.filters = [new GlowFilter(0x000000, 1, 6, 6, 2, BitmapFilterQuality.HIGH, false, false)];
@@ -208,8 +210,12 @@
 						}
 					}
 					
-					//If it's not a moderator, it always can be locked.
-					if(	data.role != BBBUser.MODERATOR && ls.isAnythingLocked() ){
+					if ( data.role == BBBUser.MODERATOR ){
+						lockImg.visible = false;
+						lockImg.includeInLayout = false;
+						lockBtn.visible = false;
+						lockBtn.includeInLayout = false;
+					} else if( moderator && ls.isAnythingLocked() ) {
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
 						lockBtn.visible = rolledOver;

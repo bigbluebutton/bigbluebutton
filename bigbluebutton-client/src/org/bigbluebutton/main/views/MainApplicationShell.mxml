@@ -445,8 +445,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			private function closeWaitWindow(evt:BBBEvent):void {
-				if(waitWindow != null) {
+			private function closeWaitWindow(e:BBBEvent):void {
+				if(waitWindow != null && e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
 					trace(LOG + "closeWaitWindow");
 					waitWindow.removeWindow();
 				}

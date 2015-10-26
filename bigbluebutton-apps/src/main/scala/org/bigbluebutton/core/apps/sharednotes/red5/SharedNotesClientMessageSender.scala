@@ -27,8 +27,6 @@ class SharedNotesClientMessageSender(service: ConnectionInvokerService) extends 
     message.put("userID", msg.requesterID)
     message.put("noteID", msg.noteID)
     message.put("patch", msg.patch)
-    message.put("beginIndex", msg.beginIndex.toString)
-    message.put("endIndex", msg.endIndex.toString)
 
     val m = new BroadcastClientMessage(msg.meetingID, "PatchDocumentCommand", message);
     service.sendMessage(m);

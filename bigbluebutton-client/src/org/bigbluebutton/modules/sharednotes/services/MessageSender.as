@@ -78,13 +78,11 @@ package org.bigbluebutton.modules.sharednotes.services
       );
     }
 
-    public function patchDocument(noteId:String, userid:String, patch:String, beginIndex:Number, endIndex:Number):void {
+    public function patchDocument(noteId:String, userid:String, patch:String):void {
       trace(LOG + "Sending [sharednotes.patchDocument] to server.");
       var message:Object = new Object();
       message["noteID"] = noteId;
       message["patch"] = patch;
-      message["beginIndex"] = beginIndex;
-      message["endIndex"] = endIndex;
 
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(

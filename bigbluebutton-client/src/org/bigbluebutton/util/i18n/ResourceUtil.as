@@ -61,7 +61,10 @@ package org.bigbluebutton.util.i18n
 		private var eventDispatcher:IEventDispatcher;
 		private var resourceManager:IResourceManager;
 		private var preferredLocale:String
-		
+		private var masterLocaleLoaded:Boolean = false;
+		private var masterLocaleLoadedCallback:Function = null;
+
+		private static const LOG:String = "Util::ResourceUtil - ";
 		
 		public function ResourceUtil(enforcer:SingletonEnforcer) {
 			if (enforcer == null) {
@@ -188,9 +191,19 @@ package org.bigbluebutton.util.i18n
 			 *  Always load the default language, so if the chosen language 
 			 *  doesn't provide a resource, the default language resource is used
 			 */
-			loadResource(locale);					
+			var dispatcher:IEventDispatcher = loadResource(locale);
+			dispatcher.addEventListener(ResourceEvent.COMPLETE, onMasterLocaleLoaded);
 		}
 		
+		private function onMasterLocaleLoaded(event:ResourceEvent):void {
+			trace(LOG + "Master locale is loaded");
+			masterLocaleLoaded = true;
+			if (masterLocaleLoadedCallback != null) {
+				trace(LOG + "Calling callback to load a second language");
+				masterLocaleLoadedCallback();
+			}
+		}
+
 		private function loadResource(language:String):IEventDispatcher {
 			// Add a random string on the query so that we don't get a cached version.
 			
@@ -208,10 +221,22 @@ package org.bigbluebutton.util.i18n
 			return instance;
         }
         
-		public function changeLocale(locale:String):void{        	
+		private function changeLocaleHelper(locale:String):void {
 			eventDispatcher = loadResource(locale);
 			eventDispatcher.addEventListener(ResourceEvent.COMPLETE, localeChangeComplete);
 			eventDispatcher.addEventListener(ResourceEvent.ERROR, handleResourceNotLoaded);
+		}
+
+		public function changeLocale(locale:String):void {
+			if (masterLocaleLoaded || locale == MASTER_LOCALE) {
+				trace(LOG + "Loading immediately " + locale);
+				changeLocaleHelper(locale);
+			} else {
+				trace(LOG + "Registering callback to load " + locale + " later");
+				masterLocaleLoadedCallback = function():void {
+					changeLocaleHelper(locale);
+				}
+			}
 		}
 		
 		private function localeChangeComplete(event:ResourceEvent):void {
