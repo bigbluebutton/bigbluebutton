@@ -118,7 +118,7 @@ class BigBlueButtonActor(val system: ActorSystem,
           msg.mProps.viewerPass, msg.mProps.createTime, msg.mProps.createDate))
 
         m.actorRef ! new InitializeMeeting(m.mProps.meetingID, m.mProps.recorded)
-        m.actorRef ! "StartTimer"
+        m.actorRef ! InitializeTimerActor
       }
       case Some(m) => {
         log.info("Meeting already created. meetingID={}", msg.mProps.meetingID)

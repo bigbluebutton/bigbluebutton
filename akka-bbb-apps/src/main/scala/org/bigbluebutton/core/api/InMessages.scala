@@ -12,6 +12,9 @@ case class PubSubPing(system: String, timestamp: Long) extends InMessage
 case class IsMeetingActorAliveMessage(meetingId: String) extends InMessage
 case class KeepAliveMessage(aliveID: String) extends InMessage
 
+case class InitializeTimerActor(meetingID: String) extends InMessage
+case class MonitorNumberOfUsers(meetingID: String) extends InMessage
+
 case class CreateMeeting(meetingID: String, mProps: MeetingProperties) extends InMessage
 case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage

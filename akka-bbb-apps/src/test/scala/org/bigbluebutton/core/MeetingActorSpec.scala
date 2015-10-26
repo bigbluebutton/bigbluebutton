@@ -45,11 +45,11 @@ class RunningMeetingActorSpec extends TestKit(ActorSystem("MeetingManagerSpec"))
 
         runningMeetingActor ! new RegisterUser(meetingId, "user1", "User 1", Role.MODERATOR, "extUser1", "myToken")
 
-        outGWActor.expectMsgPF() {
-          case gvu: GetUsersInVoiceConference => {
-            gvu.meetingID == meetingId
-          }
-        }
+        //        outGWActor.expectMsgPF() {
+        //          case gvu: GetUsersInVoiceConference => {
+        ///            gvu.meetingID == meetingId
+        //          }
+        //        }
 
         outGWActor.expectMsgPF() {
           case resp: UserRegistered => {
