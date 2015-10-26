@@ -77,7 +77,7 @@ class Meteor.RedisPubSub
 
     if message?.header? and message?.payload?
       unless message.header.name in notLoggedEventTypes
-        Meteor.log.info "eventType=  #{message.header.name}  ",
+        Meteor.log.info "redis incoming message  #{message.header.name}  ",
           message: jsonMsg
 
       # handle voice events
@@ -370,9 +370,9 @@ class Meteor.RedisPubSub
 
 # message should be an object
 @publish = (channel, message) ->
-  # Meteor.log.info "Publishing",
-  #   channel: channel
-  #   message: message
+  Meteor.log.info "redis outgoing message  #{message.header.name}",
+    channel: channel
+    message: message
 
   if Meteor.redisPubSub?
     Meteor.redisPubSub.pubClient.publish channel, JSON.stringify(message), (err, res) ->
