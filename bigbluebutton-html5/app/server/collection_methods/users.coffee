@@ -143,12 +143,34 @@ Meteor.methods
   # mark the user as offline. remove from the collection on meeting_end #TODO
   Meteor.log.info "marking user [#{userId}] as offline in meeting[#{meetingId}]"
   Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
+  # result = Meteor.Users.remove({'meetingId': meetingId, 'userId': userId})
+  # Meteor.log.error "result on markUserOffline=#{result}"
+
 
 # Corresponds to a valid action on the HTML clientside
 # After authorization, publish a user_leaving_request in redis
 # params: meetingid, userid as defined in BBB-App
 @requestUserLeaving = (meetingId, userId) ->
-  if Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})?
+  userObject = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
+  voiceConf = Meteor.Meetings.findOne({meetingId:meetingId})?.voiceConf
+  if userObject? and voiceConf? and userId? and meetingId?
+
+    # end listenOnly audio for the departing user
+    if userObject.user.listenOnly
+      # Meteor.log.info("~~~~~~~YES, was in listenOnly")
+      listenOnlyMessage =
+        payload:
+          userid: userId
+          meeting_id: meetingId
+          voice_conf: voiceConf
+          name: userObject.user.name
+        header:
+          timestamp: new Date().getTime()
+          name: "user_disconnected_from_global_audio"
+
+      publish Meteor.config.redis.channels.toBBBApps.meeting, listenOnlyMessage
+
+    # remove user from meeting
     message =
       payload:
         meeting_id: meetingId
@@ -156,13 +178,12 @@ Meteor.methods
       header:
         timestamp: new Date().getTime()
         name: "user_leaving_request"
-        version: "0.0.1"
 
-    if userId? and meetingId?
-      Meteor.log.info "sending a user_leaving_request for #{meetingId}:#{userId}"
-      publish Meteor.config.redis.channels.toBBBApps.users, message
-    else
-      Meteor.log.info "did not have enough information to send a user_leaving_request"
+    Meteor.log.info "sending a user_leaving_request for #{meetingId}:#{userId}"
+    publish Meteor.config.redis.channels.toBBBApps.users, message
+  else
+    Meteor.log.info "did not have enough information to send a user_leaving_request"
+
 
 #update a voiceUser - a helper method
 @updateVoiceUser = (meetingId, voiceUserObject) ->
