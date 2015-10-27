@@ -12,6 +12,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
 import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
 import org.bigbluebutton.core.apps.PresentationModel
+import org.bigbluebutton.core.apps.BreakoutRoomApp
 
 object MeetingActorInternal {
   def props(mProps: MeetingProperties,
@@ -53,6 +54,7 @@ class MeetingActor(val mProps: MeetingProperties,
   val outGW: OutMessageGateway)
     extends Actor with UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
+    with BreakoutRoomApp
     with ActorLogging {
 
   val chatModel = new ChatModel()
@@ -63,6 +65,10 @@ class MeetingActor(val mProps: MeetingProperties,
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
 
+  /**
+   * Put the internal message injector into another actor so this
+   * actor is easy to test.
+   */
   var actorMonitor: Option[ActorRef] = None
 
   def receive = {

@@ -5,7 +5,6 @@ import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.MeetingProperties
 
-//trait IncomingMessage
 trait InMessage
 
 case class PubSubPing(system: String, timestamp: Long) extends InMessage
@@ -21,6 +20,10 @@ case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage
 case class EndMeeting(meetingID: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
+
+// Breakout room
+case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, rooms: Vector[BreakoutRoom])
+case class BreakoutRoom(name: String, users: Vector[String])
 
 // Lock
 case class LockUser(meetingID: String, userId: String, lock: Boolean) extends InMessage

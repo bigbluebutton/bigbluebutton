@@ -18,12 +18,13 @@ import org.bigbluebutton.core._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 
-class RunningMeetingActorSpec extends TestKit(ActorSystem("MeetingManagerSpec"))
+class BreakoutRoomsSpec extends TestKit(ActorSystem("BreakoutRoomsSpec"))
     with DefaultTimeout with ImplicitSender with WordSpecLike
     with Matchers with BeforeAndAfterAll
     with MeetingManagerTestFixtures {
 
   val outGWActor = TestProbe()
+
   val eventBus = new IncomingEventBus
   val outgoingEventBus = new OutgoingEventBus
   val outGW = new OutMessageGateway(outgoingEventBus)
@@ -31,23 +32,22 @@ class RunningMeetingActorSpec extends TestKit(ActorSystem("MeetingManagerSpec"))
   outgoingEventBus.subscribe(outGWActor.ref, "outgoingMessageChannel")
 
   val runningMeetingActor = TestActorRef[MeetingActor](
-    MeetingActor.props(mProps, eventBus, outGW))
+    MeetingActor.props(
+      mProps, eventBus, outGW))
 
   override def afterAll {
     shutdown(system)
   }
 
   "A MeetingActor" should {
-    "Respond with UserRegistered.'" in {
+    "Send CreateBreakoutRoom when requested to create breakout rooms" in {
       within(500 millis) {
 
-        runningMeetingActor ! new RegisterUser(meetingId, "user1", "User 1", Role.MODERATOR, "extUser1", "myToken")
+        val room1 = new BreakoutRoom("foo", Vector("a", "b", "c"))
+        val room2 = new BreakoutRoom("bar", Vector("x", "y", "z"))
+        val room3 = new BreakoutRoom("baz", Vector("q", "r", "s"))
 
-        //        outGWActor.expectMsgPF() {
-        //          case gvu: GetUsersInVoiceConference => {
-        ///            gvu.meetingID == meetingId
-        //          }
-        //        }
+        runningMeetingActor ! new CreateBreakoutRooms(meetingId, 10, Vector(room1, room2, room3))
 
         outGWActor.expectMsgPF() {
           case resp: UserRegistered => {
