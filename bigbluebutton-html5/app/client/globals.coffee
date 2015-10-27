@@ -46,6 +46,10 @@ Handlebars.registerHelper "amIInAudio", ->
 Handlebars.registerHelper "amIListenOnlyAudio", ->
   BBB.amIListenOnlyAudio()
 
+# helper to determine whether the user is in the listen only audio stream
+Handlebars.registerHelper "isMyMicLocked", ->
+  BBB.isMyMicLocked()
+
 Handlebars.registerHelper "colourToHex", (value) =>
   @window.colourToHex(value)
 
@@ -612,3 +616,4 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('.panel-footer').attr('style','')
     $('#chatbody').attr('style','')
     $('#newMessageInput').attr('style','')
+
