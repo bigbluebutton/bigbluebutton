@@ -311,16 +311,14 @@ class Meteor.RedisPubSub
         if !oldSettings?.disableMic and newSettings.disableMic
           handleLockingMic(meetingId, newSettings)
 
-        Meteor.log.error newSettings
-        Meteor.log.error oldSettings
         # substitute with the new lock settings
         Meteor.Meetings.update({meetingId: meetingId}, {$set: {
-          'roomLockSettings.disablePrivChat': newSettings.disablePrivateChat #TODO change naming on client
+          'roomLockSettings.disablePrivateChat': newSettings.disablePrivateChat
           'roomLockSettings.disableCam': newSettings.disableCam
           'roomLockSettings.disableMic': newSettings.disableMic
           'roomLockSettings.lockOnJoin': newSettings.lockOnJoin
           'roomLockSettings.lockedLayout': newSettings.lockedLayout
-          'roomLockSettings.disablePubChat': newSettings.disablePublicChat #TODO change naming on client
+          'roomLockSettings.disablePublicChat': newSettings.disablePublicChat
           'roomLockSettings.lockOnJoinConfigurable': newSettings.lockOnJoinConfigurable #TODO
         }})
         return

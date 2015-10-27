@@ -15,11 +15,11 @@ Template.displayUserIcons.helpers
     # the user is set to be locked and there is a relevant lock in place
     locked = BBB.getUser(userId)?.user.locked
     settings = Meteor.Meetings.findOne()?.roomLockSettings
-    lockInAction = settings.disablePrivChat or
+    lockInAction = settings.disablePrivateChat or
                     settings.disableCam or
                     settings.disableMic or
                     settings.lockedLayout or
-                    settings.disablePubChat
+                    settings.disablePublicChat
     return locked and lockInAction
 
 # Opens a private chat tab when a username from the userlist is clicked
