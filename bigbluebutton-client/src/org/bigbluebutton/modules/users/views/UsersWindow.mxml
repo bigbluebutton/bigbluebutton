@@ -290,6 +290,9 @@
 				breakoutRoomsList.addItem({roomName: "Room 2", users: 4, actions: "LJ"});
 				breakoutRoomsList.addItem({roomName: "Room 3", users: 3, actions: "LJ"});
 				roomsBox.visible = roomsBox.includeInLayout = true;
+				if (amIModerator) {
+					closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = true;
+				}
 			}
 			
 			private function lockSettings():void {
@@ -535,7 +538,7 @@
     </mx:DataGrid>
 	
 	<mx:VBox id="roomsBox" visible="false" includeInLayout="false" paddingTop="12"
-			 width="100%" height="50%">
+			 horizontalAlign="center" width="100%" height="50%">
 		<mx:Label text="Breakout Rooms  (14:32 remaining)"/>
 		
 		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
@@ -546,7 +549,10 @@
 				<mx:DataGridColumn dataField="actions" headerText="Actions" 
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</mx:columns>
-		</mx:DataGrid>		
+		</mx:DataGrid>
+		
+		<mx:Button id="closeRoomsBtn" label="Close All Breakout Rooms" visible="false" includeInLayout="false"/>
+		
 	</mx:VBox>
 	
 	<mx:ControlBar width="100%">

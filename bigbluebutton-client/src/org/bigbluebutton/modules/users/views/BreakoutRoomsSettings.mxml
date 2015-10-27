@@ -100,7 +100,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Label text="Time Limit:" />
 			<mx:NumericStepper minimum="1" maximum="600"/>
 			<mx:Label text="Minutes"/>
-			<mx:CheckBox paddingLeft="30" label="Automatically close breakout rooms when time limit"/>
 		</mx:HBox>
 		
 		<mx:Tile id="roomsContainer" width="100%" height="100%"
