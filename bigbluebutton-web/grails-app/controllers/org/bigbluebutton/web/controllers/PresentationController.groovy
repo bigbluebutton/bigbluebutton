@@ -63,39 +63,51 @@ class PresentationController {
     redirect( action:list )
   }
 
-  def upload = {		
+  def upload = {
 
     def meetingId = params.conference
     def meeting = meetingService.getNotEndedMeetingWithId(meetingId);
     if (meeting == null) {
       flash.message = 'meeting is not running'
-      return [];
+
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'no-meeting';
+      return null;
     }
 
     def file = request.getFile('fileUpload')
-		if(file && !file.empty) {
-			flash.message = 'Your file has been uploaded'
-			
-			def presFilename = file.getOriginalFilename()
-			def filenameExt = Util.getFilenameExt(presFilename);
+    if (file && !file.empty) {
+      flash.message = 'Your file has been uploaded'
+
+      def presFilename = file.getOriginalFilename()
+      def filenameExt = Util.getFilenameExt(presFilename);
       String presentationDir = presentationService.getPresentationDir()
       def presId = Util.generatePresentationId(presFilename)
-      File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId) 
+      File uploadDir = Util.createPresentationDirectory(meetingId, presentationDir, presId)
       if (uploadDir != null) {
-         def newFilename = Util.createNewFilename(presId, filenameExt)
-         def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename )
-         file.transferTo(pres)
-         
-         def presentationBaseUrl = presentationService.presentationBaseUrl
-			   UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, presFilename, presentationBaseUrl);
-			   uploadedPres.setUploadedFile(pres);
-			   presentationService.processUploadedPresentation(uploadedPres)
-			 }							             			     	
-		} else {
-			flash.message = 'file cannot be empty'
-		}
+        def newFilename = Util.createNewFilename(presId, filenameExt)
+        def pres = new File(uploadDir.absolutePath + File.separatorChar + newFilename)
+        file.transferTo(pres)
 
-    return [];
+        def presentationBaseUrl = presentationService.presentationBaseUrl
+        UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, presFilename, presentationBaseUrl);
+        uploadedPres.setUploadedFile(pres);
+        presentationService.processUploadedPresentation(uploadedPres)
+
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'upload-success';
+      }
+    } else {
+      flash.message = 'file cannot be empty'
+
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'file-empty';
+    }
+
+    return null;
   }
 
   def testConversion = {
