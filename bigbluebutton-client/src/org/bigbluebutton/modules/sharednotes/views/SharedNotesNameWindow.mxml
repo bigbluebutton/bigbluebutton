@@ -64,6 +64,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:HBox width="100%" height="100%">
       <mx:TextInput id="textInput" restrict="a-zA-Z0-9 " maxChars="20" width="100%" text="{ResourceUtil.getInstance().getString('bbb.sharedNotes.title')}"/>
-      <mx:Button id="btnNew" click="btnNew_clickHandler(event)" icon="@Embed(source='images/ic_note_add_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
+      <mx:Button id="btnNew" click="btnNew_clickHandler(event)" styleName="noteAddIconStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
   </mx:HBox>
 </mx:TitleWindow>
