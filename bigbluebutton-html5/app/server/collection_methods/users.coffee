@@ -208,8 +208,8 @@ Meteor.methods
   u = Meteor.Users.findOne({userId:user.userid, meetingId: meetingId})
   # the collection already contains an entry for this user because
   # we added a dummy user on register_user_message (to save authToken)
-  if u?
-    Meteor.log.info "UPDATING USER #{user.userid}, authToken=#{u.authToken}, locked=#{user.locked}"
+  if u? and u.authToken?
+    Meteor.log.info "UPDATING USER #{user.userid}, authToken=#{u.authToken}, locked=#{user.locked}, username=#{user.name}"
     Meteor.Users.update({userId:user.userid, meetingId: meetingId}, {$set:{
       user:
         userid: user.userid
