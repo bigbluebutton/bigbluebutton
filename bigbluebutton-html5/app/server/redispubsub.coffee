@@ -65,7 +65,7 @@ class Meteor.RedisPubSub
       "get_presentation_info_reply"
       # "get_users_reply"
       "get_chat_history_reply"
-      "get_all_meetings_reply"
+      # "get_all_meetings_reply"
       "presentation_shared_message"
       "presentation_conversion_done_message"
       "presentation_conversion_progress_message"
@@ -73,6 +73,7 @@ class Meteor.RedisPubSub
       "presentation_page_changed_message"
       "BbbPubSubPongMessage"
       "bbb_apps_is_alive_message"
+      "user_voice_talking_message"
     ]
 
     if message?.header? and message?.payload?
