@@ -69,10 +69,10 @@ viewer = (meetingId, userId) ->
   subscribeChat: true
 
   #chat
-  chatPublic: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePubChat) or
+  chatPublic: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePublicChat) or
                 !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
                 Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
-  chatPrivate: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePrivChat) or
+  chatPrivate: !(Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings.disablePrivateChat) or
                 !(Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.locked) or
                 Meteor.Users.findOne({meetingId:meetingId, userId:userId})?.user.presenter
 

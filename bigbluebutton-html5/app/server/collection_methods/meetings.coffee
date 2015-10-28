@@ -13,12 +13,13 @@
       duration: duration
       roomLockSettings:
         # by default the lock settings will be disabled on meeting create
-        disablePrivChat: false
+        disablePrivateChat: false
         disableCam: false
         disableMic: false
         lockOnJoin: Meteor.config.lockOnJoin
         lockedLayout: false
-        disablePubChat: false
+        disablePublicChat: false
+        lockOnJoinConfigurable: false # TODO
 
     id = Meteor.Meetings.insert(entry)
     Meteor.log.info "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}]:duration=[#{duration}]:voiceConf=[#{voiceConf}]
