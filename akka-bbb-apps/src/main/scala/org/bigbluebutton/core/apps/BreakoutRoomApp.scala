@@ -27,8 +27,9 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleCreateBreakoutRooms(msg: CreateBreakoutRooms) {
-    var i = 1
+    var i = 0
     for (room <- msg.rooms) {
+      i += 1
       val presURL = getDefaultPresentationURL()
       val breakoutMeetingId = BreakoutRoomsUtil.createMeetingId(mProps.meetingID, i)
       val voiceConfId = BreakoutRoomsUtil.createVoiceConfId(mProps.voiceBridge, i)
