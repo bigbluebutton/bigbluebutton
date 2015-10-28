@@ -35,7 +35,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
       val voiceConfId = BreakoutRoomsUtil.createVoiceConfId(mProps.voiceBridge, i)
       val r = breakoutModel.createBreakoutRoom(breakoutMeetingId, room.name, voiceConfId, room.users, presURL)
       val p = new BreakoutRoomOutPayload(r.id, r.name, mProps.meetingID,
-        r.voiceConfId, msg.durationInMinutes, bbbWebModeratorPassword, bbbWebViewerPassword, r.defaultPresentationURL)
+        r.voiceConfId, msg.durationInMinutes, bbbWebModeratorPassword, bbbWebViewerPassword,
+        r.defaultPresentationURL)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, mProps.recorded, p))
     }
 
@@ -72,12 +73,19 @@ object BreakoutRoomsUtil {
     DigestUtils.sha1Hex(s);
   }
 
+  def calculateChecksum(apiCall: String, baseString: String, sharedSecret: String): String = {
+    checksum(apiCall.concat(baseString).concat(sharedSecret))
+  }
+
+  def sortParams(params: mutable.Map[String, String]): SortedSet[String] = {
+    collection.immutable.SortedSet[String]() ++ params.keySet
+  }
+
   //From the list of parameters we want to pass. Creates a base string with parameters
   //sorted in alphabetical order for us to sign.
-  def createBaseString(params: immutable.Map[String, Array[String]]): String = {
-    val csbuf = new StringBuffer();
-    var keys: SortedSet[String] = mutable.TreeSet()
-    keys.++(params.keySet)
+  def createBaseString(params: mutable.Map[String, String]): String = {
+    val csbuf = new StringBuffer()
+    val keys = sortParams(params)
 
     var first = true;
     for (key <- keys) {
@@ -87,13 +95,19 @@ object BreakoutRoomsUtil {
         } else {
           csbuf.append("&");
         }
+
         csbuf.append(key);
         csbuf.append("=");
         csbuf.append(value);
+        println(key + "=" + value)
       }
     }
 
     return csbuf.toString();
+  }
+
+  def urlEncode(s: String): String = {
+    URLEncoder.encode(s, "UTF-8");
   }
 
   //
