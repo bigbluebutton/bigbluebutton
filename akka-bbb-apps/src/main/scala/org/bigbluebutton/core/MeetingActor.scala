@@ -13,6 +13,7 @@ import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutA
 import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
 import org.bigbluebutton.core.apps.PresentationModel
 import org.bigbluebutton.core.apps.BreakoutRoomApp
+import org.bigbluebutton.core.apps.BreakoutRoomModel
 
 object MeetingActorInternal {
   def props(mProps: MeetingProperties,
@@ -64,6 +65,7 @@ class MeetingActor(val mProps: MeetingProperties,
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
+  val breakoutModel = new BreakoutRoomModel()
 
   /**
    * Put the internal message injector into another actor so this
@@ -138,7 +140,7 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: RespondToPollRequest => handleRespondToPollRequest(msg)
     case msg: GetPollRequest => handleGetPollRequest(msg)
     case msg: GetCurrentPollRequest => handleGetCurrentPollRequest(msg)
-
+    case msg: CreateBreakoutRooms => handleCreateBreakoutRooms(msg)
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit
     case _ => // do nothing

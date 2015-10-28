@@ -28,6 +28,12 @@ case class KeepAliveMessageReply(aliveID: String) extends IOutMessage
 case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
 case object IsAliveMessage extends IOutMessage
 
+// Breakout Rooms
+case class CreateBreakoutRoom(meetingID: String, recorded: Boolean, room: BreakoutRoomOutPayload) extends IOutMessage
+case class BreakoutRoomOutPayload(internalMeetingId: String, name: String, externalId: String,
+  voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
+  defaultPresentationURL: String)
+
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
 case class NewPermissionsSetting(meetingID: String, setByUser: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage

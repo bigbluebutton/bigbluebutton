@@ -1,4 +1,4 @@
-package org.bigbluebutton.apps
+package org.bigbluebutton.core
 
 import org.scalatest.FlatSpec
 import org.scalatest.BeforeAndAfterAll

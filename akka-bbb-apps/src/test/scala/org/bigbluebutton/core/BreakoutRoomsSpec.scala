@@ -43,18 +43,13 @@ class BreakoutRoomsSpec extends TestKit(ActorSystem("BreakoutRoomsSpec"))
     "Send CreateBreakoutRoom when requested to create breakout rooms" in {
       within(500 millis) {
 
-        val room1 = new BreakoutRoom("foo", Vector("a", "b", "c"))
-        val room2 = new BreakoutRoom("bar", Vector("x", "y", "z"))
-        val room3 = new BreakoutRoom("baz", Vector("q", "r", "s"))
+        val room1 = new BreakoutRoomInPayload("foo", Vector("a", "b", "c"))
+        val room2 = new BreakoutRoomInPayload("bar", Vector("x", "y", "z"))
+        val room3 = new BreakoutRoomInPayload("baz", Vector("q", "r", "s"))
 
         runningMeetingActor ! new CreateBreakoutRooms(meetingId, 10, Vector(room1, room2, room3))
 
-        outGWActor.expectMsgPF() {
-          case resp: UserRegistered => {
-            resp.meetingID == meetingId
-          }
-
-        }
+        outGWActor.expectMsgAllClassOf(500 millis, classOf[CreateBreakoutRoom])
       }
     }
   }

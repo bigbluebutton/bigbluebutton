@@ -22,8 +22,8 @@ case class EndMeeting(meetingID: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
 
 // Breakout room
-case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, rooms: Vector[BreakoutRoom])
-case class BreakoutRoom(name: String, users: Vector[String])
+case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, rooms: Vector[BreakoutRoomInPayload])
+case class BreakoutRoomInPayload(name: String, users: Vector[String])
 
 // Lock
 case class LockUser(meetingID: String, userId: String, lock: Boolean) extends InMessage

@@ -3,20 +3,27 @@ package org.bigbluebutton.core.apps
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.HashMap
 
+case class BreakoutUser(id: String, name: String)
+case class BreakoutRoom(id: String, name: String, voiceConfId: String,
+  assignedUsers: Vector[String], users: Vector[BreakoutUser], defaultPresentationURL: String)
+
 class BreakoutRoomModel {
-  private val messages = new ArrayBuffer[Map[String, String]]()
+  private var rooms = new collection.immutable.HashMap[String, BreakoutRoom]
 
-  def getChatHistory(): Array[Map[String, String]] = {
-    val history = new Array[Map[String, String]](messages.size)
-    messages.copyToArray(history)
-
-    history
+  def add(room: BreakoutRoom) = {
+    rooms += room.id -> room
   }
 
-  def addNewChatMessage(msg: Map[String, String]) {
-    messages append msg
+  def remove(id: String) {
+    rooms -= id
   }
+
+  def createBreakoutRoom(id: String, name: String, voiceConfId: String,
+    assignedUsers: Vector[String], defaultPresentationURL: String): BreakoutRoom = {
+    val room = new BreakoutRoom(id, name, voiceConfId, assignedUsers, Vector(), defaultPresentationURL)
+    add(room)
+    room
+  }
+
 }
 
-case class BreakoutUser(id: String, name: String)
-case class BreakoutRoom(name: String, users: Vector[BreakoutUser])

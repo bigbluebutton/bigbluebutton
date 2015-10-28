@@ -16,15 +16,15 @@ public class WebApiUtil {
   //
   //checksum() -- Return a checksum based on SHA-1 digest
   //
-public static String checksum(String s) {
- String checksum = "";
- try {
-   checksum = DigestUtils.shaHex(s);
- } catch (Exception e) {
-   e.printStackTrace();
- }
- return checksum;
-}
+  public String checksum(String s) {
+   String checksum = "";
+   try {
+     checksum = DigestUtils.shaHex(s);
+   } catch (Exception e) {
+     e.printStackTrace();
+   }
+   return checksum;
+  }
 
   //From the list of parameters we want to pass. Creates a base string with parameters
   //sorted in alphabetical order for us to sign.
@@ -74,23 +74,23 @@ public static String checksum(String s) {
   }
   
   //
-//encodeURIComponent() -- Java encoding similiar to JavaScript encodeURIComponent
-//
-public static String encodeURIComponent(String component)   {     
-  String result = null;      
-  
-  try {       
-    result = URLEncoder.encode(component, "UTF-8")   
-         .replaceAll("\\%28", "(")                          
-         .replaceAll("\\%29", ")")      
-         .replaceAll("\\+", "%20")                          
-         .replaceAll("\\%27", "'")           
-         .replaceAll("\\%21", "!")
-         .replaceAll("\\%7E", "~");     
-  } catch (UnsupportedEncodingException e) {       
-    result = component;     
-  }      
-  
-  return result;   
-} 
+  //encodeURIComponent() -- Java encoding similiar to JavaScript encodeURIComponent
+  //
+  public String encodeURIComponent(String component)   {     
+    String result = null;      
+    
+    try {       
+      result = URLEncoder.encode(component, "UTF-8")   
+           .replaceAll("\\%28", "(")                          
+           .replaceAll("\\%29", ")")      
+           .replaceAll("\\+", "%20")                          
+           .replaceAll("\\%27", "'")           
+           .replaceAll("\\%21", "!")
+           .replaceAll("\\%7E", "~");     
+    } catch (UnsupportedEncodingException e) {       
+      result = component;     
+    }      
+    
+    return result;   
+  } 
 }
