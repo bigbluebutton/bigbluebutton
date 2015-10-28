@@ -2,7 +2,6 @@ package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
 import scala.collection.mutable.ArrayBuffer
-import org.bigbluebutton.core.MeetingActor
 import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.SystemConfiguration
 import org.apache.commons.codec.digest.DigestUtils
@@ -11,9 +10,10 @@ import scala.collection.SortedSet
 import org.apache.commons.lang3.StringUtils
 import java.net.URLEncoder
 import scala.collection.immutable.StringOps
+import org.bigbluebutton.core.LiveMeeting
 
 trait BreakoutRoomApp extends SystemConfiguration {
-  this: MeetingActor =>
+  this: LiveMeeting =>
 
   val outGW: OutMessageGateway
 
@@ -39,18 +39,34 @@ trait BreakoutRoomApp extends SystemConfiguration {
         r.defaultPresentationURL)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, mProps.recorded, p))
     }
-
   }
 
-  /*  
-  def createBreakoutRoom():BreakoutRoom = {
+  def sendJoinURL(userId: String, breakoutId: String) {
     for {
-      presPage <- presModel.getCurrentPage
-      curPDF <- getCurrentPagePDF(presPage) 
-      
+      user <- usersModel.getUser(userId)
+      apiCall = "join"
+      params = BreakoutRoomsUtil.joinParams(user.name, true, breakoutId, bbbWebModeratorPassword, true)
+      baseString = BreakoutRoomsUtil.createBaseString(params)
+      checksum = BreakoutRoomsUtil.calculateChecksum(apiCall, baseString, bbbWebSharedSecret)
+      joinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, baseString, checksum)
+    } yield outGW.send(new BreakoutRoomJoinURL(mProps.meetingID, mProps.recorded, breakoutId,
+      userId, joinURL))
+  }
+
+  def sendBreakoutRoomCreated(meetingId: String, breakoutName: String, breakoutId: String, voiceConfId: String) {
+    // outGW.send(msg)  
+  }
+
+  def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {
+    breakoutModel.getBreakoutRoom(msg.breakoutRoomId) foreach { room =>
+      sendBreakoutRoomCreated(mProps.meetingID, room.name, room.id, room.voiceConfId)
+    }
+
+    breakoutModel.getAssignedUsers(msg.breakoutRoomId) foreach { users =>
+      users.foreach { u => sendJoinURL(u, msg.breakoutRoomId) }
     }
   }
-*/
+
 }
 
 object BreakoutRoomsUtil {
@@ -66,6 +82,11 @@ object BreakoutRoomsUtil {
     swfURL.replace("swf", "pdf")
   }
 
+  def createJoinURL(webAPI: String, apiCall: String, baseString: String, checksum: String): String = {
+    var apiURL = if (webAPI.endsWith("/")) webAPI else webAPI.concat("/")
+    apiURL.concat(apiCall).concat("?").concat(baseString).concat("&checksum=").concat(checksum)
+  }
+
   //
   //checksum() -- Return a checksum based on SHA-1 digest
   //
@@ -75,6 +96,18 @@ object BreakoutRoomsUtil {
 
   def calculateChecksum(apiCall: String, baseString: String, sharedSecret: String): String = {
     checksum(apiCall.concat(baseString).concat(sharedSecret))
+  }
+
+  def joinParams(username: String, isBreakout: Boolean, breakoutId: String,
+    password: String, redirect: Boolean): mutable.Map[String, String] = {
+    val params = new collection.mutable.HashMap[String, String]
+    params += "fullName" -> urlEncode(username)
+    params += "isBreakout" -> urlEncode(isBreakout.toString())
+    params += "meetingID" -> urlEncode(breakoutId)
+    params += "password" -> urlEncode(password)
+    params += "redirect" -> urlEncode(redirect.toString())
+
+    params
   }
 
   def sortParams(params: mutable.Map[String, String]): SortedSet[String] = {
@@ -99,7 +132,6 @@ object BreakoutRoomsUtil {
         csbuf.append(key);
         csbuf.append("=");
         csbuf.append(value);
-        println(key + "=" + value)
       }
     }
 

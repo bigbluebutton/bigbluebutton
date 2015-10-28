@@ -36,7 +36,7 @@ class BreakoutRoomsUtilSpec extends UnitSpec {
     assert(user == encodedUsername)
   }
 
-  it should "create a join api call" in {
+  it should "create a base string" in {
     val baseString = "fullName=User+4621018&isBreakout=true&meetingID=random-1853792&password=mp&redirect=true"
 
     val params = new collection.mutable.HashMap[String, String]
@@ -57,6 +57,18 @@ class BreakoutRoomsUtilSpec extends UnitSpec {
 
     val joinChecksum = BreakoutRoomsUtil.calculateChecksum("join", baseString, sharedSecret)
     assert(joinChecksum == checksum)
+  }
+
+  it should "create a join api url" in {
+    val baseString = "fullName=User+4621018&isBreakout=true&meetingID=random-1853792&password=mp&redirect=true"
+    val webAPI = "http://www.example.com/bigbluebutton/api/"
+    val joinAPI = "join"
+    val checksum = "6baef866df491ae82df992eb14f7f8511d5b77f3"
+
+    val joinURL = webAPI.concat(joinAPI).concat("?").concat(baseString).concat("&checksum=").concat(checksum)
+    val result = BreakoutRoomsUtil.createJoinURL(webAPI, joinAPI, baseString, checksum);
+    assert(joinURL == result)
+
   }
 }
 

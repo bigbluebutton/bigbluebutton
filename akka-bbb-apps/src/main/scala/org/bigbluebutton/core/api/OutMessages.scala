@@ -33,6 +33,9 @@ case class CreateBreakoutRoom(meetingID: String, recorded: Boolean, room: Breako
 case class BreakoutRoomOutPayload(internalMeetingId: String, name: String, externalId: String,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
   defaultPresentationURL: String)
+case class BreakoutRoomJoinURL(meetingID: String, recorded: Boolean, breakoutId: String, userId: String, joinURL: String) extends IOutMessage
+case class BreakoutRoomCreatedX(meetingID: String, recorded: Boolean, breakoutId: BreakoutRoomBody) extends IOutMessage
+case class BreakoutRoomBody(name: String, breakoutId: String)
 
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage

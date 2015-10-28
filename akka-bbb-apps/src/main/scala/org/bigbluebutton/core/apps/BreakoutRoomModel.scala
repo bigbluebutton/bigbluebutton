@@ -25,5 +25,14 @@ class BreakoutRoomModel {
     room
   }
 
+  def getBreakoutRoom(id: String): Option[BreakoutRoom] = {
+    rooms.get(id)
+  }
+
+  def getAssignedUsers(breakoutId: String): Option[Vector[String]] = {
+    for {
+      room <- rooms.get(breakoutId)
+    } yield room.assignedUsers
+  }
 }
 

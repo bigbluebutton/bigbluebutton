@@ -20,12 +20,14 @@ import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages.CreateMeetingRequest;
+import akka.event.Logging
 
 class BigBlueButtonInGW(val system: ActorSystem,
     eventBus: IncomingEventBus,
     outGW: OutMessageGateway) extends IBigBlueButtonInGW {
 
-  val log = system.log
+  val log = Logging(system, getClass)
+
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system,
     eventBus, outGW), "bigbluebutton-actor")
 
@@ -39,7 +41,7 @@ class BigBlueButtonInGW(val system: ActorSystem,
             msg.payload.requesterId, msg.payload.pollType, msg.payload.answers)))
       }
       case msg: PubSubPingMessage => {
-        bbbActor ! new PubSubPing(msg.payload.system, msg.payload.timestamp)
+        eventBus.publish(BigBlueButtonEvent("meeting-manager", new PubSubPing(msg.payload.system, msg.payload.timestamp)))
       }
 
       case msg: CreateMeetingRequest => {

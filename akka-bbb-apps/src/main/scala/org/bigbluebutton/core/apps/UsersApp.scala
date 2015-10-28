@@ -3,13 +3,13 @@ package org.bigbluebutton.core.apps
 import org.bigbluebutton.core.api._
 import scala.collection.mutable.HashMap
 import java.util.ArrayList
-import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.ListSet
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.LiveMeeting
 
 trait UsersApp {
-  this: MeetingActor =>
+  this: LiveMeeting =>
 
   val outGW: OutMessageGateway
 
@@ -555,7 +555,7 @@ trait UsersApp {
 
   def assignNewPresenter(newPresenterID: String, newPresenterName: String, assignedBy: String) {
     // Stop poll if one is running as presenter left.
-    this.context.self ! StopPollRequest(mProps.meetingID, assignedBy)
+    handleStopPollRequest(StopPollRequest(mProps.meetingID, assignedBy))
 
     if (usersModel.hasUser(newPresenterID)) {
 
