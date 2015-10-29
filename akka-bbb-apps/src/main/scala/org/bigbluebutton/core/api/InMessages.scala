@@ -4,6 +4,7 @@ import org.bigbluebutton.core.api.Role._
 import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.MeetingProperties
+import org.bigbluebutton.core.apps.BreakoutUser
 
 trait InMessage
 
@@ -25,6 +26,9 @@ case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String,
 case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int, rooms: Vector[BreakoutRoomInPayload]) extends InMessage
 case class BreakoutRoomInPayload(name: String, users: Vector[String])
 case class BreakoutRoomCreated(meetingId: String, breakoutRoomId: String) extends InMessage
+case class RequestBreakoutJoinURL(meetingId: String, breakoutId: String, userId: String) extends InMessage
+case class BreakoutRoomUsersUpdate(meetingId: String, breakoutId: String, users: Vector[BreakoutUser]) extends InMessage
+case class UpdateTimeRemaining(meetingId: String) extends InMessage
 
 // Lock
 case class LockUser(meetingID: String, userId: String, lock: Boolean) extends InMessage

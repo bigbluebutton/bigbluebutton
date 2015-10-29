@@ -49,12 +49,11 @@ trait BreakoutRoomApp extends SystemConfiguration {
       baseString = BreakoutRoomsUtil.createBaseString(params)
       checksum = BreakoutRoomsUtil.calculateChecksum(apiCall, baseString, bbbWebSharedSecret)
       joinURL = BreakoutRoomsUtil.createJoinURL(bbbWebAPI, apiCall, baseString, checksum)
-    } yield outGW.send(new BreakoutRoomJoinURL(mProps.meetingID, mProps.recorded, breakoutId,
-      userId, joinURL))
+    } yield outGW.send(new BreakoutRoomJoinURL(mProps.meetingID, mProps.recorded, breakoutId, userId, joinURL))
   }
 
-  def sendBreakoutRoomCreated(meetingId: String, breakoutName: String, breakoutId: String, voiceConfId: String) {
-    // outGW.send(msg)  
+  def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURL) {
+    sendJoinURL(msg.userId, msg.breakoutId)
   }
 
   def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {
@@ -67,6 +66,15 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
   }
 
+  def sendBreakoutRoomCreated(meetingId: String, breakoutName: String, breakoutId: String, voiceConfId: String) {
+    outGW.send(new BreakoutRoomStarted(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, breakoutId)))
+  }
+
+  def handleBreakoutRoomUsersUpdate(msg: BreakoutRoomUsersUpdate) {
+    breakoutModel.updateBreakoutUsers(msg.breakoutId, msg.users) foreach { room =>
+      outGW.send(new UpdateBreakoutUsers(mProps.meetingID, mProps.recorded, msg.breakoutId, room.users))
+    }
+  }
 }
 
 object BreakoutRoomsUtil {

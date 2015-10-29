@@ -142,6 +142,10 @@ class MeetingActor(val mProps: MeetingProperties,
     // Breakout rooms
     case msg: CreateBreakoutRooms => liveMeeting.handleCreateBreakoutRooms(msg)
     case msg: BreakoutRoomCreated => liveMeeting.handleBreakoutRoomCreated(msg)
+    case msg: RequestBreakoutJoinURL => liveMeeting.handleRequestBreakoutJoinURL(msg)
+    case msg: BreakoutRoomUsersUpdate => liveMeeting.handleBreakoutRoomUsersUpdate(msg)
+    case msg: UpdateTimeRemaining => liveMeeting.handleUpdateTimeRemaining(msg)
+
     case msg: EndMeeting => liveMeeting.handleEndMeeting(msg)
 
     case _ => // do nothing

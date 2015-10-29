@@ -8,6 +8,7 @@ import org.bigbluebutton.core.MeetingProperties
 import org.bigbluebutton.core.apps.PollVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
+import org.bigbluebutton.core.apps.BreakoutUser
 
 abstract class OutMessage
 
@@ -34,8 +35,10 @@ case class BreakoutRoomOutPayload(internalMeetingId: String, name: String, exter
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
   defaultPresentationURL: String)
 case class BreakoutRoomJoinURL(meetingID: String, recorded: Boolean, breakoutId: String, userId: String, joinURL: String) extends IOutMessage
-case class BreakoutRoomCreatedX(meetingID: String, recorded: Boolean, breakoutId: BreakoutRoomBody) extends IOutMessage
+case class BreakoutRoomStarted(meetingID: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
 case class BreakoutRoomBody(name: String, breakoutId: String)
+case class UpdateBreakoutUsers(meetingID: String, recorded: Boolean, breakoutId: String, users: Vector[BreakoutUser]) extends IOutMessage
+case class MeetingTimeRemainingUpdate(meetingID: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
 
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage

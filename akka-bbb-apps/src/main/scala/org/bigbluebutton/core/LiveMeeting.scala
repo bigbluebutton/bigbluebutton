@@ -89,6 +89,12 @@ class LiveMeeting(val mProps: MeetingProperties,
     }
   }
 
+  def handleUpdateTimeRemaining(msg: UpdateTimeRemaining) {
+    val endMeetingTime = meetingModel.startedOn + mProps.duration
+    val timeRemaining = endMeetingTime - timeNowInMinutes()
+    outGW.send(new MeetingTimeRemainingUpdate(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+  }
+
   def timeNowInMinutes(): Long = {
     TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
   }

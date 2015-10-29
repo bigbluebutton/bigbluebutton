@@ -10,8 +10,9 @@ case class BreakoutRoom(id: String, name: String, voiceConfId: String,
 class BreakoutRoomModel {
   private var rooms = new collection.immutable.HashMap[String, BreakoutRoom]
 
-  def add(room: BreakoutRoom) = {
+  def add(room: BreakoutRoom): BreakoutRoom = {
     rooms += room.id -> room
+    room
   }
 
   def remove(id: String) {
@@ -33,6 +34,14 @@ class BreakoutRoomModel {
     for {
       room <- rooms.get(breakoutId)
     } yield room.assignedUsers
+  }
+
+  def updateBreakoutUsers(breakoutId: String, users: Vector[BreakoutUser]): Option[BreakoutRoom] = {
+    for {
+      room <- rooms.get(breakoutId)
+      newroom = room.copy(users = users)
+      room2 = add(newroom)
+    } yield room2
   }
 }
 
