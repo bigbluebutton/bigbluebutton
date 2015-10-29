@@ -71,28 +71,40 @@ class LiveMeeting(val mProps: MeetingProperties,
     }
   }
 
-  def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
-    println("handleMonitorNumberOfWebUsers")
-    if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
-      if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
-        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
-        outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
-      }
-    }
-
+  def sendTimeRemainingNotice() {
     val now = timeNowInMinutes
-
-    //    println("(" + meetingModel.startedOn + "+" + mProps.duration + ") - " + now + " = " + ((meetingModel.startedOn + mProps.duration) - now) + " < 15")
 
     if (mProps.duration > 0 && (((meetingModel.startedOn + mProps.duration) - now) < 15)) {
       //  log.warning("MEETING WILL END IN 15 MINUTES!!!!")
     }
   }
 
-  def handleUpdateTimeRemaining(msg: UpdateTimeRemaining) {
+  def handleMonitorNumberOfWebUsers(msg: MonitorNumberOfUsers) {
+    if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
+      if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
+        log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
+        outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+      }
+    }
+  }
+
+  def calculateTimeRemaining(): Int = {
     val endMeetingTime = meetingModel.startedOn + mProps.duration
     val timeRemaining = endMeetingTime - timeNowInMinutes()
-    outGW.send(new MeetingTimeRemainingUpdate(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+    timeRemaining.toInt
+  }
+
+  def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate) {
+    if (mProps.duration > 0) {
+      val endMeetingTime = meetingModel.startedOn + mProps.duration
+      val timeRemaining = endMeetingTime - timeNowInMinutes()
+      outGW.send(new MeetingTimeRemainingUpdate(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+    }
+
+  }
+
+  def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {
+
   }
 
   def timeNowInMinutes(): Long = {

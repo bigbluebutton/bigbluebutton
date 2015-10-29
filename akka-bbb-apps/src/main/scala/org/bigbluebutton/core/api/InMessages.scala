@@ -12,8 +12,10 @@ case class PubSubPing(system: String, timestamp: Long) extends InMessage
 case class IsMeetingActorAliveMessage(meetingId: String) extends InMessage
 case class KeepAliveMessage(aliveID: String) extends InMessage
 
-case class InitializeTimerActor(meetingID: String) extends InMessage
+// Meeting
 case class MonitorNumberOfUsers(meetingID: String) extends InMessage
+case class SendTimeRemainingUpdate(meetingId: String) extends InMessage
+case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
 
 case class CreateMeeting(meetingID: String, mProps: MeetingProperties) extends InMessage
 case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
@@ -28,7 +30,7 @@ case class BreakoutRoomInPayload(name: String, users: Vector[String])
 case class BreakoutRoomCreated(meetingId: String, breakoutRoomId: String) extends InMessage
 case class RequestBreakoutJoinURL(meetingId: String, breakoutId: String, userId: String) extends InMessage
 case class BreakoutRoomUsersUpdate(meetingId: String, breakoutId: String, users: Vector[BreakoutUser]) extends InMessage
-case class UpdateTimeRemaining(meetingId: String) extends InMessage
+case class SendBreakoutUsersUpdate(meetingId: String) extends InMessage
 
 // Lock
 case class LockUser(meetingID: String, userId: String, lock: Boolean) extends InMessage

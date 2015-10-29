@@ -8,6 +8,10 @@ case class MeetingProperties(meetingID: String, externalMeetingID: String, meeti
   voiceBridge: String, duration: Int, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
   moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, isBreakout: Boolean)
 
+case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
+  sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
+  sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
+
 class MeetingModel {
   private var audioSettingsInited = false
   private var permissionsInited = false
@@ -23,93 +27,36 @@ class MeetingModel {
 
   private var voiceRecordingFilename: String = ""
 
+  private var meetingExtension = new MeetingExtensionProp
+
   val startedOn = timeNowInMinutes;
 
-  def muteMeeting() {
-    meetingMuted = true
+  def incrementNumExtension(): MeetingExtensionProp = {
+    meetingExtension = meetingExtension.copy(numExtensions = meetingExtension.numExtensions + 1)
+    meetingExtension
   }
 
-  def unmuteMeeting() {
-    meetingMuted = false
-  }
-
-  def isMeetingMuted(): Boolean = {
-    meetingMuted
-  }
-
-  def recordingStarted() {
-    recording = true
-  }
-
-  def recordingStopped() {
-    recording = false
-  }
-
-  def isRecording(): Boolean = {
-    recording
-  }
-
-  def lastWebUserLeft() {
-    lastWebUserLeftOnTimestamp = timeNowInMinutes
-  }
-
-  def lastWebUserLeftOn(): Long = {
-    lastWebUserLeftOnTimestamp
-  }
-
-  def resetLastWebUserLeftOn() {
-    lastWebUserLeftOnTimestamp = 0
-  }
-
-  def setVoiceRecordingFilename(path: String) {
-    voiceRecordingFilename = path
-  }
-
-  def getVoiceRecordingFilename(): String = {
-    voiceRecordingFilename
-  }
-
-  def permisionsInitialized(): Boolean = {
-    permissionsInited
-  }
-
-  def initializePermissions() {
-    permissionsInited = true
-  }
-
-  def audioSettingsInitialized(): Boolean = {
-    audioSettingsInited
-  }
-
-  def initializeAudioSettings() {
-    audioSettingsInited = true
-  }
-
-  def permissionsEqual(other: Permissions): Boolean = {
-    permissions == other
-  }
-
-  def lockLayout(lock: Boolean) {
-    permissions = permissions.copy(lockedLayout = lock)
-  }
-
-  def getPermissions(): Permissions = {
-    permissions
-  }
-
-  def setPermissions(p: Permissions) {
-    permissions = p
-  }
-
-  def meetingHasEnded() {
-    meetingEnded = true
-  }
-
-  def hasMeetingEnded(): Boolean = {
-    meetingEnded
-  }
-
-  def timeNowInMinutes(): Long = {
-    TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
-  }
+  def getMeetingExtensionProp(): MeetingExtensionProp = meetingExtension
+  def muteMeeting() = meetingMuted = true
+  def unmuteMeeting() = meetingMuted = false
+  def isMeetingMuted(): Boolean = meetingMuted
+  def recordingStarted() = recording = true
+  def recordingStopped() = recording = false
+  def isRecording(): Boolean = recording
+  def lastWebUserLeft() = lastWebUserLeftOnTimestamp = timeNowInMinutes
+  def lastWebUserLeftOn(): Long = lastWebUserLeftOnTimestamp
+  def resetLastWebUserLeftOn() = lastWebUserLeftOnTimestamp = 0
+  def setVoiceRecordingFilename(path: String) = voiceRecordingFilename = path
+  def getVoiceRecordingFilename(): String = voiceRecordingFilename
+  def permisionsInitialized(): Boolean = permissionsInited
+  def initializePermissions() = permissionsInited = true
+  def audioSettingsInitialized(): Boolean = audioSettingsInited
+  def initializeAudioSettings() = audioSettingsInited = true
+  def permissionsEqual(other: Permissions): Boolean = permissions == other
+  def lockLayout(lock: Boolean) = permissions = permissions.copy(lockedLayout = lock)
+  def getPermissions(): Permissions = permissions
+  def setPermissions(p: Permissions) = permissions = p
+  def meetingHasEnded() = meetingEnded = true
+  def hasMeetingEnded(): Boolean = meetingEnded
+  def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
 }

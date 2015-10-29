@@ -11,11 +11,14 @@ import org.apache.commons.lang3.StringUtils
 import java.net.URLEncoder
 import scala.collection.immutable.StringOps
 import org.bigbluebutton.core.LiveMeeting
+import org.bigbluebutton.core.bus.IncomingEventBus
+import org.bigbluebutton.core.bus.BigBlueButtonEvent
 
 trait BreakoutRoomApp extends SystemConfiguration {
   this: LiveMeeting =>
 
   val outGW: OutMessageGateway
+  val eventBus: IncomingEventBus
 
   def getDefaultPresentationURL(): String = {
     var presURL = bbbWebDefaultPresentationURL
@@ -74,6 +77,13 @@ trait BreakoutRoomApp extends SystemConfiguration {
     breakoutModel.updateBreakoutUsers(msg.breakoutId, msg.users) foreach { room =>
       outGW.send(new UpdateBreakoutUsers(mProps.meetingID, mProps.recorded, msg.breakoutId, room.users))
     }
+  }
+
+  def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
+    val users = usersModel.getUsers().toVector
+    val breakoutUsers = users map { u => new BreakoutUser(u.userID, u.name) }
+    eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
+      new BreakoutRoomUsersUpdate(mProps.externalMeetingID, mProps.meetingID, breakoutUsers)))
   }
 }
 
