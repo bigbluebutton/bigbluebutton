@@ -138,10 +138,17 @@ class Meteor.RedisPubSub
       if message.header.name is "user_joined_message"
         userObj = message.payload.user
         dbUser = Meteor.Users.findOne({userId: message.payload.user.userid, meetingId: message.payload.meeting_id})
-        if dbUser?.clientType is "HTML5" # typically html5 users will be in the db [as a dummy user] before the joining message
-          status = dbUser?.validated
-          Meteor.log.info "in user_joined_message the validStatus of the user was #{status}"
-        userJoined meetingId, userObj
+
+        # On attempting reconnection of Flash clients (in voiceBridge) we receive an extra user_joined_message
+        # Ignore it as it will add an extra user in the userlist, creating discrepancy with the list in the Flash client
+        if dbUser?.user?.connection_status is "offline" and message.payload.user?.phone_user
+          Meteor.log.error "offline AND phone user"
+          return # without joining the user
+        else
+          if dbUser?.clientType is "HTML5" # typically html5 users will be in the db [as a dummy user] before the joining message
+            status = dbUser?.validated
+            Meteor.log.info "in user_joined_message the validStatus of the user was #{status}"
+          userJoined meetingId, userObj
         return
 
       if message.header.name is "user_left_message"
