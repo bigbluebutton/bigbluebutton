@@ -222,17 +222,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
 
 
   BBB.getMyUserName = (callback) ->
-    name = getInSession "userName" # check if we actually have one in the session
-
-    if name?
-      name # great return it, no database query
-    else # we need it from the database
-      user = BBB.getCurrentUser()
-
-      if user?
-        name = BBB.getUserName(user.userId)
-        setInSession "userName", name # store in session for fast access next time
-        name
+    BBB.getUserName(BBB.getCurrentUser()?.userId)
 
   BBB.getMyVoiceBridge = (callback) ->
     res = Meteor.Meetings.findOne({}).voiceConf

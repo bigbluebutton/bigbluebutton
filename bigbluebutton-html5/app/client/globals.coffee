@@ -455,7 +455,6 @@ Handlebars.registerHelper "getPollQuestions", ->
   amplify.store('messageFontSize', null)
   amplify.store('tabsRenderedTime', null)
   amplify.store('userId', null)
-  amplify.store('userName', null)
   amplify.store('display_menu', null)
   if callback?
     callback()
