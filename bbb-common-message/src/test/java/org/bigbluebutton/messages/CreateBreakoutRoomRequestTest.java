@@ -1,6 +1,6 @@
 package org.bigbluebutton.messages;
 
-import org.bigbluebutton.messages.CreateBreakoutRoomRequest.CreateBreakoutRoomRequestPayload;
+import org.bigbluebutton.messages.payload.CreateBreakoutRoomRequestPayload;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,7 +9,8 @@ import com.google.gson.Gson;
 public class CreateBreakoutRoomRequestTest {
   @Test
   public void testCreateBreakoutRoomRequest() {
-    String meetingId = "abc123";
+    String breakoutId = "abc123";
+    String parentId = "abc-123";
     Integer durationInMinutes = 20;
     String name = "Breakout room 1";
     String voiceConfId = "851153";
@@ -18,7 +19,7 @@ public class CreateBreakoutRoomRequestTest {
     String defaultPresentationURL = "http://localhost/foo.pdf";
     
     CreateBreakoutRoomRequestPayload payload = 
-        new CreateBreakoutRoomRequestPayload(meetingId, name, voiceConfId, 
+        new CreateBreakoutRoomRequestPayload(breakoutId, parentId, name, voiceConfId, 
             viewerPassword, moderatorPassword, durationInMinutes, defaultPresentationURL);
     CreateBreakoutRoomRequest msg = new CreateBreakoutRoomRequest(payload);    
     Gson gson = new Gson();
@@ -28,7 +29,7 @@ public class CreateBreakoutRoomRequestTest {
     CreateBreakoutRoomRequest rxMsg = gson.fromJson(json, CreateBreakoutRoomRequest.class);
     
     Assert.assertEquals(rxMsg.header.name, CreateBreakoutRoomRequest.NAME);
-    Assert.assertEquals(rxMsg.payload.meetingId, meetingId);
+    Assert.assertEquals(rxMsg.payload.breakoutId, breakoutId);
     Assert.assertEquals(rxMsg.payload.name, name);
     Assert.assertEquals(rxMsg.payload.voiceConfId, voiceConfId);
     Assert.assertEquals(rxMsg.payload.viewerPassword, viewerPassword);

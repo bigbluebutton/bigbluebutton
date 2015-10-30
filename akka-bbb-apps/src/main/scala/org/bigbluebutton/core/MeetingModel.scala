@@ -27,16 +27,23 @@ class MeetingModel {
 
   private var voiceRecordingFilename: String = ""
 
-  private var meetingExtension = new MeetingExtensionProp
+  private var extension = new MeetingExtensionProp
 
   val startedOn = timeNowInMinutes;
 
-  def incrementNumExtension(): MeetingExtensionProp = {
-    meetingExtension = meetingExtension.copy(numExtensions = meetingExtension.numExtensions + 1)
-    meetingExtension
+  def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
+  def incNumExtension(): Int = {
+    if (extension.numExtensions < extension.maxExtensions) {
+      extension = extension.copy(numExtensions = extension.numExtensions + 1); extension.numExtensions
+    }
+    extension.numExtensions
   }
 
-  def getMeetingExtensionProp(): MeetingExtensionProp = meetingExtension
+  def notice15MinutesSent() = extension = extension.copy(sent15MinNotice = true)
+  def notice10MinutesSent() = extension = extension.copy(sent10MinNotice = true)
+  def notice5MinutesSent() = extension = extension.copy(sent5MinNotice = true)
+
+  def getMeetingExtensionProp(): MeetingExtensionProp = extension
   def muteMeeting() = meetingMuted = true
   def unmuteMeeting() = meetingMuted = false
   def isMeetingMuted(): Boolean = meetingMuted

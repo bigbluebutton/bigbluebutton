@@ -31,13 +31,13 @@ case object IsAliveMessage extends IOutMessage
 
 // Breakout Rooms
 case class CreateBreakoutRoom(meetingID: String, recorded: Boolean, room: BreakoutRoomOutPayload) extends IOutMessage
-case class BreakoutRoomOutPayload(internalMeetingId: String, name: String, externalId: String,
+case class BreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
   defaultPresentationURL: String)
-case class BreakoutRoomJoinURL(meetingID: String, recorded: Boolean, breakoutId: String, userId: String, joinURL: String) extends IOutMessage
-case class BreakoutRoomStarted(meetingID: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
+case class BreakoutRoomJoinURLOutMessage(meetingID: String, recorded: Boolean, breakoutId: String, userId: String, joinURL: String) extends IOutMessage
+case class BreakoutRoomStartedOutMessage(meetingID: String, recorded: Boolean, breakout: BreakoutRoomBody) extends IOutMessage
 case class BreakoutRoomBody(name: String, breakoutId: String)
-case class UpdateBreakoutUsers(meetingID: String, recorded: Boolean, breakoutId: String, users: Vector[BreakoutUser]) extends IOutMessage
+case class UpdateBreakoutUsersOutMessage(meetingID: String, recorded: Boolean, breakoutId: String, users: Vector[BreakoutUser]) extends IOutMessage
 case class MeetingTimeRemainingUpdate(meetingID: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
 
 // Permissions
