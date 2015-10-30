@@ -41,7 +41,7 @@ case class BreakoutRoomInPayload(name: String, users: Vector[String])
 // Sent by user to request for a join URL in order to be able to join a breakout room
 case class RequestBreakoutJoinURLInMessage(meetingId: String, breakoutId: String,
   userId: String) extends InMessage
-// Sent by bbb-web telling us that breakout rooms has been created.
+// Sent by breakout actor to tell meeting actor that breakout room has been created.
 case class BreakoutRoomCreated(meetingId: String,
   breakoutRoomId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor the list of users in the breakout room.    

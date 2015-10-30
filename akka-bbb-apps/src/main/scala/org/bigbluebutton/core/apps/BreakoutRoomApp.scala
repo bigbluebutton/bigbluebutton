@@ -61,7 +61,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {
     breakoutModel.getBreakoutRoom(msg.breakoutRoomId) foreach { room =>
-      sendBreakoutRoomCreated(mProps.meetingID, room.name, room.id, room.voiceConfId)
+      sendBreakoutRoomStarted(mProps.meetingID, room.name, room.id, room.voiceConfId)
     }
 
     breakoutModel.getAssignedUsers(msg.breakoutRoomId) foreach { users =>
@@ -69,7 +69,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
   }
 
-  def sendBreakoutRoomCreated(meetingId: String, breakoutName: String, breakoutId: String, voiceConfId: String) {
+  def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutId: String, voiceConfId: String) {
     outGW.send(new BreakoutRoomStartedOutMessage(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, breakoutId)))
   }
 

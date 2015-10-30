@@ -34,6 +34,13 @@ class MeetingActorInternal(val mProps: MeetingProperties,
   // Query to get voice conference users
   outGW.send(new GetUsersInVoiceConference(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
 
+  if (mProps.isBreakout) {
+    // This is a breakout room. Inform our parent meeting that we have been successfully created.
+    eventBus.publish(BigBlueButtonEvent(
+      mProps.externalMeetingID,
+      BreakoutRoomCreated(mProps.externalMeetingID, mProps.meetingID)))
+  }
+
   def receive = {
     case "MonitorNumberOfWebUsers" => handleMonitorNumberOfWebUsers()
   }
