@@ -157,7 +157,6 @@ Meteor.methods
 
     # end listenOnly audio for the departing user
     if userObject.user.listenOnly
-      # Meteor.log.info("~~~~~~~YES, was in listenOnly")
       listenOnlyMessage =
         payload:
           userid: userId
@@ -209,7 +208,7 @@ Meteor.methods
   # the collection already contains an entry for this user because
   # we added a dummy user on register_user_message (to save authToken)
   if u? and u.authToken?
-    Meteor.log.info "UPDATING USER #{user.userid}, authToken=#{u.authToken}, locked=#{user.locked}, username=#{user.name}"
+    Meteor.log.info "(case1) UPDATING USER #{user.userid}, authToken=#{u.authToken}, locked=#{user.locked}, username=#{user.name}"
     Meteor.Users.update({userId:user.userid, meetingId: meetingId}, {$set:{
       user:
         userid: user.userid
@@ -261,14 +260,9 @@ Meteor.methods
       Meteor.log.info "added a system message in chat for user #{userId}"
 
   else
-    # scenario: there are meetings running at the time when the meteor
-    # process starts. As a result we the get_users_reply message contains
-    # users for which we have not observed user_registered_message and
-    # hence we do not have the auth_token. There will be permission issues
-    # as the server collection does not have the auth_token of such users
-    # and cannot authorize their client side actions
-    Meteor.log.info "NOTE: got user_joined_message "
-    entry =
+    Meteor.log.info "NOTE: got user_joined_message #{user.name} #{user.userid}"
+
+    obj = Meteor.Users.upsert({meetingId: meetingId, userId: userId}, {
       meetingId: meetingId
       userId: userId
       user:
@@ -297,9 +291,12 @@ Meteor.methods
           locked: user.voiceUser.locked
           muted: user.voiceUser.muted
         webcam_stream: user.webcam_stream
+      }, (err, numChanged) ->
+        if numChanged.insertedId?
+          Meteor.log.info "joining user (case2) userid=[#{userId}], id=[#{obj}]:#{user.name}.
+            Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}")
 
-    id = Meteor.Users.insert(entry)
-    Meteor.log.info "joining user userid=[#{userId}], id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+
 
 @createDummyUser = (meetingId, userId, authToken) ->
   if Meteor.Users.findOne({userId:userId, meetingId: meetingId, authToken:authToken})?

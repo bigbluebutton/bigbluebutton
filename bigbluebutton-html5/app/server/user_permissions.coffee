@@ -92,7 +92,7 @@ viewer = (meetingId, userId) ->
   Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken} validated:#{validated}"
 
   user = Meteor.Users.findOne({meetingId:meetingId, userId: userId})
-  Meteor.log.info "user=" + JSON.stringify user
+  # Meteor.log.info "user=" + JSON.stringify user
   if user? and authToken is user.authToken # check if the user is who he claims to be
     if user.validated and user.clientType is "HTML5"
 
