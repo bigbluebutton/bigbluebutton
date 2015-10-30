@@ -63,8 +63,30 @@ Meteor.methods
 				from_username: messageObject.from_username
 				from_lang: messageObject.from_lang
 
-		id = Meteor.Chat.insert(entry)
-		Meteor.log.info "added chat id=[#{id}]:#{messageObject.message}." #" Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+		# id = Meteor.Chat.insert(entry)
+		# Meteor.log.info "added chat id=[#{id}]:#{messageObject.message}." #" Chat.size is now #{Meteor.Chat.find({meetingId: meetingId}).count()}"
+		id = Meteor.Chat.upsert({
+			meetingId:meetingId
+			'message.message': messageObject.message
+			'message.from_time': messageObject.from_time
+			'message.from_userid': messageObject.from_userid
+			}, {
+			meetingId: meetingId
+			message:
+				chat_type: messageObject.chat_type
+				message: messageObject.message
+				to_username: messageObject.to_username
+				from_tz_offset: messageObject.from_tz_offset
+				from_color: messageObject.from_color
+				to_userid: messageObject.to_userid
+				from_userid: messageObject.from_userid
+				from_time: messageObject.from_time
+				from_username: messageObject.from_username
+				from_lang: messageObject.from_lang
+			}, (err, numChanged) ->
+				if numChanged.insertedId?
+					Meteor.log.error "added chat id=[#{numChanged.insertedId}]
+					#{messageObject.from_username} to #{'PUBLIC' if messageObject.to_username?}:#{messageObject.message}")
 
 # called on server start and meeting end
 @clearChatCollection = (meetingId) ->

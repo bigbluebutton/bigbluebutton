@@ -20,7 +20,8 @@
       disablePublicChat: false
       lockOnJoinConfigurable: false # TODO
   }}, (err, numChanged) ->
-    Meteor.log.error "finished finding for MEETING #{meetingId}  inserted=#{numChanged.insertedId?}")
+    if numChanged.insertedId?
+      Meteor.log.error "added MEETING #{meetingId}")
 
 
 
