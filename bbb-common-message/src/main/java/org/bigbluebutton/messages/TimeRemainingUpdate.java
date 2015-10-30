@@ -1,10 +1,11 @@
 package org.bigbluebutton.messages;
 
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.messages.payload.MeetingTimeRemainingPayload;
 
 import com.google.gson.Gson;
 
-public class TimeRemainingUpdate {
+public class TimeRemainingUpdate implements IBigBlueButtonMessage {
   public final static String NAME = "TimeRemainingUpdate";
   
   public final Header header;

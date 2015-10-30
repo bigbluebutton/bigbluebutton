@@ -2,6 +2,7 @@ package org.bigbluebutton.core.pubsub.receivers;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.bigbluebutton.common.messages.DestroyMeetingMessage;
 import org.bigbluebutton.common.messages.EndMeetingMessage;
 import org.bigbluebutton.common.messages.GetAllMeetingsRequest;
@@ -15,7 +16,10 @@ import org.bigbluebutton.common.messages.UserConnectedToGlobalAudio;
 import org.bigbluebutton.common.messages.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.messages.CreateBreakoutRoomsRequest;
 import org.bigbluebutton.messages.CreateMeetingRequest;
+import org.bigbluebutton.messages.ListenInOnBreakout;
+import org.bigbluebutton.messages.RequestBreakoutJoinURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +50,18 @@ public class MeetingMessageReceiver implements MessageHandler {
           if (CreateMeetingRequest.NAME.equals(messageName)) {
             Gson gson = new Gson();
             CreateMeetingRequest msg = gson.fromJson(message, CreateMeetingRequest.class);
+            bbbGW.handleBigBlueButtonMessage(msg);
+          } else if (CreateBreakoutRoomsRequest.NAME.equals(messageName)) {
+            Gson gson = new Gson();
+            CreateBreakoutRoomsRequest msg = gson.fromJson(message, CreateBreakoutRoomsRequest.class);
+            bbbGW.handleBigBlueButtonMessage(msg);
+          } else if (ListenInOnBreakout.NAME.equals(messageName)) {
+            Gson gson = new Gson();
+            ListenInOnBreakout msg = gson.fromJson(message, ListenInOnBreakout.class);
+            bbbGW.handleBigBlueButtonMessage(msg);
+          } else if (RequestBreakoutJoinURL.NAME.equals(messageName)) {
+            Gson gson = new Gson();
+            RequestBreakoutJoinURL msg = gson.fromJson(message, RequestBreakoutJoinURL.class);
             bbbGW.handleBigBlueButtonMessage(msg);
           }
         }

@@ -1,10 +1,11 @@
 package org.bigbluebutton.messages;
 
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.messages.payload.BreakoutRoomJoinURLPayload;
 
 import com.google.gson.Gson;
 
-public class BreakoutRoomJoinURL {
+public class BreakoutRoomJoinURL implements IBigBlueButtonMessage {
   public final static String NAME = "BreakoutRoomJoinURL";
   
   public final Header header;

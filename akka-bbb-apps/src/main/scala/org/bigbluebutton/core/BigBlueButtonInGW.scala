@@ -22,44 +22,67 @@ import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import akka.event.Logging
 
-class BigBlueButtonInGW(val system: ActorSystem,
+class BigBlueButtonInGW(
+    val system: ActorSystem,
     eventBus: IncomingEventBus,
     outGW: OutMessageGateway) extends IBigBlueButtonInGW {
 
   val log = Logging(system, getClass)
 
-  val bbbActor = system.actorOf(BigBlueButtonActor.props(system,
-    eventBus, outGW), "bigbluebutton-actor")
+  val bbbActor = system.actorOf(
+    BigBlueButtonActor.props(system, eventBus, outGW), "bigbluebutton-actor")
 
   eventBus.subscribe(bbbActor, "meeting-manager")
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
     message match {
       case msg: StartCustomPollRequestMessage => {
-        eventBus.publish(BigBlueButtonEvent("meeting-manager",
-          new StartCustomPollRequest(msg.payload.meetingId,
-            msg.payload.requesterId, msg.payload.pollType, msg.payload.answers)))
+        eventBus.publish(
+          BigBlueButtonEvent(
+            "meeting-manager",
+            new StartCustomPollRequest(
+              msg.payload.meetingId,
+              msg.payload.requesterId,
+              msg.payload.pollType,
+              msg.payload.answers)))
       }
       case msg: PubSubPingMessage => {
-        eventBus.publish(BigBlueButtonEvent("meeting-manager", new PubSubPing(msg.payload.system, msg.payload.timestamp)))
+        eventBus.publish(
+          BigBlueButtonEvent(
+            "meeting-manager",
+            new PubSubPing(msg.payload.system, msg.payload.timestamp)))
       }
 
       case msg: CreateMeetingRequest => {
-        val mProps = new MeetingProperties(msg.payload.id, msg.payload.externalId,
-          msg.payload.name, msg.payload.record,
+        val mProps = new MeetingProperties(
+          msg.payload.id,
+          msg.payload.externalId,
+          msg.payload.name,
+          msg.payload.record,
           msg.payload.voiceConfId,
           msg.payload.durationInMinutes,
-          msg.payload.autoStartRecording, msg.payload.allowStartStopRecording,
-          msg.payload.moderatorPassword, msg.payload.viewerPassword,
-          msg.payload.createTime, msg.payload.createDate, msg.payload.isBreakout)
+          msg.payload.autoStartRecording,
+          msg.payload.allowStartStopRecording,
+          msg.payload.moderatorPassword,
+          msg.payload.viewerPassword,
+          msg.payload.createTime,
+          msg.payload.createDate,
+          msg.payload.isBreakout)
 
-        eventBus.publish(BigBlueButtonEvent("meeting-manager", new CreateMeeting(msg.payload.id, mProps)))
+        eventBus.publish(
+          BigBlueButtonEvent(
+            "meeting-manager",
+            new CreateMeeting(msg.payload.id, mProps)))
       }
     }
   }
 
   def destroyMeeting(meetingID: String) {
-    eventBus.publish(BigBlueButtonEvent("meeting-manager", new DestroyMeeting(meetingID)))
+    eventBus.publish(
+      BigBlueButtonEvent(
+        "meeting-manager",
+        new DestroyMeeting(
+          meetingID)))
   }
 
   def getAllMeetings(meetingID: String) {

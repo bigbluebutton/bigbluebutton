@@ -1,10 +1,11 @@
 package org.bigbluebutton.messages;
 
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.messages.payload.UpdateBreakoutUsersPayload;
 
 import com.google.gson.Gson;
 
-public class UpdateBreakoutUsers {
+public class UpdateBreakoutUsers implements IBigBlueButtonMessage {
   public final static String NAME = "UpdateBreakoutUsers";
   
   public final Header header;

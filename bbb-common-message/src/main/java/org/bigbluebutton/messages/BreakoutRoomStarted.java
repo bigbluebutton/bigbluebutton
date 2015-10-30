@@ -1,10 +1,11 @@
 package org.bigbluebutton.messages;
 
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.messages.payload.BreakoutRoomPayload;
 
 import com.google.gson.Gson;
 
-public class BreakoutRoomStarted {
+public class BreakoutRoomStarted implements IBigBlueButtonMessage {
   public final static String NAME = "BreakoutRoomStarted";
   
   public final Header header;

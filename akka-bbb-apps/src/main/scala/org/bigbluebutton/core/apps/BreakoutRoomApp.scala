@@ -55,7 +55,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
     } yield outGW.send(new BreakoutRoomJoinURLOutMessage(mProps.meetingID, mProps.recorded, breakoutId, userId, joinURL))
   }
 
-  def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURL) {
+  def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURLInMessage) {
     sendJoinURL(msg.userId, msg.breakoutId)
   }
 

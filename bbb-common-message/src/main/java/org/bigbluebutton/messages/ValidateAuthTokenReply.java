@@ -1,6 +1,8 @@
 package org.bigbluebutton.messages;
 
-public class ValidateAuthTokenReply {
+import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
+
+public class ValidateAuthTokenReply implements IBigBlueButtonMessage {
   public final static String NAME = "ValidateAuthTokenReply";
   
   public final Header header;
