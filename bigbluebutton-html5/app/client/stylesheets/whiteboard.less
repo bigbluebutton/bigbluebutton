@@ -191,29 +191,26 @@
 }
 
 .whiteboardFullscreenButton {
-  @media @desktop-landscape {
+  @media @desktop-landscape, @phone-landscape, @tablet-landscape,
+  @phone-portrait-with-keyboard, @phone-portrait, @desktop-portrait {
     height: 50px;
     width: 50px;
+  }
+  @media @desktop-landscape {
     top: 5px;
     right: 5px;
   }
   @media @phone-landscape {
-    height: 45px;
-    width: 45px;
-    top: 5px;
-    right: 5px;
+    top: 4px;
+    right: 4px;
   }
   @media @tablet-landscape {
-    height: 50px;
-    width: 50px;
     top: 5px;
     right: 5px;
   }
   @media @phone-portrait-with-keyboard, @phone-portrait {
-    height: 50px;
-    width: 50px;
-    top: 2px;
-    right: 2px;
+    top: 4px;
+    right: 4px;
   }
   @media @tablet-portrait-with-keyboard, @tablet-portrait {
     height: 53px;
@@ -222,8 +219,6 @@
     right: 5px;
   }
   @media @desktop-portrait {
-    height: 50px;
-    width: 50px;
     top: 5px;
     right: 5px;
   }
@@ -340,10 +335,17 @@
 
 .FABTriggerButton {
   position: absolute;
-  height: 50px;
-  width: 50px;
-  right: 10px;
-  bottom: 10px;
+  right: 4px;
+  bottom: 4px;
+  @media @desktop-landscape, @phone-landscape, @tablet-landscape,
+  @phone-portrait-with-keyboard, @phone-portrait, @desktop-portrait {
+    height: 50px;
+    width: 50px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 53px;
+    width: 53px;
+  }
 }
 
 .openedFAB {
