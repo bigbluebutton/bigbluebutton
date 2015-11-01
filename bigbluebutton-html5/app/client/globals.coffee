@@ -277,10 +277,10 @@ Handlebars.registerHelper "getPollQuestions", ->
   BBB.toggleMyMic()
 
 @toggleUsersList = ->
-  if $('.sl-left-drawer').hasClass('hiddenInLandscape')
-    $('.sl-left-drawer').removeClass('hiddenInLandscape')
+  if $('.userlistMenu').hasClass('hiddenInLandscape')
+    $('.userlistMenu').removeClass('hiddenInLandscape')
   else
-    $('.sl-left-drawer').addClass('hiddenInLandscape')
+    $('.userlistMenu').addClass('hiddenInLandscape')
   setTimeout(scaleWhiteboard, 0)
 
 @populateNotifications = (msg) ->
@@ -377,12 +377,12 @@ Handlebars.registerHelper "getPollQuestions", ->
       scaleWhiteboard()
 
 @closeMenus = ->
-  if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
-    toggleLeftDrawer()
-    toggleLeftArrowClockwise()
-  else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
-    toggleRightDrawer()
-    toggleRightArrowClockwise()
+  if $('.userlistMenu').hasClass('menuOut')
+    toggleUserlistMenu()
+    toggleLeftHamburderIcon()
+  else if $('.settingsMenu').hasClass('menuOut')
+    toggleSettingsMenu()
+    toggleRightHamburderIcon()
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
@@ -616,3 +616,46 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('#chatbody').attr('style','')
     $('#newMessageInput').attr('style','')
 
+@toggleEmojisFAB = () ->
+  if $('.FABContainer').hasClass('openedFAB')
+    $('.FABContainer > button:nth-child(2)').css('opacity', $('.FABContainer > button:nth-child(2)').css('opacity'))
+    $('.FABContainer > button:nth-child(3)').css('opacity', $('.FABContainer > button:nth-child(3)').css('opacity'))
+    $('.FABContainer > button:nth-child(4)').css('opacity', $('.FABContainer > button:nth-child(4)').css('opacity'))
+    $('.FABContainer > button:nth-child(5)').css('opacity', $('.FABContainer > button:nth-child(5)').css('opacity'))
+    $('.FABContainer > button:nth-child(6)').css('opacity', $('.FABContainer > button:nth-child(6)').css('opacity'))
+    $('.FABContainer > button:nth-child(7)').css('opacity', $('.FABContainer > button:nth-child(7)').css('opacity'))
+    $('.FABContainer').removeClass('openedFAB')
+    $('.FABContainer').addClass('closedFAB')
+  else
+    $('.FABContainer > button:nth-child(2)').css('opacity', $('.FABContainer > button:nth-child(2)').css('opacity'))
+    $('.FABContainer > button:nth-child(3)').css('opacity', $('.FABContainer > button:nth-child(3)').css('opacity'))
+    $('.FABContainer > button:nth-child(4)').css('opacity', $('.FABContainer > button:nth-child(4)').css('opacity'))
+    $('.FABContainer > button:nth-child(5)').css('opacity', $('.FABContainer > button:nth-child(5)').css('opacity'))
+    $('.FABContainer > button:nth-child(6)').css('opacity', $('.FABContainer > button:nth-child(6)').css('opacity'))
+    $('.FABContainer > button:nth-child(7)').css('opacity', $('.FABContainer > button:nth-child(7)').css('opacity'))
+    $('.FABContainer').removeClass('closedFAB')
+    $('.FABContainer').addClass('openedFAB')
+
+@toggleLeftHamburderIcon = () ->
+  if $('.leftHamburgerButton').hasClass('hamburgerToggledOn')
+    $('.leftHamburgerButton').removeClass('hamburgerToggledOn')
+  else
+    $('.leftHamburgerButton').addClass('hamburgerToggledOn')
+
+@toggleRightHamburderIcon = () ->
+  if $('.rightHamburgerButton').hasClass('hamburgerToggledOn')
+    $('.rightHamburgerButton').removeClass('hamburgerToggledOn')
+  else
+    $('.rightHamburgerButton').addClass('hamburgerToggledOn')
+
+@toggleUserlistMenu = () ->
+  if $('.userlistMenu').hasClass('menuOut')
+    $('.userlistMenu').removeClass('menuOut')
+  else
+    $('.userlistMenu').addClass('menuOut')
+
+@toggleSettingsMenu = () ->
+  if $('.settingsMenu').hasClass('menuOut')
+    $('.settingsMenu').removeClass('menuOut')
+  else
+    $('.settingsMenu').addClass('menuOut')

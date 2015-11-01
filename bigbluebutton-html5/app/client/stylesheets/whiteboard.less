@@ -324,18 +324,175 @@
   }
 }
 
+// Emojis FAB
+
 .activeEmojiButton {
   background-color: #34495E;
 }
 
-.sl-fab-trigger, .inactiveEmojiButton {
+.FABTriggerButton, .inactiveEmojiButton {
   background-color: #3896D3;
 }
 
-.sl-fab-btn:hover {
+.FABTriggerButton:hover {
+  background-color: #3896D3;
+}
+
+.FABTriggerButton {
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  right: 10px;
+  bottom: 10px;
+}
+
+.openedFAB {
+  .FABTriggerButton {
+    i {
+      opacity: 0.5;
+    }
+  }
+  button:nth-child(2), button:nth-child(3) {
+    animation: increaseOpacity 0.15s forwards;
+  }
+  button:nth-child(4), button:nth-child(5) {
+    animation: increaseOpacity 0.15s forwards;
+    animation-delay: 0.075s;
+  }
+  button:nth-child(6), button:nth-child(7) {
+    animation: increaseOpacity 0.15s forwards;
+    animation-delay: 0.15s;
+  }
+}
+
+.closedFAB {
+  button:nth-child(2), button:nth-child(3) {
+    animation: decreaseOpacity 0.15s forwards;
+    animation-delay: 0.15s;
+  }
+  button:nth-child(4), button:nth-child(5) {
+    animation: decreaseOpacity 0.15s forwards;
+    animation-delay: 0.075s;
+  }
+  button:nth-child(6), button:nth-child(7) {
+    animation: decreaseOpacity 0.15s forwards;
+  }
+}
+
+.FABContainer > button:nth-child(n + 2):hover {
   background-color: #34495E;
 }
 
-.sl-fab-trigger:hover {
-  background-color: #3896D3;
+.FABContainer {
+  button {
+    padding: 0;
+    margin: 0;
+    font-size: 30px;
+    border-radius: 50%;
+    &:focus {
+      outline:0;
+    }
+  }
+  & > button:nth-child(n + 2) {
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    opacity: 0;
+  }
+  & > button:nth-child(2) {
+    right: 70px;
+    bottom: 10px;
+  }
+  & > button:nth-child(3) {
+    right: 70px;
+    bottom: 65px;
+  }
+  & > button:nth-child(4) {
+    right: 130px;
+    bottom: 10px;
+  }
+  & > button:nth-child(5) {
+    right: 130px;
+    bottom: 65px;
+  }
+  & > button:nth-child(6) {
+    right: 190px;
+    bottom: 10px;
+  }
+  & > button:nth-child(7) {
+    right: 190px;
+    bottom: 65px;
+  }
+}
+
+@keyframes increaseOpacity {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.05;
+  }
+  10% {
+    opacity: 0.1;
+  }
+  15% {
+    opacity: 0.15;
+  }
+  20% {
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 0.3;
+  }
+  35% {
+    opacity: 0.35;
+  }
+  40% {
+    opacity: 0.4;
+  }
+  45% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  55% {
+    opacity: 0.55;
+  }
+  60% {
+    opacity: 0.6;
+  }
+  65% {
+    opacity: 0.65;
+  }
+  70% {
+    opacity: 0.7;
+  }
+  75% {
+    opacity: 0.75;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.85;
+  }
+  90% {
+    opacity: 0.9;
+  }
+  95% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes decreaseOpacity {
+  100% {
+    opacity: 0;
+  }
 }

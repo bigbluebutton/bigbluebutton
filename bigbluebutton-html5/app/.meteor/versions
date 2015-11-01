@@ -34,7 +34,6 @@ ewall:foundation@5.5.2
 fastclick@1.0.7
 francocatena:status@1.4.0
 geojson-utils@1.0.4
-gthacoder:meteor-sled@0.0.1
 html-tools@1.0.5
 htmljs@1.0.5
 http@1.1.1
@@ -92,7 +91,6 @@ spacebars@1.0.7
 spacebars-compiler@1.0.7
 standard-app-packages@1.0.6
 standard-minifiers@1.0.1
-stevezhu:sass@2.0.0
 tap:i18n@1.6.1
 templating@1.1.4
 templating-tools@1.0.0

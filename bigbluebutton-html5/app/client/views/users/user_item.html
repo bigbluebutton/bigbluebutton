@@ -59,19 +59,19 @@
 <template name="usernameEntry">
     <div class="status">
       {{#if equals user.emoji_status "happy"}}
-        {{> slIcon name="happy-face" size="25"}}
+        {{> icon name="happy-face" size="25"}}
       {{else}}
         {{#if equals user.emoji_status "neutral"}}
-          {{> slIcon name="neutral-face" size="25"}}
+          {{> icon name="neutral-face" size="25"}}
         {{else}}
           {{#if equals user.emoji_status "confused"}}
-            {{> slIcon name="confused-face" size="25"}}
+            {{> icon name="confused-face" size="25"}}
           {{else}}
             {{#if equals user.emoji_status "sad"}}
-              {{> slIcon name="sad-face" size="25"}}
+              {{> icon name="sad-face" size="25"}}
             {{else}}
               {{#if equals user.emoji_status "away"}}
-                {{> slIcon name="clock" size="25"}}
+                {{> icon name="clock" size="25"}}
               {{else}}
                 {{#if equals user.emoji_status "raiseHand"}}
                   <span rel="tooltip" data-placement="bottom" title="Lower your hand">
