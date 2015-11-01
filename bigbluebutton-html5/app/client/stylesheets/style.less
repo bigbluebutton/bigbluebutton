@@ -7,6 +7,10 @@ body {
   color: extract(@darkGrey, 1);
   left: 0;
   right: 0;
+
+  // makes text selectable in Chrome (overrides inline style)
+  -webkit-user-select: all !important;
+
   @media @landscape {
     height: 100%;
     position: absolute;
