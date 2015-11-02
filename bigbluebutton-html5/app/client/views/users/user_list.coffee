@@ -6,7 +6,7 @@ Template.usersList.helpers
     # do not display the label if there are just a few users
 
 Template.usersList.rendered = ->
-  $('.sl-left-drawer').resizable
+  $('.userlistMenu').resizable
     handles: 'e'
     maxWidth: 600
     minWidth: 200
@@ -19,4 +19,4 @@ Template.usersList.rendered = ->
       comp.stop()
 
   if isPhone()
-    $('.sl-left-drawer').addClass('hiddenInLandscape')
+    $('.userlistMenu').addClass('hiddenInLandscape')
