@@ -90,3 +90,6 @@ class @NotificationControl
         "Sorry,<br/>#{if browserName isnt 'settings' then browserName else 'your browser'} doesn't support WebRTC")
       (new Raphael('browser-icon-container', 35, 35)).path(NotificationControl.icons["#{browserName}_IconPath"]).attr({fill: "#FFF", stroke: "none"})
   ).display("webRTC_NotSupported")
+
+@notification_ScreenShared = ->
+    Meteor.NotificationControl.create("screenBeingShared", 'success', 'You are now broadcasting your screen', 2500).display("screenBeingShared")

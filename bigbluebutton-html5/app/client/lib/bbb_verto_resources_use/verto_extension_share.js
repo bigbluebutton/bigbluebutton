@@ -104,6 +104,7 @@ this.doshare = function(on, callback, videoTag) {
 				share_call.rtc.options.callbacks = $.extend(share_call.rtc.options.callbacks, callbacks);
 
 				setTimeout(function() {
+					notification_ScreenShared();
 					return simulatePresenterDeskshareHasStarted();
 				}, 4000);
 			});
