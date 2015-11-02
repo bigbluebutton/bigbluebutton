@@ -140,6 +140,9 @@ Handlebars.registerHelper 'isPortraitMobile', () ->
 Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
   isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
 
+Handlebars.registerHelper 'isVideoDisplayed', ->
+    Meteor.Meetings.findOne().deskshare.broadcasting
+
 Handlebars.registerHelper "meetingIsRecording", ->
   BBB.isMeetingRecording()
 
@@ -541,7 +544,6 @@ Handlebars.registerHelper "getPollQuestions", ->
 
 # The webpage orientation is now landscape
 @orientationBecameLandscape = ->
-<<<<<<< HEAD
 
 # The webpage orientation is now portrait
 @orientationBecamePortrait = ->

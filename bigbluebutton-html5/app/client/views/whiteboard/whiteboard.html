@@ -47,7 +47,9 @@
       {{> polling}}
     {{/if}}
     {{#if isCurrentUserPresenter}}
-      {{> presenterBottomControllers}}
+      {{#unless isVideoDisplayed}}
+        {{> presenterBottomControllers}}
+      {{/unless}}
     {{/if}}
   </div>
 </template>
