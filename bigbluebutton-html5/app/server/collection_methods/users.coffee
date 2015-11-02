@@ -142,9 +142,19 @@ Meteor.methods
 @markUserOffline = (meetingId, userId) ->
   # mark the user as offline. remove from the collection on meeting_end #TODO
   Meteor.log.info "marking user [#{userId}] as offline in meeting[#{meetingId}]"
-  Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
-  # result = Meteor.Users.remove({'meetingId': meetingId, 'userId': userId})
-  # Meteor.log.error "result on markUserOffline=#{result}"
+  user = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
+  if user?.clientType is "HTML5"
+    Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{
+    'user.connection_status':'offline'
+    'voiceUser.talking': false
+    'voiceUser.joined': false
+    'voiceUser.muted': false
+    'user.time_of_joining': 0
+    'user.listenOnly': false
+    }})
+  else
+    Meteor.log.error "deleting info for user #{user?.user.name} #{userId}"
+    Meteor.Users.remove({meetingId: meetingId, userId: userId})
 
 
 # Corresponds to a valid action on the HTML clientside
@@ -319,13 +329,13 @@ Meteor.methods
 @handleLockingMic = (meetingId, newSettings) ->
   # send mute requests for the viewer users joined with mic
   for u in Meteor.Users.find({
-                              meetingId:meetingId
-                              'user.role':'VIEWER'
-                              'user.listenOnly':false
-                              'user.locked':true
-                              'user.voiceUser.joined':true
-                              'user.voiceUser.muted':false})?.fetch()
-    Meteor.log.error u.user.name #
+        meetingId:meetingId
+        'user.role':'VIEWER'
+        'user.listenOnly':false
+        'user.locked':true
+        'user.voiceUser.joined':true
+        'user.voiceUser.muted':false})?.fetch()
+    # Meteor.log.info u.user.name #
     Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true) #true for muted
 
 # change the locked status of a user (lock settings)
