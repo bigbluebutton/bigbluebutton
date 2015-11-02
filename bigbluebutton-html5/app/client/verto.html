@@ -1,6 +1,6 @@
 <template name="vertoDeskshareMenu">
 	<fieldset class="desktopSettingsFieldset">
-		<legend>Deskshare Options</legend>
+		<legend align="center">Deskshare Options</legend>
 		{{#if getInSession "chromeExtensionIsInstalled"}}
 			{{#if getInSession "sharingMyScreen"}}
 				{{> makeButton id="screenshareHide" btn_class="screenshareHide vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Stop sharing your screen"}}
