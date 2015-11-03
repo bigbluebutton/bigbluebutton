@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.deskshare.utils
       var dispatcher : Dispatcher = new Dispatcher();
       var java_version:String = "1.7.0_51";
       
-      var xml:XML = BBB.initConfigManager().config.browserVersions;
+      var xml:XML = BBB.getConfigManager().config.browserVersions;
       if (xml.@java != undefined) {
         java_version = xml.@java.toString();
       }

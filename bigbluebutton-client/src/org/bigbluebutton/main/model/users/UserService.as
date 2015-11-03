@@ -78,7 +78,7 @@ package org.bigbluebutton.main.model.users
 		
 		private function joinListener(success:Boolean, result:Object):void {
 			if (success) {
-				var config:Config = BBB.initConfigManager().config;
+				var config:Config = BBB.getConfigManager().config;
 				
 				UserManager.getInstance().getConference().setMyName(result.username);
 				UserManager.getInstance().getConference().setMyRole(result.role);

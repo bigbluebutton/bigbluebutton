@@ -68,7 +68,7 @@ package org.bigbluebutton.main.api
     
     public function handleUserKickedOutEvent(event:LogoutEvent):void {
       var payload:Object = new Object();
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.userID = event.userID;
       payload.eventName = EventConstants.USER_KICKED_OUT;
       broadcastEvent(payload);
     }
@@ -83,7 +83,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.IS_USER_PUBLISHING_CAM_RESP;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.userID = event.userID;
       payload.isUserPublishing = isUserPublishing;
       
       var vidConf:VideoConfOptions = new VideoConfOptions();
@@ -96,7 +96,8 @@ package org.bigbluebutton.main.api
     public function handleGetMyUserInfoRequest(event:GetMyUserInfoRequestEvent):void {  
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_USER_INFO_REP;
-      payload.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      payload.myUserID = UsersUtil.getMyUserID();
+	  payload.myExternalUserID = UsersUtil.getMyExternalUserID();
       payload.myUsername = UsersUtil.getMyUsername();
       payload.myAvatarURL = UsersUtil.getAvatarURL();
       payload.myRole = UsersUtil.getMyRole();
@@ -121,7 +122,7 @@ package org.bigbluebutton.main.api
       
       var payload:Object = new Object();
       payload.eventName = EventConstants.CAM_STREAM_SHARED;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.userID = event.userID;
       payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       payload.streamName = event.stream;
       payload.avatarURL = UsersUtil.getAvatarURL();
@@ -186,13 +187,13 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.SWITCHED_PRESENTER;
       payload.amIPresenter = event.amIPresenter;
       payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
-      payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
+      payload.newPresenterUserID = event.newPresenterUserID;
       payload.avatarURL = UsersUtil.getAvatarURL();
       broadcastEvent(payload);
       
       payload.eventName = EventConstants.NEW_ROLE;
       payload.amIPresenter = event.amIPresenter;
-      payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
+      payload.newPresenterUserID = event.newPresenterUserID;
       payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
       payload.avatarURL = UsersUtil.getAvatarURL();
       broadcastEvent(payload);      
@@ -201,7 +202,7 @@ package org.bigbluebutton.main.api
     public function handleStartPrivateChatEvent(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.START_PRIVATE_CHAT;
-      payload.chatWith = UsersUtil.internalUserIDToExternalUserID(event.message.chatWith);
+      payload.chatWith = event.message.chatWith;
       broadcastEvent(payload);        
     }
     
@@ -215,14 +216,16 @@ package org.bigbluebutton.main.api
     public function handleUserJoinedVoiceEvent(event:BBBEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_JOINED_VOICE;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
+	  payload.externalUserID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       broadcastEvent(payload);
     }
     
     public function handleUserVoiceMutedEvent(event:BBBEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_MUTED_VOICE;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
+	  payload.externalUserID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.muted = event.payload.muted;
       broadcastEvent(payload);
     }
@@ -230,7 +233,8 @@ package org.bigbluebutton.main.api
     public function handleUserLockedEvent(event:BBBEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_LOCKED;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
+	  payload.externalUserID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.locked = event.payload.locked;
       broadcastEvent(payload);
     }
@@ -238,7 +242,8 @@ package org.bigbluebutton.main.api
     public function handleUserVoiceLeftEvent(event:BBBEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.USER_LEFT_VOICE;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
+      payload.userID = event.payload.userID;
+	  payload.externalUserID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       broadcastEvent(payload);
     }
             
@@ -253,9 +258,7 @@ package org.bigbluebutton.main.api
       payload.fromTimezoneOffset = event.message.fromTimezoneOffset;
       payload.message = event.message.message;
       
-      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
-      // an external user id for it's own use.
-      payload.fromUserID = UsersUtil.internalUserIDToExternalUserID(event.message.fromUserID);
+      payload.fromUserID = event.message.fromUserID;
       
       broadcastEvent(payload);
     }
@@ -272,10 +275,8 @@ package org.bigbluebutton.main.api
       payload.toUsername = event.message.toUsername;
       payload.message = event.message.message;
       
-      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
-      // an external user id for it's own use.
-      payload.fromUserID = UsersUtil.internalUserIDToExternalUserID(event.message.fromUserID);
-      payload.toUserID = UsersUtil.internalUserIDToExternalUserID(event.message.toUserID);
+      payload.fromUserID = event.message.fromUserID;
+      payload.toUserID = event.message.toUserID;
       
       broadcastEvent(payload);
     }
@@ -290,7 +291,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.USER_JOINED;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(user.userID);
+      payload.userID = user.userID;
       payload.userName = user.name;        
       
       broadcastEvent(payload);        
@@ -306,7 +307,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.USER_LEFT;
-      payload.userID = UsersUtil.internalUserIDToExternalUserID(user.userID);
+      payload.userID = user.userID;
       
       broadcastEvent(payload);        
     }

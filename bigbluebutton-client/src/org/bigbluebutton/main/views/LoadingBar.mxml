@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -44,15 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var portUpdateStr:String = 'Connecting to the server';
       
       private function moduleLoadingStarted(e:ModuleLoadEvent):void{
-        var list:XMLList = e.modules;
-        var item:XML;
-        
-        numModules = 0;
-        for each(item in list){
-          modules[item.@name] = 0;
-          numModules++;
-        }
-
+		  numModules = BBB.getConfigManager().config.numberOfModules();
         this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
       }
 			

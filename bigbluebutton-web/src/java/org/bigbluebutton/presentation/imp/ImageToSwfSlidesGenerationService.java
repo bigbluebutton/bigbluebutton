@@ -58,9 +58,7 @@ public class ImageToSwfSlidesGenerationService {
 	}
 	
 	public void generateSlides(UploadedPresentation pres) {
-		log.debug("Generating slides");	
 		pres.setNumberOfPages(1); // There should be only one image to convert.
-		log.debug("Determined number of pages " + pres.getNumberOfPages());
 		if (pres.getNumberOfPages() > 0) {
 			PageConverter pageConverter = determinePageConverter(pres);
 			convertImageToSwf(pres, pageConverter);
@@ -119,7 +117,6 @@ public class ImageToSwfSlidesGenerationService {
 				long timeLeft = endTime - System.currentTimeMillis();
 				future = completionService.take();
 				slide = future.get(timeLeft, TimeUnit.MILLISECONDS);
-				System.out.println("handleSlideGenerationResult " + slide.getPageNumber());
 			} catch (InterruptedException e) {
 				log.error("InterruptedException while creating slide " + pres.getName());
 			} catch (ExecutionException e) {
@@ -155,7 +152,6 @@ public class ImageToSwfSlidesGenerationService {
 	
 	private void generateSlides(ImageToSwfSlide[] slides) {
 		for (int i = 0; i < slides.length; i++) {
-			System.out.println("generateSlides " + i);
 			final ImageToSwfSlide slide = slides[i];
 			completionService.submit(new Callable<ImageToSwfSlide>() {
 				public ImageToSwfSlide call() {

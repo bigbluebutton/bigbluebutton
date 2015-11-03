@@ -36,8 +36,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 	    String AVM2SWF = "-T9";
 	    
 	    String COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + AVM2SWF + " -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;    
-	    log.debug("Executing: " + COMMAND);
-	    
+
 	    boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);      
 		
 		File destFile = new File(dest);
@@ -45,8 +44,6 @@ public class Pdf2SwfPageConverter implements PageConverter {
 			return true;		
 		} else {
 			COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + AVM2SWF + " -s poly2bitmap  -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;
-			log.debug("Converting graphics to bitmaps");
-			log.debug("Executing: " + COMMAND);
 			done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 			if (done && destFile.exists()){
 				return true;

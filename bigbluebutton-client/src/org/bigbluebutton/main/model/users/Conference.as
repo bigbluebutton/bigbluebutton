@@ -440,7 +440,7 @@ package org.bigbluebutton.main.model.users {
 		 * Read default lock settings from config.xml
 		 * */
 		public function configLockSettings():void {
-			var config:Config = BBB.initConfigManager().config;
+			var config:Config = BBB.getConfigManager().config;
 			
 			var disableCam:Boolean,
 			disableMic:Boolean,
@@ -524,6 +524,7 @@ package org.bigbluebutton.main.model.users {
 		public function setLockSettings(lockSettings:LockSettingsVO):void {
 			this.lockSettings = lockSettings;
 			applyLockSettings();
+			users.refresh(); // we need to refresh after updating the lock settings to trigger the user item renderers to redraw
 		}
 		
 		public function applyLockSettings():void {

@@ -83,6 +83,9 @@ Handlebars.registerHelper "getUsersInMeeting", ->
 Handlebars.registerHelper "getWhiteboardTitle", ->
   (BBB.currentPresentationName() or "Loading presentation...")
 
+Handlebars.registerHelper "getCurrentUserEmojiStatus", ->
+  BBB.getCurrentUser()?.user?.emoji_status
+
 Handlebars.registerHelper "isCurrentUser", (userId) ->
   userId is null or userId is BBB.getCurrentUser()?.userId
 
@@ -95,8 +98,8 @@ Handlebars.registerHelper "privateChatName", ->
   if obj?
     obj?.user?.name
 
-Handlebars.registerHelper "isCurrentUserRaisingHand", ->
-  BBB.isCurrentUserRaisingHand()
+Handlebars.registerHelper "isCurrentUserEmojiStatusSet", ->
+  BBB.isCurrentUserEmojiStatusSet()
 
 Handlebars.registerHelper "isCurrentUserSharingVideo", ->
   BBB.amISharingVideo()
@@ -194,31 +197,31 @@ Handlebars.registerHelper "getPollQuestions", ->
   if users?.length > 1
     users.sort (a, b) ->
       if a.user.role is "MODERATOR" and b.user.role is "MODERATOR"
-        if a.user.raise_hand and b.user.raise_hand
-          aTime = a.user.raise_hand.getTime()
-          bTime = b.user.raise_hand.getTime()
+        if a.user.set_emoji_time and b.user.set_emoji_time
+          aTime = a.user.set_emoji_time.getTime()
+          bTime = b.user.set_emoji_time.getTime()
           if aTime < bTime
             return -1
           else
             return 1
-        else if a.user.raise_hand
+        else if a.user.set_emoji_time
           return -1
-        else if b.user.raise_hand
+        else if b.user.set_emoji_time
           return 1
       else if a.user.role is "MODERATOR"
         return -1
       else if b.user.role is "MODERATOR"
         return 1
-      else if a.user.raise_hand and b.user.raise_hand
-        aTime = a.user.raise_hand.getTime()
-        bTime = b.user.raise_hand.getTime()
+      else if a.user.set_emoji_time and b.user.set_emoji_time
+        aTime = a.user.set_emoji_time.getTime()
+        bTime = b.user.set_emoji_time.getTime()
         if aTime < bTime
           return -1
-        else 
+        else
           return 1
-      else if a.user.raise_hand
+      else if a.user.set_emoji_time
         return -1
-      else if b.user.raise_hand
+      else if b.user.set_emoji_time
         return 1
       else if not a.user.phone_user and not b.user.phone_user
 
@@ -227,8 +230,8 @@ Handlebars.registerHelper "getPollQuestions", ->
       else if not b.user.phone_user
         return 1
 
-      #Check name (case-insensitive) in the event of a tie up above. If the name 
-      #is the same then use userID which should be unique making the order the same 
+      #Check name (case-insensitive) in the event of a tie up above. If the name
+      #is the same then use userID which should be unique making the order the same
       #across all clients.
 
       if a.user._sort_name < b.user._sort_name

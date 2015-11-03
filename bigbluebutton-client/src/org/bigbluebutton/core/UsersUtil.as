@@ -184,7 +184,7 @@ package org.bigbluebutton.core
       userData.externalMeetingId = getExternalMeetingID();
       userData.meetingName = UserManager.getInstance().getConference().meetingName;
       userData.userId = getMyUserID();
-      userData.userName = getMyUsername();
+      userData.username = getMyUsername();
       
       return userData;
     }

@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.chat.model {
 		public var colorPickerIsVisible:Boolean = false;
 		
 		[Bindable]
-		public var maxMessageLength:uint;
+		public var maxMessageLength:uint = 1024;
 		
 		public function ChatOptions() {
 			var cxml:XML = BBB.getConfigForModule("ChatModule");

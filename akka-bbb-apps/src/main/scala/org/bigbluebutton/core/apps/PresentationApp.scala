@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.apps
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.core.MeetingActor
 import com.google.gson.Gson
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.LiveMeeting
 
 trait PresentationApp {
-  this: MeetingActor =>
+  this: LiveMeeting =>
 
   val outGW: OutMessageGateway
 
@@ -108,7 +108,7 @@ trait PresentationApp {
     //      printPresentations
 
     usersModel.getCurrentPresenter() foreach { pres =>
-      this.context.self ! StopPollRequest(mProps.meetingID, pres.userID)
+      handleStopPollRequest(StopPollRequest(mProps.meetingID, pres.userID))
     }
 
   }

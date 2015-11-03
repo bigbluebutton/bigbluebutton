@@ -34,15 +34,12 @@ public class PageCounterService {
 	public void determineNumberOfPages(UploadedPresentation pres) throws CountingPageException {
 		int numberOfPages = 0;
 		if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
-			log.debug("Counting pages for " + pres.getFileType());
 			numberOfPages = countPages(pres);			
 		} else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-			log.debug("Counting pages for " + pres.getFileType());
 			numberOfPages = 1;
 		}
 		
 		if (isNumberOfPagesValid(numberOfPages)) {
-			log.debug("Counting pages for " + pres.getFileType() + " " + numberOfPages);
 			pres.setNumberOfPages(numberOfPages);
 		}		
 	}
@@ -61,7 +58,6 @@ public class PageCounterService {
 	
 	private boolean checkIfNumberOfPagesExceedsLimit(int numberOfPages) {
 		if (numberOfPages > maxNumPages) {
-			log.warn("Number of pages greater than maximum [" + numberOfPages + ">" + maxNumPages);
 			return true;
 		}
 		return false;
@@ -76,8 +72,6 @@ public class PageCounterService {
 		}
 		
 		numPages = pageCounter.countNumberOfPages(pres.getUploadedFile());
-				
-		log.debug("There are " + numPages);
 		return numPages;
 	}
 			

@@ -27,11 +27,9 @@ package org.bigbluebutton.main.model.users
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.utils.Timer;
-	
+	import flash.utils.Timer;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.core.services.BandwidthMonitor;
@@ -69,6 +67,8 @@ package org.bigbluebutton.main.model.users
     private var authenticated: Boolean = false;
     private var reconnecting:Boolean = false;
 	private var numNetworkChangeCount:int = 0;
+	
+		private var _validateTokenTimer:Timer = null;	
 	
 		public function NetConnectionDelegate():void
 		{
@@ -126,12 +126,24 @@ package org.bigbluebutton.main.model.users
         LOGGER.debug("Ignoring message=[{0}] as our token hasn't been validated yet.", [messageName]);
       }     
     }
-		
+	
+	private function validataTokenTimerHandler(event:TimerEvent):void {
+		var logData:Object = new Object();
+		logData.user = UsersUtil.getUserData();
+		JSLog.critical("No response for validate token request.", logData);
+		logData.message = "No response for validate token request.";
+		LOGGER.info(JSON.stringify(logData));
+	}
+	
     private function validateToken():void {
       var message:Object = new Object();
       message["userId"] = _conferenceParameters.internalUserID;
       message["authToken"] = _conferenceParameters.authToken;
       
+	  _validateTokenTimer = new Timer(7000, 1);
+	  _validateTokenTimer.addEventListener(TimerEvent.TIMER, validataTokenTimerHandler);
+	  _validateTokenTimer.start();
+	  
       sendMessage(
         "validateToken",// Remote function name
         // result - On successful result
@@ -148,8 +160,17 @@ package org.bigbluebutton.main.model.users
         message
       ); //_netConnection.call      
     }
-      
+    
+	private function stopValidateTokenTimer():void {
+		if (_validateTokenTimer != null && _validateTokenTimer.running) {
+			_validateTokenTimer.stop();
+			_validateTokenTimer = null;
+		}		
+	}
+	
     private function handleValidateAuthTokenTimedOut(msg: Object):void {  
+      stopValidateTokenTimer();
+	  
       var map:Object = JSON.parse(msg.msg);  
       var tokenValid: Boolean = map.valid as Boolean;
       var userId: String = map.userId as String;
@@ -172,7 +193,9 @@ package org.bigbluebutton.main.model.users
 	  }
     }
     
-    private function handleValidateAuthTokenReply(msg: Object):void {     
+    private function handleValidateAuthTokenReply(msg: Object):void {  
+      stopValidateTokenTimer();
+		
       var map:Object = JSON.parse(msg.msg);  
       var tokenValid: Boolean = map.valid as Boolean;
       var userId: String = map.userId as String;

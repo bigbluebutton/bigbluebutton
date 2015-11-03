@@ -37,7 +37,7 @@ package org.bigbluebutton.main.model
     public var defaultLayout:String = "Default";
     
 		public function parseOptions():void {
-			var vxml:XML = BBB.initConfigManager().config.layout;
+			var vxml:XML = BBB.getConfigManager().config.layout;
 			if (vxml != null) {
 				if (vxml.@showDebugWindow != undefined) {
 					showDebugWindow = (vxml.@showDebugWindow.toString().toUpperCase() == "TRUE") ? true : false;
