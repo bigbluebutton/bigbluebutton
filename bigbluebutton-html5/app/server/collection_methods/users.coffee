@@ -260,26 +260,32 @@ Meteor.methods
         locked=#{user.locked}, username=#{user.name}"
     )
 
-    # only add the welcome message if it's not there already
-    unless Meteor.Chat.findOne({"message.chat_type":'SYSTEM_MESSAGE', "message.to_userid": userId})?
-      welcomeMessage = Meteor.config.defaultWelcomeMessage
-      .replace /%%CONFNAME%%/, Meteor.Meetings.findOne({meetingId: meetingId})?.meetingName
-      welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter
-
-      # store the welcome message in chat for easy display on the client side
-      Meteor.Chat.insert({
-        meetingId: meetingId
-        message:
-          chat_type: "SYSTEM_MESSAGE"
-          message: welcomeMessage
-          from_color: '0x3399FF'
-          to_userid: userId
-          from_userid: "SYSTEM_MESSAGE"
-          from_username: ""
-          from_time: user.timeOfJoining?.toString()
-        }, (err) ->
-          Meteor.log.info "_added a system message in chat for user #{userId}"
-      )
+    welcomeMessage = Meteor.config.defaultWelcomeMessage
+    .replace /%%CONFNAME%%/, Meteor.Meetings.findOne({meetingId: meetingId})?.meetingName
+    welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter
+    # add the welcome message if it's not there already OR update time_of_joining
+    Meteor.Chat.upsert({
+      meetingId: meetingId
+      userId: userId
+      'message.chat_type': 'SYSTEM_MESSAGE'
+      'message.to_userid': userId
+    }, {
+      meetingId: meetingId
+      userId: userId
+      message:
+        chat_type: 'SYSTEM_MESSAGE'
+        message: welcomeMessage
+        from_color: '0x3399FF'
+        to_userid: userId
+        from_userid: 'SYSTEM_MESSAGE'
+        from_username: ''
+        from_time: user.timeOfJoining?.toString()
+    }, (err, numChanged) ->
+      if err?
+        Meteor.log.error "_error #{err} when trying to insert welcome message for #{userId}"
+      else
+        Meteor.log.info "_added/updated a system message in chat for user #{userId}"
+    )
 
   else
     # Meteor.log.info "NOTE: got user_joined_message #{user.name} #{user.userid}"

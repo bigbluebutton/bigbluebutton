@@ -150,6 +150,7 @@ class Meteor.RedisPubSub
           if dbUser?.clientType is "HTML5" # typically html5 users will be in the db [as a dummy user] before the joining message
             status = dbUser?.validated
             Meteor.log.info "in user_joined_message the validStatus of the user was #{status}"
+            userObj.timeOfJoining = message.header.current_time
           userJoined meetingId, userObj
         return
 
