@@ -63,17 +63,19 @@ class Meteor.RedisPubSub
       "presentation_page_resized_message"
       "presentation_cursor_updated_message"
       "get_presentation_info_reply"
-      # "get_users_reply"
+      "get_users_reply"
       "get_chat_history_reply"
-      # "get_all_meetings_reply"
+      "get_all_meetings_reply"
       "presentation_shared_message"
       "presentation_conversion_done_message"
       "presentation_conversion_progress_message"
       "presentation_page_generated_message"
-      "presentation_page_changed_message"
+      # "presentation_page_changed_message"
       "BbbPubSubPongMessage"
       "bbb_apps_is_alive_message"
       "user_voice_talking_message"
+      "meeting_state_message"
+      "get_recording_status_reply"
     ]
 
     if message?.header? and message?.payload?
@@ -220,9 +222,9 @@ class Meteor.RedisPubSub
                 "version": "0.0.1"
 
             if whiteboardId? and meetingId?
-              publish Meteor.config.redis.channels.toBBBApps.whiteboard, message
+              publish Meteor.config.redis.channels.toBBBApps.whiteboard, message #TODO
             else
-              Meteor.log.info "did not have enough information to send a user_leaving_request"
+              Meteor.log.info "did not have enough information to send a user_leaving_request" #TODO
         return
 
       if message.header.name is "presentation_page_changed_message"
@@ -308,7 +310,6 @@ class Meteor.RedisPubSub
       # --------------------------------------------------
       # lock settings ------------------------------------
       if message.header.name is "eject_voice_user_message"
-        console.log "\n111111111"
         return
 
       if message.header.name is "new_permission_settings"
