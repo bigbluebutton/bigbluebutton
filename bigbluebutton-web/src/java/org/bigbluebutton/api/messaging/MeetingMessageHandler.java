@@ -69,9 +69,16 @@ public class MeetingMessageHandler implements MessageHandler {
             Gson gson = new Gson();
             CreateBreakoutRoomRequest msg = gson.fromJson(message, CreateBreakoutRoomRequest.class);
             for (MessageListener listener : listeners) {
-              listener.handle(new CreateBreakoutRoom(msg.payload.meetingId, 
-                  msg.payload.name, msg.payload.voiceConfId, msg.payload.viewerPassword, 
-                  msg.payload.moderatorPassword, msg.payload.durationInMinutes, msg.payload.defaultPresentationURL));
+              listener.handle(new CreateBreakoutRoom(
+                  msg.payload.breakoutId, 
+                  msg.payload.parentId,
+                  msg.payload.name, 
+                  msg.payload.voiceConfId, 
+                  msg.payload.viewerPassword, 
+                  msg.payload.moderatorPassword, 
+                  msg.payload.durationInMinutes, 
+                  msg.payload.defaultPresentationURL));
+              
             }
           }
         }

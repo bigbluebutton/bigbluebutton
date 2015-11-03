@@ -444,7 +444,8 @@ public class MeetingService implements MessageListener {
 	private void processCreateBreakoutRoom(CreateBreakoutRoom message) {
 	  Map<String, String> params = new HashMap<String, String>();
 	  params.put("name", message.name);
-	  params.put("meetingID", message.meetingId);
+	  params.put("breakoutId", message.breakoutId);
+	  params.put("meetingID", message.parentId);
 	  params.put("attendeePW", message.viewerPassword);
 	  params.put("moderatorPW", message.moderatorPassword);
 	  params.put("voiceBridge", message.voiceConfId);
