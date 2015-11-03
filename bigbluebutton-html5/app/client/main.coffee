@@ -56,22 +56,22 @@ Template.header.events
     if isLandscape() or isLandscapeMobile()
       toggleUsersList()
     else
-      if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
-        toggleRightDrawer()
-        toggleRightArrowClockwise()
+      if $('.settingsMenu').hasClass('menuOut')
+        toggleSettingsMenu()
+        toggleRightHamburderIcon()
       else
         toggleShield()
-      toggleLeftDrawer()
-      toggleLeftArrowClockwise()
+      toggleUserlistMenu()
+      toggleLeftHamburderIcon()
 
   "click .toggleMenuButton": (event) ->
-    if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
-      toggleLeftDrawer()
-      toggleLeftArrowClockwise()
+    if $('.userlistMenu').hasClass('menuOut')
+      toggleUserlistMenu()
+      toggleLeftHamburderIcon()
     else
       toggleShield()
-    toggleRightDrawer()
-    toggleRightArrowClockwise()
+    toggleSettingsMenu()
+    toggleRightHamburderIcon()
 
   "click .btn": (event) ->
     $(".ui-tooltip").hide()
@@ -79,8 +79,8 @@ Template.header.events
 Template.menu.events
   'click .slideButton': (event) ->
     toggleShield()
-    toggleRightDrawer()
-    toggleRightArrowClockwise()
+    toggleSettingsMenu()
+    toggleRightHamburderIcon()
     $('.slideButton').blur()
 
   'click .toggleChatButton': (event) ->
@@ -191,16 +191,16 @@ Template.main.gestures
         if parseInt($('.left-drawer').css('transform').split(',')[4]) < leftDrawerWidth / 2
           $('.shield').removeClass('animatedShield')
           $('.shield').css('opacity', '')
-          $('.left-drawer').removeClass('sl-left-drawer-out')
+          $('.left-drawer').removeClass('menuOut')
           $('.left-drawer').css('transform', '')
-          $('.toggleUserlistButton').removeClass('sl-toggled-on')
+          $('.toggleUserlistButton').removeClass('hamburgerToggledOn')
           $('.shield').removeClass('darken') # in case it was opened by clicking a button
         else
           $('.left-drawer').css('transform', 'translateX(' + leftDrawerWidth + 'px)')
           $('.shield').css('opacity', 0.5)
-          $('.left-drawer').addClass('sl-left-drawer-out')
+          $('.left-drawer').addClass('menuOut')
           $('.left-drawer').css('transform', '')
-          $('.toggleUserlistButton').addClass('sl-toggled-on')
+          $('.toggleUserlistButton').addClass('hamburgerToggledOn')
 
       if panIsValid and
       menuPanned is 'right' and
@@ -210,24 +210,22 @@ Template.main.gestures
           $('.shield').removeClass('animatedShield')
           $('.shield').css('opacity', '')
           $('.right-drawer').css('transform', 'translateX(' + screenWidth + 'px)')
-          $('.right-drawer').removeClass('sl-right-drawer-out')
+          $('.right-drawer').removeClass('menuOut')
           $('.right-drawer').css('transform', '')
-          $('.toggleMenuButton').removeClass('sl-toggled-on')
+          $('.toggleMenuButton').removeClass('hamburgerToggledOn')
           $('.shield').removeClass('darken') # in case it was opened by clicking a button
         else
           $('.shield').css('opacity', 0.5)
           $('.right-drawer').css('transform', 'translateX(' + (screenWidth - $('.right-drawer').width()) + 'px)')
-          $('.right-drawer').addClass('sl-right-drawer-out')
+          $('.right-drawer').addClass('menuOut')
           $('.right-drawer').css('transform', '')
-          $('.toggleMenuButton').addClass('sl-toggled-on')
+          $('.toggleMenuButton').addClass('hamburgerToggledOn')
 
-      $('.left-drawer').addClass('sl-left-drawer')
-      $('.sl-left-drawer').removeClass('left-drawer')
-      $('.sl-left-drawer').addClass('sl-left-drawer-content-delay')
+      $('.left-drawer').addClass('userlistMenu')
+      $('.userlistMenu').removeClass('left-drawer')
 
-      $('.right-drawer').addClass('sl-right-drawer')
-      $('.sl-right-drawer').removeClass('right-drawer')
-      $('.sl-right-drawer').addClass('sl-right-drawer-content-delay')
+      $('.right-drawer').addClass('settingsMenu')
+      $('.settingsMenu').removeClass('right-drawer')
 
   'panright #container, panleft #container': (event, template) ->
     if isPortraitMobile() and isPanHorizontal(event)
@@ -265,26 +263,24 @@ Template.main.gestures
         setInSession 'eventType', event.type
 
         if getInSession('menuPanned') is 'left'
-          if $('.sl-left-drawer').css('transform') isnt 'none' # menu is already transformed
-            setInSession 'initTransform', parseInt($('.sl-left-drawer').css('transform').split(',')[4]) # translateX value
-          else if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
-            setInSession 'initTransform', $('.sl-left-drawer').width()
+          if $('.userlistMenu').css('transform') isnt 'none' # menu is already transformed
+            setInSession 'initTransform', parseInt($('.userlistMenu').css('transform').split(',')[4]) # translateX value
+          else if $('.userlistMenu').hasClass('menuOut')
+            setInSession 'initTransform', $('.userlistMenu').width()
           else
             setInSession 'initTransform', 0
-          $('.sl-left-drawer').addClass('left-drawer')
-          $('.left-drawer').removeClass('sl-left-drawer') # to prevent animations from Sled library
-          $('.left-drawer').removeClass('sl-left-drawer-content-delay') # makes the menu content movable too
+          $('.userlistMenu').addClass('left-drawer')
+          $('.left-drawer').removeClass('userlistMenu') # to prevent animations from Sled library
 
         else if getInSession('menuPanned') is 'right'
-          if $('.sl-right-drawer').css('transform') isnt 'none' # menu is already transformed
-            setInSession 'initTransform', parseInt($('.sl-right-drawer').css('transform').split(',')[4]) # translateX value
-          else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
-            setInSession 'initTransform', $('.sl-right-drawer').width()
+          if $('.settingsMenu').css('transform') isnt 'none' # menu is already transformed
+            setInSession 'initTransform', parseInt($('.settingsMenu').css('transform').split(',')[4]) # translateX value
+          else if $('.settingsMenu').hasClass('menuOut')
+            setInSession 'initTransform', $('.settingsMenu').width()
           else
             setInSession 'initTransform', 0
-          $('.sl-right-drawer').addClass('right-drawer')
-          $('.right-drawer').removeClass('sl-right-drawer') # to prevent animations from Sled library
-          $('.right-drawer').removeClass('sl-right-drawer-content-delay') # makes the menu content movable too
+          $('.settingsMenu').addClass('right-drawer')
+          $('.right-drawer').removeClass('settingsMenu') # to prevent animations from Sled library
 
       initTransformValue = getInSession('initTransform')
       panIsValid = getInSession('panIsValid')
@@ -299,9 +295,9 @@ Template.main.gestures
       initTransformValue + event.deltaX >= 0 and
       initTransformValue + event.deltaX <= leftDrawerWidth
 
-        if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
-          toggleRightDrawer()
-          toggleRightArrowClockwise()
+        if $('.settingsMenu').hasClass('menuOut')
+          toggleSettingsMenu()
+          toggleRightHamburderIcon()
 
         $('.left-drawer').css('transform', 'translateX(' + (initTransformValue + event.deltaX) + 'px)')
 
@@ -316,9 +312,9 @@ Template.main.gestures
       initTransformValue + event.deltaX >= screenWidth - rightDrawerWidth and
       initTransformValue + event.deltaX <= screenWidth
 
-        if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
-          toggleLeftDrawer()
-          toggleLeftArrowClockwise()
+        if $('.userlistMenu').hasClass('menuOut')
+          toggleUserlistMenu()
+          toggleLeftHamburderIcon()
 
         $('.right-drawer').css('transform', 'translateX(' + (initTransformValue + event.deltaX) + 'px)')
 
