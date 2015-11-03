@@ -54,6 +54,20 @@ package org.bigbluebutton.modules.caption.services {
 			);
 		}
 		
+		public function sendCurrentCaptionLine(message:Object):void {
+			LOGGER.debug("Sending [caption.currentCaptionLine] to server.");
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("caption.currentCaptionLine", 
+				function(result:String):void { // On successful result
+					LOGGER.debug(result); 
+				},	                   
+				function(status:String):void { // status - On error occurred
+					LOGGER.error(status); 
+				},
+				message
+			);
+		}
+		
 		public function deleteCaptionLine(message:Object):void {
 			LOGGER.debug("Sending [caption.deleteCaptionLine] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();

@@ -48,14 +48,22 @@ public class CaptionService {
 	}
 	
 	public void newCaptionLine(Map<String, Object> msg) {
-		log.debug("Received new caption line request");
 		int lineNumber = (Integer) msg.get("lineNumber");
 		String locale = msg.get("locale").toString();
 		int startTime = (Integer) msg.get("startTime");
 		String text = msg.get("text").toString();
 		
-		String meetingId = Red5.getConnectionLocal().getScope().getName();
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		
-		red5InGW.newCaptionLine(meetingId, lineNumber, locale, startTime, text);
+		red5InGW.newCaptionLine(meetingID, lineNumber, locale, startTime, text);
+	}
+	
+	public void currentCaptionLine(Map<String, Object> msg) {
+		String locale = msg.get("locale").toString();
+		String text = msg.get("text").toString();
+		
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		
+		red5InGW.currentCaptionLine(meetingID, locale, text);
 	}
 }

@@ -17,6 +17,7 @@
  *
  */
 package org.bigbluebutton.modules.caption.services {
+	import org.bigbluebutton.modules.caption.events.SendCurrentCaptionLineEvent;
 	import org.bigbluebutton.modules.caption.events.SendNewCaptionLineEvent;
 
 	public class CaptionService {
@@ -42,6 +43,14 @@ package org.bigbluebutton.modules.caption.services {
 				
 				sender.sendNewCaptionLine(msg);
 			}
+		}
+		
+		public function sendCurrentCaptionLine(e:SendCurrentCaptionLineEvent):void {
+			var msg:Object = new Object();
+			msg.locale = e.locale;
+			msg.text = e.text;
+			
+			sender.sendCurrentCaptionLine(msg);
 		}
 	}
 }

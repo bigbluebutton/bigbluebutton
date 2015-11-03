@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.caption.services {
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.model.users.IMessageListener;
 	import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
+	import org.bigbluebutton.modules.caption.events.ReceiveCurrentCaptionLineEvent;
 	import org.bigbluebutton.modules.caption.events.ReceiveNewCaptionLineEvent;
 	
 	public class MessageReceiver implements IMessageListener {
@@ -39,6 +40,9 @@ package org.bigbluebutton.modules.caption.services {
 					break;
 				case "newCaptionLine":
 					newCaptionLine(message);
+					break;
+				case "currentCaptionLine":
+					currentCaptionLine(message);
 					break;
 				case "deleteCaptionLine":
 					deleteCaptionLine(message);
@@ -70,6 +74,17 @@ package org.bigbluebutton.modules.caption.services {
 			var event:ReceiveNewCaptionLineEvent = new ReceiveNewCaptionLineEvent(ReceiveNewCaptionLineEvent.RECEIVE_NEW_CAPTION_LINE);
 			event.locale = message.locale;
 			event.lineNumber = message.line_number;
+			event.text = message.text;
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(event);
+		}
+		
+		private function currentCaptionLine(message:Object):void {
+			trace(LOG + "*** currentCaptionLine " + message + " ****");
+			//var map:Object = JSON.parse(message);
+			
+			var event:ReceiveCurrentCaptionLineEvent = new ReceiveCurrentCaptionLineEvent(ReceiveCurrentCaptionLineEvent.RECEIVE_CURRENT_CAPTION_LINE);
+			event.locale = message.locale;
 			event.text = message.text;
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);

@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.CurrentCaptionLineMessage;
 import org.bigbluebutton.common.messages.NewCaptionLineMessage;
 import org.bigbluebutton.common.messages.SendCaptionHistoryRequestMessage;
 
@@ -32,6 +33,9 @@ public class CaptionMessageReceiver implements MessageHandler{
 					} else if (SendCaptionHistoryRequestMessage.SEND_CAPTION_HISTORY_REQUEST.equals(messageName)){
 						SendCaptionHistoryRequestMessage msg = SendCaptionHistoryRequestMessage.fromJson(message);
 						bbbGW.sendCaptionHistory(msg.meetingID, msg.requesterID);
+					} else if (CurrentCaptionLineMessage.CURRENT_CAPTION_LINE.equals(messageName)) {
+						CurrentCaptionLineMessage msg = CurrentCaptionLineMessage.fromJson(message);
+						bbbGW.currentCaptionLine(msg.meetingID, msg.locale, msg.text);
 					}
 				}
 			}

@@ -174,6 +174,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleSendCaptionHistoryRequest(msg)
     case msg: NewCaptionLineRequest =>
       handleNewCaptionLineRequest(msg)
+    case msg: CurrentCaptionLineRequest =>
+      handleCurrentCaptionLineRequest(msg)
 
     case msg: EndMeeting => handleEndMeeting(msg)
     case StopMeetingActor => //exit

@@ -11,14 +11,21 @@ trait CaptionApp {
   val outGW: OutMessageGateway
 
   def handleSendCaptionHistoryRequest(msg: SendCaptionHistoryRequest) {
-    var history = captionModel.getCaptionHistory()
+    var history = captionModel.getHistory()
 
     outGW.send(new SendCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, history))
   }
 
   def handleNewCaptionLineRequest(msg: NewCaptionLineRequest) {
-    captionModel.addNewCaptionLine(msg.locale, msg.text)
+    captionModel.addNewLine(msg.locale, msg.text)
 
     outGW.send(new NewCaptionLineEvent(mProps.meetingID, mProps.recorded, msg.lineNumber, msg.locale, msg.startTime, msg.text))
+  }
+
+  def handleCurrentCaptionLineRequest(msg: CurrentCaptionLineRequest) {
+    println("handleCurrentCaptionLineRequest")
+    captionModel.updateCurrentLine(msg.locale, msg.text)
+
+    outGW.send(new CurrentCaptionLineEvent(mProps.meetingID, mProps.recorded, msg.locale, msg.text))
   }
 }

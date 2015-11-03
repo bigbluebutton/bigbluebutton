@@ -30,4 +30,14 @@ object CaptionMessageToJsonConverter {
     val header = Util.buildHeader(MessageNames.NEW_CAPTION_LINE, None)
     Util.buildJson(header, payload)
   }
+
+  def currentCaptionLineEventToJson(msg: CurrentCaptionLineEvent): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.LOCALE, msg.locale)
+    payload.put(Constants.TEXT, msg.text)
+
+    val header = Util.buildHeader(MessageNames.CURRENT_CAPTION_LINE, None)
+    Util.buildJson(header, payload)
+  }
 }

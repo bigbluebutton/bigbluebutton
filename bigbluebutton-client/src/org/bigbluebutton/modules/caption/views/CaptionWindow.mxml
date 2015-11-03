@@ -34,9 +34,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.events.CollectionEvent;
+			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
+			import org.bigbluebutton.modules.caption.events.SendCurrentCaptionLineEvent;
 			import org.bigbluebutton.modules.caption.events.SendNewCaptionLineEvent;
 			import org.bigbluebutton.modules.caption.model.Transcript;
 			import org.bigbluebutton.modules.caption.model.Transcripts;
@@ -50,28 +52,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				requestTranscripts.callback = setTranscripts;
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(requestTranscripts);
+				
+				onFontSizeComboChange();
+				onFontTypeComboChange();
 			}
 			
 			private function setTranscripts(t:Transcripts):void {
 				transcripts = t;
-				onLocaleChange();
+				onLocaleComboChange();
 			}
 			
 			public function getPrefferedPosition():String {
 				return MainCanvas.POPUP;
-			}
-			
-			private function onLocaleChange():void {
-				if (transcripts) {
-					if (currentTranscript) {
-						currentTranscript.transcript.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onTranscriptChange);
-						//transcriptChangeWatcher = null;
-					}
-					currentTranscript = transcripts.findLocale(localeCombo.selectedLabel);
-					//transcriptChangeWatcher = BindingUtils.bindSetter(onTranscriptChange, currentTranscript, "transcript");
-					currentTranscript.transcript.addEventListener(CollectionEvent.COLLECTION_CHANGE, onTranscriptChange);
-					refreshTextArea();
-				}
 			}
 			
 			private function onTranscriptChange(event:Event):void {
@@ -79,7 +71,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function refreshTextArea():void {
-				transcriptArea.text = currentTranscript.transcript.source.join("\n");
+				var trascriptCompact:String = "";
+				if (currentTranscript.transcript.source.length > 0) {
+					trascriptCompact += currentTranscript.transcript.source.join("\n") + "\n";
+				}
+				trascriptCompact += currentTranscript.currentLine;
+				transcriptArea.text = setCase(trascriptCompact);
+			}
+			
+			private function setCase(msg:String):String {
+				switch (textCaseCombo.selectedIndex) {
+					case 1:
+						msg = msg.toLowerCase();
+						break;
+					case 2:
+						msg = msg.toUpperCase();
+						break;
+				}
+				
+				return msg;
+			}
+			
+			private function onFontSizeComboChange():void {
+				transcriptArea.setStyle("fontSize", int(fontSizeCombo.selectedItem));
+			}
+			
+			private function onFontTypeComboChange():void {
+				transcriptArea.setStyle("fontFamily", fontTypeCombo.selectedItem);
+			}
+			
+			private function onTextCaseComboChange():void {
+				refreshTextArea();
+			}
+			
+			private function onLocaleComboChange():void {
+				if (transcripts) {
+					if (currentTranscript) {
+						currentTranscript.removeEventListener(Event.CHANGE, onTranscriptChange);
+					}
+					currentTranscript = transcripts.findLocale(localeCombo.selectedLabel);
+					currentTranscript.addEventListener(Event.CHANGE, onTranscriptChange);
+					refreshTextArea();
+				}
 			}
 			
 			private function onNewLineTextInput(e:TextEvent):void {
@@ -104,8 +137,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(newLineEvent);
 					
-					newLineInput.text = "";
+					newLineInput.text = ""; // Doesn't cause Event.CHANGE to dispatch for some reason
 					newLineInput.setSelection(0, 0);
+				}
+			}
+			
+			private function onNewLineChange(e:Event):void {
+				trace("Line Input text-" + newLineInput.text + "-");
+				if (newLineInput.text.charAt(newLineInput.text.length-1) == " " || newLineInput.text.length == 0) {
+					var lineToSend:String = StringUtil.trim(newLineInput.text);
+
+					trace("Sending -"+lineToSend);
+					var currentLineEvent:SendCurrentCaptionLineEvent = new SendCurrentCaptionLineEvent(SendCurrentCaptionLineEvent.SEND_CURRENT_CAPTION_LINE);
+					currentLineEvent.locale = localeCombo.selectedLabel;
+					currentLineEvent.text = lineToSend;
+					
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(currentLineEvent);
 				}
 			}
 			
@@ -116,17 +164,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onTranscriptTextChange(e:Event):void {
 				trace("transcript change");
 			}
+			
+			private function onTranscriptDataChange(e:FlexEvent):void {
+				trace("transcript change");
+			}
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" horizontalAlign="center">
 		<mx:HBox width="100%">
-			<mx:ComboBox id="fontSizeCombo" dataProvider="[8, 10, 12, 14, 16]"/>
+			<mx:ComboBox id="fontSizeCombo" dataProvider="[8, 10, 12, 14, 16]" selectedIndex="2" change="onFontSizeComboChange()"/>
 			<mx:ColorPicker id="fontColorPicker" />
-			<mx:ComboBox id="fontTypeCombo" dataProvider="['Arial', 'Time New Roman', 'Comic Sans']"/>
-			<mx:ComboBox id="textCaseCombo" dataProvider="['Untouched', 'All Upper', 'All Lower']"/>
-			<mx:ComboBox id="localeCombo" dataProvider="['en_US','ca_FR', 'pt_PT']" change="onLocaleChange()"/>
+			<mx:ComboBox id="fontTypeCombo" dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" change="onFontTypeComboChange()"/>
+			<mx:ComboBox id="textCaseCombo" dataProvider="['Untouched', 'Lowercase', 'Uppercase']" change="onTextCaseComboChange()"/>
+			<mx:ComboBox id="localeCombo" dataProvider="['en_US','ca_FR', 'pt_PT']" change="onLocaleComboChange()"/>
 		</mx:HBox>
-		<mx:TextArea id="transcriptArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)"/>
-		<mx:TextArea id="newLineInput" width="100%" height="20" textInput="onNewLineTextInput(event)" />
+		<mx:TextArea id="transcriptArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)" dataChange="onTranscriptDataChange(event)"/>
+		<mx:TextArea id="newLineInput" width="100%" height="20" textInput="onNewLineTextInput(event)" change="onNewLineChange(event)" />
 	</mx:VBox>
 </CustomMdiWindow>

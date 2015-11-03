@@ -115,6 +115,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
     case msg: SendCaptionHistoryReply => handleSendCaptionHistoryReply(msg)
     case msg: NewCaptionLineEvent => handleNewCaptionLineEvent(msg)
+    case msg: CurrentCaptionLineEvent => handleCurrentCaptionLineEvent(msg)
     case _ => // do nothing
   }
 
@@ -655,6 +656,13 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
 
   private def handleNewCaptionLineEvent(msg: NewCaptionLineEvent) {
     val json = CaptionMessageToJsonConverter.newCaptionLineEventToJson(msg)
+    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
+  }
+
+  private def handleCurrentCaptionLineEvent(msg: CurrentCaptionLineEvent) {
+    println("handleCurrentCaptionLineEvent")
+    val json = CaptionMessageToJsonConverter.currentCaptionLineEventToJson(msg)
+    println("handleCurrentCaptionLineEvent json=" + json)
     service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
   }
 }

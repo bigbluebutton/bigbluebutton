@@ -6,8 +6,10 @@
 			
 			import org.bigbluebutton.modules.caption.events.GetCaptionHistoryEvent;
 			import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.ReceiveCurrentCaptionLineEvent;
 			import org.bigbluebutton.modules.caption.events.ReceiveNewCaptionLineEvent;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
+			import org.bigbluebutton.modules.caption.events.SendCurrentCaptionLineEvent;
 			import org.bigbluebutton.modules.caption.events.SendNewCaptionLineEvent;
 			import org.bigbluebutton.modules.caption.events.StartCaptionModuleEvent;
 			import org.bigbluebutton.modules.caption.events.StopCaptionModuleEvent;
@@ -47,5 +49,13 @@
 	
 	<EventHandlers type="{ReceiveNewCaptionLineEvent.RECEIVE_NEW_CAPTION_LINE}">
 		<MethodInvoker generator="{CaptionManager}" method="receiveNewCaptionLine" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{SendCurrentCaptionLineEvent.SEND_CURRENT_CAPTION_LINE}">
+		<MethodInvoker generator="{CaptionService}" method="sendCurrentCaptionLine" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ReceiveCurrentCaptionLineEvent.RECEIVE_CURRENT_CAPTION_LINE}">
+		<MethodInvoker generator="{CaptionManager}" method="receiveCurrentCaptionLine" arguments="{event}" />
 	</EventHandlers>
 </EventMap>

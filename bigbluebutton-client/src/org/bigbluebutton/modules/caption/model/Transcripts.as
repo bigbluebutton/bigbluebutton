@@ -29,6 +29,10 @@ package org.bigbluebutton.modules.caption.model {
 			findLocale(locale).newCaptionLine(lineNumber, text);
 		}
 		
+		public function updateCurrentCaptionLine(locale:String, text:String):void {
+			findLocale(locale).updateCurrentCaptionLine(text);
+		}
+		
 		public function findLocale(locale:String):Transcript {
 			for each (var t:Transcript in _transcriptCollection) {
 				if (t.locale == locale) return t;

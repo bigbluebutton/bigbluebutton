@@ -5,8 +5,9 @@ import scala.collection.immutable.HashMap
 
 class CaptionModel {
   var transcripts = Map[String, ArrayBuffer[String]]()
+  var currentLines = Map[String, String]()
 
-  def getCaptionHistory(): Map[String, Array[String]] = {
+  def getHistory(): Map[String, Array[String]] = {
     var history = Map[String, Array[String]]()
 
     transcripts.foreach(t => {
@@ -16,12 +17,16 @@ class CaptionModel {
     history
   }
 
-  def addNewCaptionLine(locale: String, text: String) {
+  def addNewLine(locale: String, text: String) {
     if (transcripts contains locale) {
       // do nothing
     } else {
       transcripts += locale -> new ArrayBuffer[String]()
     }
     transcripts(locale) append text
+  }
+
+  def updateCurrentLine(locale: String, text: String) {
+    currentLines += locale -> text
   }
 }

@@ -164,4 +164,5 @@ object MessageNames {
   val GET_ALL_MEETINGS_REPLY = "get_all_meetings_reply_message"
   val NEW_CAPTION_LINE = "new_caption_line_message"
   val SEND_CAPTION_HISTORY_REPLY = "send_caption_history_reply_message"
+  val CURRENT_CAPTION_LINE = "current_caption_line_message"
 }

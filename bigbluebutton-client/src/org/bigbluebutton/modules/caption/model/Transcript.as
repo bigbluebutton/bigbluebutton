@@ -1,9 +1,12 @@
 package org.bigbluebutton.modules.caption.model {
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
+	
 	import mx.collections.ArrayCollection;
 
-	public class Transcript {
-		[Bindable]
+	public class Transcript extends EventDispatcher {
 		public var transcript:ArrayCollection;
+		public var currentLine:String = "";
 		
 		private var _locale:String;
 		
@@ -23,9 +26,13 @@ package org.bigbluebutton.modules.caption.model {
 		public function newCaptionLine(lineNumber:int, text:String):void {
 			if (lineNumber >= 0) {
 				transcript.addItemAt(text, Math.min(lineNumber, transcript.length));
+				dispatchEvent(new Event(Event.CHANGE));
 			}
 		}
 		
-		
+		public function updateCurrentCaptionLine(text:String):void {
+			currentLine = text;
+			dispatchEvent(new Event(Event.CHANGE));
+		}
 	}
 }

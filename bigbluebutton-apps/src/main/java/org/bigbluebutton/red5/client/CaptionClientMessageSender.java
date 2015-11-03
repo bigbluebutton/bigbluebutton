@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.common.messages.Constants;
+import org.bigbluebutton.common.messages.CurrentCaptionLineMessage;
 import org.bigbluebutton.common.messages.NewCaptionLineMessage;
 import org.bigbluebutton.common.messages.SendCaptionHistoryReplyMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
@@ -46,6 +47,13 @@ public class CaptionClientMessageSender {
 							processSendCaptionHistoryReplyMessage(sch);
 						}
 						break;
+					case CurrentCaptionLineMessage.CURRENT_CAPTION_LINE:
+						CurrentCaptionLineMessage ccl = CurrentCaptionLineMessage.fromJson(message);
+						
+						if (ccl != null) {
+							processCurrentCaptionLineMessage(ccl);
+						}
+						break;
 				}
 			}
 		}
@@ -68,6 +76,15 @@ public class CaptionClientMessageSender {
 		message.put("msg", gson.toJson(msg.captionHistory));
 		
 		DirectClientMessage m = new DirectClientMessage(msg.meetingID, msg.requesterID, "sendCaptionHistoryReply", message);
+		service.sendMessage(m);
+	}
+	
+	private void processCurrentCaptionLineMessage(CurrentCaptionLineMessage msg) {
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put(Constants.LOCALE, msg.locale);
+		message.put(Constants.TEXT, msg.text);
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "currentCaptionLine", message);
 		service.sendMessage(m);
 	}
 }

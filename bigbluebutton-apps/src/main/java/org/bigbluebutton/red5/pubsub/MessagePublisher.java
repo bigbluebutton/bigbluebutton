@@ -280,4 +280,9 @@ public class MessagePublisher {
 		NewCaptionLineMessage msg = new NewCaptionLineMessage(meetingID, lineNumber, locale, startTime, text);
 		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
 	}
+	
+	public void currentCaptionLine(String meetingID, String locale, String text) {
+		CurrentCaptionLineMessage msg = new CurrentCaptionLineMessage(meetingID, locale, text);
+		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
+	}
 }
