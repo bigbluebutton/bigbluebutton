@@ -20,8 +20,8 @@ config.lockOnJoin = true
 config.app = {}
 
 #default font sizes for mobile / desktop
-config.app.mobileFont = 24
-config.app.desktopFont = 14
+config.app.mobileFont=16
+config.app.desktopFont=14
 
 # Will offer the user to join the audio when entering the meeting
 config.app.autoJoinAudio = false
