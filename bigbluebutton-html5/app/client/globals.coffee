@@ -330,7 +330,7 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('.shield').removeClass('animatedShield')
 
 @removeFullscreenStyles = ->
-  $('#whiteboard-paper').removeClass('verticallyCentered')
+  $('#whiteboard-paper').removeClass('vertically-centered')
   $('#chat').removeClass('invisible')
   $('#users').removeClass('invisible')
   $('#navbar').removeClass('invisible')
@@ -358,7 +358,7 @@ Handlebars.registerHelper "getPollQuestions", ->
   $('.fullscreenButton').addClass('exitFullscreenButton')
   $('.fullscreenButton i').removeClass('ion-arrow-expand')
   $('.fullscreenButton i').addClass('ion-arrow-shrink')
-  $('#whiteboard-paper').addClass('verticallyCentered')
+  $('#whiteboard-paper').addClass('vertically-centered')
   $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
     if document.webkitFullscreenElement is null
       $('#whiteboard').unbind('webkitfullscreenchange')
