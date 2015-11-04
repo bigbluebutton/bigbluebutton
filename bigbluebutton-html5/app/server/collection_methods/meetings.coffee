@@ -21,7 +21,7 @@
       lockOnJoinConfigurable: false # TODO
   }}, (err, numChanged) ->
     if numChanged.insertedId?
-      Meteor.log.error "added MEETING #{meetingId}")
+      Meteor.log.info "added MEETING #{meetingId}")
 
 
 

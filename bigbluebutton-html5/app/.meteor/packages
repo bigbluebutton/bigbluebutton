@@ -28,3 +28,6 @@ maibaum:foundation-icons
 chriswessels:hammer@3.1.1
 fastclick
 standard-minifiers
+cfs:power-queue
+cfs:reactive-list
+cfs:micro-queue

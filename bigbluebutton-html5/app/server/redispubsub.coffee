@@ -23,6 +23,20 @@ Meteor.methods
     else
       Meteor.log.info "did not have enough information to send a validate_auth_token message"
 
+
+
+# Meteor.myQueue.taskHandler = (data, next, failures) ->
+#   message = JSON.parse(data.jsonMsg)
+#   eventName = message.header.name
+#   console.log "_________ " + eventName +
+#     "\ndata= " + JSON.stringify data +
+#     # "\nnext=" + JSON.stringify next +
+#     "\nfailures="+ JSON.stringify failures
+#   @_onMessage(data.pattern, data.channel, data.jsonMsg)
+#   next()
+
+
+
 class Meteor.RedisPubSub
   constructor: (callback) ->
     Meteor.log.info "constructor RedisPubSub"
@@ -33,9 +47,10 @@ class Meteor.RedisPubSub
     Meteor.log.info("Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
 
     @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe)
-    @subClient.on "pmessage", Meteor.bindEnvironment(@_onMessage)
+    @subClient.on "pmessage", Meteor.bindEnvironment(@_Q)
 
     @subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
+
     callback @
 
   _onSubscribe: (channel, count) =>
@@ -48,10 +63,27 @@ class Meteor.RedisPubSub
       "payload": {} # I need this, otherwise bbb-apps won't recognize the message
     publish Meteor.config.redis.channels.toBBBApps.meeting, message
 
+
+  _Q: (pattern, channel, jsonMsg) =>
+    message = JSON.parse(jsonMsg)
+    eventName = message.header.name
+    console.log "Q " + eventName
+
+
+    Meteor.myQueue.add({
+      pattern: pattern
+      channel: channel
+      jsonMsg: jsonMsg
+    })
+    Meteor.log.error Meteor.myQueue.total()
+    # Meteor.log.error "isPaused=" +Meteor.myQueue.isPaused()
+    # @_onMessage(pattern, channel, jsonMsg)
+
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will
     # crash if the message has a bad format
 
+    console.log "_onMessage"
     message = JSON.parse(jsonMsg)
     correlationId = message.payload?.reply_to or message.header?.reply_to
     meetingId = message.payload?.meeting_id
@@ -66,6 +98,7 @@ class Meteor.RedisPubSub
       "get_users_reply"
       "get_chat_history_reply"
       "get_all_meetings_reply"
+      "get_whiteboard_shapes_reply"
       "presentation_shared_message"
       "presentation_conversion_done_message"
       "presentation_conversion_progress_message"
