@@ -14,8 +14,10 @@
       {{/if}}
     {{else}}
       <!-- display both with join -->
-      {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone"
-      rel="tooltip" data_placement="bottom" title="Join Microphone"}}
+      {{#unless isMyMicLocked}}
+        {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone"
+        rel="tooltip" data_placement="bottom" title="Join Microphone"}}
+      {{/unless}}
       {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume"
       rel="tooltip" data_placement="bottom" title="Join Listen only"}}
     {{/if}}

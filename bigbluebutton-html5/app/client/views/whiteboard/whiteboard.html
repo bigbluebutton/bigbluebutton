@@ -6,26 +6,26 @@
     <div id="whiteboard-container" class="{{whiteboardSize}}">
       <div id="whiteboard-paper">
       </div>
-      <div class="sl-fab-container sl-left-hr-dbl-fab">
-        <button type="submit" class="sl-fab-trigger">
-          <i class="ion-plus-round"></i>
+      <div class="FABContainer">
+        <button type="submit" class="FABTriggerButton">
+          <i class="ion-android-hand"></i>
         </button>
-        <button type="submit" class="sl-fab-btn sadEmojiButton {{#if equals getCurrentUserEmojiStatus 'sad'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
-          {{> slIcon name="sad-face" size="50"}}
+        <button type="submit" class="sadEmojiButton {{#if equals getCurrentUserEmojiStatus 'sad'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
+          {{> icon name="sad-face" size="50"}}
         </button>
-        <button type="submit" class="sl-fab-btn happyEmojiButton {{#if equals getCurrentUserEmojiStatus 'happy'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
-          {{> slIcon name="happy-face" size="50"}}
+        <button type="submit" class="happyEmojiButton {{#if equals getCurrentUserEmojiStatus 'happy'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
+          {{> icon name="happy-face" size="50"}}
         </button>
-        <button type="submit" class="sl-fab-btn confusedEmojiButton {{#if equals getCurrentUserEmojiStatus 'confused'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
-          {{> slIcon name="confused-face" size="50"}}
+        <button type="submit" class="confusedEmojiButton {{#if equals getCurrentUserEmojiStatus 'confused'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
+          {{> icon name="confused-face" size="50"}}
         </button>
-        <button type="submit" class="sl-fab-btn neutralEmojiButton {{#if equals getCurrentUserEmojiStatus 'neutral'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
-          {{> slIcon name="neutral-face" size="50"}}
+        <button type="submit" class="neutralEmojiButton {{#if equals getCurrentUserEmojiStatus 'neutral'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
+          {{> icon name="neutral-face" size="50"}}
         </button>
-        <button type="submit" class="sl-fab-btn awayEmojiButton {{#if equals getCurrentUserEmojiStatus 'away'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
-          {{> slIcon name="clock" size="50"}}
+        <button type="submit" class="awayEmojiButton {{#if equals getCurrentUserEmojiStatus 'away'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
+          {{> icon name="clock" size="50"}}
         </button>
-        <button type="submit" class="sl-fab-btn raiseHandEmojiButton {{#if equals getCurrentUserEmojiStatus 'raiseHand'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
+        <button type="submit" class="raiseHandEmojiButton {{#if equals getCurrentUserEmojiStatus 'raiseHand'}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
           <i class="ion-android-hand"></i>
         </button>
       </div>

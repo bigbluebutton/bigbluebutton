@@ -141,14 +141,54 @@ Meteor.methods
 # params: meetingid, userid as defined in BBB-Apps
 @markUserOffline = (meetingId, userId) ->
   # mark the user as offline. remove from the collection on meeting_end #TODO
-  Meteor.log.info "marking user [#{userId}] as offline in meeting[#{meetingId}]"
-  Meteor.Users.update({'meetingId': meetingId, 'userId': userId}, {$set:{'user.connection_status':'offline'}})
+  user = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
+  if user?.clientType is "HTML5"
+    Meteor.log.info "marking html5 user [#{userId}] as offline in meeting[#{meetingId}]"
+    Meteor.Users.update({meetingId: meetingId, userId: userId}, {$set:{
+    'user.connection_status':'offline'
+    'voiceUser.talking': false
+    'voiceUser.joined': false
+    'voiceUser.muted': false
+    'user.time_of_joining': 0
+    'user.listenOnly': false
+    }}, (err, numChanged) ->
+      if err?
+        Meteor.log.error "_unsucc update (mark as offline) of user #{user?.user.name} #{userId}  err=#{JSON.stringify err}"
+      if numChanged?
+        Meteor.log.info "_marking as offline html5 user #{user?.user.name} #{userId}  numChanged=#{numChanged}"
+    )
+  else
+    Meteor.Users.remove({meetingId: meetingId, userId: userId}, (err, numDeletions) ->
+      if err?
+        Meteor.log.error "_unsucc deletion of user #{user?.user.name} #{userId}  err=#{JSON.stringify err}"
+      if numDeletions?
+        Meteor.log.info "_deleting info for user #{user?.user.name} #{userId}  numDeletions=#{numDeletions}"
+    )
+
 
 # Corresponds to a valid action on the HTML clientside
 # After authorization, publish a user_leaving_request in redis
 # params: meetingid, userid as defined in BBB-App
 @requestUserLeaving = (meetingId, userId) ->
-  if Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})?
+  userObject = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
+  voiceConf = Meteor.Meetings.findOne({meetingId:meetingId})?.voiceConf
+  if userObject? and voiceConf? and userId? and meetingId?
+
+    # end listenOnly audio for the departing user
+    if userObject.user.listenOnly
+      listenOnlyMessage =
+        payload:
+          userid: userId
+          meeting_id: meetingId
+          voice_conf: voiceConf
+          name: userObject.user.name
+        header:
+          timestamp: new Date().getTime()
+          name: "user_disconnected_from_global_audio"
+
+      publish Meteor.config.redis.channels.toBBBApps.meeting, listenOnlyMessage
+
+    # remove user from meeting
     message =
       payload:
         meeting_id: meetingId
@@ -156,13 +196,12 @@ Meteor.methods
       header:
         timestamp: new Date().getTime()
         name: "user_leaving_request"
-        version: "0.0.1"
 
-    if userId? and meetingId?
-      Meteor.log.info "sending a user_leaving_request for #{meetingId}:#{userId}"
-      publish Meteor.config.redis.channels.toBBBApps.users, message
-    else
-      Meteor.log.info "did not have enough information to send a user_leaving_request"
+    Meteor.log.info "sending a user_leaving_request for #{meetingId}:#{userId}"
+    publish Meteor.config.redis.channels.toBBBApps.users, message
+  else
+    Meteor.log.info "did not have enough information to send a user_leaving_request"
+
 
 #update a voiceUser - a helper method
 @updateVoiceUser = (meetingId, voiceUserObject) ->
@@ -187,8 +226,7 @@ Meteor.methods
   u = Meteor.Users.findOne({userId:user.userid, meetingId: meetingId})
   # the collection already contains an entry for this user because
   # we added a dummy user on register_user_message (to save authToken)
-  if u?
-    Meteor.log.info "UPDATING USER #{user.userid}, authToken=#{u.authToken}, locked=#{user.locked}"
+  if u? and u.authToken?
     Meteor.Users.update({userId:user.userid, meetingId: meetingId}, {$set:{
       user:
         userid: user.userid
@@ -217,7 +255,10 @@ Meteor.methods
           locked: user.voiceUser.locked
           muted: user.voiceUser.muted
         webcam_stream: user.webcam_stream
-      }})
+      }}, (err, numChanged) ->
+        Meteor.log.info "_(case1) UPDATING USER #{user.userid}, authToken=#{u.authToken},
+        locked=#{user.locked}, username=#{user.name}"
+    )
 
     # only add the welcome message if it's not there already
     unless Meteor.Chat.findOne({"message.chat_type":'SYSTEM_MESSAGE', "message.to_userid": userId})?
@@ -226,7 +267,7 @@ Meteor.methods
       welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter
 
       # store the welcome message in chat for easy display on the client side
-      Meteor.Chat.insert(
+      Meteor.Chat.insert({
         meetingId: meetingId
         message:
           chat_type: "SYSTEM_MESSAGE"
@@ -236,18 +277,13 @@ Meteor.methods
           from_userid: "SYSTEM_MESSAGE"
           from_username: ""
           from_time: user.timeOfJoining?.toString()
-        )
-      Meteor.log.info "added a system message in chat for user #{userId}"
+        }, (err) ->
+          Meteor.log.info "_added a system message in chat for user #{userId}"
+      )
 
   else
-    # scenario: there are meetings running at the time when the meteor
-    # process starts. As a result we the get_users_reply message contains
-    # users for which we have not observed user_registered_message and
-    # hence we do not have the auth_token. There will be permission issues
-    # as the server collection does not have the auth_token of such users
-    # and cannot authorize their client side actions
-    Meteor.log.info "NOTE: got user_joined_message "
-    entry =
+    # Meteor.log.info "NOTE: got user_joined_message #{user.name} #{user.userid}"
+    Meteor.Users.upsert({meetingId: meetingId, userId: userId}, {
       meetingId: meetingId
       userId: userId
       user:
@@ -276,51 +312,58 @@ Meteor.methods
           locked: user.voiceUser.locked
           muted: user.voiceUser.muted
         webcam_stream: user.webcam_stream
+      }, (err, numChanged) ->
+        if numChanged.insertedId?
+          Meteor.log.info "_joining user (case2) userid=[#{userId}]:#{user.name}.
+            Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}")
 
-    id = Meteor.Users.insert(entry)
-    Meteor.log.info "joining user userid=[#{userId}], id=[#{id}]:#{user.name}. Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+
 
 @createDummyUser = (meetingId, userId, authToken) ->
   if Meteor.Users.findOne({userId:userId, meetingId: meetingId, authToken:authToken})?
     Meteor.log.info "html5 user userid:[#{userId}] from [#{meetingId}] tried to revalidate token"
   else
-    entry =
+    Meteor.Users.insert({
       meetingId: meetingId
       userId: userId
       authToken: authToken
       clientType: "HTML5"
       validated: false #will be validated on validate_auth_token_reply
-
-    id = Meteor.Users.insert(entry)
-    Meteor.log.info "added user dummy html5 user with: userid=[#{userId}], id=[#{id}]
+      }, (err, id) ->
+        Meteor.log.info "_added a dummy html5 user with: userid=[#{userId}], id=[#{id}]
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
-
+    )
 
 # when new lock settings including disableMic are set,
 # all viewers that are in the audio bridge with a mic should be muted and locked
 @handleLockingMic = (meetingId, newSettings) ->
   # send mute requests for the viewer users joined with mic
   for u in Meteor.Users.find({
-                              meetingId:meetingId
-                              'user.role':'VIEWER'
-                              'user.listenOnly':false
-                              'user.locked':true
-                              'user.voiceUser.joined':true
-                              'user.voiceUser.muted':false})?.fetch()
-    Meteor.log.error u.user.name #
+        meetingId:meetingId
+        'user.role':'VIEWER'
+        'user.listenOnly':false
+        'user.locked':true
+        'user.voiceUser.joined':true
+        'user.voiceUser.muted':false})?.fetch()
+    # Meteor.log.info u.user.name #
     Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true) #true for muted
 
 # change the locked status of a user (lock settings)
 @setUserLockedStatus = (meetingId, userId, isLocked) ->
-  if Meteor.Users.findOne({userId:userId, meetingId: meetingId})?
-    Meteor.Users.update({userId:userId, meetingId: meetingId}, {$set:{'user.locked': isLocked}})
-
+  u = Meteor.Users.findOne({meetingId:meetingId, userId:userId})
+  if u?
+    Meteor.Users.update({userId:userId, meetingId: meetingId},
+      {$set:{'user.locked': isLocked}},
+      (err, numChanged) ->
+        if err?
+          Meteor.log.error "_error #{err} while updating user #{userId} with lock settings"
+        else
+          Meteor.log.info "_setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
+    )
     # if the user is sharing audio, he should be muted upon locking involving disableMic
-    u = Meteor.Users.findOne({meetingId:meetingId, userId:userId})
     if u.user.role is 'VIEWER' and !u.user.listenOnly and u.user.voiceUser.joined and !u.user.voiceUser.muted and isLocked
       Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true) #true for muted
 
-    Meteor.log.info "setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
   else
     Meteor.log.error "(unsuccessful-no such user) setting user locked status for userid:[#{userId}] from [#{meetingId}] locked=#{isLocked}"
 
@@ -328,6 +371,16 @@ Meteor.methods
 # called on server start and on meeting end
 @clearUsersCollection = (meetingId) ->
   if meetingId?
-    Meteor.Users.remove({meetingId: meetingId}, Meteor.log.info "cleared Users Collection (meetingId: #{meetingId}!")
+    Meteor.Users.remove({meetingId: meetingId}, (err) ->
+      if err?
+        Meteor.log.error "_error #{JSON.stringify err} while removing users from meeting #{meetingId}"
+      else
+        Meteor.log.info "_cleared Users Collection (meetingId: #{meetingId})!"
+    )
   else
-    Meteor.Users.remove({}, Meteor.log.info "cleared Users Collection (all meetings)!")
+    Meteor.Users.remove({}, (err) ->
+      if err?
+        Meteor.log.error "_error #{JSON.stringify err} while removing users from all meetings!"
+      else
+        Meteor.log.info "_cleared Users Collection (all meetings)!"
+    )

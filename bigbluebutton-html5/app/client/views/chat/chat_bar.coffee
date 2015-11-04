@@ -53,14 +53,14 @@ Handlebars.registerHelper "autoscroll", ->
 # true if the lock settings limit public chat and the current user is locked
 Handlebars.registerHelper "publicChatDisabled", ->
   userIsLocked = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.locked
-  publicChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePubChat
+  publicChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePublicChat
   presenter = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.presenter
   return userIsLocked and publicChatIsDisabled and !presenter
 
 # true if the lock settings limit private chat and the current user is locked
 Handlebars.registerHelper "privateChatDisabled", ->
   userIsLocked = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.locked
-  privateChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePrivChat
+  privateChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePrivateChat
   presenter = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.presenter
   return userIsLocked and privateChatIsDisabled and !presenter
 

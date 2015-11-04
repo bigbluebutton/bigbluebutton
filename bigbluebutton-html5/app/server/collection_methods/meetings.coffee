@@ -3,26 +3,26 @@
 # --------------------------------------------------------------------------------------------
 @addMeetingToCollection = (meetingId, name, intendedForRecording, voiceConf, duration) ->
   #check if the meeting is already in the collection
-  unless Meteor.Meetings.findOne({meetingId: meetingId})?
-    entry =
-      meetingId: meetingId
-      meetingName: name
-      intendedForRecording: intendedForRecording
-      currentlyBeingRecorded: false # defaut value
-      voiceConf: voiceConf
-      duration: duration
-      roomLockSettings:
-        # by default the lock settings will be disabled on meeting create
-        disablePrivChat: false
-        disableCam: false
-        disableMic: false
-        lockOnJoin: Meteor.config.lockOnJoin
-        lockedLayout: false
-        disablePubChat: false
 
-    id = Meteor.Meetings.insert(entry)
-    Meteor.log.info "added meeting _id=[#{id}]:meetingId=[#{meetingId}]:name=[#{name}]:duration=[#{duration}]:voiceConf=[#{voiceConf}]
-    roomLockSettings:[#{JSON.stringify entry.roomLockSettings}]."
+  obj = Meteor.Meetings.upsert({meetingId:meetingId}, {$set: {
+    meetingName:name
+    intendedForRecording: intendedForRecording
+    currentlyBeingRecorded: false # defaut value
+    voiceConf: voiceConf
+    duration: duration
+    roomLockSettings:
+      # by default the lock settings will be disabled on meeting create
+      disablePrivateChat: false
+      disableCam: false
+      disableMic: false
+      lockOnJoin: Meteor.config.lockOnJoin
+      lockedLayout: false
+      disablePublicChat: false
+      lockOnJoinConfigurable: false # TODO
+  }}, (err, numChanged) ->
+    if numChanged.insertedId?
+      Meteor.log.error "added MEETING #{meetingId}")
+
 
 
 @clearMeetingsCollection = (meetingId) ->

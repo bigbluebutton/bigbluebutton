@@ -63,21 +63,24 @@ class Meteor.RedisPubSub
       "presentation_page_resized_message"
       "presentation_cursor_updated_message"
       "get_presentation_info_reply"
-      # "get_users_reply"
+      "get_users_reply"
       "get_chat_history_reply"
       "get_all_meetings_reply"
       "presentation_shared_message"
       "presentation_conversion_done_message"
       "presentation_conversion_progress_message"
       "presentation_page_generated_message"
-      "presentation_page_changed_message"
+      # "presentation_page_changed_message"
       "BbbPubSubPongMessage"
       "bbb_apps_is_alive_message"
+      "user_voice_talking_message"
+      "meeting_state_message"
+      "get_recording_status_reply"
     ]
 
     if message?.header? and message?.payload?
       unless message.header.name in notLoggedEventTypes
-        Meteor.log.info "eventType=  #{message.header.name}  ",
+        Meteor.log.info "redis incoming message  #{message.header.name}  ",
           message: jsonMsg
 
       # handle voice events
@@ -137,10 +140,17 @@ class Meteor.RedisPubSub
       if message.header.name is "user_joined_message"
         userObj = message.payload.user
         dbUser = Meteor.Users.findOne({userId: message.payload.user.userid, meetingId: message.payload.meeting_id})
-        if dbUser?.clientType is "HTML5" # typically html5 users will be in the db [as a dummy user] before the joining message
-          status = dbUser?.validated
-          Meteor.log.info "in user_joined_message the validStatus of the user was #{status}"
-        userJoined meetingId, userObj
+
+        # On attempting reconnection of Flash clients (in voiceBridge) we receive an extra user_joined_message
+        # Ignore it as it will add an extra user in the userlist, creating discrepancy with the list in the Flash client
+        if dbUser?.user?.connection_status is "offline" and message.payload.user?.phone_user
+          Meteor.log.error "offline AND phone user"
+          return # without joining the user
+        else
+          if dbUser?.clientType is "HTML5" # typically html5 users will be in the db [as a dummy user] before the joining message
+            status = dbUser?.validated
+            Meteor.log.info "in user_joined_message the validStatus of the user was #{status}"
+          userJoined meetingId, userObj
         return
 
       if message.header.name is "user_left_message"
@@ -212,9 +222,9 @@ class Meteor.RedisPubSub
                 "version": "0.0.1"
 
             if whiteboardId? and meetingId?
-              publish Meteor.config.redis.channels.toBBBApps.whiteboard, message
+              publish Meteor.config.redis.channels.toBBBApps.whiteboard, message #TODO
             else
-              Meteor.log.info "did not have enough information to send a user_leaving_request"
+              Meteor.log.info "did not have enough information to send a user_leaving_request" #TODO
         return
 
       if message.header.name is "presentation_page_changed_message"
@@ -300,12 +310,11 @@ class Meteor.RedisPubSub
       # --------------------------------------------------
       # lock settings ------------------------------------
       if message.header.name is "eject_voice_user_message"
-        console.log "\n111111111"
         return
 
       if message.header.name is "new_permission_settings"
         oldSettings = Meteor.Meetings.findOne({meetingId:meetingId})?.roomLockSettings
-        newSettings = message.payload
+        newSettings = message.payload?.permissions
 
         # if the disableMic setting was turned on
         if !oldSettings?.disableMic and newSettings.disableMic
@@ -313,12 +322,13 @@ class Meteor.RedisPubSub
 
         # substitute with the new lock settings
         Meteor.Meetings.update({meetingId: meetingId}, {$set: {
-          'roomLockSettings.disablePrivChat': message.payload.disablePrivChat
-          'roomLockSettings.disableCam': message.payload.disableCam
-          'roomLockSettings.disableMic': message.payload.disableMic
-          'roomLockSettings.lockOnJoin': message.payload.lockOnJoin
-          'roomLockSettings.lockedLayout': message.payload.lockedLayout
-          'roomLockSettings.disablePubChat': message.payload.disablePubChat
+          'roomLockSettings.disablePrivateChat': newSettings.disablePrivateChat
+          'roomLockSettings.disableCam': newSettings.disableCam
+          'roomLockSettings.disableMic': newSettings.disableMic
+          'roomLockSettings.lockOnJoin': newSettings.lockOnJoin
+          'roomLockSettings.lockedLayout': newSettings.lockedLayout
+          'roomLockSettings.disablePublicChat': newSettings.disablePublicChat
+          'roomLockSettings.lockOnJoinConfigurable': newSettings.lockOnJoinConfigurable #TODO
         }})
         return
 
@@ -370,9 +380,9 @@ class Meteor.RedisPubSub
 
 # message should be an object
 @publish = (channel, message) ->
-  # Meteor.log.info "Publishing",
-  #   channel: channel
-  #   message: message
+  Meteor.log.info "redis outgoing message  #{message.header.name}",
+    channel: channel
+    message: message
 
   if Meteor.redisPubSub?
     Meteor.redisPubSub.pubClient.publish channel, JSON.stringify(message), (err, res) ->
