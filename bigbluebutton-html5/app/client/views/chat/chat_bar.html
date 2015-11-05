@@ -75,16 +75,3 @@
   <div style="color:{{colourToHex message.from_color}}">{{{sanitizeAndFormat message.message}}}</div>
   {{autoscroll}}
 </template>
-
-<template name="optionsFontSize">
-  <fieldset class="desktopSettingsFieldset">
-    <legend><span class="chatOptionsText" >Chat Message Font Size</span><br/></legend>
-    <table id="fontSizeTable" align="center">
-      <tr>
-        <td>{{> makeButton id="decreaseFontSize" btn_class="displayButtons" i_class="fi-minus" rel="tooltip" title="Decrease Font Size"}}</td>
-        <td id="displayLabel"><label class="fontSizeLabel" {{messageFontSize}} >Size({{getInSession "messageFontSize"}})</label></td>
-        <td>{{> makeButton id="increaseFontSize" btn_class="displayButtons" i_class="fi-plus" rel="tooltip" title="Increase Font Size"}}</td>
-      </tr>
-    </table>
-  </fieldset>
-</template>
