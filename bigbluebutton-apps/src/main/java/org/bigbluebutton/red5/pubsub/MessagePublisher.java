@@ -1,7 +1,10 @@
 package org.bigbluebutton.red5.pubsub;
 
 import java.util.Map;
+
 import org.bigbluebutton.common.messages.*;
+import org.bigbluebutton.messages.CreateBreakoutRoomsRequest;
+import org.bigbluebutton.messages.payload.CreateBreakoutRoomsRequestPayload;
 import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
 public class MessagePublisher {
@@ -263,11 +266,15 @@ public class MessagePublisher {
 	public void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo) {
 		IsWhiteboardEnabledRequestMessage msg = new IsWhiteboardEnabledRequestMessage(meetingID, requesterID, replyTo);
 		sender.send(MessagingConstants.TO_WHITEBOARD_CHANNEL, msg.toJson());
-
 	}
 
 	public void lockLayout(String meetingID, String setById, boolean lock, boolean viewersOnly, String layout) {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
+	}
+	
+	public void createBreakoutRooms(CreateBreakoutRoomsRequestPayload playload) {
+		CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(playload);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 }
