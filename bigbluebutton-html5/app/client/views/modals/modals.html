@@ -1,7 +1,7 @@
 <!-- listen only | microphone -->
 <template name="settingsAudio">
   <fieldset class="desktopSettingsFieldset">
-    <legend>Audio Options</legend>
+    <legend align="center">Audio Options</legend>
     {{#if amIInAudio}}
       {{#if amIListenOnlyAudio}}
         <!-- display listen only with exit -->
@@ -50,7 +50,7 @@
 
 <template name="optionsFontSize">
   <fieldset class="desktopSettingsFieldset">
-    <legend><span class="chatOptionsText" >Chat Message Font Size</span><br/></legend>
+    <legend align="center"><span class="chatOptionsText" >Chat Message Font Size</span><br/></legend>
     <table id="fontSizeTable" align="center">
       <tr>
         <td>{{> makeButton id="decreaseFontSize" btn_class="displayButtons" i_class="fi-minus" rel="tooltip" title="Decrease Font Size"}}</td>
