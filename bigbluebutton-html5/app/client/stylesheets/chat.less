@@ -111,6 +111,9 @@
   }
 }
 #chatbody {
+    // text will not be hidden as it won't exceed the container boundaries,
+    // but the element will still be given horizontal scroll bars
+    overflow-x: hidden;
   @media @desktop-portrait, @landscape {
     order: 2;
     -webkit-order: 2;
