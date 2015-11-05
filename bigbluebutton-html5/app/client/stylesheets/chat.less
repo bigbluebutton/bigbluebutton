@@ -224,7 +224,7 @@
   }
   @media @desktop-portrait {
     font-size: 25px;
-    height: 60px; /* same height as send button */
+    height: @chatControlsHeight;
   }
 }
 
@@ -241,7 +241,7 @@
   color: extract(@white, 1);
   background-color: #3896D3;
   font-weight: bold;
-  height: 50px;
+  height: @chatControlsHeight;
   margin: 0px;
   border: 1px solid extract(@lightGrey, 3);
   @media @desktop-portrait {
