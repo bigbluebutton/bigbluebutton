@@ -1,17 +1,25 @@
 <template name="vertoDeskshareMenu">
 	<fieldset class="desktopSettingsFieldset">
 		<legend align="center">Deskshare Options</legend>
-		{{#if getInSession "chromeExtensionIsInstalled"}}
+		<!-- {{#if getInSession "chromeExtensionIsInstalled"}} -->
+		{{#if desksharingIsAvailable}}
 			{{#if getInSession "sharingMyScreen"}}
 				{{> makeButton id="screenshareHide" btn_class="screenshareHide vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Stop sharing your screen"}}
 			{{else}}
 				{{> makeButton id="screenshareShow" btn_class="screenshareShow vertoButton settingsButton" i_class="fi-monitor" rel="tooltip" data_placement="bottom" title="Share your screen"}}
 			{{/if}}
 		{{else}}
-			{{! clicking this will automatically start installation of the extension through the webstore}}
-			{{> makeButton id="installChromeExtension" btn_class="" label="Install BBB-DS" rel="tooltip" data_placement="bottom" title="Install BigBlueButton Deskshare Extension"}}
-			{{! Provide the option to visit the webstore for the extension}}
-			<br/><a href="https://chrome.google.com/webstore/detail/{{getExtensionId}}" target="_blank">Install BigBlueButton Deskshare Extension</a>
+			{{#if browserIs "Chrome"}}
+				{{! clicking this will automatically start installation of the extension through the webstore}}
+				{{> makeButton id="installChromeExtension" btn_class="" label="Install BBB-DS" rel="tooltip" data_placement="bottom" title="Install BigBlueButton Deskshare Extension"}}
+				{{! Provide the option to visit the webstore for the extension}}
+				<br/><a href="https://chrome.google.com/webstore/detail/{{getExtensionId}}" target="_blank">Install BigBlueButton Deskshare Extension</a>
+			{{else}}
+				{{#if browserIs "Firefox"}}
+					{{> makeButton id="installFirefoxExtension" btn_class="" label="Install BBB-DS" rel="tooltip" data_placement="bottom" title="Install BigBlueButton Deskshare Extension"}}
+					<br/><a href="https://github.com/perroned/BigBlueButton-Deskshare-Firefox-Extension" target="_blank">Install BigBlueButton Deskshare Extension</a>
+				{{/if}}
+			{{/if}}
 		{{/if}}
 	</fieldset>
 </template>

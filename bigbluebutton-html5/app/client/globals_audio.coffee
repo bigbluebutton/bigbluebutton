@@ -36,15 +36,10 @@
 		notification_WebRTCNotSupported()
 		return
 
-	# isListenOnly ?= trueoptions
-
 	if not Meteor.config.useSIPAudio
-		#
-		# "click #joinAudio": (event) ->
-		# displayVertoVideo()
 		if options.watchOnly?
 			toggleWhiteboardVideo("video")
-		# return
+
 		wasCallSuccessful = false
 		debuggerCallback = (message) ->
 			console.log("CALLBACK: "+JSON.stringify(message));

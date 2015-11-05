@@ -140,14 +140,19 @@ Template.main.rendered = ->
   if Meteor.config.app.autoJoinAudio
     onAudioJoinHelper()
 
-  checkIfChromeExtExists()
+  checkIfScreenSharingExtensionsExist()
 
-@checkIfChromeExtExists = ->
-    getChromeExtensionStatus (status) ->
-        if status is "installed-enabled"
-            setInSession("chromeExtensionIsInstalled", true)
-        else
-            setInSession("chromeExtensionIsInstalled", false)
+@checkIfFirefoxExtExists = ->
+    # check if element that extension added exists on the webpage
+    true
+
+@checkIfScreenSharingExtensionsExist = ->
+    browserName = getBrowserName()
+    if browserName is 'Firefox'
+        setInSession("firefoxExtensionIsInstalled", checkIfFirefoxExtExists())
+    else if browserName is 'Chrome'
+        getChromeExtensionStatus (status) ->
+            setInSession("chromeExtensionIsInstalled", status is "installed-enabled")
 
 Template.deskshareModal.rendered = ->
   makeWebcamResolutions();

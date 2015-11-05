@@ -34,6 +34,13 @@ Template.vertoDeskshareMenu.events
 			);
 		installExtension()
 
+Template.vertoDeskshareMenu.helpers
+	"desksharingIsAvailable": ->
+		getInSession("firefoxExtensionIsInstalled") or getInSession("chromeExtensionIsInstalled")
+
+Handlebars.registerHelper "browserIs", (name) ->
+	name is getBrowserName()
+
 Template.deskshareModal.events
 	"click .screenshareStart": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')
