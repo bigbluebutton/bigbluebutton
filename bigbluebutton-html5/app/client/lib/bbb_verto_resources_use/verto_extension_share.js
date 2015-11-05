@@ -36,6 +36,17 @@ this.doshare = function(on, callback, videoTag) {
 		return;
 	}
 
+	var callbacks = {
+		onError: function(vertoErrorObject, errorMessage) {
+			console.error("custom callback: onError");
+			setInSession("sharingMyScreen", false)
+		},
+		onICEComplete: function(self, candidate) { // ICE candidate negotiation is complete
+			console.log("custom callback: onICEComplete");
+			setInSession("sharingMyScreen", true)
+		}
+	};
+
 	if (!!navigator.mozGetUserMedia) {
 		var selectedDeskshareResolution = getChosenDeskshareResolution(); // this is the video profile the user chose
 		my_real_size(selectedDeskshareResolution);
@@ -46,6 +57,10 @@ this.doshare = function(on, callback, videoTag) {
 			"height": 0,
 			frameRate : {min: 15, max: 30}
 		};
+
+		window.listenOnly = false;
+		window.watchOnly = false;
+		window.joinAudio = true;
 
 		share_call = verto.newCall({
 			destination_number: extension + "-screen",
@@ -60,6 +75,14 @@ this.doshare = function(on, callback, videoTag) {
 			mirrorInput: false,
 			tag: "webcam"
 		});
+
+		share_call.rtc.options.callbacks = $.extend(share_call.rtc.options.callbacks, callbacks);
+
+		setTimeout(function() {
+			notification_ScreenShared();
+			return simulatePresenterDeskshareHasStarted();
+		}, 4000);
+
 	} else {
 		getChromeExtensionStatus( function(status) {
 			getScreenConstraints(function(error, screen_constraints) {
@@ -91,16 +114,6 @@ this.doshare = function(on, callback, videoTag) {
 					tag: videoTag
 				});
 
-				var callbacks = {
-					onError: function(vertoErrorObject, errorMessage) {
-						console.error("custom callback: onError");
-						setInSession("sharingMyScreen", false)
-					},
-					onICEComplete: function(self, candidate) { // ICE candidate negotiation is complete
-						console.log("custom callback: onICEComplete");
-						setInSession("sharingMyScreen", true)
-					}
-				};
 				share_call.rtc.options.callbacks = $.extend(share_call.rtc.options.callbacks, callbacks);
 
 				setTimeout(function() {
