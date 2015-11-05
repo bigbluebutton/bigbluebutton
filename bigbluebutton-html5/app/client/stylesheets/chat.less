@@ -149,7 +149,7 @@
 
 #fontSizeTable {
   border: 1px solid white;
-  height: 80px;
+  height: @settingsSectionHeight;
   margin-bottom: 0px;
   overflow: hidden;
   @media @phone-portrait-with-keyboard, @phone-portrait {
@@ -162,7 +162,9 @@
     width: calc(~'100% - 70px');
   }
   #displayLabel {
+    height: @fontSizeControlMaxHeight;
     padding: 0;
+    width: @fontSizeControlMaxWidth;
   }
   tr {
     td {

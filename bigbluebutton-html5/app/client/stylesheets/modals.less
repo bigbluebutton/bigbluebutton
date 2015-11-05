@@ -170,9 +170,13 @@
   margin-bottom: 0;
   margin-left: auto;
   margin-right: auto;
-
-  width: calc(~'100% - 20px');
   padding: 0px;
+  width: calc(~'100% - 20px');
+
+  #audioButtonContainer {
+    height: @settingsSectionHeight;
+  }
+
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 30%;
     .settingsButton {
