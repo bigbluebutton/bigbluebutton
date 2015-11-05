@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BreakoutRoomsEvent;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -47,8 +47,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				PopUpManager.removePopUp(this);
 			}
 			
+			/**
+			 * Dispatches a BreakoutRoomEvent to start creating breakout rooms
+			 */
 			private function onStartClicked():void {
-				dispatcher.dispatchEvent(new BreakoutRoomsEvent(BreakoutRoomsEvent.CREATE_BREAKOUT_ROOMS));
+				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS);
+				event.rooms = new Array();
+				for (var i:int = 0; i < roomsSlider.value - 1; i++) {
+					var childRoom : Object = {name: BreakoutList(roomsContainer.getChildAt(0)).users, name: BreakoutList(roomsContainer.getChildAt(0)).users}
+				}
+				event.durationInMinutes = durtaiontStepper.value;
+				dispatcher.dispatchEvent(event);
 				PopUpManager.removePopUp(this);
 			}
 			
@@ -72,7 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				for (var r:int = 0; r < rooms; r++) {
 					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 					list.users = new ArrayCollection();
-					list.roomName = "Breakout Room " + (r + 1).toString()
+					list.roomName = "Room " + (r + 1).toString()
 					for (var i:int = 0; i < perRoom; i++) {
 						list.users.addItem(users.removeItemAt(Math.floor(Math.random() * users.length)) as BBBUser);
 					}
@@ -82,7 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 				var outList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 				outList.users = new ArrayCollection();
-				outList.roomName = "Unassigned users";
+				outList.roomName = "Not Assigned";
 			}
 		]]>
 	</fx:Script>
@@ -98,7 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<mx:HBox width="100%" paddingTop="20">
 			<mx:Label text="Time Limit:" />
-			<mx:NumericStepper minimum="1" maximum="600"/>
+			<mx:NumericStepper id="durtaiontStepper" minimum="1" maximum="600"/>
 			<mx:Label text="Minutes"/>
 		</mx:HBox>
 		

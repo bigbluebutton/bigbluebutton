@@ -35,6 +35,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.main.events.BreakoutRoomEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -197,8 +198,13 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function emojiStatus(e:EmojiStatusEvent):void {
-	  // If the userId is not set in the event then the event has been dispatched for the current user
-      sender.emojiStatus(e.userId != ""? e.userId : UserManager.getInstance().getConference().getMyUserId(), e.status);
+			// If the userId is not set in the event then the event has been dispatched for the current user
+			sender.emojiStatus(e.userId != "" ? e.userId : UserManager.getInstance().getConference().getMyUserId(), e.status);
+		}
+		
+		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
+			e.meetingId = _conferenceParameters.meetingID;
+			sender.createBreakoutRooms(e.meetingId, e.rooms, e.durationInMinutes);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{

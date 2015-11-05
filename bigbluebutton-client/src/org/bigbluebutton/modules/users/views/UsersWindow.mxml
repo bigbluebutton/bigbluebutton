@@ -35,7 +35,6 @@
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
-	<mate:Listener type="{BreakoutRoomsEvent.CREATE_BREAKOUT_ROOMS}" method="handleBreakoutRoomsCreateEvent" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -60,7 +59,7 @@
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.model.MeetingModel;
 			import org.bigbluebutton.core.vo.LockSettingsVO;
-			import org.bigbluebutton.main.events.BreakoutRoomsEvent;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
@@ -284,7 +283,8 @@
 				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
 			}
 			
-			private function handleBreakoutRoomsCreateEvent(e:BreakoutRoomsEvent):void {
+			// @TODO : handle breakout rooms
+			private function handleBreakoutRoomsCreateEvent(e:BreakoutRoomEvent):void {
 				breakoutRoomsList = new ArrayCollection();
 				breakoutRoomsList.addItem({roomName: "Room 1", users: 3, actions: "LJ"});
 				breakoutRoomsList.addItem({roomName: "Room 2", users: 4, actions: "LJ"});
@@ -301,7 +301,7 @@
 			}
 
 			private function breakoutRooms():void {
-				dispatcher.dispatchEvent(new BreakoutRoomsEvent(BreakoutRoomsEvent.OPEN_BREAKOUT_ROOMS_PANEL));
+				dispatcher.dispatchEvent(new BreakoutRoomEvent(BreakoutRoomEvent.OPEN_BREAKOUT_ROOMS_PANEL));
 			}
 			
 			/*private function unlockAll():void {

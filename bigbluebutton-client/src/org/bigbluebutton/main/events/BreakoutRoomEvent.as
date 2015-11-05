@@ -20,11 +20,18 @@ package org.bigbluebutton.main.events {
 	
 	import flash.events.Event;
 	
-	public class BreakoutRoomsEvent extends Event {
+	public class BreakoutRoomEvent extends Event {
 		public static const OPEN_BREAKOUT_ROOMS_PANEL:String = "OPEN_BREAKOUT_ROOMS_PANEL";
+		
 		public static const CREATE_BREAKOUT_ROOMS:String = "CREATE_BREAKOUT_ROOMS";
 		
-		public function BreakoutRoomsEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false) {
+		public var meetingId:String;
+		
+		public var rooms:Array;
+		
+		public var durationInMinutes:int;
+		
+		public function BreakoutRoomEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false) {
 			super(type, bubbles, cancelable);
 		}
 	}
