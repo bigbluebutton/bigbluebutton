@@ -1,13 +1,14 @@
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
-@addMeetingToCollection = (meetingId, name, intendedForRecording, voiceConf, duration) ->
+
+@addMeetingToCollection = (meetingId, name, intendedForRecording, voiceConf, duration, callback) ->
   #check if the meeting is already in the collection
 
   obj = Meteor.Meetings.upsert({meetingId:meetingId}, {$set: {
     meetingName:name
     intendedForRecording: intendedForRecording
-    currentlyBeingRecorded: false # defaut value
+    currentlyBeingRecorded: false # default value
     voiceConf: voiceConf
     duration: duration
     roomLockSettings:
@@ -19,15 +20,23 @@
       lockedLayout: false
       disablePublicChat: false
       lockOnJoinConfigurable: false # TODO
-  }}, (err, numChanged) ->
+  }}, (err, numChanged) =>
     if numChanged.insertedId?
-      Meteor.log.info "added MEETING #{meetingId}")
+      funct = (cbk) ->
+        Meteor.log.info "added MEETING #{meetingId}"
+        cbk()
+      funct(callback)
+    else
+      Meteor.log.error "nothing happened"
+      callback()
+  )
 
 
 
 @clearMeetingsCollection = (meetingId) ->
 	if meetingId?
-		Meteor.Meetings.remove({meetingId: meetingId}, Meteor.log.info "cleared Meetings Collection (meetingId: #{meetingId}!")
+		Meteor.Meetings.remove({meetingId: meetingId},
+      Meteor.log.info "cleared Meetings Collection (meetingId: #{meetingId}!")
 	else
 		Meteor.Meetings.remove({}, Meteor.log.info "cleared Meetings Collection (all meetings)!")
 

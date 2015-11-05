@@ -204,28 +204,66 @@ Meteor.methods
 
 
 #update a voiceUser - a helper method
-@updateVoiceUser = (meetingId, voiceUserObject) ->
+@updateVoiceUser = (meetingId, voiceUserObject, callback) ->
   u = Meteor.Users.findOne userId: voiceUserObject.web_userid
   if u?
     if voiceUserObject.talking?
-      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.talking':voiceUserObject.talking}}) # talking
+      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid},
+       {$set: {'user.voiceUser.talking':voiceUserObject.talking}},
+       (err, numChanged) ->
+        if err?
+          Meteor.log.error "_unsucc update of voiceUser #{voiceUserObject.web_userid}
+           [talking] err=#{JSON.stringify err}"
+        callback()
+      ) # talking
     if voiceUserObject.joined?
-      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.joined':voiceUserObject.joined}}) # joined
+      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid},
+       {$set: {'user.voiceUser.joined':voiceUserObject.joined}},
+       (err, numChanged) ->
+        if err?
+          Meteor.log.error "_unsucc update of voiceUser #{voiceUserObject.web_userid}
+           [joined] err=#{JSON.stringify err}"
+        callback()
+      ) # joined
     if voiceUserObject.locked?
-      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.locked':voiceUserObject.locked}}) # locked
+      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid},
+       {$set: {'user.voiceUser.locked':voiceUserObject.locked}},
+       (err, numChanged) ->
+        if err?
+          Meteor.log.error "_unsucc update of voiceUser #{voiceUserObject.web_userid}
+           [locked] err=#{JSON.stringify err}"
+        callback()
+      ) # locked
     if voiceUserObject.muted?
-      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.voiceUser.muted':voiceUserObject.muted}}) # muted
+      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid},
+       {$set: {'user.voiceUser.muted':voiceUserObject.muted}},
+       (err, numChanged) ->
+        if err?
+          Meteor.log.error "_unsucc update of voiceUser #{voiceUserObject.web_userid}
+           [muted] err=#{JSON.stringify err}"
+        callback()
+      ) # muted
     if voiceUserObject.listen_only?
-      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid}, {$set: {'user.listenOnly':voiceUserObject.listen_only}}) # listenOnly
+      Meteor.Users.update({meetingId: meetingId ,userId: voiceUserObject.web_userid},
+       {$set: {'user.listenOnly':voiceUserObject.listen_only}},
+       (err, numChanged) ->
+        if err?
+          Meteor.log.error "_unsucc update of voiceUser #{voiceUserObject.web_userid}
+           [listenOnly] err=#{JSON.stringify err}"
+        callback()
+      ) # listenOnly
   else
     Meteor.log.error "ERROR! did not find such voiceUser!"
+    callback()
 
-@userJoined = (meetingId, user) ->
+@userJoined = (meetingId, user, callback) ->
   userId = user.userid
 
   u = Meteor.Users.findOne({userId:user.userid, meetingId: meetingId})
-  # the collection already contains an entry for this user because
-  # we added a dummy user on register_user_message (to save authToken)
+  # the collection already contains an entry for this user
+  # because the user is reconnecting OR
+  # in the case of an html5 client user we added a dummy user on
+  # register_user_message (to save authToken)
   if u? and u.authToken?
     Meteor.Users.update({userId:user.userid, meetingId: meetingId}, {$set:{
       user:
@@ -256,8 +294,16 @@ Meteor.methods
           muted: user.voiceUser.muted
         webcam_stream: user.webcam_stream
       }}, (err, numChanged) ->
-        Meteor.log.info "_(case1) UPDATING USER #{user.userid}, authToken=#{u.authToken},
-        locked=#{user.locked}, username=#{user.name}"
+        if err?
+          Meteor.log.error "_error #{err} when trying to insert user #{userId}"
+          callback()
+        else
+          funct = (cbk) ->
+            Meteor.log.info "_(case1) UPDATING USER #{user.userid}, authToken=
+            #{u.authToken}, locked=#{user.locked}, username=#{user.name}"
+            cbk()
+
+          funct(callback)
     )
 
     welcomeMessage = Meteor.config.defaultWelcomeMessage
@@ -285,6 +331,9 @@ Meteor.methods
         Meteor.log.error "_error #{err} when trying to insert welcome message for #{userId}"
       else
         Meteor.log.info "_added/updated a system message in chat for user #{userId}"
+      # note that we already called callback() when updating the user. Adding
+      # the welcome message in the chat is not as vital and we can afford to
+      # complete it when possible, without blocking the serial event messages processing
     )
 
   else
@@ -320,8 +369,15 @@ Meteor.methods
         webcam_stream: user.webcam_stream
       }, (err, numChanged) ->
         if numChanged.insertedId?
-          Meteor.log.info "_joining user (case2) userid=[#{userId}]:#{user.name}.
-            Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}")
+          funct = (cbk) ->
+            Meteor.log.info "_joining user (case2) userid=[#{userId}]:#{user.name}.
+            Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
+            cbk()
+
+          funct(callback)
+        else
+          callback()
+    )
 
 
 

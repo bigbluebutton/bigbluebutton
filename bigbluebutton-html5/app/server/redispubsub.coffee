@@ -1,5 +1,4 @@
 Meteor.methods
-
   # Construct and send a message to bbb-web to validate the user
   validateAuthToken: (meetingId, userId, authToken) ->
     Meteor.log.info "sending a validate_auth_token with",
@@ -22,19 +21,6 @@ Meteor.methods
       publish Meteor.config.redis.channels.toBBBApps.meeting, message
     else
       Meteor.log.info "did not have enough information to send a validate_auth_token message"
-
-
-
-# Meteor.myQueue.taskHandler = (data, next, failures) ->
-#   message = JSON.parse(data.jsonMsg)
-#   eventName = message.header.name
-#   console.log "_________ " + eventName +
-#     "\ndata= " + JSON.stringify data +
-#     # "\nnext=" + JSON.stringify next +
-#     "\nfailures="+ JSON.stringify failures
-#   @_onMessage(data.pattern, data.channel, data.jsonMsg)
-#   next()
-
 
 
 class Meteor.RedisPubSub
@@ -76,8 +62,6 @@ class Meteor.RedisPubSub
       jsonMsg: jsonMsg
     })
     Meteor.log.error Meteor.myQueue.total()
-    # Meteor.log.error "isPaused=" +Meteor.myQueue.isPaused()
-    # @_onMessage(pattern, channel, jsonMsg)
 
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will
@@ -85,62 +69,11 @@ class Meteor.RedisPubSub
 
     console.log "_onMessage"
     message = JSON.parse(jsonMsg)
-    correlationId = message.payload?.reply_to or message.header?.reply_to
-    meetingId = message.payload?.meeting_id
-
-    # just because it's common. we handle it anyway
-    notLoggedEventTypes = [
-      "keep_alive_reply"
-      "page_resized_message"
-      "presentation_page_resized_message"
-      "presentation_cursor_updated_message"
-      "get_presentation_info_reply"
-      "get_users_reply"
-      "get_chat_history_reply"
-      "get_all_meetings_reply"
-      "get_whiteboard_shapes_reply"
-      "presentation_shared_message"
-      "presentation_conversion_done_message"
-      "presentation_conversion_progress_message"
-      "presentation_page_generated_message"
-      # "presentation_page_changed_message"
-      "BbbPubSubPongMessage"
-      "bbb_apps_is_alive_message"
-      "user_voice_talking_message"
-      "meeting_state_message"
-      "get_recording_status_reply"
-    ]
 
     if message?.header? and message?.payload?
       unless message.header.name in notLoggedEventTypes
         Meteor.log.info "redis incoming message  #{message.header.name}  ",
           message: jsonMsg
-
-      # handle voice events
-      if message.header.name in ['user_left_voice_message', 'user_joined_voice_message', 'user_voice_talking_message', 'user_voice_muted_message']
-        if message.payload.user?
-          updateVoiceUser meetingId,
-            'web_userid': message.payload.user.voiceUser.web_userid
-            'listen_only': message.payload.listen_only
-            'talking': message.payload.user.voiceUser.talking
-            'joined': message.payload.user.voiceUser.joined
-            'locked': message.payload.user.voiceUser.locked
-            'muted': message.payload.user.voiceUser.muted
-        return
-
-      # listen only
-      if message.header.name is 'user_listening_only'
-        updateVoiceUser meetingId, {'web_userid': message.payload.userid, 'listen_only': message.payload.listen_only}
-        # most likely we don't need to ensure that the user's voiceUser's {talking, joined, muted, locked} are false by default #TODO?
-        return
-
-      if message.header.name is "get_all_meetings_reply"
-        Meteor.log.info "Let's store some data for the running meetings so that when an HTML5 client joins everything is ready!"
-        listOfMeetings = message.payload.meetings
-        for meeting in listOfMeetings
-          # we currently do not have voice_conf or duration in this message.
-          addMeetingToCollection meeting.meetingID, meeting.meetingName, meeting.recorded, meeting.voiceBridge, meeting.duration
-        return
 
       if message.header.name is "get_users_reply" and message.payload.requester_id is "nodeJSapp"
         unless Meteor.Meetings.findOne({MeetingId: message.payload.meeting_id})?
@@ -170,23 +103,6 @@ class Meteor.RedisPubSub
         #createDummyUser message.payload.meeting_id, message.payload.user
         return
 
-      if message.header.name is "user_joined_message"
-        userObj = message.payload.user
-        dbUser = Meteor.Users.findOne({userId: message.payload.user.userid, meetingId: message.payload.meeting_id})
-
-        # On attempting reconnection of Flash clients (in voiceBridge) we receive an extra user_joined_message
-        # Ignore it as it will add an extra user in the userlist, creating discrepancy with the list in the Flash client
-        if dbUser?.user?.connection_status is "offline" and message.payload.user?.phone_user
-          Meteor.log.error "offline AND phone user"
-          return # without joining the user
-        else
-          if dbUser?.clientType is "HTML5" # typically html5 users will be in the db [as a dummy user] before the joining message
-            status = dbUser?.validated
-            Meteor.log.info "in user_joined_message the validStatus of the user was #{status}"
-            userObj.timeOfJoining = message.header.current_time
-          userJoined meetingId, userObj
-        return
-
       if message.header.name is "user_left_message"
         userId = message.payload.user?.userid
         if userId? and meetingId?
@@ -208,14 +124,6 @@ class Meteor.RedisPubSub
         # use current_time instead of message.from_time so that the chats from Flash and HTML5 have uniform times
         messageObject.from_time = message.header.current_time
         addChatToCollection meetingId, messageObject
-        return
-
-      if message.header.name is "meeting_created_message"
-        meetingName = message.payload.name
-        intendedForRecording = message.payload.recorded
-        voiceConf = message.payload.voice_conf
-        duration = message.payload.duration
-        addMeetingToCollection meetingId, meetingName, intendedForRecording, voiceConf, duration
         return
 
       if message.header.name is "presentation_shared_message"
