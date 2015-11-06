@@ -68,8 +68,10 @@ Meteor.methods
 				from_username: messageObject.from_username
 				from_lang: messageObject.from_lang
 			}, (err, numChanged) ->
+				if err?
+					Meteor.log.error "_error #{err} when adding chat to collection"
 				if numChanged.insertedId?
-					Meteor.log.error "added chat id=[#{numChanged.insertedId}]
+					Meteor.log.info "_added chat id=[#{numChanged.insertedId}]
 					#{messageObject.from_username} to #{'PUBLIC' if messageObject.to_username?}:#{messageObject.message}")
 
 # called on server start and meeting end
