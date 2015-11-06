@@ -594,6 +594,9 @@ Handlebars.registerHelper "getPollQuestions", ->
   else
     return null
 
+@scrollChatDown = () ->
+  $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+
 # changes the height of the chat input area if needed (based on the textarea content)
 @adjustChatInputHeight = () ->
   if isLandscape()
