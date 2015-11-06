@@ -127,15 +127,14 @@ Meteor.startup ->
         processMeeting()
 
       else if eventName is 'user_joined_message'
-        Meteor.log.error JSON.stringify message
+        Meteor.log.error "\n\n user_joined_message \n\n" + JSON.stringify message
         userObj = message.payload.user
         dbUser = Meteor.Users.findOne({userId: userObj.userid, meetingId: message.payload.meeting_id})
 
         # On attempting reconnection of Flash clients (in voiceBridge) we receive
         # an extra user_joined_message. Ignore it as it will add an extra user
         # in the user list, creating discrepancy with the list in the Flash client
-        if dbUser?.user?.connection_status is "offline" and
-         message.payload.user?.phone_user
+        if dbUser?.user?.connection_status is "offline" and message.payload.user?.phone_user
           Meteor.log.error "offline AND phone user"
           callback() #return without joining the user
         else
@@ -147,7 +146,7 @@ Meteor.startup ->
             userObj.timeOfJoining = message.header.current_time
             userJoined meetingId, userObj, callback
           else
-            callback()
+            userJoined meetingId, userObj, callback
 
 
 
@@ -305,7 +304,8 @@ Meteor.startup ->
       else if eventName is "presentation_shared_message"
         presentationId = message.payload.presentation?.id
         # change the currently displayed presentation to presentation.current = false
-        Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},{$set: {"presentation.current": false}})
+        Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},
+          {$set: {"presentation.current": false}})
 
         #update(if already present) entirely the presentation with the fresh data
         removePresentationFromCollection meetingId, presentationId
@@ -407,10 +407,7 @@ Meteor.startup ->
         yOffset = message.payload.page?.y_offset
         presentationId = slideId.split("/")[0]
         Meteor.Slides.update({presentationId: presentationId, "slide.current": true},
-          {$set: {"slide.height_ratio": heightRatio
-            "slide.width_ratio": widthRatio
-            "slide.x_offset": xOffset
-            "slide.y_offset": yOffset}}
+          {$set:{"slide.height_ratio": heightRatio,"slide.width_ratio": widthRatio,"slide.x_offset":xOffset,"slide.y_offset":yOffset}}
         )
         callback()
 
