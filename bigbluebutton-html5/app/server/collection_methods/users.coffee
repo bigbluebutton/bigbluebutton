@@ -139,7 +139,8 @@ Meteor.methods
 # Received information from BBB-Apps that a user left
 # Need to update the collection
 # params: meetingid, userid as defined in BBB-Apps
-@markUserOffline = (meetingId, userId) ->
+# callback
+@markUserOffline = (meetingId, userId, callback) ->
   # mark the user as offline. remove from the collection on meeting_end #TODO
   user = Meteor.Users.findOne({meetingId: meetingId, userId: userId})
   if user?.clientType is "HTML5"
@@ -153,16 +154,30 @@ Meteor.methods
     'user.listenOnly': false
     }}, (err, numChanged) ->
       if err?
-        Meteor.log.error "_unsucc update (mark as offline) of user #{user?.user.name} #{userId}  err=#{JSON.stringify err}"
-      if numChanged?
-        Meteor.log.info "_marking as offline html5 user #{user?.user.name} #{userId}  numChanged=#{numChanged}"
+        Meteor.log.error "_unsucc update (mark as offline) of user #{user?.user.name} #{userId}
+          err=#{JSON.stringify err}"
+        callback()
+      else
+        funct = (cbk) ->
+          Meteor.log.info "_marking as offline html5 user #{user?.user.name}
+           #{userId}  numChanged=#{numChanged}"
+          cbk()
+
+        funct(callback)
     )
   else
     Meteor.Users.remove({meetingId: meetingId, userId: userId}, (err, numDeletions) ->
       if err?
-        Meteor.log.error "_unsucc deletion of user #{user?.user.name} #{userId}  err=#{JSON.stringify err}"
-      if numDeletions?
-        Meteor.log.info "_deleting info for user #{user?.user.name} #{userId}  numDeletions=#{numDeletions}"
+        Meteor.log.error "_unsucc deletion of user #{user?.user.name} #{userId}
+          err=#{JSON.stringify err}"
+        callback()
+      else
+        funct = (cbk) ->
+          Meteor.log.info "_deleting info for user #{user?.user.name} #{userId}
+            numDeletions=#{numDeletions}"
+          cbk()
+
+        funct(callback)
     )
 
 
@@ -293,7 +308,7 @@ Meteor.methods
           locked: user.voiceUser.locked
           muted: user.voiceUser.muted
         webcam_stream: user.webcam_stream
-      }}, (err, numChanged) ->
+      }}, (err) ->
         if err?
           Meteor.log.error "_error #{err} when trying to insert user #{userId}"
           callback()
@@ -326,7 +341,7 @@ Meteor.methods
         from_userid: 'SYSTEM_MESSAGE'
         from_username: ''
         from_time: user.timeOfJoining?.toString()
-    }, (err, numChanged) ->
+    }, (err) ->
       if err?
         Meteor.log.error "_error #{err} when trying to insert welcome message for #{userId}"
       else
@@ -383,7 +398,7 @@ Meteor.methods
 
 @createDummyUser = (meetingId, userId, authToken) ->
   if Meteor.Users.findOne({userId:userId, meetingId: meetingId, authToken:authToken})?
-    Meteor.log.info "html5 user userid:[#{userId}] from [#{meetingId}] tried to revalidate token"
+    Meteor.log.info "html5 user userId:[#{userId}] from [#{meetingId}] tried to revalidate token"
   else
     Meteor.Users.insert({
       meetingId: meetingId
@@ -392,7 +407,7 @@ Meteor.methods
       clientType: "HTML5"
       validated: false #will be validated on validate_auth_token_reply
       }, (err, id) ->
-        Meteor.log.info "_added a dummy html5 user with: userid=[#{userId}], id=[#{id}]
+        Meteor.log.info "_added a dummy html5 user with: userId=[#{userId}]
       Users.size is now #{Meteor.Users.find({meetingId: meetingId}).count()}"
     )
 
