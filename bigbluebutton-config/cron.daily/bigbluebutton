@@ -24,37 +24,44 @@ test -x /var/bigbluebutton || exit 0
 # How N days back to keep files
 #
 history=5
+unrecorded_days=14
+published_days=14
 
 #
 # Delete presentations older than N days
 #
-find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' \;
+find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' +
 
 #
 # Delete webcam streams in red5 older than N days
 #
-find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
+find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
 
 #
 # Delete desktop sharing streams in red5 older than N days
 #
-find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' \;
+find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' +
 
 #
 # Delete FreeSWITCH wav recordings older than N days
 #
-find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' \;
+find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' +
+
+#
+# Delete FreeSWITCH log files and CDR
+#
+find /opt/freeswitch/log/ -name "*.xml" -type f -mtime +$history -exec rm '{}' +
 
 #
 # Delete raw files of recordings without recording marks older than N days
 #
 remove_raw_of_recordings_without_marks() {
-	logger "Removing old raw directory of recordings without marks"
-	find /var/bigbluebutton/recording/status -name '*.norecord' -mtime +$history | while read archived_norecord; do
-		recording_id=${archived_norecord%.norecord}
-		recording_id=${recording_id##*/}
-		bbb-record --delete $recording_id 2>&1 | logger
-	done
+        logger "Removing old raw directory of recordings without marks"
+        find /var/bigbluebutton/recording/status -name '*.norecord' -mtime +$unrecorded_days | while read archived_norecord; do
+                recording_id=${archived_norecord%.norecord}
+                recording_id=${recording_id##*/}
+                bbb-record --delete $recording_id 2>&1 | logger
+        done
 }
 
 # Enabled by default; comment to disable.
@@ -68,8 +75,7 @@ remove_raw_of_published_recordings(){
     #TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
     logger "Removing raw directory of old recordings:"
     TYPES="presentation"
-    MIN_DAYS=10
-    old_meetings=$(find /var/bigbluebutton/recording/raw/*/events.xml  -mtime +$MIN_DAYS | cut -d"/" -f6 )
+    old_meetings=$(find /var/bigbluebutton/recording/raw/*/events.xml  -mtime +$published_days | cut -d"/" -f6 )
     for meeting in $old_meetings
     do
         PROPERLY_PUBLISHED="true"
@@ -88,7 +94,7 @@ remove_raw_of_published_recordings(){
         else
             logger "$meeting was not properly published in [ $FAILED_TYPES ]"
         fi
-    done 
+    done
 }
 
 #remove_raw_of_published_recordings
@@ -96,6 +102,6 @@ remove_raw_of_published_recordings(){
 #
 # Remove old *.afm and *.pfb files from /tmp directory (these were created by Ghostscript)
 #
-find /tmp -name "*.afm" -mtime +10 -exec rm '{}' \;
-find /tmp -name "*.pfb" -mtime +10 -exec rm '{}' \;
+find /tmp -name "*.afm" -mtime +$history -delete
+find /tmp -name "*.pfb" -mtime +$history -delete
 

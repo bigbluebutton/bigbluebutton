@@ -146,7 +146,6 @@ Template.main.events
     closeMenus()
 
   'click .settingsIcon': (event) ->
-    setInSession("tempFontSize", getInSession("messageFontSize"))
     $("#settingsModal").foundation('reveal', 'open');
 
   'click .signOutIcon': (event) ->

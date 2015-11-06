@@ -1,26 +1,28 @@
 <!-- listen only | microphone -->
 <template name="settingsAudio">
   <fieldset class="desktopSettingsFieldset">
-    <legend>Audio Options</legend>
-    {{#if amIInAudio}}
-      {{#if amIListenOnlyAudio}}
-        <!-- display listen only with exit -->
-        {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
-        data_placement="bottom" title="Leave Audio Call"}}
+    <legend align="center">Audio Options</legend>
+      <div id="audioButtonContainer">
+      {{#if amIInAudio}}
+        {{#if amIListenOnlyAudio}}
+          <!-- display listen only with exit -->
+          {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
+          data_placement="bottom" title="Leave Audio Call"}}
+        {{else}}
+          <!-- display microphone with exit -->
+          {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
+          data_placement="bottom" title="Leave Audio Call"}}
+        {{/if}}
       {{else}}
-        <!-- display microphone with exit -->
-        {{> makeButton id="exitAudio" btn_class="exitAudio settingsButton joinAudioButton" i_class="ion-volume-mute" rel="tooltip"
-        data_placement="bottom" title="Leave Audio Call"}}
+        <!-- display both with join -->
+        {{#unless isMyMicLocked}}
+          {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone"
+          rel="tooltip" data_placement="bottom" title="Join Microphone"}}
+        {{/unless}}
+        {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume"
+        rel="tooltip" data_placement="bottom" title="Join Listen only"}}
       {{/if}}
-    {{else}}
-      <!-- display both with join -->
-      {{#unless isMyMicLocked}}
-        {{> makeButton id="joinMicrophone" btn_class="joinMicrophone settingsButton joinAudioButton" i_class="fi-microphone"
-        rel="tooltip" data_placement="bottom" title="Join Microphone"}}
-      {{/unless}}
-      {{> makeButton id="joinListenOnly" btn_class="joinListenOnly settingsButton joinAudioButton" i_class="fi-volume"
-      rel="tooltip" data_placement="bottom" title="Join Listen only"}}
-    {{/if}}
+    </div>
   </fieldset>
 </template>
 
@@ -28,9 +30,6 @@
   <div class="bar topBar">
     <p>
         <span class="modalTitle">BigBlueButton Settings</span>
-    </p>
-    <p>
-      <a href="#" class="closeSettings close-reveal-modal">&#215;</a>
     </p>
   </div>
 
@@ -41,8 +40,7 @@
   </div>
 
   <div class="bar bottomBar">
-    <a href="#" class="closeSettings close-reveal-modal"><u>Cancel</u></a>
-    {{> makeButton id="saveSettings" btn_class="settingsButton" rel="tooltip" title="Save Changes" label="Save"}}
+    {{> makeButton id="closeSettings" btn_class="settingsButton vertically-centered" rel="tooltip" title="Close" label="Close"}}
   </div>
 </template>
 
@@ -50,4 +48,17 @@
   <p>Are you sure you want to logout?</p>
   {{> makeButton id="yes" btn_class="logoutButton" label="Yes"}}
   {{> makeButton id="no" btn_class="logoutButton" label="No"}}
+</template>
+
+<template name="optionsFontSize">
+  <fieldset class="desktopSettingsFieldset">
+    <legend align="center"><span class="chatOptionsText" >Chat Message Font Size</span><br/></legend>
+    <table id="fontSizeTable" align="center">
+      <tr>
+        <td>{{> makeButton id="decreaseFontSize" btn_class="displayButtons" i_class="fi-minus" rel="tooltip" title="Decrease Font Size"}}</td>
+        <td id="displayLabel"><label class="fontSizeLabel" {{messageFontSize}} >Size({{getInSession "messageFontSize"}})</label></td>
+        <td>{{> makeButton id="increaseFontSize" btn_class="displayButtons" i_class="fi-plus" rel="tooltip" title="Increase Font Size"}}</td>
+      </tr>
+    </table>
+  </fieldset>
 </template>

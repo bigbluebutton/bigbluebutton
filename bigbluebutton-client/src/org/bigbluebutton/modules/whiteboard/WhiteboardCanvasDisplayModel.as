@@ -92,7 +92,7 @@ package org.bigbluebutton.modules.whiteboard
           case DrawObject.DRAW_UPDATE:
           case DrawObject.DRAW_END:
             if (_annotationsList.length > 0) {
-              var gobj:DrawObject = _annotationsList.pop();  
+              var gobj:Object = _annotationsList.pop();
               if (gobj.id == o.id) {
                 // LogUtil.debug("Removing shape [" + gobj.id + "]");
                 wbCanvas.removeGraphic(gobj as DisplayObject);
