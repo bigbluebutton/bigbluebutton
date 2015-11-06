@@ -35,6 +35,10 @@ public class BreakoutRoomService {
 			BreakoutRoomService.class, "bigbluebutton");
 
 	private MessagePublisher red5GW;
+	
+	public void setRed5Publisher(MessagePublisher inGW) {
+		red5GW = inGW;
+	}
 
 	public void createBreakoutRooms(Map<String, Object> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
