@@ -53,14 +53,19 @@ class Meteor.RedisPubSub
   _Q: (pattern, channel, jsonMsg) =>
     message = JSON.parse(jsonMsg)
     eventName = message.header.name
-    console.log "Q #{eventName} #{Meteor.myQueue.total()}"
 
+    messagesWeIgnore = [
+      "BbbPubSubPongMessage"
+      "bbb_apps_is_alive_message"
+    ]
 
-    Meteor.myQueue.add({
-      pattern: pattern
-      channel: channel
-      jsonMsg: jsonMsg
-    })
+    unless eventName in messagesWeIgnore
+      console.log "Q #{eventName} #{Meteor.myQueue.total()}"
+      Meteor.myQueue.add({
+        pattern: pattern
+        channel: channel
+        jsonMsg: jsonMsg
+      })
 
   _onMessage: (pattern, channel, jsonMsg) =>
     # TODO: this has to be in a try/catch block, otherwise the server will

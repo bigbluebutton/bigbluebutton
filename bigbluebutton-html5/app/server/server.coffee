@@ -26,9 +26,17 @@ Meteor.startup ->
       Meteor.log.error "got a failure on taskHandler #{eventName} #{failures}"
     else
       handleRedisMessage(data, ()->
-        Meteor.log.error "in callback after handleRedisMessage #{eventName}"
+        length = Meteor.myQueue.length()
+        lengthString = ->
+          if length>0
+            "In the queue we have #{length} event(s) to process."
+          else ""
+
+        Meteor.log.info "in callback after handleRedisMessage #{eventName}.
+          #{lengthString()}"
         next()
       )
+
 
   # To ensure that we process the redis json event messages serially we use a
   # callback. This callback is to be called when the Meteor collection is
@@ -153,8 +161,6 @@ Meteor.startup ->
       # only process if requester is nodeJSapp means only process in the case when
       # we explicitly request the users
       else if eventName is 'get_users_reply' and message.payload.requester_id is 'nodeJSapp'
-
-        Meteor.log.error JSON.stringify(message)
         if !Meteor.Meetings.findOne({meetingId: meetingId})? #TODO consider removing this cond
           users = message.payload.users
 
