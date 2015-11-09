@@ -423,6 +423,9 @@ this.verto_onStreamCallback = function(self, stream) {
 }
 
 this.verto_afterStreamPublish = function() {
+	console.log("Video stream published - notifying clients to subscribe");
+	notification_ScreenShared();
+	return simulatePresenterDeskshareHasStarted();
 }
 
 this.webrtc_call_verto = function(voiceBridge, conferenceUsername, conferenceIdNumber, userCallback, options) {
