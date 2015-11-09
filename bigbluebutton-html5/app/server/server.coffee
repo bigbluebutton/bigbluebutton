@@ -77,12 +77,19 @@ Meteor.startup ->
       "get_recording_status_reply"
     ]
 
-    # TODO check if message
     eventName = message.header.name
     meetingId = message.payload?.meeting_id
+
+    unless message?.header? and message.payload?
+      Meteor.log.error "ERROR!! No header or payload"
+      callback()
+
+    unless message.header.name in notLoggedEventTypes
+      Meteor.log.info "redis incoming message  #{eventName}  ",
+        message: data.jsonMsg
+
     # we currently disregard the pattern and channel
-    # Meteor.log.info "in handleRedisMessage #{eventName}"
-    if message?.header? and message?.payload?
+    if message?.header? and message.payload?
       if eventName is 'meeting_created_message'
         # Meteor.log.error JSON.stringify message
         meetingName = message.payload.name
@@ -135,7 +142,6 @@ Meteor.startup ->
         processMeeting()
 
       else if eventName is 'user_joined_message'
-        Meteor.log.error "\n\n user_joined_message \n\n" + JSON.stringify message
         userObj = message.payload.user
         dbUser = Meteor.Users.findOne({userId: userObj.userid, meetingId: message.payload.meeting_id})
 
@@ -155,7 +161,6 @@ Meteor.startup ->
             userJoined meetingId, userObj, callback
           else
             userJoined meetingId, userObj, callback
-
 
 
       # only process if requester is nodeJSapp means only process in the case when
@@ -217,20 +222,12 @@ Meteor.startup ->
           callback()
 
 
-
       else if eventName is 'user_left_message'
         userId = message.payload.user?.userid
         if userId? and meetingId?
           markUserOffline meetingId, userId, callback
         else
           callback() #TODO check how to get these cases out and reuse code
-
-
-
-
-
-
-
 
 
       # for now not handling this serially #TODO
@@ -493,7 +490,9 @@ Meteor.startup ->
 
       else # keep moving in the queue
         unless eventName in notLoggedEventTypes
-          Meteor.log.info "WARNING!!!\n
+          Meteor.log.info "WARNING!!!
           THE JSON MESSAGE WAS NOT OF TYPE SUPPORTED BY THIS APPLICATION\n
           #{eventName}   {JSON.stringify message}"
         callback()
+    else
+      callback()

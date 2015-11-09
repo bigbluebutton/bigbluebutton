@@ -33,7 +33,7 @@ class Meteor.RedisPubSub
     Meteor.log.info("Subscribing message on channel: #{Meteor.config.redis.channels.fromBBBApps}")
 
     @subClient.on "psubscribe", Meteor.bindEnvironment(@_onSubscribe)
-    @subClient.on "pmessage", Meteor.bindEnvironment(@_Q)
+    @subClient.on "pmessage", Meteor.bindEnvironment(@_addToQueue)
 
     @subClient.psubscribe(Meteor.config.redis.channels.fromBBBApps)
 
@@ -50,7 +50,7 @@ class Meteor.RedisPubSub
     publish Meteor.config.redis.channels.toBBBApps.meeting, message
 
 
-  _Q: (pattern, channel, jsonMsg) =>
+  _addToQueue: (pattern, channel, jsonMsg) =>
     message = JSON.parse(jsonMsg)
     eventName = message.header.name
 
@@ -66,19 +66,6 @@ class Meteor.RedisPubSub
         channel: channel
         jsonMsg: jsonMsg
       })
-
-  _onMessage: (pattern, channel, jsonMsg) =>
-    # TODO: this has to be in a try/catch block, otherwise the server will
-    # crash if the message has a bad format
-
-    console.log "_onMessage"
-    message = JSON.parse(jsonMsg)
-
-    if message?.header? and message?.payload?
-      unless message.header.name in notLoggedEventTypes
-        Meteor.log.info "redis incoming message  #{message.header.name}  ",
-          message: jsonMsg
-
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server
