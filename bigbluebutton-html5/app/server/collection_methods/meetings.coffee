@@ -65,7 +65,7 @@
 
 		callback()
 	else
-		funct (localCallback) ->
+		funct = (localCallback) ->
 			Meteor.log.error ("Error! There was no such meeting #{meetingId}")
 			localCallback()
 		funct(callback)

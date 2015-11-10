@@ -26,9 +26,17 @@ Meteor.startup ->
       Meteor.log.error "got a failure on taskHandler #{eventName} #{failures}"
     else
       handleRedisMessage(data, ()->
-        Meteor.log.error "in callback after handleRedisMessage #{eventName}"
+        length = Meteor.myQueue.length()
+        lengthString = ->
+          if length>0
+            "In the queue we have #{length} event(s) to process."
+          else ""
+
+        Meteor.log.info "in callback after handleRedisMessage #{eventName}.
+          #{lengthString()}"
         next()
       )
+
 
   # To ensure that we process the redis json event messages serially we use a
   # callback. This callback is to be called when the Meteor collection is
@@ -69,12 +77,19 @@ Meteor.startup ->
       "get_recording_status_reply"
     ]
 
-    # TODO check if message
     eventName = message.header.name
     meetingId = message.payload?.meeting_id
+
+    unless message?.header? and message.payload?
+      Meteor.log.error "ERROR!! No header or payload"
+      callback()
+
+    unless message.header.name in notLoggedEventTypes
+      Meteor.log.info "redis incoming message  #{eventName}  ",
+        message: data.jsonMsg
+
     # we currently disregard the pattern and channel
-    # Meteor.log.info "in handleRedisMessage #{eventName}"
-    if message?.header? and message?.payload?
+    if message?.header? and message.payload?
       if eventName is 'meeting_created_message'
         # Meteor.log.error JSON.stringify message
         meetingName = message.payload.name
@@ -127,7 +142,6 @@ Meteor.startup ->
         processMeeting()
 
       else if eventName is 'user_joined_message'
-        Meteor.log.error "\n\n user_joined_message \n\n" + JSON.stringify message
         userObj = message.payload.user
         dbUser = Meteor.Users.findOne({userId: userObj.userid, meetingId: message.payload.meeting_id})
 
@@ -149,12 +163,9 @@ Meteor.startup ->
             userJoined meetingId, userObj, callback
 
 
-
       # only process if requester is nodeJSapp means only process in the case when
       # we explicitly request the users
       else if eventName is 'get_users_reply' and message.payload.requester_id is 'nodeJSapp'
-
-        Meteor.log.error JSON.stringify(message)
         if !Meteor.Meetings.findOne({meetingId: meetingId})? #TODO consider removing this cond
           users = message.payload.users
 
@@ -211,20 +222,12 @@ Meteor.startup ->
           callback()
 
 
-
       else if eventName is 'user_left_message'
         userId = message.payload.user?.userid
         if userId? and meetingId?
           markUserOffline meetingId, userId, callback
         else
           callback() #TODO check how to get these cases out and reuse code
-
-
-
-
-
-
-
 
 
       # for now not handling this serially #TODO
@@ -487,7 +490,9 @@ Meteor.startup ->
 
       else # keep moving in the queue
         unless eventName in notLoggedEventTypes
-          Meteor.log.info "WARNING!!!\n
+          Meteor.log.info "WARNING!!!
           THE JSON MESSAGE WAS NOT OF TYPE SUPPORTED BY THIS APPLICATION\n
           #{eventName}   {JSON.stringify message}"
         callback()
+    else
+      callback()
