@@ -19,6 +19,12 @@ package org.bigbluebutton.modules.sharednotes
 		[Bindable]
 		public var enableMultipleNotes:Boolean = false;
 
+		[Bindable]
+		public var toolbarVisibleByDefault:Boolean = false;
+
+		[Bindable]
+		public var showToolbarButton:Boolean = false;
+
 		
 		public function SharedNotesOptions()
 		{
@@ -38,6 +44,12 @@ package org.bigbluebutton.modules.sharednotes
 				}
 				if (vxml.@enableMultipleNotes != undefined) {
 					enableMultipleNotes = (vxml.@enableMultipleNotes.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@toolbarVisibleByDefault != undefined) {
+					toolbarVisibleByDefault = (vxml.@toolbarVisibleByDefault.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@showToolbarButton != undefined) {
+					showToolbarButton = (vxml.@showToolbarButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 			}
 		}

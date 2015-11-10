@@ -121,6 +121,8 @@
 			enableMultipleNotes="true"
 			dependsOn="UsersModule"
 			position="bottom-left"
+			toolbarVisibleByDefault="false"
+			showToolbarButton="true"
 		/>
 	</modules>
 </config>
