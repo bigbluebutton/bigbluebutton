@@ -224,11 +224,17 @@ class Meteor.WhiteboardPaperModel
 
   # Update the dimensions of the container.
   _updateContainerDimensions: ->
-    #console.log "update Container Dimensions"
-
     $container = $('#whiteboard-paper')
-    @containerWidth = $container.innerWidth()
-    @containerHeight = $container.innerHeight()
+
+    containerDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
+    if($container.innerWidth() is 0)
+      @containerWidth = containerDimensions.boardWidth
+    else
+      @containerWidth = $container.innerWidth()
+    if($container.innerHeight() is 0)
+      @containerHeight = containerDimensions.boardHeight
+    else
+      @containerHeight = $container.innerHeight()
 
     @containerOffsetLeft = $container.offset()?.left
     @containerOffsetTop = $container.offset()?.top
