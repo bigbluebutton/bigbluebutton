@@ -93,3 +93,6 @@ class @NotificationControl
 
 @notification_ScreenShared = ->
     Meteor.NotificationControl.create("screenBeingShared", 'success', 'You are now broadcasting your screen', 2500).display("screenBeingShared")
+
+@notification_desksharePreview = ->
+    Meteor.NotificationControl.create("desksharePreview", 'info', 'This is a local preview, only you can see this screen', 3000).display("desksharePreview")

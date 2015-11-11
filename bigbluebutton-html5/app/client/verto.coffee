@@ -54,6 +54,7 @@ Template.deskshareModal.events
 		success = ->
 			toggleWhiteboardVideo("video")
 			setInSession("isPreviewingDeskshare", true)
+			notification_desksharePreview()
 		doDesksharePreview((-> success()), (->), "webcam");
 
 	"click #stopDesksharePreview": (event) ->
