@@ -226,7 +226,6 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 
-
 	public void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message) {
 		SendPublicChatMessage msg = new SendPublicChatMessage(meetingID, requesterID, message);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());

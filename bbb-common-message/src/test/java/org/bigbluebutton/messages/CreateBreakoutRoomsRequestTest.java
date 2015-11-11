@@ -1,10 +1,11 @@
 package org.bigbluebutton.messages;
 
 import java.util.ArrayList;
-import org.bigbluebutton.messages.CreateBreakoutRoomsRequest.BreakoutRoom;
-import org.bigbluebutton.messages.CreateBreakoutRoomsRequest.CreateBreakoutRoomsRequestPayload;
+
+import org.bigbluebutton.messages.payload.CreateBreakoutRoomsRequestPayload;
 import org.junit.Assert;
 import org.junit.Test;
+
 import com.google.gson.Gson;
 
 public class CreateBreakoutRoomsRequestTest {

@@ -35,7 +35,7 @@ public class BreakoutRoomService {
 			BreakoutRoomService.class, "bigbluebutton");
 
 	private MessagePublisher red5GW;
-	
+
 	public void setRed5Publisher(MessagePublisher inGW) {
 		red5GW = inGW;
 	}

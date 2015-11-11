@@ -129,6 +129,19 @@ package org.bigbluebutton.modules.users.services
 		case "userLocked":
           handleUserLocked(message);
           break;
+		// Breakout room feature
+		case "breakoutRoomJoinURL":
+		  handleBreakoutRoomJoinURL(message);
+		  break;
+		case "updateBreakoutUsers":
+		  handleUpdateBreakoutUsers(message);
+		  break;
+		case "timeRemainingUpdate":
+	      handleTimeRemainingUpdate(message);
+		  break;
+		case "breakoutRoomStarted":
+		  handleBreakoutRoomStarted(message);
+		  break;
       }
     }  
     
@@ -572,5 +585,22 @@ package org.bigbluebutton.modules.users.services
         dispatcher.dispatchEvent(e);
       }		
     }
+	
+	private function handleBreakoutRoomJoinURL(msg:Object):void{
+		// TODO : BreakoutRoom : display Join button to the user
+	}
+	
+	private function handleUpdateBreakoutUsers(msg:Object):void{
+		// TODO : BreakoutRoom : update the number of users in the breakout rooms list
+	}
+	
+	private function handleTimeRemainingUpdate(msg:Object):void{
+		// TODO : TimeRemainingUpdate : update timer on user
+	}
+	
+	private function handleBreakoutRoomStarted(msg:Object):void{
+		// TODO : BreakoutRoomStarted : change room status in breakout rooms list
+	}
+
   }
 }

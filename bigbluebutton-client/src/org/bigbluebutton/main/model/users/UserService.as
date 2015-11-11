@@ -203,8 +203,12 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function createBreakoutRooms(e:BreakoutRoomEvent):void{
-			e.meetingId = _conferenceParameters.meetingID;
-			sender.createBreakoutRooms(e.meetingId, e.rooms, e.durationInMinutes);
+			sender.createBreakoutRooms(_conferenceParameters.meetingID, e.rooms, e.durationInMinutes);
+		}
+		
+		public function requestBreakoutJoinUrl(e:BreakoutRoomEvent):void{
+			// TODO : BreakoutRoom need to be sure that breakoutId is set
+			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{

@@ -70,39 +70,54 @@ package org.bigbluebutton.modules.users.services
         },
         message
       );
-    }
-
-	public function emojiStatus(userID:String, emoji:String):void
-	{
-		var message:Object = new Object();
-		message["emojiStatus"] = emoji;
-		message["userId"] = userID;
+		}
 		
-		var _nc:ConnectionManager=BBB.initConnectionManager();
-		_nc.sendMessage("participants.userEmojiStatus", function(result:String):void
-		{ // On successful result
-		}, function(status:String):void
-		{ // status - On error occurred
-			LOGGER.error(status);
-		},
-		message
-		);
-	}
+		public function emojiStatus(userID:String, emoji:String):void {
+			var message:Object = new Object();
+			message["emojiStatus"] = emoji;
+			message["userId"] = userID;
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("participants.userEmojiStatus", function(result:String):void
+			{ // On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			message
+			);
+		}
 		
 		public function createBreakoutRooms(meetingId:String, rooms:Array, durationInMinutes:int):void {
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;
 			message["rooms"] = rooms;
 			message["durationInMinutes"] = durationInMinutes;
-			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("breakoutroom.createBreakoutRoom", function(result:String):void{
-				// @TODO: handle the event success
+			_nc.sendMessage("breakoutroom.createBreakoutRoom", function(result:String):void
+			{
+				// On successful result
 			}, function(status:String):void
 			{ // status - On error occurred
 				LOGGER.error(status);
 			},
-				message
+			message
+			);
+		}
+		
+		public function requestBreakoutJoinUrl(meetingId:String, breakoutId:String, userId:String):void {
+			var message:Object = new Object();
+			message["meetingId"] = meetingId;
+			message["breakoutId"] = breakoutId;
+			message["userId"] = userId;
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("breakoutroom.requestBreakoutJoinUrl", function(result:String):void
+			{
+				// On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			message
 			);
 		}
     
