@@ -34,6 +34,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.core.managers.UserManager;
@@ -46,20 +47,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onCloseClicked():void {
 				PopUpManager.removePopUp(this);
 			}
-
+			
 			/**
 			 * Dispatches a BreakoutRoomEvent to start creating breakout rooms
 			 */
 			private function onStartClicked():void {
-				// TODO : check at least one has one user
+				// Will be used to check that all the new breakout room contains at least one users
+				var totalUsers:int;
 				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS);
+				// event.meetingId is filled in the event handler for BreakoutRoomEvent in UserService class
 				event.rooms = new Array();
 				for (var i:int = 0; i < roomsSlider.value - 1; i++) {
-					var childRoom : Object = {name: BreakoutList(roomsContainer.getChildAt(0)).users, name: BreakoutList(roomsContainer.getChildAt(0)).users}
+					var users:Array = BreakoutList(roomsContainer.getChildAt(0)).users.source;
+					totalUsers += users.length;
+					var room:Object = new Object();
+					room.users = new Array();
+					room.name = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (i + 1).toString();
+					for (var j:int = 0; j < users.length; j++) {
+						room.users.push(users[j].userID);
+					}
+					event.rooms.push(room);
 				}
-				event.durationInMinutes = durtaiontStepper.value;
-				dispatcher.dispatchEvent(event);
-				PopUpManager.removePopUp(this);
+				if (totalUsers > 0) {
+					event.durationInMinutes = durtaiontStepper.value;
+					dispatcher.dispatchEvent(event);
+					PopUpManager.removePopUp(this);
+				} else {
+					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
+				}
 			}
 
 			protected function assignUsers():void {
