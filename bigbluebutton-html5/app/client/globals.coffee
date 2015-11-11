@@ -141,7 +141,8 @@ Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
   isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
 
 Handlebars.registerHelper 'isVideoDisplayed', ->
-    Meteor.Meetings.findOne().deskshare.broadcasting
+    # we are viewing video includes if a stream is being broadcasted to the client, or a local deskshare preview
+    Meteor.Meetings.findOne().deskshare.broadcasting or getInSession("isPreviewingDeskshare")
 
 Handlebars.registerHelper "meetingIsRecording", ->
   BBB.isMeetingRecording()
