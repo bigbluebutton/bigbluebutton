@@ -6,6 +6,7 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			[Bindable]
 			private var images:Images = new Images();
@@ -13,7 +14,7 @@
 	</mx:Script>
 	
 	<mx:Button id="listenImg" width="20" height="20"
-			   icon="{images.listen}" toolTip="Listen"/>
+			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"/>
 	<mx:Button id="joinImg" width="20" height="20"
-			   icon="{images.join}" toolTip="Join"/>
+			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"/>
 </mx:HBox>

@@ -910,3 +910,8 @@ EmojiGrid {
 	verticalGap: 6;
 	horizontalGap: 6;
 }
+
+.breakoutTipBox {
+	backgroundColor: 0xCCCCCC;
+	horizontalAlign: center;
+}
