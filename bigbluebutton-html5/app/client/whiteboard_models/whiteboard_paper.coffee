@@ -313,11 +313,6 @@ class Meteor.WhiteboardPaperModel
     boardHeight = @containerHeight
 
     currentSlide = getCurrentSlideDoc()
-
-    # TODO currentSlide undefined in some cases - will check later why
-    imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
-    imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or boardHeight
-
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
