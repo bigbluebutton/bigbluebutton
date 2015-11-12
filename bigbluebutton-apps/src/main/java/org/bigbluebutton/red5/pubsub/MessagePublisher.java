@@ -4,7 +4,9 @@ import java.util.Map;
 
 import org.bigbluebutton.common.messages.*;
 import org.bigbluebutton.messages.CreateBreakoutRoomsRequest;
+import org.bigbluebutton.messages.EndAllBreakoutRoomsRequest;
 import org.bigbluebutton.messages.payload.CreateBreakoutRoomsRequestPayload;
+import org.bigbluebutton.messages.payload.EndAllBreakoutRoomsRequestPayload;
 import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
 public class MessagePublisher {
@@ -271,9 +273,14 @@ public class MessagePublisher {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
-	
-	public void createBreakoutRooms(CreateBreakoutRoomsRequestPayload playload) {
-		CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(playload);
+
+	public void createBreakoutRooms(CreateBreakoutRoomsRequestPayload payload) {
+		CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(payload);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
+	public void endAllBreakoutRooms(EndAllBreakoutRoomsRequestPayload payload){
+		EndAllBreakoutRoomsRequest msg = new EndAllBreakoutRoomsRequest(payload);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 }

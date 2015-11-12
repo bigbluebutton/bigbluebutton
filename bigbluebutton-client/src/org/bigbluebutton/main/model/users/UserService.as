@@ -212,7 +212,7 @@ package org.bigbluebutton.main.model.users
 		}
 
 		public function endAllBreakoutRooms(e:BreakoutRoomEvent):void{
-			// TODO
+			sender.endAllBreakoutRooms(_conferenceParameters.meetingID);
 		}
 
 		public function kickUser(e:KickUserEvent):void{

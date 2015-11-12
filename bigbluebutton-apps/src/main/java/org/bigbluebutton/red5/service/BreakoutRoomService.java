@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.bigbluebutton.messages.payload.BreakoutRoomRequestPayload;
 import org.bigbluebutton.messages.payload.CreateBreakoutRoomsRequestPayload;
+import org.bigbluebutton.messages.payload.EndAllBreakoutRoomsRequestPayload;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
@@ -47,8 +48,17 @@ public class BreakoutRoomService {
 		ArrayList<BreakoutRoomRequestPayload> breakoutRooms = (ArrayList<BreakoutRoomRequestPayload>) msg
 				.get("rooms");
 
-		CreateBreakoutRoomsRequestPayload playload = new CreateBreakoutRoomsRequestPayload(
+		CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(
 				meetingId, breakoutRooms, duration);
-		red5GW.createBreakoutRooms(playload);
+		red5GW.createBreakoutRooms(payload);
+	}
+
+	public void endAllBreakoutRooms(Map<String, Object> msg) {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String meetingId = (String) msg.get("meetingId");
+
+		EndAllBreakoutRoomsRequestPayload payload = new EndAllBreakoutRoomsRequestPayload(
+				meetingId);
+		red5GW.endAllBreakoutRooms(payload);
 	}
 }

@@ -20,6 +20,9 @@ package org.bigbluebutton.modules.users.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import flash.net.URLRequest;
+  import flash.net.navigateToURL;
+  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
@@ -590,6 +593,7 @@ package org.bigbluebutton.modules.users.services
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
 		// TODO : BreakoutRoom : display Join button to the user
+		navigateToURL(new URLRequest(map.joinURL));
 	}
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{

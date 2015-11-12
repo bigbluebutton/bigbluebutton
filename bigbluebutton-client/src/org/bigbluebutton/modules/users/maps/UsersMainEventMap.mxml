@@ -72,6 +72,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{UserService}" method="requestBreakoutJoinUrl" arguments="{event}" />
   </EventHandlers>
 
+  <EventHandlers type="{BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS}" >
+    <MethodInvoker generator="{UserService}" method="endAllBreakoutRooms" arguments="{event}" />
+  </EventHandlers>
+
   <!-- Viewers Stuff -->
   <EventHandlers type="{EmojiStatusEvent.EMOJI_STATUS}" >
     <MethodInvoker generator="{UserService}" method="emojiStatus" arguments="{event}" />

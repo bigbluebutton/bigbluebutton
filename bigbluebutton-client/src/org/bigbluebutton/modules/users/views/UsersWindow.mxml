@@ -439,6 +439,10 @@
 				}
 			}
 			
+			private function endAllBreakoutRoomsHandler(event:MouseEvent):void{
+				dispatcher.dispatchEvent(new BreakoutRoomEvent(BreakoutRoomEvent.END_ALL_BREAKOUT_ROOMS));
+			}
+			
 			private function focusWindow(e:ShortcutEvent):void{
 				focusManager.setFocus(titleBarOverlay);
 			}
@@ -538,7 +542,9 @@
 			</mx:columns>
 		</mx:DataGrid>
 		
-		<mx:Button id="closeRoomsBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.closeAllRooms')}" visible="false" includeInLayout="false"/>
+		<mx:Button id="closeRoomsBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.closeAllRooms')}"
+				   click="endAllBreakoutRoomsHandler(event)"
+				   visible="false" includeInLayout="false"/>
 		
 	</mx:VBox>
 	
