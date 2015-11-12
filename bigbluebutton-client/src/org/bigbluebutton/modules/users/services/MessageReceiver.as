@@ -39,6 +39,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
+  import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
@@ -587,19 +588,27 @@ package org.bigbluebutton.modules.users.services
     }
 	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);	
+		UserManager.getInstance().getConference().emojiStatus(map.userId, map.emojiStatus);
 		// TODO : BreakoutRoom : display Join button to the user
 	}
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{
-		// TODO : BreakoutRoom : update the number of users in the breakout rooms list
+		var map:Object = JSON.parse(msg.msg);
+		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.users);
 	}
 	
 	private function handleTimeRemainingUpdate(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);	
 		// TODO : TimeRemainingUpdate : update timer on user
 	}
 	
 	private function handleBreakoutRoomStarted(msg:Object):void{
-		// TODO : BreakoutRoomStarted : change room status in breakout rooms list
+		var map:Object = JSON.parse(msg.msg);	
+		var breakoutRoom : BreakoutRoom = new BreakoutRoom();
+		breakoutRoom.breakoutId = map.breakoutId;
+		breakoutRoom.name = map.name;
+		UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
 	}
 
   }

@@ -113,6 +113,7 @@
 				dispatcher = new Dispatcher();
 			
 				users = UserManager.getInstance().getConference().users;
+				breakoutRoomsList = UserManager.getInstance().getConference().breakoutRooms;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
@@ -281,18 +282,6 @@
 			private function handleChangedLockSettingsEvent(e:LockControlEvent):void {
 				var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 				roomLocked = lockSettings.isAnythingLocked() && ( lockSettings.getLockOnJoin() || UsersUtil.isAnyoneLocked());
-			}
-			
-			// @TODO : handle breakout rooms
-			private function handleBreakoutRoomsCreateEvent(e:BreakoutRoomEvent):void {
-				breakoutRoomsList = new ArrayCollection();
-				breakoutRoomsList.addItem({roomName: "Room 1", users: 3, actions: "LJ"});
-				breakoutRoomsList.addItem({roomName: "Room 2", users: 4, actions: "LJ"});
-				breakoutRoomsList.addItem({roomName: "Room 3", users: 3, actions: "LJ"});
-				roomsBox.visible = roomsBox.includeInLayout = true;
-				if (amIModerator) {
-					closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = true;
-				}
 			}
 			
 			private function lockSettings():void {

@@ -210,7 +210,11 @@ package org.bigbluebutton.main.model.users
 			// TODO : BreakoutRoom need to be sure that breakoutId is set
 			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid);
 		}
-		
+
+		public function endAllBreakoutRooms(e:BreakoutRoomEvent):void{
+			// TODO
+		}
+
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) sender.kickUser(e.userid);
 		}

@@ -46,6 +46,7 @@ package org.bigbluebutton.main.model.users {
     
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
+		[Bindable] public var breakoutRooms:ArrayCollection = null;			
 		private var sort:Sort;
 		
 	  private var defaultLayout:String;
@@ -57,6 +58,8 @@ package org.bigbluebutton.main.model.users {
 			sort.compareFunction = sortFunction;
 			users.sort = sort;
 			users.refresh();
+			
+			breakoutRooms = new ArrayCollection();
 		}
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
@@ -531,6 +534,46 @@ package org.bigbluebutton.main.model.users {
 			var myUser:BBBUser = getMyUser();
 			if(myUser != null)
 				myUser.applyLockSettings();
+		}
+		
+		/* Breakout room feature */
+		public function addBreakoutRoom(newRoom:BreakoutRoom):void {
+			breakoutRooms.addItem(newRoom);
+			breakoutRooms.refresh();
+		}
+		
+		public function updateBreakoutRoomUsers(breakoutId:String, users:Array):void {
+			var r:Object = getBreakoutRoom(breakoutId);
+			if (r != null) {
+				BreakoutRoom(r.room).users = new ArrayCollection(users);
+			}
+		}
+		
+		/**
+		 * Returns a breakout room by its breakoutId
+		 */
+		public function getBreakoutRoom(breakoutId:String):BreakoutRoom {
+			var r:Object = getBreakoutRoomIndex(breakoutId);
+			if (r != null) {
+				return r.room as BreakoutRoom;
+			}
+			
+			return null;				
+		}
+		
+		/**
+		 * Finds the index of a breakout room by its breakoutId
+		 */
+		public function getBreakoutRoomIndex(breakoutId:String):Object {
+			var aRoom:BreakoutRoom;
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				aRoom = breakoutRooms.getItemAt(i) as BreakoutRoom;
+				if (aRoom.breakoutId == breakoutId) {
+					return {index:i, room:aRoom};
+				}
+			}
+			// Participant not found.
+			return -1;
 		}
 	}
 }
