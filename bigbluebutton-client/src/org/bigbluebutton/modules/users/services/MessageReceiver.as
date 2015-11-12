@@ -588,8 +588,7 @@ package org.bigbluebutton.modules.users.services
     }
 	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
-		var map:Object = JSON.parse(msg.msg);	
-		UserManager.getInstance().getConference().emojiStatus(map.userId, map.emojiStatus);
+		var map:Object = JSON.parse(msg.msg);
 		// TODO : BreakoutRoom : display Join button to the user
 	}
 	
@@ -599,8 +598,8 @@ package org.bigbluebutton.modules.users.services
 	}
 	
 	private function handleTimeRemainingUpdate(msg:Object):void{
-		var map:Object = JSON.parse(msg.msg);	
-		// TODO : TimeRemainingUpdate : update timer on user
+		var map:Object = JSON.parse(msg.msg);
+		UserManager.getInstance().getConference().breakoutTimeRemainingUpdate(msg.timeRemaining);
 	}
 	
 	private function handleBreakoutRoomStarted(msg:Object):void{
