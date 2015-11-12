@@ -28,6 +28,8 @@ Template.optionsFontSize.events
       $('#decreaseFontSize').html('MIN')
     else
       setInSession "messageFontSize", getInSession("messageFontSize") - 2
+      adjustChatInputHeight()
+      setTimeout(scrollChatDown, 0)
       if $('#increaseFontSize').html() is 'MAX'
         $('#increaseFontSize').html('')
         $('#increaseFontSize').addClass('icon fi-plus')
@@ -39,6 +41,9 @@ Template.optionsFontSize.events
       $('#increaseFontSize').html('MAX')
     else
       setInSession "messageFontSize", getInSession("messageFontSize") + 2
+      adjustChatInputHeight()
+      setTimeout(scrollChatDown, 0)
+
       if $('#decreaseFontSize').html() is 'MIN'
         $('#decreaseFontSize').html('')
         $('#decreaseFontSize').addClass('icon fi-minus')
