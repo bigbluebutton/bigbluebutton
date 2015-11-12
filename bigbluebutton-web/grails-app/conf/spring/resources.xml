@@ -92,4 +92,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<import resource="doc-conversion.xml" />
 	<import resource="bbb-redis-pool.xml" />
 	<import resource="bbb-redis-messaging.xml" />
+	<import resource="turn-stun-servers.xml" />
 </beans>

@@ -18,9 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Sprite;
-	
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
 	/**

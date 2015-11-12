@@ -18,40 +18,10 @@
  */
 package org.bigbluebutton.modules.whiteboard
 {
-  import flash.display.DisplayObject;
-  import flash.display.Shape;
-  import flash.display.Sprite;
-  import flash.events.FocusEvent;
   import flash.events.KeyboardEvent;
-  import flash.events.MouseEvent;
-  import flash.events.TextEvent;
-  import flash.geom.Point;
-  import flash.text.TextField;
-  import flash.text.TextFieldAutoSize;
-  import flash.text.TextFieldType;
-  import flash.text.TextFormat;
-  import flash.ui.Keyboard;
-  import mx.controls.TextInput;
-  import mx.core.Application;
-  import mx.core.UIComponent;
-  import mx.managers.CursorManager;
-  import org.bigbluebutton.common.IBbbCanvas;
-  import org.bigbluebutton.common.LogUtil;
+  
   import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.main.events.MadePresenterEvent;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawGrid;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-  import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
-  import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-  import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
-  import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;
   import org.bigbluebutton.modules.whiteboard.views.IDrawListener;

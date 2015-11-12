@@ -1,24 +1,17 @@
 package org.bigbluebutton.modules.polling.service
 {
-  import org.bigbluebutton.modules.polling.vo.CreatePollVO;
-  import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
-  import org.bigbluebutton.modules.polling.vo.PollResponseVO;
 
   public interface IPollDataService
   {
-   
-    function getPolls():void;
-    
-    function createPoll(poll:CreatePollVO):void;
-    
-    function updatePoll(poll:UpdatePollVO):void;
-    
-    function startPoll(pollID:String):void;
+      
+    function startCustomPoll(pollId: String, pollType: String, answers:Array):void;
+	
+    function startPoll(pollId:String, pollType: String):void;
     
     function stopPoll(pollID:String):void;
     
-    function removePoll(pollID:String):void;
+    function votePoll(pollId:String, answerId:Number):void;
     
-    function respondPoll(resp:PollResponseVO):void;
+    function showPollResult(pollId:String, show:Boolean):void;
   }
 }

@@ -30,18 +30,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import flash.events.Event;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.modules.layout.events.LayoutEvent;
-			
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import flash.events.FocusEvent;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			private var _images:Images = new Images();
@@ -55,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onClick(e:Event):void {
-				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SYNC_LAYOUT_EVENT));
+				//_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SYNC_LAYOUT_EVENT));
 			}
 			
 			private function onLockLayoutEvent(e:Event):void {

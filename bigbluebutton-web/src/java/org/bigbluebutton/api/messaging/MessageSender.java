@@ -4,10 +4,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Protocol;
 
 public class MessageSender {
 	private static Logger log = LoggerFactory.getLogger(MessageSender.class);
@@ -19,11 +21,32 @@ public class MessageSender {
 	private final Executor runExec = Executors.newSingleThreadExecutor();
 	private BlockingQueue<MessageToSend> messages = new LinkedBlockingQueue<MessageToSend>();
 	
+	private String host;
+	private int port;
+	
 	public void stop() {
 		sendMessage = false;
+		redisPool.destroy();
 	}
-	
+		
 	public void start() {	
+		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+		config.setMaxTotal(32);
+		config.setMaxIdle(8);
+		config.setMinIdle(1);
+		config.setTestOnBorrow(true);
+		config.setTestOnReturn(true);
+		config.setTestWhileIdle(true);
+		config.setNumTestsPerEvictionRun(12);
+		config.setMaxWaitMillis(5000);
+		config.setTimeBetweenEvictionRunsMillis(60000);
+		config.setBlockWhenExhausted(true);
+		
+		// Set the name of this client to be able to distinguish when doing
+		// CLIENT LIST on redis-cli
+		redisPool = new JedisPool(config, host, port, Protocol.DEFAULT_TIMEOUT, null,
+		        Protocol.DEFAULT_DATABASE, "BbbWebPub");
+		
 		log.info("Redis message publisher starting!");
 		try {
 			sendMessage = true;
@@ -58,9 +81,12 @@ public class MessageSender {
 				try {
 					jedis.publish(channel, message);
 				} catch(Exception e){
-					log.warn("Cannot publish the message to redis", e);
+					log.warn("Cannot publish the message to pubsub", e);
 				} finally {
-					redisPool.returnResource(jedis);
+					if (jedis != null) {
+						jedis.close();
+					}
+					
 				}		  	
 		  }
 		};
@@ -68,7 +94,11 @@ public class MessageSender {
 		runExec.execute(task);
 	}
 	
-	public void setRedisPool(JedisPool redisPool){
-		this.redisPool = redisPool;
+	public void setHost(String host){
+		this.host = host;
+	}
+	
+	public void setPort(int port) {
+		this.port = port;
 	}
 }

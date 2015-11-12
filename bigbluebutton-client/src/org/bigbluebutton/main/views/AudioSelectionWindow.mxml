@@ -21,6 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				xmlns:mate="http://mate.asfusion.com/"
+				xmlns:common="org.bigbluebutton.common.*"
 				width="700" height="350" 
 				initialize="init()" 
 				styleName="micSettingsWindowStyle"
@@ -35,24 +36,38 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			import mx.managers.PopUpManager;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.api.JSAPI;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceCommand;
+			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(AudioSelectionWindow);      
+
 			private var phoneOptions:PhoneOptions = new PhoneOptions;
-			
-			[Bindable] private var baseIndex:int = 1;
+			private var browserInfo:Array;
 			
 			private function init():void {
+				browserInfo = JSAPI.getInstance().getBrowserInfo();
+
+				var conference:Conference = UserManager.getInstance().getConference();
+				
 				if (!phoneOptions.listenOnlyMode) btnListenOnly.enabled = false;
-				if (phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator()) btnMicrophone.enabled = false;
+				if (
+					(phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
+				) {
+					btnMicrophone.enabled = false;
+				}
 				
 				if (phoneOptions.showPhoneOption) {
-					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [UserManager.getInstance().getConference().dialNumber, UserManager.getInstance().getConference().voiceBridge]);
+					txtPhone.text=ResourceUtil.getInstance().getString('bbb.audioSelection.txtPhone.text', [conference.dialNumber, conference.voiceBridge]);
 				} else {
 					vrulePhone.visible = vrulePhone.includeInLayout = false;
 					vboxPhone.visible = vboxPhone.includeInLayout = false;
@@ -61,20 +76,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vboxMic.percentWidth = 50;
 					vboxListen.percentWidth = 50;
 				}
+				
+				// If Puffin browser is deteted and version is less than 4.6
+				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) < "4.6") {
+					vruleListen.visible = vruleListen.includeInLayout = vboxMic.visible = vboxMic.includeInLayout = false;
+					vboxListen.percentWidth = 100;
+					if (!phoneOptions.showPhoneOption) {
+						this.width = this.width/2;
+					}
+				}
 			}
 			
 			private function onMicClick():void {
-				trace("AudioSelectionWindow - Share Microphone Clicked");
+				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
-				var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
-				command.mic = true;
-				dispatcher.dispatchEvent(command);
+				if (browserInfo[0] == "Puffin" && String(browserInfo[2]).substr(0, 3) >= "4.6") {
+					dispatcher.dispatchEvent(new UseFlashModeCommand());	
+				}
+				else {
+					var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
+					command.mic = true;
+					dispatcher.dispatchEvent(command);
+				}
 				
 				PopUpManager.removePopUp(this);
 			}
 			
 			private function onListenClick():void {
-				trace("AudioSelectionWindow - Share Microphone Clicked");
+				LOGGER.debug("AudioSelectionWindow - Share Microphone Clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
 				var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
 				command.mic = false;
@@ -84,7 +113,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCancelClicked():void {
-				trace("AudioSelectionWindow - Cancel clicked");
+				LOGGER.debug("AudioSelectionWindow - Cancel clicked");
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.CLOSED_AUDIO_SELECTION));
 				
@@ -100,10 +129,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</mx:Script>
+	
+	<common:TabIndexer startIndex="1" tabIndices="{[textArea, btnMicrophone, btnListenOnly, cancelBtn]}"/>
+	
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="right">
 		<mx:HBox width="100%" height="60">
 			<mx:TextArea borderSkin="{null}" verticalScrollPolicy="off" 
-						 editable="false" tabIndex="{baseIndex}"
+						 editable="false" id="textArea"
 						 text="{ResourceUtil.getInstance().getString('bbb.audioSelection.title')}"
 						 styleName="micSettingsWindowTitleStyle"
 						 width="100%" height="100%" />
@@ -112,14 +144,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<mx:HBox width="100%" height="100%">
 			<mx:VBox id="vboxMic" height="100%" width="30%" horizontalAlign="center">
 				<mx:Image source="@Embed('assets/microphone80.png')" />
-				<mx:Button id="btnMicrophone" tabIndex="{baseIndex+1}" click="onMicClick()"
+				<mx:Button id="btnMicrophone" click="onMicClick()"
 						   label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.label')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.toolTip')}"/>
 			</mx:VBox>
 			<mx:VRule id="vruleListen" height="100%" width="5%" />
 			<mx:VBox id="vboxListen" height="100%" width="30%" horizontalAlign="center">
 				<mx:Image source="@Embed('assets/speaker80.png')" />
-				<mx:Button id="btnListenOnly" tabIndex="{baseIndex+2}" click="onListenClick()"
+				<mx:Button id="btnListenOnly" click="onListenClick()"
 						   label="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.label')}"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.toolTip')}" />
 			</mx:VBox>
@@ -131,6 +163,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		<mx:HRule width="100%" />
 		<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel.toolTip')}"
-				   tabIndex="{baseIndex+3}" click="onCancelClicked()" styleName="micSettingsWindowPlaySoundButtonStyle" />
+				   click="onCancelClicked()" styleName="micSettingsWindowPlaySoundButtonStyle" />
 	</mx:VBox>
 </mx:TitleWindow>

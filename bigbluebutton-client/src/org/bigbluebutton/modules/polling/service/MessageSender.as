@@ -18,153 +18,111 @@
  */
 package org.bigbluebutton.modules.polling.service
 {
-	import flash.net.NetConnection;
-	import flash.net.Responder;	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	import org.as3commons.logging.util.jsonXify;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.modules.polling.vo.CreatePollVO;
-	import org.bigbluebutton.modules.polling.vo.PollResponseVO;
-	import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
-	import org.bigbluebutton.modules.present.events.PresentationEvent;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 
 	public class MessageSender
 	{	
-    private static const LOG:String = "Poll::MessageSender - ";
-    
-    public function getPolls():void
-    {     
-      trace(LOG + "getPolls ");
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.getPolls", 
-        function(result:String):void { 
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void {
-          LogUtil.error(status); 
-        }
-      );      
-    }
-    
-    public function createPoll(poll:CreatePollVO):void
-    {
-      var jsonMsg:String = JSON.stringify(poll.toMap());
-      
-      trace(LOG + "createPoll [" + jsonMsg + "]");
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.createPoll", 
-        function(result:String):void { 
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void {
-          LogUtil.error(status); 
-        },
-        jsonMsg
-      );
-    }	
-    
-    public function updatePoll(poll:UpdatePollVO):void
-    {
-      var jsonMsg:String = JSON.stringify(poll.toMap());
-      
-      trace(LOG + "updatePoll [" + jsonMsg + "]");
-      
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.updatePoll", 
-        function(result:String):void { 
-          LogUtil.debug(result); 
-        },	                   
-        function(status:String):void {
-          LogUtil.error(status); 
-        },
-        jsonMsg
-      );
-    }	
-    
-    public function startPoll(pollID:String):void
+	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
+	
+	public function startCustomPoll(pollId:String, pollType: String, answers:Array):void
+	{
+
+		
+		var header:Object = new Object();		
+		header["timestamp"] = (new Date()).time;
+		header["name"] = "start_custom_poll_request_message";
+		header["version"] = "0.0.1";
+		
+		var payload:Object = new Object();
+		payload["pollType"] = pollType;
+		payload["answers"] = answers;
+		payload["meetingId"] = UsersUtil.getInternalMeetingID();
+		payload["pollId"] = pollId;
+		payload["requesterId"] = UsersUtil.getMyUserID();
+		
+		var map:Object = new Object();
+		map["header"] = header;
+		map["payload"] = payload;
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage("poll.sendPollingMessage", 
+			function(result:String):void { 
+			},	                   
+			function(status:String):void {
+				LOGGER.error(status); 
+			},
+			JSON.stringify(map)
+		);
+	}
+	
+    public function startPoll(pollId:String, pollType: String):void
     {
       var map:Object = new Object();
-      map.pollID = pollID;
-      
-      var jsonMsg:String = JSON.stringify(map);
-      
-      trace(LOG + "startPoll [" + jsonMsg + "]");
+      map["pollId"] = pollId;
+      map["pollType"] = pollType;
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.startPoll", 
         function(result:String):void { 
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void {
-          LogUtil.error(status); 
+			LOGGER.error(status); 
         },
-        jsonMsg
+        map
       );
     }
     
-    public function stopPoll(pollID:String):void
+    public function stopPoll(pollId:String):void
     {
       var map:Object = new Object();
-      map.pollID = pollID;
-      
-      var jsonMsg:String = JSON.stringify(map);
-      
-      trace(LOG + "stopPoll [" + jsonMsg + "]");
+      map["pollId"] = pollId;
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("poll.stopPoll", 
         function(result:String):void { 
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void {
-          LogUtil.error(status); 
+			LOGGER.error(status); 
         },
-        jsonMsg
+        map
       );
     }
     
-    public function removePoll(pollID:String):void
+    public function votePoll(pollId:String, answerId:Number):void
     {
       var map:Object = new Object();
-      map.pollID = pollID;
-      
-      var jsonMsg:String = JSON.stringify(map);
-      
-      trace(LOG + "removePoll [" + jsonMsg + "]");
+      map["pollId"] = pollId;
+      map["answerId"] = answerId;
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.removePoll", 
+      _nc.sendMessage("poll.votePoll", 
         function(result:String):void { 
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void {
-          LogUtil.error(status); 
+			LOGGER.error(status); 
         },
-        jsonMsg
+        map
       );
     }
     
-    public function respondPoll(resp:PollResponseVO):void {
-      var jsonMsg:String = JSON.stringify(resp.toMap());
-      
-      trace(LOG + "respondPoll [" + jsonMsg + "]");
+    public function showPollResult(pollId:String, show:Boolean):void {
+      var map:Object = new Object();
+      map["pollId"] = pollId;
+      map["show"] = show;
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("poll.respondPoll", 
+      _nc.sendMessage("poll.showPollResult", 
         function(result:String):void { 
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void {
-          LogUtil.error(status); 
+			LOGGER.error(status); 
         },
-        jsonMsg
+        map
       );      
     }
 	}

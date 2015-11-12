@@ -20,12 +20,16 @@ package org.bigbluebutton.core
 {
 	import flash.events.EventDispatcher;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+	
 	public class EventBroadcaster extends EventDispatcher {
-        private static var _instance:EventBroadcaster = new EventBroadcaster();
+		private static const LOGGER:ILogger = getClassLogger(EventBroadcaster);      
+		private static var _instance:EventBroadcaster = new EventBroadcaster();
 
         public function EventBroadcaster() {
                 if (_instance != null) {
-                        trace ("Error: an instance of EventBroadcaster() already exists.");
+                        LOGGER.error("Error: an instance of EventBroadcaster() already exists.");
                 }
         }
 

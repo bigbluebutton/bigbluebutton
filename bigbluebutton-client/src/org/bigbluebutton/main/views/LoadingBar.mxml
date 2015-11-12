@@ -31,13 +31,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 	<mx:Script>
 		<![CDATA[
-      import mx.controls.Alert;
-			
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.main.events.ModuleLoadEvent;
-      import org.bigbluebutton.main.events.PortTestEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.main.events.PortTestEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+	
+	  private static const LOGGER:ILogger = getClassLogger(LoadingBar);
+
       private var modules:Dictionary = new Dictionary();
       private var numModules:int = 0;
       private var portUpdateStr:String = 'Connecting to the server';
@@ -47,11 +48,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var item:XML;
         
         numModules = 0;
-        trace("LoadingBar.mxml numModules=[" + numModules + "]");
         for each(item in list){
           modules[item.@name] = 0;
           numModules++;
-          trace("LoadingBar.mxml numModules=[" + numModules + "] modulename=[" + item.@name + "]");
         }
 
         this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
@@ -71,11 +70,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         //LogUtil.debug("Progress: " + totalProgress);
         this.setProgress(totalProgress/numModules, 100);
       }
-			
+
       private function allModulesLoaded(e:ModuleLoadEvent):void{
-        parent.removeChild(this);
+        if (parent != null) parent.removeChild(this);
       }
-			
+						
       private function testRTMP(e:PortTestEvent):void{
         //- Cannot get locale string this early in loading process
         portUpdateStr += "."

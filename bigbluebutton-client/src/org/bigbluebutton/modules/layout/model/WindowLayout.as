@@ -17,24 +17,21 @@
 *
 */
 package org.bigbluebutton.modules.layout.model {
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	import flash.utils.getQualifiedClassName;
+	
+	import mx.effects.Move;
+	import mx.effects.Parallel;
+	import mx.effects.Resize;
+	
+	import flexlib.mdi.containers.MDICanvas;
+	import flexlib.mdi.containers.MDIWindow;
+	
+	import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 	public class WindowLayout {
 
-		import flexlib.mdi.containers.MDICanvas;
-		import flexlib.mdi.containers.MDIWindow;
-		import mx.effects.Fade;
-		import mx.effects.Move;
-		import mx.effects.Parallel;
-		import mx.effects.Resize;
-		import mx.events.EffectEvent;
-		import flash.display.DisplayObject;
-		import flash.display.DisplayObjectContainer;
-		import flash.utils.Dictionary;
-		import flash.utils.getQualifiedClassName;
-		import flash.utils.Timer;
-		import flash.events.TimerEvent;
-		import org.bigbluebutton.common.LogUtil;
-		import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 		[Bindable] public var name:String;
 		[Bindable] public var width:Number;
@@ -136,21 +133,25 @@ package org.bigbluebutton.modules.layout.model {
 			layout.hidden = !window.visible;
 			layout.order = OrderManager.getInstance().getOrderByRef(window);
       
-//      trace("WindowLayout::getLayout for " + layout.name + " [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
-//        + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
+      //trace("WindowLayout::getLayout for " + layout.name + " [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
+      //  + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
       
 			return layout;
 		}
 		
 		static public function setLayout(canvas:MDICanvas, window:MDIWindow, layout:WindowLayout):void {
-//      trace("WindowLayout::setLayout for " + window.name + ",layout=" + layout.name + "]");
+      //if (window == null) trace("WindowLayout::setLayout - window is NULL!!!");
+      //if (layout == null) trace("WindowLayout::setLayout - layout is NULL!!!");
+      //if (layout.name == null) trace("WindowLayout::setLayout - layout.name is NULL!!!");
+      
+      //trace("WindowLayout::setLayout for " + getType(window) + ",layout=" + layout.name + "]");
       
 			if (layout == null) {
         return;
       }
       
-//      trace("WindowLayout::setLayout [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
-//        + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
+      //trace("WindowLayout::setLayout [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
+      //  + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
       
 			layout.applyToWindow(canvas, window);
 		}

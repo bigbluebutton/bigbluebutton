@@ -22,20 +22,14 @@ package org.bigbluebutton.modules.present.managers
 	
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
-	import mx.collections.ArrayCollection;
-	import mx.core.*;
+	
+	import mx.core.FlexGlobals;
 	import mx.managers.PopUpManager;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.model.users.BBBUser;
-	import org.bigbluebutton.main.model.users.Conference;
-	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
-	import org.bigbluebutton.modules.present.model.PresentationModel;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 	

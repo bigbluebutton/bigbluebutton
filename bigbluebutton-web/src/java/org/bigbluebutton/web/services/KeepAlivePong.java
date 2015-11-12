@@ -1,8 +1,12 @@
 package org.bigbluebutton.web.services;
 
-public class KeepAlivePong extends KeepAliveMessage {
+public class KeepAlivePong implements KeepAliveMessage {
 
-	public KeepAlivePong(String id) {
-		super(id);
+	public final String system;
+	public final Long timestamp;
+	
+	public KeepAlivePong(String system, Long timestamp) {
+		this.system = system;
+		this.timestamp = timestamp;
 	}
 }

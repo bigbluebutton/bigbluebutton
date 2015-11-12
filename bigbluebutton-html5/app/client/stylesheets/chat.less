@@ -1,0 +1,315 @@
+@import "variables";
+
+@media @desktop-portrait, @landscape {
+  .privateChatTab {
+    order: 1;
+    -webkit-order: 1;
+    -ms-flex-order: 1;
+    -ms-order: 1;
+    border-bottom: 1px solid #E5E5E5;
+    min-width: 205px;
+    height: 45px;
+    min-height: 45px;
+    .btn {
+      &:hover {
+        color: #3896D3;
+        background-color:white;
+        border-bottom: 1px solid #E5E5E5;
+      }
+      &:focus {
+        background-color:white;
+        border-bottom: 1px solid #E5E5E5;
+      }
+      padding: 0.625rem 0.5rem 0.6875rem 0.5rem;
+      background-color: inherit;
+      margin: 0;
+      height: 45px;
+      outline: none;
+      min-width: 50px;
+    }
+    span {
+      position: relative;
+      font-size: 18px;
+      left: 2px;
+    }
+    i {
+      position: relative;
+      right: 2px;
+      font-size: 18px;
+    }
+  }
+  .privateChatName {
+    width: calc(~'100% - 105px');
+    min-width: 101px;
+    text-align: right;
+    float: right;
+    padding: 0.65rem 1.25rem 0.6rem 0.3rem;
+    font-family: "Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
+    font-size: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.toPublic .unreadChatNumber {
+  @media @desktop-portrait, @landscape {
+    padding: 2px;
+    position: absolute;
+    top: 31%;
+    left: 100%;
+    margin: 0;
+  }
+}
+
+#chat {
+  @media @landscape {
+    -webkit-flex: 1 1;
+    -moz-flex: 1 1;
+    -ms-flex: 1 1;
+    flex: 1 1;
+    height: 100%;
+    border-top: 0px;
+    border-right: 0px;
+    border-top-left-radius: 0px;
+    overflow: hidden;
+  }
+  order: 3;
+}
+
+.chat {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+  @media @desktop-portrait, @landscape {
+    li {
+      margin: 0px;
+      padding: 15px;
+      // &:nth-child(even) {
+      //   background-color: rgb(245,245,245);
+      // }
+      table {
+        width: 100%;
+      }
+    }
+  }
+  word-wrap: break-word;
+
+}
+.chatBodyContainer {
+  @media @desktop-portrait, @landscape {
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-flow: column;
+    flex-flow: column;
+    height: calc(~'100% - 70px');
+    width: 100%;
+  }
+}
+#chatbody {
+    // text will not be hidden as it won't exceed the container boundaries,
+    // but the element will still be given horizontal scroll bars
+    overflow-x: hidden;
+  @media @desktop-portrait, @landscape {
+    order: 2;
+    -webkit-order: 2;
+    -ms-flex-order: 2;
+    -ms-order: 2;
+    shrink: 1;
+    -webkit-shrink: 1;
+    -moz-shrink: 1;
+    grow:1;
+    -webkit-grow: 1;
+    -moz-grow: 1;
+    height: calc(~'100% - 45px');
+  }
+  overflow-y: auto;
+  padding-left: 0px;
+  padding-right: 0px;
+  @media @desktop-portrait, @mobile-portrait {
+    max-height: 46vw; // for longer chatbody a scrollbar appears
+    overflow-y: scroll;
+  }
+}
+
+.chat-input-wrapper {
+  padding-top:10px;
+  padding-left:10px;
+  padding-right:10px;
+}
+
+.disabledChat {
+  background-color: grey;
+  width: 100% !important;
+}
+
+#fontSizeTable {
+  border: 1px solid white;
+  height: @settingsSectionHeight;
+  margin-bottom: 0px;
+  overflow: hidden;
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    width: 100px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    width: calc(~'100% - 70px');
+  }
+  @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+    width: calc(~'100% - 70px');
+  }
+  #displayLabel {
+    height: @fontSizeControlMaxHeight;
+    padding: 0;
+    width: @fontSizeControlMaxWidth;
+  }
+  tr {
+    td {
+      padding: 0;
+      text-align: center;
+    }
+  }
+  .displayButtons {
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 35px;
+      width: 35px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 70px;
+      width: 84px;
+    }
+    @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+      height: 35px;
+      width: 84px;
+    }
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+    i {
+      @media @phone-portrait-with-keyboard, @phone-portrait {
+        font-size: 16px; // overrides the value from Foundation
+      }
+      @media @tablet-portrait-with-keyboard, @tablet-portrait {
+        font-size: 30px; // overrides the value from Foundation
+      }
+      @media @desktop-portrait, @phone-landscape, @tablet-landscape, @desktop-landscape {
+        font-size: 16px; // overrides the value from Foundation
+      }
+    }
+  }
+  #displayLabel {
+    text-align: center;
+  }
+}
+
+#newMessageInput {
+  display: block;
+  float: left;
+  width: 75%;
+  resize: none;
+  padding-top: 0px;
+  padding-bottom: 0px;
+
+  border:1px solid extract(@lightGrey, 3);
+  margin: 0px;
+
+  @media @landscape {
+    height: 100%; /* same height as send button */
+  }
+  @media @mobile-portrait {
+    font-size: 4vw;
+    height: 8vw;
+  }
+  @media @mobile-portrait-with-keyboard {
+    font-size: 4.5vh;
+    height: 25vh;
+  }
+  @media @desktop-portrait {
+    font-size: 25px;
+    height: @chatControlsHeight;
+  }
+}
+
+.panel-footer {
+  bottom: 0px;
+  position: relative;
+  background: extract(@white, 1);
+  padding: 0;
+  border-top: 1px solid extract(@lightGrey, 3);
+}
+
+#sendMessageButton {
+  width: 25%;
+  color: extract(@white, 1);
+  background-color: #3896D3;
+  font-weight: bold;
+  height: @chatControlsHeight;
+  margin: 0px;
+  border: 1px solid extract(@lightGrey, 3);
+  @media @desktop-portrait {
+    font-size: 30px;
+    &:hover {
+      background: #3A82D4;
+    }
+    padding-left: 7%;
+  }
+  @media @phone-portrait {
+    font-size: 20px;
+    padding-left: 5%;
+  }
+  @media @tablet-portrait {
+    font-size: 25px;
+    padding-left: 7%;
+  }
+  @media @phone-portrait-with-keyboard {
+    font-size: 20px;
+    padding-left: 7%;
+  }
+  @media @tablet-portrait-with-keyboard {
+    font-size: 25px;
+    padding-left: 7%;
+  }
+  @media @landscape {
+    padding: 0px;
+    position: absolute;
+    bottom: 10px;
+    &:hover {
+      background: #3A82D4;
+    }
+  }
+  @media @phone-landscape {
+    font-size: 14px;
+  }
+  @media @tablet-landscape {
+    font-size: 18px;
+  }
+  @media @desktop-landscape {
+    font-size: 15px;
+  }
+}
+
+.timestamp {
+  text-align: right;
+}
+
+#chatbar-contents {
+  @media @landscape {
+    min-width: 140px;
+  }
+}
+
+.button-group {
+  @media @landscape {
+    height: 100%;
+  }
+}
+
+#chatInput {
+  @media @landscape {
+    height: 100%;
+    padding-bottom: 10px;
+  }
+}

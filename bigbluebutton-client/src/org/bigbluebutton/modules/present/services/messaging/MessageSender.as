@@ -18,14 +18,14 @@
  */
 package org.bigbluebutton.modules.present.services.messaging
 {
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.managers.ConnectionManager;
-  import org.bigbluebutton.main.model.users.IMessageListener;
   
   public class MessageSender {
     
-    private static const LOG:String = "Present::MessageReceiver - ";
+	private static const LOGGER:ILogger = getClassLogger(MessageSender);
     
     /**
      * Send an event to the server to update the presenter's cursor view on the client 
@@ -41,10 +41,10 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.sendCursorUpdate", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );		      
@@ -57,8 +57,6 @@ package org.bigbluebutton.modules.present.services.messaging
      * 
      */		
     public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-      trace(LOG + "move [" + xOffset + "," +  yOffset + "][" +  widthRatio + "," + heightRatio + "]");
-      
       var message:Object = new Object();
       message["xOffset"] = xOffset;
       message["yOffset"] = yOffset;
@@ -68,10 +66,10 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.resizeAndMoveSlide", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+          //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );	
@@ -85,10 +83,10 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.sharePresentation", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );
@@ -98,15 +96,13 @@ package org.bigbluebutton.modules.present.services.messaging
       var message:Object = new Object();
       message["page"] = id;      
       
-      trace(LOG + "gotoPage [" + id + "]");
-      
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.gotoSlide", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );
@@ -116,10 +112,10 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.getPresentationInfo", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         }
       );
       
@@ -132,10 +128,10 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.removePresentation", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );
@@ -145,10 +141,10 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.clear", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         }
       );		
     }
@@ -157,10 +153,10 @@ package org.bigbluebutton.modules.present.services.messaging
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("presentation.getSlideInfo", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
+		  //LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         }
       );
     }

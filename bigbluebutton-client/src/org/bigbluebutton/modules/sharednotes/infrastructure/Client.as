@@ -19,19 +19,22 @@
 package org.bigbluebutton.modules.sharednotes.infrastructure
 {
 	import com.adobe.crypto.SHA1;
-	import com.adobe.serialization.json.JSON;
 	
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.sharednotes.components.PatchableTextArea;
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 
 
 	public class Client
 	{
+		private static const LOGGER:ILogger = getClassLogger(Client);      
+
 		private var _id:int;
 		
 		private var textArea:PatchableTextArea;	// the text component to display the document
@@ -92,7 +95,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			var messageToSend:Message = new Message(id, documentName, ServerConnection.connectionType);
 			
 			if (documentShadow != textArea.textFieldText) {
-				trace("****** SENDING MESSAGE *******");
+				LOGGER.debug("****** SENDING MESSAGE *******");
 				
 				textArea.editable = false;
 				var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
@@ -107,7 +110,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 				
 				textArea.editable = true;
 				
-				trace(logPrefix + "sending " + messageToSend);
+				LOGGER.debug("{0} sending {1}", [logPrefix, messageToSend]);
 			}
 			
 			//server.send("m, " + JSON.encode(messageToSend));
@@ -118,7 +121,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		public function receiveMessage(serverMessage:Message): void {
 			timeoutTimer.stop();	// we received a response - cancel the time out
 			
-			trace(logPrefix + "received message.\nMessage: " + serverMessage);
+			LOGGER.debug("{0} received message.\nMessage: {1}", [logPrefix, serverMessage]);
 			
 			if (serverMessage.patchData != "") {
 				var result:String = DiffPatch.patch(serverMessage.patchData, documentShadow);

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<common:NoTabView xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:common="org.bigbluebutton.air.common.views.*">
+	<common:states>
+		<s:State name="verticalState" />
+		<s:State name="horizontalState" />
+	</common:states>
+	<s:Group width="100%"
+			 height="100%">
+		<s:layout>
+			<s:VerticalLayout />
+		</s:layout>
+		<s:Group id="videoGroup0"
+				 width="100%"
+				 height="60%">
+			<s:Label id="noVideoMessage0"
+					 styleName="noVideoMsgStyle contentFontSize"
+					 textAlign="center"
+					 width="100%"
+					 height="100%"
+					 text="{resourceManager.getString('resources', 'video.noVideo')}" />
+		</s:Group>
+
+		<s:Scroller id="streamListScroller"
+					width="100%"
+					height="38%">
+			<s:Group height="100%"
+					 width="100%">
+				<s:List id="videoStreamsList"
+						width="100%"
+						height="100%"
+						itemRenderer="org.bigbluebutton.air.video.views.VideoStreamsItemRenderer" />
+			</s:Group>
+		</s:Scroller>
+	</s:Group>
+</common:NoTabView>

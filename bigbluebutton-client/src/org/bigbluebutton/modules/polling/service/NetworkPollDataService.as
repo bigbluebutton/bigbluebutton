@@ -1,38 +1,26 @@
 package org.bigbluebutton.modules.polling.service
 {
-  import org.bigbluebutton.modules.polling.vo.CreatePollVO;
-  import org.bigbluebutton.modules.polling.vo.PollResponseVO;
-  import org.bigbluebutton.modules.polling.vo.UpdatePollVO;
-  
-  /**
-  * Used to send receive data from the server.
-  */
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
+
   public class NetworkPollDataService implements IPollDataService
   {
-    private static const LOG:String = "Poll::NetworkPollDataService - ";
+	private static const LOGGER:ILogger = getClassLogger(NetworkPollDataService);      
     
-    /* Injected by Mate */
-    public var receiver:MessageReceiver;
-    public var sender:MessageSender;
-        
-    public function getPolls():void
+    private var sender:MessageSender;
+          
+	public function NetworkPollDataService(sender: MessageSender) {
+		this.sender = sender;
+	}
+
+    public function startCustomPoll(pollId:String, pollType: String, answers: Array):void
     {
-      sender.getPolls();
+      sender.startCustomPoll(pollId, pollType, answers);
     }
-    
-    public function createPoll(poll:CreatePollVO):void
+
+    public function startPoll(pollId:String, pollType: String):void
     {
-      sender.createPoll(poll);
-    }
-    
-    public function updatePoll(poll:UpdatePollVO):void
-    {
-      sender.updatePoll(poll);
-    }
-    
-    public function startPoll(pollID:String):void
-    {
-      sender.startPoll(pollID);
+      sender.startPoll(pollId, pollType);
     }
     
     public function stopPoll(pollID:String):void
@@ -40,14 +28,14 @@ package org.bigbluebutton.modules.polling.service
       sender.stopPoll(pollID);
     }
     
-    public function removePoll(pollID:String):void
+    public function votePoll(pollId:String, answerId:Number):void
     {
-      sender.removePoll(pollID);
+      sender.votePoll(pollId, answerId);
     }
     
-    public function respondPoll(response:PollResponseVO):void
+    public function showPollResult(pollId:String, show:Boolean):void
     {
-      sender.respondPoll(response);
+      sender.showPollResult(pollId, show);
     }
   }
 }

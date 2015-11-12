@@ -21,21 +21,21 @@ package org.bigbluebutton.main.model.modules
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
 	import flash.system.ApplicationDomain;
-	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
-	import mx.core.IFlexModuleFactory;
 	import mx.events.ModuleEvent;
 	import mx.modules.ModuleLoader;
 	import mx.utils.StringUtil;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	
 	public class ModuleDescriptor
 	{
+		private static const LOGGER:ILogger = getClassLogger(ModuleDescriptor);      
+
 		private var _attributes:Object;
 		private var _loader:BigBlueButtonModuleLoader;
 		private var _module:IBigBlueButtonModule;
@@ -113,31 +113,26 @@ package org.bigbluebutton.main.model.modules
 			_loader.addEventListener("ready", onReady);
 			_loader.addEventListener("error", onErrorLoading);
 			_loader.url = _attributes.url;
-			LogUtil.debug("Loading " + _attributes.url);
 			_loader.loadModule();
 		}
 
 		private function onReady(event:Event):void {
-			LogUtil.debug(getName() + "finished loading");
 			var modLoader:ModuleLoader = event.target as ModuleLoader;
 			if (!(modLoader.child is IBigBlueButtonModule)) throw new Error(getName() + " is not a valid BigBlueButton module");
 			_module = modLoader.child as IBigBlueButtonModule;
 			if (_module != null) {
 				_loaded = true;
 				callbackHandler(ModuleManager.MODULE_LOAD_READY, _attributes.name);
-			} else {
-				LogUtil.error("Module loaded is null.");
-			}
-			
+			} 
 		}	
 
 		private function onLoadProgress(e:ProgressEvent):void {
 			callbackHandler(ModuleManager.MODULE_LOAD_PROGRESS, 
-					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
+			_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
 		}	
 		
 		private function onErrorLoading(e:ModuleEvent):void{
-			LogUtil.error("Error loading " + getName() + e.errorText);
+			LOGGER.error("Error loading {0}", [getName() + e.errorText]);
 		}
 		
 		private function onLoading(e:Event):void{
@@ -148,7 +143,6 @@ package org.bigbluebutton.main.model.modules
 			if (_attributes.uri == null) return;
 			
 			_attributes.uri = _attributes.uri.replace(/rtmp:/gi, protocol + ":");
-			LogUtil.debug(_attributes.name + " uri = " + _attributes.uri);
 		}
 		
 		public function removeDependancy(module:String):void{

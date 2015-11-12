@@ -25,8 +25,9 @@ package org.bigbluebutton.main.model.modules
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.IBigBlueButtonModule;
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -34,7 +35,7 @@ package org.bigbluebutton.main.model.modules
 	
 	public class ModuleManager
 	{
-    private static const LOG:String = "Core::ModuleManager - ";
+		private static const LOGGER:ILogger = getClassLogger(ModuleManager);      
     
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
 		public static const MODULE_LOAD_PROGRESS:String = "MODULE_LOAD_PROGRESS";
@@ -51,17 +52,15 @@ package org.bigbluebutton.main.model.modules
 		
 		private var modulesDispatcher:ModulesDispatcher;
 		
-		public function ModuleManager()
+		public function ModuleManager(modulesDispatcher: ModulesDispatcher)
 		{
-			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);	
-			modulesDispatcher = new ModulesDispatcher();
+      this.modulesDispatcher = modulesDispatcher;
+			_applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
 			configParameters = new ConfigParameters(handleComplete);
 		}
 				
 		private function handleComplete():void{	
-			var modules:Dictionary = configParameters.getModules();
-			modulesDispatcher.sendPortTestEvent();
-			
+			var modules:Dictionary = configParameters.getModules();	
 			for (var key:Object in modules) {
 				var m:ModuleDescriptor = modules[key] as ModuleDescriptor;
 				m.setApplicationDomain(_applicationDomain);
@@ -71,6 +70,8 @@ package org.bigbluebutton.main.model.modules
 			sorted = resolver.buildDependencyTree(modules);
 			
 			modulesDispatcher.sendConfigParameters(configParameters);
+      
+      modulesDispatcher.sendPortTestEvent();
 		}
 		
 		public function useProtocol(protocol:String):void {
@@ -96,7 +97,6 @@ package org.bigbluebutton.main.model.modules
 		private function startModule(name:String):void {
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				trace(LOG + 'Starting module ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
@@ -104,14 +104,11 @@ package org.bigbluebutton.main.model.modules
 		}
 
 		private function stopModule(name:String):void {
-      trace(LOG + 'Stopping module ' + name);
       
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LogUtil.debug('Stopping ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				if(bbb == null) { //Still has null object reference on logout sometimes.
-					LogUtil.debug('Module ' + name + ' was null skipping');
 					return;
 				}
 				bbb.stop();
@@ -119,15 +116,12 @@ package org.bigbluebutton.main.model.modules
 		}
 						
 		public function loadModule(name:String):void {
-			trace(LOG + 'BBBManager Loading ' + name);
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
 				if (!m.loaded) {
 					m.load(loadModuleResultHandler);
 				}
-			} else {
-				LogUtil.debug(name + " not found.");
-			}
+			} 
 		}
 				
 		private function loadModuleResultHandler(event:String, name:String, progress:Number=0):void {
@@ -138,13 +132,10 @@ package org.bigbluebutton.main.model.modules
 						modulesDispatcher.sendLoadProgressEvent(name, progress);
 					break;	
 					case MODULE_LOAD_READY:
-						trace(LOG + 'Module ' + name + " loaded.");		
 						modulesDispatcher.sendModuleLoadReadyEvent(name)	
 					break;				
 				}
-			} else {
-				LogUtil.debug(name + " not found.");
-			}
+			} 
 			
 			if (allModulesLoaded()) {
 				sendAppAndLocaleVersions();
@@ -165,14 +156,10 @@ package org.bigbluebutton.main.model.modules
 		
 		public function moduleStarted(name:String, started:Boolean):void {			
 			var m:ModuleDescriptor = getModule(name);
-			if (m != null) {
-				trace(LOG + 'Setting ' + name + ' started to ' + started);
-			}	
 		}
 		
 		public function startUserServices():void {
 			configParameters.application = configParameters.application.replace(/rtmp:/gi, _protocol + ":");
-			trace(LOG + "**** Using " + _protocol + " to connect to " + configParameters.application + "******");
 			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host, _protocol.toUpperCase() == "RTMPT");
 		}
 		

@@ -25,11 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bigbluebutton.api.MeetingService;
 
 public class Meeting {
 	private static Logger log = LoggerFactory.getLogger(Meeting.class);
@@ -63,6 +61,8 @@ public class Meeting {
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users; 
 	private final ConcurrentMap<String, Config> configs;
+	
+	private long lastUserLeftOn = 0;
 	
 	public Meeting(Builder builder) {
 		name = builder.name;
@@ -239,7 +239,9 @@ public class Meeting {
 	}
 	
 	public User userLeft(String userid){
-		return users.remove(userid);		
+		User u = (User) users.remove(userid);	
+		if (users.isEmpty()) lastUserLeftOn = System.currentTimeMillis();
+		return u;
 	}
 	
 	public User getUserById(String id){
@@ -264,7 +266,6 @@ public class Meeting {
 	}
 	
 	public boolean wasNeverJoined(int expiry) {
-		log.debug("WasNeverJoined - hasStarted=[" + hasStarted() + "] && !hasEnded()=[" + !hasEnded() + "] && nobodyJoined(" + expiry + ")=" + nobodyJoined(expiry));
 		return (hasStarted() && !hasEnded() && nobodyJoined(expiry));
 	}
 	
@@ -277,14 +278,13 @@ public class Meeting {
 		if (expiry == 0) return false; /* Meeting stays created infinitely */
 		
 		long now = System.currentTimeMillis();
-		log.debug("nobodyJoined - !userHasJoined=[" + !userHasJoined + "] && (now - createdTime)=[" + (now - createdTime) + "] > (expiry * MILLIS_IN_A_MINUTE)=" + (expiry * MILLIS_IN_A_MINUTE));
 
 		return (!userHasJoined && (now - createdTime) >  (expiry * MILLIS_IN_A_MINUTE));
 	}
 
 	private boolean hasBeenEmptyFor(int expiry) {
 		long now = System.currentTimeMillis();
-		return (now - endTime > (expiry * MILLIS_IN_A_MINUTE));
+		return (now - lastUserLeftOn > (expiry * MILLIS_IN_A_MINUTE));
 	}
 	
 	private boolean isEmpty() {
@@ -311,6 +311,33 @@ public class Meeting {
 	
 	private boolean hasEnded() {
 		return endTime > 0;
+	}
+
+	public int getNumListenOnly() {
+		int sum = 0;
+		for (String key : users.keySet()) {
+			User u =  (User) users.get(key);
+			if (u.isListeningOnly()) sum++;
+		}
+		return sum;
+	}
+	
+	public int getNumVoiceJoined() {
+		int sum = 0;
+		for (String key : users.keySet()) {
+			User u =  (User) users.get(key);
+			if (u.isVoiceJoined()) sum++;
+		}
+		return sum;
+	}
+
+	public int getNumVideos() {
+		int sum = 0;
+		for (String key : users.keySet()) {
+			User u =  (User) users.get(key);
+			sum += u.getStreams().size();
+		}
+		return sum;
 	}
 	
 	public void addUserCustomData(String userID, Map<String, String> data) {

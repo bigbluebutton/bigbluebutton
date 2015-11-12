@@ -20,13 +20,17 @@ package org.bigbluebutton.modules.broadcast.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.IMessageListener;
 
   public class MessageReceiver implements IMessageListener
   {
-    private var dispatcher:Dispatcher;
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+
+	private var dispatcher:Dispatcher;
     
     public function MessageReceiver() {
       dispatcher = new Dispatcher();
@@ -34,7 +38,7 @@ package org.bigbluebutton.modules.broadcast.services
     }
     
     public function onMessage(messageName:String, message:Object):void {
-      trace("Broadcast: received message " + messageName);
+      LOGGER.debug("Broadcast: received message {0}", [messageName]);
       
       switch (messageName) {
         case "BroadcastPlayStreamCommand":

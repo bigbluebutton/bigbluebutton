@@ -32,7 +32,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -95,22 +94,19 @@ public class ParamsProcessorUtil {
 	
 	public void processRequiredCreateParams(Map<String, String> params, ApiErrors errors) {
 	    // Do we have a checksum? If not, complain.
-	    if (StringUtils.isEmpty(params.get("checksum"))) {
-	      errors.missingParamError("checksum");
-	    }
-/*	    
-	    // Do we have a meeting name? If not, complain.
-	    String meetingName = params.get("name");
-	    if (StringUtils.isEmpty(meetingName) ) {
-	      errors.missingParamError("name");
-	    }
-*/	    
-	    // Do we have a meeting id? If not, complain.
-	    String externalMeetingId = params.get("meetingID");
-	    if (StringUtils.isEmpty(externalMeetingId)) {
-	      errors.missingParamError("meetingID");
-	    }
-	}
+        if (StringUtils.isEmpty(params.get("checksum"))) {
+          errors.missingParamError("checksum");
+        }
+        
+        // Do we have a meeting id? If not, complain.
+        if(!StringUtils.isEmpty(params.get("meetingID"))) {
+          if (StringUtils.isEmpty(StringUtils.strip(params.get("meetingID")))) {
+          errors.missingParamError("meetingID");
+       	  }
+        } else {
+          errors.missingParamError("meetingID");
+        }
+    }
 
 	public void updateMeeting(Map<String, Object> updateParams, Meeting existing) {
 		// TODO: Assign new values to meeting.
@@ -189,8 +185,7 @@ public class ParamsProcessorUtil {
 	
 	public Map<String, Object> processUpdateCreateParams(Map<String, String> params) {
 		Map<String, Object> newParams = new HashMap<String, Object>();
-		
-	    
+		    
 	    // Do we have a meeting name? If not, complain.
 	    String meetingName = params.get("name");
 	    if (! StringUtils.isEmpty(meetingName) ) {
@@ -533,38 +528,38 @@ public class ParamsProcessorUtil {
 		}
         
 		String cs = DigestUtils.shaHex(meetingID + configXML + securitySalt);
-		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
-		System.out.println("our checksum: [" + cs + "] client: [" + checksum + "]");
+
 		if (cs == null || cs.equals(checksum) == false) {
-			log.info("checksumError: request did not pass the checksum security check");
+			log.info("checksumError: configXML checksum. our: [{}], client: [{}]", cs, checksum);
 			return false;
 		}
-		log.debug("checksum ok: request passed the checksum security check");
 		return true;
 	}
 	
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {
-		log.debug("checksum: [{}] ; query string: [{}]", checksum, queryString);
-	
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
 			return true;
 		}
-		
-		// handle either checksum as first or middle / end parameter
-		// TODO: this is hackish - should be done better
-		queryString = queryString.replace("&checksum=" + checksum, "");
-		queryString = queryString.replace("checksum=" + checksum + "&", "");
-		queryString = queryString.replace("checksum=" + checksum, "");
-		
-		log.debug("query string after checksum removed: [{}]", queryString);
+
+		if( queryString == null ) {
+		    queryString = "";
+		} else {
+		    // handle either checksum as first or middle / end parameter
+		    // TODO: this is hackish - should be done better
+		    queryString = queryString.replace("&checksum=" + checksum, "");
+		    queryString = queryString.replace("checksum=" + checksum + "&", "");
+		    queryString = queryString.replace("checksum=" + checksum, "");
+		}
+
 		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
-		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
+
 		if (cs == null || cs.equals(checksum) == false) {
-			log.info("checksumError: request did not pass the checksum security check");
+			log.info("query string after checksum removed: [{}]", queryString);
+			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
 			return false;
 		}
-		log.debug("checksum ok: request passed the checksum security check");
+
 		return true; 
 	}
 	
@@ -616,25 +611,15 @@ public class ParamsProcessorUtil {
 		}
 		csbuf.append(securitySalt);
 
-		String baseString = csbuf.toString();
-
-		System.out.println( "POST basestring = [" + baseString + "]");
-		
-		log.debug("POST basestring = [" + baseString + "]");
-		
+		String baseString = csbuf.toString();				
 		String cs = DigestUtils.shaHex(baseString);
 		
- 		System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
- 		
-		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
-
 		if (cs == null || cs.equals(checksum) == false) {
-			System.out.println("our checksum: [" + cs + "], client: [" + checksum + "]");
-			log.info("checksumError: request did not pass the checksum security check");
+			log.info("POST basestring = [" + baseString + "]");
+			log.info("checksumError: failed checksum. our checksum: [{}], client: [{}]", cs, checksum);
 			return false;
 		}
-		log.debug("checksum ok: request passed the checksum security check");
-		
+
 		return true;
 	}
 

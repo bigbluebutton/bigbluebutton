@@ -18,12 +18,10 @@
 */
 package org.bigbluebutton.modules.layout.managers
 {
-
 	import flash.utils.Dictionary;
-
+	
 	import flexlib.mdi.containers.MDIWindow;
-
-	import org.bigbluebutton.common.LogUtil;
+	
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	import org.bigbluebutton.modules.layout.model.WindowLayout;
 

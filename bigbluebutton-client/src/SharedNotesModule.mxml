@@ -25,16 +25,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flexlib.mdi.containers.MDIWindow;
-			
-			import org.bigbluebutton.common.IBbbModuleWindow;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesWindow;
 			import org.bigbluebutton.modules.sharednotes.ToolbarButton;
-			import org.bigbluebutton.modules.sharednotes.infrastructure.Client;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.HTTPServerConnection;
 			
 			private var _moduleName:String = "Notes Module";			

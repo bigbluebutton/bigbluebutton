@@ -1,7 +1,6 @@
 package org.bigbluebutton.main.model
 {
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.common.LogUtil;
 	public class ShortcutOptions
 	{
 		private static var users:Boolean = true;

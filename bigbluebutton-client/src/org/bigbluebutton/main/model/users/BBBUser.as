@@ -20,7 +20,10 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -29,8 +32,9 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
-	
 	public class BBBUser {
+		private static const LOGGER:ILogger = getClassLogger(BBBUser);
+
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
@@ -40,32 +44,84 @@ package org.bigbluebutton.main.model.users
     
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userID:String = "UNKNOWN USER";
-    [Bindable] public var externUserID:String = "UNKNOWN USER";
+    	[Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
 		[Bindable] public var talking:Boolean = false;
 		[Bindable] public var phoneUser:Boolean = false;
-    [Bindable] public var listenOnly:Boolean = false;
+    	[Bindable] public var listenOnly:Boolean = false;
     
 		[Bindable] public var disableMyCam:Boolean = false;
 		[Bindable] public var disableMyMic:Boolean = false;
 		[Bindable] public var disableMyPrivateChat:Boolean = false;
 		[Bindable] public var disableMyPublicChat:Boolean = false;
-    [Bindable] public var lockedLayout:Boolean = false;
+    	[Bindable] public var lockedLayout:Boolean = false;
     
-		private var _hasStream:Boolean = false;
 		[Bindable]
 		public function get hasStream():Boolean {
-			return _hasStream;
+			return streamNames.length > 0;
 		}
 		public function set hasStream(s:Boolean):void {
-			_hasStream = s;
-			verifyMedia();
+			throw new Error("hasStream cannot be set. It is derived directly from streamName");
 		}
-        
-        [Bindable] public var viewingStream:Boolean = false;
-		
-		[Bindable] public var streamName:String = "";
-		
+
+        [Bindable] private var _viewingStream:Array = new Array();
+
+        [Bindable]
+        public function get viewingStream():Array {
+        	return _viewingStream;
+        }
+        public function set viewingStream(v:Array):void {
+            throw new Error("Please use the helpers addViewingStream or removeViewingStream to handle viewingStream");
+        }
+        public function addViewingStream(streamName:String):Boolean {
+            if (isViewingStream(streamName)) {
+                return false;
+            }
+
+            _viewingStream.push(streamName);
+            return true;
+        }
+        public function removeViewingStream(streamName:String):Boolean {
+            if (!isViewingStream(streamName)) {
+                return false;
+            }
+
+            _viewingStream = _viewingStream.filter(function(item:*, index:int, array:Array):Boolean { return item != streamName; });
+            return true;
+        }
+        private function isViewingStream(streamName:String):Boolean {
+            return _viewingStream.some(function(item:*, index:int, array:Array):Boolean { return item == streamName; });
+        }
+        public function isViewingAllStreams():Boolean {
+            return _viewingStream.length == streamNames.length;
+        }
+
+		[Bindable] public var streamNames:Array = new Array();
+
+		[Bindable]
+		public function get streamName():String {
+			var streams:String = "";
+			for each(var stream:String in streamNames) {
+				streams = streams + stream + "|";
+			}
+			//Remove last |
+			streams = streams.slice(0, streams.length-1);
+			return streams;
+		}
+
+		private function hasThisStream(streamName:String):Boolean {
+			return streamNames.some(function(item:*, index:int, array:Array):Boolean { return item == streamName; });
+		}
+
+		public function set streamName(streamNames:String):void {
+			if(streamNames) {
+				var streamNamesList:Array = streamNames.split("|");
+				for each(var streamName:String in streamNamesList) {
+					sharedWebcam(streamName);
+				}
+			}
+		}
+
 		private var _presenter:Boolean = false;
 		[Bindable] 
 		public function get presenter():Boolean {
@@ -76,16 +132,23 @@ package org.bigbluebutton.main.model.users
 			verifyUserStatus();
 		}
 		
-		public var raiseHandTime:Date;
-		private var _raiseHand:Boolean = false;
-		[Bindable]
-		public function get raiseHand():Boolean {
-			return _raiseHand;
+		public var emojiStatusTime:Date;
+		private var _emojiStatus:String = "none";
+		
+		[Bindable("emojiStatusChange")]
+		public function get emojiStatus():String {
+			return _emojiStatus;
 		}
-		public function set raiseHand(r:Boolean):void {
-			_raiseHand = r;
-			raiseHandTime = (r ? new Date() : null);
+		public function set emojiStatus(r:String):void {
+			_emojiStatus = r;
+			emojiStatusTime = (r ? new Date() : null);
 			verifyUserStatus();
+			dispatchEvent(new Event("emojiStatusChange")); 
+		}
+		
+		[Bindable("emojiStatusChange")]
+		public function get hasEmojiStatus():Boolean {
+			return _emojiStatus != null && _emojiStatus != "none" && _emojiStatus != "null";
 		}
 		
 		private var _role:String = Role.VIEWER;
@@ -143,8 +206,8 @@ package org.bigbluebutton.main.model.users
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
 			else if (role == Role.MODERATOR)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-			else if (raiseHand)
-				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
+			else if (hasEmojiStatus)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + _emojiStatus);
 			else
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.viewer');
 		}
@@ -169,44 +232,46 @@ package org.bigbluebutton.main.model.users
 		}
 		 
 		private var _status:StatusCollection = new StatusCollection();
-			
-		public function buildStatus():void{
-			var showingWebcam:String = "";
-			var isPresenter:String = "";
-			var handRaised:String = "";
+
+		public function buildStatus():void {
+			var showingWebcam:String="";
+			var isPresenter:String="";
+			var hasEmoji:String = "";
 			if (hasStream)
-				showingWebcam = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
+				showingWebcam=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.streamIcon.toolTip');
 			if (presenter)
-				isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
-			if (raiseHand)
-				handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
-			
-			status = showingWebcam + isPresenter + handRaised;
+				isPresenter=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presIcon.toolTip');
+			if (hasEmojiStatus)
+				hasEmoji = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.'+ emojiStatus +'.toolTip');
+
+			status = showingWebcam + isPresenter + hasEmoji;
 		}
 	
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
 		}
 		
-    public function userRaiseHand(raised: Boolean):void {
-      raiseHand = raised;
+    public function userEmojiStatus(emoji: String):void {
+      emojiStatus = emoji;
       if (me) {
-        UserManager.getInstance().getConference().isMyHandRaised = raised;
+        UserManager.getInstance().getConference().myEmojiStatus = emoji;
       }
       buildStatus();
     }
     
     public function sharedWebcam(stream: String):void {
-      hasStream = true;
-      streamName = stream;
-      if (hasStream) sendStreamStartedEvent();
+      if(stream && stream != "" && !hasThisStream(stream)) {
+          streamNames.push(stream);
+          sendStreamStartedEvent(stream);
+      }
       buildStatus();
+      verifyMedia();
     }
     
-    public function unsharedWebcam():void {
-      hasStream = false;
-      streamName = "";  
+    public function unsharedWebcam(stream: String):void {
+      streamNames = streamNames.filter(function(item:*, index:int, array:Array):Boolean { return item != stream });
       buildStatus();
+      verifyMedia();
     }
     
     public function presenterStatusChanged(presenter: Boolean):void {
@@ -215,50 +280,40 @@ package org.bigbluebutton.main.model.users
     }
     
     public function lockStatusChanged(locked: Boolean):void {
-      userLocked = locked;
-      if(me)
-        applyLockSettings();
-      buildStatus();
+		userLocked = locked;
+		applyLockSettings();
+		buildStatus();
     }
-    
+
 		public function changeStatus(status:Status):void {
-			//_status.changeStatus(status);
 			if (status.name == "presenter") {
-				presenter = status.value
+				presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;
+
+				//As the lock settings are now not applied to presenters, when the presenter flag is changed, we need to apply the lock settings
+				applyLockSettings();
 			}
 			switch (status.name) {
-				case "locked":
-					userLocked = status.value as Boolean;
-					if(me)
-						applyLockSettings();
-					break;
 				case "presenter":
-					presenter = status.value;
+					presenter=(status.value.toString().toUpperCase() == "TRUE") ? true : false;
 					break;
 				case "hasStream":
-					var streamInfo:Array = String(status.value).split(/,/); 
+					var streamInfo:Array=String(status.value).split(/,/);
 					/**
 					 * Cannot use this statement as new Boolean(expression)
 					 * return true if the expression is a non-empty string not
 					 * when the string equals "true". See Boolean class def.
-					 * 
+					 *
 					 * hasStream = new Boolean(String(streamInfo[0]));
-					 */					
-					if (String(streamInfo[0]).toUpperCase() == "TRUE") {
-						hasStream = true;
-					} else {
-						hasStream = false;
-					}
-					
-					var streamNameInfo:Array = String(streamInfo[1]).split(/=/);
-					streamName = streamNameInfo[1]; 
-					if (hasStream) sendStreamStartedEvent();
+					 */
+					var streamNameInfo:Array=String(streamInfo[1]).split(/=/);
+					streamName=streamNameInfo[1];
 					break;
-				case "raiseHand":
-					raiseHand = status.value as Boolean;
-                    if (me) {
-                        UserManager.getInstance().getConference().isMyHandRaised = status.value;
-                    }
+				// @FIXME : check the coming status from the server
+				case "emojiStatus":
+					emojiStatus = status.value.toString();
+					if (me) {
+						UserManager.getInstance().getConference().myEmojiStatus=status.value.toString();
+					}
 					break;
 			}
 			buildStatus();
@@ -279,11 +334,10 @@ package org.bigbluebutton.main.model.users
 			n.userID = user.userID;
 			n.externUserID = user.externUserID;
 			n.name = user.name;
-			n.hasStream = user.hasStream;
-            n.viewingStream = user.viewingStream;
-			n.streamName = user.streamName;
+            n._viewingStream = user._viewingStream;
+			n.streamNames = user.streamNames;
 			n.presenter = user.presenter;
-			n.raiseHand = user.raiseHand;
+			n.emojiStatus = user.emojiStatus;
 			n.role = user.role;	
 			n.room = user.room;
 			n.customdata = user.customdata;
@@ -301,38 +355,40 @@ package org.bigbluebutton.main.model.users
 			return n;		
 		}
 		
-		private function sendStreamStartedEvent():void{
+		private function sendStreamStartedEvent(stream: String):void{
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new StreamStartedEvent(userID, name, streamName));
+			dispatcher.dispatchEvent(new StreamStartedEvent(userID, name, stream));
 		}
 		
 		public function applyLockSettings():void {
-       
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
+			var amNotModerator:Boolean = !UsersUtil.amIModerator();
+			var amNotPresenter:Boolean = !UsersUtil.amIPresenter();
+			var lockAppliesToMe:Boolean = me && amNotModerator && amNotPresenter && userLocked;
 			
-			disableMyCam = lockSettings.getDisableCam();
-			disableMyMic = lockSettings.getDisableMic();
-			disableMyPrivateChat = lockSettings.getDisablePrivateChat();
-			disableMyPublicChat = lockSettings.getDisablePublicChat();
-      lockedLayout = lockSettings.getLockedLayout();
-      
+			disableMyCam = lockAppliesToMe && lockSettings.getDisableCam();
+			disableMyMic = lockAppliesToMe && lockSettings.getDisableMic();
+			disableMyPrivateChat = lockAppliesToMe && lockSettings.getDisablePrivateChat();
+			disableMyPublicChat = lockAppliesToMe && lockSettings.getDisablePublicChat();
+			lockedLayout = lockAppliesToMe && lockSettings.getLockedLayout();
+			
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new LockControlEvent(LockControlEvent.CHANGED_LOCK_SETTINGS));
 			
-      if (me && role != MODERATOR && !presenter) {
-  			//If it's sharing webcam, stop it
-  			if (disableMyCam && hasStream){
-  				dispatcher.dispatchEvent(new ClosePublishWindowEvent());
-  			}
-  			
-  			//If it's sharing microphone, mute it
-  			if (disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
-  				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-  				e.userid = UserManager.getInstance().getConference().getMyUserId();
-  				e.mute = true;
-  				dispatcher.dispatchEvent(e);
-  			}
-      }
+			
+			if (lockAppliesToMe) {
+				//If it's sharing webcam, stop it
+				if (disableMyCam && hasStream){
+					dispatcher.dispatchEvent(new ClosePublishWindowEvent());
+				}
+				//If it's sharing microphone, mute it
+				if (disableMyMic && !UserManager.getInstance().getConference().isMyVoiceMuted()) {
+					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+					e.userid = UserManager.getInstance().getConference().getMyUserId();
+					e.mute = true;
+					dispatcher.dispatchEvent(e);
+				}
+			}
 		}
 	}
 }

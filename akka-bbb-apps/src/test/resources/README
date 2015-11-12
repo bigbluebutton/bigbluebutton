@@ -1,0 +1,8 @@
+
+1. Install httpie (https://github.com/jkbr/httpie)
+
+sudo apt-get install python-setuptools
+sudo easy_install httpie
+
+2. Send messages stored in messages/ directory
+  e.g. http POST 192.168.22.146:8989/meeting < create-meeting.json

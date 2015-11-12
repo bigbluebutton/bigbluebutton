@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.ImageToSwfSlide;
-import org.bigbluebutton.presentation.PngImageCreator;
+import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -45,7 +45,7 @@ public class ImageToSwfSlidesGenerationService {
 	private SwfSlidesGenerationProgressNotifier notifier;
 	private PageConverter jpgToSwfConverter;
 	private PageConverter pngToSwfConverter;
-	private PngImageCreator pngImageCreator;
+	private SvgImageCreator svgImageCreator;
 	private ThumbnailCreator thumbnailCreator;
 	private TextFileCreator textFileCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
@@ -58,9 +58,7 @@ public class ImageToSwfSlidesGenerationService {
 	}
 	
 	public void generateSlides(UploadedPresentation pres) {
-		log.debug("Generating slides");	
 		pres.setNumberOfPages(1); // There should be only one image to convert.
-		log.debug("Determined number of pages " + pres.getNumberOfPages());
 		if (pres.getNumberOfPages() > 0) {
 			PageConverter pageConverter = determinePageConverter(pres);
 			convertImageToSwf(pres, pageConverter);
@@ -69,7 +67,7 @@ public class ImageToSwfSlidesGenerationService {
 		/* adding accessibility */
 		createTextFiles(pres);
 		createThumbnails(pres);
-		createPngImages(pres);
+		createSvgImages(pres);
 		
 		notifier.sendConversionCompletedMessage(pres);
 	}
@@ -95,10 +93,10 @@ public class ImageToSwfSlidesGenerationService {
 		thumbnailCreator.createThumbnails(pres);
 	}
 	
-	private void createPngImages(UploadedPresentation pres) {
-		log.debug("Creating PNG images.");
-		notifier.sendCreatingPngImagesUpdateMessage(pres);
-		pngImageCreator.createPngImages(pres);
+	private void createSvgImages(UploadedPresentation pres) {
+		log.debug("Creating SVG images.");
+		notifier.sendCreatingSvgImagesUpdateMessage(pres);
+		svgImageCreator.createSvgImages(pres);
 	}
 	
 	private void convertImageToSwf(UploadedPresentation pres, PageConverter pageConverter) {
@@ -119,7 +117,6 @@ public class ImageToSwfSlidesGenerationService {
 				long timeLeft = endTime - System.currentTimeMillis();
 				future = completionService.take();
 				slide = future.get(timeLeft, TimeUnit.MILLISECONDS);
-				System.out.println("handleSlideGenerationResult " + slide.getPageNumber());
 			} catch (InterruptedException e) {
 				log.error("InterruptedException while creating slide " + pres.getName());
 			} catch (ExecutionException e) {
@@ -155,7 +152,6 @@ public class ImageToSwfSlidesGenerationService {
 	
 	private void generateSlides(ImageToSwfSlide[] slides) {
 		for (int i = 0; i < slides.length; i++) {
-			System.out.println("generateSlides " + i);
 			final ImageToSwfSlide slide = slides[i];
 			completionService.submit(new Callable<ImageToSwfSlide>() {
 				public ImageToSwfSlide call() {
@@ -184,8 +180,8 @@ public class ImageToSwfSlidesGenerationService {
 		this.textFileCreator = textFileCreator;
 	}
 	
-	public void setPngImageCreator(PngImageCreator pngImageCreator) {
-		this.pngImageCreator = pngImageCreator;
+	public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
+		this.svgImageCreator = svgImageCreator;
 	}
 	
 	public void setMaxConversionTime(int minutes) {

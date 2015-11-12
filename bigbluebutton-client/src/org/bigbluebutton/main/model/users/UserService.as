@@ -20,24 +20,20 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.TimerEvent;
 	import flash.external.ExternalInterface;
 	import flash.net.NetConnection;
-	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
 	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.LockControlEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
-	import org.bigbluebutton.core.managers.ConfigManager;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
-	import org.bigbluebutton.core.model.MeetingModel;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
@@ -45,16 +41,15 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
-	import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
 	import org.bigbluebutton.modules.users.services.MessageSender;
 
 	public class UserService {
-    private static const LOG:String = "Users::UserService - ";
+		private static const LOGGER:ILogger = getClassLogger(UserService);      
     
 		private var joinService:JoinService;
 		private var _conferenceParameters:ConferenceParameters;		
@@ -112,7 +107,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.username = result.username;
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
-        _conferenceParameters.authToken = result.authToken;
+        		_conferenceParameters.authToken = result.authToken;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
 				_conferenceParameters.welcome = result.welcome;
@@ -129,21 +124,12 @@ package org.bigbluebutton.main.model.users
 					muteOnStart = false;
 				}
 				
-				var lockOnStart:Boolean;
-				try {
-					lockOnStart = (config.meeting.@lockOnStart.toUpperCase() == "TRUE");
-				} catch(e:Error) {
-					lockOnStart = false;
-				}
-				
 				_conferenceParameters.muteOnStart = muteOnStart;
-				_conferenceParameters.lockOnStart = lockOnStart;
 				_conferenceParameters.lockSettings = UserManager.getInstance().getConference().getLockSettings().toMap();
 				
-        // assign the meeting name to the document title
-        ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
-        
-        trace(LOG + " Got the user info from web api.");       
+				// assign the meeting name to the document title
+				ExternalInterface.call("setTitle", _conferenceParameters.meetingName);
+				
 				/**
 				 * Temporarily store the parameters in global BBB so we get easy access to it.
 				 */
@@ -153,7 +139,7 @@ package org.bigbluebutton.main.model.users
 				e.conference = UserManager.getInstance().getConference();
 				dispatcher.dispatchEvent(e);
 				
-        connect();
+				connect();
 			}
 		}
 		
@@ -176,7 +162,6 @@ package org.bigbluebutton.main.model.users
     }
     
     public function changeRecordingStatus(e:BBBEvent):void {
-      trace(LOG + "changeRecordingStatus")
       if (this.isModerator() && !e.payload.remote) {
         var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
         sender.changeRecordingStatus(myUserId, e.payload.recording);
@@ -184,7 +169,6 @@ package org.bigbluebutton.main.model.users
     }
        
 		public function userLoggedIn(e:UsersConnectionEvent):void{
-      trace(LOG + "userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
 			
@@ -212,12 +196,9 @@ package org.bigbluebutton.main.model.users
       sender.removeStream(e.userid, e.stream);
 		}
 		
-		public function raiseHand(e:RaiseHandEvent):void {
-      sender.raiseHand(UserManager.getInstance().getConference().getMyUserId(), e.raised);
-		}
-		
-		public function lowerHand(e:LowerHandEvent):void {
-			if (this.isModerator()) sender.raiseHand(e.userid, false);
+		public function emojiStatus(e:EmojiStatusEvent):void {
+	  // If the userId is not set in the event then the event has been dispatched for the current user
+      sender.emojiStatus(e.userId != ""? e.userId : UserManager.getInstance().getConference().getMyUserId(), e.status);
 		}
 		
 		public function kickUser(e:KickUserEvent):void{

@@ -1,0 +1,1363 @@
+@import "variables";
+@import "mixins";
+
+body {
+  background: extract(@white, 3);
+  bottom: 0;
+  color: extract(@darkGrey, 1);
+  left: 0;
+  right: 0;
+
+  // makes text selectable in Chrome (overrides inline style)
+  -webkit-user-select: all !important;
+
+  @media @landscape {
+    height: 100%;
+    position: absolute;
+    top: 0;
+  }
+  @media @desktop-landscape {
+    min-width: 768px;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    position: relative;
+    top: 0;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    overflow-x: hidden;
+  }
+}
+
+.component {
+  .radius;
+  background: extract(@white, 1);
+  border: 1px solid extract(@lightGrey, 3);
+  float: left;
+}
+
+.heading {
+  margin-left:5px
+}
+
+@media @mobile-portrait {
+  .hamburgerToggledOn .unreadChat {
+    display: none;
+  }
+}
+
+.navbarButton {
+  color: #469DCF;
+  .unreadChat {
+    position: absolute;
+    z-index: 1;
+    background:red;
+    border-radius:80%;
+    @media @desktop-portrait, @landscape {
+      top: 20%;
+      left: 65%;
+      width:19%;
+      height:20%;
+    }
+    @media @mobile-portrait {
+      top: 14%;
+      left: 70%;
+      width:25%;
+      height:25%;
+    }
+  }
+
+  i {
+    @media @phone-landscape {
+      font-size: 29px;
+    }
+    @media @desktop-portrait, @desktop-landscape, @tablet-landscape {
+      font-size: 30px;
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 35px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 40px;
+    }
+  }
+}
+
+.myNavbar {
+  border-bottom: 1px;
+  @media @desktop-portrait, @landscape {
+    background-color: white;
+    border-bottom: 1px solid extract(@lightGrey, 1);
+  }
+
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
+  .btn {
+
+    @media @tablet-landscape {
+      height: 50px;
+      width: 51.2px;
+    }
+    @media @phone-landscape {
+      height: 47px;
+      width: 47px;
+    }
+    @media @desktop-landscape {
+      height: 50px;
+      width: 51.2px;
+    }
+    @media @desktop-portrait {
+      height: 50px;
+      width: 51.2px;
+    }
+
+    @media @desktop-portrait, @landscape {
+      top: 0 !important;
+      padding-left: 1% !important;
+      padding-right: 1% !important;
+      background-color: white;
+      &:not(.toggleMenuButton):not(.toggleUserlistButton) {
+        border-bottom: 1px solid extract(@lightGrey, 1);
+      }
+    }
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 50px !important;
+      width: 50px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 55px !important;
+      width: 55px;
+    }
+    .push-menu-icon {
+      .icon-bar {
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 8px;
+        margin-top: 8px;
+        display: block;
+        border-radius: 1px;
+        background-color: extract(@white, 1);
+        width: 50px;
+        height: 10px;
+      }
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    // overriding the default button styling:
+    &.toggleUserlistButton, &.toggleMenuButton {
+      background: transparent;
+    }
+    span { background-color: #469DCF; }
+  }
+
+  @media @tablet-landscape {
+    height: 50px;
+  }
+  @media @phone-landscape {
+    height: 47px;
+  }
+
+  @media @desktop-landscape {
+    height: 50px;
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    height: 50px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 55px;
+  }
+  @media @desktop-portrait {
+    min-width: 400px;
+    height: 50px;
+  }
+
+  .navbarTitle {
+    font-weight: bold;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: absolute;
+    @media @mobile-portrait-with-keyboard, @mobile-portrait {
+      color: extract(@white, 1);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      height: 50px;
+      padding-top: 25px; // half the height
+      font-size: 18px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      height: 55px;
+      padding-top: 27.5px; // half the height
+      font-size: 21px;
+    }
+
+    @media @tablet-landscape {
+      font-size: 18px;
+      height: 50px;
+      padding-top: 25px; // half the height
+    }
+    @media @phone-landscape {
+      font-size: 18px;
+      height: 47px;
+      padding-top: 23.5px; // half the height
+    }
+    @media @desktop-landscape {
+      font-size: 16px;
+      height: 50px;
+      padding-top: 25px; // half the height
+    }
+    @media @desktop-portrait {
+      height: 50px;
+      padding-top: 25px; // half the height
+    }
+
+    @media @landscape, @desktop-portrait {
+      color: extract(@darkGrey, 1);
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+    &.defaultTitle {
+      @media @landscape, @desktop-portrait {
+        left: 51.2px;
+      }
+      @media @phone-portrait, @phone-portrait-with-keyboard {
+        left: 50px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        left: 55px;
+        padding-left: 11px;
+        padding-right: 11px;
+      }
+
+      @media @landscape {
+        max-width: calc(~'100% - 174px'); // leaves room for 3 buttons (including margins)
+      }
+      @media @desktop-portrait {
+        max-width: calc(~'100% - 102.4px'); // leaves room for 2 buttons
+      }
+      @media @phone-portrait, @phone-portrait-with-keyboard {
+        width: calc(~'100% - 100px');
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        width: calc(~'100% - 110px');
+      }
+    }
+    &.shiftedTitle {
+      @media @landscape, @desktop-portrait {
+        left: 102.4px;
+      }
+      @media @phone-portrait, @phone-portrait-with-keyboard {
+        left: 100px;
+        padding-left: 10px;
+        padding-right: 60px;
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        left: 110px;
+        padding-left: 11px;
+        padding-right: 66px;
+      }
+
+      @media @landscape {
+        max-width: calc(~'100% - 225px'); // leaves room for 4 buttons (including margins)
+      }
+      @media @desktop-portrait {
+        max-width: calc(~'100% - 153.6px'); // leaves for 3 buttons
+      }
+      @media @phone-portrait, @phone-portrait-with-keyboard {
+        width: calc(~'100% - 150px');
+      }
+      @media @tablet-portrait, @tablet-portrait-with-keyboard {
+        width: calc(~'100% - 165px');
+      }
+    }
+  }
+}
+
+.recordingStatus {
+  background: none !important;
+  border: none;
+  margin-left: 10px;
+  padding: 0 !important;
+  .false { color: maroon; }
+  .true { color: green; }
+}
+
+.ScrollableWindowX {
+  width: 100%;
+  overflow-x: scroll;
+}
+
+.ScrollableWindowY {
+  overflow-y:auto;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  border-top: 0px;
+}
+
+.meetingTitle {
+  text-align: center;
+  font-weight: bold;
+  line-height: 2em;
+  margin: 0;
+
+  @media @tablet-landscape {
+    font-size: 18px;
+    height: 50px;
+  }
+  @media @phone-landscape {
+    font-size: 19px;
+    height: 47px;
+  }
+  @media @phone-portrait, @phone-portrait-with-keyboard {
+    font-size: 18px;
+    padding-top: 8px;
+  }
+  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+    font-size: 20px;
+    padding-top: 7px;
+  }
+
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    color: white;
+    height: 50px;
+  }
+  @media @desktop-portrait {
+    background-color: white;
+    padding-top: 10px;
+    color: extract(@darkGrey, 1);
+  }
+  @media @landscape {
+    border-bottom: 1px solid extract(@lightGrey, 1);
+    color: extract(@darkGrey, 1);
+    padding-bottom: 5px;
+    padding-top: 5px;
+  }
+
+  @media @desktop-portrait, @desktop-landscape {
+    font-size: 18px;
+    height: 50px;
+  }
+}
+
+#container {
+  @media @landscape {
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-flow: row;
+    flex-flow: row;
+  }
+  width: 100%;
+  height: 100%;
+  background-color: extract(@white, 3);
+  &.moved-to-right, &.moved-to-left {
+    @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+      z-index: 1; // same level as notifications
+      .shield {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        opacity: 0;
+        z-index: 1;
+        cursor: pointer;
+        @media @landscape, @desktop-portrait {
+          top: 50px;
+        }
+        @media @mobile-portrait-with-keyboard, @mobile-portrait {
+          top: 110px;
+        }
+      }
+    }
+  }
+}
+
+.fullScreenPresentation {
+  width: 90% !important;
+  height: 90% !important;
+}
+
+.halfScreen {
+  width: 44% !important;
+  height: 80% !important;
+}
+
+.quarterScreen {
+  width: 22% !important;
+  height: 80% !important;
+}
+
+.navbarSection {
+  @media @landscape {
+    min-width: 256px;
+    width: 33%;
+  }
+}
+
+.slideButton {
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    background-color: transparent;
+    color: white;
+    border-bottom: 2px solid extract(@lightGrey, 4);
+    margin-top: 0;
+    margin-bottom: 0;
+    &:hover {
+      background-color: extract(@lightGrey, 1);
+    }
+    i, span {
+      float: left;
+    }
+    span {
+      margin-left: 20px;
+    }
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    height: 50px;
+    font-size: 18px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 50px;
+    font-size: 18px;
+  }
+  @media @desktop-portrait {
+    height: 50px;
+    font-size: 20px;
+  }
+
+  i {
+    @media @phone-landscape {
+      font-size: 29px;
+    }
+    @media @desktop-portrait, @desktop-landscape, @tablet-landscape {
+      font-size: 30px;
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 30px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 25px;
+    }
+  }
+}
+
+.titleArea {
+  width: 100%;
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 50px;
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
+  @media @desktop-portrait {
+    height: 50px;
+  }
+}
+
+/* Notifications */
+#browser-icon-container {
+  float: left;
+  max-height: 35px !important;
+  max-width: 35px !important;
+  path {
+    margin: auto;
+  }
+}
+
+.invisible {
+  display: none;
+}
+
+#main {
+  @media @landscape {
+    -webkit-flex: 1 1;
+    -moz-flex: 1 1;
+    -ms-flex: 1 1;
+    flex: 1 1;
+    height: 100%;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    height: 100%;
+  }
+}
+
+#panels {
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: -ms-flex;
+  display: -webkit-flex;
+  display: flex;
+  @media @landscape {
+    -webkit-flex-flow: row;
+    flex-flow: row;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    -webkit-flex-flow: column;
+    flex-flow: column;
+  }
+  width: 100%;
+  @media @desktop-landscape {
+    height: calc(~'100% - 50px'); // 50px for narbar height
+  }
+  @media @phone-landscape, @tablet-landscape {
+    height: calc(~'100% - 47px'); // 47px for narbar height
+  }
+}
+
+.signOutIcon {
+  @media @landscape {
+    &:hover {
+      color: #2A5E7C;
+    }
+    &:focus {
+      color: #2A5E7C;
+    }
+    height: 28px;
+    width: 75px;
+    margin-left: 10px;
+  }
+}
+
+.rightNavbarSection {
+  float: right;
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    display: none;
+  }
+}
+
+.audioNavbarSection {
+  position: absolute;
+  top: 0;
+  @media @landscape, @desktop-portrait {
+    left: 51.2px;
+  }
+  @media @phone-portrait, @phone-portrait-with-keyboard {
+    left: 50px;
+    width: 50px;
+  }
+  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+    left: 55px;
+    width: 55px;
+  }
+  .muteIcon:hover {
+    color: #2A5E7C;
+  }
+}
+
+.muteIcon, .leaveAudioButton {
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.toggleMenuButton {
+  float: right;
+  @media @landscape {
+    display: none;
+  }
+  @media @mobile-portrait, @mobile-portrait-with-keyboard {
+    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+  }
+}
+
+.pressedButton {
+  i {
+    color: extract(@azure, 2);
+  }
+}
+
+.toggleUserlistButton, .toggleMenuButton {
+  z-index: 1001;
+}
+
+.toggleUserlistButton, .toggleMenuButton {
+  outline: none;
+}
+
+.settingsIcon {
+  @media @landscape {
+    &:hover {
+      color: #2A5E7C;
+    }
+    &:focus {
+      color: #2A5E7C;
+    }
+    width: 57px;
+    margin-right: 5px;
+  }
+}
+
+#menu {
+  width: 85%;
+  height: 100%;
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    .linear-gradient(rgb(65,68,77), rgb(58,60,69));
+  }
+  @media @landscape {
+    display: none;
+  }
+}
+
+#notificationArea {
+
+  height: auto;
+  overflow-y: hidden;
+  position: absolute;
+  text-align: center;
+  z-index: 1; // in front of the whiteboard
+
+  // Phone
+  @media @phone-landscape, @phone-portrait-with-keyboard, @phone-portrait {
+    margin-left: 5px;
+    margin-right: 5px;
+    width: calc(~'100% - 10px');
+  }
+  @media @phone-landscape {
+    top: 5px;
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    top: 3px;
+  }
+
+  // Tablet
+  @media @tablet-landscape, @tablet-portrait-with-keyboard, @tablet-portrait {
+    top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    width: calc(~'100% - 10px');
+  }
+
+  // Desktop
+  @media @desktop-landscape, @desktop-portrait {
+    top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    width: calc(~'100% - 10px');
+  }
+}
+
+.bbbNotification {
+
+  margin-bottom: 0; // overrides the value from Foundation
+
+  // Phone
+  @media @phone-landscape, @phone-portrait-with-keyboard, @phone-portrait {
+    font-size: 18px; // same size as the navbar title
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+  // Tablet
+  @media @tablet-landscape {
+    font-size: 18px; // same size as the navbar title
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    font-size: 21px; // same size as the navbar title
+    padding-top: 11px;
+    padding-bottom: 11px;
+    padding-left: 38px;
+    padding-right: 38px;
+  }
+
+  // Desktop
+  @media @desktop-landscape, @desktop-portrait {
+    font-size: 14px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    padding-left: 33px;
+    padding-right: 33px;
+  }
+
+  .close {
+
+    // overriding the values from Foundation
+    margin-bottom: 0;
+    padding: 0;
+
+    // Phone
+    @media @phone-landscape, @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 35px;
+      top: 19px;
+      right: 4px;
+    }
+
+    // Tablet
+    @media @tablet-landscape {
+      font-size: 40px;
+      top: 17px;
+      right: 10px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 45px;
+      top: 18px;
+      right: 11px;
+    }
+
+    // Desktop
+    @media @desktop-landscape, @desktop-portrait {
+      font-size: 30px;
+      top: 19px;
+      right: 10px;
+    }
+  }
+}
+
+.top-bar {
+  line-height: 0;
+}
+
+.btn {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+/* Sliding Menu */
+
+@media @desktop-portrait {
+  .userlistMenu {
+    z-index: 1000;
+    position: fixed;
+    left: -400px;
+    width: 400px !important; // overrides any width value set manually in landscape
+    &.menuOut {
+      left: 0px;
+    }
+  }
+  .settingsMenu {
+    z-index: 1000;
+    position: fixed;
+    right: -400px;
+    width: 400px;
+    &.menuOut {
+      right: 0px;
+    }
+  }
+}
+
+.userlistMenu {
+  height: 100%;
+  @media @tablet-landscape {
+    width: 200px;
+  }
+  @media @phone-landscape {
+    width: 200px;
+  }
+  @media @desktop-landscape {
+    width: 300px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    z-index: 1000;
+    position: fixed;
+    left: -60vw;
+    width: 60vw;
+
+    transition: transform 0.3s linear;
+    -moz-transition: transform 0.3s linear;
+    -webkit-transition: transform 0.3s linear;
+    -ms-transition: transform 0.3s linear;
+    -o-transition: transform 0.3s linear;
+
+    .userItem {
+      transition: transform 0.7s;
+      -moz-transition: -moz-transform 0.7s;
+      -webkit-transition: -webkit-transform 0.7s;
+      -o-transition: -o-transform 0.7s;
+
+      transform: translateX(-60vw);
+      -moz-transform: translateX(-60vw);
+      -webkit-transform: translateX(-60vw);
+      -ms-transform: translateX(-60vw);
+      -o-transform: translateX(-60vw);
+    }
+
+    &.menuOut {
+      transform: translateX(60vw);
+      -moz-transform: translateX(60vw);
+      -webkit-transform: translateX(60vw);
+      -ms-transform: translateX(60vw);
+      -o-transform: translateX(60vw);
+
+      .userItem {
+        transform: translateX(0);
+        -moz-transform: translateX(0);
+        -webkit-transform: translateX(0);
+        -ms-transform: translateX(0);
+        -o-transform: translateX(0);
+      }
+      .userItem:nth-child(1) {
+        transition-delay: 50ms;
+        -moz-transition-delay: 50ms;
+        -webkit-transition-delay: 50ms;
+        -o-transition-delay: 50ms;
+      }
+      .userItem:nth-child(2) {
+        transition-delay: 100ms;
+        -moz-transition-delay: 100ms;
+        -webkit-transition-delay: 100ms;
+        -o-transition-delay: 100ms;
+      }
+      .userItem:nth-child(3) {
+        transition-delay: 150ms;
+        -moz-transition-delay: 150ms;
+        -webkit-transition-delay: 150ms;
+        -o-transition-delay: 150ms;
+      }
+      .userItem:nth-child(4) {
+        transition-delay: 200ms;
+        -moz-transition-delay: 200ms;
+        -webkit-transition-delay: 200ms;
+        -o-transition-delay: 200ms;
+      }
+      .userItem:nth-child(5) {
+        transition-delay: 250ms;
+        -moz-transition-delay: 250ms;
+        -webkit-transition-delay: 250ms;
+        -o-transition-delay: 250ms;
+      }
+      .userItem:nth-child(6) {
+        transition-delay: 300ms;
+        -moz-transition-delay: 300ms;
+        -webkit-transition-delay: 300ms;
+        -o-transition-delay: 300ms;
+      }
+      .userItem:nth-child(7) {
+        transition-delay: 350ms;
+        -moz-transition-delay: 350ms;
+        -webkit-transition-delay: 350ms;
+        -o-transition-delay: 350ms;
+      }
+      .userItem:nth-child(8) {
+        transition-delay: 400ms;
+        -moz-transition-delay: 400ms;
+        -webkit-transition-delay: 400ms;
+        -o-transition-delay: 400ms;
+      }
+      .userItem:nth-child(9) {
+        transition-delay: 450ms;
+        -moz-transition-delay: 450ms;
+        -webkit-transition-delay: 450ms;
+        -o-transition-delay: 450ms;
+      }
+      .userItem:nth-child(10) {
+        transition-delay: 500ms;
+        -moz-transition-delay: 500ms;
+        -webkit-transition-delay: 500ms;
+        -o-transition-delay: 500ms;
+      }
+      .userItem:nth-child(11) {
+        transition-delay: 550ms;
+        -moz-transition-delay: 550ms;
+        -webkit-transition-delay: 550ms;
+        -o-transition-delay: 550ms;
+      }
+      .userItem:nth-child(12) {
+        transition-delay: 600ms;
+        -moz-transition-delay: 600ms;
+        -webkit-transition-delay: 600ms;
+        -o-transition-delay: 600ms;
+      }
+      .userItem:nth-child(13) {
+        transition-delay: 650ms;
+        -moz-transition-delay: 650ms;
+        -webkit-transition-delay: 650ms;
+        -o-transition-delay: 650ms;
+      }
+      .userItem:nth-child(14) {
+        transition-delay: 700ms;
+        -moz-transition-delay: 700ms;
+        -webkit-transition-delay: 700ms;
+        -o-transition-delay: 700ms;
+      }
+      .userItem:nth-child(15) {
+        transition-delay: 750ms;
+        -moz-transition-delay: 750ms;
+        -webkit-transition-delay: 750ms;
+        -o-transition-delay: 750ms;
+      }
+      .userItem:nth-child(16) {
+        transition-delay: 800ms;
+        -moz-transition-delay: 800ms;
+        -webkit-transition-delay: 800ms;
+        -o-transition-delay: 800ms;
+      }
+      .userItem:nth-child(17) {
+        transition-delay: 850ms;
+        -moz-transition-delay: 850ms;
+        -webkit-transition-delay: 850ms;
+        -o-transition-delay: 850ms;
+      }
+      .userItem:nth-child(18) {
+        transition-delay: 900ms;
+        -moz-transition-delay: 900ms;
+        -webkit-transition-delay: 900ms;
+        -o-transition-delay: 900ms;
+      }
+      .userItem:nth-child(19) {
+        transition-delay: 950ms;
+        -moz-transition-delay: 950ms;
+        -webkit-transition-delay: 950ms;
+        -o-transition-delay: 950ms;
+      }
+      .userItem:nth-child(20) {
+        transition-delay: 1000ms;
+        -moz-transition-delay: 1000ms;
+        -webkit-transition-delay: 1000ms;
+        -o-transition-delay: 1000ms;
+      }
+    }
+  }
+}
+
+.settingsMenu {
+  height: 100%;
+  .linear-gradient(rgb(65,68,77), rgb(58,60,69));
+
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    z-index: 1000;
+    position: fixed;
+    transform: translateX(100vw);
+    width: 60vw;
+
+    transition: transform 0.3s linear;
+    -moz-transition: transform 0.3s linear;
+    -webkit-transition: transform 0.3s linear;
+    -ms-transition: transform 0.3s linear;
+    -o-transition: transform 0.3s linear;
+
+    &.menuOut {
+      transform: translate(40vw, 0);
+      -moz-transform: translate(40vw, 0);
+      -webkit-transform: translate(40vw, 0);
+      -ms-transform: translate(40vw, 0);
+      -o-transform: translate(40vw, 0);
+    }
+  }
+}
+
+.hiddenInLandscape {
+  @media @landscape {
+    display: none;
+  }
+}
+
+.shield {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  opacity: 0;
+  z-index: 1;
+  cursor: pointer;
+  @media @desktop-portrait {
+    top: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    top: 50px;
+  }
+  @media @landscape {
+    display: none;
+  }
+  &:not(.darken):not(.animatedShield) {
+    display: none;
+  }
+}
+
+.darken {
+  animation: darken 0.3s linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes darken {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+.ui-resizable-handle {
+  @media @mobile-portrait, @desktop-portrait, @mobile-portrait-with-keyboard {
+    display: none; // hides the sizing handle everywhere except the landscape mode
+  }
+}
+
+// same as Sled's left drawer except for animations
+.left-drawer {
+  z-index: 1000;
+  position: fixed;
+  width: 60vw;
+  left: -60vw;
+  height: 100%;
+}
+
+// same as Sled's right drawer except for animations
+.right-drawer {
+  z-index: 1000;
+  position: fixed;
+  transform: translateX(100vw);
+  height: 100%;
+  .linear-gradient(rgb(65,68,77), rgb(58,60,69));
+  width: 60vw;
+}
+
+.leftHamburgerButton, .rightHamburgerButton {
+  span {
+    &::before {
+      top: -225%;
+    }
+    &::before, &::after {
+      background-color: inherit;
+      content: '';
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      left: 0;
+    }
+    &::after {
+      bottom: -225%;
+    }
+    background-color: inherit;
+    height: 10%;
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    top: 45%;
+  }
+}
+
+.leftHamburgerButton {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    span {
+      &::before {
+        transform-origin: top right;
+        -moz-transform-origin: top right;
+        -webkit-transform-origin: top right;
+        -ms-transform-origin: top right;
+        -o-transform-origin: top right;
+
+        transition: width 0.3s, transform 0.3s, top 0.3s;
+        -moz-transition: width 0.3s, -moz-transform 0.3s, top 0.3s;
+        -webkit-transition: width 0.3s, -webkit-transform 0.3s, top 0.3s;
+        -o-transition: width 0.3s, -o-transform 0.3s, top 0.3s;
+      }
+      &::after {
+        transform-origin: bottom right;
+        -moz-transform-origin: bottom right;
+        -webkit-transform-origin: bottom right;
+        -ms-transform-origin: bottom right;
+        -o-transform-origin: bottom right;
+
+        transition: width 0.3s, transform 0.3s, bottom 0.3s;
+        -moz-transition: width 0.3s, -moz-transform 0.3s, bottom 0.3s;
+        -webkit-transition: width 0.3s, -webkit-transform 0.3s, bottom 0.3s;
+        -ms-transition: width 0.3s, -ms-transform 0.3s, bottom 0.3s;
+        -o-transition: width 0.3s, -o-transform 0.3s, bottom 0.3s;
+      }
+      transition: transform 0.3s;
+      -moz-transition: -moz-transform 0.3s;
+      -webkit-transition: -webkit-transform 0.3s;
+      -o-transition: -o-transform 0.3s;
+    }
+    &.hamburgerToggledOn span {
+      &::before {
+        transform: translateY(50%) translateX(95%) rotate(45deg);
+        -moz-transform: translateY(50%) translateX(95%) rotate(45deg);
+        -webkit-transform: translateY(50%) translateX(95%) rotate(45deg);
+        -ms-transform: translateY(50%) translateX(95%) rotate(45deg);
+        -o-transform: translateY(50%) translateX(95%) rotate(45deg);
+        top: 0px;
+      }
+      &::before, &::after {
+        width: 55%;
+      }
+      &::after {
+        transform: translateY(-50%) translateX(95%) rotate(-45deg);
+        -moz-transform: translateY(-50%) translateX(95%) rotate(-45deg);
+        -webkit-transform: translateY(-50%) translateX(95%) rotate(-45deg);
+        -ms-transform: translateY(-50%) translateX(95%) rotate(-45deg);
+        -o-transform: translateY(-50%) translateX(95%) rotate(-45deg);
+        bottom: 0px;
+      }
+      transform: rotate(0.5turn);
+      -moz-transform: rotate(0.5turn);
+      -webkit-transform: rotate(0.5turn);
+      -ms-transform: rotate(0.5turn);
+      -o-transform: rotate(0.5turn);
+    }
+  }
+}
+
+.rightHamburgerButton {
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    span {
+      &::before {
+        transform-origin: top left;
+        -moz-transform-origin: top left;
+        -webkit-transform-origin: top left;
+        -ms-transform-origin: top left;
+        -o-transform-origin: top left;
+
+        transition: width 0.3s, transform 0.3s, top 0.3s;
+        -moz-transition: width 0.3s, -moz-transform 0.3s, top 0.3s;
+        -webkit-transition: width 0.3s, -webkit-transform 0.3s, top 0.3s;
+        -o-transition: width 0.3s, -o-transform 0.3s, top 0.3s;
+      }
+      &::after {
+        transform-origin: bottom left;
+        -moz-transform-origin: bottom left;
+        -webkit-transform-origin: bottom left;
+        -ms-transform-origin: bottom left;
+        -o-transform-origin: bottom left;
+
+        transition: transform 0.3s, width 0.3s, bottom 0.3s;
+        -moz-transition: -moz-transform 0.3s, width 0.3s, bottom 0.3s;
+        -webkit-transition: -webkit-transform 0.3s, width 0.3s, bottom 0.3s;
+        -ms-transition: -ms-transform 0.3s, width 0.3s, bottom 0.3s;
+        -o-transition: -o-transform 0.3s, width 0.3s, bottom 0.3s;
+      }
+      transition: transform 0.3s;
+      -moz-transition: -moz-transform 0.3s;
+      -webkit-transition: -webkit-transform 0.3s;
+      -o-transition: -o-transform 0.3s;
+    }
+    &.hamburgerToggledOn span {
+      &::before {
+        transform: translateY(53%) translateX(-20%) rotate(-45deg);
+        -moz-transform: translateY(53%) translateX(-20%) rotate(-45deg);
+        -webkit-transform: translateY(53%) translateX(-20%) rotate(-45deg);
+        -ms-transform: translateY(53%) translateX(-20%) rotate(-45deg);
+        -o-transform: translateY(53%) translateX(-20%) rotate(-45deg);
+        top: 0;
+      }
+      &::before, &::after {
+        width: 55%;
+      }
+      &::after {
+        transform: translateY(-53%) translateX(-20%) rotate(45deg);
+        -moz-transform: translateY(-53%) translateX(-20%) rotate(45deg);
+        -webkit-transform: translateY(-53%) translateX(-20%) rotate(45deg);
+        -ms-transform: translateY(-53%) translateX(-20%) rotate(45deg);
+        -o-transform: translateY(-53%) translateX(-20%) rotate(45deg);
+        bottom: 0;
+      }
+      transform: rotate(0.5turn);
+      -moz-transform: rotate(0.5turn);
+      -webkit-transform: rotate(0.5turn);
+      -ms-transform: rotate(0.5turn);
+      -o-transform: rotate(0.5turn);
+    }
+  }
+}
+
+
+/*********************************/
+/*Loading Spinning Bar's Styling */
+/*********************************/
+#floatingCirclesG{
+  top: calc(~'50% - 60px');
+  position:relative;
+  width:128px;
+  height:128px;
+  margin:auto;
+  transform:scale(0.6);
+    -o-transform:scale(0.6);
+    -ms-transform:scale(0.6);
+    -webkit-transform:scale(0.6);
+    -moz-transform:scale(0.6);
+}
+
+.f_circleG{
+  position:absolute;
+  background-color:rgb(238,238,238);
+  height:23px;
+  width:23px;
+  border-radius:12px;
+    -o-border-radius:12px;
+    -ms-border-radius:12px;
+    -webkit-border-radius:12px;
+    -moz-border-radius:12px;
+  animation-name:f_fadeG;
+    -o-animation-name:f_fadeG;
+    -ms-animation-name:f_fadeG;
+    -webkit-animation-name:f_fadeG;
+    -moz-animation-name:f_fadeG;
+  animation-duration:0.672s;
+    -o-animation-duration:0.672s;
+    -ms-animation-duration:0.672s;
+    -webkit-animation-duration:0.672s;
+    -moz-animation-duration:0.672s;
+  animation-iteration-count:infinite;
+    -o-animation-iteration-count:infinite;
+    -ms-animation-iteration-count:infinite;
+    -webkit-animation-iteration-count:infinite;
+    -moz-animation-iteration-count:infinite;
+  animation-direction:normal;
+    -o-animation-direction:normal;
+    -ms-animation-direction:normal;
+    -webkit-animation-direction:normal;
+    -moz-animation-direction:normal;
+}
+
+#frotateG_01{
+  left:0;
+  top:52px;
+  animation-delay:0.2495s;
+    -o-animation-delay:0.2495s;
+    -ms-animation-delay:0.2495s;
+    -webkit-animation-delay:0.2495s;
+    -moz-animation-delay:0.2495s;
+}
+
+#frotateG_02{
+  left:15px;
+  top:15px;
+  animation-delay:0.336s;
+    -o-animation-delay:0.336s;
+    -ms-animation-delay:0.336s;
+    -webkit-animation-delay:0.336s;
+    -moz-animation-delay:0.336s;
+}
+
+#frotateG_03{
+  left:52px;
+  top:0;
+  animation-delay:0.4225s;
+    -o-animation-delay:0.4225s;
+    -ms-animation-delay:0.4225s;
+    -webkit-animation-delay:0.4225s;
+    -moz-animation-delay:0.4225s;
+}
+
+#frotateG_04{
+  right:15px;
+  top:15px;
+  animation-delay:0.509s;
+    -o-animation-delay:0.509s;
+    -ms-animation-delay:0.509s;
+    -webkit-animation-delay:0.509s;
+    -moz-animation-delay:0.509s;
+}
+
+#frotateG_05{
+  right:0;
+  top:52px;
+  animation-delay:0.5955s;
+    -o-animation-delay:0.5955s;
+    -ms-animation-delay:0.5955s;
+    -webkit-animation-delay:0.5955s;
+    -moz-animation-delay:0.5955s;
+}
+
+#frotateG_06{
+  right:15px;
+  bottom:15px;
+  animation-delay:0.672s;
+    -o-animation-delay:0.672s;
+    -ms-animation-delay:0.672s;
+    -webkit-animation-delay:0.672s;
+    -moz-animation-delay:0.672s;
+}
+
+#frotateG_07{
+  left:52px;
+  bottom:0;
+  animation-delay:0.7585s;
+    -o-animation-delay:0.7585s;
+    -ms-animation-delay:0.7585s;
+    -webkit-animation-delay:0.7585s;
+    -moz-animation-delay:0.7585s;
+}
+
+#frotateG_08{
+  left:15px;
+  bottom:15px;
+  animation-delay:0.845s;
+    -o-animation-delay:0.845s;
+    -ms-animation-delay:0.845s;
+    -webkit-animation-delay:0.845s;
+    -moz-animation-delay:0.845s;
+}
+
+@keyframes f_fadeG{
+  0%{
+    background-color:rgb(0,0,0);
+  }
+
+  100%{
+    background-color:rgb(238,238,238);
+  }
+}
+
+@-o-keyframes f_fadeG{
+  0%{
+    background-color:rgb(0,0,0);
+  }
+
+  100%{
+    background-color:rgb(238,238,238);
+  }
+}
+
+@-ms-keyframes f_fadeG{
+  0%{
+    background-color:rgb(0,0,0);
+  }
+
+  100%{
+    background-color:rgb(238,238,238);
+  }
+}
+
+@-webkit-keyframes f_fadeG{
+  0%{
+    background-color:rgb(0,0,0);
+  }
+
+  100%{
+    background-color:rgb(238,238,238);
+  }
+}
+
+@-moz-keyframes f_fadeG{
+  0%{
+    background-color:rgb(0,0,0);
+  }
+
+  100%{
+    background-color:rgb(238,238,238);
+  }
+}
+/*********************************/
+/*End of Spinning Bar's Styling  */
+/*********************************/

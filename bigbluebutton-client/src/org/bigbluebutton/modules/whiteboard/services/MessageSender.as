@@ -18,21 +18,17 @@
  */
 package org.bigbluebutton.modules.whiteboard.services
 {
-	import flash.net.NetConnection;
-	import flash.net.Responder;	
-	import org.bigbluebutton.common.LogUtil;
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.modules.present.events.PresentationEvent;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 
 	public class MessageSender
 	{	
-	
+		private static const LOGGER:ILogger = getClassLogger(MessageSender);
+
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void {
 //			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
 			var message:Object = new Object();
@@ -41,10 +37,9 @@ package org.bigbluebutton.modules.whiteboard.services
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.toggleGrid", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				},
 				message
 			);
@@ -59,10 +54,9 @@ package org.bigbluebutton.modules.whiteboard.services
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.toggleGrid", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				}
 			);
 		}
@@ -72,16 +66,15 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function undoGraphic(wbId:String):void{
-      trace("WB::MessageSender: Sending [whiteboard.undo] to server.");
-      var msg:Object = new Object();
-      msg["whiteboardId"] = wbId;      
+	        var msg:Object = new Object();
+	        msg["whiteboardId"] = wbId;
+
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.undo", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				},
         msg
 			);
@@ -92,34 +85,30 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function clearBoard(wbId:String):void{
-      trace("WB::MessageSender: Sending [whiteboard.clear] to server.");
-      var msg:Object = new Object();
-      msg["whiteboardId"] = wbId;
+	        var msg:Object = new Object();
+	        msg["whiteboardId"] = wbId;
       
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.clear", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				},
         msg
 			);
 		}
 
     public function requestAnnotationHistory(wbId:String):void{
-      trace("WB::MessageSender: Sending [whiteboard.requestAnnotationHistory] to server.");
             var msg:Object = new Object();
             msg["whiteboardId"] = wbId;
             
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.requestAnnotationHistory", 
                 function(result:String):void { // On successful result
-                    LogUtil.debug(result); 
                 },	                   
                 function(status:String):void { // status - On error occurred
-                    LogUtil.error(status); 
+					LOGGER.error(status); 
                 },
                 msg
             );
@@ -131,14 +120,13 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
-      trace("WB::MessageSender: Sending [whiteboard.sendAnnotation] (TEXT) to server.");
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.sendAnnotation",               
                 function(result:String):void { // On successful result
 //                    LogUtil.debug(result); 
                 },	                   
                 function(status:String):void { // status - On error occurred
-                    LogUtil.error(status); 
+					LOGGER.error(status); 
                 },
                 e.annotation.annotation
             );
@@ -150,7 +138,6 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void {
-      trace("WB::MessageSender: Sending [whiteboard.sendAnnotation] (SHAPE) to server.");
             			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.sendAnnotation",               
@@ -158,21 +145,19 @@ package org.bigbluebutton.modules.whiteboard.services
 //						LogUtil.debug(result); 
 					},	                   
 					function(status:String):void { // status - On error occurred
-						LogUtil.error(status); 
+						LOGGER.error(status); 
 					},
 					e.annotation.annotation
 			);
 		}
 		
 		public function checkIsWhiteboardOn():void {
-      trace("WB::MessageSender: Sending [whiteboard.isWhiteboardEnabled] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.isWhiteboardEnabled", 
 				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
 				},	                   
 				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
+					LOGGER.error(status); 
 				}
 			);
 		}

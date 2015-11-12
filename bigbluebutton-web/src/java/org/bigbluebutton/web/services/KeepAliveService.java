@@ -28,6 +28,7 @@ import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import com.google.gson.Gson;
 
 public class KeepAliveService implements MessageListener {
@@ -48,7 +50,7 @@ public class KeepAliveService implements MessageListener {
 	private int maxLives = 5;
 	private KeepAliveTask task = new KeepAliveTask();
 	private volatile boolean processMessages = false;
-	private ArrayList<String> pingMessages = new ArrayList<String>();
+
 	volatile boolean available = false;
 	
 	private static final Executor msgSenderExec = Executors.newFixedThreadPool(1);
@@ -57,6 +59,10 @@ public class KeepAliveService implements MessageListener {
 	private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 	
 	private BlockingQueue<KeepAliveMessage> messages = new LinkedBlockingQueue<KeepAliveMessage>();
+	
+	private Long lastKeepAliveMessage = 0L;
+	
+	private final String SYSTEM = "BbbWeb";
 	
 	public void start() {	
 		scheduledThreadPool.scheduleWithFixedDelay(task, 5000, runEvery, TimeUnit.MILLISECONDS);
@@ -78,8 +84,7 @@ public class KeepAliveService implements MessageListener {
 	
 	class KeepAliveTask implements Runnable {
     public void run() {
-     	String aliveId = Long.toString(System.currentTimeMillis());
-     	KeepAlivePing ping = new KeepAlivePing(aliveId);
+     	KeepAlivePing ping = new KeepAlivePing();
      	queueMessage(ping);
     }
   }
@@ -116,11 +121,11 @@ public class KeepAliveService implements MessageListener {
   private void processMessage(final KeepAliveMessage msg) {
   	Runnable task = new Runnable() {
   		public void run() {
-  	  	if (msg instanceof KeepAlivePing) {
-  	  		processPing((KeepAlivePing) msg);
-  	  	} else if (msg instanceof KeepAlivePong) {
-  	  		processPong((KeepAlivePong) msg);
-  	  	}  			
+	  	  	if (msg instanceof KeepAlivePing) {
+	  	  		processPing((KeepAlivePing) msg);
+	  	  	} else if (msg instanceof KeepAlivePong) {
+	  	  		processPong((KeepAlivePong) msg);
+	  	  	}  			
   		}
   	};
   	
@@ -128,64 +133,37 @@ public class KeepAliveService implements MessageListener {
   }
   	
   private void processPing(KeepAlivePing msg) {
-   	if (pingMessages.size() < maxLives) {
-     	pingMessages.add(msg.getId());
-//     	log.debug("Sending keep alive message to bbb-apps. keep-alive id [{}]", msg.getId());
-     	service.sendKeepAlive(msg.getId());
-   	} else {
-   		// BBB-Apps has gone down. Mark it as unavailable and clear
-   		// pending ping messages. This allows us to continue to send ping messages
-   		// in case BBB-Apps comes back up. (ralam - april 29, 2014)
-   		available = false;
-   		pingMessages.clear();
-   		log.warn("bbb-apps is down!");
-   	}  		
+	  service.sendKeepAlive(SYSTEM, System.currentTimeMillis());
+	  
+	  if (lastKeepAliveMessage != 0 && (System.currentTimeMillis() - lastKeepAliveMessage > 30000)) {
+		  log.error("BBB Web pubsub error!");
+	   		// BBB-Apps has gone down. Mark it as unavailable. (ralam - april 29, 2014)
+	   		available = false;
+	  }		
   }
   	
   private void processPong(KeepAlivePong msg) {
-   	boolean found = false;
-
-   	for (int count = 0; count < pingMessages.size(); count++){
-   		if (pingMessages.get(count).equals(msg.getId())){
-   			pingMessages.remove(count);
-   			if (!available) {
-   				available = true;
-   				removeOldPingMessages(msg.getId());
-//   			  log.info("Received Keep Alive Reply. BBB-Apps has recovered.");
-   			}
- //  			log.debug("Found ping message [" + msg.getId() + "]");
-   			found = true;
-   			break;
-   		}
-   	}
-   	if (!found){
-   		log.info("Received invalid keep alive response from bbb-apps:" + msg.getId());
-   	}  		
-  }
-
-  private void removeOldPingMessages(String pingId) {
-  	long ts = Long.parseLong(pingId);
-  	for (int i = 0; i < pingMessages.size(); i++) {
-  		String pm = pingMessages.get(i);
-  		if (ts > Long.parseLong(pm)) {
-  			// Old ping message. Remove it. This might be
-  			// ping sent when Red5 was down or restarted.
-  		  pingMessages.remove(i);
-  		}
-  	}
+	  if (lastKeepAliveMessage != 0 && !available) {
+		  log.error("BBB Web pubsub recovered!");
+	  }
+	  
+	  lastKeepAliveMessage = System.currentTimeMillis(); 
+	  available = true;
   }
   
-  private void keepAliveReply(String aliveId) {
-   	log.debug("Received keep alive msg reply from bbb-apps. id [{}]", aliveId);
-   	KeepAlivePong pong = new KeepAlivePong(aliveId);
-   	queueMessage(pong);
+  private void handleKeepAliveReply(String system, Long timestamp) {
+	  if (system.equals("BbbWeb")) {
+		   	KeepAlivePong pong = new KeepAlivePong(system, timestamp);
+		   	queueMessage(pong);		  
+	  }
+
   }
   
 	@Override
   public void handle(IMessage message) {
 		if (message instanceof KeepAliveReply) {
 			KeepAliveReply msg = (KeepAliveReply) message;
-			keepAliveReply(msg.pongId);
+			handleKeepAliveReply(msg.system, msg.timestamp);
 		}
   }
 }

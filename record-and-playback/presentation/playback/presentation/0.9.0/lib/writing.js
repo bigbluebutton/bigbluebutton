@@ -147,7 +147,14 @@ function runPopcorn() {
   var array = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file   
     return $(this).attr('class') == 'shape';
   });
-  var images = shapeelements[0].getElementsByTagName("image");
+
+  // Newer recordings have slide images identified by class="slide"
+  // because they might include images in shapes
+  var images = shapeelements[0].getElementsByClassName("slide");
+  // To handle old recordings, fetch a list of all images instead
+  if (images.length == 0) {
+    images = shapeelements[0].getElementsByTagName("image");
+  }
 
 
   //create a map from timestamp to id list
@@ -470,8 +477,7 @@ var cursorStyle;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
-var HOST = window.location.host;
-var url = "http://" + HOST + "/presentation/" + MEETINGID;
+var url = "/presentation/" + MEETINGID;
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';

@@ -18,13 +18,11 @@
  */
 package org.bigbluebutton.modules.whiteboard.views
 {
-  import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
   import org.bigbluebutton.modules.whiteboard.business.shapes.TextDrawAnnotation;
   import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
   import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
   import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-  import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
   import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
 
@@ -36,6 +34,8 @@ package org.bigbluebutton.modules.whiteboard.views
     private var _textStatus:String = TextObject.TEXT_CREATED;
     private var _mouseXDown:Number = 0;
     private var _mouseYDown:Number = 0;
+    private var _mouseXMove:Number = 0;
+    private var _mouseYMove:Number = 0;
     private var _idGenerator:AnnotationIDGenerator;
     private var _mousedDown:Boolean = false;
     private var _curID:String;
@@ -62,9 +62,9 @@ package org.bigbluebutton.modules.whiteboard.views
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
     {
       if (tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
-        _mouseXDown = mouseX;
-        _mouseYDown = mouseY;
-
+        _mouseXDown = _mouseXMove = mouseX;
+        _mouseYDown = _mouseYMove = mouseY;
+        
         // We have to keep track if the user has pressed the mouse. A mouseup event is
         // dispatched when the mouse goes out of the canvas, theu we end up sending a new text
         // even if the user has mousedDown yet.
@@ -75,6 +75,9 @@ package org.bigbluebutton.modules.whiteboard.views
     public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
     {
       if (tool.graphicType == WhiteboardConstants.TYPE_TEXT && _mousedDown) {
+        _mouseXMove = mouseX;
+        _mouseYMove = mouseY;
+        
         if (_wbCanvas.contains(feedback)) {
           _wbCanvas.removeRawChild(feedback);
         }
@@ -87,6 +90,9 @@ package org.bigbluebutton.modules.whiteboard.views
         
         public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
+            // We have to use the saved X and Y from the last mouse move rather than the X and 
+            // Y from MouseUp because the latter might be outside the bounds of the area.
+            
             if (tool.graphicType == WhiteboardConstants.TYPE_TEXT && _mousedDown) {
                 feedback.clear();
                 if (_wbCanvas.contains(feedback)) {
@@ -95,12 +101,12 @@ package org.bigbluebutton.modules.whiteboard.views
                 
                 _mousedDown = false;
 
-                var tbWidth:Number = Math.abs(mouseX - _mouseXDown);
-                var tbHeight:Number = Math.abs(mouseY - _mouseYDown);
+                var tbWidth:Number = Math.abs(_mouseXMove - _mouseXDown);
+                var tbHeight:Number = Math.abs(_mouseYMove - _mouseYDown);
                 
                 if (tbHeight < 15 || tbWidth < 50) return;
                 
-                var tobj:TextDrawAnnotation = _shapeFactory.createTextObject("", 0x000000, Math.min(_mouseXDown, mouseX), Math.min(_mouseYDown, mouseY), tbWidth, tbHeight, 18);
+                var tobj:TextDrawAnnotation = _shapeFactory.createTextObject("", 0x000000, Math.min(_mouseXDown, _mouseXMove), Math.min(_mouseYDown, _mouseYMove), tbWidth, tbHeight, 18);
 
                 sendTextToServer(TextObject.TEXT_CREATED, tobj);                    
             }        

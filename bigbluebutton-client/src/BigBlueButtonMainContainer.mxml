@@ -38,21 +38,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import flash.events.Event;
 		
 		import mx.managers.HistoryManager;
+		import mx.managers.IDragManager;
 		import mx.managers.ToolTipManager;
 		import mx.utils.URLUtil;
 		
+		import org.as3commons.logging.api.ILogger;
+		import org.as3commons.logging.api.getClassLogger;
 		import org.bigbluebutton.common.LogUtil;
-		import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 		import org.bigbluebutton.core.BBB;
 		import org.bigbluebutton.core.EventBroadcaster;
-		import org.bigbluebutton.core.managers.ConfigManager2;
 		import org.bigbluebutton.main.api.ExternalApiCallbacks;
-		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.model.ShortcutOptions;
-		import org.bigbluebutton.main.views.MainApplicationShell;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
-      private var langResources:ResourceUtil = null;
+		
+		private static const LOGGER:ILogger = getClassLogger(BigBlueButtonMainContainer);      
+
+		private var langResources:ResourceUtil = null;
       
       private var globalModifier:String;
       /**
@@ -60,7 +62,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
        * http://butterfliesandbugs.wordpress.com/2007/10/25/workaround-for-error-when-loading-popups-from-modules/
        */
-      import mx.managers.IDragManager; 
       private var iDragManager:IDragManager;  
       
       /** another workaround - for this issue: https://bugs.adobe.com/jira/browse/SDK-13121*/
@@ -68,16 +69,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var globalDispatcher:Dispatcher = new Dispatcher();
       
-      protected function init():void {
+	  protected function init():void {
         setupTooltips();
         setupAPI();
         EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
         BBB.initConfigManager();
+        BBB.initVideoProfileManager();
         globalModifier = ExternalInterface.call("determineGlobalModifier");
       }
       
       private function configLoadedEventHandler(e:Event):void {
-        LogUtil.debug("***** Config Loaded ****");
+	  	LogUtil.initLogging();
+        LOGGER.debug("***** Config Loaded ****");
         mainShell.initOptions(null);
         ShortcutOptions.initialize();
       }
@@ -88,7 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         langResources = ResourceUtil.getInstance();
         api = new ExternalApiCallbacks();
         Security.allowDomain(determineHTMLURL());
-        LogUtil.debug("Security.allowDomain(" + determineHTMLURL() + ");");
+		LOGGER.debug("Security.allowDomain({0});", [determineHTMLURL()]);
       }
       
       private function determineHTMLURL():String {
@@ -97,9 +100,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           try {
             var htmlURL:String = String(ExternalInterface.call("window.location.href.toString"));
             serverName = URLUtil.getServerName(htmlURL);
-            trace("HTML URL [" + htmlURL + "]");
+            LOGGER.debug("HTML URL [{0}]", [htmlURL]);
           } catch(s:Error) {
-            trace("Cannot determine HTML URL");
+            LOGGER.debug("Cannot determine HTML URL");
           }
         }
         
@@ -175,10 +178,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       public function hotkeyCapture():void{
-        trace("Entering hotkeyCapture");
+        LOGGER.debug("Entering hotkeyCapture");
         stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
         ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-        trace("Leaving hotkeyCapture");
+		LOGGER.debug("Leaving hotkeyCapture");
       }
       
       // Handle general-access hotkeys, regardless of what window the user is focused in
@@ -188,7 +191,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
         
         if (e.keyCode < 64 || e.keyCode > 90){
-          trace("Keypress debugging: KeyCode " + e.keyCode + " is nonalphabetic (probably)");
+			LOGGER.debug("Keypress debugging: KeyCode {0} is nonalphabetic (probably)", [e.keyCode]);
         }
         
         if (keyCombos[keyPress]) {

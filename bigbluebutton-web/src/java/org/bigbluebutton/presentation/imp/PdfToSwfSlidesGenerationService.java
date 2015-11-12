@@ -35,7 +35,7 @@ import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.PdfToSwfSlide;
-import org.bigbluebutton.presentation.PngImageCreator;
+import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -55,24 +55,22 @@ public class PdfToSwfSlidesGenerationService {
 	
 	private ThumbnailCreator thumbnailCreator;
 	private TextFileCreator textFileCreator;
-	private PngImageCreator pngImageCreator;
+	private SvgImageCreator svgImageCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
 	private int MAX_SWF_FILE_SIZE;
-	private boolean pngImagesRequired;
+	private boolean svgImagesRequired;
 		
 	public void generateSlides(UploadedPresentation pres) {
-		log.debug("Generating slides");		
 		determineNumberOfPages(pres);
-		log.info("Determined number of pages. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], numPages=[" + pres.getNumberOfPages() + "]");
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
 			createTextFiles(pres);
 			createThumbnails(pres);
 
-			// only create PNG images if the configuration requires it
-			if (pngImagesRequired) {
-				createPngImages(pres);
+			// only create SVG images if the configuration requires it
+			if (svgImagesRequired) {
+				createSvgImages(pres);
 			}
 
 			notifier.sendConversionCompletedMessage(pres);
@@ -95,7 +93,7 @@ public class PdfToSwfSlidesGenerationService {
 		if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_COUNT_EXCEPTION) {
 			builder.messageKey(ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);			
 		} else if (e.getExceptionType() == CountingPageException.ExceptionType.PAGE_EXCEEDED_EXCEPTION) {
-			builder.numberOfPages(pres.getNumberOfPages());
+			builder.numberOfPages(e.getPageCount());
 			builder.maxNumberPages(e.getMaxNumberOfPages());
 			builder.messageKey(ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY);
 		}
@@ -103,21 +101,18 @@ public class PdfToSwfSlidesGenerationService {
 	}
 	
 	private void createThumbnails(UploadedPresentation pres) {
-		log.info("Creating thumbnails. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
 		thumbnailCreator.createThumbnails(pres);
 	}
 	
 	private void createTextFiles(UploadedPresentation pres) {
-		log.info("Creating textfiles for accessibility. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
 		notifier.sendCreatingTextFilesUpdateMessage(pres);
 		textFileCreator.createTextFiles(pres);
 	}
 	
-	private void createPngImages(UploadedPresentation pres) {
-		log.info("Creating PNG images. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
-		notifier.sendCreatingPngImagesUpdateMessage(pres);
-		pngImageCreator.createPngImages(pres);
+	private void createSvgImages(UploadedPresentation pres) {
+		notifier.sendCreatingSvgImagesUpdateMessage(pres);
+		svgImageCreator.createSvgImages(pres);
 	}
 	
 	private void convertPdfToSwf(UploadedPresentation pres) {
@@ -157,18 +152,18 @@ public class PdfToSwfSlidesGenerationService {
 					slidesCompleted++;
 					notifier.sendConversionUpdateMessage(slidesCompleted, pres);
 				} else {
-					log.warn("Timedout waiting for page to finish conversion. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "]");
+					log.warn("Timedout waiting for page to finish conversion. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " presName=" + pres.getName() );
 				}
 			} catch (InterruptedException e) {
-				log.error("InterruptedException while creating slide " + pres.getName());
+				log.error("InterruptedException while creating slide. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " name=[" + pres.getName());
 			} catch (ExecutionException e) {
-				log.error("ExecutionException while creating slide " + pres.getName());
+				log.error("ExecutionException while creating slide. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " name=[" + pres.getName());
 			} 
 		}
 				
 		for (final PdfToSwfSlide slide : slides) {
 			if (! slide.isDone()){
-				log.warn("Creating blank slide. MeetingId=[" + pres.getMeetingId() + "], presId=[" + pres.getId() + "], name=[" + pres.getName() + "], page=[" + slide.getPageNumber() + "]");
+				log.warn("Creating blank slide. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " name=[" + pres.getName() + " page=" + slide.getPageNumber());
 
 				slide.generateBlankSlide();				
 				notifier.sendConversionUpdateMessage(slidesCompleted++, pres);
@@ -214,8 +209,8 @@ public class PdfToSwfSlidesGenerationService {
 		this.MAX_SWF_FILE_SIZE = size;
 	}
 
-	public void setPngImagesRequired(boolean png) {
-		this.pngImagesRequired = png;
+	public void setSvgImagesRequired(boolean svg) {
+		this.svgImagesRequired = svg;
 	}
 	
 	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
@@ -224,8 +219,8 @@ public class PdfToSwfSlidesGenerationService {
 	public void setTextFileCreator(TextFileCreator textFileCreator) {
 		this.textFileCreator = textFileCreator;
 	}
-	public void setPngImageCreator(PngImageCreator pngImageCreator) {
-		this.pngImageCreator = pngImageCreator;
+	public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
+		this.svgImageCreator = svgImageCreator;
 	}
 	public void setMaxConversionTime(int minutes) {
 		MAX_CONVERSION_TIME = minutes * 60 * 1000;

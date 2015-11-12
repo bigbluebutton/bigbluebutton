@@ -41,18 +41,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStarted" />
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.controls.Alert;
-      import mx.events.CloseEvent;
-      
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.core.model.MeetingModel;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.model.LayoutOptions;
-      import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
-      import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.model.MeetingModel;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.modules.phone.events.FlashJoinedVoiceConferenceEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private static const LOGGER:ILogger = getClassLogger(RecordButton);
 
 			private var recordingFlag:Boolean;
 			private var firstAudioJoin:Boolean = true;
@@ -66,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function confirmChangeRecordingStatus():void {
-        trace("Confirming recording status change!!!!");
+        		LOGGER.debug("Confirming recording status change!!!!");
         
 				// need to save the flag in case of any remote update on the recording status
 				recordingFlag = !this.selected;
@@ -107,7 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				this.enabled = false;
 
-				trace("RecordButton:doChangeRecordingStatus changing record status to " + event.payload.recording);
+				LOGGER.debug("RecordButton:doChangeRecordingStatus changing record status to {0}", [event.payload.recording]);
 			}
 
 			private function onRecordingStatusChanged(event:BBBEvent):void {
@@ -120,7 +124,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						this.enabled = true;
 					}
 
-					trace("RecordButton:onRecordingStatusChanged changing record status to " + event.payload.recording);
+					LOGGER.debug("RecordButton:onRecordingStatusChanged changing record status to {0}", [event.payload.recording]);
 				}
 			}
 

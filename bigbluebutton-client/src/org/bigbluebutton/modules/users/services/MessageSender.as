@@ -18,14 +18,15 @@
  */
 package org.bigbluebutton.modules.users.services
 {
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.managers.ConnectionManager;
-  import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.main.api.JSLog;
   
   public class MessageSender {
-    private static const LOG:String = "Users::MessageSender - ";
+	private static const LOGGER:ILogger = getClassLogger(MessageSender);      
 
     public function kickUser(userID:String):void {
       var message:Object = new Object();
@@ -35,10 +36,9 @@ package org.bigbluebutton.modules.users.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.ejectUserFromMeeting", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );
@@ -48,10 +48,9 @@ package org.bigbluebutton.modules.users.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.getParticipants", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         }
       );
     }
@@ -65,65 +64,62 @@ package org.bigbluebutton.modules.users.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.assignPresenter", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );
     }
-    
-    public function raiseHand(userID:String, raise:Boolean):void {    
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      if (raise) {
-        _nc.sendMessage("participants.userRaiseHand", 
-          function(result:String):void { // On successful result
-            LogUtil.debug(result); 
-          },	                   
-          function(status:String):void { // status - On error occurred
-            LogUtil.error(status); 
-          }
-        );        
-      } else {
-        var message:Object = new Object();
-        message["userId"] = userID;
-        message["loweredBy"] = userID;
 
-        _nc.sendMessage("participants.lowerHand", 
-          function(result:String):void { // On successful result
-            LogUtil.debug(result); 
-          },	                   
-          function(status:String):void { // status - On error occurred
-            LogUtil.error(status); 
-          },
-          message
-        );        
-      }  
-    }
+	public function emojiStatus(userID:String, emoji:String):void
+	{
+		var message:Object = new Object();
+		message["emojiStatus"] = emoji;
+		message["userId"] = userID;
+		
+		var _nc:ConnectionManager=BBB.initConnectionManager();
+		_nc.sendMessage("participants.userEmojiStatus", function(result:String):void
+		{ // On successful result
+		}, function(status:String):void
+		{ // status - On error occurred
+			LOGGER.error(status);
+		},
+		message
+		);
+	}
     
     public function addStream(userID:String, streamName:String):void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.shareWebcam", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         streamName
       );
     }
     
-    public function removeStream(userID:String, streamName:String):void {      
+    public function removeStream(userID:String, streamName:String):void {
+	  
+	  var logData:Object = new Object();
+	  logData.user = UsersUtil.getUserData();
+	  
+	  JSLog.warn("User stopped sharing webcam event.", logData);
+	  
+	  logData.streamId = streamName;
+	  logData.message = "User stopped sharing webcam";
+	  LOGGER.info(JSON.stringify(logData));
+	  
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.unshareWebcam", 
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
-        }
+		  LOGGER.error(status);  
+        },
+        streamName
       );
     }
     
@@ -132,16 +128,14 @@ package org.bigbluebutton.modules.users.services
       _nc.sendMessage(
         "participants.getRecordingStatus",// Remote function name
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         }
       ); //_netConnection.call
     }
     
     public function changeRecordingStatus(userID:String, recording:Boolean):void {
-      trace(LOG + "Sending setRecordingStatus. recording=[" + recording + "]");
       var message:Object = new Object();
       message["userId"] = userID;
       message["recording"] = recording;
@@ -150,17 +144,15 @@ package org.bigbluebutton.modules.users.services
       _nc.sendMessage(
         "participants.setRecordingStatus",// Remote function name
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       ); //_netConnection.call
     }
 
     public function muteAllUsers(mute:Boolean):void {
-      trace(LOG + "Sending muteAllUsers. mute=[" + mute + "]");
       var message:Object = new Object();
       message["mute"] = mute;
     
@@ -168,18 +160,15 @@ package org.bigbluebutton.modules.users.services
       _nc.sendMessage(
         "voice.muteAllUsers",
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       ); 
     }
     
     public function muteAllUsersExceptPresenter(mute:Boolean):void {
-
-      trace(LOG + "Sending muteAllUsersExceptPresenter. mute=[" + mute + "]");
       var message:Object = new Object();
       message["mute"] = mute;
 
@@ -187,17 +176,15 @@ package org.bigbluebutton.modules.users.services
       _nc.sendMessage(
         "voice.muteAllUsersExceptPresenter",
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       ); 
     }
     
     public function muteUnmuteUser(userid:String, mute:Boolean):void {
-      trace(LOG + "Sending muteUnmuteUser. id=[" + userid + "], mute=[" + mute + "]");
       var message:Object = new Object();
       message["userId"] = userid;
       message["mute"] = mute;
@@ -206,17 +193,15 @@ package org.bigbluebutton.modules.users.services
       _nc.sendMessage(
         "voice.muteUnmuteUser",
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );          
      } 
     
     public function ejectUser(userid:String):void {
-      trace("Sending ejectUser. id=[" + userid + "]");
       var message:Object = new Object();
       message["userId"] = userid;
       
@@ -224,43 +209,38 @@ package org.bigbluebutton.modules.users.services
       _nc.sendMessage(
         "voice.ejectUserFromVoice",
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         message
       );    
     }
     
     public function getRoomMuteState():void{
-      trace("Sending getRoomMuteState.");
       var message:Object = new Object();
          
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
         "voice.isRoomMuted",
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         }
       ); 
     }
     
     public function getRoomLockState():void{
-      trace("Sending getRoomLockState.");
       var message:Object = new Object();
       
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
         "lock.isRoomLocked",
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         }
       );    
     }    
@@ -298,8 +278,20 @@ package org.bigbluebutton.modules.users.services
      * Set lock state of all users in the room, except the users listed in second parameter
      * */
     public function setUserLock(internalUserID:String, lock:Boolean):void {
-      
-      return;
+		var message:Object = new Object();
+		message["userId"] = internalUserID;
+		message["lock"] = lock;
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage(
+			"lock.setUserLock",
+			function(result:String):void { // On successful result
+			},	                   
+			function(status:String):void { // status - On error occurred
+			  LOGGER.error(status); 
+			},
+			message
+		);
 /*      
       var nc:NetConnection = _module.connection;
       nc.call(
@@ -344,15 +336,13 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function saveLockSettings(newLockSettings:Object):void{   
-      trace("Sending setLockSettings.");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
         "lock.setLockSettings",
         function(result:String):void { // On successful result
-          LogUtil.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-          LogUtil.error(status); 
+		  LOGGER.error(status); 
         },
         newLockSettings
       );      

@@ -19,17 +19,21 @@
 package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
-  import org.bigbluebutton.common.LogUtil;
+  import flash.external.ExternalInterface;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.model.MeetingModel;
   import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class ChatMessageService
   {
-    private static const LOG:String = "Chat::ChatMessageService - ";
+	private static const LOGGER:ILogger = getClassLogger(ChatMessageService);      
     
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
@@ -37,7 +41,7 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPublicMessageFromApi(message:Object):void
     {
-      trace(LOG + "sendPublicMessageFromApi");
+      LOGGER.debug("sendPublicMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
       msgVO.chatType = ChatConstants.PUBLIC_CHAT;
       msgVO.fromUserID = message.fromUserID;
@@ -53,7 +57,7 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPrivateMessageFromApi(message:Object):void
     {
-      trace(LOG + "sendPrivateMessageFromApi");
+	  LOGGER.debug("sendPrivateMessageFromApi");
       var msgVO:ChatMessageVO = new ChatMessageVO();
       msgVO.chatType = ChatConstants.PUBLIC_CHAT;
       msgVO.fromUserID = message.fromUserID;
@@ -86,7 +90,7 @@ package org.bigbluebutton.modules.chat.services
     private static const SPACE:String = " ";
     
     public function sendWelcomeMessage():void {
-      trace(LOG + "sendWelcomeMessage");
+	  LOGGER.debug("sendWelcomeMessage");
       var welcome:String = BBB.initUserConfigManager().getWelcomeMessage();
       if (welcome != "") {
         var welcomeMsg:ChatMessageVO = new ChatMessageVO();
@@ -104,6 +108,9 @@ package org.bigbluebutton.modules.chat.services
         welcomeMsgEvent.message = welcomeMsg;
         welcomeMsgEvent.history = false;
         dispatcher.dispatchEvent(welcomeMsgEvent);
+        
+        //Say that client is ready when sending the welcome message
+        ExternalInterface.call("clientReady", ResourceUtil.getInstance().getString('bbb.accessibility.clientReady'));
       }	
       
       if (UsersUtil.amIModerator()) {

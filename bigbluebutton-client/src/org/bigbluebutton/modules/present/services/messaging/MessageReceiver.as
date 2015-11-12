@@ -18,16 +18,13 @@
  */
 package org.bigbluebutton.modules.present.services.messaging
 {
-  import com.asfusion.mate.events.Dispatcher; 
-  import mx.collections.ArrayCollection;  
-  import org.bigbluebutton.common.LogUtil;
+  import com.asfusion.mate.events.Dispatcher;
+  
+  import mx.collections.ArrayCollection;
+  
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
-  import org.bigbluebutton.core.UsersUtil;
-  import org.bigbluebutton.core.managers.UserManager;
-  import org.bigbluebutton.main.events.BBBEvent;
-  import org.bigbluebutton.main.events.MadePresenterEvent;
-  import org.bigbluebutton.main.model.users.BBBUser;
-  import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.present.events.ConversionCompletedEvent;
   import org.bigbluebutton.modules.present.events.ConversionPageCountError;
@@ -36,25 +33,18 @@ package org.bigbluebutton.modules.present.services.messaging
   import org.bigbluebutton.modules.present.events.ConversionUnsupportedDocEvent;
   import org.bigbluebutton.modules.present.events.ConversionUpdateEvent;
   import org.bigbluebutton.modules.present.events.CreatingThumbnailsEvent;
-  import org.bigbluebutton.modules.present.events.CursorEvent;
-  import org.bigbluebutton.modules.present.events.NavigationEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertFailedEvent;
   import org.bigbluebutton.modules.present.events.OfficeDocConvertSuccessEvent;
-  import org.bigbluebutton.modules.present.events.PageChangedEvent;
-  import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
-  import org.bigbluebutton.modules.present.model.Page;
-  import org.bigbluebutton.modules.present.model.Presentation;
   import org.bigbluebutton.modules.present.model.PresentationModel;
   import org.bigbluebutton.modules.present.model.Presenter;
   import org.bigbluebutton.modules.present.services.Constants;
   import org.bigbluebutton.modules.present.services.PresentationService;
-  import org.bigbluebutton.modules.present.services.messages.CursorMovedMessage;
   import org.bigbluebutton.modules.present.services.messages.PageVO;
   import org.bigbluebutton.modules.present.services.messages.PresentationVO;
   
   public class MessageReceiver implements IMessageListener {
-    private static const LOG:String = "Present::MessageReceiver - ";
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
        
     private var service:PresentationService;
     private var dispatcher:Dispatcher;
@@ -66,7 +56,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     public function onMessage(messageName:String, message:Object):void {
-//      trace("Presentation: received message " + messageName);
+      //LOGGER.info("Presentation: received message " + messageName);
       
       switch (messageName) {
         case "PresentationCursorUpdateCommand":
@@ -106,7 +96,7 @@ package org.bigbluebutton.modules.present.services.messaging
     }  
     
     private function handleGetSlideInfoReply(msg:Object):void {
-      trace(LOG + "*** handleGetSlideInfoReply " + msg.msg + " [DISABLED: SHouldn't be getting this!!] **** \n");
+      LOGGER.debug("*** handleGetSlideInfoReply {0} [DISABLED: SHouldn't be getting this!!] **** \n", [msg.msg]);
      
     }
     
@@ -119,7 +109,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleGotoSlideCallback(msg:Object) : void {
-      trace(LOG + "*** handleGotoSlideCallback " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
 
       var page:PageVO = extractPage(map);
@@ -135,7 +124,7 @@ package org.bigbluebutton.modules.present.services.messaging
       if (! map.hasOwnProperty("current")) missing.push("Missing [current] param.");
       if (! map.hasOwnProperty("swfUri")) missing.push("Missing [swfUri] param.");
       if (! map.hasOwnProperty("txtUri")) missing.push("Missing [txtUri] param.");
-      if (! map.hasOwnProperty("pngUri")) missing.push("Missing [pngUri] param.");
+      if (! map.hasOwnProperty("svgUri")) missing.push("Missing [svgUri] param.");
       if (! map.hasOwnProperty("thumbUri")) missing.push("Missing [thumbUri] param.");
       if (! map.hasOwnProperty("xOffset")) missing.push("Missing [xOffset] param.");
       if (! map.hasOwnProperty("yOffset")) missing.push("Missing [yOffset] param.");
@@ -149,7 +138,7 @@ package org.bigbluebutton.modules.present.services.messaging
 //      }
       
       if (map.hasOwnProperty("id") && map.hasOwnProperty("num") && map.hasOwnProperty("current") &&
-        map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("pngUri") &&
+        map.hasOwnProperty("swfUri") && map.hasOwnProperty("txtUri") && map.hasOwnProperty("svgUri") &&
         map.hasOwnProperty("thumbUri") && map.hasOwnProperty("xOffset") && map.hasOwnProperty("yOffset") &&
         map.hasOwnProperty("widthRatio") && map.hasOwnProperty("heightRatio")) {
         return true;
@@ -168,7 +157,7 @@ package org.bigbluebutton.modules.present.services.messaging
       page.current = map.current;
       page.swfUri = map.swfUri;
       page.txtUri = map.txtUri;
-      page.pngUri = map.pngUri;
+      page.svgUri = map.svgUri;
       page.thumbUri = map.thumbUri;
       page.xOffset = map.xOffset;
       page.yOffset = map.yOffset;
@@ -178,8 +167,7 @@ package org.bigbluebutton.modules.present.services.messaging
       return page;
     }
     
-    private function handleMoveCallback(msg:Object):void{
-      trace(LOG + "*** handleMoveCallback " + msg.msg + " **** \n");      
+    private function handleMoveCallback(msg:Object):void{  
       var map:Object = JSON.parse(msg.msg);      
       if (validatePage(map)) {
         service.pageMoved(extractPage(map));
@@ -187,7 +175,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleSharePresentationCallback(msg:Object):void {
-      trace(LOG + "*** handleSharePresentationCallback " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
       if (map.hasOwnProperty("presentation")) {
         var pres:Object = map.presentation as Object;
@@ -197,7 +184,6 @@ package org.bigbluebutton.modules.present.services.messaging
     }
     
     private function handleRemovePresentationCallback(msg:Object):void {
-      trace(LOG + "***DOING: handleRemovePresentationCallback " + msg.msg + " **** \n");
 	  var map:Object = JSON.parse(msg.msg);
 	  
 	  if(map.hasOwnProperty("presentationID")) {
@@ -205,8 +191,7 @@ package org.bigbluebutton.modules.present.services.messaging
 	  }
     }
     
-    private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void {
-      trace(LOG + "*** handleConversionCompletedUpdateMessageCallback " + msg.msg + " **** \n");      
+    private function handleConversionCompletedUpdateMessageCallback(msg:Object) : void { 
       var map:Object = JSON.parse(msg.msg);      
       var pres:Object = map.presentation as Object;
       var presVO: PresentationVO = processUploadedPresentation(pres)
@@ -232,8 +217,7 @@ package org.bigbluebutton.modules.present.services.messaging
       return preso;
     }
     
-    private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		
-      trace(LOG + "*** handleGeneratedSlideUpdateMessageCallback " + msg.msg + " **** \n");      
+    private function handleGeneratedSlideUpdateMessageCallback(msg:Object) : void {		  
       var map:Object = JSON.parse(msg.msg);
       var numPages:Number = map.numberOfPages;
       var pagesDone:Number = map.pagesCompleted;
@@ -241,15 +225,12 @@ package org.bigbluebutton.modules.present.services.messaging
       dispatcher.dispatchEvent(new ConversionUpdateEvent(numPages, pagesDone));	
     }
     
-    private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {
-      trace(LOG + "*** handlePageCountExceededUpdateMessageCallback " + msg.msg + " **** \n");      
+    private function handlePageCountExceededUpdateMessageCallback(msg:Object) : void {     
       var map:Object = JSON.parse(msg.msg);
       dispatcher.dispatchEvent(new ConversionPageCountMaxed(map.maxNumberPages as Number));
     }
     
     private function handleConversionUpdateMessageCallback(msg:Object) : void {
-      trace(LOG + "*** handleConversionUpdateMessageCallback " + msg.msg + " **** \n");
-      
       var map:Object = JSON.parse(msg.msg);
       
       var uploadEvent:UploadEvent;
@@ -304,6 +285,7 @@ package org.bigbluebutton.modules.present.services.messaging
         presos.addItem(presVO);
       }
       
+      service.removeAllPresentations();
       service.addPresentations(presos);
     }
     

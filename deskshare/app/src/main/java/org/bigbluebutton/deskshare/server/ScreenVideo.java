@@ -81,5 +81,17 @@ public class ScreenVideo implements IVideoStreamCodec {
     	log.debug("getting DecoderConfiguration");
 		return data;
     }
+
+	@Override
+	public FrameData getInterframe(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getNumInterframes() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
 

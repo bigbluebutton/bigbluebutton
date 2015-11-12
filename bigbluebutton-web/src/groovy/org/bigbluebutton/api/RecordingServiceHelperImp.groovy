@@ -103,11 +103,14 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		r.setPlaybackFormat(rec.playback.format.text());
 		r.setPlaybackLink(rec.playback.link.text());
 		r.setPlaybackDuration(rec.playback.duration.text());
-		r.setPlaybackExtensions(rec.playback.extension.children());
 		
+/*
+        Commenting this out to see if this is causing memory to hang around resulting in
+        OOM in tomcat7 (ralam july 23, 2015)		
+		r.setPlaybackExtensions(rec.playback.extension.children());
+*/		
 		Map<String, String> meta = new HashMap<String, String>();		
 		rec.meta.children().each { anode ->
-				log.debug("metadata: "+anode.name()+" "+anode.text())
 				meta.put(anode.name().toString(), anode.text().toString());
 		}
 		r.setMetadata(meta);

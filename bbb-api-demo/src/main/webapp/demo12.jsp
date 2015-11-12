@@ -170,8 +170,9 @@ Author: Jesus Federico <jesus@123it.ca>
 	Element webcamElement = getElementWithAttribute(firstChild, "name", "VideoconfModule");
 	if(param_VideoModule.equals("disable")){
 		webcamElement.getParentNode().removeChild(webcamElement);
-		Element videodockModule = getElementWithAttribute(firstChild, "name", "VideodockModule");
-		videodockModule.getParentNode().removeChild(videodockModule);
+		//This is not returning null, removing the next 2 lines fixes the issue with demo12.jsp
+		//Element videodockModule = getElementWithAttribute(firstChild, "name", "VideodockModule");
+		//videodockModule.getParentNode().removeChild(videodockModule);
 	}else{
 	        webcamElement.setAttribute("autoStart", param_VideoModule);		
 	}

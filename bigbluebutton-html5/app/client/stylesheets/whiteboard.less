@@ -1,0 +1,452 @@
+@import "variables";
+
+#whiteboard {
+  padding: 0 !important;
+  min-width: 0;
+  @media @landscape {
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    width: 70%;
+    height: 100%;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    -webkit-order: 1;
+    order: 1;
+    width: 100% !important; // overrides any width value set manually in landscape
+  }
+  &:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+    margin-top: 0px;
+    #whiteboard-container {
+      height: 100%;
+    }
+    #whiteboard-paper {
+      height: 100%;
+    }
+  }
+  &:-moz-full-screen {
+    width: 100%;
+    height: 100%;
+    margin-top: 0px;
+    #whiteboard-container {
+      height: 100%;
+    }
+    #whiteboard-paper {
+      height: 100%;
+    }
+  }
+  &:fullscreen {
+    width: 100%;
+    height: 100%;
+    margin-top: 0px;
+    #whiteboard-container {
+      height: 100%;
+    }
+    #whiteboard-paper {
+      height: 100%;
+    }
+  }
+}
+
+#whiteboard-paper {
+  background-color: white !important;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  #svggroup {
+    display: block;
+    height: 100% !important;
+    width: 100% !important;
+  }
+}
+
+#whiteboard-container {
+  position: relative; // makes the fullscreen button's absolute position work
+  @media @landscape {
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    -webkit-align-items: center;
+    -ms-align-items: center;
+    border-bottom: 1px solid extract(@lightGrey, 3);
+  }
+}
+
+.presenter-whiteboard {
+  height: calc(~'100% - 40px');
+}
+
+.poll-whiteboard {
+  height: calc(~'100% - 70px');
+}
+
+.polling {
+  width: 100%;
+  height: 70px;
+  text-align: center;
+  padding-top:10px;
+  padding-bottom:10px;
+  font-size: 0; /* to remove default 4px gaps between the buttons caused by display: inline-block */
+}
+
+.pollButtons {
+  color: extract(@white, 1);
+  background-color: #3896D3;
+  font-weight: bold;
+  border: 1px solid extract(@lightGrey, 3);
+  height: 100%;
+  padding-left: 0;  /*overwriting the default foundation padding */
+  padding-right: 0; /*overwriting the default foundation padding */
+  margin-bottom: 0; /*overwriting the default foundation margin */
+  max-width: calc(~'100%/6');     /* the actual width and margins are calculated in the code */
+  /* truncating the text inside the buttons */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* the end of truncating */
+  span {
+    max-width: 80%;
+  }
+  &:hover {
+    background: #3A82D4;
+  }
+}
+
+.viewer-whiteboard {
+  height: 100%;
+}
+
+.presentationNavigationControls {
+  width:54px;
+  font-size:28px;
+  float:right;
+  margin-right:90px;
+}
+
+.vertically-centered {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#controllers {
+  width: 100%;
+  height: 40px;
+}
+
+#switchSlideSection {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 138px;
+  height: 100%;
+}
+
+.switchSlideButton {
+  outline: none;
+  width: 50px;
+  height: 100%;
+  margin-bottom: 0;
+  color: extract(@black, 1);
+  background-color: extract(@white, 1);
+  border: 1px solid extract(@lightGrey, 3);
+  border-radius: 10px;
+  padding: 0;
+  &:hover {
+    background-color: extract(@lightGrey, 3);
+    color: extract(@black, 1);
+  }
+  &:focus {
+    background-color: extract(@white, 1);
+    color: extract(@black, 1);
+  }
+}
+
+.previousSlide {
+  float: left;
+}
+
+.nextSlide {
+  float: right;
+}
+
+#presentationProgress {
+  font-size: 25px;
+}
+
+.whiteboardFullscreenButton {
+  @media @desktop-landscape, @phone-landscape, @tablet-landscape,
+  @phone-portrait-with-keyboard, @phone-portrait, @desktop-portrait {
+    height: 50px;
+    width: 50px;
+  }
+  @media @desktop-landscape {
+    top: 5px;
+    right: 5px;
+  }
+  @media @phone-landscape {
+    top: 4px;
+    right: 4px;
+  }
+  @media @tablet-landscape {
+    top: 5px;
+    right: 5px;
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait {
+    top: 4px;
+    right: 4px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 53px;
+    width: 53px;
+    top: 5px;
+    right: 5px;
+  }
+  @media @desktop-portrait {
+    top: 5px;
+    right: 5px;
+  }
+}
+
+.exitFullscreenButton {
+  top: 10px;
+  right: 10px;
+  @media @landscape {
+    height: 50px;
+    width: 50px;
+  }
+  @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    height: 5%;
+    width: 10%;
+  }
+}
+
+.soaringButton {
+  position: absolute;
+  margin-bottom: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: #3896D3;
+  opacity: 0.55;
+  &:hover {
+    background: #3A82D4;
+  }
+  &:focus {
+    background: #3896D3;
+    outline:0;
+  }
+  i {
+    @media @phone-landscape {
+      font-size: 29px;
+    }
+    @media @desktop-portrait, @desktop-landscape, @tablet-landscape {
+      font-size: 30px;
+    }
+    @media @phone-portrait-with-keyboard, @phone-portrait {
+      font-size: 35px;
+    }
+    @media @tablet-portrait-with-keyboard, @tablet-portrait {
+      font-size: 40px;
+    }
+    color: white;
+  }
+}
+
+.iconChrome {
+  i {
+    font-size: 200%;
+  }
+}
+
+.iconFirefox {
+  i {
+    font-size: 500%;
+  }
+}
+
+// Emojis FAB
+
+.activeEmojiButton {
+  background-color: #34495E;
+}
+
+.FABTriggerButton, .inactiveEmojiButton {
+  background-color: #3896D3;
+}
+
+.FABTriggerButton:hover {
+  background-color: #3896D3;
+}
+
+.FABTriggerButton {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  @media @desktop-landscape, @phone-landscape, @tablet-landscape,
+  @phone-portrait-with-keyboard, @phone-portrait, @desktop-portrait {
+    height: 50px;
+    width: 50px;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait {
+    height: 53px;
+    width: 53px;
+  }
+}
+
+.openedFAB {
+  .FABTriggerButton {
+    i {
+      opacity: 0.5;
+    }
+  }
+  button:nth-child(2), button:nth-child(3) {
+    animation: increaseOpacity 0.15s forwards;
+  }
+  button:nth-child(4), button:nth-child(5) {
+    animation: increaseOpacity 0.15s forwards;
+    animation-delay: 0.075s;
+  }
+  button:nth-child(6), button:nth-child(7) {
+    animation: increaseOpacity 0.15s forwards;
+    animation-delay: 0.15s;
+  }
+}
+
+.closedFAB {
+  button:nth-child(2), button:nth-child(3) {
+    animation: decreaseOpacity 0.15s forwards;
+    animation-delay: 0.15s;
+  }
+  button:nth-child(4), button:nth-child(5) {
+    animation: decreaseOpacity 0.15s forwards;
+    animation-delay: 0.075s;
+  }
+  button:nth-child(6), button:nth-child(7) {
+    animation: decreaseOpacity 0.15s forwards;
+  }
+}
+
+.FABContainer > button:nth-child(n + 2):hover {
+  background-color: #34495E;
+}
+
+.FABContainer {
+  button {
+    padding: 0;
+    margin: 0;
+    font-size: 30px;
+    border-radius: 50%;
+    &:focus {
+      outline:0;
+    }
+  }
+  & > button:nth-child(n + 2) {
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    opacity: 0;
+  }
+  & > button:nth-child(2) {
+    right: 70px;
+    bottom: 10px;
+  }
+  & > button:nth-child(3) {
+    right: 70px;
+    bottom: 65px;
+  }
+  & > button:nth-child(4) {
+    right: 130px;
+    bottom: 10px;
+  }
+  & > button:nth-child(5) {
+    right: 130px;
+    bottom: 65px;
+  }
+  & > button:nth-child(6) {
+    right: 190px;
+    bottom: 10px;
+  }
+  & > button:nth-child(7) {
+    right: 190px;
+    bottom: 65px;
+  }
+}
+
+@keyframes increaseOpacity {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.05;
+  }
+  10% {
+    opacity: 0.1;
+  }
+  15% {
+    opacity: 0.15;
+  }
+  20% {
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 0.3;
+  }
+  35% {
+    opacity: 0.35;
+  }
+  40% {
+    opacity: 0.4;
+  }
+  45% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  55% {
+    opacity: 0.55;
+  }
+  60% {
+    opacity: 0.6;
+  }
+  65% {
+    opacity: 0.65;
+  }
+  70% {
+    opacity: 0.7;
+  }
+  75% {
+    opacity: 0.75;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.85;
+  }
+  90% {
+    opacity: 0.9;
+  }
+  95% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes decreaseOpacity {
+  100% {
+    opacity: 0;
+  }
+}

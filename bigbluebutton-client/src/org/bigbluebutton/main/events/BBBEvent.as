@@ -37,12 +37,24 @@ package org.bigbluebutton.main.events {
     public static const USER_VOICE_LEFT:String = "user voice left event";
     public static const USER_VOICE_TALKING:String = "user voice talking event";
     public static const CAMERA_SETTING:String = "camera settings event";
+	public static const ERASE_CAMERA_SETTING:String = "ERASE_CAMERA_SETTING";
     public static const OPEN_WEBCAM_PREVIEW:String = "open webcam preview event";
 	public static const MIC_SETTINGS_CLOSED:String = "MIC_SETTINGS_CLOSED";
 	public static const CAM_SETTINGS_CLOSED:String = "CAM_SETTINGS_CLOSED";
 	public static const JOIN_VOICE_FOCUS_HEAD:String = "JOIN_VOICE_FOCUS_HEAD";
 	public static const CHANGE_RECORDING_STATUS:String = "CHANGE_RECORDING_STATUS";
    
+		public static const RECONNECT_DISCONNECTED_EVENT:String = "RECONNECT_ON_DISCONNECTED_EVENT";
+		public static const RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT:String = "RECONNECT_CONNECTION_ATTEMPT_FAILED_EVENT";
+		public static const RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT:String = "RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT";
+
+		public static const RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT:String = "RECONNECT_BIGBLUEBUTTON_SUCCEEDED_EVENT";
+		public static const RECONNECT_VIDEO_SUCCEEDED_EVENT:String = "RECONNECT_VIDEO_SUCCEEDED_EVENT";
+		public static const RECONNECT_SIP_SUCCEEDED_EVENT:String = "RECONNECT_SIP_SUCCEEDED_EVENT";
+		public static const RECONNECT_DESKSHARE_SUCCEEDED_EVENT:String = "RECONNECT_DESKSHARE_SUCCEEDED_EVENT";
+
+		public static const CANCEL_RECONNECTION_EVENT:String = "CANCEL_RECONNECTION_EVENT";
+
 		public var message:String;
 		public var payload:Object = new Object();
 		

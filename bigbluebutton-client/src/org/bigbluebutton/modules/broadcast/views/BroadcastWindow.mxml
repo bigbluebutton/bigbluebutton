@@ -18,8 +18,8 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<bcast:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-					  xmlns:bcast="flexlib.mdi.containers.*" 
+<bcast:CustomMdiWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+					  xmlns:bcast="org.bigbluebutton.common.*" 
 					  implements="org.bigbluebutton.common.IBbbModuleWindow" 
             styleNameFocus="broadcastStyleFocus" 
             styleNameNoFocus="broadcastStyleNoFocus"
@@ -30,11 +30,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
-			import flexlib.mdi.events.MDIWindowEvent;			
-			import mx.core.UIComponent;
-			import mx.events.ResizeEvent;
-			import mx.skins.Border;			
-			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
 			import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 			import org.bigbluebutton.modules.broadcast.models.Stream;
@@ -146,4 +142,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Button id="playBtn" label="Play" width="15% " click="playStopVideo()" toggle="true"/>				
     </mx:HBox>
   </mx:ControlBar>
-</bcast:MDIWindow>
+</bcast:CustomMdiWindow>

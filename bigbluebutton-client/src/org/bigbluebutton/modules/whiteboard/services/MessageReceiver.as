@@ -18,18 +18,16 @@
  */
 package org.bigbluebutton.modules.whiteboard.services
 {
-  import com.asfusion.mate.actions.builders.ObjectBuilder;  
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.main.model.users.IMessageListener;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-  import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
   import org.bigbluebutton.modules.whiteboard.models.Annotation;
   import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
   public class MessageReceiver implements IMessageListener
   {
-    private static const LOG:String = "WB::MessageReceiver - ";
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
     
         /* Injected by Mate */
     public var whiteboardModel:WhiteboardModel;
@@ -39,7 +37,7 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     public function onMessage(messageName:String, message:Object):void {
-      // LogUtil.debug("WB: received message " + messageName);
+      // trace("WB: received message " + messageName);
 
       switch (messageName) {
         case "WhiteboardRequestAnnotationHistoryReply":
@@ -66,10 +64,8 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     private function handleClearCommand(message:Object):void {
-      trace(LOG + "*** handleClearCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
       
-      trace("WB:MessageReceiver:Handle Whiteboard Clear Command ");
       if (map.hasOwnProperty("whiteboardId")) {
         whiteboardModel.clear(map.whiteboardId);
       }
@@ -77,7 +73,6 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     private function handleUndoCommand(message:Object):void {
-      trace(LOG + "*** handleUndoCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
       if (map.hasOwnProperty("whiteboardId")) {
         whiteboardModel.undo(map.whiteboardId);
@@ -85,23 +80,15 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     private function handleEnableWhiteboardCommand(message:Object):void {
-      trace(LOG + "*** handleEnableWhiteboardCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);
             
-      //if (result as Boolean) modifyEnabledCallback(true);
-      // LogUtil.debug("Handle Whiteboard Enabled Command " + message.enabled);
       whiteboardModel.enable(map.enabled);
     }
     
     private function handleNewAnnotationCommand(message:Object):void {
-      trace(LOG + "*** handleNewAnnotationCommand " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);
       var shape:Object = map.shape as Object;
       var an:Object = shape.shape as Object;
-//      trace(LOG + "*** handleNewAnnotationCommand shape id=[" + shape.id + "] type=[" + shape.type + "] status=[" + shape.status + "] **** \n"); 
-      
-      trace(LOG + "*** handleNewAnnotationCommand an color=[" + an.color + "] thickness=[" + an.thickness + "] points=[" + an.points + "]**** \n");
-//      trace(LOG + "*** handleNewAnnotationCommand an a=[" + an + "] **** \n");
       
       var annotation:Annotation = new Annotation(shape.id, shape.type, an);
       annotation.status = shape.status;
@@ -109,21 +96,13 @@ package org.bigbluebutton.modules.whiteboard.services
     }
 
     private function handleIsWhiteboardEnabledReply(message:Object):void {
-      trace(LOG + "*** handleIsWhiteboardEnabledReply " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);
-            
-      //if (result as Boolean) modifyEnabledCallback(true);
-      LogUtil.debug("Whiteboard Enabled? " + message.enabled);
     }
 
     private function handleRequestAnnotationHistoryReply(message:Object):void {
-      trace(LOG + "*** handleRequestAnnotationHistoryReply " + message.msg + " **** \n");      
       var map:Object = JSON.parse(message.msg);      
    
-      if (map.count == 0) {
-        trace(LOG + "handleRequestAnnotationHistoryReply: No annotations.");
-      } else {
-        trace(LOG + "handleRequestAnnotationHistoryReply: Number of annotations in history = " + map.count);
+      if (map.count != 0) {
         var annotations:Array = map.annotations as Array;
         var tempAnnotations:Array = new Array();
         
@@ -136,10 +115,7 @@ package org.bigbluebutton.modules.whiteboard.services
         }   
                 
         if (tempAnnotations.length > 0) {
-          trace(LOG + "Number of whiteboard shapes =[" + tempAnnotations.length + "]");
           whiteboardModel.addAnnotationFromHistory(map.whiteboardId, tempAnnotations);
-        } else {
-          trace(LOG + "NO whiteboard shapes in history ");
         }
       }
     }

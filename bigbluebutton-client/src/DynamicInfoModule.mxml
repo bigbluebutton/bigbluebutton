@@ -35,9 +35,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.IBbbToolbarComponent;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoButton;
 			import org.bigbluebutton.modules.dynamicinfo.DynamicInfoComboBox;

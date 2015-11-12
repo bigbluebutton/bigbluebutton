@@ -37,6 +37,10 @@ module BigBlueButton
           if audio_offset != 0
             ffmpeg_cmd += ['-itsoffset', ms_to_s(audio_offset)]
           end
+          # Ensure that the entire contents of freeswitch wav files are read
+          if BigBlueButton::EDL::Audio.audio_info(audio)[:format][:format_name] == 'wav'
+            ffmpeg_cmd += ['-ignore_length', '1']
+          end
           ffmpeg_cmd += ['-i', audio]
         end
         ffmpeg_cmd += [*pass, lastoutput]

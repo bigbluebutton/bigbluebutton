@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.modules.deskshare.model
 {
+	import flash.external.ExternalInterface;
+	
 	import org.bigbluebutton.core.BBB;
 	
 	public class DeskshareOptions
@@ -25,13 +27,22 @@ package org.bigbluebutton.modules.deskshare.model
 		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var autoStart:Boolean = false;
 		[Bindable] public var autoFullScreen:Boolean = false;
+		public var useTLS:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
-		
+		public var publishURI:String;
+
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("DeskShareModule");
 			if (vxml != null) {
+				publishURI = "";
+				if (vxml.@publishURI != undefined){
+					publishURI = vxml.@publishURI.toString();
+				}
 				if (vxml.@autoStart != undefined) {
 					autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@useTLS != undefined){
+					useTLS = (vxml.@useTLS.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@autoFullScreen != undefined){
 					autoFullScreen = (vxml.@autoFullScreen.toString().toUpperCase() == "TRUE") ? true : false;
@@ -43,7 +54,11 @@ package org.bigbluebutton.modules.deskshare.model
 					baseTabIndex = 201;
 				}
 				if (vxml.@showButton != undefined){
-					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false; 
+					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+					// If we are using Puffin browser
+					if (ExternalInterface.call("determineBrowser")[0] == "Puffin") {
+						showButton = false;
+					}
 				}
 			}
 		}

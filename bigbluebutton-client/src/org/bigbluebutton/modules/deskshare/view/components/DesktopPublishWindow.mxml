@@ -20,11 +20,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<dspub:MDIWindow 
+<dspub:CustomMdiWindow 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	xmlns:dspub="flexlib.mdi.containers.*"
+	xmlns:dspub="org.bigbluebutton.common.*"
 	backgroundColor="#C0C0C0"
 	initialize="init()"
 	creationComplete="onCreationComplete()"	
@@ -48,15 +48,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import flexlib.mdi.events.MDIWindowEvent;
-			import flexlib.scheduling.scheduleClasses.BackgroundItem;
-			
 			import mx.core.UIComponent;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -72,6 +70,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
+
 			public static const SCALE:Number = 5;
 			private static const VID_HEIGHT_PAD:Number = 73;
 			private static const VID_WIDTH_PAD:Number = 6;
@@ -82,6 +82,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var connection:NetConnection;
 			private var uri:String;
+			private var useTLS:Boolean;
 			private var room:String;
 			private var sharingFullScreen:Boolean = false;
 			private var streaming:Boolean = false;
@@ -99,12 +100,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var javaTimer:Timer;
 			
 			[Bindable] private var cursor:Sprite;
-			[Bindable] private var baseIndex:int;
 			[Bindable] private var dsOptions:DeskshareOptions;
 			
+      private var calledStopApplet:Boolean = false;
+      
 			private function init():void {
 				dsOptions = new DeskshareOptions();
-				baseIndex = dsOptions.baseTabIndex;
 			}
 			
 			private function onCreationComplete():void {
@@ -114,26 +115,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
 				
-				var javaIssue:String = JavaCheck.checkJava();
-				
 				if (isUsingLessThanChrome38OnMac()) {
 					setCurrentState("chromeOnMacWarningState");
-				}
-				else if (javaIssue != null) {
-					setCurrentState("javaIssueWarningState");
-					javaIssueWarningStateLbl.htmlText = javaIssue;
-				}
-				else {
-					setCurrentState("dispFullRegionControlBar");
+				} else {
+					var javaIssue:String = JavaCheck.checkJava();
+					
+					if (javaIssue != null) {
+						if (isChrome42OrHigher()) {
+							setCurrentState("chrome42WarningState");
+						} else {
+							setCurrentState("javaIssueWarningState");
+							javaIssueWarningStateLbl.htmlText = javaIssue;
+						}
+					} else {
+						setCurrentState("dispFullRegionControlBar");
+					}
 				}
 				resourcesChanged();
 				
-				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
 				titleBarOverlay.focusEnabled = true;
-								
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				closeBtn.tabIndex = baseIndex+3;
 			}
 			
 			private function remoteFocus(e:ShortcutEvent):void{
@@ -165,9 +166,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */			
 			public function resetWidthAndHeight():void{/* do nothing */}
 			
-			public function initWindow(connection:NetConnection, uri:String, room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
+			public function initWindow(connection:NetConnection, uri:String, useTLS:Boolean , room:String, autoStart:Boolean, autoFullScreen:Boolean):void {
 				this.connection = connection;
 				this.uri = uri;
+				this.useTLS = useTLS;
 				this.room = room;				
 				this.autoStart = autoStart;
 				/*if(autoFullScreen)
@@ -175,22 +177,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function shareScreen(fullScreen:Boolean):void {
-				LogUtil.debug("Calling shareScreen");
+				LOGGER.debug("Calling shareScreen");
 				btnFSPublish.enabled = false;
 				btnRegionPublish.enabled = false;
 //				useSVC2Check.enabled = false;
 				javaTimer = new Timer(7000, 1);
 				javaTimer.addEventListener(TimerEvent.TIMER, onJavaTimer);
 				javaTimer.start();
-				startSharing(connection, uri, room, fullScreen);
+				startSharing(connection, uri, useTLS , room, fullScreen);
 			}
 			
-			private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
+			private function startSharing(connection:NetConnection, uri:String , useTLS:Boolean , room:String, fullScreen:Boolean):void {
 				var captureX:Number = 0;
 				var captureY:Number = 0;				
 				sharingFullScreen = fullScreen;
-				LogUtil.debug("Calling startApplet");
-				ExternalInterface.call("startApplet", uri, room, fullScreen, true /*useSVC2Check.selected*/);
+				LOGGER.debug("Calling startApplet");
+				ExternalInterface.call("startApplet", uri , useTLS , room, fullScreen, true /*useSVC2Check.selected*/);
 			}
 			
 			public function stopSharing():void{
@@ -240,7 +242,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
-				LogUtil.debug("DeskShareWindow::onAppletStart");
+				if (!connection.connected) return;
+				
+				LOGGER.debug("DeskShareWindow::onAppletStart");
 				startPreviewStream(connection, room, event.videoWidth, event.videoHeight);
 				var streamEvent:StreamEvent = new StreamEvent(StreamEvent.START);
 				streamEvent.videoWidth = event.videoWidth;
@@ -275,7 +279,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					vidH = captureHeight;
 				}
 
-				LogUtil.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
+				LOGGER.debug("deskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
 				video = new Video(vidW, vidH);
 				video.width = vidW;
 				video.height = vidH;
@@ -314,20 +318,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				LogUtil.debug("VIdeoWindow::asyncerror " + e.toString());
+				LOGGER.debug("VIdeoWindow::asyncerror {0}", [e.toString()]);
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
 				case "NetStream.Publish.Start":
-					LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
+					LOGGER.debug("NetStream.Publish.Start for broadcast stream {0}", [stream]);
 					break;
 				case "NetStream.Play.UnpublishNotify":
-					LogUtil.debug("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					LOGGER.debug("NetStream.Play.UnpublishNotify for broadcast stream {0}", [stream]);
 					stopSharing();
 					break;
 				case "NetStream.Play.Start":
-					LogUtil.debug("Netstatus: " + e.info.code);
+					LOGGER.debug("Netstatus: {0}", [e.info.code]);
 					globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.DESKSHARE_STARTED));
 				}
 			}
@@ -337,15 +341,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeWindow();
 			}
 
-			private function closeWindow():void {			
-				ExternalInterface.call("stopApplet");	
-				dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));				
-			}		
-			
-			private function restartJava():void {
-				ExternalInterface.call("stopApplet");
-				shareScreen(sharingFullScreen);
-			}
+      private function callStopApplet():void {
+        if (!calledStopApplet) {
+          calledStopApplet = true;
+          LOGGER.debug("Calling stopApplet in callStopApplet()");
+          ExternalInterface.call("stopApplet");
+        }
+      }
+      private function closeWindow():void {		
+		LOGGER.debug("Calling stopApplet in closeWindow()");
+        callStopApplet();
+        dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));				
+      }		
+      
+      private function restartJava():void {
+		LOGGER.debug("Calling stopApplet in restartJava()");
+        callStopApplet();
+        shareScreen(sharingFullScreen);
+      }
 			
 			private function handleDeskshareAppletLaunchedEvent(e:DeskshareAppletLaunchedEvent):void {
 				if (javaTimer && javaTimer.running) {
@@ -396,8 +409,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var browser:Array = ExternalInterface.call("determineBrowser");
 				return ((browser[0] == "Chrome") && (parseInt(browser[1]) <= 38) && (Capabilities.os.indexOf("Mac") >= 0));
 			}
+			
+			private function isChrome42OrHigher():Boolean {
+				var browser:Array = ExternalInterface.call("determineBrowser");
+				return ((browser[0] == "Chrome") && (parseInt(browser[1]) >= 42));
+			}
 		]]>
 	</mx:Script>
+
+	<dspub:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}"
+					  tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnFSPublish, btnClosePublish, btnRegionPublish]}"/>
 
 	<!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
 	<mx:VBox id="javaHelpArea" includeInLayout="false" visible="false" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
@@ -416,23 +437,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                                toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" 
                                label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
                                visible="true" 
-                               click="shareScreen(true)" 
-                               tabIndex="{baseIndex+4}"/>
+                               click="shareScreen(true)" />
                     <mx:Spacer width="100%"/>
                     <mx:Button id="btnClosePublish" 
                                toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
                                label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" 
                                visible="true" 
                                enabled="false" 
-                               click="stopSharing()" 
-                               tabIndex="{baseIndex+5}"/>
+                               click="stopSharing()" />
                     <mx:Spacer width="100%"/>
                     <mx:Button id="btnRegionPublish"
                                toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
                                label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
                                visible="true" 
                                click="shareScreen(false)" 
-                               tabIndex="{baseIndex+6}"
                                focusEnabled="false"
                                tabEnabled="false"/>
                     <mx:Spacer width="100%"/>                      
@@ -449,6 +467,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				</mx:VBox>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="chrome42WarningState">
+			<mx:AddChild>
+				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:Text id="chrome42WarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
+							 text="{ResourceUtil.getInstance().getString('bbb.desktopPublish.chrome42UnsupportedHint')}" />
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
 		<mx:State name="javaIssueWarningState">
 			<mx:AddChild>
 				<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
@@ -459,4 +485,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</dspub:states>
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 
-</dspub:MDIWindow>
+</dspub:CustomMdiWindow>

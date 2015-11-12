@@ -145,6 +145,18 @@ module BigBlueButton
             end
           end
 
+          # Pull in timestamps from the next entry to respect edit cuts
+          next_entry[:areas].each do |area, videos|
+            videos.each do |video|
+              merged_video = merged_entry[:areas][area].find do |v|
+                v[:filename] == video[:filename]
+              end
+              if !merged_video.nil?
+                merged_video[:timestamp] = video[:timestamp]
+              end
+            end
+          end
+
           entries_i[next_edl] += 1
           if entries_i[next_edl] >= edls[next_edl].length
             done[next_edl] = true

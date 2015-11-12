@@ -22,7 +22,8 @@ package org.bigbluebutton.main.api
   
   import flash.external.ExternalInterface;
   
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
@@ -34,14 +35,11 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
-  import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
-  import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
-  import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
-  import org.bigbluebutton.modules.phone.events.FlashCallDisconnectedEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
   import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
@@ -50,11 +48,10 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-  import org.bigbluebutton.modules.videoconf.events.WebRTCWebcamRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCallbacks {
-    private static const LOG:String = "ExternalApiCallbacks - ";    
+	private static const LOGGER:ILogger = getClassLogger(ExternalApiCallbacks);
     private var _dispatcher:Dispatcher;
     
     public function ExternalApiCallbacks() {
@@ -64,7 +61,7 @@ package org.bigbluebutton.main.api
     
     private function init():void {
       if (ExternalInterface.available) {
-        ExternalInterface.addCallback("raiseHandRequest", handleRaiseHandRequest);
+        ExternalInterface.addCallback("emojiStatusRequest", handleEmojiStatusRequest);
         ExternalInterface.addCallback("ejectUserRequest", handleEjectUserRequest);
         ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
         ExternalInterface.addCallback("getMyUserInfoSync", handleGetMyUserInfoSynch);
@@ -97,22 +94,15 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("deletePresentationRequest", handleDeletePresentationRequest);
         ExternalInterface.addCallback("queryListsOfPresentationsRequest", handleQueryListsOfPresentationsRequest);
 
-		ExternalInterface.addCallback("webRTCConferenceCallStarted", handleWebRTCConferenceCallStarted);
-		ExternalInterface.addCallback("webRTCConferenceCallConnecting", handleWebRTCConferenceCallConnecting);
-        ExternalInterface.addCallback("webRTCConferenceCallEnded", handleWebRTCConferenceCallEnded);
-        ExternalInterface.addCallback("webRTCConferenceCallFailed", handleWebRTCConferenceCallFailed);
-		ExternalInterface.addCallback("webRTCConferenceCallWaitingForICE", handleWebRTCConferenceCallWaitingForICE);
-        ExternalInterface.addCallback("webRTCEchoTestStarted", handleWebRTCEchoTestStarted);
-        ExternalInterface.addCallback("webRTCEchoTestConnecting", handleWebRTCEchoTestConnecting);
-        ExternalInterface.addCallback("webRTCEchoTestFailed", handleWebRTCEchoTestFailed);
-        ExternalInterface.addCallback("webRTCEchoTestEnded", handleWebRTCEchoTestEnded);
-		ExternalInterface.addCallback("webRTCEchoTestWaitingForICE", handleWebRTCEchoTestWaitingForICE);
+        ExternalInterface.addCallback("webRTCCallStarted", handleWebRTCCallStarted);
+        ExternalInterface.addCallback("webRTCCallConnecting", handleWebRTCCallConnecting);
+        ExternalInterface.addCallback("webRTCCallEnded", handleWebRTCCallEnded);
+        ExternalInterface.addCallback("webRTCCallFailed", handleWebRTCCallFailed);
+        ExternalInterface.addCallback("webRTCCallWaitingForICE", handleWebRTCCallWaitingForICE);
+        ExternalInterface.addCallback("webRTCCallTransferring", handleWebRTCCallTransferring);
         ExternalInterface.addCallback("webRTCMediaRequest", handleWebRTCMediaRequest);
         ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
-        ExternalInterface.addCallback("webRTCWebcamRequest", handleWebRTCWebcamRequest);
-        ExternalInterface.addCallback("webRTCWebcamRequestSuccess", handleWebRTCWebcamRequestSuccess);
-        ExternalInterface.addCallback("webRTCWebcamRequestFail", handleWebRTCWebcamRequestFail);
         ExternalInterface.addCallback("javaAppletLaunched", handleJavaAppletLaunched);
       }
       
@@ -140,32 +130,29 @@ package org.bigbluebutton.main.api
     
     private function handleIsUserPublishingCamRequestAsync(userID:String):void {
       var event:IsUserPublishingCamRequest = new IsUserPublishingCamRequest();
-      event.userID = UsersUtil.externalUserIDToInternalUserID(userID);
+      event.userID = userID;
       if (event.userID != null) {
         _dispatcher.dispatchEvent(event);
       } else {
-        LogUtil.warn("Cannot find user with external userID [" + userID + "] to query is sharing webcam or not.");
+        LOGGER.warn("Cannot find user with external userID [{0-}] to query is sharing webcam or not.", [userID]);
       }
     }
  
-    private function handleRaiseHandRequest(handRaised:Boolean):void {
-      trace(LOG + "Received raise hand request from JS API [" + handRaised + "]");
-      var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-      e.raised = handRaised;
+    private function handleEmojiStatusRequest(emojiStatus:String):void {
+      var e:EmojiStatusEvent = new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, emojiStatus);
       _dispatcher.dispatchEvent(e);
     }
     
     private function handleEjectUserRequest(userID:String):void {
-        var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);
-        _dispatcher.dispatchEvent(new KickUserEvent(intUserID));
+        _dispatcher.dispatchEvent(new KickUserEvent(userID));
     }
     
     private function handleIsUserPublishingCamRequestSync(userID:String):Object {
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;
       
-      var streamName:String = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
-      if (streamName != null) {
+      var streamNames:Array = UsersUtil.getWebcamStream(userID);
+      if (streamNames && streamNames.length > 0) {
         isUserPublishing = true; 
       }
       
@@ -173,7 +160,7 @@ package org.bigbluebutton.main.api
       obj.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
-      obj.streamName = streamName;
+      obj.streamNames = streamNames;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
@@ -184,16 +171,16 @@ package org.bigbluebutton.main.api
     }
     
     private function handleGetMyUserInfoSynch():Object {
-      trace(LOG + " handleGetMyUserInfoSynch");
       var obj:Object = new Object();
-      obj.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      obj.myUserID = UsersUtil.getMyUserID();
+	  obj.myExternalUserID = UsersUtil.getMyExternalUserID();
       obj.myUsername = UsersUtil.getMyUsername();
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();
       obj.amIPresenter = UsersUtil.amIPresenter();
-	    obj.dialNumber = UsersUtil.getDialNumber();
-	    obj.voiceBridge = UsersUtil.getVoiceBridge();
-	    obj.customdata = UsersUtil.getCustomData();
+      obj.dialNumber = UsersUtil.getDialNumber();
+      obj.voiceBridge = UsersUtil.getVoiceBridge();
+      obj.customdata = UsersUtil.getCustomData();
       
       return obj;
     }
@@ -203,15 +190,12 @@ package org.bigbluebutton.main.api
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
       obj.isPublishing = camSettings.isPublishing;
       obj.camIndex = camSettings.camIndex;
-      obj.camWidth = camSettings.camWidth;
-      obj.camHeight = camSettings.camHeight;
-      
-      var vidConf:VideoConfOptions = new VideoConfOptions();
-      
-      obj.camKeyFrameInterval = vidConf.camKeyFrameInterval;
-      obj.camModeFps = vidConf.camModeFps;
-      obj.camQualityBandwidth = vidConf.camQualityBandwidth;
-      obj.camQualityPicture = vidConf.camQualityPicture;  
+      obj.camWidth = camSettings.videoProfile.width;
+      obj.camHeight = camSettings.videoProfile.height;
+      obj.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+      obj.camModeFps = camSettings.videoProfile.modeFps;
+      obj.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+      obj.camQualityPicture = camSettings.videoProfile.qualityPicture;
       obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
@@ -234,26 +218,21 @@ package org.bigbluebutton.main.api
       _dispatcher.dispatchEvent(new ClosePublishWindowEvent());	
     }
     
-    private function handleSwitchPresenterRequest(userID:String):void {
-      var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);
-      trace("Switching presenter to [" + intUserID + "] [" + UsersUtil.getUserName(intUserID) + "]"); 
-      
+    private function handleSwitchPresenterRequest(userID:String):void {  
       var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-      e.userid = intUserID;
-      e.username = UsersUtil.getUserName(intUserID);
+      e.userid = userID;
+      e.username = UsersUtil.getUserName(userID);
       _dispatcher.dispatchEvent(e);
     }
     
     private function handleGetMyUserID():String {
-      trace(LOG + " handleGetMyUserID");
-      return UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      return UsersUtil.getMyUserID();
     }
     
     private function handleGetPresenterUserID():String {
-      trace(LOG + " handleGetPresenterUserID");
       var presUserID:String = UsersUtil.getPresenterUserID();
       if (presUserID != "") {
-        return UsersUtil.internalUserIDToExternalUserID(presUserID);
+        return presUserID;
       }
       // return an empty string. Meeting has no presenter.
       return "";
@@ -289,7 +268,6 @@ package org.bigbluebutton.main.api
     * 
     */
     private function handleSendPublicChatRequest(fontColor:String, localeLang:String, message:String):void {
-      trace("handleSendPublicChatRequest");
       var chatEvent:CoreEvent = new CoreEvent(EventConstants.SEND_PUBLIC_CHAT_REQ);      
       var payload:Object = new Object();      
       payload.fromColor = fontColor;
@@ -330,17 +308,9 @@ package org.bigbluebutton.main.api
       payload.fromTimezoneOffset = now.getTimezoneOffset();
       
       payload.message = message;
-      
-      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
-      // an external user id for it's own use.
       payload.fromUserID = UsersUtil.getMyUserID();
-      // Now get the user's name using the internal user id 
       payload.fromUsername = UsersUtil.getUserName(payload.fromUserID);
-
-      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
-      // an external user id for it's own use.
-      payload.toUserID = UsersUtil.externalUserIDToInternalUserID(toUserID);
-      // Now get the user's name using the internal user id 
+      payload.toUserID = toUserID;
       payload.toUsername = UsersUtil.getUserName(payload.toUserID);
       
       chatEvent.message = payload;
@@ -381,12 +351,10 @@ package org.bigbluebutton.main.api
     }
     
     private function handleGetMyRoleRequestAsynch():void {
-      trace("handleGetMyRoleRequestAsynch");
       _dispatcher.dispatchEvent(new CoreEvent(EventConstants.GET_MY_ROLE_REQ));
     }
     
     private function handleJoinVoiceRequest():void {
-      trace("handleJoinVoiceRequest");
       _dispatcher.dispatchEvent(new AudioSelectionWindowEvent(AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION));
     }
     
@@ -397,99 +365,72 @@ package org.bigbluebutton.main.api
     }
     
     private function onShareVideoCamera(publishInClient:Boolean=true):void {
-      trace("Sharing webcam: publishInClient = [" + publishInClient + "]");
       var event:ShareCameraRequestEvent = new ShareCameraRequestEvent();
       event.publishInClient = publishInClient;
       
       _dispatcher.dispatchEvent(event);
     }
     
-    private function handleWebRTCConferenceCallStarted():void {
-      trace(LOG + "handleWebRTCConferenceCallStarted: recieved");
-      _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_STARTED));
-    }
-	
-	private function handleWebRTCConferenceCallConnecting():void {
-		trace(LOG + "handleWebRTCConferenceCallConnecting: recieved");
-		_dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_CONNECTING));
-	}
-
-    private function handleWebRTCConferenceCallEnded():void {
-      trace(LOG + "handleWebRTCConferenceCallEnded: received");
-      _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_ENDED));
+    private function handleWebRTCCallStarted(inEchoTest:Boolean):void {
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_STARTED));
+      }
     }
     
-    private function handleWebRTCConferenceCallFailed(errorCode:Number):void {
-      trace(LOG + "handleWebRTCConferenceCallFailed: errorCode=[" + errorCode + "]");
-      _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_FAILED, errorCode));
-    }
-	
-	private function handleWebRTCConferenceCallWaitingForICE():void {
-		trace(LOG + "handleWebRTCConferenceCallWaitingForICE: received");
-		_dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_WAITING_FOR_ICE));
-	}
-    
-    private function handleWebRTCEchoTestStarted():void {
-      trace(LOG + "handleWebRTCEchoTestStarted: recieved");
-      _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_STARTED));
-    }
-	
-	private function handleWebRTCEchoTestConnecting():void {
-		trace(LOG + "handleWebRTCEchoTestConnecting: recieved");
-		_dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING));
-	}
-    
-    private function handleWebRTCEchoTestFailed(errorCode:Number):void {
-      trace(LOG + "handleWebRTCEchoTestFailed: errorCode=[" + errorCode + "]");
-      _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED, errorCode));
+    private function handleWebRTCCallConnecting(inEchoTest:Boolean):void {
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_CONNECTING));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_CONNECTING));
+      }
     }
     
-    private function handleWebRTCEchoTestEnded():void {
-      trace(LOG + "handleWebRTCEchoTestEnded: received");
-      _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED));
+    private function handleWebRTCCallEnded(inEchoTest:Boolean):void {
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_ENDED));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_ENDED));
+      }
     }
-	
-	private function handleWebRTCEchoTestWaitingForICE():void {
-		trace(LOG + "handleWebRTCEchoTestWaitingForICE: received");
-		_dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_WAITING_FOR_ICE));
-	}
+    
+    private function handleWebRTCCallFailed(inEchoTest:Boolean, errorCode:Number, cause:String):void {
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_FAILED, errorCode, cause));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_FAILED, errorCode, cause));
+      }
+    }
+    
+    private function handleWebRTCCallWaitingForICE(inEchoTest:Boolean):void {
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_WAITING_FOR_ICE));
+      } else {
+        _dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_WAITING_FOR_ICE));
+      }
+    }
+    
+    private function handleWebRTCCallTransferring(inEchoTest:Boolean):void {
+      if (inEchoTest) {
+        _dispatcher.dispatchEvent(new WebRTCEchoTestEvent(WebRTCEchoTestEvent.WEBRTC_ECHO_TEST_TRANSFERRING));
+      }
+    }
     
     private function handleWebRTCMediaRequest():void {
-      trace(LOG + "handleWebRTCMediaRequest: received");
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST));
     }
     
     private function handleWebRTCMediaSuccess():void {
-      trace(LOG + "handleWebRTCMediaSuccess: received");
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_SUCCESS));
 	}
 
     private function handleWebRTCMediaFail():void {
-      trace(LOG + "handleWebRTCMediaFail: received");
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
     }
-
-	private function handleWebRTCWebcamRequestFail(cause:String):void
-	{
-		trace(LOG + "handleWebRTCWebcamFail: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_FAIL, cause));
-	}
-
-	private function handleWebRTCWebcamRequestSuccess():void
-	{
-		trace(LOG + "handleWebRTCWebcamSuccess: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_SUCCESS));
-	}
-
-	private function handleWebRTCWebcamRequest():void
-	{
-		trace(LOG + "handleWebRTCWebcamRequest: received");
-		_dispatcher.dispatchEvent(new WebRTCWebcamRequestEvent(WebRTCWebcamRequestEvent.WEBRTC_WEBCAM_REQUEST));
-	}
 	
 	private function handleJavaAppletLaunched():void
 	{
-		trace(LOG + "handleJavaAppletLaunched: received");
 		_dispatcher.dispatchEvent(new DeskshareAppletLaunchedEvent(DeskshareAppletLaunchedEvent.APPLET_LAUNCHED));
 	}
   }

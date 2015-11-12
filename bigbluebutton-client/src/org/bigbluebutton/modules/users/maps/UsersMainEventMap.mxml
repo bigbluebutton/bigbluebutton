@@ -23,20 +23,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" >
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;    
-      import org.bigbluebutton.core.events.LockControlEvent;
-      import org.bigbluebutton.core.events.VoiceConfEvent;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.LogoutEvent;
-      import org.bigbluebutton.main.events.UserServicesEvent;
-      import org.bigbluebutton.main.model.users.UserService;
-      import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
-      import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
-      import org.bigbluebutton.main.model.users.events.KickUserEvent;
-      import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-      import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
-      import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-      import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.core.events.LockControlEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.UserServicesEvent;
+			import org.bigbluebutton.main.model.users.UserService;
+			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
+			import org.bigbluebutton.main.model.users.events.KickUserEvent;
+			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+			import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 		]]>
 	</mx:Script>
 	
@@ -62,12 +62,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
   
   <!-- Viewers Stuff -->
-  <EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
-    <MethodInvoker generator="{UserService}" method="raiseHand" arguments="{event}" />
-  </EventHandlers>
-  
-  <EventHandlers type="{LowerHandEvent.LOWER_HAND_EVENT}" >
-    <MethodInvoker generator="{UserService}" method="lowerHand" arguments="{event}" />
+  <EventHandlers type="{EmojiStatusEvent.EMOJI_STATUS}" >
+    <MethodInvoker generator="{UserService}" method="emojiStatus" arguments="{event}" />
   </EventHandlers>
   
   <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >

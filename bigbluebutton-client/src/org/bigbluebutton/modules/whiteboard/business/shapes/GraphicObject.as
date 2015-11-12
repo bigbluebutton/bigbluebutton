@@ -18,9 +18,6 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.DisplayObject;
-	
-	import org.bigbluebutton.common.LogUtil;
 
 	public interface GraphicObject {
 		function get type():String;

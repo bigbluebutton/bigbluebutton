@@ -19,18 +19,14 @@
 package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
-	import org.bigbluebutton.modules.polling.model.PollObject;
 	
 	public class StopPollEvent extends Event
 	{
-		public static const STOP_POLL:String = "STOP_POLL";
-		public var pollKey : String;
-		public var poll:PollObject;
+		public static const STOP_POLL:String = "stop poll";
 		
-		public function StopPollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function StopPollEvent()
 		{
-			poll = new PollObject();
-			super(type, bubbles, cancelable);
+			super(STOP_POLL, true, false);
 		}
 		
 	}
