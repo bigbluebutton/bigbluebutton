@@ -25,7 +25,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			title="Closed Caption"
 			width="400" height="300"
 			showCloseButton="false"
-			creationComplete="onCreationComplete()">
+			creationComplete="onCreationComplete()" xmlns:views="org.bigbluebutton.modules.caption.views.*">
 	<mx:Script>
 		<![CDATA[
 			import com.adobe.utils.StringUtil;
@@ -55,6 +55,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				onFontSizeComboChange();
 				onFontTypeComboChange();
+				
+				transcriptArea.getInternalTextField().addEventListener(KeyboardEvent.KEY_DOWN, onTranscriptKeyDown);
 			}
 			
 			private function setTranscripts(t:Transcripts):void {
@@ -159,6 +161,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onTranscriptTextInput(e:TextEvent):void {
 				trace("Text entered: " + e.text + ", carat begin:" + transcriptArea.selectionBeginIndex + ", end: " + transcriptArea.selectionEndIndex);
+				
+				respondToTextChange(e.text, transcriptArea.selectionBeginIndex, transcriptArea.selectionEndIndex);
 			}
 			
 			private function onTranscriptTextChange(e:Event):void {
@@ -167,6 +171,62 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onTranscriptDataChange(e:FlexEvent):void {
 				trace("transcript change");
+			}
+			
+			private function onTranscriptKeyDown(e:KeyboardEvent):void {
+				// TODO: Need to make sure I handle the CTRL, SHIFT, and ALT cases because they are different
+				var si:int = transcriptArea.selectionBeginIndex;
+				var ei:int = transcriptArea.selectionEndIndex;
+				switch (e.keyCode) {
+					case Keyboard.BACKSPACE:
+						if (e.ctrlKey || e.shiftKey || e.altKey) {
+							e.preventDefault(); 
+							
+					//		flash.events.KeyboardEvent.KeyboardEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false, 
+					//			charCodeValue:uint=0, keyCodeValue:uint=0, keyLocationValue:uint=0, ctrlKeyValue:Boolean=false, 
+					//			altKeyValue:Boolean=false, shiftKeyValue:Boolean=false
+							transcriptArea.getInternalTextField().dispatchEvent(new KeyboardEvent(e.type, true, true, e.charCode, e.keyCode, e.keyLocation, false, false, false));
+						}
+						if (si == ei) {
+							if (si == 0) {
+								return;
+							}
+							si--;
+						}
+						respondToTextChange("", si, ei);
+						break;
+					case Keyboard.DELETE:
+						if (si == ei) {
+							if (si == transcriptArea.length+1) {
+								return ;
+							}
+							ei++;
+						}
+						respondToTextChange("", si, ei);
+						break;
+						break;
+					case Keyboard.INSERT:
+						break;
+					
+					// Might not need the arrow keys
+					case Keyboard.LEFT:
+						break;
+					case Keyboard.RIGHT:
+						break;
+					case Keyboard.UP:
+						break;
+					case Keyboard.DOWN:
+						break;
+				}
+			}
+			
+			private function respondToTextChange(t:String, si:int, ei:int):void {
+				var text:String = newLineInput.text;
+				
+				var startSlice:String = text.slice(0, si);
+				var endSlice:String = text.slice(ei);
+				
+				newLineInput.text = startSlice + t + endSlice;
 			}
 		]]>
 	</mx:Script>
@@ -178,7 +238,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:ComboBox id="textCaseCombo" dataProvider="['Untouched', 'Lowercase', 'Uppercase']" change="onTextCaseComboChange()"/>
 			<mx:ComboBox id="localeCombo" dataProvider="['en_US','ca_FR', 'pt_PT']" change="onLocaleComboChange()"/>
 		</mx:HBox>
-		<mx:TextArea id="transcriptArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)" dataChange="onTranscriptDataChange(event)"/>
-		<mx:TextArea id="newLineInput" width="100%" height="20" textInput="onNewLineTextInput(event)" change="onNewLineChange(event)" />
+		<views:TextArea2 id="transcriptArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)" dataChange="onTranscriptDataChange(event)" />
+		<mx:TextArea id="newLineInput" width="100%" height="100%" textInput="onNewLineTextInput(event)" change="onNewLineChange(event)" />
 	</mx:VBox>
 </CustomMdiWindow>
