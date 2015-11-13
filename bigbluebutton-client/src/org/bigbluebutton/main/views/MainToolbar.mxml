@@ -191,11 +191,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function refreshModeratorButtonsVisibility(e:*):void {
-          showGuestSettingsButton = UsersUtil.amIModerator() 
-              && UserManager.getInstance().getConference().getMyUser() != null
-              && !UserManager.getInstance().getConference().getMyUser().waitingForAcceptance;
+          var userLoaded:Boolean = UserManager.getInstance().getConference().getMyUser() != null
+                  && ! UserManager.getInstance().getConference().getMyUser().waitingForAcceptance;
 
-          showRecordButton = showGuestSettingsButton && UserManager.getInstance().getConference().record;
+          showGuestSettingsButton = userLoaded && UsersUtil.amIModerator();
+
+          showRecordButton = userLoaded && UserManager.getInstance().getConference().record;
       }
             
 			public function addButton(name:String):Button{

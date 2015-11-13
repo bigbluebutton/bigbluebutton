@@ -44,6 +44,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       import mx.controls.Alert;
       import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
       
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.core.model.MeetingModel;
@@ -57,6 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var recordingFlag:Boolean;
 			private var firstAudioJoin:Boolean = true;
 			private var layoutOptions:LayoutOptions = null;
+			private var _confirmationAlert:Alert = null;
 			
 			[Embed(source="/org/bigbluebutton/common/assets/images/record.png")]
 			private var recordReminderIcon:Class;
@@ -65,26 +67,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
 			}
 
-			private function confirmChangeRecordingStatus():void {
-        trace("Confirming recording status change!!!!");
-        
-				// need to save the flag in case of any remote update on the recording status
-				recordingFlag = !this.selected;
+			private function hideConfirmationAlert():void {
+				if (_confirmationAlert != null) {
+					if (_confirmationAlert.visible) {
+						PopUpManager.removePopUp(_confirmationAlert);
+					}
+					_confirmationAlert = null;
+				}
+			}
+
+			private function showConfirmationAlert():void {
+				hideConfirmationAlert();
 
 				var message:String = recordingFlag? ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.message.start'): ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.message.stop');
 
 				// Confirm logout using built-in alert
-				var alert:Alert = Alert.show(message, ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.title'), Alert.YES | Alert.NO, this, alertChangeRecordingStatus, null, Alert.YES);
+				_confirmationAlert = Alert.show(message, ResourceUtil.getInstance().getString('bbb.mainToolbar.recordBtn.confirm.title'), Alert.YES | Alert.NO, this, onCloseConfirmationDialog, null, Alert.YES);
 
 				var newX:Number = this.x;
 				var newY:Number = this.y + this.height + 5;
 
-				alert.validateNow();
-				alert.move(newX, newY);
+				_confirmationAlert.validateNow();
+				_confirmationAlert.move(newX, newY);
 				//Accessibility.updateProperties();
 			}
 
-			private function alertChangeRecordingStatus(e:CloseEvent):void {
+			private function confirmChangeRecordingStatus():void {
+				trace("Confirming recording status change!!!!");
+
+				// need to save the flag in case of any remote update on the recording status
+				recordingFlag = !this.selected;
+
+				showConfirmationAlert();
+			}
+
+			private function onCloseConfirmationDialog(e:CloseEvent):void {
+				hideConfirmationAlert();
 				// check to see if the YES button was pressed
 				if (e.detail==Alert.YES) {
 					 doChangeRecordingStatus();
@@ -116,6 +134,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				resourcesChanged();
 
 				this.enabled = UserManager.getInstance().getConference().amIModerator() && MeetingModel.getInstance().meeting.allowStartStopRecording;
+				if (! this.enabled) {
+					hideConfirmationAlert();
+				}
 			}
 
 			private function onRecordingStatusChanged(event:BBBEvent):void {
