@@ -1,5 +1,4 @@
-package org.bigbluebutton.lib.video.services
-{
+package org.bigbluebutton.lib.video.services {
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;

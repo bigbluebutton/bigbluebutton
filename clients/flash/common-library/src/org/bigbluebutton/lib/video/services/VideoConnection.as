@@ -32,6 +32,10 @@ package org.bigbluebutton.lib.video.services {
 		[Inject]
 		public var saveData:ISaveData;
 		
+		private var cameraToNetStreamMap:Object = new Object();
+		
+		private var cameraToStreamNameMap:Object = new Object;
+		
 		private var _ns:NetStream;
 		
 		private var _cameraPosition:String;
@@ -75,7 +79,7 @@ package org.bigbluebutton.lib.video.services {
 			}
 			if (saveData.read("cameraPosition") != null) {
 				_cameraPosition = saveData.read("cameraPosition") as String;
-			} else if(this.hasOwnProperty("CameraPosition")){
+			} else if (this.hasOwnProperty("CameraPosition")) {
 				_cameraPosition = CameraPosition.FRONT;
 			}
 		}
@@ -146,12 +150,19 @@ package org.bigbluebutton.lib.video.services {
 		}
 		
 		public function startPublishing(camera:Camera, streamName:String):void {
-			_ns.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
-			_ns.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
-			_ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
-			_ns.client = this;
-			_ns.attachCamera(camera);
-			_ns.publish(streamName);
+			cameraToStreamNameMap[camera.index] = streamName;
+			cameraToNetStreamMap[camera.index] = new NetStream(baseConnection.connection);
+			var ns:NetStream = cameraToNetStreamMap[camera.index] as NetStream;
+			ns.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+			ns.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+			ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+			ns.client = this;
+			ns.attachCamera(camera);
+			ns.publish(streamName);
+		}
+		
+		public function getStreamNameForCamera(camera:Camera):String {
+			return cameraToStreamNameMap[camera.index];
 		}
 		
 		private function onNetStatus(e:NetStatusEvent):void {
@@ -166,12 +177,26 @@ package org.bigbluebutton.lib.video.services {
 			trace(LOG + "onAsyncError() " + e.toString());
 		}
 		
-		public function stopPublishing():void {
-			if (_ns != null) {
-				_ns.attachCamera(null);
-				_ns.close();
-				_ns = null;
-				_ns = new NetStream(baseConnection.connection);
+		public function stopPublishing(camera:Camera):void {
+			if (camera) {
+				cameraToStreamNameMap[camera.index] = null;
+				var ns:NetStream = cameraToNetStreamMap[camera.index] as NetStream;
+				if (ns != null) {
+					ns.attachCamera(null);
+					ns.close();
+					ns = null;
+				}
+			}
+		}
+		
+		public function stopAllPublishing():void {
+			for (var key:Object in cameraToNetStreamMap) {
+				var ns:NetStream = cameraToNetStreamMap[key] as NetStream;
+				if (ns != null) {
+					ns.attachCamera(null);
+					ns.close();
+					ns = null;
+				}
 			}
 		}
 	}

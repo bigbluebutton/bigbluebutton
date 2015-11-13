@@ -1,13 +1,13 @@
 /**
  * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- * 
+ *
  * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
  *
  * This program is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
  * Foundation; either version 3.0 of the License, or (at your option) any later
  * version.
- * 
+ *
  * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -16,10 +16,9 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.web.video.models
-{
-	public class VideoConfOptions
-	{
+package org.bigbluebutton.web.video.models {
+	
+	public class VideoConfOptions {
 		public var uri:String = "rtmp://localhost/video";
 		
 		[Bindable]
@@ -55,13 +54,14 @@ package org.bigbluebutton.web.video.models
 		[Bindable]
 		public var filterDivisor:Number = 4;
 		
-		[Bindable] public var baseTabIndex:int;
+		[Bindable]
+		public var baseTabIndex:int;
 		
 		[Bindable]
-		public var presenterShareOnly:Boolean = false; 
+		public var presenterShareOnly:Boolean = false;
 		
 		[Bindable]
-		public var controlsForPresenter:Boolean = false; 
+		public var controlsForPresenter:Boolean = false;
 		
 		[Bindable]
 		public var displayAvatar:Boolean = false;
@@ -79,18 +79,18 @@ package org.bigbluebutton.web.video.models
 		public var glowBlurSize:Number = 30.0;
 		
 		[Bindable]
-		public var priorityRatio:Number = 2/3;
+		public var priorityRatio:Number = 2 / 3;
 		
 		public function VideoConfOptions() {
 			parseOptions();
 		}
 		
 		public function parseOptions():void {
-			var vxml:XML = null//BBB.getConfigForModule("VideoconfModule");
+			var vxml:XML = null //BBB.getConfigForModule("VideoconfModule");
 			if (vxml != null) {
 				if (vxml.@uri != undefined) {
 					uri = vxml.@uri.toString();
-				}		
+				}
 				if (vxml.@showCloseButton != undefined) {
 					showCloseButton = (vxml.@showCloseButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -102,25 +102,25 @@ package org.bigbluebutton.web.video.models
 				}
 				if (vxml.@publishWindowVisible != undefined) {
 					publishWindowVisible = (vxml.@publishWindowVisible.toString().toUpperCase() == "TRUE") ? true : false;
-				}		       
+				}
 				if (vxml.@presenterShareOnly != undefined) {
 					presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@controlsForPresenter != undefined) {
 					controlsForPresenter = (vxml.@controlsForPresenter.toString().toUpperCase() == "TRUE") ? true : false;
-				}	
+				}
 				if (vxml.@viewerWindowMaxed != undefined) {
 					viewerWindowMaxed = (vxml.@viewerWindowMaxed.toString().toUpperCase() == "TRUE") ? true : false;
-				}					
+				}
 				if (vxml.@skipCamSettingsCheck != undefined) {
 					skipCamSettingsCheck = (vxml.@skipCamSettingsCheck.toString().toUpperCase() == "TRUE") ? true : false;
-				}	        
+				}
 				if (vxml.@viewerWindowLocation != undefined) {
 					viewerWindowLocation = vxml.@viewerWindowLocation.toString().toUpperCase();
-				}				
+				}
 				if (vxml.@viewerWindowLocation != undefined) {
 					viewerWindowLocation = vxml.@viewerWindowLocation.toString().toUpperCase();
-				}	
+				}
 				if (vxml.@smoothVideo != undefined) {
 					smoothVideo = (vxml.@smoothVideo.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -130,24 +130,22 @@ package org.bigbluebutton.web.video.models
 				if (vxml.@convolutionFilter != undefined) {
 					var f:Array = vxml.@convolutionFilter.split(",");
 					var fint:Array = new Array();
-					for (var i:int=0; i < f.length; i++) {
+					for (var i:int = 0; i < f.length; i++) {
 						convolutionFilter[i] = Number(f[i]);
 					}
 				}
 				if (vxml.@filterBias != undefined) {
 					filterBias = Number(vxml.@filterBias.toString());
-				}	
+				}
 				if (vxml.@filterDivisor != undefined) {
 					filterDivisor = Number(vxml.@filterDivisor.toString());
-				}	
+				}
 				
 				if (vxml.@baseTabIndex != undefined) {
 					baseTabIndex = vxml.@baseTabIndex;
-				}
-				else{
+				} else {
 					baseTabIndex = 101;
 				}
-				
 				if (vxml.@displayAvatar != undefined) {
 					displayAvatar = (vxml.@displayAvatar.toString().toUpperCase() == "TRUE") ? true : false;
 				}

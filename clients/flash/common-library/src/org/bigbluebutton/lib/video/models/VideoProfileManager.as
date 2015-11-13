@@ -1,9 +1,9 @@
-package org.bigbluebutton.lib.video.models
-{
+package org.bigbluebutton.lib.video.models {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	
 	import mx.core.FlexGlobals;
 	import mx.utils.ObjectUtil;
 	import mx.utils.URLUtil;
@@ -63,13 +63,10 @@ package org.bigbluebutton.lib.video.models
 		}
 		
 		public function getVideoProfileByStreamName(streamName:String):VideoProfile {
-			trace("stream name: " + streamName);
 			var pattern:RegExp = new RegExp("([a-z0-9]+)-([A-Za-z0-9_]+)-\\d+", "");
 			if (pattern.test(streamName)) {
-				trace("good profiel " + profiles);
 				var profileID:String = pattern.exec(streamName)[1]
 				for each (var profile:VideoProfile in _profiles) {
-					trace("another profile, is it me?");
 					if (profile.id == profileID) {
 						return profile;
 					}
@@ -89,13 +86,12 @@ package org.bigbluebutton.lib.video.models
 			if (_profiles.length > 0) {
 				return _profiles[0];
 			} else {
-				return null;
+				return fallbackVideoProfile;
 			}
 		}
 		
 		public function get fallbackVideoProfile():VideoProfile {
-			return new VideoProfile(
-				<profile id="160x120" default="true">
+			return new VideoProfile(<profile id="160x120" default="true">
 					<locale>
 						<en_US>Fallback profile</en_US>
 					</locale>
@@ -108,8 +104,7 @@ package org.bigbluebutton.lib.video.models
 					<enableH264>true</enableH264>
 					<h264Level>2.1</h264Level>
 					<h264Profile>main</h264Profile>
-				</profile>
-				, DEFAULT_FALLBACK_LOCALE);
+				</profile>, DEFAULT_FALLBACK_LOCALE);
 		}
 		
 		public function getProfileWithLowerResolution():VideoProfile {

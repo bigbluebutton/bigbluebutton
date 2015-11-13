@@ -5,7 +5,7 @@ package org.bigbluebutton.lib.common.views {
 	import flash.media.Video;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-
+	
 	import spark.components.Group;
 	
 	public class VideoView extends Group {

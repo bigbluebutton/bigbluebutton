@@ -6,6 +6,7 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.user.models.UserList;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
+	import org.bigbluebutton.lib.voice.models.PhoneOptions;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceStreamManager;
 	import org.osflash.signals.ISignal;
@@ -17,6 +18,8 @@ package org.bigbluebutton.lib.main.models {
 		function get userId():String;
 		function set userId(value:String):void;
 		function get userList():UserList;
+		function get phoneOptions():PhoneOptions;
+		function set phoneOptions(value:PhoneOptions):void;
 		function get phoneAutoJoin():Boolean;
 		function set phoneAutoJoin(value:Boolean):void;
 		function get phoneSkipCheck():Boolean;

@@ -62,7 +62,7 @@ package org.bigbluebutton.air.main.commands {
 		protected function profilesSuccess(profiles:VideoProfileManager):void {
 			userSession.videoProfileManager = profiles;
 		}
-
+		
 		protected function joinFailure(reason:String):void {
 			trace(LOG + "unsuccessJoined()");
 			connectingFailedSignal.dispatch(reason);

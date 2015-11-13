@@ -753,10 +753,10 @@ package org.bigbluebutton.web.window.views {
 			if (titleDisplay) {
 				if (!hasFocus && getStyleByPriority(selectorList, "titleStyleNameNoFocus")) {
 					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleNameNoFocus");
-					//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameNoFocus"));
+						//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameNoFocus"));
 				} else if (getStyleByPriority(selectorList, "titleStyleNameFocus")) {
 					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleNameFocus");
-					//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameFocus"));
+						//setStyle("titleStyleName", getStyleByPriority(selectorList, "titleStyleNameFocus"));
 				} else {
 					//getStyleByPriority(selectorList, "titleStyleName")
 					getTitleTextField().styleName = getStyleByPriority(selectorList, "titleStyleName");
@@ -914,7 +914,11 @@ package org.bigbluebutton.web.window.views {
 		 * Close window button.
 		 */
 		public function get closeBtn():Button {
-			return windowControls.closeBtn;
+			if (windowControls) {
+				return windowControls.closeBtn;
+			} else {
+				return null;
+			}
 		}
 		
 		public function get showCloseButton():Boolean {

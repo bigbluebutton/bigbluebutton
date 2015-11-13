@@ -58,9 +58,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var _user:User = null;
 			
+			private var _streamName:String = null;
+			
 			private var _hideMuteBtnTimer:Timer;
 			
-			private var _imageLoader:Loader = new Loader();;
+			private var _imageLoader:Loader = new Loader();
 			
 			protected function init():void {
 				_hideMuteBtnTimer = new Timer(500, 1);
@@ -97,6 +99,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function get user():User {
 				return _user;
+			}
+			
+			public function get streamName():String {
+				return _streamName;
+			}
+			
+			public function set streamName(value:String):void {
+				_streamName = value;
 			}
 			
 			public function shutdown():void {
@@ -296,7 +306,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					<mx:Image id="userIcon"
 							  height="100%" />
 				</mx:Box>
-				<mx:Label text="{_username + (_me? ' (' + resourceManager.getString('resources', 'userDetail.you') + ')' : '')}"
+				<mx:Label text="{_username + (_me? ' (you)' : '')}"
 						  fontWeight="{_me ? 'bold' : 'normal'}"
 						  width="100%"
 						  paddingLeft="0"

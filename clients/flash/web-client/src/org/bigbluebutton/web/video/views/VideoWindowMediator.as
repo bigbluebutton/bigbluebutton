@@ -55,7 +55,13 @@ package org.bigbluebutton.web.video.views {
 		private function userChangeHandler(user:User, property:int):void {
 			if (property == UserList.HAS_STREAM) {
 				if (user.streamName.length > 0) {
-					addWebcam(user);
+					var streamNames:Array = user.streamName.split("|");
+					for each (var streamName:String in streamNames) {
+						if (!isAlreadyStreaming(user.userID, streamName)) {
+							addWebcam(user, streamName);
+						}
+					}
+					removeUnusedStreams(user.userID, streamNames);
 				} else {
 					removeWebcam(user);
 				}
@@ -63,6 +69,28 @@ package org.bigbluebutton.web.video.views {
 			} else {
 				updateUser(user);
 			}
+		}
+		
+		private function removeUnusedStreams(userID:String, streamNames:Array) {
+			for (var i:int = 0; i < view.videoViews.length; ++i) {
+				var userGraphicHolder:UserGraphicHolder = view.videoViews[i] as UserGraphicHolder;
+				if (userGraphicHolder.user.userID == userID) {
+					var used:Boolean = false;
+					for each (var sn:String in streamNames) {
+						if (sn == userGraphicHolder.streamName) {
+							used = true;
+						}
+					}
+					if (!used) {
+						removeUserGraphicHolder(userGraphicHolder);
+						if (userGraphicHolder == view.priorityItem) {
+							view.priorityItem = null;
+							view.priorityMode = false;
+						}
+					}
+				}
+			}
+		
 		}
 		
 		private function addAvatar(user:User) {
@@ -112,14 +140,24 @@ package org.bigbluebutton.web.video.views {
 			}
 		}
 		
-		private function addWebcam(user:User):void {
-			removeUserFromView(user.userID);
+		private function isAlreadyStreaming(userID:String, streamName:String) {
+			for (var i:int = 0; i < view.videoViews.length; ++i) {
+				var userGraphicHolder:UserGraphicHolder = view.videoViews[i] as UserGraphicHolder;
+				if (userGraphicHolder.user.userID == userID && userGraphicHolder.streamName == streamName) {
+					return true
+				}
+			}
+			return false;
+		}
+		
+		private function addWebcam(user:User, streamName:String):void {
 			var userGraphicHolder:UserGraphicHolder = new UserGraphicHolder();
 			userGraphicHolder.moderator = userSession.userList.me.isModerator();
 			view.addElement(userGraphicHolder);
 			var webcam:VideoView = new VideoView();
 			userGraphicHolder.addVideo(user, webcam)
-			webcam.startStream(userSession.videoConnection.connection, user.name, user.streamName, user.userID);
+			userGraphicHolder.streamName = streamName;
+			webcam.startStream(userSession.videoConnection.connection, user.name, streamName, user.userID);
 			view.videoViews.addItem(userGraphicHolder);
 			userGraphicHolder.addEventListener(MouseEvent.CLICK, priorityMode);
 			userGraphicHolder.addEventListener("close", closeHandler);

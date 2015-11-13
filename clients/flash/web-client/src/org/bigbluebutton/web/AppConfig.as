@@ -26,18 +26,23 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.user.services.UsersService;
 	import org.bigbluebutton.lib.video.commands.CameraQualityCommand;
 	import org.bigbluebutton.lib.video.commands.CameraQualitySignal;
+	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.video.services.VideoConnection;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
+	import org.bigbluebutton.web.main.commands.LocaleChangedSignal;
+	import org.bigbluebutton.web.toolbar.micbutton.commands.AudioSelectionWindowClosedSignal;
+	import org.bigbluebutton.web.toolbar.webcambutton.commands.CamSettingsClosedSignal;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
-
+	
 	public class AppConfig implements IConfig {
+		
 		[Inject]
 		public var injector:IInjector;
 		
@@ -52,6 +57,9 @@ package org.bigbluebutton.web {
 			injector.map(IPresentationService).toSingleton(PresentationService);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
 			injector.map(ISaveData).toSingleton(SaveData);
+			injector.map(CamSettingsClosedSignal).asSingleton();
+			injector.map(LocaleChangedSignal).asSingleton();
+			injector.map(AudioSelectionWindowClosedSignal).asSingleton();
 			// Type mapping
 			injector.map(IBaseConnection).toType(BaseConnection);
 			injector.map(IVoiceConnection).toType(VoiceConnection);

@@ -82,21 +82,9 @@
 			 * Sets up the Robotlegs context.
 			 */
 			private function setupContext():void {
-				context = new Context()
-					.install(MVCSBundle, SignalCommandMapExtension)
-					.configure(AppConfig)
+				context = new Context().install(MVCSBundle, SignalCommandMapExtension).configure(AppConfig)
 					
-					.configure(MainConfig)
-					.configure(PresentationConfig)
-					.configure(ChatConfig)
-					.configure(VideoChatConfig)
-					.configure(UserDetailsConfig)
-					.configure(ParticipantsConfig)
-					.configure(MicButtonConfig)
-					.configure(SwapCameraConfig)
-					.configure(DeskshareConfig)
-					.configure(CameraSettingsConfig)
-					.configure(AudioSettingsConfig)
+					.configure(MainConfig).configure(PresentationConfig).configure(ChatConfig).configure(VideoChatConfig).configure(UserDetailsConfig).configure(ParticipantsConfig).configure(MicButtonConfig).configure(SwapCameraConfig).configure(DeskshareConfig).configure(CameraSettingsConfig).configure(AudioSettingsConfig)
 					
 					.configure(new ContextView(this));
 				// If you wish to change the log level then uncomment the line below and set 
@@ -152,7 +140,7 @@
 	</fx:Metadata>
 
 	<main:LoadingScreen width="100%"
-						   height="100%" />
+						height="100%" />
 
 	<s:Group id="mainshell"
 			 visible="false"
@@ -170,30 +158,30 @@
 					  height="100%">
 				<s:Group>
 					<main:NavigationButton id="profileBtn"
-										 navigateTo="{[PagesENUM.PROFILE]}"
-										 styleName="profileButtonStyle topButtonStyle"
-										 transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
+										   navigateTo="{[PagesENUM.PROFILE]}"
+										   styleName="profileButtonStyle topButtonStyle"
+										   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
 					<main:NavigationButton id="backBtn"
-										 navigateTo="{[PagesENUM.LAST]}"
-										 styleName="backButtonStyle topButtonStyle"
-										 transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
+										   navigateTo="{[PagesENUM.LAST]}"
+										   styleName="backButtonStyle topButtonStyle"
+										   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
 				</s:Group>
 				<s:Label id="pageName"
 						 width="100%"
 						 height="100%"
 						 styleName="pageNameStyle" />
 				<main:RecordingStatus id="recordingStatus"
-									styleName="recordingStatusIconStyle topButtonStyle" />
+									  styleName="recordingStatusIconStyle topButtonStyle" />
 				<voice:MicButton id="microphoneBtn"
-							  styleName="micButtonStyle topButtonStyle" />
+								 styleName="micButtonStyle topButtonStyle" />
 			</s:HGroup>
 		</s:SkinnableContainer>
 
 		<main:PagesNavigatorView id="pagesNavigatorView"
-									   width="100%"
-									   height="100%" />
+								 width="100%"
+								 height="100%" />
 		<main:MenuButtonsView id="bottomMenu"
-								width="100%"
-								height="{getStyle('bottomToolBarHeight')}" />
+							  width="100%"
+							  height="{getStyle('bottomToolBarHeight')}" />
 	</s:Group>
 </s:Application>
