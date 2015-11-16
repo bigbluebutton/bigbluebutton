@@ -19,7 +19,8 @@ import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
-import org.bigbluebutton.messages.CreateMeetingRequest;
+import org.bigbluebutton.messages._
+import org.bigbluebutton.messages.payload._
 import akka.event.Logging
 
 class BigBlueButtonInGW(
@@ -73,6 +74,19 @@ class BigBlueButtonInGW(
           BigBlueButtonEvent(
             "meeting-manager",
             new CreateMeeting(msg.payload.id, mProps)))
+      }
+
+      case msg: CreateBreakoutRoomsRequest => {
+        val it = msg.payload.rooms.iterator
+        val rooms = scala.collection.immutable.Vector.empty
+        while (it.hasNext()) {
+          rooms :+ it.next()
+        }
+
+        eventBus.publish(
+          BigBlueButtonEvent(
+            "meeting-manager",
+            new CreateBreakoutRooms(msg.payload.meetingId, msg.payload.durationInMinutes, rooms)))
       }
     }
   }

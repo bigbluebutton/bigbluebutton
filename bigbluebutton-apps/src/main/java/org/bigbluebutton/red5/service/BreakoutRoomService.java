@@ -45,6 +45,7 @@ public class BreakoutRoomService {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = (String) msg.get("meetingId");
 		Integer duration = (Integer) msg.get("durationInMinutes");
+		// FIXME: check if we are using raw or typed objects
 		ArrayList<BreakoutRoomRequestPayload> breakoutRooms = (ArrayList<BreakoutRoomRequestPayload>) msg
 				.get("rooms");
 

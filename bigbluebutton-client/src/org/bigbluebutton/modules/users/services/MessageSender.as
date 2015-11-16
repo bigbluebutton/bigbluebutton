@@ -93,7 +93,7 @@ package org.bigbluebutton.modules.users.services
 			message["rooms"] = rooms;
 			message["durationInMinutes"] = durationInMinutes;
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("breakoutroom.createBreakoutRoom", function(result:String):void
+			_nc.sendMessage("breakoutroom.createBreakoutRooms", function(result:String):void
 			{
 				// On successful result
 			}, function(status:String):void
