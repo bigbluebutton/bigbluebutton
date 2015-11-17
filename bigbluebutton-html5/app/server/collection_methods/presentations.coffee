@@ -78,6 +78,7 @@ Meteor.methods
   if meetingId? and presentationId? and Meteor.Presentations.findOne({meetingId: meetingId, "presentation.id": presentationId})?
     id = Meteor.Presentations.findOne({meetingId: meetingId, "presentation.id": presentationId})
     if id?
+      Meteor.Slides.remove({presentationId: presentationId}, Meteor.log.info "cleared Slides Collection (presentationId: #{presentationId}!")
       Meteor.Presentations.remove(id._id)
       Meteor.log.info "----removed presentation[" + presentationId + "] from " + meetingId
 

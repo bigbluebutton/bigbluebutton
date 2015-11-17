@@ -60,9 +60,11 @@ Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
 
 Handlebars.registerHelper "getCurrentSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+  # currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+  # presentationId = currentPresentation?.presentation?.id
+  # console.log "globals "
+  # Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+  getCurrentSlideDoc()
 
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
