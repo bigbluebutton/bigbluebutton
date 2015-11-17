@@ -77,10 +77,11 @@ class BigBlueButtonInGW(
       }
 
       case msg: CreateBreakoutRoomsRequest => {
-        val it = msg.payload.rooms.iterator
-        val rooms = scala.collection.immutable.Vector.empty
-        while (it.hasNext()) {
-          rooms :+ it.next()
+		val rooms = scala.collection.immutable.Vector.empty[BreakoutRoomInPayload]
+        msg.payload.rooms.foreach { r =>
+          val users = scala.collection.immutable.Vector.empty
+          r.users.foreach{u => users :+ u}
+          rooms :+ new BreakoutRoomInPayload(r.name, users)
         }
 
         eventBus.publish(
