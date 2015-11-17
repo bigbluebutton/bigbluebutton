@@ -5,6 +5,7 @@ import spray.json.{ JsObject, JsonParser, DeserializationException }
 import org.parboiled.errors.ParsingException
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.messages.CreateBreakoutRoomsRequest
+import org.bigbluebutton.messages.RequestBreakoutJoinURL
 
 object JsonMessageDecoder {
   import org.bigbluebutton.core.UserMessagesProtocol._
@@ -59,6 +60,9 @@ object JsonMessageDecoder {
     msg.header.name match {
       case CreateBreakoutRoomsRequest.NAME => {
         msg.payload.convertTo[CreateBreakoutRooms]
+      }
+      case RequestBreakoutJoinURL.NAME => {
+        msg.payload.convertTo[RequestBreakoutJoinURL]
       }
       case _ => throw MessageProcessException("Cannot parse JSON message: [" + msg + "]")
     }
