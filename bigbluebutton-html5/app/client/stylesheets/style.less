@@ -90,7 +90,7 @@ body {
   }
 
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
+    background-color: white;
   }
   .btn {
 
@@ -413,18 +413,26 @@ body {
 }
 
 .slideButton {
+  padding: 0px !important;
+  line-height: 50px !important;
+
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 90%;
+    width: 100%;
     background-color: transparent;
-    color: white;
-    border-bottom: 2px solid extract(@lightGrey, 4);
+    color: #788897;
+    border-bottom: 1px solid extract(@lightGrey, 5);
     margin-top: 0;
     margin-bottom: 0;
     &:hover {
       background-color: extract(@lightGrey, 1);
+      span{
+        color: #3B97D3;
+      }
+    }
+    i{
+      margin-left: 5%;
+      color: #3B97D3;
     }
     i, span {
       float: left;
@@ -464,9 +472,9 @@ body {
 
 .titleArea {
   width: 100%;
+  background-color: white;
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 50px;
-    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
   }
   @media @desktop-portrait {
     height: 50px;
@@ -609,10 +617,9 @@ body {
 }
 
 #menu {
-  width: 85%;
   height: 100%;
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
-    .linear-gradient(rgb(65,68,77), rgb(58,60,69));
+    background-color: white;
   }
   @media @landscape {
     display: none;
@@ -735,8 +742,8 @@ body {
 
 .btn {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 0px;
+    line-height: 50px;
   }
 }
 
@@ -939,26 +946,32 @@ body {
 
 .settingsMenu {
   height: 100%;
-  .linear-gradient(rgb(65,68,77), rgb(58,60,69));
+  z-index: 1000;
+  position: fixed;
+  transform: translateX(100vw);
+  width: 70vw;
+
+  transition: transform 0.3s linear;
+  -moz-transition: transform 0.3s linear;
+  -webkit-transition: transform 0.3s linear;
+  -ms-transition: transform 0.3s linear;
+  -o-transition: transform 0.3s linear;
+
+  &.menuOut {
+    transform: translate(0vw, 0);
+    -moz-transform: translate(0vw, 0);
+    -webkit-transform: translate(0vw, 0);
+    -ms-transform: translate(0vw, 0);
+    -o-transform: translate(0vw, 0);
+  }
 
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    z-index: 1000;
-    position: fixed;
-    transform: translateX(100vw);
-    width: 60vw;
-
-    transition: transform 0.3s linear;
-    -moz-transition: transform 0.3s linear;
-    -webkit-transition: transform 0.3s linear;
-    -ms-transition: transform 0.3s linear;
-    -o-transition: transform 0.3s linear;
-
     &.menuOut {
-      transform: translate(40vw, 0);
-      -moz-transform: translate(40vw, 0);
-      -webkit-transform: translate(40vw, 0);
-      -ms-transform: translate(40vw, 0);
-      -o-transform: translate(40vw, 0);
+      transform: translate(30vw, 0);
+      -moz-transform: translate(30vw, 0);
+      -webkit-transform: translate(30vw, 0);
+      -ms-transform: translate(30vw, 0);
+      -o-transform: translate(30vw, 0);
     }
   }
 }
@@ -1119,6 +1132,10 @@ body {
 }
 
 .rightHamburgerButton {
+  @media @mobile-portrait{
+    display: none;
+  }
+
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     span {
       &::before {
