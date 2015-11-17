@@ -16,7 +16,7 @@ Meteor.startup ->
   loadLib('bbblogger.js')
 
   @SessionAmplify = _.extend({}, Session,
-    keys: _.object(_.map(amplify.store(), (value, key) ->
+    keys: _.object(_.map(amplify.store.sessionStorage(), (value, key) ->
       [
         key
         JSON.stringify(value)
@@ -24,7 +24,7 @@ Meteor.startup ->
     ))
     set: (key, value) ->
       Session.set.apply this, arguments
-      amplify.store key, value
+      amplify.store.sessionStorage key, value
       return
   )
 #
