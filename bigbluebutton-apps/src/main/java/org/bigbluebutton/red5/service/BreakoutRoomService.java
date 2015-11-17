@@ -19,6 +19,8 @@
 package org.bigbluebutton.red5.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.bigbluebutton.messages.payload.BreakoutRoomRequestPayload;
@@ -45,9 +47,14 @@ public class BreakoutRoomService {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = (String) msg.get("meetingId");
 		Integer duration = (Integer) msg.get("durationInMinutes");
-		// FIXME: check if we are using raw or typed objects
-		ArrayList<BreakoutRoomRequestPayload> breakoutRooms = (ArrayList<BreakoutRoomRequestPayload>) msg
-				.get("rooms");
+		ArrayList rooms = (ArrayList) msg.get("rooms");
+
+		ArrayList<BreakoutRoomRequestPayload> breakoutRooms = new ArrayList<BreakoutRoomRequestPayload>();
+		for (int i = 0; i < rooms.size(); i++) {
+			HashMap room = (HashMap) rooms.get(i);
+			breakoutRooms.add(new BreakoutRoomRequestPayload(room.get("name")
+					.toString(), (ArrayList<String>) room.get("users")));
+		}
 
 		CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(
 				meetingId, breakoutRooms, duration);
