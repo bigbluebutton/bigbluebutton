@@ -2,6 +2,17 @@
 var userID, callerIdName, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
 var inEchoTest = true;
 
+var RTCPeerConnection = undefined;
+if (typeof webkitRTCPeerConnection !== 'undefined') {
+	RTCPeerConnection = webkitRTCPeerConnection;
+}
+if (typeof mozRTCPeerConnection !== 'undefined') {
+	RTCPeerConnection = mozRTCPeerConnection;
+}
+if (typeof RTCPeerConnection !== 'undefined') {
+	RTCPeerConnection.prototype.getConnectionStats = window.getStats;
+}
+
 function webRTCCallback(message) {
 	switch (message.status) {
 		case 'failed':
@@ -15,6 +26,34 @@ function webRTCCallback(message) {
 			break;
 		case 'started':
 			BBB.webRTCCallStarted(inEchoTest);
+			
+			if (inEchoTest && typeof RTCPeerConnection.prototype.getConnectionStats !== 'undefined') {
+				setTimeout( function() {
+					var peer = currentSession.mediaHandler.peerConnection;
+					
+					for (var streamId = 0; streamId < peer.getLocalStreams().length; ++streamId) {
+						for (var trackId = 0; trackId < peer.getLocalStreams()[streamId].getAudioTracks().length; ++trackId) {
+							peer.getConnectionStats(peer.getLocalStreams()[streamId].getAudioTracks()[trackId], function(results) {
+								console.log("local stream " + streamId + ", track " + trackId + ": " + JSON.stringify(results));
+								if (! callActive) {
+									results.nomore();
+								}
+							}, 1000);
+						}
+					}
+					for (var streamId = 0; streamId < peer.getRemoteStreams().length; ++streamId) {
+						for (var trackId = 0; trackId < peer.getRemoteStreams()[streamId].getAudioTracks().length; ++trackId) {
+							peer.getConnectionStats(peer.getRemoteStreams()[streamId].getAudioTracks()[trackId], function(results) {
+								console.log("remote stream " + streamId + ", track " + trackId + ": " + JSON.stringify(results));
+								if (! callActive) {
+									results.nomore();
+								}
+							}, 1000);
+						}
+					}
+				}, 2000);
+			}
+			
 			break;
 		case 'connecting':
 			BBB.webRTCCallConnecting(inEchoTest);
