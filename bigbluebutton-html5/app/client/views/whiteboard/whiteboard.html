@@ -1,8 +1,8 @@
 <template name="whiteboard">
   <div id="{{id}}" {{visibility name}} class="component">
-    {{#each getCurrentSlide}}
-      {{> slide}}
-    {{/each}}
+    {{#if getCurrentSlide}}
+      {{> slide getCurrentSlide}}
+    {{/if}}
     <div id="whiteboard-container" class="{{whiteboardSize}}">
       <div id="whiteboard-paper">
       </div>
