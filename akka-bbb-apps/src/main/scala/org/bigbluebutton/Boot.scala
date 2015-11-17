@@ -45,7 +45,7 @@ object Boot extends App with SystemConfiguration {
   val messageSenderActor = system.actorOf(MessageSenderActor.props(msgSender), "messageSenderActor")
   val recorderActor = system.actorOf(RecorderActor.props(recorderApp), "recorderActor")
   val newMessageSenderActor = system.actorOf(JsonMessageSenderActor.props(msgSender), "newMessageSenderActor")
-  
+
   outgoingEventBus.subscribe(messageSenderActor, "outgoingMessageChannel")
   outgoingEventBus.subscribe(recorderActor, "outgoingMessageChannel")
   outgoingEventBus.subscribe(newMessageSenderActor, "outgoingMessageChannel")

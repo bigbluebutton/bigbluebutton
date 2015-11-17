@@ -123,10 +123,9 @@ class MessageSenderActor(val service: MessageSender)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     case msg: WhiteboardEnabledEvent => handleWhiteboardEnabledEvent(msg)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
-    
+
     case _ => // do nothing
   }
-
 
   private def handleGetChatHistoryReply(msg: GetChatHistoryReply) {
     val json = ChatMessageToJsonConverter.getChatHistoryReplyToJson(msg)

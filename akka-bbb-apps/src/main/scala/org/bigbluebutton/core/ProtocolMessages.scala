@@ -7,16 +7,16 @@ object MessageType extends Enumeration {
   val DIRECT = Value("direct")
 }
 
-case class OutMessageEnvelopeHeader(messageType: MessageType.MessageType, destinationAddress: String)
-case class OutMessageEnvelopePayload(payload: OutMessagePayload)
-case class OutMessageEnvelope(header: OutMessageEnvelopeHeader, payload: OutMessageEnvelopePayload)
-case class OutMessagePayload(header: OutMessageHeader, payload: OutMessage)
-case class OutMessageHeader(name: String)
+case class OutMsgHeader(name: String)
+case class OutMsgEnvelopeHeader(messageType: MessageType.MessageType, destinationAddress: String)
 
 trait OutMessage
 
-case class CreateBreakoutRoomRequest(meetingId: String, room: CreateBreakoutRoomOutPayload) extends OutMessage
-case class CreateBreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,
-                                        voiceConfId: String, durationInMinutes: Int, 
-                                        moderatorPassword: String, viewerPassword: String,
-                                        defaultPresentationUrl: String
+case class CreateBreakoutRoomOutMsgEnvelope(header: OutMsgEnvelopeHeader,
+  payload: CreateBreakoutRoomOutMsgEnvelopePayload)
+case class CreateBreakoutRoomOutMsgEnvelopePayload(header: OutMsgHeader,
+  payload: CreateBreakoutRoomOutMsgPayload)
+case class CreateBreakoutRoomOutMsgPayload(breakoutId: String, name: String, parentId: String,
+  voiceConfId: String, durationInMinutes: Int,
+  moderatorPassword: String, viewerPassword: String,
+  defaultPresentationUrl: String)
