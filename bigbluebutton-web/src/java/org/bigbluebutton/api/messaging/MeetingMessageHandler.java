@@ -42,7 +42,7 @@ public class MeetingMessageHandler implements MessageHandler {
     JsonParser parser = new JsonParser();
     JsonObject obj = (JsonObject) parser.parse(message);
 
-    if (channel.equalsIgnoreCase(MessagingConstants.FROM_MEETING_CHANNEL)) {	
+    if (channel.equalsIgnoreCase(MessagingConstants.FROM_MEETING_CHANNEL)) {
       if (obj.has("header") && obj.has("payload")) {
         JsonObject header = (JsonObject) obj.get("header");
         JsonObject payload = (JsonObject) obj.get("payload");
@@ -66,8 +66,7 @@ public class MeetingMessageHandler implements MessageHandler {
               listener.handle(new MeetingDestroyed(meetingId));
             }
           } else if (CreateBreakoutRoomRequest.NAME.equals(messageName)) {
-            Gson gson = new Gson();
-            CreateBreakoutRoomRequest msg = gson.fromJson(message, CreateBreakoutRoomRequest.class);
+            CreateBreakoutRoomRequest msg = new Gson().fromJson(message, CreateBreakoutRoomRequest.class);
             for (MessageListener listener : listeners) {
               listener.handle(new CreateBreakoutRoom(
                   msg.payload.breakoutId, 

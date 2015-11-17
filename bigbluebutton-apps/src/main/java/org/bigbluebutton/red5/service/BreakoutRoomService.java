@@ -18,29 +18,11 @@
  */
 package org.bigbluebutton.red5.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.bigbluebutton.messages.payload.BreakoutRoomRequestPayload;
-import org.bigbluebutton.messages.payload.CreateBreakoutRoomsRequestPayload;
-import org.bigbluebutton.messages.payload.EndAllBreakoutRoomsRequestPayload;
-import org.bigbluebutton.messages.payload.ListenInOnBreakoutPayload;
-import org.bigbluebutton.messages.payload.RequestBreakoutJoinURLPayload;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-
-public class BreakoutRoomService {
+public class BreakoutRoomService extends AbstractService {
 
 	private static Logger log = Red5LoggerFactory.getLogger(
 			BreakoutRoomService.class, "bigbluebutton");
@@ -52,43 +34,22 @@ public class BreakoutRoomService {
 	}
 
 	public void createBreakoutRooms(String jsonMessage) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-
-		JsonObject payload = JsonEncoderUtil.buildPayload(jsonMessage);
-		JsonObject header = JsonEncoderUtil.addMessageHeader("CreateBreakoutRooms");
-		JsonObject message = JsonEncoderUtil.headerAndPayload(header, payload);
-		Gson gson = new Gson();
-		
-		red5GW.createBreakoutRooms(gson.toJson(message));
+		red5GW.createBreakoutRooms(addHeaderToMessage(jsonMessage,
+				"CreateBreakoutRoomsRequest"));
 	}
 
-	public void requestBreakoutJoinURL(Map<String, Object> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = (String) msg.get("meetingId");
-		String breakoutId = (String) msg.get("breakoutId");
-		String userId = (String) msg.get("userId");
-		
-		RequestBreakoutJoinURLPayload payload = new RequestBreakoutJoinURLPayload(meetingId, breakoutId, userId);
-		red5GW.requestBreakoutJoinURL(payload);
+	public void requestBreakoutJoinURL(String jsonMessage) {
+		red5GW.requestBreakoutJoinURL(addHeaderToMessage(jsonMessage,
+				"RequestBreakoutJoinURL"));
 	}
 
-	public void listenInOnBreakout(Map<String, Object> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = (String) msg.get("meetingId");
-		String breakoutId = (String) msg.get("breakoutId");
-		String userId = (String) msg.get("userId");
-		Boolean listen = (Boolean) msg.get("listen");
-		
-		ListenInOnBreakoutPayload payload = new ListenInOnBreakoutPayload(meetingId, breakoutId, userId, listen);
-		red5GW.listenInOnBreakout(payload);
+	public void listenInOnBreakout(String jsonMessage) {
+		red5GW.listenInOnBreakout(addHeaderToMessage(jsonMessage,
+				"ListenInOnBreakout"));
 	}
 
-	public void endAllBreakoutRooms(Map<String, Object> msg) {
-		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = (String) msg.get("meetingId");
-
-		EndAllBreakoutRoomsRequestPayload payload = new EndAllBreakoutRoomsRequestPayload(
-				meetingId);
-		red5GW.endAllBreakoutRooms(payload);
+	public void endAllBreakoutRooms(String jsonMessage) {
+		red5GW.endAllBreakoutRooms(addHeaderToMessage(jsonMessage,
+				"EndAllBreakoutRooms"));
 	}
 }
