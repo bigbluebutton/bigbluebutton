@@ -3,6 +3,11 @@
 #whiteboard {
   padding: 0 !important;
   min-width: 0;
+
+  #whiteboard-container{
+    min-height: 60px;
+  }
+
   @media @landscape {
     border-top: 0px;
     border-left: 0px;
@@ -206,7 +211,8 @@
   @media @tablet-portrait-with-keyboard, @tablet-portrait {
     height: 53px;
     width: 53px;
-    top: 5px;
+    top: 3px;
+    line-height: 54px;
     right: 5px;
   }
   @media @desktop-portrait {
@@ -229,6 +235,11 @@
 }
 
 .soaringButton {
+
+  @media @desktop-portrait{
+    margin-top: -60px;
+  }
+
   position: absolute;
   margin-bottom: 0;
   padding: 0;
@@ -338,6 +349,19 @@
 }
 
 .FABContainer {
+  &.noPresentation{
+    right: 60px;
+  }
+  @media @mobile-portrait{
+    position: absolute;
+    bottom: 3px;
+    right: 0px;
+    height: 55px;
+  }
+  @media @tablet-portrait{
+    bottom: 3px;
+    right: 0px;
+  }
   button {
     padding: 0;
     margin: 0;
@@ -355,27 +379,27 @@
   }
   & > button:nth-child(2) {
     right: 70px;
-    bottom: 10px;
+    bottom: 4px;
   }
   & > button:nth-child(3) {
     right: 70px;
-    bottom: 65px;
+    bottom: 59px;
   }
   & > button:nth-child(4) {
     right: 130px;
-    bottom: 10px;
+    bottom: 4px;
   }
   & > button:nth-child(5) {
     right: 130px;
-    bottom: 65px;
+    bottom: 59px;
   }
   & > button:nth-child(6) {
     right: 190px;
-    bottom: 10px;
+    bottom: 4px;
   }
   & > button:nth-child(7) {
     right: 190px;
-    bottom: 65px;
+    bottom: 59px;
   }
 }
 
