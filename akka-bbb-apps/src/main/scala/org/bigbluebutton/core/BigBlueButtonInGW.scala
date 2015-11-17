@@ -92,7 +92,7 @@ class BigBlueButtonInGW(
     }
   }
 
-  def handleCreateBreakoutRoomsRequest(msg: HeaderAndJsonPayload) {
+  def handleCreateBreakoutRoomsRequest(msg: InHeaderAndJsonPayload) {
     //    val xjson = msg.jsonMessage
     //
     //    eventBus.publish(

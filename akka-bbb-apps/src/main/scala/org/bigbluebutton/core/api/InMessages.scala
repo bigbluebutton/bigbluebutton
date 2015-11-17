@@ -7,8 +7,8 @@ import org.bigbluebutton.core.MeetingProperties
 import org.bigbluebutton.core.apps.BreakoutUser
 import spray.json.JsObject
 
-case class MessageHeader(name: String)
-case class HeaderAndJsonPayload(header: MessageHeader, payload: JsObject)
+case class InMessageHeader(name: String)
+case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
 case class MessageProcessException(message: String) extends Exception(message)
 
 trait InMessage

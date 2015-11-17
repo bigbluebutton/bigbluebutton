@@ -10,10 +10,10 @@ object JsonMessageDecoder {
   import org.bigbluebutton.core.UserMessagesProtocol._
   import spray.json._
 
-  def header(msg: JsObject): MessageHeader = {
+  def header(msg: JsObject): InMessageHeader = {
     msg.fields.get("header") match {
       case Some(header) =>
-        header.convertTo[MessageHeader]
+        header.convertTo[InMessageHeader]
       case None =>
         throw MessageProcessException("Cannot get payload information: [" + msg + "]")
     }
@@ -43,7 +43,7 @@ object JsonMessageDecoder {
       jsonObj <- Try(toJsObject(jsonMsg))
       header <- Try(header(jsonObj))
       payload <- Try(payload(jsonObj))
-      msg = HeaderAndJsonPayload(header, payload)
+      msg = InHeaderAndJsonPayload(header, payload)
       inmsg <- Try(convertMessage(msg))
     } yield inmsg
   }
@@ -55,7 +55,7 @@ object JsonMessageDecoder {
     }
   }
 
-  def convertMessage(msg: HeaderAndJsonPayload): InMessage = {
+  def convertMessage(msg: InHeaderAndJsonPayload): InMessage = {
     msg.header.name match {
       case CreateBreakoutRoomsRequest.NAME => {
         msg.payload.convertTo[CreateBreakoutRooms]
