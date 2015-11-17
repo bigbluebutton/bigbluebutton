@@ -775,10 +775,12 @@ body {
     width: 300px;
   }
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
+    @userListMenuPortaitWidth: (2/3 * 100vw);
+
     z-index: 1000;
     position: fixed;
-    left: -60vw;
-    width: 60vw;
+    left: -@userListMenuPortaitWidth;
+    width: @userListMenuPortaitWidth;
 
     transition: transform 0.3s linear;
     -moz-transition: transform 0.3s linear;
@@ -792,19 +794,19 @@ body {
       -webkit-transition: -webkit-transform 0.7s;
       -o-transition: -o-transform 0.7s;
 
-      transform: translateX(-60vw);
-      -moz-transform: translateX(-60vw);
-      -webkit-transform: translateX(-60vw);
-      -ms-transform: translateX(-60vw);
-      -o-transform: translateX(-60vw);
+      transform: translateX(-@userListMenuPortaitWidth);
+      -moz-transform: translateX(-@userListMenuPortaitWidth);
+      -webkit-transform: translateX(-@userListMenuPortaitWidth);
+      -ms-transform: translateX(-@userListMenuPortaitWidth);
+      -o-transform: translateX(-@userListMenuPortaitWidth);
     }
 
     &.menuOut {
-      transform: translateX(60vw);
-      -moz-transform: translateX(60vw);
-      -webkit-transform: translateX(60vw);
-      -ms-transform: translateX(60vw);
-      -o-transform: translateX(60vw);
+      transform: translateX(@userListMenuPortaitWidth);
+      -moz-transform: translateX(@userListMenuPortaitWidth);
+      -webkit-transform: translateX(@userListMenuPortaitWidth);
+      -ms-transform: translateX(@userListMenuPortaitWidth);
+      -o-transform: translateX(@userListMenuPortaitWidth);
 
       .userItem {
         transform: translateX(0);
@@ -813,126 +815,19 @@ body {
         -ms-transform: translateX(0);
         -o-transform: translateX(0);
       }
-      .userItem:nth-child(1) {
-        transition-delay: 50ms;
-        -moz-transition-delay: 50ms;
-        -webkit-transition-delay: 50ms;
-        -o-transition-delay: 50ms;
+
+      .generateUserItemAnimation(@n, @i: 1) when (@i =< @n) {
+        .userItem:nth-child(@{i}) {
+          transform: @i * 50ms;
+          transition-delay: @i * 50ms;
+          -moz-transition-delay: @i * 50ms;
+          -webkit-transition-delay: @i * 50ms;
+          -o-transition-delay: @i * 50ms;
+        }
+        .generateUserItemAnimation(@n, (@i + 1));
       }
-      .userItem:nth-child(2) {
-        transition-delay: 100ms;
-        -moz-transition-delay: 100ms;
-        -webkit-transition-delay: 100ms;
-        -o-transition-delay: 100ms;
-      }
-      .userItem:nth-child(3) {
-        transition-delay: 150ms;
-        -moz-transition-delay: 150ms;
-        -webkit-transition-delay: 150ms;
-        -o-transition-delay: 150ms;
-      }
-      .userItem:nth-child(4) {
-        transition-delay: 200ms;
-        -moz-transition-delay: 200ms;
-        -webkit-transition-delay: 200ms;
-        -o-transition-delay: 200ms;
-      }
-      .userItem:nth-child(5) {
-        transition-delay: 250ms;
-        -moz-transition-delay: 250ms;
-        -webkit-transition-delay: 250ms;
-        -o-transition-delay: 250ms;
-      }
-      .userItem:nth-child(6) {
-        transition-delay: 300ms;
-        -moz-transition-delay: 300ms;
-        -webkit-transition-delay: 300ms;
-        -o-transition-delay: 300ms;
-      }
-      .userItem:nth-child(7) {
-        transition-delay: 350ms;
-        -moz-transition-delay: 350ms;
-        -webkit-transition-delay: 350ms;
-        -o-transition-delay: 350ms;
-      }
-      .userItem:nth-child(8) {
-        transition-delay: 400ms;
-        -moz-transition-delay: 400ms;
-        -webkit-transition-delay: 400ms;
-        -o-transition-delay: 400ms;
-      }
-      .userItem:nth-child(9) {
-        transition-delay: 450ms;
-        -moz-transition-delay: 450ms;
-        -webkit-transition-delay: 450ms;
-        -o-transition-delay: 450ms;
-      }
-      .userItem:nth-child(10) {
-        transition-delay: 500ms;
-        -moz-transition-delay: 500ms;
-        -webkit-transition-delay: 500ms;
-        -o-transition-delay: 500ms;
-      }
-      .userItem:nth-child(11) {
-        transition-delay: 550ms;
-        -moz-transition-delay: 550ms;
-        -webkit-transition-delay: 550ms;
-        -o-transition-delay: 550ms;
-      }
-      .userItem:nth-child(12) {
-        transition-delay: 600ms;
-        -moz-transition-delay: 600ms;
-        -webkit-transition-delay: 600ms;
-        -o-transition-delay: 600ms;
-      }
-      .userItem:nth-child(13) {
-        transition-delay: 650ms;
-        -moz-transition-delay: 650ms;
-        -webkit-transition-delay: 650ms;
-        -o-transition-delay: 650ms;
-      }
-      .userItem:nth-child(14) {
-        transition-delay: 700ms;
-        -moz-transition-delay: 700ms;
-        -webkit-transition-delay: 700ms;
-        -o-transition-delay: 700ms;
-      }
-      .userItem:nth-child(15) {
-        transition-delay: 750ms;
-        -moz-transition-delay: 750ms;
-        -webkit-transition-delay: 750ms;
-        -o-transition-delay: 750ms;
-      }
-      .userItem:nth-child(16) {
-        transition-delay: 800ms;
-        -moz-transition-delay: 800ms;
-        -webkit-transition-delay: 800ms;
-        -o-transition-delay: 800ms;
-      }
-      .userItem:nth-child(17) {
-        transition-delay: 850ms;
-        -moz-transition-delay: 850ms;
-        -webkit-transition-delay: 850ms;
-        -o-transition-delay: 850ms;
-      }
-      .userItem:nth-child(18) {
-        transition-delay: 900ms;
-        -moz-transition-delay: 900ms;
-        -webkit-transition-delay: 900ms;
-        -o-transition-delay: 900ms;
-      }
-      .userItem:nth-child(19) {
-        transition-delay: 950ms;
-        -moz-transition-delay: 950ms;
-        -webkit-transition-delay: 950ms;
-        -o-transition-delay: 950ms;
-      }
-      .userItem:nth-child(20) {
-        transition-delay: 1000ms;
-        -moz-transition-delay: 1000ms;
-        -webkit-transition-delay: 1000ms;
-        -o-transition-delay: 1000ms;
-      }
+
+      .generateUserItemAnimation(20);
     }
   }
 }
