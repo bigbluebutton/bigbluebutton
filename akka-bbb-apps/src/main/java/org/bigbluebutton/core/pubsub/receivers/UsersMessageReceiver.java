@@ -30,7 +30,9 @@ import org.bigbluebutton.common.messages.UserTalkingInVoiceConfMessage;
 import org.bigbluebutton.common.messages.UserUnshareWebcamRequestMessage;
 import org.bigbluebutton.common.messages.VoiceConfRecordingStartedMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.messages.CreateBreakoutRoomsRequest;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 
@@ -116,6 +118,11 @@ public class UsersMessageReceiver implements MessageHandler{
 						  break;
 					  case EjectUserFromVoiceRequestMessage.EJECT_USER_FROM_VOICE_REQUEST:
 						  processEjectUserFromVoiceRequestMessage(message);
+						  break;
+					  case CreateBreakoutRoomsRequest.NAME:
+						  Gson gson = new Gson();
+						  CreateBreakoutRoomsRequest msg = gson.fromJson(message, CreateBreakoutRoomsRequest.class);
+						  bbbInGW.handleBigBlueButtonMessage(msg);
 						  break;
 						  
 					}

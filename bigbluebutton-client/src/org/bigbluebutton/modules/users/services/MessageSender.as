@@ -92,6 +92,8 @@ package org.bigbluebutton.modules.users.services
 			message["meetingId"] = meetingId;
 			message["rooms"] = rooms;
 			message["durationInMinutes"] = durationInMinutes;
+			var jsonMsg:String = JSON.stringify(message);
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("breakoutroom.createBreakoutRooms", function(result:String):void
 			{
@@ -100,7 +102,7 @@ package org.bigbluebutton.modules.users.services
 			{ // status - On error occurred
 				LOGGER.error(status);
 			},
-			message
+			jsonMsg
 			);
 		}
 		
@@ -109,6 +111,9 @@ package org.bigbluebutton.modules.users.services
 			message["meetingId"] = meetingId;
 			message["breakoutId"] = breakoutId;
 			message["userId"] = userId;
+			
+			var jsonMsg:String = JSON.stringify(message);
+			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("breakoutroom.requestBreakoutJoinUrl", function(result:String):void
 			{
@@ -117,13 +122,15 @@ package org.bigbluebutton.modules.users.services
 			{ // status - On error occurred
 				LOGGER.error(status);
 			},
-			message
+			jsonMsg
 			);
 		}
 		
 		public function endAllBreakoutRooms(meetingId:String):void{
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;
+			
+			var jsonMsg:String = JSON.stringify(message);
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("breakoutroom.endAllBreakoutRooms", function(result:String):void
@@ -133,7 +140,7 @@ package org.bigbluebutton.modules.users.services
 			{ // status - On error occurred
 				LOGGER.error(status);
 			},
-				message
+			jsonMsg
 			);
 		}
     

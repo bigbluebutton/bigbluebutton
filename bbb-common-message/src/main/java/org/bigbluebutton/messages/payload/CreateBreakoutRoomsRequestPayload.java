@@ -10,7 +10,9 @@ public class CreateBreakoutRoomsRequestPayload {
   // The duration of the breakout room
   public final Integer durationInMinutes;
   
-  public CreateBreakoutRoomsRequestPayload(String meetingId, ArrayList<BreakoutRoomRequestPayload> breakoutRooms, Integer duration) {
+  public CreateBreakoutRoomsRequestPayload(String meetingId, 
+		  ArrayList<BreakoutRoomRequestPayload> breakoutRooms, 
+		  Integer duration) {
     this.meetingId = meetingId;
     this.rooms = breakoutRooms;
     this.durationInMinutes = duration;

@@ -1,6 +1,4 @@
-package org.bigbluebutton.apps
-
-import org.bigbluebutton.core._
+package org.bigbluebutton.core
 
 trait AppsTestFixtures {
 

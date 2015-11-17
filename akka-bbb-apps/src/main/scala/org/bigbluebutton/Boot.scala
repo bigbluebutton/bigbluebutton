@@ -1,8 +1,6 @@
 package org.bigbluebutton
 
-import akka.http.scaladsl.Http
 import akka.event.{ LoggingAdapter, Logging }
-import akka.stream.{ ActorMaterializer, Materializer }
 import akka.actor.{ ActorSystem, Props }
 import scala.concurrent.duration._
 import redis.RedisClient
@@ -25,12 +23,11 @@ import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.core.recorders.VoiceEventRecorder
 import org.bigbluebutton.core.bus._
 
-object Boot extends App with SystemConfiguration with Service {
+object Boot extends App with SystemConfiguration {
 
-  override implicit val system = ActorSystem("bigbluebutton-apps-system")
-  override implicit val executor = system.dispatcher
-  override implicit val materializer = ActorMaterializer()
-  override val logger = Logging(system, getClass)
+  implicit val system = ActorSystem("bigbluebutton-apps-system")
+  implicit val executor = system.dispatcher
+  val logger = Logging(system, getClass)
 
   val eventBus = new IncomingEventBus
   val outgoingEventBus = new OutgoingEventBus
@@ -58,5 +55,4 @@ object Boot extends App with SystemConfiguration with Service {
 
   val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
 
-  Http().bindAndHandle(routes, httpInterface, httpPort)
 }

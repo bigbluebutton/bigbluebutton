@@ -1,4 +1,4 @@
-package org.bigbluebutton.apps
+package org.bigbluebutton.core
 
 trait MeetingManagerTestFixtures extends AppsTestFixtures {
 

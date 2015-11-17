@@ -1,8 +1,7 @@
 package org.bigbluebutton.messages;
 
 import java.util.Date;
-
-import org.bigbluebutton.messages.CreateBreakoutRoomRequest.CreateBreakoutRoomRequestPayload;import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
+import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
 import org.junit.Assert;
 import org.junit.Test;
 

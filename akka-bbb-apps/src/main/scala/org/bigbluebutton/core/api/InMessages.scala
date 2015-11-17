@@ -5,6 +5,11 @@ import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.MeetingProperties
 import org.bigbluebutton.core.apps.BreakoutUser
+import spray.json.JsObject
+
+case class MessageHeader(name: String)
+case class HeaderAndJsonPayload(header: MessageHeader, payload: JsObject)
+case class MessageProcessException(message: String) extends Exception(message)
 
 trait InMessage
 

@@ -22,6 +22,7 @@ import org.bigbluebutton.common.messages.PubSubPingMessage
 import org.bigbluebutton.messages._
 import org.bigbluebutton.messages.payload._
 import akka.event.Logging
+import spray.json.JsonParser
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
@@ -76,19 +77,29 @@ class BigBlueButtonInGW(
             new CreateMeeting(msg.payload.id, mProps)))
       }
 
-      case msg: CreateBreakoutRoomsRequest => {
-        val it = msg.payload.rooms.iterator
-        val rooms = scala.collection.immutable.Vector.empty
-        while (it.hasNext()) {
-          rooms :+ it.next()
-        }
-
-        eventBus.publish(
-          BigBlueButtonEvent(
-            "meeting-manager",
-            new CreateBreakoutRooms(msg.payload.meetingId, msg.payload.durationInMinutes, rooms)))
-      }
     }
+  }
+
+  def handleJsonMessage(json: String) {
+    JsonMessageDecoder.decode(json) match {
+      case Some(validMsg) => forwardMessage(validMsg)
+      case None => log.error("Unhandled message: {}", json)
+    }
+  }
+
+  def forwardMessage(msg: InMessage) = {
+    msg match {
+      case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+    }
+  }
+
+  def handleCreateBreakoutRoomsRequest(msg: HeaderAndJsonPayload) {
+    //    val xjson = msg.jsonMessage
+    //
+    //    eventBus.publish(
+    //      BigBlueButtonEvent(
+    //        "meeting-manager",
+    //        new CreateBreakoutRooms(msg.payload.meetingId, msg.payload.durationInMinutes, rooms)))
   }
 
   def destroyMeeting(meetingID: String) {

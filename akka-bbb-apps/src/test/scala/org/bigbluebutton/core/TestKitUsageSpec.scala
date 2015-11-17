@@ -1,4 +1,4 @@
-package org.bigbluebutton.apps
+package org.bigbluebutton.core
 
 import scala.util.Random
 import com.typesafe.config.ConfigFactory

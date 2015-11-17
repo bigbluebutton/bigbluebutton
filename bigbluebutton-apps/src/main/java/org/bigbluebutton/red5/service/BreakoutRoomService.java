@@ -30,6 +30,9 @@ import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 public class BreakoutRoomService {
 
 	private static Logger log = Red5LoggerFactory.getLogger(
@@ -41,17 +44,9 @@ public class BreakoutRoomService {
 		red5GW = inGW;
 	}
 
-	public void createBreakoutRooms(Map<String, Object> msg) {
+	public void createBreakoutRooms(String jsonMessage) {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		String meetingId = (String) msg.get("meetingId");
-		Integer duration = (Integer) msg.get("durationInMinutes");
-		// FIXME: check if we are using raw or typed objects
-		ArrayList<BreakoutRoomRequestPayload> breakoutRooms = (ArrayList<BreakoutRoomRequestPayload>) msg
-				.get("rooms");
-
-		CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(
-				meetingId, breakoutRooms, duration);
-		red5GW.createBreakoutRooms(payload);
+		red5GW.createBreakoutRooms(jsonMessage);
 	}
 
 	public void endAllBreakoutRooms(Map<String, Object> msg) {

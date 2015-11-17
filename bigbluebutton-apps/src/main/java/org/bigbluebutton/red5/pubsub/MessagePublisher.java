@@ -274,9 +274,8 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
-	public void createBreakoutRooms(CreateBreakoutRoomsRequestPayload payload) {
-		CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(payload);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	public void createBreakoutRooms(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
 
 	public void endAllBreakoutRooms(EndAllBreakoutRoomsRequestPayload payload){
