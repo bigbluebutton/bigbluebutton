@@ -125,7 +125,20 @@ package org.bigbluebutton.modules.users.services
 			jsonMsg
 			);
 		}
-		
+
+		public function listenInOnBreakout(meetingId:String, breakoutId:String, userId:String, listen:Boolean):void {
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("breakoutroom.listenInOnBreakout", function(result:String):void
+			{
+				// On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			JSON.stringify({meetingId:meetingId, breakoutId:breakoutId, userId:userId, listen:listen})
+			);
+		}
+
 		public function endAllBreakoutRooms(meetingId:String):void{
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;

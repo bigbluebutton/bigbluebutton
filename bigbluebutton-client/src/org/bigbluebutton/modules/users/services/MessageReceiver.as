@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.BreakoutRoomEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
@@ -603,7 +604,9 @@ package org.bigbluebutton.modules.users.services
 	
 	private function handleTimeRemainingUpdate(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
-		UserManager.getInstance().getConference().breakoutTimeRemainingUpdate(msg.timeRemaining);
+		var e : BreakoutRoomEvent=  new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME);
+		e.durationInMinutes = msg.timeRemaining;
+		dispatcher.dispatchEvent(e);
 	}
 	
 	private function handleBreakoutRoomStarted(msg:Object):void{

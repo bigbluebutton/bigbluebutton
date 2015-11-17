@@ -47,11 +47,6 @@ package org.bigbluebutton.main.model.users {
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
 		[Bindable] public var breakoutRooms:ArrayCollection = null;
-		/**
-		 * The remaining time in milliseconds
-		 */
-		[Bindable]
-		public var breakoutTimeRemaining:Number;
 
 		private var sort:Sort;
 		
@@ -547,12 +542,7 @@ package org.bigbluebutton.main.model.users {
 			breakoutRooms.addItem(newRoom);
 			breakoutRooms.refresh();
 		}
-		
-		public function breakoutTimeRemainingUpdate(timeRemaining:int):void {
-			// We receive the remaining time in minutes then we convert it to milliseconds
-			this.breakoutTimeRemaining = timeRemaining * 1000;
-		}
-		
+
 		public function updateBreakoutRoomUsers(breakoutId:String, users:Array):void {
 			var r:Object = getBreakoutRoom(breakoutId);
 			if (r != null) {

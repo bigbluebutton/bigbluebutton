@@ -76,7 +76,6 @@ class BigBlueButtonInGW(
             "meeting-manager",
             new CreateMeeting(msg.payload.id, mProps)))
       }
-
     }
   }
 

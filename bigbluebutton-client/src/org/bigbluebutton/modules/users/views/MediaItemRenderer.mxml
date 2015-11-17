@@ -31,11 +31,13 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flash.filters.BitmapFilterQuality;
+			import flash.filters.GlowFilter;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
