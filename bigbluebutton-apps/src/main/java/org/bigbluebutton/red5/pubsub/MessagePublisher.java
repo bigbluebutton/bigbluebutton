@@ -5,8 +5,12 @@ import java.util.Map;
 import org.bigbluebutton.common.messages.*;
 import org.bigbluebutton.messages.CreateBreakoutRoomsRequest;
 import org.bigbluebutton.messages.EndAllBreakoutRoomsRequest;
+import org.bigbluebutton.messages.ListenInOnBreakout;
+import org.bigbluebutton.messages.RequestBreakoutJoinURL;
 import org.bigbluebutton.messages.payload.CreateBreakoutRoomsRequestPayload;
 import org.bigbluebutton.messages.payload.EndAllBreakoutRoomsRequestPayload;
+import org.bigbluebutton.messages.payload.ListenInOnBreakoutPayload;
+import org.bigbluebutton.messages.payload.RequestBreakoutJoinURLPayload;
 import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
 public class MessagePublisher {
@@ -276,6 +280,16 @@ public class MessagePublisher {
 
 	public void createBreakoutRooms(CreateBreakoutRoomsRequestPayload payload) {
 		CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(payload);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
+	public void requestBreakoutJoinURL(RequestBreakoutJoinURLPayload payload) {
+		RequestBreakoutJoinURL msg = new RequestBreakoutJoinURL(payload);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+
+	public void listenInOnBreakout(ListenInOnBreakoutPayload payload) {
+		ListenInOnBreakout msg = new ListenInOnBreakout(payload);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 

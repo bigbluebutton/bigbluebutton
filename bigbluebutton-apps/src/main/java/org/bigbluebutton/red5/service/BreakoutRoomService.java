@@ -26,6 +26,8 @@ import java.util.Map;
 import org.bigbluebutton.messages.payload.BreakoutRoomRequestPayload;
 import org.bigbluebutton.messages.payload.CreateBreakoutRoomsRequestPayload;
 import org.bigbluebutton.messages.payload.EndAllBreakoutRoomsRequestPayload;
+import org.bigbluebutton.messages.payload.ListenInOnBreakoutPayload;
+import org.bigbluebutton.messages.payload.RequestBreakoutJoinURLPayload;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
@@ -59,6 +61,27 @@ public class BreakoutRoomService {
 		CreateBreakoutRoomsRequestPayload payload = new CreateBreakoutRoomsRequestPayload(
 				meetingId, breakoutRooms, duration);
 		red5GW.createBreakoutRooms(payload);
+	}
+
+	public void requestBreakoutJoinURL(Map<String, Object> msg) {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String meetingId = (String) msg.get("meetingId");
+		String breakoutId = (String) msg.get("breakoutId");
+		String userId = (String) msg.get("userId");
+		
+		RequestBreakoutJoinURLPayload payload = new RequestBreakoutJoinURLPayload(meetingId, breakoutId, userId);
+		red5GW.requestBreakoutJoinURL(payload);
+	}
+
+	public void listenInOnBreakout(Map<String, Object> msg) {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String meetingId = (String) msg.get("meetingId");
+		String breakoutId = (String) msg.get("breakoutId");
+		String userId = (String) msg.get("userId");
+		Boolean listen = (Boolean) msg.get("listen");
+		
+		ListenInOnBreakoutPayload payload = new ListenInOnBreakoutPayload(meetingId, breakoutId, userId, listen);
+		red5GW.listenInOnBreakout(payload);
 	}
 
 	public void endAllBreakoutRooms(Map<String, Object> msg) {
