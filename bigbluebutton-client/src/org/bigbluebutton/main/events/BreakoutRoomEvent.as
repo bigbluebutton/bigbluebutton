@@ -29,6 +29,8 @@ package org.bigbluebutton.main.events {
 		
 		public static const END_ALL_BREAKOUT_ROOMS:String = "END_ALL_BREAKOUT_ROOMS";
 		
+		public static const UPDATE_REMAINING_TIME:String = "UPDATE_REMAINING_TIME";
+		
 		public var meetingId:String;
 		
 		public var breakoutId:String;
