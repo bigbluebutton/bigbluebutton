@@ -45,7 +45,8 @@ class @WhiteboardPollModel extends WhiteboardToolModel
         if votesTotal is 0
           textArray[i].push("0%")
         else
-          textArray[i].push(startingData.result[i].num_votes/votesTotal*100+"%")
+          percResult = startingData.result[i].num_votes/votesTotal*100;
+          textArray[i].push(Math.round(percResult) + "%")
 
     #if coordinates are reversed - change them back
     if x2 < x1
@@ -132,7 +133,7 @@ class @WhiteboardPollModel extends WhiteboardToolModel
 
     #*****************************************************************************************************
     #******************************************MAGIC NUMBER***********************************************
-    #There is no automatic vertical centering in SVG. 
+    #There is no automatic vertical centering in SVG.
     #To center the text element we have to move it down by the half of its height.
     #But every text element has its own padding by default.
     #The height we receive by calling getBBox() includes padding, but the anchor point doesn't consider it.
@@ -268,7 +269,7 @@ calculateFontAndWidth = (textArray, calcFontSize, width, height, x, y) ->
       if spanHeight > maxLineHeight
         maxLineHeight = spanHeight
       test = getRenderedTextSize(line[2], calcFontSize)
-      spanWidth = test[0] 
+      spanWidth = test[0]
       spanHeight = test[1]
       if spanWidth > maxRightWidth
         maxRightWidth = spanWidth
