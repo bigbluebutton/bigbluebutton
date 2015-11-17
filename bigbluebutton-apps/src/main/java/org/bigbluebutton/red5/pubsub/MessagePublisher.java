@@ -280,21 +280,21 @@ public class MessagePublisher {
 
 	public void createBreakoutRooms(CreateBreakoutRoomsRequestPayload payload) {
 		CreateBreakoutRoomsRequest msg = new CreateBreakoutRoomsRequest(payload);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	public void requestBreakoutJoinURL(RequestBreakoutJoinURLPayload payload) {
 		RequestBreakoutJoinURL msg = new RequestBreakoutJoinURL(payload);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	public void listenInOnBreakout(ListenInOnBreakoutPayload payload) {
 		ListenInOnBreakout msg = new ListenInOnBreakout(payload);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 
 	public void endAllBreakoutRooms(EndAllBreakoutRoomsRequestPayload payload){
 		EndAllBreakoutRoomsRequest msg = new EndAllBreakoutRoomsRequest(payload);
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
 	}
 }

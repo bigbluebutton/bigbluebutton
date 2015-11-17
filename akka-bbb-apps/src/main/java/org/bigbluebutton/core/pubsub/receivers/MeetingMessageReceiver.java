@@ -37,35 +37,39 @@ public class MeetingMessageReceiver implements MessageHandler {
 	}
 	
 	public void handleMessage(String pattern, String channel, String message) {
-//		LOG.debug("Checking message: " + pattern + " " + channel + " " + message);
 		if (channel.equalsIgnoreCase(MessagingConstants.TO_MEETING_CHANNEL)) {
-//			System.out.println("Meeting message: " + channel + " " + message);
-		  
-      JsonParser parser = new JsonParser();
-      JsonObject obj = (JsonObject) parser.parse(message);
-      if (obj.has("header") && obj.has("payload")) {
-        JsonObject header = (JsonObject) obj.get("header");
-        if (header.has("name")) {
-          String messageName = header.get("name").getAsString();
-          if (CreateMeetingRequest.NAME.equals(messageName)) {
-            Gson gson = new Gson();
-            CreateMeetingRequest msg = gson.fromJson(message, CreateMeetingRequest.class);
-            bbbGW.handleBigBlueButtonMessage(msg);
-          } else if (CreateBreakoutRoomsRequest.NAME.equals(messageName)) {
-            Gson gson = new Gson();
-            CreateBreakoutRoomsRequest msg = gson.fromJson(message, CreateBreakoutRoomsRequest.class);
-            bbbGW.handleBigBlueButtonMessage(msg);
-          } else if (ListenInOnBreakout.NAME.equals(messageName)) {
-            Gson gson = new Gson();
-            ListenInOnBreakout msg = gson.fromJson(message, ListenInOnBreakout.class);
-            bbbGW.handleBigBlueButtonMessage(msg);
-          } else if (RequestBreakoutJoinURL.NAME.equals(messageName)) {
-            Gson gson = new Gson();
-            RequestBreakoutJoinURL msg = gson.fromJson(message, RequestBreakoutJoinURL.class);
-            bbbGW.handleBigBlueButtonMessage(msg);
-          }
-        }
-      }
+			System.out.println("Meeting message: " + channel + " " + message);
+
+			JsonParser parser = new JsonParser();
+			JsonObject obj = (JsonObject) parser.parse(message);
+			if (obj.has("header") && obj.has("payload")) {
+				JsonObject header = (JsonObject) obj.get("header");
+				if (header.has("name")) {
+					String messageName = header.get("name").getAsString();
+					if (CreateMeetingRequest.NAME.equals(messageName)) {
+						Gson gson = new Gson();
+						CreateMeetingRequest msg = gson.fromJson(message,
+								CreateMeetingRequest.class);
+						bbbGW.handleBigBlueButtonMessage(msg);
+					} else if (CreateBreakoutRoomsRequest.NAME
+							.equals(messageName)) {
+						Gson gson = new Gson();
+						CreateBreakoutRoomsRequest msg = gson.fromJson(message,
+								CreateBreakoutRoomsRequest.class);
+						bbbGW.handleBigBlueButtonMessage(msg);
+					} else if (ListenInOnBreakout.NAME.equals(messageName)) {
+						Gson gson = new Gson();
+						ListenInOnBreakout msg = gson.fromJson(message,
+								ListenInOnBreakout.class);
+						bbbGW.handleBigBlueButtonMessage(msg);
+					} else if (RequestBreakoutJoinURL.NAME.equals(messageName)) {
+						Gson gson = new Gson();
+						RequestBreakoutJoinURL msg = gson.fromJson(message,
+								RequestBreakoutJoinURL.class);
+						bbbGW.handleBigBlueButtonMessage(msg);
+					}
+				}
+			}
 		  
 			IBigBlueButtonMessage msg = MessageFromJsonConverter.convert(message);
 			
