@@ -120,7 +120,25 @@ package org.bigbluebutton.modules.users.services
 			message
 			);
 		}
-		
+
+		public function listenInOnBreakout(meetingId:String, breakoutId:String, userId:String, listen:Boolean):void {
+			var message:Object = new Object();
+			message["meetingId"] = meetingId;
+			message["breakoutId"] = breakoutId;
+			message["userId"] = userId;
+			message["listen"] = listen;
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("breakoutroom.listenInOnBreakout", function(result:String):void
+			{
+				// On successful result
+			}, function(status:String):void
+			{ // status - On error occurred
+				LOGGER.error(status);
+			},
+			message
+			);
+		}
+
 		public function endAllBreakoutRooms(meetingId:String):void{
 			var message:Object = new Object();
 			message["meetingId"] = meetingId;

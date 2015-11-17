@@ -541,9 +541,9 @@
 		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
 					 dragEnabled="false" width="100%" height="100%" draggableColumns="false">
 			<mx:columns>
-				<mx:DataGridColumn dataField="roomName" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
+				<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
 				<mx:DataGridColumn dataField="users" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
-				<mx:DataGridColumn dataField="actions" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}" 
+				<mx:DataGridColumn dataField="breakoutId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}" 
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</mx:columns>
 		</mx:DataGrid>

@@ -6,15 +6,31 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			[Bindable]
 			private var images:Images = new Images();
+			
+			protected function listenToBreakoutRoom(event:MouseEvent):void {
+				var e:BreakoutRoomEvent=new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+				e.breakoutId=data as String;
+				dispatchEvent(e);
+			}
+			
+			protected function requestBreakoutJoinUrl(event:MouseEvent):void {
+				var e:BreakoutRoomEvent=new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
+				e.breakoutId=data as String;
+				dispatchEvent(e);
+			}
+			
 		]]>
 	</mx:Script>
 	
 	<mx:Button id="listenImg" width="20" height="20"
-			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"/>
+			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"
+			   click="listenToBreakoutRoom(event)"/>
 	<mx:Button id="joinImg" width="20" height="20"
-			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"/>
+			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
+			   click="requestBreakoutJoinUrl(event)"/>
 </mx:HBox>

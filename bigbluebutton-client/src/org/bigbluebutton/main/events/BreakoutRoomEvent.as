@@ -26,6 +26,8 @@ package org.bigbluebutton.main.events {
 		public static const CREATE_BREAKOUT_ROOMS:String = "CREATE_BREAKOUT_ROOMS";
 		
 		public static const REQUEST_BREAKOUT_JOIN_URL:String = "REQUEST_BREAKOUT_JOIN_URL";
+
+		public static const LISTEN_IN:String = "LISTEN_IN";
 		
 		public static const END_ALL_BREAKOUT_ROOMS:String = "END_ALL_BREAKOUT_ROOMS";
 		

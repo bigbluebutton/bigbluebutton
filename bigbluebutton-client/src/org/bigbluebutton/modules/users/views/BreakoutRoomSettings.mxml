@@ -91,6 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var remaining:int = users.length % rooms;
 				var user:BBBUser;
 				roomsContainer.removeAllChildren();
+				// @fixme: don't send duplicate users
 				for (var r:int = 0; r < rooms; r++) {
 					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 					list.users = new ArrayCollection();
