@@ -35,7 +35,10 @@ import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 public class BreakoutRoomService {
 
@@ -50,7 +53,13 @@ public class BreakoutRoomService {
 
 	public void createBreakoutRooms(String jsonMessage) {
 		IScope scope = Red5.getConnectionLocal().getScope();
-		red5GW.createBreakoutRooms(jsonMessage);
+
+		JsonObject payload = JsonEncoderUtil.buildPayload(jsonMessage);
+		JsonObject header = JsonEncoderUtil.addMessageHeader("CreateBreakoutRooms");
+		JsonObject message = JsonEncoderUtil.headerAndPayload(header, payload);
+		Gson gson = new Gson();
+		
+		red5GW.createBreakoutRooms(gson.toJson(message));
 	}
 
 	public void requestBreakoutJoinURL(Map<String, Object> msg) {
