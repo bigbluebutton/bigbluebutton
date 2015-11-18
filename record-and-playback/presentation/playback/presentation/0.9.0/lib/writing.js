@@ -477,8 +477,7 @@ var cursorStyle;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
-var HOST = window.location.host;
-var url = "http://" + HOST + "/presentation/" + MEETINGID;
+var url = "/presentation/" + MEETINGID;
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';

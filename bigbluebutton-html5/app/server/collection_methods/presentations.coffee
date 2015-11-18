@@ -14,15 +14,12 @@ Meteor.methods
       "slide.num" : currentSlideDoc?.slide.num-1})
 
     if previousSlideDoc? and isAllowedTo('switchSlide', meetingId, userId, authToken)
-      newPage = previousSlideDoc.slide.id
       message =
         "payload":
-          "page":
-            "id": previousSlideDoc.slide.id
+          "page": previousSlideDoc.slide.id
           "meeting_id": meetingId
         "header":
-          "timestamp": new Date().getTime()
-          "name": "presentation_page_changed_message"
+          "name": "go_to_slide"
 
       publish Meteor.config.redis.channels.toBBBApps.presentation, message
 
@@ -41,15 +38,12 @@ Meteor.methods
       "slide.num" : currentSlideDoc?.slide.num+1})
 
     if nextSlideDoc? and isAllowedTo('switchSlide', meetingId, userId, authToken)
-      newPage = nextSlideDoc.slide.id
       message =
         "payload":
-          "page":
-            "id": nextSlideDoc.slide.id
+          "page": nextSlideDoc.slide.id
           "meeting_id": meetingId
         "header":
-          "timestamp": new Date().getTime()
-          "name": "presentation_page_changed_message"
+          "name": "go_to_slide"
 
       publish Meteor.config.redis.channels.toBBBApps.presentation, message
 
@@ -78,6 +72,7 @@ Meteor.methods
   if meetingId? and presentationId? and Meteor.Presentations.findOne({meetingId: meetingId, "presentation.id": presentationId})?
     id = Meteor.Presentations.findOne({meetingId: meetingId, "presentation.id": presentationId})
     if id?
+      Meteor.Slides.remove({presentationId: presentationId}, Meteor.log.info "cleared Slides Collection (presentationId: #{presentationId}!")
       Meteor.Presentations.remove(id._id)
       Meteor.log.info "----removed presentation[" + presentationId + "] from " + meetingId
 

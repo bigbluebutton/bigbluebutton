@@ -1,5 +1,6 @@
 Template.slide.rendered = ->
   currentSlide = getCurrentSlideDoc()
+
   pic = new Image()
   pic.onload = ->
     setInSession 'slideOriginalWidth', this.width
@@ -20,6 +21,7 @@ Template.slide.rendered = ->
 
 @displaySlide = (wpm) ->
   currentSlide = getCurrentSlideDoc()
+
   wpm.create()
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
   wpm._displayPage(currentSlide?.slide?.img_uri, getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
@@ -84,7 +86,7 @@ Template.slide.rendered = ->
     else
       adjustedWidth = boardWidth
 
-  { width: adjustedWidth, height: adjustedHeight }
+  { width: adjustedWidth, height: adjustedHeight, boardWidth: boardWidth, boardHeight: boardHeight }
 
 Template.slide.helpers
   updatePointerLocation: (pointer) ->

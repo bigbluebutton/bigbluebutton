@@ -86,7 +86,6 @@
     li {
       margin: 0px;
       padding: 15px;
-      word-wrap: break-word;
       // &:nth-child(even) {
       //   background-color: rgb(245,245,245);
       // }
@@ -95,6 +94,8 @@
       }
     }
   }
+  word-wrap: break-word;
+
 }
 .chatBodyContainer {
   @media @desktop-portrait, @landscape {
@@ -110,6 +111,9 @@
   }
 }
 #chatbody {
+    // text will not be hidden as it won't exceed the container boundaries,
+    // but the element will still be given horizontal scroll bars
+    overflow-x: hidden;
   @media @desktop-portrait, @landscape {
     order: 2;
     -webkit-order: 2;
@@ -145,7 +149,7 @@
 
 #fontSizeTable {
   border: 1px solid white;
-  height: 80px;
+  height: @settingsSectionHeight;
   margin-bottom: 0px;
   overflow: hidden;
   @media @phone-portrait-with-keyboard, @phone-portrait {
@@ -158,7 +162,9 @@
     width: calc(~'100% - 70px');
   }
   #displayLabel {
+    height: @fontSizeControlMaxHeight;
     padding: 0;
+    width: @fontSizeControlMaxWidth;
   }
   tr {
     td {
@@ -223,7 +229,7 @@
   }
   @media @desktop-portrait {
     font-size: 25px;
-    height: 60px; /* same height as send button */
+    height: @chatControlsHeight;
   }
 }
 
@@ -240,7 +246,7 @@
   color: extract(@white, 1);
   background-color: #3896D3;
   font-weight: bold;
-  height: 50px;
+  height: @chatControlsHeight;
   margin: 0px;
   border: 1px solid extract(@lightGrey, 3);
   @media @desktop-portrait {

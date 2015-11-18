@@ -46,6 +46,10 @@ Handlebars.registerHelper "amIInAudio", ->
 Handlebars.registerHelper "amIListenOnlyAudio", ->
   BBB.amIListenOnlyAudio()
 
+# helper to determine whether the user is in the listen only audio stream
+Handlebars.registerHelper "isMyMicLocked", ->
+  BBB.isMyMicLocked()
+
 Handlebars.registerHelper "colourToHex", (value) =>
   @window.colourToHex(value)
 
@@ -56,9 +60,7 @@ Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
 
 Handlebars.registerHelper "getCurrentSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+  getCurrentSlideDoc()
 
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
@@ -273,10 +275,10 @@ Handlebars.registerHelper "getPollQuestions", ->
   BBB.toggleMyMic()
 
 @toggleUsersList = ->
-  if $('.sl-left-drawer').hasClass('hiddenInLandscape')
-    $('.sl-left-drawer').removeClass('hiddenInLandscape')
+  if $('.userlistMenu').hasClass('hiddenInLandscape')
+    $('.userlistMenu').removeClass('hiddenInLandscape')
   else
-    $('.sl-left-drawer').addClass('hiddenInLandscape')
+    $('.userlistMenu').addClass('hiddenInLandscape')
   setTimeout(scaleWhiteboard, 0)
 
 @populateNotifications = (msg) ->
@@ -330,10 +332,11 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('.shield').removeClass('animatedShield')
 
 @removeFullscreenStyles = ->
-  $('#whiteboard-paper').removeClass('verticallyCentered')
+  $('#whiteboard-paper').removeClass('vertically-centered')
   $('#chat').removeClass('invisible')
   $('#users').removeClass('invisible')
   $('#navbar').removeClass('invisible')
+  $('.FABTriggerButton').removeClass('invisible')
   $('.fullscreenButton').removeClass('exitFullscreenButton')
   $('.fullscreenButton').addClass('whiteboardFullscreenButton')
   $('.fullscreenButton i').removeClass('ion-arrow-shrink')
@@ -354,11 +357,12 @@ Handlebars.registerHelper "getPollQuestions", ->
   $('#chat').addClass('invisible')
   $('#users').addClass('invisible')
   $('#navbar').addClass('invisible')
+  $('.FABTriggerButton').addClass('invisible')
   $('.fullscreenButton').removeClass('whiteboardFullscreenButton')
   $('.fullscreenButton').addClass('exitFullscreenButton')
   $('.fullscreenButton i').removeClass('ion-arrow-expand')
   $('.fullscreenButton i').addClass('ion-arrow-shrink')
-  $('#whiteboard-paper').addClass('verticallyCentered')
+  $('#whiteboard-paper').addClass('vertically-centered')
   $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
     if document.webkitFullscreenElement is null
       $('#whiteboard').unbind('webkitfullscreenchange')
@@ -373,12 +377,12 @@ Handlebars.registerHelper "getPollQuestions", ->
       scaleWhiteboard()
 
 @closeMenus = ->
-  if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
-    toggleLeftDrawer()
-    toggleLeftArrowClockwise()
-  else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
-    toggleRightDrawer()
-    toggleRightArrowClockwise()
+  if $('.userlistMenu').hasClass('menuOut')
+    toggleUserlistMenu()
+    toggleLeftHamburderIcon()
+  else if $('.settingsMenu').hasClass('menuOut')
+    toggleSettingsMenu()
+    toggleRightHamburderIcon()
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
@@ -451,7 +455,6 @@ Handlebars.registerHelper "getPollQuestions", ->
   amplify.store('messageFontSize', null)
   amplify.store('tabsRenderedTime', null)
   amplify.store('userId', null)
-  amplify.store('userName', null)
   amplify.store('display_menu', null)
   if callback?
     callback()
@@ -565,6 +568,12 @@ Handlebars.registerHelper "getPollQuestions", ->
 @isPhone = () ->
   isLandscapePhone() or isPortraitPhone()
 
+# The webpage orientation is now landscape
+@orientationBecameLandscape = ->
+  adjustChatInputHeight()
+# The webpage orientation is now portrait
+@orientationBecamePortrait = ->
+  adjustChatInputHeight()
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
   #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1
@@ -583,21 +592,73 @@ Handlebars.registerHelper "getPollQuestions", ->
   else
     return null
 
+@scrollChatDown = () ->
+  $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+
 # changes the height of the chat input area if needed (based on the textarea content)
 @adjustChatInputHeight = () ->
-  $('#newMessageInput').css('height', 'auto')
-  projectedHeight = $('#newMessageInput')[0].scrollHeight + 23
-  if projectedHeight isnt $('.panel-footer').height() and
-  projectedHeight >= getInSession('chatInputMinHeight')
-    $('#newMessageInput').css('overflow', 'hidden') # prevents a scroll bar
+  if isLandscape()
+    $('#newMessageInput').css('height', 'auto')
+    projectedHeight = $('#newMessageInput')[0].scrollHeight + 23
+    if projectedHeight isnt $('.panel-footer').height() and
+    projectedHeight >= getInSession('chatInputMinHeight')
+      $('#newMessageInput').css('overflow', 'hidden') # prevents a scroll bar
 
-    # resizes the chat input area
-    $('.panel-footer').css('top', - (projectedHeight - 70) + 'px')
-    $('.panel-footer').css('height', projectedHeight + 'px')
+      # resizes the chat input area
+      $('.panel-footer').css('top', - (projectedHeight - 70) + 'px')
+      $('.panel-footer').css('height', projectedHeight + 'px')
 
-    $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
+      $('#newMessageInput').height($('#newMessageInput')[0].scrollHeight)
 
-    # resizes the chat messages container
-    $('#chatbody').height($('#chat').height() - projectedHeight - 45)
-    $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
-  $('#newMessageInput').css('height', '')
+      # resizes the chat messages container
+      $('#chatbody').height($('#chat').height() - projectedHeight - 45)
+      $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+    $('#newMessageInput').css('height', '')
+  else if isPortrait()
+    $('.panel-footer').attr('style','')
+    $('#chatbody').attr('style','')
+    $('#newMessageInput').attr('style','')
+
+@toggleEmojisFAB = () ->
+  if $('.FABContainer').hasClass('openedFAB')
+    $('.FABContainer > button:nth-child(2)').css('opacity', $('.FABContainer > button:nth-child(2)').css('opacity'))
+    $('.FABContainer > button:nth-child(3)').css('opacity', $('.FABContainer > button:nth-child(3)').css('opacity'))
+    $('.FABContainer > button:nth-child(4)').css('opacity', $('.FABContainer > button:nth-child(4)').css('opacity'))
+    $('.FABContainer > button:nth-child(5)').css('opacity', $('.FABContainer > button:nth-child(5)').css('opacity'))
+    $('.FABContainer > button:nth-child(6)').css('opacity', $('.FABContainer > button:nth-child(6)').css('opacity'))
+    $('.FABContainer > button:nth-child(7)').css('opacity', $('.FABContainer > button:nth-child(7)').css('opacity'))
+    $('.FABContainer').removeClass('openedFAB')
+    $('.FABContainer').addClass('closedFAB')
+  else
+    $('.FABContainer > button:nth-child(2)').css('opacity', $('.FABContainer > button:nth-child(2)').css('opacity'))
+    $('.FABContainer > button:nth-child(3)').css('opacity', $('.FABContainer > button:nth-child(3)').css('opacity'))
+    $('.FABContainer > button:nth-child(4)').css('opacity', $('.FABContainer > button:nth-child(4)').css('opacity'))
+    $('.FABContainer > button:nth-child(5)').css('opacity', $('.FABContainer > button:nth-child(5)').css('opacity'))
+    $('.FABContainer > button:nth-child(6)').css('opacity', $('.FABContainer > button:nth-child(6)').css('opacity'))
+    $('.FABContainer > button:nth-child(7)').css('opacity', $('.FABContainer > button:nth-child(7)').css('opacity'))
+    $('.FABContainer').removeClass('closedFAB')
+    $('.FABContainer').addClass('openedFAB')
+
+@toggleLeftHamburderIcon = () ->
+  if $('.leftHamburgerButton').hasClass('hamburgerToggledOn')
+    $('.leftHamburgerButton').removeClass('hamburgerToggledOn')
+  else
+    $('.leftHamburgerButton').addClass('hamburgerToggledOn')
+
+@toggleRightHamburderIcon = () ->
+  if $('.rightHamburgerButton').hasClass('hamburgerToggledOn')
+    $('.rightHamburgerButton').removeClass('hamburgerToggledOn')
+  else
+    $('.rightHamburgerButton').addClass('hamburgerToggledOn')
+
+@toggleUserlistMenu = () ->
+  if $('.userlistMenu').hasClass('menuOut')
+    $('.userlistMenu').removeClass('menuOut')
+  else
+    $('.userlistMenu').addClass('menuOut')
+
+@toggleSettingsMenu = () ->
+  if $('.settingsMenu').hasClass('menuOut')
+    $('.settingsMenu').removeClass('menuOut')
+  else
+    $('.settingsMenu').addClass('menuOut')

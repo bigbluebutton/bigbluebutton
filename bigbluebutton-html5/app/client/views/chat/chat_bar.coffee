@@ -53,14 +53,14 @@ Handlebars.registerHelper "autoscroll", ->
 # true if the lock settings limit public chat and the current user is locked
 Handlebars.registerHelper "publicChatDisabled", ->
   userIsLocked = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.locked
-  publicChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePubChat
+  publicChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePublicChat
   presenter = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.presenter
   return userIsLocked and publicChatIsDisabled and !presenter
 
 # true if the lock settings limit private chat and the current user is locked
 Handlebars.registerHelper "privateChatDisabled", ->
   userIsLocked = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.locked
-  privateChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePrivChat
+  privateChatIsDisabled = Meteor.Meetings.findOne({})?.roomLockSettings.disablePrivateChat
   presenter = Meteor.Users.findOne({userId:getInSession 'userId'})?.user.presenter
   return userIsLocked and privateChatIsDisabled and !presenter
 
@@ -208,29 +208,6 @@ Template.message.helpers
     if minutes < 10
       minutes = "0" + minutes
     hours + ":" + minutes
-
-Template.optionsFontSize.events
-  "click #decreaseFontSize": (event) ->
-    if getInSession("messageFontSize") is 8 # min
-      $('#decreaseFontSize').disabled = true
-      $('#decreaseFontSize').removeClass('icon fi-minus')
-      $('#decreaseFontSize').html('MIN')
-    else
-      setInSession "messageFontSize", getInSession("messageFontSize") - 2
-      if $('#increaseFontSize').html() is 'MAX'
-        $('#increaseFontSize').html('')
-        $('#increaseFontSize').addClass('icon fi-plus')
-
-  "click #increaseFontSize": (event) ->
-    if getInSession("messageFontSize") is 40 # max
-      $('#increaseFontSize').disabled = true
-      $('#increaseFontSize').removeClass('icon fi-plus')
-      $('#increaseFontSize').html('MAX')
-    else
-      setInSession "messageFontSize", getInSession("messageFontSize") + 2
-      if $('#decreaseFontSize').html() is 'MIN'
-        $('#decreaseFontSize').html('')
-        $('#decreaseFontSize').addClass('icon fi-minus')
 
 # make links received from Flash client clickable in HTML
 @toClickable = (str) ->

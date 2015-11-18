@@ -1,6 +1,6 @@
 <template name="header">
   <nav id="navbar" class="myNavbar top-bar" role="navigation">
-    {{> makeButton btn_class="btn toggleUserlistButton navbarButton sl-hamburger sl-ham-la-cw sl-portrait-mobile sl-portrait-keyboard" rel="tooltip" title="Toggle Userlist" span=true notification="all_chats"}}
+    {{> makeButton btn_class="btn toggleUserlistButton navbarButton leftHamburgerButton" rel="tooltip" title="Toggle Userlist" span=true notification="all_chats"}}
 
       {{#if amIInAudio}}
         <div class="audioNavbarSection">
@@ -37,7 +37,7 @@
       {{> makeButton id="logout" btn_class="signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
       title="Logout"}}
     </div>
-    {{> makeButton btn_class="btn toggleMenuButton navbarButton sl-hamburger sl-ham-ra-cw sl-portrait-mobile sl-portrait-keyboard" rel="tooltip" title="Toggle Menu" span=true}}
+    {{> makeButton btn_class="btn toggleMenuButton navbarButton rightHamburgerButton" rel="tooltip" title="Toggle Menu" span=true}}
   </nav>
 </template>
 
@@ -50,10 +50,10 @@
     {{#if isDisconnected}}
       {{>status}}
     {{else}}
-      <div class="sl-left-drawer sl-left-drawer-content-delay sl-portrait-mobile sl-portrait-keyboard">
+      <div class="userlistMenu">
         {{> usersList id="users" name="usersList"}}
       </div>
-      <div class="sl-right-drawer sl-portrait-mobile sl-portrait-keyboard">
+      <div class="settingsMenu">
         <div class="titleArea"></div>
         {{> menu id="menu"}}
       </div>
@@ -91,4 +91,60 @@
     {{> makeButton btn_class="slideButton settingsIcon" i_class="ion-gear-b" label="Settings"}}
     {{> makeButton btn_class="slideButton signOutIcon" i_class="ion-log-out" label="Log out"}}
   </div>
+</template>
+
+<template name="loading">
+<div id="floatingCirclesG">
+  <div class="f_circleG" id="frotateG_01"></div>
+  <div class="f_circleG" id="frotateG_02"></div>
+  <div class="f_circleG" id="frotateG_03"></div>
+  <div class="f_circleG" id="frotateG_04"></div>
+  <div class="f_circleG" id="frotateG_05"></div>
+  <div class="f_circleG" id="frotateG_06"></div>
+  <div class="f_circleG" id="frotateG_07"></div>
+  <div class="f_circleG" id="frotateG_08"></div>
+</div>
+</template>
+
+<template name="icon">
+  <svg width="{{size}}" height="{{size}}" viewBox="0 0 50 50">
+    {{#if equals name "happy-face"}}
+      <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+      <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+      <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+      <path d="m18 30 C 21 33, 29 33, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    {{else}}
+      {{#if equals name "neutral-face"}}
+        <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+        <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+        <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+        <path d="m18 30 l 14 0" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      {{else}}
+        {{#if equals name "confused-face"}}
+          <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+          <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+          <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+          <path d="M18 30 C 20 28, 22 28, 25 30 S 30 32, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        {{else}}
+          {{#if equals name "sad-face"}}
+            <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+            <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+            <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+            <path d="m18 30 C 21 27, 29 27, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+          {{else}}
+            {{#if equals name "clock"}}
+              <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+              <path d="m25 25 l 0 -8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="m25 25 l 5 5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            {{else}}
+              {{#if equals name "plus"}}
+                <path d="m25 18 l 0 14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="m18 25 l 14 0" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              {{/if}}
+            {{/if}}
+          {{/if}}
+        {{/if}}
+      {{/if}}
+    {{/if}}
+  </svg>
 </template>
