@@ -38,8 +38,8 @@ function draw(x, y) {
     var slide = document.getElementById("slide");
     var obj = $("#slide > object");
     var scaledX = parseInt(x, 10) * (parseInt(obj.attr("width"), 10) / 800);
-    var scaledY = parseInt(y, 10) * (parseInt(obj.attr("height"), 10) / 600); 
-    
+    var scaledY = parseInt(y, 10) * (parseInt(obj.attr("height"), 10) / 600);
+
     //move to the next place
     var leftValue = parseInt(slide.offsetLeft, 10) + parseInt(scaledX, 10)
     var topValue = parseInt(slide.offsetTop, 10) + parseInt(scaledY, 10)
@@ -144,7 +144,7 @@ function runPopcorn() {
   var shapeelements = xmlDoc.getElementsByTagName("svg");
 
   //get the array of values for the first shape (getDataPoints(0) is the first shape).
-  var array = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file   
+  var array = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file
     return $(this).attr('class') == 'shape';
   });
 
@@ -182,7 +182,7 @@ function runPopcorn() {
   	for(var n = 0; n < len; n++) {
   		imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
   	}
-        
+
         // the logo at the start has no text attribute
         if (images[m].getAttribute("text")) {
           var txtFile = false;
@@ -247,7 +247,7 @@ function runPopcorn() {
   for (var m = 0; m < clen; m++) {
   	cursorValues[cursorArray[m].getAttribute("timestamp")] = coords[m].childNodes[0].data;
   }
-  
+
 
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
@@ -303,10 +303,10 @@ function runPopcorn() {
           for (var i = 0; i < array.length; i++) {
             var time_s = array[i].getAttribute("timestamp");
             var time_f = parseFloat(time_s);
-            
+
             if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById(array[i].getAttribute("id"));
             else shape = svgobj.getSVGDocument('svgfile').getElementById(array[i].getAttribute("id"));
-            
+
             var shape_i = shape.getAttribute("shape");
             if (time_f < t) {
               if(current_shapes.indexOf(shape_i) > -1) { //currently drawing the same shape so don't draw the older steps
@@ -339,7 +339,7 @@ function runPopcorn() {
               shape.style.visibility = "hidden";
             }
           }
-          
+
           var next_image = getImageAtTime(t); //fetch the name of the image at this time.
           var imageXOffset = 0;
           var imageYOffset = 0;
@@ -353,10 +353,10 @@ function runPopcorn() {
               var ni = svgobj.getSVGDocument('svgfile').getElementById(next_image);
             }
             document.getElementById("slideText").innerHTML = ""; //destroy old plain text
-            
+
             ni.style.visibility = "visible";
             document.getElementById("slideText").innerHTML = slidePlainText[next_image] + next_image; //set new plain text
-            
+
             if ($("#accEnabled").is(':checked')) {
               //pause the playback on slide change
               p.pause();
@@ -366,37 +366,37 @@ function runPopcorn() {
 
             var num_current = current_image.substr(5);
             var num_next = next_image.substr(5);
-            
+
             if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
             else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
-            
+
             if(currentcanvas !== null) {
               currentcanvas.setAttribute("display", "none");
             }
-            
+
             if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
             else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
-            
+
             if((nextcanvas !== undefined) && (nextcanvas != null)) {
               nextcanvas.setAttribute("display", "");
             }
             current_image = next_image;
           }
-          
+
           if(svgobj.contentDocument) var thisimg = svgobj.contentDocument.getElementById(current_image);
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
-  
+
           var offsets = thisimg.getBoundingClientRect();
           // Offsets divided by 4. By 2 because of the padding and by 2 again because 800x600 is half  1600x1200
           imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/4;
           imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/4;
 
-          
+
           var vboxVal = getViewboxAtTime(t);
           if(vboxVal !== undefined) {
             setViewBox(vboxVal);
           }
-          
+
           var cursorVal = getCursorAtTime(t);
           var cursor_on = false;
           if(cursorVal != null) {
@@ -477,6 +477,8 @@ var cursorStyle;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
+// var HOST = window.location.host;
+// var url = "http://" + HOST + "/presentation/" + MEETINGID;
 var url = "/presentation/" + MEETINGID;
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
@@ -484,13 +486,13 @@ var cursor_xml = url + '/cursor.xml';
 
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
-svgobj.setAttribute('height', '600px');
-svgobj.setAttribute('width', '800px');
+svgobj.setAttribute('height', '100%');
+svgobj.setAttribute('width', '100%');
 svgobj.addEventListener('load', runPopcorn, false);
 
 /**
  * we need an urgently refactor here
- * first the writing.js must be loaded, and then runPopcorn loads, but it loads 
+ * first the writing.js must be loaded, and then runPopcorn loads, but it loads
  * only after the svg file gets loaded, and the generation of thumbnails must
  * came after that because it needs the popcorn element to be created properly
  */
@@ -504,8 +506,8 @@ svgobj.addEventListener('load', function() {
 
   });
 
-  // Sometimes media has already loaded before our loadeddata listener is 
-  // attached. If the media is already past the loadeddata stage then we 
+  // Sometimes media has already loaded before our loadeddata listener is
+  // attached. If the media is already past the loadeddata stage then we
   // trigger the event manually ourselves
   if ($('#video')[0].readyState > 0) {
     console.log("** Video tag readyState >0");

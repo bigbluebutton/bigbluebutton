@@ -1,0 +1,101 @@
+/*
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+/* Foundation overrides */
+.row {
+  max-width: 100%; /* Foundation restricts the rows to ~1000px */
+}
+button, .button {
+  margin-bottom: 0; /* this has impact in the media player buttons */
+}
+body {
+  color: #111;
+}
+
+/* Main containers need to fill the entire page height */
+body, #playback-content, #playback-area, #presentation-section, #chat-and-media-section{
+  height: 100%;
+}
+
+/* Some internal elements should just fill the entire size of their parents,
+   that will control their size. */
+#slide, #chat {
+  width: 100%;
+  height: 100%;
+}
+#video-area, #video {
+  width: 100%;
+  /* can't set height:100% here because the height is controlled automatically
+     to maintain the aspect ratio. */
+}
+
+/* The playback bar is moved out of the video/audio area into a more
+   generic place in the page, making it look like the controls are not
+   only for audio and video, but for all playback. */
+#audio-area .acorn-controls, #video-area .acorn-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+/* Prevent unwanted scrollbars and "leaking" elements in the page */
+body {
+  overflow: hidden;
+  /* background: #f6f6f6; */
+}
+#presentation-section {
+  border-right: 1px solid #e2e2e2;
+  /* background: #e2e2e2; */
+}
+
+/* Chat style */
+#chat {
+  padding: 5px 10px;
+  overflow-y: auto;
+}
+#chat strong {
+  color: #666666;
+}
+
+/* Navbar style */
+#navbar {
+  height: 48px;
+  border-bottom: 1px solid #e2e2e2;
+  background: white;
+  padding: 0 10px;
+}
+#navbar h1 {
+  font-size: 1.5rem;
+  padding-top: 6px;
+  margin: 0;
+  color: #666666;
+  font-weight: bold;
+  white-space: nowrap;
+  float: left;
+}
+#copyright {
+  float: right;
+  font-size: 0.75rem;
+  text-align: right;
+  padding-top: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+}

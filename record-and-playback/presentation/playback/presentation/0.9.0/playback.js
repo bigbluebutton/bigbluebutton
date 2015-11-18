@@ -218,7 +218,7 @@ generateThumbnails = function() {
   }
   xmlhttp.open("GET", SHAPES_SVG, false);
   xmlhttp.send(null);
-  
+
   if (xmlhttp.responseXML)
     var xmlDoc = xmlhttp.responseXML;
   else {
@@ -228,14 +228,14 @@ generateThumbnails = function() {
 
   var elementsMap = {};
   var imagesList = new Array();
-  
+
   xmlList = xmlDoc.getElementsByTagName("image");
   var slideCount = 0;
-  
+
   console.log("== Setting title on thumbnails");
   for (var i = 0; i < xmlList.length; i++) {
     var element = xmlList[i];
-    
+
     if (!$(element).attr("xlink:href"))
       continue;
     var src = RECORDINGS + "/" + element.getAttribute("xlink:href");
@@ -245,7 +245,7 @@ generateThumbnails = function() {
       for (var j = 0; j < timeInList.length; j++) {
         var timeIn = Math.floor(timeInList[j]);
         var timeOut = Math.floor(timeOutList[j]);
-        
+
         var img = $(document.createElement('img'));
         img.attr("src", src);
         img.attr("id", "thumbnail-" + timeIn);
@@ -282,7 +282,7 @@ generateThumbnails = function() {
 
         imagesList.push(timeIn);
         elementsMap[timeIn] = div;
-	
+
         setEventsOnThumbnail(img);
         setTitleOnThumbnail(img);
       }
@@ -307,10 +307,10 @@ google_frame_warning = function(){
   document.getElementById("chat").appendChild(line);
   document.getElementById("chat").appendChild(link);
 }
-  
+
 function checkUrl(url)
 {
-    console.log("==Checking Url",url)
+    console.log("==Checking Url",url);
     var http = new XMLHttpRequest();
     http.open('HEAD', url, false);
     http.send();
@@ -318,11 +318,11 @@ function checkUrl(url)
 }
 
 load_video = function(){
-   console.log("==Loading video")
-   //document.getElementById("video").style.visibility = "hidden"  
-   var video = document.createElement("video")   
-   video.setAttribute('id','video');  
-   video.setAttribute('class','webcam');  
+   console.log("==Loading video");
+   //document.getElementById("video").style.visibility = "hidden"
+   var video = document.createElement("video");
+   video.setAttribute('id','video');
+   video.setAttribute('class','webcam');
 
    var webmsource = document.createElement("source");
    webmsource.setAttribute('src', RECORDINGS + '/video/webcams.webm');
@@ -335,13 +335,13 @@ load_video = function(){
     pc_webcam.currentTime( this.currentTime() );
    });*/
 
-   video.setAttribute('data-timeline-sources', SLIDES_XML);    
+   video.setAttribute('data-timeline-sources', SLIDES_XML);
    //video.setAttribute('controls','');
    //leave auto play turned off for accessiblity support
    //video.setAttribute('autoplay','autoplay');
 
-   document.getElementById("videoRecordingWrapper").appendChild(video);
-}  
+   document.getElementById("video-area").appendChild(video);
+}
 
 load_audio = function() {
    console.log("Loading audio")
@@ -373,7 +373,7 @@ load_audio = function() {
    //audio.setAttribute('controls','');
    //leave auto play turned off for accessiblity support
    //audio.setAttribute('autoplay','autoplay');
-   document.getElementById("audioRecordingWrapper").appendChild(audio);
+   document.getElementById("audio-area").appendChild(audio);
 }
 
 load_script = function(file){
@@ -420,32 +420,29 @@ document.addEventListener( "DOMContentLoaded", function() {
     google_frame_warning
   }
 
-  if (checkUrl(RECORDINGS + '/video/webcams.webm') == true){
-      videoContainer = document.getElementById("audioRecordingWrapper").style.display = "none";
+  if (checkUrl(RECORDINGS + '/video/webcams.webm') == true) {
+      $("#audio-area").attr("style", "display:none;");
       load_video();
-  }else{
-      videoContainer = document.getElementById("videoRecordingWrapper").style.display = "none";       
-      chat = document.getElementById("chat");
-      chat.style.height = "600px";
-      chat.style.backgroundColor = "white";      
+  } else {
+      $("#video-area").attr("style", "display:none;");
+      chat = $("#chat");
+      //chat.attr("style", "background:white;height:600px;");
       load_audio();
   }
-  
+
   load_spinner();
   console.log("==Hide playback content");
   $("#playback-content").css('visibility', 'hidden');
   //load_audio();
-  load_script("lib/writing.js");
+  //load_script("lib/writing.js");
   //generateThumbnails();
 
   //load up the acorn controls
   console.log("==Loading acorn media player ");
   jQuery('#video').acornMediaPlayer({
-    theme: 'darkglass',
+    theme: 'bigbluebutton',
     volumeSlider: 'vertical'
   });
-  
- 
 
 }, false);
 
@@ -466,8 +463,24 @@ function Tick() {
     $('#countdown').html(""); // remove the timer
     return;
   }
-  
+
   secondsToWait -= 1;
   $('#countdown').html(secondsToWait);
   window.setTimeout("Tick()", 1000);
 }
+
+
+function onWindowResize() {
+  var availableHeight = $("body").height();
+  availableHeight -= $("#video-area .acorn-controls").height(); // media controls
+  availableHeight -= 6; // TODO: why?
+  availableHeight -= $("#navbar").height(); // navbar
+  $("#playback").height(availableHeight);
+
+  var chatHeight = availableHeight - $("#video-area > div").height();
+  $("#chat-area").height(chatHeight);
+}
+
+$(window).resize(function() {
+  onWindowResize();
+});
