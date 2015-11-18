@@ -280,6 +280,7 @@ Meteor.methods
   # in the case of an html5 client user we added a dummy user on
   # register_user_message (to save authToken)
   if u? and u.authToken?
+
     Meteor.Users.update({userId:user.userid, meetingId: meetingId}, {$set:{
       user:
         userid: user.userid
@@ -287,14 +288,12 @@ Meteor.methods
         name: user.name
         _sort_name: user.name.toLowerCase()
         phone_user: user.phone_user
-        emoji_status: user.emoji_status
         set_emoji_time: user.set_emoji_time
         emoji_status: user.emoji_status
         has_stream: user.has_stream
         role: user.role
         listenOnly: user.listenOnly
         extern_userid: user.extern_userid
-        permissions: user.permissions
         locked: user.locked
         time_of_joining: user.timeOfJoining
         connection_status: "online" # TODO consider other default value
@@ -368,7 +367,6 @@ Meteor.methods
         role: user.role
         listenOnly: user.listenOnly
         extern_userid: user.extern_userid
-        permissions: user.permissions
         locked: user.locked
         time_of_joining: user.timeOfJoining
         connection_status: "" # TODO consider other default value
