@@ -23,7 +23,7 @@
 	}}, (err, numChanged) =>
 		if numChanged.insertedId?
 			funct = (cbk) ->
-				Meteor.log.info "added MEETING #{meetingId}"
+				Meteor.log.info "__added MEETING #{meetingId}"
 				cbk()
 			funct(callback)
 		else
