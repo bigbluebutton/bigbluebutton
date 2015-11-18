@@ -43,6 +43,7 @@ import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
@@ -61,6 +62,8 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.messages.BreakoutRoomStarted;
+import org.bigbluebutton.messages.payload.BreakoutRoomPayload;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
@@ -446,6 +449,7 @@ public class MeetingService implements MessageListener {
 	  params.put("name", message.name);
 	  params.put("breakoutId", message.breakoutId);
 	  params.put("meetingID", message.parentId);
+	  params.put("isBreakout", "true");
 	  params.put("attendeePW", message.viewerPassword);
 	  params.put("moderatorPW", message.moderatorPassword);
 	  params.put("voiceBridge", message.voiceConfId);
@@ -454,6 +458,8 @@ public class MeetingService implements MessageListener {
 	  Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 	  
 	  presDownloadService.downloadAndProcessDocument(message.defaultPresentationURL, breakout.getInternalId());
+	  
+	  handleCreateMeeting(breakout);
 	}
 	
 	private void processEndMeeting(EndMeeting message) {
@@ -491,6 +497,7 @@ public class MeetingService implements MessageListener {
 				logData.put("name", m.getName());
 				logData.put("duration", m.getDuration());
 				logData.put("record", m.isRecord());
+				logData.put("isBreakout", m.isBreakout());
 				logData.put("event", "meeting_started");
 				logData.put("description", "Meeting has started.");
 				
@@ -506,6 +513,7 @@ public class MeetingService implements MessageListener {
 				logData.put("name", m.getName());
 				logData.put("duration", m.getDuration());
 				logData.put("record", m.isRecord());
+				logData.put("isBreakout", m.isBreakout());
 				logData.put("event", "meeting_restarted");
 				logData.put("description", "Meeting has restarted.");
 

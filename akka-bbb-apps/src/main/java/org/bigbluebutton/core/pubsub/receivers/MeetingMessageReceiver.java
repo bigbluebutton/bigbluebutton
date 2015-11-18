@@ -16,6 +16,7 @@ import org.bigbluebutton.common.messages.UserConnectedToGlobalAudio;
 import org.bigbluebutton.common.messages.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.messages.BreakoutRoomStarted;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -57,7 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var event:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.CREATE_BREAKOUT_ROOMS);
 				// event.meetingId is filled in the event handler for BreakoutRoomEvent in UserService class
 				event.rooms = new Array();
-				for (var i:int = 0; i < roomsSlider.value - 1; i++) {
+				for (var i:int = 0; i < roomsSlider.value; i++) {
 					var users:Array = BreakoutList(roomsContainer.getChildAt(0)).users.source;
 					totalUsers += users.length;
 					var room:Object = new Object();
@@ -91,7 +91,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var remaining:int = users.length % rooms;
 				var user:BBBUser;
 				roomsContainer.removeAllChildren();
-				// @fixme: don't send duplicate users
+				// @fixme: don't send duplicate users and be sure that the number of rooms is correct
 				for (var r:int = 0; r < rooms; r++) {
 					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 					list.users = new ArrayCollection();
