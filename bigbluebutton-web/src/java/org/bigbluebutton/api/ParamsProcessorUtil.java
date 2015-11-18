@@ -375,7 +375,6 @@ public class ParamsProcessorUtil {
 	    return meeting;
 	}
 	
-	
 	public String getApiVersion() {
 		return apiVersion;
 	}
