@@ -356,6 +356,13 @@ Meteor.startup ->
         callback()
 
       # for now not handling this serially #TODO
+      else if eventName is "presentation_removed_message"
+        presentationId = message.payload.presentation_id
+        meetingId = message.payload.meeting_id
+        removePresentationFromCollection meetingId, presentationId
+        callback()
+
+      # for now not handling this serially #TODO
       else if eventName is "get_whiteboard_shapes_reply" and message.payload.requester_id is "nodeJSapp"
         # Create a whiteboard clean status or find one for the current meeting
         if not Meteor.WhiteboardCleanStatus.findOne({meetingId: meetingId})?

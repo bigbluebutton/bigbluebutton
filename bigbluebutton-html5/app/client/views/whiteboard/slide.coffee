@@ -1,5 +1,6 @@
 Template.slide.rendered = ->
   currentSlide = getCurrentSlideDoc()
+
   pic = new Image()
   pic.onload = ->
     setInSession 'slideOriginalWidth', this.width
@@ -20,7 +21,6 @@ Template.slide.rendered = ->
 
 @displaySlide = (wpm) ->
   currentSlide = getCurrentSlideDoc()
-
 
   wpm.create()
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))

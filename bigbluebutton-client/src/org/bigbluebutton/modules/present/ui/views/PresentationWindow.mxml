@@ -430,21 +430,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 										
 			private function disableSlideNavigationButtons(pageNumber:int):void {
-				if (pageNumber == 1) {
-					backButton.mouseEnabled = false;
-					backButton.styleName = "presentationBackButtonDisabledStyle";
-				} else {
-					backButton.mouseEnabled = true;
-					backButton.styleName = "presentationBackButtonStyle";
-				}
+				backButton.mouseEnabled = pageNumber == 1;
+				forwardButton.mouseEnabled = pageNumber < PresentationModel.getInstance().getNumberOfPages();
 				
-				if (pageNumber < PresentationModel.getInstance().getNumberOfPages()) {
-					forwardButton.mouseEnabled = true;
-					forwardButton.styleName = "presentationForwardButtonStyle";
-				} else {
-					forwardButton.mouseEnabled = false;
-					forwardButton.styleName = "presentationForwardButtonDisabledStyle";
-				}
+				backButton.styleName = pageNumber == 1 ? "presentationBackButtonDisabledStyle" : "presentationBackButtonStyle";
+				forwardButton.styleName = pageNumber < PresentationModel.getInstance().getNumberOfPages() ? "presentationForwardButtonStyle" : "presentationForwardButtonDisabledStyle";
 			}
 			
 			private function displaySlideNumber(currentSlide:int):void {

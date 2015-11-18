@@ -1,12 +1,12 @@
 <template name="whiteboard">
   <div id="{{id}}" {{visibility name}} class="component">
-    {{#each getCurrentSlide}}
-      {{> slide}}
-    {{/each}}
+    {{#if getCurrentSlide}}
+      {{> slide getCurrentSlide}}
+    {{/if}}
     <div id="whiteboard-container" class="{{whiteboardSize}}">
       <div id="whiteboard-paper">
       </div>
-      <div class="FABContainer">
+      <div class="FABContainer {{#unless hasNoPresentation}}noPresentation{{/unless}}">
         <button type="submit" class="FABTriggerButton">
           <i class="ion-android-hand"></i>
         </button>
