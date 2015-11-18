@@ -3,14 +3,6 @@ package org.bigbluebutton.red5.pubsub;
 import java.util.Map;
 
 import org.bigbluebutton.common.messages.*;
-import org.bigbluebutton.messages.CreateBreakoutRoomsRequest;
-import org.bigbluebutton.messages.EndAllBreakoutRoomsRequest;
-import org.bigbluebutton.messages.ListenInOnBreakout;
-import org.bigbluebutton.messages.RequestBreakoutJoinURL;
-import org.bigbluebutton.messages.payload.CreateBreakoutRoomsRequestPayload;
-import org.bigbluebutton.messages.payload.EndAllBreakoutRoomsRequestPayload;
-import org.bigbluebutton.messages.payload.ListenInOnBreakoutPayload;
-import org.bigbluebutton.messages.payload.RequestBreakoutJoinURLPayload;
 import org.bigbluebutton.red5.pubsub.redis.MessageSender;
 
 public class MessagePublisher {
@@ -278,22 +270,20 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
+	// could be improved by doing some factorization
 	public void createBreakoutRooms(String jsonMessage) {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
 
-	public void requestBreakoutJoinURL(RequestBreakoutJoinURLPayload payload) {
-		RequestBreakoutJoinURL msg = new RequestBreakoutJoinURL(payload);
-		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
+	public void requestBreakoutJoinURL(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
 
-	public void listenInOnBreakout(ListenInOnBreakoutPayload payload) {
-		ListenInOnBreakout msg = new ListenInOnBreakout(payload);
-		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
+	public void listenInOnBreakout(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
 
-	public void endAllBreakoutRooms(EndAllBreakoutRoomsRequestPayload payload){
-		EndAllBreakoutRoomsRequest msg = new EndAllBreakoutRoomsRequest(payload);
-		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
+	public void endAllBreakoutRooms(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
 }

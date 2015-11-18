@@ -89,16 +89,8 @@ class BigBlueButtonInGW(
   def forwardMessage(msg: InMessage) = {
     msg match {
       case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case _ => log.error("Unhandled message: {}", msg)
     }
-  }
-
-  def handleCreateBreakoutRoomsRequest(msg: HeaderAndJsonPayload) {
-    //    val xjson = msg.jsonMessage
-    //
-    //    eventBus.publish(
-    //      BigBlueButtonEvent(
-    //        "meeting-manager",
-    //        new CreateBreakoutRooms(msg.payload.meetingId, msg.payload.durationInMinutes, rooms)))
   }
 
   def destroyMeeting(meetingID: String) {

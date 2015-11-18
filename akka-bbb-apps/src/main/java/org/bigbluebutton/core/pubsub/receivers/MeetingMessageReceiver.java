@@ -51,26 +51,10 @@ public class MeetingMessageReceiver implements MessageHandler {
 						CreateMeetingRequest msg = gson.fromJson(message,
 								CreateMeetingRequest.class);
 						bbbGW.handleBigBlueButtonMessage(msg);
-					} else if (CreateBreakoutRoomsRequest.NAME
-							.equals(messageName)) {
-						Gson gson = new Gson();
-						CreateBreakoutRoomsRequest msg = gson.fromJson(message,
-								CreateBreakoutRoomsRequest.class);
-						bbbGW.handleBigBlueButtonMessage(msg);
-					} else if (ListenInOnBreakout.NAME.equals(messageName)) {
-						Gson gson = new Gson();
-						ListenInOnBreakout msg = gson.fromJson(message,
-								ListenInOnBreakout.class);
-						bbbGW.handleBigBlueButtonMessage(msg);
-					} else if (RequestBreakoutJoinURL.NAME.equals(messageName)) {
-						Gson gson = new Gson();
-						RequestBreakoutJoinURL msg = gson.fromJson(message,
-								RequestBreakoutJoinURL.class);
-						bbbGW.handleBigBlueButtonMessage(msg);
 					}
 				}
 			}
-		  
+
 			IBigBlueButtonMessage msg = MessageFromJsonConverter.convert(message);
 			
 			if (msg != null) {
