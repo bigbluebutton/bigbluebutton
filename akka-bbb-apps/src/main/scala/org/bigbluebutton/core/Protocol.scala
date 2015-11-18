@@ -17,10 +17,10 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
   }
 */
 
-  implicit object MessageTypeFormat extends JsonFormat[MessageType.MessageType] {
-    def write(obj: MessageType.MessageType): JsValue = JsString(obj.toString)
+  implicit object MessageTypeFormat extends JsonFormat[MessageType.FooType] {
+    def write(obj: MessageType.FooType): JsValue = JsString(obj.toString)
 
-    def read(json: JsValue): MessageType.MessageType = json match {
+    def read(json: JsValue): MessageType.FooType = json match {
       case JsString(str) => MessageType.withName(str)
       case _ => throw new DeserializationException("Enum string expected")
     }

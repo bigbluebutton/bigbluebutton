@@ -660,8 +660,8 @@ class MessageSenderActor(val service: MessageSender)
     val json = WhiteboardMessageToJsonConverter.isWhiteboardEnabledReplyToJson(msg)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
-  
-  private def handleBreakoutRoomStartedOutMessage(msg : BreakoutRoomStartedOutMessage) {
+
+  private def handleBreakoutRoomStartedOutMessage(msg: BreakoutRoomStartedOutMessage) {
     val json = MeetingMessageToJsonConverter.breakoutRoomStartedOutMessageToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
