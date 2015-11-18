@@ -22,6 +22,9 @@ Template.whiteboard.helpers
     else
       return false
 
+  hasNoPresentation: ->
+    Meteor.Presentations.findOne({'presentation.current':true})
+
 Template.whiteboard.events
   'click .whiteboardFullscreenButton': (event, template) ->
     enterWhiteboardFullscreen()
