@@ -1,7 +1,7 @@
 <template name="whiteboard">
   <div id="{{id}}" {{visibility name}} class="component">
     {{#if getCurrentSlide}}
-      {{> slide getCurrentSlide}}
+      {{> slide}}
     {{/if}}
     <div id="whiteboard-container" class="{{whiteboardSize}}">
       <div id="whiteboard-paper">
@@ -46,7 +46,11 @@
 <template name="whiteboardControls">
   <div id="whiteboard-controls">
     <div class="whiteboard-buttons-left">
-      {{> presenterUploaderControl}}
+      <!-- TODO: Adjust the presenter uploader for mobile views on iOS devices
+                 you cant upload PDFs, only images from camera/gallery -->
+      {{#unless isMobile}}
+        {{> presenterUploaderControl}}
+      {{/unless}}
     </div>
     <div class="whiteboard-buttons-center">
       {{#if isCurrentUserPresenter}}
@@ -65,167 +69,60 @@
 </template>
 
 <template name="presenterUploaderControl">
-  {{!--#if isCurrentUserPresenter--}}
-  {{#if true}}
+  {{#if isCurrentUserPresenter}}
     <div class="presenter-uploader-control {{#if isOpen}}is-open{{/if}}">
       <div class="presenter-uploader-container">
         <ul class="presenter-uploader-file-list">
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015 asd as das dasd asd aasd ads as dasdasd.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015222222222222222222222222222222222222222222222222222222222222.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item is-uploading">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-progress">
-              89%
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015 asdasda das dasd as dasd as das d.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
-          <li class="presenter-uploader-file-item is-uploading">
-            <span class="presenter-uploader-file-item-name">
-              First_Class_2015.pdf
-            </span>
-            <span class="presenter-uploader-file-item-progress">
-              89%
-            </span>
-            <span class="presenter-uploader-file-item-actions">
-              <i class="ion-ios-eye-outline"></i>
-              <i class="ion-ios-trash-outline"></i>
-            </span>
-          </li>
+          {{#each files}}
+            {{> presenterUploaderControlFileListItem}}
+          {{/each}}
+          {{#each presentations}}
+            {{> presenterUploaderControlPresentationListItem}}
+          {{/each}}
         </ul>
-        <div class="presenter-uploader-dropzone">
+        <div class="presenter-uploader-dropzone" data-dropzone>
+          <input type="file" class="presenter-uploader-dropzone-fileinput" multiple />
           <i class="presenter-uploader-dropzone-icon ion-archive"></i>
           <span class="presenter-uploader-dropzone-label">Drop files here <br/>or click to upload</span>
         </div>
         <div class="presenter-uploader-tip">
-          Upload any office document or Portable Document Format (PDF) file.  For best results upload PDF.
+          Upload any office document or Portable Document Format (PDF) file.
+          <br/>
+          For best results upload PDF.
         </div>
         {{> makeButton btn_class="presenter-uploader-control-btn js-close" i_class="ion-ios-close-outline"}}
       </div>
+
       {{#unless isOpen}}
         {{> makeButton btn_class="presenter-uploader-control-btn js-open" i_class="ion-ios-upload-outline"}}
       {{/unless}}
     </div>
   {{/if}}
+</template>
+
+<template name="presenterUploaderControlFileListItem">
+  <li class="presenter-uploader-file-item is-uploading">
+    <span class="presenter-uploader-file-item-name">
+      {{name}}
+    </span>
+    <span class="presenter-uploader-file-item-progress">
+      {{percUploaded}}%
+    </span>
+  </li>
+</template>
+
+<template name="presenterUploaderControlPresentationListItem">
+  <li class="presenter-uploader-file-item {{#if current}}current{{/if}}">
+    <span class="presenter-uploader-file-item-name" data-action-show>
+      {{name}}
+    </span>
+    <span class="presenter-uploader-file-item-actions">
+      {{#unless current}}
+        <i class="ion-ios-eye-outline" data-action-show></i>
+      {{/unless}}
+      <i class="ion-ios-trash-outline" data-action-delete></i>
+    </span>
+  </li>
 </template>
 
 <template name="polling">

@@ -142,6 +142,7 @@
     position: absolute;
     width: 100%;
     text-align: center;
+    bottom: 5px;
   }
 
   &-right {
@@ -235,9 +236,11 @@
     padding: 50px;
     transition: all .3s;
     cursor: pointer;
+    position: relative;
 
     &:focus,
-    &:hover {
+    &:hover,
+    &.hover {
       opacity: .8;
       background-color: rgba(0, 0, 0, .1);
     }
@@ -259,10 +262,30 @@
       font-size: 11px;
       font-weight: bold;
     }
+
+    &-fileinput {
+      cursor: pointer;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0;
+    }
   }
 
   &-file {
     &-list {
+      &::-webkit-scrollbar{width:5px;height:5px}
+      &::-webkit-scrollbar-button{width:0;height:0}
+      &::-webkit-scrollbar-thumb{background:rgba(0,0,0,.25);border:none;border-radius:50px}
+      &::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.5)}
+      &::-webkit-scrollbar-thumb:active{background:rgba(0,0,0,.25)}
+      &::-webkit-scrollbar-track{background:rgba(0,0,0,.25);border:none;border-radius:50px}
+      &::-webkit-scrollbar-track:hover{background:rgba(0,0,0,.25)}
+      &::-webkit-scrollbar-track:active{background:rgba(0,0,0,.25)}
+      &::-webkit-scrollbar-corner{background:0 0}
+
       display: block;
       margin: -10px;
       margin-bottom: 10px;
@@ -299,6 +322,10 @@
         background-color: rgba(255, 255, 255, .5);
       }
 
+      &.current {
+        background-color: fade(@presenteUploaderColorHover, 15%);
+      }
+
       &.is-uploading {
         background-image: -webkit-linear-gradient(-45deg, fade(@presenteUploaderColorHover, 15%) 25%,transparent 25%,transparent 50%, fade(@presenteUploaderColorHover, 15%) 50%, fade(@presenteUploaderColorHover, 15%) 75%,transparent 75%,transparent);
         background-image: -o-linear-gradient(-45deg, fade(@presenteUploaderColorHover, 15%) 25%,transparent 25%,transparent 50%, fade(@presenteUploaderColorHover, 15%) 50%, fade(@presenteUploaderColorHover, 15%) 75%,transparent 75%,transparent);
@@ -330,8 +357,8 @@
           opacity: .4;
         }
 
-        &:hover,
-        &:focus {
+        :not(.current) &:hover,
+        :not(.current) &:focus {
           text-decoration: underline;
           color: @presenteUploaderColorHover;
         }
@@ -340,7 +367,7 @@
       &-actions,
       &-progress {
         display: table-cell;
-        width: 60px;
+        width: 65px;
         text-align: right;
       }
 
@@ -350,15 +377,25 @@
         }
 
         > i {
-          padding: 0 7px;
+          display: inline-block;
+          width: 30px;
+          height: 30px;
+          text-align: center;
           cursor: pointer;
           font-size: 20px;
-          line-height: 1;
-          transition: all .3s;
+          line-height: 30px;
+          transition: background .3s;
 
           &:focus,
           &:hover {
             color: @presenteUploaderColorHover;
+          }
+
+          &:active {
+            background-color: fade(@presenteUploaderColor, 5%);
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
           }
         }
       }
@@ -535,7 +572,7 @@
 }
 
 .FABContainer {
-  z-index: 100;
+
 }
 
 .FABTriggerButton, .inactiveEmojiButton {
@@ -617,6 +654,7 @@
     margin: 0;
     font-size: 30px;
     border-radius: 50%;
+    z-index: 100;
     &:focus {
       outline:0;
     }
