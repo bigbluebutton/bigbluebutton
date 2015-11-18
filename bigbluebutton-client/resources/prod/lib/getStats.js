@@ -53,34 +53,33 @@ getStats(function(result) {
         var nomore = false;
 
         (function getPrivateStats() {
-            _getStats(function(results) {
+            var promise = _getStats(peer, mediaStreamTrack);
+            promise.then(function(results) {
                 var result = {
                     audio: {},
                     video: {},
                     // TODO remove the raw results
-                    // results: results,
+                    results: results,
                     nomore: function() {
                         nomore = true;
                     }
                 };
 
-                for (var i = 0; i < results.length; ++i) {
-                    var res = results[i];
+                for (var key in results) {
+                    var res = results[key];
 
-                    if (typeof res.timestamp === 'object') {
-                        res.timestamp = res.timestamp.getTime();
-                    }
+                    res.timestamp = typeof res.timestamp === 'object'? res.timestamp.getTime(): res.timestamp;
+                    res.packetsLost = typeof res.packetsLost === 'string'? parseInt(res.packetsLost): res.packetsLost;
+                    res.packetsReceived = typeof res.packetsReceived === 'string'? parseInt(res.packetsReceived): res.packetsReceived;
+                    res.bytesReceived = typeof res.bytesReceived === 'string'? parseInt(res.bytesReceived): res.bytesReceived;
 
                     if ((res.mediaType == 'audio' || (res.type == 'ssrc' && res.googCodecName == 'opus')) && typeof res.bytesSent !== 'undefined') {
-                        if (typeof globalObject.audio.prevBytesSent === 'undefined') {
-                            globalObject.audio.prevBytesSent = res.bytesSent;
-                            globalObject.audio.prevSentTimestamp = res.timestamp - interval;
+                        if (typeof globalObject.audio.prevSent === 'undefined') {
+                            globalObject.audio.prevSent = res;
                         }
 
-                        var bytes = res.bytesSent - globalObject.audio.prevBytesSent;
-                        globalObject.audio.prevBytesSent = res.bytesSent;
-                        var diffTimestamp = res.timestamp - globalObject.audio.prevSentTimestamp;
-                        globalObject.audio.prevSentTimestamp = res.timestamp;
+                        var bytes = res.bytesSent - globalObject.audio.prevSent.bytesSent;
+                        var diffTimestamp = res.timestamp - globalObject.audio.prevSent.timestamp;
 
                         var kilobytes = bytes / 1024;
                         var kbitsSentPerSecond = (kilobytes * 8) / (diffTimestamp / 1000.0);
@@ -92,21 +91,26 @@ getStats(function(result) {
                             bytesSent: res.bytesSent,
                             kbitsSentPerSecond: kbitsSentPerSecond
                         });
+
+                        globalObject.audio.prevSent = res;
                     }
                     if ((res.mediaType == 'audio' || (res.type == 'ssrc' && res.googCodecName == 'opus')) && typeof res.bytesReceived !== 'undefined') {
-                        res.packetsLost = typeof res.packetsLost === 'string'? parseInt(res.packetsLost): res.packetsLost;
-                        res.packetsReceived = typeof res.packetsReceived === 'string'? parseInt(res.packetsReceived): res.packetsReceived;
-
-                        if (typeof globalObject.audio.prevBytesReceived === 'undefined') {
-                            globalObject.audio.prevBytesReceived = res.bytesReceived;
-                            globalObject.audio.prevPacketsReceived = res.packetsReceived;
-                            globalObject.audio.prevReceivedTimestamp = res.timestamp - interval;
-                            globalObject.audio.prevPacketsLost = res.packetsLost;
+                        if (typeof globalObject.audio.prevReceived === 'undefined') {
+                            globalObject.audio.prevReceived = res;
                             globalObject.audio.consecutiveFlaws = 0;
                         }
+                        if (typeof globalObject.audio.firstReceived === 'undefined') {
+                            globalObject.audio.firstReceived = res;
+                        }
 
-                        var intervalPacketsLost = res.packetsLost - globalObject.audio.prevPacketsLost;
-                        var intervalPacketsReceived = res.packetsReceived - globalObject.audio.prevPacketsReceived;
+                        var intervalPacketsLost = res.packetsLost - globalObject.audio.prevReceived.packetsLost;
+                        var intervalPacketsReceived = res.packetsReceived - globalObject.audio.prevReceived.packetsReceived;
+                        var intervalBytesReceived = res.bytesReceived - globalObject.audio.prevReceived.bytesReceived;
+                        var intervalLossRate = intervalPacketsLost + intervalPacketsReceived == 0? 1: intervalPacketsLost / (intervalPacketsLost + intervalPacketsReceived);
+                        var intervalBitrate = (intervalBytesReceived / interval) * 8;
+                        var globalBitrate = ((res.bytesReceived - globalObject.audio.firstReceived.bytesReceived) / (res.timestamp - globalObject.audio.firstReceived.timestamp)) * 8;
+                        var intervalEstimatedLossRate = Math.max(0, globalBitrate - intervalBitrate) / globalBitrate;
+
                         var flaws = intervalPacketsLost;
                         if (flaws > 0) {
                             if (globalObject.audio.consecutiveFlaws > 0) {
@@ -124,15 +128,14 @@ getStats(function(result) {
                         // https://freeswitch.org/stash/projects/FS/repos/freeswitch/browse/src/switch_rtp.c?at=refs%2Fheads%2Fv1.4#1671
                         var mos = 1 + (0.035) * r + (0.000007) * r * (r-60) * (100-r);
 
-                        var bytes = res.bytesReceived - globalObject.audio.prevBytesReceived;
-                        var diffTimestamp = res.timestamp - globalObject.audio.prevReceivedTimestamp;
-                        var packetDuration = diffTimestamp / (res.packetsReceived - globalObject.audio.prevPacketsReceived);
-                        var intervalLossRate = intervalPacketsLost / (intervalPacketsLost + intervalPacketsReceived);
+                        var bytes = res.bytesReceived - globalObject.audio.prevReceived.bytesReceived;
+                        var diffTimestamp = res.timestamp - globalObject.audio.prevReceived.timestamp;
+                        var packetDuration = diffTimestamp / (res.packetsReceived - globalObject.audio.prevReceived.packetsReceived);
 
-                        globalObject.audio.prevBytesReceived = res.bytesReceived;
-                        globalObject.audio.prevReceivedTimestamp = res.timestamp;
-                        globalObject.audio.prevPacketsReceived = res.packetsReceived;
-                        globalObject.audio.prevPacketsLost = res.packetsLost;
+                        globalObject.audio.prevReceived.bytesReceived = res.bytesReceived;
+                        globalObject.audio.prevReceived.timestamp = res.timestamp;
+                        globalObject.audio.prevReceived.packetsReceived = res.packetsReceived;
+                        globalObject.audio.prevReceived.packetsLost = res.packetsLost;
                         
                         var kilobytes = bytes / 1024;
                         var kbitsReceivedPerSecond = (kilobytes * 8) / (diffTimestamp / 1000.0);
@@ -150,8 +153,11 @@ getStats(function(result) {
                             packetDuration: packetDuration,
                             r: r,
                             mos: mos,
-                            intervalLossRate: intervalLossRate
+                            intervalLossRate: intervalLossRate,
+                            intervalEstimatedLossRate: intervalEstimatedLossRate
                         });
+                        
+                        globalObject.audio.prevReceived = res;
                     }
 
                     // TODO make it work on Firefox
@@ -224,43 +230,35 @@ getStats(function(result) {
                 if (!nomore) {
                     typeof interval != undefined && interval && setTimeout(getPrivateStats, interval || 1000);
                 }
+            }, function(exception) {
+                console.log("Promise rejected: " + exception.message);
+                callback(null);
             });
         })();
 
-        // a wrapper around getStats which hides the differences (where possible)
-        // following code-snippet is taken from somewhere on the github
-        function _getStats(cb) {
-            // if !peer or peer.signalingState == 'closed' then return;
-
-            if (!!navigator.mozGetUserMedia) {
-                peer.getStats(
-                    mediaStreamTrack,
-                    function(res) {
-                        var items = [];
-                        res.forEach(function(result) {
-                            items.push(result);
-                        });
-                        cb(items);
-                    },
-                    cb
-                );
-            } else {
-                peer.getStats(function(res) {
-                    var items = [];
-                    res.result().forEach(function(result) {
-                        var item = {};
-                        result.names().forEach(function(name) {
-                            item[name] = result.stat(name);
-                        });
-                        item.id = result.id;
-                        item.type = result.type;
-                        item.timestamp = result.timestamp;
-                        items.push(item);
-                    });
-                    cb(items);
-                });
+        // taken from http://blog.telenor.io/webrtc/2015/06/11/getstats-chrome-vs-firefox.html
+        function _getStats(pc, selector) {
+            if (navigator.mozGetUserMedia) {
+                return pc.getStats(selector);
             }
-        };
+            return new Promise(function(resolve, reject) {
+                pc.getStats(function(response) {
+                    var standardReport = {};
+                    response.result().forEach(function(report) {
+                        var standardStats = {
+                            id: report.id,
+                            timestamp: report.timestamp,
+                            type: report.type
+                        };
+                        report.names().forEach(function(name) {
+                            standardStats[name] = report.stat(name);
+                        });
+                        standardReport[standardStats.id] = standardStats;
+                    });
+                    resolve(standardReport);
+                }, selector, reject);
+            });
+        }
     }
 
     function merge(mergein, mergeto) {
