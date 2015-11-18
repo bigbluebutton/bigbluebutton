@@ -79,8 +79,306 @@
   }
 }
 
+#whiteboard-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 4em 5px 5px;
+
+  /*
+  opacity: 0;
+  -webkit-transition: opacity .3s;
+  transition: opacity .3s;
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+  }
+  */
+
+  button, .btn {
+    outline: none;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #fff;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: #3896D3;
+    border-color: #007095;
+    font-size: 30px;
+    -webkit-transition: background .3s;
+    transition: background .3s;
+
+    &:focus,
+    &:hover {
+      background-color: #3A82D4;
+    }
+  }
+}
+
+.whiteboard-buttons {
+  &-left,
+  &-center,
+  &-right {
+
+  }
+
+  &-left {
+    float: left;
+  }
+
+  &-center {
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+  }
+
+  &-right {
+    float: right;
+  }
+
+  &-slide {
+    pointer-events: auto;
+    color: #fff;
+    background-color: #3896D3;
+    border-color: #007095;
+    display: inline-block;
+    border-radius: 50px;
+
+    > button, .button {
+      background-color: transparent;
+    }
+
+    .current {
+      color: #fff;
+      font-weight: bold;
+      vertical-align: super;
+    }
+  }
+}
+
+.presenter-uploader {
+  @presenteUploaderBg: #eee;
+  @presenteUploaderColor: rgba(0, 0, 0, .5);
+  @presenteUploaderColorHover: #3A82D4;
+
+  &-control {
+    max-height: 50vh;
+    max-width: 25vw;
+    min-width: 300px;
+    position: relative;
+
+    &-btn {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+
+      .presenter-uploader-container & {
+        z-index: 1;
+        background-color: @presenteUploaderBg !important;
+        border-color: transparent !important;
+        color: @presenteUploaderColor !important;
+
+        &:focus,
+        &:hover {
+          color: @presenteUploaderColorHover;
+        }
+      }
+    }
+  }
+
+  &-container {
+    overflow: hidden;
+    z-index: 1000;
+    background-color: @presenteUploaderBg;
+    padding: 10px 10px;
+    border-radius: 10px 10px 10px 25px;
+    display: none;
+    transition: all .3s;
+
+    .is-open & {
+      display: block;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, .2);
+    }
+  }
+
+  &-tip {
+    padding: 10px 10px 10px 60px;
+    text-transform: uppercase;
+    font-size: 9px;
+    font-weight: bold;
+    margin: -10px;
+    text-align: right;
+    min-height: 50px;
+    color: @presenteUploaderColor;
+  }
+
+  &-dropzone {
+    margin-bottom: 10px;
+    color: @presenteUploaderColor;
+    opacity: .4;
+    transition: opacity 3s;
+    text-align: center;
+    border: 3px dashed;
+    border-radius: 10px;
+    padding: 50px;
+    transition: all .3s;
+    cursor: pointer;
+
+    &:focus,
+    &:hover {
+      opacity: .8;
+      background-color: rgba(0, 0, 0, .1);
+    }
+
+    &-icon,
+    &-label {
+      display: block;
+      color: inherit;
+    }
+
+    &-icon {
+      font-size: 70px;
+      line-height: 1;
+    }
+
+    &-label {
+      color: inherit;
+      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: bold;
+    }
+  }
+
+  &-file {
+    &-list {
+      display: block;
+      margin: -10px;
+      margin-bottom: 10px;
+      list-style: none;
+      overflow-y: auto;
+      overflow-x: hidden;
+    	max-height: 200px;
+      background:
+    		linear-gradient(@presenteUploaderBg 30%, rgba(255,255,255,0)),
+    		linear-gradient(rgba(255,255,255,0), @presenteUploaderBg 70%) 0 100%,
+    		radial-gradient(50% 0, farthest-side, rgba(0,0,0,.2), rgba(0,0,0,0)),
+    		radial-gradient(50% 100%,farthest-side, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+    	background:
+    		linear-gradient(@presenteUploaderBg 30%, rgba(255,255,255,0)),
+    		linear-gradient(rgba(255,255,255,0), @presenteUploaderBg 70%) 0 100%,
+    		radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
+    		radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+    	background-repeat: no-repeat;
+    	background-color: @presenteUploaderBg;
+    	background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+    	background-attachment: local, local, scroll, scroll;
+    }
+
+    &-item {
+      color: @presenteUploaderColor;
+      display: table;
+      table-layout: fixed;
+      width: 100%;
+      padding: 10px;
+      border-bottom: 1px solid darken(@presenteUploaderBg, 10%);
+      border-top: 1px solid lighten(@presenteUploaderBg, 10%);
+
+      &:nth-child(odd) {
+        background-color: rgba(255, 255, 255, .5);
+      }
+
+      &.is-uploading {
+        background-image: -webkit-linear-gradient(-45deg, fade(@presenteUploaderColorHover, 15%) 25%,transparent 25%,transparent 50%, fade(@presenteUploaderColorHover, 15%) 50%, fade(@presenteUploaderColorHover, 15%) 75%,transparent 75%,transparent);
+        background-image: -o-linear-gradient(-45deg, fade(@presenteUploaderColorHover, 15%) 25%,transparent 25%,transparent 50%, fade(@presenteUploaderColorHover, 15%) 50%, fade(@presenteUploaderColorHover, 15%) 75%,transparent 75%,transparent);
+        background-image: linear-gradient(-45deg, fade(@presenteUploaderColorHover, 15%) 25%,transparent 25%,transparent 50%, fade(@presenteUploaderColorHover, 15%) 50%, fade(@presenteUploaderColorHover, 15%) 75%,transparent 75%,transparent);
+        -webkit-background-size: 40px 40px;
+        background-size: 40px 40px;
+
+        -webkit-animation: progress-bar-stripes 2s linear infinite;
+        -o-animation: progress-bar-stripes 2s linear infinite;
+        animation: progress-bar-stripes 2s linear infinite;
+        pointer-events: none;
+      }
+
+      &-name,
+      &-actions {
+        vertical-align: middle;
+      }
+
+      &-name {
+        display: table-cell;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+
+        .is-uploading & {
+          opacity: .4;
+        }
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          color: @presenteUploaderColorHover;
+        }
+      }
+
+      &-actions,
+      &-progress {
+        display: table-cell;
+        width: 60px;
+        text-align: right;
+      }
+
+      &-actions {
+        .is-uploading & {
+          display: none;
+        }
+
+        > i {
+          padding: 0 7px;
+          cursor: pointer;
+          font-size: 20px;
+          line-height: 1;
+          transition: all .3s;
+
+          &:focus,
+          &:hover {
+            color: @presenteUploaderColorHover;
+          }
+        }
+      }
+
+      &-progress {
+        color: #3A82D4;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+@-webkit-keyframes progress-bar-stripes {
+  from  { background-position: 0 0; }
+  to    { background-position: 40px 0; }
+}
+
+@keyframes progress-bar-stripes {
+  from  { background-position: 0 0; }
+  to    { background-position: 40px 0; }
+}
+
 .presenter-whiteboard {
-  height: calc(~'100% - 40px');
+  height: calc(~'100% - 50px');
+  padding-bottom: 50px;
 }
 
 .poll-whiteboard {
@@ -123,62 +421,10 @@
   height: 100%;
 }
 
-.presentationNavigationControls {
-  width:54px;
-  font-size:28px;
-  float:right;
-  margin-right:90px;
-}
-
 .vertically-centered {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
-}
-
-#controllers {
-  width: 100%;
-  height: 40px;
-}
-
-#switchSlideSection {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 138px;
-  height: 100%;
-}
-
-.switchSlideButton {
-  outline: none;
-  width: 50px;
-  height: 100%;
-  margin-bottom: 0;
-  color: extract(@black, 1);
-  background-color: extract(@white, 1);
-  border: 1px solid extract(@lightGrey, 3);
-  border-radius: 10px;
-  padding: 0;
-  &:hover {
-    background-color: extract(@lightGrey, 3);
-    color: extract(@black, 1);
-  }
-  &:focus {
-    background-color: extract(@white, 1);
-    color: extract(@black, 1);
-  }
-}
-
-.previousSlide {
-  float: left;
-}
-
-.nextSlide {
-  float: right;
-}
-
-#presentationProgress {
-  font-size: 25px;
 }
 
 .whiteboardFullscreenButton {
@@ -275,6 +521,10 @@
 
 .activeEmojiButton {
   background-color: #34495E;
+}
+
+.FABContainer {
+  z-index: 100;
 }
 
 .FABTriggerButton, .inactiveEmojiButton {

@@ -11,6 +11,7 @@ Template.whiteboard.helpers
     currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
     currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
     totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
+    console.log('slide', currentSlideNum)
     if currentSlideNum isnt undefined
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
@@ -79,11 +80,11 @@ Template.whiteboard.events
     $('.FABTriggerButton').blur()
     toggleEmojisFAB()
 
-Template.presenterBottomControllers.events
-  'click .previousSlide':(event) ->
+Template.whiteboardControls.events
+  'click .whiteboard-buttons-slide > .prev':(event) ->
     BBB.goToPreviousPage()
 
-  'click .nextSlide':(event) ->
+  'click .whiteboard-buttons-slide > .next':(event) ->
     BBB.goToNextPage()
 
   'click .switchSlideButton': (event) ->
@@ -101,10 +102,10 @@ Template.polling.rendered = ->
 Template.polling.destroyed = ->
   setTimeout(scaleWhiteboard, 0)
 
-Template.presenterBottomControllers.rendered = ->
+Template.whiteboardControls.rendered = ->
   scaleWhiteboard()
 
-Template.presenterBottomControllers.destroyed = ->
+Template.whiteboardControls.destroyed = ->
   setTimeout(scaleWhiteboard, 0)
 
 Template.whiteboard.rendered = ->
@@ -126,3 +127,17 @@ Template.whiteboard.rendered = ->
   Meteor.NotificationControl = new NotificationControl('notificationArea')
 
   $(document).foundation() # initialize foundation javascript
+
+Template.presenterUploaderControl.created = ->
+  this.isOpen = new ReactiveVar(false);
+  this.files = new ReactiveList();
+
+Template.presenterUploaderControl.events
+  'click .js-open':(event, template) ->
+    template.isOpen.set(true);
+  'click .js-close':(event, template) ->
+    template.isOpen.set(false);
+
+Template.presenterUploaderControl.helpers
+  isOpen: -> Template.instance().isOpen.get()
+  files: -> Template.instance().files.fetch()
