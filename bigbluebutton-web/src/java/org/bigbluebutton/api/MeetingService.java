@@ -449,6 +449,7 @@ public class MeetingService implements MessageListener {
 	  params.put("name", message.name);
 	  params.put("breakoutId", message.breakoutId);
 	  params.put("meetingID", message.parentId);
+	  params.put("isBreakout", "true");
 	  params.put("attendeePW", message.viewerPassword);
 	  params.put("moderatorPW", message.moderatorPassword);
 	  params.put("voiceBridge", message.voiceConfId);
@@ -458,7 +459,7 @@ public class MeetingService implements MessageListener {
 	  
 	  presDownloadService.downloadAndProcessDocument(message.defaultPresentationURL, breakout.getInternalId());
 	  
-	  messagingService.sendBreakoutRoomCreated(breakout.getInternalId(), breakout.getName());
+	  handleCreateMeeting(breakout);
 	}
 	
 	private void processEndMeeting(EndMeeting message) {
@@ -496,6 +497,7 @@ public class MeetingService implements MessageListener {
 				logData.put("name", m.getName());
 				logData.put("duration", m.getDuration());
 				logData.put("record", m.isRecord());
+				logData.put("isBreakout", m.isBreakout());
 				logData.put("event", "meeting_started");
 				logData.put("description", "Meeting has started.");
 				
@@ -511,6 +513,7 @@ public class MeetingService implements MessageListener {
 				logData.put("name", m.getName());
 				logData.put("duration", m.getDuration());
 				logData.put("record", m.isRecord());
+				logData.put("isBreakout", m.isBreakout());
 				logData.put("event", "meeting_restarted");
 				logData.put("description", "Meeting has restarted.");
 

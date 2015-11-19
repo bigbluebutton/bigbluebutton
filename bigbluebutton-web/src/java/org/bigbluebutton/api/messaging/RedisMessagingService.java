@@ -126,12 +126,6 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_POLLING_CHANNEL, gson.toJson(map));		
 	}
 	
-	public void sendBreakoutRoomCreated(String breakoutId, String name)
-	{
-	  log.debug("Sending BreakoutRoomStarted message");
-	  send(MessagingConstants.TO_MEETING_CHANNEL, new BreakoutRoomStarted(new BreakoutRoomPayload(breakoutId, name)).toJson());
-	}
-
 	public void setMessageSender(MessageSender sender) {
 		this.sender = sender;
 	}

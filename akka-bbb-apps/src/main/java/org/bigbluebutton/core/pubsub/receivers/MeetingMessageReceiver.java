@@ -50,9 +50,6 @@ public class MeetingMessageReceiver implements MessageHandler {
 								CreateMeetingRequest.class);
 						bbbGW.handleBigBlueButtonMessage(msg);
 					}
-					if(BreakoutRoomStarted.NAME.equals(messageName)) {
-						bbbGW.handleJsonMessage(message);
-					}
 				}
 			}
 

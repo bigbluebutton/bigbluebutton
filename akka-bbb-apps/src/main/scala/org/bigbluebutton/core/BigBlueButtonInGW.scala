@@ -23,6 +23,7 @@ import org.bigbluebutton.messages._
 import org.bigbluebutton.messages.payload._
 import akka.event.Logging
 import spray.json.JsonParser
+import org.bigbluebutton.messages.BreakoutRoomStarted
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
@@ -89,7 +90,6 @@ class BigBlueButtonInGW(
   def forwardMessage(msg: InMessage) = {
     msg match {
       case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: BreakoutRoomCreated => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.userId, m))
       case _ => log.error("Unhandled message: {}", msg)
     }

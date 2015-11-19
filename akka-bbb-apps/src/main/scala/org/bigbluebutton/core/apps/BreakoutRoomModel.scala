@@ -23,11 +23,14 @@ class BreakoutRoomModel {
     assignedUsers: Vector[String], defaultPresentationURL: String): BreakoutRoom = {
     val room = new BreakoutRoom(id, name, voiceConfId, assignedUsers, Vector(), defaultPresentationURL)
     add(room)
-    room
   }
 
   def getBreakoutRoom(id: String): Option[BreakoutRoom] = {
     rooms.get(id)
+  }
+  
+  def getRooms() {
+    rooms
   }
 
   def getAssignedUsers(breakoutId: String): Option[Vector[String]] = {
