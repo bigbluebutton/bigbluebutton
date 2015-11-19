@@ -224,14 +224,8 @@
 .exitFullscreenButton {
   top: 10px;
   right: 10px;
-  @media @landscape {
-    height: 50px;
-    width: 50px;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    height: 5%;
-    width: 10%;
-  }
+  height: 50px;
+  width: 50px;
 }
 
 .soaringButton {
@@ -273,6 +267,8 @@
 .iconChrome {
   i {
     font-size: 200%;
+    position: relative;
+    top: 1px;
   }
 }
 
@@ -403,70 +399,16 @@
   }
 }
 
+.generateIncreaseOpacityAnimation (@i) when (@i < 105) {
+    @p: ~"@{i}%"; // local variable: iterator + a percent sign
+    @{p} {
+        opacity: @i * 0.01;
+    }
+    .generateIncreaseOpacityAnimation(@i + 5);
+}
+
 @keyframes increaseOpacity {
-  0% {
-    opacity: 0;
-  }
-  5% {
-    opacity: 0.05;
-  }
-  10% {
-    opacity: 0.1;
-  }
-  15% {
-    opacity: 0.15;
-  }
-  20% {
-    opacity: 0.2;
-  }
-  25% {
-    opacity: 0.25;
-  }
-  30% {
-    opacity: 0.3;
-  }
-  35% {
-    opacity: 0.35;
-  }
-  40% {
-    opacity: 0.4;
-  }
-  45% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  55% {
-    opacity: 0.55;
-  }
-  60% {
-    opacity: 0.6;
-  }
-  65% {
-    opacity: 0.65;
-  }
-  70% {
-    opacity: 0.7;
-  }
-  75% {
-    opacity: 0.75;
-  }
-  80% {
-    opacity: 0.8;
-  }
-  85% {
-    opacity: 0.85;
-  }
-  90% {
-    opacity: 0.9;
-  }
-  95% {
-    opacity: 0.95;
-  }
-  100% {
-    opacity: 1;
-  }
+  .generateIncreaseOpacityAnimation(0);
 }
 
 @keyframes decreaseOpacity {
