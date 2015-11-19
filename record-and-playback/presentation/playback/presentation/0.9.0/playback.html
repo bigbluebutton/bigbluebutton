@@ -49,26 +49,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       </div>
     </div>
 
-    <div id="playback" role="main" class="row small-collapse" data-equalizer>
+    <div id="playback" role="main" class="row small-collapse">
 
       <!-- <h2 class="show-for-sr">Slide Thumbnails</h2> -->
       <!-- <div id="thumbnails" role="region" aria-label="Slide thumbnails"></div> -->
 
       <h2 class="show-for-sr">Presentation Slides</h2>
-      <div id="presentation-section" class="small-8 columns" data-equalizer-watch>
-        <div class="circle" id="cursor" style="visibility:hidden;"></div>
-        <div id="slide" role="img" aria-labelledby="slideText"></div>
-        <div id="slideText" class="show-for-sr" aria-live="polite"></div>
+      <div id="main-section" class="small-8 columns">
+        <div id="presentation-area" role="region" aria-label="Presentation" data-swap>
+          <div class="circle" id="cursor"></div>
+          <div id="slide" role="img" aria-labelledby="slideText"></div>
+          <div id="slideText" class="show-for-sr" aria-live="polite"></div>
+        </div>
       </div>
 
-      <div id="chat-and-media-section" class="small-4 columns" data-equalizer-watch>
+      <div id="side-section" class="small-4 columns">
         <h2 class="show-for-sr">Chat Messages</h2>
         <input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="show-for-sr" checked="checked" />
         <label for="exposechat" class="show-for-sr">Read chat messages</label>
         <div id="chat-area">
           <div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
         </div>
-        <div id="video-area" class="clearfix" role="region" aria-label="Video">
+        <div id="video-area" class="clearfix" role="region" aria-label="Video" data-swap>
           <!--
               <video id="webcam">You must use an HTML5 capable browser to view this page.
                 This playback requires modern browser, please use FF, Safari, Chrome</video>

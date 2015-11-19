@@ -270,7 +270,7 @@ generateThumbnails = function() {
         var div = $(document.createElement('div'));
         div.addClass("thumbnail-wrapper");
         div.attr("role", "link"); //tells accessibility software it can be clicked
-	      div.attr("aria-describedby", img.attr("id") + "description");
+        div.attr("aria-describedby", img.attr("id") + "description");
         div.append(img);
         div.append(label);
         div.append(hiddenDesc);
@@ -406,18 +406,17 @@ load_spinner = function(){
   };
   var target = document.getElementById('spinner');
   spinner = new Spinner(opts).spin(target);
-}
+};
 
 
-document.addEventListener( "DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
   console.log("==DOM content loaded");
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
   var spinner;
-  //var video = document.getElementById("webcam");
 
   if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
-    google_frame_warning
+    google_frame_warning();
   }
 
   if (checkUrl(RECORDINGS + '/video/webcams.webm') == true) {
@@ -426,24 +425,24 @@ document.addEventListener( "DOMContentLoaded", function() {
   } else {
       $("#video-area").attr("style", "display:none;");
       chat = $("#chat");
-      //chat.attr("style", "background:white;height:600px;");
       load_audio();
   }
 
   load_spinner();
   console.log("==Hide playback content");
   $("#playback-content").css('visibility', 'hidden');
-  //load_audio();
-  //load_script("lib/writing.js");
-  //generateThumbnails();
 
   //load up the acorn controls
   console.log("==Loading acorn media player ");
-  jQuery('#video').acornMediaPlayer({
+  $('#video').acornMediaPlayer({
     theme: 'bigbluebutton',
     volumeSlider: 'vertical'
   });
+  $('#video').on("swap", function() {
+    swapVideoPresentation();
+  });
 
+  resizeComponents();
 }, false);
 
 var secondsToWait = 0;
@@ -470,17 +469,60 @@ function Tick() {
 }
 
 
-function onWindowResize() {
-  var availableHeight = $("body").height();
-  availableHeight -= $("#video-area .acorn-controls").height(); // media controls
-  availableHeight -= 6; // TODO: why?
-  availableHeight -= $("#navbar").height(); // navbar
-  $("#playback").height(availableHeight);
+// Swap the position of the DOM elements `elm1` and `elm2`.
+function swapElements(elm1, elm2) {
+  var parent1, next1,
+      parent2, next2;
 
-  var chatHeight = availableHeight - $("#video-area > div").height();
-  $("#chat-area").height(chatHeight);
+  parent1 = elm1.parentNode;
+  next1   = elm1.nextSibling;
+  parent2 = elm2.parentNode;
+  next2   = elm2.nextSibling;
+
+  parent1.insertBefore(elm2, next1);
+  parent2.insertBefore(elm1, next2);
 }
 
+// Swaps the positions of the presentation and the video
+function swapVideoPresentation() {
+  var mainSectionChild = $("#main-section").children("[data-swap]");
+  var sideSectionChild = $("#side-section").children("[data-swap]");
+  swapElements(mainSectionChild[0], sideSectionChild[0]);
+  resizeComponents();
+}
+
+// Manually resize some components we can't properly resize just using css.
+// Mostly the components in the side-section, that has more than one component that
+// need to fill 100% height.
+function resizeComponents() {
+  var availableHeight = $("body").height();
+  availableHeight -= $("#video-area .acorn-controls").outerHeight(true); // media controls
+  availableHeight -= $("#navbar").outerHeight(true); // navbar
+  $("#playback-row").outerHeight(availableHeight);
+  $("#main-section").outerHeight(availableHeight);
+  $("#side-section").outerHeight(availableHeight);
+
+  var chatHeight = availableHeight;
+  chatHeight -= $("#side-section").children("[data-swap]").outerHeight(true);
+  $("#chat-area").innerHeight(chatHeight);
+}
+
+// Need to resize the elements in a few occasions:
+// * Once the page and all assets are fully loaded
+// * When the page is resized
+// * When the video is fully loaded
 $(window).resize(function() {
-  onWindowResize();
+  resizeComponents();
 });
+document.addEventListener("load", function() {
+  resizeComponents();
+}, false);
+function checkVideoLoaded() {
+  var video = $('#video')[0];
+  if (video !== undefined && video !== null && video.readyState === 4) {
+    resizeComponents();
+  } else {
+    setTimeout(checkVideoLoaded, 50);
+  }
+}
+checkVideoLoaded();

@@ -251,7 +251,7 @@ function runPopcorn() {
 
 
   svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
-  svgobj.style.top = "8px";
+  svgobj.style.top = "0px";
   var next_shape;
   var shape;
   for (var j = 0; j < array.length - 1; j++) { //iterate through all the shapes and pick out the main ones
@@ -523,5 +523,5 @@ document.getElementById('slide').appendChild(svgobj);
 
 window.onresize = function(event) {
 	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
-  svgobj.style.top = "8px";
+  svgobj.style.top = "0px";
 };
