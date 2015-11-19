@@ -76,9 +76,6 @@ body, #playback-content, #playback-row, #main-section, #side-section {
   left: 0;
   width: 100%;
 }
-#video {
-  margin: 0;
-}
 
 /* Prevent unwanted scrollbars and "leaking" elements in the page */
 body {
@@ -108,7 +105,7 @@ body {
   padding: 0 10px;
 }
 #navbar h1 {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   padding-top: 6px;
   margin: 0;
   color: #666666;

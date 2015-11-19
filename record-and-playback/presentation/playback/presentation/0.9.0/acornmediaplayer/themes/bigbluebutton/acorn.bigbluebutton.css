@@ -14,363 +14,295 @@
  * contact@ghinda.net
  *
  */
- 
+
 /* Start of bigbluebutton theme */
 .acorn-player.bigbluebutton {
-	float: left;
-	position: relative;	
-	padding: 0;
+  float: left;
+  position: relative;
+  padding: 0;
   margin: 0;
-	font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 /* <video> element */
 .acorn-player.bigbluebutton video {
-	float: left;
-	clear: both;
-	margin-bottom: 5px;	
+  float: left;
+  clear: both;
+  margin: 0;
+  cursor: pointer;
 }
 /* Audio player */
-/* 
+/*
  * If you're playing <audio>, we're assigning a Width larger by 10%, because we're missing two buttons(Captions and Transcript)
  * each with a 5% Width
  */
 .acorn-player.bigbluebutton.audio-player .acorn-seek-slider {
-	width: 82%;
+  width: 82%;
 }
 /* Player Controls */
 .acorn-player.bigbluebutton .acorn-controls {
-	position: relative;
-	float: left;
-	clear: both;
-	width: 95%;
+  position: relative;
+  float: left;
+  clear: both;
+  width: 95%;
   padding-top: 5px;
   padding-bottom: 5px;
-	padding-right: 5%;
-	padding-left: 1%;
+  padding-right: 5%;
+  padding-left: 1%;
   border: 0;
-	//border: 2px solid #61625d;
-	//-moz-border-radius: 5px;
-	//-webkit-border-radius: 5px;
-	//border-radius: 5px;
-	//background: #000000;
+  //border: 2px solid #61625d;
+  //-moz-border-radius: 5px;
+  //-webkit-border-radius: 5px;
+  //border-radius: 5px;
+  //background: #000000;
   background: #314b5d;
-	//background-image: -moz-linear-gradient(top, #313131, #000000);
-	//background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #313131),color-stop(1, #000000));		
+  //background-image: -moz-linear-gradient(top, #313131, #000000);
+  //background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #313131),color-stop(1, #000000));
 }
 /* <button>s */
 .acorn-player.bigbluebutton button {
-	position: relative;
-	height: 22px;	
-	width: 4%;
-	margin-right: 1%;
-	padding: 0px;
-	border: none;
-	background-color: transparent;
-	background-repeat: no-repeat;
-	background-position: center center;
-	background-size: auto 100%;
-	
-	opacity: 0.7;
-	-moz-transition: all 0.2s ease-in-out;
-	-webkit-transition: all 0.2s ease-in-out;
-	-o-transition: all 0.2s ease-in-out;
-	transition: all 0.2s ease-in-out;
-	
-	-moz-border-radius: 2px;
-	-webkit-border-radius: 2px;
-	border-radius: 2px;
-	
-	cursor: pointer;
-	text-indent: -9999px;
+  position: relative;
+  height: 22px;
+  width: 4%;
+  margin-right: 1%;
+  padding: 0px;
+  border: none;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: auto 100%;
+
+  opacity: 0.7;
+  -moz-transition: all 0.2s ease-in-out;
+  -webkit-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+
+  cursor: pointer;
+  text-indent: -9999px;
 }
 .acorn-player.bigbluebutton button:hover, .acorn-player.bigbluebutton button:focus {
-	opacity: 1;
+  opacity: 1;
 }
 .acorn-player.bigbluebutton button:active {
-	top: 1px;	
+  top: 1px;
 }
 /* Playback controls(Play, Pause) */
 .acorn-player.bigbluebutton .acorn-play-button {
-	float: left;
-	display: block;
-	background-image: url(bigbluebutton-play.png);
+  float: left;
+  display: block;
+  background-image: url(bigbluebutton-play.png);
 }
 .acorn-player.bigbluebutton .acorn-paused-button {
-	background-image: url(bigbluebutton-pause.png);
+  background-image: url(bigbluebutton-pause.png);
 }
 /* Seek Slider */
 .acorn-player.bigbluebutton .acorn-seek-slider {
-	position: relative;
-	display: block;
-	float: left;
-	width: 72%;
-	height: 10px;
-	margin: 5px 1% 0px 1%;
-	background: #7289A8;
-	//-moz-border-radius: 15px;
-	//-webkit-border-radius: 15px;
-	//border-radius: 15px;	
+  position: relative;
+  display: block;
+  float: left;
+  width: 72%;
+  height: 10px;
+  margin: 5px 1% 0px 1%;
+  background: #7289A8;
+  //-moz-border-radius: 15px;
+  //-webkit-border-radius: 15px;
+  //border-radius: 15px;
 }
 .acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-handle {
-	display: block;
-	position: absolute;	
-	width: 10px;
-	height: 10px;
-	border: 1px solid #333;
-	top: -1px;
-	background: #e6e6e6;
+  display: block;
+  position: absolute;
+  width: 10px;
+  height: 12px;
+  border-left: 1px solid #333;
+  border-right: 1px solid #333;
+  top: -1px;
+  background: #e6e6e6;
   cursor: pointer;
-
-	//-moz-border-radius: 10px;
-	//-webkit-border-radius: 10px;
-	//border-radius: 10px;
-}
-.acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-handle:hover {
-  height: 15px;
-  top: -4px;
-
   -webkit-transition: height .2s, top .2s, -webkit-transform .2s;
   transition: height .2s, top .2s, transform .2s;
 }
-.acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-range {		
-	background: #0750B2;
-	
-	//-moz-border-radius:10px;
-	//-webkit-border-radius:10px;
-	//border-radius:10px;
+.acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-handle:hover {
+  height: 17px;
+  top: -4px;
+}
+.acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-range {
+  background: #119ecb;
 }
 .acorn-player.bigbluebutton .acorn-buffer {
-	background: #8E9DAF !important;
+  background: #8E9DAF !important;
 }
 .acorn-player.bigbluebutton .acorn-seek-slider .ui-state-focus, .acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-handle.ui-state-hover {
-	background: #fff !important;
-	
-	-moz-box-shadow: 0px 2px 15px #ff0000;
-	-webkit-box-shadow: 0px 2px 15px #ff0000;
-	box-shadow: 0px 2px 15px #ff0000;
+  background: #fff !important;
+
+  -moz-box-shadow: 0px 2px 15px #119ecb;
+  -webkit-box-shadow: 0px 2px 15px #119ecb;
+  box-shadow: 0px 2px 15px #119ecb;
 }
 /* Timer */
 .acorn-player.bigbluebutton .acorn-timer {
-	float: left;
-	width: 6%;
-	overflow: hidden;
-	margin-top: 5px;	
-	
-	color: #999;
-	font-size: 0.7em;
-	font-weight: bold;
+  float: left;
+  width: 6%;
+  overflow: hidden;
+  margin-top: 5px;
+
+  color: #999;
+  font-size: 0.7em;
+  font-weight: bold;
 }
 /* Volume Box */
 .acorn-player.bigbluebutton .acorn-volume-box {
-	position: absolute;
-	float: left;
-	bottom: 5px;
-	right: 0px;
-	overflow: visible;
-	width: 5%;
-	height: 35px;
-	color: #fff;	
-	
-	-moz-transition: all 0.1s ease-in-out;
-	-webkit-transition: all 0.1s ease-in-out;
-	-o-transition: all 0.2s ease-in-out;
-	transition: all 0.1s ease-in-out;
+  position: absolute;
+  float: left;
+  bottom: 5px;
+  right: 0px;
+  overflow: visible;
+  width: 5%;
+  height: 35px;
+  color: #fff;
+
+  -moz-transition: all 0.1s ease-in-out;
+  -webkit-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
 }
 .acorn-player.bigbluebutton .acorn-volume-box:hover {
-	height: 135px;
+  height: 135px;
 }
 .acorn-player.bigbluebutton .acorn-volume-slider.handle-focused {
-	position: relative;
-	visibility: visible;
-	height: 100px;
-	opacity: 1;
-	top: -100px;
+  position: relative;
+  visibility: visible;
+  height: 100px;
+  opacity: 1;
+  top: -100px;
 }
 .acorn-player.bigbluebutton .acorn-volume-box:hover .acorn-volume-slider {
-	position: relative;
-	visibility: visible;
-	height: 100px;
-	opacity: 1;
-	top: 0px;
+  position: relative;
+  visibility: visible;
+  height: 100px;
+  opacity: 1;
+  top: 0px;
 }
 /* Volume Slider */
 .acorn-player.bigbluebutton .acorn-volume-slider {
-	position: relative;
-	height: 1px;
-	width: 7px;
-	left: 7px;
-	
-	visibility: visible;
-	opacity: 0;
-	
-	border: 1px solid #444;
-
-	-moz-border-radius: 15px;
-	-webkit-border-radius: 15px;
-	border-radius: 15px;
-	
-	background: #535353;
-	background-image: -moz-linear-gradient(top, #535353, #333333);
-	background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #535353),color-stop(1, #333333));
-	
-	box-shadow: inset 0 3px 3px #333333;
-	
-	-moz-transition: all 0.1s ease-in-out;
-	-webkit-transition: all 0.1s ease-in-out;
-	-o-transition: all 0.1s ease-in-out;
-	transition: all 0.1s ease-in-out; 
+  position: relative;
+  height: 1px;
+  width: 7px;
+  left: 7px;
+  visibility: visible;
+  opacity: 0;
+  border: 1px solid #444;
+  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  border-radius: 15px;
+  background: #535353;
+  background-image: -moz-linear-gradient(top, #535353, #333333);
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #535353),color-stop(1, #333333));
+  box-shadow: inset 0 3px 3px #333333;
+  -moz-transition: all 0.1s ease-in-out;
+  -webkit-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
 }
 .acorn-player.bigbluebutton .acorn-volume-slider .ui-slider-handle {
-	width: 12px;
-	height: 12px;
-	left: -4px;
-	margin-bottom:-0.6em;
-	margin-left:0;
-	border: 1px solid #333;	
+  width: 12px;
+  height: 12px;
+  left: -4px;
+  margin-bottom:-0.6em;
+  margin-left:0;
+  border: 1px solid #333;
+  -moz-border-radius:10px;
+  -webkit-border-radius:10px;
+  border-radius:10px;
 
-	-moz-border-radius:10px;
-	-webkit-border-radius:10px;
-	border-radius:10px;	
-	
-	background: #e6e6e6;
-	background-image: -moz-linear-gradient(top, #e6e6e6, #d5d5d5);
-	background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #e6e6e6),color-stop(1, #d5d5d5));
-	
-	box-shadow: inset 0 3px 3px #d5d5d5;	
+  background: #e6e6e6;
+  background-image: -moz-linear-gradient(top, #e6e6e6, #d5d5d5);
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #e6e6e6),color-stop(1, #d5d5d5));
+
+  box-shadow: inset 0 3px 3px #d5d5d5;
 }
 .acorn-player.bigbluebutton .acorn-volume-slider .ui-slider-handle:hover, .acorn-player.bigbluebutton .acorn-volume-slider.handle-focused .ui-slider-handle {
-	background: #fff;
+  background: #fff;
 
-	-moz-box-shadow: 0px 2px 15px #ff0000;
-	-webkit-box-shadow: 0px 2px 15px #ff0000;
-	box-shadow: 0px 2px 15px #ff0000;
+  -moz-box-shadow: 0px 2px 15px #ff0000;
+  -webkit-box-shadow: 0px 2px 15px #ff0000;
+  box-shadow: 0px 2px 15px #ff0000;
 }
 .acorn-player.bigbluebutton .acorn-volume-slider .ui-slider-range {
-	-moz-border-radius: 15px;
-	-webkit-border-radius: 15px;
-	border-radius: 15px;
-	
-	background: #e6e6e6;
-	background-image: -moz-linear-gradient(top, #e6e6e6, #d5d5d5);
-	background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #e6e6e6),color-stop(1, #d5d5d5));
-	
-	box-shadow: inset 0 3px 3px #d5d5d5;
+  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  border-radius: 15px;
+
+  background: #e6e6e6;
+  background-image: -moz-linear-gradient(top, #e6e6e6, #d5d5d5);
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #e6e6e6),color-stop(1, #d5d5d5));
+
+  box-shadow: inset 0 3px 3px #d5d5d5;
 }
 /* Volume Button */
 .acorn-player.bigbluebutton .acorn-volume-button {
-	position: absolute;	
-	bottom: 0px;
-	width: 100%;
-	display: block;	
-	background: url(bigbluebutton-volume-full.png) no-repeat;
-	text-indent: -9999px;
-	
-	opacity: 0.8;
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  display: block;
+  background: url(bigbluebutton-volume-full.png) no-repeat;
+  text-indent: -9999px;
+
+  opacity: 0.8;
 }
 .acorn-player.bigbluebutton .acorn-volume-button:active {
-	top: auto;
+  top: auto;
 }
 .acorn-player.bigbluebutton .acorn-volume-mute {
-	background-image: url(bigbluebutton-volume.png);
+  background-image: url(bigbluebutton-volume.png);
 }
 /* Swap Button */
 .acorn-player.bigbluebutton .acorn-swap-button {
-	float: right;
-	background-image: url(bigbluebutton-swap.png);
+  float: right;
+  background-image: url(bigbluebutton-swap.png);
 }
 /* Fullscreen Button */
 .acorn-player.bigbluebutton .acorn-fullscreen-button {
-	float: right;
-	background-image: url(bigbluebutton-fullscreen.png);
+  float: right;
+  background-image: url(bigbluebutton-fullscreen.png);
 }
 /* Fullscreen Mode */
-.acorn-player.bigbluebutton .fullscreen-controls {	
-	left: 0px;
-	bottom: 0px;
+.acorn-player.bigbluebutton .fullscreen-controls {
+  left: 0px;
+  bottom: 0px;
 }
 .acorn-player.bigbluebutton .fullscreen-controls button {
-	height: 35px;
+  height: 35px;
 }
 .acorn-player.bigbluebutton .fullscreen-controls .acorn-fullscreen-button {
-	background-image: url(bigbluebutton-exit-fullscreen.png);
+  background-image: url(bigbluebutton-exit-fullscreen.png);
 }
 .acorn-player.bigbluebutton .fullscreen-controls .acorn-seek-slider {
-	margin-top: 10px;
+  margin-top: 10px;
 }
 /* Caption Button */
 .acorn-player.bigbluebutton .acorn-caption-button {
-	float: right;
-	background-image: url(bigbluebutton-caption.png);
+  float: right;
+  background-image: url(bigbluebutton-caption.png);
 }
 .acorn-player.bigbluebutton .acorn-caption {
-	font-size: 14px;
-	font-weight: bold;
-	color: #fff;
-	
-	text-shadow: 0px 1px 5px #000;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+
+  text-shadow: 0px 1px 5px #000;
 }
 .acorn-player.bigbluebutton .acorn-caption-active {
-	background-color: #8F0000 !important;
+  background-color: #8F0000 !important;
 }
 .acorn-player.bigbluebutton .acorn-transcript-active {
-	background-color: #8F0000 !important;
+  background-color: #8F0000 !important;
 }
 /* Transcript Button */
 .acorn-player.bigbluebutton .acorn-transcript-button {
-	float: right;
-	background-image: url(bigbluebutton-transcript.png);
-}
-/* 
- * bigbluebuttonsmall Child Theme
- */
-.acorn-player.bigbluebuttonsmall {
-	padding: 0px;
-}
-.acorn-player.bigbluebuttonsmall video:hover + .acorn-controls {
-	visibility: visible;
-	opacity: 0.7;
-}
-.acorn-player.bigbluebuttonsmall .acorn-controls:hover {
-	visibility: visible;
-	opacity: 0.7;
-}
-.acorn-player.bigbluebuttonsmall .acorn-controls {
-	position: absolute;	
-	bottom: 5%;
-	width: 87%;
-	margin-left: 2%;
-	padding: 2% 7% 2% 2%;
-	
-	border: 1px solid #2E2E2E;
-	
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-	
-	background: #000000;
-	background-image: -moz-linear-gradient(top, #313131, #000000);
-	background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #313131),color-stop(1, #000000));
-	
-	opacity: 0;
-	visibility: hidden;	
-	
-	-moz-transition: all 0.1s ease-in-out;
-	-webkit-transition: all 0.1s ease-in-out;
-	-o-transition: all 0.1s ease-in-out;
-	transition: all 0.1s ease-in-out;
-}
-.acorn-player.bigbluebuttonsmall .acorn-volume-box {
-	margin-right: 2%;
-	margin-bottom: 2%;
-}
-/* Audio player */
-.acorn-player.bigbluebuttonsmall.audio-player .acorn-controls {
-	display: block;
-	position: relative;
-	visibility: visible;
-	opacity: 1;
-	margin-left: 0px;
-	width: 91%;
-	
-	border: none;
+  float: right;
+  background-image: url(bigbluebutton-transcript.png);
 }
