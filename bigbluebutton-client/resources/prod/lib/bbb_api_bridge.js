@@ -490,6 +490,13 @@
       }
     }
     
+    BBB.webRTCMonitor = function(result) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.webRTCMonitor(result);
+      }
+    }
+
     BBB.javaAppletLaunched = function() {
       var swfObj = getSwfObj();
       if (swfObj) {

@@ -119,6 +119,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
+			private static const STRONG:String = String.fromCharCode(9608);
+			private static const WEAK:String = String.fromCharCode(9617);
+
+			private static const STRONG_SIGNAL:String = STRONG + STRONG + STRONG;
+			private static const ALMOST_STRONG_SIGNAL:String = STRONG + STRONG + WEAK;
+			private static const ALMOST_WEAK_SIGNAL:String = STRONG + WEAK + WEAK;
+			private static const WEAK_SIGNAL:String = WEAK + WEAK + WEAK;
+
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
@@ -155,7 +163,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var footerHeight:Number = 24;
 			
 			[Bindable] private var isTunneling:Boolean = false;
-			
+
+			[Bindable] private var webRTCAudioStatus:String = WEAK_SIGNAL;
+			private var webRTCAudioStatusHistory:ArrayCollection = new ArrayCollection([0, 0, 0, 0, 0]);
+
 			private var confirmingLogout:Boolean = false;
 			private var chromeBrowser:ChromeWebcamPermissionImage = null;
 			
@@ -177,6 +188,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					toolbarPaddingTop = 0;
 				}
 				toolbar.displayToolbar();
+
+				ExternalInterface.addCallback("webRTCMonitor", handleWebRTCMonitor);
       
         showFooterOpt = layoutOptions.showFooter;
         
@@ -578,6 +591,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
+			private function getRateFromHistory(rate: Number):Number {
+				webRTCAudioStatusHistory.removeItemAt(webRTCAudioStatusHistory.length - 1);
+				webRTCAudioStatusHistory.addItemAt(rate, 0);
+				return Math.max.apply(null, webRTCAudioStatusHistory.toArray());
+			}
+
+			private function audioMonitor(audio: Object):void {
+				if (audio.hasOwnProperty("intervalEstimatedLossRate")) {
+					var rate:Number = getRateFromHistory(audio.intervalEstimatedLossRate);
+					switch (true) {
+						case rate > 0.50:
+							webRTCAudioStatus = WEAK_SIGNAL;
+							break;
+						case rate > 0.25:
+							webRTCAudioStatus = ALMOST_WEAK_SIGNAL;
+							break;
+						case rate > 0.01:
+							webRTCAudioStatus = ALMOST_STRONG_SIGNAL;
+							break;
+						default:
+							webRTCAudioStatus = STRONG_SIGNAL;
+							break;
+					}
+				}
+			}
+
+			public function handleWebRTCMonitor(result: String):void {
+				var object:Object = JSON.parse(result);
+				if (object.hasOwnProperty("audio")) {
+					audioMonitor(object.audio);
+				}
+			}
+
 			private function handleWebRTCCallStartedEvent(e:WebRTCCallEvent):void {
 				lblWebRTC.visible = lblWebRTC.includeInLayout = true;
 			}
@@ -678,7 +724,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<mx:Label 
 				id="lblWebRTC"
-				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' ]'}"
+				text="{'[ '+ResourceUtil.getInstance().getString('bbb.mainshell.notification.webrtc')+' '+ webRTCAudioStatus +' ]'}"
 				visible="false"
 				includeInLayout="false" />
 		<mx:Label
