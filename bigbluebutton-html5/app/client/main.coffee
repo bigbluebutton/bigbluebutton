@@ -137,7 +137,12 @@ Template.main.rendered = ->
     toggleSlidingMenu()
 
   if Meteor.config.app.autoJoinAudio
-    onAudioJoinHelper()
+    if Meteor.config.app.skipCheck
+      joinVoiceCall @, isListenOnly: Meteor.config.app.listenOnly
+    else
+      $("#settingsModal").foundation('reveal', 'open')
+      if Meteor.config.app.listenOnly
+        $('#joinMicrophone').prop('disabled', true)
 
 Template.main.events
   'click .shield': (event) ->

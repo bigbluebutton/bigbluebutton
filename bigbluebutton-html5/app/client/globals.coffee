@@ -157,6 +157,12 @@ Handlebars.registerHelper "pointerLocation", ->
 Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
 
+Handlebars.registerHelper "canJoinWithMic", ->
+  if (BBB.isUserPresenter(getInSession('userId')) or !Meteor.config.app.listenOnly) and !BBB.isMyMicLocked()
+    true
+  else
+    false
+
 ###Handlebars.registerHelper "visibility", (section) ->
   if getInSession "display_#{section}"
     style: 'display:block;'
@@ -386,7 +392,7 @@ Handlebars.registerHelper "getPollQuestions", ->
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
-@exitVoiceCall = (event) ->
+@exitVoiceCall = (event, afterExitCall) ->
   # To be called when the hangup is initiated
   hangupCallback = ->
     console.log "Exiting Voice Conference"
@@ -405,6 +411,8 @@ Handlebars.registerHelper "getPollQuestions", ->
       BBB.leaveVoiceConference hangupCallback
       getInSession("triedHangup", true) # we have hung up, prevent retries
       notification_WebRTCAudioExited()
+      if afterExitCall
+        afterExitCall this, Meteor.config.app.listenOnly
     else
       console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
       setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
@@ -424,6 +432,7 @@ Handlebars.registerHelper "getPollQuestions", ->
     console.log "Beginning WebRTC Conference Call"
 
   notification_WebRTCAudioJoining()
+
   if isListenOnly
     Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
   BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
@@ -516,6 +525,14 @@ Handlebars.registerHelper "getPollQuestions", ->
     if oldDocument.userId is getInSession 'userId'
       document.location = getInSession 'logoutURL'
   })
+
+  Meteor.Users.find().observe changed: (newUser, oldUser) ->
+    if Meteor.config.app.listenOnly is true and
+       newUser.user.presenter is false and
+       oldUser.user.presenter is true and
+       BBB.getCurrentUser().userId is newUser.userId and
+       oldUser.user.listenOnly is false
+      exitVoiceCall(@, joinVoiceCall)
 
 # Detects a mobile device
 @isMobile = ->
