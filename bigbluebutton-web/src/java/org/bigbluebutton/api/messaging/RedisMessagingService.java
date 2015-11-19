@@ -40,8 +40,10 @@ import org.bigbluebutton.common.messages.MessageHeader;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.PubSubPingMessage;
 import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
+import org.bigbluebutton.messages.BreakoutRoomStarted;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
+import org.bigbluebutton.messages.payload.BreakoutRoomPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,6 +124,12 @@ public class RedisMessagingService implements MessagingService {
 		map.put("answers", answers);
 		
 		sender.send(MessagingConstants.TO_POLLING_CHANNEL, gson.toJson(map));		
+	}
+	
+	public void sendBreakoutRoomCreated(String breakoutId, String name)
+	{
+	  log.debug("Sending BreakoutRoomStarted message");
+	  send(MessagingConstants.TO_MEETING_CHANNEL, new BreakoutRoomStarted(new BreakoutRoomPayload(breakoutId, name)).toJson());
 	}
 
 	public void setMessageSender(MessageSender sender) {

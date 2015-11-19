@@ -16,6 +16,7 @@ import org.bigbluebutton.common.messages.UserConnectedToGlobalAudio;
 import org.bigbluebutton.common.messages.UserDisconnectedFromGlobalAudio;
 import org.bigbluebutton.common.messages.ValidateAuthTokenMessage;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
+import org.bigbluebutton.messages.BreakoutRoomStarted;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,9 @@ public class MeetingMessageReceiver implements MessageHandler {
 						CreateMeetingRequest msg = gson.fromJson(message,
 								CreateMeetingRequest.class);
 						bbbGW.handleBigBlueButtonMessage(msg);
+					}
+					if(BreakoutRoomStarted.NAME.equals(messageName)) {
+						bbbGW.handleJsonMessage(message);
 					}
 				}
 			}

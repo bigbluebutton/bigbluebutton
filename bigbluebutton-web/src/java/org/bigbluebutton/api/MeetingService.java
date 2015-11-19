@@ -43,6 +43,7 @@ import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
@@ -61,6 +62,8 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
+import org.bigbluebutton.messages.BreakoutRoomStarted;
+import org.bigbluebutton.messages.payload.BreakoutRoomPayload;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
@@ -454,6 +457,8 @@ public class MeetingService implements MessageListener {
 	  Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 	  
 	  presDownloadService.downloadAndProcessDocument(message.defaultPresentationURL, breakout.getInternalId());
+	  
+	  messagingService.sendBreakoutRoomCreated(breakout.getInternalId(), breakout.getName());
 	}
 	
 	private void processEndMeeting(EndMeeting message) {

@@ -89,6 +89,7 @@ class BigBlueButtonInGW(
   def forwardMessage(msg: InMessage) = {
     msg match {
       case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: BreakoutRoomCreated => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.userId, m))
       case _ => log.error("Unhandled message: {}", msg)
     }
