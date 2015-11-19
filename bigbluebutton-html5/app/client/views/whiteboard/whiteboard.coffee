@@ -11,6 +11,7 @@ Template.whiteboard.helpers
     currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
     currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
     totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
+    console.log('slide', currentSlideNum)
     if currentSlideNum isnt undefined
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
@@ -82,11 +83,11 @@ Template.whiteboard.events
     $('.FABTriggerButton').blur()
     toggleEmojisFAB()
 
-Template.presenterBottomControllers.events
-  'click .previousSlide':(event) ->
+Template.whiteboardControls.events
+  'click .whiteboard-buttons-slide > .prev':(event) ->
     BBB.goToPreviousPage()
 
-  'click .nextSlide':(event) ->
+  'click .whiteboard-buttons-slide > .next':(event) ->
     BBB.goToNextPage()
 
   'click .switchSlideButton': (event) ->
@@ -104,10 +105,10 @@ Template.polling.rendered = ->
 Template.polling.destroyed = ->
   setTimeout(scaleWhiteboard, 0)
 
-Template.presenterBottomControllers.rendered = ->
+Template.whiteboardControls.rendered = ->
   scaleWhiteboard()
 
-Template.presenterBottomControllers.destroyed = ->
+Template.whiteboardControls.destroyed = ->
   setTimeout(scaleWhiteboard, 0)
 
 Template.whiteboard.rendered = ->
@@ -129,3 +130,75 @@ Template.whiteboard.rendered = ->
   Meteor.NotificationControl = new NotificationControl('notificationArea')
 
   $(document).foundation() # initialize foundation javascript
+
+Template.presenterUploaderControl.created = ->
+  this.isOpen = new ReactiveVar(false);
+  this.files = new ReactiveList({
+    sort: (a, b) ->
+      # Put the ones who still uploading first
+      (a.isUploading == b.isUploading) ? 0 : a.isUploading ? -1 : 1;
+  });
+  this.presentations = Meteor.Presentations.find({},
+  {
+    sort: {'presentation.current': -1, 'presentation.name': 1}
+    fields: {'presentation': 1}
+  });
+
+fakeUpload = (file, list) ->
+  setTimeout (->
+    file.uploadedSize = file.uploadedSize + (Math.floor(Math.random() * file.size + file.uploadedSize)/10)
+    unless file.size > file.uploadedSize
+      file.uploadedSize = file.size
+      file.isUploading = false
+
+    list.update(file.name, file)
+
+    if file.isUploading == true
+      fakeUpload(file, list)
+    else
+      # TODO: Here we should remove and update te presentation on mongo
+      list.remove(file.name)
+  ), 200
+
+Template.presenterUploaderControl.events
+  'click .js-open':(event, template) ->
+    template.isOpen.set(true);
+
+  'click .js-close':(event, template) ->
+    template.isOpen.set(false);
+
+  'dragover [data-dropzone]':(e) ->
+    e.preventDefault()
+    $(e.currentTarget).addClass('hover')
+
+  'dragleave [data-dropzone]':(e) ->
+    e.preventDefault()
+    $(e.currentTarget).removeClass('hover')
+
+  'drop [data-dropzone], change [data-dropzone] > input[type="file"]':(e, template) ->
+    e.preventDefault();
+    files = (e.originalEvent.dataTransfer || e.originalEvent.target).files
+
+    _.each(files, (file) ->
+      file.isUploading = true;
+      file.uploadedSize = 0;
+      file.percUploaded = 0;
+
+      template.files.insert(file.name, file)
+      fakeUpload(file, template.files)
+    )
+
+Template.presenterUploaderControl.helpers
+  isOpen: -> Template.instance().isOpen.get()
+  files: -> Template.instance().files.fetch()
+  presentations: -> Template.instance().presentations.fetch().map((x) -> x.presentation)
+
+Template.presenterUploaderControlFileListItem.helpers
+  percUploaded: -> Math.round((this.uploadedSize / this.size) * 100)
+
+Template.presenterUploaderControlPresentationListItem.events
+  'click [data-action-show]':(event, template) ->
+    console.info('Should show the file `' + this.name + '`');
+
+  'click [data-action-delete]':(event, template) ->
+    console.info('Should delete the file `' + this.name + '`');
