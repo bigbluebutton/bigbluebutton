@@ -71,15 +71,14 @@ class @NotificationControl
   .registerShow("webRTC_AudioJoining", ->
   ).display("webRTC_AudioJoining")
   # joined. Displayed joined notification and hide the joining notification
-  if !BBB.amIInAudio()
-    Tracker.autorun (comp) -> # wait until user is in
-      if BBB.amIInAudio() # display notification when you are in audio
-        comp.stop() # prevents computation from running twice (which can happen occassionally)
-        Meteor.NotificationControl.create("webRTC_AudioJoined", 'success ', '', 2500)
-        .registerShow("webRTC_AudioJoined", ->
-          Meteor.NotificationControl.hideANotification('webRTC_AudioJoining')
-          $("#webRTC_AudioJoined").prepend("You've joined the #{if BBB.amIListenOnlyAudio() then 'Listen Only' else ''} audio")
-        ).display("webRTC_AudioJoined")
+  Tracker.autorun (comp) -> # wait until user is in
+    if BBB.amIInAudio() # display notification when you are in audio
+      comp.stop() # prevents computation from running twice (which can happen occassionally)
+      Meteor.NotificationControl.create("webRTC_AudioJoined", 'success ', '', 2500)
+      .registerShow("webRTC_AudioJoined", ->
+        Meteor.NotificationControl.hideANotification('webRTC_AudioJoining')
+        $("#webRTC_AudioJoined").prepend("You've joined the #{if BBB.amIListenOnlyAudio() then 'Listen Only' else ''} audio")
+      ).display("webRTC_AudioJoined")
 
 @notification_WebRTCNotSupported = -> # shown when the user's browser does not support WebRTC
   # create a new notification at the audio button they clicked to trigger the event
