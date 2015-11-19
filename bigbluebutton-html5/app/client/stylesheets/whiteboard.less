@@ -80,7 +80,7 @@
     align-items: center;
     -webkit-align-items: center;
     -ms-align-items: center;
-    border-bottom: 1px solid extract(@lightGrey, 3);
+    //border-bottom: 1px solid extract(@lightGrey, 3);
   }
 }
 
@@ -175,10 +175,11 @@
   @presenteUploaderColorHover: #3A82D4;
 
   &-control {
-    max-height: 50vh;
-    max-width: 25vw;
+    max-height: 75vh;
+    max-width: 20vw;
     min-width: 300px;
     position: relative;
+    z-index: 100;
 
     &-btn {
       position: absolute;
@@ -207,6 +208,8 @@
     border-radius: 10px 10px 10px 25px;
     display: none;
     transition: all .3s;
+    position: absolute;
+    bottom: 0;
 
     .is-open & {
       display: block;
@@ -419,8 +422,9 @@
 }
 
 .presenter-whiteboard {
-  height: calc(~'100% - 50px');
-  padding-bottom: 50px;
+  height: calc(~'100% - 2px');
+  //-2px is for something who is going of the canvas an generating scroll 
+  padding-bottom: 60px;
 }
 
 .poll-whiteboard {
