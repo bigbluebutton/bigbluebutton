@@ -430,10 +430,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 										
 			private function disableSlideNavigationButtons(pageNumber:int):void {
-				backButton.mouseEnabled = pageNumber == 1;
+				backButton.mouseEnabled = pageNumber != 1;
 				forwardButton.mouseEnabled = pageNumber < PresentationModel.getInstance().getNumberOfPages();
 				
-				backButton.styleName = pageNumber == 1 ? "presentationBackButtonDisabledStyle" : "presentationBackButtonStyle";
+				backButton.styleName = pageNumber != 1 ? "presentationBackButtonStyle" : "presentationBackButtonDisabledStyle";
 				forwardButton.styleName = pageNumber < PresentationModel.getInstance().getNumberOfPages() ? "presentationForwardButtonStyle" : "presentationForwardButtonDisabledStyle";
 			}
 			
