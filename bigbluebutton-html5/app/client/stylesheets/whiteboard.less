@@ -423,7 +423,7 @@
 
 .presenter-whiteboard {
   height: calc(~'100% - 2px');
-  //-2px is for something who is going of the canvas an generating scroll 
+  //-2px is for something who is going of the canvas an generating scroll
   padding-bottom: 60px;
 }
 
@@ -572,7 +572,13 @@
 }
 
 .FABContainer {
-
+  &.closedFAB {
+    .activeEmojiButton,
+    .inactiveEmojiButton {
+      pointer-events: none;
+      cursor: default;
+    }
+  }
 }
 
 .FABTriggerButton, .inactiveEmojiButton {
