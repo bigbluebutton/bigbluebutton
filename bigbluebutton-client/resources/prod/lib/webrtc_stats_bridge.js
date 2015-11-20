@@ -21,7 +21,7 @@ function monitorTrackStart(peer, track, local) {
 				monitoredTracks[track.id] = results.nomore;
 				results.audio.type = local? "local": "remote",
 				delete results.results;
-				BBB.webRTCMonitor(JSON.stringify(results));
+				BBB.webRTCMonitorUpdate(JSON.stringify(results));
 				console.log(JSON.stringify(results));
 			}
 		}, 2000);

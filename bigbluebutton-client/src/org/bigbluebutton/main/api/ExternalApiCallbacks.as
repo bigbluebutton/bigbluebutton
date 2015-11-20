@@ -104,6 +104,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("webRTCMediaSuccess", handleWebRTCMediaSuccess);
         ExternalInterface.addCallback("webRTCMediaFail", handleWebRTCMediaFail);
         ExternalInterface.addCallback("javaAppletLaunched", handleJavaAppletLaunched);
+        ExternalInterface.addCallback("webRTCMonitorUpdate", handleWebRTCMonitorUpdate);
       }
       
       // Tell out JS counterpart that we are ready.
@@ -427,6 +428,12 @@ package org.bigbluebutton.main.api
 
     private function handleWebRTCMediaFail():void {
       _dispatcher.dispatchEvent(new WebRTCMediaEvent(WebRTCMediaEvent.WEBRTC_MEDIA_FAIL));
+    }
+
+    private function handleWebRTCMonitorUpdate(results:String):void {
+      var e:BBBEvent = new BBBEvent(BBBEvent.WEBRTC_MONITOR_UPDATE_EVENT);
+      e.payload.results = results;
+      _dispatcher.dispatchEvent(e);
     }
 	
 	private function handleJavaAppletLaunched():void

@@ -65,6 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
+	<mate:Listener type="{BBBEvent.WEBRTC_MONITOR_UPDATE_EVENT}" method="handleWebRTCMonitor" />
 	  
 	<mx:Script>
 		<![CDATA[
@@ -188,8 +189,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					toolbarPaddingTop = 0;
 				}
 				toolbar.displayToolbar();
-
-				ExternalInterface.addCallback("webRTCMonitor", handleWebRTCMonitor);
       
         showFooterOpt = layoutOptions.showFooter;
         
@@ -619,7 +618,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			public function handleWebRTCMonitor(result: String):void {
+			public function handleWebRTCMonitor(e:BBBEvent):void {
+				var result:String = e.payload.results;
 				var object:Object = JSON.parse(result);
 				if (object.hasOwnProperty("audio")) {
 					audioMonitor(object.audio);

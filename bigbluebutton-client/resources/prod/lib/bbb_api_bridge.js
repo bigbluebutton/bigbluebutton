@@ -490,10 +490,10 @@
       }
     }
     
-    BBB.webRTCMonitor = function(result) {
+    BBB.webRTCMonitorUpdate = function(result) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.webRTCMonitor(result);
+        swfObj.webRTCMonitorUpdate(result);
       }
     }
 
@@ -656,4 +656,3 @@
 
     window.BBB = BBB;
 })(this);
-

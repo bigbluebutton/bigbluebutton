@@ -23,8 +23,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:flc="flexlib.controls.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
-	height="20"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.status')}">
+
+	<mate:Listener type="{BBBEvent.WEBRTC_MONITOR_UPDATE_EVENT}" method="handleWebRTCMonitor" />
 
 	<mx:Script>
 		<![CDATA[
@@ -33,14 +34,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			import mx.collections.ArrayCollection;
 
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(WebRTCAudioStatus);
 
-			private var webRTCAudioStatusHistory:ArrayCollection = new ArrayCollection([0, 0, 0, 0, 0]);
+			private var webRTCAudioStatusHistory:ArrayCollection = new ArrayCollection([0, 0]);
 
 			private function onCreationComplete():void {
-				ExternalInterface.addCallback("webRTCMonitor", handleWebRTCMonitor);
 			}
 
 			private function getRateFromHistory(rate: Number):Number {
@@ -61,7 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							audioStatus.source = audioStatus.getStyle("almostWeakAudioStatus");
 							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
 							break;
-						case rate > 0.01:
+						case rate > 0.1:
 							audioStatus.source = audioStatus.getStyle("almostStrongAudioStatus");
 							break;
 						default:
@@ -72,8 +73,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 
-			public function handleWebRTCMonitor(result: String):void {
-				var object:Object = JSON.parse(result);
+			public function handleWebRTCMonitor(e:BBBEvent):void {
+				var results:String = e.payload.results;
+				var object:Object = JSON.parse(results);
 				if (object.hasOwnProperty("audio")) {
 					audioMonitor(object.audio);
 				}
@@ -81,5 +83,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		]]>
 	</mx:Script>
-	<mx:Image id="audioStatus" styleName="webRTCAudioStatus" width="25" height="25"/>
+	<mx:Image id="audioStatus" styleName="webRTCAudioStatus" />
 </mx:HBox>
