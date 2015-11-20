@@ -75,6 +75,7 @@ body, #playback-content, #playback-row, #main-section, #side-section {
   bottom: 0;
   left: 0;
   width: 100%;
+  z-index: 99;
 }
 
 /* Prevent unwanted scrollbars and "leaking" elements in the page */
