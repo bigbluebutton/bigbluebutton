@@ -49,14 +49,7 @@
   padding-right: 5%;
   padding-left: 1%;
   border: 0;
-  //border: 2px solid #61625d;
-  //-moz-border-radius: 5px;
-  //-webkit-border-radius: 5px;
-  //border-radius: 5px;
-  //background: #000000;
   background: #314b5d;
-  //background-image: -moz-linear-gradient(top, #313131, #000000);
-  //background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #313131),color-stop(1, #000000));
 }
 /* <button>s */
 .acorn-player.bigbluebutton button {
@@ -108,9 +101,6 @@
   height: 10px;
   margin: 5px 1% 0px 1%;
   background: #7289A8;
-  //-moz-border-radius: 15px;
-  //-webkit-border-radius: 15px;
-  //border-radius: 15px;
 }
 .acorn-player.bigbluebutton .acorn-seek-slider .ui-slider-handle {
   display: block;

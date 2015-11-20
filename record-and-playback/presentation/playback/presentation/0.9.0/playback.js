@@ -469,6 +469,8 @@ function Tick() {
 }
 
 
+
+
 // Swap the position of the DOM elements `elm1` and `elm2`.
 function swapElements(elm1, elm2) {
   var parent1, next1,
@@ -485,10 +487,18 @@ function swapElements(elm1, elm2) {
 
 // Swaps the positions of the presentation and the video
 function swapVideoPresentation() {
+  var pop = Popcorn("#video");
+  var wasPaused = pop.paused();
+
   var mainSectionChild = $("#main-section").children("[data-swap]");
   var sideSectionChild = $("#side-section").children("[data-swap]");
   swapElements(mainSectionChild[0], sideSectionChild[0]);
   resizeComponents();
+
+  // TODO the code below shouldn't be necessary if writing.js was improved
+  if (!wasPaused) {
+    pop.play();
+  }
 }
 
 // Manually resize some components we can't properly resize just using css.

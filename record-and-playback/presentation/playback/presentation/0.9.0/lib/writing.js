@@ -380,6 +380,7 @@ function runPopcorn() {
             if((nextcanvas !== undefined) && (nextcanvas != null)) {
               nextcanvas.setAttribute("display", "");
             }
+            previous_image = current_image;
             current_image = next_image;
           }
 
@@ -388,8 +389,8 @@ function runPopcorn() {
 
           var offsets = thisimg.getBoundingClientRect();
           // Offsets divided by 4. By 2 because of the padding and by 2 again because 800x600 is half  1600x1200
-          imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/4;
-          imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/4;
+          imageXOffset = 0; //(1600 - parseInt(thisimg.getAttribute("width"), 10))/4;
+          imageYOffset = 0; //(1200 - parseInt(thisimg.getAttribute("height"), 10))/4;
 
 
           var vboxVal = getViewboxAtTime(t);
@@ -416,6 +417,8 @@ function defineStartTime() {
   console.log("** Defining start time");
   spinner.stop();
   $("#playback-content").css('visibility','visible');
+  $("#loading-recording").css('visibility','hidden');
+  $("#loading-recording").css('height','0');
   $("#load-recording-msg").css('display','none');
 
   if (params.t === undefined)
@@ -448,6 +451,7 @@ function defineStartTime() {
 
 var current_canvas = "canvas0";
 var current_image = "image0";
+var previous_image = null;
 var currentcanvas;
 var shape;
 var nextcanvas;
@@ -484,6 +488,8 @@ var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
 
+var firstLoad = true;
+
 var svgobj = document.createElement('object');
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '100%');
@@ -502,8 +508,16 @@ svgobj.addEventListener('load', function() {
   var p = Popcorn("#video");
   p.on('loadeddata', function() {
     console.log("** popcorn video: [onloadeddata] activaded");
-    p.currentTime(defineStartTime());
-
+    if (firstLoad) {
+      p.currentTime(defineStartTime());
+      firstLoad = false;
+    } else {
+        // TODO: This is only done so the current image is painted again after
+        // a swap between the presentation and video. Can be removed once this
+        // file and the rendering process is improved.
+        next_image = current_image;
+        current_image = previous_image;
+    }
   });
 
   // Sometimes media has already loaded before our loadeddata listener is
@@ -513,15 +527,12 @@ svgobj.addEventListener('load', function() {
     console.log("** Video tag readyState >0");
     p.emit('loadeddata');
   }
-
-
-
 }, false);
 
 
 document.getElementById('slide').appendChild(svgobj);
 
-window.onresize = function(event) {
-	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
-  svgobj.style.top = "0px";
-};
+// window.onresize = function(event) {
+// 	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
+//   svgobj.style.top = "0px";
+// };
