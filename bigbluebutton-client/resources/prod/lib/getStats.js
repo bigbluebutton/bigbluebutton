@@ -16,17 +16,30 @@ getStats(function(result) {
 });
 */
 (function() {
+    
     var RTCPeerConnection;
     if (typeof webkitRTCPeerConnection !== 'undefined') {
         RTCPeerConnection = webkitRTCPeerConnection;
     }
 
-    if (typeof mozRTCPeerConnection !== 'undefined') {
+    if (isFirefox()) {
         RTCPeerConnection = mozRTCPeerConnection;
     }
 
     if (typeof MediaStreamTrack === 'undefined') {
         MediaStreamTrack = {}; // todo?
+    }
+
+    function isFirefox() {
+        return typeof mozRTCPeerConnection !== 'undefined';
+    }
+
+    function arrayAverage(array) {
+        var sum = 0;
+        for( var i = 0; i < array.length; i++ ){
+            sum += array[i];
+        }
+        return sum/array.length;
     }
 
     function getStats(mediaStreamTrack, callback, interval) {
@@ -98,9 +111,7 @@ getStats(function(result) {
                         if (typeof globalObject.audio.prevReceived === 'undefined') {
                             globalObject.audio.prevReceived = res;
                             globalObject.audio.consecutiveFlaws = 0;
-                        }
-                        if (typeof globalObject.audio.firstReceived === 'undefined') {
-                            globalObject.audio.firstReceived = res;
+                            globalObject.audio.globalBitrateArray = [ ];
                         }
 
                         var intervalPacketsLost = res.packetsLost - globalObject.audio.prevReceived.packetsLost;
@@ -108,8 +119,13 @@ getStats(function(result) {
                         var intervalBytesReceived = res.bytesReceived - globalObject.audio.prevReceived.bytesReceived;
                         var intervalLossRate = intervalPacketsLost + intervalPacketsReceived == 0? 1: intervalPacketsLost / (intervalPacketsLost + intervalPacketsReceived);
                         var intervalBitrate = (intervalBytesReceived / interval) * 8;
-                        var globalBitrate = ((res.bytesReceived - globalObject.audio.firstReceived.bytesReceived) / (res.timestamp - globalObject.audio.firstReceived.timestamp)) * 8;
-                        var intervalEstimatedLossRate = Math.max(0, globalBitrate - intervalBitrate) / globalBitrate;
+                        var globalBitrate = arrayAverage(globalObject.audio.globalBitrateArray);
+                        var intervalEstimatedLossRate;
+                        if (isFirefox()) {
+                            intervalEstimatedLossRate = Math.max(0, globalBitrate - intervalBitrate) / globalBitrate;
+                        } else {
+                            intervalEstimatedLossRate = intervalLossRate;
+                        }
 
                         var flaws = intervalPacketsLost;
                         if (flaws > 0) {
@@ -131,12 +147,6 @@ getStats(function(result) {
                         var bytes = res.bytesReceived - globalObject.audio.prevReceived.bytesReceived;
                         var diffTimestamp = res.timestamp - globalObject.audio.prevReceived.timestamp;
                         var packetDuration = diffTimestamp / (res.packetsReceived - globalObject.audio.prevReceived.packetsReceived);
-
-                        globalObject.audio.prevReceived.bytesReceived = res.bytesReceived;
-                        globalObject.audio.prevReceived.timestamp = res.timestamp;
-                        globalObject.audio.prevReceived.packetsReceived = res.packetsReceived;
-                        globalObject.audio.prevReceived.packetsLost = res.packetsLost;
-                        
                         var kilobytes = bytes / 1024;
                         var kbitsReceivedPerSecond = (kilobytes * 8) / (diffTimestamp / 1000.0);
 
@@ -154,10 +164,16 @@ getStats(function(result) {
                             r: r,
                             mos: mos,
                             intervalLossRate: intervalLossRate,
-                            intervalEstimatedLossRate: intervalEstimatedLossRate
+                            intervalEstimatedLossRate: intervalEstimatedLossRate,
+                            globalBitrate: globalBitrate
                         });
                         
                         globalObject.audio.prevReceived = res;
+                        globalObject.audio.globalBitrateArray.push(intervalBitrate);
+                        // 12 is the number of seconds we use to calculate the global bitrate
+                        if (globalObject.audio.globalBitrateArray.length > 12 / (interval / 1000)) {
+                            globalObject.audio.globalBitrateArray.shift();
+                        }
                     }
 
                     // TODO make it work on Firefox
