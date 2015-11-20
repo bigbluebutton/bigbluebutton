@@ -52,7 +52,7 @@ public class UserClientMessageSender {
   public void handleUsersMessage(String message) {
     JsonParser parser = new JsonParser();
     JsonObject obj = (JsonObject) parser.parse(message);
-    
+
     if (obj.has("header") && obj.has("payload")) {
       JsonObject header = (JsonObject) obj.get("header");
 
@@ -196,7 +196,7 @@ public class UserClientMessageSender {
         	if (brsm != null) {
                 processBreakoutRoomStarted(brsm);
               }
-        	break;  
+        	break;
         }
       }
     }
@@ -535,14 +535,14 @@ public class UserClientMessageSender {
   private void processBreakoutRoomStarted(BreakoutRoomStarted msg) {
 	  Map<String, Object> args = new HashMap<String, Object>();	
 	  args.put("breakoutId", msg.payload.breakoutId);
+	  args.put("meetingId", msg.payload.meetingId);
 	  args.put("name", msg.payload.name);
 	  
 	  Map<String, Object> message = new HashMap<String, Object>();
 	  Gson gson = new Gson();
 	  message.put("msg", gson.toJson(args));
 	  
-	  // FIXME : we need the meetingId in addition of breakoutId
-	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.breakoutId, "updateBreakoutUsers", message);
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomStarted", message);
       service.sendMessage(m);
   }
 }

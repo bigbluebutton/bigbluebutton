@@ -61,7 +61,7 @@ class JsonMessageSenderActor(val service: MessageSender)
 
   // Breakout
   private def handleBreakoutRoomStarted(msg: BreakoutRoomStartedOutMessage) {
-    val payload = new BreakoutRoomPayload(msg.breakout.breakoutId, msg.breakout.name)
+    val payload = new BreakoutRoomPayload(msg.meetingId, msg.breakout.breakoutId, msg.breakout.name)
     val request = new BreakoutRoomStarted(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson)
   }

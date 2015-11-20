@@ -4,6 +4,7 @@ import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.api._
 import com.google.gson.Gson
 import scala.collection.JavaConverters._
+import org.bigbluebutton.messages._
 
 object MeetingMessageToJsonConverter {
   def meetingDestroyedToJson(msg: MeetingDestroyed): String = {
@@ -132,10 +133,11 @@ object MeetingMessageToJsonConverter {
   
   def breakoutRoomStartedOutMessageToJson(msg: BreakoutRoomStartedOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingId)
-    payload.put("breakout", msg.breakout)
+    payload.put("meetingId", msg.meetingId)
+    payload.put("breakoutId", msg.breakout.breakoutId)
+    payload.put("name", msg.breakout.name)
     
-    val header = Util.buildHeader(MessageNames.BREAKOUT_ROOM_STARTED, None)
+    val header = Util.buildHeader(BreakoutRoomStarted.NAME, None)
     Util.buildJson(header, payload)
   }
 }
