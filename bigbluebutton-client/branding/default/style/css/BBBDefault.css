@@ -855,6 +855,13 @@ Alert {
   refreshImage:   Embed(source='assets/images/status_refresh.png');
 }
 
+.webRTCAudioStatus {
+  strongAudioStatus:        Embed(source='assets/images/strong_audio_status.png');
+  almostStrongAudioStatus:  Embed(source='assets/images/almost_strong_audio_status.png');
+  almostWeakAudioStatus:    Embed(source='assets/images/almost_weak_audio_status.png');
+  weakAudioStatus:          Embed(source='assets/images/weak_audio_status.png');
+}
+
 .warningButtonStyle {
   icon:   Embed('assets/images/status_warning_20.png');
 }

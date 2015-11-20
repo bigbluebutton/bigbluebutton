@@ -603,9 +603,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					switch (true) {
 						case rate > 0.50:
 							webRTCAudioStatus = WEAK_SIGNAL;
+							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
 							break;
 						case rate > 0.25:
 							webRTCAudioStatus = ALMOST_WEAK_SIGNAL;
+							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
 							break;
 						case rate > 0.01:
 							webRTCAudioStatus = ALMOST_STRONG_SIGNAL;

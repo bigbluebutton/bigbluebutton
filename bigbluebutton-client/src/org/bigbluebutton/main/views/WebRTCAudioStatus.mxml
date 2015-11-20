@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:HBox
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:flc="flexlib.controls.*"
+	xmlns:mate="http://mate.asfusion.com/"
+	creationComplete="onCreationComplete()"
+	height="20"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.status')}">
+
+	<mx:Script>
+		<![CDATA[
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+
+			import mx.collections.ArrayCollection;
+
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+			private static const LOGGER:ILogger = getClassLogger(WebRTCAudioStatus);
+
+			private var webRTCAudioStatusHistory:ArrayCollection = new ArrayCollection([0, 0, 0, 0, 0]);
+
+			private function onCreationComplete():void {
+				ExternalInterface.addCallback("webRTCMonitor", handleWebRTCMonitor);
+			}
+
+			private function getRateFromHistory(rate: Number):Number {
+				webRTCAudioStatusHistory.removeItemAt(webRTCAudioStatusHistory.length - 1);
+				webRTCAudioStatusHistory.addItemAt(rate, 0);
+				return Math.max.apply(null, webRTCAudioStatusHistory.toArray());
+			}
+
+			private function audioMonitor(audio: Object):void {
+				if (audio.hasOwnProperty("intervalEstimatedLossRate")) {
+					var rate:Number = getRateFromHistory(audio.intervalEstimatedLossRate);
+					switch (true) {
+						case rate > 0.50:
+							audioStatus.source = audioStatus.getStyle("weakAudioStatus");
+							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
+							break;
+						case rate > 0.25:
+							audioStatus.source = audioStatus.getStyle("almostWeakAudioStatus");
+							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
+							break;
+						case rate > 0.01:
+							audioStatus.source = audioStatus.getStyle("almostStrongAudioStatus");
+							break;
+						default:
+							audioStatus.source = audioStatus.getStyle("strongAudioStatus");
+							break;
+					}
+					validateNow();
+				}
+			}
+
+			public function handleWebRTCMonitor(result: String):void {
+				var object:Object = JSON.parse(result);
+				if (object.hasOwnProperty("audio")) {
+					audioMonitor(object.audio);
+				}
+			}
+
+		]]>
+	</mx:Script>
+	<mx:Image id="audioStatus" styleName="webRTCAudioStatus" width="25" height="25"/>
+</mx:HBox>

@@ -376,7 +376,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<common:TabIndexer id="quickLinksIndexer" startIndex="102" tabIndices="{[usersLinkBtn, webcamLinkButton, presentationLinkBtn, chatLinkBtn]}"/>
 	<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
-					   tabIndices="{[recordBtn, muteMeBtn, shortcutKeysBtn, helpBtn, btnLogout]}"/>
+					   tabIndices="{[recordBtn, muteMeBtn, webRTCAudioStatus, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 
     
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
@@ -397,6 +397,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<views:RecordButton id="recordBtn"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20"/>
+	<views:WebRTCAudioStatus id="webRTCAudioStatus" visible="{muteMeBtn.visible}"/>
 	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 
 <!--
