@@ -317,19 +317,13 @@ public class ParamsProcessorUtil {
 	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
 	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
 	   
-	     boolean isBreakout = false;
-	     if (! StringUtils.isEmpty(params.get("isBreakout"))) {
-	        isBreakout = new Boolean(params.get("isBreakout"));
-	     }
+	    // set is breakout room property
+	    boolean isBreakout = false;
+	    if (! StringUtils.isEmpty(params.get("isBreakout"))) {
+	      isBreakout = new Boolean(params.get("isBreakout"));
+	    }
 	      
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
-	    
-	    // If this create meeting request is for a breakout room, we just used
-	    // the passed in breakoutId as the internal meetingId so we can correlate
-	    // the breakout meeting with it's parent meeting.
-	    if (isBreakout) {
-	      internalMeetingId = params.get("breakoutId");
-	    }
 	    
 	    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
 	    if (isTestMeeting(telVoice)) {
@@ -363,8 +357,13 @@ public class ParamsProcessorUtil {
 	    long createTime = System.currentTimeMillis();
 	    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString();
 	    
-
-	    
+      // If this create meeting request is for a breakout room, we just used
+      // the passed in breakoutId as the internal meetingId so we can correlate
+      // the breakout meeting with it's parent meeting.
+      if (isBreakout) {
+        internalMeetingId = params.get("breakoutId");
+      }
+      
 	    // Create the meeting with all passed in parameters.
 	    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId, createTime)
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
