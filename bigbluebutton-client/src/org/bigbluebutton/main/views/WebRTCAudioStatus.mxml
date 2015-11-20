@@ -23,7 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:flc="flexlib.controls.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.status')}">
+	styleName="webRTCAudioStatusStyle">
 
 	<mate:Listener type="{BBBEvent.WEBRTC_MONITOR_UPDATE_EVENT}" method="handleWebRTCMonitor" />
 
@@ -55,18 +55,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var rate:Number = getRateFromHistory(audio.intervalEstimatedLossRate);
 					switch (true) {
 						case rate > 0.50:
-							audioStatus.source = audioStatus.getStyle("weakAudioStatus");
+							audioStatus.source = getStyle("weakAudioStatus");
+							toolTip = ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.weakStatus');
 							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
 							break;
 						case rate > 0.25:
-							audioStatus.source = audioStatus.getStyle("almostWeakAudioStatus");
+							audioStatus.source = getStyle("almostWeakAudioStatus");
+							toolTip = ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.almostWeakStatus');
 							LOGGER.debug("Audio interval estimated loss rate: {0}", [rate]);
 							break;
 						case rate > 0.1:
-							audioStatus.source = audioStatus.getStyle("almostStrongAudioStatus");
+							audioStatus.source = getStyle("almostStrongAudioStatus");
+							toolTip = ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.almostStrongStatus');
 							break;
 						default:
-							audioStatus.source = audioStatus.getStyle("strongAudioStatus");
+							audioStatus.source = getStyle("strongAudioStatus");
+							toolTip = ResourceUtil.getInstance().getString('bbb.clientstatus.webrtc.strongStatus');
 							break;
 					}
 					validateNow();
@@ -83,5 +87,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		]]>
 	</mx:Script>
-	<mx:Image id="audioStatus" styleName="webRTCAudioStatus" />
+	<mx:Image id="audioStatus"/>
 </mx:HBox>
