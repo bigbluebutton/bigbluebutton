@@ -129,4 +129,14 @@ object MeetingMessageToJsonConverter {
     val header = Util.buildHeader(MessageNames.GET_ALL_MEETINGS_REPLY, None)
     Util.buildJson(header, payload)
   }
+  
+  def breakoutRoomStartedOutMessageToJson(msg: BreakoutRoomStartedOutMessage): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingId)
+    payload.put("breakout", msg.breakout)
+    
+    val header = Util.buildHeader(MessageNames.BREAKOUT_ROOM_STARTED, None)
+    Util.buildJson(header, payload)
+  }
 }
+  
