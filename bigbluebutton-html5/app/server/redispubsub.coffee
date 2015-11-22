@@ -57,6 +57,7 @@ class Meteor.RedisPubSub
     messagesWeIgnore = [
       "BbbPubSubPongMessage"
       "bbb_apps_is_alive_message"
+      "broadcast_layout_message"
     ]
 
     unless eventName in messagesWeIgnore

@@ -61,9 +61,9 @@ Meteor.startup ->
       "presentation_page_resized_message"
       "presentation_cursor_updated_message"
       "get_presentation_info_reply"
-      "get_users_reply"
+#      "get_users_reply"
       "get_chat_history_reply"
-      "get_all_meetings_reply"
+#      "get_all_meetings_reply"
       "get_whiteboard_shapes_reply"
       "presentation_shared_message"
       "presentation_conversion_done_message"
@@ -166,34 +166,28 @@ Meteor.startup ->
       # only process if requester is nodeJSapp means only process in the case when
       # we explicitly request the users
       else if eventName is 'get_users_reply' and message.payload.requester_id is 'nodeJSapp'
-        if !Meteor.Meetings.findOne({meetingId: meetingId})? #TODO consider removing this cond
-          users = message.payload.users
+        users = message.payload.users
 
-          #TODO make the serialization be split per meeting. This will allow us to
-          # use N threads vs 1 and we'll take advantage of Mongo's concurrency tricks
+        #TODO make the serialization be split per meeting. This will allow us to
+        # use N threads vs 1 and we'll take advantage of Mongo's concurrency tricks
 
-          # Processing the users recursively with a callback to notify us,
-          # ensuring that we update the users collection serially
-          processUser = () ->
-            console.log "1"
-            user = users.pop()
-            if user?
-              console.log "2"
-              user.timeOfJoining = message.header.current_time
-              if user.emoji_status isnt 'none' and typeof user.emoji_status is 'string'
-                console.log "3"
-                user.set_emoji_time = new Date()
-                userJoined meetingId, user, processUser
-              else
-                console.error("this is not supposed to happen")
-                userJoined meetingId, user, processUser
+        # Processing the users recursively with a callback to notify us,
+        # ensuring that we update the users collection serially
+        processUser = () ->
+          user = users.pop()
+          if user?
+            user.timeOfJoining = message.header.current_time
+            if user.emoji_status isnt 'none' and typeof user.emoji_status is 'string'
+              console.log "3"
+              user.set_emoji_time = new Date()
+              userJoined meetingId, user, processUser
             else
-              console.log "4"
-              callback() # all meeting arrays (if any) have been processed
+              # console.error("this is not supposed to happen")
+              userJoined meetingId, user, processUser
+          else
+            callback() # all meeting arrays (if any) have been processed
 
-          processUser()
-        else
-          callback() #TODO test if we get here
+        processUser()
 
 
       else if eventName is 'validate_auth_token_reply'
