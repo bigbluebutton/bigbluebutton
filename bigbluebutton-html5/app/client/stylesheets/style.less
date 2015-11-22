@@ -181,8 +181,8 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     position: absolute;
+    color: extract(@darkGrey, 1);
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      color: extract(@white, 1);
       margin-left: auto;
       margin-right: auto;
     }
@@ -196,7 +196,6 @@ body {
       padding-top: 27.5px; // half the height
       font-size: 21px;
     }
-
     @media @tablet-landscape {
       font-size: 18px;
       height: 50px;
@@ -216,9 +215,7 @@ body {
       height: 50px;
       padding-top: 25px; // half the height
     }
-
     @media @landscape, @desktop-portrait {
-      color: extract(@darkGrey, 1);
       padding-left: 15px;
       padding-right: 15px;
     }
