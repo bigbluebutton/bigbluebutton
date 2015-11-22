@@ -58,11 +58,11 @@
 }
 
 #users {
+  border-radius: 0px;
   @media @landscape {
     width: 100%;
     border-left: 0px;
     border-top: 0px;
-    border-top-right-radius: 0px;
   }
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     width: 100%;
@@ -138,6 +138,7 @@
     }
     @media @desktop-portrait, @mobile-portrait {
       max-height: 58vw; //for longer userlist a scrollbar appears
+      padding-top: 10px;
     }
   }
 }
