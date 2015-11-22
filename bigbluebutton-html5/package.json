@@ -1,7 +1,8 @@
 {
   "name": "BBB-HTML-CLIENT",
   "scripts": {
-    "start": "meteor"
+    "start": "cd app;./start.sh",
+    "preinstall": "sudo npm install -g grunt-cli"
   },
   "devDependencies": {
     "coffeelint": "^1.6.0",
