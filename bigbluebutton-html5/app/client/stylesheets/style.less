@@ -181,8 +181,8 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     position: absolute;
+    color: extract(@darkGrey, 1);
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      color: extract(@white, 1);
       margin-left: auto;
       margin-right: auto;
     }
@@ -196,7 +196,6 @@ body {
       padding-top: 27.5px; // half the height
       font-size: 21px;
     }
-
     @media @tablet-landscape {
       font-size: 18px;
       height: 50px;
@@ -216,9 +215,7 @@ body {
       height: 50px;
       padding-top: 25px; // half the height
     }
-
     @media @landscape, @desktop-portrait {
-      color: extract(@darkGrey, 1);
       padding-left: 15px;
       padding-right: 15px;
     }
@@ -313,7 +310,7 @@ body {
   font-weight: bold;
   line-height: 2em;
   margin: 0;
-
+  color: extract(@darkGrey, 1);
   @media @tablet-landscape {
     font-size: 18px;
     height: 50px;
@@ -332,18 +329,15 @@ body {
   }
 
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-    color: white;
+    background-color: white;
     height: 50px;
   }
   @media @desktop-portrait {
     background-color: white;
     padding-top: 10px;
-    color: extract(@darkGrey, 1);
   }
   @media @landscape {
     border-bottom: 1px solid extract(@lightGrey, 1);
-    color: extract(@darkGrey, 1);
     padding-bottom: 5px;
     padding-top: 5px;
   }
@@ -1026,10 +1020,6 @@ body {
 }
 
 .rightHamburgerButton {
-  @media @mobile-portrait{
-    display: none;
-  }
-
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     span {
       &::before {

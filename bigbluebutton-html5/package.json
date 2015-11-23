@@ -1,7 +1,9 @@
 {
   "name": "BBB-HTML-CLIENT",
   "scripts": {
-    "start": "meteor"
+    "start": "cd app;./start.sh",
+    "preinstall": "sudo npm install -g grunt-cli",
+    "test": "cd app;JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 meteor run --test"
   },
   "devDependencies": {
     "coffeelint": "^1.6.0",
