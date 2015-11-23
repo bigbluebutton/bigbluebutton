@@ -327,15 +327,16 @@ Meteor.startup ->
             whiteboardId = "#{presentation.id}/#{page.num}" # d2d9a672040fbde2a47a10bf6c37b6a4b5ae187f-1404411622872/1
             #Meteor.log.info "the whiteboard_id here is:" + whiteboardId
 
+            replyTo = "#{meetingId}/nodeJSapp"
             message =
               "payload":
                 "meeting_id": meetingId
                 "requester_id": "nodeJSapp"
                 "whiteboard_id": whiteboardId
+                "reply_to": replyTo
               "header":
                 "timestamp": new Date().getTime()
-                "name": "get_whiteboard_shapes_request"
-                "version": "0.0.1"
+                "name": "request_whiteboard_annotation_history_request"
 
             if whiteboardId? and meetingId?
               publish Meteor.config.redis.channels.toBBBApps.whiteboard, message #TODO
