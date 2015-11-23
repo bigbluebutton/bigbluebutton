@@ -1,12 +1,9 @@
 package org.bigbluebutton.modules.caption.model {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	
-	import mx.collections.ArrayCollection;
 
 	public class Transcript extends EventDispatcher {
-		public var transcript:ArrayCollection;
-		public var currentLine:String = "";
+		public var transcript:String;
 		
 		private var _locale:String;
 		
@@ -16,22 +13,18 @@ package org.bigbluebutton.modules.caption.model {
 		
 		public function Transcript(locale:String) {
 			_locale = locale;
-			transcript = new ArrayCollection();
+			transcript = "";
 		}
 		
-		public function getTranscript():ArrayCollection {
+		public function getTranscript():String {
 			return transcript;
 		}
 		
-		public function newCaptionLine(lineNumber:int, text:String):void {
-			if (lineNumber >= 0) {
-				transcript.addItemAt(text, Math.min(lineNumber, transcript.length));
-				dispatchEvent(new Event(Event.CHANGE));
-			}
-		}
-		
-		public function updateCurrentCaptionLine(text:String):void {
-			currentLine = text;
+		public function editHistory(startIndex:int, endIndex:int, text:String):void {
+			var startSlice:String = transcript.slice(0, startIndex);
+			var endSlice:String = transcript.slice(endIndex);
+			
+			transcript = startSlice + text + endSlice;
 			dispatchEvent(new Event(Event.CHANGE));
 		}
 	}

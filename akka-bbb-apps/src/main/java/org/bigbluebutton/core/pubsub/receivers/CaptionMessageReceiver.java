@@ -1,8 +1,7 @@
 package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.MessagingConstants;
-import org.bigbluebutton.common.messages.CurrentCaptionLineMessage;
-import org.bigbluebutton.common.messages.NewCaptionLineMessage;
+import org.bigbluebutton.common.messages.EditCaptionHistoryMessage;
 import org.bigbluebutton.common.messages.SendCaptionHistoryRequestMessage;
 
 import com.google.gson.JsonParser;
@@ -27,15 +26,12 @@ public class CaptionMessageReceiver implements MessageHandler{
 				JsonObject header = (JsonObject) obj.get("header");
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
-					if (NewCaptionLineMessage.NEW_CAPTION_LINE.equals(messageName)) {
-						NewCaptionLineMessage msg = NewCaptionLineMessage.fromJson(message);
-						bbbGW.newCaptionLine(msg.meetingID, msg.lineNumber, msg.locale, msg.startTime, msg.text);
+					if (EditCaptionHistoryMessage.EDIT_CAPTION_HISTORY.equals(messageName)) {
+						EditCaptionHistoryMessage msg = EditCaptionHistoryMessage.fromJson(message);
+						bbbGW.editCaptionHistory(msg.meetingID, msg.startIndex, msg.endIndex, msg.locale, msg.text);
 					} else if (SendCaptionHistoryRequestMessage.SEND_CAPTION_HISTORY_REQUEST.equals(messageName)){
 						SendCaptionHistoryRequestMessage msg = SendCaptionHistoryRequestMessage.fromJson(message);
 						bbbGW.sendCaptionHistory(msg.meetingID, msg.requesterID);
-					} else if (CurrentCaptionLineMessage.CURRENT_CAPTION_LINE.equals(messageName)) {
-						CurrentCaptionLineMessage msg = CurrentCaptionLineMessage.fromJson(message);
-						bbbGW.currentCaptionLine(msg.meetingID, msg.locale, msg.text);
 					}
 				}
 			}

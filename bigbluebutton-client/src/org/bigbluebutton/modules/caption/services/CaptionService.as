@@ -17,8 +17,7 @@
  *
  */
 package org.bigbluebutton.modules.caption.services {
-	import org.bigbluebutton.modules.caption.events.SendCurrentCaptionLineEvent;
-	import org.bigbluebutton.modules.caption.events.SendNewCaptionLineEvent;
+	import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
 
 	public class CaptionService {
 		public var sender:MessageSender;
@@ -33,24 +32,16 @@ package org.bigbluebutton.modules.caption.services {
 			sender.getCaptionHistory();
 		}
 		
-		public function sendNewCaptionLine(e:SendNewCaptionLineEvent):void {
-			if (e.lineNumber >= 0) {
+		public function sendEditCaptionHistory(e:SendEditCaptionHistoryEvent):void {
+			if (e.startIndex >= 0) {
 				var msg:Object = new Object();
-				msg.lineNumber = e.lineNumber;
+				msg.startIndex = e.startIndex;
+				msg.endIndex = e.endIndex;
 				msg.locale = e.locale;
-				msg.startTime = e.startTime;
 				msg.text = e.text;
 				
-				sender.sendNewCaptionLine(msg);
+				sender.sendEditCaptionHistory(msg);
 			}
-		}
-		
-		public function sendCurrentCaptionLine(e:SendCurrentCaptionLineEvent):void {
-			var msg:Object = new Object();
-			msg.locale = e.locale;
-			msg.text = e.text;
-			
-			sender.sendCurrentCaptionLine(msg);
 		}
 	}
 }

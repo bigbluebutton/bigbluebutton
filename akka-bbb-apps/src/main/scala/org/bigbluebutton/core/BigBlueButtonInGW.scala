@@ -480,12 +480,7 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new SendCaptionHistoryRequest(meetingID, requesterID)
   }
 
-  def newCaptionLine(meetingID: String, lineNumber: Integer, locale: String, startTime: Integer, text: String) {
-    bbbActor ! new NewCaptionLineRequest(meetingID, lineNumber, locale, startTime, text)
-  }
-
-  def currentCaptionLine(meetingID: String, locale: String, text: String) {
-    println("currentCaptionLine recieved")
-    bbbActor ! new CurrentCaptionLineRequest(meetingID, locale, text)
+  def editCaptionHistory(meetingID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) {
+    bbbActor ! new EditCaptionHistoryRequest(meetingID, startIndex, endIndex, locale, text)
   }
 }

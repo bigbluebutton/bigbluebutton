@@ -5,8 +5,7 @@ package org.bigbluebutton.modules.caption.managers {
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.caption.events.GetCaptionHistoryEvent;
 	import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
-	import org.bigbluebutton.modules.caption.events.ReceiveCurrentCaptionLineEvent;
-	import org.bigbluebutton.modules.caption.events.ReceiveNewCaptionLineEvent;
+	import org.bigbluebutton.modules.caption.events.ReceiveEditCaptionHistoryEvent;
 	import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
 	import org.bigbluebutton.modules.caption.model.Transcripts;
 	import org.bigbluebutton.modules.caption.views.CaptionWindow;
@@ -37,12 +36,8 @@ package org.bigbluebutton.modules.caption.managers {
 			_transcripts.receiveCaptionHistory(event.history);
 		}
 		
-		public function receiveNewCaptionLine(event:ReceiveNewCaptionLineEvent):void {
-			_transcripts.newCaptionLine(event.locale, event.lineNumber, event.text);
-		}
-		
-		public function receiveCurrentCaptionLine(event:ReceiveCurrentCaptionLineEvent):void {
-			_transcripts.updateCurrentCaptionLine(event.locale, event.text);
+		public function receiveEditCaptionHistory(event:ReceiveEditCaptionHistoryEvent):void {
+			_transcripts.editCaptionHistory(event.locale, event.startIndex, event.endIndex, event.text);
 		}
 		
 		public function openWindow():void {

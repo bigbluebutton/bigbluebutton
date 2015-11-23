@@ -19,12 +19,10 @@
 package org.bigbluebutton.modules.caption.services {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import org.as3commons.lang.HashArray;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.model.users.IMessageListener;
 	import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
-	import org.bigbluebutton.modules.caption.events.ReceiveCurrentCaptionLineEvent;
-	import org.bigbluebutton.modules.caption.events.ReceiveNewCaptionLineEvent;
+	import org.bigbluebutton.modules.caption.events.ReceiveEditCaptionHistoryEvent;
 	
 	public class MessageReceiver implements IMessageListener {
 		private static const LOG:String = "Caption::MessageReceiver - ";
@@ -38,27 +36,15 @@ package org.bigbluebutton.modules.caption.services {
 				case "sendCaptionHistoryReply":
 					sendCaptionHistoryReply(message);
 					break;
-				case "newCaptionLine":
-					newCaptionLine(message);
-					break;
-				case "currentCaptionLine":
-					currentCaptionLine(message);
-					break;
-				case "deleteCaptionLine":
-					deleteCaptionLine(message);
-					break;
-				case "correctCaptionLine":
-					correctCaptionLine(message);
-					break;
-				case "updateTranscriptionList":
-					updateTranscriptionList(message);
+				case "editCaptionHistory":
+					editCaptionHistory(message);
 					break;
 				default:
 			}
 		}
 		
 		private function sendCaptionHistoryReply(message:Object):void {
-			trace(LOG + "*** getCaptionHistoryReply " + message.msg + " ****");
+			trace(LOG + "*** sendCaptionHistoryReply " + message.msg + " ****");
 			var map:Object = JSON.parse(message.msg);
 			
 			var event:ReceiveCaptionHistoryEvent = new ReceiveCaptionHistoryEvent(ReceiveCaptionHistoryEvent.RECEIVE_CAPTION_HISTORY_EVENT);
@@ -67,45 +53,17 @@ package org.bigbluebutton.modules.caption.services {
 			dispatcher.dispatchEvent(event);
 		}
 		
-		private function newCaptionLine(message:Object):void {
-			trace(LOG + "*** newCaptionLine " + message + " ****");
+		private function editCaptionHistory(message:Object):void {
+			trace(LOG + "*** editCaptionHistory " + message + " ****");
 			//var map:Object = JSON.parse(message);
 			
-			var event:ReceiveNewCaptionLineEvent = new ReceiveNewCaptionLineEvent(ReceiveNewCaptionLineEvent.RECEIVE_NEW_CAPTION_LINE);
-			event.locale = message.locale;
-			event.lineNumber = message.line_number;
-			event.text = message.text;
-			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(event);
-		}
-		
-		private function currentCaptionLine(message:Object):void {
-			trace(LOG + "*** currentCaptionLine " + message + " ****");
-			//var map:Object = JSON.parse(message);
-			
-			var event:ReceiveCurrentCaptionLineEvent = new ReceiveCurrentCaptionLineEvent(ReceiveCurrentCaptionLineEvent.RECEIVE_CURRENT_CAPTION_LINE);
+			var event:ReceiveEditCaptionHistoryEvent = new ReceiveEditCaptionHistoryEvent(ReceiveEditCaptionHistoryEvent.RECEIVE_EDIT_CAPTION_HISTORY);
+			event.startIndex = int(message.start_index);
+			event.endIndex = int(message.end_index);
 			event.locale = message.locale;
 			event.text = message.text;
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);
-		}
-		
-		private function deleteCaptionLine(message:Object):void {
-			trace(LOG + "*** deleteCaptionLine " + message.msg + " ****");
-			var map:Object = JSON.parse(message.msg);
-			
-		}
-		
-		private function correctCaptionLine(message:Object):void {
-			trace(LOG + "*** correctCaptionLine " + message.msg + " ****");
-			var map:Object = JSON.parse(message.msg);
-			
-		}
-		
-		private function updateTranscriptionList(message:Object):void {
-			trace(LOG + "*** updateTranscriptionList " + message.msg + " ****");
-			var map:Object = JSON.parse(message.msg);
-			
 		}
 	}
 }

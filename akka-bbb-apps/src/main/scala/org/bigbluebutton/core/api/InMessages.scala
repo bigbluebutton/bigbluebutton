@@ -118,5 +118,4 @@ case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy
 
 // Caption
 case class SendCaptionHistoryRequest(meetingID: String, requesterID: String) extends InMessage
-case class NewCaptionLineRequest(meetingID: String, lineNumber: Integer, locale: String, startTime: Integer, text: String) extends InMessage
-case class CurrentCaptionLineRequest(meetingID: String, locale: String, text: String) extends InMessage
+case class EditCaptionHistoryRequest(meetingID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) extends InMessage

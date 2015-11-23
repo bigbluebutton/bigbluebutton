@@ -124,9 +124,9 @@ public class Constants {
   public static final String PERM_LOCK_ON_JOIN               = "lockOnJoin";
   public static final String PERM_LOCK_ON_JOIN_CONFIG        = "lockOnJoinConfigurable";
   public static final String ENABLED                         = "enabled";
-  public static final String LINE_NUMBER                     = "line_number";
+  public static final String START_INDEX                     = "start_index";
+  public static final String END_INDEX                       = "end_index";
   public static final String LOCALE                          = "locale";
-  public static final String START_TIME                      = "start_time";
   public static final String TEXT                            = "text";
   public static final String CAPTION_HISTORY                 = "caption_history";
 }

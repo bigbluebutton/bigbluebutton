@@ -6,11 +6,9 @@
 			
 			import org.bigbluebutton.modules.caption.events.GetCaptionHistoryEvent;
 			import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
-			import org.bigbluebutton.modules.caption.events.ReceiveCurrentCaptionLineEvent;
-			import org.bigbluebutton.modules.caption.events.ReceiveNewCaptionLineEvent;
+			import org.bigbluebutton.modules.caption.events.ReceiveEditCaptionHistoryEvent;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
-			import org.bigbluebutton.modules.caption.events.SendCurrentCaptionLineEvent;
-			import org.bigbluebutton.modules.caption.events.SendNewCaptionLineEvent;
+			import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
 			import org.bigbluebutton.modules.caption.events.StartCaptionModuleEvent;
 			import org.bigbluebutton.modules.caption.events.StopCaptionModuleEvent;
 			import org.bigbluebutton.modules.caption.managers.CaptionManager;
@@ -43,19 +41,11 @@
 		<MethodInvoker generator="{CaptionManager}" method="receiveCaptionHistory" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{SendNewCaptionLineEvent.SEND_NEW_CAPTION_LINE}">
-		<MethodInvoker generator="{CaptionService}" method="sendNewCaptionLine" arguments="{event}" />
+	<EventHandlers type="{SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY}">
+		<MethodInvoker generator="{CaptionService}" method="sendEditCaptionHistory" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{ReceiveNewCaptionLineEvent.RECEIVE_NEW_CAPTION_LINE}">
-		<MethodInvoker generator="{CaptionManager}" method="receiveNewCaptionLine" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{SendCurrentCaptionLineEvent.SEND_CURRENT_CAPTION_LINE}">
-		<MethodInvoker generator="{CaptionService}" method="sendCurrentCaptionLine" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{ReceiveCurrentCaptionLineEvent.RECEIVE_CURRENT_CAPTION_LINE}">
-		<MethodInvoker generator="{CaptionManager}" method="receiveCurrentCaptionLine" arguments="{event}" />
+	<EventHandlers type="{ReceiveEditCaptionHistoryEvent.RECEIVE_EDIT_CAPTION_HISTORY}">
+		<MethodInvoker generator="{CaptionManager}" method="receiveEditCaptionHistory" arguments="{event}" />
 	</EventHandlers>
 </EventMap>

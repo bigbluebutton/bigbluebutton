@@ -47,23 +47,14 @@ public class CaptionService {
 		red5InGW.sendCaptionHistory(meetingID, requesterID);
 	}
 	
-	public void newCaptionLine(Map<String, Object> msg) {
-		int lineNumber = (Integer) msg.get("lineNumber");
-		String locale = msg.get("locale").toString();
-		int startTime = (Integer) msg.get("startTime");
-		String text = msg.get("text").toString();
-		
-		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		
-		red5InGW.newCaptionLine(meetingID, lineNumber, locale, startTime, text);
-	}
-	
-	public void currentCaptionLine(Map<String, Object> msg) {
+	public void editCaptionHistory(Map<String, Object> msg) {
+		int startIndex = (Integer) msg.get("startIndex");
+    int endIndex = (Integer) msg.get("endIndex");
 		String locale = msg.get("locale").toString();
 		String text = msg.get("text").toString();
 		
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		
-		red5InGW.currentCaptionLine(meetingID, locale, text);
+		red5InGW.editCaptionHistory(meetingID, startIndex, endIndex, locale, text);
 	}
 }

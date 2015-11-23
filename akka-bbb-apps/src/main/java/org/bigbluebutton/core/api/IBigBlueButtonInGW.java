@@ -113,6 +113,5 @@ public interface IBigBlueButtonInGW {
 	
 	// Caption
 	void sendCaptionHistory(String meetingID, String requesterID);
-	void newCaptionLine(String meetingID, Integer lineNumber, String locale, Integer startTime, String text);
-	void currentCaptionLine(String meetingID, String locale, String text);
+	void editCaptionHistory(String meetingID, Integer startIndex, Integer endIndex, String locale, String text);
 }

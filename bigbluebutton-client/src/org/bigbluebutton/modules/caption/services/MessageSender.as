@@ -17,8 +17,6 @@
  *
  */
 package org.bigbluebutton.modules.caption.services {
-	import flash.events.IEventDispatcher;
-	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.BBB;
@@ -40,52 +38,10 @@ package org.bigbluebutton.modules.caption.services {
 			);
 		}
 		
-		public function sendNewCaptionLine(message:Object):void {  
-			LOGGER.debug("Sending [caption.newCaptionLine] to server.");
+		public function sendEditCaptionHistory(message:Object):void {  
+			LOGGER.debug("Sending [caption.editCaptionHistory] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.newCaptionLine", 
-				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-				},
-				message
-			);
-		}
-		
-		public function sendCurrentCaptionLine(message:Object):void {
-			LOGGER.debug("Sending [caption.currentCaptionLine] to server.");
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.currentCaptionLine", 
-				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-				},
-				message
-			);
-		}
-		
-		public function deleteCaptionLine(message:Object):void {
-			LOGGER.debug("Sending [caption.deleteCaptionLine] to server.");
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.deleteCaptionLine", 
-				function(result:String):void { // On successful result
-					LOGGER.debug(result); 
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LOGGER.error(status); 
-				},
-				message
-			);
-		}
-		
-		public function correctCaptionLine(message:Object):void {
-			LOGGER.debug("Sending [caption.correctCaptionLine] to server.");
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.correctCaptionLine", 
+			_nc.sendMessage("caption.editCaptionHistory", 
 				function(result:String):void { // On successful result
 					LOGGER.debug(result); 
 				},	                   

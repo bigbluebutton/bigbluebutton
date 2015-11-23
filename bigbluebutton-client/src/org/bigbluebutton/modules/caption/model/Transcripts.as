@@ -2,9 +2,10 @@ package org.bigbluebutton.modules.caption.model {
 	import mx.collections.ArrayCollection;
 
 	public class Transcripts {
-		
-		
 		private var _transcriptCollection:ArrayCollection;
+		private var _historyInited:Boolean = false;
+		
+		public var historyInitCallback:Function;
 		
 		public function Transcripts() {
 			_transcriptCollection = new ArrayCollection();
@@ -15,22 +16,20 @@ package org.bigbluebutton.modules.caption.model {
 		//
 		// Maybe place changes in a holding pattern until history has been loaded and then apply them?
 		
+		public function get historyIntited():Boolean {
+			return _historyInited;
+		}
+		
 		public function receiveCaptionHistory(history:Object):void {
 			for (var locale:Object in history){
-				var t:Transcript = findLocale(locale as String);
-				var ta:Array = history[locale];
-				for (var i:int = ta.length-1; i >= 0; i--) {
-					t.newCaptionLine(0, ta[i]);
-				}
+				findLocale(locale as String).editHistory(0,0,history[locale]);
 			}
+			_historyInited = true;
+			if (historyInitCallback != null) historyInitCallback();
 		}
 		
-		public function newCaptionLine(locale:String, lineNumber:int, text:String):void {
-			findLocale(locale).newCaptionLine(lineNumber, text);
-		}
-		
-		public function updateCurrentCaptionLine(locale:String, text:String):void {
-			findLocale(locale).updateCurrentCaptionLine(text);
+		public function editCaptionHistory(locale:String, startIndex:int, endIndex:int, text:String):void {
+			findLocale(locale).editHistory(startIndex, endIndex, text);
 		}
 		
 		public function findLocale(locale:String):Transcript {

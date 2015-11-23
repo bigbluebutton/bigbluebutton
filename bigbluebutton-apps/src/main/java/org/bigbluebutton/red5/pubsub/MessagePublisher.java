@@ -276,13 +276,8 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
 	}
 	
-	public void newCaptionLine(String meetingID, Integer lineNumber, String locale, Integer startTime, String text) {
-		NewCaptionLineMessage msg = new NewCaptionLineMessage(meetingID, lineNumber, locale, startTime, text);
-		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
-	}
-	
-	public void currentCaptionLine(String meetingID, String locale, String text) {
-		CurrentCaptionLineMessage msg = new CurrentCaptionLineMessage(meetingID, locale, text);
+	public void editCaptionHistory(String meetingID, Integer startIndex, Integer endIndex, String locale, String text) {
+		EditCaptionHistoryMessage msg = new EditCaptionHistoryMessage(meetingID, startIndex, endIndex, locale, text);
 		sender.send(MessagingConstants.TO_CAPTION_CHANNEL, msg.toJson());
 	}
 }

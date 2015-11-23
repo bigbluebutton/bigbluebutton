@@ -131,9 +131,8 @@ case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, reques
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
 // Chat
-case class SendCaptionHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, history: Map[String, Array[String]]) extends IOutMessage
-case class NewCaptionLineEvent(meetingID: String, recorded: Boolean, lineNumber: Integer, locale: String, startTime: Integer, text: String) extends IOutMessage
-case class CurrentCaptionLineEvent(meetingID: String, recorded: Boolean, locale: String, text: String) extends IOutMessage
+case class SendCaptionHistoryReply(meetingID: String, recorded: Boolean, requesterID: String, history: Map[String, String]) extends IOutMessage
+case class EditCaptionHistoryReply(meetingID: String, recorded: Boolean, startIndex: Integer, endIndex: Integer, locale: String, text: String) extends IOutMessage
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

@@ -388,6 +388,8 @@ trait UsersApp {
             vu.userId, u.userID, u.externUserID, vu.callerName,
             vu.callerNum, vu.muted, vu.talking, u.listenOnly)));
         }
+        
+        checkCaptionOwnerLogOut(u.userID)
       }
 
       startCheckingIfWeNeedToEndVoiceConf()

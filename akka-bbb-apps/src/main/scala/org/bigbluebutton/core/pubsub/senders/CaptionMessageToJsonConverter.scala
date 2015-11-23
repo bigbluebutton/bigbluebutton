@@ -19,25 +19,15 @@ object CaptionMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def newCaptionLineEventToJson(msg: NewCaptionLineEvent): String = {
+  def editCaptionHistoryReplyToJson(msg: EditCaptionHistoryReply): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
-    payload.put(Constants.LINE_NUMBER, msg.lineNumber)
-    payload.put(Constants.LOCALE, msg.locale)
-    payload.put(Constants.START_TIME, msg.startTime)
-    payload.put(Constants.TEXT, msg.text)
-
-    val header = Util.buildHeader(MessageNames.NEW_CAPTION_LINE, None)
-    Util.buildJson(header, payload)
-  }
-
-  def currentCaptionLineEventToJson(msg: CurrentCaptionLineEvent): String = {
-    val payload = new java.util.HashMap[String, Any]()
-    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.START_INDEX, msg.startIndex)
+    payload.put(Constants.END_INDEX, msg.endIndex)
     payload.put(Constants.LOCALE, msg.locale)
     payload.put(Constants.TEXT, msg.text)
 
-    val header = Util.buildHeader(MessageNames.CURRENT_CAPTION_LINE, None)
+    val header = Util.buildHeader(MessageNames.EDIT_CAPTION_HISTORY, None)
     Util.buildJson(header, payload)
   }
 }

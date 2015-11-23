@@ -15,17 +15,20 @@ trait CaptionApp {
 
     outGW.send(new SendCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, history))
   }
-
-  def handleNewCaptionLineRequest(msg: NewCaptionLineRequest) {
-    captionModel.addNewLine(msg.locale, msg.text)
-
-    outGW.send(new NewCaptionLineEvent(mProps.meetingID, mProps.recorded, msg.lineNumber, msg.locale, msg.startTime, msg.text))
+  
+  def handleUpdateCaptionInfo(msg: UpdateCaptionInfo) {
+  
   }
 
-  def handleCurrentCaptionLineRequest(msg: CurrentCaptionLineRequest) {
-    println("handleCurrentCaptionLineRequest")
-    captionModel.updateCurrentLine(msg.locale, msg.text)
+  def handleEditCaptionHistoryRequest(msg: EditCaptionHistoryRequest) {
+    captionModel.editHistory(msg.startIndex, msg.endIndex, msg.locale, msg.text)
 
-    outGW.send(new CurrentCaptionLineEvent(mProps.meetingID, mProps.recorded, msg.locale, msg.text))
+    outGW.send(new EditCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.startIndex, msg.endIndex, msg.locale, msg.text))
+  }
+  
+  def checkCaptionOwnerLogOut(userId: String) {
+    var transcript = findTranscriptByOwnerId(userId)
+    
+    if (transcript
   }
 }

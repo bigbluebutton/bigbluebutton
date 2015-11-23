@@ -28,24 +28,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			creationComplete="onCreationComplete()" xmlns:views="org.bigbluebutton.modules.caption.views.*">
 	<mx:Script>
 		<![CDATA[
-			import com.adobe.utils.StringUtil;
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
-			import mx.events.CollectionEvent;
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
-			import org.bigbluebutton.modules.caption.events.SendCurrentCaptionLineEvent;
-			import org.bigbluebutton.modules.caption.events.SendNewCaptionLineEvent;
+			import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
 			import org.bigbluebutton.modules.caption.model.Transcript;
 			import org.bigbluebutton.modules.caption.model.Transcripts;
 			
 			private var transcripts:Transcripts;
 			private var currentTranscript:Transcript;
 			private var transcriptChangeWatcher:ChangeWatcher;
+			
+			private var _checkForOverwrite:Boolean = false;
+			private var _checkForDeletePreviousWord:Boolean = false;
+			private var _checkForDeleteNextWord:Boolean = false;
+			private var _lastTextInput:String;
+			private var _lastTextLength:int;
+			private var _lastSelectionIndex:int;
 			
 			private function onCreationComplete():void {
 				var requestTranscripts:RequestTranscriptsEvent = new RequestTranscriptsEvent(RequestTranscriptsEvent.REQUEST_TRANSCRIPTS_EVENT);
@@ -57,10 +60,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				onFontTypeComboChange();
 				
 				transcriptArea.getInternalTextField().addEventListener(KeyboardEvent.KEY_DOWN, onTranscriptKeyDown);
+				outputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
 			}
 			
 			private function setTranscripts(t:Transcripts):void {
 				transcripts = t;
+				onLocaleComboChange();
+				if (!t.historyIntited) {
+					t.historyInitCallback = handleHistoryInitialized;
+				}
+			}
+			
+			private function handleHistoryInitialized():void {
 				onLocaleComboChange();
 			}
 			
@@ -72,38 +83,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				refreshTextArea();
 			}
 			
-			private function refreshTextArea():void {
-				var trascriptCompact:String = "";
-				if (currentTranscript.transcript.source.length > 0) {
-					trascriptCompact += currentTranscript.transcript.source.join("\n") + "\n";
+			private function refreshTextArea(refreshInputArea:Boolean=false):void {
+				outputArea.text = currentTranscript.transcript;
+				if (refreshInputArea){
+					transcriptArea.text = currentTranscript.transcript;
 				}
-				trascriptCompact += currentTranscript.currentLine;
-				transcriptArea.text = setCase(trascriptCompact);
-			}
-			
-			private function setCase(msg:String):String {
-				switch (textCaseCombo.selectedIndex) {
-					case 1:
-						msg = msg.toLowerCase();
-						break;
-					case 2:
-						msg = msg.toUpperCase();
-						break;
-				}
-				
-				return msg;
 			}
 			
 			private function onFontSizeComboChange():void {
 				transcriptArea.setStyle("fontSize", int(fontSizeCombo.selectedItem));
+				outputArea.setStyle("fontSize", int(fontSizeCombo.selectedItem));
 			}
 			
 			private function onFontTypeComboChange():void {
 				transcriptArea.setStyle("fontFamily", fontTypeCombo.selectedItem);
-			}
-			
-			private function onTextCaseComboChange():void {
-				refreshTextArea();
+				outputArea.setStyle("fontFamily", fontTypeCombo.selectedItem);
 			}
 			
 			private function onLocaleComboChange():void {
@@ -113,60 +107,48 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					currentTranscript = transcripts.findLocale(localeCombo.selectedLabel);
 					currentTranscript.addEventListener(Event.CHANGE, onTranscriptChange);
-					refreshTextArea();
-				}
-			}
-			
-			private function onNewLineTextInput(e:TextEvent):void {
-				if ((e.text.length == 1) && (e.text.charCodeAt(0) == 10) /*ENTER-KEY*/) {
-					sendLine();
-					e.preventDefault();
-				}
-			}
-			
-			private function sendLine():void {
-				// Trim the message. This will trim the '/n' char so we don't send a message when the
-				// user just hits the enter key
-				var lineToSend:String = StringUtil.trim(newLineInput.text);
-				
-				if (lineToSend != "") {
-					var newLineEvent:SendNewCaptionLineEvent = new SendNewCaptionLineEvent(SendNewCaptionLineEvent.SEND_NEW_CAPTION_LINE);
-					newLineEvent.lineNumber = currentTranscript.transcript.length;
-					newLineEvent.locale = localeCombo.selectedLabel;
-					newLineEvent.startTime = 1;
-					newLineEvent.text = lineToSend;
-					
-					var dispatcher:Dispatcher = new Dispatcher();
-					dispatcher.dispatchEvent(newLineEvent);
-					
-					newLineInput.text = ""; // Doesn't cause Event.CHANGE to dispatch for some reason
-					newLineInput.setSelection(0, 0);
-				}
-			}
-			
-			private function onNewLineChange(e:Event):void {
-				trace("Line Input text-" + newLineInput.text + "-");
-				if (newLineInput.text.charAt(newLineInput.text.length-1) == " " || newLineInput.text.length == 0) {
-					var lineToSend:String = StringUtil.trim(newLineInput.text);
-
-					trace("Sending -"+lineToSend);
-					var currentLineEvent:SendCurrentCaptionLineEvent = new SendCurrentCaptionLineEvent(SendCurrentCaptionLineEvent.SEND_CURRENT_CAPTION_LINE);
-					currentLineEvent.locale = localeCombo.selectedLabel;
-					currentLineEvent.text = lineToSend;
-					
-					var dispatcher:Dispatcher = new Dispatcher();
-					dispatcher.dispatchEvent(currentLineEvent);
+					refreshTextArea(true);
 				}
 			}
 			
 			private function onTranscriptTextInput(e:TextEvent):void {
 				trace("Text entered: " + e.text + ", carat begin:" + transcriptArea.selectionBeginIndex + ", end: " + transcriptArea.selectionEndIndex);
 				
-				respondToTextChange(e.text, transcriptArea.selectionBeginIndex, transcriptArea.selectionEndIndex);
+				// There is no surefire way to detect whether the internal TextField is in overwrite mode or not. We need to 
+				// delay sending the message until after the text changes and then check length. This extra check is only 
+				// required if the input is length 1 and nothing is selected because it would be a simple replace otherwise.
+				if (e.text.length == 1 && transcriptArea.selectionBeginIndex == transcriptArea.selectionEndIndex) {
+					_checkForOverwrite = true;
+					_lastTextInput = e.text;
+					_lastTextLength = transcriptArea.text.length;
+				} else {
+					respondToTextChange(e.text, transcriptArea.selectionBeginIndex, transcriptArea.selectionEndIndex);
+				}
 			}
 			
 			private function onTranscriptTextChange(e:Event):void {
-				trace("transcript change");
+				trace("transcript change: " + transcriptArea.text);
+				
+				if (_checkForOverwrite) {
+					_checkForOverwrite = false;
+					if (transcriptArea.text.length > _lastTextLength) { // not an overwrite
+						respondToTextChange(_lastTextInput, transcriptArea.selectionBeginIndex-1, transcriptArea.selectionEndIndex-1);
+					} else {											// an overwrite
+						respondToTextChange(_lastTextInput, transcriptArea.selectionBeginIndex-1, transcriptArea.selectionEndIndex);
+					}
+					_lastTextInput = null;
+					_lastTextLength = 0;
+				} else if (_checkForDeletePreviousWord) {
+					_checkForDeletePreviousWord = false;
+					respondToTextChange("", _lastSelectionIndex-(_lastTextLength-transcriptArea.text.length), _lastSelectionIndex);
+					_lastSelectionIndex = 0;
+					_lastTextLength = 0;
+				} else if (_checkForDeleteNextWord) {
+					_checkForDeleteNextWord = false;
+					respondToTextChange("", _lastSelectionIndex, _lastSelectionIndex+(_lastTextLength-transcriptArea.text.length));
+					_lastSelectionIndex = 0;
+					_lastTextLength = 0;
+				}
 			}
 			
 			private function onTranscriptDataChange(e:FlexEvent):void {
@@ -179,13 +161,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var ei:int = transcriptArea.selectionEndIndex;
 				switch (e.keyCode) {
 					case Keyboard.BACKSPACE:
-						if (e.ctrlKey || e.shiftKey || e.altKey) {
-							e.preventDefault(); 
-							
-					//		flash.events.KeyboardEvent.KeyboardEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false, 
-					//			charCodeValue:uint=0, keyCodeValue:uint=0, keyLocationValue:uint=0, ctrlKeyValue:Boolean=false, 
-					//			altKeyValue:Boolean=false, shiftKeyValue:Boolean=false
-							transcriptArea.getInternalTextField().dispatchEvent(new KeyboardEvent(e.type, true, true, e.charCode, e.keyCode, e.keyLocation, false, false, false));
+						if (e.ctrlKey || e.altKey) {
+							_lastSelectionIndex = ei;
+							_lastTextLength = transcriptArea.text.length;
+							_checkForDeletePreviousWord = true;
+							return;
 						}
 						if (si == ei) {
 							if (si == 0) {
@@ -196,6 +176,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						respondToTextChange("", si, ei);
 						break;
 					case Keyboard.DELETE:
+						if (e.ctrlKey || e.altKey) {
+							_lastSelectionIndex = si;
+							_lastTextLength = transcriptArea.text.length;
+							_checkForDeleteNextWord = true;
+							return;
+						}
 						if (si == ei) {
 							if (si == transcriptArea.length+1) {
 								return ;
@@ -204,41 +190,38 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						}
 						respondToTextChange("", si, ei);
 						break;
-						break;
-					case Keyboard.INSERT:
-						break;
-					
-					// Might not need the arrow keys
-					case Keyboard.LEFT:
-						break;
-					case Keyboard.RIGHT:
-						break;
-					case Keyboard.UP:
-						break;
-					case Keyboard.DOWN:
+					case Keyboard.X:
+						if (e.ctrlKey) {
+							if (si != ei) {
+								respondToTextChange("", si, ei);
+							}
+						}
 						break;
 				}
 			}
 			
 			private function respondToTextChange(t:String, si:int, ei:int):void {
-				var text:String = newLineInput.text;
+				var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
+				editHistoryEvent.locale = localeCombo.selectedLabel;
+				editHistoryEvent.startIndex = si;
+				editHistoryEvent.endIndex = ei;
+				editHistoryEvent.text = t;
 				
-				var startSlice:String = text.slice(0, si);
-				var endSlice:String = text.slice(ei);
-				
-				newLineInput.text = startSlice + t + endSlice;
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(editHistoryEvent);
 			}
 		]]>
 	</mx:Script>
-	<mx:VBox width="100%" height="100%" horizontalAlign="center">
+	<mx:VBox width="100%" height="100%" horizontalAlign="left">
 		<mx:HBox width="100%">
 			<mx:ComboBox id="fontSizeCombo" dataProvider="[8, 10, 12, 14, 16]" selectedIndex="2" change="onFontSizeComboChange()"/>
 			<mx:ColorPicker id="fontColorPicker" />
 			<mx:ComboBox id="fontTypeCombo" dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" change="onFontTypeComboChange()"/>
-			<mx:ComboBox id="textCaseCombo" dataProvider="['Untouched', 'Lowercase', 'Uppercase']" change="onTextCaseComboChange()"/>
 			<mx:ComboBox id="localeCombo" dataProvider="['en_US','ca_FR', 'pt_PT']" change="onLocaleComboChange()"/>
 		</mx:HBox>
+		<mx:Label text="Input:" />
 		<views:TextArea2 id="transcriptArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)" dataChange="onTranscriptDataChange(event)" />
-		<mx:TextArea id="newLineInput" width="100%" height="100%" textInput="onNewLineTextInput(event)" change="onNewLineChange(event)" />
+		<mx:Label text="Output:" />
+		<views:TextArea2 id="outputArea" width="100%" height="100%" />
 	</mx:VBox>
 </CustomMdiWindow>

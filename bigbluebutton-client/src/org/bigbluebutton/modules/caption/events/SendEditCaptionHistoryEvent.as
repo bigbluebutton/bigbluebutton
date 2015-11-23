@@ -20,15 +20,15 @@
 package org.bigbluebutton.modules.caption.events {
 	import flash.events.Event;
 	
-	public class SendNewCaptionLineEvent extends Event {
-		public static const SEND_NEW_CAPTION_LINE:String = "SEND_NEW_CAPTION_LINE_EVENT";
+	public class SendEditCaptionHistoryEvent extends Event {
+		public static const SEND_EDIT_CAPTION_HISTORY:String = "SEND_EDIT_CAPTION_HISTORY_EVENT";
 		
-		public var lineNumber:int = -1;
+		public var startIndex:int = -1;
+		public var endIndex:int = -1;
 		public var locale:String = "";
-		public var startTime:int = -1;
 		public var text:String = "";
 		
-		public function SendNewCaptionLineEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false) {
+		public function SendEditCaptionHistoryEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false) {
 			super(type, bubbles, cancelable);
 		}
 	}
