@@ -399,7 +399,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function handleParticipantJoined(msg:Object):void {
-		LOGGER.info("handleParticipantJoined = " + msg.msg);
+	  LOGGER.info("handleParticipantJoined = " + msg.msg);
 		
       var map:Object = JSON.parse(msg.msg);
       
@@ -573,7 +573,6 @@ package org.bigbluebutton.modules.users.services
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
-   
     }
     
     /**
@@ -593,8 +592,9 @@ package org.bigbluebutton.modules.users.services
 	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
-		// TODO : BreakoutRoom : display Join button to the user
-		navigateToURL(new URLRequest(map.joinURL));
+		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
+		event.joinURL = map.joinURL;
+		dispatcher.dispatchEvent(event);
 	}
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{

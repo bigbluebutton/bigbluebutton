@@ -36,15 +36,20 @@
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
 	<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME}" method="handleRemainingTimeUpdate" />
+	<mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.net.navigateToURL;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
 			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
@@ -299,6 +304,20 @@
 				breakoutTimeLabel.text += " " + ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [event.durationInMinutes]);
 			}
 			
+			private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void{
+				var alert:Alert = Alert.show(
+					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL'),
+					ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
+					Alert.YES | Alert.NO,
+					this,
+					function(e:CloseEvent):void{
+						if (e.detail==Alert.YES) {
+							navigateToURL(new URLRequest(event.joinURL)); 
+						}
+					},
+					null,Alert.YES);
+			}
+			
 			/*private function unlockAll():void {
 				LogUtil.traceObject("Action: unlockAll");
 				if (amIModerator) {
@@ -534,7 +553,7 @@
     	</mx:columns>
     </mx:DataGrid>
 	
-	<mx:VBox id="roomsBox" visible="false" includeInLayout="false" paddingTop="12"
+	<mx:VBox id="roomsBox" visible="true" includeInLayout="true" paddingTop="12"
 			 horizontalAlign="center" width="100%" height="50%">
 		<mx:Label id="breakoutTimeLabel" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
 
