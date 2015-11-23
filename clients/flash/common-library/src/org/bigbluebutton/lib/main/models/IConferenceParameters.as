@@ -10,6 +10,7 @@ package org.bigbluebutton.lib.main.models {
 		function set meetingName(meetingName:String):void;
 		function get externMeetingID():String;
 		function set externMeetingID(externMeetingID:String):void;
+		function get meetingID():String;
 		function get conference():String;
 		function set conference(conference:String):void;
 		function get username():String;
@@ -36,10 +37,16 @@ package org.bigbluebutton.lib.main.models {
 		function set userid(userid:String):void;
 		function get record():Boolean;
 		function set record(record:Boolean):void;
+		function get guest():Boolean;
+		function set guest(value:Boolean):void;
+		function isGuestDefined():Boolean;
 		function get authToken():String;
 		function set authToken(authToken:String):void;
-		function get avatarUrl():String;
-		function set avatarUrl(value:String):void;
+		function get metadata():Object;
+		function set metadata(metadata:Object):void;
 		function load(obj:Object):void;
+		function get muteOnStart():Boolean;
+		function set muteOnStart(mute:Boolean):void;
+		function get serverIsMconf():Boolean;
 	}
 }

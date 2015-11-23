@@ -20,7 +20,7 @@ package org.bigbluebutton.lib.common.services {
 		[Inject]
 		public var disconnectUserSignal:DisconnectUserSignal;
 		
-		protected var _connectionSuccessSignal:ISignal = new Signal();
+		protected var _successConnected:ISignal = new Signal();
 		
 		protected var _connectionFailureSignal:ISignal = new Signal();
 		
@@ -33,7 +33,7 @@ package org.bigbluebutton.lib.common.services {
 		public function BaseConnection() {
 		}
 		
-		public function init(callback:DefaultConnectionCallback):void {
+		public function init(callback:IDefaultConnectionCallback):void {
 			_netConnection = new NetConnection();
 			_netConnection.client = callback;
 			_netConnection.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
@@ -46,8 +46,8 @@ package org.bigbluebutton.lib.common.services {
 			return _connectionFailureSignal;
 		}
 		
-		public function get connectionSuccessSignal():ISignal {
-			return _connectionSuccessSignal;
+		public function get successConnected():ISignal {
+			return _successConnected;
 		}
 		
 		public function get connection():NetConnection {
@@ -126,7 +126,7 @@ package org.bigbluebutton.lib.common.services {
 		}
 		
 		protected function sendConnectionSuccessSignal():void {
-			connectionSuccessSignal.dispatch();
+			_successConnected.dispatch();
 		}
 		
 		protected function sendDisconnectUserSignal():void {

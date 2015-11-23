@@ -65,6 +65,7 @@ package org.bigbluebutton.air {
 			injector.map(IUsersService).toSingleton(UsersService);
 			injector.map(IChatMessageService).toSingleton(ChatMessageService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
+			injector.map(IWhiteboardService).toSingleton(WhiteboardService);
 			injector.map(IChatMessagesSession).toSingleton(ChatMessagesSession);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
 			injector.map(ISaveData).toSingleton(SaveData);
@@ -76,13 +77,12 @@ package org.bigbluebutton.air {
 			injector.map(IVideoConnection).toType(VideoConnection);
 			// Signal to Command mapping
 			signalCommandMap.map(ConnectSignal).toCommand(ConnectCommand);
-			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
-			signalCommandMap.map(AuthenticationSignal).toCommand(AuthenticationCommandAIR);
+			signalCommandMap.map(AuthenticationSignal).toCommand(AuthenticationCommand);
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
 			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
 			signalCommandMap.map(LoadSlideSignal).toCommand(LoadSlideCommand);
 			signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
-			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
+			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommand);
 		}
 	}
 }

@@ -72,7 +72,7 @@ package org.bigbluebutton.air.main.views {
 			var url:String = invocation.arguments.toString();
 			if (Capabilities.isDebugger) {
 				// test-install server no longer works with 0.9 mobile client
-				url = "bigbluebutton://143.54.10.144/bigbluebutton/api/join?fullName=User+9535232&meetingID=Multipresen%C3%A7a+1&password=multipresenca123&redirect=true&checksum=80910903e1071ac4c6423d9062a174393489844e";
+				url = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=User+1213231&meetingID=random-700402&password=mp&redirect=true&checksum=3302ac46eae7778478f3f65e2eb36aad81a2c346";
 			}
 			if (url.lastIndexOf("://") != -1) {
 				NativeApplication.nativeApplication.removeEventListener(InvokeEvent.INVOKE, onInvokeEvent);

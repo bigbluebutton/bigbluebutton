@@ -126,6 +126,14 @@ package org.bigbluebutton.lib.video.models
 			return _height;
 		}
 		
+		public function set width(value:int) {
+			_width = value;
+		}
+		
+		public function set height(value:int) {
+			_height = value;
+		}
+		
 		public function get keyFrameInterval():int {
 			return _keyFrameInterval;
 		}

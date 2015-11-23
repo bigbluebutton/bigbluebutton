@@ -55,7 +55,7 @@
 				setupContext();
 				resizeForSoftKeyboard = true;
 				//NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE, onInvokeEvent);
-				ResourceManager.getInstance().localeChain = LocaleUtil.sortLanguagesByPreference(['en_US', 'pt_BR'], Capabilities.languages, "en_US");
+				ResourceManager.getInstance().localeChain = LocaleUtil.sortLanguagesByPreference(['en_US'], Capabilities.languages, "en_US");
 			}
 			
 			/*

@@ -4,16 +4,21 @@ package org.bigbluebutton.lib.user.services {
 	
 	public interface IUsersService {
 		function setupMessageSenderReceiver():void;
+		function sendJoinMeetingMessage():void;
 		function kickUser(userID:String):void;
 		function queryForParticipants():void;
-		function assignPresenter(userid:String, name:String):void;
-		function raiseHand():void;
-		function lowerHand(userID:String):void;
+		function assignPresenter(userid:String, name:String, assignedBy:String):void;
+		function changeMood(mood:String):void
+		function clearUserStatus(userID:String):void
 		function addStream(userID:String, streamName:String):void;
+		function getGuestPolicy():void
+		function responseToGuest(userID:String, response:Boolean):void
+		function responseToAllGuests(response:Boolean):void
 		function removeStream(userID:String, streamName:String):void;
 		function queryForRecordingStatus():void;
 		function changeRecordingStatus(userID:String, recording:Boolean):void;
-		function muteAllUsers(mute:Boolean, dontMuteThese:Array = null):void;
+		function muteAllUsers(mute:Boolean):void;
+		function muteAllUsersExceptPresenter(mute:Boolean):void;
 		function muteUnmuteUser(userid:String, mute:Boolean):void;
 		function ejectUser(userid:String):void;
 		function getRoomMuteState():void;
@@ -24,8 +29,10 @@ package org.bigbluebutton.lib.user.services {
 		function saveLockSettings(newLockSettings:Object):void;
 		function muteMe():void;
 		function unmuteMe():void;
-		function mute(user:org.bigbluebutton.lib.user.models.User):void;
+		function mute(user:User):void;
 		function unmute(user:User):void;
 		function validateToken():void;
+		function changeRole(userID:String, role:String):void;
+		function lowerHand(userID:String, loweredBy:String):void;
 	}
 }

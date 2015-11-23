@@ -14,9 +14,9 @@ package org.bigbluebutton.lib.main.services {
 	public class BigBlueButtonConnection extends DefaultConnectionCallback implements IBigBlueButtonConnection {
 		public static const NAME:String = "BigBlueButtonConnection";
 		
-		protected var _connectionSuccessSignal:ISignal = new Signal();
+		protected var _successConnected:ISignal = new Signal();
 		
-		protected var _connectionFailureSignal:ISignal = new Signal();
+		protected var _unsuccessConnected:ISignal = new Signal();
 		
 		[Inject]
 		public var baseConnection:IBaseConnection;
@@ -37,12 +37,12 @@ package org.bigbluebutton.lib.main.services {
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
-			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
-			baseConnection.connectionFailureSignal.add(onConnectionUnsuccess);
+			baseConnection.successConnected.add(onConnectionSuccess);
+			baseConnection.unsuccessConnected.add(onConnectionUnsuccess);
 		}
 		
 		private function onConnectionUnsuccess(reason:String):void {
-			connectionFailureSignal.dispatch(reason);
+			unsuccessConnected.dispatch(reason);
 		}
 		
 		private function onConnectionSuccess():void {
@@ -50,23 +50,27 @@ package org.bigbluebutton.lib.main.services {
 		}
 		
 		private function getMyUserId():void {
-			baseConnection.connection.call("participants.getMyUserId", new Responder(function(result:String):void {
-				trace("Success connected: My user ID is [" + result + "]");
-				_userId = result as String;
-				connectionSuccessSignal.dispatch();
-			}, function(status:Object):void {
-				trace("Error occurred");
-				trace(ObjectUtil.toString(status));
-				connectionFailureSignal.dispatch("Failed to get the userId");
-			}));
+			baseConnection.connection.call("participants.getMyUserId",
+				new Responder(function(result:String):void {
+					trace("Success connected: My user ID is [" + result + "]");
+					_userId = result as String;
+					successConnected.dispatch();
+				},
+					function(status:Object):void {
+						trace("Error occurred");
+						trace(ObjectUtil.toString(status));
+						unsuccessConnected.dispatch("Failed to get the userId");
+					}
+				)
+			);
 		}
 		
-		public function get connectionFailureSignal():ISignal {
-			return _connectionFailureSignal;
+		public function get unsuccessConnected():ISignal {
+			return _unsuccessConnected;
 		}
 		
-		public function get connectionSuccessSignal():ISignal {
-			return _connectionSuccessSignal;
+		public function get successConnected():ISignal {
+			return _successConnected;
 		}
 		
 		public function set uri(uri:String):void {
@@ -94,7 +98,31 @@ package org.bigbluebutton.lib.main.services {
 			_conferenceParameters = params;
 			_tried_tunneling = tunnel;
 			var uri:String = _applicationURI + "/" + _conferenceParameters.room;
-			var connectParams:Array = [_conferenceParameters.username, _conferenceParameters.role, _conferenceParameters.room, _conferenceParameters.voicebridge, _conferenceParameters.record, _conferenceParameters.externUserID, _conferenceParameters.internalUserID];
+			var lockSettings:Object = {
+				disableCam: false,
+				disableMic: false,
+				disablePrivateChat: false,
+				disablePublicChat: false,
+				lockedLayout: false,
+				lockOnJoin: false,
+				lockOnJoinConfigurable: false
+			};
+			var connectParams:Array = [
+				_conferenceParameters.username,
+				_conferenceParameters.role,
+				_conferenceParameters.room,
+				_conferenceParameters.voicebridge,
+				_conferenceParameters.record,
+				_conferenceParameters.externUserID,
+				_conferenceParameters.internalUserID,
+				_conferenceParameters.muteOnStart,
+				lockSettings
+			];
+			if (_conferenceParameters.isGuestDefined()) {
+				trace(_conferenceParameters.guest);
+				connectParams.push(_conferenceParameters.guest);
+			}
+			trace(connectParams);
 			baseConnection.connect.apply(null, new Array(uri).concat(connectParams));
 		}
 		

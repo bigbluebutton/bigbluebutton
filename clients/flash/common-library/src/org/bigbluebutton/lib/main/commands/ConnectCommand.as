@@ -4,12 +4,15 @@ package org.bigbluebutton.lib.main.commands {
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.UserSession;
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
+	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.voice.models.PhoneOptions;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
+	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
@@ -38,6 +41,9 @@ package org.bigbluebutton.lib.main.commands {
 		public var uri:String;
 		
 		[Inject]
+		public var whiteboardService:IWhiteboardService;
+		
+		[Inject]
 		public var usersService:IUsersService;
 		
 		[Inject]
@@ -52,26 +58,82 @@ package org.bigbluebutton.lib.main.commands {
 		[Inject]
 		public var connectingFailedSignal:ConnectingFailedSignal;
 		
-		override public function execute():void {
-			userSession.phoneOptions = new PhoneOptions(userSession.config.getConfigFor("PhoneModule"));
+		override public function execute():void {			
+			loadConfigOptions();
 			connection.uri = uri;
 			connection.connectionSuccessSignal.add(successConnected);
 			connection.connectionFailureSignal.add(unsuccessConnected);
 			connection.connect(conferenceParameters);
 		}
 		
+		private function loadConfigOptions():void {
+			userSession.phoneAutoJoin = (userSession.config.getConfigFor("PhoneModule").@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
+			userSession.phoneSkipCheck = (userSession.config.getConfigFor("PhoneModule").@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
+			userSession.videoAutoStart = (userSession.config.getConfigFor("VideoconfModule").@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
+			userSession.skipCamSettingsCheck = (userSession.config.getConfigFor("VideoconfModule").@skipCamSettingsCheck.toString().toUpperCase() == "TRUE") ? true : false;
+		}
+		
+		
+		
 		private function successConnected():void {
 			trace(LOG + "successConnected()");
 			userSession.mainConnection = connection;
+			chatService.setupMessageSenderReceiver();
+			whiteboardService.setupMessageSenderReceiver();
 			userSession.userId = connection.userId;
 			// Set up users message sender in order to send the "joinMeeting" message:
 			usersService.setupMessageSenderReceiver();
-			// Send the join meeting message, then wait for the reponse
-			userSession.successJoiningMeetingSignal.add(successJoiningMeeting);
-			userSession.failureJoiningMeetingSignal.add(unsuccessJoiningMeeting);
+			//send the join meeting message, then wait for the response
+			//userSession.successJoiningMeetingSignal.add(successJoiningMeeting);
+			//userSession.unsuccessJoiningMeetingSignal.add(unsuccessJoiningMeeting);
+			userSession.authTokenSignal.add(onAuthTokenReply);
+			userSession.loadedMessageHistorySignal.add(chatService.sendWelcomeMessage);
 			usersService.validateToken();
 			connection.connectionSuccessSignal.remove(successConnected);
 			connection.connectionFailureSignal.remove(unsuccessConnected);
+		}
+		
+		private function onAuthTokenReply(tokenValid:Boolean):void {
+			userSession.authTokenSignal.remove(onAuthTokenReply);
+			if (tokenValid) {
+				if (conferenceParameters.isGuestDefined() && conferenceParameters.guest) {
+					userSession.guestPolicySignal.add(onGuestPolicyResponse);
+					usersService.getGuestPolicy();
+				} else {
+					successJoiningMeeting();
+				}
+			} else {
+				// TODO disconnect
+			}
+		}
+		
+		private function onGuestPolicyResponse(policy:String):void {
+			if (policy == UserSession.GUEST_POLICY_ALWAYS_ACCEPT) {
+				onGuestAllowed();
+			} else if (policy == UserSession.GUEST_POLICY_ALWAYS_DENY) {
+				onGuestDenied();
+			} else if (policy == UserSession.GUEST_POLICY_ASK_MODERATOR) {
+				userUISession.pushPage(PagesENUM.GUEST);
+				userUISession.loading = false;
+				userSession.guestEntranceSignal.add(onGuestEntranceResponse);
+			}
+		}
+		
+		private function onGuestEntranceResponse(allowed:Boolean):void {
+			if (allowed) {
+				onGuestAllowed();
+			} else {
+				onGuestDenied();
+			}
+		}
+		
+		private function onGuestAllowed():void {
+			successJoiningMeeting();
+		}
+		
+		private function onGuestDenied():void {
+			userUISession.loading = false;
+			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MODERATOR_DENIED);
 		}
 		
 		private function successJoiningMeeting():void {

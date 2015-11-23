@@ -21,10 +21,10 @@ package org.bigbluebutton.lib.main.commands {
 		override public function execute():void {
 			if (raised) {
 				trace("RaiseHandCommand.execute() - handRaised");
-				userService.raiseHand();
+				//userService.raiseHand();
 			} else {
 				trace("RaiseHandCommand.execute() - hand lowered for user " + userId + " by user " + userId);
-				userService.lowerHand(userId);
+				//userService.lowerHand(userId);
 			}
 		}
 	}

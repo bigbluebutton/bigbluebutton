@@ -13,10 +13,11 @@ package org.bigbluebutton.lib.main.services {
 		function connect(params:IConferenceParameters, tunnel:Boolean = false):void;
 		function disconnect(logoutOnUserCommand:Boolean):void;
 		function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object = null):void;
-		function get connectionFailureSignal():ISignal;
-		function get connectionSuccessSignal():ISignal;
+		function get unsuccessConnected():ISignal;
+		function get successConnected():ISignal;
 		function get userId():String;
 		function addMessageListener(listener:IMessageListener):void
 		function removeMessageListener(listener:IMessageListener):void
+		//function clearMessageListeners():void;
 	}
 }

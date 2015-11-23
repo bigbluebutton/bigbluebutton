@@ -10,6 +10,8 @@ package org.bigbluebutton.lib.user.models {
 	import spark.collections.Sort;
 	
 	public class UserList {
+		public static const MODERATOR:int = 0;
+		
 		public static const HAS_STREAM:int = 1;
 		
 		public static const PRESENTER:int = 2;
@@ -25,6 +27,26 @@ package org.bigbluebutton.lib.user.models {
 		public static const LOCKED:int = 7;
 		
 		public static const LISTEN_ONLY:int = 8;
+		
+		public static const AGREE:int = 9;
+		
+		public static const NO_STATUS:int = 10;
+		
+		public static const DISAGREE:int = 11;
+		
+		public static const SPEAK_LOUDER:int = 12;
+		
+		public static const SPEAK_LOWER:int = 13;
+		
+		public static const SPEAK_FASTER:int = 14;
+		
+		public static const SPEAK_SLOWER:int = 15;
+		
+		public static const BE_RIGHT_BACK:int = 16;
+		
+		public static const LAUGHTER:int = 17;
+		
+		public static const SAD:int = 18;
 		
 		private var _users:ArrayCollection;
 		
@@ -115,20 +137,20 @@ package org.bigbluebutton.lib.user.models {
 		private function sortFunction(a:Object, b:Object, array:Array = null):int {
 			var au:User = a as User, bu:User = b as User;
 			/*if (a.presenter)
-			   return -1;
-			   else if (b.presenter)
-			   return 1;*/
+			return -1;
+			else if (b.presenter)
+			return 1;*/
 			if (au.role == User.MODERATOR && bu.role == User.MODERATOR) {
 				// do nothing go to the end and check names
 			} else if (au.role == User.MODERATOR)
 				return -1;
 			else if (bu.role == User.MODERATOR)
 				return 1;
-			else if (au.raiseHand && bu.raiseHand) {
+			else if ((au.status == User.RAISE_HAND) && (bu.status == User.RAISE_HAND)) {
 				// do nothing go to the end and check names
-			} else if (au.raiseHand)
+			} else if ((au.status == User.RAISE_HAND))
 				return -1;
-			else if (bu.raiseHand)
+			else if ((bu.status == User.RAISE_HAND))
 				return 1;
 			else if (au.phoneUser && bu.phoneUser) {
 			} else if (au.phoneUser)
@@ -160,6 +182,7 @@ package org.bigbluebutton.lib.user.models {
 					//TODO check if this is correct
 					// if we don't set _me to the just added user, _me won't get any update ever, it wouldn't be
 					// possible to use me.isModerator(), for instance
+					newuser.listenOnly = _me.listenOnly;
 					_me = newuser;
 				}
 				_users.addItem(newuser);
@@ -170,8 +193,38 @@ package org.bigbluebutton.lib.user.models {
 				if (newuser.presenter) {
 					userChangeSignal.dispatch(newuser, PRESENTER);
 				}
-				if (newuser.raiseHand) {
+				if (newuser.status == User.RAISE_HAND) {
 					userChangeSignal.dispatch(newuser, RAISE_HAND);
+				}
+				if (newuser.status == User.AGREE) {
+					userChangeSignal.dispatch(newuser, AGREE);
+				}
+				if (newuser.status == User.DISAGREE) {
+					userChangeSignal.dispatch(newuser, DISAGREE);
+				}
+				if (newuser.status == User.SPEAK_LOUDER) {
+					userChangeSignal.dispatch(newuser, SPEAK_LOUDER);
+				}
+				if (newuser.status == User.SPEAK_LOWER) {
+					userChangeSignal.dispatch(newuser, SPEAK_LOWER);
+				}
+				if (newuser.status == User.SPEAK_FASTER) {
+					userChangeSignal.dispatch(newuser, SPEAK_FASTER);
+				}
+				if (newuser.status == User.SPEAK_SLOWER) {
+					userChangeSignal.dispatch(newuser, SPEAK_SLOWER);
+				}
+				if (newuser.status == User.BE_RIGHT_BACK) {
+					userChangeSignal.dispatch(newuser, BE_RIGHT_BACK);
+				}
+				if (newuser.status == User.LAUGHTER) {
+					userChangeSignal.dispatch(newuser, LAUGHTER);
+				}
+				if (newuser.status == User.SAD) {
+					userChangeSignal.dispatch(newuser, SAD);
+				}
+				if (newuser.status == User.NO_STATUS) {
+					userChangeSignal.dispatch(newuser, NO_STATUS);
 				}
 				if (newuser.listenOnly) {
 					userChangeSignal.dispatch(newuser, LISTEN_ONLY);
@@ -259,36 +312,94 @@ package org.bigbluebutton.lib.user.models {
 		private function clearPresenter():void {
 			for each (var user:User in _users) {
 				user.presenter = false;
+				userChangeSignal.dispatch(user, PRESENTER);
 			}
 		}
 		
-		public function userStreamChange(userID:String, hasStream:Boolean, streamName:String):void {
+		public function userStreamChange(userID:String, share:Boolean, streamName:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p) {
 				var user:User = p.participant as User;
-				user.hasStream = hasStream;
-				if (hasStream) {
-					if (user.streamName && user.streamName != "") {
-						user.streamName += "|" + streamName;
-					} else {
+				if (share) {
+					user.hasStream = true;
+					if (user.streamName == "") {
 						user.streamName = streamName;
+					} else {
+						user.streamName += "|" + streamName;
 					}
 				} else {
-					user.streamName = user.streamName.replace("|" + streamName, "");
-					user.streamName = user.streamName.replace(streamName + "|", "");
-					user.streamName = user.streamName.replace(streamName, "");
+					var newStreamName:String = "";
+					var streamNames:Array = user.streamName.split("|");
+					if (streamName) {
+						for each (var sN:String in streamNames) {
+							if (streamName != sN) {
+								if (newStreamName == "") {
+									newStreamName += sN;
+								} else {
+									newStreamName += "|" + sN;
+								}
+							}
+						}
+					}
+					user.streamName = newStreamName;
+					if (newStreamName != "") {
+						user.hasStream = true;
+					} else {
+						user.hasStream = false;
+					}
 				}
-				
 				userChangeSignal.dispatch(user, HAS_STREAM);
 			}
 		}
 		
-		public function raiseHandChange(userID:String, value:Boolean):void {
+		public function statusChange(userID:String, value:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p) {
 				var user:User = p.participant as User;
-				p.participant.raiseHand = value;
-				userChangeSignal.dispatch(p.participant, RAISE_HAND);
+				p.participant.status = value;
+				switch (value) {
+					case User.RAISE_HAND:
+						userChangeSignal.dispatch(p.participant, RAISE_HAND);
+						break;
+					case User.AGREE:
+						userChangeSignal.dispatch(p.participant, AGREE);
+						break;
+					case User.DISAGREE:
+						userChangeSignal.dispatch(p.participant, DISAGREE);
+						break;
+					case User.SPEAK_LOUDER:
+						userChangeSignal.dispatch(p.participant, SPEAK_LOUDER);
+						break;
+					case User.SPEAK_LOWER:
+						userChangeSignal.dispatch(p.participant, SPEAK_LOWER);
+						break;
+					case User.SPEAK_FASTER:
+						userChangeSignal.dispatch(p.participant, SPEAK_FASTER);
+						break;
+					case User.SPEAK_SLOWER:
+						userChangeSignal.dispatch(p.participant, SPEAK_SLOWER);
+						break;
+					case User.BE_RIGHT_BACK:
+						userChangeSignal.dispatch(p.participant, BE_RIGHT_BACK);
+						break;
+					case User.LAUGHTER:
+						userChangeSignal.dispatch(p.participant, LAUGHTER);
+						break;
+					case User.SAD:
+						userChangeSignal.dispatch(p.participant, SAD);
+						break;
+					case User.NO_STATUS:
+						userChangeSignal.dispatch(p.participant, NO_STATUS);
+				}
+			}
+		}
+		
+		public function roleChange(userID:String, role:String):void {
+			var p:Object = getUserIndex(userID);
+			if (p) {
+				var user:User = p.participant as User;
+				p.participant.role = role;
+				userChangeSignal.dispatch(p.participant, role);
 			}
 		}
 		
@@ -300,7 +411,6 @@ package org.bigbluebutton.lib.user.models {
 				user.voiceJoined = true;
 				user.muted = muted;
 				user.talking = talking;
-				user.locked = locked;
 				userChangeSignal.dispatch(user, JOIN_AUDIO);
 			} else {
 				trace("UserList: User join audio failed - user not found");
@@ -368,6 +478,10 @@ package org.bigbluebutton.lib.user.models {
 				user.listenOnly = listenOnly;
 				userChangeSignal.dispatch(user, LISTEN_ONLY);
 			}
+		}
+		
+		public function removeAllUsers() {
+			_users = new ArrayCollection();
 		}
 	}
 }

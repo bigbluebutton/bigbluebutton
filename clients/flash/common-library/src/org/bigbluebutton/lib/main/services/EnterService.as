@@ -9,30 +9,30 @@ package org.bigbluebutton.lib.main.services {
 	public class EnterService {
 		protected var _successSignal:Signal = new Signal();
 		
-		protected var _failureSignal:Signal = new Signal();
+		protected var _unsuccessSignal:Signal = new Signal();
 		
 		public function get successSignal():ISignal {
 			return _successSignal;
 		}
 		
-		public function get failureSignal():ISignal {
-			return _failureSignal;
+		public function get unsuccessSignal():ISignal {
+			return _unsuccessSignal;
 		}
 		
 		public function enter(enterUrl:String, urlRequest:URLRequest):void {
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
-			fetcher.failureSignal.add(onFailure);
+			fetcher.unsuccessSignal.add(onUnsuccess);
 			fetcher.fetch(enterUrl, urlRequest);
 		}
 		
-		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest):void {
+		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 0):void {
 			var result:Object = JSON.parse(data as String);
 			successSignal.dispatch(result.response);
 		}
 		
-		protected function onFailure(reason:String):void {
-			_failureSignal.dispatch(reason);
+		protected function onUnsuccess(reason:String):void {
+			unsuccessSignal.dispatch(reason);
 		}
 	}
 }

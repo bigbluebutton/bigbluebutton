@@ -34,6 +34,8 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
 	import org.bigbluebutton.web.main.commands.LocaleChangedSignal;
+	import org.bigbluebutton.web.main.models.IShortcutOptions;
+	import org.bigbluebutton.web.main.models.ShortcutOptions;
 	import org.bigbluebutton.web.toolbar.micbutton.commands.AudioSelectionWindowClosedSignal;
 	import org.bigbluebutton.web.toolbar.webcambutton.commands.CamSettingsClosedSignal;
 	
@@ -51,6 +53,7 @@ package org.bigbluebutton.web {
 		
 		public function configure():void {
 			// Singleton mapping
+			injector.map(IShortcutOptions).toSingleton(ShortcutOptions);
 			injector.map(IUserSession).toSingleton(UserSession);
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);

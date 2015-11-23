@@ -13,7 +13,7 @@ package org.bigbluebutton.lib.main.models {
 	 *
 	 */
 	public class ConferenceParameters implements IConferenceParameters {
-		private var _changedSignal:Signal = new Signal();
+		private var _changedSignal:Signal;
 		
 		private var _meetingName:String;
 		
@@ -81,11 +81,24 @@ package org.bigbluebutton.lib.main.models {
 		
 		private var _record:Boolean;
 		
+		private var _guest:Boolean;
+		
+		private var _guestDefined:Boolean;
+		
 		private var _authToken:String;
 		
-		private var _avatarUrl:String;
+		private var _metadata:Object;
 		
-		public function ConferenceParameters() {
+		private var _muteOnStart:Boolean;
+		
+		private var _serverIsMconf:Boolean;
+		
+		public function ConferenceParameters(signal:Signal = null) {
+			if (signal) {
+				_changedSignal = signal;
+			} else {
+				_changedSignal = new Signal();
+			}
 		}
 		
 		/**
@@ -107,6 +120,10 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get externMeetingID():String {
 			return _externMeetingID;
+		}
+		
+		public function get meetingID():String {
+			return _meetingID;
 		}
 		
 		public function set externMeetingID(externMeetingID:String):void {
@@ -239,19 +256,36 @@ package org.bigbluebutton.lib.main.models {
 			_authToken = authToken;
 		}
 		
-		public function get avatarUrl():String {
-			return _avatarUrl;
+		public function get metadata():Object {
+			return _metadata;
 		}
 		
-		public function set avatarUrl(value:String):void {
-			_avatarUrl = value;
+		public function set metadata(metadata:Object):void {
+			metadata = metadata;
+		}
+		
+		public function get guest():Boolean {
+			return _guest;
+		}
+		
+		public function set guest(value:Boolean):void {
+			_guest = value;
+			_changedSignal.dispatch();
+		}
+		
+		public function get serverIsMconf():Boolean {
+			return _serverIsMconf;
+		}
+		
+		public function isGuestDefined():Boolean {
+			return _guestDefined;
 		}
 		
 		public function load(obj:Object):void {
-			_meetingName = obj.conferenceName;
+			_meetingName = obj.confname;
 			_externMeetingID = obj.externMeetingID;
 			_conference = obj.conference;
-			_username = obj.username;
+			_username = obj.fullname;
 			_role = obj.role;
 			_room = obj.room;
 			_webvoiceconf = obj.webvoiceconf;
@@ -259,12 +293,37 @@ package org.bigbluebutton.lib.main.models {
 			_welcome = obj.welcome;
 			_meetingID = obj.meetingID;
 			_externUserID = obj.externUserID;
-			_internalUserID = obj.internalUserId;
+			_internalUserID = obj.internalUserID;
 			_logoutUrl = obj.logoutUrl;
 			_record = !(obj.record == "false");
+			_guest = (obj.guest == "true");
+			_serverIsMconf = (obj.guest) ? true : false;
+			_guestDefined = (obj.guest != undefined);
 			_authToken = obj.authToken;
-			_avatarUrl = obj.avatarURL;
 			_changedSignal.dispatch();
+			_metadata = new Object();
+			for (var n:String in obj.metadata) {
+				for (var id:String in obj.metadata[n]) {
+					_metadata[id] = obj.metadata[n][id];
+				}
+			}
+			try {
+				_muteOnStart = (obj.muteOnStart as String).toUpperCase() == "TRUE";
+			} catch (e:Error) {
+				_muteOnStart = false;
+			}
+			for (var id:String in obj) {
+				var value:Object = obj[id];
+				trace(id + " = " + value);
+			}
+		}
+		
+		public function set muteOnStart(mute:Boolean):void {
+			_muteOnStart = mute;
+		}
+		
+		public function get muteOnStart():Boolean {
+			return _muteOnStart;
 		}
 	}
 }

@@ -12,15 +12,23 @@ package org.bigbluebutton.lib.main.commands {
 		[Inject]
 		public var userSession:IUserSession;
 		
+		//[Inject]
+		//public var userUISession:IUserUISession;
+		
 		public function DisconnectUserCommand() {
 			super();
 		}
 		
 		override public function execute():void {
 			//userUISession.pushPage(PagesENUM.DISCONNECT, disconnectionStatusCode);
-			userSession.mainConnection.connection.close();
-			userSession.videoConnection.connection.close();
-			userSession.voiceConnection.connection.close();
+			if (userSession.mainConnection)
+				userSession.mainConnection.disconnect(true);
+			if (userSession.videoConnection)
+				userSession.videoConnection.disconnect(true);
+			if (userSession.voiceConnection)
+				userSession.voiceConnection.disconnect(true);
+			if (userSession.deskshareConnection)
+				userSession.deskshareConnection.disconnect(true);
 		}
 	}
 }

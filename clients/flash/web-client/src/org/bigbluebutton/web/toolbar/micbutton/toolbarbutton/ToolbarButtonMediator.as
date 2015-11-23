@@ -90,9 +90,12 @@ package org.bigbluebutton.web.toolbar.micbutton.toolbarbutton {
 		}
 		
 		private function userChangeHandler(user:User, type:int):void {
+			trace("++ a user has changed");
 			if (user.me) {
+				trace("++ and its me");
 				switch (type) {
 					case UserList.JOIN_AUDIO:
+						trace("++ joining audio");
 						if (user.voiceJoined) {
 							handleFlashJoinedVoiceConferenceEvent();
 						} else {
@@ -100,6 +103,7 @@ package org.bigbluebutton.web.toolbar.micbutton.toolbarbutton {
 						}
 						break;
 					case UserList.LISTEN_ONLY:
+						trace("++ listen only");
 						if (user.listenOnly) {
 							handleFlashJoinedListenOnlyConferenceEvent();
 						} else {
@@ -239,6 +243,7 @@ package org.bigbluebutton.web.toolbar.micbutton.toolbarbutton {
 		}
 		
 		private function resetButtonState():void {
+			trace("++ hello");
 			view.selected = false;
 			view.enabled = true;
 			_currentState = DEFAULT_STATE;

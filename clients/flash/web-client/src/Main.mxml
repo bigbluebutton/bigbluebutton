@@ -31,6 +31,7 @@
 			import org.bigbluebutton.web.chat.views.ChatWindow;
 			import org.bigbluebutton.web.main.MainConfig;
 			import org.bigbluebutton.web.main.views.LoadingScreen;
+			import org.bigbluebutton.web.shortcuthelp.ShortcutHelpConfig;
 			import org.bigbluebutton.web.toolbar.MainToolbarConfig;
 			import org.bigbluebutton.web.toolbar.micbutton.audioselectionwindow.AudioSelectionWindowConfig;
 			import org.bigbluebutton.web.toolbar.micbutton.toolbarbutton.ToolbarButtonConfig;
@@ -87,7 +88,7 @@
 			
 			protected function preinitializeHandler(event:FlexEvent):void {
 				setupContext();
-				ResourceManager.getInstance().localeChain = ['en_US', 'pt_BR'];
+				ResourceManager.getInstance().localeChain = ['en_US'];
 			}
 			
 			private function updateCopyrightText():void {
@@ -104,7 +105,7 @@
 			private function setupContext():void {
 				context = new Context().install(MVCSBundle, SignalCommandMapExtension).configure(AppConfig)
 					
-					.configure(MainConfig).configure(ChatConfig).configure(UserConfig).configure(VideoConfig).configure(MainToolbarConfig).configure(CameraDisplaySettingsConfig).configure(ToolbarPopupButtonConfig).configure(ToolbarButtonConfig).configure(AudioSelectionWindowConfig)
+					.configure(MainConfig).configure(ChatConfig).configure(UserConfig).configure(VideoConfig).configure(MainToolbarConfig).configure(CameraDisplaySettingsConfig).configure(ToolbarPopupButtonConfig).configure(ToolbarButtonConfig).configure(AudioSelectionWindowConfig).configure(ShortcutHelpConfig)
 					
 					.configure(new ContextView(this));
 				

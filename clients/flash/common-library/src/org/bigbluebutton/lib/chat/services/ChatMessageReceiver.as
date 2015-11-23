@@ -1,16 +1,19 @@
 package org.bigbluebutton.lib.chat.services {
 	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	public class ChatMessageReceiver implements IMessageListener {
-		private const LOG:String = "ChatMessageReceiver::";
-		
 		public var userSession:IUserSession;
 		
 		public var chatMessagesSession:IChatMessagesSession;
+		
+		[Inject]
+		public var chatService:IChatMessageService;
 		
 		public function ChatMessageReceiver(userSession:IUserSession, chatMessagesSession:IChatMessagesSession) {
 			this.userSession = userSession;
@@ -34,16 +37,18 @@ package org.bigbluebutton.lib.chat.services {
 		}
 		
 		private function handleChatRequestMessageHistoryReply(message:Object):void {
-			trace(LOG + "Handling chat history message [" + message.msg + "]");
-			var chats:Array = JSON.parse(message.msg) as Array;
-			
-			for (var i:int = 0; i < chats.length; i++) {
-				handleChatReceivePublicMessageCommand(chats[i]);
+			var messages = JSON.parse(message.msg as String);
+			var msgCount:Number = messages.length;
+			chatMessagesSession.publicChat.messages = new ArrayCollection();
+			chatMessagesSession.publicChat.resetNewMessages();
+			for (var i:int = 0; i < msgCount; i++) {
+				handleChatReceivePublicMessageCommand(messages[i]);
 			}
+			userSession.loadedMessageHistorySignal.dispatch();
 		}
 		
 		private function handleChatReceivePublicMessageCommand(message:Object):void {
-			trace(LOG + "Handling public chat message [" + message.message + "]");
+			trace("Handling public chat message [" + message.message + "]");
 			var msg:ChatMessageVO = new ChatMessageVO();
 			msg.chatType = message.chatType;
 			msg.fromUserID = message.fromUserID;
@@ -59,7 +64,7 @@ package org.bigbluebutton.lib.chat.services {
 		}
 		
 		private function handleChatReceivePrivateMessageCommand(message:Object):void {
-			trace(LOG + "Handling private chat message");
+			trace("Handling private chat message");
 			var msg:ChatMessageVO = new ChatMessageVO();
 			msg.chatType = message.chatType;
 			msg.fromUserID = message.fromUserID;
