@@ -125,6 +125,9 @@ class MessageSenderActor(val service: MessageSender)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
     // breakout room cases
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
+    case msg: BreakoutRoomJoinURLOutMessage => handleBreakoutRoomJoinURLOutMessage(msg)
+    case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsersOutMessage(msg)
+    case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
 
     case _ => // do nothing
   }
@@ -663,6 +666,21 @@ class MessageSenderActor(val service: MessageSender)
   
   private def handleBreakoutRoomStartedOutMessage(msg : BreakoutRoomStartedOutMessage) {
     val json = MeetingMessageToJsonConverter.breakoutRoomStartedOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+  
+  private def handleBreakoutRoomJoinURLOutMessage(msg: BreakoutRoomJoinURLOutMessage) {
+    val json = MeetingMessageToJsonConverter.breakoutRoomJoinURLOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+  
+  private def handleUpdateBreakoutUsersOutMessage(msg: UpdateBreakoutUsersOutMessage) {
+    val json = MeetingMessageToJsonConverter.updateBreakoutUsersOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+  
+  private def handleMeetingTimeRemainingUpdate(msg: MeetingTimeRemainingUpdate) {
+    val json = MeetingMessageToJsonConverter.meetingTimeRemainingUpdateToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 }
