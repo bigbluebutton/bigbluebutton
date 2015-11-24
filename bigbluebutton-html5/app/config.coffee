@@ -24,9 +24,9 @@ config.app.mobileFont=16
 config.app.desktopFont=14
 
 # Will offer the user to join the audio when entering the meeting
-config.app.autoJoinAudio = true
-config.app.listenOnly = true
-config.app.skipCheck = true
+config.app.autoJoinAudio = false
+config.app.listenOnly = false
+config.app.skipCheck = false
 
 # The amount of time the client will wait before making another call to successfully hangup the WebRTC conference call
 config.app.WebRTCHangupRetryInterval = 2000
