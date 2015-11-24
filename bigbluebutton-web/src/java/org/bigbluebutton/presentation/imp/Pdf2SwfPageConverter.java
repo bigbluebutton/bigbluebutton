@@ -65,7 +65,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
           + File.separator, "pdf2swf", "-v", AVM2SWF, "-s", "poly2bitmap",
           "-F", fontsDir, "-p", String.valueOf(page), source, "-o", dest));
       Pdf2SwfPageConverterHandler pBmpHandler = new Pdf2SwfPageConverterHandler();
-      pb.setProcessListener(pBmpHandler);
+      pbBmp.setProcessListener(pBmpHandler);
       NuProcess processBmp = pbBmp.start();
       try {
         processBmp.waitFor(60, TimeUnit.SECONDS);
