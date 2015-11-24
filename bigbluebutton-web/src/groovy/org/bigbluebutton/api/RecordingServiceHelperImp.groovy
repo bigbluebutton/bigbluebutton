@@ -118,6 +118,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		r.setDownloadLink(rec.download.link.text());
 		r.setDownloadMd5(rec.download.md5.text());
 		r.setDownloadKey(rec.download.key.text());
+		r.setDownloadSize(rec.download.size.text());
 		Map<String, String> meta = new HashMap<String, String>();		
 		rec.meta.children().each { anode ->
 				log.debug("metadata: "+anode.name()+" "+anode.text())
