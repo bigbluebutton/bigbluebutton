@@ -15,20 +15,20 @@ trait CaptionApp {
 
     outGW.send(new SendCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, history))
   }
-  
+  /*
   def handleUpdateCaptionInfo(msg: UpdateCaptionInfo) {
-  
-  }
 
+  }
+*/
   def handleEditCaptionHistoryRequest(msg: EditCaptionHistoryRequest) {
     captionModel.editHistory(msg.startIndex, msg.endIndex, msg.locale, msg.text)
 
     outGW.send(new EditCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.startIndex, msg.endIndex, msg.locale, msg.text))
   }
-  
+
   def checkCaptionOwnerLogOut(userId: String) {
-    var transcript = findTranscriptByOwnerId(userId)
-    
-    if (transcript
+    //var transcript = findTranscriptByOwnerId(userId)
+
+    //if (transcript
   }
 }
