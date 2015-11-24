@@ -45,7 +45,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
     NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR
         + File.separator + "pdf2swf", "-v", AVM2SWF, "-F", fontsDir, "-p",
-        String.valueOf(page), source, "-o", "dest"));
+        String.valueOf(page), source, "-o", dest));
     Pdf2SwfPageConverterHandler pHandler = new Pdf2SwfPageConverterHandler();
     pb.setProcessListener(pHandler);
     NuProcess process = pb.start();
@@ -60,7 +60,6 @@ public class Pdf2SwfPageConverter implements PageConverter {
     if (done && destFile.exists()) {
       return true;
     } else {
-
       NuProcessBuilder pbBmp = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR
           + File.separator, "pdf2swf", "-v", AVM2SWF, "-s", "poly2bitmap",
           "-F", fontsDir, "-p", String.valueOf(page), source, "-o", dest));
