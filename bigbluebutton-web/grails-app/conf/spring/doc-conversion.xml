@@ -62,6 +62,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="pdf2SwfPageConverter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter">
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
 		<property name="fontsDir" value="${fontsDir}"/>
+		<property name="swfAnalyser" ref="swfAnalyser"/>
+	</bean>
+	
+	<bean id="swfAnalyser" class="org.bigbluebutton.presentation.imp.SwfAnalyser">
+		<property name="swfToolsDir" value="${swfToolsDir}"/>
+		<!--property name="maxSwfShapes" value="${maxSwfShapes}"/ -->
 	</bean>
 	
 	<bean id="imageConvSvc" class="org.bigbluebutton.presentation.imp.PdfPageToImageConversionService">
@@ -79,9 +85,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="imageMagickDir" value="${imageMagickDir}"/>
 	</bean>
 
-  <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
-    <property name="imageMagickDir" value="${imageMagickDir}"/>
-  </bean>
+	<bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
+	    <property name="imageMagickDir" value="${imageMagickDir}"/>
+	</bean>
   	
 	<bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
 	

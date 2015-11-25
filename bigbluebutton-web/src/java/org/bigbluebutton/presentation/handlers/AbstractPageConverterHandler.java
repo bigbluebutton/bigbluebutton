@@ -34,10 +34,10 @@ public abstract class AbstractPageConverterHandler extends
   private static Logger log = LoggerFactory
       .getLogger(AbstractPageConverterHandler.class);
 
-  private NuProcess nuProcess;
-  private int exitCode;
-  final private StringBuilder stdoutBuilder = new StringBuilder();
-  final private StringBuilder stderrBuilder = new StringBuilder();
+  protected NuProcess nuProcess;
+  protected int exitCode;
+  final protected StringBuilder stdoutBuilder = new StringBuilder();
+  final protected StringBuilder stderrBuilder = new StringBuilder();
 
   @Override
   public void onPreStart(NuProcess nuProcess) {
@@ -55,7 +55,6 @@ public abstract class AbstractPageConverterHandler extends
       CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer);
       stdoutBuilder.append(charBuffer);
     }
-    log.debug("Conversion success\n" + stdoutBuilder.toString());
   }
 
   @Override
@@ -64,17 +63,29 @@ public abstract class AbstractPageConverterHandler extends
       CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer);
       stderrBuilder.append(charBuffer);
     }
-    log.debug("Conversion error\n" + stderrBuilder.toString());
+    log.debug("Conversion stdout\n" + stdoutBuilder.toString());
+    log.debug("Conversion error stderr\n" + stderrBuilder.toString());
   }
 
   @Override
   public void onExit(int statusCode) {
     exitCode = statusCode;
-    log.debug("Conversion process exited with status=" + exitCode);
+  }
+
+  /**
+   * 
+   * @return true if the exit code of the process is different from 0
+   */
+  public Boolean exitedWithError() {
+    return exitCode != 0;
   }
 
   protected Boolean stdoutContains(String value) {
     return stdoutBuilder.indexOf(value) > -1;
+  }
+
+  protected Boolean sterrContains(String value) {
+    return stderrBuilder.indexOf(value) > -1;
   }
 
   public abstract Boolean isConversionSuccessfull();

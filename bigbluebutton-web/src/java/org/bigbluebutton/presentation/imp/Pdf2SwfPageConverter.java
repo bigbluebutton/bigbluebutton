@@ -37,6 +37,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
   private String SWFTOOLS_DIR;
   private String fontsDir;
+  private SwfAnalyser swfAnalyser;
 
   public boolean convert(File presentation, File output, int page) {
     String source = presentation.getAbsolutePath();
@@ -44,10 +45,11 @@ public class Pdf2SwfPageConverter implements PageConverter {
     String AVM2SWF = "-T9";
 
     NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR
-        + File.separator + "pdf2swf", "-v", AVM2SWF, "-F", fontsDir, "-p",
+        + File.separator + "pdf2swf", AVM2SWF, "-F", fontsDir, "-p",
         String.valueOf(page), source, "-o", dest));
     Pdf2SwfPageConverterHandler pHandler = new Pdf2SwfPageConverterHandler();
     pb.setProcessListener(pHandler);
+    log.debug("## Executing command: " + pb.command().toString());
     NuProcess process = pb.start();
     try {
       process.waitFor(60, TimeUnit.SECONDS);
@@ -55,16 +57,19 @@ public class Pdf2SwfPageConverter implements PageConverter {
       log.error(e.getMessage());
     }
     boolean done = pHandler.isConversionSuccessfull();
+    boolean swfIntegritySuccess = swfAnalyser.analyse(output);
 
     File destFile = new File(dest);
-    if (done && destFile.exists()) {
+    if (done && swfIntegritySuccess && destFile.exists()) {
       return true;
     } else {
+      log.debug("Falling back to 'poly2bitmap' option for pdf2swf");
       NuProcessBuilder pbBmp = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR
-          + File.separator, "pdf2swf", "-v", AVM2SWF, "-s", "poly2bitmap",
-          "-F", fontsDir, "-p", String.valueOf(page), source, "-o", dest));
+          + File.separator + "pdf2swf", AVM2SWF, "-s", "poly2bitmap", "-F",
+          fontsDir, "-p", String.valueOf(page), source, "-o", dest));
       Pdf2SwfPageConverterHandler pBmpHandler = new Pdf2SwfPageConverterHandler();
       pbBmp.setProcessListener(pBmpHandler);
+      log.debug("## Executing command: " + pbBmp.command().toString());
       NuProcess processBmp = pbBmp.start();
       try {
         processBmp.waitFor(60, TimeUnit.SECONDS);
@@ -82,6 +87,10 @@ public class Pdf2SwfPageConverter implements PageConverter {
     }
   }
 
+  public void setSwfAnalyser(SwfAnalyser swfAnalyser) {
+    this.swfAnalyser = swfAnalyser;
+  }
+
   public void setSwfToolsDir(String dir) {
     SWFTOOLS_DIR = dir;
   }
@@ -89,4 +98,5 @@ public class Pdf2SwfPageConverter implements PageConverter {
   public void setFontsDir(String dir) {
     fontsDir = dir;
   }
+
 }
