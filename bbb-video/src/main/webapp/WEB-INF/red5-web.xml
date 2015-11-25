@@ -50,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="recordVideoStream" value="true"/>
 		<property name="eventRecordingService" ref="redisRecorder"/>
 		<property name="messagePublisher" ref="redisPublisher"/>
+		<property name="relayTimeout" value="${relayTimeout}"/>
 	</bean>
 
     <bean id="redisPublisher" class="org.bigbluebutton.red5.pubsub.MessagePublisher">

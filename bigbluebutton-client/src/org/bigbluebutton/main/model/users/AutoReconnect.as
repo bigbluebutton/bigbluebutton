@@ -31,17 +31,20 @@ package org.bigbluebutton.main.model.users
     private var _backoff:Number = 2000;
     private var _reconnectCallback:Function;
     private var _reconnectParameters:Array;
+    private var _retries: Number;
 
     public function onDisconnect(callback:Function, parameters:Array):void {
       LOGGER.debug("onDisconnect, parameters={0}", [parameters.toString()]);
       _reconnectCallback = callback;
       _reconnectParameters = parameters;
       attemptReconnect(0);
+      _retries = 1;
     }
 
     public function onConnectionAttemptFailed():void {
 	  LOGGER.warn("onConnectionAttemptFailed");
       attemptReconnect(_backoff);
+      _retries = _retries + 1;
     }
 
     private function attemptReconnect(backoff:Number):void {
@@ -53,6 +56,10 @@ package org.bigbluebutton.main.model.users
       });
       retryTimer.start();
       if (_backoff < 16000) _backoff = Math.max(backoff, 500) *2;
+    }
+
+    public function get Retries():Number {
+      return _retries;
     }
   }
 }

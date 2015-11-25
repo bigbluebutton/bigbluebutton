@@ -72,10 +72,10 @@ public class PresentationMessageListener implements MessageHandler {
         
         private void sendConversionCompleted(String messageKey, String conference,
                 String code, String presId, Integer numberOfPages,
-                String filename, String presBaseUrl) {
+                String filename, String presBaseUrl, Boolean downloadable) {
                 
                 conversionUpdatesProcessor.sendConversionCompleted(messageKey, conference,
-                        code, presId, numberOfPages, filename, presBaseUrl);
+                        code, presId, numberOfPages, filename, presBaseUrl, downloadable);
         }
 
         @Override
@@ -172,9 +172,10 @@ public class PresentationMessageListener implements MessageHandler {
     				} else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
     					Integer numberOfPages = new Integer((String) map.get("numberOfPages"));
     					String presBaseUrl = (String) map.get("presentationBaseUrl");
+    					Boolean downloadable = new Boolean((String) map.get("downloadable"));
 
     					sendConversionCompleted(messageKey, conference, code,
-    							presId, numberOfPages, filename, presBaseUrl);
+    							presId, numberOfPages, filename, presBaseUrl, downloadable);
     				}
     			}
     		}

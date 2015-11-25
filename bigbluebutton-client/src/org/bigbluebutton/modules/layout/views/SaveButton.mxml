@@ -23,7 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.saveButton.toolTip')}"
-		   icon="{icon_save}"
+		   styleName="saveLayoutButtonStyle"
 		   click="onClick(event)"
 		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
 	
@@ -39,8 +39,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _images:Images = new Images();
-			[Bindable] private var icon_save:Class = _images.disk;
 			
 			private function init():void {
 			}
@@ -49,6 +47,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_EVENT));
 			}
 			
+			public function refreshRole(amIModerator:Boolean):void {
+				this.enabled = amIModerator;
+			}
 		]]>
 	</mx:Script>
 </views:LayoutButton>

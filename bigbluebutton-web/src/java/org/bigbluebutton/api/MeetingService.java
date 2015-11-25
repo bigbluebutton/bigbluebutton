@@ -96,8 +96,8 @@ public class MeetingService implements MessageListener {
 		sessions.put(token, user);
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
-		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken));
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String guest) {
+		handle(new RegisterUser(meetingID, internalUserId, fullname, role, externUserID, authToken, guest));
 	}
 	
 	public UserSession getUserSession(String token) {
@@ -285,7 +285,7 @@ public class MeetingService implements MessageListener {
 	}
 	
 	private void processRegisterUser(RegisterUser message) {
-		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken);
+		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken, message.guest);
 	}
 	
 	public String addSubscription(String meetingId, String event, String callbackURL){
@@ -361,22 +361,48 @@ public class MeetingService implements MessageListener {
 
 				ArrayList<Playback> plays = new ArrayList<Playback>();
 				
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
-						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime()),
-						r.getPlaybackExtensions()));
+				if (!r.getPlaybackFormat().isEmpty()) {
+					plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+							getDurationRecording(r.getPlaybackDuration(),
+									r.getEndTime(), r.getStartTime()),
+									r.getPlaybackSize(),
+							r.getPlaybackExtensions()));
+				}
 				r.setPlaybacks(plays);
+
+				ArrayList<Download> downloads = new ArrayList<Download>();
+				if (!r.getDownloadFormat().isEmpty()) {
+					downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
+							r.getDownloadMd5(), r.getDownloadKey(),
+							r.getDownloadSize(),
+							getDurationRecording(r.getEndTime(), r.getStartTime())));
+				}
+				r.setDownloads(downloads);
+
 				map.put(r.getId(), r);
 			} else {
 				Recording rec = map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
-						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime()),
-						r.getPlaybackExtensions()));
+				if (!r.getPlaybackFormat().isEmpty()) {
+					rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
+							getDurationRecording(r.getPlaybackDuration(), 
+									r.getEndTime(), r.getStartTime()),
+									r.getPlaybackSize(),
+							r.getPlaybackExtensions()));
+				}
+				if (!r.getDownloadFormat().isEmpty()) {
+					rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(),
+							r.getDownloadMd5(), r.getDownloadKey(),
+							r.getDownloadSize(),
+							getDurationRecording(r.getEndTime(), r.getStartTime())));
+				}
 			}
 		}
 		
 		return map;
+	}
+	
+	private int getDurationRecording(String end, String start) {
+		return getDurationRecording("", end, start);
 	}
 	
 	private int getDurationRecording(String playbackDuration, String end, String start) {
@@ -526,7 +552,7 @@ public class MeetingService implements MessageListener {
 	private void userJoined(UserJoined message) {
 		Meeting m = getMeeting(message.meetingId);
 		if (m != null) {
-			User user = new User(message.userId, message.externalUserId, message.name, message.role);
+			User user = new User(message.userId, message.externalUserId, message.name, message.role, message.guest, message.waitingForAcceptance);
 			m.userJoined(user);
 
 			Map<String, Object> logData = new HashMap<String, Object>();
@@ -537,8 +563,10 @@ public class MeetingService implements MessageListener {
 			logData.put("externalUserId", user.getExternalUserId());
 			logData.put("username", user.getFullname());
 			logData.put("role", user.getRole());			
-			logData.put("event", "user_joined_message");
-			logData.put("description", "User had joined the meeting.");
+			logData.put("guest", user.isGuest());
+			logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+			logData.put("event", MessagingConstants.USER_JOINED_EVENT);
+			logData.put("description", "User has joined the meeting.");
 			
 			Gson gson = new Gson();
 		    String logStr =  gson.toJson(logData);
@@ -563,8 +591,10 @@ public class MeetingService implements MessageListener {
 				logData.put("externalUserId", user.getExternalUserId());
 				logData.put("username", user.getFullname());
 				logData.put("role", user.getRole());			
-				logData.put("event", "user_left_message");
-				logData.put("description", "User had left the meeting.");
+				logData.put("guest", user.isGuest());
+				logData.put("waitingForAcceptance", user.isWaitingForAcceptance());
+				logData.put("event", MessagingConstants.USER_LEFT_EVENT);
+				logData.put("description", "User left the meeting.");
 				
 				Gson gson = new Gson();
 		        String logStr =  gson.toJson(logData);
@@ -649,6 +679,18 @@ public class MeetingService implements MessageListener {
 		}
 	}
 
+	private void userRoleChanged(UserRoleChanged message) {
+		Meeting m = getMeeting(message.meetingId);
+		if (m != null) {
+			User user = m.getUserById(message.userId);
+			if(user != null){
+				user.setRole(message.role);
+				return;
+			}
+			return;
+		}
+	}
+
 	private void processMessage(final IMessage message) {
 		Runnable task = new Runnable() {
 	    public void run() {
@@ -664,6 +706,8 @@ public class MeetingService implements MessageListener {
 	  			userLeft((UserLeft)message);
 	  		} else if (message instanceof UserStatusChanged) {
 	  			updatedStatus((UserStatusChanged)message);
+	  		} else if (message instanceof UserRoleChanged) {
+	  			userRoleChanged((UserRoleChanged)message);
 	  		} else if (message instanceof UserJoinedVoice) {
 	  			userJoinedVoice((UserJoinedVoice)message);
 	  		} else if (message instanceof UserLeftVoice) {

@@ -68,8 +68,8 @@ public class RedisMessagingService implements MessagingService {
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);	
 	}
 	
-	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
-		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken);
+	public void registerUser(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, String guest) {
+		RegisterUserMessage msg = new RegisterUserMessage(meetingID, internalUserId, fullname, role, externUserID, authToken, guest);
 		String json = MessageToJson.registerUserToJson(msg);
 		log.info("Sending register user message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);		
@@ -127,18 +127,6 @@ public class RedisMessagingService implements MessagingService {
   	this.storeService = storeService;
   }
   
-	public String storeSubscription(String meetingId, String externalMeetingID, String callbackURL){
-		return storeService.storeSubscription(meetingId, externalMeetingID, callbackURL);
-	}
-
-	public boolean removeSubscription(String meetingId, String subscriptionId){
-		return storeService.removeSubscription(meetingId, subscriptionId);
-	}
-
-	public List<Map<String,String>> listSubscriptions(String meetingId){
-		return storeService.listSubscriptions(meetingId);	
-	}	
-	
 	public void removeMeeting(String meetingId){
 		storeService.removeMeeting(meetingId);
 	}

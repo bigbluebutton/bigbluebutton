@@ -88,7 +88,24 @@ package org.bigbluebutton.modules.users.services
 		message
 		);
 	}
-    
+
+    public function changeStatus(userID:String, status:String):void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      var message:Object = new Object();
+      message["userID"] = userID;
+      message["status"] = "mood";
+      message["value"] = status;
+      _nc.sendMessage("participants.setParticipantStatus",
+        function(result:String):void { // On successful result
+          LOGGER.debug(result); 
+        },
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status); 
+        },
+        message
+      );  
+    }
+
     public function addStream(userID:String, streamName:String):void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.shareWebcam", 

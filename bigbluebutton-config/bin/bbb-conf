@@ -371,8 +371,10 @@ enable_webrtc(){
 
 	# Enable port 5066 in FreeSWITCH
 	sed -i 's/^.*<!--<param name="ws-binding"  value=":5066"\/>-->.*$/\t<param name="ws-binding"  value=":5066"\/>/g' /opt/freeswitch/conf/sip_profiles/external.xml
+	sed -i 's/^.*<!--<param name="wss-binding"  value=":7443"\/>-->.*$/\t<param name="wss-binding"  value=":7443"\/>/g' /opt/freeswitch/conf/sip_profiles/external.xml
 
         sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+        sed -i "s/proxy_pass .*/proxy_pass https:\/\/$IP:7443;/g" /etc/bigbluebutton/nginx/sip-secure.nginx
 
 	echo 
 	echo "WebRTC audio enabled.  To apply settings to your server, do"
@@ -394,8 +396,10 @@ disable_webrtc(){
 
 	# Disable port 5066 in FreeSWITCH
 	sed -i 's/^.*<param name="ws-binding"  value=":5066"\/>.*$/\t<!--<param name="ws-binding"  value=":5066"\/>-->/g' /opt/freeswitch/conf/sip_profiles/external.xml
+	sed -i 's/^.*<param name="wss-binding"  value=":7443"\/>.*$/\t<!--<param name="wss-binding"  value=":7443"\/>-->/g' /opt/freeswitch/conf/sip_profiles/external.xml
 
         sed -i "s/proxy_pass .*/proxy_pass http:\/\/127.0.0.1:5066;/g" /etc/bigbluebutton/nginx/sip.nginx
+        sed -i "s/proxy_pass .*/proxy_pass http:\/\/127.0.0.1:7443;/g" /etc/bigbluebutton/nginx/sip-secure.nginx
 
 	echo 
 	echo "WebRTC audio disabled.  To apply settings to your server, do"
@@ -513,6 +517,9 @@ while [ $# -gt 0 ]; do
 			echo
 			echo "       URL: http://$BBB_WEB/bigbluebutton/"
 			echo "      Salt: $SALT"
+			echo
+			echo "      Link to the API-Mate:"
+			echo "      http://mconf.github.io/api-mate/#server=http://$BBB_WEB/bigbluebutton/&sharedSecret=$SALT"
 			echo
 			exit 0
 		fi

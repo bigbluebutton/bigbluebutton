@@ -18,26 +18,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   layout="absolute" 
-		   implements="org.bigbluebutton.common.IBigBlueButtonModule" 
-		   creationComplete="onCreationComplete()" >
+		layout="absolute" 
+		implements="org.bigbluebutton.common.IBigBlueButtonModule" 
+		creationComplete="onCreationComplete()" 
+		xmlns:maps="org.bigbluebutton.modules.sharednotes.maps.*"
+		xmlns:mate="http://mate.asfusion.com/" >
+
+	<maps:SharedNotesEventMap id="sharedNotesEventMap"/>
+
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.bigbluebutton.common.IBigBlueButtonModule;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.modules.sharednotes.SharedNotesWindow;
-			import org.bigbluebutton.modules.sharednotes.ToolbarButton;
-			import org.bigbluebutton.modules.sharednotes.infrastructure.HTTPServerConnection;
-			
-			private var _moduleName:String = "Notes Module";			
+			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
+
+			private var _moduleName:String = "Notes Module";
 			private var _attributes:Object;
 			
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("NotesModule Initialized");	
+				LogUtil.debug("NotesModule Initialized");
 				globalDispatcher = new Dispatcher();
 			}
 			
@@ -46,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function get uri():String {
-				if (_attributes.mode == "PLAYBACK") {										
+				if (_attributes.mode == "PLAYBACK") {
 					return _attributes.uri + "/" + _attributes.playbackRoom;
 				} 
 				
@@ -58,7 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 					
 			public function get mode():String {
-				if (_attributes.mode == null) {					
+				if (_attributes.mode == null) {
 					_attributes.mode = "LIVE"
 					LogUtil.debug('Setting NotesModule mode: ' + _attributes.mode);
 				}
@@ -67,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function get userid():Number {
-				return _attributes.userid as Number;
+				return _attributes.userid;
 			}
 			
 			public function get role():String {
@@ -75,19 +78,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function start(attributes:Object):void {	
-				LogUtil.debug("notes attr: " + attributes.username);
-				_attributes = attributes;
-				SharedNotesWindow.document = _attributes.room;
-				// The following line has been removed, as the uri should be in 
-				// the URI property in the config.xml file of the client
-					HTTPServerConnection.syncURL = (_attributes.uri as String).replace("RTMP", "http") + "/notes/notes.jsp";
-				addToolbarButton();
-			}
-			
-			public function addToolbarButton():void{
-				var button:ToolbarButton = new ToolbarButton();	   	
-				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-				event.button = button;
+				var event:StartSharedNotesModuleEvent = new StartSharedNotesModuleEvent();
+				event.attributes = attributes;
 				globalDispatcher.dispatchEvent(event);
 			}
 			

@@ -31,10 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
 		<ObjectBuilder generator="{ReconnectionManager}" cache="global" />
-		<!--
-		Disabling temporarily the stream monitor
-		-->
-		<!--ObjectBuilder generator="{StreamMonitor}" cache="global" /-->
+		<ObjectBuilder generator="{StreamMonitor}" cache="global" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
@@ -68,6 +65,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{ModuleLoadEvent.LAYOUT_MODULE_STARTED}">
     <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
+  </EventHandlers>
+
+  <EventHandlers type="{LogoutEvent.MODERATOR_DENIED_ME}" >
+    <MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
   </EventHandlers>
 
   <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">

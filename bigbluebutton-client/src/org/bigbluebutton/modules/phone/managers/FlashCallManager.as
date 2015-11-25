@@ -9,6 +9,7 @@
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.common.Media;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
@@ -97,7 +98,7 @@
       * after. (richard mar 28, 2014)
       */
       if (mic) {
-        if (options.skipCheck) {
+        if (options.skipCheck && PhoneOptions.firstAudioJoin) {
           LOGGER.debug("Calling into voice conference. skipCheck=[{0}] echoTestDone=[{1}]", [options.skipCheck, echoTestDone]);
 
           streamManager.useDefaultMic();
@@ -197,6 +198,17 @@
     }
     
     public function initialize():void {      
+      trace(LOG + "Initializing FlashCallManager, current state: " + state);
+      switch (state) {
+        case STOP_ECHO_THEN_JOIN_CONF:
+          // if we initialize usingFlash here, we won't be able to hang up from
+          // the flash connection
+          trace(LOG + "Invalid state for initialize, aborting...");
+          return;
+        default:
+          break;
+      }
+
       printMics();
       if (options.useWebRTCIfAvailable && isWebRTCSupported()) {
         usingFlash = false;
@@ -350,7 +362,9 @@
             LOGGER.debug("ignoring join voice conf as usingFlash=[{0}] or eventMic=[{1}]", [usingFlash, !event.mic]);
           }
           break;
-		
+        case ON_LISTEN_ONLY_STREAM:
+          hangup();
+          break;
         default:
           LOGGER.debug("Ignoring join voice as state=[{0}]", [state]);
       }
@@ -433,6 +447,14 @@
       if (isConnected()) {
         streamManager.stopStreams();
         connectionManager.disconnect(true);
+      }
+    }
+
+    public function onReconnected():void {
+      if (state != ON_LISTEN_ONLY_STREAM) {
+        var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
+        e.userid = UsersUtil.getMyUserID();
+        dispatcher.dispatchEvent(e);
       }
     }
   }

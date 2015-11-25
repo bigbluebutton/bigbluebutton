@@ -33,6 +33,3 @@ package org.bigbluebutton.main.model.users.events
 			this.streamId = streamId;
 			super(STREAM_STOPPED, true, false);
 		}
-
-	}
-}

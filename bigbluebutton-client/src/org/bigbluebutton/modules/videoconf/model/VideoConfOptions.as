@@ -82,7 +82,8 @@ package org.bigbluebutton.modules.videoconf.model
 		
 		[Bindable]
 		public var glowBlurSize:Number = 30.0;
-        [Bindable]
+
+		[Bindable]
 		public var priorityRatio:Number = 2/3;
 		
 		public function VideoConfOptions() {
@@ -174,7 +175,7 @@ package org.bigbluebutton.modules.videoconf.model
 					glowBlurSize = Number(vxml.@glowBlurSize.toString());
 				}
 				if (vxml.@priorityRatio != undefined) {
-                    priorityRatio = Number(vxml.@priorityRatio.toString());
+					priorityRatio = Number(vxml.@priorityRatio.toString());
 				}
 			}
 		}

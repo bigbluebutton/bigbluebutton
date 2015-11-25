@@ -36,6 +36,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
+  import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.deskshare.events.DeskshareAppletLaunchedEvent;
@@ -62,6 +63,7 @@ package org.bigbluebutton.main.api
     private function init():void {
       if (ExternalInterface.available) {
         ExternalInterface.addCallback("emojiStatusRequest", handleEmojiStatusRequest);
+        ExternalInterface.addCallback("raiseHandRequest", handleRaiseHandRequest);
         ExternalInterface.addCallback("ejectUserRequest", handleEjectUserRequest);
         ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
         ExternalInterface.addCallback("getMyUserInfoSync", handleGetMyUserInfoSynch);
@@ -140,6 +142,13 @@ package org.bigbluebutton.main.api
  
     private function handleEmojiStatusRequest(emojiStatus:String):void {
       var e:EmojiStatusEvent = new EmojiStatusEvent(EmojiStatusEvent.EMOJI_STATUS, emojiStatus);
+      _dispatcher.dispatchEvent(e);
+    }
+
+    private function handleRaiseHandRequest(handRaised:Boolean):void {
+      trace("Received raise hand request from JS API [" + handRaised + "]");
+      var userID:String = UserManager.getInstance().getConference().getMyUserId();
+      var e:ChangeStatusEvent = new ChangeStatusEvent(userID, handRaised? ChangeStatusEvent.RAISE_HAND: ChangeStatusEvent.CLEAR_STATUS);
       _dispatcher.dispatchEvent(e);
     }
     

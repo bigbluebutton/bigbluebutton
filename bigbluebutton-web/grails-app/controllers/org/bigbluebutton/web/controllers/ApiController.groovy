@@ -222,6 +222,12 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
+    String guest;
+    if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true"))
+      guest = "true";
+    else
+      guest = "false";
+
     // Do we have a name for the user joining? If none, complain.
     if(!StringUtils.isEmpty(params.fullName)) {
       params.fullName = StringUtils.strip(params.fullName);
@@ -391,6 +397,7 @@ class ApiController {
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
+    us.guest = guest
     us.logoutUrl = meeting.getLogoutUrl();
     us.configXML = configxml;
 			
@@ -413,7 +420,7 @@ class ApiController {
 	meetingService.addUserSession(session['user-token'], us);
 	
 	// Register user into the meeting.
-	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken)
+	meetingService.registerUser(us.meetingID, us.internalUserId, us.fullname, us.role, us.externUserID, us.authToken, us.guest)
 	
 	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
@@ -1512,6 +1519,7 @@ class ApiController {
               internalUserID = newInternalUserID
               authToken = us.authToken
               role = us.role
+              guest = us.guest
               conference = us.conference
               room = us.room 
               voicebridge = us.voicebridge
@@ -1531,6 +1539,11 @@ class ApiController {
                       // Somehow we need to prepend something (custdata) for the JSON to work
                       custdata "$k" : v
 				 }
+              }
+              metadata = array {
+                meeting.getMetadata().each{ k, v ->
+                  metadata "$k" : v
+                }
               }
             }
           }
@@ -1744,6 +1757,8 @@ class ApiController {
                   published(r.isPublished())
                   startTime(r.getStartTime())
                   endTime(r.getEndTime())
+                  size(r.getSize())
+                  rawSize(r.getRawSize())
 				  metadata() {
 					 r.getMetadata().each { k,v ->
 						 "$k"(''){ 
@@ -1757,7 +1772,19 @@ class ApiController {
 							  type(item.getFormat())
 							  url(item.getUrl())
 							  length(item.getLength())
+							  size(item.getSize())
 							  mkp.yield(item.getExtensions())
+						  }
+					  }
+                  }
+				  download() {
+					  r.getDownloads().each { item ->
+						  format{
+							  type(item.getFormat())
+							  url(item.getUrl())
+							  md5(item.getMd5())
+							  key(item.getKey())
+							  length(item.getLength())
 						  }
 					  }
                   }
@@ -2070,6 +2097,8 @@ class ApiController {
                   userID() { mkp.yield("${att.externalUserId}") }
                   fullName() { mkp.yield("${att.fullname}") }
                   role("${att.role}")
+                  guest("${att.guest}")
+                  waitingForAcceptance("${att.waitingForAcceptance}")
                   isPresenter("${att.isPresenter()}")
                   isListeningOnly("${att.isListeningOnly()}")
                   hasJoinedVoice("${att.isVoiceJoined()}")

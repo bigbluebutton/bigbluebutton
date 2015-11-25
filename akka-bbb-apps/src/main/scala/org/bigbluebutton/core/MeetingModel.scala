@@ -1,6 +1,7 @@
 package org.bigbluebutton.core
 
 import org.bigbluebutton.core.api.Permissions
+import org.bigbluebutton.core.api.GuestPolicy
 import java.util.concurrent.TimeUnit
 
 case object StopMeetingActor
@@ -16,6 +17,8 @@ class MeetingModel {
   private var muted = false;
   private var meetingEnded = false
   private var meetingMuted = false
+  private var guestPolicy = GuestPolicy.ASK_MODERATOR
+  private var guestPolicySetBy:String = null
 
   val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
@@ -111,5 +114,21 @@ class MeetingModel {
 
   def timeNowInMinutes(): Long = {
     TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
+  }
+
+  def getGuestPolicy(): GuestPolicy = {
+    guestPolicy
+  }
+
+  def setGuestPolicy(policy: GuestPolicy) {
+    guestPolicy = policy
+  }
+
+  def getGuestPolicySetBy(): String = {
+    guestPolicySetBy
+  }
+
+  def setGuestPolicySetBy(user: String) {
+    guestPolicySetBy = user
   }
 }

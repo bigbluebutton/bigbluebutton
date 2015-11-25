@@ -61,6 +61,18 @@ package org.bigbluebutton.main.model.users {
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
 		private function sortFunction(a:Object, b:Object, array:Array = null):int {
+			if (a.raiseHand && b.raiseHand) {
+				if (a.moodTimestamp == b.moodTimestamp) {
+					// do nothing go check moderators
+				} else if (a.moodTimestamp < b.moodTimestamp)
+					return -1;
+				else if (b.moodTimestamp < a.moodTimestamp)
+					return 1;
+			} else if (a.raiseHand)
+				return -1;
+			else if (b.raiseHand)
+				return 1;
+
 			/*if (a.presenter)
 				return -1;
 			else if (b.presenter)
@@ -113,9 +125,7 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function addUser(newuser:BBBUser):void {
-			if (hasUser(newuser.userID)) {
-				removeUser(newuser.userID);
-			}
+			removeUserHelper(newuser.userID);
 			if (newuser.userID == me.userID) {
 				newuser.me = true;
 			}
@@ -221,14 +231,23 @@ package org.bigbluebutton.main.model.users {
 			var a:BBBUser = user.participant as BBBUser;
 			return a.presenter;
 		}
-			
-		public function removeUser(userID:String):void {
+
+		private function removeUserHelper(userID:String):BBBUser {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
 				users.removeItemAt(p.index);
-				//sort();
+				return p.participant as BBBUser;
+			} else {
+				return null;
+			}
+		}
+
+		public function removeUser(userID:String):void {
+			var p:Object = removeUserHelper(userID);
+			if (p != null) {
+				trace("removing user[" + p.name + "," + p.userID + "]");
 				users.refresh();
-			}							
+			}
 		}
 		
 		/**
@@ -269,11 +288,24 @@ package org.bigbluebutton.main.model.users {
         public function get myEmojiStatus():String {
             return me.emojiStatus;
         }
+
+		[Bindable]
+        public function get isMyHandRaised():Boolean {
+            return me.raiseHand;
+        }
         
         public function set myEmojiStatus(emoji:String):void {
             me.emojiStatus = emoji;
         }
+
+		public function set isMyHandRaised(raiseHand:Boolean):void {
+            me.raiseHand = raiseHand;
+        }
         
+		public function getMyMood():String {
+			return me.mood;
+		}
+		
 		public function amIThisUser(userID:String):Boolean {
 			return me.userID == userID;
 		}
@@ -337,6 +369,10 @@ package org.bigbluebutton.main.model.users {
 		public function getMyUserId():String {
 			return me.userID;
 		}
+
+		public function getMyself():BBBUser {
+			return me;
+		}
     
 		public function setMyUserid(userID:String):void {
 			me.userID = userID;
@@ -360,6 +396,14 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setMyRole(role:String):void {
 			me.role = role;
+		}
+
+		public function amIGuest():Boolean {
+			return me.guest;
+		}
+
+		public function setGuest(guest:Boolean):void {
+			me.guest = guest;
 		}
 		
 		public function setMyRoom(room:String):void {
@@ -426,7 +470,16 @@ package org.bigbluebutton.main.model.users {
 			
 			users.refresh();		
 		}
-    
+
+		public function newUserRole(userID:String, role:String):void {
+			var aUser:BBBUser = getUser(userID);
+			if (aUser != null) {
+				aUser.role = role;
+			}
+
+			users.refresh();
+		}
+
 		public function getUserIDs():ArrayCollection {
 			var uids:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < users.length; i++) {

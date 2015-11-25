@@ -7,6 +7,7 @@ import org.bigbluebutton.core.MeetingActor
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.ListSet
 import org.bigbluebutton.core.OutMessageGateway
+import org.bigbluebutton.core.api.GuestPolicy
 
 trait UsersApp {
   this: MeetingActor =>
@@ -116,7 +117,7 @@ trait UsersApp {
       log.info("Register user failed. Mmeeting has ended. meetingId=" + mProps.meetingID + " userId=" + msg.userID)
       sendMeetingHasEnded(msg.userID)
     } else {
-      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken)
+      val regUser = new RegisteredUser(msg.userID, msg.extUserID, msg.name, msg.role, msg.authToken, msg.guest, msg.guest)
       usersModel.addRegisteredUser(msg.authToken, regUser)
 
       log.info("Register user success. meetingId=" + mProps.meetingID + " userId=" + msg.userID + " user=" + regUser)
@@ -230,6 +231,16 @@ trait UsersApp {
     }
   }
 
+  def handleChangeUserRole(msg: ChangeUserRole) {
+    usersModel.getUser(msg.userID) foreach {user =>
+      val uvo = user.copy(role=msg.role)
+      usersModel.addUser(uvo)
+      usersModel.updateRegUser(uvo)
+      val userRole = if (msg.role == Role.MODERATOR) "MODERATOR" else "VIEWER"
+      outGW.send(new UserRoleChange(mProps.meetingID, mProps.recorded, msg.userID, userRole))
+    }
+  }
+
   def handleEjectUserFromMeeting(msg: EjectUserFromMeeting) {
     usersModel.getUser(msg.userId) foreach { user =>
       if (user.voiceUser.joined) {
@@ -338,8 +349,9 @@ trait UsersApp {
        * Initialize the newly joined user copying voice status in case this
        * join is due to a reconnect.
        */
+      val waitingForAcceptance = ru.guest && meetingModel.getGuestPolicy() == GuestPolicy.ASK_MODERATOR && ru.waitingForAcceptance
       val uvo = new UserVO(msg.userID, ru.externId, ru.name,
-        ru.role, emojiStatus = "none", presenter = false,
+        ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, emojiStatus = "none", presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
         webcamStreams = new ListSet[String](), phoneUser = false, vu,
         listenOnly = vu.listenOnly, joinedWeb = true)
@@ -348,17 +360,23 @@ trait UsersApp {
 
       log.info("User joined meeting. metingId=" + mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
 
-      outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
-      outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingModel.isMeetingMuted()))
+      if (uvo.guest && guestPolicy == GuestPolicy.ALWAYS_DENY) {
+        outGW.send(new GuestAccessDenied(mProps.meetingID, mProps.recorded, uvo.userID))
+      } else {
+        outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
 
-      // Become presenter if the only moderator		
-      if ((usersModel.numModerators == 1) || (usersModel.noPresenter())) {
-        if (ru.role == Role.MODERATOR) {
-          assignNewPresenter(msg.userID, ru.name, msg.userID)
+        outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingModel.isMeetingMuted()))
+        if (!waitingForAcceptance) {
+          // Become presenter if the only moderator   
+          if ((usersModel.numModerators == 1) || (usersModel.noPresenter())) {
+            if (ru.role == Role.MODERATOR) {
+              assignNewPresenter(msg.userID, ru.name, msg.userID)
+            }
+          }
         }
+        webUserJoined
+        startRecordingIfAutoStart()
       }
-      webUserJoined
-      startRecordingIfAutoStart()
     }
   }
 
@@ -434,7 +452,7 @@ trait UsersApp {
          * So we call him "phoneUser".
          */
         val uvo = new UserVO(webUserId, msg.externUserId, msg.callerIdName,
-          Role.VIEWER, emojiStatus = "none", presenter = false,
+          Role.VIEWER, guest=false, waitingForAcceptance=false, emojiStatus = "none", presenter = false,
           hasStream = false, locked = getInitialLockStatus(Role.VIEWER),
           webcamStreams = new ListSet[String](),
           phoneUser = !msg.listenOnly, vu, listenOnly = msg.listenOnly, joinedWeb = false)
@@ -467,6 +485,8 @@ trait UsersApp {
 
     usersModel.getUser(msg.userId) match {
       case Some(user) => {
+        // this is used to restore the mute state on reconnect
+        val previouslyMuted = user.voiceUser.muted
         val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName,
           msg.callerIdNum, joined = true, locked = false,
           msg.muted, msg.talking, msg.listenOnly)
@@ -476,7 +496,7 @@ trait UsersApp {
         log.info("User joined voice. meetingId=" + mProps.meetingID + " userId=" + user.userID + " user=" + nu)
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
 
-        if (meetingModel.isMeetingMuted()) {
+        if (meetingModel.isMeetingMuted() || previouslyMuted) {
           outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded,
             nu.userID, nu.userID, mProps.voiceBridge,
             nu.voiceUser.userId, meetingModel.isMeetingMuted()))
@@ -577,6 +597,28 @@ trait UsersApp {
         case None => // do nothing
       }
 
+    }
+  }
+
+  def handleRespondToGuest(msg: RespondToGuest) {
+    if (usersModel.isModerator(msg.requesterID)) {
+      var usersToAnswer:Array[UserVO] = null;
+      if (msg.userId == null) {
+        usersToAnswer = usersModel.getUsers.filter(u => u.waitingForAcceptance == true)
+      } else {
+        usersToAnswer = usersModel.getUsers.filter(u => u.waitingForAcceptance == true && u.userID == msg.userId)
+      }
+      usersToAnswer foreach {user =>
+        println("UsersApp - handleGuestAccessDenied for user [" + user.userID + "]");
+        if (msg.response == true) {
+          val nu = user.copy(waitingForAcceptance=false)
+          usersModel.addUser(nu)
+          usersModel.updateRegUser(nu)
+          outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, nu))
+        } else {
+          outGW.send(new GuestAccessDenied(mProps.meetingID, mProps.recorded, user.userID))
+        }
+      }
     }
   }
 }

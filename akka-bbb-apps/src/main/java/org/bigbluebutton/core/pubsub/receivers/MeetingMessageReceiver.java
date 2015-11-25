@@ -50,7 +50,7 @@ public class MeetingMessageReceiver implements MessageHandler {
 							  emm.moderatorPass, emm.viewerPass, emm.createTime, emm.createDate);
 				} else if (msg instanceof RegisterUserMessage) {
 					RegisterUserMessage emm = (RegisterUserMessage) msg;
-					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken);
+					bbbGW.registerUser(emm.meetingID, emm.internalUserId, emm.fullname, emm.role, emm.externUserID, emm.authToken, emm.guest);
 				} else if (msg instanceof DestroyMeetingMessage) {
 					DestroyMeetingMessage emm = (DestroyMeetingMessage) msg;
 					bbbGW.destroyMeeting(emm.meetingId);

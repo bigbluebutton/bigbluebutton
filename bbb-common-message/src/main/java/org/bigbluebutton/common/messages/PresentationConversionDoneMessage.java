@@ -58,7 +58,8 @@ public class PresentationConversionDoneMessage implements ISubscribedMessage {
 						if (presObj.has("id") 
 								&& presObj.has("name")
 								&& presObj.has("current")
-								&& presObj.has("pages")){
+								&& presObj.has("pages")
+								&& presObj.has("downloadable")){
 
 							String id = presObj.get("id").getAsString();
 							boolean current = presObj.get("current").getAsBoolean();
@@ -74,6 +75,9 @@ public class PresentationConversionDoneMessage implements ISubscribedMessage {
 							ArrayList<Map<String, Object>> pagesList = util.extractPages(pages);
 
 							presentation.put("pages", pagesList);
+
+							boolean downloadable = presObj.get("downloadable").getAsBoolean();
+							presentation.put("downloadable", downloadable);
 
 							return new PresentationConversionDoneMessage(meetingId, code, presentation);
 						}

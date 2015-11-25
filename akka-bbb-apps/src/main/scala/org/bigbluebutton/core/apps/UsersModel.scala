@@ -132,6 +132,13 @@ class UsersModel {
     uservos.values filter (u => u.role == VIEWER) toArray
   }
 
+  def isModerator(userId: String):Boolean = {
+    uservos.getUser(userId) match {
+      case Some(user) => return user.role == MODERATOR && !user.waitingForAcceptance
+      case None => return false
+    }
+  }
+
   def getRegisteredUserWithUserID(userID: String): Option[RegisteredUser] = {
     regUsers.values find (ru => userID contains ru.id)
   }
@@ -140,6 +147,17 @@ class UsersModel {
     getRegisteredUserWithUserID(userID) match {
       case Some(ru) => {
         regUsers -= ru.authToken
+      }
+      case None =>
+    }
+  }
+
+   def updateRegUser(uvo: UserVO) {
+    getRegisteredUserWithUserID(uvo.userID) match {
+      case Some(ru) => {
+        val regUser = new RegisteredUser(uvo.userID, uvo.externUserID, uvo.name, uvo.role, ru.authToken, uvo.guest, uvo.waitingForAcceptance)
+        regUsers -= ru.authToken
+        regUsers += ru.authToken -> regUser
       }
       case None =>
     }

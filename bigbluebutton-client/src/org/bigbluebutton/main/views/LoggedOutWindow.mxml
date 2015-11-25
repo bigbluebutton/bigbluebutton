@@ -73,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        
         		var request:URLRequest = new URLRequest(getLogoutUrl());
 				LOGGER.debug("Logging out to: {0}", [getLogoutUrl()]);
-        		navigateToURL(request, '_self');          
+        		navigateToURL(request, '_parent');          
         
 				PopUpManager.removePopUp(this);				
 			}
@@ -113,12 +113,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						redirect(); // we know that the disconnect was requested so automatically redirect
 						break;
+					case ConnectionFailedEvent.MODERATOR_DENIED_ME:
+						message = ResourceUtil.getInstance().getString('bbb.logout.guestkickedout');
+						break;
 				}
 			}
 		]]>
 	</mx:Script>
-	<mx:VBox width="100%" height="100%" horizontalAlign="center">
-		<mx:Text text="{message}"/>
+	<mx:VBox id="mainContainer" width="100%" height="100%" horizontalAlign="center">
+		<mx:Text text="{message}" textAlign="center" width="100%"/>
 		<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.logout.button.label')}" click="redirect()"/>
 	</mx:VBox>
 </mx:TitleWindow> 

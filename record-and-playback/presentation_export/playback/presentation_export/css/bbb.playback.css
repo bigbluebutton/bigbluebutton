@@ -1,0 +1,256 @@
+/*
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+html{
+}
+body {
+	font-family: Verdana;
+	background: #fff;
+	padding-top: 30px;
+}
+h1 {
+	text-align:center
+}
+br{
+	display:none
+}
+
+/*
+ * clearfix
+ * see: http://css-tricks.com/snippets/css/clear-fix/
+ */
+.clearfix:after {
+	visibility: hidden;
+	display: block;
+	font-size: 0;
+	content: " ";
+	clear: both;
+	height: 0;
+}
+* html .clearfix             { zoom: 1; } /* IE6 */
+*:first-child+html .clearfix { zoom: 1; } /* IE7 */
+
+#playbackArea {
+	width: 1360px; /* #slide.width + #chat.width + #audioRecording.width */
+	height: 650px;
+	margin: 0 auto;
+	overflow: hidden;
+}
+
+#audioRecordingWrapper{
+	float: left;
+	width: 800px;
+}
+
+#audioRecording{
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+}
+
+#audioRecordingWrapper .acorn-controls, #videoRecordingWrapper .acorn-controls{
+	position: relative;
+	top: 0;
+	left: -810px;
+	width: 730px;
+}
+
+#playbackControls{
+	width: 1360px;
+	margin: 0 auto;
+	margin-top: -50px;
+}
+
+#autoscrollWrapper{
+	float: left;
+	margin-left: 10px;
+	margin-top: 8px;
+	font-size: 14px;
+}
+
+.webcam{
+  width: 402px;
+  height: 300px;
+}
+
+#video{
+  width: 402px;
+  background: white;
+}
+
+/* To remove the white space on top of the audio tag in Firefox
+ * See: http://stackoverflow.com/questions/9527453/firefox-and-html5-audio-element-dont-play-well-together
+ */
+@-moz-document url-prefix() {
+	#audioRecordingWrapper{
+		position: relative;
+		height: 28px;
+	}
+	#audioRecording {
+		position: absolute;
+		bottom: 0;
+	}
+}
+
+#presentation {
+	float: left;
+	position: relative;
+	height: 600px;
+}
+
+#slide {
+	background-image: url('../logo.png');
+	text-align: center;
+	border: 0px solid #ccc;
+	width: 800px;
+	height: 600px; /* same as slide images */
+	position: relative;
+	top: -12px;
+}
+
+/* Visually hides text
+ * see: yaccessibilityblog.com/library/css-clip-hidden-content.html
+ */
+.visually-hidden {
+	position: absolute !important;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	padding: 0 !important;
+	border: 0 !important;
+	height: 1px !important;
+	width: 1px !important;
+	overflow: hidden;
+}
+
+#mediaArea {
+	float: right;
+	background: white;
+	width: 402px;
+}
+
+#chatAndMediaArea{
+	float: right;
+	background: white;
+	height: 600px;
+	width: 402px;
+}
+#chat{
+	margin: 0 auto;
+	padding: 0 10px;
+	border: 0px solid #ccc;
+	height: 300px;
+	overflow: auto;
+}
+#chat div{
+	padding:0px;
+	font-size:13px;
+}
+#big {display:none}
+#mid {display:none}
+
+#thumbnails {
+	float: left;
+	width: 130px;
+	height: 600px; /* same as #slide */
+	background: #fff;
+	border: 0px solid #bbb;
+	margin-right: 10px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+#thumbnails img.thumbnail {
+	width: 100px;
+	height: auto;
+	border: 0px solid #eee;
+	margin: 5px;
+	cursor: pointer;
+	vertical-align: bottom;
+}
+
+#thumbnails .thumbnail-wrapper {
+	position: relative;
+	margin: 0;
+	padding: 0;
+}
+
+#thumbnails .thumbnail-wrapper.active {
+	background-color: #D9EDF7;
+}
+
+#thumbnails .thumbnail-wrapper.active img.thumbnail {
+	border-color: #3A87AD;
+}
+
+#thumbnails .thumbnail-label {
+	color: #fff;
+	background: #3A87AD;
+	font-weight: bold;
+	font-size: 12px;
+	position: absolute;
+	bottom: 5px;
+	left: 5px;
+	max-width: 90px;
+	text-align: center;
+	display: none;
+	padding: 2px 5px;
+	cursor: pointer;
+}
+
+#accInfo{
+        margin: 20px auto;
+        font-size:0.75em;
+        text-align: center;
+        clear: both;
+	padding-top: 75px;
+}
+
+#footer{
+        margin: 20px auto;
+        font-size:0.75em;
+        color: #666;
+        text-align: center;
+        clear: both;
+	padding-top: 35px;
+}
+
+.circle {
+	height: 12px;
+	width: 12px;
+	border-radius: 50%;
+}
+
+
+#cursor {
+	position: relative;
+	background: red;
+	z-index: 10;
+}
+
+#load-recording-msg {
+	text-align: center;
+	height: 50px;
+	width: 200px;
+	position: absolute;
+	left: 50%;
+	margin-left: -100px;
+	top:60%;
+}

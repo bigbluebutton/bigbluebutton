@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.api
 
 import org.bigbluebutton.core.api.Role._
+import org.bigbluebutton.core.api.GuestPolicy._
 import org.bigbluebutton.core.apps.AnnotationVO
 import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.MeetingProperties
@@ -28,7 +29,7 @@ case class GetLockSettings(meetingID: String, userId: String) extends InMessage
 case class ValidateAuthToken(meetingID: String, userId: String, token: String,
   correlationId: String, sessionId: String) extends InMessage
 case class RegisterUser(meetingID: String, userID: String, name: String, role: Role,
-  extUserID: String, authToken: String) extends InMessage
+  extUserID: String, authToken: String, guest: Boolean) extends InMessage
 case class UserJoining(meetingID: String, userID: String, authToken: String) extends InMessage
 case class UserLeaving(meetingID: String, userID: String, sessionId: String) extends InMessage
 case class GetUsers(meetingID: String, requesterID: String) extends InMessage
@@ -37,6 +38,7 @@ case class EjectUserFromMeeting(meetingID: String, userId: String, ejectedBy: St
 case class UserShareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class UserUnshareWebcam(meetingID: String, userId: String, stream: String) extends InMessage
 case class ChangeUserStatus(meetingID: String, userID: String, status: String, value: Object) extends InMessage
+case class ChangeUserRole(meetingID: String, userID: String, role: Role) extends InMessage
 case class AssignPresenter(meetingID: String, newPresenterID: String, newPresenterName: String, assignedBy: String) extends InMessage
 case class SetRecordingStatus(meetingID: String, userId: String, recording: Boolean) extends InMessage
 case class GetRecordingStatus(meetingID: String, userId: String) extends InMessage
@@ -49,6 +51,11 @@ case class UserConnectedToGlobalAudio(meetingID: String, /** Not used. Just to s
   userid: String, name: String) extends InMessage
 case class UserDisconnectedFromGlobalAudio(meetingID: String, /** Not used. Just to satisfy trait **/ voiceConf: String,
   userid: String, name: String) extends InMessage
+
+// Guest support
+case class GetGuestPolicy(meetingID: String, requesterID: String) extends InMessage
+case class SetGuestPolicy(meetingID: String, policy: GuestPolicy, setBy: String) extends InMessage
+case class RespondToGuest(meetingID: String, userId: String, response: Boolean, requesterID: String) extends InMessage
 
 // Layout
 case class GetCurrentLayoutRequest(meetingID: String, requesterID: String) extends InMessage
@@ -115,3 +122,13 @@ case class UndoWhiteboardRequest(meetingID: String, requesterID: String, whitebo
 case class EnableWhiteboardRequest(meetingID: String, requesterID: String, enable: Boolean) extends InMessage
 case class IsWhiteboardEnabledRequest(meetingID: String, requesterID: String, replyTo: String) extends InMessage
 case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy trait **/ ) extends InMessage
+
+// Shared notes
+case class PatchDocumentRequest(meetingID: String, requesterID: String, noteID: String, patch: String) extends InMessage
+case class GetCurrentDocumentRequest(meetingID: String, requesterID: String) extends InMessage
+case class CreateAdditionalNotesRequest(meetingID: String, requesterID: String, noteName: String) extends InMessage
+case class DestroyAdditionalNotesRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage
+case class RequestAdditionalNotesSetRequest(meetingID: String, requesterID: String, additionalNotesSetSize: Int) extends InMessage
+
+// Video
+//case class GetStreamPath(meetingID: String, requesterID: String, streamName: String, defaultPath: String) extends InMessage

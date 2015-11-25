@@ -123,7 +123,7 @@ def process_archived_meeting(recording_dir)
     match = /([^\/]*).done$/.match(sanity_done)
     meeting_id = match[1]
 
-    step_succeeded = true
+    phase_succeeded = true
 
     # Iterate over the list of recording processing scripts to find available types
     # For now, we look for the ".rb" extension - TODO other scripting languages?
@@ -136,7 +136,7 @@ def process_archived_meeting(recording_dir)
 
       processed_fail = "#{recording_dir}/status/processed/#{meeting_id}-#{process_type}.fail"
       if File.exists?(processed_fail)
-        step_succeeded = false
+        phase_succeeded = false
         next
       end
 
@@ -150,7 +150,9 @@ def process_archived_meeting(recording_dir)
       step_stop_time = BigBlueButton.monotonic_clock
       step_time = step_stop_time - step_start_time
 
-      IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
+      if BigBlueButton.dir_exists? "#{recording_dir}/process/#{process_type}/#{meeting_id}"
+        IO.write("#{recording_dir}/process/#{process_type}/#{meeting_id}/processing_time", step_time)
+      end
 
       step_succeeded = (ret == 0 and File.exists?(processed_done))
 
@@ -162,15 +164,20 @@ def process_archived_meeting(recording_dir)
       if step_succeeded
         BigBlueButton.logger.info("Process format #{process_type} succeeded for #{meeting_id}")
         BigBlueButton.logger.info("Process took #{step_time}ms")
+
+        # when it succeeds to process a recording, publish it immediately instead
+        # of continue processing the next recordings
+        # the side-effect is that the publish phase will occur before the post_process phase
+        publish_processed_meeting(recording_dir)
       else
         BigBlueButton.logger.info("Process format #{process_type} failed for #{meeting_id}")
         BigBlueButton.logger.info("Process took #{step_time}ms")
         FileUtils.touch(processed_fail)
-        step_succeeded = false
+        phase_succeeded = false
       end
     end
 
-    if step_succeeded
+    if phase_succeeded
       post_process(meeting_id)
       FileUtils.rm(sanity_done)
     end
@@ -199,6 +206,13 @@ def publish_processed_meeting(recording_dir)
       match2 = /([^\/]*).rb$/.match(publish_script)
       publish_type = match2[1]
 
+      # Do not try to publish a format that failed in the process phase
+      processed_done = "#{recording_dir}/status/processed/#{meeting_id}-#{publish_type}.done"
+      if !File.exists?(processed_done)
+        publish_succeeded = false
+        next
+      end
+
       published_done = "#{recording_dir}/status/published/#{meeting_id}-#{publish_type}.done"
       next if File.exists?(published_done)
 
@@ -222,9 +236,36 @@ def publish_processed_meeting(recording_dir)
 
       step_succeeded = (ret == 0 and File.exists?(published_done))
 
+      props = YAML::load(File.open('bigbluebutton.yml'))
+      published_dir = props['published_dir']
+
+      playback = {}
+      metadata = {}
+      download = {}
+      metadata_xml_path = "#{published_dir}/#{publish_type}/#{meeting_id}/metadata.xml"
+      if File.exists? metadata_xml_path
+        begin
+          doc = Hash.from_xml(File.open(metadata_xml_path))
+          playback = doc[:recording][:playback] if !doc[:recording][:playback].nil?
+          metadata = doc[:recording][:metadata] if !doc[:recording][:metadata].nil?
+          download = doc[:recording][:download] if !doc[:recording][:download].nil?
+        rescue Exception => e
+          BigBlueButton.logger.warn "An exception occurred while loading the extra information for the publish event"
+          BigBlueButton.logger.warn e.message
+          e.backtrace.each do |traceline|
+            BigBlueButton.logger.warn traceline
+          end
+        end
+      else
+        BigBlueButton.logger.warn "Couldn't find the metadata file at #{metadata_xml_path}"
+      end
+
       BigBlueButton.redis_publisher.put_publish_ended publish_type, meeting_id, {
         "success" => step_succeeded,
-        "step_time" => step_time
+        "step_time" => step_time,
+        "playback" => playback,
+        "metadata" => metadata,
+        "download" => download
       }
 
       if step_succeeded
@@ -253,6 +294,24 @@ def publish_processed_meeting(recording_dir)
         FileUtils.rm_rf("#{recording_dir}/publish/#{publish_type}/#{meeting_id}")
       end
 
+    end
+  end
+end
+
+def clean_presentation_dependents(recording_dir)
+  # clean workspace so the formats that depend on the presentation format to be 
+  # published will run
+  [ "presentation_export" ].each do |dependent_format|
+    presentation_published_done_files = Dir.glob("#{recording_dir}/status/published/*-presentation.done")
+    presentation_published_done_files.each do |published_done|
+      match = /([^\/]*)-([^\/-]*).done$/.match(published_done)
+      meeting_id = match[1]
+      process_type = match[2]
+      processed_fail = "#{recording_dir}/status/processed/#{meeting_id}-#{dependent_format}.fail"
+      if File.exists? processed_fail
+        BigBlueButton.logger.info "Removing #{processed_fail} so #{dependent_format} can execute in the next run of rap-worker"
+        FileUtils.rm processed_fail
+      end
     end
   end
 end
@@ -351,6 +410,7 @@ begin
   sanity_archived_meeting(recording_dir)
   process_archived_meeting(recording_dir)
   publish_processed_meeting(recording_dir)
+  clean_presentation_dependents(recording_dir)
 
   BigBlueButton.logger.debug("rap-worker done")
 

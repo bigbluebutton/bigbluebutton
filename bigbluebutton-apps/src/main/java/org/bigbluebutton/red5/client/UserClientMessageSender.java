@@ -7,8 +7,11 @@ import java.util.Iterator;
 import java.util.Map;
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage;
 import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage;
+import org.bigbluebutton.common.messages.GuestPolicyChangedMessage;
+import org.bigbluebutton.common.messages.GetGuestPolicyReplyMessage;
 import org.bigbluebutton.common.messages.GetRecordingStatusReplyMessage;
 import org.bigbluebutton.common.messages.GetUsersReplyMessage;
+import org.bigbluebutton.common.messages.GuestAccessDeniedMessage;
 import org.bigbluebutton.common.messages.LockLayoutMessage;
 import org.bigbluebutton.common.messages.PresenterAssignedMessage;
 import org.bigbluebutton.common.messages.RecordingStatusChangedMessage;
@@ -20,6 +23,7 @@ import org.bigbluebutton.common.messages.UserLeftVoiceMessage;
 import org.bigbluebutton.common.messages.UserListeningOnlyMessage;
 import org.bigbluebutton.common.messages.UserSharedWebcamMessage;
 import org.bigbluebutton.common.messages.UserStatusChangedMessage;
+import org.bigbluebutton.common.messages.UserRoleChangeMessage;
 import org.bigbluebutton.common.messages.UserUnsharedWebcamMessage;
 import org.bigbluebutton.common.messages.UserVoiceMutedMessage;
 import org.bigbluebutton.common.messages.UserVoiceTalkingMessage;
@@ -90,6 +94,11 @@ public class UserClientMessageSender {
             if (usm != null) {
               processUserStatusChangedMessage(usm);
             }
+          case UserRoleChangeMessage.USER_ROLE_CHANGE:
+            UserRoleChangeMessage urcm = UserRoleChangeMessage.fromJson(message);
+            if (urcm != null) {
+              processUserRoleChangeMessage(urcm);
+            }
             break;
           case UserEmojiStatusMessage.USER_EMOJI_STATUS:
             UserEmojiStatusMessage urhm = UserEmojiStatusMessage.fromJson(message);
@@ -155,6 +164,24 @@ public class UserClientMessageSender {
             GetUsersReplyMessage gurm = GetUsersReplyMessage.fromJson(message);
             if (gurm != null) {
               processGetUsersReplyMessage(gurm);
+            }
+            break;
+          case GetGuestPolicyReplyMessage.GET_GUEST_POLICY_REPLY:
+            GetGuestPolicyReplyMessage ggprm = GetGuestPolicyReplyMessage.fromJson(message);
+            if (ggprm != null) {
+              processGetGuestPolicyReplyMessage(ggprm);
+            }
+            break;
+          case GuestPolicyChangedMessage.GUEST_POLICY_CHANGED:
+            GuestPolicyChangedMessage gpcm = GuestPolicyChangedMessage.fromJson(message);
+            if (gpcm != null) {
+              processGuestPolicyChangedMessage(gpcm);
+            }
+            break;
+          case GuestAccessDeniedMessage.GUEST_ACCESS_DENIED:
+            GuestAccessDeniedMessage gadm = GuestAccessDeniedMessage.fromJson(message);
+            if (gadm != null) {
+              processGuestAccessDeniedMessage(gadm);
             }
             break;
           case GetCurrentLayoutReplyMessage.GET_CURRENT_LAYOUT_REPLY:
@@ -329,6 +356,19 @@ public class UserClientMessageSender {
     service.sendMessage(m);
   }
 
+  private void processUserRoleChangeMessage(UserRoleChangeMessage msg) {
+    Map<String, Object> args = new HashMap<String, Object>(); 
+    args.put("userID", msg.userID);
+    args.put("role", msg.role);
+
+    Map<String, Object> message = new HashMap<String, Object>();
+    Gson gson = new Gson();
+    message.put("msg", gson.toJson(args));
+
+    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "participantRoleChange", message);
+    service.sendMessage(m);
+  }
+
   private void processUserSharedWebcamMessage(UserSharedWebcamMessage msg) {	  	
     Map<String, Object> args = new HashMap<String, Object>();	
     args.put("userId", msg.userId);
@@ -456,6 +496,42 @@ public class UserClientMessageSender {
     message.put("msg", gson.toJson(args));
 
     DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "getUsersReply", message);
+    service.sendMessage(m);
+  }
+
+  private void processGetGuestPolicyReplyMessage(GetGuestPolicyReplyMessage msg) {
+    Map<String, Object> args = new HashMap<String, Object>();
+    args.put("guestPolicy", msg.policy.toString());
+
+    Map<String, Object> message = new HashMap<String, Object>();
+    Gson gson = new Gson();
+    message.put("msg", gson.toJson(args));
+
+    DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterID, "get_guest_policy_reply", message);
+    service.sendMessage(m);
+  }
+
+  private void processGuestPolicyChangedMessage(GuestPolicyChangedMessage msg) {
+    Map<String, Object> args = new HashMap<String, Object>();
+    args.put("guestPolicy", msg.policy.toString());
+
+    Map<String, Object> message = new HashMap<String, Object>();
+    Gson gson = new Gson();
+    message.put("msg", gson.toJson(args));
+
+    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "guest_policy_changed", message);
+    service.sendMessage(m);
+  }
+
+  private void processGuestAccessDeniedMessage(GuestAccessDeniedMessage msg) {
+    Map<String, Object> args = new HashMap<String, Object>();
+    args.put("userId", msg.userId);
+
+    Map<String, Object> message = new HashMap<String, Object>();
+    Gson gson = new Gson();
+    message.put("msg", gson.toJson(args));
+
+    DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "guest_access_denied", message);
     service.sendMessage(m);
   }
 }

@@ -202,9 +202,9 @@ public class MessagePublisher {
 
 	public void sendConversionCompleted(String messageKey, String meetingId,
 			String code, String presId, int numPages, String presName,
-			String presBaseUrl) {
+			String presBaseUrl, Boolean downloadable) {
 		SendConversionCompletedMessage msg = new SendConversionCompletedMessage(messageKey, meetingId,
-				code, presId, numPages, presName, presBaseUrl);
+				code, presId, numPages, presName, presBaseUrl, downloadable);
 		sender.send(MessagingConstants.TO_PRESENTATION_CHANNEL, msg.toJson());
 	}
 

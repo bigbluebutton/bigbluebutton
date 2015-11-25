@@ -16,6 +16,7 @@ package org.bigbluebutton.modules.phone.managers
   import org.bigbluebutton.main.api.JSAPI;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.ClientStatusEvent;
+  import org.bigbluebutton.main.model.users.AutoReconnect;
   import org.bigbluebutton.modules.phone.PhoneModel;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
@@ -42,6 +43,10 @@ package org.bigbluebutton.modules.phone.managers
     private var options:PhoneOptions;
     
     private var model:WebRTCModel = PhoneModel.getInstance().webRTCModel;
+
+    private var MAX_RETRIES:Number = 3;
+    private var reconnect:AutoReconnect = new AutoReconnect();
+    private var reconnecting:Boolean = false;
     
     public function WebRTCCallManager() {
       var browserInfo:Array = JSAPI.getInstance().getBrowserInfo();
@@ -127,7 +132,12 @@ package org.bigbluebutton.modules.phone.managers
 	  LOGGER.debug("setting state to IN_CONFERENCE");
       model.state = Constants.IN_CONFERENCE;
       dispatcher.dispatchEvent(new WebRTCJoinedVoiceConferenceEvent());
-      
+      if(reconnecting) {
+        dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.SUCCESS_MESSAGE_EVENT,
+          ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reestablished"),
+          ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reestablished")));
+        reconnecting = false;
+      }
     }
     
     public function handleWebRTCCallEndedEvent():void {
@@ -142,9 +152,11 @@ package org.bigbluebutton.modules.phone.managers
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
 	  LOGGER.debug("handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
       
+      usingWebRTC = checkIfToUseWebRTC();
+      
       if (!usingWebRTC || !event.mic) return;
       
-      if (options.skipCheck || echoTestDone) {
+      if ((options.skipCheck && PhoneOptions.firstAudioJoin) || echoTestDone) {
         joinVoiceConference();
       } else {
         startWebRTCEchoTest();
@@ -216,14 +228,38 @@ package org.bigbluebutton.modules.phone.managers
       var errorString:String;
       model.state = Constants.INITED;
       
-      if (event.errorCode == 1004) {
-        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode, [event.cause]);
-      } else {
-        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode);
+      if(!reconnecting) {
+        LOGGER.info("WebRTC call failed, attempting reconnection");
+        reconnecting = true;
+        dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT,
+          ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.dropped"),
+          ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.reconnecting")));
+        reconnect.onDisconnect(joinVoiceConference, []);
       }
-      
-      if (!errorString) {
-        errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
+      else {
+        LOGGER.info("WebRTC call reconnection failed");
+        if( reconnect.Retries < MAX_RETRIES ) {
+          trace(LOG + "Retring... " + reconnect.Retries);
+          reconnect.onConnectionAttemptFailed();
+        }
+        else {
+          LOGGER.info("Giving up");
+          reconnecting = false;
+          dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_ENDED));
+
+          var errorString:String;
+          
+          if (event.errorCode == 1004) {
+            errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode, [event.cause]);
+          } else {
+            errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode);
+          }
+          
+          if (!errorString) {
+            errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
+          }
+          sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
+        }
       }
 	  
 	  var logData:Object = new Object();       

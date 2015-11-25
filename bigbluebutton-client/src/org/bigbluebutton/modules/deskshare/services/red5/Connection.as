@@ -199,7 +199,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
             reconnecting = false;
 			if (wasPresenterBeforeDisconnect) {
 				wasPresenterBeforeDisconnect = false;
-				stopSharingDesktop(room, room)				
+				stopSharingDesktop(room, room);
 			}
 
             var attemptSucceeded:BBBEvent = new BBBEvent(BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT);

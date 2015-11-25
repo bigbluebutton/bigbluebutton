@@ -13,6 +13,7 @@ package org.bigbluebutton.modules.videoconf.views
     import org.bigbluebutton.core.model.VideoProfile;
     import org.bigbluebutton.main.model.users.BBBUser;
     import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+    import org.bigbluebutton.modules.videoconf.views.UserGraphicHolder;
 
 
     public class GraphicsWrapper extends Canvas {
@@ -248,8 +249,20 @@ package org.bigbluebutton.modules.videoconf.views
             super.addChild(graphic);
         }
 
-        private function addVideoForHelper(userId:String, connection:NetConnection, streamName:String):void {
-			LOGGER.debug("[GraphicsWrapper:addVideoForHelper] streamName {0}", [streamName]);
+        private function hasVideo(userId:String, streamName:String):Boolean {
+            for (var i:int = 0; i < numChildren; ++i) {
+                var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
+                if (item.user && item.user.userID == userId && item.visibleComponent is UserVideo && item.video.streamName == streamName) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public function addVideoFor(userId:String, connection:NetConnection, streamName:String):void {
+            // Check if video window is already open
+            if(hasVideo(userId, streamName)) { return; }
+            LOGGER.debug("[GraphicsWrapper:addVideoForHelper] streamName " + streamName);
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
@@ -262,24 +275,11 @@ package org.bigbluebutton.modules.videoconf.views
             super.addChild(graphic);
         }
 
-        public function addVideoFor(userId:String, connection:NetConnection):void {
-            var user:BBBUser = UsersUtil.getUser(userId);
-            if (user == null) return;
-
-            var streamNames:Array = user.streamNames;
-
-            for each (var streamName:String in streamNames) {
-                if (user.viewingStream.indexOf(streamName) == -1) {
-                    addVideoForHelper(user.userID, connection, streamName);
-                }
-            }
-        }
-
-        private function addCameraForHelper(userId:String, camIndex:int, videoProfile:VideoProfile):void {
+        private function addCameraForHelper(userId:String, camIndex:int, videoProfile:VideoProfile, chromePermissionDenied:Boolean):void {
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
-                graphic.loadCamera(_options, camIndex, videoProfile);
+                graphic.loadCamera(_options, camIndex, videoProfile, chromePermissionDenied);
                 onChildAdd(event);
             });
             graphic.addEventListener(MouseEvent.CLICK, onVBoxClick);
@@ -316,7 +316,7 @@ package org.bigbluebutton.modules.videoconf.views
             }
         }
 
-        public function addCameraFor(userId:String, camIndex:int, videoProfile:VideoProfile):void {
+        public function addCameraFor(userId:String, camIndex:int, videoProfile:VideoProfile, chromeWebcamPermissionDenied:Boolean = false):void {
             if (! UsersUtil.hasUser(userId)) return;
 
             var alreadyPublishing:Boolean = false;
@@ -329,7 +329,7 @@ package org.bigbluebutton.modules.videoconf.views
             }
 
             if (!alreadyPublishing) {
-                addCameraForHelper(userId, camIndex, videoProfile);
+                addCameraForHelper(userId, camIndex, videoProfile, chromeWebcamPermissionDenied);
             }
         }
 

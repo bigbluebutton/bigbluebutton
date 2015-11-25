@@ -184,8 +184,11 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/ellipse.png")]
         public var circle_icon:Class; 
         
-        [Embed(source="assets/images/arrow_out.png")]
+        [Embed(source="assets/images/ic_fullscreen_16px.png")]
         public var full_screen:Class; 
+        
+        [Embed(source="assets/images/ic_fullscreen_exit_16px.png")]
+        public var exit_full_screen:Class; 
         
         [Embed(source="assets/images/BBBlogo.png")]
         public var bbb_logo:Class; 
@@ -264,8 +267,8 @@ package org.bigbluebutton.common
 	[Embed(source="assets/images/poll_icon.png")]
 	public var pollIcon:Class;		
 
-		[Embed(source="assets/images/disk.png")]
-		public var disk:Class;		
+		[Embed(source="assets/images/disk_grayscale.png")]
+		public var disk_grayscale:Class;		
 
 		[Embed(source="assets/images/folder.png")]
 		public var folder:Class;		
@@ -301,6 +304,9 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/grid_icon.png")]
 		public var grid_icon:Class;	
 		
+		[Embed(source="assets/images/ic_refresh_16px.png")]
+		public var refreshSmall:Class;
+		
 		[Embed(source="assets/images/moderator_white.png")]
 		public var moderator_white:Class;
 		
@@ -324,5 +330,47 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/emoji_confused.png")]
 		public var emoji_confused:Class;
+
+		[Embed(source="assets/images/user_add.png")]
+		public var user_add:Class;
+		
+		[Embed(source="assets/images/user_delete.png")]
+		public var user_delete:Class;
+	
+		[Embed(source="assets/images/status/ic_mood_black_18dp.png")]
+		public var mood:Class;
+
+		[Embed(source="assets/images/status/ic_clear_black_18dp.png")]
+		public var mood_clear:Class;
+
+		[Embed(source="assets/images/status/icon-3-high-five.png")]
+		public var mood_raise_hand:Class;
+
+		[Embed(source="assets/images/status/icon-6-thumb-up.png")]
+		public var mood_agreed:Class;
+
+		[Embed(source="assets/images/status/icon-7-thumb-down.png")]
+		public var mood_disagreed:Class;
+
+		[Embed(source="assets/images/status/ic_fast_forward_black_18dp.png")]
+		public var mood_speak_faster:Class;
+
+		[Embed(source="assets/images/status/ic_fast_rewind_black_18dp.png")]
+		public var mood_speak_slower:Class;
+
+		[Embed(source="assets/images/status/ic_volume_up_black_18dp.png")]
+		public var mood_speak_louder:Class;
+
+		[Embed(source="assets/images/status/ic_volume_down_black_18dp.png")]
+		public var mood_speak_softer:Class;
+
+		[Embed(source="assets/images/status/ic_access_time_black_18dp.png")]
+		public var mood_be_right_back:Class;
+
+		[Embed(source="assets/images/status/icon-6-smiling-face.png")]
+		public var mood_happy:Class;
+
+		[Embed(source="assets/images/status/icon-7-sad-face.png")]
+		public var mood_sad:Class;
 	}
 }

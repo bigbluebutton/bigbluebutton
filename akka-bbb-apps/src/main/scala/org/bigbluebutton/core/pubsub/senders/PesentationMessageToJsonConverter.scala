@@ -64,6 +64,7 @@ object PesentationMessageToJsonConverter {
       presentation.put(Constants.ID, pres.id)
       presentation.put(Constants.NAME, pres.name)
       presentation.put(Constants.CURRENT, pres.current: java.lang.Boolean)
+      presentation.put(Constants.DOWNLOADABLE, pres.downloadable: java.lang.Boolean)
 
       // Get the pages for a presentation
       val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
@@ -120,6 +121,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     // Get the pages for a presentation
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
@@ -204,6 +206,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
     msg.presentation.pages.values foreach { p =>
@@ -225,6 +228,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
+presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
     msg.presentation.pages.values foreach { p =>
@@ -246,6 +250,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.current.id)
     presentation.put(Constants.NAME, msg.current.name)
     presentation.put(Constants.CURRENT, msg.current.current: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.current.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
 
