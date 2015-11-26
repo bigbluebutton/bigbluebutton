@@ -66,7 +66,7 @@ def fetchRecordings(url)
         md5_value = format.xpath(".//md5").text
 
         encrypted_file = file_url.split("/").last
-        decrypted_file = File.basename(encrypted_file, '.*') + ".zip"
+        decrypted_file = File.basename(encrypted_file, '.*') + ".tar.gz"
         # can't check only for archived.done because when the file is published, the archived flag is removed
         # so we check for any .done file
         if Dir.glob("#{$recording_dir}/status/**/#{record_id}*.done").empty? then
@@ -122,8 +122,13 @@ def fetchRecordings(url)
                 BigBlueButton.logger.error "Couldn't decrypt the recording file using the random key"
                 next
               end
-       
-              BigBlueButton::MconfProcessor.unzip("#{$raw_dir}/#{meeting_id}", decrypted_file)
+
+              command = "tar -xf #{decrypted_file}"
+              status = BigBlueButton.execute(command, false)
+              if not status.success?
+                BigBlueButton.logger.error "Couldn't extract the raw files"
+                next
+              end
 
               archived_done = File.new("#{$archived_dir}/#{meeting_id}.done", "w")
               archived_done.write("Archived #{meeting_id}")
