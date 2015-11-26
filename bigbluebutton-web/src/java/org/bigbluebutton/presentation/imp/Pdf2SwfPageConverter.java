@@ -49,7 +49,6 @@ public class Pdf2SwfPageConverter implements PageConverter {
         String.valueOf(page), source, "-o", dest));
     Pdf2SwfPageConverterHandler pHandler = new Pdf2SwfPageConverterHandler();
     pb.setProcessListener(pHandler);
-    log.debug("## Executing command: " + pb.command().toString());
     NuProcess process = pb.start();
     try {
       process.waitFor(60, TimeUnit.SECONDS);
@@ -69,7 +68,6 @@ public class Pdf2SwfPageConverter implements PageConverter {
           fontsDir, "-p", String.valueOf(page), source, "-o", dest));
       Pdf2SwfPageConverterHandler pBmpHandler = new Pdf2SwfPageConverterHandler();
       pbBmp.setProcessListener(pBmpHandler);
-      log.debug("## Executing command: " + pbBmp.command().toString());
       NuProcess processBmp = pbBmp.start();
       try {
         processBmp.waitFor(60, TimeUnit.SECONDS);

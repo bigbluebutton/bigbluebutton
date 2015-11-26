@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.presentation.handlers;
 
+import java.io.File;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,14 @@ public class SwfPageAnalyserHandler extends AbstractPageConverterHandler {
   private static String FONT_NULL_GLYPH = "glyph codepoint='0(?)'";
   private static String SYMBOL_REDEFINED = "redefined by identical tag";
   private static String DEFINE_SHAPE3 = "DefineShape3";
+  private static String DEFINE_BUTTON = "decodeDefineButton";
+  private static String MALFORMED_URL = "java.net.MalformedURLException";
   private int maxSwfShapes;
+  private File analysedFile;
+
+  public SwfPageAnalyserHandler(File file) {
+    analysedFile = file;
+  }
 
   @Override
   public Boolean isConversionSuccessfull() {
@@ -47,15 +56,19 @@ public class SwfPageAnalyserHandler extends AbstractPageConverterHandler {
       }
       return true;
     } else {
+      String reason = "The SWF is not compliant due to an unknown error";
       if (stdoutContains(FONT_NULL_GLYPH)) {
-        log.error("SWF contains invalid font glyph dfintion");
+        reason = "SWF contains invalid font glyph dfintion";
       } else if (stdoutContains(SYMBOL_REDEFINED)) {
-        log.error("A SWF symbol was defined twice");
-      } else {
-        log.error("The SWF is not compliant due to an unknown error");
-        log.error(stdoutBuilder.toString());
+        reason = "A SWF symbol was defined twice";
+      } else if (stderrContains(MALFORMED_URL)) {
+        reason = "The SWF contains a malformed URL, the parsed file does probably not exist";
+      } else if (stderrContains(DEFINE_BUTTON)) {
+        reason = "A SWF DefineButton tag could not be parsed";
       }
-      log.error(stderrBuilder.toString());
+      log.error("swfdump exited with an error on file ["
+          + analysedFile.getAbsolutePath() + "]\nReason => " + reason
+          + "\nstderr:\n" + stderrBuilder.toString());
       return false;
     }
   }

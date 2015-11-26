@@ -63,8 +63,6 @@ public abstract class AbstractPageConverterHandler extends
       CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer);
       stderrBuilder.append(charBuffer);
     }
-    log.debug("Conversion stdout\n" + stdoutBuilder.toString());
-    log.debug("Conversion error stderr\n" + stderrBuilder.toString());
   }
 
   @Override
@@ -84,7 +82,7 @@ public abstract class AbstractPageConverterHandler extends
     return stdoutBuilder.indexOf(value) > -1;
   }
 
-  protected Boolean sterrContains(String value) {
+  protected Boolean stderrContains(String value) {
     return stderrBuilder.indexOf(value) > -1;
   }
 

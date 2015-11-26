@@ -42,11 +42,10 @@ public class SwfAnalyser implements PageAnalyser {
 
   @Override
   public boolean analyse(File output) {
-    NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR,
-        "swfdump", output.getAbsolutePath()));
-    SwfPageAnalyserHandler handler = new SwfPageAnalyserHandler();
+    NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR
+        + File.separator + "swfdump", output.getAbsolutePath()));
+    SwfPageAnalyserHandler handler = new SwfPageAnalyserHandler(output);
     handler.setMaxSwfShapes(maxSwfShapes);
-    log.debug("$$ Executing command: " + pb.command().toString());
     pb.setProcessListener(handler);
     NuProcess process = pb.start();
     try {
