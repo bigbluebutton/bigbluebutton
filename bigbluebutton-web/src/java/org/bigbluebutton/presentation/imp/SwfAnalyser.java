@@ -37,8 +37,7 @@ public class SwfAnalyser implements PageAnalyser {
 
   private String SWFTOOLS_DIR;
 
-  // @fixme: move to Spring configuration file
-  private int maxSwfShapes = 5000;
+  private long maxSwfShapes;
 
   @Override
   public boolean analyse(File output) {

@@ -34,7 +34,7 @@ public class SwfPageAnalyserHandler extends AbstractPageConverterHandler {
   private static String DEFINE_SHAPE3 = "DefineShape3";
   private static String DEFINE_BUTTON = "decodeDefineButton";
   private static String MALFORMED_URL = "java.net.MalformedURLException";
-  private int maxSwfShapes;
+  private long maxSwfShapes;
   private File analysedFile;
 
   public SwfPageAnalyserHandler(File file) {
@@ -73,7 +73,7 @@ public class SwfPageAnalyserHandler extends AbstractPageConverterHandler {
     }
   }
 
-  public void setMaxSwfShapes(int maxSwfShapes) {
+  public void setMaxSwfShapes(long maxSwfShapes) {
     this.maxSwfShapes = maxSwfShapes;
   }
 }

@@ -67,7 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<bean id="swfAnalyser" class="org.bigbluebutton.presentation.imp.SwfAnalyser">
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
-		<!--property name="maxSwfShapes" value="${maxSwfShapes}"/ -->
+		<property name="maxSwfShapes" value="${maxSwfShapes}"/>
 	</bean>
 	
 	<bean id="imageConvSvc" class="org.bigbluebutton.presentation.imp.PdfPageToImageConversionService">
