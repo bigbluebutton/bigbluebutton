@@ -647,18 +647,25 @@
   background-color: #34495E;
 }
 
+
+
 .FABContainer {
   &.noPresentation{
     right: 60px;
+    .FABTriggerButton {
+      @media @mobile-portrait, @tablet-portrait{
+        .vertically-centered;
+      }
+    }
   }
   @media @mobile-portrait{
     position: absolute;
-    bottom: 3px;
     right: 0px;
-    height: 55px;
+    height: 60px;
   }
-  @media @tablet-portrait{
-    bottom: 3px;
+  @media @tablet-portrait {
+    position: absolute;
+    height: 60px;
     right: 0px;
   }
   button {
