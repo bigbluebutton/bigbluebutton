@@ -516,11 +516,6 @@
 }
 
 .soaringButton {
-
-  @media @desktop-portrait{
-    margin-top: -60px;
-  }
-
   position: absolute;
   margin-bottom: 0;
   padding: 0;
@@ -658,16 +653,12 @@
       }
     }
   }
-  @media @mobile-portrait{
+  @media @mobile-portrait, @tablet-portrait{
     position: absolute;
     right: 0px;
     height: 60px;
   }
-  @media @tablet-portrait {
-    position: absolute;
-    height: 60px;
-    right: 0px;
-  }
+
   button {
     padding: 0;
     margin: 0;
