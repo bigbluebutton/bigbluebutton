@@ -89,7 +89,7 @@
 # called on server start and meeting end
 @clearShapesCollection = (meetingId) ->
   if meetingId?
-    Meteor.Shapes.remove {}, ->
+    Meteor.Shapes.remove {meetingId: meetingId}, ->
       Meteor.log.info "cleared Shapes Collection (meetingId: #{meetingId}!"
       Meteor.WhiteboardCleanStatus.update({meetingId: meetingId}, {$set: {in_progress: false}})
   else
