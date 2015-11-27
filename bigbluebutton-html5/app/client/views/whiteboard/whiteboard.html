@@ -34,8 +34,9 @@
       {{#if isMobile}}
         {{> makeButton btn_class="soaringButton fullscreenButton whiteboardFullscreenButton" i_class="ion-arrow-expand"}}
       {{/if}}
-
-      {{> whiteboardControls}}
+      {{#if isCurrentUserPresenter}}
+        {{> whiteboardControls}}
+      {{/if}}
     </div>
     {{#if isPollStarted}}
       {{> polling}}
