@@ -33,7 +33,6 @@ Template.usernameEntry.events
         setInSession "inChatWith", userIdSelected
     if isPortrait() or isPortraitMobile()
       toggleUserlistMenu()
-      toggleLeftHamburderIcon()
       toggleShield()
     setTimeout () -> # waits until the end of execution queue
       $("#newMessageInput").focus()
