@@ -372,12 +372,6 @@ body {
         background-color: black;
         opacity: 0;
         cursor: pointer;
-        @media @landscape, @desktop-portrait {
-          top: 50px;
-        }
-        @media @mobile-portrait-with-keyboard, @mobile-portrait {
-          top: 110px;
-        }
       }
     }
   }
@@ -744,7 +738,6 @@ body {
 
 @media @desktop-portrait {
   .userlistMenu {
-    z-index: 1000;
     position: fixed;
     left: -400px;
     width: 400px !important; // overrides any width value set manually in landscape
@@ -753,7 +746,6 @@ body {
     }
   }
   .settingsMenu {
-    z-index: 1000;
     position: fixed;
     right: -400px;
     width: 400px;
@@ -765,6 +757,7 @@ body {
 
 .userlistMenu {
   height: 100%;
+  z-index: 1000;
   @media @tablet-landscape {
     width: 200px;
   }
@@ -777,7 +770,6 @@ body {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     @userListMenuPortaitWidth: (2/3 * 100vw);
 
-    z-index: 1000;
     position: fixed;
     left: -@userListMenuPortaitWidth;
     width: @userListMenuPortaitWidth;
@@ -879,12 +871,7 @@ body {
   opacity: 0;
   z-index: 999;
   cursor: pointer;
-  @media @desktop-portrait {
-    top: 50px;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    top: 50px;
-  }
+  top: 0px;
   @media @landscape {
     display: none;
   }
@@ -913,7 +900,6 @@ body {
   }
 }
 
-// same as Sled's left drawer except for animations
 .left-drawer {
   z-index: 1000;
   position: fixed;
@@ -922,7 +908,6 @@ body {
   height: 100%;
 }
 
-// same as Sled's right drawer except for animations
 .right-drawer {
   z-index: 1000;
   position: fixed;
