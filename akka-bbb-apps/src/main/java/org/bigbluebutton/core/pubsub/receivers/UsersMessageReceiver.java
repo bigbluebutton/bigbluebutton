@@ -133,6 +133,7 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case RespondToGuestMessage.RESPOND_TO_GUEST:
 						  processRespondToGuestMessage(message);
 						  break;
+						  
 					}
 				}
 			}

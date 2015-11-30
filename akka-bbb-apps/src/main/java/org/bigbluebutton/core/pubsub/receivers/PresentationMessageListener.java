@@ -107,7 +107,7 @@ public class PresentationMessageListener implements MessageHandler {
 //    						sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
 //    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
     						bbbInGW.sendConversionCompleted(msg.messageKey, msg.meetingId, msg.code,
-    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl);
+    								msg.presId, msg.numPages, msg.presName, msg.presBaseUrl, msg.downloadable);
     					} else if (SendPageCountErrorMessage.SEND_PAGE_COUNT_ERROR.equals(messageName)) {
     						SendPageCountErrorMessage msg = SendPageCountErrorMessage.fromJson(message);
 //    						sendPageCountError(msg.messageKey, msg.meetingId, msg.code,

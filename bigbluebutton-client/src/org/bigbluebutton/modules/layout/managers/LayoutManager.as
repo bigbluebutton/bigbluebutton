@@ -18,35 +18,43 @@
 */
 package org.bigbluebutton.modules.layout.managers
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher;  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
   import flash.net.FileReference;
+  import flash.net.URLLoader;
+  import flash.net.URLRequest;
+  import flash.utils.Dictionary;
   import flash.utils.Timer;
-  
-  import mx.controls.Alert;
-  import mx.events.ResizeEvent;
-  
+
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
   import flexlib.mdi.events.MDIManagerEvent;
-  
+
+  import mx.controls.Alert;
+  import mx.events.EffectEvent;
+  import mx.events.ResizeEvent;
+
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.EventBroadcaster;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.Config;
+  import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.main.model.LayoutOptions;
-  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutLockedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
   import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
+  import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
@@ -54,8 +62,7 @@ package org.bigbluebutton.modules.layout.managers
 
 	public class LayoutManager extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(LayoutManager);      
-		private static const LOG:String = "Layout::LayoutManager - ";
-
+    
 		private var _canvas:MDICanvas = null;
 		private var _globalDispatcher:Dispatcher = new Dispatcher();
 		private var _locked:Boolean = false;
@@ -76,7 +83,6 @@ package org.bigbluebutton.modules.layout.managers
     public function LayoutManager() {
       _applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
         applyLayout(currentLayout);
-        trace(LOG + "Applied layout after user resized browser");
       });
     }
     
@@ -88,7 +94,6 @@ package org.bigbluebutton.modules.layout.managers
      *  the layouts to populate the list when both are created.
      */
 		public function loadServerLayouts(layoutUrl:String):void {
-			//trace(LOG + " loading server layouts from " + layoutUrl);
 			var loader:LayoutLoader = new LayoutLoader();
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
@@ -96,8 +101,6 @@ package org.bigbluebutton.modules.layout.managers
 
           broadcastLayouts();
 					_serverLayoutsLoaded = true;
-
-					//trace(LOG + " layouts loaded successfully");
 				} else {
 					LOGGER.debug("layouts not loaded ({0})", [e.error.message]);
 				}
@@ -164,23 +167,23 @@ package org.bigbluebutton.modules.layout.managers
 			_canvas.windowManager.addEventListener(EffectEvent.EFFECT_END, function(e:EffectEvent):void {
 				var obj:Object = (e as Object);
 				if (obj.mdiEventType == "windowAdd") {
-					trace(LOG + "Ignoring windowAdd");
+					LOGGER.debug("Ignoring windowAdd");
 					return;
 				}
 				var windows:Array = obj.windows;
 				if (windows != null) {
 					for each (window in windows) {
-						trace(LOG + e.type + "/" + obj.mdiEventType + " on window " + WindowLayout.getType(window));
+						LOGGER.debug(e.type + "/" + obj.mdiEventType + " on window " + WindowLayout.getType(window));
 						onActionOverWindowFinished(window);
 					}
 				} else {
-					trace(LOG + e.type + "/" + obj.mdiEventType + " with no window associated");
+					LOGGER.debug(e.type + "/" + obj.mdiEventType + " with no window associated");
 				}
 			});
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_ADD, function(e:MDIManagerEvent):void {
 				e.window.callLater(function():void {
 					checkSingleWindowPermissions(e.window);
-					trace(LOG + "applying layout to just created window " + WindowLayout.getType(e.window));
+					LOGGER.debug("applying layout to just created window " + WindowLayout.getType(e.window));
 					applyLayout(_currentLayout);
 				});
 			});
@@ -194,15 +197,13 @@ package org.bigbluebutton.modules.layout.managers
 		}
 
     public function switchToLayout(name:String):void {
-      //trace(LOG + " switching to layout [" + name + "] ");
       var newLayout:LayoutDefinition = _layoutModel.getLayout(name);
       if (newLayout == null) return;
 
-      //trace(LOG + " applying layout [" + newLayout.name + "] to windows.");
       applyLayout(newLayout);     
     }
     
-		public function applyDefaultLayout():void {         
+		public function applyDefaultLayout():void {
       var layoutOptions:LayoutOptions = new LayoutOptions();
       layoutOptions.parseOptions();
       var defaultLayout:LayoutDefinition = _layoutModel.getLayout(layoutOptions.defaultLayout);
@@ -220,14 +221,12 @@ package org.bigbluebutton.modules.layout.managers
         defaultLayout = _layoutModel.getDefaultLayout();
       }
       
-      //trace(LOG + " Using [" + defaultLayout.name + "] as default LAYOUT.");
 			applyLayout(defaultLayout);
 		}
 		
     private function dispatchSwitchedLayoutEvent(layoutID:String):void {
       if (_currentLayout != null && _currentLayout.name == layoutID) return;
       
-      //trace(LOG + " Dispatch [" + layoutID + "] as new LAYOUT");
       var layoutEvent:SwitchedLayoutEvent = new SwitchedLayoutEvent();
       layoutEvent.layoutID = layoutID;
       _globalDispatcher.dispatchEvent(layoutEvent);      
@@ -241,12 +240,10 @@ package org.bigbluebutton.modules.layout.managers
       
 		public function lockLayout():void {
 			_locked = true;
-			//trace(LOG + " layout locked by myself");
 			sendLayoutUpdate(_currentLayout);
 		}
 		
 		public function broadcastLayout():void {
-			//trace(LOG + " layout changed by me. Sync others to this new layout.");
 			var e:SyncLayoutEvent = new SyncLayoutEvent(_currentLayout);
 			_globalDispatcher.dispatchEvent(e);
 
@@ -255,17 +252,18 @@ package org.bigbluebutton.modules.layout.managers
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
 			if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) {
-				//trace("LayoutManager: synching layout to remote users");
 				var e:SyncLayoutEvent = new SyncLayoutEvent(layout);
 				_globalDispatcher.dispatchEvent(e);
 			}
 		}
 		
 		private function applyLayout(layout:LayoutDefinition):void {
-			_detectContainerChange = false;
+			LOGGER.debug("applyLayout");
+			detectContainerChange = false;
+
 			if (layout != null) {
 				layout.applyToCanvas(_canvas, function():void {
-					trace(LOG + "layout applied successfully, resetting detectContainerChange");
+					LOGGER.debug("layout applied successfully, resetting detectContainerChange");
 					detectContainerChange = true;
 				});
 				dispatchSwitchedLayoutEvent(layout.name);
@@ -278,13 +276,13 @@ package org.bigbluebutton.modules.layout.managers
 		}
     
     private function set detectContainerChange(detect:Boolean):void {
-      trace(LOG + "setting detectContainerChange to " + detect);
+      LOGGER.debug("setting detectContainerChange to " + detect);
       if (detect) {
         _applyingLayoutCounter--;
       } else {
         _applyingLayoutCounter++;
       }
-      trace(LOG + "current value of detectContainerChange: " + detectContainerChange);
+      LOGGER.debug("current value of detectContainerChange: " + detectContainerChange);
     }
     
     private function get detectContainerChange():Boolean {
@@ -302,24 +300,19 @@ package org.bigbluebutton.modules.layout.managers
     
 		public function applyRemoteLayout(e:LayoutFromRemoteEvent):void {
 			var layout:LayoutDefinition = e.layout;
-      //trace(LOG + " applyRemoteLayout layout [" + layout.name +  "]");
 			applyLayout(layout);
 		}
 		
 		public function remoteLockLayout():void {
-			//trace(LOG + " remote lock received");
 			_locked = true;
 			checkWindowsPermissions();
 		}
 		
     public function remoteSyncLayout(event:RemoteSyncLayoutEvent):void {
-      //trace(LOG + " remote lock received");
-      
       checkWindowsPermissions();
     }
     
 		public function remoteUnlockLayout():void {
-			//trace(LOG + " remote unlock received");
 			_locked = false;
 			checkWindowsPermissions();
 		}
@@ -341,7 +334,6 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function onContainerResized(e:ResizeEvent):void {
-      //trace(LOG + "Canvas is changing as user is resizing browser");
       /*
       *	the main canvas has been resized
       *	while the user is resizing the window, this event is dispatched 
@@ -353,7 +345,7 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function onMDIManagerEvent(e:MDIManagerEvent):void {
-			trace(LOG + "Window has been modified. Event=[" + e.type + "]");
+			LOGGER.debug("Window has been modified. Event=[" + e.type + "]");
 			onActionOverWindowFinished(e.window);
 		}
 		
@@ -373,14 +365,11 @@ package org.bigbluebutton.modules.layout.managers
       if (layout != null) {
         if (_currentLayout) _currentLayout.currentLayout = false;
         _currentLayout = layout;
-        //trace(LOG + "updateCurrentLayout - currentLayout = [" + layout.name + "]");
         layout.currentLayout = true;
-        trace(LOG + "updated current layout");
       } else if (detectContainerChange) {
-        trace(LOG + "invalidating layout event");
+        LOGGER.debug("invalidating layout event");
         _globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.INVALIDATE_LAYOUT_EVENT));
         _currentLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
-        //trace(LOG + "updateCurrentLayout - layout is NULL! Setting currentLayout = [" + _currentLayout.name + "]");
       }
 
 			return _currentLayout;

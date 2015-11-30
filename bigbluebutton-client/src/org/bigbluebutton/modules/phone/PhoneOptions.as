@@ -55,6 +55,7 @@ package org.bigbluebutton.modules.phone
 		[Bindable]
 		public var showMicrophoneHint:Boolean = true;
 
+		[Bindable]
 		public var forceListenOnly:Boolean = false;
 		
 		public function PhoneOptions() {

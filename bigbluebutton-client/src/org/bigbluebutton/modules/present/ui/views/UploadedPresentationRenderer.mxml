@@ -12,20 +12,20 @@
 		
 		import org.as3commons.logging.api.ILogger;
 		import org.as3commons.logging.api.getClassLogger;
+		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.modules.present.commands.ChangePresentationCommand;
 		import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 		import org.bigbluebutton.modules.present.events.UploadEvent;
 		import org.bigbluebutton.util.i18n.ResourceUtil;
-		import org.bigbluebutton.common.Images;
       
 		private static const LOGGER:ILogger = getClassLogger(UploadedPresentationRenderer);      
 
 		private var globalDispatch:Dispatcher = new Dispatcher();
-
-		private function onCreationComplete():void {
-			var images:Images = new Images();
-			isDownloadable.source = images.disk_grayscale;
-		}
+      
+      private function onCreationComplete():void {
+          var images:Images = new Images();
+          isDownloadable.source = images.disk_grayscale;
+      }
 
       private function showPresentation():void {
         LOGGER.debug("FileUploadWindow::showPresentation() {0}", [data.id]);   

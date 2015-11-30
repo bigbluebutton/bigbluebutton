@@ -8,7 +8,7 @@ import org.bigbluebutton.core.api._
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
+import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, SharedNotesApp }
 import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
 import org.bigbluebutton.core.apps.PresentationModel
 
@@ -170,8 +170,6 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleGetPollRequest(msg)
     case msg: GetCurrentPollRequest =>
       handleGetCurrentPollRequest(msg)
-    case msg: GetStreamPath =>
-      handleGetStreamPath(msg)
     case msg: GetGuestPolicy =>
       handleGetGuestPolicy(msg)
     case msg: SetGuestPolicy =>
@@ -301,13 +299,13 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   private def handleGetGuestPolicy(msg: GetGuestPolicy) {
-    outGW.send(new GetGuestPolicyReply(msg.meetingID, recorded, msg.requesterID, meetingModel.getGuestPolicy().toString()))
+    outGW.send(new GetGuestPolicyReply(msg.meetingID, mProps.recorded, msg.requesterID, meetingModel.getGuestPolicy().toString()))
   }
 
   private def handleSetGuestPolicy(msg: SetGuestPolicy) {
     meetingModel.setGuestPolicy(msg.policy)
     meetingModel.setGuestPolicySetBy(msg.setBy)
-    outGW.send(new GuestPolicyChanged(msg.meetingID, recorded, meetingModel.getGuestPolicy().toString()))
+    outGW.send(new GuestPolicyChanged(msg.meetingID, mProps.recorded, meetingModel.getGuestPolicy().toString()))
   }
 
   def lockLayout(lock: Boolean) {

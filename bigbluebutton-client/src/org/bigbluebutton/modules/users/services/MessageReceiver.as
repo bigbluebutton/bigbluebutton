@@ -566,14 +566,13 @@ package org.bigbluebutton.modules.users.services
       user.isLeavingFlag = false;
       user.listenOnly = joinedUser.listenOnly;
       user.userLocked = joinedUser.locked;
-      user.me = (user.userID == UserManager.getInstance().getConference().getMyUserId())
 	  
 	  LOGGER.info("User joined = " + JSON.stringify(user));
 	  
       UserManager.getInstance().getConference().addUser(user);
       
       if (joinedUser.hasStream) {
-        var streams:Array = joinedUser.webcamStream.split("|");
+        var streams:Array = joinedUser.webcamStream;
         for each(var stream:String in streams) {
           UserManager.getInstance().getConference().sharedWebcam(user.userID, stream);
         }
@@ -585,12 +584,11 @@ package org.bigbluebutton.modules.users.services
 
       UserManager.getInstance().getConference().presenterStatusChanged(user.userID, joinedUser.presenter);
       UserManager.getInstance().getConference().emojiStatus(user.userID, joinedUser.emojiStatus);
-      UserManager.getInstance().getConference().newUserStatus(user.userID, "mood", joinedUser.mood);
            
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
-      
+   
       if (user.guest) {
         if (user.waitingForAcceptance) {
           if (user.me) {
@@ -628,9 +626,7 @@ package org.bigbluebutton.modules.users.services
     public function handleParticipantStatusChange(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);	
       UserManager.getInstance().getConference().newUserStatus(map.userID, map.status, map.value);
-      var status:String = map.value;
-      var statusArray:Array = status.split(",");
-
+      
       if (msg.status == "presenter"){
         var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
         e.userID = map.userID;
@@ -641,7 +637,7 @@ package org.bigbluebutton.modules.users.services
 
     public function handleParticipantRoleChange(msg:Object):void {
       var map:Object = JSON.parse(msg.msg);
-      trace(LOG + "*** received participant role change [" + map.userID + "," + map.role + "]");      
+      LOGGER.debug("*** received participant role change [" + map.userID + "," + map.role + "]");      
       UserManager.getInstance().getConference().newUserRole(map.userID, map.role);
       if(UserManager.getInstance().getConference().amIThisUser(map.userID)) {
         UserManager.getInstance().getConference().setMyRole(map.role);
@@ -651,7 +647,7 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function handleGuestPolicyChanged(msg:Object):void {
-      trace(LOG + "*** handleGuestPolicyChanged " + msg.msg + " **** \n");
+      LOGGER.debug("*** handleGuestPolicyChanged " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
 
       var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
@@ -660,7 +656,7 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function handleGetGuestPolicyReply(msg:Object):void {
-      trace(LOG + "*** handleGetGuestPolicyReply " + msg.msg + " **** \n");
+      LOGGER.debug("*** handleGetGuestPolicyReply " + msg.msg + " **** \n");
       var map:Object = JSON.parse(msg.msg);
 
       var policy:BBBEvent = new BBBEvent(BBBEvent.RETRIEVE_GUEST_POLICY);
@@ -669,7 +665,7 @@ package org.bigbluebutton.modules.users.services
     }
 
     public function handleGuestAccessDenied(msg:Object):void {
-      trace(LOG + "*** handleGuestAccessDenied " + msg.msg + " ****");
+      LOGGER.debug("*** handleGuestAccessDenied " + msg.msg + " ****");
       var map:Object = JSON.parse(msg.msg);
       
       if (UsersUtil.getMyUserID() == map.userId) {

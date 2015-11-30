@@ -30,9 +30,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import org.bigbluebutton.common.IBigBlueButtonModule;
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
+			
+			private static const LOGGER:ILogger = getClassLogger(SharedNotesModule);
 
 			private var _moduleName:String = "Notes Module";
 			private var _attributes:Object;
@@ -40,7 +46,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("NotesModule Initialized");
+				LOGGER.debug("NotesModule Initialized");
 				globalDispatcher = new Dispatcher();
 			}
 			
@@ -59,13 +65,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function get username():String {
 				return _attributes.username;
 			}
-					
+			
 			public function get mode():String {
 				if (_attributes.mode == null) {
 					_attributes.mode = "LIVE"
-					LogUtil.debug('Setting NotesModule mode: ' + _attributes.mode);
+					LOGGER.debug('Setting NotesModule mode: ' + _attributes.mode);
 				}
-				LogUtil.debug('NotesModule mode: ' + _attributes.mode);
+				LOGGER.debug('NotesModule mode: ' + _attributes.mode);
 				return _attributes.mode;
 			}
 			
@@ -83,7 +89,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				globalDispatcher.dispatchEvent(event);
 			}
 			
-			public function stop():void {}
+			public function stop():void {
+				//var event:LayoutEvent = new LayoutEvent(LayoutEvent.STOP_LAYOUT_MODULE_EVENT);
+				//_globalDispatcher.dispatchEvent(event);
+			}
 		]]>
 	</mx:Script>
 </mx:Module>

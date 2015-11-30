@@ -33,22 +33,17 @@ public class Pdf2SwfPageConverter implements PageConverter {
 	public boolean convert(File presentation, File output, int page) {
 	    String source = presentation.getAbsolutePath();
 	    String dest = output.getAbsolutePath();
-	    /* Using flash taget version 7 to support Adobe AIR. Otherwise pdf2swf will  /
-	    /  insert an unsupported command "allowDomain" into the generated swf files */
-	    String flashVersion = "-T7";
+	    String AVM2SWF = "-T9";
 	    
-	    String COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + flashVersion + " -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;
-	    log.debug("Executing: " + COMMAND);
-	    
+	    String COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + AVM2SWF + " -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;    
+
 	    boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);      
 		
 		File destFile = new File(dest);
 		if (done && destFile.exists()) {
 			return true;		
 		} else {
-			COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + flashVersion + " -s poly2bitmap  -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;
-			log.debug("Converting graphics to bitmaps");
-			log.debug("Executing: " + COMMAND);
+			COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + AVM2SWF + " -s poly2bitmap  -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;
 			done = new ExternalProcessExecutor().exec(COMMAND, 60000);
 			if (done && destFile.exists()){
 				return true;

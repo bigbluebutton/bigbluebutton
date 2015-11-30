@@ -19,9 +19,9 @@ package org.bigbluebutton.modules.layout.services
 
   public class MessageReceiver implements IMessageListener
   {
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
+    private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
 
-	private var _dispatcher:Dispatcher;
+    private var _dispatcher:Dispatcher;
     
     public function MessageReceiver()
     {

@@ -50,13 +50,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.accessibility.AlertAccImpl;
+			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
 			import mx.core.IToolTip;
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.ToolTipEvent;
 			import mx.managers.PopUpManager;
-			import mx.binding.utils.BindingUtils;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
@@ -65,6 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
@@ -474,6 +475,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<common:TabIndexer id="buttonsIndexer" startIndex="{quickLinksIndexer.startIndex + numButtons + 10}"
 					   tabIndices="{[recordBtn, muteMeBtn, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 
+    
     <mx:HBox id="logoHolder" paddingRight="12" >
         <mx:Image id="logo" ioError="hideLogo()" />
     </mx:HBox>

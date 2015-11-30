@@ -20,6 +20,8 @@
 package org.bigbluebutton.modules.sharednotes.managers {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
 	import org.bigbluebutton.modules.sharednotes.services.MessageReceiver;
@@ -27,6 +29,8 @@ package org.bigbluebutton.modules.sharednotes.managers {
 	import org.bigbluebutton.core.managers.UserManager;
 	
 	public class SharedNotesManager {		
+		private static const LOGGER:ILogger = getClassLogger(SharedNotesManager);
+
 		public var sender:MessageSender;
 		public var receiver:MessageReceiver;
 		private var attributes:Object;
@@ -51,14 +55,14 @@ package org.bigbluebutton.modules.sharednotes.managers {
 		}
 
 		public function destroyAdditionalNotes(notesId:String):void {
-			trace("SharedNotesManager: destroying notes " + notesId);
+			LOGGER.debug("SharedNotesManager: destroying notes " + notesId);
 			sender.destroyAdditionalNotes(notesId);
 		}
 
 		public function requestAdditionalNotesSet(e:SharedNotesEvent):void {
 			var notesSet:Number = e.payload.numAdditionalSharedNotes;
-			trace("SharedNotesManager: requested to open a new notes set");
-			trace("SharedNotesManager: set size: " + notesSet);
+			LOGGER.debug("SharedNotesManager: requested to open a new notes set");
+			LOGGER.debug("SharedNotesManager: set size: " + notesSet);
 			sender.requestAdditionalNotesSet(notesSet);
 		}
 	}

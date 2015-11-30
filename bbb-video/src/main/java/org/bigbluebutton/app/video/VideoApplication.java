@@ -44,6 +44,7 @@ import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.ISubscriberStream;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
+
 import com.google.gson.Gson;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
@@ -55,6 +56,8 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
 	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
+	
+	private int packetTimeout = 10000;
 	
 	private Map<String, CustomStreamRelay> remoteStreams = new ConcurrentHashMap<String, CustomStreamRelay>();
 	private Map<String, Integer> listenersOnRemoteStream = new ConcurrentHashMap<String, Integer>();
@@ -70,8 +73,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
 	private final Map<String, VideoRotator> videoRotators = new HashMap<String, VideoRotator>();
 
-	private int packetTimeout = 10000;
-	
     @Override
 	public boolean appStart(IScope app) {
 	    super.appStart(app);
@@ -84,22 +85,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
     @Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		String remoteAddress = Red5.getConnectionLocal().getRemoteAddress();
-		int  remotePort = Red5.getConnectionLocal().getRemotePort();
-		if (params.length == 0) {
-			params = new Object[2];
-			params[0] = "unknown-meetingid";
-			params[1] = "unknown-userid";
-		}
-
-		String meetingId = ((String) params[0]).toString();
-		String userId = ((String) params[1]).toString();
-
-		Map<String, Object> logData = new HashMap<String, Object>();
-		logData.put("meetingId", meetingId);
-		logData.put("userId", userId);
-
-		log.info("BBB Video appConnect. RemoteHost={}, RemotePort={}. Params: {}",remoteAddress,remotePort,logData);
+		log.info("BBB Video appConnect"); 		
 		return super.appConnect(conn, params);
 	}
 
@@ -213,13 +199,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
-        log.info("BBB Video streamPublishStart. userid={} Stream={}",getUserId(),stream.getPublishedName());
     	super.streamPublishStart(stream);
     	IConnection conn = Red5.getConnectionLocal();  
     	log.info("streamPublishStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
     }
     
-    public IBroadcastScope getBroadcastScope(IScope scope, String name) {
+    private IBroadcastScope getBroadcastScope(IScope scope, String name) {
         IBasicScope basicScope = scope.getBasicScope(ScopeType.BROADCAST, name);
         if (basicScope instanceof IBroadcastScope) {
             return (IBroadcastScope) basicScope;
@@ -232,8 +217,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void streamBroadcastStart(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastStart(stream);
-    	String streamName = stream.getPublishedName();
-    	log.info("streamBroadcastStart " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+    	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 
     	String userId = getUserId();
     	String meetingId = conn.getScope().getName();
@@ -245,19 +229,15 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         stream.addStreamListener(listener); 
         streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
         
-        addH263PublishedStream(streamName);
-        if (streamName.contains("/")) {
-            if(VideoRotator.getDirection(streamName) != null) {
-                VideoRotator rotator = new VideoRotator(streamName);
-                videoRotators.put(streamName, rotator);
+        addH263PublishedStream(streamId);
+        if (streamId.contains("/")) {
+            if(VideoRotator.getDirection(streamId) != null) {
+                VideoRotator rotator = new VideoRotator(streamId);
+                videoRotators.put(streamId, rotator);
             }
         }
         else if (recordVideoStream) {
 	    	recordStream(stream);
-	    	VideoStreamListener listener = new VideoStreamListener(); 
-	        listener.setEventRecordingService(recordingService);
-	        stream.addStreamListener(listener); 
-	        streamListeners.put(conn.getScope().getName() + "-" + streamName, listener);
         }
     }
 
@@ -290,15 +270,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
   	
   		publisher.userUnshareWebcamRequestMessage(meetingId, userId, streamId);
 
-      if (recordVideoStream) {
-        IConnection conn = Red5.getConnectionLocal();
-        String scopeName;
-        if (conn != null && conn.getScope() != null) {
-  	       scopeName = conn.getScope().getName();
-        } else {
-  	       log.info("Connection local was null, using scope name from the stream: {}", stream);
-  	       scopeName = stream.getScope().getName();
-        }
         IStreamListener listener = streamListeners.remove(scopeName + "-" + stream.getPublishedName());
         if (listener != null) {
         	((VideoStreamListener) listener).streamStopped();
@@ -307,7 +278,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         
       if (recordVideoStream) {        
         long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
-        log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + scopeName);
+        log.info("Stop recording event for stream=[{}] meeting=[{}]", stream.getPublishedName(), scopeName);
         Map<String, String> event = new HashMap<String, String>();
         event.put("module", "WEBCAM");
         event.put("timestamp", genTimestamp().toString());
@@ -318,13 +289,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
         recordingService.record(scopeName, event);    		
       }
 
-      String streamName = stream.getPublishedName();
-      removeH263ConverterIfNeeded(streamName);
-      if(videoRotators.containsKey(streamName)) {
+      removeH263ConverterIfNeeded(streamId);
+      if(videoRotators.containsKey(streamId)) {
         // Stop rotator
-        videoRotators.remove(streamName).stop();
+        videoRotators.remove(streamId).stop();
       }
-      removeH263PublishedStream(streamName);
+      removeH263PublishedStream(streamId);
     }
     
     /**
@@ -358,6 +328,79 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 		recordingService = s;
 	}
 	
+	public void setMessagePublisher(MessagePublisher publisher) {
+		this.publisher = publisher;
+	}
+	
+	/**
+	 * Start transmission notification from Flash Player 11.1+. This command asks the server to transmit more data because the buffer is running low.
+	 * 
+	 * http://help.adobe.com/en_US/flashmediaserver/devguide/WSd391de4d9c7bd609-569139412a3743e78e-8000.html
+	 * 
+	 * @param bool boolean
+	 * @param num number
+	 */
+	public void startTransmit(Boolean bool, int num) {	
+
+	}
+
+	/**
+	 * Stop transmission notification from Flash Player 11.1+. This command asks the server to suspend transmission until the client sends a 
+	 * startTransmit event because there is enough data in the buffer.
+	 */
+	public void stopTransmit() {		
+	}
+
+	/**
+	 * Stop transmission notification from Flash Player 11.1+. This command asks the server to suspend transmission until the client sends a 
+	 * startTransmit event because there is enough data in the buffer.
+	 * 
+	 * @param bool boolean
+	 * @param num number
+	 */
+	public void stopTransmit(Boolean bool, int num) {		
+	}	
+	
+	/**
+	 * Notification method that is sent by FME just before publishing starts.
+	 * 
+	 * @param streamName Name of stream that is about to be published.
+	 */
+	@Override
+	public void FCPublish(String streamName) {
+    	IConnection conn = Red5.getConnectionLocal();  
+    	log.info("FCPublish " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+	}
+
+	/**
+	 * Notification method that is sent by FME when publishing of a stream ends.
+	 */
+	@Override
+	public void FCUnpublish() {
+	}
+
+	/**
+	 * Notification method that is sent by FME when publishing of a stream ends.
+	 * 
+	 * @param streamName Name of stream that is about to be un-published.
+	 */
+	@Override
+	public void FCUnpublish(String streamName) {
+    	IConnection conn = Red5.getConnectionLocal();  
+    	log.info("FCUnpublish " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+	}
+
+	/**
+	 * Notification method that is sent by some clients just before playback starts.
+	 * 
+	 * @param streamName Name of stream that is about to be played.
+	 */
+	@Override
+	public void FCSubscribe(String streamName) {
+    	IConnection conn = Red5.getConnectionLocal();  
+    	log.info("FCSubscribe " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+	}
+
 	public void setRelayTimeout(long timeout) {
 		this.relayTimeout = timeout;
 	}
@@ -564,77 +607,4 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
             }
         }
     }
-	
-	public void setMessagePublisher(MessagePublisher publisher) {
-		this.publisher = publisher;
-	}
-	
-	/**
-	 * Start transmission notification from Flash Player 11.1+. This command asks the server to transmit more data because the buffer is running low.
-	 * 
-	 * http://help.adobe.com/en_US/flashmediaserver/devguide/WSd391de4d9c7bd609-569139412a3743e78e-8000.html
-	 * 
-	 * @param bool boolean
-	 * @param num number
-	 */
-	public void startTransmit(Boolean bool, int num) {	
-
-	}
-
-	/**
-	 * Stop transmission notification from Flash Player 11.1+. This command asks the server to suspend transmission until the client sends a 
-	 * startTransmit event because there is enough data in the buffer.
-	 */
-	public void stopTransmit() {		
-	}
-
-	/**
-	 * Stop transmission notification from Flash Player 11.1+. This command asks the server to suspend transmission until the client sends a 
-	 * startTransmit event because there is enough data in the buffer.
-	 * 
-	 * @param bool boolean
-	 * @param num number
-	 */
-	public void stopTransmit(Boolean bool, int num) {		
-	}	
-	
-	/**
-	 * Notification method that is sent by FME just before publishing starts.
-	 * 
-	 * @param streamName Name of stream that is about to be published.
-	 */
-	@Override
-	public void FCPublish(String streamName) {
-    	IConnection conn = Red5.getConnectionLocal();  
-    	log.info("FCPublish " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-	}
-
-	/**
-	 * Notification method that is sent by FME when publishing of a stream ends.
-	 */
-	@Override
-	public void FCUnpublish() {
-	}
-
-	/**
-	 * Notification method that is sent by FME when publishing of a stream ends.
-	 * 
-	 * @param streamName Name of stream that is about to be un-published.
-	 */
-	@Override
-	public void FCUnpublish(String streamName) {
-    	IConnection conn = Red5.getConnectionLocal();  
-    	log.info("FCUnpublish " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-	}
-
-	/**
-	 * Notification method that is sent by some clients just before playback starts.
-	 * 
-	 * @param streamName Name of stream that is about to be played.
-	 */
-	@Override
-	public void FCSubscribe(String streamName) {
-    	IConnection conn = Red5.getConnectionLocal();  
-    	log.info("FCSubscribe " + streamName + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-	}
 }

@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.modules.layout.managers
 {
+
 	import flash.utils.Dictionary;
 	
 	import flexlib.mdi.containers.MDIWindow;

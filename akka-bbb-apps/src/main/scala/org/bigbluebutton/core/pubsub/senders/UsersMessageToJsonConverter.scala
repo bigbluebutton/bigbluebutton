@@ -194,7 +194,7 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  def userRoleChangeToJson(msg: UserRoleChange):String = {
+  def userRoleChangeToJson(msg: UserRoleChange): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userID)
@@ -434,18 +434,7 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-//  def getStreamPathToJson(msg: GetStreamPath): String = {
-//    val payload = new java.util.HashMap[String, Any]()
-//    payload.put(Constants.MEETING_ID, msg.meetingID)
-//    payload.put(Constants.REQUESTER_ID, msg.requesterID)
-//    payload.put(Constants.STREAM, msg.streamName)
-//    payload.put(Constants.STREAM_PATH_DEFAULT, msg.streamName)
-//
-//    val header = Util.buildHeader(MessageNames.GET_STREAM_PATH, None)
-//    Util.buildJson(header, payload)
-//  }
-
-  private def getGuestPolicyToJson(msg: GetGuestPolicy): String = {
+  def getGuestPolicyToJson(msg: GetGuestPolicy): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
@@ -454,7 +443,7 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  private def setGuestPolicyToJson(msg: SetGuestPolicy): String = {
+  def setGuestPolicyToJson(msg: SetGuestPolicy): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.GUEST_POLICY, msg.policy.toString())
@@ -463,7 +452,7 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  private def respondToGuestToJson(msg: RespondToGuest): String = {
+  def respondToGuestToJson(msg: RespondToGuest): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userId)
@@ -474,7 +463,7 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  private def getGuestPolicyReplyToJson(msg: GetGuestPolicyReply): String = {
+  def getGuestPolicyReplyToJson(msg: GetGuestPolicyReply): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
@@ -484,7 +473,7 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  private def guestPolicyChangedToJson(msg: GuestPolicyChanged): String = {
+  def guestPolicyChangedToJson(msg: GuestPolicyChanged): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.GUEST_POLICY, msg.policy)
@@ -493,7 +482,7 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
-  private def guestAccessDeniedToJson(msg: GuestAccessDenied): String = {
+  def guestAccessDeniedToJson(msg: GuestAccessDenied): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.USER_ID, msg.userId)

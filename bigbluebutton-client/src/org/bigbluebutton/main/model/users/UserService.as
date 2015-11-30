@@ -35,10 +35,10 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Config;
 	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.main.events.LogoutEvent;
+	import org.bigbluebutton.main.events.ResponseModeratorEvent;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
-	import org.bigbluebutton.main.events.ResponseModeratorEvent;
-	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
@@ -46,7 +46,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 	import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
-	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 	import org.bigbluebutton.modules.users.services.MessageReceiver;
@@ -210,12 +209,12 @@ package org.bigbluebutton.main.model.users
 
 			var waitingForAcceptance:Boolean = true;
 			if (UserManager.getInstance().getConference().hasUser(e.userid)) {
-				trace(LOG + "userLoggedIn - conference has this user");
+				LOGGER.debug("userLoggedIn - conference has this user");
 				waitingForAcceptance = UserManager.getInstance().getConference().getUser(e.userid).waitingForAcceptance;
 			}
 
 			if (reconnecting && !waitingForAcceptance) {
-				trace(LOG + "userLoggedIn - reconnecting and allowed to join");
+				LOGGER.debug("userLoggedIn - reconnecting and allowed to join");
 				onAllowedToJoin();
 				reconnecting = false;
 			}
@@ -248,31 +247,27 @@ package org.bigbluebutton.main.model.users
 		public function removeStream(e:BroadcastStoppedEvent):void {			
       sender.removeStream(e.userid, e.stream);
 		}
-
-		public function changeStatus(e:ChangeStatusEvent):void {
-			sender.changeStatus(e.userId, e.getStatusName());
-		}
-
-		public function responseToGuest(e:ResponseModeratorEvent):void {
-			sender.responseToGuest(e.userid, e.resp);
-		}
-
+		
 		public function emojiStatus(e:EmojiStatusEvent):void {
 	  // If the userId is not set in the event then the event has been dispatched for the current user
       sender.emojiStatus(e.userId != ""? e.userId : UserManager.getInstance().getConference().getMyUserId(), e.status);
 		}
 		
+		public function responseToGuest(e:ResponseModeratorEvent):void {
+			sender.responseToGuest(e.userid, e.resp);
+		}
+		
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) sender.kickUser(e.userid);
 		}
-
+		
 		public function changeRole(e:ChangeRoleEvent):void {
 			if (this.isModerator()) sender.changeRole(e.userid, e.role);
 		}
 
 		public function onReconnecting(e:BBBEvent):void {
 			if (e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-				trace(LOG + "onReconnecting");
+				LOGGER.debug("onReconnecting");
 				reconnecting = true;
 			}
 		}

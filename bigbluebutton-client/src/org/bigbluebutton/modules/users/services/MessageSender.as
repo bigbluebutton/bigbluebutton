@@ -88,24 +88,7 @@ package org.bigbluebutton.modules.users.services
 		message
 		);
 	}
-
-    public function changeStatus(userID:String, status:String):void {
-      var _nc:ConnectionManager = BBB.initConnectionManager();
-      var message:Object = new Object();
-      message["userID"] = userID;
-      message["status"] = "mood";
-      message["value"] = status;
-      _nc.sendMessage("participants.setParticipantStatus",
-        function(result:String):void { // On successful result
-          LOGGER.debug(result); 
-        },
-        function(status:String):void { // status - On error occurred
-          LOGGER.error(status); 
-        },
-        message
-      );  
-    }
-
+    
     public function addStream(userID:String, streamName:String):void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("participants.shareWebcam", 
@@ -275,12 +258,12 @@ package org.bigbluebutton.modules.users.services
         "lock.setAllUsersLock",// Remote function name
         new Responder(
           function(result:Object):void { 
-            LogUtil.debug("Successfully locked all users except " + except.join(","));
+            LOGGER.debug("Successfully locked all users except " + except.join(","));
           },	
           function(status:Object):void { 
-            LogUtil.error("Error occurred:"); 
+            LOGGER.error("Error occurred:"); 
             for (var x:Object in status) { 
-              LogUtil.error(x + " : " + status[x]); 
+              LOGGER.error(x + " : " + status[x]); 
             } 
           }
         )//new Responder
@@ -315,12 +298,12 @@ package org.bigbluebutton.modules.users.services
         "lock.setUserLock",// Remote function name
         new Responder(
           function(result:Object):void { 
-            LogUtil.debug("Successfully locked user " + internalUserID);
+            LOGGER.debug("Successfully locked user " + internalUserID);
           },	
           function(status:Object):void { 
-            LogUtil.error("Error occurred:"); 
+            LOGGER.error("Error occurred:"); 
             for (var x:Object in status) { 
-              LogUtil.error(x + " : " + status[x]); 
+              LOGGER.error(x + " : " + status[x]); 
             } 
           }
         )//new Responder
@@ -342,9 +325,9 @@ package org.bigbluebutton.modules.users.services
             //						_conference.setLockSettings(new LockSettingsVO(result.allowModeratorLocking, result.disableCam, result.disableMic, result.disablePrivateChat, result.disablePublicChat));
           },	
           function(status:Object):void { 
-            LogUtil.error("Error occurred:"); 
+            LOGGER.error("Error occurred:"); 
             for (var x:Object in status) { 
-              LogUtil.error(x + " : " + status[x]); 
+              LOGGER.error(x + " : " + status[x]); 
             } 
           }
         )//new Responder
@@ -363,6 +346,77 @@ package org.bigbluebutton.modules.users.services
         },
         newLockSettings
       );      
+    }
+
+    public function changeRole(userID:String, role:String):void {
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      var message:Object = new Object();
+      message["userId"] = userID;
+      message["role"] = role;
+
+      _nc.sendMessage(
+        "participants.setParticipantRole",// Remote function name
+        function(result:String):void { // On successful result
+          LOGGER.debug(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LOGGER.error(status); 
+        },
+        message
+      );
+    }
+
+    public function queryForGuestPolicy():void {
+      LOGGER.debug("queryForGuestPolicy");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.getGuestPolicy",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LOGGER.error(status);
+         }
+       );
+    }
+
+    public function setGuestPolicy(policy:String):void {
+      LOGGER.debug("setGuestPolicy - new policy:[" + policy + "]");
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.setGuestPolicy",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LOGGER.error(status);
+         },
+         policy
+       );
+    }
+
+    public function responseToGuest(userId:String, response:Boolean):void {
+      LOGGER.debug("responseToGuest - userId:[" + userId + "] response:[" + response + "]");
+
+      var message:Object = new Object();
+      message["userId"] = userId;
+      message["response"] = response;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage(
+        "participants.responseToGuest",
+         function(result:String):void { // On successful result
+           LOGGER.debug(result);
+         },
+         function(status:String):void { // status - On error occurred
+           LOGGER.error(status);
+         },
+         message
+       );
+    }
+
+    public function responseToAllGuests(response:Boolean):void {
+      responseToGuest(null, response);
     }
   }
 }

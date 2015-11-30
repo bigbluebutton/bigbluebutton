@@ -20,6 +20,8 @@ package org.bigbluebutton.modules.sharednotes.services
 {
   import flash.events.IEventDispatcher;
   
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.main.model.users.IMessageListener;
@@ -28,8 +30,8 @@ package org.bigbluebutton.modules.sharednotes.services
   import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
   
   public class MessageReceiver implements IMessageListener {
-    private static const LOG:String = "SharedNotes::MessageReceiver - ";
-    
+  private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+
     public var dispatcher:IEventDispatcher;
     
     public function MessageReceiver()
@@ -53,7 +55,7 @@ package org.bigbluebutton.modules.sharednotes.services
           handleDestroyAdditionalNotesCommand(message);
           break;	
         default:
-          //   LogUtil.warn("Cannot handle message [" + messageName + "]");
+          //   LOGGER.warn("Cannot handle message [" + messageName + "]");
       }
     }
     
@@ -62,7 +64,7 @@ package org.bigbluebutton.modules.sharednotes.services
         return;
       }
 
-      trace(LOG + "Handling patch document message [" + message + "]");
+      LOGGER.debug("Handling patch document message [" + message + "]");
 
       var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
       receivePatchEvent.noteId = message.noteID;
@@ -71,7 +73,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
         
     private function handleGetCurrentDocumentCommand(message:Object):void {
-      trace(LOG + "Handling get current document message [" + message + "]");
+      LOGGER.debug("Handling get current document message [" + message + "]");
       var notes:Object = JSON.parse(message.notes); 
       
       var currentDocumentEvent:CurrentDocumentEvent = new CurrentDocumentEvent();
@@ -80,7 +82,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
     
     private function handleCreateAdditionalNotesCommand(message:Object):void {
-      trace(LOG + "Handling create additional notes message [" + message + "]");
+      LOGGER.debug("Handling create additional notes message [" + message + "]");
       
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = message.noteID;
@@ -89,7 +91,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
     
     private function handleDestroyAdditionalNotesCommand(message:Object):void {
-      trace(LOG + "Handling destroy additional notes message [" + message + "]");
+      LOGGER.debug("Handling destroy additional notes message [" + message + "]");
       
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT);
       e.payload.notesId = message.noteID;

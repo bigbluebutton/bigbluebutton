@@ -70,6 +70,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
+
 			private const DEFAULT_PREVIEW_WIDTH:int = 320;
 			private const DEFAULT_PREVIEW_HEIGHT:int = 180; // 16x9 aspect ratio
 			
@@ -106,7 +108,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				windowControls.maximizeRestoreBtn.visible = windowControls.maximizeRestoreBtn.includeInLayout = false;
+				windowControls.maximizeRestoreBtn.enabled = false;
 				
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
@@ -227,7 +229,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
 				cursor.x = video.x + ((event.x/captureWidth)) * video.width;
 				cursor.y = video.y + ((event.y/captureHeight)) * video.height;
-				cursorImg.visible = true;
 
 				// Do not display cursor if they are outside the capture area.
 				cursorImg.visible = !(cursor.x < video.x

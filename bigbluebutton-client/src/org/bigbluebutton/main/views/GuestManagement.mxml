@@ -13,12 +13,16 @@
 			import mx.events.ItemClickEvent;
 			import mx.managers.PopUpManager;
 			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import com.asfusion.mate.events.Dispatcher;
+
+			private static const LOGGER:ILogger = getClassLogger(GuestManagement);
 
 			private var option:Number = 0;
 			private var guestPolicy:String;
@@ -73,7 +77,7 @@
 					dispatchEvent(event);
 					dispatchEvent(new BBBEvent(BBBEvent.DENY_ALL_WAITING_GUESTS));
 				}
-				LogUtil.debug("SENDING TO SERVER POLICY");
+				LOGGER.debug("SENDING TO SERVER POLICY");
 			}
 
 			

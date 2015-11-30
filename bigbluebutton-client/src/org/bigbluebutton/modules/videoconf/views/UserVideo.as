@@ -38,12 +38,11 @@ package org.bigbluebutton.modules.videoconf.views
       _background.addChild(_video);
     }
 
-    public function publish(camIndex:int, videoProfile:VideoProfile, chromePermissionDenied:Boolean):void {
+    public function publish(camIndex:int, videoProfile:VideoProfile):void {
       _camIndex = camIndex;
       _videoProfile = videoProfile;
       setOriginalDimensions(_videoProfile.width, _videoProfile.height);
 
-      _video.chromePermissionDenied = chromePermissionDenied;
       _video.updateCamera(camIndex, _videoProfile, _background.width, _background.height);
       
       invalidateDisplayList();

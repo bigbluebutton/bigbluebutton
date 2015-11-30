@@ -28,13 +28,10 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.vo.LockSettingsVO;
-	import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-//	import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
 	import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
-	
 	public class BBBUser {
 		private static const LOGGER:ILogger = getClassLogger(BBBUser);
 
@@ -138,33 +135,23 @@ package org.bigbluebutton.main.model.users
 			verifyUserStatus();
 		}
 		
-		private var _mood:String = ChangeStatusEvent.CLEAR_STATUS;
-		public function get hasMood():Boolean {
-			return _mood != ChangeStatusEvent.CLEAR_STATUS;
+		public var emojiStatusTime:Date;
+		private var _emojiStatus:String = "none";
+		
+		[Bindable("emojiStatusChange")]
+		public function get emojiStatus():String {
+			return _emojiStatus;
 		}
-		[Bindable]
-		public function get mood():String {
-			return _mood;
-		}
-		public function set mood(m:String):void {
-			_mood = m;
+		public function set emojiStatus(r:String):void {
+			_emojiStatus = r;
+			emojiStatusTime = (r ? new Date() : null);
 			verifyUserStatus();
-		}
-		[Bindable]
-		public function get raiseHand():Boolean {
-			return _mood == ChangeStatusEvent.RAISE_HAND;
-		}
-		public function set raiseHand(r:Boolean):void {
-			mood = (r? ChangeStatusEvent.RAISE_HAND: ChangeStatusEvent.CLEAR_STATUS);
+			dispatchEvent(new Event("emojiStatusChange")); 
 		}
 		
-		private var _moodTimestamp:Number = 0;
-		[Bindable]
-		public function get moodTimestamp():Number {
-			return _moodTimestamp;
-		}
-		public function set moodTimestamp(t:Number):void {
-			_moodTimestamp = t;
+		[Bindable("emojiStatusChange")]
+		public function get hasEmojiStatus():Boolean {
+			return _emojiStatus != null && _emojiStatus != "none" && _emojiStatus != "null";
 		}
 		
 		private var _role:String = Role.VIEWER;
@@ -174,15 +161,9 @@ package org.bigbluebutton.main.model.users
 		}
 		public function set role(r:String):void {
 			_role = r;
-			moderator = _role == MODERATOR;
 			verifyUserStatus();
-			if (me) {
-				applyLockSettings();
-			}
 		}
-
-		[Bindable] public var moderator:Boolean = false;
-
+		
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
@@ -228,47 +209,10 @@ package org.bigbluebutton.main.model.users
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
 			else if (role == Role.MODERATOR)
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
-			else if (hasMood)
-				_userStatus = moodStatus;
+			else if (hasEmojiStatus)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + _emojiStatus);
 			else
 				_userStatus = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.viewer');
-		}
-
-		private function get moodStatus():String {
-			var s:String = "";
-			switch(mood) {
-				case ChangeStatusEvent.RAISE_HAND:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
-					break;
-				case ChangeStatusEvent.AGREE:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.agree');
-					break;
-				case ChangeStatusEvent.DISAGREE:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.disagree');
-					break;
-				case ChangeStatusEvent.SPEAK_LOUDER:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakLouder');
-					break;
-				case ChangeStatusEvent.SPEAK_LOWER:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakSofter');
-					break;
-				case ChangeStatusEvent.SPEAK_FASTER:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakFaster');
-					break;
-				case ChangeStatusEvent.SPEAK_SLOWER:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.speakSlower');
-					break;
-				case ChangeStatusEvent.BE_RIGHT_BACK:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.beRightBack');
-					break;
-				case ChangeStatusEvent.LAUGHTER:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.laughter');
-					break;
-				case ChangeStatusEvent.SAD:
-					s = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.sad');
-					break;
-			}
-			return s;
 		}
 		
 		public function amIGuest():Boolean {
@@ -299,21 +243,29 @@ package org.bigbluebutton.main.model.users
 		public function buildStatus():void {
 			var showingWebcam:String="";
 			var isPresenter:String="";
-			var handRaised:String = "";
+			var hasEmoji:String = "";
 			if (hasStream)
 				showingWebcam=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.streamIcon.toolTip');
 			if (presenter)
 				isPresenter=ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presIcon.toolTip');
-			if (hasMood)
-				handRaised = moodStatus;
+			if (hasEmojiStatus)
+				hasEmoji = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.'+ emojiStatus +'.toolTip');
 
-			status = showingWebcam + isPresenter + handRaised;
+			status = showingWebcam + isPresenter + hasEmoji;
 		}
 	
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
 		}
 		
+    public function userEmojiStatus(emoji: String):void {
+      emojiStatus = emoji;
+      if (me) {
+        UserManager.getInstance().getConference().myEmojiStatus = emoji;
+      }
+      buildStatus();
+    }
+    
     public function sharedWebcam(stream: String):void {
       if(stream && stream != "" && !hasThisStream(stream)) {
           streamNames.push(stream);
@@ -325,7 +277,6 @@ package org.bigbluebutton.main.model.users
     
     public function unsharedWebcam(stream: String):void {
       streamNames = streamNames.filter(function(item:*, index:int, array:Array):Boolean { return item != stream });
-//    sendStreamStoppedEvent(stream);
       buildStatus();
       verifyMedia();
     }
@@ -364,19 +315,12 @@ package org.bigbluebutton.main.model.users
 					var streamNameInfo:Array=String(streamInfo[1]).split(/=/);
 					streamName=streamNameInfo[1];
 					break;
-				case "mood":
-					trace("New mood received: " + status.value);
-					var moodValue:String = String(status.value);
-					if (moodValue == "") {
-						trace("Empty mood, assuming CLEAR_STATUS");
-						moodValue = ChangeStatusEvent.CLEAR_STATUS;
-						moodTimestamp = 0;
-					} else {
-						var valueSplit:Array = moodValue.split(",");
-						moodValue = valueSplit[0];
-						moodTimestamp = Number(valueSplit[1]);
+				// @FIXME : check the coming status from the server
+				case "emojiStatus":
+					emojiStatus = status.value.toString();
+					if (me) {
+						UserManager.getInstance().getConference().myEmojiStatus=status.value.toString();
 					}
-					mood = moodValue;
 					break;
 			}
 			buildStatus();
@@ -400,9 +344,8 @@ package org.bigbluebutton.main.model.users
             n._viewingStream = user._viewingStream;
 			n.streamNames = user.streamNames;
 			n.presenter = user.presenter;
-			n.mood = user.mood;
-			n.moodTimestamp = user.moodTimestamp;
-			n._role = user._role;
+			n.emojiStatus = user.emojiStatus;
+			n.role = user.role;	
 			n.room = user.room;
 			n.customdata = user.customdata;
 			n.media = user.media;
@@ -424,12 +367,7 @@ package org.bigbluebutton.main.model.users
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(new StreamStartedEvent(userID, name, stream));
 		}
-
-//		private function sendStreamStoppedEvent(stream:String):void{
-//			var dispatcher:Dispatcher = new Dispatcher();
-//			dispatcher.dispatchEvent(new StreamStoppedEvent(userID, name, stream));
-//		}
-
+		
 		public function applyLockSettings():void {
 			var lockSettings:LockSettingsVO = UserManager.getInstance().getConference().getLockSettings();
 			var amNotModerator:Boolean = !UsersUtil.amIModerator();

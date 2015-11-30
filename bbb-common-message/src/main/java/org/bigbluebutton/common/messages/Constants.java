@@ -132,5 +132,6 @@ public class Constants {
   public static final String PATCH                           = "patch";
   public static final String NOTE_NAME                       = "note_name";
   public static final String NOTES                           = "notes";
+  public static final String ADDITIONAL_NOTES_SET_SIZE       = "additional_notes_set_size";
   public static final String SET_BY                          = "set_by";
 }

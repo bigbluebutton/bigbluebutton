@@ -72,7 +72,7 @@ public class SendConversionCompletedMessage implements IBigBlueButtonMessage {
 						int numPages = payload.get(Constants.NUM_PAGES).getAsInt();
 						String presName = payload.get(Constants.PRESENTATION_NAME).getAsString();
 						String presBaseUrl = payload.get(Constants.PRESENTATION_BASE_URL).getAsString();
-						String downloadable = payload.get(Constants.DOWNLOADABLE).getAsBoolean();
+						Boolean downloadable = payload.get(Constants.DOWNLOADABLE).getAsBoolean();
 
 						return new SendConversionCompletedMessage(messageKey, meetingId, code, presId, numPages, presName, presBaseUrl, downloadable);
 					}

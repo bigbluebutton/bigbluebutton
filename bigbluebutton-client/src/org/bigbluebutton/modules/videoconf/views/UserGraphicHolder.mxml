@@ -85,10 +85,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 setUserProperties();
             }
 
-            public function loadCamera(options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile, chromePermissionDenied:Boolean):void {
+            public function loadCamera(options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile):void {
                 video.user = _user;
                 video.options = options;
-                video.publish(camIndex, videoProfile, chromePermissionDenied);
+                video.publish(camIndex, videoProfile);
 
                 videoVisibility = true;
                 setUserProperties();

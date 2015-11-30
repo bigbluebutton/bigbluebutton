@@ -50,7 +50,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function refreshRole(amIModerator:Boolean):void {
 				comboBox.refreshRole(amIModerator);
-				//lockButton.refreshRole(amIModerator);
 				addButton.refreshRole(amIModerator);
 				saveButton.refreshRole(amIModerator);
 				loadButton.refreshRole(amIModerator);
@@ -85,7 +84,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 
-	<common:TabIndexer startIndex="110000" tabIndices="{[comboBox, addButton, saveButton, loadButton, broadcastButton, lockButton]}"/>
+	<common:TabIndexer startIndex="110000" tabIndices="{[comboBox, addButton, saveButton, loadButton, broadcastButton]}"/>
 	
 	<views:LayoutsCombo id="comboBox"/>
 	<views:AddButton id="addButton" 
@@ -97,9 +96,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<views:LoadButton id="loadButton" 
 					  includeInLayout="{_enableEdit}" 
 					  visible="{_enableEdit}"/>
-	<views:BroadcastButton id="broadcastButton"
-					  enabled="{!lockButton.selected}"/>
-	<!--views:LockButton id="lockButton"
-					  visible="false"
-					  includeInLayout="false"/-->
+	<views:BroadcastButton id="broadcastButton"/>
 </mx:HBox>

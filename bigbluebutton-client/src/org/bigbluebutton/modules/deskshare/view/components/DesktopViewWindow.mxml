@@ -72,10 +72,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var videoWidth:Number;
 			
 			[Bindable] private var actualSize:Boolean = false;
+
 			private static const LOGGER:ILogger = getClassLogger(DesktopViewWindow);      
 
-			private static const VIDEO_WIDTH_PADDING:int = 7;
-			private static const VIDEO_HEIGHT_PADDING:int = 65;
 
 			// The following code block is to deal with a bug in FLexLib 
 			// with MDI windows not responding well to being maximized
@@ -108,10 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				resourcesChanged();
 				
-				titleBarOverlay.tabIndex = baseIndex;
-				minimizeBtn.tabIndex = baseIndex+1;
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				closeBtn.tabIndex = baseIndex+3;
+				titleBarOverlay.tabIndex = dsOptions.baseTabIndex;
 
 				bottomBar.registerListeners(this);
 				onResizeEvent();
@@ -269,10 +265,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 
 	<common:TabIndexer startIndex="{dsOptions.baseTabIndex + 1}" tabIndices="{[minimizeBtn, maximizeRestoreBtn, closeBtn, btnActualSize]}"/>
-	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-	
+
 	<mx:Canvas width="100%" height="100%" id="videoHolderCanvas" />
 
+	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
+		
 	<views:DesktopViewToolbar x="0" y="{videoHolderCanvas.height - bottomBar.height - 16}" id="bottomBar" height="28" width="100%" >
 		<mx:Button id="btnActualSize" paddingTop="0" paddingBottom="0" styleName="deskshareControlButtonStyle"
 				   click="toggleActualSize()" 

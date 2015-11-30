@@ -751,6 +751,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function get messageCanBeSent() : Boolean {
 			return StringUtils.trim(txtMsgArea.text).length <= chatOptions.maxMessageLength;
 		}
+			
+		protected function txtMsgAreaChangeHandler(event:Event):void
+		{
+			if (!messageCanBeSent) {
+				showMessageTooLong(StringUtils.trim(txtMsgArea.text).length);
+			}
+			else {
+				hideMessageTooLong();
+			}
+		}
 
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
@@ -769,16 +779,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatToolbar.width -= chatMessagesList.mx_internal::scroll_verticalScrollBar.width;
 			}
 		}
-			
-		protected function txtMsgAreaChangeHandler(event:Event):void
-		{
-			if (!messageCanBeSent) {
-				showMessageTooLong(StringUtils.trim(txtMsgArea.text).length);
-			}
-			else {
-				hideMessageTooLong();
-			}
-		}
 		]]>
 		
 	</mx:Script>
@@ -787,11 +787,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
     <mx:Canvas id="chatMessagesCanvas" width="100%" height="{chatListHeight}" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
-      <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
-             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
-             dataProvider="{chatMessages.messages}"
-             accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
+      <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" paddingTop="0" paddingBottom="0"
+               itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="on" horizontalScrollPolicy="off" wordWrap="true"
+               dataProvider="{chatMessages.messages}"
+               accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
       <chat:ChatToolbar id="chatToolbar" />
+    </mx:Canvas>
   </mx:HBox>
   
   <mx:HBox id="chatCtrlBar" width="100%" height="60" styleName="chatControlBarStyle" verticalScrollPolicy="off"

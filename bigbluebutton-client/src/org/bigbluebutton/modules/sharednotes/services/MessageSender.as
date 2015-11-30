@@ -23,25 +23,26 @@ package org.bigbluebutton.modules.sharednotes.services
 
   import mx.utils.ObjectUtil;
 
-  import org.bigbluebutton.common.LogUtil;
+  import org.as3commons.logging.api.ILogger;
+  import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.managers.ConnectionManager;
 
   public class MessageSender
   {
-    private static const LOG:String = "SharedNotes::MessageSender - ";
-    
+    private static const LOGGER:ILogger = getClassLogger(MessageSender);
+
     public var dispatcher:IEventDispatcher;
     
     private var onSuccessDebugger:Function = function(result:String):void {
-          trace(result);
+          LOGGER.debug(result);
         };
     private var onErrorDebugger:Function = function(result:String):void {
-          trace(result);
+          LOGGER.debug(result);
         };
 
     public function currentDocument():void {
-      trace(LOG + "Sending [sharednotes.currentDocument] to server.");
+      LOGGER.debug("Sending [sharednotes.currentDocument] to server.");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage(
         "sharednotes.currentDocument",
@@ -51,7 +52,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
     
     public function createAdditionalNotes(noteName:String):void {
-      trace(LOG + "Sending [sharednotes.createAdditionalNotes] to server.");
+      LOGGER.debug("Sending [sharednotes.createAdditionalNotes] to server.");
       var message:Object = new Object();
       message["noteName"] = noteName;
 
@@ -65,7 +66,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
 
     public function destroyAdditionalNotes(notesId:String):void {
-      trace(LOG + "Sending [sharednotes.destroyAdditionalNotes] to server.");
+      LOGGER.debug("Sending [sharednotes.destroyAdditionalNotes] to server.");
       var message:Object = new Object();
       message["noteID"] = notesId;
 
@@ -79,7 +80,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
 
     public function patchDocument(noteId:String, userid:String, patch:String):void {
-      trace(LOG + "Sending [sharednotes.patchDocument] to server.");
+      LOGGER.debug("Sending [sharednotes.patchDocument] to server.");
       var message:Object = new Object();
       message["noteID"] = noteId;
       message["patch"] = patch;
@@ -94,7 +95,7 @@ package org.bigbluebutton.modules.sharednotes.services
     }
 
     public function requestAdditionalNotesSet(additionalNotesSetSize:Number):void {
-      trace(LOG + "Sending [sharednotes.requestAdditionalNotesSet] to server.");
+      LOGGER.debug("Sending [sharednotes.requestAdditionalNotesSet] to server.");
       var message:Object = new Object();
       message["additionalNotesSetSize"] = additionalNotesSetSize;
 

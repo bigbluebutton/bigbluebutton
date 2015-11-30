@@ -103,9 +103,6 @@ public class ParticipantsService {
 		String userId = (String) msg.get("userID");
 		String status = (String) msg.get("status");
 		Object value = (Object) msg.get("value");
-		if (status.equals("mood")) {
-			value = ((String) value) + "," + System.currentTimeMillis();
-		}
 		
 		red5InGW.setUserStatus(meetingId, userId, status, value);
 	}

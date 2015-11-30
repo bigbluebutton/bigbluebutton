@@ -171,6 +171,7 @@ function createUA(username, server, callback, makeCallFunc) {
 
 function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc) {
 	console.log("Creating new user agent");
+
 	var wsServer;
 	if (window.location.protocol == 'https:') {
 		wsServer = 'wss://' + server + '/wss';
@@ -189,7 +190,6 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 		traceSip: true,
 		autostart: false,
 		userAgentString: "BigBlueButton",
-		iceGatheringTimeout: 3000,
 		stunServers: stunsConfig['stunServers'],
 		turnServers: stunsConfig['turnServers']
 	};
@@ -456,7 +456,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			callback({'status':'waitingforice'});
 			console.log('Waiting for ICE negotiation');
 			iceConnectedTimeout = setTimeout(function() {
-				console.log('60 seconds without ICE finishing');
+				console.log('5 seconds without ICE finishing');
 				callback({'status':'failed', 'errorcode': 1010}); // Failure on call
 				currentSession = null;
 				if (userAgent != null) {
@@ -464,7 +464,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 					userAgent = null;
 					userAgentTemp.stop();
 				}
-			}, 60000);
+			}, 5000);
 		}
 		clearTimeout(callTimeout);
 	});

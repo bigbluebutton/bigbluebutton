@@ -228,7 +228,7 @@ object PesentationMessageToJsonConverter {
     presentation.put(Constants.ID, msg.presentation.id)
     presentation.put(Constants.NAME, msg.presentation.name)
     presentation.put(Constants.CURRENT, msg.presentation.current: java.lang.Boolean)
-presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
+    presentation.put(Constants.DOWNLOADABLE, msg.presentation.downloadable: java.lang.Boolean)
 
     val pages = new java.util.ArrayList[java.util.Map[String, Any]]()
     msg.presentation.pages.values foreach { p =>

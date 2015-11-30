@@ -129,6 +129,3 @@ case class GetCurrentDocumentRequest(meetingID: String, requesterID: String) ext
 case class CreateAdditionalNotesRequest(meetingID: String, requesterID: String, noteName: String) extends InMessage
 case class DestroyAdditionalNotesRequest(meetingID: String, requesterID: String, noteID: String) extends InMessage
 case class RequestAdditionalNotesSetRequest(meetingID: String, requesterID: String, additionalNotesSetSize: Int) extends InMessage
-
-// Video
-//case class GetStreamPath(meetingID: String, requesterID: String, streamName: String, defaultPath: String) extends InMessage

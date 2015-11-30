@@ -69,9 +69,9 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			var desloc:Number = relativePositon - oldPosition;
 			textArea.verticalScrollPosition += desloc;
 
-			trace("relative: " + relativePositon);
-			trace("old: " + oldPosition);
-			trace("vertical: " + textArea.verticalScrollPosition);
+			LOGGER.debug("relative: " + relativePositon);
+			LOGGER.debug("old: " + oldPosition);
+			LOGGER.debug("vertical: " + textArea.verticalScrollPosition);
 		}
 
 		public function getOldPosition():Number {
@@ -99,7 +99,7 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			_lastEnd = textArea.selectionEndIndex;
 			var oldPosition:Number = getOldPosition();
 
-			trace("Initial Position: " + _lastBegin + " " + _lastEnd);
+			LOGGER.debug("Initial Position: " + _lastBegin + " " + _lastEnd);
 
 			var oldText:String = text;
 			htmlText = DiffPatch.patch(patch, htmlText);
@@ -120,9 +120,9 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 				_lastBegin = results[0][0];
 				_lastEnd = results[0][1];
 			}
-			trace("Final Position: " + results[0][0] + " " + results[0][1]);
+			LOGGER.debug("Final Position: " + results[0][0] + " " + results[0][1]);
 
-			trace("Length: " + text.length);
+			LOGGER.debug("Length: " + text.length);
 			restoreCursor(_lastEnd, oldPosition);
 			validateNow();
 

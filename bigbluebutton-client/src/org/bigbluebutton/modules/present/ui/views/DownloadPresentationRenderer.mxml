@@ -2,7 +2,6 @@
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%" verticalAlign="middle">
   <mx:Script>
     <![CDATA[
-      import org.bigbluebutton.common.LogUtil;
       import com.asfusion.mate.events.Dispatcher; 
       import org.bigbluebutton.util.i18n.ResourceUtil;
       import org.bigbluebutton.modules.present.events.DownloadEvent;
@@ -10,12 +9,10 @@
       private var globalDispatch:Dispatcher = new Dispatcher();
       
       private function downloadPresentation():void {	
-		LogUtil.debug("FileDownloadWindow::downloadPresentation() " + data);
         	var downloadEvent:DownloadEvent = new DownloadEvent(DownloadEvent.DOWNLOAD_PRESENTATION);
         	downloadEvent.fileNameToDownload = data.id as String;
         	globalDispatch.dispatchEvent(downloadEvent);
       }
-
     ]]>
   </mx:Script>
   <mx:Label id="presentationNameLabel" text="{data.name as String}" styleName="presentationNameLabelStyle" width="80%"/>

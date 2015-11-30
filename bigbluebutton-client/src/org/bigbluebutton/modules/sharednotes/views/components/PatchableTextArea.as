@@ -25,7 +25,6 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 	
 	import flash.events.Event;
 	
-	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 	import flash.net.FileReference;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -122,9 +121,9 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			var desloc:Number = relativePositon - oldPosition;
 			this.verticalScrollPosition+=desloc;
 			
-			trace("relative: " +  relativePositon);
-			trace("old: " + oldPosition);
-			trace("vertical: " + this.verticalScrollPosition);
+			LOGGER.debug("relative: " +  relativePositon);
+			LOGGER.debug("old: " + oldPosition);
+			LOGGER.debug("vertical: " + this.verticalScrollPosition);
 		}
 
 		
@@ -136,14 +135,14 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			var oldPosition:Number = getOldPosition();
 			var oldVerticalPosition:Number = this.verticalScrollPosition;
 
-			trace("Initial Position: " + lastBegin + " " + lastEnd);
+			LOGGER.debug("Initial Position: " + lastBegin + " " + lastEnd);
 			results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
 
 			if(results[0][0] == lastBegin && results[0][1] > lastEnd) {
 				var str1:String = this.text.substring(lastBegin,lastEnd);
 				var str2:String = results[1].substring(lastBegin,lastEnd);
-				trace("STRING 1: " + str1);
-				trace("STRING 2: " + str2);
+				LOGGER.debug("STRING 1: " + str1);
+				LOGGER.debug("STRING 2: " + str2);
 				
 				if(str1 != str2) {
 					lastEnd = results[0][1];
@@ -156,9 +155,9 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			this.text = results[1];
 			this.validateNow();
 			
-			trace("Final Position: " + results[0][0] + " " + results[0][1]);
+			LOGGER.debug("Final Position: " + results[0][0] + " " + results[0][1]);
 			
-			trace("Length: " + this.text.length); 
+			LOGGER.debug("Length: " + this.text.length); 
 			restoreCursor(lastEnd, oldPosition, oldVerticalPosition);
 			this.validateNow();
 			textField.selectable = true;

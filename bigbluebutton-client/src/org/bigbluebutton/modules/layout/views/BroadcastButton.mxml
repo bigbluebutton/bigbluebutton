@@ -29,10 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
-			import org.bigbluebutton.common.Images;
+
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;

@@ -8884,7 +8884,6 @@ UA.prototype.loadConfig = function(configuration) {
       userAgentString: SIP.C.USER_AGENT,
 
       // Session parameters
-      iceGatheringTimeout: 5000,
       noAnswerTimeout: 60,
       stunServers: ['stun:stun.l.google.com:19302'],
       turnServers: [],
@@ -9108,7 +9107,6 @@ UA.configuration_skeleton = (function() {
       "hackViaTcp", // false.
       "hackIpInContact", //false
       "hackWssInTransport", //false
-      "iceGatheringTimeout",
       "instanceId",
       "noAnswerTimeout", // 30 seconds.
       "password",
@@ -9287,15 +9285,6 @@ UA.configuration_check = {
     hackWssInTransport: function(hackWssInTransport) {
       if (typeof hackWssInTransport === 'boolean') {
         return hackWssInTransport;
-      }
-    },
-
-    iceGatheringTimeout: function(iceGatheringTimeout) {
-      if(SIP.Utils.isDecimal(iceGatheringTimeout)) {
-        if (iceGatheringTimeout < 500) {
-          return 5000;
-         }
-        return iceGatheringTimeout;
       }
     },
 
@@ -10341,21 +10330,10 @@ var MediaHandler = function(session, options) {
   };
 
   this.peerConnection.onicecandidate = function(e) {
-    if (self.iceGatheringTimer === undefined) {
-      self.iceGatheringTimer = SIP.Timers.setTimeout(function() {
-        self.logger.log('RTCIceGathering Timeout Triggered after '+config.iceGatheringTimeout+' micro seconds');
-        self.onIceCompleted.resolve(this);
-      }.bind(this), config.iceGatheringTimeout);
-    }
-
     if (e.candidate) {
       self.logger.log('ICE candidate received: '+ (e.candidate.candidate === null ? null : e.candidate.candidate.trim()));
     } else {
-      if (self.iceGatheringTimer) {
-        SIP.Timers.clearTimeout(self.iceGatheringTimer);
-        self.iceGatheringTimer = null;
-        self.onIceCompleted.resolve(this);
-      }
+      self.onIceCompleted.resolve(this);
     }
   };
 

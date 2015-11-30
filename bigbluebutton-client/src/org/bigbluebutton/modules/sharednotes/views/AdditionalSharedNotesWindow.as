@@ -6,6 +6,8 @@ package org.bigbluebutton.modules.sharednotes.views
 	import mx.controls.Alert;
 	import mx.events.CloseEvent;
 
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.views.MainCanvas;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
@@ -13,12 +15,14 @@ package org.bigbluebutton.modules.sharednotes.views
 
 	public class AdditionalSharedNotesWindow extends SharedNotesWindow
 	{
+		private static const LOGGER:ILogger = getClassLogger(AdditionalSharedNotesWindow);
+
 		private var _windowName:String;
 
 		public function AdditionalSharedNotesWindow(n:String) {
 			super();
 
-			trace("AdditionalSharedNotesWindow: in-constructor additional notes " + n);
+			LOGGER.debug("AdditionalSharedNotesWindow: in-constructor additional notes " + n);
 			_notesId = n;
 			_windowName = "AdditionalSharedNotesWindow_" + _notesId;
 
@@ -40,7 +44,7 @@ package org.bigbluebutton.modules.sharednotes.views
 		override public function onCreationComplete():void {
 			super.onCreationComplete();
 
-			trace("AdditionalSharedNotesWindow: [2] in-constructor additional notes " + noteId);
+			LOGGER.debug("AdditionalSharedNotesWindow: [2] in-constructor additional notes " + noteId);
 
 			btnNew.visible = btnNew.includeInLayout = false;
 		}
@@ -57,7 +61,7 @@ package org.bigbluebutton.modules.sharednotes.views
 			if (e.detail == Alert.YES) {
 				showCloseButton = false;
 
-				trace("AdditionalSharedNotesWindow: requesting to destroy notes " + noteId);
+				LOGGER.debug("AdditionalSharedNotesWindow: requesting to destroy notes " + noteId);
 				var destroyNotesEvent:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REQUEST_EVENT);
 				destroyNotesEvent.payload.notesId = _notesId;
 				_dispatcher.dispatchEvent(destroyNotesEvent);

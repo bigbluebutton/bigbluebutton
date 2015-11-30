@@ -73,9 +73,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var phoneOptions:PhoneOptions = new PhoneOptions();
 			
 			private function startPhone():void {
-				var conference:Conference = UserManager.getInstance().getConference();
-				var thisUser:BBBUser = conference.getMyUser();
-				
 				LOGGER.debug("startPhone 1 enabled=[{0}] selected=[{1}]", [enabled, selected]);
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
@@ -90,9 +87,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function get disableMyMic():Boolean {
 				var conference:Conference = UserManager.getInstance().getConference();
-				var me:BBBUser = conference.getMyUser();
+				var thisUser:BBBUser = conference.getMyUser();
 				
-				return (me.disableMyMic || phoneOptions.presenterShareOnly) && !(me.presenter || me.moderator);
+				return ((phoneOptions.presenterShareOnly && !UsersUtil.amIPresenter() && !UsersUtil.amIModerator())
+						|| thisUser.disableMyMic);
 			}
 
 			private function get defaultListenOnlyMode():Boolean {
@@ -120,6 +118,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function joinAudio():void {
+				var conference:Conference = UserManager.getInstance().getConference();
+				var thisUser:BBBUser = conference.getMyUser();
+
 				if (phoneOptions.skipCheck || disableMyMic || defaultListenOnlyMode) {
 					var command:JoinVoiceConferenceCommand = new JoinVoiceConferenceCommand();
 					command.mic = !disableMyMic;
@@ -136,9 +137,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				var conference:Conference = UserManager.getInstance().getConference();
-				var thisUser:BBBUser = conference.getMyUser();
-				
 				// when the button is added to the stage display the audio selection window if auto join is true
 				if (phoneOptions.autoJoin) {
 					joinAudio();
@@ -188,7 +186,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       	
       private function handleFlashJoinedListenOnlyConferenceEvent(event:FlashJoinedListenOnlyVoiceConferenceEvent):void {
-        LOGGER.debug("User has joined the listen only conference using flash");
+		LOGGER.debug("User has joined the listen only conference using flash");
         if (defaultListenOnlyMode) {
           onUserJoinedListenOnlyConference();
         } else {
@@ -212,7 +210,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		LOGGER.debug("User has left the conference using webrtc");
         onUserLeftConference();
         joinDefaultListenOnlyMode();
-			}
+	  }
 			
 			private function handleStopEchoTestEvent(event:Event):void {
 				resetButtonState();

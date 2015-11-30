@@ -282,8 +282,7 @@ package org.bigbluebutton.main.model.users
 				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
-											_conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings,
-											_conferenceParameters.guest);
+											_conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, _conferenceParameters.lockSettings, _conferenceParameters.guest);
 			} catch(e:ArgumentError) {
 				// Invalid parameters.
 				switch (e.errorID) {
@@ -316,17 +315,6 @@ package org.bigbluebutton.main.model.users
 		protected function netStatus(event:NetStatusEvent):void {
 			handleResult( event );
 		}
-		
-    private var _bwMon:BandwidthMonitor = new BandwidthMonitor();
-    
-    private function startMonitoringBandwidth():void {
-	  LOGGER.info("Start monitoring bandwidth.");
-      var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
-      var result:Array = pattern.exec(_applicationURI);
-      _bwMon.serverURL = result.server;
-      _bwMon.serverApplication = "video";
-      _bwMon.start();
-    }
     
 		public function handleResult(event:Object):void {
 			var info : Object = event.info;
@@ -420,12 +408,12 @@ package org.bigbluebutton.main.model.users
 		private function sendConnectionFailedEvent(reason:String):void{
       var logData:Object = new Object();
       
-			if (this.guestKickedOutCommand) {
-				logData.reason = "Guest kicked out";
-				logData.user = UsersUtil.getUserData();
-				JSLog.warn("User disconnected from BBB App.", logData);
-				sendGuestUserKickedOutEvent();
-			} else if (this.logoutOnUserCommand) {
+        if (this.guestKickedOutCommand) {
+          logData.reason = "Guest kicked out";
+          logData.user = UsersUtil.getUserData();
+          JSLog.warn("User disconnected from BBB App.", logData);
+          sendGuestUserKickedOutEvent();
+        } else if (this.logoutOnUserCommand) {
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
         JSLog.debug("User logged out from BBB App.", logData);

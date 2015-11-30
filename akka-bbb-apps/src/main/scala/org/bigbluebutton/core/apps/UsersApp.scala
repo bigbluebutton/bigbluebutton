@@ -232,8 +232,8 @@ trait UsersApp {
   }
 
   def handleChangeUserRole(msg: ChangeUserRole) {
-    usersModel.getUser(msg.userID) foreach {user =>
-      val uvo = user.copy(role=msg.role)
+    usersModel.getUser(msg.userID) foreach { user =>
+      val uvo = user.copy(role = msg.role)
       usersModel.addUser(uvo)
       usersModel.updateRegUser(uvo)
       val userRole = if (msg.role == Role.MODERATOR) "MODERATOR" else "VIEWER"
@@ -351,7 +351,7 @@ trait UsersApp {
        */
       val waitingForAcceptance = ru.guest && meetingModel.getGuestPolicy() == GuestPolicy.ASK_MODERATOR && ru.waitingForAcceptance
       val uvo = new UserVO(msg.userID, ru.externId, ru.name,
-        ru.role, ru.guest, waitingForAcceptance=waitingForAcceptance, emojiStatus = "none", presenter = false,
+        ru.role, ru.guest, waitingForAcceptance = waitingForAcceptance, emojiStatus = "none", presenter = false,
         hasStream = false, locked = getInitialLockStatus(ru.role),
         webcamStreams = new ListSet[String](), phoneUser = false, vu,
         listenOnly = vu.listenOnly, joinedWeb = true)
@@ -360,11 +360,10 @@ trait UsersApp {
 
       log.info("User joined meeting. metingId=" + mProps.meetingID + " userId=" + uvo.userID + " user=" + uvo)
 
-      if (uvo.guest && guestPolicy == GuestPolicy.ALWAYS_DENY) {
+      if (uvo.guest && meetingModel.getGuestPolicy() == GuestPolicy.ALWAYS_DENY) {
         outGW.send(new GuestAccessDenied(mProps.meetingID, mProps.recorded, uvo.userID))
       } else {
         outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, uvo))
-
         outGW.send(new MeetingState(mProps.meetingID, mProps.recorded, uvo.userID, meetingModel.getPermissions(), meetingModel.isMeetingMuted()))
         if (!waitingForAcceptance) {
           // Become presenter if the only moderator   
@@ -452,7 +451,7 @@ trait UsersApp {
          * So we call him "phoneUser".
          */
         val uvo = new UserVO(webUserId, msg.externUserId, msg.callerIdName,
-          Role.VIEWER, guest=false, waitingForAcceptance=false, emojiStatus = "none", presenter = false,
+          Role.VIEWER, guest = false, waitingForAcceptance = false, emojiStatus = "none", presenter = false,
           hasStream = false, locked = getInitialLockStatus(Role.VIEWER),
           webcamStreams = new ListSet[String](),
           phoneUser = !msg.listenOnly, vu, listenOnly = msg.listenOnly, joinedWeb = false)
@@ -602,16 +601,16 @@ trait UsersApp {
 
   def handleRespondToGuest(msg: RespondToGuest) {
     if (usersModel.isModerator(msg.requesterID)) {
-      var usersToAnswer:Array[UserVO] = null;
+      var usersToAnswer: Array[UserVO] = null;
       if (msg.userId == null) {
         usersToAnswer = usersModel.getUsers.filter(u => u.waitingForAcceptance == true)
       } else {
         usersToAnswer = usersModel.getUsers.filter(u => u.waitingForAcceptance == true && u.userID == msg.userId)
       }
-      usersToAnswer foreach {user =>
+      usersToAnswer foreach { user =>
         println("UsersApp - handleGuestAccessDenied for user [" + user.userID + "]");
         if (msg.response == true) {
-          val nu = user.copy(waitingForAcceptance=false)
+          val nu = user.copy(waitingForAcceptance = false)
           usersModel.addUser(nu)
           usersModel.updateRegUser(nu)
           outGW.send(new UserJoined(mProps.meetingID, mProps.recorded, nu))

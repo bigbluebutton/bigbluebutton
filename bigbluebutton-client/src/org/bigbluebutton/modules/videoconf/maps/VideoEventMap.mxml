@@ -40,8 +40,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
 			import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
 			import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;		
-//			import org.bigbluebutton.modules.videoconf.events.PlayConnectionReady;
-//			import org.bigbluebutton.modules.videoconf.events.PlayConnectionClosedEvent;
 		]]>
 	</mx:Script>
 	
@@ -139,14 +137,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.CAM_SETTINGS_CLOSED}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
   </EventHandlers>
-  
-	<!--EventHandlers type="{PlayConnectionReady.PLAY_CONNECTION_READY}">
-		<MethodInvoker generator="{VideoEventMapDelegate}" method="handlePlayConnectionReady" arguments="{event}" />
-	</EventHandlers>
-
-	<EventHandlers type="{PlayConnectionClosedEvent.PLAY_CONNECTION_CLOSED_EVENT}">
-		<MethodInvoker generator="{VideoEventMapDelegate}" method="handlePlayConnectionClosed" arguments="{[event.streamName, event.prefix]}" />
-	</EventHandlers-->
 
   <EventHandlers type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="closeAllWindows"/>

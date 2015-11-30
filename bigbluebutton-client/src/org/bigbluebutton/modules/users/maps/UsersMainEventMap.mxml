@@ -29,6 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			<!--TODO: Move guest events to user events? -->
 			import org.bigbluebutton.main.events.ResponseModeratorEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.events.UserServicesEvent;
@@ -37,7 +38,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
-			import org.bigbluebutton.main.model.users.events.ChangeStatusEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -68,10 +68,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
   
   <!-- Viewers Stuff -->
-  <EventHandlers type="{ChangeStatusEvent.CHANGE_STATUS}" >
-    <MethodInvoker generator="{UserService}" method="changeStatus" arguments="{event}" />
-  </EventHandlers>
-
   <EventHandlers type="{EmojiStatusEvent.EMOJI_STATUS}" >
     <MethodInvoker generator="{UserService}" method="emojiStatus" arguments="{event}" />
   </EventHandlers>

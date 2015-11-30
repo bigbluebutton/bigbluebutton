@@ -37,6 +37,7 @@ package org.bigbluebutton.main.model.users {
 	  public var voiceBridge:String;
 	  public var dialNumber:String;
 	  [Bindable] public var record:Boolean;
+	  [Bindable] public var numAdditionalSharedNotes:Number = 0;
     
 	  private static const LOGGER:ILogger = getClassLogger(Conference);
     
@@ -61,18 +62,6 @@ package org.bigbluebutton.main.model.users {
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
 		private function sortFunction(a:Object, b:Object, array:Array = null):int {
-			if (a.raiseHand && b.raiseHand) {
-				if (a.moodTimestamp == b.moodTimestamp) {
-					// do nothing go check moderators
-				} else if (a.moodTimestamp < b.moodTimestamp)
-					return -1;
-				else if (b.moodTimestamp < a.moodTimestamp)
-					return 1;
-			} else if (a.raiseHand)
-				return -1;
-			else if (b.raiseHand)
-				return 1;
-
 			/*if (a.presenter)
 				return -1;
 			else if (b.presenter)
@@ -125,7 +114,9 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function addUser(newuser:BBBUser):void {
-			removeUserHelper(newuser.userID);
+			if (hasUser(newuser.userID)) {
+				removeUser(newuser.userID);
+			}
 			if (newuser.userID == me.userID) {
 				newuser.me = true;
 			}
@@ -231,23 +222,14 @@ package org.bigbluebutton.main.model.users {
 			var a:BBBUser = user.participant as BBBUser;
 			return a.presenter;
 		}
-
-		private function removeUserHelper(userID:String):BBBUser {
+			
+		public function removeUser(userID:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
 				users.removeItemAt(p.index);
-				return p.participant as BBBUser;
-			} else {
-				return null;
-			}
-		}
-
-		public function removeUser(userID:String):void {
-			var p:Object = removeUserHelper(userID);
-			if (p != null) {
-				trace("removing user[" + p.name + "," + p.userID + "]");
+				//sort();
 				users.refresh();
-			}
+			}							
 		}
 		
 		/**
@@ -288,24 +270,11 @@ package org.bigbluebutton.main.model.users {
         public function get myEmojiStatus():String {
             return me.emojiStatus;
         }
-
-		[Bindable]
-        public function get isMyHandRaised():Boolean {
-            return me.raiseHand;
-        }
         
         public function set myEmojiStatus(emoji:String):void {
             me.emojiStatus = emoji;
         }
-
-		public function set isMyHandRaised(raiseHand:Boolean):void {
-            me.raiseHand = raiseHand;
-        }
         
-		public function getMyMood():String {
-			return me.mood;
-		}
-		
 		public function amIThisUser(userID:String):Boolean {
 			return me.userID == userID;
 		}

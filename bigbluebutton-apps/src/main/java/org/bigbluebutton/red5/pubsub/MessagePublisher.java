@@ -107,6 +107,26 @@ public class MessagePublisher {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
 
+	public void getGuestPolicy(String meetingID, String userID) {
+		GetGuestPolicyMessage msg = new GetGuestPolicyMessage(meetingID, userID);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+	
+	public void newGuestPolicy(String meetingID, String guestPolicy, String setBy) {
+		SetGuestPolicyMessage msg = new SetGuestPolicyMessage(meetingID, guestPolicy, setBy);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+	
+	public void responseToGuest(String meetingID, String userID, Boolean response, String requesterID) {
+		RespondToGuestMessage msg = new RespondToGuestMessage(meetingID, userID, response, requesterID);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+	
+	public void setParticipantRole(String meetingID, String userID, String role) {
+		ChangeUserRoleMessage msg = new ChangeUserRoleMessage(meetingID, userID, role);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
+	}
+	
 	public void initAudioSettings(String meetingID, String requesterID, Boolean muted) {
 		InitAudioSettingsMessage msg = new InitAudioSettingsMessage(meetingID, requesterID, muted);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
@@ -269,5 +289,30 @@ public class MessagePublisher {
 	public void lockLayout(String meetingID, String setById, boolean lock, boolean viewersOnly, String layout) {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
+	}
+
+	public void patchDocument(String meetingID, String requesterID, String noteID, String patch) {
+		PatchDocumentRequestMessage msg = new PatchDocumentRequestMessage(meetingID, requesterID, noteID, patch);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+	
+	public void getCurrentDocument(String meetingID, String requesterID) {
+		GetCurrentDocumentRequestMessage msg = new GetCurrentDocumentRequestMessage(meetingID, requesterID);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+	
+	public void createAdditionalNotes(String meetingID, String requesterID, String noteName) {
+		CreateAdditionalNotesRequestMessage msg = new CreateAdditionalNotesRequestMessage(meetingID, requesterID, noteName);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+	
+	public void destroyAdditionalNotes(String meetingID, String requesterID, String noteID) {
+		DestroyAdditionalNotesRequestMessage msg = new DestroyAdditionalNotesRequestMessage(meetingID, requesterID, noteID);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
+	}
+	
+	public void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize) {
+		RequestAdditionalNotesSetRequestMessage msg = new RequestAdditionalNotesSetRequestMessage(meetingID, requesterID, additionalNotesSetSize);
+		sender.send(MessagingConstants.TO_SHAREDNOTES_CHANNEL, msg.toJson());
 	}
 }

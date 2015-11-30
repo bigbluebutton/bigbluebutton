@@ -25,6 +25,8 @@ package org.bigbluebutton.modules.sharednotes.maps
 	import mx.binding.utils.BindingUtils;
 	import mx.utils.ObjectUtil;
 
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -37,10 +39,9 @@ package org.bigbluebutton.modules.sharednotes.maps
 	import org.bigbluebutton.modules.sharednotes.events.JoinSharedNotesEvent;
 	import org.bigbluebutton.modules.sharednotes.events.CurrentDocumentEvent;
 	import org.bigbluebutton.modules.sharednotes.events.SharedNotesEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class SharedNotesEventMapDelegate {
-		public static const NAME:String = "SharedNotesController";
+		private static const LOGGER:ILogger = getClassLogger(SharedNotesEventMapDelegate);
 
 		private var globalDispatcher:Dispatcher;
 
@@ -57,7 +58,7 @@ package org.bigbluebutton.modules.sharednotes.maps
         public function addRemoteDocuments(e:CurrentDocumentEvent):void{
             window.addRemoteDocument(e.document);
             for(var id:String in e.document){
-                LogUtil.debug("NoteId:" + id +":"+e.document[id] + ":" + e.type);
+                LOGGER.debug("NoteId:" + id +":"+e.document[id] + ":" + e.type);
                 if(id != window.noteId && !windows.hasOwnProperty(id)){
                     createAdditionalNotes(id, "");
                     windows[id].addRemoteDocument(e.document);
@@ -86,7 +87,7 @@ package org.bigbluebutton.modules.sharednotes.maps
 		}
 
 		public function createAdditionalNotes(notesId:String, noteName:String):void {
-			trace(NAME + ": creating additional notes " + notesId);
+			LOGGER.debug(": creating additional notes " + notesId);
 
 			if(!windows.hasOwnProperty(notesId)) {
 				var newWindow:AdditionalSharedNotesWindow = new AdditionalSharedNotesWindow(notesId);
@@ -100,17 +101,17 @@ package org.bigbluebutton.modules.sharednotes.maps
 		}
 
 		public function destroyAdditionalNotes(notesId:String):void {
-			trace(NAME + ": destroying additional notes, notesId: " + notesId);
+			LOGGER.debug(": destroying additional notes, notesId: " + notesId);
 
 			var destroyWindow:AdditionalSharedNotesWindow = windows[notesId];
 			if (destroyWindow != null) {
-				trace(NAME + ": notes found, removing window");
+				LOGGER.debug(": notes found, removing window");
 
 				var closeEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 				closeEvent.window = destroyWindow;
 				globalDispatcher.dispatchEvent(closeEvent);
 
-				trace(NAME + ": removing from windows list");
+				LOGGER.debug(": removing from windows list");
 				delete windows[notesId];
 			}
 		}

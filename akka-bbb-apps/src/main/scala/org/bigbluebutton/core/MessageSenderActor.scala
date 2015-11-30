@@ -18,6 +18,7 @@ import collection.JavaConverters._
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.apps.SimplePollResultOutVO
 import org.bigbluebutton.core.apps.SimplePollOutVO
+import org.bigbluebutton.core.pubsub.senders.SharedNotesMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.UsersMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
@@ -669,7 +670,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   }
 
   private def handleGuestAccessDenied(msg: GuestAccessDenied) {
-    val json = UsersMessageToJsonConverter.guestAccessDeniedyToJson(msg)
+    val json = UsersMessageToJsonConverter.guestAccessDeniedToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 

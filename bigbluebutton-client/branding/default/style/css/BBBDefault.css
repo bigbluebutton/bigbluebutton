@@ -915,6 +915,22 @@ Alert {
   paddingTop: 0;
 }
 
+.addLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_add_circle_outline_16px.png');
+}
+
+.saveLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_file_download_16px.png');
+}
+
+.loadLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_file_upload_16px.png');
+}
+
+.broadcastLayoutButtonStyle {
+  icon:   Embed('assets/images/ic_send_16px.png');
+}
+
 PollChoicesModal {
 	fontSize: 14;
 	paddingLeft: 16;
@@ -945,22 +961,6 @@ EmojiGrid {
 	paddingTop: 10;
 	verticalGap: 6;
 	horizontalGap: 6;
-}
-
-.addLayoutButtonStyle {
-  icon:   Embed('assets/images/ic_add_circle_outline_16px.png');
-}
-
-.saveLayoutButtonStyle {
-  icon:   Embed('assets/images/ic_file_download_16px.png');
-}
-
-.loadLayoutButtonStyle {
-  icon:   Embed('assets/images/ic_file_upload_16px.png');
-}
-
-.broadcastLayoutButtonStyle {
-  icon:   Embed('assets/images/ic_send_16px.png');
 }
 
 .moodStyle {

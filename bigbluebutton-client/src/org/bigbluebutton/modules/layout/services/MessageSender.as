@@ -8,16 +8,16 @@ package org.bigbluebutton.modules.layout.services
 
   public class MessageSender
   {
-	private static const LOGGER:ILogger = getClassLogger(MessageSender);
+    private static const LOGGER:ILogger = getClassLogger(MessageSender);
     
     public function getCurrentLayout():void {
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("layout.getCurrentLayout", 
         function(result:String):void { // On successful result
-			LOGGER.debug(result); 
+          LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-			LOGGER.error(status); 
+          LOGGER.error(status); 
         }
       );
     }
@@ -30,17 +30,17 @@ package org.bigbluebutton.modules.layout.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("layout.broadcast", 
         function(result:String):void { // On successful result
-			LOGGER.debug(result); 
+          LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-			LOGGER.error(status); 
+          LOGGER.error(status); 
         },
         message
       );
     }
     
     public function lockLayout(lock:Boolean, viewersOnly:Boolean, layout:LayoutDefinition=null):void {
-		LOGGER.debug("lock layout");
+      LOGGER.debug("lock layout");
       var message:Object = new Object();
       message["lock"] = lock;
       message["viewersOnly"] = viewersOnly;
@@ -50,10 +50,10 @@ package org.bigbluebutton.modules.layout.services
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("layout.lock", 
         function(result:String):void { // On successful result
-			LOGGER.debug(result); 
+          LOGGER.debug(result); 
         },	                   
         function(status:String):void { // status - On error occurred
-			LOGGER.error(status); 
+          LOGGER.error(status); 
         },
         message
       );

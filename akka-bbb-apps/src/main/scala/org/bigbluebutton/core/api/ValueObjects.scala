@@ -76,7 +76,7 @@ case class RegisteredUser(
   externId: String,
   name: String,
   role: Role.Role,
-  authToken: String
+  authToken: String,
   guest: Boolean,
   waitingForAcceptance: Boolean)
 
@@ -127,8 +127,8 @@ case class MeetingConfig(name: String,
   record: Boolean = false,
   duration: MeetingDuration,
   defaultAvatarURL: String,
-  defaultConfigToken: String
-  guestPolicy: GuestPolicy.GuestPolicy=GuestPolicy.ASK_MODERATOR)
+  defaultConfigToken: String,
+  guestPolicy: GuestPolicy.GuestPolicy = GuestPolicy.ASK_MODERATOR)
 
 case class MeetingName(name: String)
 
@@ -144,6 +144,5 @@ case class MeetingDuration(duration: Int = 0, createdTime: Long = 0,
 case class MeetingInfo(meetingID: String, meetingName: String, recorded: Boolean, voiceBridge: String, duration: Long)
 
 case class Note(
-  name:String,
-  document:String
-)
+  name: String,
+  document: String)

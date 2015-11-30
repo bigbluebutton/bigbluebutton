@@ -60,8 +60,7 @@ package org.bigbluebutton.util.i18n
 		private var preferredLocale:String
 		private var masterLocaleLoaded:Boolean = false;
 		private var masterLocaleLoadedCallback:Function = null;
-
-		private static const LOG:String = "Util::ResourceUtil - ";
+		
 		
 		public function ResourceUtil(enforcer:SingletonEnforcer) {
 			if (enforcer == null) {
@@ -140,22 +139,17 @@ package org.bigbluebutton.util.i18n
 			return -1;
 		}
 		
-		public function getPreferredLocaleName():String {
-			return localeNames[localeIndex];
-		}
-		
 		public function setPreferredLocale(locale:String):void {
 			if (locale == DEFAULT_LOCALE_IDENTIFIER) {
 				locale = getDefaultLocale();
 			}
 			
-			LOGGER.debug("Setting up preferred locale " + locale);
 			if (isPreferredLocaleAvailable(locale)) {
 				preferredLocale = locale;
 			}else{
 				preferredLocale = MASTER_LOCALE;
 			}
-
+			
 			changeLocale(preferredLocale);
 		}
 		
@@ -193,10 +187,10 @@ package org.bigbluebutton.util.i18n
 		}
 		
 		private function onMasterLocaleLoaded(event:ResourceEvent):void {
-			trace(LOG + "Master locale is loaded");
+			LOGGER.debug("Master locale is loaded");
 			masterLocaleLoaded = true;
 			if (masterLocaleLoadedCallback != null) {
-				trace(LOG + "Calling callback to load a second language");
+				LOGGER.debug("Calling callback to load a second language");
 				masterLocaleLoadedCallback();
 			}
 		}
@@ -224,10 +218,10 @@ package org.bigbluebutton.util.i18n
 
 		public function changeLocale(locale:String):void {
 			if (masterLocaleLoaded || locale == MASTER_LOCALE) {
-				trace(LOG + "Loading immediately " + locale);
+				LOGGER.debug("Loading immediately " + locale);
 				changeLocaleHelper(locale);
 			} else {
-				trace(LOG + "Registering callback to load " + locale + " later");
+				LOGGER.debug("Registering callback to load " + locale + " later");
 				masterLocaleLoadedCallback = function():void {
 					changeLocaleHelper(locale);
 				}
@@ -262,6 +256,7 @@ package org.bigbluebutton.util.i18n
 		 * @param event
 		 */        
 		private function handleResourceNotLoaded(event:ResourceEvent):void{
+			LOGGER.debug("Resource locale [" + preferredLocale + "] could not be loaded.");
 			resourceManager.localeChain = [MASTER_LOCALE];
 			preferredLocale = MASTER_LOCALE;
 			update();
@@ -298,7 +293,7 @@ package org.bigbluebutton.util.i18n
 		public function getCurrentLanguageCode():String{
 			return preferredLocale;
 		}
-		
+				
 		public function getCurrentLanguage():Object {
 			return locales[getCurrentLanguageIndex()];
 		}

@@ -288,7 +288,7 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def sendConversionCompleted(messageKey: String, meetingId: String, code: String, presentationId: String, numPages: Int, presName: String, presBaseUrl: String, downloadable: Boolean) {
 
     val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
-    val presentation = new Presentation(id = presentationId, name = presName, pages = pages, downloadable=downloadable)
+    val presentation = new Presentation(id = presentationId, name = presName, pages = pages, downloadable = downloadable)
     bbbActor ! new PresentationConversionCompleted(meetingId, messageKey, code, presentation)
 
   }
@@ -504,11 +504,11 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def patchDocument(meetingId: String, userId: String, noteId: String, patch: String) {
     bbbActor ! new PatchDocumentRequest(meetingId, userId, noteId, patch)
   }
-  
+
   def getCurrentDocument(meetingId: String, userId: String) {
     bbbActor ! new GetCurrentDocumentRequest(meetingId, userId)
   }
-  
+
   def createAdditionalNotes(meetingId: String, userId: String, noteName: String) {
     bbbActor ! new CreateAdditionalNotesRequest(meetingId, userId, noteName)
   }
@@ -520,14 +520,4 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
     bbbActor ! new RequestAdditionalNotesSetRequest(meetingId, userId, additionalNotesSetSize)
   }
-
-  /**
-   * *******************************************************************
-   * Message Interface for Video
-   * *****************************************************************
-   */
-
-//   def getStreamPath(meetingId:String, requesterId:String, streamName: String, defaultPath:String) {
-//     bbbActor ! new GetStreamPath(meetingId, requesterId, streamName, defaultPath)
-//   }
 }

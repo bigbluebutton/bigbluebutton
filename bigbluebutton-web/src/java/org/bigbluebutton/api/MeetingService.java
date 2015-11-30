@@ -37,12 +37,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.bigbluebutton.api.domain.Download;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
+import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
@@ -57,6 +59,7 @@ import org.bigbluebutton.api.messaging.messages.UserJoinedVoice;
 import org.bigbluebutton.api.messaging.messages.UserLeft;
 import org.bigbluebutton.api.messaging.messages.UserLeftVoice;
 import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
+import org.bigbluebutton.api.messaging.messages.UserRoleChanged;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
@@ -288,19 +291,6 @@ public class MeetingService implements MessageListener {
 		messagingService.registerUser(message.meetingID, message.internalUserId, message.fullname, message.role, message.externUserID, message.authToken, message.guest);
 	}
 	
-	public String addSubscription(String meetingId, String event, String callbackURL){
-		String sid = messagingService.storeSubscription(meetingId, event, callbackURL);
-		return sid;
-	}
-
-	public boolean removeSubscription(String meetingId, String subscriptionId){
-		return messagingService.removeSubscription(meetingId, subscriptionId);
-	}
-
-	public List<Map<String,String>> listSubscriptions(String meetingId){
-		return messagingService.listSubscriptions(meetingId);
-	}
-
 	public Meeting getMeeting(String meetingId) {
 		if (meetingId == null)
 			return null;
@@ -685,10 +675,13 @@ public class MeetingService implements MessageListener {
 			User user = m.getUserById(message.userId);
 			if(user != null){
 				user.setRole(message.role);
+				log.debug("Setting new role in meeting " + message.meetingId + " for participant:" + user.getFullname());
 				return;
 			}
+			log.warn("The participant " + message.userId + " doesn't exist in the meeting " + message.meetingId);
 			return;
 		}
+		log.warn("The meeting " + message.meetingId + " doesn't exist");
 	}
 
 	private void processMessage(final IMessage message) {

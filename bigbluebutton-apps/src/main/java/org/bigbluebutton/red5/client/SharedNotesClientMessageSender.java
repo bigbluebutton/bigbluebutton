@@ -83,19 +83,6 @@ public class SharedNotesClientMessageSender {
 		}
 	}
 
-
-	private def handleGetCurrentDocumentReply(msg: GetCurrentDocumentReply) {	
-    val gson = new Gson();
-    val message = new java.util.HashMap[String, Object]()
-
-    val jsonMsg = gson.toJson(mapAsJavaMap(msg.notes))
-  	
-    message.put("notes", jsonMsg)
-  	  
-	  val m = new DirectClientMessage(msg.meetingID, msg.requesterID, "GetCurrentDocumentCommand", message);
-	  service.sendMessage(m);
-  }
-
 	private void processCreateAdditionalNotesReplyMessage(String json) {
 		CreateAdditionalNotesReplyMessage msg = CreateAdditionalNotesReplyMessage.fromJson(json);
 		if (msg != null) {

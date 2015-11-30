@@ -121,12 +121,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           }
 
           private function refreshListStatus():void {
-              var userManager:UserManager = UserManager.getInstance();
-              var conference:Conference = userManager.getConference();
-              var me:BBBUser = conference.getMyUser();
-
-              usersList.enabled = !me.disableMyPrivateChat || me.moderator || me.presenter;
+            
+            if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return; // Settings only affect viewers.
+            
+            var userManager:UserManager = UserManager.getInstance();
+            var conference:Conference = userManager.getConference();
+            var me:BBBUser = conference.getMyUser();
+            
+            usersList.enabled = !me.disableMyPrivateChat;
           }
+            
         ]]>
     </mx:Script>
     

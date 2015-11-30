@@ -62,8 +62,6 @@ package org.bigbluebutton.modules.phone.managers
           ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.title"), 
           ResourceUtil.getInstance().getString("bbb.clientstatus.webrtc.message")));
       }
-      
-      usingWebRTC = checkIfToUseWebRTC();
     }
     
     private function isWebRTCSupported():Boolean {
@@ -229,7 +227,7 @@ package org.bigbluebutton.modules.phone.managers
       model.state = Constants.INITED;
       
       if(!reconnecting) {
-        LOGGER.info("WebRTC call failed, attempting reconnection");
+        LOGGER.debug("WebRTC call failed, attempting reconnection");
         reconnecting = true;
         dispatcher.dispatchEvent(new ClientStatusEvent(ClientStatusEvent.WARNING_MESSAGE_EVENT,
           ResourceUtil.getInstance().getString("bbb.webrtcWarning.connection.dropped"),
@@ -237,18 +235,14 @@ package org.bigbluebutton.modules.phone.managers
         reconnect.onDisconnect(joinVoiceConference, []);
       }
       else {
-        LOGGER.info("WebRTC call reconnection failed");
+        LOGGER.debug("WebRTC call reconnection failed");
         if( reconnect.Retries < MAX_RETRIES ) {
-          trace(LOG + "Retring... " + reconnect.Retries);
+          LOGGER.debug("Retring... " + reconnect.Retries);
           reconnect.onConnectionAttemptFailed();
         }
         else {
-          LOGGER.info("Giving up");
+          LOGGER.debug("Giving up");
           reconnecting = false;
-          dispatcher.dispatchEvent(new WebRTCCallEvent(WebRTCCallEvent.WEBRTC_CALL_ENDED));
-
-          var errorString:String;
-          
           if (event.errorCode == 1004) {
             errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode, [event.cause]);
           } else {
@@ -258,16 +252,15 @@ package org.bigbluebutton.modules.phone.managers
           if (!errorString) {
             errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
           }
+
+          var logData:Object = new Object();
+          logData.user = UsersUtil.getUserData();
+          logData.user.reason = errorString;
+          LOGGER.info(jsonXify(logData));
+
           sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
         }
       }
-	  
-	  var logData:Object = new Object();       
-	  logData.user = UsersUtil.getUserData();
-	  logData.user.reason = errorString;
-	  LOGGER.info(jsonXify(logData));
-	  
-      sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
     }
     
     public function handleWebRTCMediaFailedEvent():void {

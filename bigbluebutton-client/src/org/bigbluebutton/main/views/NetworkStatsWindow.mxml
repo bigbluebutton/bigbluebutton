@@ -33,27 +33,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<mx:Script>
 		<![CDATA[
-
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.utils.Timer;
 			
-			import org.as3commons.logging.api.ILogger;
-			import org.as3commons.logging.api.getClassLogger;
-
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.core.services.BandwidthMonitor;
-			import org.bigbluebutton.main.model.NetworkStatsData;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-		
 			import mx.core.IFlexDisplayObject;
 			import mx.effects.Fade;
 			import mx.events.EffectEvent;
 			import mx.managers.PopUpManager;
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.core.services.BandwidthMonitor;
+			import org.bigbluebutton.main.model.NetworkStatsData;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private static const LOGGER:ILogger = getClassLogger(NetworkStatsWindow);      
+
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			private var _updateTimer:Timer = new Timer(1000);
 
@@ -64,12 +63,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.windowControls.maximizeRestoreBtn.visible = false;
 				this.windowControls.minimizeBtn.visible = false;
 				
-				this.x = parent.width - this.width;
-				this.y = parent.height - this.height;
-				
-				_numberFormatter.precision = 2;
-				_numberFormatter.useThousandsSeparator = true;
-
 				_updateTimer.addEventListener(TimerEvent.TIMER, timerHandler);
 				_updateTimer.start();
 				
@@ -94,7 +87,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onResize():void {
-				LOGGER.debug("width={0} height={1}", [width, height]);
 			}
 			
 			private function runBandwidthMeasurement():void {

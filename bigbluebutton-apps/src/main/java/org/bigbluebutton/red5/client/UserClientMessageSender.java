@@ -358,14 +358,14 @@ public class UserClientMessageSender {
 
   private void processUserRoleChangeMessage(UserRoleChangeMessage msg) {
     Map<String, Object> args = new HashMap<String, Object>(); 
-    args.put("userID", msg.userID);
+    args.put("userID", msg.userId);
     args.put("role", msg.role);
 
     Map<String, Object> message = new HashMap<String, Object>();
     Gson gson = new Gson();
     message.put("msg", gson.toJson(args));
 
-    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "participantRoleChange", message);
+    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "participantRoleChange", message);
     service.sendMessage(m);
   }
 
@@ -507,7 +507,7 @@ public class UserClientMessageSender {
     Gson gson = new Gson();
     message.put("msg", gson.toJson(args));
 
-    DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterID, "get_guest_policy_reply", message);
+    DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "get_guest_policy_reply", message);
     service.sendMessage(m);
   }
 
@@ -519,7 +519,7 @@ public class UserClientMessageSender {
     Gson gson = new Gson();
     message.put("msg", gson.toJson(args));
 
-    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "guest_policy_changed", message);
+    BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "guest_policy_changed", message);
     service.sendMessage(m);
   }
 

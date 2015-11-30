@@ -49,7 +49,7 @@ public class RequestAdditionalNotesSetRequestMessage implements ISubscribedMessa
 							&& payload.has(Constants.ADDITIONAL_NOTES_SET_SIZE)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterID = payload.get(Constants.REQUESTER_ID).getAsString();
-						String additionalNotesSetSize = payload.get(Constants.ADDITIONAL_NOTES_SET_SIZE).getAsInt();
+						int additionalNotesSetSize = payload.get(Constants.ADDITIONAL_NOTES_SET_SIZE).getAsInt();
 
 						return new RequestAdditionalNotesSetRequestMessage(meetingID, requesterID, additionalNotesSetSize);
 					}

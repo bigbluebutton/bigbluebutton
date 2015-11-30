@@ -145,5 +145,3 @@ case class DestroyAdditionalNotesReply(meetingID: String, recorded: Boolean, req
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)
 
-// Video
-//case class GetStreamPathReply(meetingID: String, requesterID: String, streamName: String, streamPath: String) extends IOutMessage

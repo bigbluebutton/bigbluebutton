@@ -19,7 +19,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 -->
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <% 
 	request.setCharacterEncoding("UTF-8"); 
@@ -283,11 +284,7 @@ Error: createMeeting() failed
 		// We've got a valid meeting_ID and passoword -- let's join!
 		//
 		
-		String joinURL;
-		if(request.getParameter("guest") != null)
-			joinURL = getJoinMeetingURL(username, meeting_ID, password, null, true);
-		else
-			joinURL = getJoinMeetingURL(username, meeting_ID, password, null);			
+		String joinURL = getJoinMeetingURL(username, meeting_ID, password, null, request.getParameter("guest") != null);
 %>
 
 <script language="javascript" type="text/javascript">

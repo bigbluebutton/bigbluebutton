@@ -1,10 +1,11 @@
 
 package org.bigbluebutton.core.pubsub.receivers;
 
-import org.bigbluebutton.common.messages.PatchDocumentRequestMessage;
-import org.bigbluebutton.common.messages.GetCurrentDocumentRequestMessage;
 import org.bigbluebutton.common.messages.CreateAdditionalNotesRequestMessage;
 import org.bigbluebutton.common.messages.DestroyAdditionalNotesRequestMessage;
+import org.bigbluebutton.common.messages.GetCurrentDocumentRequestMessage;
+import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.PatchDocumentRequestMessage;
 import org.bigbluebutton.common.messages.RequestAdditionalNotesSetRequestMessage;
 
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;

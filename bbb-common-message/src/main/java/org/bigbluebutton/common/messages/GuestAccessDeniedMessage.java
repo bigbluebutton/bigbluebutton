@@ -8,17 +8,17 @@ public class GuestAccessDeniedMessage implements IBigBlueButtonMessage {
 	public static final String GUEST_ACCESS_DENIED = "guest_access_denied";
 	public static final String VERSION = "0.0.1";
 
-	public final String meetingID;
+	public final String meetingId;
 	public final String userId;
 
-	public GuestAccessDeniedMessage(String meetingID, String userId) {
-		this.meetingID = meetingID;
+	public GuestAccessDeniedMessage(String meetingId, String userId) {
+		this.meetingId = meetingId;
 		this.userId = userId;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
-		payload.put(Constants.MEETING_ID, meetingID);
+		payload.put(Constants.MEETING_ID, meetingId);
 		payload.put(Constants.USER_ID, userId);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GUEST_ACCESS_DENIED, VERSION, null);
@@ -38,10 +38,10 @@ public class GuestAccessDeniedMessage implements IBigBlueButtonMessage {
 
 					if (payload.has(Constants.MEETING_ID) 
 							&& payload.has(Constants.USER_ID)) {
-						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
+						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String userId = payload.get(Constants.USER_ID).getAsString();
 
-						return new GuestAccessDeniedMessage(meetingID, userId);
+						return new GuestAccessDeniedMessage(meetingId, userId);
 					}
 				} 
 			}

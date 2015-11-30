@@ -25,7 +25,7 @@ public class GetCurrentDocumentRequestMessage implements ISubscribedMessage {
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
-		payload.put(Constants.MEETING_ID, meetingId);
+		payload.put(Constants.MEETING_ID, meetingID);
 		payload.put(Constants.REQUESTER_ID, requesterID);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_CURRENT_DOCUMENT_REQUEST, VERSION, null);

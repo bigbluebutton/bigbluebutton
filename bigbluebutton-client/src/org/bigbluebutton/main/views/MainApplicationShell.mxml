@@ -31,7 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		width="100%" height="{parentApplication.height - 1}"
 		horizontalScrollPolicy="off" verticalScrollPolicy="off"
 		backgroundColor="white" styleName="mainVBox"
-		creationComplete="initializeShell()"
+		creationComplete="initializeShell()" 
 		verticalGap="0">
 
 	<!--
@@ -67,16 +67,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
 	<mate:Listener type="{LockControlEvent.OPEN_LOCK_SETTINGS}" method="openLockSettingsWindow" />
 	<mate:Listener type="{InvalidAuthTokenEvent.INVALID_AUTH_TOKEN}" method="handleInvalidAuthToken" />
-
-	<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
 	  
+	<mate:Listener type="{NetworkStatsEvent.OPEN_NETSTATS_WIN}" method="openNetworkStatsWindow" />
 	<mate:Listener type="{BBBEvent.RETRIEVE_GUEST_POLICY}" method="setGuestPolicy"/>
 	<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="handleLogout" />
 	<mate:Listener type="{BBBEvent.MODERATOR_ALLOWED_ME_TO_JOIN}" method="guestAllowed" />
 	<mate:Listener type="{RefreshGuestEvent.REFRESH_GUEST_VIEW}" method="refreshGuestView" />
 	<mate:Listener type="{BBBEvent.REMOVE_GUEST_FROM_LIST}" method="removeGuestWindow" />
 	<mate:Listener type="{BBBEvent.WAITING_FOR_MODERATOR_ACCEPTANCE}" method="openWaitWindow" />
-
 	<mate:Listener type="{BBBEvent.RECONNECT_DISCONNECTED_EVENT}" method="closeWaitWindow"/>
 	
 	<mx:Script>
@@ -87,11 +85,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.FullScreenEvent;
 			import flash.events.IOErrorEvent;
 			import flash.events.TextEvent;
-			import flash.events.MouseEvent;
 			import flash.geom.Point;
 			
 			import mx.collections.ArrayCollection;
-			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
@@ -118,9 +114,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ClientStatusEvent;
 			import org.bigbluebutton.main.events.InvalidAuthTokenEvent;
-			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.MeetingNotFoundEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.RefreshGuestEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.Guest;
@@ -128,20 +124,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
-			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 			private static const LOGGER:ILogger = getClassLogger(MainApplicationShell);      
       
 			private var globalDispatcher:Dispatcher;			
-			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logWindow:LogWindow;
@@ -160,7 +155,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
-			[Bindable] private var statsIcon:Class = images.bandwidth;
       
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
@@ -185,7 +179,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var footerHeight:Number = 24;
 			
 			[Bindable] private var isTunneling:Boolean = false;
-
+			
 			private var guestManagement:GuestManagement = null;
 			private var guest:Guest = new Guest();
 			private var guestPolicy:String = "ASK_MODERATOR";
@@ -193,6 +187,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var confirmingLogout:Boolean = false;
 			private var chromeBrowser:ChromeWebcamPermissionImage = null;
 			
+			private const THRESHOLD_AREA_SHOW_TOOLBARS:int = 5;
+			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
+			private const HIDE_TOOLBARS_DELAY:int = 1000;
+
 			public function getLogWindow() : LogWindow
 			{
 				if (logWindow == null){
@@ -201,10 +199,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return logWindow;
 			}
       
-			private const THRESHOLD_AREA_SHOW_TOOLBARS:int = 5;
-			private const HIDE_TOOLBARS_EFFECT_DURATION:int = 500;
-			private const HIDE_TOOLBARS_DELAY:int = 1000;
-
 			public function initOptions(e:Event):void {
 				updateCopyrightText();
 				loadBackground();
@@ -257,7 +251,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function setGuestPolicy(event:BBBEvent):void {
 				guestPolicy = event.payload.guestPolicy;
 				if(guestManagement == null) {
-					LogUtil.debug("ADD Guest Event");
+					LOGGER.debug("ADD Guest Event");
 					guestManagement = new GuestManagement();
 					guestManagement.setGuestPolicy(guestPolicy);
 					guestManagement.addToSettings();
@@ -407,7 +401,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					LOGGER.debug("Switching to full screen");
 					fullscreen_icon = images.exit_full_screen;
@@ -453,7 +446,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function closeWaitWindow(e:BBBEvent):void {
 				if(waitWindow != null && e.payload.type == "BIGBLUEBUTTON_CONNECTION") {
-					trace(LOG + "closeWaitWindow");
+					LOGGER.debug("closeWaitWindow");
 					waitWindow.removeWindow();
 				}
 			}
@@ -494,17 +487,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function toggleFullScreen():void{
-				LOGGER.debug("Toggling fullscreen");
-	   			try {
+				LOGGER.debug("Toggling fullscreen, current mode: " + stage.displayState);
+				try {
 					switch (stage.displayState) {
 						case StageDisplayState.FULL_SCREEN:
 						case StageDisplayState.FULL_SCREEN_INTERACTIVE:
-							LOGGER.debug("full screen mode");
+							LOGGER.debug("Full screen mode, switching to normal screen mode");
 							// If already in full screen mode, switch to normal mode.
 							stage.displayState = StageDisplayState.NORMAL;
 							break;
 						default:
-							LOGGER.debug("Normal screen mode");
+							LOGGER.debug("Normal screen mode, switching to full screen mode");
 							// If not in full screen mode, switch to full screen mode.
 							stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 							break;
@@ -693,7 +686,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var chromeBrowser:ChromeMicPermissionImage = PopUpManager.createPopUp(mdiCanvas, ChromeMicPermissionImage, true) as ChromeMicPermissionImage;
           chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
             chromeBrowser.x = 20;
-            chromeBrowser.y = 130;
+            chromeBrowser.y = 80;
           });          
         }
       }
@@ -924,14 +917,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		]]>
 	</mx:Script>
-	
-	<common:TabIndexer id="tabIndexer" startIndex="100000"
-					   tabIndices="{[langSelector, logBtn]}"/>
 
 	<mx:Resize id="shrinkControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{footerHeight}" heightTo="0" effectEnd="onControlBarEffectEnd()" />
 	<mx:Resize id="enlargeControlBar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{footerHeight}" effectEnd="onControlBarEffectEnd()" />
 	<mx:Resize id="shrinkToolbar" target="{toolbar}" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="{toolbarHeight}" heightTo="0" effectEnd="onToolbarEffectEnd()" />
 	<mx:Resize id="enlargeToolbar" duration="{HIDE_TOOLBARS_EFFECT_DURATION}" heightFrom="0" heightTo="{toolbarHeight}" effectEnd="onToolbarEffectEnd()" />
+	
+	<common:TabIndexer id="tabIndexer" startIndex="100000"
+					   tabIndices="{[langSelector, logBtn]}"/>
 
 	<views:MainToolbar id="toolbar" 
 					   dock="true" 
@@ -962,7 +955,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				htmlText="{copyrightText}"
 				link="onFooterLinkClicked(event)"
 				id="copyrightLabel2" truncateToFit="true"
-				width="100%" minWidth="1"
 				selectable="true" paddingRight="10"/>
 		<mx:Spacer width="100%" id="spacer" />
 		<mx:Label 

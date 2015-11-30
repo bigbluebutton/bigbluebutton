@@ -1,3 +1,4 @@
+
 package org.bigbluebutton.common.messages;
 
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class RespondToGuestMessage implements IBigBlueButtonMessage {
 							&& payload.has(Constants.REQUESTER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String userId = payload.get(Constants.USER_ID).getAsString();
-						String response = payload.get(Constants.RESPONSE).getAsBoolean();
+						Boolean response = payload.get(Constants.RESPONSE).getAsBoolean();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
 						return new RespondToGuestMessage(meetingId, userId, response, requesterId);

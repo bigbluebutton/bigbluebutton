@@ -17,25 +17,30 @@
 *
 */
 package org.bigbluebutton.modules.layout.model {
+	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.events.TimerEvent;
 	import flash.geom.Rectangle;
-	import flash.utils.Timer;
+	import flash.utils.Dictionary;
 	import flash.utils.getQualifiedClassName;
-	
+	import flash.utils.Timer;
+
+	import flexlib.mdi.containers.MDICanvas;
+	import flexlib.mdi.containers.MDIWindow;
+
+	import mx.effects.Fade;
 	import mx.effects.Move;
 	import mx.effects.Parallel;
 	import mx.effects.Resize;
 	import mx.events.EffectEvent;
-	
-	import flexlib.mdi.containers.MDICanvas;
-	import flexlib.mdi.containers.MDIWindow;
-	
+
+	import org.as3commons.logging.api.ILogger;
+	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 	public class WindowLayout {
+		private static const LOGGER:ILogger = getClassLogger(WindowLayout);
 
-
-		private static const LOG:String = "Layout::WindowLayout - ";
 		[Bindable] public var name:String;
 		[Bindable] public var width:Number;
 		[Bindable] public var height:Number;
@@ -67,7 +72,6 @@ package org.bigbluebutton.modules.layout.model {
 		}
 
 		public function load(vxml:XML):void {
-			trace(LOG + "Load layout \n" + vxml.toXMLString() + "\n");
 			if (vxml != null) {
 				if (vxml.@name != undefined) {
 					name = vxml.@name.toString();
@@ -127,9 +131,7 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		static public function setLayout(canvas:MDICanvas, window:MDIWindow, layout:WindowLayout, onEffectEndCallback:Function):void {
-			trace(LOG + "setLayout");
 			if (layout == null) {
-				trace(LOG + "layout is null, calling callback and returning");
 				onEffectEndCallback();
 				return;
 			}
@@ -146,58 +148,46 @@ package org.bigbluebutton.modules.layout.model {
 			var type:String = getType(window);
 
 			window.visible = !this.hidden;
-			trace(LOG + "applyToWindow " + type);
 
 			if (this.minimized) {
-				trace(LOG + "layout minimized");
 				if (!window.minimized) {
-					trace(LOG + "minimizing window");
 					doOnEffectEnd(window, "windowMinimize", function():void {
 						window.savedWindowRect = newWindowRect;
 						onEffectEndCallback();
 					});
 					window.minimize();
 				} else {
-					trace(LOG + "window was already minimized, resetting restore position");
 					window.savedWindowRect = newWindowRect;
 					onEffectEndCallback();
 				}
 			} else if (this.maximized) {
-				trace(LOG + "layout maximized");
 				if (!window.maximized) {
-					trace(LOG + "maximizing window");
 					doOnEffectEnd(window, "windowMaximize", function():void {
 						window.savedWindowRect = newWindowRect;
 						onEffectEndCallback();
 					});
 					window.maximize();
 				} else {
-					trace(LOG + "window was already maximized, resetting restore position");
 					window.savedWindowRect = newWindowRect;
 					onEffectEndCallback();
 				}
 			} else if (!this.minimized && window.minimized) {
-				trace(LOG + "restoring minimized window");
 				doOnEffectEnd(window, "windowRestore", function():void {
 					window.callLater(function():void {
-						trace(LOG + "re-applying layout");
 						applyToWindow(canvas, window, onEffectEndCallback);
 					});
 				});
 				window.unMinimize();
 				window.restore();
 			} else if (!this.maximized && window.maximized) {
-				trace(LOG + "restoring maximized window");
 				doOnEffectEnd(window, "windowRestore", function():void {
 					window.callLater(function():void {
-						trace(LOG + "re-applying layout");
 						applyToWindow(canvas, window, onEffectEndCallback);
 					});
 				});
 				window.maximizeRestore();
 				window.restore();
 			} else {
-				trace(LOG + "moving/resizing window");
 				var effect:Parallel = new Parallel();
 				effect.duration = EVENT_DURATION;
 				effect.target = window;
@@ -219,7 +209,6 @@ package org.bigbluebutton.modules.layout.model {
 				if (effect.children.length > 0) {
 					window.addEventListener(EffectEvent.EFFECT_END, function(e:EffectEvent):void {
 						e.currentTarget.removeEventListener(e.type, arguments.callee);
-						trace(LOG + "finished moving effect on window " + type);
 						onEffectEndCallback();
 					});
 					
@@ -232,17 +221,15 @@ package org.bigbluebutton.modules.layout.model {
 		
 		private function doOnEffectEnd(window:MDIWindow, eventType:String, onEffectEndCallback:Function):void {
 			window.windowManager.addEventListener(EffectEvent.EFFECT_END, function(e:EffectEvent):void {
-				trace(LOG + e.type);
 				try {
 					var obj:Object = (e as Object);
 					var windows:Array = obj.windows;
 					if (obj.mdiEventType == eventType && windows.indexOf(window) != -1) {
 						e.currentTarget.removeEventListener(e.type, arguments.callee);
-						trace(LOG + "event " + eventType + " occurred on the desired window, calling callback");
 						onEffectEndCallback();
 					}
 				} catch (e:Error) {
-					trace(LOG + e.toString());
+					LOGGER.debug(e.toString());
 				}
 			});
 		}

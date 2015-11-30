@@ -155,7 +155,7 @@
 
 			private function sendPatch():void {
 				var clientText:String = new String(richTextEditor.htmlText); // a snapshot of the client text
-//				trace("SEND PATCH" + clientText + "::" + _document);
+//				LOGGER.debug("SEND PATCH" + clientText + "::" + _document);
 				if (_document != clientText) {
 					richTextEditor.textArea.editable = false;
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
@@ -168,14 +168,14 @@
 			}
 
 			private function receivePatch(e:ReceivePatchEvent):void {
-//				trace("SharedNotesWindow: patch received");
-//				trace("=====\n" + e.patch + "\n=====");
+//				LOGGER.debug("SharedNotesWindow: patch received");
+//				LOGGER.debug("=====\n" + e.patch + "\n=====");
 				if (e.patch != "" && e.noteId==noteId) {
 					var result:String = DiffPatch.patch(e.patch, _document);
-//					trace("SharedNotesWindow: before the patch\n" + _document);
-//					trace("SharedNotesWindow: after the patch\n" + result);
+//					LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
+//					LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
 					_document = result;
-//					trace("SharedNotes: patching local with server modifications");
+//					LOGGER.debug("SharedNotes: patching local with server modifications");
 					richTextEditor.patch(e.patch);
 				}
 			}

@@ -96,12 +96,11 @@ object Constants {
   val VIEWER_PASS = "viewer_pass"
   val CREATE_TIME = "create_time"
   val CREATE_DATE = "create_date"
-  val STREAM_PATH = "stream_path"
-  val STREAM_PATH_DEFAULT = "stream_path_default"
   val GUEST = "guest"
   val WAITING_FOR_ACCEPTANCE = "waiting_for_acceptance"
   val GUEST_POLICY = "guest_policy"
   val GUESTS_WAITING = "guests_waiting"
   val NOTE_ID = "note_id"
   val NOTES = "notes"
+  val PATCH = "patch"
 }
