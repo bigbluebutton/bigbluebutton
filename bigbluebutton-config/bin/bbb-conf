@@ -1545,21 +1545,15 @@ if [ -n "$HOST" ]; then
 		change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml $redis_host playback_host $HOST
 	fi
 
-	echo -n "Assigning $HOST for playback of recordings: "
-
-	TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
-	BASE=/var/bigbluebutton/recording
-        for type in $TYPES; do
-                for metadata in $(find $BASE/publish/$type -name metadata.xml); do
-			echo -n "."
-			sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
-                done
+        echo -n "Assigning $HOST for playback of recordings: "
+        for metadata in $(find /var/bigbluebutton/published -name metadata.xml); do
+                echo -n "."
+                sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
         done
-        for type in $TYPES; do
-                for metadata in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
-			echo -n "."
-			sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
-                done
+
+        for metadata in $(find /var/bigbluebutton/unpublished -name metadata.xml); do
+                echo -n "."
+                sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
         done
 	echo 
 

@@ -76,36 +76,8 @@
       height: 55px;
     }
     border-bottom: 1px solid grey;
-    p:first-child {
+    p {
       text-align: center;
-    }
-    p:nth-child(2) {
-      float: right;
-      text-align: right;
-      .closeSettings {
-        @media @desktop-portrait, @desktop-landscape {
-          font-size: 30px;
-        }
-        @media @phone-landscape {
-          font-size: 30px;
-          top: 2px;
-          right: 10px;
-        }
-        @media @tablet-landscape {
-          font-size: 33px;
-          right: 15px;
-        }
-        @media @phone-portrait-with-keyboard, @phone-portrait {
-          font-size: 45px;
-          top: 2px;
-          right: 10px;
-        }
-        @media @tablet-portrait-with-keyboard, @tablet-portrait {
-          font-size: 350%;
-          top: 0;
-          right: 20px;
-        }
-      }
     }
   }
   .bottomBar {
@@ -126,29 +98,6 @@
     @media @desktop-portrait, @desktop-landscape {
       height: 55px;
     }
-    .closeSettings {
-      @media @desktop-portrait, @desktop-landscape {
-        font-size: 16px;
-      }
-      @media @phone-landscape {
-        font-size: 16px;
-        margin-right: 10px;
-      }
-      @media @tablet-landscape {
-        font-size: 20px;
-        margin-right: 5px;
-      }
-      @media @phone-portrait-with-keyboard, @phone-portrait {
-        font-size: 25px;
-        margin-right: 5px; // margin between the Cancel and Save buttons
-      }
-      @media @tablet-portrait-with-keyboard, @tablet-portrait {
-        font-size: 30px;
-        margin-right: 10px; // margin between the Cancel and Save buttons
-      }
-      position: inherit;
-    }
-
   }
   .settingsBody {
     padding-top: 1px;
@@ -221,9 +170,13 @@
   margin-bottom: 0;
   margin-left: auto;
   margin-right: auto;
-
-  width: calc(~'100% - 20px');
   padding: 0px;
+  width: calc(~'100% - 20px');
+
+  #audioButtonContainer {
+    height: @settingsSectionHeight;
+  }
+
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     height: 30%;
     .settingsButton {
@@ -252,15 +205,15 @@
     }
   }
 }
-#saveSettings {
+#closeSettings {
   border-radius: 3px;
   padding: 5px 10px 5px 10px;
 
   @media @desktop-portrait, @desktop-landscape {
-    margin-top: 5px;
     font-size: 16px;
     width: 80px;
     height: 35px;
+    margin-bottom: 0px; // overrides the value from Foundation
   }
   @media @phone-landscape {
     font-size: 20px;

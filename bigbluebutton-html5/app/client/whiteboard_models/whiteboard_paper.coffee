@@ -224,11 +224,17 @@ class Meteor.WhiteboardPaperModel
 
   # Update the dimensions of the container.
   _updateContainerDimensions: ->
-    #console.log "update Container Dimensions"
-
     $container = $('#whiteboard-paper')
-    @containerWidth = $container.innerWidth()
-    @containerHeight = $container.innerHeight()
+
+    containerDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
+    if($container.innerWidth() is 0)
+      @containerWidth = containerDimensions.boardWidth
+    else
+      @containerWidth = $container.innerWidth()
+    if($container.innerHeight() is 0)
+      @containerHeight = containerDimensions.boardHeight
+    else
+      @containerHeight = $container.innerHeight()
 
     @containerOffsetLeft = $container.offset()?.left
     @containerOffsetTop = $container.offset()?.top
@@ -307,11 +313,6 @@ class Meteor.WhiteboardPaperModel
     boardHeight = @containerHeight
 
     currentSlide = getCurrentSlideDoc()
-
-    # TODO currentSlide undefined in some cases - will check later why
-    imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
-    imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or boardHeight
-
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})

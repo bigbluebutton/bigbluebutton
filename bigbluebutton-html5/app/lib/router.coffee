@@ -4,10 +4,13 @@
   # this is how we handle login attempts
   @route "main",
     path: "/html5client/:meeting_id/:user_id/:auth_token"
+    where: "client"
     onBeforeAction: ->
       meetingId = @params.meeting_id
       userId = @params.user_id
       authToken = @params.auth_token
+
+      setInSession("loginUrl", @originalUrl)
 
       # catch if any of the user's meeting data is invalid
       if not authToken? or not meetingId? or not userId?
@@ -31,6 +34,7 @@
   # the user successfully logged in
   @route "signedin",
     path: "/html5client"
+    where: "client"
     action: ->
       meetingId = getInSession "meetingId"
       userId = getInSession "userId"
@@ -38,15 +42,15 @@
 
       onErrorFunction = (error, result) ->
         console.log "ONERRORFUNCTION"
-        #if error
-        #  # Was unable to authorize the user. Redirect to the home page
-        #  # alert error.reason
 
         #make sure the user is not let through
         Meteor.call("userLogout", meetingId, userId, authToken)
 
-        clearSessionVar (alert "Please sign in again")
-        document.location = getInSession('logoutURL') or '/'
+        clearSessionVar()
+
+        # Attempt to log back in
+        unless error?
+          window.location.href = getInSession('loginUrl') or getInSession('logoutURL')
         return
 
       Meteor.subscribe 'chat', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
@@ -57,7 +61,8 @@
                 Meteor.subscribe 'users', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
                   Meteor.subscribe 'whiteboard-clean-status', meetingId, onReady: =>
                     Meteor.subscribe 'bbb_poll', meetingId,  userId, authToken, onReady: =>
-                    # done subscribing
+                    # done subscribing, start rendering the client and set default settings
+                    @render('main')
                     onLoadComplete()
 
                     handleLogourUrlError = () ->
@@ -81,7 +86,7 @@
                     a.fail (data, textStatus, errorThrown) ->
                       handleLogourUrlError()
 
-      @render('main')
+      @render('loading')
 
 
   # endpoint - is the html5client running (ready to handle a user)
