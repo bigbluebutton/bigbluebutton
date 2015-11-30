@@ -2,10 +2,7 @@ var callback = function(message){console.log(message);}; // holds the user's cal
 var callICEConnected = false;
 var callPurposefullyEnded = false; // used to determine whether the user ended the call or the call was ended from somewhere else outside
 var callTimeout = null; // function that will run if there is no call established
-var conferenceIdNumber = "1008"; //TODO
-var conferenceUsername = "FreeSWITCH User"; //TODO
 var toDisplayDisconnectCallback = true; // if a call is dropped only display the error the first time
-var voiceBridge = extension = "77054"; //TODO
 var wasCallSuccessful = false; // when the websocket connection is closed this determines whether a call was ever successfully established
 
 // save a copy of the hangup function registered for the verto object

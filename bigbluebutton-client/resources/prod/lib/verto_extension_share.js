@@ -38,17 +38,20 @@ function doshare(on) {
 
 	if (sharedev !== "screen") {
 		console.log("Attempting Screen Capture with non-screen device....");
-		share_call = verto.newCall({
-			destination_number: extension + "-screen",
-			caller_id_name: conferenceUsername + " (Screen)",
-			caller_id_number: conferenceIdNumber + " (screen)",
-			outgoingBandwidth: outgoingBandwidth,
-			incomingBandwidth: incomingBandwidth,
-			useCamera: sharedev,
-			useVideo: true,
-			screenShare: true,
-			dedEnc: false,
-			mirrorInput: false
+
+		BBB.getMyUserInfo(function (retData){
+			share_call = verto.newCall({
+				destination_number: retData.voiceBridge + "-screen",
+				caller_id_name: retData.myUsername + " (Screen)",
+				caller_id_number: retData.myUserID + " (screen)",
+				outgoingBandwidth: outgoingBandwidth,
+				incomingBandwidth: incomingBandwidth,
+				useCamera: sharedev,
+				useVideo: true,
+				screenShare: true,
+				dedEnc: false,
+				mirrorInput: false
+			});
 		});
 		return;
 	}
@@ -62,17 +65,20 @@ function doshare(on) {
 			}
 
 			console.log('screen_constraints', screen_constraints);
-			share_call = verto.newCall({
-				destination_number: extension + "-screen",
-				caller_id_name: conferenceUsername + " (Screen)",
-				caller_id_number: conferenceIdNumber + " (screen)",
-				outgoingBandwidth: outgoingBandwidth,
-				incomingBandwidth: incomingBandwidth,
-				videoParams: screen_constraints.mandatory,
-				useVideo: true,
-				screenShare: true,
-				dedEnc: true,
-				mirrorInput: true
+
+			BBB.getMyUserInfo(function (retData){
+				share_call = verto.newCall({
+					destination_number: retData.voiceBridge + "-screen",
+					caller_id_name: retData.myUsername + " (Screen)",
+					caller_id_number: retData.myUserID + " (screen)",
+					outgoingBandwidth: outgoingBandwidth,
+					incomingBandwidth: incomingBandwidth,
+					videoParams: screen_constraints.mandatory,
+					useVideo: true,
+					screenShare: true,
+					dedEnc: true,
+					mirrorInput: true
+				});
 			});
 		});
 	});
