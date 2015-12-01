@@ -15,19 +15,18 @@
 
 	<!-- A universally unique application identifier. Must be unique across all AIR applications.
 	Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
-	<id>Main</id>
+	<id>com.mconf.mconfmobile</id>
 
 	<!-- Used as the filename for the application. Required. -->
-	<filename>BigBlueButton</filename>
+	<filename>Mconf-Mobile</filename>
 
 	<!-- The name that is displayed in the AIR application installer.
 	May have multiple values for each language. See samples or xsd schema file. Optional. -->
-	<name>BigBlueButton</name>
-
+	<name>Mconf-Mobile</name>
 	<!-- A string value of the format <0-999>.<0-999>.<0-999> that represents application version which can be used to check for application upgrade.
 	Values can also be 1-part or 2-part. It is not necessary to have a 3-part value.
 	An updated version of application must have a versionNumber value higher than the previous version. Required for namespace >= 2.5 . -->
-	<versionNumber>0.1.0</versionNumber>
+	<versionNumber>0.6.8</versionNumber>
 
 	<!-- Whether the application can be launched when the user clicks a link in a web browser. Optional. Default false. -->
 	<allowBrowserInvocation>true</allowBrowserInvocation>
@@ -130,8 +129,19 @@
 	<!-- The icon the system uses for the application. For at least one resolution,
 	specify the path to a PNG file included in the AIR package. Optional. -->
 	<icon>
-		<image48x48>assets/res/drawable-mdpi/ic_launcher.png</image48x48>
-		<image72x72>assets/res/drawable-hdpi/ic_launcher.png</image72x72>
+		<!-- http://help.adobe.com/en_US/air/build/WSfffb011ac560372f2fea1812938a6e463-8000.html#WSfffb011ac560372f-6fd06f0f1293d3b33ea-7ffc -->
+		<image16x16>assets/icons/sizes/icon-16.png</image16x16>
+		<image29x29>assets/icons/sizes/icon-29.png</image29x29>
+		<image32x32>assets/icons/sizes/icon-32.png</image32x32>
+		<image48x48>assets/icons/sizes/icon-48.png</image48x48>
+		<image57x57>assets/icons/sizes/icon-57.png</image57x57>
+		<image72x72>assets/icons/sizes/icon-72.png</image72x72>
+		<image76x76>assets/icons/sizes/icon-76.png</image76x76>
+		<image114x114>assets/icons/sizes/icon-114.png</image114x114>
+		<image120x120>assets/icons/sizes/icon-120.png</image120x120>
+		<image128x128>assets/icons/sizes/icon-128.png</image128x128>
+		<image152x152>assets/icons/sizes/icon-152.png</image152x152>
+		<image512x512>assets/icons/sizes/icon-512.png</image512x512>
 	</icon>
 
 	<!-- Whether the application handles the update when a user double-clicks an update version
@@ -250,6 +260,9 @@
 			    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 			    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 			    
+			    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+			    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>			    
+			    
 			    <application android:enabled="true">
 					<activity android:exported="true">
 					    <intent-filter>
@@ -267,6 +280,13 @@
 					    </intent-filter>
 					    <!-- End Test for URL scheme -->
 					</activity>
+					<service android:name="com.juankpro.ane.localnotif.LocalNotificationIntentService"/>
+                    <receiver android:name="com.juankpro.ane.localnotif.AlarmIntentService" />
+                    <receiver android:name="com.juankpro.ane.localnotif.AlarmRestoreOnBoot" >
+                        <intent-filter>
+                            <action android:name="android.intent.action.BOOT_COMPLETED" />
+                        </intent-filter>
+                    </receiver>
 				</application>
 			</manifest>
 			
@@ -298,4 +318,8 @@
 		</InfoAdditions>
 		<requestedDisplayResolution>high</requestedDisplayResolution>
 	</iPhone>
+	<extensions>
+		<extensionID>com.freshplanet.AirCapabilities</extensionID>
+		<extensionID>com.juankpro.ane.LocalNotification</extensionID>
+	</extensions>
 </application>

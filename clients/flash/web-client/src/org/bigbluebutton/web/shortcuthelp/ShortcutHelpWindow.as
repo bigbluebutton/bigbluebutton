@@ -59,7 +59,7 @@ package org.bigbluebutton.web.shortcuthelp {
 			group.addElement(keyList);
 			
 			addElement(group);
-			
+		
 		}
 		
 		override protected function updateDisplayList(w:Number, h:Number):void {
@@ -79,7 +79,7 @@ package org.bigbluebutton.web.shortcuthelp {
 			updateResources();
 		}
 		
-		public function updateResources():void{
+		public function updateResources():void {
 			this.title = ResourceUtil.getInstance().getString('bbb.shortcuthelp.title');
 			
 			if (titleBarOverlay != null) {

@@ -1,8 +1,8 @@
 package org.bigbluebutton.lib.whiteboard.services {
 	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.util.AnnotationUtil;
 	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
-	import org.bigbluebutton.util.AnnotationUtil;
 	
 	public class WhiteboardMessageReceiver implements IMessageListener {
 		private static var LOG:String = "WhiteboardMessageReciever - ";

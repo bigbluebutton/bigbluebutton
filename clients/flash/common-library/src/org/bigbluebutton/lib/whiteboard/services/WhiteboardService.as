@@ -1,4 +1,5 @@
 package org.bigbluebutton.lib.whiteboard.services {
+	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	public class WhiteboardService implements IWhiteboardService {

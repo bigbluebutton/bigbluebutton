@@ -17,72 +17,53 @@ package org.bigbluebutton.lib.common.utils {
 	public class URLFetcher {
 		protected var _successSignal:Signal = new Signal();
 		
-		protected var _unsuccessSignal:Signal = new Signal();
+		protected var _failureSignal:Signal = new Signal();
 		
 		protected var _urlRequest:URLRequest = null;
 		
-		protected var _responseUrl:String = null;
+		protected var _responseURL:String = null;
 		
-		protected var _httpStatusCode:Number = 0;
+		protected var _userAgent:String = null;
+		
+		public function URLFetcher(userAgent:String = null) {
+			_userAgent = userAgent;
+		}
 		
 		public function get successSignal():ISignal {
 			return _successSignal;
 		}
 		
-		public function get unsuccessSignal():ISignal {
-			return _unsuccessSignal;
+		public function get failureSignal():ISignal {
+			return _failureSignal;
 		}
 		
-		public function fetch(url:String, urlRequest:URLRequest = null, dataFormat:String = URLLoaderDataFormat.TEXT, followRedirect:Boolean = true):void {
+		public function fetch(url:String, urlRequest:URLRequest = null, dataFormat:String = URLLoaderDataFormat.TEXT):void {
 			trace("Fetching " + url);
 			_urlRequest = urlRequest;
 			if (_urlRequest == null) {
 				_urlRequest = new URLRequest();
-				//setUserAgent();
-				_urlRequest.manageCookies = true;
+				if (_userAgent) {
+					_urlRequest.userAgent = _userAgent;
+				}
+				//_urlRequest.manageCookies = true; // only available in AIR, defaults to "true"
+				//_urlRequest.followRedirects = true; // only available in AIR, defaults to "true"
 				_urlRequest.method = URLRequestMethod.GET;
 			}
-			_urlRequest.followRedirects = followRedirect;
-			_urlRequest.url = url;
+			_urlRequest.url = _responseURL = url;
 			var urlLoader:URLLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
 			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-			urlLoader.addEventListener(HTTPStatusEvent.HTTP_RESPONSE_STATUS, httpResponseStatusHandler);
+			if (HTTPStatusEvent.HTTP_RESPONSE_STATUS) { // only available in AIR, see http://stackoverflow.com/questions/2277650/unable-to-get-http-response-code-headers-in-actionscript-3
+				urlLoader.addEventListener(HTTPStatusEvent.HTTP_RESPONSE_STATUS, httpResponseStatusHandler);
+			}
 			urlLoader.dataFormat = dataFormat;
 			urlLoader.load(_urlRequest);
 		}
 		
-	/*	private function setUserAgent():void {
-			// AirCapabilities ANE to get the device information
-			var airCap:AirCapabilities = new AirCapabilities();
-			var deviceName:String = airCap.getMachineName();
-			if (deviceName != "") {
-				// include device name in the user agent looking for the first ")" character as follows:
-				// Mozilla/5.0 (Android; U; pt-BR<; DEVICE NAME>) AppleWebKit/533.19.4 (KHTML, like Gecko) AdobeAIR/16.0
-				var userAgent:Array = _urlRequest.userAgent.split(")");
-				userAgent[0] += "; " + deviceName;
-				_urlRequest.userAgent = userAgent.join(")");
-			}
-			var OSVersion:String = airCap.getOSVersion();
-			if (OSVersion != "") {
-				// include os version in the user agent looking for the first ";" character as follows:
-				// Mozilla/5.0 (Android< OSVERSION>; U; pt-BR) AppleWebKit/533.19.4 (KHTML, like Gecko) AdobeAIR/16.0
-				var userAgent:Array = _urlRequest.userAgent.split(";");
-				userAgent[0] += " " + OSVersion;
-				_urlRequest.userAgent = userAgent.join(";");
-			}
-			var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
-			var ns:Namespace = appXML.namespace();
-			// append client name and version to the end of the user agent
-			_urlRequest.userAgent += " " + appXML.ns::name + "/" + appXML.ns::versionNumber;
-			trace(_urlRequest.userAgent);
-		} */
-		
 		private function httpResponseStatusHandler(e:HTTPStatusEvent):void {
-			_responseUrl = e.responseURL;
-			_httpStatusCode = e.status;
-			trace("Redirected to " + _responseUrl);
+			_responseURL = e.responseURL;
+			trace("Redirected to " + _responseURL);
 		}
 		
 		private function httpStatusHandler(e:HTTPStatusEvent):void {
@@ -90,13 +71,12 @@ package org.bigbluebutton.lib.common.utils {
 		}
 		
 		private function handleComplete(e:Event):void {
-			successSignal.dispatch(e.target.data, _responseUrl, _urlRequest, _httpStatusCode);
+			successSignal.dispatch(e.target.data, _responseURL, _urlRequest);
 		}
 		
 		private function ioErrorHandler(e:IOErrorEvent):void {
 			trace(ObjectUtil.toString(e));
-			unsuccessSignal.dispatch(e.text);
+			failureSignal.dispatch(e.text);
 		}
 	}
 }
-

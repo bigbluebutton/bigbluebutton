@@ -9,20 +9,20 @@ package org.bigbluebutton.lib.main.services {
 	public class EnterService {
 		protected var _successSignal:Signal = new Signal();
 		
-		protected var _unsuccessSignal:Signal = new Signal();
+		protected var _failureSignal:Signal = new Signal();
 		
 		public function get successSignal():ISignal {
 			return _successSignal;
 		}
 		
-		public function get unsuccessSignal():ISignal {
-			return _unsuccessSignal;
+		public function get failureSignal():ISignal {
+			return _failureSignal;
 		}
 		
 		public function enter(enterUrl:String, urlRequest:URLRequest):void {
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
-			fetcher.unsuccessSignal.add(onUnsuccess);
+			fetcher.failureSignal.add(onUnsuccess);
 			fetcher.fetch(enterUrl, urlRequest);
 		}
 		
@@ -32,7 +32,7 @@ package org.bigbluebutton.lib.main.services {
 		}
 		
 		protected function onUnsuccess(reason:String):void {
-			unsuccessSignal.dispatch(reason);
+			failureSignal.dispatch(reason);
 		}
 	}
 }

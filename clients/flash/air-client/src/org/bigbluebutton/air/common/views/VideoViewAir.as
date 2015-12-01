@@ -1,12 +1,12 @@
-package org.bigbluebutton.air.common.views
-{
+package org.bigbluebutton.air.common.views {
 	import flash.media.Video;
 	import flash.net.NetConnection;
+	import flash.system.Capabilities;
+	
 	import org.bigbluebutton.lib.common.views.VideoView;
 	
-
-	public class VideoViewAir extends VideoView
-	{
+	
+	public class VideoViewAir extends VideoView {
 		protected var aspectRatio:Number = 0;
 		
 		protected var originalVideoWidth:Number;
@@ -21,7 +21,14 @@ package org.bigbluebutton.air.common.views
 		
 		protected var bottomMenuBarHeight:Number;
 		
-		public function initializeScreenSizeValues( originalVideoWidth0:Number, originalVideoHeight0:Number, screenHeight0:Number, screenWidth0:Number, topMenuBarHeight0:Number, bottomMenuBarHeight0:Number):void {
+		override public function startStream(connection:NetConnection, name:String, streamName:String, userID:String):void {
+			if (connection.uri.indexOf("/video/") != -1 && Capabilities.version.indexOf("IOS") >= 0) {
+				streamName = "h263/" + streamName;
+			}
+			super.startStream(connection, name, streamName, userID);
+		}
+		
+		public function initializeScreenSizeValues(originalVideoWidth0:Number, originalVideoHeight0:Number, screenHeight0:Number, screenWidth0:Number, topMenuBarHeight0:Number, bottomMenuBarHeight0:Number):void {
 			this.screenHeight = screenHeight0;
 			this.screenWidth = screenWidth0;
 			this.topMenuBarHeight = topMenuBarHeight0;

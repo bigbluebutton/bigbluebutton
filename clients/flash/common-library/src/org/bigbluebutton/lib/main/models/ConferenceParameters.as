@@ -93,6 +93,8 @@ package org.bigbluebutton.lib.main.models {
 		
 		private var _serverIsMconf:Boolean;
 		
+		private var _avatarUrl:String;
+		
 		public function ConferenceParameters(signal:Signal = null) {
 			if (signal) {
 				_changedSignal = signal;
@@ -282,10 +284,10 @@ package org.bigbluebutton.lib.main.models {
 		}
 		
 		public function load(obj:Object):void {
-			_meetingName = obj.confname;
+			_meetingName = obj.conferenceName;
 			_externMeetingID = obj.externMeetingID;
 			_conference = obj.conference;
-			_username = obj.fullname;
+			_username = obj.username;
 			_role = obj.role;
 			_room = obj.room;
 			_webvoiceconf = obj.webvoiceconf;
@@ -293,11 +295,12 @@ package org.bigbluebutton.lib.main.models {
 			_welcome = obj.welcome;
 			_meetingID = obj.meetingID;
 			_externUserID = obj.externUserID;
-			_internalUserID = obj.internalUserID;
+			_internalUserID = obj.internalUserId;
 			_logoutUrl = obj.logoutUrl;
 			_record = !(obj.record == "false");
 			_guest = (obj.guest == "true");
 			_serverIsMconf = (obj.guest) ? true : false;
+			_avatarUrl = obj.avatarURL;
 			_guestDefined = (obj.guest != undefined);
 			_authToken = obj.authToken;
 			_changedSignal.dispatch();
@@ -324,6 +327,14 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get muteOnStart():Boolean {
 			return _muteOnStart;
+		}
+		
+		public function get avatarUrl():String {
+			return _avatarUrl;
+		}
+		
+		public function set avatarUrl(value:String):void {
+			_avatarUrl = value;
 		}
 	}
 }

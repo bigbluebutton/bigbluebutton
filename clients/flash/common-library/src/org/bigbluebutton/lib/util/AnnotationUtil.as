@@ -1,4 +1,12 @@
-package org.bigbluebutton.util {
+package org.bigbluebutton.lib.util {
+	import org.bigbluebutton.lib.whiteboard.models.AnnotationType;
+	import org.bigbluebutton.lib.whiteboard.models.EllipseAnnotation;
+	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
+	import org.bigbluebutton.lib.whiteboard.models.LineAnnotation;
+	import org.bigbluebutton.lib.whiteboard.models.PencilAnnotation;
+	import org.bigbluebutton.lib.whiteboard.models.RectangleAnnotation;
+	import org.bigbluebutton.lib.whiteboard.models.TextAnnotation;
+	import org.bigbluebutton.lib.whiteboard.models.TriangleAnnotation;
 	
 	public class AnnotationUtil {
 		public static function createAnnotation(an:Object):IAnnotation {

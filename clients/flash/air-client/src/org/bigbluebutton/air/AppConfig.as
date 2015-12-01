@@ -3,6 +3,7 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.air.main.commands.AuthenticationCommandAIR;
 	import org.bigbluebutton.air.main.commands.ConnectingFinishedCommandAIR;
 	import org.bigbluebutton.air.main.commands.DisconnectUserCommandAIR;
+	import org.bigbluebutton.air.main.commands.GuestWaitingForApprovalCommandAIR;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.main.models.UserUISession;
 	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
@@ -17,10 +18,17 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.deskshare.services.DeskshareConnection;
 	import org.bigbluebutton.lib.deskshare.services.IDeskshareConnection;
 	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
+	import org.bigbluebutton.lib.main.commands.ChangeRoleCommand;
+	import org.bigbluebutton.lib.main.commands.ChangeRoleSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectCommand;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFinishedSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.lib.main.commands.GuestWaitingForApprovalSignal;
+	import org.bigbluebutton.lib.main.commands.LockUserCommand;
+	import org.bigbluebutton.lib.main.commands.LockUserSignal;
+	import org.bigbluebutton.lib.main.commands.PresenterCommand;
+	import org.bigbluebutton.lib.main.commands.PresenterSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -44,8 +52,11 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
+	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
+	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
+	import robotlegs.bender.extensions.signalCommandMap.impl.SignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
 	
@@ -77,12 +88,18 @@ package org.bigbluebutton.air {
 			injector.map(IVideoConnection).toType(VideoConnection);
 			// Signal to Command mapping
 			signalCommandMap.map(ConnectSignal).toCommand(ConnectCommand);
-			signalCommandMap.map(AuthenticationSignal).toCommand(AuthenticationCommand);
+			signalCommandMap.map(AuthenticationSignal).toCommand(AuthenticationCommandAIR);
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
 			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
 			signalCommandMap.map(LoadSlideSignal).toCommand(LoadSlideCommand);
 			signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
-			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommand);
+			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
+			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandAIR);
+			signalCommandMap.map(GuestWaitingForApprovalSignal).toCommand(GuestWaitingForApprovalCommandAIR);
+			signalCommandMap.map(PresenterSignal).toCommand(PresenterCommand);
+			signalCommandMap.map(ChangeRoleSignal).toCommand(ChangeRoleCommand);
+			signalCommandMap.map(LockUserSignal).toCommand(LockUserCommand);
+			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommandAIR);
 		}
 	}
 }

@@ -3,7 +3,11 @@ package org.bigbluebutton.lib.whiteboard.models {
 	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
+	
 	import flashx.textLayout.formats.VerticalAlign;
+	
+	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
+	
 	import spark.components.RichText;
 	
 	public class TextAnnotation implements IAnnotation {

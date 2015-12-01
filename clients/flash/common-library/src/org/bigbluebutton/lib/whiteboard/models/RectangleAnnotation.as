@@ -1,6 +1,9 @@
 package org.bigbluebutton.lib.whiteboard.models {
 	
 	import mx.graphics.SolidColorStroke;
+	
+	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
+	
 	import spark.primitives.Rect;
 	
 	public class RectangleAnnotation extends Annotation {

@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <common:NoTabView xmlns:fx="http://ns.adobe.com/mxml/2009"
-				xmlns:s="library://ns.adobe.com/flex/spark"
-				xmlns:mx="library://ns.adobe.com/flex/mx"
-				xmlns:common="org.bigbluebutton.air.common.views.*">
+				  xmlns:s="library://ns.adobe.com/flex/spark"
+				  xmlns:mx="library://ns.adobe.com/flex/mx"
+				  xmlns:common="org.bigbluebutton.air.common.views.*"
+				  xmlns:whiteboard="org.bigbluebutton.lib.whiteboard.views.*">
 
-	<s:Group id="content"
+	<s:Group id="content0"
 			 width="100%"
 			 height="100%">
 		<s:layout>
-			<s:VerticalLayout />
+			<s:VerticalLayout horizontalAlign="center"
+							  verticalAlign="middle" />
 		</s:layout>
-		<s:SWFLoader id="slide"
-					 width="100%"
-					 height="100%" />
+		<s:Group id="viewport0"
+				 clipAndEnableScrolling="true"
+				 width="100%"
+				 height="100%">
+			<s:layout>
+				<s:BasicLayout />
+			</s:layout>
+
+			<s:SWFLoader id="slide0"
+						 scaleContent="true"
+						 width="100%"
+						 height="100%" />
+			<whiteboard:WhiteboardCanvas id="whiteboardCanvas0" />
+		</s:Group>
 	</s:Group>
 </common:NoTabView>

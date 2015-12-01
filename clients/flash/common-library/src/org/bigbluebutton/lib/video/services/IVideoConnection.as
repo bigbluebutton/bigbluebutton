@@ -7,8 +7,8 @@ package org.bigbluebutton.lib.video.services {
 	import org.osflash.signals.ISignal;
 	
 	public interface IVideoConnection {
-		function get unsuccessConnected():ISignal
-		function get successConnected():ISignal
+		function get connectionFailureSignal():ISignal
+		function get connectionSuccessSignal():ISignal
 		function set uri(uri:String):void
 		function get uri():String
 		function get connection():NetConnection
@@ -23,7 +23,9 @@ package org.bigbluebutton.lib.video.services {
 		function connect():void
 		function disconnect(onUserCommand:Boolean):void
 		function startPublishing(camera:Camera, streamName:String):void
-		function stopPublishing():void
+		function getStreamNameForCamera(camera:Camera):String;
+		function stopPublishing(camera:Camera):void
+		function stopAllPublishing():void;
 		function selectCameraQuality(profile:VideoProfile):void
 	}
 }

@@ -5,7 +5,7 @@ package org.bigbluebutton.lib.presentation.commands {
 	
 	public class LoadSlideSignal extends Signal {
 		public function LoadSlideSignal() {
-			super(Slide);
+			super(Slide, String);
 		}
 	}
 }

@@ -9,30 +9,30 @@ package org.bigbluebutton.lib.main.services {
 	public class ConfigService {
 		protected var _successSignal:Signal = new Signal();
 		
-		protected var _unsuccessSignal:Signal = new Signal();
+		protected var _failureSignal:Signal = new Signal();
 		
 		public function get successSignal():ISignal {
 			return _successSignal;
 		}
 		
-		public function get unsuccessSignal():ISignal {
-			return _unsuccessSignal;
+		public function get failureSignal():ISignal {
+			return _failureSignal;
 		}
 		
 		public function getConfig(serverUrl:String, urlRequest:URLRequest):void {
 			var configUrl:String = serverUrl + "/bigbluebutton/api/configXML?a=" + new Date().time;
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
-			fetcher.unsuccessSignal.add(onUnsuccess);
+			fetcher.failureSignal.add(onUnsuccess);
 			fetcher.fetch(configUrl, urlRequest);
 		}
 		
-		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number):void {
+		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 0):void {
 			successSignal.dispatch(new XML(data));
 		}
 		
 		protected function onUnsuccess(reason:String):void {
-			unsuccessSignal.dispatch(reason);
+			failureSignal.dispatch(reason);
 		}
 	}
 }

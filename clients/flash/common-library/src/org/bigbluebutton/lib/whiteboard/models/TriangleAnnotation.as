@@ -2,9 +2,10 @@ package org.bigbluebutton.lib.whiteboard.models {
 	
 	import mx.graphics.SolidColorStroke;
 	
+	import org.bigbluebutton.lib.util.Triangle;
 	import org.bigbluebutton.lib.whiteboard.models.Annotation;
 	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
-	import org.bigbluebutton.util.Triangle;
+	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
 	
 	public class TriangleAnnotation extends Annotation {
 		private var _thickness:Number = 1;

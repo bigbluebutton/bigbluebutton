@@ -4,24 +4,26 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.commands.JoinMeetingCommandAIR;
 	import org.bigbluebutton.air.main.commands.NavigateToCommand;
 	import org.bigbluebutton.air.main.commands.NavigateToSignal;
-	import org.bigbluebutton.air.main.views.DisconnectPageViewMediator;
-	import org.bigbluebutton.air.main.views.IDisconnectPageView;
-	import org.bigbluebutton.air.main.views.ILoadingScreen;
-	import org.bigbluebutton.air.main.views.ILoginPageView;
-	import org.bigbluebutton.air.main.views.IMenuButtonsView;
-	import org.bigbluebutton.air.main.views.INavigationButton;
-	import org.bigbluebutton.air.main.views.IPagesNavigatorView;
-	import org.bigbluebutton.air.main.views.IProfileView;
-	import org.bigbluebutton.air.main.views.IRecordingStatus;
-	import org.bigbluebutton.air.main.views.LoadingScreenMediator;
-	import org.bigbluebutton.air.main.views.LoginPageViewMediator;
-	import org.bigbluebutton.air.main.views.MenuButtonsViewMediator;
-	import org.bigbluebutton.air.main.views.NavigationButtonMediator;
-	import org.bigbluebutton.air.main.views.PagesNavigatorViewMediator;
-	import org.bigbluebutton.air.main.views.ProfileViewMediator;
-	import org.bigbluebutton.air.main.views.RecordingStatusMediator;
+	import org.bigbluebutton.air.main.views.disconnectpage.DisconnectPageViewMediator;
+	import org.bigbluebutton.air.main.views.disconnectpage.IDisconnectPageView;
+	import org.bigbluebutton.air.main.views.ui.loadingscreen.ILoadingScreen;
+	import org.bigbluebutton.air.main.views.ui.loadingscreen.LoadingScreenMediator;
+	import org.bigbluebutton.air.main.views.loginpage.ILoginPageView;
+	import org.bigbluebutton.air.main.views.loginpage.LoginPageViewMediator;
+	import org.bigbluebutton.air.main.views.menubuttons.IMenuButtonsView;
+	import org.bigbluebutton.air.main.views.menubuttons.MenuButtonsViewMediator;
+	import org.bigbluebutton.air.main.views.ui.navigationbutton.INavigationButton;
+	import org.bigbluebutton.air.main.views.ui.navigationbutton.NavigationButtonMediator;
+	import org.bigbluebutton.air.main.views.pagesnavigator.IPagesNavigatorView;
+	import org.bigbluebutton.air.main.views.pagesnavigator.PagesNavigatorViewMediator;
+	import org.bigbluebutton.air.main.views.profile.IProfileView;
+	import org.bigbluebutton.air.main.views.profile.ProfileViewMediator;
+	import org.bigbluebutton.air.main.views.ui.recordingstatus.IRecordingStatus;
+	import org.bigbluebutton.air.main.views.ui.recordingstatus.RecordingStatusMediator;
 	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
+	import org.bigbluebutton.lib.main.commands.MoodCommand;
+	import org.bigbluebutton.lib.main.commands.MoodSignal;
 	import org.bigbluebutton.lib.main.commands.RaiseHandCommand;
 	import org.bigbluebutton.lib.main.commands.RaiseHandSignal;
 	
@@ -77,6 +79,7 @@ package org.bigbluebutton.air.main {
 			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommandAIR);
 			signalCommandMap.map(RaiseHandSignal).toCommand(RaiseHandCommand);
 			signalCommandMap.map(NavigateToSignal).toCommand(NavigateToCommand);
+			signalCommandMap.map(MoodSignal).toCommand(MoodCommand);
 		}
 	}
 }

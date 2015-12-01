@@ -1,4 +1,5 @@
 package org.bigbluebutton.lib.whiteboard.models {
+	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
 	
 	public class Annotation implements IAnnotation {
 		private var _type:String = "undefined";

@@ -14,10 +14,6 @@ package org.bigbluebutton.lib.main.models {
 	import org.osflash.signals.Signal;
 	
 	public interface IUserSession {
-		function get phoneAutoJoin():Boolean;
-		function set phoneAutoJoin(value:Boolean):void;
-		function get phoneSkipCheck():Boolean;
-		function set phoneSkipCheck(value:Boolean):void;
 		function get videoAutoStart():Boolean;
 		function set videoAutoStart(value:Boolean):void;
 		function get skipCamSettingsCheck():Boolean;
@@ -28,6 +24,8 @@ package org.bigbluebutton.lib.main.models {
 		function set userId(value:String):void;
 		function get userList():UserList;
 		function set userList(userList:UserList):void;
+		function get phoneOptions():PhoneOptions;
+		function set phoneOptions(value:PhoneOptions):void;
 		function get guestList():UserList;
 		function set guestList(userList:UserList):void;
 		function get voiceConnection():IVoiceConnection;
@@ -44,7 +42,7 @@ package org.bigbluebutton.lib.main.models {
 		function get guestPolicySignal():ISignal;
 		function get guestEntranceSignal():ISignal;
 		function get successJoiningMeetingSignal():ISignal;
-		function get unsuccessJoiningMeetingSignal():ISignal;
+		function get failureJoiningMeetingSignal():ISignal;
 		function get loadedMessageHistorySignal():ISignal;
 		function get assignedDeskshareSignal():ISignal;
 		function get logoutSignal():Signal;

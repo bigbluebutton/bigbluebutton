@@ -81,7 +81,6 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		private function handleGetPresentationInfoReply(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			trace("++ all the presentations: " + ObjectUtil.toString(msg));
 			if (msg.presentations) {
 				for (var i:int = 0; i < msg.presentations.length; i++) {
 					addPresentation(msg.presentations[i]);
@@ -91,38 +90,36 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		private function handleGoToSlideCallback(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			trace("++ asd: " + ObjectUtil.toString(msg));
 			trace("PresentMessageReceiver::handleGoToSlideCallback() -- going to slide number [" + msg.num + "]");
 			userSession.presentationList.currentPresentation.currentSlideNum = int(msg.num);
-			trace("++ am I at a new slide?");
 		}
 		
 		private function handleMoveCallback(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace("PresentMessageReceiver::handleMoveCallback()");
 			userSession.presentationList.setViewedRegion(msg.xOffset, msg.yOffset, msg.widthRatio, msg.heightRatio);
-			/* Properties of msg:
-			current
-			heightRatio
-			id
-			num
-			pngUri
-			swfUri
-			thumbUri
-			txtUri
-			widthRatio
-			xOffset
-			yOffset
-			/*
-			
-			/*
-			var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
-			e.xOffset = xOffset;
-			e.yOffset = yOffset;
-			e.slideToCanvasWidthRatio = widthRatio;
-			e.slideToCanvasHeightRatio = heightRatio;
-			dispatcher.dispatchEvent(e);
-			*/
+		/* Properties of msg:
+		   current
+		   heightRatio
+		   id
+		   num
+		   pngUri
+		   swfUri
+		   thumbUri
+		   txtUri
+		   widthRatio
+		   xOffset
+		   yOffset
+		   /*
+		
+		   /*
+		   var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
+		   e.xOffset = xOffset;
+		   e.yOffset = yOffset;
+		   e.slideToCanvasWidthRatio = widthRatio;
+		   e.slideToCanvasHeightRatio = heightRatio;
+		   dispatcher.dispatchEvent(e);
+		 */
 		}
 		
 		private function handlePresentationCursorUpdateCommand(m:Object):void {
@@ -148,26 +145,25 @@ package org.bigbluebutton.lib.presentation.services {
 		
 		public function handlePageCountExceededUpdateMessageCallback(m:Object):void {
 			trace("PresentMessageReceiver::handlePageCountExceededUpdateMessageCallback()");
-			/*
-			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
-			uploadEvent.maximumSupportedNumberOfSlides = maxNumberOfPages;
-			dispatcher.dispatchEvent(uploadEvent);
-			*/
+		/*
+		   var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.PAGE_COUNT_EXCEEDED);
+		   uploadEvent.maximumSupportedNumberOfSlides = maxNumberOfPages;
+		   dispatcher.dispatchEvent(uploadEvent);
+		 */
 		}
 		
 		public function handleGeneratedSlideUpdateMessageCallback(m:Object):void {
 			trace("PresentMessageReceiver::handleGeneratedSlideUpdateMessageCallback()");
-			/*
-			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
-			uploadEvent.totalSlides = numberOfPages;
-			uploadEvent.completedSlides = pagesCompleted;
-			dispatcher.dispatchEvent(uploadEvent);
-			*/
+		/*
+		   var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_UPDATE);
+		   uploadEvent.totalSlides = numberOfPages;
+		   uploadEvent.completedSlides = pagesCompleted;
+		   dispatcher.dispatchEvent(uploadEvent);
+		 */
 		}
 		
 		public function handleConversionCompletedUpdateMessageCallback(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			trace("++ my message is... " + ObjectUtil.toString(msg));
 			trace("PresentMessageReceiver::handleConversionCompletedUpdateMessageCallback() -- new presentation [" + msg.presentation.name + "] uploaded");
 			addPresentation(msg.presentation);
 		}
@@ -179,9 +175,9 @@ package org.bigbluebutton.lib.presentation.services {
 			// Add all the slides to the presentation:
 			for (var i:int = 0; i < length; i++) {
 				var s:Object = presentationObject.pages[i];
-				if(s.swfUri){
+				if (s.swfUri) {
 					presentation.add(new Slide(s.num, s.swfUri, s.thumbUri, s.txtUri, s.current, s.xOffset, s.yOffset, s.widthRatio, s.heightRatio));
-				} else if(s.swf_uri) {
+				} else if (s.swf_uri) {
 					presentation.add(new Slide(s.num, s.swf_uri, s.thumb_uri, s.txt_uri, s.current, s.x_offset, s.y_offset, s.width_ratio, s.height_ratio));
 				}
 			}

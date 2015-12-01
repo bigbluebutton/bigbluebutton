@@ -30,7 +30,6 @@ package org.bigbluebutton.web.video {
 		 * application.
 		 */
 		private function dependencies():void {
-			//injector.map(IChatMessageService).toSingleton(ChatMessageService);
 		}
 		
 		/**
@@ -44,7 +43,7 @@ package org.bigbluebutton.web.video {
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			
+		
 		}
 	}
 }

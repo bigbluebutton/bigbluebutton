@@ -32,7 +32,6 @@ package org.bigbluebutton.web.toolbar.micbutton.audioselectionwindow {
 		 * application.
 		 */
 		private function dependencies():void {
-			//injector.map(IChatMessageService).toSingleton(ChatMessageService);
 		}
 		
 		/**

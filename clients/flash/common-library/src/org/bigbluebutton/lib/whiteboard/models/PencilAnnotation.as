@@ -4,6 +4,7 @@ package org.bigbluebutton.lib.whiteboard.models {
 	
 	import org.bigbluebutton.lib.whiteboard.models.Annotation;
 	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
+	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
 	
 	import spark.primitives.Path;
 	

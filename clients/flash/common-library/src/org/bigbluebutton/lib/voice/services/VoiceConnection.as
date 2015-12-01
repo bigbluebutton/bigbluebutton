@@ -9,6 +9,7 @@ package org.bigbluebutton.lib.voice.services {
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -21,11 +22,16 @@ package org.bigbluebutton.lib.voice.services {
 		[Inject]
 		public var userSession:IUserSession;
 		
+		[Inject]
+		public var shareMicrophoneSignal:ShareMicrophoneSignal;
+		
 		public var _callActive:Boolean = false;
 		
 		protected var _connectionSuccessSignal:ISignal = new Signal();
 		
 		protected var _connectionFailureSignal:ISignal = new Signal();
+		
+		protected var _hangUpSuccessSignal:ISignal = new Signal();
 		
 		protected var _applicationURI:String;
 		
@@ -33,14 +39,26 @@ package org.bigbluebutton.lib.voice.services {
 		
 		protected var _conferenceParameters:IConferenceParameters;
 		
+		protected var _listenOnly:Boolean;
+		
 		public function VoiceConnection() {
 		}
 		
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
-			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
+			baseConnection.successConnected.add(onConnectionSuccess);
 			baseConnection.connectionFailureSignal.add(onConnectionFailure);
+			userSession.lockSettings.disableMicSignal.add(disableMic);
+		}
+		
+		private function disableMic(disable:Boolean):void {
+			if (disable && callActive) {
+				var audioOptions:Object = new Object();
+				audioOptions.shareMic = userSession.userList.me.voiceJoined = false;
+				audioOptions.listenOnly = userSession.userList.me.listenOnly = true;
+				shareMicrophoneSignal.dispatch(audioOptions);
+			}
 		}
 		
 		private function onConnectionFailure(reason:String):void {
@@ -48,7 +66,8 @@ package org.bigbluebutton.lib.voice.services {
 		}
 		
 		private function onConnectionSuccess():void {
-			call(userSession.userList.me.listenOnly);
+			userSession.userList.me.listenOnly = _listenOnly;
+			call(_listenOnly);
 		}
 		
 		public function get connectionFailureSignal():ISignal {
@@ -75,9 +94,14 @@ package org.bigbluebutton.lib.voice.services {
 			return _callActive;
 		}
 		
-		public function connect(confParams:IConferenceParameters):void {
+		public function get hangUpSuccessSignal():ISignal {
+			return _hangUpSuccessSignal;
+		}
+		
+		public function connect(confParams:IConferenceParameters, listenOnly:Boolean):void {
 			// we don't use scope in the voice communication (many hours lost on it)
 			_conferenceParameters = confParams;
+			_listenOnly = listenOnly;
 			_username = encodeURIComponent(confParams.externUserID + "-bbbID-" + confParams.username);
 			baseConnection.connect(_applicationURI, confParams.username, _username, confParams.externMeetingID);
 		}
@@ -115,14 +139,7 @@ package org.bigbluebutton.lib.voice.services {
 		public function call(listenOnly:Boolean = false):void {
 			if (!callActive) {
 				trace(LOG + "call(): starting voice call");
-				baseConnection.connection.call(
-					"voiceconf.call",
-					new Responder(onCallSuccess, onCallFailure),
-					"default",
-					_username,
-					_conferenceParameters.webvoiceconf,
-					listenOnly.toString()
-					);
+				baseConnection.connection.call("voiceconf.call", new Responder(onCallSuccess, onCallFailure), "default", _username, _conferenceParameters.webvoiceconf, listenOnly.toString());
 			} else {
 				trace(LOG + "call(): voice call already active");
 			}
@@ -142,11 +159,7 @@ package org.bigbluebutton.lib.voice.services {
 		public function hangUp():void {
 			if (callActive) {
 				trace(LOG + "hangUp(): hanging up the voice call");
-				baseConnection.connection.call(
-					"voiceconf.hangup",
-					new Responder(onHangUpSuccess, onHangUpFailure),
-					"default"
-					);
+				baseConnection.connection.call("voiceconf.hangup", new Responder(onHangUpSuccess, onHangUpFailure), "default");
 			} else {
 				trace(LOG + "hangUp(): call already hung up");
 			}
@@ -155,6 +168,7 @@ package org.bigbluebutton.lib.voice.services {
 		private function onHangUpSuccess(result:Object):void {
 			trace(LOG + "onHangUpSuccess(): " + ObjectUtil.toString(result));
 			_callActive = false;
+			_hangUpSuccessSignal.dispatch();
 		}
 		
 		private function onHangUpFailure(status:Object):void {

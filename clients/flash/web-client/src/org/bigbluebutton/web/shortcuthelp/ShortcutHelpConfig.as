@@ -28,7 +28,6 @@ package org.bigbluebutton.web.shortcuthelp {
 		 * application.
 		 */
 		private function dependencies():void {
-			//injector.map(IChatMessageService).toSingleton(ChatMessageService);
 		}
 		
 		/**
@@ -42,7 +41,7 @@ package org.bigbluebutton.web.shortcuthelp {
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			
+		
 		}
 	}
 }

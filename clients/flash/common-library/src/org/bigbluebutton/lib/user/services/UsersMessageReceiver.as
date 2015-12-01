@@ -167,8 +167,8 @@ package org.bigbluebutton.lib.user.services {
 			userSession.lockSettings.disableCam = msg.disableCam;
 			userSession.lockSettings.disableMic = msg.disableMic;
 			// bbb 1.0 compatibility: different variable names
-			userSession.lockSettings.disablePrivateChat = msg.hasOwnProperty( "disablePrivChat" ) ? msg.disablePrivChat : msg.disablePrivateChat;
-			userSession.lockSettings.disablePublicChat = msg.hasOwnProperty( "disablePubChat" ) ?  msg.disablePubChat : msg.disablePublicChat;
+			userSession.lockSettings.disablePrivateChat = msg.hasOwnProperty("disablePrivChat") ? msg.disablePrivChat : msg.disablePrivateChat;
+			userSession.lockSettings.disablePublicChat = msg.hasOwnProperty("disablePubChat") ? msg.disablePubChat : msg.disablePublicChat;
 			userSession.lockSettings.lockedLayout = msg.lockedLayout;
 			userSession.dispatchLockSettings();
 		}

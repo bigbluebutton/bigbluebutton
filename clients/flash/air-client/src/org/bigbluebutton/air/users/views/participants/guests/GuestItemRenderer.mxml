@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				styleName="participantItemStyle">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.utils.ObjectUtil;
+			
+			private var guestID:String;
+			
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				if (obj) {
+					labelDisplay.text = obj.name;
+					guestID = obj.userID;
+				}
+			}
+			
+			protected function respondGuest(allow:Boolean):void {
+				dispatchEvent(new GuestResponseEvent("guestResponse", guestID, allow, true));
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%"
+			 height="{getStyle('itemHeight')}">
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle"
+								paddingLeft="{getStyle('itemPaddingLeft')}"
+								paddingRight="{getStyle('itemPaddingRight')}" />
+		</s:layout>
+
+		<s:Group width="70%"
+				 textAlign="center">
+			<s:layout>
+				<s:VerticalLayout />
+			</s:layout>
+			<s:Label id="labelDisplay"
+					 width="100%"
+					 height="100%"
+					 styleName="participantNameStyle contentFontSize" />
+		</s:Group>
+
+		<s:Button id="allowButton"
+				  width="20%"
+				  click="respondGuest(true)"
+				  styleName="allowButtonStyle guestResponseButtonStyle" />
+		<mx:Spacer width="3%" />
+		<s:Button id="denyButton"
+				  width="20%"
+				  click="respondGuest(false)"
+				  styleName="denyButtonStyle guestResponseButtonStyle" />
+	</s:Group>
+
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="{getStyle('lineColor')}"
+								weight="{getStyle('lineWeight')}" />
+		</s:stroke>
+	</s:Line>
+
+</s:ItemRenderer>

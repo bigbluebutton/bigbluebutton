@@ -10,6 +10,7 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserCommand;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.lib.main.commands.GuestWaitingForApprovalSignal;
 	import org.bigbluebutton.lib.main.models.ConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -33,11 +34,15 @@ package org.bigbluebutton.web {
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceConnection;
+	import org.bigbluebutton.lib.whiteboard.services.IWhiteboardService;
+	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
+	import org.bigbluebutton.web.main.commands.GuestWaitingForApprovalCommandWeb;
 	import org.bigbluebutton.web.main.commands.LocaleChangedSignal;
 	import org.bigbluebutton.web.main.models.IShortcutOptions;
 	import org.bigbluebutton.web.main.models.ShortcutOptions;
 	import org.bigbluebutton.web.toolbar.micbutton.commands.AudioSelectionWindowClosedSignal;
 	import org.bigbluebutton.web.toolbar.webcambutton.commands.CamSettingsClosedSignal;
+	import org.bigbluebutton.web.toolbar.webcambutton.commands.ShareCameraCommandWeb;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
@@ -57,6 +62,7 @@ package org.bigbluebutton.web {
 			injector.map(IUserSession).toSingleton(UserSession);
 			injector.map(IConferenceParameters).toSingleton(ConferenceParameters);
 			injector.map(IUsersService).toSingleton(UsersService);
+			injector.map(IWhiteboardService).toSingleton(WhiteboardService);
 			injector.map(IPresentationService).toSingleton(PresentationService);
 			injector.map(IDeskshareConnection).toSingleton(DeskshareConnection);
 			injector.map(ISaveData).toSingleton(SaveData);
@@ -72,10 +78,11 @@ package org.bigbluebutton.web {
 			// Signal to Command mapping
 			signalCommandMap.map(ConnectSignal).toCommand(ConnectCommand);
 			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
-			//signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
+			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommandWeb);
 			signalCommandMap.map(LoadSlideSignal).toCommand(LoadSlideCommand);
 			signalCommandMap.map(CameraQualitySignal).toCommand(CameraQualityCommand);
 			signalCommandMap.map(DisconnectUserSignal).toCommand(DisconnectUserCommand);
+			signalCommandMap.map(GuestWaitingForApprovalSignal).toCommand(org.bigbluebutton.web.main.commands.GuestWaitingForApprovalCommandWeb);
 		}
 	}
 }

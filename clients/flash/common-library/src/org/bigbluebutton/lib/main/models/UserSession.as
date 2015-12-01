@@ -43,9 +43,7 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _recording:Boolean;
 		
-		protected var _phoneAutoJoin:Boolean;
-		
-		protected var _phoneSkipCheck:Boolean;
+		protected var _phoneOptions:PhoneOptions;
 		
 		protected var _videoAutoStart:Boolean;
 		
@@ -69,7 +67,7 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _successJoiningMeetingSignal:ISignal = new Signal();
 		
-		protected var _unsuccessJoiningMeetingSignal:ISignal = new Signal();
+		protected var _failureJoiningMeetingSignal:ISignal = new Signal();
 		
 		protected var _assignedDeskshareSignal:ISignal = new Signal();
 		
@@ -86,6 +84,14 @@ package org.bigbluebutton.lib.main.models {
 		protected var _videoProfileManager:VideoProfileManager = new VideoProfileManager();
 		
 		protected var _globalVideoProfile:VideoProfile = _videoProfileManager.defaultVideoProfile;
+		
+		public function get phoneOptions():PhoneOptions {
+			return _phoneOptions;
+		}
+		
+		public function set phoneOptions(value:PhoneOptions):void {
+			_phoneOptions = value;
+		}
 		
 		public function get videoProfileManager():VideoProfileManager {
 			return _videoProfileManager;
@@ -109,22 +115,6 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get guestList():UserList {
 			return _guestList;
-		}
-		
-		public function get phoneAutoJoin():Boolean {
-			return _phoneAutoJoin;
-		}
-		
-		public function set phoneAutoJoin(value:Boolean):void {
-			_phoneAutoJoin = value;
-		}
-		
-		public function get phoneSkipCheck():Boolean {
-			return _phoneSkipCheck;
-		}
-		
-		public function set phoneSkipCheck(value:Boolean):void {
-			_phoneSkipCheck = value;
 		}
 		
 		public function get lockSettings():LockSettings {
@@ -250,8 +240,8 @@ package org.bigbluebutton.lib.main.models {
 			return _successJoiningMeetingSignal;
 		}
 		
-		public function get unsuccessJoiningMeetingSignal():ISignal {
-			return _unsuccessJoiningMeetingSignal;
+		public function get failureJoiningMeetingSignal():ISignal {
+			return _failureJoiningMeetingSignal;
 		}
 		
 		public function get assignedDeskshareSignal():ISignal {
@@ -262,7 +252,7 @@ package org.bigbluebutton.lib.main.models {
 			if (msg.user) {
 				_successJoiningMeetingSignal.dispatch();
 			} else {
-				_unsuccessJoiningMeetingSignal.dispatch();
+				_failureJoiningMeetingSignal.dispatch();
 			}
 		}
 		

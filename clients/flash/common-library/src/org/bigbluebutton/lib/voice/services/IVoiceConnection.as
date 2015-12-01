@@ -12,7 +12,8 @@ package org.bigbluebutton.lib.voice.services {
 		function get uri():String
 		function get connection():NetConnection
 		function get callActive():Boolean
-		function connect(confParams:IConferenceParameters):void
+		function get hangUpSuccessSignal():ISignal;
+		function connect(confParams:IConferenceParameters, listenOnly:Boolean):void
 		function disconnect(onUserCommand:Boolean):void
 		function failedToJoinVoiceConferenceCallback(msg:String):*
 		function disconnectedFromJoinVoiceConferenceCallback(msg:String):*

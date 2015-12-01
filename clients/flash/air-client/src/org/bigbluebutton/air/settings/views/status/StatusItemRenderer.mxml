@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				styleName="participantItemStyle">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.lib.user.models.User;
+			
+			override public function set data(obj:Object):void {
+				super.data = obj;
+				if (obj) {
+					profileIcon.visible = profileIcon.includeInLayout = obj.signal == User.NO_STATUS;
+					handIcon.visible = handIcon.includeInLayout = obj.signal == User.RAISE_HAND;
+					agreeIcon.visible = agreeIcon.includeInLayout = obj.signal == User.AGREE;
+					disagreeIcon.visible = disagreeIcon.includeInLayout = obj.signal == User.DISAGREE;
+					speakLouderIcon.visible = speakLouderIcon.includeInLayout = obj.signal == User.SPEAK_LOUDER;
+					speakSofterIcon.visible = speakSofterIcon.includeInLayout = obj.signal == User.SPEAK_LOWER;
+					speakFasterIcon.visible = speakFasterIcon.includeInLayout = obj.signal == User.SPEAK_FASTER;
+					speakSlowerIcon.visible = speakSlowerIcon.includeInLayout = obj.signal == User.SPEAK_SLOWER;
+					beRightBackIcon.visible = beRightBackIcon.includeInLayout = obj.signal == User.BE_RIGHT_BACK;
+					laughterIcon.visible = laughterIcon.includeInLayout = obj.signal == User.LAUGHTER;
+					sadIcon.visible = sadIcon.includeInLayout = obj.signal == User.SAD;
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%"
+			 height="{getStyle('itemHeight')}">
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle"
+								paddingLeft="{getStyle('itemPaddingLeft')}"
+								paddingRight="{getStyle('itemPaddingRight')}" />
+		</s:layout>
+		<s:Image id="profileIcon"
+				 styleName="iconStyle userIconStyle"
+				 height="100%" />
+		<s:Image id="handIcon"
+				 styleName="iconStyle handIconStyle"
+				 height="100%" />
+		<s:Image id="agreeIcon"
+				 styleName="iconStyle agreeIconStyle"
+				 height="100%" />
+		<s:Image id="disagreeIcon"
+				 styleName="iconStyle disagreeIconStyle"
+				 height="100%" />
+		<s:Image id="speakLouderIcon"
+				 styleName="iconStyle speakLouderIconStyle"
+				 height="100%" />
+		<s:Image id="speakSofterIcon"
+				 styleName="iconStyle speakSofterIconStyle"
+				 height="100%" />
+		<s:Image id="speakFasterIcon"
+				 styleName="iconStyle speakFasterIconStyle"
+				 height="100%" />
+		<s:Image id="speakSlowerIcon"
+				 styleName="iconStyle speakSlowerIconStyle"
+				 height="100%" />
+		<s:Image id="beRightBackIcon"
+				 styleName="iconStyle beRightBackIconStyle"
+				 height="100%" />
+		<s:Image id="laughterIcon"
+				 styleName="iconStyle laughterIconStyle"
+				 height="100%" />
+		<s:Image id="sadIcon"
+				 styleName="iconStyle sadIconStyle"
+				 height="100%" />
+
+		<s:Group width="70%">
+			<s:layout>
+				<s:VerticalLayout />
+			</s:layout>
+			<s:Label id="labelDisplay"
+					 width="100%"
+					 height="100%"
+					 styleName="contentFontSize" />
+		</s:Group>
+
+	</s:Group>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="{getStyle('lineColor')}"
+								weight="{getStyle('lineWeight')}" />
+		</s:stroke>
+	</s:Line>
+
+</s:ItemRenderer>
