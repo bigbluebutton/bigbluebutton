@@ -125,7 +125,6 @@ package org.bigbluebutton.web.toolbar.micbutton.toolbarbutton {
 		
 		private function startPhone(e:MouseEvent):void {
 			var viewUser:User = userSession.userList.me;
-			
 			// Disable the button right away to prevent the user from clicking
 			// multiple times.
 			view.enabled = false;
@@ -135,6 +134,7 @@ package org.bigbluebutton.web.toolbar.micbutton.toolbarbutton {
 					audioOptions.shareMic = false;
 					audioOptions.listenOnly = true;
 					shareMicrophoneSignal.dispatch(audioOptions);
+					view.enabled = true;
 				} else {
 					shareMicrophone();
 				}
@@ -143,7 +143,10 @@ package org.bigbluebutton.web.toolbar.micbutton.toolbarbutton {
 				audioOptions.shareMic = false;
 				audioOptions.listenOnly = false;
 				shareMicrophoneSignal.dispatch(audioOptions);
+				userSession.userList.me.listenOnly = false;
+				view.enabled = true;
 			}
+		
 		}
 		
 		
