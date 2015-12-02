@@ -53,9 +53,10 @@ public class GetCurrentDocumentReplyMessage implements ISubscribedMessage {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
-						Type type = new TypeToken<Map<String, Object>>(){}.getType();
-						Gson gson = new Gson();
-						Map<String, Object> notes = gson.fromJson(payload.get(Constants.NOTES), type);
+						JsonObject notesObject = (JsonObject) payload.get(Constants.NOTES);
+
+						Util util = new Util();
+						Map<String, Object> notes = util.extractNotes(notesObject);
 
 						return new GetCurrentDocumentReplyMessage(meetingId, requesterId, notes);
 					}

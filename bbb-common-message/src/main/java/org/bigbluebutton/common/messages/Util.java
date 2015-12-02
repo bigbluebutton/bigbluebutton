@@ -679,5 +679,27 @@ public class Util {
 		return pollMap;
 	}
 	
-	
+	class Note {
+		String name = "";
+		String document = "";
+
+		public Note(String name, String document) {
+			this.name = name;
+			this.document = document;
+		}
+	}
+
+	public Map<String, Object> extractNotes(JsonObject notes) {
+		Map<String, Object> notesMap = new HashMap<String, Object>();
+
+		for (Map.Entry<String, JsonElement> entry : notes.entrySet()) {
+			JsonObject obj = entry.getValue().getAsJsonObject();
+			String name = obj.get("name").getAsString();
+			String document = obj.get("document").getAsString();
+			Note note = new Note(name, document);
+			notesMap.put(entry.getKey(), (Object) note);
+		}
+
+		return notesMap;
+	}
 }

@@ -70,13 +70,12 @@ public class SharedNotesClientMessageSender {
 	private void processGetCurrentDocumentReplyMessage(String json) {
 		GetCurrentDocumentReplyMessage msg = GetCurrentDocumentReplyMessage.fromJson(json);
 		if (msg != null) {
-			//TODO: check if we need this
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put("notes", msg.notes);
 
 			Map<String, Object> message = new HashMap<String, Object>();
 			Gson gson = new Gson();
-			message.put("msg", gson.toJson(args.get("notes")));
+			message.put("msg", gson.toJson(args));
 
 			DirectClientMessage m = new DirectClientMessage(msg.meetingID, msg.requesterID, "GetCurrentDocumentCommand", message);
 			service.sendMessage(m);

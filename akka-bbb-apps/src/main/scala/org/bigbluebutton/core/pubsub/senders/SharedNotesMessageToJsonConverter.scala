@@ -23,7 +23,7 @@ object SharedNotesMessageToJsonConverter {
     payload.put(Constants.MEETING_ID, msg.meetingID)
     payload.put(Constants.RECORDED, msg.recorded)
     payload.put(Constants.REQUESTER_ID, msg.requesterID)
-    payload.put(Constants.NOTES, msg.notes)
+    payload.put(Constants.NOTES, msg.notes.asJava)
 
     val header = Util.buildHeader(MessageNames.GET_CURRENT_DOCUMENT_REPLY, None)
     Util.buildJson(header, payload)

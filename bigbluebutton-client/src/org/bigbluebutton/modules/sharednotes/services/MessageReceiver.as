@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.sharednotes.services
   import org.bigbluebutton.modules.sharednotes.events.ReceivePatchEvent;
   
   public class MessageReceiver implements IMessageListener {
-  private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+    private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
 
     public var dispatcher:IEventDispatcher;
     
@@ -59,42 +59,45 @@ package org.bigbluebutton.modules.sharednotes.services
       }
     }
     
-    private function handlePatchDocumentCommand(message:Object):void {
-      if (message.userID == UsersUtil.getMyUserID()) {
+    private function handlePatchDocumentCommand(msg: Object):void {
+      LOGGER.debug("Handling patch document message [" + msg.msg + "]");
+      var map:Object = JSON.parse(msg.msg);
+
+      if (map.userID == UsersUtil.getMyUserID()) {
         return;
       }
 
-      LOGGER.debug("Handling patch document message [" + message + "]");
-
       var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
-      receivePatchEvent.noteId = message.noteID;
-      receivePatchEvent.patch = message.patch;
+      receivePatchEvent.noteId = map.noteID;
+      receivePatchEvent.patch = map.patch;
       dispatcher.dispatchEvent(receivePatchEvent);
     }
         
-    private function handleGetCurrentDocumentCommand(message:Object):void {
-      LOGGER.debug("Handling get current document message [" + message + "]");
-      var notes:Object = JSON.parse(message.notes); 
-      
+    private function handleGetCurrentDocumentCommand(msg: Object):void {
+      LOGGER.debug("Handling get current document message [" + msg.msg + "]");
+      var map:Object = JSON.parse(msg.msg);
+
       var currentDocumentEvent:CurrentDocumentEvent = new CurrentDocumentEvent();
-      currentDocumentEvent.document = notes;
+      currentDocumentEvent.document = map.notes;
       dispatcher.dispatchEvent(currentDocumentEvent);
     }
     
-    private function handleCreateAdditionalNotesCommand(message:Object):void {
-      LOGGER.debug("Handling create additional notes message [" + message + "]");
+    private function handleCreateAdditionalNotesCommand(msg: Object):void {
+      LOGGER.debug("Handling create additional notes message [" + msg.msg + "]");
+      var map:Object = JSON.parse(msg.msg);
       
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.CREATE_ADDITIONAL_NOTES_REPLY_EVENT);
-      e.payload.notesId = message.noteID;
-      e.payload.noteName = message.noteName;
+      e.payload.notesId = map.noteID;
+      e.payload.noteName = map.noteName;
       dispatcher.dispatchEvent(e);
     }
     
-    private function handleDestroyAdditionalNotesCommand(message:Object):void {
-      LOGGER.debug("Handling destroy additional notes message [" + message + "]");
+    private function handleDestroyAdditionalNotesCommand(msg: Object):void {
+      LOGGER.debug("Handling destroy additional notes message [" + msg.msg + "]");
+      var map:Object = JSON.parse(msg.msg);
       
       var e:SharedNotesEvent = new SharedNotesEvent(SharedNotesEvent.DESTROY_ADDITIONAL_NOTES_REPLY_EVENT);
-      e.payload.notesId = message.noteID;
+      e.payload.notesId = map.noteID;
       dispatcher.dispatchEvent(e);
     }
   }
