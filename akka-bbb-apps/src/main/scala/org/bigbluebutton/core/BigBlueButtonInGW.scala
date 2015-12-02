@@ -6,7 +6,6 @@ import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.recorders.VoiceEventRecorder
 import akka.actor.ActorSystem
 import org.bigbluebutton.core.apps.AnnotationVO
 import akka.pattern.{ ask, pipe }
@@ -19,9 +18,9 @@ import org.bigbluebutton.common.messages.IBigBlueButtonMessage
 import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 
-class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends IBigBlueButtonInGW {
+class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender) extends IBigBlueButtonInGW {
   val log = system.log
-  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, recorderApp, messageSender, voiceEventRecorder), "bigbluebutton-actor")
+  val bbbActor = system.actorOf(BigBlueButtonActor.props(system, recorderApp, messageSender), "bigbluebutton-actor")
 
   def handleBigBlueButtonMessage(message: IBigBlueButtonMessage) {
     message match {
