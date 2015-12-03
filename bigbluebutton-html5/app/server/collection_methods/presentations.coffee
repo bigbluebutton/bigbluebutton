@@ -61,10 +61,6 @@ Meteor.methods
         name: presentationObject.name
         current: presentationObject.current
 
-      pointer: #initially we have no data about the cursor
-        x: 0.0
-        y: 0.0
-
     id = Meteor.Presentations.insert(entry)
     #Meteor.log.info "presentation added id =[#{id}]:#{presentationObject.id} in #{meetingId}. Presentations.size is now #{Meteor.Presentations.find({meetingId: meetingId}).count()}"
 

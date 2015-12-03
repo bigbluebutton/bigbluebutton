@@ -33,6 +33,6 @@ Meteor.methods
 
 # applies zooming to the stroke thickness
 @zoomStroke = (thickness) ->
-  currentSlide = @getCurrentSlideDoc()
+  currentSlide = BBB.getCurrentSlide("zoomStroke")
   ratio = (currentSlide?.slide.width_ratio + currentSlide?.slide.height_ratio) / 2
   thickness * 100 / ratio

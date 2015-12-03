@@ -1,8 +1,9 @@
 # scale the whiteboard to adapt to the resized window
 @scaleWhiteboard = (callback) ->
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
-  wpm = whiteboardPaperModel
-  wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
+  if whiteboardPaperModel?
+    whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height)
+
   if callback
     callback()
 
@@ -11,7 +12,7 @@ Template.whiteboard.helpers
     currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
     currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
     totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
-    console.log('slide', currentSlideNum)
+    # console.log('slide', currentSlideNum)
     if currentSlideNum isnt undefined
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
@@ -24,6 +25,11 @@ Template.whiteboard.helpers
 
   hasNoPresentation: ->
     Meteor.Presentations.findOne({'presentation.current':true})
+
+  forceSlideShow: ->
+    console.log "forceSlideShow"
+    reactOnSlideChange()
+
 
 Template.whiteboard.events
   'click .whiteboardFullscreenButton': (event, template) ->
