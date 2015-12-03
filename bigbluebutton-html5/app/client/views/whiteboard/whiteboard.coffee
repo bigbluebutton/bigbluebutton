@@ -17,6 +17,7 @@ Template.whiteboard.helpers
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
       return ''
+
   isPollStarted: ->
     if BBB.isPollGoing(getInSession('userId'))
       return true
@@ -27,8 +28,14 @@ Template.whiteboard.helpers
     Meteor.Presentations.findOne({'presentation.current':true})
 
   forceSlideShow: ->
-    console.log "forceSlideShow"
     reactOnSlideChange()
+
+  clearSlide: ->
+    #clear the slide
+    whiteboardPaperModel?.removeAllImagesFromPaper()
+
+    # hide the cursor
+    whiteboardPaperModel?.cursor?.remove()
 
 
 Template.whiteboard.events
