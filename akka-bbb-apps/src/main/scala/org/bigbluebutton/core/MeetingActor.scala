@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, SharedNotesApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
+import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, SharedNotesModel }
 import org.bigbluebutton.core.apps.PresentationModel
 
 object MeetingActor {
@@ -29,6 +29,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   val pollModel = new PollModel()
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
+  val notesModel = new SharedNotesModel()
 
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, 30 seconds, self, "MonitorNumberOfWebUsers")
