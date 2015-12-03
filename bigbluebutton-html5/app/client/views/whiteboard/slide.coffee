@@ -95,9 +95,7 @@ Template.slide.rendered = ->
 
 Template.slide.helpers
   updatePointerLocation: (pointer) ->
-    if whiteboardPaperModel?
-      wpm = whiteboardPaperModel
-      wpm?.moveCursor(pointer.x, pointer.y)
+    whiteboardPaperModel?.moveCursor(pointer.x, pointer.y)
 
 #### SHAPE ####
 Template.shape.rendered = ->

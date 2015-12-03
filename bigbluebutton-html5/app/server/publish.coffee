@@ -44,7 +44,7 @@ Meteor.publish 'users', (meetingId, userid, authToken) ->
 
 Meteor.publish 'chat', (meetingId, userid, authToken) ->
   if isAllowedTo('subscribeChat', meetingId, userid, authToken)
-  
+
     Meteor.log.info "publishing chat for #{meetingId} #{userid} #{authToken}"
     return Meteor.Chat.find({$or: [
       {'message.chat_type': 'PUBLIC_CHAT', 'meetingId': meetingId},
@@ -85,6 +85,10 @@ Meteor.publish 'meetings', (meetingId) ->
 Meteor.publish 'presentations', (meetingId) ->
   Meteor.log.info "publishing presentations for #{meetingId}"
   Meteor.Presentations.find({meetingId: meetingId})
+
+Meteor.publish 'bbb_cursor', (meetingId) ->
+  Meteor.log.info "publishing cursor for #{meetingId}"
+  Meteor.Cursor.find({meetingId: meetingId})
 
 Meteor.publish 'whiteboard-clean-status', (meetingId) ->
   Meteor.log.info "whiteboard clean status #{meetingId}"

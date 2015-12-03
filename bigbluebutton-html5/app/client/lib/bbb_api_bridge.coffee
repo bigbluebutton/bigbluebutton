@@ -127,7 +127,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-    console.log "trigger:#{callingLocaton} currentSlideId=#{currentSlide?._id}"
+    # console.log "trigger:#{callingLocaton} currentSlideId=#{currentSlide?._id}"
     currentSlide
 
   BBB.getMeetingName = ->
