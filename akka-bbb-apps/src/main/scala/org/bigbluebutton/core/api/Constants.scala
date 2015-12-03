@@ -102,5 +102,6 @@ object Constants {
   val GUESTS_WAITING = "guests_waiting"
   val NOTE_ID = "note_id"
   val NOTES = "notes"
+  val NOTE_NAME = "note_name"
   val PATCH = "patch"
 }
