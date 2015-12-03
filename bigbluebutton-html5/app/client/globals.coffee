@@ -26,9 +26,6 @@
     color = colourToHex(color)
   color
 
-@getCurrentSlideDoc = -> # returns only one document
-  BBB.getCurrentSlide()
-
 @getInSession = (k) -> SessionAmplify.get k
 
 @getTime = -> # returns epoch in ms
@@ -60,7 +57,9 @@ Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
 
 Handlebars.registerHelper "getCurrentSlide", ->
-  getCurrentSlideDoc()
+  result = BBB.getCurrentSlide("helper getCurrentSlide")
+  # console.log "result=#{JSON.stringify result}"
+  result
 
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
@@ -69,7 +68,7 @@ Handlebars.registerHelper "getMeetingName", ->
   BBB.getMeetingName()
 
 Handlebars.registerHelper "getShapesForSlide", ->
-  currentSlide = getCurrentSlideDoc()
+  currentSlide = BBB.getCurrentSlide("helper getShapesForSlide")
 
   # try to reuse the lines above
   Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})

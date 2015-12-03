@@ -240,7 +240,7 @@ class Meteor.WhiteboardPaperModel
     @containerOffsetTop = $container.offset()?.top
 
   _updateZoomRatios: ->
-    currentSlideDoc = getCurrentSlideDoc()
+    currentSlideDoc = BBB.getCurrentSlide("_updateZoomRatios")
     @widthRatio = currentSlideDoc.slide.width_ratio
     @heightRatio = currentSlideDoc.slide.height_ratio
 
@@ -312,7 +312,7 @@ class Meteor.WhiteboardPaperModel
     boardWidth = @containerWidth
     boardHeight = @containerHeight
 
-    currentSlide = getCurrentSlideDoc()
+    currentSlide = BBB.getCurrentSlide("_displayPage")
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
