@@ -28,11 +28,10 @@ Template.whiteboard.helpers
     Meteor.Presentations.findOne({'presentation.current':true})
 
   forceSlideShow: ->
-    console.log "forceSlideShow"
     reactOnSlideChange()
 
   clearSlide: ->
-    # whiteboardPaperModel?._displayPage("", getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
+    #clear the slide
     whiteboardPaperModel?.removeAllImagesFromPaper()
 
     # hide the cursor

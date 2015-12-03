@@ -241,8 +241,8 @@ class Meteor.WhiteboardPaperModel
 
   _updateZoomRatios: ->
     currentSlideDoc = BBB.getCurrentSlide("_updateZoomRatios")
-    @widthRatio = currentSlideDoc.slide.width_ratio
-    @heightRatio = currentSlideDoc.slide.height_ratio
+    @widthRatio = currentSlideDoc?.slide.width_ratio
+    @heightRatio = currentSlideDoc?.slide.height_ratio
 
   # Retrieves an image element from the paper.
   # The url must be in the slides array.
@@ -306,58 +306,55 @@ class Meteor.WhiteboardPaperModel
   #Changes the currently displayed page/slide (if any) with this one
   #@param {data} message object containing the "presentation" object
   _displayPage: (data, originalWidth, originalHeight) ->
-    if data is ""
-      @removeAllImagesFromPaper()
-      return
+    @removeAllImagesFromPaper()
+
+    @_updateContainerDimensions()
+    boardWidth = @containerWidth
+    boardHeight = @containerHeight
+
+    currentSlide = BBB.getCurrentSlide("_displayPage")
+    currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
+    presentationId = currentPresentation?.presentation?.id
+    currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+
+    if @zoomObserver isnt null
+      @zoomObserver.stop()
+    _this = this
+    @zoomObserver = currentSlideCursor.observe # watching the current slide changes
+      changed: (newDoc, oldDoc) ->
+        if originalWidth <= originalHeight
+          @adjustedWidth = boardHeight * originalWidth / originalHeight
+          @adjustedHeight = boardHeight
+        else
+          @adjustedHeight = boardWidth * originalHeight / originalWidth
+          @adjustedWidth = boardWidth
+
+        _this.zoomAndPan(newDoc.slide.width_ratio, newDoc.slide.height_ratio,
+          newDoc.slide.x_offset, newDoc.slide.y_offset)
+
+        oldRatio = (oldDoc.slide.width_ratio + oldDoc.slide.height_ratio) / 2
+        newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
+
+        _this?.current?.shapes?.forEach (shape) ->
+          shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
+
+        if _this.raphaelObj is 100 # on first load: Raphael object is initially tiny
+          _this.cursor.setRadius(0.65 * newDoc.slide.width_ratio / 100)
+        else
+          _this.cursor.setRadius(6 * newDoc.slide.width_ratio / 100)
+
+    if originalWidth <= originalHeight
+      # square => boardHeight is the shortest side
+      @adjustedWidth = boardHeight * originalWidth / originalHeight
+      $('#whiteboard-paper').width(@adjustedWidth)
+      @addImageToPaper(data, @adjustedWidth, boardHeight)
+      @adjustedHeight = boardHeight
     else
-      @removeAllImagesFromPaper()
+      @adjustedHeight = boardWidth * originalHeight / originalWidth
+      $('#whiteboard-paper').height(@adjustedHeight)
+      @addImageToPaper(data, boardWidth, @adjustedHeight)
+      @adjustedWidth = boardWidth
 
-      @_updateContainerDimensions()
-      boardWidth = @containerWidth
-      boardHeight = @containerHeight
-
-      currentSlide = BBB.getCurrentSlide("_displayPage")
-      currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-      presentationId = currentPresentation?.presentation?.id
-      currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
-
-      if @zoomObserver isnt null
-        @zoomObserver.stop()
-      _this = this
-      @zoomObserver = currentSlideCursor.observe # watching the current slide changes
-        changed: (newDoc, oldDoc) ->
-          if originalWidth <= originalHeight
-            @adjustedWidth = boardHeight * originalWidth / originalHeight
-            @adjustedHeight = boardHeight
-          else
-            @adjustedHeight = boardWidth * originalHeight / originalWidth
-            @adjustedWidth = boardWidth
-
-          _this.zoomAndPan(newDoc.slide.width_ratio, newDoc.slide.height_ratio,
-            newDoc.slide.x_offset, newDoc.slide.y_offset)
-
-          oldRatio = (oldDoc.slide.width_ratio + oldDoc.slide.height_ratio) / 2
-          newRatio = (newDoc.slide.width_ratio + newDoc.slide.height_ratio) / 2
-
-          _this?.current?.shapes?.forEach (shape) ->
-            shape.attr "stroke-width", shape.attr('stroke-width') * oldRatio  / newRatio
-
-          if _this.raphaelObj is 100 # on first load: Raphael object is initially tiny
-            _this.cursor.setRadius(0.65 * newDoc.slide.width_ratio / 100)
-          else
-            _this.cursor.setRadius(6 * newDoc.slide.width_ratio / 100)
-
-      if originalWidth <= originalHeight
-        # square => boardHeight is the shortest side
-        @adjustedWidth = boardHeight * originalWidth / originalHeight
-        $('#whiteboard-paper').width(@adjustedWidth)
-        @addImageToPaper(data, @adjustedWidth, boardHeight)
-        @adjustedHeight = boardHeight
-      else
-        @adjustedHeight = boardWidth * originalHeight / originalWidth
-        $('#whiteboard-paper').height(@adjustedHeight)
-        @addImageToPaper(data, boardWidth, @adjustedHeight)
-        @adjustedWidth = boardWidth
-
+    if currentSlide?
       @zoomAndPan(currentSlide.slide.width_ratio, currentSlide.slide.height_ratio,
         currentSlide.slide.x_offset, currentSlide.slide.y_offset)
