@@ -21,7 +21,6 @@
       if err?
         Meteor.log.error "_unsucc update of cursor for #{meetingId} #{JSON.stringify cursorObject}
           err=#{JSON.stringify err}"
-        callback()
       else
         # Meteor.log.info "updated cursor for #{meetingId} #{JSON.stringify cursorObject}"
   )
