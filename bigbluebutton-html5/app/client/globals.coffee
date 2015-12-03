@@ -385,10 +385,8 @@ Handlebars.registerHelper "getPollQuestions", ->
 @closeMenus = ->
   if $('.userlistMenu').hasClass('menuOut')
     toggleUserlistMenu()
-    toggleLeftHamburderIcon()
   else if $('.settingsMenu').hasClass('menuOut')
     toggleSettingsMenu()
-    toggleRightHamburderIcon()
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
@@ -656,26 +654,30 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('.FABContainer').removeClass('closedFAB')
     $('.FABContainer').addClass('openedFAB')
 
-@toggleLeftHamburderIcon = () ->
-  if $('.leftHamburgerButton').hasClass('hamburgerToggledOn')
-    $('.leftHamburgerButton').removeClass('hamburgerToggledOn')
-  else
-    $('.leftHamburgerButton').addClass('hamburgerToggledOn')
-
-@toggleRightHamburderIcon = () ->
-  if $('.rightHamburgerButton').hasClass('hamburgerToggledOn')
-    $('.rightHamburgerButton').removeClass('hamburgerToggledOn')
-  else
-    $('.rightHamburgerButton').addClass('hamburgerToggledOn')
-
 @toggleUserlistMenu = () ->
+
+  # menu
   if $('.userlistMenu').hasClass('menuOut')
     $('.userlistMenu').removeClass('menuOut')
   else
     $('.userlistMenu').addClass('menuOut')
 
+  # icon
+  if $('.toggleUserlistButton').hasClass('menuToggledOn')
+    $('.toggleUserlistButton').removeClass('menuToggledOn')
+  else
+    $('.toggleUserlistButton').addClass('menuToggledOn')
+
 @toggleSettingsMenu = () ->
+
+  # menu
   if $('.settingsMenu').hasClass('menuOut')
     $('.settingsMenu').removeClass('menuOut')
   else
     $('.settingsMenu').addClass('menuOut')
+
+  # icon
+  if $('.toggleMenuButton').hasClass('menuToggledOn')
+    $('.toggleMenuButton').removeClass('menuToggledOn')
+  else
+    $('.toggleMenuButton').addClass('menuToggledOn')

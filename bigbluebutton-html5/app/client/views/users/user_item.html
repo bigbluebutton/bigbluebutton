@@ -99,14 +99,14 @@
 
     {{#if isCurrentUser userId}}
       <span class="userCurrent usernameEntry {{#if hasGotUnreadMailClass 'PUBLIC_CHAT'}}gotUnreadMail{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}} (you)">
-        <span class="userName">{{user.name}} {{#if user.presenter}} (presenter) {{/if}} (you)</span>
+        <span class="userName">{{user.name}} (you)</span>
       </span>
       {{#if hasGotUnreadMailClass 'PUBLIC_CHAT' }}
         <div class="unreadChatNumber">{{getNumberOfUnreadMessages 'PUBLIC_CHAT'}}</div>
       {{/if}}
     {{else}}
       <span class="usernameEntry {{#if hasGotUnreadMailClass user.userid}}gotUnreadMail{{/if}}" rel="tooltip" data-placement="bottom" title="{{user.name}}">
-        <span class="userName"> {{user.name}} {{#if user.presenter}} (presenter) {{/if}}</span>
+        <span class="userName"> {{user.name}}</span>
       </span>
       {{#if hasGotUnreadMailClass user.userid }}
         <div class="unreadChatNumber">{{getNumberOfUnreadMessages user.userid}}</div>
