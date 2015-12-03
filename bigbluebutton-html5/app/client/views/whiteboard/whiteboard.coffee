@@ -17,6 +17,7 @@ Template.whiteboard.helpers
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
       return ''
+
   isPollStarted: ->
     if BBB.isPollGoing(getInSession('userId'))
       return true
@@ -29,6 +30,13 @@ Template.whiteboard.helpers
   forceSlideShow: ->
     console.log "forceSlideShow"
     reactOnSlideChange()
+
+  clearSlide: ->
+    # whiteboardPaperModel?._displayPage("", getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
+    whiteboardPaperModel?.removeAllImagesFromPaper()
+
+    # hide the cursor
+    whiteboardPaperModel?.cursor?.remove()
 
 
 Template.whiteboard.events
