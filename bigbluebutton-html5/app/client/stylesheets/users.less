@@ -42,11 +42,11 @@
   // 120px is size of the icon list with all icons enabled (lock, cam, mic/listen)
 
   @media @landscape {
-    height: 27px;
+    min-height: 30px;
     font-size: 4.5mm;
   }
   @media @desktop-portrait {
-    height: 27px;
+    min-height: 30px;
     font-size: 4.5mm;
   }
   @media @phone-portrait, @phone-portrait-with-keyboard {
@@ -104,9 +104,25 @@
     max-height: 100% !important;
     height: 100%;
 
+    #content{
+      @media @desktop-landscape, @desktop-portrait {
+        .kickUser{
+          opacity:0;
+          cursor: pointer;
+          display: none;
+          -webkit-animation: fadeInAnimation .5s;
+          animation: fadeInAnimation .5s;
+        }
+      }
+    }
     #content:hover {
         @media @landscape, @desktop-portrait {
           background-color: #2C4155;
+
+          .kickUser{
+            display: inline;
+            opacity:1;
+          }
         }
       }
     #content {
@@ -193,5 +209,14 @@
   color: #FFFFFF;
   span {
     padding-left: 5px;
+  }
+}
+
+@-webkit-keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }

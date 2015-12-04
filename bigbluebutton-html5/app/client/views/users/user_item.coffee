@@ -9,6 +9,10 @@ Template.displayUserIcons.events
     # the userId of the person who is lowering the hand
     BBB.lowerHand(getInSession("meetingId"), @userId, getInSession("userId"), getInSession("authToken"))
 
+  'click .kickUser': (event) ->
+    kickUser BBB.getMeetingId(), @.userId, getInSession("userId"), getInSession("authToken")
+
+
 Template.displayUserIcons.helpers
   userLockedIconApplicable: (userId) ->
     # the lock settings affect the user (and requiire a lock icon) if
