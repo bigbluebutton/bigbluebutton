@@ -9,17 +9,17 @@ public class GuestPolicyChangedMessage implements IBigBlueButtonMessage {
 	public static final String VERSION = "0.0.1";
 
 	public final String meetingId;
-	public final String policy;
+	public final String guestPolicy;
 
-	public GuestPolicyChangedMessage(String meetingId, String policy) {
+	public GuestPolicyChangedMessage(String meetingId, String guestPolicy) {
 		this.meetingId = meetingId;
-		this.policy = policy;
+		this.guestPolicy = guestPolicy;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
-		payload.put(Constants.POLICY, policy);
+		payload.put(Constants.GUEST_POLICY, guestPolicy);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GUEST_POLICY_CHANGED, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
@@ -36,11 +36,11 @@ public class GuestPolicyChangedMessage implements IBigBlueButtonMessage {
 				String messageName = header.get("name").getAsString();
 				if (GUEST_POLICY_CHANGED.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID) 
-							&& payload.has(Constants.POLICY)) {
+							&& payload.has(Constants.GUEST_POLICY)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
-						String policy = payload.get(Constants.POLICY).getAsString();
+						String guestPolicy = payload.get(Constants.GUEST_POLICY).getAsString();
 
-						return new GuestPolicyChangedMessage(meetingId, policy);
+						return new GuestPolicyChangedMessage(meetingId, guestPolicy);
 					}
 				} 
 			}

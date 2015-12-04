@@ -10,19 +10,19 @@ public class GetGuestPolicyReplyMessage implements IBigBlueButtonMessage {
 
 	public final String meetingId;
 	public final String requesterId;
-	public final String policy;
+	public final String guestPolicy;
 
-	public GetGuestPolicyReplyMessage(String meetingId, String requesterId, String policy) {
+	public GetGuestPolicyReplyMessage(String meetingId, String requesterId, String guestPolicy) {
 		this.meetingId = meetingId;
 		this.requesterId = requesterId;
-		this.policy = policy;
+		this.guestPolicy = guestPolicy;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
 		payload.put(Constants.REQUESTER_ID, requesterId);
-		payload.put(Constants.POLICY, policy);
+		payload.put(Constants.GUEST_POLICY, guestPolicy);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(GET_GUEST_POLICY_REPLY, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
@@ -31,6 +31,7 @@ public class GetGuestPolicyReplyMessage implements IBigBlueButtonMessage {
 	public static GetGuestPolicyReplyMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
+
 		if (obj.has("header") && obj.has("payload")) {
 			JsonObject header = (JsonObject) obj.get("header");
 			JsonObject payload = (JsonObject) obj.get("payload");
@@ -38,14 +39,14 @@ public class GetGuestPolicyReplyMessage implements IBigBlueButtonMessage {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (GET_GUEST_POLICY_REPLY.equals(messageName)) {
-					if (payload.has(Constants.MEETING_ID) 
+					if (payload.has(Constants.MEETING_ID)
 							&& payload.has(Constants.REQUESTER_ID)
-							&& payload.has(Constants.POLICY)) {
+							&& payload.has(Constants.GUEST_POLICY)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
-						String policy = payload.get(Constants.POLICY).getAsString();
+						String guestPolicy = payload.get(Constants.GUEST_POLICY).getAsString();
 
-						return new GetGuestPolicyReplyMessage(meetingId, requesterId, policy);
+						return new GetGuestPolicyReplyMessage(meetingId, requesterId, guestPolicy);
 					}
 				} 
 			}

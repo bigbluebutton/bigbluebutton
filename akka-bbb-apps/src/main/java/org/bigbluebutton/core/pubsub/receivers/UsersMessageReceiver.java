@@ -377,7 +377,7 @@ public class UsersMessageReceiver implements MessageHandler{
 	private void processSetGuestPolicyMessage(String message) {
 		SetGuestPolicyMessage msg = SetGuestPolicyMessage.fromJson(message);
 		if (msg != null) {
-			bbbInGW.setGuestPolicy(msg.meetingId, msg.policy, msg.setBy);
+			bbbInGW.setGuestPolicy(msg.meetingId, msg.guestPolicy, msg.setBy);
 		}
 	}
 

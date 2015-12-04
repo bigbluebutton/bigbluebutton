@@ -127,7 +127,7 @@ public class Constants {
   public static final String GUEST                           = "guest";
   public static final String WAITING_FOR_ACCEPTANCE          = "waiting_for_acceptance";
   public static final String DOWNLOADABLE                    = "downloadable";
-  public static final String POLICY                          = "policy";
+  public static final String GUEST_POLICY                    = "guest_policy";
   public static final String NOTE_ID                         = "note_id";
   public static final String PATCH                           = "patch";
   public static final String NOTE_NAME                       = "note_name";

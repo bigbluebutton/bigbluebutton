@@ -501,7 +501,7 @@ public class UserClientMessageSender {
 
   private void processGetGuestPolicyReplyMessage(GetGuestPolicyReplyMessage msg) {
     Map<String, Object> args = new HashMap<String, Object>();
-    args.put("guestPolicy", msg.policy.toString());
+    args.put("guestPolicy", msg.guestPolicy.toString());
 
     Map<String, Object> message = new HashMap<String, Object>();
     Gson gson = new Gson();
@@ -513,7 +513,7 @@ public class UserClientMessageSender {
 
   private void processGuestPolicyChangedMessage(GuestPolicyChangedMessage msg) {
     Map<String, Object> args = new HashMap<String, Object>();
-    args.put("guestPolicy", msg.policy.toString());
+    args.put("guestPolicy", msg.guestPolicy.toString());
 
     Map<String, Object> message = new HashMap<String, Object>();
     Gson gson = new Gson();
