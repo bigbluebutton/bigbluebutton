@@ -43,13 +43,16 @@ public class RespondToGuestMessage implements IBigBlueButtonMessage {
 				String messageName = header.get("name").getAsString();
 				if (RESPOND_TO_GUEST.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID)
-							&& payload.has(Constants.USER_ID)
 							&& payload.has(Constants.RESPONSE)
 							&& payload.has(Constants.REQUESTER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
-						String userId = payload.get(Constants.USER_ID).getAsString();
+						String userId = null;
 						Boolean response = payload.get(Constants.RESPONSE).getAsBoolean();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
+
+						if (payload.has(Constants.USER_ID)) {
+							userId = payload.get(Constants.USER_ID).getAsString();
+						}
 
 						return new RespondToGuestMessage(meetingId, userId, response, requesterId);
 					}
