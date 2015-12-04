@@ -1,5 +1,5 @@
-package org.bigbluebutton.air.presentation.models {
-	import org.bigbluebutton.air.presentation.utils.SlideCalcUtil;
+package org.bigbluebutton.lib.presentation.models {
+	import org.bigbluebutton.lib.presentation.utils.SlideCalcUtil;
 	
 	public class SlideModel {
 		public static const MYSTERY_NUM:Number = 2;

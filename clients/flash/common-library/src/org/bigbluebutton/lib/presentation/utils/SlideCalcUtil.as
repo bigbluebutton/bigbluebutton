@@ -1,4 +1,4 @@
-package org.bigbluebutton.air.presentation.utils {
+package org.bigbluebutton.lib.presentation.utils {
 	
 	public class SlideCalcUtil {
 		public static const HUNDRED_PERCENT:Number = 100;

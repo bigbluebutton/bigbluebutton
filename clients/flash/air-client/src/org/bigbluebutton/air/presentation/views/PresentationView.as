@@ -10,17 +10,14 @@ package org.bigbluebutton.air.presentation.views {
 	import mx.core.FlexGlobals;
 	
 	import org.bigbluebutton.lib.presentation.models.Slide;
+	import org.bigbluebutton.lib.presentation.views.IPresentationView;
 	import org.bigbluebutton.lib.whiteboard.views.WhiteboardCanvas;
 	
 	import spark.components.Group;
 	
-	public class PresentationView extends PresentationViewBase implements IPresentationView {
+	public class PresentationView extends PresentationViewBase implements IPresentationViewAir {
 		override protected function childrenCreated():void {
 			super.childrenCreated();
-		}
-		
-		public function onClick(e:MouseEvent):void {
-			//buttonTestSignal.dispatch();
 		}
 		
 		public function get content():Group {
@@ -52,10 +49,6 @@ package org.bigbluebutton.air.presentation.views {
 			} else {
 				slide.source = null;
 			}
-		}
-		
-		public function securityError(e:Event):void {
-			trace("PresentationView.as Security error : " + e.toString());
 		}
 		
 		override public function rotationHandler(rotation:String):void {

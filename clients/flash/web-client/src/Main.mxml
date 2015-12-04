@@ -26,11 +26,14 @@
 			import mx.managers.PopUpManager;
 			import mx.resources.ResourceManager;
 			
+			import org.bigbluebutton.lib.whiteboard.views.WhiteboardConfig;
 			import org.bigbluebutton.web.AppConfig;
 			import org.bigbluebutton.web.chat.ChatConfig;
 			import org.bigbluebutton.web.chat.views.ChatWindow;
 			import org.bigbluebutton.web.main.MainConfig;
 			import org.bigbluebutton.web.main.views.LoadingScreen;
+			import org.bigbluebutton.web.presentation.views.PresentationConfig;
+			import org.bigbluebutton.web.presentation.views.PresentationWindow;
 			import org.bigbluebutton.web.shortcuthelp.ShortcutHelpConfig;
 			import org.bigbluebutton.web.toolbar.MainToolbarConfig;
 			import org.bigbluebutton.web.toolbar.micbutton.audioselectionwindow.AudioSelectionWindowConfig;
@@ -105,7 +108,7 @@
 			private function setupContext():void {
 				context = new Context().install(MVCSBundle, SignalCommandMapExtension).configure(AppConfig)
 					
-					.configure(MainConfig).configure(ChatConfig).configure(UserConfig).configure(VideoConfig).configure(MainToolbarConfig).configure(CameraDisplaySettingsConfig).configure(ToolbarPopupButtonConfig).configure(ToolbarButtonConfig).configure(AudioSelectionWindowConfig).configure(ShortcutHelpConfig)
+					.configure(MainConfig).configure(ChatConfig).configure(UserConfig).configure(VideoConfig).configure(MainToolbarConfig).configure(CameraDisplaySettingsConfig).configure(ToolbarPopupButtonConfig).configure(ToolbarButtonConfig).configure(AudioSelectionWindowConfig).configure(ShortcutHelpConfig).configure(PresentationConfig).configure(WhiteboardConfig)
 					
 					.configure(new ContextView(this));
 				
@@ -147,6 +150,7 @@
 				mainCanvas.windowManager.add(new ChatWindow());
 				mainCanvas.windowManager.add(new UserWindow());
 				mainCanvas.windowManager.add(new VideoWindow());
+				mainCanvas.windowManager.add(new PresentationWindow());
 			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void {

@@ -1,4 +1,4 @@
-package org.bigbluebutton.air.presentation.utils {
+package org.bigbluebutton.lib.presentation.utils {
 	import mx.graphics.SolidColor;
 	import mx.graphics.SolidColorStroke;
 	
