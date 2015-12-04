@@ -806,7 +806,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:ControlBar id="presCtrlBar" name="presCtrlBar" width="100%" verticalAlign="middle" styleName="presentationWindowControlsStyle" 
 				   paddingTop="2" paddingBottom="2">
 		<mx:HBox id="presenterControls" width="100%" height="100%" horizontalAlign="center">
-			<mx:Button id="downloadPres" visible="true" height="30" width="30" styleName="presentationDownloadButtonStyle"
+			<mx:Button id="downloadPres" visible="true" height="30" styleName="presentationDownloadButtonStyle"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.downloadPresBtn.toolTip')}" 
 					click="onDownloadButtonClicked()"/>
 			<mx:Button id="uploadPres" visible="false" height="30" styleName="presentationUploadButtonStyle"
