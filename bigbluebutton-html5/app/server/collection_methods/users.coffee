@@ -131,6 +131,19 @@ Meteor.methods
       Meteor.log.info "a user is logging out from #{meetingId}:" + userId
       requestUserLeaving meetingId, userId
 
+  kickUser: (meetingId, toKickUserId, requesterUserId, authToken) ->
+    if isAllowedTo('kickUser', meetingId, requesterUserId, authToken)
+      message =
+        "payload":
+          "userid": toKickUserId
+          "ejected_by": requesterUserId
+          "meeting_id": meetingId
+        "header":
+          "name": "eject_user_from_meeting_request_message"
+
+      Meteor.log.info "DISCONNECT USER"
+      publish Meteor.config.redis.channels.toBBBApps.users, message
+
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------

@@ -111,6 +111,9 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 Handlebars.registerHelper "isCurrentUserPresenter", ->
   BBB.isUserPresenter(getInSession('userId'))
 
+Handlebars.registerHelper "isCurrentUserModerator", ->
+  BBB.getMyRole() is "MODERATOR"
+
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
@@ -443,6 +446,9 @@ Handlebars.registerHelper "getPollQuestions", ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
   console.log "logging out"
   clearSessionVar(document.location = getInSession 'logoutURL') # navigate to logout
+
+@kickUser = (meetingId, toKickUserId, requesterUserId, authToken) ->
+  Meteor.call("kickUser", meetingId, toKickUserId, requesterUserId, authToken)
 
 # Clear the local user session
 @clearSessionVar = (callback) ->
