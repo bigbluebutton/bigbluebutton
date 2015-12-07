@@ -105,9 +105,14 @@
     height: 100%;
 
     #content{
+      .setPresenter{
+        color: #A0A0A0;
+      }
+
       @media @desktop-landscape, @desktop-portrait {
-        .kickUser{
+        .kickUser, .setPresenter{
           opacity:0;
+          color: #fff;
           cursor: pointer;
           display: none;
           -webkit-animation: fadeInAnimation .5s;
@@ -119,7 +124,7 @@
         @media @landscape, @desktop-portrait {
           background-color: #2C4155;
 
-          .kickUser{
+          .kickUser, .setPresenter{
             display: inline;
             opacity:1;
           }

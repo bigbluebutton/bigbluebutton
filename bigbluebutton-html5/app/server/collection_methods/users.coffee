@@ -131,6 +131,10 @@ Meteor.methods
       Meteor.log.info "a user is logging out from #{meetingId}:" + userId
       requestUserLeaving meetingId, userId
 
+  #meetingId: the meeting where the user is
+  #toKickUserId: the userid of the user to kick
+  #requesterUserId: the userid of the user that wants to kick
+  #authToken: the authToken of the user that wants to kick
   kickUser: (meetingId, toKickUserId, requesterUserId, authToken) ->
     if isAllowedTo('kickUser', meetingId, requesterUserId, authToken)
       message =
@@ -141,8 +145,26 @@ Meteor.methods
         "header":
           "name": "eject_user_from_meeting_request_message"
 
-      Meteor.log.info "DISCONNECT USER"
       publish Meteor.config.redis.channels.toBBBApps.users, message
+
+  #meetingId: the meeting where the user is
+  #newPresenterId: the userid of the new presenter
+  #requesterSetPresenter: the userid of the user that wants to change the presenter
+  #newPresenterName: user name of the new presenter
+  #authToken: the authToken of the user that wants to kick
+  setUserPresenter: (meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken) ->
+    if isAllowedTo('setPresenter', meetingId, requesterSetPresenter, authToken)
+      message =
+        "payload":
+          "new_presenter_id": newPresenterId
+          "new_presenter_name": newPresenterName
+          "meeting_id": meetingId
+          "assigned_by": requesterSetPresenter
+        "header":
+          "name": "assign_presenter_request_message"
+
+    publish Meteor.config.redis.channels.toBBBApps.users, message
+
 
 # --------------------------------------------------------------------------------------------
 # Private methods on server

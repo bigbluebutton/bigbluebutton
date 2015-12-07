@@ -66,6 +66,13 @@
 
 <template name="usernameEntry">
     <div class="status">
+      {{#if isCurrentUserModerator}}
+        {{#unless user.presenter}}
+          <span class="setPresenter" rel="tooltip" data-placement="bottom" title="set {{user.name}} as presenter">
+            <i class="icon fi-projection-screen statusIcon"></i>
+          </span>
+        {{/unless}}
+      {{/if}}
       {{#if equals user.emoji_status "happy"}}
         {{> icon name="happy-face" size="25"}}
       {{else}}

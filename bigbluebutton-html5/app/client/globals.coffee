@@ -450,6 +450,9 @@ Handlebars.registerHelper "getPollQuestions", ->
 @kickUser = (meetingId, toKickUserId, requesterUserId, authToken) ->
   Meteor.call("kickUser", meetingId, toKickUserId, requesterUserId, authToken)
 
+@setUserPresenter = (meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken) ->
+  Meteor.call("setUserPresenter", meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken)
+
 # Clear the local user session
 @clearSessionVar = (callback) ->
   amplify.store('authToken', null)

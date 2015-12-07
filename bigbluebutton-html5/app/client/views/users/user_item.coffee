@@ -12,7 +12,6 @@ Template.displayUserIcons.events
   'click .kickUser': (event) ->
     kickUser BBB.getMeetingId(), @.userId, getInSession("userId"), getInSession("authToken")
 
-
 Template.displayUserIcons.helpers
   userLockedIconApplicable: (userId) ->
     # the lock settings affect the user (and requiire a lock icon) if
@@ -57,6 +56,9 @@ Template.usernameEntry.events
           chat.number = 0
           break
       setInSession 'chats', chats
+
+  'click .setPresenter': (event) ->
+    setUserPresenter BBB.getMeetingId(), @.userId, getInSession('userId'), @.user.name, getInSession('authToken')
 
 Template.usernameEntry.helpers
   hasGotUnreadMailClass: (userId) ->
