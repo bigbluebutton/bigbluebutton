@@ -29,11 +29,6 @@
  *
  */
 
-
-var iceTimerSent = 0;
-var iceTimerCompleted = 0;
-var iceTimer;
-
 (function($) {
 
     // Find the line in sdpLines that starts with |prefix|, and, if specified,
@@ -95,7 +90,9 @@ var iceTimer;
             },
         }, options);
 
-	this.enabled = true;
+	this.audioEnabled = true;
+	this.videoEnabled = true;
+
 
         this.mediaData = {
             SDP: null,
@@ -127,6 +124,8 @@ var iceTimer;
         setCompat();
         checkCompat();
     };
+
+    $.FSRTC.validRes = [];
 
     $.FSRTC.prototype.useVideo = function(obj, local) {
         var self = this;
@@ -170,18 +169,24 @@ var iceTimer;
         var sdpLines = sdp.split('\r\n');
 
         // Find opus payload.
-        var opusIndex = findLine(sdpLines, 'a=rtpmap', 'opus/48000'),
-        opusPayload;
-        if (opusIndex) {
+        var opusIndex = findLine(sdpLines, 'a=rtpmap', 'opus/48000'), opusPayload;
+
+        if (!opusIndex) {
+	    return sdp;
+	} else {
             opusPayload = getCodecPayloadType(sdpLines[opusIndex]);
         }
 
         // Find the payload in fmtp line.
         var fmtpLineIndex = findLine(sdpLines, 'a=fmtp:' + opusPayload.toString());
-        if (fmtpLineIndex === null) return sdp;
 
-        // Append stereo=1 to fmtp line.
-        sdpLines[fmtpLineIndex] = sdpLines[fmtpLineIndex].concat('; stereo=1');
+        if (fmtpLineIndex === null) {
+	    // create an fmtp line
+	    sdpLines[opusIndex] = sdpLines[opusIndex] + '\r\na=fmtp:' + opusPayload.toString() + " stereo=1; sprop-stereo=1"
+	} else {
+            // Append stereo=1 to fmtp line.
+            sdpLines[fmtpLineIndex] = sdpLines[fmtpLineIndex].concat('; stereo=1; sprop-stereo=1');
+	}
 
         sdp = sdpLines.join('\r\n');
         return sdp;
@@ -211,7 +216,6 @@ var iceTimer;
     function onStreamSuccess(self, stream) {
         console.log("Stream Success");
         doCallback(self, "onStream", stream);
-        verto_onStreamCallback(self, stream);
     }
 
     function onICE(self, candidate) {
@@ -258,6 +262,7 @@ var iceTimer;
         if (self.options.useVideo) {
             self.options.useVideo.style.display = 'block';
         }
+
         var element = self.options.useAudio;
         console.log("REMOTE STREAM", stream, element);
 
@@ -289,26 +294,63 @@ var iceTimer;
         onSuccess, onError);
     };
 
+    $.FSRTC.prototype.stopPeer = function() {
+        if (self.peer) {
+            console.log("stopping peer");
+            self.peer.stop();
+        }
+    }
+
     $.FSRTC.prototype.stop = function() {
         var self = this;
 
         if (self.options.useVideo) {
             self.options.useVideo.style.display = 'none';
-	    self.options.useVideo[moz ? 'mozSrcObject' : 'src'] = null;
+            if (moz) {
+                self.options.useVideo['mozSrcObject'] = null;
+            } else {
+                self.options.useVideo['src'] = '';
+            }
         }
 
         if (self.localStream) {
-            self.localStream.stop();
+            if(typeof self.localStream.stop == 'function') {
+                self.localStream.stop();
+            } else {
+		if (self.localStream.active){
+                    var tracks = self.localStream.getTracks();
+                    console.error(tracks);
+		    tracks.forEach(function(track, index){
+			console.log(track);
+			track.stop();
+		    })
+                }
+            }
             self.localStream = null;
         }
 
         if (self.options.localVideo) {
             self.options.localVideo.style.display = 'none';
-	    self.options.localVideo[moz ? 'mozSrcObject' : 'src'] = null;
+            if (moz) {
+                self.options.localVideo['mozSrcObject'] = null;
+            } else {
+                self.options.localVideo['src'] = '';
+            }
         }
 
 	if (self.options.localVideoStream) {
-	    self.options.localVideoStream.stop();
+            if(typeof self.options.localVideoStream.stop == 'function') {
+	        self.options.localVideoStream.stop();
+            } else {
+		if (self.localVideoStream.active){
+                    var tracks = self.localVideoStream.getTracks();
+                    console.error(tracks);
+		    tracks.forEach(function(track, index){
+			console.log(track);
+			track.stop();
+		    })
+                }
+            }
         }
 
         if (self.peer) {
@@ -319,7 +361,7 @@ var iceTimer;
 
     $.FSRTC.prototype.getMute = function() {
 	var self = this;
-	return self.enabled;
+	return self.audioEnabled;
     }
 
     $.FSRTC.prototype.setMute = function(what) {
@@ -340,10 +382,39 @@ var iceTimer;
 		break;
 	    }
 
-	    self.enabled = audioTracks[i].enabled;
+	    self.audioEnabled = audioTracks[i].enabled;
 	}
 
-	return !self.enabled;
+	return !self.audioEnabled;
+    }
+
+    $.FSRTC.prototype.getVideoMute = function() {
+	var self = this;
+	return self.videoEnabled;
+    }
+
+    $.FSRTC.prototype.setVideoMute = function(what) {
+	var self = this;
+	var videoTracks = self.localStream.getVideoTracks();
+
+	for (var i = 0, len = videoTracks.length; i < len; i++ ) {
+	    switch(what) {
+	    case "on":
+		videoTracks[i].enabled = true;
+		break;
+	    case "off":
+		videoTracks[i].enabled = false;
+		break;
+	    case "toggle":
+		videoTracks[i].enabled = !videoTracks[i].enabled;
+	    default:
+		break;
+	    }
+
+	    self.videoEnabled = videoTracks[i].enabled;
+	}
+
+	return !self.videoEnabled;
     }
 
     $.FSRTC.prototype.createAnswer = function(params) {
@@ -351,10 +422,6 @@ var iceTimer;
         self.type = "answer";
         self.remoteSDP = params.sdp;
         console.debug("inbound sdp: ", params.sdp);
-
-	self.options.useCamera = params.useCamera || "any";
-	self.options.useMic = params.useMic || "any";
-	self.options.useSpeak = params.useSpeak || "any";
 
         function onSuccess(stream) {
             self.localStream = stream;
@@ -430,7 +497,10 @@ var iceTimer;
 
 	var audio;
 
-	if (obj.options.videoParams && obj.options.screenShare) {//obj.options.videoParams.chromeMediaSource == 'desktop') {
+	if (obj.options.useMic && obj.options.useMic === "none") {
+	    console.log("Microphone Disabled");
+	    audio = false;
+	} else if (obj.options.videoParams && obj.options.screenShare) {//obj.options.videoParams.chromeMediaSource == 'desktop') {
 
 	    //obj.options.videoParams = {
 	//	chromeMediaSource: 'screen',
@@ -472,17 +542,10 @@ var iceTimer;
 	var bestFrameRate = obj.options.videoParams.vertoBestFrameRate;
 	delete obj.options.videoParams.vertoBestFrameRate;
 
-	if (window.moz) {
-	    video = obj.options.videoParams;
-	    if (!video.width) video.width = video.minWidth;
-	    if (!video.height) video.height = video.minHeight;
-	    if (!video.frameRate) video.frameRate = video.minFrameRate;
-	} else {
-	    video = {
-		mandatory: obj.options.videoParams,
-		optional: []
-            }
-	}
+	video = {
+	    mandatory: obj.options.videoParams,
+	    optional: []
+        }
 
 	var useVideo = obj.options.useVideo;
 
@@ -500,14 +563,13 @@ var iceTimer;
 	    }
 
 	} else {
-	    video = null;
-	    useVideo = null;
+	    console.log("Camera Disabled");
+	    video = false;
+	    useVideo = false;
 	}
 
 	return {audio: audio, video: video, useVideo: useVideo};
     }
-
-
 
     $.FSRTC.prototype.call = function(profile) {
         checkCompat();
@@ -524,6 +586,14 @@ var iceTimer;
         function onSuccess(stream) {
 	    self.localStream = stream;
 
+	    if (screen) {
+		if (moz) {
+		    self.constraints.OfferToReceiveVideo = false;
+		} else {
+		    self.constraints.mandatory.OfferToReceiveVideo = false;
+		}
+	    }
+
             self.peer = RTCPeerConnection({
                 type: self.type,
                 attachStream: self.localStream,
@@ -533,7 +603,7 @@ var iceTimer;
                 onICEComplete: function() {
                     return onICEComplete(self);
                 },
-                onRemoteStream: screen ? function(stream) { verto_afterStreamPublish(); console.error("SKIP");} : function(stream) {
+                onRemoteStream: screen ? function(stream) {verto_afterStreamPublish();} : function(stream) {
                     return onRemoteStream(self, stream);
                 },
                 onOfferSDP: function(sdp) {
@@ -561,8 +631,6 @@ var iceTimer;
 	console.log("Audio constraints", mediaParams.audio);
 	console.log("Video constraints", mediaParams.video);
 
-
-    //
     // watchOnly
     // listenOnly
     // joinAudio
@@ -606,6 +674,24 @@ var iceTimer;
         return;
     }
 
+
+	if (mediaParams.audio || mediaParams.video) {
+
+            getUserMedia({
+		constraints: {
+                    audio: mediaParams.audio,
+                video: mediaParams.video
+		},
+		video: mediaParams.useVideo,
+		onsuccess: onSuccess,
+		onerror: onError
+            });
+	} else {
+	    onSuccess(null);
+	}
+
+
+
         /*
         navigator.getUserMedia({
             video: self.options.useVideo,
@@ -622,6 +708,7 @@ var iceTimer;
     window.moz = !!navigator.mozGetUserMedia;
 
     function RTCPeerConnection(options) {
+	var gathering = false, done = false;
 
         var w = window,
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
@@ -673,102 +760,72 @@ var iceTimer;
         openOffererChannel();
         var x = 0;
 
-        peer.onicecandidate = function(event) {
-            if (event.candidate) {
-                options.onICE(event.candidate);
-		clearTimeout(iceTimer);
-		iceTimer = setTimeout(function() {
-		    iceTimerSent = 1;
+	function ice_handler() {
 
-		    if (iceTimerCompleted == 0) {
+	    done = true;
+	    gathering = null;
 
-			if (options.onICEComplete) {
-			    options.onICEComplete();
-			}
-
-			if (options.type == "offer") {
-			    /* new mozilla now tries to be like chrome but it takes them 10 seconds to complete the ICE
-			       Booooooooo! This trickle thing is a waste of time...... We'll all have to re-code our engines
-			       to handle partial setups to maybe save 100m
-			    */
-			    if ((!moz || (!options.sentICESDP && peer.localDescription.sdp.match(/a=candidate/)) && !x && options.onICESDP)) {
-				options.onICESDP(peer.localDescription);
-				//x = 1;
-				/*
-				  x = 1;
-				  peer.createOffer(function(sessionDescription) {
-				  sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
-				  peer.setLocalDescription(sessionDescription);
-				  if (options.onICESDP) {
-                                  options.onICESDP(sessionDescription);
-				  }
-				  }, onSdpError, constraints);
-				*/
-			    }
-			} else {
-			    if (!x && options.onICESDP) {
-				options.onICESDP(peer.localDescription);
-				//x = 1;
-				/*
-				  x = 1;
-				  peer.createAnswer(function(sessionDescription) {
-				  sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
-				  peer.setLocalDescription(sessionDescription);
-				  if (options.onICESDP) {
-                                  options.onICESDP(sessionDescription);
-				  }
-				  }, onSdpError, constraints);
-				*/
-			    }
-			}
-		    }
-		}, 1000);
-            } else {
-		if (iceTimerSent == 0) {
-		    clearTimeout(iceTimer);
-		    iceTimerCompleted = 1;
-
-                    if (options.onICEComplete) {
-			options.onICEComplete();
-                    }
-
-                    if (options.type == "offer") {
-			/* new mozilla now tries to be like chrome but it takes them 10 seconds to complete the ICE
-			   Booooooooo! This trickle thing is a waste of time...... We'll all have to re-code our engines
-			   to handle partial setups to maybe save 100m
-			*/
-			if ((!moz || (!options.sentICESDP && peer.localDescription.sdp.match(/a=candidate/)) && !x && options.onICESDP)) {
-                            options.onICESDP(peer.localDescription);
-                            //x = 1;
-                            /*
-                              x = 1;
-                              peer.createOffer(function(sessionDescription) {
-                              sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
-                              peer.setLocalDescription(sessionDescription);
-                              if (options.onICESDP) {
-                              options.onICESDP(sessionDescription);
-                              }
-                              }, onSdpError, constraints);
-                            */
-			}
-                    } else {
-			if (!x && options.onICESDP) {
-                            options.onICESDP(peer.localDescription);
-                            //x = 1;
-                            /*
-                              x = 1;
-                              peer.createAnswer(function(sessionDescription) {
-                              sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
-                              peer.setLocalDescription(sessionDescription);
-                              if (options.onICESDP) {
-                              options.onICESDP(sessionDescription);
-                              }
-                              }, onSdpError, constraints);
-                            */
-			}
-                    }
-		}
+            if (options.onICEComplete) {
+                options.onICEComplete();
             }
+
+            if (options.type == "offer") {
+                if ((!moz || (!options.sentICESDP && peer.localDescription.sdp.match(/a=candidate/)) && !x && options.onICESDP)) {
+                    options.onICESDP(peer.localDescription);
+                    //x = 1;
+                    /*
+                      x = 1;
+                      peer.createOffer(function(sessionDescription) {
+                      sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
+                      peer.setLocalDescription(sessionDescription);
+                      if (options.onICESDP) {
+                      options.onICESDP(sessionDescription);
+                      }
+                      }, onSdpError, constraints);
+                    */
+                }
+            } else {
+                if (!x && options.onICESDP) {
+                    options.onICESDP(peer.localDescription);
+                    //x = 1;
+                    /*
+                      x = 1;
+                      peer.createAnswer(function(sessionDescription) {
+                      sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
+                      peer.setLocalDescription(sessionDescription);
+                      if (options.onICESDP) {
+                      options.onICESDP(sessionDescription);
+                      }
+                      }, onSdpError, constraints);
+                    */
+                }
+            }
+        }
+
+        peer.onicecandidate = function(event) {
+
+	    if (done) {
+		return;
+	    }
+
+	    if (!gathering) {
+		gathering = setTimeout(ice_handler, 1000);
+	    }
+
+	    if (event) {
+		if (event.candidate) {
+		    options.onICE(event.candidate);
+		}
+	    } else {
+		done = true;
+
+		if (gathering) {
+		    clearTimeout(gathering);
+		    gathering = null;
+		}
+
+		ice_handler();
+	    }
         };
 
         // attachStream = MediaStream;
@@ -990,7 +1047,11 @@ var iceTimer;
             stop: function() {
                 peer.close();
                 if (options.attachStream) {
+                  if(typeof options.attachStream.stop == 'function') {
                     options.attachStream.stop();
+                  } else {
+                    options.attachStream.active = false;
+                  }
                 }
             }
 
@@ -1039,8 +1100,6 @@ var iceTimer;
         return media;
     }
 
-    $.FSRTC.validRes = [];
-
     $.FSRTC.resSupported = function(w, h) {
 	for (var i in $.FSRTC.validRes) {
 	    if ($.FSRTC.validRes[i][0] == w && $.FSRTC.validRes[i][1] == h) {
@@ -1075,6 +1134,9 @@ var iceTimer;
                'validRes': $.FSRTC.validRes,
                'bestResSupported': $.FSRTC.bestResSupported()
             };
+
+	    localStorage.setItem("res_" + cam, $.toJSON(res));
+
 	    if (func) return func(res);
 	    return;
 	}
@@ -1099,19 +1161,14 @@ var iceTimer;
 	    "maxHeight": h
 	};
 
-	if (window.moz) {
-	    video = video.mandatory;
-	    if (!video.width) video.width = video.minWidth;
-	    if (!video.height) video.height = video.minHeight;
-	    if (!video.frameRate) video.frameRate = video.minFrameRate;
-	}
-
 	getUserMedia({
 	    constraints: {
                 audio: ttl++ == 0,
                 video: video
 	    },
-	    onsuccess: function(e) {e.stop(); console.info(w + "x" + h + " supported."); $.FSRTC.validRes.push([w, h]); checkRes(cam, func);},
+	    onsuccess: function(e) {
+		e.getTracks().forEach(function(track) {track.stop();});
+		console.info(w + "x" + h + " supported."); $.FSRTC.validRes.push([w, h]); checkRes(cam, func);},
 	    onerror: function(e) {console.error( w + "x" + h + " not supported."); checkRes(cam, func);}
         });
     }
@@ -1119,6 +1176,20 @@ var iceTimer;
 
     $.FSRTC.getValidRes = function (cam, func) {
 	var used = [];
+	var cached = localStorage.getItem("res_" + cam);
+
+	if (cached) {
+	    var cache = $.parseJSON(cached);
+
+	    if (cache) {
+		$.FSRTC.validRes = cache.validRes;
+		console.log("CACHED RES FOR CAM " + cam, cache);
+	    } else {
+		console.error("INVALID CACHE");
+	    }
+	    return func ? func(cache) : null;
+	}
+
 
 	$.FSRTC.validRes = [];
 	resI = 0;
@@ -1126,14 +1197,32 @@ var iceTimer;
 	checkRes(cam, func);
     }
 
-    $.FSRTC.checkPerms = function () {
+    $.FSRTC.checkPerms = function (runtime, check_audio, check_video) {
 	getUserMedia({
 	    constraints: {
-		audio: true,
-		video: true,
+		audio: check_audio,
+		video: check_video,
 	    },
-	    onsuccess: function(e) {e.stop(); console.info("media perm init complete");},
-	    onerror: function(e) {console.error("media perm init error");}
+	    onsuccess: function(e) {
+		e.getTracks().forEach(function(track) {track.stop();});
+
+		console.info("media perm init complete");
+		if (runtime) {
+                    setTimeout(runtime, 100, true);
+		}
+            },
+	    onerror: function(e) {
+		if (check_video && check_audio) {
+		    console.error("error, retesting with audio params only");
+		    return $.FSRTC.checkPerms(runtime, check_audio, false);
+		}
+
+		console.error("media perm init error");
+
+		if (runtime) {
+		    runtime(false)
+		}
+	    }
 	});
     }
 

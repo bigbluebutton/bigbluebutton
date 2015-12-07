@@ -76,15 +76,15 @@
             videoParams: {},
             audioParams: {},
 	    loginParams: {},
-	    deviceParams: {},
+	    deviceParams: {onResCheck: null},
 	    userVariables: {},
             iceServers: false,
             ringSleep: 6000,
 	    sessid: null
         }, options);
 
-	if (!verto.options.deviceParams.useCamera) {
-	    verto.options.deviceParams.useCamera = "any";
+	if (verto.options.deviceParams.useCamera) {
+	    $.FSRTC.getValidRes(verto.options.deviceParams.useCamera, verto.options.deviceParams.onResCheck);
 	}
 
 	if (!verto.options.deviceParams.useMic) {
@@ -98,10 +98,8 @@
 	if (verto.options.sessid) {
 	    verto.sessid = verto.options.sessid;
 	} else {
-            verto.sessid = $.cookie('verto_session_uuid') || generateGUID();
-            $.cookie('verto_session_uuid', verto.sessid, {
-		expires: 1
-            });
+            verto.sessid = localStorage.getItem("verto_session_uuid") || generateGUID();
+	    localStorage.setItem("verto_session_uuid", verto.sessid);
 	}
 
         verto.dialogs = {};
@@ -142,14 +140,30 @@
 
     };
 
-    $.verto.prototype.videoParams = function(on) {
+
+    $.verto.prototype.deviceParams = function(obj) {
         var verto = this;
-        verto.options.videoParams = on;
+
+	for (var i in obj) {
+            verto.options.deviceParams[i] = obj[i];
+	}
+
+	if (obj.useCamera) {
+	    $.FSRTC.getValidRes(verto.options.deviceParams.useCamera, obj ? obj.onResCheck : undefined);
+	}
     };
 
-    $.verto.prototype.iceServers = function(on) {
+    $.verto.prototype.videoParams = function(obj) {
         var verto = this;
-        verto.options.iceServers = on;
+
+	for (var i in obj) {
+            verto.options.videoParams[i] = obj[i];
+	}
+    };
+
+    $.verto.prototype.iceServers = function(obj) {
+        var verto = this;
+        verto.options.iceServers = obj;
     };
 
     $.verto.prototype.loginData = function(params) {
@@ -459,7 +473,7 @@
 
         if (data.params.callID) {
             var dialog = verto.dialogs[data.params.callID];
-
+	    
 	    if (data.method === "verto.attach" && dialog) {
 		delete dialog.verto.dialogs[dialog.callID];
 		dialog.rtc.stop();
@@ -1061,6 +1075,27 @@
             console.error("Error: ", obj, args);
         };
 
+	/* back compat so jsonstatus can always be enabled */
+	function genRow(data) {
+	    if (typeof(data[4]) === "string" && data[4].indexOf("{") > -1) {
+		var tmp = $.parseJSON(data[4]);
+		data[4] = tmp.oldStatus;
+		data[5] = null;
+	    }
+	    return data;
+	}
+
+	function genArray(obj) {
+	    var data = obj.asArray();
+
+            for (var i in data) {
+		data[i] = genRow(data[i]);
+	    }
+
+	    return data;
+	}
+
+
         la.onChange = function(obj, args) {
             var index = 0;
             var iserr = 0;
@@ -1108,7 +1143,7 @@
                         return;
                     }
                     dt.fnClearTable();
-                    dt.fnAddData(obj.asArray());
+                    dt.fnAddData(genArray(obj));
                     dt.fnAdjustColumnSizing();
                     break;
                 case "add":
@@ -1119,9 +1154,9 @@
                     if (args.redraw > -1) {
                         // specific position, more costly
                         dt.fnClearTable();
-                        dt.fnAddData(obj.asArray());
+                        dt.fnAddData(genArray(obj));
                     } else {
-                        dt.fnAddData(args.data);
+                        dt.fnAddData(genRow(args.data));
                     }
                     dt.fnAdjustColumnSizing();
                     break;
@@ -1130,7 +1165,7 @@
                         return;
                     }
                     //console.debug(args, index);
-                    dt.fnUpdate(args.data, index);
+                    dt.fnUpdate(genRow(args.data), index);
                     dt.fnAdjustColumnSizing();
                     break;
                 case "del":
@@ -1143,7 +1178,7 @@
                 case "reorder":
                     // specific position, more costly
                     dt.fnClearTable();
-                    dt.fnAddData(obj.asArray());
+                    dt.fnAddData(genArray(obj));
                     break;
                 case "hide":
                     jq.hide();
@@ -1234,7 +1269,7 @@
         var conf = this;
 
         conf.destroyed = true;
-        conf.params.onBroadcast(verto, conf, 'destroy');
+        conf.params.onBroadcast(conf.verto, conf, 'destroy');
 
         if (conf.params.laData.modChannel) {
             conf.verto.unsubscribe(conf.params.laData.modChannel);
@@ -1317,24 +1352,23 @@
         };
 
         $.verto.conf.prototype.volumeDown = function(memberID) {
-            if (!this.params.hasVid) {
-                throw 'Conference has no video';
-            }
-            this.modCommand("volume_in", parseInt(memberID), "down");
+            this.modCommand("volume_out", parseInt(memberID), "down");
         };
 
         $.verto.conf.prototype.volumeUp = function(memberID) {
-            if (!this.params.hasVid) {
-                throw 'Conference has no video';
-            }
+            this.modCommand("volume_out", parseInt(memberID), "up");
+        };
+
+        $.verto.conf.prototype.gainDown = function(memberID) {
+            this.modCommand("volume_in", parseInt(memberID), "down");
+        };
+
+        $.verto.conf.prototype.gainUp = function(memberID) {
             this.modCommand("volume_in", parseInt(memberID), "up");
         };
 
         $.verto.conf.prototype.transfer = function(memberID, exten) {
-            if (!this.params.hasVid) {
-                throw 'Conference has no video';
-            }
-            this.modCommand("transfer", parseInt(memberID), "exten");
+            this.modCommand("transfer", parseInt(memberID), exten);
         };
 
         $.verto.conf.prototype.sendChat = function(message, type) {
@@ -1348,7 +1382,7 @@
                 }
             });
         };
-
+            
     }
 
     $.verto.modfuncs = {};
@@ -1371,7 +1405,7 @@
         confMan.verto = verto;
         confMan.serno = CONFMAN_SERNO++;
 	confMan.canvasCount = confMan.params.laData.canvasCount;
-
+	
         function genMainMod(jq) {
             var play_id = "play_" + confMan.serno;
             var stop_id = "stop_" + confMan.serno;
@@ -1390,7 +1424,7 @@
 
             jq.html(html);
 
-	    $.verto.modfuncs.change_video_layout = function(id, canvas_id) {
+	    $.verto.modfuncs.change_video_layout = function(id, canvas_id) {	    
 		var val = $("#" + id + " option:selected").text();
 		if (val !== "none") {
                     confMan.modCommand("vid-layout", null, [val, canvas_id]);
@@ -1401,10 +1435,10 @@
 		for (var j = 0; j < confMan.canvasCount; j++) {
 		    var vlayout_id = "confman_vid_layout_" + j + "_" + confMan.serno;
 		    var vlselect_id = "confman_vl_select_" + j + "_" + confMan.serno;
-
+		
 
 		    var vlhtml =  "<div id='" + vlayout_id + "'><br>" +
-			"<b>Video Layout Canvas " + (j+1) +
+			"<b>Video Layout Canvas " + (j+1) + 
 			"</b> <select onChange='$.verto.modfuncs.change_video_layout(\"" + vlayout_id + "\", \"" + j + "\")' id='" + vlselect_id + "'></select> " +
 			"<br><br></div>";
 		    jq.append(vlhtml);
@@ -1456,17 +1490,19 @@
             var layer_set_id = "layer_set_" + x;
             var layer_next_id = "layer_next_" + x;
             var layer_prev_id = "layer_prev_" + x;
-
+	    
             var tmute_id = "tmute_" + x;
             var tvmute_id = "tvmute_" + x;
             var vbanner_id = "vbanner_" + x;
             var tvpresenter_id = "tvpresenter_" + x;
             var tvfloor_id = "tvfloor_" + x;
             var box_id = "box_" + x;
-            var volup_id = "volume_in_up" + x;
-            var voldn_id = "volume_in_dn" + x;
+            var gainup_id = "gain_in_up" + x;
+            var gaindn_id = "gain_in_dn" + x;
+            var volup_id = "vol_in_up" + x;
+            var voldn_id = "vol_in_dn" + x;
             var transfer_id = "transfer" + x;
-
+	    
 
             var html = "<div id='" + box_id + "'>";
 
@@ -1474,10 +1510,12 @@
 
             html += "<button class='ctlbtn' id='" + kick_id + "'>Kick</button>" +
                 "<button class='ctlbtn' id='" + tmute_id + "'>Mute</button>" +
+                "<button class='ctlbtn' id='" + gainup_id + "'>Gain -</button>" +
+                "<button class='ctlbtn' id='" + gaindn_id + "'>Gain +</button>" +
                 "<button class='ctlbtn' id='" + voldn_id + "'>Vol -</button>" +
                 "<button class='ctlbtn' id='" + volup_id + "'>Vol +</button>" +
                 "<button class='ctlbtn' id='" + transfer_id + "'>Transfer</button>";
-
+		
 	    if (confMan.params.hasVid) {
 		html += "<br><br><b>Video Controls</b><hr noshade>";
 
@@ -1492,14 +1530,14 @@
 			"<button class='ctlbtn' id='" + canvas_in_set_id + "'>Set Input Canvas</button>" +
 			"<button class='ctlbtn' id='" + canvas_in_prev_id + "'>Prev Input Canvas</button>" +
 			"<button class='ctlbtn' id='" + canvas_in_next_id + "'>Next Input Canvas</button>" +
-
+			
 		    "<br>" +
-
+			
 		    "<button class='ctlbtn' id='" + canvas_out_set_id + "'>Set Watching Canvas</button>" +
 			"<button class='ctlbtn' id='" + canvas_out_prev_id + "'>Prev Watching Canvas</button>" +
 			"<button class='ctlbtn' id='" + canvas_out_next_id + "'>Next Watching Canvas</button>";
 		}
-
+		
 		html += "<br>" +
 
                 "<button class='ctlbtn' id='" + layer_set_id + "'>Set Layer</button>" +
@@ -1582,7 +1620,7 @@
             $("#" + canvas_out_prev_id).click(function() {
                 confMan.modCommand("vid-watching-canvas", x, "prev");
             });
-
+	    
             $("#" + tmute_id).click(function() {
                 confMan.modCommand("tmute", x);
             });
@@ -1605,12 +1643,20 @@
 		});
 	    }
 
-            $("#" + volup_id).click(function() {
+            $("#" + gainup_id).click(function() {
                 confMan.modCommand("volume_in", x, "up");
             });
 
-            $("#" + voldn_id).click(function() {
+            $("#" + gaindn_id).click(function() {
                 confMan.modCommand("volume_in", x, "down");
+            });
+
+            $("#" + volup_id).click(function() {
+                confMan.modCommand("volume_out", x, "up");
+            });
+
+            $("#" + voldn_id).click(function() {
+                confMan.modCommand("volume_out", x, "down");
             });
 
             return html;
@@ -1651,18 +1697,33 @@
 			for (var j = 0; j < confMan.canvasCount; j++) {
 			    var vlselect_id = "#confman_vl_select_" + j + "_" + confMan.serno;
 			    var vlayout_id = "#confman_vid_layout_" + j + "_" + confMan.serno;
-
+			    
 			    var x = 0;
 			    var options;
-
+			    
 			    $(vlselect_id).selectmenu({});
 			    $(vlselect_id).selectmenu("enable");
 			    $(vlselect_id).empty();
-
+			    
 			    $(vlselect_id).append(new Option("Choose a Layout", "none"));
 
 			    if (e.data.responseData) {
-				options = e.data.responseData.sort();
+				var rdata = [];
+
+				for (var i in e.data.responseData) {
+				    rdata.push(e.data.responseData[i].name);
+				}
+				
+				options = rdata.sort(function(a, b) {
+				    var ga = a.substring(0, 6) == "group:" ? true : false;
+				    var gb = b.substring(0, 6) == "group:" ? true : false;
+				    
+				    if ((ga || gb) && ga != gb) {
+					return ga ? -1 : 1;
+				    }
+				    
+				    return ( ( a == b ) ? 0 : ( ( a > b ) ? 1 : -1 ) );
+				});
 
 				for (var i in options) {
 				    $(vlselect_id).append(new Option(options[i], options[i]));
@@ -1832,7 +1893,7 @@
             login: verto.options.login,
 	    videoParams: verto.options.videoParams
         }, params);
-
+	
         dialog.verto = verto;
         dialog.direction = direction;
         dialog.lastState = null;
@@ -1841,16 +1902,16 @@
         dialog.answered = false;
         dialog.attach = params.attach || false;
 	dialog.screenShare = params.screenShare || false;
-	dialog.useCamera = params.useCamera;
-	dialog.useMic = params.useMic;
-	dialog.useSpeak = params.useSpeak;
-
+	dialog.useCamera = dialog.params.useCamera;
+	dialog.useMic = dialog.params.useMic;
+	dialog.useSpeak = dialog.params.useSpeak;
+	
         if (dialog.params.callID) {
             dialog.callID = dialog.params.callID;
         } else {
             dialog.callID = dialog.params.callID = generateGUID();
         }
-
+	
         if (dialog.params.tag) {
             dialog.audioStream = document.getElementById(dialog.params.tag);
 
@@ -1897,15 +1958,26 @@
         }
 
         RTCcallbacks.onICESDP = function(rtc) {
+            console.log("RECV " + rtc.type + " SDP", rtc.mediaData.SDP);
+
+	    if (dialog.state == $.verto.enum.state.requesting || dialog.state == $.verto.enum.state.answering || dialog.state == $.verto.enum.state.active) {
+		location.reload();
+		return;
+	    }
 
             if (rtc.type == "offer") {
-                console.log("offer", rtc.mediaData.SDP);
-
-                dialog.setState($.verto.enum.state.requesting);
-
-                dialog.sendMethod("verto.invite", {
-                    sdp: rtc.mediaData.SDP
-                });
+		if (dialog.state == $.verto.enum.state.active) {
+                    dialog.setState($.verto.enum.state.requesting);
+		    dialog.sendMethod("verto.attach", {
+			sdp: rtc.mediaData.SDP
+                    });
+		} else {
+                    dialog.setState($.verto.enum.state.requesting);
+		    
+                    dialog.sendMethod("verto.invite", {
+			sdp: rtc.mediaData.SDP
+                    });
+		}
             } else { //answer
                 dialog.setState($.verto.enum.state.answering);
 
@@ -1934,8 +2006,8 @@
 
         dialog.rtc = new $.FSRTC({
             callbacks: RTCcallbacks,
-	    localVideo: dialog.localVideo,
-            useVideo: dialog.videoStream,
+	    localVideo: dialog.screenShare ? null : dialog.localVideo,
+            useVideo: dialog.params.useVideo ? dialog.videoStream : null,
             useAudio: dialog.audioStream,
             useStereo: dialog.params.useStereo,
             videoParams: dialog.params.videoParams,
@@ -1997,6 +2069,53 @@
         return false;
     }
 
+
+    // Attach audio output device to video element using device/sink ID.                                                                                           
+    function find_name(id) {
+	for (var i in $.verto.audioOutDevices) {
+	    var source = $.verto.audioOutDevices[i];
+	    if (source.id === id) {
+		return(source.label);
+	    }
+	}
+
+	return id;
+    }
+
+    $.verto.dialog.prototype.setAudioPlaybackDevice = function(sinkId, callback, arg) {
+	var dialog = this;
+	var element = dialog.audioStream;
+
+	if (typeof element.sinkId !== 'undefined') {
+	    var devname = find_name(sinkId);
+	    console.info("Dialog: " + dialog.callID + " Setting speaker:", element, devname);
+
+	    element.setSinkId(sinkId)
+		.then(function() {
+		    console.log("Dialog: " + dialog.callID + ' Success, audio output device attached: ' + sinkId);
+		    if (callback) {
+			callback(true, devname, arg);
+		    }
+		})
+		.catch(function(error) {
+		    var errorMessage = error;
+		    if (error.name === 'SecurityError') {
+			errorMessage = "Dialog: " + dialog.callID + ' You need to use HTTPS for selecting audio output ' +
+			    'device: ' + error;
+		    }
+		    if (callback) {
+			callback(false, null, arg);
+		    }
+		    console.error(errorMessage);
+		});
+	} else {
+	    console.warn("Dialog: " + dialog.callID + ' Browser does not support output device selection.');
+	    if (callback) {
+		callback(false, null, arg);
+	    }
+	}
+    }
+
     $.verto.dialog.prototype.setState = function(state) {
         var dialog = this;
 
@@ -2010,7 +2129,7 @@
             return false;
         }
 
-        console.info("Dialog " + dialog.callID + ": state change from " + dialog.state.name + " to " + state.name);
+        console.log("Dialog " + dialog.callID + ": state change from " + dialog.state.name + " to " + state.name);
 
         dialog.lastState = dialog.state;
         dialog.state = state;
@@ -2036,11 +2155,9 @@
 	    console.info("Using Speaker: ", speaker);
 
 	    if (speaker && speaker !== "any") {
-		var videoElement = dialog.audioStream;
-
 		setTimeout(function() {
-		    console.info("Setting speaker:", videoElement, speaker);
-		    attachSinkId(videoElement, speaker);}, 500);
+		    dialog.setAudioPlaybackDevice(speaker);
+		}, 500);
 	    }
 
 	    break;
@@ -2065,7 +2182,9 @@
             break;
         case $.verto.enum.state.destroy:
             delete dialog.verto.dialogs[dialog.callID];
-	    if (!dialog.params.screenShare) {
+	    if (dialog.params.screenShare) {
+		dialog.rtc.stopPeer();
+	    } else {
 		dialog.rtc.stop();
 	    }
             break;
@@ -2195,8 +2314,18 @@
     };
 
     $.verto.dialog.prototype.getMute = function() {
-	var dialog = this;
+	var dialog = this; 
 	return dialog.rtc.getMute();
+    };
+
+    $.verto.dialog.prototype.setVideoMute = function(what) {
+	var dialog = this;
+	return dialog.rtc.setVideoMute(what);
+    };
+
+    $.verto.dialog.prototype.getVideoMute = function() {
+	var dialog = this; 
+	return dialog.rtc.getVideoMute();
     };
 
     $.verto.dialog.prototype.useStereo = function(on) {
@@ -2282,7 +2411,7 @@
 
     $.verto.dialog.prototype.answer = function(params) {
         var dialog = this;
-
+	
         if (!dialog.answered) {
 	    if (!params) {
 		params = {};
@@ -2296,11 +2425,20 @@
                 }
 		dialog.params.callee_id_name = params.callee_id_name;
 		dialog.params.callee_id_number = params.callee_id_number;
-		dialog.useCamera = params.useCamera;
-		dialog.useMic = params.useMic;
-		dialog.useSpeak = params.useSpeak;
-            }
 
+		if (params.useCamera) {
+		    dialog.useCamera = params.useCamera;
+		}
+
+		if (params.useMic) {
+		    dialog.useMic = params.useMic;
+		}
+
+		if (params.useSpeak) {
+		    dialog.useSpeak = params.useSpeak;
+		}
+            }
+	    
             dialog.rtc.createAnswer(params);
             dialog.answered = true;
         }
@@ -2417,7 +2555,8 @@
         },
         requesting: {
             trying: 1,
-            hangup: 1
+            hangup: 1,
+	    active: 1
         },
         recovering: {
             answering: 1,
@@ -2466,7 +2605,7 @@
     $.verto.enum = Object.freeze($.verto.enum);
 
     $.verto.saved = [];
-
+    
     $.verto.unloadJobs = [];
 
     $(window).bind('beforeunload', function() {
@@ -2491,7 +2630,7 @@
 
     var checkDevices = function(runtime) {
 	console.info("enumerating devices");
-	var aud_in = [], aud_out = [], vid = [];
+	var aud_in = [], aud_out = [], vid = [];	
 
 	if ((!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) && MediaStreamTrack.getSources) {
 	    MediaStreamTrack.getSources(function (media_sources) {
@@ -2503,17 +2642,17 @@
 			aud_in.push(media_sources[i]);
 		    }
 		}
-
+		
 		$.verto.videoDevices = vid;
 		$.verto.audioInDevices = aud_in;
-
+		
 		console.info("Audio Devices", $.verto.audioInDevices);
 		console.info("Video Devices", $.verto.videoDevices);
-		runtime();
+		runtime(true);
 	    });
 	} else {
 	    /* of course it's a totally different API CALL with different element names for the same exact thing */
-
+	    
 	    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
 		console.log("enumerateDevices() not supported.");
 		return;
@@ -2528,7 +2667,7 @@
 
 			console.log(device.kind + ": " + device.label +
 				    " id = " + device.deviceId);
-
+			
 			if (device.kind === "videoinput") {
 			    vid.push({id: device.deviceId, kind: "video", label: device.label});
 			} else if (device.kind === "audioinput") {
@@ -2537,21 +2676,21 @@
 			    aud_out.push({id: device.deviceId, kind: "audio_out", label: device.label});
 			}
 		    });
-
+		    
 
 		    $.verto.videoDevices = vid;
 		    $.verto.audioInDevices = aud_in;
 		    $.verto.audioOutDevices = aud_out;
-
+		    
 		    console.info("Audio IN Devices", $.verto.audioInDevices);
 		    console.info("Audio Out Devices", $.verto.audioOutDevices);
 		    console.info("Video Devices", $.verto.videoDevices);
-		    runtime();
-
+		    runtime(true);
+		    
 		})
 		.catch(function(err) {
-		    console.log(err.name + ": " + error.message);
-		    runtime();
+		    console.log(" Device Enumeration ERROR: " + err.name + ": " + err.message);
+		    runtime(false);
 		});
 	}
 
@@ -2562,9 +2701,24 @@
     }
 
     $.verto.init = function(obj, runtime) {
-	checkDevices(function() {
-	    $.FSRTC.getValidRes(obj.camera, runtime);
-	});
+	if (!obj) {
+	    obj = {};
+	}
+
+	if (!obj.skipPermCheck && !obj.skipDeviceCheck) {
+	    $.FSRTC.checkPerms(function(status) {
+		checkDevices(runtime);
+	    }, true, true);
+	} else if (obj.skipPermCheck && !obj.skipDeviceCheck) {
+	    checkDevices(runtime);
+	} else if (!obj.skipPermCheck && obj.skipDeviceCheck) {
+	    $.FSRTC.checkPerms(function(status) {
+		runtime(status);
+	    }, true, true);
+	} else {
+	    runtime(null);
+	}
+
     }
 
     $.verto.genUUID = function () {
