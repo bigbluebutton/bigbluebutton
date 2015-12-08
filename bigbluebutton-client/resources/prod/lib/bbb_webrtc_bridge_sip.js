@@ -188,7 +188,7 @@ function createUAWithStuns(username, server, callback, stunsConfig, makeCallFunc
 		traceSip: true,
 		autostart: false,
 		userAgentString: "BigBlueButton",
-		iceGatheringTimeout: 3000,
+		iceCheckingTimeout: 3000,
 		stunServers: stunsConfig['stunServers'],
 		turnServers: stunsConfig['turnServers']
 	};
