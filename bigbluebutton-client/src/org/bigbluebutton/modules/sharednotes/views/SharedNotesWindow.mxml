@@ -43,13 +43,16 @@
 
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
+			import mx.controls.Menu;
 			import mx.core.FlexGlobals;
 			import mx.core.IFlexDisplayObject;
+			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.main.views.WellPositionedMenu;
 			import org.bigbluebutton.modules.sharednotes.views.components.SharedNotesRichTextEditor;
 			import org.bigbluebutton.modules.sharednotes.views.SharedNotesNameWindow;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
@@ -75,10 +78,6 @@
 			
 			public function onCreationComplete():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
-
-				richTextEditor.addEventListener("SHARED_NOTES_SAVED", function(e:Event):void {
-					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
-				});
 
 				/*
 				 * This is a workaround on a Flex issue,
@@ -180,9 +179,56 @@
 				}
 			}
 
+			protected function saveNotes(title:String, text:String, extension:String):void
+			{
+				var filename:String = title.replace(/\s+/g, '-').toLowerCase() + "." + extension;
+				var fileRef:FileReference = new FileReference();
+				fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
+					Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK);
+				});
+				
+				var cr:String = String.fromCharCode(13);
+				var lf:String = String.fromCharCode(10);
+				var crlf:String = String.fromCharCode(13, 10);
+				
+				text = text.replace(new RegExp(crlf, "g"), '\n');
+				text = text.replace(new RegExp(cr, "g"), '\n');
+				text = text.replace(new RegExp(lf, "g"), '\n');
+				text = text.replace(new RegExp('\n', "g"), crlf);
+				
+				var b:ByteArray = new ByteArray();
+				// Include the byte order mark for UTF-8 (http://stackoverflow.com/a/16201680)
+				b.writeByte(0xEF);
+				b.writeByte(0xBB);
+				b.writeByte(0xBF);
+				b.writeUTFBytes(text);
+				
+				fileRef.save(b, filename);
+			}
+
+			protected function saveNotesWithFormat(title:String):void {
+				saveNotes(title, richTextEditor.htmlText, "html");
+			}
+
+			protected function saveNotesWithoutFormat(title:String):void {
+				saveNotes(title, richTextEditor.text, "txt");
+			}
+
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
-				richTextEditor.saveNotesToFile(title);
+				var menuData:Array = [];
+				menuData.push( {label: ResourceUtil.getInstance().getString('bbb.sharedNotes.save.htmlLabel'), handler: function():void { saveNotesWithFormat(title); }} );
+				menuData.push( {label: ResourceUtil.getInstance().getString('bbb.sharedNotes.save.txtLabel'), handler: function():void { saveNotesWithoutFormat(title); }} );
+
+				var menu:Menu = WellPositionedMenu.createMenu(null, menuData, btnSave, true);
+
+				menu.addEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
+				menu.show();
+				menu.setFocus();
+			}
+			
+			private function saveMenuClickHandler(e:MenuEvent):void {
+				e.item.handler();
 			}
 
 			protected function btnNew_clickHandler(event:MouseEvent):void
@@ -199,10 +245,6 @@
 				return options.position;
 			}
 			
-			override public function close(event:MouseEvent=null):void {
-				super.close(event);
-			}
-
 			override protected function resourcesChanged():void {
 				super.resourcesChanged();
 
@@ -222,7 +264,7 @@
 		<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">
 			<mx:Button id="btnNew" width="26" height="26" click="btnNew_clickHandler(event)" icon="@Embed(source='images/ic_note_add_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
 			<mx:Button width="26" height="26" click="btnToolbar_clickHandler(event)" icon="@Embed(source='images/ic_note_format_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}" visible="{options.showToolbarButton}" includeInLayout="{options.showToolbarButton}"/>
-			<mx:Button width="26" height="26" click="btnSave_clickHandler(event)" icon="@Embed(source='images/ic_save_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+			<mx:Button id="btnSave" width="26" height="26" click="btnSave_clickHandler(event)" icon="@Embed(source='images/ic_save_16px.png')" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
 		</mx:HBox>
 	</mx:VBox>
 </containers:CustomMdiWindow>

@@ -981,35 +981,6 @@
     //----------------------------------
     private var refreshSelection:Boolean = false;
 
-    public function saveNotesToFile(title:String):void
-    {
-        var filename:String = title.replace(/\s+/g, '-').toLowerCase() + ".html";
-        var _fileRef:FileReference = new FileReference();
-        _fileRef.addEventListener(Event.COMPLETE, function(e:Event):void
-        {
-            dispatchEvent(new Event("SHARED_NOTES_SAVED"));
-        });
-
-        var cr:String = String.fromCharCode(13);
-        var lf:String = String.fromCharCode(10);
-        var crlf:String = String.fromCharCode(13, 10);
-
-        var textToExport:String = htmlText;
-        textToExport = textToExport.replace(new RegExp(crlf, "g"), '\n');
-        textToExport = textToExport.replace(new RegExp(cr, "g"), '\n');
-        textToExport = textToExport.replace(new RegExp(lf, "g"), '\n');
-        textToExport = textToExport.replace(new RegExp('\n', "g"), crlf);
-
-        var b:ByteArray = new ByteArray();
-        // Include the byte order mark for UTF-8 (http://stackoverflow.com/a/16201680)
-        b.writeByte(0xEF);
-        b.writeByte(0xBB);
-        b.writeByte(0xBF);
-        b.writeUTFBytes(textToExport);
-
-        _fileRef.save(b, filename);
-    }
-
     public function restoreCursor(endIndex:Number, oldPosition:Number):void
     {
         var cursorLine:Number = 0;
