@@ -222,13 +222,29 @@
 
 				var menu:Menu = WellPositionedMenu.createMenu(null, menuData, btnSave, true);
 
-				menu.addEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
+				registerListenersOnSaveMenu(menu);
 				menu.show();
-				menu.setFocus();
+			}
+			
+			private function registerListenersOnSaveMenu(menu:Menu):void {
+				menu.addEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
+				menu.addEventListener(MenuEvent.MENU_HIDE, saveMenuHideHandler);
+			}
+			
+			private function unregisterListenersOnSaveMenu(menu:Menu):void {
+				menu.removeEventListener(MenuEvent.ITEM_CLICK, saveMenuClickHandler);
+				menu.removeEventListener(MenuEvent.MENU_HIDE, saveMenuHideHandler);
 			}
 			
 			private function saveMenuClickHandler(e:MenuEvent):void {
 				e.item.handler();
+			}
+
+			private function saveMenuHideHandler(e:MenuEvent):void {
+				var menu:Menu = e.currentTarget as Menu;
+				unregisterListenersOnSaveMenu(menu);
+
+				btnSave.emphasized = false;
 			}
 
 			protected function btnNew_clickHandler(event:MouseEvent):void
