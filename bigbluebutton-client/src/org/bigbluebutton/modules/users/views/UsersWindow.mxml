@@ -240,10 +240,9 @@
 			
 			private function openEmojiStatusMenu() : void
 			{
-				var grid : EmojiGrid = PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication), EmojiGrid, false) as EmojiGrid;
-				var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - grid.height));
-				grid.x = menuXY.x;
-				grid.y = menuXY.y;
+				var moodMenu:MoodMenu = PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
+				var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - moodMenu.height));
+				moodMenu.show(menuXY);
 			}
 			
 			private function openSettings():void {
@@ -531,7 +530,7 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
-		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
+		<mx:Button id="emojiStatusBtn" icon="{images.mood}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()"
 				   visible="true" tabIndex="{partOptions.baseTabIndex+10}" />

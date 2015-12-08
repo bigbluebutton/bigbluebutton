@@ -344,28 +344,28 @@ package org.bigbluebutton.common
 		public var mood_clear:Class;
 
 		[Embed(source="assets/images/status/icon-3-high-five.png")]
-		public var mood_raise_hand:Class;
+		public var mood_raiseHand:Class;
 
 		[Embed(source="assets/images/status/icon-6-thumb-up.png")]
-		public var mood_agreed:Class;
+		public var mood_agree:Class;
 
 		[Embed(source="assets/images/status/icon-7-thumb-down.png")]
-		public var mood_disagreed:Class;
+		public var mood_disagree:Class;
 
 		[Embed(source="assets/images/status/ic_fast_forward_black_18dp.png")]
-		public var mood_speak_faster:Class;
+		public var mood_speakFaster:Class;
 
 		[Embed(source="assets/images/status/ic_fast_rewind_black_18dp.png")]
-		public var mood_speak_slower:Class;
+		public var mood_speakSlower:Class;
 
 		[Embed(source="assets/images/status/ic_volume_up_black_18dp.png")]
-		public var mood_speak_louder:Class;
+		public var mood_speakLouder:Class;
 
 		[Embed(source="assets/images/status/ic_volume_down_black_18dp.png")]
-		public var mood_speak_softer:Class;
+		public var mood_speakSofter:Class;
 
 		[Embed(source="assets/images/status/ic_access_time_black_18dp.png")]
-		public var mood_be_right_back:Class;
+		public var mood_beRightBack:Class;
 
 		[Embed(source="assets/images/status/icon-6-smiling-face.png")]
 		public var mood_happy:Class;
