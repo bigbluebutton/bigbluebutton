@@ -1,6 +1,6 @@
 /*
  * SIP version 0.6.3
- * Copyright (c) 2014-2014 Junction Networks, Inc <http://www.onsip.com>
+ * Copyright (c) 2014-2015 Junction Networks, Inc <http://www.onsip.com>
  * Homepage: http://sipjs.com
  * License: http://sipjs.com/license/
  *
@@ -8884,7 +8884,7 @@ UA.prototype.loadConfig = function(configuration) {
       userAgentString: SIP.C.USER_AGENT,
 
       // Session parameters
-      iceGatheringTimeout: 5000,
+	  iceCheckingTimeout: 5000,
       noAnswerTimeout: 60,
       stunServers: ['stun:stun.l.google.com:19302'],
       turnServers: [],
@@ -9108,7 +9108,7 @@ UA.configuration_skeleton = (function() {
       "hackViaTcp", // false.
       "hackIpInContact", //false
       "hackWssInTransport", //false
-      "iceGatheringTimeout",
+	  "iceCheckingTimeout",
       "instanceId",
       "noAnswerTimeout", // 30 seconds.
       "password",
@@ -9284,18 +9284,15 @@ UA.configuration_check = {
       }
     },
 
-    hackWssInTransport: function(hackWssInTransport) {
-      if (typeof hackWssInTransport === 'boolean') {
-        return hackWssInTransport;
+    iceCheckingTimeout: function(iceCheckingTimeout) {
+      if(SIP.Utils.isDecimal(iceCheckingTimeout)) {
+        return Math.max(500, iceCheckingTimeout);
       }
     },
 
-    iceGatheringTimeout: function(iceGatheringTimeout) {
-      if(SIP.Utils.isDecimal(iceGatheringTimeout)) {
-        if (iceGatheringTimeout < 500) {
-          return 5000;
-         }
-        return iceGatheringTimeout;
+    hackWssInTransport: function(hackWssInTransport) {
+      if (typeof hackWssInTransport === 'boolean') {
+        return hackWssInTransport;
       }
     },
 
@@ -10326,6 +10323,10 @@ var MediaHandler = function(session, options) {
   this.onIceCompleted.promise.then(function(pc) {
     self.logger.log('ICE Gathering Completed');
     self.emit('iceComplete', pc);
+    if (self.iceCheckingTimer) {
+      SIP.Timers.clearTimeout(self.iceCheckingTimer);
+      self.iceCheckingTimer = null;
+    }
   });
 
   this.peerConnection = new SIP.WebRTC.RTCPeerConnection({'iceServers': servers}, this.RTCConstraints);
@@ -10340,22 +10341,21 @@ var MediaHandler = function(session, options) {
     self.logger.log('stream removed: '+ e.stream.id);
   };
 
-  this.peerConnection.onicecandidate = function(e) {
-    if (self.iceGatheringTimer === undefined) {
-      self.iceGatheringTimer = SIP.Timers.setTimeout(function() {
-        self.logger.log('RTCIceGathering Timeout Triggered after '+config.iceGatheringTimeout+' micro seconds');
+  this.startIceCheckingTimer = function () {
+    if (!self.iceCheckingTimer) {
+      self.iceCheckingTimer = SIP.Timers.setTimeout(function() {
+        self.logger.log('RTCIceChecking Timeout Triggered after '+config.iceCheckingTimeout+' milliseconds');
         self.onIceCompleted.resolve(this);
-      }.bind(this), config.iceGatheringTimeout);
+      }.bind(this.peerConnection), config.iceCheckingTimeout);
     }
+  };
 
+  this.peerConnection.onicecandidate = function(e) {
     if (e.candidate) {
       self.logger.log('ICE candidate received: '+ (e.candidate.candidate === null ? null : e.candidate.candidate.trim()));
+      self.startIceCheckingTimer();
     } else {
-      if (self.iceGatheringTimer) {
-        SIP.Timers.clearTimeout(self.iceGatheringTimer);
-        self.iceGatheringTimer = null;
-        self.onIceCompleted.resolve(this);
-      }
+      self.onIceCompleted.resolve(this);
     }
   };
 
@@ -10371,6 +10371,10 @@ var MediaHandler = function(session, options) {
 
   this.peerConnection.oniceconnectionstatechange = function() {  //need e for commented out case
     self.logger.log('ICE connection state changed to "'+ this.iceConnectionState +'"');
+
+    if (this.iceConnectionState === 'checking') {
+      self.startIceCheckingTimer();
+    }
 
     if (this.iceConnectionState === 'failed') {
       self.emit('iceFailed', this);
@@ -10912,7 +10916,9 @@ MediaStreamManager.prototype = Object.create(SIP.EventEmitter.prototype, {
     streams.forEach(function (stream) {
       var streamId = MediaStreamManager.streamId(stream);
       if (this.acquisitions[streamId] === false) {
-        stream.stop();
+        stream.getTracks().forEach(function (track) {
+          track.stop();
+        });
       }
       delete this.acquisitions[streamId];
     }, this);
