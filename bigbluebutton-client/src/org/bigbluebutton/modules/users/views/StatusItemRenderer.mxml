@@ -194,7 +194,7 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Image id="emojiImg" visible="true" width="16" height="16" includeInLayout="{emojiImg.visible}" />
+	<mx:Image id="emojiImg" visible="true" width="18" height="18" includeInLayout="{emojiImg.visible}" />
 	<mx:Button id="emojiBtn" visible="false" enabled="false" width="20" height="20" click="emojiBtnClicked()" includeInLayout="{emojiBtn.visible}" />
 	
 	<mx:Image id="roleImg" visible="true" width="16" height="16" includeInLayout="{roleImg.visible}" />
