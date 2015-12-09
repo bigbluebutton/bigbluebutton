@@ -3,6 +3,7 @@ package org.bigbluebutton.core.pubsub.receivers;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.EditCaptionHistoryMessage;
 import org.bigbluebutton.common.messages.SendCaptionHistoryRequestMessage;
+import org.bigbluebutton.common.messages.UpdateCaptionOwnerMessage;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
@@ -26,13 +27,16 @@ public class CaptionMessageReceiver implements MessageHandler{
 				JsonObject header = (JsonObject) obj.get("header");
 				if (header.has("name")) {
 					String messageName = header.get("name").getAsString();
-					if (EditCaptionHistoryMessage.EDIT_CAPTION_HISTORY.equals(messageName)) {
-						EditCaptionHistoryMessage msg = EditCaptionHistoryMessage.fromJson(message);
-						bbbGW.editCaptionHistory(msg.meetingID, msg.startIndex, msg.endIndex, msg.locale, msg.text);
-					} else if (SendCaptionHistoryRequestMessage.SEND_CAPTION_HISTORY_REQUEST.equals(messageName)){
+					if (SendCaptionHistoryRequestMessage.SEND_CAPTION_HISTORY_REQUEST.equals(messageName)){
 						SendCaptionHistoryRequestMessage msg = SendCaptionHistoryRequestMessage.fromJson(message);
 						bbbGW.sendCaptionHistory(msg.meetingID, msg.requesterID);
-					}
+					} else if (UpdateCaptionOwnerMessage.UPDATE_CAPTION_OWNER.equals(messageName)) {
+						UpdateCaptionOwnerMessage msg = UpdateCaptionOwnerMessage.fromJson(message);
+						bbbGW.updateCaptionOwner(msg.meetingID, msg.locale, msg.ownerID);
+					} else if (EditCaptionHistoryMessage.EDIT_CAPTION_HISTORY.equals(messageName)) {
+						EditCaptionHistoryMessage msg = EditCaptionHistoryMessage.fromJson(message);
+						bbbGW.editCaptionHistory(msg.meetingID, msg.userID, msg.startIndex, msg.endIndex, msg.locale, msg.text);
+					} 
 				}
 			}
 		}

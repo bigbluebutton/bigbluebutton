@@ -172,6 +172,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleGetCurrentPollRequest(msg)
     case msg: SendCaptionHistoryRequest =>
       handleSendCaptionHistoryRequest(msg)
+    case msg: UpdateCaptionOwnerRequest =>
+      handleUpdateCaptionOwnerRequest(msg)
     case msg: EditCaptionHistoryRequest =>
       handleEditCaptionHistoryRequest(msg)
 

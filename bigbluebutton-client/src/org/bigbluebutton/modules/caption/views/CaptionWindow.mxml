@@ -30,18 +30,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
 			
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
 			import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 			import org.bigbluebutton.modules.caption.model.Transcript;
 			import org.bigbluebutton.modules.caption.model.Transcripts;
 			
-			private var transcripts:Transcripts;
+			[Bindable]
+			private var transcripts:ArrayCollection;
+			
+			[Bindable]
 			private var currentTranscript:Transcript;
-			private var transcriptChangeWatcher:ChangeWatcher;
+			
+			private var transcriptOwnerChangeWatcher:ChangeWatcher;
 			
 			private var _checkForOverwrite:Boolean = false;
 			private var _checkForDeletePreviousWord:Boolean = false;
@@ -59,16 +69,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				onFontSizeComboChange();
 				onFontTypeComboChange();
 				
-				transcriptArea.getInternalTextField().addEventListener(KeyboardEvent.KEY_DOWN, onTranscriptKeyDown);
+				BindingUtils.bindSetter(onLocaleComboChange, localeCombo, "selectedItem");
+				
+				inputArea.getInternalTextField().addEventListener(KeyboardEvent.KEY_DOWN, onTranscriptKeyDown);
 				outputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
 			}
 			
 			private function setTranscripts(t:Transcripts):void {
-				transcripts = t;
+				transcripts = t.transcriptCollection;
 				onLocaleComboChange();
+				/*
 				if (!t.historyIntited) {
-					t.historyInitCallback = handleHistoryInitialized;
+					t.transcriptCollectionChangeCallback = handleHistoryInitialized;
 				}
+				*/
 			}
 			
 			private function handleHistoryInitialized():void {
@@ -86,66 +100,95 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function refreshTextArea(refreshInputArea:Boolean=false):void {
 				outputArea.text = currentTranscript.transcript;
 				if (refreshInputArea){
-					transcriptArea.text = currentTranscript.transcript;
+					inputArea.text = currentTranscript.transcript;
 				}
 			}
 			
 			private function onFontSizeComboChange():void {
-				transcriptArea.setStyle("fontSize", int(fontSizeCombo.selectedItem));
+				inputArea.setStyle("fontSize", int(fontSizeCombo.selectedItem));
 				outputArea.setStyle("fontSize", int(fontSizeCombo.selectedItem));
 			}
 			
 			private function onFontTypeComboChange():void {
-				transcriptArea.setStyle("fontFamily", fontTypeCombo.selectedItem);
+				inputArea.setStyle("fontFamily", fontTypeCombo.selectedItem);
 				outputArea.setStyle("fontFamily", fontTypeCombo.selectedItem);
 			}
 			
-			private function onLocaleComboChange():void {
-				if (transcripts) {
-					if (currentTranscript) {
-						currentTranscript.removeEventListener(Event.CHANGE, onTranscriptChange);
+			private function onLocaleComboChange(o:Object=null):void {
+				if (transcripts && localeCombo.selectedIndex != -1) {
+					currentTranscript = localeCombo.selectedItem as Transcript;
+					if (transcriptOwnerChangeWatcher) {
+						transcriptOwnerChangeWatcher.unwatch();
 					}
-					currentTranscript = transcripts.findLocale(localeCombo.selectedLabel);
-					currentTranscript.addEventListener(Event.CHANGE, onTranscriptChange);
-					refreshTextArea(true);
+					
+					if (currentTranscript) {
+						transcriptOwnerChangeWatcher = BindingUtils.bindSetter(onTranscriptOwnerIDChange, currentTranscript, "ownerID");
+					}
+				}
+			}
+			
+			private function onTranscriptOwnerIDChange(o:Object):void {
+				var ownerID:String = o as String;
+				if (ownerID == "") {
+					//unclaimed text
+					claimOwnershipButton.enabled = true;
+					claimOwnershipButton.label = "Claim";
+					inputGroup.visible = inputGroup.includeInLayout = false;
+					outputGroup.visible = outputGroup.includeInLayout = true;
+					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
+				} else if (ownerID == UserManager.getInstance().getConference().getMyUserId()) {
+					//release text
+					claimOwnershipButton.enabled = true;
+					claimOwnershipButton.label = "Release";
+					inputGroup.visible = inputGroup.includeInLayout = true;
+					outputGroup.visible = outputGroup.includeInLayout = false;
+					inputArea.getInternalTextField().type = TextFieldType.INPUT;
+					inputArea.text = currentTranscript.transcript;
+				} else {
+					//claimed by other
+					claimOwnershipButton.enabled = false;
+					claimOwnershipButton.label = "Claimed";
+					inputGroup.visible = inputGroup.includeInLayout = false;
+					outputGroup.visible = outputGroup.includeInLayout = true;
+					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
 				}
 			}
 			
 			private function onTranscriptTextInput(e:TextEvent):void {
-				trace("Text entered: " + e.text + ", carat begin:" + transcriptArea.selectionBeginIndex + ", end: " + transcriptArea.selectionEndIndex);
+				trace("Text entered: " + e.text + ", carat begin:" + inputArea.selectionBeginIndex + ", end: " + inputArea.selectionEndIndex);
 				
 				// There is no surefire way to detect whether the internal TextField is in overwrite mode or not. We need to 
 				// delay sending the message until after the text changes and then check length. This extra check is only 
 				// required if the input is length 1 and nothing is selected because it would be a simple replace otherwise.
-				if (e.text.length == 1 && transcriptArea.selectionBeginIndex == transcriptArea.selectionEndIndex) {
+				if (e.text.length == 1 && inputArea.selectionBeginIndex == inputArea.selectionEndIndex) {
 					_checkForOverwrite = true;
 					_lastTextInput = e.text;
-					_lastTextLength = transcriptArea.text.length;
+					_lastTextLength = inputArea.text.length;
 				} else {
-					respondToTextChange(e.text, transcriptArea.selectionBeginIndex, transcriptArea.selectionEndIndex);
+					respondToTextChange(e.text, inputArea.selectionBeginIndex, inputArea.selectionEndIndex);
 				}
 			}
 			
 			private function onTranscriptTextChange(e:Event):void {
-				trace("transcript change: " + transcriptArea.text);
+				trace("transcript change: " + inputArea.text);
 				
 				if (_checkForOverwrite) {
 					_checkForOverwrite = false;
-					if (transcriptArea.text.length > _lastTextLength) { // not an overwrite
-						respondToTextChange(_lastTextInput, transcriptArea.selectionBeginIndex-1, transcriptArea.selectionEndIndex-1);
+					if (inputArea.text.length > _lastTextLength) { // not an overwrite
+						respondToTextChange(_lastTextInput, inputArea.selectionBeginIndex-1, inputArea.selectionEndIndex-1);
 					} else {											// an overwrite
-						respondToTextChange(_lastTextInput, transcriptArea.selectionBeginIndex-1, transcriptArea.selectionEndIndex);
+						respondToTextChange(_lastTextInput, inputArea.selectionBeginIndex-1, inputArea.selectionEndIndex);
 					}
 					_lastTextInput = null;
 					_lastTextLength = 0;
 				} else if (_checkForDeletePreviousWord) {
 					_checkForDeletePreviousWord = false;
-					respondToTextChange("", _lastSelectionIndex-(_lastTextLength-transcriptArea.text.length), _lastSelectionIndex);
+					respondToTextChange("", _lastSelectionIndex-(_lastTextLength-inputArea.text.length), _lastSelectionIndex);
 					_lastSelectionIndex = 0;
 					_lastTextLength = 0;
 				} else if (_checkForDeleteNextWord) {
 					_checkForDeleteNextWord = false;
-					respondToTextChange("", _lastSelectionIndex, _lastSelectionIndex+(_lastTextLength-transcriptArea.text.length));
+					respondToTextChange("", _lastSelectionIndex, _lastSelectionIndex+(_lastTextLength-inputArea.text.length));
 					_lastSelectionIndex = 0;
 					_lastTextLength = 0;
 				}
@@ -157,13 +200,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onTranscriptKeyDown(e:KeyboardEvent):void {
 				// TODO: Need to make sure I handle the CTRL, SHIFT, and ALT cases because they are different
-				var si:int = transcriptArea.selectionBeginIndex;
-				var ei:int = transcriptArea.selectionEndIndex;
+				var si:int = inputArea.selectionBeginIndex;
+				var ei:int = inputArea.selectionEndIndex;
 				switch (e.keyCode) {
 					case Keyboard.BACKSPACE:
 						if (e.ctrlKey || e.altKey) {
 							_lastSelectionIndex = ei;
-							_lastTextLength = transcriptArea.text.length;
+							_lastTextLength = inputArea.text.length;
 							_checkForDeletePreviousWord = true;
 							return;
 						}
@@ -178,12 +221,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					case Keyboard.DELETE:
 						if (e.ctrlKey || e.altKey) {
 							_lastSelectionIndex = si;
-							_lastTextLength = transcriptArea.text.length;
+							_lastTextLength = inputArea.text.length;
 							_checkForDeleteNextWord = true;
 							return;
 						}
 						if (si == ei) {
-							if (si == transcriptArea.length+1) {
+							if (si == inputArea.length+1) {
 								return ;
 							}
 							ei++;
@@ -202,7 +245,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function respondToTextChange(t:String, si:int, ei:int):void {
 				var editHistoryEvent:SendEditCaptionHistoryEvent = new SendEditCaptionHistoryEvent(SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY);
-				editHistoryEvent.locale = localeCombo.selectedLabel;
+				editHistoryEvent.locale = currentTranscript.locale;
 				editHistoryEvent.startIndex = si;
 				editHistoryEvent.endIndex = ei;
 				editHistoryEvent.text = t;
@@ -210,6 +253,49 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(editHistoryEvent);
 			}
+			
+			private function onLocaleButtonClick():void {
+				var localeInput:LocaleInputPopup = LocaleInputPopup(PopUpManager.createPopUp(this, LocaleInputPopup, true));
+				PopUpManager.centerPopUp(localeInput);
+				localeInput.callback = addNewLocale;
+			}
+			
+			private function addNewLocale(locale:String):Boolean {
+				var duplicate:Boolean = false;
+				for each(var item:Object in transcripts) {
+					if (item.locale == locale) {
+						duplicate == true;
+						break;
+					}
+				}
+				
+				if (locale.length > 0 && !duplicate) {
+					// add the locale on the server and claim it
+					claimTranscript(locale, true);
+					
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
+			private function claimTranscript(locale:String, claim:Boolean):void {
+				var updateCaptionOwnerEvent:SendUpdateCaptionOwnerEvent = new SendUpdateCaptionOwnerEvent(SendUpdateCaptionOwnerEvent.SEND_UPDATE_CAPTION_OWNER_EVENT);
+				updateCaptionOwnerEvent.locale = locale;
+				updateCaptionOwnerEvent.claim = claim;
+				
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(updateCaptionOwnerEvent);
+			}
+			
+			private function onClaimButtonClick():void {
+				if (currentTranscript.ownerID == "") {
+					claimTranscript(currentTranscript.locale, true);
+				} else if (currentTranscript.ownerID == UserManager.getInstance().getConference().getMyUserId()) {
+					claimTranscript(currentTranscript.locale, false);
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" horizontalAlign="left">
@@ -217,11 +303,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:ComboBox id="fontSizeCombo" dataProvider="[8, 10, 12, 14, 16]" selectedIndex="2" change="onFontSizeComboChange()"/>
 			<mx:ColorPicker id="fontColorPicker" />
 			<mx:ComboBox id="fontTypeCombo" dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" change="onFontTypeComboChange()"/>
-			<mx:ComboBox id="localeCombo" dataProvider="['en_US','ca_FR', 'pt_PT']" change="onLocaleComboChange()"/>
+			<mx:ComboBox id="localeCombo" dataProvider="{transcripts}" labelField="locale" enabled="{transcripts.length > 0}" />
+			<mx:Button id="addLocaleButton" height="22" label="+" click="onLocaleButtonClick()" />
+			<mx:Button id="claimOwnershipButton" height="22" enabled="false" click="onClaimButtonClick()" />
 		</mx:HBox>
-		<mx:Label text="Input:" />
-		<views:TextArea2 id="transcriptArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)" dataChange="onTranscriptDataChange(event)" />
-		<mx:Label text="Output:" />
-		<views:TextArea2 id="outputArea" width="100%" height="100%" />
+		<mx:VBox id="inputGroup" visible="false" includeInLayout="false" width="100%" height="100%">
+			<mx:Label text="Input:" />
+			<views:TextArea2 id="inputArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)" dataChange="onTranscriptDataChange(event)" />
+		</mx:VBox>
+		<mx:VBox id="outputGroup" width="100%" height="100%">
+			<mx:Label text="Output:" />
+			<views:TextArea2 id="outputArea" text="{currentTranscript.transcript}" width="100%" height="100%" />
+		</mx:VBox>
 	</mx:VBox>
 </CustomMdiWindow>

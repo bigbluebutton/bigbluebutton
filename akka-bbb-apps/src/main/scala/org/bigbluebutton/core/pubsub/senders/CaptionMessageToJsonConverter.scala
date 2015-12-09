@@ -19,9 +19,20 @@ object CaptionMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
+  def updateCaptionOwnerReplyToJson(msg: UpdateCaptionOwnerReply): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.LOCALE, msg.locale)
+    payload.put(Constants.OWNER_ID, msg.ownerID)
+
+    val header = Util.buildHeader(MessageNames.UPDATE_CAPTION_OWNER, None)
+    Util.buildJson(header, payload)
+  }
+
   def editCaptionHistoryReplyToJson(msg: EditCaptionHistoryReply): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userID)
     payload.put(Constants.START_INDEX, msg.startIndex)
     payload.put(Constants.END_INDEX, msg.endIndex)
     payload.put(Constants.LOCALE, msg.locale)

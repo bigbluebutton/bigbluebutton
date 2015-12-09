@@ -480,7 +480,11 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new SendCaptionHistoryRequest(meetingID, requesterID)
   }
 
-  def editCaptionHistory(meetingID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) {
-    bbbActor ! new EditCaptionHistoryRequest(meetingID, startIndex, endIndex, locale, text)
+  def updateCaptionOwner(meetingID: String, locale: String, ownerID: String) {
+    bbbActor ! new UpdateCaptionOwnerRequest(meetingID, locale, ownerID)
+  }
+
+  def editCaptionHistory(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) {
+    bbbActor ! new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, text)
   }
 }

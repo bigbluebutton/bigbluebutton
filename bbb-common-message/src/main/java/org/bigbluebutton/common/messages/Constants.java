@@ -128,5 +128,6 @@ public class Constants {
   public static final String END_INDEX                       = "end_index";
   public static final String LOCALE                          = "locale";
   public static final String TEXT                            = "text";
+  public static final String OWNER_ID                        = "owner_id";
   public static final String CAPTION_HISTORY                 = "caption_history";
 }

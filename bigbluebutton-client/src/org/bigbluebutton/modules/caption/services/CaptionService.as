@@ -18,6 +18,7 @@
  */
 package org.bigbluebutton.modules.caption.services {
 	import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
+	import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 
 	public class CaptionService {
 		public var sender:MessageSender;
@@ -30,6 +31,14 @@ package org.bigbluebutton.modules.caption.services {
 		
 		public function getCaptionHistory():void {
 			sender.getCaptionHistory();
+		}
+		
+		public function sendUpdateCaptionOwner(e:SendUpdateCaptionOwnerEvent):void {
+			var msg:Object = new Object();
+			msg.locale = e.locale;
+			msg.claim = e.claim;
+			
+			sender.sendUpdateCaptionOwner(msg);
 		}
 		
 		public function sendEditCaptionHistory(e:SendEditCaptionHistoryEvent):void {

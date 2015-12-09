@@ -4,44 +4,50 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.HashMap
 
 class CaptionModel {
-  var transcripts = Map[String, String]()
+  var transcripts = Map[String, Array[String]]()
 
   def newTranscript(locale: String, ownerId: String) {
-    // transcripts += locale -> Array(ownerId, "")
+    transcripts += locale -> Array(ownerId, "")
   }
-  /*
-  def findLocaleByOwnerId(userId: String): Option[String] {
-    transcripts.foreach(t => {
-      if (t._2[0] == userId) {
-        return Some(t._1)
-      }
+
+  def findLocaleByOwnerId(userId: String): Option[String] = {
+    transcripts.find(_._2(0) == userId).foreach(t => {
+      return Some(t._1)
     })
-	
-	return None
+
+    return None
   }
-*/
-  def getHistory(): Map[String, String] = {
-    var history = Map[String, String]()
+
+  def changeTranscriptOwner(locale: String, ownerId: String) {
+    if (transcripts contains locale) {
+      transcripts(locale)(0) = ownerId
+    }
+  }
+
+  def getHistory(): Map[String, Array[String]] = {
+    var history = Map[String, Array[String]]()
 
     transcripts.foreach(t => {
-      history += t._1 -> t._2
+      history += t._1 -> Array(t._2(0), t._2(1))
     })
 
     history
   }
 
   def editHistory(startIndex: Integer, endIndex: Integer, locale: String, text: String) {
+    println("editHistory entered")
     if (transcripts contains locale) {
-      var oText: String = transcripts(locale)
+      println("editHistory found locale:" + locale)
+      var oText: String = transcripts(locale)(1)
 
-      if (startIndex >= 0 && endIndex < oText.length && startIndex <= endIndex) {
+      if (startIndex >= 0 && endIndex <= oText.length && startIndex <= endIndex) {
+        println("editHistory passed index test")
         var sText: String = oText.substring(0, startIndex)
         var eText: String = oText.substring(endIndex)
 
-        transcripts += locale -> (sText + text + eText)
+        transcripts(locale)(1) = (sText + text + eText)
+        println("editHistory new history is: " + transcripts(locale)(1))
       }
-    } else {
-      transcripts += locale -> text
     }
   }
 }

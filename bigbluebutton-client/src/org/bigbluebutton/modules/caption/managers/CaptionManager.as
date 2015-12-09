@@ -6,6 +6,7 @@ package org.bigbluebutton.modules.caption.managers {
 	import org.bigbluebutton.modules.caption.events.GetCaptionHistoryEvent;
 	import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
 	import org.bigbluebutton.modules.caption.events.ReceiveEditCaptionHistoryEvent;
+	import org.bigbluebutton.modules.caption.events.ReceiveUpdateCaptionOwnerEvent;
 	import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
 	import org.bigbluebutton.modules.caption.model.Transcripts;
 	import org.bigbluebutton.modules.caption.views.CaptionWindow;
@@ -34,6 +35,10 @@ package org.bigbluebutton.modules.caption.managers {
 		
 		public function receiveCaptionHistory(event:ReceiveCaptionHistoryEvent):void {
 			_transcripts.receiveCaptionHistory(event.history);
+		}
+		
+		public function receiveUpdateCaptionOwner(event:ReceiveUpdateCaptionOwnerEvent):void {
+			_transcripts.updateCaptionOwner(event.locale, event.ownerID);
 		}
 		
 		public function receiveEditCaptionHistory(event:ReceiveEditCaptionHistoryEvent):void {

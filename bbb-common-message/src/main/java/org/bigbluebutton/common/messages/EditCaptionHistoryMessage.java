@@ -10,24 +10,27 @@ public class EditCaptionHistoryMessage implements ISubscribedMessage {
 	public static final String VERSION = "0.0.1";
 	
 	public final String meetingID;
+	public final String userID;
 	public final Integer startIndex;
-  public final Integer endIndex;
+	public final Integer endIndex;
 	public final String locale;
 	public final String text;
 	
-	public EditCaptionHistoryMessage(String meetingID, Integer startIndex, Integer endIndex, String locale, String text) {
+	public EditCaptionHistoryMessage(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String text) {
 		this.meetingID = meetingID;
+		this.userID = userID;
 		this.startIndex = startIndex;
-    this.endIndex = endIndex;
+		this.endIndex = endIndex;
 		this.locale = locale;
 		this.text = text;
 	}
 	
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
-		payload.put(Constants.MEETING_ID, meetingID); 
+		payload.put(Constants.MEETING_ID, meetingID);
+		payload.put(Constants.USER_ID, userID);
 		payload.put(Constants.START_INDEX, startIndex);
-    payload.put(Constants.END_INDEX, endIndex);
+		payload.put(Constants.END_INDEX, endIndex);
 		payload.put(Constants.LOCALE, locale);
 		payload.put(Constants.TEXT, text);
 		
@@ -47,18 +50,20 @@ public class EditCaptionHistoryMessage implements ISubscribedMessage {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				if (EDIT_CAPTION_HISTORY.equals(messageName)) {
-					if (payload.has(Constants.MEETING_ID) 
+					if (payload.has(Constants.MEETING_ID)
+							&& payload.has(Constants.USER_ID)
 							&& payload.has(Constants.START_INDEX)
-              && payload.has(Constants.END_INDEX)
+							&& payload.has(Constants.END_INDEX)
 							&& payload.has(Constants.LOCALE)
 							&& payload.has(Constants.TEXT)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
+						String userID = payload.get(Constants.USER_ID).getAsString();
 						Integer startIndex = payload.get(Constants.START_INDEX).getAsInt();
-            Integer endIndex = payload.get(Constants.END_INDEX).getAsInt();
+						Integer endIndex = payload.get(Constants.END_INDEX).getAsInt();
 						String locale = payload.get(Constants.LOCALE).getAsString();
 						String text = payload.get(Constants.TEXT).getAsString();
 								
-						return new EditCaptionHistoryMessage(meetingID, startIndex, endIndex, locale, text);					
+						return new EditCaptionHistoryMessage(meetingID, userID, startIndex, endIndex, locale, text);					
 					}
 				} 
 			}

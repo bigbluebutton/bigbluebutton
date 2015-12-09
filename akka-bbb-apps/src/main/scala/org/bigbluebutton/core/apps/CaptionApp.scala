@@ -15,20 +15,43 @@ trait CaptionApp {
 
     outGW.send(new SendCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, history))
   }
-  /*
-  def handleUpdateCaptionInfo(msg: UpdateCaptionInfo) {
 
+  def handleUpdateCaptionOwnerRequest(msg: UpdateCaptionOwnerRequest) {
+    // clear owner from previous locale
+    if (msg.ownerID.length > 0) {
+      captionModel.findLocaleByOwnerId(msg.ownerID).foreach(t => {
+        captionModel.changeTranscriptOwner(t, "")
+
+        // send notification that owner has changed
+        outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, t, ""))
+      })
+    }
+    // create the locale if it doesn't exist
+    if (captionModel.transcripts contains msg.locale) {
+      captionModel.changeTranscriptOwner(msg.locale, msg.ownerID)
+    } else { // change the owner if it does exist
+      captionModel.newTranscript(msg.locale, msg.ownerID)
+    }
+
+    outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, msg.locale, msg.ownerID))
   }
-*/
-  def handleEditCaptionHistoryRequest(msg: EditCaptionHistoryRequest) {
-    captionModel.editHistory(msg.startIndex, msg.endIndex, msg.locale, msg.text)
 
-    outGW.send(new EditCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.startIndex, msg.endIndex, msg.locale, msg.text))
+  def handleEditCaptionHistoryRequest(msg: EditCaptionHistoryRequest) {
+    captionModel.findLocaleByOwnerId(msg.userID).foreach(t => {
+      if (t == msg.locale) {
+        captionModel.editHistory(msg.startIndex, msg.endIndex, msg.locale, msg.text)
+
+        outGW.send(new EditCaptionHistoryReply(mProps.meetingID, mProps.recorded, msg.userID, msg.startIndex, msg.endIndex, msg.locale, msg.text))
+      }
+    })
   }
 
   def checkCaptionOwnerLogOut(userId: String) {
-    //var transcript = findTranscriptByOwnerId(userId)
+    captionModel.findLocaleByOwnerId(userId).foreach(t => {
+      captionModel.changeTranscriptOwner(t, "")
 
-    //if (transcript
+      // send notification that owner has changed
+      outGW.send(new UpdateCaptionOwnerReply(mProps.meetingID, mProps.recorded, t, ""))
+    })
   }
 }

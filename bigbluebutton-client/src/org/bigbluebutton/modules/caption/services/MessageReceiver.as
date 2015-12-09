@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.caption.services {
 	import org.bigbluebutton.main.model.users.IMessageListener;
 	import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
 	import org.bigbluebutton.modules.caption.events.ReceiveEditCaptionHistoryEvent;
+	import org.bigbluebutton.modules.caption.events.ReceiveUpdateCaptionOwnerEvent;
 	
 	public class MessageReceiver implements IMessageListener {
 		private static const LOG:String = "Caption::MessageReceiver - ";
@@ -35,6 +36,9 @@ package org.bigbluebutton.modules.caption.services {
 			switch (messageName) {
 				case "sendCaptionHistoryReply":
 					sendCaptionHistoryReply(message);
+					break;
+				case "updateCaptionOwner":
+					updateCaptionOwner(message);
 					break;
 				case "editCaptionHistory":
 					editCaptionHistory(message);
@@ -49,6 +53,17 @@ package org.bigbluebutton.modules.caption.services {
 			
 			var event:ReceiveCaptionHistoryEvent = new ReceiveCaptionHistoryEvent(ReceiveCaptionHistoryEvent.RECEIVE_CAPTION_HISTORY_EVENT);
 			event.history = map;
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(event);
+		}
+		
+		private function updateCaptionOwner(message:Object):void {
+			trace(LOG + "*** updateCaptionOwner " + message + " ****");
+			//var map:Object = JSON.parse(message);
+			
+			var event:ReceiveUpdateCaptionOwnerEvent = new ReceiveUpdateCaptionOwnerEvent(ReceiveUpdateCaptionOwnerEvent.RECEIVE_UPDATE_CAPTION_OWNER_EVENT);
+			event.locale = message.locale;
+			event.ownerID = message.owner_id;
 			var dispatcher:Dispatcher = new Dispatcher();
 			dispatcher.dispatchEvent(event);
 		}

@@ -46,15 +46,26 @@ public class CaptionService {
 		
 		red5InGW.sendCaptionHistory(meetingID, requesterID);
 	}
+    
+    public void sendUpdateCaptionOwner(Map<String, Object> msg) {
+        String locale = msg.get("locale").toString();
+        Boolean claim = (Boolean) msg.get("claim");
+        
+        String meetingID = Red5.getConnectionLocal().getScope().getName();
+		String ownerID = (claim ? getBbbSession().getInternalUserID() : "");
+        
+        red5InGW.updateCaptionOwner(meetingID, locale, ownerID);
+    }
 	
 	public void editCaptionHistory(Map<String, Object> msg) {
 		int startIndex = (Integer) msg.get("startIndex");
-    int endIndex = (Integer) msg.get("endIndex");
+		int endIndex = (Integer) msg.get("endIndex");
 		String locale = msg.get("locale").toString();
 		String text = msg.get("text").toString();
 		
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
-		
-		red5InGW.editCaptionHistory(meetingID, startIndex, endIndex, locale, text);
+		String userID = getBbbSession().getInternalUserID();
+        
+		red5InGW.editCaptionHistory(meetingID, userID, startIndex, endIndex, locale, text);
 	}
 }

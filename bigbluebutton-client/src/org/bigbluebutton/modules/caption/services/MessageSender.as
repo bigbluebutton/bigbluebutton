@@ -38,10 +38,10 @@ package org.bigbluebutton.modules.caption.services {
 			);
 		}
 		
-		public function sendEditCaptionHistory(message:Object):void {  
-			LOGGER.debug("Sending [caption.editCaptionHistory] to server.");
+		public function sendUpdateCaptionOwner(message:Object):void {
+			LOGGER.debug("Sending [caption.sendUpdateCaptionOwner] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.editCaptionHistory", 
+			_nc.sendMessage("caption.sendUpdateCaptionOwner", 
 				function(result:String):void { // On successful result
 					LOGGER.debug(result); 
 				},	                   
@@ -52,10 +52,10 @@ package org.bigbluebutton.modules.caption.services {
 			);
 		}
 		
-		public function updateTranscriptionList(message:Object):void {
-			LOGGER.debug("Sending [caption.updateTranscriptionList] to server.");
+		public function sendEditCaptionHistory(message:Object):void {  
+			LOGGER.debug("Sending [caption.editCaptionHistory] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("caption.updateTranscriptionList", 
+			_nc.sendMessage("caption.editCaptionHistory", 
 				function(result:String):void { // On successful result
 					LOGGER.debug(result); 
 				},	                   

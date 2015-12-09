@@ -14,9 +14,9 @@ public class SendCaptionHistoryReplyMessage implements ISubscribedMessage {
 
 	public final String meetingID;
 	public final String requesterID;
-	public final Map<String, String> captionHistory;
+	public final Map<String, String[]> captionHistory;
 
-	public SendCaptionHistoryReplyMessage(String meetingID, String requesterID, Map<String, String> captionHistory) {
+	public SendCaptionHistoryReplyMessage(String meetingID, String requesterID, Map<String, String[]> captionHistory) {
 		this.meetingID = meetingID;
 		this.captionHistory = captionHistory;
 		this.requesterID = requesterID;
@@ -52,7 +52,7 @@ public class SendCaptionHistoryReplyMessage implements ISubscribedMessage {
 
 						Util util = new Util();
 
-						Map<String, String> captionHistory = util.extractCaptionHistory(history);
+						Map<String, String[]> captionHistory = util.extractCaptionHistory(history);
 
 						return new SendCaptionHistoryReplyMessage(meetingID, requesterID, captionHistory);
 					}

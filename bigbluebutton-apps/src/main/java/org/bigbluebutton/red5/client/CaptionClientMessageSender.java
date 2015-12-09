@@ -6,6 +6,7 @@ import java.util.Map;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.EditCaptionHistoryMessage;
 import org.bigbluebutton.common.messages.SendCaptionHistoryReplyMessage;
+import org.bigbluebutton.common.messages.UpdateCaptionOwnerMessage;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
@@ -32,13 +33,6 @@ public class CaptionClientMessageSender {
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
 				switch (messageName) {
-					case EditCaptionHistoryMessage.EDIT_CAPTION_HISTORY:
-						EditCaptionHistoryMessage ech = EditCaptionHistoryMessage.fromJson(message);
-
-						if (ech != null) {
-							processEditCaptionHistoryMessage(ech);
-						}
-						break;
 					case SendCaptionHistoryReplyMessage.SEND_CAPTION_HISTORY_REPLY:
 						SendCaptionHistoryReplyMessage sch = SendCaptionHistoryReplyMessage.fromJson(message);
 
@@ -46,20 +40,23 @@ public class CaptionClientMessageSender {
 							processSendCaptionHistoryReplyMessage(sch);
 						}
 						break;
+                    case UpdateCaptionOwnerMessage.UPDATE_CAPTION_OWNER:
+						UpdateCaptionOwnerMessage uco = UpdateCaptionOwnerMessage.fromJson(message);
+
+						if (uco != null) {
+							processUpdateCaptionOwnerMessage(uco);
+						}
+						break;
+                    case EditCaptionHistoryMessage.EDIT_CAPTION_HISTORY:
+						EditCaptionHistoryMessage ech = EditCaptionHistoryMessage.fromJson(message);
+
+						if (ech != null) {
+							processEditCaptionHistoryMessage(ech);
+						}
+						break;
 				}
 			}
 		}
-	}
-
-	private void processEditCaptionHistoryMessage(EditCaptionHistoryMessage msg) {
-		Map<String, Object> message = new HashMap<String, Object>();
-		message.put(Constants.START_INDEX, msg.startIndex);
-    message.put(Constants.END_INDEX, msg.endIndex);
-		message.put(Constants.LOCALE, msg.locale);
-		message.put(Constants.TEXT, msg.text);
-
-		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "editCaptionHistory", message);
-		service.sendMessage(m);
 	}
 
 	private void processSendCaptionHistoryReplyMessage(SendCaptionHistoryReplyMessage msg) {
@@ -68,6 +65,26 @@ public class CaptionClientMessageSender {
 		message.put("msg", gson.toJson(msg.captionHistory));
 		
 		DirectClientMessage m = new DirectClientMessage(msg.meetingID, msg.requesterID, "sendCaptionHistoryReply", message);
+		service.sendMessage(m);
+	}
+
+	private void processUpdateCaptionOwnerMessage(UpdateCaptionOwnerMessage msg) {
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put(Constants.LOCALE, msg.locale);
+		message.put(Constants.OWNER_ID, msg.ownerID);
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "updateCaptionOwner", message);
+		service.sendMessage(m);
+	}
+
+	private void processEditCaptionHistoryMessage(EditCaptionHistoryMessage msg) {
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put(Constants.START_INDEX, msg.startIndex);
+		message.put(Constants.END_INDEX, msg.endIndex);
+		message.put(Constants.LOCALE, msg.locale);
+		message.put(Constants.TEXT, msg.text);
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingID, "editCaptionHistory", message);
 		service.sendMessage(m);
 	}
 }

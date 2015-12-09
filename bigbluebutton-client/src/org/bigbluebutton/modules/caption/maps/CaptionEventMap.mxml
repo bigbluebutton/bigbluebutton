@@ -7,8 +7,10 @@
 			import org.bigbluebutton.modules.caption.events.GetCaptionHistoryEvent;
 			import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
 			import org.bigbluebutton.modules.caption.events.ReceiveEditCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.ReceiveUpdateCaptionOwnerEvent;
 			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
 			import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 			import org.bigbluebutton.modules.caption.events.StartCaptionModuleEvent;
 			import org.bigbluebutton.modules.caption.events.StopCaptionModuleEvent;
 			import org.bigbluebutton.modules.caption.managers.CaptionManager;
@@ -39,6 +41,14 @@
 	
 	<EventHandlers type="{ReceiveCaptionHistoryEvent.RECEIVE_CAPTION_HISTORY_EVENT}">
 		<MethodInvoker generator="{CaptionManager}" method="receiveCaptionHistory" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{SendUpdateCaptionOwnerEvent.SEND_UPDATE_CAPTION_OWNER_EVENT}">
+		<MethodInvoker generator="{CaptionService}" method="sendUpdateCaptionOwner" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ReceiveUpdateCaptionOwnerEvent.RECEIVE_UPDATE_CAPTION_OWNER_EVENT}">
+		<MethodInvoker generator="{CaptionManager}" method="receiveUpdateCaptionOwner" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY}">
