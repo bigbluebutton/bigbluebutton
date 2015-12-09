@@ -9,17 +9,20 @@ Template.displayUserIcons.events
     # the userId of the person who is lowering the hand
     BBB.lowerHand(getInSession("meetingId"), @userId, getInSession("userId"), getInSession("authToken"))
 
+  'click .kickUser': (event) ->
+    kickUser BBB.getMeetingId(), @.userId, getInSession("userId"), getInSession("authToken")
+
 Template.displayUserIcons.helpers
   userLockedIconApplicable: (userId) ->
     # the lock settings affect the user (and requiire a lock icon) if
     # the user is set to be locked and there is a relevant lock in place
     locked = BBB.getUser(userId)?.user.locked
     settings = Meteor.Meetings.findOne()?.roomLockSettings
-    lockInAction = settings.disablePrivChat or
+    lockInAction = settings.disablePrivateChat or
                     settings.disableCam or
                     settings.disableMic or
                     settings.lockedLayout or
-                    settings.disablePubChat
+                    settings.disablePublicChat
     return locked and lockInAction
 
 # Opens a private chat tab when a username from the userlist is clicked
@@ -32,8 +35,7 @@ Template.usernameEntry.events
       else
         setInSession "inChatWith", userIdSelected
     if isPortrait() or isPortraitMobile()
-      toggleLeftDrawer()
-      toggleLeftArrowClockwise()
+      toggleUserlistMenu()
       toggleShield()
     setTimeout () -> # waits until the end of execution queue
       $("#newMessageInput").focus()
@@ -54,6 +56,9 @@ Template.usernameEntry.events
           chat.number = 0
           break
       setInSession 'chats', chats
+
+  'click .setPresenter': (event) ->
+    setUserPresenter BBB.getMeetingId(), @.userId, getInSession('userId'), @.user.name, getInSession('authToken')
 
 Template.usernameEntry.helpers
   hasGotUnreadMailClass: (userId) ->
