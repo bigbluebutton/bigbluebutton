@@ -41,7 +41,7 @@
 			baseTabIndex="301"
 		/>
 
-		
+<!--
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
@@ -52,7 +52,19 @@
 			autoFullScreen="false"
 			baseTabIndex="201"
 		/>
+-->
 		
+		<module name="WebRTCDeskShareModule"
+                        url="http://HOST/client/WebRTCDeskShareModule.swf?v=VERSION"
+                        uri="rtmp://HOST/video-broadcast"
+                        publishURI="HOST"
+                        useTLS="false"
+                        showButton="true"
+                        autoStart="false"
+                        autoFullScreen="false"
+                        baseTabIndex="201"
+                />
+
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
