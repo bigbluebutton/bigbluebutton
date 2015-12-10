@@ -556,13 +556,13 @@ Handlebars.registerHelper "getPollQuestions", ->
                     console.log "Deskshare broadcasting has ended"
                     presenterDeskshareHasEnded()
 
-  Meteor.Users.find().observe changed: (newUser, oldUser) ->
-    if Meteor.config.app.listenOnly is true and
-       newUser.user.presenter is false and
-       oldUser.user.presenter is true and
-       BBB.getCurrentUser().userId is newUser.userId and
-       oldUser.user.listenOnly is false
-      exitVoiceCall(@, joinVoiceCall)
+    Meteor.Users.find().observe changed: (newUser, oldUser) ->
+        if (Meteor.config.app.listenOnly is true and
+            newUser.user.presenter is false and
+            oldUser.user.presenter is true and
+            BBB.getCurrentUser().userId is newUser.userId and
+            oldUser.user.listenOnly is false)
+                exitVoiceCall(@, joinVoiceCall)
 
 # Detects a mobile device
 @isMobile = ->
