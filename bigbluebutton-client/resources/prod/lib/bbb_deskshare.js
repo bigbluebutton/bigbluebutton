@@ -90,8 +90,8 @@ function getHighestJavaVersion(javas) {
       highestJava = java;
       console.log(highestJava);
     } else if (parseInt(iter[0]) == parseInt(highest[0]) && parseInt(iter[1]) == parseInt(highest[1])) {
-      var iterMinor  = parseInt((iter[2]).split("_")[1]);
-      var highestMinor = parseInt((highest[2]).split("_")[1]);
+      var iterMinor  = iter.length > 2? parseInt((iter[2]).split("_")[1]): 0;
+      var highestMinor = highest.length > 2? parseInt((highest[2]).split("_")[1]): 0;
       if (iterMinor > highestMinor) {
         highestJava = java;
         console.log(highestJava);

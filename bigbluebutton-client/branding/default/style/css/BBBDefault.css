@@ -297,7 +297,8 @@ DataGrid {
 
 
 .presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
-.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle,
+.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -314,6 +315,18 @@ DataGrid {
   themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
+}
+
+.sharedNotesSaveButtonStyle {
+  icon: Embed('assets/images/ic_save_16px.png');
+}
+
+.sharedNotesNewButtonStyle {
+  icon: Embed('assets/images/ic_note_add_16px.png');
+}
+
+.sharedNotesFormatButtonStyle {
+  icon: Embed('assets/images/ic_note_format_16px.png');
 }
 
 .presentationUploadButtonStyle {
