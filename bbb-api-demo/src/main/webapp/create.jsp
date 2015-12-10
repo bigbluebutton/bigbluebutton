@@ -43,6 +43,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <%@ include file="bbb_api.jsp"%>
 <%@ page import="java.util.regex.*"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
+
 
 <br>
 
@@ -98,7 +100,7 @@ $(document).ready(function(){
 		// User has requested to create a meeting
 		//
 
-		String username = request.getParameter("username1");
+		String username = request.getParameter("username1").replaceAll("<", "").replaceAll(">", "");
 		String meetingID = username + "'s meeting";
 
 		//
@@ -121,7 +123,7 @@ $(document).ready(function(){
 	<tbody>
 		<tr>
 			<td width="50%">
-			<center><strong> <%=username%>'s meeting</strong> has been
+                        <center><strong> <%=StringEscapeUtils.escapeXml(username)%>'s meeting</strong> has been
 			created.</center>
 			</td>
 
@@ -213,7 +215,7 @@ function mycallback() {
 		<tr>
 			<td width="50%">
 
-			<p>Hi <%=username%>,</p>
+                        <p>Hi <%=StringEscapeUtils.escapeXml(username)%>,</p>
 			<p>Now waiting for the moderator to start <strong><%=meetingID%></strong>.</p>
 			<br />
 			<p>(Your browser will automatically refresh and join the meeting
