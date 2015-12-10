@@ -10,6 +10,7 @@
 		currentlyBeingRecorded: false # default value
 		voiceConf: voiceConf
 		duration: duration
+		deskshare: {}
 		roomLockSettings:
 			# by default the lock settings will be disabled on meeting create
 			disablePrivateChat: false
