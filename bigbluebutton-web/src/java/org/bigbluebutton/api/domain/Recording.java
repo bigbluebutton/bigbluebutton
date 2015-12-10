@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.api.domain;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -94,14 +95,14 @@ public class Recording {
 	}
 
 	public String getSize() {
-		int size = 0;
+		BigInteger size = BigInteger.ZERO;
 		for (Playback p: playbacks) {
-			size += Integer.parseInt(p.getSize());
+			size = size.add(new BigInteger(p.getSize()));
 		}
 		for (Download p: downloads) {
-			size += Integer.parseInt(p.getSize());
+			size = size.add(new BigInteger(p.getSize()));
 		}
-		return String.valueOf(size);
+		return size.toString();
 	}
 
 	public String getRawSize() {
