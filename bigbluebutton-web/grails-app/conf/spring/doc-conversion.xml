@@ -62,12 +62,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="pdf2SwfPageConverter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter">
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
 		<property name="fontsDir" value="${fontsDir}"/>
-		<property name="swfAnalyser" ref="swfAnalyser"/>
-	</bean>
-	
-	<bean id="swfAnalyser" class="org.bigbluebutton.presentation.imp.SwfAnalyser">
-		<property name="swfToolsDir" value="${swfToolsDir}"/>
-		<property name="maxSwfShapes" value="${maxSwfShapes}"/>
+		<property name="placementsThreshold" value="${placementsThreshold}"/>
+		<property name="defineTextThreshold" value="${defineTextThreshold}"/>
+		<property name="imageTagThreshold" value="${imageTagThreshold}"/>
 	</bean>
 	
 	<bean id="imageConvSvc" class="org.bigbluebutton.presentation.imp.PdfPageToImageConversionService">

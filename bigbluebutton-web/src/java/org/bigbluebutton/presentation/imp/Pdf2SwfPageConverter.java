@@ -37,16 +37,36 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
   private String SWFTOOLS_DIR;
   private String fontsDir;
-  private SwfAnalyser swfAnalyser;
+  private long placementsThreshold;
+  private long defineTextThreshold;
+  private long imageTagThreshold;
 
   public boolean convert(File presentation, File output, int page) {
     String source = presentation.getAbsolutePath();
     String dest = output.getAbsolutePath();
     String AVM2SWF = "-T9";
 
-    NuProcessBuilder pb = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR
-        + File.separator + "pdf2swf", AVM2SWF, "-F", fontsDir, "-p",
-        String.valueOf(page), source, "-o", dest));
+    // Building the command line wrapped in shell to be able to use shell
+    // feature like the pipe
+    NuProcessBuilder pb = new NuProcessBuilder(
+        Arrays.asList(
+            "/bin/sh",
+            "-c",
+            SWFTOOLS_DIR
+                + File.separator
+                + "pdf2swf"
+                + " -vv "
+                + AVM2SWF
+                + " -F "
+                + fontsDir
+                + " -p "
+                + String.valueOf(page)
+                + " "
+                + source
+                + " -o "
+                + dest
+                + " | egrep  'shape id|Updating font|Drawing' | sed 's/  / /g' | cut -d' ' -f 1-3  | sort | uniq -cw 15"));
+
     Pdf2SwfPageConverterHandler pHandler = new Pdf2SwfPageConverterHandler();
     pb.setProcessListener(pHandler);
     NuProcess process = pb.start();
@@ -55,16 +75,20 @@ public class Pdf2SwfPageConverter implements PageConverter {
     } catch (InterruptedException e) {
       log.error(e.getMessage());
     }
-    boolean done = pHandler.isConversionSuccessfull();
-    boolean swfIntegritySuccess = swfAnalyser.analyse(output);
 
     File destFile = new File(dest);
-    if (done && swfIntegritySuccess && destFile.exists()) {
+    if (pHandler.isConversionSuccessfull() && destFile.exists()
+        && pHandler.numberOfPlacements() < placementsThreshold
+        && pHandler.numberOfTextTags() < defineTextThreshold
+        && pHandler.numberOfImageTags() < imageTagThreshold) {
       return true;
     } else {
-      log.debug("Falling back to 'poly2bitmap' option for pdf2swf");
+      log.debug(
+          "Previous conversion generated {} PlaceObject tags, {} DefineText tags and {} Images. Falling back to 'bitmap' option for pdf2swf.",
+          pHandler.numberOfPlacements(), pHandler.numberOfTextTags(),
+          pHandler.numberOfImageTags());
       NuProcessBuilder pbBmp = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR
-          + File.separator + "pdf2swf", AVM2SWF, "-s", "poly2bitmap", "-F",
+          + File.separator + "pdf2swf", AVM2SWF, "-s", "bitmap", "-F",
           fontsDir, "-p", String.valueOf(page), source, "-o", dest));
       Pdf2SwfPageConverterHandler pBmpHandler = new Pdf2SwfPageConverterHandler();
       pbBmp.setProcessListener(pBmpHandler);
@@ -85,16 +109,24 @@ public class Pdf2SwfPageConverter implements PageConverter {
     }
   }
 
-  public void setSwfAnalyser(SwfAnalyser swfAnalyser) {
-    this.swfAnalyser = swfAnalyser;
-  }
-
   public void setSwfToolsDir(String dir) {
     SWFTOOLS_DIR = dir;
   }
 
   public void setFontsDir(String dir) {
     fontsDir = dir;
+  }
+
+  public void setPlacementsThreshold(long threshold) {
+    placementsThreshold = threshold;
+  }
+
+  public void setDefineTextThreshold(long threshold) {
+    defineTextThreshold = threshold;
+  }
+
+  public void setImageTagThreshold(long threshold) {
+    imageTagThreshold = threshold;
   }
 
 }

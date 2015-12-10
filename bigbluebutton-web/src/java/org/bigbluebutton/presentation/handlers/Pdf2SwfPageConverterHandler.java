@@ -18,17 +18,92 @@
  */
 package org.bigbluebutton.presentation.handlers;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * The default command output the anlayse looks like the following: </br> 20
+ * DEBUG Using</br> 60 VERBOSE Updating font</br> 80 VERBOSE Drawing
+ *
+ */
 public class Pdf2SwfPageConverterHandler extends AbstractPageConverterHandler {
 
   private static Logger log = LoggerFactory
       .getLogger(Pdf2SwfPageConverterHandler.class);
 
+  private static String PLACEMENT_OUTPUT = "DEBUG  Using";
+  private static String TEXT_TAG_OUTPUT = "VERBOSE Updating";
+  private static String IMAGE_TAG_OUTPUT = "VERBOSE Drawing";
+  private static String PLACEMENT_PATTERN = "\\d+\\s" + PLACEMENT_OUTPUT;
+  private static String TEXT_TAG_PATTERN = "\\d+\\s" + TEXT_TAG_OUTPUT;
+  private static String IMAGE_TAG_PATTERN = "\\d+\\s" + IMAGE_TAG_OUTPUT;
+
   @Override
   public Boolean isConversionSuccessfull() {
-    return true;
+    return !exitedWithError();
+  }
+
+  /**
+   * 
+   * @return The number of PlaceObject2 tags in the generated SWF
+   */
+  public long numberOfPlacements() {
+    if (stdoutContains(PLACEMENT_OUTPUT)) {
+      try {
+        String out = stdoutBuilder.toString();
+        Pattern r = Pattern.compile(PLACEMENT_PATTERN);
+        Matcher m = r.matcher(out);
+        m.find();
+        return Integer
+            .parseInt(m.group(0).replace(PLACEMENT_OUTPUT, "").trim());
+      } catch (Exception e) {
+        return 0;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * 
+   * @return The number of text tags in the generated SWF.
+   */
+  public long numberOfTextTags() {
+    if (stdoutContains(TEXT_TAG_OUTPUT)) {
+      try {
+        String out = stdoutBuilder.toString();
+        Pattern r = Pattern.compile(TEXT_TAG_PATTERN);
+        Matcher m = r.matcher(out);
+        m.find();
+        return Integer.parseInt(m.group(0).replace(TEXT_TAG_OUTPUT, "").trim());
+      } catch (Exception e) {
+        return 0;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * 
+   * @return The number of image tags in the generated SWF.
+   */
+  public long numberOfImageTags() {
+    if (stdoutContains(IMAGE_TAG_OUTPUT)) {
+      try {
+        String out = stdoutBuilder.toString();
+        Pattern r = Pattern.compile(IMAGE_TAG_PATTERN);
+        Matcher m = r.matcher(out);
+        m.find();
+        return Integer
+            .parseInt(m.group(0).replace(IMAGE_TAG_OUTPUT, "").trim());
+      } catch (Exception e) {
+        return 0;
+      }
+    }
+    return 0;
   }
 
 }
