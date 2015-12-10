@@ -7,6 +7,8 @@ import com.google.gson.Gson
 import scala.collection.mutable.HashMap
 import collection.JavaConverters._
 import scala.collection.JavaConversions._
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.ArrayList
 import org.bigbluebutton.core.apps.poll.PollVO
 import org.bigbluebutton.core.apps.presentation.Page
@@ -16,8 +18,9 @@ import org.bigbluebutton.core.apps.presentation.redis.PesentationMessageToJsonCo
 import org.bigbluebutton.core.apps.whiteboard.redis.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.core.meeting.MeetingMessageToJsonConverter
 import org.bigbluebutton.core.apps.users.redis.UsersMessageToJsonConverter
+import org.bigbluebutton.core.util._
 
-class CollectorActor(dispatcher: IDispatcher) extends Actor {
+class CollectorActor(dispatcher: IDispatcher) extends Actor with LogHelper {
 
   def act() = {
     loop {
@@ -185,6 +188,15 @@ class CollectorActor(dispatcher: IDispatcher) extends Actor {
 
         case _ => // do nothing
       }
+    }
+  }
+
+  override def exceptionHandler() = {
+    case e: Exception => {
+      logger.warn("An exception has been thrown on CollectorActor, exception message [" + e.getMessage() + "] (full stacktrace below)")
+      val sw:StringWriter = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw));
+      logger.warn(sw.toString())
     }
   }
 

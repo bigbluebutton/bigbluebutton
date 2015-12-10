@@ -1,5 +1,7 @@
 package org.bigbluebutton.core
 
+import java.io.PrintWriter
+import java.io.StringWriter
 import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
@@ -26,6 +28,15 @@ class BigBlueButtonActor(outGW: MessageOutGateway) extends Actor with LogHelper 
 	  }
   }
   
+  override def exceptionHandler() = {
+    case e: Exception => {
+      logger.warn("An exception has been thrown on BigBlueButtonActor, exception message [" + e.getMessage() + "] (full stacktrace below)")
+      val sw:StringWriter = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw));
+      logger.warn(sw.toString())
+    }
+  }
+
   private def handleValidateAuthToken(msg: ValidateAuthToken) {
     meetings.get(msg.meetingID) foreach { m =>
       m !? (3000, msg) match {

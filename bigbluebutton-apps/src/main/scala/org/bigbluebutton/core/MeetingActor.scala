@@ -13,6 +13,8 @@ import org.bigbluebutton.core.apps.chat.ChatApp
 import org.bigbluebutton.core.apps.whiteboard.WhiteboardApp
 import org.bigbluebutton.core.apps.video.VideoApp
 import scala.actors.TIMEOUT
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 
@@ -158,6 +160,15 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
 	}
   }
   
+  override def exceptionHandler() = {
+    case e: Exception => {
+      logger.warn("An exception has been thrown on MeetingActor, meeting [" + meetingID + "], exception message [" + e.getMessage() + "] (full stacktrace below)")
+      val sw:StringWriter = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw));
+      logger.warn(sw.toString())
+    }
+  }
+
   def hasMeetingEnded():Boolean = {
     meetingEnded
   }

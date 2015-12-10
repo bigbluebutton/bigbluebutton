@@ -1,5 +1,7 @@
 package org.bigbluebutton.freeswitch
 
+import java.io.PrintWriter
+import java.io.StringWriter
 import scala.actors.Actor
 import scala.actors.Actor._
 import org.bigbluebutton.core.api._
@@ -47,6 +49,15 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
 	}
   }  
   
+  override def exceptionHandler() = {
+    case e: Exception => {
+      logger.warn("An exception has been thrown on FreeswitchConferenceActor, exception message [" + e.getMessage() + "] (full stacktrace below)")
+      val sw:StringWriter = new StringWriter();
+      e.printStackTrace(new PrintWriter(sw));
+      logger.warn(sw.toString())
+    }
+  }
+
   private def handleEjectAllVoiceUsers(msg: EjectAllVoiceUsers) {
     val fsconf = confs.values find (c => c.meetingId == msg.meetingID)
     
