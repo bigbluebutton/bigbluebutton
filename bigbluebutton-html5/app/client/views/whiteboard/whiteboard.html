@@ -47,7 +47,6 @@
         {{> makeButton btn_class="soaringButton fullscreenButton whiteboardFullscreenButton" i_class="ion-arrow-expand"}}
       {{/if}}
 
-      {{> whiteboardControls}}
     </div>
     {{> emojiDisplay}}
 
@@ -57,7 +56,7 @@
 
     {{#if isCurrentUserPresenter}}
       {{#unless isVideoDisplayed}}
-        {{> presenterBottomControllers}}
+        {{> whiteboardControls}}
       {{/unless}}
     {{/if}}
   </div>
