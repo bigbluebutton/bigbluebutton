@@ -32,6 +32,8 @@
 
 # join the conference. If listen only send the request to the server
 @joinVoiceCall = (event, options) ->
+	extension = Meteor.Meetings.findOne().voiceConf
+	#TODO get rid of these references to verto_extensions global vars (conferenceUsername, conferenceIdNumber)
 	if !isWebRTCAvailable()
 		notification_WebRTCNotSupported()
 		return

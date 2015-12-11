@@ -21,17 +21,19 @@ this.doshare = function(on, callback, videoTag) {
 
 	if (sharedev !== "screen") {
 		console.log("Attempting Screen Capture with non-screen device....");
-		share_call = verto.newCall({
-			destination_number: extension + "-screen",
-			caller_id_name: conferenceUsername + " (Screen)",
-			caller_id_number: conferenceIdNumber + " (screen)",
-			outgoingBandwidth: outgoingBandwidth,
-			incomingBandwidth: incomingBandwidth,
-			useCamera: sharedev,
-			useVideo: true,
-			screenShare: true,
-			dedEnc: $("#use_dedenc").is(':checked'),
-			mirrorInput: $("#mirror_input").is(':checked')
+		BBB.getMyUserInfo(function (retData){
+			share_call = verto.newCall({
+				destination_number: retData.voiceBridge + "-screen",
+				caller_id_name: retData.myUsername + " (Screen)",
+				caller_id_number: retData.myUserID + " (screen)",
+				outgoingBandwidth: outgoingBandwidth,
+				incomingBandwidth: incomingBandwidth,
+				useCamera: sharedev,
+				useVideo: true,
+				screenShare: true,
+				dedEnc: false,
+				mirrorInput: false
+			});
 		});
 		return;
 	}
@@ -62,18 +64,20 @@ this.doshare = function(on, callback, videoTag) {
 		window.watchOnly = false;
 		window.joinAudio = true;
 
-		share_call = verto.newCall({
-			destination_number: extension + "-screen",
-			caller_id_name: conferenceUsername + " (Screen)",
-			caller_id_number: conferenceIdNumber + " (screen)",
-			outgoingBandwidth: outgoingBandwidth,
-			incomingBandwidth: incomingBandwidth,
-			videoParams: screen_constraints,
-			useVideo: true,
-			screenShare: true,
-			dedEnc: false,
-			mirrorInput: false,
-			tag: "webcam"
+		BBB.getMyUserInfo(function (retData){
+			share_call = verto.newCall({
+				destination_number: retData.voiceBridge + "-screen",
+				caller_id_name: retData.myUsername + " (Screen)",
+				caller_id_number: retData.myUserID + " (screen)",
+				outgoingBandwidth: outgoingBandwidth,
+				incomingBandwidth: incomingBandwidth,
+				videoParams: screen_constraints,
+				useVideo: true,
+				screenShare: true,
+				dedEnc: false,
+				mirrorInput: false,
+				tag: "webcam"
+			});
 		});
 
 		share_call.rtc.options.callbacks = $.extend(share_call.rtc.options.callbacks, callbacks);

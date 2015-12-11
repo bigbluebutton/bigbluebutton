@@ -6,7 +6,6 @@ this.callTimeout = null; // function that will run if there is no call establish
 this.conferenceIdNumber = "1008";
 this.conferenceUsername = "FreeSWITCH User";
 this.toDisplayDisconnectCallback = true; // if a call is dropped only display the error the first time
-this.voiceBridge = extension = "71786";
 this.wasCallSuccessful = false; // when the websocket connection is closed this determines whether a call was ever successfully established
 this.webcamStream = "webcamStream";
 window[webcamStream] = null;
