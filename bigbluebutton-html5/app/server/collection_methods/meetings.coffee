@@ -73,10 +73,26 @@
 			localCallback()
 		funct(callback)
 
+
+@handleDeskShareChange = (meetingId, deskShareInfo) ->
+	console.error "__#{meetingId}__deskShareInfo=" + JSON.stringify deskShareInfo
+	presenter = Meteor.Users.findOne({meetingId:meetingId, "user.presenter": true})?.user.userid
+	Meteor.Meetings.update({meetingId: meetingId}, {$set: {
+		"deskshare.broadcasting": deskShareInfo.broadcasting
+		"deskshare.timestamp": "now"
+		"deskshare.vw": deskShareInfo.vw
+		"deskshare.vh": deskShareInfo.vh
+		"deskshare.voice_bridge": "71786"
+		"deskshare.startedBy": presenter
+	}})
+	# TODO have to send the voicebridge!
+
+
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
 
+###
 # updates the server side database for deskshare information for a meeting
 Meteor.methods
     simulatePresenterDeskshareHasStarted: (meetingId, bridge, startedBy) ->
@@ -101,3 +117,4 @@ Meteor.methods
             # "deskshare.voice_bridge": bridge
             "deskshare.startedBy": null
         }})
+###
