@@ -222,7 +222,7 @@ Meteor.methods
 @requestUserLeaving = (meetingId, userId) ->
   userObject = Meteor.Users.findOne({'meetingId': meetingId, 'userId': userId})
   voiceConf = Meteor.Meetings.findOne({meetingId:meetingId})?.voiceConf
-  if userObject? and voiceConf? and userId? and meetingId?
+  if userObject?.user? and voiceConf? and userId? and meetingId?
 
     # end listenOnly audio for the departing user
     if userObject.user.listenOnly
