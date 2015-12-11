@@ -30,6 +30,8 @@
 			import org.bigbluebutton.web.AppConfig;
 			import org.bigbluebutton.web.chat.ChatConfig;
 			import org.bigbluebutton.web.chat.views.ChatWindow;
+			import org.bigbluebutton.web.deskshare.views.DeskshareConfig;
+			import org.bigbluebutton.web.deskshare.views.DeskshareWindow;
 			import org.bigbluebutton.web.main.MainConfig;
 			import org.bigbluebutton.web.main.views.LoadingScreen;
 			import org.bigbluebutton.web.presentation.views.PresentationConfig;
@@ -108,7 +110,7 @@
 			private function setupContext():void {
 				context = new Context().install(MVCSBundle, SignalCommandMapExtension).configure(AppConfig)
 					
-					.configure(MainConfig).configure(ChatConfig).configure(UserConfig).configure(VideoConfig).configure(MainToolbarConfig).configure(CameraDisplaySettingsConfig).configure(ToolbarPopupButtonConfig).configure(ToolbarButtonConfig).configure(AudioSelectionWindowConfig).configure(ShortcutHelpConfig).configure(PresentationConfig).configure(WhiteboardConfig)
+					.configure(MainConfig).configure(ChatConfig).configure(UserConfig).configure(VideoConfig).configure(MainToolbarConfig).configure(CameraDisplaySettingsConfig).configure(ToolbarPopupButtonConfig).configure(ToolbarButtonConfig).configure(AudioSelectionWindowConfig).configure(ShortcutHelpConfig).configure(PresentationConfig).configure(WhiteboardConfig).configure(DeskshareConfig)
 					
 					.configure(new ContextView(this));
 				
@@ -151,6 +153,7 @@
 				mainCanvas.windowManager.add(new UserWindow());
 				mainCanvas.windowManager.add(new VideoWindow());
 				mainCanvas.windowManager.add(new PresentationWindow());
+				mainCanvas.windowManager.add(new DeskshareWindow());
 			}
 			
 			private function onFooterLinkClicked(e:TextEvent):void {
