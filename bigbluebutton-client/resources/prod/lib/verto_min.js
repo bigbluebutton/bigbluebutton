@@ -763,7 +763,11 @@ var iceTimer;
                 video: video
             },
             onsuccess: function(e) {
-                e.stop();
+                // e.stop(); //TODO had to comment out
+                // It seems the return arg on onsuccess is just an object
+                // and not a function (with a .stop())
+                // Anton Georgiev Dec 10 2015
+                //
                 console.info(w + "x" + h + " supported.");
                 $.FSRTC.validRes.push([w, h]);
                 checkRes(cam, func);

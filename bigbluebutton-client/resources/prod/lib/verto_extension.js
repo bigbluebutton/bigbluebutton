@@ -257,11 +257,11 @@ function make_call(voiceBridge, conferenceUsername, conferenceIdNumber, userCall
 function makeVerto(callbacks, stunsConfig) {
 	var vertoPort = "8082";
 	//var hostName = window.location.hostname; //TODO
-	var hostName = "192.168.23.45"; //TODO
+	var hostName = "IP"; //TODO
 	//var socketUrl = "ws://" + hostName + ":5066"; //TODO
 	var socketUrl = "wss://" + hostName + ":" + vertoPort; //TODO
 	var login = "1008"; //TODO
-	var password = "fred"; //TODO
+	var password = "PASSWORD"; //TODO
 	var minWidth = "640";
 	var minHeight = "480";
 	var maxWidth = "1920";
@@ -295,10 +295,15 @@ var RTCPeerConnectionCallbacks = {
 	iceFailed: function(e) {
 		console.log('received ice negotiation failed');
 		callback({'status':'failed', 'errorcode': 1007}); // Failure on call
-		cur_call = null;
-		verto.hangup();
-		verto = null;
-		clearTimeout(callTimeout);
+		//
+		// TODO unless I do this, the call only lasts for a few seconds.
+		// When I comment out the lines below, it works fine indefinitely
+		// Anton Georgiev Dec 10 2015
+		//
+		//cur_call = null;
+		//verto.hangup();
+		//verto = null;
+		//clearTimeout(callTimeout);
 	}
 };
 
@@ -328,44 +333,6 @@ function webrtc_hangup(userCallback) {
 	console.log("Hanging up current session");
 	verto.hangup(false, callback);
 }
-
-// supplement my own that insert my own button and handler
-$(document).ready(function() {
-	console.log("document ready");
-
-	//TODO
-	// $("body").append("<button id='stopScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>stopScreen</button>");
-	// $("body").append("<button id='shareScreen' style='position:absolute; top:60px; left:0px; width:500px; height:30px;'>shareScreen</button>");
-
-	//$("#joinAudio").click(function() {
-	//	wasCallSuccessful = false;
-	//	var debuggerCallback = function(message) {
-	//		console.log("CALLBACK: "+JSON.stringify(message));
-	//	}
-	//	callIntoConference(extension, conferenceUsername, conferenceIdNumber, debuggerCallback);
-	//});
-	//
-	//$("#hangUp").click(function() {
-	//	console.log("hangup button");
-	//	leaveWebRTCVoiceConference();
-	//	cur_call = null;
-	//});
-
-	// $("#shareScreen").click(function() {
-	// 	console.log("shareScreen button");
-	// 	screenStart(true, function(){});
-	// 	$("#shareScreen").hide();
-	// 	$("#stopScreen").show();
-	// });
-
-	// $("#stopScreen").click(function() {
-	// 	console.log("stopScreen button");
-	// 	screenStart(false, function(){});
-	// 	$("#shareScreen").show();
-	// 	$("#stopScreen").hide();
-	// });
-	// $("#stopScreen").hide();
-});
 
 function doWebcamPreview() {
 	//TODO
