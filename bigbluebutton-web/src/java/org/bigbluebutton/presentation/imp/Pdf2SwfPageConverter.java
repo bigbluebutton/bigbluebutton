@@ -84,11 +84,11 @@ public class Pdf2SwfPageConverter implements PageConverter {
       return true;
     } else {
       log.debug(
-          "Previous conversion generated {} PlaceObject tags, {} DefineText tags and {} Images. Falling back to 'bitmap' option for pdf2swf.",
+          "Previous conversion generated {} PlaceObject tags, {} DefineText tags and {} Images. Falling back to 'poly2bitmap' option for pdf2swf.",
           pHandler.numberOfPlacements(), pHandler.numberOfTextTags(),
           pHandler.numberOfImageTags());
       NuProcessBuilder pbBmp = new NuProcessBuilder(Arrays.asList(SWFTOOLS_DIR
-          + File.separator + "pdf2swf", AVM2SWF, "-s", "bitmap", "-F",
+          + File.separator + "pdf2swf", AVM2SWF, "-s", "poly2bitmap", "-F",
           fontsDir, "-p", String.valueOf(page), source, "-o", dest));
       Pdf2SwfPageConverterHandler pBmpHandler = new Pdf2SwfPageConverterHandler();
       pbBmp.setProcessListener(pBmpHandler);
