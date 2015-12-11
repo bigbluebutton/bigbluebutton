@@ -26,9 +26,6 @@
     color = colourToHex(color)
   color
 
-@getCurrentSlideDoc = -> # returns only one document
-  BBB.getCurrentSlide()
-
 @getInSession = (k) -> SessionAmplify.get k
 
 @getTime = -> # returns epoch in ms
@@ -60,7 +57,12 @@ Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
 
 Handlebars.registerHelper "getCurrentSlide", ->
-  getCurrentSlideDoc()
+  result = BBB.getCurrentSlide("helper getCurrentSlide")
+  # console.log "result=#{JSON.stringify result}"
+  result
+
+Handlebars.registerHelper "getExtensionId", ->
+    Meteor.config.deskshareExtensionKey
 
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
@@ -69,7 +71,7 @@ Handlebars.registerHelper "getMeetingName", ->
   BBB.getMeetingName()
 
 Handlebars.registerHelper "getShapesForSlide", ->
-  currentSlide = getCurrentSlideDoc()
+  currentSlide = BBB.getCurrentSlide("helper getShapesForSlide")
 
   # try to reuse the lines above
   Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
@@ -112,6 +114,9 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 Handlebars.registerHelper "isCurrentUserPresenter", ->
   BBB.isUserPresenter(getInSession('userId'))
 
+Handlebars.registerHelper "isCurrentUserModerator", ->
+  BBB.getMyRole() is "MODERATOR"
+
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
@@ -139,6 +144,10 @@ Handlebars.registerHelper 'isPortraitMobile', () ->
 Handlebars.registerHelper 'isMobileChromeOrFirefox', () ->
   isMobile() and ((getBrowserName() is 'Chrome') or (getBrowserName() is 'Firefox'))
 
+Handlebars.registerHelper 'isVideoDisplayed', ->
+    # we are viewing video includes if a stream is being broadcasted to the client, or a local deskshare preview
+    Meteor.Meetings.findOne().deskshare.broadcasting or getInSession("isPreviewingDeskshare")
+
 Handlebars.registerHelper "meetingIsRecording", ->
   BBB.isMeetingRecording()
 
@@ -149,7 +158,7 @@ Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
   currentSlideDoc = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-  pointer = currentPresentation?.pointer
+  pointer = Meteor.Cursor.findOne()
   pointer.x = (- currentSlideDoc.slide.x_offset * 2 + currentSlideDoc.slide.width_ratio * pointer.x) / 100
   pointer.y = (- currentSlideDoc.slide.y_offset * 2 + currentSlideDoc.slide.height_ratio * pointer.y) / 100
   pointer
@@ -162,12 +171,6 @@ Handlebars.registerHelper "canJoinWithMic", ->
     true
   else
     false
-
-###Handlebars.registerHelper "visibility", (section) ->
-  if getInSession "display_#{section}"
-    style: 'display:block;'
-  else
-    style: 'display:none;'###
 
 Handlebars.registerHelper "visibility", (section) ->
   style: 'display:block;'
@@ -445,6 +448,12 @@ Handlebars.registerHelper "getPollQuestions", ->
   console.log "logging out"
   clearSessionVar(document.location = getInSession 'logoutURL') # navigate to logout
 
+@kickUser = (meetingId, toKickUserId, requesterUserId, authToken) ->
+  Meteor.call("kickUser", meetingId, toKickUserId, requesterUserId, authToken)
+
+@setUserPresenter = (meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken) ->
+  Meteor.call("setUserPresenter", meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken)
+
 # Clear the local user session
 @clearSessionVar = (callback) ->
   amplify.store('authToken', null)
@@ -463,6 +472,7 @@ Handlebars.registerHelper "getPollQuestions", ->
   amplify.store('tabsRenderedTime', null)
   amplify.store('userId', null)
   amplify.store('display_menu', null)
+  setInSession("isPreviewingDeskshare", false)
   if callback?
     callback()
 
@@ -472,6 +482,8 @@ Handlebars.registerHelper "getPollQuestions", ->
   setInSession "display_chatbar", true
   setInSession "display_whiteboard", true
   setInSession "display_chatPane", true
+  setInSession("isPreviewingDeskshare", false)
+  setInSession("sharingMyScreen", false)
 
   #if it is a desktop version of the client
   if isPortraitMobile() or isLandscapeMobile()
@@ -515,22 +527,42 @@ Handlebars.registerHelper "getPollQuestions", ->
     return false
 
 @onLoadComplete = ->
-  document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
-  setDefaultSettings()
+    document.title = "BigBlueButton #{BBB.getMeetingName() ? 'HTML5'}"
+    setDefaultSettings()
 
-  Meteor.Users.find().observe({
-  removed: (oldDocument) ->
-    if oldDocument.userId is getInSession 'userId'
-      document.location = getInSession 'logoutURL'
-  })
+    Meteor.Users.find().observe({
+    removed: (oldDocument) ->
+        if oldDocument.userId is getInSession 'userId'
+            document.location = getInSession 'logoutURL'
+    })
 
-  Meteor.Users.find().observe changed: (newUser, oldUser) ->
-    if Meteor.config.app.listenOnly is true and
-       newUser.user.presenter is false and
-       oldUser.user.presenter is true and
-       BBB.getCurrentUser().userId is newUser.userId and
-       oldUser.user.listenOnly is false
-      exitVoiceCall(@, joinVoiceCall)
+    # when the meeting information has been updated check to see if it was
+    # desksharing. If it has changed either trigger a call to receive video
+    # and display it, or end the call and hide the video
+    Meteor.Meetings.find().observe
+        added:(newDocument) ->
+            if newDocument.deskshare.startedBy isnt getInSession("userId")
+                if newDocument.deskshare.broadcasting
+                    console.log "Deskshare is now broadcasting"
+                    presenterDeskshareHasStarted()
+
+        changed: (newDocument, oldDocument) ->
+            console.log "Meeting information has been modified", newDocument
+            if oldDocument.deskshare isnt newDocument.deskshare and newDocument.deskshare.startedBy isnt getInSession("userId")
+                if newDocument.deskshare.broadcasting
+                    console.log "Deskshare is now broadcasting"
+                    presenterDeskshareHasStarted()
+                else
+                    console.log "Deskshare broadcasting has ended"
+                    presenterDeskshareHasEnded()
+
+    Meteor.Users.find().observe changed: (newUser, oldUser) ->
+        if (Meteor.config.app.listenOnly is true and
+            newUser.user.presenter is false and
+            oldUser.user.presenter is true and
+            BBB.getCurrentUser().userId is newUser.userId and
+            oldUser.user.listenOnly is false)
+                exitVoiceCall(@, joinVoiceCall)
 
 # Detects a mobile device
 @isMobile = ->
@@ -585,10 +617,11 @@ Handlebars.registerHelper "getPollQuestions", ->
 
 # The webpage orientation is now landscape
 @orientationBecameLandscape = ->
-  adjustChatInputHeight()
+
 # The webpage orientation is now portrait
 @orientationBecamePortrait = ->
   adjustChatInputHeight()
+
 # Checks if only one panel (userlist/whiteboard/chatbar) is currently open
 @isOnlyOnePanelOpen = () ->
   #(getInSession "display_usersList" ? 1 : 0) + (getInSession "display_whiteboard" ? 1 : 0) + (getInSession "display_chatbar" ? 1 : 0) is 1

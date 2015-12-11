@@ -27,6 +27,7 @@ Meteor.startup ->
       amplify.store.sessionStorage key, value
       return
   )
+  setInSession("gotChromeExtension", false)
 #
 Template.header.events
   "click .chatBarIcon": (event) ->
@@ -139,6 +140,24 @@ Template.main.rendered = ->
       $("#settingsModal").foundation('reveal', 'open')
       if Meteor.config.app.listenOnly
         $('#joinMicrophone').prop('disabled', true)
+
+  checkIfScreenSharingExtensionsExist()
+
+@checkIfFirefoxExtExists = ->
+    # check if element that extension added exists on the webpage
+    true
+
+@checkIfScreenSharingExtensionsExist = ->
+    browserName = getBrowserName()
+    if browserName is 'Firefox'
+        setInSession("firefoxExtensionIsInstalled", checkIfFirefoxExtExists())
+    else if browserName is 'Chrome'
+        getChromeExtensionStatus (status) ->
+            setInSession("chromeExtensionIsInstalled", status is "installed-enabled")
+
+Template.deskshareModal.rendered = ->
+  makeWebcamResolutions();
+  makeDeskshareResolutions();
 
 Template.main.events
   'click .shield': (event) ->

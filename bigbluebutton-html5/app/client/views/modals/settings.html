@@ -36,6 +36,12 @@
   <div class="settingsBody">
     {{> settingsAudio}}
     {{> optionsFontSize}}
+    <br/>
+    {{#if canIPresentDeskshare}}
+        {{> vertoDeskshareMenu}}
+    {{/if}}
+    {{> vertoWebcamMenu}}
+    <br/>
     {{{getBBBSettingsInfo}}}
   </div>
 

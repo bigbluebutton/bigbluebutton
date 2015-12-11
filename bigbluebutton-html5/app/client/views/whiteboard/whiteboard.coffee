@@ -1,8 +1,9 @@
 # scale the whiteboard to adapt to the resized window
 @scaleWhiteboard = (callback) ->
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
-  wpm = whiteboardPaperModel
-  wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
+  if whiteboardPaperModel?
+    whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height)
+
   if callback
     callback()
 
@@ -11,11 +12,12 @@ Template.whiteboard.helpers
     currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
     currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
     totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
-    console.log('slide', currentSlideNum)
+    # console.log('slide', currentSlideNum)
     if currentSlideNum isnt undefined
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
       return ''
+
   isPollStarted: ->
     if BBB.isPollGoing(getInSession('userId'))
       return true
@@ -24,6 +26,17 @@ Template.whiteboard.helpers
 
   hasNoPresentation: ->
     Meteor.Presentations.findOne({'presentation.current':true})
+
+  forceSlideShow: ->
+    reactOnSlideChange()
+
+  clearSlide: ->
+    #clear the slide
+    whiteboardPaperModel?.removeAllImagesFromPaper()
+
+    # hide the cursor
+    whiteboardPaperModel?.cursor?.remove()
+
 
 Template.whiteboard.events
   'click .whiteboardFullscreenButton': (event, template) ->
@@ -37,6 +50,7 @@ Template.whiteboard.events
     else if document.webkitExitFullscreen
       document.webkitExitFullscreen()
 
+Template.emojiDisplay.events
   'click .sadEmojiButton.inactiveEmojiButton': (event) ->
     if $('.sadEmojiButton').css('opacity') is '1'
       BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "sad")
@@ -106,7 +120,7 @@ Template.polling.destroyed = ->
   setTimeout(scaleWhiteboard, 0)
 
 Template.whiteboardControls.rendered = ->
-  scaleWhiteboard()
+  setTimeout(scaleWhiteboard, 0)
 
 Template.whiteboardControls.destroyed = ->
   setTimeout(scaleWhiteboard, 0)

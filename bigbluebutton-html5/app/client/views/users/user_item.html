@@ -43,6 +43,14 @@
     {{/if}}
   {{/if}}
 
+  {{#unless isCurrentUser userId}}
+    {{#if isCurrentUserModerator}}
+      <span class="kickUser" rel="tooltip" data-placement="bottom" title="Kick {{user.name}}">
+        <i class="icon fi-x-circle usericon"></i>
+      </span>
+    {{/if}}
+  {{/unless}}
+
   {{#if isUserSharingVideo userId}}
     <span rel="tooltip" data-placement="bottom" title="{{user.name}} is sharing their webcam">
       <i class="icon fi-video usericon"></i>
@@ -58,6 +66,13 @@
 
 <template name="usernameEntry">
     <div class="status">
+      {{#if isCurrentUserModerator}}
+        {{#unless user.presenter}}
+          <span class="setPresenter" rel="tooltip" data-placement="bottom" title="set {{user.name}} as presenter">
+            <i class="icon fi-projection-screen statusIcon"></i>
+          </span>
+        {{/unless}}
+      {{/if}}
       {{#if equals user.emoji_status "happy"}}
         {{> icon name="happy-face" size="25"}}
       {{else}}

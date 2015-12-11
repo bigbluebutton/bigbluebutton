@@ -10,16 +10,17 @@ Meteor.startup ->
   clearSlidesCollection()
   clearPresentationsCollection()
   clearPollCollection()
+  clearCursorCollection()
 
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->
     Meteor.log.info "created pubsub")
 
-
   Meteor.myQueue = new PowerQueue({
     # autoStart:true
     # isPaused: true
   })
+
   Meteor.myQueue.taskHandler = (data, next, failures) ->
     eventName = JSON.parse(data.jsonMsg)?.header.name
     if failures > 0
@@ -61,15 +62,15 @@ Meteor.startup ->
       "presentation_page_resized_message"
       "presentation_cursor_updated_message"
       "get_presentation_info_reply"
-#      "get_users_reply"
+      #"get_users_reply"
       "get_chat_history_reply"
-#      "get_all_meetings_reply"
+      #"get_all_meetings_reply"
       "get_whiteboard_shapes_reply"
       "presentation_shared_message"
       "presentation_conversion_done_message"
       "presentation_conversion_progress_message"
       "presentation_page_generated_message"
-      # "presentation_page_changed_message"
+      #"presentation_page_changed_message"
       "BbbPubSubPongMessage"
       "bbb_apps_is_alive_message"
       "user_voice_talking_message"
@@ -382,10 +383,12 @@ Meteor.startup ->
 
       # for now not handling this serially #TODO
       else if eventName is "presentation_cursor_updated_message"
-        x = message.payload.x_percent
-        y = message.payload.y_percent
-        Meteor.Presentations.update({"presentation.current": true, meetingId: meetingId},
-          {$set: {"pointer.x": x, "pointer.y": y}})
+        cursor =
+          x: message.payload.x_percent
+          y: message.payload.y_percent
+
+        # update the location of the cursor on the whiteboard
+        updateCursorLocation(meetingId, cursor)
         callback()
 
       # for now not handling this serially #TODO

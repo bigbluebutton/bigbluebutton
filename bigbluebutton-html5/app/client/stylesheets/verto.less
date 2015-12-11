@@ -1,0 +1,30 @@
+@import "variables";
+
+#webcam {
+	background-color: black;
+	display: none;
+	width: 100%;
+	@media @landscape {
+		height: calc(~'100% - 40px') !important;
+	}
+
+	@media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+		height: 66vh;
+		max-height: 66vh;
+		min-height: 66vh;
+	}
+}
+
+#screenshare {
+	padding: 5px;
+}
+
+.screenshareShow, .screenshareStart, .webcamStart, .webcamShow {
+	color: lime;
+	font-size: 30px;
+}
+
+.screenshareHide, .screenshareStop, .webcamStop, .webcamHide {
+	color: red;
+	font-size: 30px;
+}

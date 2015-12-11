@@ -13,9 +13,17 @@ Template.settingsAudio.events
 
   "click .joinAudioButton": (event) -> $("#settingsModal").foundation('reveal', 'close')
 
-  "click #joinListenOnly": (event) -> joinVoiceCall @, isListenOnly: true
+  "click #joinListenOnly": (event) ->
+    joinVoiceCall @, {
+        listenOnly: true
+    }
 
-  "click #joinMicrophone": (event) -> joinVoiceCall @, isListenOnly: false
+  "click #joinMicrophone": (event) ->
+    joinVoiceCall @, {
+        joinAudio: true
+    }
+
+  "click #hangupVerto": (event) -> exitVoiceCall()
 
 Template.settingsModal.events
   "click #closeSettings": -> $("#settingsModal").foundation('reveal', 'close');

@@ -12,7 +12,6 @@ import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
 import scala.util.Success
 import scala.util.Failure
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.recorders.VoiceEventRecorder
 import org.bigbluebutton.core.recorders.events.VoiceUserJoinedRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceUserLeftRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceUserLockedRecordEvent
@@ -24,11 +23,11 @@ import scala.collection._
 import com.google.gson.Gson
 
 object BigBlueButtonActor extends SystemConfiguration {
-  def props(system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder): Props =
-    Props(classOf[BigBlueButtonActor], system, recorderApp, messageSender, voiceEventRecorder)
+  def props(system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender): Props =
+    Props(classOf[BigBlueButtonActor], system, recorderApp, messageSender)
 }
 
-class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender, voiceEventRecorder: VoiceEventRecorder) extends Actor with ActorLogging {
+class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender) extends Actor with ActorLogging {
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
@@ -70,46 +69,30 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
   private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
-
-      val recEvent = new VoiceUserJoinedRecordEvent(msg.userId, msg.voiceUserId, msg.voiceConfId,
-        msg.callerIdNum, msg.callerIdName, msg.muted, msg.talking)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
   private def handleUserLeftVoiceConfMessage(msg: UserLeftVoiceConfMessage) {
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
-      val recEvent = new VoiceUserLeftRecordEvent(msg.voiceUserId, msg.voiceConfId)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
   private def handleUserLockedInVoiceConfMessage(msg: UserLockedInVoiceConfMessage) {
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
-      val recEvent = new VoiceUserLockedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.locked)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
   private def handleUserMutedInVoiceConfMessage(msg: UserMutedInVoiceConfMessage) {
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
-      val recEvent = new VoiceUserMutedRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.muted)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
   }
 
   private def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
-      val recEvent = new VoiceStartRecordingRecordEvent(msg.voiceConfId, msg.recording)
-      recEvent.setTimestamp(msg.timestamp)
-      recEvent.setRecordingFilename(msg.recordStream)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
-
-      // find meeting with voiceconf id and send it to 
     }
 
   }
@@ -117,8 +100,6 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
   private def handleUserTalkingInVoiceConfMessage(msg: UserTalkingInVoiceConfMessage) {
     findMeetingWithVoiceConfId(msg.voiceConfId) foreach { m =>
       m.actorRef ! msg
-      val recEvent = new VoiceUserTalkingRecordEvent(msg.voiceUserId, msg.voiceConfId, msg.talking)
-      voiceEventRecorder.recordConferenceEvent(recEvent, m.mProps.meetingID)
     }
 
   }

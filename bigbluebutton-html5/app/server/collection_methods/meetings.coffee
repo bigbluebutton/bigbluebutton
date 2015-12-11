@@ -1,16 +1,16 @@
 # --------------------------------------------------------------------------------------------
 # Private methods on server
 # --------------------------------------------------------------------------------------------
-
 @addMeetingToCollection = (meetingId, name, intendedForRecording, voiceConf, duration, callback) ->
 	#check if the meeting is already in the collection
 
-	obj = Meteor.Meetings.upsert({meetingId:meetingId}, {$set: {
+	Meteor.Meetings.upsert({meetingId:meetingId}, {$set: {
 		meetingName:name
 		intendedForRecording: intendedForRecording
 		currentlyBeingRecorded: false # default value
 		voiceConf: voiceConf
 		duration: duration
+		deskshare: {}
 		roomLockSettings:
 			# by default the lock settings will be disabled on meeting create
 			disablePrivateChat: false
@@ -31,7 +31,8 @@
 			callback()
 	)
 
-
+	# initialize the cursor in the meeting
+	initializeCursor(meetingId)
 
 @clearMeetingsCollection = (meetingId) ->
 	if meetingId?
@@ -39,7 +40,6 @@
 			Meteor.log.info "cleared Meetings Collection (meetingId: #{meetingId}!")
 	else
 		Meteor.Meetings.remove({}, Meteor.log.info "cleared Meetings Collection (all meetings)!")
-
 
 #clean up upon a meeting's end
 @removeMeetingFromCollection = (meetingId, callback) ->
@@ -63,6 +63,9 @@
 		# delete the meeting
 		clearMeetingsCollection(meetingId)
 
+		# delete the cursor for the meeting
+		clearCursorCollection(meetingId)
+
 		callback()
 	else
 		funct = (localCallback) ->
@@ -70,8 +73,31 @@
 			localCallback()
 		funct(callback)
 
-
-
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
+
+# updates the server side database for deskshare information for a meeting
+Meteor.methods
+    simulatePresenterDeskshareHasStarted: (meetingId, bridge, startedBy) ->
+        console.log("\n\n\n\n\n\n\nmeeting started")
+        console.log("started by: #{startedBy}\n\n\n\n\n\n\n")
+        Meteor.Meetings.update({meetingId: meetingId}, {$set: {
+            "deskshare.broadcasting": true
+            "deskshare.timestamp": "now"
+            "deskshare.vw": null
+            "deskshare.vh": null
+            "deskshare.voice_bridge": bridge
+            "deskshare.startedBy": startedBy
+        }})
+
+    simulatePresenterDeskshareHasEnded: (meetingId, startedBy) ->
+        console.log "\n\n\n\n\n\n\nmeeting is being ended\n\n\n\n\n\n\n"
+        Meteor.Meetings.update({meetingId: meetingId}, {$set: {
+            "deskshare.broadcasting": false
+            "deskshare.timestamp": "now"
+            "deskshare.vw": null
+            "deskshare.vh": null
+            # "deskshare.voice_bridge": bridge
+            "deskshare.startedBy": null
+        }})
