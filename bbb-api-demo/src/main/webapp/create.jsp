@@ -100,7 +100,7 @@ $(document).ready(function(){
 		// User has requested to create a meeting
 		//
 
-		String username = request.getParameter("username1").replaceAll("<", "").replaceAll(">", "");
+		String username = request.getParameter("username1");
 		String meetingID = username + "'s meeting";
 
 		//
