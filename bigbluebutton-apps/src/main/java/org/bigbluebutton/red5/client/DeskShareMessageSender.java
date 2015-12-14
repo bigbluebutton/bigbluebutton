@@ -13,7 +13,7 @@ import com.google.gson.JsonParser;
 
 public class DeskShareMessageSender {
 	private ConnectionInvokerService service;
-	
+
 	public DeskShareMessageSender(ConnectionInvokerService service) {
 		this.service = service;
 	}
@@ -45,31 +45,14 @@ public class DeskShareMessageSender {
 
 	private void processDeskShareNotifyViewersRTMPEventMessage(DeskShareNotifyViewersRTMPEventMessage msg) {
 		Map<String, Object> messageInfo = new HashMap<String, Object>();
-		
-		System.out.println("RedisPubSubMessageHandler - " + msg.toJson());
 		System.out.println("RedisPubSubMessageHandler - processDeskShareNotifyViewersRTMPEventMessage \n" +msg.streamPath+ "\n");
 
-		messageInfo.put(ChatKeyUtil.CHAT_TYPE, "PUBLIC_CHAT");
-		messageInfo.put(ChatKeyUtil.FROM_USERID, "enm6bgnif0d4_2");
-		messageInfo.put(ChatKeyUtil.FROM_USERNAME, "User 4526544");
-		messageInfo.put(ChatKeyUtil.TO_USERID, "public_chat_userid");
-		messageInfo.put(ChatKeyUtil.TO_USERNAME, "public_chat_username");
-		messageInfo.put(ChatKeyUtil.FROM_TIME, "1.435851039645E12");
-		messageInfo.put(ChatKeyUtil.FROM_TZ_OFFSET, "240");
-		messageInfo.put(ChatKeyUtil.FROM_COLOR, "0");
-		messageInfo.put(ChatKeyUtil.MESSAGE, "BROADCASTING_RTMP:"+msg.broadcasting + " " + msg.streamPath
-				+ "  vw=" + msg.vw + "  vh=" + msg.vh);
-
-		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "ChatReceivePublicMessageCommand", messageInfo);
+		messageInfo.put("rtmpUrl", msg.streamPath);
+		messageInfo.put("broadcasting", msg.broadcasting);
+		messageInfo.put("width", msg.vw);
+		messageInfo.put("height", msg.vh);
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "DeskShareRTMPBroadcastNotification", messageInfo);
 		service.sendMessage(m);
-
-		Map<String, Object> messageInfo2 = new HashMap<String, Object>();
-		messageInfo2.put("rtmpUrl", msg.streamPath);
-		messageInfo2.put("broadcasting", msg.broadcasting);
-		messageInfo2.put("width", msg.vw);
-		messageInfo2.put("height", msg.vh);
-		BroadcastClientMessage m2 = new BroadcastClientMessage(msg.meetingId, "DeskShareRTMPBroadcastNotification", messageInfo2);
-		service.sendMessage(m2);
 	}
 
 }

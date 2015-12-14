@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mate="http://mate.asfusion.com/"
 	styleName="deskshareDefaultButtonStyle"
 	height="24"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.webrtcDeskshare.toolTip.start')}"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start')}"
 	click="startDeskShare()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
@@ -65,14 +65,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_currentState = ON_STATE;
 					this.selected = true;
 					this.enabled = true;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.webrtcDeskshare.toolTip.stop');
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.stop');
 					styleName="deskshareOnButtonStyle"
 				}
 				else {
 					_currentState = OFF_STATE;
 					this.selected = false;
 					this.enabled = true;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.webrtcDeskshare.toolTip.start');
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start');
 					styleName="deskshareDefaultButtonStyle"
 				}
 			}
@@ -89,7 +89,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if(_currentState == OFF_STATE) {
 					this.selected = true;
 					this.enabled = true;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.webrtcDeskshare.toolTip.stop');
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.stop');
 					styleName="deskshareOnButtonStyle"
 					_currentState = ON_STATE;
 					dispatchEvent(new ShareEvent(ShareEvent.START_SHARING));
@@ -98,7 +98,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					this.selected = false;
 
 					this.enabled = true;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.webrtcDeskshare.toolTip.start');
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start');
 					styleName="deskshareDefaultButtonStyle"
 					_currentState = OFF_STATE;
 
