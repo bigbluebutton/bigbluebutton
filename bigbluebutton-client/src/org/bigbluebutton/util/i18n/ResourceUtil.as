@@ -236,7 +236,7 @@ package org.bigbluebutton.util.i18n
 				if (preferredLocale != MASTER_LOCALE) {
 					LOGGER.debug("Failed to load locale [{0}].", [preferredLocale]);
 				}
-	
+				masterLocaleLoaded = true;
 				resourceManager.localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
 			}
