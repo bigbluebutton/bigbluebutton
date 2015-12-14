@@ -1,12 +1,12 @@
 # scale the whiteboard to adapt to the resized window
 @scaleWhiteboard = (callback) ->
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
-  wpm = whiteboardPaperModel
-  wpm.scale(adjustedDimensions.width, adjustedDimensions.height)
+  if whiteboardPaperModel?
+    whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height)
+
   if callback
     callback()
 
-Template.whiteboard.helpers
   isPollStarted: ->
     if BBB.isPollGoing(getInSession('userId'))
       return true
@@ -15,6 +15,17 @@ Template.whiteboard.helpers
 
   hasNoPresentation: ->
     Meteor.Presentations.findOne({'presentation.current':true})
+
+  forceSlideShow: ->
+    reactOnSlideChange()
+
+  clearSlide: ->
+    #clear the slide
+    whiteboardPaperModel?.removeAllImagesFromPaper()
+
+    # hide the cursor
+    whiteboardPaperModel?.cursor?.remove()
+
 
 Template.whiteboard.events
   'click .whiteboardFullscreenButton': (event, template) ->
@@ -76,16 +87,13 @@ Template.whiteboard.events
 
 Template.whiteboardControls.helpers
   presentationProgress: ->
-    console.log "test"
     currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
     currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
     totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
     console.log('slide', currentSlideNum)
     if currentSlideNum isnt undefined
-      console.log currentSlideNum
       return "#{currentSlideNum}/#{totalSlideNum}"
     else
-      console.log currentSlideNum
       return ''
 
 Template.whiteboardControls.events

@@ -123,10 +123,12 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
 
     return lockedMicForRoom and BBB.amILocked()
 
-  BBB.getCurrentSlide = ->
+  BBB.getCurrentSlide = (callingLocaton)->
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlide = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
+    # console.log "trigger:#{callingLocaton} currentSlideId=#{currentSlide?._id}"
+    currentSlide
 
   BBB.getMeetingName = ->
     Meteor.Meetings.findOne()?.meetingName or null

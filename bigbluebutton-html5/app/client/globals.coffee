@@ -26,9 +26,6 @@
     color = colourToHex(color)
   color
 
-@getCurrentSlideDoc = -> # returns only one document
-  BBB.getCurrentSlide()
-
 @getInSession = (k) -> SessionAmplify.get k
 
 @getTime = -> # returns epoch in ms
@@ -60,7 +57,9 @@ Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
 
 Handlebars.registerHelper "getCurrentSlide", ->
-  getCurrentSlideDoc()
+  result = BBB.getCurrentSlide("helper getCurrentSlide")
+  # console.log "result=#{JSON.stringify result}"
+  result
 
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
@@ -69,7 +68,7 @@ Handlebars.registerHelper "getMeetingName", ->
   BBB.getMeetingName()
 
 Handlebars.registerHelper "getShapesForSlide", ->
-  currentSlide = getCurrentSlideDoc()
+  currentSlide = BBB.getCurrentSlide("helper getShapesForSlide")
 
   # try to reuse the lines above
   Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
@@ -112,6 +111,9 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 Handlebars.registerHelper "isCurrentUserPresenter", ->
   BBB.isUserPresenter(getInSession('userId'))
 
+Handlebars.registerHelper "isCurrentUserModerator", ->
+  BBB.getMyRole() is "MODERATOR"
+
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
@@ -149,7 +151,7 @@ Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
   currentSlideDoc = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-  pointer = currentPresentation?.pointer
+  pointer = Meteor.Cursor.findOne()
   pointer.x = (- currentSlideDoc.slide.x_offset * 2 + currentSlideDoc.slide.width_ratio * pointer.x) / 100
   pointer.y = (- currentSlideDoc.slide.y_offset * 2 + currentSlideDoc.slide.height_ratio * pointer.y) / 100
   pointer
@@ -444,6 +446,12 @@ Handlebars.registerHelper "getPollQuestions", ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
   console.log "logging out"
   clearSessionVar(document.location = getInSession 'logoutURL') # navigate to logout
+
+@kickUser = (meetingId, toKickUserId, requesterUserId, authToken) ->
+  Meteor.call("kickUser", meetingId, toKickUserId, requesterUserId, authToken)
+
+@setUserPresenter = (meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken) ->
+  Meteor.call("setUserPresenter", meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken)
 
 # Clear the local user session
 @clearSessionVar = (callback) ->

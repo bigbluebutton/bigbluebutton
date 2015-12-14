@@ -33,13 +33,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
+import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.PdfToSwfSlide;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
-import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,12 +152,12 @@ public class PdfToSwfSlidesGenerationService {
 					slidesCompleted++;
 					notifier.sendConversionUpdateMessage(slidesCompleted, pres);
 				} else {
-					log.warn("Timedout waiting for page to finish conversion. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " presName=" + pres.getName() );
+					log.warn("Timedout waiting for page to finish conversion. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " presName=[" + pres.getName() + "]");
 				}
 			} catch (InterruptedException e) {
-				log.error("InterruptedException while creating slide. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " name=[" + pres.getName());
+				log.error("InterruptedException while creating slide. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " presName=[" + pres.getName() + "]");
 			} catch (ExecutionException e) {
-				log.error("ExecutionException while creating slide. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " name=[" + pres.getName());
+				log.error("ExecutionException while creating slide. meetingId=" + pres.getMeetingId() + " presId=" + pres.getId() + " presName=[" + pres.getName() + "]");
 			} 
 		}
 				

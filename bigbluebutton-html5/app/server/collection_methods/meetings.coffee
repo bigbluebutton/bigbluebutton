@@ -5,7 +5,7 @@
 @addMeetingToCollection = (meetingId, name, intendedForRecording, voiceConf, duration, callback) ->
 	#check if the meeting is already in the collection
 
-	obj = Meteor.Meetings.upsert({meetingId:meetingId}, {$set: {
+	Meteor.Meetings.upsert({meetingId:meetingId}, {$set: {
 		meetingName:name
 		intendedForRecording: intendedForRecording
 		currentlyBeingRecorded: false # default value
@@ -30,6 +30,9 @@
 			Meteor.log.error "nothing happened"
 			callback()
 	)
+
+	# initialize the cursor in the meeting
+	initializeCursor(meetingId)
 
 
 
@@ -62,6 +65,9 @@
 
 		# delete the meeting
 		clearMeetingsCollection(meetingId)
+
+		# delete the cursor for the meeting
+		clearCursorCollection(meetingId)
 
 		callback()
 	else
