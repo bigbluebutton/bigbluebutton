@@ -4,10 +4,6 @@
   padding: 0 !important;
   min-width: 0;
 
-  #whiteboard-container{
-    min-height: 60px;
-  }
-
   @media @landscape {
     border-top: 0px;
     border-left: 0px;
@@ -71,6 +67,8 @@
 
 #whiteboard-container {
   position: relative; // makes the fullscreen button's absolute position work
+  min-height: 60px;  //For the case when the slide is not loaded and a raise hand button overlaps the hamburger button in portrait views
+  border-bottom: 1px solid #d7d7d7;
   @media @landscape {
     display: -moz-flex;
     display: -ms-flexbox;
@@ -80,36 +78,17 @@
     align-items: center;
     -webkit-align-items: center;
     -ms-align-items: center;
-    //border-bottom: 1px solid extract(@lightGrey, 3);
   }
 }
 
 #whiteboard-controls {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 4em 5px 5px;
-
-  /*
-  opacity: 0;
-  -webkit-transition: opacity .3s;
-  transition: opacity .3s;
-
-  &:hover,
-  &:focus {
-    opacity: 1;
-  }
-  */
+  width: 100%;
+  height: 70px;
 
   button, .btn {
-    outline: none;
-    display: inline-block;
+    outline: none;   // overwriting default Foundation's outline
     margin: 0;
     padding: 0;
-    border: none;
-    background: none;
-    color: #fff;
     height: 50px;
     width: 50px;
     border-radius: 50%;
@@ -127,47 +106,41 @@
 }
 
 .whiteboard-buttons {
-  &-left,
-  &-center,
-  &-right {
-
-  }
-
   &-left {
     float: left;
-  }
-
-  &-center {
-    pointer-events: none;
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    bottom: 5px;
+    width: 20%;
   }
 
   &-right {
     float: right;
+    width: 20%;
+  }
+
+  &-center {
+    margin: 0 auto;
+    text-align: center;
+    width: 60%;
   }
 
   &-slide {
-    pointer-events: auto;
-    color: #fff;
+    margin-top: 10px;
+    margin-bottom: 10px;
     background-color: #3896D3;
     border-color: #007095;
     display: inline-block;
     border-radius: 50px;
 
-    > button, .button {
-      background-color: transparent;
-    }
-
     .current {
-      color: #fff;
+      color: extract(@white, 1);
       font-weight: bold;
       vertical-align: super;
     }
   }
 }
+
+/******************************/
+/*     Upload Menu Styling    */
+/******************************/
 
 .presenter-uploader {
   @presenteUploaderBg: #eee;
@@ -179,19 +152,15 @@
     max-width: 20vw;
     min-width: 300px;
     position: relative;
-    z-index: 100;
-
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
     &-btn {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-
       .presenter-uploader-container & {
-        z-index: 1;
+        float: left;
         background-color: @presenteUploaderBg !important;
         border-color: transparent !important;
         color: @presenteUploaderColor !important;
-
         &:focus,
         &:hover {
           color: @presenteUploaderColorHover;
@@ -202,10 +171,10 @@
 
   &-container {
     overflow: hidden;
-    z-index: 1000;
+    color: @presenteUploaderColor;
     background-color: @presenteUploaderBg;
     padding: 10px 10px;
-    border-radius: 10px 10px 10px 25px;
+    border-radius: 10px 10px 10px 10px;
     display: none;
     transition: all .3s;
     position: absolute;
@@ -213,24 +182,22 @@
 
     .is-open & {
       display: block;
+      z-index: 1;
       box-shadow: 2px 2px 6px rgba(0, 0, 0, .2);
     }
   }
 
   &-tip {
     padding: 10px 10px 10px 60px;
-    text-transform: uppercase;
     font-size: 9px;
     font-weight: bold;
     margin: -10px;
     text-align: right;
     min-height: 50px;
-    color: @presenteUploaderColor;
   }
 
   &-dropzone {
     margin-bottom: 10px;
-    color: @presenteUploaderColor;
     opacity: .4;
     transition: opacity 3s;
     text-align: center;
@@ -420,11 +387,13 @@
   from  { background-position: 0 0; }
   to    { background-position: 40px 0; }
 }
+/******************************/
+/* End of Upload Menu Styling */
+/******************************/
+
 
 .presenter-whiteboard {
-  height: calc(~'100% - 2px');
-  //-2px is for something who is going of the canvas an generating scroll
-  padding-bottom: 60px;
+  height: calc(~'100% - 70px');
 }
 
 .poll-whiteboard {
@@ -648,17 +617,13 @@
 .FABContainer {
   &.noPresentation{
     right: 60px;
+    .FABTriggerButton {
+      @media @mobile-portrait, @tablet-portrait{
+        .vertically-centered;
+      }
+    }
   }
-  @media @mobile-portrait{
-    position: absolute;
-    bottom: 3px;
-    right: 0px;
-    height: 55px;
-  }
-  @media @tablet-portrait{
-    bottom: 3px;
-    right: 0px;
-  }
+
   button {
     padding: 0;
     margin: 0;
@@ -677,7 +642,7 @@
   }
   & > button:nth-child(2) {
     right: 70px;
-    bottom: 4px;
+    bottom: 6px;
   }
   & > button:nth-child(3) {
     right: 70px;
@@ -685,7 +650,7 @@
   }
   & > button:nth-child(4) {
     right: 130px;
-    bottom: 4px;
+    bottom: 6px;
   }
   & > button:nth-child(5) {
     right: 130px;
@@ -693,7 +658,7 @@
   }
   & > button:nth-child(6) {
     right: 190px;
-    bottom: 4px;
+    bottom: 6px;
   }
   & > button:nth-child(7) {
     right: 190px;

@@ -7,17 +7,6 @@
   if callback
     callback()
 
-Template.whiteboard.helpers
-  presentationProgress: ->
-    currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
-    currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
-    totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
-    # console.log('slide', currentSlideNum)
-    if currentSlideNum isnt undefined
-      return "#{currentSlideNum}/#{totalSlideNum}"
-    else
-      return ''
-
   isPollStarted: ->
     if BBB.isPollGoing(getInSession('userId'))
       return true
@@ -95,6 +84,17 @@ Template.whiteboard.events
   'click .FABTriggerButton': (event) ->
     $('.FABTriggerButton').blur()
     toggleEmojisFAB()
+
+Template.whiteboardControls.helpers
+  presentationProgress: ->
+    currentPresentation = Meteor.Presentations.findOne({'presentation.current':true})
+    currentSlideNum = Meteor.Slides.findOne({'presentationId': currentPresentation?.presentation.id, 'slide.current':true})?.slide.num
+    totalSlideNum = Meteor.Slides.find({'presentationId': currentPresentation?.presentation.id})?.count()
+    console.log('slide', currentSlideNum)
+    if currentSlideNum isnt undefined
+      return "#{currentSlideNum}/#{totalSlideNum}"
+    else
+      return ''
 
 Template.whiteboardControls.events
   'click .whiteboard-buttons-slide > .prev':(event) ->
