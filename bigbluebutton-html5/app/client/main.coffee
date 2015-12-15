@@ -145,7 +145,7 @@ Template.main.rendered = ->
 
 @checkIfFirefoxExtExists = ->
     # check if element that extension added exists on the webpage
-    true
+    false
 
 @checkIfScreenSharingExtensionsExist = ->
     browserName = getBrowserName()
