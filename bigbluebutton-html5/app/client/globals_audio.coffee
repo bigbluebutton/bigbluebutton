@@ -1,6 +1,6 @@
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
-@exitVoiceCall = (event) ->
+@exitVoiceCall = (event, afterExitCall) ->
 	if not Meteor.config.useSIPAudio
 		leaveWebRTCVoiceConference_verto();
 		cur_call = null;
@@ -8,7 +8,7 @@
 	else
 		# To be called when the hangup is initiated
 		hangupCallback = ->
-		console.log "Exiting Voice Conference"
+			console.log "Exiting Voice Conference"
 
 		# Checks periodically until a call is established so we can successfully end the call
 		# clean state
@@ -24,6 +24,8 @@
 			BBB.leaveVoiceConference hangupCallback
 			getInSession("triedHangup", true) # we have hung up, prevent retries
 			notification_WebRTCAudioExited()
+			if afterExitCall
+				afterExitCall this, Meteor.config.app.listenOnly
 		else
 			console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
 			setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
