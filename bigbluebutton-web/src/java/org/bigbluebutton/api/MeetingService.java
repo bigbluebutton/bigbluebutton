@@ -354,7 +354,11 @@ public class MeetingService implements MessageListener {
 	
 	public HashMap<String,Recording> getRecordings(ArrayList<String> idList) {
 		//TODO: this method shouldn't be used 
-		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList));
+		log.debug("starting to fetch recordings");
+		ArrayList<Recording> recsList = recordingService.getRecordings(idList);
+		log.debug("got all recordings, without ordering");
+		HashMap<String,Recording> recs= reorderRecordings(recsList);
+		log.debug("returning ordered recordings");
 		return recs;
 	}
 	
