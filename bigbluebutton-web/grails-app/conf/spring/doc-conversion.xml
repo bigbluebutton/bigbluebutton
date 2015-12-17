@@ -60,8 +60,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 	
 	<bean id="pdf2SwfPageConverter" class="org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter">
+		<property name="ghostscriptExec" value="${ghostScriptExec}"/>
 		<property name="swfToolsDir" value="${swfToolsDir}"/>
+		<property name="imageMagickDir" value="${imageMagickDir}"/>
 		<property name="fontsDir" value="${fontsDir}"/>
+		<property name="noPdfMarkWorkaround" value="${noPdfMarkWorkaround}"/>
 		<property name="placementsThreshold" value="${placementsThreshold}"/>
 		<property name="defineTextThreshold" value="${defineTextThreshold}"/>
 		<property name="imageTagThreshold" value="${imageTagThreshold}"/>
