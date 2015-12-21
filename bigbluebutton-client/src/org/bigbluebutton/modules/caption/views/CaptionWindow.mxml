@@ -44,12 +44,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
 			import org.bigbluebutton.modules.caption.model.Transcript;
 			import org.bigbluebutton.modules.caption.model.Transcripts;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable]
-			private var transcripts:ArrayCollection;
+			private var transcriptsCollection:ArrayCollection;
 			
 			[Bindable]
 			private var currentTranscript:Transcript;
+			
+			private var transcriptsObject:Transcripts;
 			
 			private var transcriptOwnerChangeWatcher:ChangeWatcher;
 			
@@ -67,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(requestTranscripts);
 				
 				onFontSizeComboChange();
-				onFontTypeComboChange();
+				onFontFamilyComboChange();
 				
 				BindingUtils.bindSetter(onLocaleComboChange, localeCombo, "selectedItem");
 				
@@ -76,7 +79,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function setTranscripts(t:Transcripts):void {
-				transcripts = t.transcriptCollection;
+				transcriptsObject = t;
+				
+				if (UserManager.getInstance().getConference().amIModerator()) {
+					transcriptsCollection = new ArrayCollection();
+					for each (var l:String in ResourceUtil.getInstance().localeNames) {
+						transcriptsCollection.addItem({locale: l});
+					}
+					claimOwnershipButton.visible = true;
+				} else {
+					transcriptsCollection = t.transcriptCollection;
+				}
 				onLocaleComboChange();
 				/*
 				if (!t.historyIntited) {
@@ -109,14 +122,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				outputArea.setStyle("fontSize", int(fontSizeCombo.selectedItem));
 			}
 			
-			private function onFontTypeComboChange():void {
-				inputArea.setStyle("fontFamily", fontTypeCombo.selectedItem);
-				outputArea.setStyle("fontFamily", fontTypeCombo.selectedItem);
+			private function onFontFamilyComboChange():void {
+				inputArea.setStyle("fontFamily", fontFamilyCombo.selectedItem);
+				outputArea.setStyle("fontFamily", fontFamilyCombo.selectedItem);
 			}
 			
 			private function onLocaleComboChange(o:Object=null):void {
-				if (transcripts && localeCombo.selectedIndex != -1) {
-					currentTranscript = localeCombo.selectedItem as Transcript;
+				if (transcriptsCollection && localeCombo.selectedIndex != -1) {
+					currentTranscript = transcriptsObject.findLocale(localeCombo.selectedItem.locale);
+					
 					if (transcriptOwnerChangeWatcher) {
 						transcriptOwnerChangeWatcher.unwatch();
 					}
@@ -131,23 +145,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var ownerID:String = o as String;
 				if (ownerID == "") {
 					//unclaimed text
-					claimOwnershipButton.enabled = true;
-					claimOwnershipButton.label = "Claim";
+					ownerNameOutputLabel.text = "Owner - " + "None";
 					inputGroup.visible = inputGroup.includeInLayout = false;
 					outputGroup.visible = outputGroup.includeInLayout = true;
 					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
 				} else if (ownerID == UserManager.getInstance().getConference().getMyUserId()) {
 					//release text
-					claimOwnershipButton.enabled = true;
-					claimOwnershipButton.label = "Release";
+					ownerNameInputLabel.text = "Owner - " + "You";
 					inputGroup.visible = inputGroup.includeInLayout = true;
 					outputGroup.visible = outputGroup.includeInLayout = false;
 					inputArea.getInternalTextField().type = TextFieldType.INPUT;
 					inputArea.text = currentTranscript.transcript;
 				} else {
 					//claimed by other
-					claimOwnershipButton.enabled = false;
-					claimOwnershipButton.label = "Claimed";
+					ownerNameInputLabel.text = "Owner - " + UserManager.getInstance().getConference().getUser(ownerID).name;
 					inputGroup.visible = inputGroup.includeInLayout = false;
 					outputGroup.visible = outputGroup.includeInLayout = true;
 					inputArea.getInternalTextField().type = TextFieldType.DYNAMIC;
@@ -254,31 +265,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher.dispatchEvent(editHistoryEvent);
 			}
 			
-			private function onLocaleButtonClick():void {
-				var localeInput:LocaleInputPopup = LocaleInputPopup(PopUpManager.createPopUp(this, LocaleInputPopup, true));
-				PopUpManager.centerPopUp(localeInput);
-				localeInput.callback = addNewLocale;
-			}
-			
-			private function addNewLocale(locale:String):Boolean {
-				var duplicate:Boolean = false;
-				for each(var item:Object in transcripts) {
-					if (item.locale == locale) {
-						duplicate == true;
-						break;
-					}
-				}
-				
-				if (locale.length > 0 && !duplicate) {
-					// add the locale on the server and claim it
-					claimTranscript(locale, true);
-					
-					return true;
-				} else {
-					return false;
-				}
-			}
-			
 			private function claimTranscript(locale:String, claim:Boolean):void {
 				var updateCaptionOwnerEvent:SendUpdateCaptionOwnerEvent = new SendUpdateCaptionOwnerEvent(SendUpdateCaptionOwnerEvent.SEND_UPDATE_CAPTION_OWNER_EVENT);
 				updateCaptionOwnerEvent.locale = locale;
@@ -299,20 +285,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" horizontalAlign="left">
-		<mx:HBox width="100%">
+		<mx:HBox width="100%" verticalAlign="middle">
+			<mx:Label id="fontSizeLabel" text="Font Size:" />
 			<mx:ComboBox id="fontSizeCombo" dataProvider="[8, 10, 12, 14, 16]" selectedIndex="2" change="onFontSizeComboChange()"/>
+			<mx:Label id="fontColorLabel" text="Text Color:" />
 			<mx:ColorPicker id="fontColorPicker" />
-			<mx:ComboBox id="fontTypeCombo" dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" change="onFontTypeComboChange()"/>
-			<mx:ComboBox id="localeCombo" dataProvider="{transcripts}" labelField="locale" enabled="{transcripts.length > 0}" />
-			<mx:Button id="addLocaleButton" height="22" label="+" click="onLocaleButtonClick()" />
-			<mx:Button id="claimOwnershipButton" height="22" enabled="false" click="onClaimButtonClick()" />
+			<mx:Label id="backgroundColorLabel" text="Background Color:" />
+			<mx:ColorPicker id="backgroundColorPicker" />
+			<mx:Label id="fontFamilyLabel" text="Font Family:" />
+			<mx:ComboBox id="fontFamilyCombo" dataProvider="['Arial', 'Calibri', 'Time New Roman', 'Comic Sans']" change="onFontFamilyComboChange()"/>
+			<mx:ComboBox id="localeCombo" dataProvider="{transcriptsCollection}" labelField="locale" enabled="{transcriptsCollection.length > 0}" />
 		</mx:HBox>
 		<mx:VBox id="inputGroup" visible="false" includeInLayout="false" width="100%" height="100%">
-			<mx:Label text="Input:" />
+			<mx:HBox width="100%" verticalAlign="middle" height="24">
+				<mx:Label text="Input:" />
+				<mx:Label id="ownerNameInputLabel" />
+			</mx:HBox>
 			<views:TextArea2 id="inputArea" width="100%" height="100%" textInput="onTranscriptTextInput(event)" change="onTranscriptTextChange(event)" dataChange="onTranscriptDataChange(event)" />
 		</mx:VBox>
 		<mx:VBox id="outputGroup" width="100%" height="100%">
-			<mx:Label text="Output:" />
+			<mx:HBox width="100%" verticalAlign="middle" height="24">
+				<mx:Label text="Output:" />
+				<mx:Label id="ownerNameOutputLabel" />
+				<mx:Button id="claimOwnershipButton" label="Take Ownership" height="22" visible="false" click="onClaimButtonClick()" />
+			</mx:HBox>
 			<views:TextArea2 id="outputArea" text="{currentTranscript.transcript}" width="100%" height="100%" />
 		</mx:VBox>
 	</mx:VBox>
