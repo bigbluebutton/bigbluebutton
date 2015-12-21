@@ -206,8 +206,28 @@
 				fileRef.save(b, filename);
 			}
 
+			private function fixFontSize(text:String):String {
+				const fontRegex:RegExp = /<font[^>]*( size="\d+")[^>]*>/gi;
+				const closeFontRegex:RegExp = /<\/font>/gi;
+				text = text.replace(fontRegex, replaceFontSize);
+				text = text.replace(closeFontRegex, "</span>$&");
+				return text;
+			}
+
+			private function replaceFontSize(matchedSubstring:String, capturedMatch:String, index:int, str:String):String {
+				matchedSubstring = matchedSubstring.replace(capturedMatch, "");
+				const sizeRegex:RegExp = /size="(?P<size>\d+)"/gi;
+				const result:Array = sizeRegex.exec(capturedMatch);
+				if (result == null) {
+					matchedSubstring = matchedSubstring + '<span>';
+				} else {
+					matchedSubstring = matchedSubstring + '<span style="font-size: ' + result.size + 'px">';
+				}
+				return matchedSubstring;
+			}
+
 			protected function saveNotesWithFormat(title:String):void {
-				saveNotes(title, richTextEditor.htmlText, "html");
+				saveNotes(title, fixFontSize(richTextEditor.htmlText), "html");
 			}
 
 			protected function saveNotesWithoutFormat(title:String):void {
