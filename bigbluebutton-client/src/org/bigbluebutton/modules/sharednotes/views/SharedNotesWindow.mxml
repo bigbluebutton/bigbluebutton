@@ -206,28 +206,62 @@
 				fileRef.save(b, filename);
 			}
 
-			private function fixFontSize(text:String):String {
-				const fontRegex:RegExp = /<font[^>]*( size="\d+")[^>]*>/gi;
+			private function fixFormatTags(text:String):String {
+				const fontRegex:RegExp = /<font [^>]*>/gi;
 				const closeFontRegex:RegExp = /<\/font>/gi;
-				text = text.replace(fontRegex, replaceFontSize);
-				text = text.replace(closeFontRegex, "</span>$&");
+				const textFormatRegex:RegExp = /<textformat [^>]*>|<\/textformat>/gi;
+				text = text.replace(fontRegex, replaceFontTag);
+				text = text.replace(closeFontRegex, "</span>");
+				text = text.replace(textFormatRegex, "");
+				text = "<HEAD><style>p { margin: 0px; }</style></HEAD>" + text;
 				return text;
 			}
 
-			private function replaceFontSize(matchedSubstring:String, capturedMatch:String, index:int, str:String):String {
-				matchedSubstring = matchedSubstring.replace(capturedMatch, "");
-				const sizeRegex:RegExp = /size="(?P<size>\d+)"/gi;
-				const result:Array = sizeRegex.exec(capturedMatch);
-				if (result == null) {
-					matchedSubstring = matchedSubstring + '<span>';
-				} else {
-					matchedSubstring = matchedSubstring + '<span style="font-size: ' + result.size + 'px">';
+			private function translateFontFamily(font:String):String {
+				switch (font) {
+					case "_sans": return "sans-serif";
+					case "_serif": return "serif";
+					case "_typewriter": return "monospace";
+					default: return font;
 				}
-				return matchedSubstring;
+			}
+
+			private function replaceFontTag(matchedSubstring:String, index:int, str:String):String {
+				var regex:Object = {
+					"font-size": /SIZE="(\d+)"/gi,
+					"color": /COLOR="(\#\S{6})"/gi,
+					"font-family": /FACE="([^\"]*)"/gi,
+					"letter-spacing": /LETTERSPACING="(\d+)"/gi
+				}
+				var style:Object = {};
+				var i:String;
+				for (i in regex) {
+					var result:Array = regex[i].exec(matchedSubstring);
+					if (result != null) {
+						switch (i) {
+							case "font-size":
+							case "letter-spacing":
+								style[i] = result[1] + "px";
+								break;
+							case "font-family":
+								style[i] = translateFontFamily(result[1]);
+								break;
+							default:
+								style[i] = result[1];
+								break;
+						}
+					}
+				}
+
+				var styleStr:String = "";
+				for (i in style) {
+					styleStr += i + ": " + style[i] + "; ";
+				}
+				return "<span style=\"" + styleStr + "\">";
 			}
 
 			protected function saveNotesWithFormat(title:String):void {
-				saveNotes(title, fixFontSize(richTextEditor.htmlText), "html");
+				saveNotes(title, fixFormatTags(richTextEditor.htmlText), "html");
 			}
 
 			protected function saveNotesWithoutFormat(title:String):void {
