@@ -34,10 +34,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
       return Meteor.Polls.findOne({"poll_info.users": userId})
 
   BBB.sendPollResponseMessage = (key, pollAnswerId) ->
-    Meteor.call "publishVoteMessage", BBB.getMeetingId(), pollAnswerId, getInSession("userId"), getInSession("authToken")
-
-  BBB.getMeetingId = ->
-    Meteor.Meetings.findOne()?.meetingId
+    Meteor.call "publishVoteMessage", BBB.getMeetingId(), pollAnswerId,
+     BBB.getMyUserId(), BBB.getMyAuthToken()
 
   BBB.getInternalMeetingId = (callback) ->
 
@@ -48,7 +46,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     Meteor.Users.findOne({userId: userId})
 
   BBB.getCurrentUser = () ->
-    BBB.getUser(getInSession("userId"))
+    BBB.getUser(BBB.getMyUserId())
 
   ###
   Query if the current user is sharing webcam.
@@ -215,13 +213,18 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   Params:
   callback - function that gets executed for the response.
   ###
-  BBB.getMyUserID = (callback) ->
+  BBB.getMyUserId = (callback) ->
     returnOrCallback getInSession("userId"), callback
 
+  BBB.getMyAuthToken = (callback) ->
+    returnOrCallback getInSession("authToken"), callback
 
   BBB.getMyDBID = (callback) ->
-    returnOrCallback Meteor.Users.findOne({userId:getInSession("userId")})?._id, callback
+    returnOrCallback Meteor.Users.findOne({userId:BBB.getMyUserId()})?._id, callback
 
+  BBB.getMeetingId = (callback) ->
+    # returnOrCallback getInSession("meetingId")
+    returnOrCallback Meteor.Meetings.findOne()?.meetingId or getInSession("meetingId")
 
   BBB.getMyUserName = (callback) ->
     BBB.getUserName(BBB.getCurrentUser()?.userId)
@@ -241,9 +244,9 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   ###
   BBB.getMyUserInfo = (callback) ->
     result =
-      myUserID: BBB.getMyUserID()
+      myUserID: BBB.getMyUserId()
       myUsername: BBB.getMyUserName()
-      myInternalUserID: BBB.getMyUserID()
+      myInternalUserID: BBB.getMyUserId()
       myAvatarURL: null
       myRole: BBB.getMyRole()
       amIPresenter: BBB.amIPresenter()
@@ -310,22 +313,23 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   Mute the current user.
   ###
   BBB.muteMe = ->
-    BBB.muteUser(getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    BBB.muteUser(BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken())
   ###
   Unmute the current user.
   ###
   BBB.unmuteMe = ->
-    BBB.unmuteUser(getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    BBB.unmuteUser(BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken())
 
   BBB.muteUser = (meetingId, userId, toMuteId, requesterId, requestToken) ->
-    Meteor.call('muteUser', meetingId, toMuteId, requesterId, getInSession("authToken"))
+    Meteor.call('muteUser', meetingId, toMuteId, requesterId, BBB.getMyAuthToken())
 
   BBB.unmuteUser = (meetingId, userId, toMuteId, requesterId, requestToken) ->
-    Meteor.call('unmuteUser', meetingId, toMuteId, requesterId, getInSession("authToken"))
+    Meteor.call('unmuteUser', meetingId, toMuteId, requesterId, BBB.getMyAuthToken())
 
   BBB.toggleMyMic = ->
     request = if BBB.amIMuted() then "unmuteUser" else "muteUser"
-    Meteor.call(request, BBB.getMeetingId(), getInSession("userId"), getInSession("userId"), getInSession("authToken"))
+    Meteor.call(request, BBB.getMeetingId(), BBB.getMyUserId(),
+     BBB.getMyUserId(), BBB.getMyAuthToken())
 
   ###
   Mute all the users.
@@ -364,7 +368,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     messageForServer = { # construct message for server
       "message": message
       "chat_type": "PUBLIC_CHAT"
-      "from_userid": getInSession("userId")
+      "from_userid": BBB.getMyUserId()
       "from_username": BBB.getMyUserName()
       "from_tz_offset": "240"
       "to_username": "public_chat_username"
@@ -374,7 +378,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
       "from_color": fontColor
     }
 
-    Meteor.call "sendChatMessagetoServer", BBB.getMeetingId(), messageForServer, getInSession("userId"), getInSession("authToken")
+    Meteor.call "sendChatMessagetoServer", BBB.getMeetingId(), messageForServer,
+     BBB.getMyUserId(), BBB.getMyAuthToken()
 
   ###
   Request to send a private chat
@@ -388,7 +393,7 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
     messageForServer = { # construct message for server
       "message": message
       "chat_type": "PRIVATE_CHAT"
-      "from_userid": getInSession("userId")
+      "from_userid": BBB.getMyUserId()
       "from_username": BBB.getMyUserName()
       "from_tz_offset": "240"
       "to_username": toUserName
@@ -398,7 +403,8 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
       "from_color": fontColor
     }
 
-    Meteor.call "sendChatMessagetoServer", BBB.getMeetingId(), messageForServer, getInSession("userId"), getInSession("authToken")
+    Meteor.call "sendChatMessagetoServer", BBB.getMeetingId(), messageForServer,
+     BBB.getMyUserId(), BBB.getMyAuthToken()
 
   ###
   Request to display a presentation.
@@ -420,16 +426,16 @@ https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/
   # Request to switch the presentation to the previous slide
   BBB.goToPreviousPage = () ->
     Meteor.call('publishSwitchToPreviousSlideMessage',
-      getInSession('meetingId'),
-      getInSession('userId'),
-      getInSession('authToken'))
+      BBB.getMeetingId(),
+      BBB.getMyUserId(),
+      BBB.getMyAuthToken())
 
   # Request to switch the presentation to the next slide
   BBB.goToNextPage = () ->
     Meteor.call('publishSwitchToNextSlideMessage',
-      getInSession('meetingId'),
-      getInSession('userId'),
-      getInSession('authToken'))
+      BBB.getMeetingId(),
+      BBB.getMyUserId(),
+      BBB.getMyAuthToken())
 
   BBB.webRTCConferenceCallStarted = ->
 

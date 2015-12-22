@@ -94,7 +94,7 @@ Template.main.rendered = ->
       {
         text: 'Yes'
         click: () ->
-          userLogout BBB.getMeetingId(), getInSession("userId"), true
+          userLogout BBB.getMeetingId(), BBB.getMyUserId(), true
           $(this).dialog("close")
         class: 'btn btn-xs btn-primary active'
       }

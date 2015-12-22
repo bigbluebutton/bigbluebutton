@@ -19,7 +19,7 @@ Template.whiteboard.helpers
       return ''
 
   isPollStarted: ->
-    if BBB.isPollGoing(getInSession('userId'))
+    if BBB.isPollGoing(BBB.getMyUserId())
       return true
     else
       return false
@@ -53,43 +53,43 @@ Template.whiteboard.events
 Template.emojiDisplay.events
   'click .sadEmojiButton.inactiveEmojiButton': (event) ->
     if $('.sadEmojiButton').css('opacity') is '1'
-      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "sad")
+      BBB.setEmojiStatus(BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken(), "sad")
       $('.FABTriggerButton').blur()
       toggleEmojisFAB()
 
   'click .happyEmojiButton.inactiveEmojiButton': (event) ->
     if $('.happyEmojiButton').css('opacity') is '1'
-      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "happy")
+      BBB.setEmojiStatus(BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken(), "happy")
       $('.FABTriggerButton').blur()
       toggleEmojisFAB()
 
   'click .confusedEmojiButton.inactiveEmojiButton': (event) ->
     if $('.confusedEmojiButton').css('opacity') is '1'
-      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "confused")
+      BBB.setEmojiStatus(BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken(), "confused")
       $('.FABTriggerButton').blur()
       toggleEmojisFAB()
 
   'click .neutralEmojiButton.inactiveEmojiButton': (event) ->
     if $('.neutralEmojiButton').css('opacity') is '1'
-      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "neutral")
+      BBB.setEmojiStatus(BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken(), "neutral")
       $('.FABTriggerButton').blur()
       toggleEmojisFAB()
 
   'click .awayEmojiButton.inactiveEmojiButton': (event) ->
     if $('.awayEmojiButton').css('opacity') is '1'
-      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "away")
+      BBB.setEmojiStatus(BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken(), "away")
       $('.FABTriggerButton').blur()
       toggleEmojisFAB()
 
   'click .raiseHandEmojiButton.inactiveEmojiButton': (event) ->
     if $('.raiseHandEmojiButton').css('opacity') is '1'
-      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "raiseHand")
+      BBB.setEmojiStatus(BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken(), "raiseHand")
       $('.FABTriggerButton').blur()
       toggleEmojisFAB()
 
   'click .activeEmojiButton': (event) ->
     if $('.activeEmojiButton').css('opacity') is '1'
-      BBB.setEmojiStatus(BBB.getMeetingId(), getInSession('userId'), getInSession('userId'), getInSession('authToken'), "none")
+      BBB.setEmojiStatus(BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyUserId(), BBB.getMyAuthToken(), "none")
       $('.FABTriggerButton').blur()
       toggleEmojisFAB()
 

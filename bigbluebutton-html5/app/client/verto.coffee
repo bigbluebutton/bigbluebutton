@@ -125,10 +125,10 @@ Template.webcamModal.events
 # instead of a redis message notify the server to simulate a desksharing
 # notification
 @simulatePresenterDeskshareHasStarted = ->
-	Meteor.call("simulatePresenterDeskshareHasStarted", getInSession("meetingId"), "3500", getInSession("userId"))
+	Meteor.call("simulatePresenterDeskshareHasStarted", BBB.getMeetingId(), "3500", BBB.getMyUserId())
 
 @simulatePresenterDeskshareHasEnded = ->
-	Meteor.call("simulatePresenterDeskshareHasEnded", getInSession("meetingId"), getInSession("userId"))
+	Meteor.call("simulatePresenterDeskshareHasEnded", BBB.getMeetingId(), BBB.getMyUserId())
 
 Handlebars.registerHelper "canIPresentDeskshare", ->
-	Meteor.Users.findOne({userId: getInSession("userId")})?.user.presenter and not Meteor.config.useSIPAudio
+	Meteor.Users.findOne({userId: BBB.getMyUserId()})?.user.presenter and not Meteor.config.useSIPAudio

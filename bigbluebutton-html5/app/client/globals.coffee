@@ -112,7 +112,7 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
   BBB.amITalking()
 
 Handlebars.registerHelper "isCurrentUserPresenter", ->
-  BBB.isUserPresenter(getInSession('userId'))
+  BBB.isUserPresenter(BBB.getMyUserId())
 
 Handlebars.registerHelper "isCurrentUserModerator", ->
   BBB.getMyRole() is "MODERATOR"
@@ -167,7 +167,7 @@ Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
 
 Handlebars.registerHelper "canJoinWithMic", ->
-  if (BBB.isUserPresenter(getInSession('userId')) or !Meteor.config.app.listenOnly) and !BBB.isMyMicLocked()
+  if (BBB.isUserPresenter(BBB.getMyUserId()) or !Meteor.config.app.listenOnly) and !BBB.isMyMicLocked()
     true
   else
     false
@@ -185,16 +185,16 @@ Handlebars.registerHelper 'containerPosition', (section) ->
 
 # vertically shrinks the whiteboard if the slide navigation controllers are present
 Handlebars.registerHelper 'whiteboardSize', (section) ->
-  if BBB.isUserPresenter(getInSession('userId'))
+  if BBB.isUserPresenter(BBB.getMyUserId())
     return 'presenter-whiteboard'
   else
-    if BBB.isPollGoing(getInSession('userId'))
+    if BBB.isPollGoing(BBB.getMyUserId())
       return 'poll-whiteboard'
     else
       return 'viewer-whiteboard'
 
 Handlebars.registerHelper "getPollQuestions", ->
-  polls = BBB.getCurrentPoll(getInSession('userId'))
+  polls = BBB.getCurrentPoll(BBB.getMyUserId())
   if polls? and polls isnt undefined
     number = polls.poll_info.poll.answers.length
     widthStyle = "width: calc(75%/" + number + ");"
@@ -291,7 +291,7 @@ Handlebars.registerHelper "getPollQuestions", ->
   setTimeout(scaleWhiteboard, 0)
 
 @populateNotifications = (msg) ->
-  myUserId = getInSession "userId"
+  myUserId = BBB.getMyUserId()
   users = Meteor.Users.find().fetch()
 
   # assuming that I only have access only to private messages where I am the sender or the recipient
@@ -408,7 +408,7 @@ Handlebars.registerHelper "getPollQuestions", ->
     if BBB.getCallStatus() isnt null and !getInSession("triedHangup")
       console.log "Attempting to hangup on WebRTC call"
       if BBB.amIListenOnlyAudio() # notify BBB-apps we are leaving the call call if we are listen only
-        Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), false)
+        Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), BBB.getMyUserId(), getInSession("authToken"), false)
       BBB.leaveVoiceConference hangupCallback
       getInSession("triedHangup", true) # we have hung up, prevent retries
       notification_WebRTCAudioExited()
@@ -435,8 +435,10 @@ Handlebars.registerHelper "getPollQuestions", ->
   notification_WebRTCAudioJoining()
 
   if isListenOnly
-    Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
-  BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
+    Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(),
+     BBB.getMyUserId(), BBB.getMyAuthToken(), true)
+  # make the call #TODO should we apply role permissions to this action?
+  BBB.joinVoiceConference joinCallback, isListenOnly
 
   return false
 
@@ -444,7 +446,7 @@ Handlebars.registerHelper "getPollQuestions", ->
 # meeting: the meeting the user is in
 # the user's userId
 @userLogout = (meeting, user) ->
-  Meteor.call("userLogout", meeting, user, getInSession("authToken"))
+  Meteor.call("userLogout", meeting, user, BBB.getMyAuthToken())
   console.log "logging out"
   clearSessionVar(document.location = getInSession 'logoutURL') # navigate to logout
 
@@ -515,7 +517,7 @@ Handlebars.registerHelper "getPollQuestions", ->
 
 #true if it is a new user, false if the client was just refreshed
 @loginOrRefresh = ->
-  userId = getInSession 'userId'
+  userId = BBB.getMyUserId()
   checkId = getInSession 'checkId'
   if checkId is undefined
     setInSession 'checkId', userId
@@ -532,7 +534,7 @@ Handlebars.registerHelper "getPollQuestions", ->
 
     Meteor.Users.find().observe({
     removed: (oldDocument) ->
-        if oldDocument.userId is getInSession 'userId'
+        if oldDocument.userId is BBB.getMyUserId()
             document.location = getInSession 'logoutURL'
     })
 
@@ -541,14 +543,14 @@ Handlebars.registerHelper "getPollQuestions", ->
     # and display it, or end the call and hide the video
     Meteor.Meetings.find().observe
         added:(newDocument) ->
-            if newDocument.deskshare.startedBy isnt getInSession("userId")
+            if newDocument.deskshare.startedBy isnt BBB.getMyUserId()
                 if newDocument.deskshare.broadcasting
                     console.log "Deskshare is now broadcasting"
                     presenterDeskshareHasStarted()
 
         changed: (newDocument, oldDocument) ->
             console.log "Meeting information has been modified", newDocument
-            if oldDocument.deskshare isnt newDocument.deskshare and newDocument.deskshare.startedBy isnt getInSession("userId")
+            if oldDocument.deskshare isnt newDocument.deskshare and newDocument.deskshare.startedBy isnt BBB.getMyUserId()
                 if newDocument.deskshare.broadcasting
                     console.log "Deskshare is now broadcasting"
                     presenterDeskshareHasStarted()
