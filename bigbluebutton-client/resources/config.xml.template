@@ -123,6 +123,7 @@
 			position="bottom-left"
 			toolbarVisibleByDefault="false"
 			showToolbarButton="true"
+			fontSize="12"
 		/>
 	</modules>
 </config>

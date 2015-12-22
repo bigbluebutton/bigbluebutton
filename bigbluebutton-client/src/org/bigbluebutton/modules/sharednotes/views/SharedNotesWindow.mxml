@@ -118,6 +118,8 @@
 			}
 
 			private function initSharedNotesRichTextEditor():void {
+				richTextEditor.textArea.setStyle("fontSize", options.fontSize);
+
 				richTextEditor.linkTextInput.visible = false;
 				richTextEditor.linkTextInput.height = 0;
 				richTextEditor.linkTextInput.width = 0;
