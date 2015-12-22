@@ -493,7 +493,7 @@ Meteor.startup ->
         callback()
 
       else if eventName is "desk_share_notify_viewers_rtmp"
-        thisMeetingId = meetingId or message.payload.meetingid #TODO see why not standard meeting_id
+        thisMeetingId = meetingId
         deskShareInfo =
           vw: message.payload.vw
           vh: message.payload.vh
