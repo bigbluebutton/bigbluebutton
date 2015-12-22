@@ -242,6 +242,10 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
 
       //send lock settings
       self ! (new GetLockSettings(id, "nodeJSapp"))
+
+      //send desktop sharing info
+      self ! (new DeskShareGetDeskShareInfoRequest(id, "nodeJSapp", "nodeJSapp"))
+
     }
 
     outGW.send(new GetAllMeetingsReply(resultArray))

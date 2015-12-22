@@ -492,7 +492,9 @@ Meteor.startup ->
           clearPollCollection meetingId, poll_id
         callback()
 
-      else if eventName is "desk_share_notify_viewers_rtmp"
+      else if eventName is "desk_share_notify_viewers_rtmp" or
+       (eventName is "desk_share_notify_a_single_viewer" and
+       message.payload.requester_id is 'nodeJSapp')
         thisMeetingId = meetingId
         deskShareInfo =
           vw: message.payload.vw

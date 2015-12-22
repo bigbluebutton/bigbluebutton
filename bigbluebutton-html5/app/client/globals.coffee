@@ -538,6 +538,11 @@ Handlebars.registerHelper "getPollQuestions", ->
             document.location = getInSession 'logoutURL'
     })
 
+    deskshareObject = Meteor.Meetings.findOne({meetingId:BBB.getMeetingId()})?.deskshare
+    if deskshareObject?.broadcasting
+      console.log "Deskshare is now broadcasting"
+      presenterDeskshareHasStarted()
+
     # when the meeting information has been updated check to see if it was
     # desksharing. If it has changed either trigger a call to receive video
     # and display it, or end the call and hide the video
