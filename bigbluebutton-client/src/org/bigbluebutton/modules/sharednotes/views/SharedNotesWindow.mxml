@@ -207,12 +207,15 @@
 			}
 
 			private function fixFormatTags(text:String):String {
-				const fontRegex:RegExp = /<font [^>]*>/gi;
-				const closeFontRegex:RegExp = /<\/font>/gi;
+				const fontRegex:RegExp = /<font ([^>]*)>(.*?)<\/font>/gi;
 				const textFormatRegex:RegExp = /<textformat [^>]*>|<\/textformat>/gi;
+				const emptyParagraphRegex:RegExp = /<p [^>]*><\/p>/gi;
+				// transform font tags in span tags
 				text = text.replace(fontRegex, replaceFontTag);
-				text = text.replace(closeFontRegex, "</span>");
+				// remove textformat tags
 				text = text.replace(textFormatRegex, "");
+				// transform empty paragraph tags in breakline tags
+				text = text.replace(emptyParagraphRegex, "<br/>");
 				text = "<HEAD><style>p { margin: 0px; }</style></HEAD>" + text;
 				return text;
 			}
@@ -226,7 +229,17 @@
 				}
 			}
 
-			private function replaceFontTag(matchedSubstring:String, index:int, str:String):String {
+			private function removeHtmlTags(text:String):String {
+				const tagRegex:RegExp = /<[^>]*>/gi;
+				return text.replace(tagRegex, "");
+			}
+
+			private function replaceFontTag(matchedSubstring:String, fontAttributes:String, text:String, index:int, str:String):String {
+				// remove html tags and all white spaces to see if there's any visible character
+				if (removeHtmlTags(text).replace(/\s/g, "").length == 0) {
+					return "";
+				}
+
 				var regex:Object = {
 					"font-size": /SIZE="(\d+)"/gi,
 					"color": /COLOR="(\#\S{6})"/gi,
@@ -236,7 +249,7 @@
 				var style:Object = {};
 				var i:String;
 				for (i in regex) {
-					var result:Array = regex[i].exec(matchedSubstring);
+					var result:Array = regex[i].exec(fontAttributes);
 					if (result != null) {
 						switch (i) {
 							case "font-size":
@@ -257,7 +270,7 @@
 				for (i in style) {
 					styleStr += i + ": " + style[i] + "; ";
 				}
-				return "<span style=\"" + styleStr + "\">";
+				return "<span style=\"" + styleStr + "\">" + text + "</span>";
 			}
 
 			protected function saveNotesWithFormat(title:String):void {
