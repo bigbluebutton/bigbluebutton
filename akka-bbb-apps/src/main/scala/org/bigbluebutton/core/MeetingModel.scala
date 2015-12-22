@@ -17,6 +17,8 @@ class MeetingModel {
   private var muted = false;
   private var meetingEnded = false
   private var meetingMuted = false
+  private var desktopShareVideoWidth = 0
+  private var desktopShareVideoHeight = 0
 
   val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
@@ -35,6 +37,14 @@ class MeetingModel {
   def setDeskShareStarted(b: Boolean) {
     deskShareStarted = b
     println("---deskshare status changed to:" + b)
+  }
+
+  def setDesktopShareVideoWidth(videoWidth: Int) {
+    desktopShareVideoWidth = videoWidth
+  }
+
+  def setDesktopShareVideoHeight(videoHeight: Int) {
+    desktopShareVideoHeight = videoHeight
   }
 
   def muteMeeting() {
@@ -99,6 +109,14 @@ class MeetingModel {
 
   def getRTMPBroadcastingUrl(): String = {
     rtmpBroadcastingUrl
+  }
+
+  def getDesktopShareVideoWidth(): Int = {
+    desktopShareVideoWidth
+  }
+
+  def getDesktopShareVideoHeight(): Int = {
+    desktopShareVideoHeight
   }
 
   def permisionsInitialized(): Boolean = {

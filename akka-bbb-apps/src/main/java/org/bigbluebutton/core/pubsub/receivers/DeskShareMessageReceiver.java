@@ -11,6 +11,7 @@ import org.bigbluebutton.common.messages.DeskShareRecordingStartedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareRecordingStoppedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStartedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStoppedEventMessage;
+import org.bigbluebutton.common.messages.DeskShareGetInfoRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 
@@ -56,6 +57,10 @@ public class DeskShareMessageReceiver implements MessageHandler {
 						System.out.println("^^^^^^^DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE^^^^^^");
 						DeskShareRTMPBroadcastStoppedEventMessage msg = DeskShareRTMPBroadcastStoppedEventMessage.fromJson(message);
 						bbbGW.deskShareRTMPBroadcastStopped(msg.conferenceName, msg.streamname, msg.vw, msg.vh, msg.timestamp);
+					} else if (DeskShareGetInfoRequestMessage.GET_DESKTOP_SHARE_GET_INFO_REQUEST.equals(messageName)) {
+						System.out.println("^^^^^^^GET_DESKTOP_SHARE_INFO_REQUEST^^^^^^");
+						DeskShareGetInfoRequestMessage msg = DeskShareGetInfoRequestMessage.fromJson(message);
+						bbbGW.deskShareGetInfoRequest(msg.meetingId, msg.requesterId, msg.replyTo);
 					}
 //					else if (DeskShareViewerJoinedEventMessage.DESK_SHARE_VIEWER_JOINED_MESSAGE.equals(messageName)) {
 //						DeskShareViewerJoinedEventMessage msg = DeskShareViewerJoinedEventMessage.fromJson(message);

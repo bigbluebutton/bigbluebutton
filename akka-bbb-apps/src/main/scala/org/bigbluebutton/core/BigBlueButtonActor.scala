@@ -53,6 +53,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
     case msg: DeskShareRTMPBroadcastStoppedRequest => handleDeskShareRTMPBroadcastStoppedRequest(msg)
     case msg: DeskShareRecordingStartedRequest => handleDeskShareRecordingStartedRequest(msg)
     case msg: DeskShareRecordingStoppedRequest => handleDeskShareRecordingStoppedRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest => handleDeskShareGetDeskShareInfoRequest(msg)
     case msg: InMessage => handleMeetingMessage(msg)
     case _ => // do nothing
   }
@@ -63,7 +64,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
       println("^^^^^^" + m.mProps.voiceBridge)
       m.mProps.voiceBridge == voiceConfId
     })
-    meetings.values.find(m => m.mProps.voiceBridge == voiceConfId)
+    meetings.values.find(m => m.mProps.voiceBridge == voiceConfId) //TODO IS THIS REDUNDANT?!
   }
 
   private def handleUserJoinedVoiceConfMessage(msg: UserJoinedVoiceConfMessage) {
@@ -343,4 +344,13 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
       println("\n\n\nERROR in handleDeskShareRTMPBroadcastStoppedRequest in BBBActor \n\n\n")
     }
   }
+
+  private def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
+    val m = meetings.values.find(m => {
+      m.mProps.meetingID == msg.conferenceName
+    })
+    m foreach { mActor => mActor.actorRef ! msg }
+  }
+
 }
+

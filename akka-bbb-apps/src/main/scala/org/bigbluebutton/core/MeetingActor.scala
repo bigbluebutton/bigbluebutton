@@ -68,6 +68,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleDeskShareStartedRequest(msg)
     case msg: DeskShareStoppedRequest =>
       handleDeskShareStoppedRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest =>
+      handleDeskShareGetDeskShareInfoRequest(msg)
     case msg: UserJoining =>
       handleUserJoin(msg)
     case msg: UserLeaving =>
@@ -320,6 +322,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       // Tell FreeSwitch to broadcast to RTMP
       outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath, timestamp))
 
+      // TODO remove this:
       if (mProps.recorded) {
         println("IS RECORDING")
         //val filepath = "/var/freeswitch/meetings/" + mProps.meetingID + "-" + timestamp + ".mp4"
@@ -376,9 +379,11 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       println("START broadcast ALLOWED when isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
       meetingModel.setRTMPBroadcastingUrl(msg.streamname)
       meetingModel.broadcastingRTMPStarted()
+      meetingModel.setDesktopShareVideoWidth(msg.videoWidth)
+      meetingModel.setDesktopShareVideoHeight(msg.videoHeight)
 
       // Notify viewers in the meeting that there's an rtmp stream to view
-      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname,
         true, msg.videoWidth, msg.videoHeight, System.currentTimeMillis().toString()))
       // println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE1 " + meetingModel.getRTMPBroadcastingUrl())
     } else {
@@ -402,6 +407,16 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       println("DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE")
     } else {
       println("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+    }
+  }
+
+  private def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
+
+    log.info("\n" + msg.conferenceName + "isBroadcasting=" + meetingModel.isBroadcastingRTMP())
+    if (meetingModel.isBroadcastingRTMP()) {
+      // if the meeting has an ongoing WebRTC Deskshare session, send a notification
+      outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, meetingModel.getRTMPBroadcastingUrl(),
+        true, meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight()))
     }
   }
 

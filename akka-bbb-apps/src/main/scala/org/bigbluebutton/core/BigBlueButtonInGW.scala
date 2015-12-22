@@ -19,7 +19,7 @@ import org.bigbluebutton.common.messages.StartCustomPollRequestMessage
 import org.bigbluebutton.common.messages.PubSubPingMessage
 
 class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender,
-  val red5DeskShareIP: String, val red5DeskShareApp: String) extends IBigBlueButtonInGW {
+    val red5DeskShareIP: String, val red5DeskShareApp: String) extends IBigBlueButtonInGW {
 
   val log = system.log
   val bbbActor = system.actorOf(BigBlueButtonActor.props(system, recorderApp, messageSender), "bigbluebutton-actor")
@@ -471,6 +471,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
 
   def deskShareRTMPBroadcastStopped(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
     bbbActor ! new DeskShareRTMPBroadcastStoppedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
+  }
+
+  def deskShareGetInfoRequest(meetingId: String, requesterId: String, replyTo: String): Unit = {
+    bbbActor ! new DeskShareGetDeskShareInfoRequest(meetingId, requesterId, replyTo)
   }
 
   // Polling

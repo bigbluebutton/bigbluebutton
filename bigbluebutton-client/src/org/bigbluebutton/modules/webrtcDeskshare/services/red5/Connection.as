@@ -34,11 +34,11 @@ package org.bigbluebutton.modules.webrtcDeskshare.services.red5
 
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
+  import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.ReconnectionManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
-
 
 	public class Connection {
 	private static const LOGGER:ILogger = getClassLogger(Connection);
@@ -201,6 +201,19 @@ package org.bigbluebutton.modules.webrtcDeskshare.services.red5
 						attemptSucceeded.payload.type = ReconnectionManager.DESKSHARE_CONNECTION;
 						dispatcher.dispatchEvent(attemptSucceeded);
 					}
+
+					// request desktop sharing info (as a late joiner)
+					LOGGER.debug("Sending [desktopSharing.requestDeskShareInfo] to server.");
+					var _nc:ConnectionManager = BBB.initConnectionManager();
+					_nc.sendMessage("desktopSharing.requestDeskShareInfo",
+						function(result:String):void { // On successful result
+							LOGGER.debug(result);
+						},
+						function(status:String):void { // status - On error occurred
+					LOGGER.error(status);
+						}
+					);
+
 					dispatcher.dispatchEvent(ce);
 				break;
 

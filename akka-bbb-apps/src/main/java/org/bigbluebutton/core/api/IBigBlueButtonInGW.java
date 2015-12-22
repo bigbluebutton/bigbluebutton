@@ -120,5 +120,6 @@ public interface IBigBlueButtonInGW {
 			int videoWidth, int videoHeight, String timestamp);
 	void deskShareRTMPBroadcastStopped(String conferenceName, String streamname,
 			int videoWidth, int videoHeight, String timestamp);
+	void deskShareGetInfoRequest(String meetingId, String requesterId, String replyTo);
 
 }

@@ -118,6 +118,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
     case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
     case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
+    case msg: DeskShareNotifyASingleViewer => handleDeskShareNotifyASingleViewer(msg)
     case _ => // do nothing
   }
 
@@ -144,6 +145,13 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     val json = DeskShareMessageToJsonConverter.getDeskShareNotifyViewersRTMPToJson(msg)
     service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
   }
+
+  def handleDeskShareNotifyASingleViewer(msg: DeskShareNotifyASingleViewer) {
+    println("_____publish to bigbluebutton-apps(red5) __handleDeskShareNotifyASingleViewer____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareNotifyASingleViewerToJson(msg)
+    service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
+  }
+
   private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
     println("_____publish to FS__handleDeskShareStartRTMPBroadcast____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareStartRTMPBroadcastToJson(msg)
