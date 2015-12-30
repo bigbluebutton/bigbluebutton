@@ -1,5 +1,5 @@
 
-var userID, callerIdName=null, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout;
+var userID, callerIdName=null, conferenceVoiceBridge, userAgent=null, userMicMedia, userWebcamMedia, currentSession=null, callTimeout, callActive, callICEConnected, iceConnectedTimeout, callFailCounter, callPurposefullyEnded, uaConnected, transferTimeout, iceGatheringTimeout;
 var inEchoTest = true;
 
 function webRTCCallback(message) {
@@ -387,6 +387,21 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 		console.log('call connecting again');
 	}
 	
+	iceGatheringTimeout = setTimeout(function() {
+		console.log('Thirty seconds without ICE gathering finishing');
+		callback({'status':'failed', 'errorcode': 1011}); // ICE Gathering Failed
+		currentSession = null;
+		if (userAgent != null) {
+			var userAgentTemp = userAgent;
+			userAgent = null;
+			userAgentTemp.stop();
+		}
+	}, 30000);
+	
+	currentSession.mediaHandler.on('iceComplete', function() {
+		clearTimeout(iceGatheringTimeout);
+	});
+	
 	// The connecting event fires before the listener can be added
 	currentSession.on('connecting', function(){
 		clearTimeout(callTimeout);
@@ -457,7 +472,7 @@ function make_call(username, voiceBridge, server, callback, recall, isListenOnly
 			console.log('Waiting for ICE negotiation');
 			iceConnectedTimeout = setTimeout(function() {
 				console.log('5 seconds without ICE finishing');
-				callback({'status':'failed', 'errorcode': 1010}); // Failure on call
+				callback({'status':'failed', 'errorcode': 1010}); // ICE negotiation timeout
 				currentSession = null;
 				if (userAgent != null) {
 					var userAgentTemp = userAgent;

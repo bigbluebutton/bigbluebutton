@@ -595,10 +595,6 @@ TitleWindow {
   cornerRadius: 5;    
 }
 
-.micSettingsWindowMicProgressBarStyle {
-  
-}
-
 .micSettingsWindowHelpButtonStyle {
 	paddingLeft: 4;
 	paddingRight: 4;
@@ -618,7 +614,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	
 	cornerRadius: 5;
 	dropShadowEnabled: false;
-	titleStyleName: "mypanelTitle";
+	titleStyleName: "mdiWindowTitle";
 	
 	cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
 	cornerResizeWidth: 2;
@@ -773,7 +769,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 	borderThicknessRight: 3;
 }
 
-.mypanelTitle {
+.mdiWindowTitle {
   color: #5e5f63;
   fontFamily: Arial;
   fontSize: 12;

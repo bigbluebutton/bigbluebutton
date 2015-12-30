@@ -42,6 +42,10 @@ moderator =
   setEmojiStatus: true
   clearEmojiStatus: true
 
+  #user control
+  kickUser: true
+  setPresenter: true
+
 # holds the values for whether the viewer user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
 viewer = (meetingId, userId) ->
@@ -92,7 +96,7 @@ viewer = (meetingId, userId) ->
   Meteor.log.info "in isAllowedTo: action-#{action}, userId=#{userId}, authToken=#{authToken} validated:#{validated}"
 
   user = Meteor.Users.findOne({meetingId:meetingId, userId: userId})
-  Meteor.log.info "user=" + JSON.stringify user
+  # Meteor.log.info "user=" + JSON.stringify user
   if user? and authToken is user.authToken # check if the user is who he claims to be
     if user.validated and user.clientType is "HTML5"
 

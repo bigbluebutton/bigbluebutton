@@ -35,16 +35,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <mx:Script>
         <![CDATA[
-
             import com.asfusion.mate.events.Dispatcher;
-
+            
             import org.bigbluebutton.common.Images;
             import org.bigbluebutton.core.EventConstants;
-            import org.bigbluebutton.main.events.BBBEvent;
+            import org.bigbluebutton.core.UsersUtil;
             import org.bigbluebutton.core.events.CoreEvent;
             import org.bigbluebutton.core.events.VoiceConfEvent;
-            import org.bigbluebutton.core.UsersUtil;
+            import org.bigbluebutton.core.managers.UserManager;
             import org.bigbluebutton.core.model.VideoProfile;
+            import org.bigbluebutton.core.vo.LockSettingsVO;
+            import org.bigbluebutton.main.events.BBBEvent;
             import org.bigbluebutton.main.events.PresenterStatusEvent;
             import org.bigbluebutton.main.model.users.BBBUser;
             import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -147,7 +148,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             private function hasPermissionToMute():Boolean {
-                return (_me || UsersUtil.amIModerator());
+                var me:BBBUser = UserManager.getInstance().getConference().getMyUser();
+                
+                return (!me.disableMyMic && (_me || UsersUtil.amIModerator()));
             }
 
             private function onMuteBtnClick(event:MouseEvent):void {

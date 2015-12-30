@@ -26,9 +26,6 @@
     color = colourToHex(color)
   color
 
-@getCurrentSlideDoc = -> # returns only one document
-  BBB.getCurrentSlide()
-
 @getInSession = (k) -> SessionAmplify.get k
 
 @getTime = -> # returns epoch in ms
@@ -60,9 +57,9 @@ Handlebars.registerHelper "getCurrentMeeting", ->
   Meteor.Meetings.findOne()
 
 Handlebars.registerHelper "getCurrentSlide", ->
-  currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
-  presentationId = currentPresentation?.presentation?.id
-  Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
+  result = BBB.getCurrentSlide("helper getCurrentSlide")
+  # console.log "result=#{JSON.stringify result}"
+  result
 
 # Allow access through all templates
 Handlebars.registerHelper "getInSession", (k) -> SessionAmplify.get k
@@ -71,7 +68,7 @@ Handlebars.registerHelper "getMeetingName", ->
   BBB.getMeetingName()
 
 Handlebars.registerHelper "getShapesForSlide", ->
-  currentSlide = getCurrentSlideDoc()
+  currentSlide = BBB.getCurrentSlide("helper getShapesForSlide")
 
   # try to reuse the lines above
   Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id})
@@ -114,6 +111,9 @@ Handlebars.registerHelper "isCurrentUserTalking", ->
 Handlebars.registerHelper "isCurrentUserPresenter", ->
   BBB.isUserPresenter(getInSession('userId'))
 
+Handlebars.registerHelper "isCurrentUserModerator", ->
+  BBB.getMyRole() is "MODERATOR"
+
 Handlebars.registerHelper "isDisconnected", ->
   return !Meteor.status().connected
 
@@ -151,13 +151,19 @@ Handlebars.registerHelper "pointerLocation", ->
   currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
   presentationId = currentPresentation?.presentation?.id
   currentSlideDoc = Meteor.Slides.findOne({"presentationId": presentationId, "slide.current": true})
-  pointer = currentPresentation?.pointer
+  pointer = Meteor.Cursor.findOne()
   pointer.x = (- currentSlideDoc.slide.x_offset * 2 + currentSlideDoc.slide.width_ratio * pointer.x) / 100
   pointer.y = (- currentSlideDoc.slide.y_offset * 2 + currentSlideDoc.slide.height_ratio * pointer.y) / 100
   pointer
 
 Handlebars.registerHelper "safeName", (str) ->
   safeString(str)
+
+Handlebars.registerHelper "canJoinWithMic", ->
+  if (BBB.isUserPresenter(getInSession('userId')) or !Meteor.config.app.listenOnly) and !BBB.isMyMicLocked()
+    true
+  else
+    false
 
 ###Handlebars.registerHelper "visibility", (section) ->
   if getInSession "display_#{section}"
@@ -277,10 +283,10 @@ Handlebars.registerHelper "getPollQuestions", ->
   BBB.toggleMyMic()
 
 @toggleUsersList = ->
-  if $('.sl-left-drawer').hasClass('hiddenInLandscape')
-    $('.sl-left-drawer').removeClass('hiddenInLandscape')
+  if $('.userlistMenu').hasClass('hiddenInLandscape')
+    $('.userlistMenu').removeClass('hiddenInLandscape')
   else
-    $('.sl-left-drawer').addClass('hiddenInLandscape')
+    $('.userlistMenu').addClass('hiddenInLandscape')
   setTimeout(scaleWhiteboard, 0)
 
 @populateNotifications = (msg) ->
@@ -334,10 +340,11 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('.shield').removeClass('animatedShield')
 
 @removeFullscreenStyles = ->
-  $('#whiteboard-paper').removeClass('verticallyCentered')
+  $('#whiteboard-paper').removeClass('vertically-centered')
   $('#chat').removeClass('invisible')
   $('#users').removeClass('invisible')
   $('#navbar').removeClass('invisible')
+  $('.FABTriggerButton').removeClass('invisible')
   $('.fullscreenButton').removeClass('exitFullscreenButton')
   $('.fullscreenButton').addClass('whiteboardFullscreenButton')
   $('.fullscreenButton i').removeClass('ion-arrow-shrink')
@@ -358,11 +365,12 @@ Handlebars.registerHelper "getPollQuestions", ->
   $('#chat').addClass('invisible')
   $('#users').addClass('invisible')
   $('#navbar').addClass('invisible')
+  $('.FABTriggerButton').addClass('invisible')
   $('.fullscreenButton').removeClass('whiteboardFullscreenButton')
   $('.fullscreenButton').addClass('exitFullscreenButton')
   $('.fullscreenButton i').removeClass('ion-arrow-expand')
   $('.fullscreenButton i').addClass('ion-arrow-shrink')
-  $('#whiteboard-paper').addClass('verticallyCentered')
+  $('#whiteboard-paper').addClass('vertically-centered')
   $('#whiteboard').bind 'webkitfullscreenchange', (e) ->
     if document.webkitFullscreenElement is null
       $('#whiteboard').unbind('webkitfullscreenchange')
@@ -377,16 +385,14 @@ Handlebars.registerHelper "getPollQuestions", ->
       scaleWhiteboard()
 
 @closeMenus = ->
-  if $('.sl-left-drawer').hasClass('sl-left-drawer-out')
-    toggleLeftDrawer()
-    toggleLeftArrowClockwise()
-  else if $('.sl-right-drawer').hasClass('sl-right-drawer-out')
-    toggleRightDrawer()
-    toggleRightArrowClockwise()
+  if $('.userlistMenu').hasClass('menuOut')
+    toggleUserlistMenu()
+  else if $('.settingsMenu').hasClass('menuOut')
+    toggleSettingsMenu()
 
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
-@exitVoiceCall = (event) ->
+@exitVoiceCall = (event, afterExitCall) ->
   # To be called when the hangup is initiated
   hangupCallback = ->
     console.log "Exiting Voice Conference"
@@ -405,6 +411,8 @@ Handlebars.registerHelper "getPollQuestions", ->
       BBB.leaveVoiceConference hangupCallback
       getInSession("triedHangup", true) # we have hung up, prevent retries
       notification_WebRTCAudioExited()
+      if afterExitCall
+        afterExitCall this, Meteor.config.app.listenOnly
     else
       console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
       setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
@@ -424,6 +432,7 @@ Handlebars.registerHelper "getPollQuestions", ->
     console.log "Beginning WebRTC Conference Call"
 
   notification_WebRTCAudioJoining()
+
   if isListenOnly
     Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
   BBB.joinVoiceConference joinCallback, isListenOnly # make the call #TODO should we apply role permissions to this action?
@@ -437,6 +446,12 @@ Handlebars.registerHelper "getPollQuestions", ->
   Meteor.call("userLogout", meeting, user, getInSession("authToken"))
   console.log "logging out"
   clearSessionVar(document.location = getInSession 'logoutURL') # navigate to logout
+
+@kickUser = (meetingId, toKickUserId, requesterUserId, authToken) ->
+  Meteor.call("kickUser", meetingId, toKickUserId, requesterUserId, authToken)
+
+@setUserPresenter = (meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken) ->
+  Meteor.call("setUserPresenter", meetingId, newPresenterId, requesterSetPresenter, newPresenterName, authToken)
 
 # Clear the local user session
 @clearSessionVar = (callback) ->
@@ -455,7 +470,6 @@ Handlebars.registerHelper "getPollQuestions", ->
   amplify.store('messageFontSize', null)
   amplify.store('tabsRenderedTime', null)
   amplify.store('userId', null)
-  amplify.store('userName', null)
   amplify.store('display_menu', null)
   if callback?
     callback()
@@ -517,6 +531,14 @@ Handlebars.registerHelper "getPollQuestions", ->
     if oldDocument.userId is getInSession 'userId'
       document.location = getInSession 'logoutURL'
   })
+
+  Meteor.Users.find().observe changed: (newUser, oldUser) ->
+    if Meteor.config.app.listenOnly is true and
+       newUser.user.presenter is false and
+       oldUser.user.presenter is true and
+       BBB.getCurrentUser().userId is newUser.userId and
+       oldUser.user.listenOnly is false
+      exitVoiceCall(@, joinVoiceCall)
 
 # Detects a mobile device
 @isMobile = ->
@@ -593,6 +615,9 @@ Handlebars.registerHelper "getPollQuestions", ->
   else
     return null
 
+@scrollChatDown = () ->
+  $('#chatbody').scrollTop($('#chatbody')[0]?.scrollHeight)
+
 # changes the height of the chat input area if needed (based on the textarea content)
 @adjustChatInputHeight = () ->
   if isLandscape()
@@ -617,3 +642,50 @@ Handlebars.registerHelper "getPollQuestions", ->
     $('#chatbody').attr('style','')
     $('#newMessageInput').attr('style','')
 
+@toggleEmojisFAB = () ->
+  if $('.FABContainer').hasClass('openedFAB')
+    $('.FABContainer > button:nth-child(2)').css('opacity', $('.FABContainer > button:nth-child(2)').css('opacity'))
+    $('.FABContainer > button:nth-child(3)').css('opacity', $('.FABContainer > button:nth-child(3)').css('opacity'))
+    $('.FABContainer > button:nth-child(4)').css('opacity', $('.FABContainer > button:nth-child(4)').css('opacity'))
+    $('.FABContainer > button:nth-child(5)').css('opacity', $('.FABContainer > button:nth-child(5)').css('opacity'))
+    $('.FABContainer > button:nth-child(6)').css('opacity', $('.FABContainer > button:nth-child(6)').css('opacity'))
+    $('.FABContainer > button:nth-child(7)').css('opacity', $('.FABContainer > button:nth-child(7)').css('opacity'))
+    $('.FABContainer').removeClass('openedFAB')
+    $('.FABContainer').addClass('closedFAB')
+  else
+    $('.FABContainer > button:nth-child(2)').css('opacity', $('.FABContainer > button:nth-child(2)').css('opacity'))
+    $('.FABContainer > button:nth-child(3)').css('opacity', $('.FABContainer > button:nth-child(3)').css('opacity'))
+    $('.FABContainer > button:nth-child(4)').css('opacity', $('.FABContainer > button:nth-child(4)').css('opacity'))
+    $('.FABContainer > button:nth-child(5)').css('opacity', $('.FABContainer > button:nth-child(5)').css('opacity'))
+    $('.FABContainer > button:nth-child(6)').css('opacity', $('.FABContainer > button:nth-child(6)').css('opacity'))
+    $('.FABContainer > button:nth-child(7)').css('opacity', $('.FABContainer > button:nth-child(7)').css('opacity'))
+    $('.FABContainer').removeClass('closedFAB')
+    $('.FABContainer').addClass('openedFAB')
+
+@toggleUserlistMenu = () ->
+
+  # menu
+  if $('.userlistMenu').hasClass('menuOut')
+    $('.userlistMenu').removeClass('menuOut')
+  else
+    $('.userlistMenu').addClass('menuOut')
+
+  # icon
+  if $('.toggleUserlistButton').hasClass('menuToggledOn')
+    $('.toggleUserlistButton').removeClass('menuToggledOn')
+  else
+    $('.toggleUserlistButton').addClass('menuToggledOn')
+
+@toggleSettingsMenu = () ->
+
+  # menu
+  if $('.settingsMenu').hasClass('menuOut')
+    $('.settingsMenu').removeClass('menuOut')
+  else
+    $('.settingsMenu').addClass('menuOut')
+
+  # icon
+  if $('.toggleMenuButton').hasClass('menuToggledOn')
+    $('.toggleMenuButton').removeClass('menuToggledOn')
+  else
+    $('.toggleMenuButton').addClass('menuToggledOn')

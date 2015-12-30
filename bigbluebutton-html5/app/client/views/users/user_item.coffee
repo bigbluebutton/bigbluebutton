@@ -9,6 +9,9 @@ Template.displayUserIcons.events
     # the userId of the person who is lowering the hand
     BBB.lowerHand(getInSession("meetingId"), @userId, getInSession("userId"), getInSession("authToken"))
 
+  'click .kickUser': (event) ->
+    kickUser BBB.getMeetingId(), @.userId, getInSession("userId"), getInSession("authToken")
+
 Template.displayUserIcons.helpers
   userLockedIconApplicable: (userId) ->
     # the lock settings affect the user (and requiire a lock icon) if
@@ -32,8 +35,7 @@ Template.usernameEntry.events
       else
         setInSession "inChatWith", userIdSelected
     if isPortrait() or isPortraitMobile()
-      toggleLeftDrawer()
-      toggleLeftArrowClockwise()
+      toggleUserlistMenu()
       toggleShield()
     setTimeout () -> # waits until the end of execution queue
       $("#newMessageInput").focus()
@@ -54,6 +56,9 @@ Template.usernameEntry.events
           chat.number = 0
           break
       setInSession 'chats', chats
+
+  'click .setPresenter': (event) ->
+    setUserPresenter BBB.getMeetingId(), @.userId, getInSession('userId'), @.user.name, getInSession('authToken')
 
 Template.usernameEntry.helpers
   hasGotUnreadMailClass: (userId) ->

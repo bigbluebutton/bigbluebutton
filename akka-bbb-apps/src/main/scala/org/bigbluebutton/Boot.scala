@@ -17,7 +17,6 @@ import org.bigbluebutton.core.api.OutMessageListener2
 import org.bigbluebutton.core.pubsub.senders._
 import org.bigbluebutton.core.service.recorder.RedisDispatcher
 import org.bigbluebutton.core.service.recorder.RecorderApplication
-import org.bigbluebutton.core.recorders.VoiceEventRecorder
 
 object Boot extends App with SystemConfiguration {
 
@@ -30,8 +29,7 @@ object Boot extends App with SystemConfiguration {
   val recorderApp = new RecorderApplication(redisDispatcher)
   recorderApp.start()
 
-  val voiceEventRecorder = new VoiceEventRecorder(recorderApp)
-  val bbbInGW = new BigBlueButtonInGW(system, recorderApp, msgSender, voiceEventRecorder)
+  val bbbInGW = new BigBlueButtonInGW(system, recorderApp, msgSender)
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")

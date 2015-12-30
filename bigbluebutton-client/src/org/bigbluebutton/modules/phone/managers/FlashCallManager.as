@@ -3,6 +3,9 @@
   import com.asfusion.mate.events.Dispatcher;
   
   import flash.external.ExternalInterface;
+  import flash.media.Sound;
+  import flash.media.SoundChannel;
+  import flash.media.SoundTransform;
   
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
@@ -46,7 +49,7 @@
     private static const CONNECTING_TO_LISTEN_ONLY_STREAM:String = "CONNECTING_TO_LISTEN_ONLY_STREAM";
     private static const ON_LISTEN_ONLY_STREAM:String = "ON_LISTEN_ONLY_STREAM";
 
-    private var state:String = INITED;
+    private var _state:String = INITED;
     
     private var options:PhoneOptions;
     private var echoTestDone:Boolean = false;
@@ -61,6 +64,10 @@
     
     private var usingFlash:Boolean = false;
     
+    [Embed(source="../sounds/LeftCall.mp3")] 
+    private var noticeSoundClass:Class;
+    private var noticeSound:Sound = new noticeSoundClass() as Sound;
+    
     public function FlashCallManager() {
       micNames = Media.getMicrophoneNames();
       connectionManager = new ConnectionManager();
@@ -73,6 +80,17 @@
       var uid:String = String(Math.floor(new Date().getTime()));
       var uname:String = encodeURIComponent(UsersUtil.getMyUserID() + "-bbbID-" + UsersUtil.getMyUsername()); 
       connectionManager.setup(uid, UsersUtil.getMyUserID(), uname , UsersUtil.getInternalMeetingID(), options.uri);
+    }
+    
+    private function get state():String {
+      return _state;
+    }
+    
+    private function set state(s:String):void {
+      if (_state == IN_CONFERENCE && _state != s) { // when state changes from IN_CONFERENCE play sound
+        var tSC:SoundChannel = noticeSound.play(0, 0, new SoundTransform(0.25));
+      }
+      _state = s;
     }
     
     private function isWebRTCSupported():Boolean {

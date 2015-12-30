@@ -224,19 +224,25 @@ class Meteor.WhiteboardPaperModel
 
   # Update the dimensions of the container.
   _updateContainerDimensions: ->
-    #console.log "update Container Dimensions"
-
     $container = $('#whiteboard-paper')
-    @containerWidth = $container.innerWidth()
-    @containerHeight = $container.innerHeight()
+
+    containerDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
+    if($container.innerWidth() is 0)
+      @containerWidth = containerDimensions.boardWidth
+    else
+      @containerWidth = $container.innerWidth()
+    if($container.innerHeight() is 0)
+      @containerHeight = containerDimensions.boardHeight
+    else
+      @containerHeight = $container.innerHeight()
 
     @containerOffsetLeft = $container.offset()?.left
     @containerOffsetTop = $container.offset()?.top
 
   _updateZoomRatios: ->
-    currentSlideDoc = getCurrentSlideDoc()
-    @widthRatio = currentSlideDoc.slide.width_ratio
-    @heightRatio = currentSlideDoc.slide.height_ratio
+    currentSlideDoc = BBB.getCurrentSlide("_updateZoomRatios")
+    @widthRatio = currentSlideDoc?.slide.width_ratio
+    @heightRatio = currentSlideDoc?.slide.height_ratio
 
   # Retrieves an image element from the paper.
   # The url must be in the slides array.
@@ -306,12 +312,7 @@ class Meteor.WhiteboardPaperModel
     boardWidth = @containerWidth
     boardHeight = @containerHeight
 
-    currentSlide = getCurrentSlideDoc()
-
-    # TODO currentSlide undefined in some cases - will check later why
-    imageWidth = boardWidth * (currentSlide?.slide.width_ratio/100) or boardWidth
-    imageHeight = boardHeight * (currentSlide?.slide.height_ratio/100) or boardHeight
-
+    currentSlide = BBB.getCurrentSlide("_displayPage")
     currentPresentation = Meteor.Presentations.findOne({"presentation.current": true})
     presentationId = currentPresentation?.presentation?.id
     currentSlideCursor = Meteor.Slides.find({"presentationId": presentationId, "slide.current": true})
@@ -354,5 +355,6 @@ class Meteor.WhiteboardPaperModel
       @addImageToPaper(data, boardWidth, @adjustedHeight)
       @adjustedWidth = boardWidth
 
-    @zoomAndPan(currentSlide.slide.width_ratio, currentSlide.slide.height_ratio,
-      currentSlide.slide.x_offset, currentSlide.slide.y_offset)
+    if currentSlide?
+      @zoomAndPan(currentSlide.slide.width_ratio, currentSlide.slide.height_ratio,
+        currentSlide.slide.x_offset, currentSlide.slide.y_offset)

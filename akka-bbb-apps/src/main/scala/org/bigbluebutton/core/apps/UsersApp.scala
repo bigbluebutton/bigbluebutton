@@ -407,7 +407,7 @@ trait UsersApp {
            * and is reconnecting. Make the user as joined only in the voice conference. If we get a
            * user left voice conference message, then we will remove the user from the users list.
            */
-          handleUserJoinedVoiceConfMessage((new UserJoinedVoiceConfMessage(mProps.voiceBridge,
+          switchUserToPhoneUser((new UserJoinedVoiceConfMessage(mProps.voiceBridge,
             vu.userId, u.userID, u.externUserID, vu.callerName,
             vu.callerNum, vu.muted, vu.talking, u.listenOnly)));
         }
@@ -475,6 +475,34 @@ trait UsersApp {
     if (usersModel.numUsersInVoiceConference == 1 && mProps.recorded) {
       log.info("Send START RECORDING voice conf. meetingId=" + mProps.meetingID + " voice conf=" + mProps.voiceBridge)
       outGW.send(new StartRecordingVoiceConf(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+    }
+  }
+
+  def switchUserToPhoneUser(msg: UserJoinedVoiceConfMessage) = {
+    log.info("User has been disconnected but still in voice conf. Switching to phone user. meetingId="
+      + mProps.meetingID + " callername=" + msg.callerIdName
+      + " userId=" + msg.userId + " extUserId=" + msg.externUserId)
+
+    usersModel.getUser(msg.userId) match {
+      case Some(user) => {
+        val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName,
+          msg.callerIdNum, joined = true, locked = false,
+          msg.muted, msg.talking, msg.listenOnly)
+        val nu = user.copy(voiceUser = vu, listenOnly = msg.listenOnly)
+        usersModel.addUser(nu)
+
+        log.info("User joined voice. meetingId=" + mProps.meetingID + " userId=" + user.userID + " user=" + nu)
+        outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
+
+        if (meetingModel.isMeetingMuted()) {
+          outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded,
+            nu.userID, nu.userID, mProps.voiceBridge,
+            nu.voiceUser.userId, meetingModel.isMeetingMuted()))
+        }
+      }
+      case None => {
+        handleUserJoinedVoiceFromPhone(msg)
+      }
     }
   }
 
