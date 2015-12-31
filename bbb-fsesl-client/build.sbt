@@ -80,5 +80,4 @@ pomExtra := (
   
 licenses := Seq("Apache License, Version 2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
-homepage := Some(url("http://www.bigbluebutton.org"))
-  
+homepage := Some(url("http://www.bigbluebutton.org")) 
