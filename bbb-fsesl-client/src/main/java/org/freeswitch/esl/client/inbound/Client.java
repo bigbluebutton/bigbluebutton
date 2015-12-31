@@ -498,7 +498,6 @@ public class Client
                                     } else if (eventFunc.equals("conf_api_sub_unmute") || eventFunc.equals("conference_api_sub_unmute")) {
                                         listener.conferenceEventUnMute(uniqueId, confName, confSize, event);
                                         return;
-                                    //API has changed between freeswitch 1.4 and 1.6
                                     } else if (eventFunc.equals("conference_record_thread_run")) {
                                     	System.out.println("##### Client conference_record_thread_run");
                                         listener.conferenceEventRecord(uniqueId, confName, confSize, event);
