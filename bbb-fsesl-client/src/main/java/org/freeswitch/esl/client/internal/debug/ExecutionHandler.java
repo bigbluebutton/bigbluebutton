@@ -54,7 +54,7 @@ import org.jboss.netty.util.internal.ExecutorUtil;
  * @author The Netty Project (netty-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
  *
- * @version $Rev: 1685 $, $Date: 2009-08-28 16:15:49 +0900 (금, 28 8 2009) $
+ * @version $Rev: 1685 $, $Date: 2009-08-28 16:15:49 +0900 $
  *
  * @apiviz.landmark
  * @apiviz.has java.util.concurrent.ThreadPoolExecutor

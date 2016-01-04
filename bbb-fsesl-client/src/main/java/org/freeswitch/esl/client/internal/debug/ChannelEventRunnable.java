@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author The Netty Project (netty-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
  *
- * @version $Rev: 1685 $, $Date: 2009-08-28 16:15:49 +0900 (금, 28 8 2009) $
+ * @version $Rev: 1685 $, $Date: 2009-08-28 16:15:49 +0900 $
  *
  */
 public class ChannelEventRunnable implements Runnable, EstimatableObjectWrapper {
