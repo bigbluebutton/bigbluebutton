@@ -1541,6 +1541,7 @@ class ApiController {
 							  md5(item.getMd5())
 							  key(item.getKey())
 							  length(item.getLength())
+							  size(item.getSize())
 						  }
 					  }
                   }

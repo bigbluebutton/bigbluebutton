@@ -19,6 +19,14 @@ package org.bigbluebutton.modules.sharednotes
 		[Bindable]
 		public var enableMultipleNotes:Boolean = false;
 
+		[Bindable]
+		public var toolbarVisibleByDefault:Boolean = false;
+
+		[Bindable]
+		public var showToolbarButton:Boolean = false;
+
+		[Bindable]
+		public var fontSize:int = 10;
 		
 		public function SharedNotesOptions()
 		{
@@ -38,6 +46,15 @@ package org.bigbluebutton.modules.sharednotes
 				}
 				if (vxml.@enableMultipleNotes != undefined) {
 					enableMultipleNotes = (vxml.@enableMultipleNotes.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@toolbarVisibleByDefault != undefined) {
+					toolbarVisibleByDefault = (vxml.@toolbarVisibleByDefault.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@showToolbarButton != undefined) {
+					showToolbarButton = (vxml.@showToolbarButton.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@fontSize != undefined) {
+					fontSize = Number(vxml.@fontSize);
 				}
 			}
 		}

@@ -64,32 +64,6 @@ package org.bigbluebutton.modules.sharednotes.views.components {
 			return textField.text;
 		}
 
-		public function saveNotesToFile(title:String):void {
-			var filename:String = title.replace(/\s+/g, '-').toLowerCase();
-			var _fileRef:FileReference = new FileReference();
-			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
-				dispatchEvent(new Event("SHARED_NOTES_SAVED"));
-			});
-
-			var cr:String = String.fromCharCode(13);
-			var lf:String = String.fromCharCode(10);
-			var crlf:String = String.fromCharCode(13, 10);
-
-			var textToExport:String = this.textFieldText;
-			textToExport = textToExport.replace(new RegExp(crlf, "g"), '\n');
-			textToExport = textToExport.replace(new RegExp(cr, "g"), '\n');
-			textToExport = textToExport.replace(new RegExp(lf, "g"), '\n');
-			textToExport = textToExport.replace(new RegExp('\n', "g"), crlf);
-
-			_fileRef.save(textToExport, filename+".txt");
-			
-			//Future code to add zoom and font format
-			//var format:TextFormat = new TextFormat();
-			//format.color = 0x0000FF;
-			//this.textField.setTextFormat( format, selectionBeginIndex, selectionBeginIndex+1 ) ;
-			//restorePositon(200);
-		}
-
 		public function getOldPosition():Number {
 			var oldPosition:Number = 0;
 			if(selectionEndIndex == 0 && this.text.length == 0) {

@@ -46,9 +46,15 @@ done_files.each do |df|
     if not FileTest.directory?(meeting_publish_dir)
       FileUtils.mkdir_p meeting_publish_dir
 
-      Dir.chdir(meeting_publish_dir) do
-        BigBlueButton::MconfProcessor.zip_directory(meeting_raw_dir, "#{meeting_id}.zip")
+      Dir.chdir("#{recording_dir}/raw") do
+        command = "tar -czf #{meeting_publish_dir}/#{meeting_id}.tar.gz #{meeting_id}"
+        status = BigBlueButton.execute(command)
+        if not status.success?
+          raise "Couldn't compress the raw files"
+        end
+      end
 
+      Dir.chdir(meeting_publish_dir) do
         metadata = BigBlueButton::Events.get_meeting_metadata("#{meeting_raw_dir}/events.xml")
 
         length = 16
@@ -61,13 +67,13 @@ done_files.each do |df|
         passfile.close
 
         # encrypt files 
-        command = "openssl enc -aes-256-cbc -pass file:#{meeting_id}.txt < #{meeting_id}.zip > #{meeting_id}.dat"
+        command = "openssl enc -aes-256-cbc -pass file:#{meeting_id}.txt < #{meeting_id}.tar.gz > #{meeting_id}.dat"
         status = BigBlueButton.execute(command)
         if not status.success?
           raise "Couldn't encrypt the recording file using the random key"
         end
 
-        FileUtils.rm_f "#{meeting_id}.zip"
+        FileUtils.rm_f "#{meeting_id}.tar.gz"
 
         key_filename = ""
         if metadata.has_key?('mconflb-rec-server-key') and not metadata['mconflb-rec-server-key'].to_s.empty?
@@ -138,21 +144,8 @@ done_files.each do |df|
           FileUtils.mkdir_p "#{published_dir}/mconf_encrypted"
         end
         BigBlueButton.logger.info("Publishing files")
-        FileUtils.cp_r(meeting_publish_dir, "#{published_dir}/mconf_encrypted")
+        FileUtils.mv(meeting_publish_dir, "#{published_dir}/mconf_encrypted")
 
-        # it doesn't work since video and deskshare files are owned by red5, 
-        # freeswitch files are owned by freeswitch, and this script is ran by
-        # tomcat7, so it can just remove files owned by tomcat7
-        FileUtils.rm_r [ "/usr/share/red5/webapps/video/streams/#{meeting_id}",
-                         "/usr/share/red5/webapps/deskshare/streams/#{meeting_id}",
-                         Dir.glob("/var/freeswitch/meetings/#{meeting_id}*.wav") ], :force => true
-
-        # Remove all the recording flags
-        FileUtils.rm_f [ "#{recording_dir}/status/sanity/#{meeting_id}.done",
-                         "#{recording_dir}/status/recorded/#{meeting_id}.done",
-                         "#{recording_dir}/status/archived/#{meeting_id}.done" ]
-
-        # Comment it for testing
         BigBlueButton.logger.info("Removing the recording raw files: #{meeting_raw_dir}")
         FileUtils.rm_r meeting_raw_dir, :force => true
         BigBlueButton.logger.info("Removing the recording presentation: #{meeting_raw_presentation_dir}")
