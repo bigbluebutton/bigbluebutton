@@ -190,7 +190,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function webRTCEchoTestEnded():void {
         setCurrentState("connecting");
         lblConnectMessage.text = lblConnectMessageMock.text = ResourceUtil.getInstance().getString('bbb.micSettings.webrtc.endedecho');
-        startTimers();
         
         if (!userClosed) {
           onCancelClicked();
