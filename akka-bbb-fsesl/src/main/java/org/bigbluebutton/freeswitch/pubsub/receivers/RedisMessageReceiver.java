@@ -1,12 +1,16 @@
 package org.bigbluebutton.freeswitch.pubsub.receivers;
 
 
+import org.bigbluebutton.common.messages.DeskShareStopRecordingEventMessage;
 import org.bigbluebutton.common.messages.EjectAllUsersFromVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.EjectUserFromVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage;
+import org.bigbluebutton.common.messages.DeskShareStartRecordingEventMessage;
+import org.bigbluebutton.common.messages.DeskShareStartRTMPBroadcastEventMessage;
+import org.bigbluebutton.common.messages.DeskShareStopRTMPBroadcastEventMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
 import com.google.gson.JsonObject;
@@ -53,12 +57,50 @@ public class RedisMessageReceiver {
 					  case StopRecordingVoiceConfRequestMessage.STOP_RECORD_VOICE_CONF_REQUEST:
 						  processStopRecordingVoiceConfRequestMessage(message);
 					  break;
+					  case DeskShareStartRecordingEventMessage.DESKSHARE_START_RECORDING_MESSAGE:
+						  System.out.println("\n\n\nDESKSHARE_START_RECORDING_MESSAGE\n\n");
+						  processDeskShareStartRecordingEventMessage(message);
+					  break;
+					  case DeskShareStopRecordingEventMessage.DESKSHARE_STOP_RECORDING_MESSAGE:
+						  System.out.println("\n\n\nDESKSHARE_STOP_RECORDING_MESSAGE\n\n");
+						  processDeskShareStopRecordingEventMessage(message);
+					  break;
+					  case DeskShareStartRTMPBroadcastEventMessage.DESKSHARE_START_RTMP_BROADCAST_MESSAGE:
+						  System.out.println("\n\n\nDESKSHARE_START_RTMP_BROADCAST_MESSAGE\n\n");
+						  processDeskShareStartRTMPBroadcastEventMessage(message);
+					  break;
+					  case DeskShareStopRTMPBroadcastEventMessage.DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE:
+						  System.out.println("\n\n\nDESKSHARE_STOP_RTMP_BROADCAST_MESSAGE\n\n");
+						  processDeskShareStopRTMPBroadcastEventMessage(message);
+					  break;
 					}
 				}
 			}
 		}
 	}
-		
+
+	private void processDeskShareStartRTMPBroadcastEventMessage(String json) {
+		DeskShareStartRTMPBroadcastEventMessage msg = DeskShareStartRTMPBroadcastEventMessage.fromJson(json);
+		fsApp.deskShareBroadcastRTMP(msg.conferenceName, msg.streamUrl, msg.timestamp, true);
+	}
+
+	private void processDeskShareStopRTMPBroadcastEventMessage(String json) {
+		DeskShareStopRTMPBroadcastEventMessage msg = DeskShareStopRTMPBroadcastEventMessage.fromJson(json);
+		fsApp.deskShareBroadcastRTMP(msg.conferenceName, msg.streamUrl, msg.timestamp, false);
+	}
+
+	private void processDeskShareStartRecordingEventMessage(String json) {
+		System.out.println("^^^FS^processDeskShareStartRecordingEventMessage");
+		DeskShareStartRecordingEventMessage msg = DeskShareStartRecordingEventMessage.fromJson(json);
+		fsApp.deskShareRecording(msg.conferenceName, msg.filename, true);
+	}
+
+	private void processDeskShareStopRecordingEventMessage(String json) {
+		System.out.println("^^^FS^processDeskShareStopRecordingEventMessage");
+		DeskShareStopRecordingEventMessage msg = DeskShareStopRecordingEventMessage.fromJson(json);
+		fsApp.deskShareRecording(msg.conferenceName, msg.filename, false);
+	}
+
 	private void processEjectAllVoiceUsersRequestMessage(String json) {
 		EjectAllUsersFromVoiceConfRequestMessage msg = EjectAllUsersFromVoiceConfRequestMessage.fromJson(json);
 		fsApp.ejectAll(msg.voiceConfId);

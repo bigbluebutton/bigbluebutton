@@ -43,6 +43,13 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
   import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+  import org.bigbluebutton.modules.present.events.CursorEvent;
+  import org.bigbluebutton.modules.present.events.NavigationEvent;
+  import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+  import org.bigbluebutton.modules.present.events.UploadEvent;
+  import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
+  import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
+  import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
   
   public class MessageReceiver implements IMessageListener
@@ -60,7 +67,7 @@ package org.bigbluebutton.modules.users.services
     }
     
     public function onMessage(messageName:String, message:Object):void {
-//      LOGGER.debug(" received message " + messageName);
+      // LOGGER.debug(" received message " + messageName);
       
       switch (messageName) {
         case "getUsersReply":
@@ -126,12 +133,32 @@ package org.bigbluebutton.modules.users.services
         case "permissionsSettingsChanged":
           handlePermissionsSettingsChanged(message);
           break;
-		case "userLocked":
+        case "userLocked":
           handleUserLocked(message);
           break;
+        case "DeskShareRTMPBroadcastNotification":
+          handleDeskShareRTMPBroadcastNotification(message);
+          break;
       }
-    }  
-    
+    }
+
+    private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
+      LOGGER.debug("*** handleDeskShareRTMPBroadcastNotification **** \n", [msg]);
+
+      var event:ViewStreamEvent;
+      if (msg.broadcasting) {
+        event = new ViewStreamEvent(ViewStreamEvent.START);
+      } else {
+        event = new ViewStreamEvent(ViewStreamEvent.STOP);
+      }
+
+      event.videoWidth = msg.width;
+      event.videoHeight = msg.height;
+      event.rtmp = msg.rtmpUrl;
+
+      dispatcher.dispatchEvent(event);
+    }
+
 	private function handleUserLocked(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
 		var user:BBBUser = UsersUtil.getUser(map.user);
@@ -165,6 +192,7 @@ package org.bigbluebutton.modules.users.services
       var e:BBBEvent = new BBBEvent(BBBEvent.CHANGE_RECORDING_STATUS);
       e.payload.remote = true;
       e.payload.recording = recording;
+
       dispatcher.dispatchEvent(e);
     }
     

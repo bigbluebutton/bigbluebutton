@@ -21,10 +21,10 @@
 
 # For DEVELOPMENT
 # Allows us to run the script manually
-# require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
+require File.expand_path('../../../../core/lib/recordandplayback', __FILE__)
 
 # For PRODUCTION
-require File.expand_path('../../../lib/recordandplayback', __FILE__)
+# require File.expand_path('../../../lib/recordandplayback', __FILE__)
 
 require 'rubygems'
 require 'trollop'
@@ -114,10 +114,15 @@ if not FileTest.directory?(target_dir)
     end
   end
   
-  if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and !Dir["#{raw_archive_dir}/deskshare/*"].empty?)
+  if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and
+    (!Dir["#{raw_archive_dir}/deskshare/*"].empty? or !Dir["#{raw_archive_dir}/video-broadcast/*"].empty? ))
     width = presentation_props['video_output_width']
     height = presentation_props['video_output_height']
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty?
+      width = presentation_props['deskshare_output_width']
+      height = presentation_props['deskshare_output_height']
+    end
+    if !Dir["#{raw_archive_dir}/video-broadcast/*"].empty?
       width = presentation_props['deskshare_output_width']
       height = presentation_props['deskshare_output_height']
     end

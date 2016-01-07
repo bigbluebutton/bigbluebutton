@@ -1,11 +1,11 @@
 bbb_version: '0.9.0'
 raw_audio_src: /var/freeswitch/meetings
 raw_video_src: /usr/share/red5/webapps/video/streams
+raw_webrtc_deskshare_src: /usr/share/red5/webapps/video-broadcast/streams
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
 redis_host: 127.0.0.1
 redis_port: 6379
-
 
 # For PRODUCTION
 log_dir: /var/log/bigbluebutton
@@ -16,8 +16,8 @@ playback_protocol: http
 
 # For DEVELOPMENT
 # This allows us to run the scripts manually
-#scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
-#log_dir: /home/ubuntu/temp/log
-#recording_dir: /home/ubuntu/temp/recording
-#published_dir: /home/ubuntu/temp/published
-#playback_host: 192.168.22.137
+scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
+log_dir: /home/ubuntu/temp/log
+recording_dir: /home/ubuntu/temp/recording
+published_dir: /home/ubuntu/temp/published
+playback_host: 192.168.0.109

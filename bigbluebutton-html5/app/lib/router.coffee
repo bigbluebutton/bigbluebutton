@@ -36,9 +36,9 @@
     path: "/html5client"
     where: "client"
     action: ->
-      meetingId = getInSession "meetingId"
-      userId = getInSession "userId"
-      authToken = getInSession "authToken"
+      meetingId = BBB.getMeetingId()
+      userId = BBB.getMyUserId()
+      authToken = BBB.getMyAuthToken()
 
       onErrorFunction = (error, result) ->
         console.log "ONERRORFUNCTION"

@@ -20,7 +20,7 @@
 		if BBB.getCallStatus() isnt null and !getInSession("triedHangup")
 			console.log "Attempting to hangup on WebRTC call"
 			if BBB.amIListenOnlyAudio() # notify BBB-apps we are leaving the call call if we are listen only
-				Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), false)
+				Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyAuthToken(), false)
 			BBB.leaveVoiceConference hangupCallback
 			getInSession("triedHangup", true) # we have hung up, prevent retries
 			notification_WebRTCAudioExited()
@@ -34,6 +34,8 @@
 
 # join the conference. If listen only send the request to the server
 @joinVoiceCall = (event, options) ->
+	extension = Meteor.Meetings.findOne().voiceConf
+	#TODO get rid of these references to verto_extensions global vars (conferenceUsername, conferenceIdNumber)
 	if !isWebRTCAvailable()
 		notification_WebRTCNotSupported()
 		return
@@ -63,7 +65,7 @@
 
 		notification_WebRTCAudioJoining()
 		if options.isListenOnly
-			Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), getInSession("userId"), getInSession("authToken"), true)
+			Meteor.call('listenOnlyRequestToggle', BBB.getMeetingId(), BBB.getMyUserId(), BBB.getMyAuthToken(), true)
 
 		requestedListenOnly = options.isListenOnly?
 		BBB.joinVoiceConference joinCallback, requestedListenOnly # make the call #TODO should we apply role permissions to this action?

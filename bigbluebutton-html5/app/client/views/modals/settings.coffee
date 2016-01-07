@@ -4,7 +4,7 @@ Template.settingsModal.helpers
     result = "(c) #{info.copyrightYear} BigBlueButton Inc. [build #{info.html5ClientBuild}] - For more information visit #{info.link}"
 
 Template.logoutModal.events
-  "click #yes": -> userLogout(getInSession("meetingId"), getInSession("userId"))
+  "click #yes": -> userLogout(BBB.getMeetingId(), BBB.getMyUserId())
   "click #no": -> $("#logoutModal").foundation('reveal', 'close')
   "click .logoutButton": -> $(".tooltip").hide()
 

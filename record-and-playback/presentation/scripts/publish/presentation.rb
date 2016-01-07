@@ -603,6 +603,28 @@ def preprocessSlideEvents
 	return new_slides_events
 end
 
+def processWebRTCDeskshareEvents
+	BigBlueButton.logger.info("processWebRTCDeskshareEvents - WEBRTC DESKSHARE events processing")
+	new_webrtc_deskshare_events = []
+	$webrtc_deskshare_events.each do |webrtc_deskshare_event|
+		new_ds_event = webrtc_deskshare_event.clone
+		$rec_events.each do |rec_event|
+			new_ds_event_timestamp = Integer(new_ds_event[:timestamp])
+			if new_ds_event_timestamp <= rec_event[:start_timestamp]
+				new_ds_event_timestamp = rec_event[:start_timestamp]
+				if not new_webrtc_deskshare_events.empty? and new_webrtc_deskshare_events.last()[:timestamp] == rec_event[:start_timestamp]
+					new_webrtc_deskshare_events.pop()
+				end
+				new_webrtc_deskshare_events << new_ds_event
+				break
+			elsif new_ds_event_timestamp > rec_event[:start_timestamp] and new_ds_event_timestamp <= rec_event[:stop_timestamp]
+				new_webrtc_deskshare_events << new_ds_event
+			end
+		end
+	end
+	return new_webrtc_deskshare_events
+end
+
 def processSlideEvents
 	BigBlueButton.logger.info("Slide events processing")
 	# For each slide (there is only one image per slide)
@@ -1019,6 +1041,7 @@ if ($playback == "presentation")
 		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
 		$clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
+		$webrtc_deskshare_events = @doc.xpath("//event[@eventname='DeskShareNotifyViewersRTMP']") # for start/stop of webrtc desktop sharing
 		$join_time = $meeting_start.to_f
 		$end_time = $meeting_end.to_f
 
@@ -1032,6 +1055,8 @@ if ($playback == "presentation")
 		$first_slide_start = ( translateTimestamp(first_presentation_start) / 1000 ).round(1)
 		
 		processChatMessages()
+
+		processWebRTCDeskshareEvents()
 		
 		processShapesAndClears()
 		

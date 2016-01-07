@@ -7,10 +7,10 @@ Template.displayUserIcons.events
     # the meeting id
     # the _id of the person whose land is to be lowered
     # the userId of the person who is lowering the hand
-    BBB.lowerHand(getInSession("meetingId"), @userId, getInSession("userId"), getInSession("authToken"))
+    BBB.lowerHand(BBB.getMeetingId(), @userId, BBB.getMyUserId(), BBB.getMyAuthToken())
 
   'click .kickUser': (event) ->
-    kickUser BBB.getMeetingId(), @.userId, getInSession("userId"), getInSession("authToken")
+    kickUser BBB.getMeetingId(), @.userId, BBB.getMyUserId(), BBB.getMyAuthToken()
 
 Template.displayUserIcons.helpers
   userLockedIconApplicable: (userId) ->
@@ -43,7 +43,7 @@ Template.usernameEntry.events
 
   'click .gotUnreadMail': (event) ->
     _this = @
-    currentId = getInSession('userId')
+    currentId = BBB.getMyUserId()
     if currentId isnt undefined and currentId is _this.userId
       _id = "PUBLIC_CHAT"
     else
@@ -58,7 +58,7 @@ Template.usernameEntry.events
       setInSession 'chats', chats
 
   'click .setPresenter': (event) ->
-    setUserPresenter BBB.getMeetingId(), @.userId, getInSession('userId'), @.user.name, getInSession('authToken')
+    setUserPresenter BBB.getMeetingId(), @.userId, BBB.getMyUserId(), @.user.name, BBB.getMyAuthToken()
 
 Template.usernameEntry.helpers
   hasGotUnreadMailClass: (userId) ->

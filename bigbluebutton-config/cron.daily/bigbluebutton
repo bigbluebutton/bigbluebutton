@@ -38,6 +38,11 @@ find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec 
 find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' +
 
 #
+# Delete webrtc deskshare streams in red5 older than N days
+#
+find /usr/share/red5/webapps/video-broadcast/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
+
+#
 # Delete desktop sharing streams in red5 older than N days
 #
 find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' +

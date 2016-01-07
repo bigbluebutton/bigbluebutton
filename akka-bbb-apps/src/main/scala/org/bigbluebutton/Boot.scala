@@ -29,11 +29,10 @@ object Boot extends App with SystemConfiguration {
   val recorderApp = new RecorderApplication(redisDispatcher)
   recorderApp.start()
 
-  val bbbInGW = new BigBlueButtonInGW(system, recorderApp, msgSender)
+  val bbbInGW = new BigBlueButtonInGW(system, recorderApp, msgSender, red5DeskShareIP, red5DeskShareApp)
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
 
   val keepAliveRedisPublisher = new KeepAliveRedisPublisher(system, redisPublisher)
-
 }

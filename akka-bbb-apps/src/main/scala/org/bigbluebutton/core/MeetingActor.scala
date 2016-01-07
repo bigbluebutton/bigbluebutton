@@ -56,6 +56,20 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleUserTalkingInVoiceConfMessage(msg)
     case msg: VoiceConfRecordingStartedMessage =>
       handleVoiceConfRecordingStartedMessage(msg)
+    case msg: DeskShareRecordingStartedRequest =>
+      handleDeskShareRecordingStartedRequest(msg)
+    case msg: DeskShareRecordingStoppedRequest =>
+      handleDeskShareRecordingStoppedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStartedRequest =>
+      handleDeskShareRTMPBroadcastStartedRequest(msg)
+    case msg: DeskShareRTMPBroadcastStoppedRequest =>
+      handleDeskShareRTMPBroadcastStoppedRequest(msg)
+    case msg: DeskShareStartedRequest =>
+      handleDeskShareStartedRequest(msg)
+    case msg: DeskShareStoppedRequest =>
+      handleDeskShareStoppedRequest(msg)
+    case msg: DeskShareGetDeskShareInfoRequest =>
+      handleDeskShareGetDeskShareInfoRequest(msg)
     case msg: UserJoining =>
       handleUserJoin(msg)
     case msg: UserLeaving =>
@@ -221,11 +235,12 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   def handleMonitorNumberOfWebUsers() {
-    //    println("BACK TIMER")
+    // println("BACK TIMER")
     if (usersModel.numWebUsers == 0 && meetingModel.lastWebUserLeftOn > 0) {
       if (timeNowInMinutes - meetingModel.lastWebUserLeftOn > 2) {
         log.info("Empty meeting. Ejecting all users from voice. meetingId={}", mProps.meetingID)
         outGW.send(new EjectAllVoiceUsers(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
+
       }
     }
 
@@ -290,6 +305,119 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
   def permissionsEqual(other: Permissions): Boolean = {
     meetingModel.permissionsEqual(other)
+  }
+
+  // Broadcast video stream,
+  // If the meeting is recorded, tell FS to record video
+  private def handleDeskShareStartedRequest(msg: DeskShareStartedRequest) {
+    println("\nMeetingActor-handleDeskShareStartedRequest " + "mProps.recorded=" + mProps.recorded +
+      " dsStarted=" + meetingModel.getDeskShareStarted() + "\n")
+
+    if (!meetingModel.getDeskShareStarted()) {
+      val timestamp = System.currentTimeMillis().toString()
+      val streamPath = "rtmp://" + mProps.red5DeskShareIP + "/" + mProps.red5DeskShareApp +
+        "/" + mProps.meetingID + "/" + mProps.meetingID + "-" + timestamp
+
+      println("____ in handleDeskShareStartedRequest and streamPath=" + streamPath)
+      // Tell FreeSwitch to broadcast to RTMP
+      outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath, timestamp))
+
+      // TODO remove this:
+      if (mProps.recorded) {
+        println("IS RECORDING")
+        //val filepath = "/var/freeswitch/meetings/" + mProps.meetingID + "-" + timestamp + ".mp4"
+        val filepath = "/home/debian/" + mProps.meetingID + "-" + timestamp + ".mp4" //TODO this path should be changed back
+
+        // Tell FreeSwitch to start recording to a file
+        outGW.send(new DeskShareStartRecording(msg.conferenceName, filepath, timestamp))
+      } else {
+        println("IS NOT RECORDING")
+      }
+      meetingModel.setDeskShareStarted(true)
+    }
+
+  }
+
+  private def handleDeskShareStoppedRequest(msg: DeskShareStoppedRequest) {
+    println("\nMeetingActor-handleDeskShareStoppedRequest " + "mProps.recorded=" + mProps.recorded + "\n")
+    val timestamp = System.currentTimeMillis().toString()
+
+    meetingModel.setDeskShareStarted(false)
+
+    // Tell FreeSwitch to stop broadcasting to RTMP
+    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, meetingModel.getRTMPBroadcastingUrl(), timestamp))
+
+    if (mProps.recorded) {
+      // Tell FreeSwitch to stop recording to a file
+      outGW.send(new DeskShareStopRecording(msg.conferenceName, meetingModel.getVoiceRecordingFilename(), timestamp))
+    }
+  }
+
+  private def handleDeskShareRecordingStartedRequest(msg: DeskShareRecordingStartedRequest) {
+    // println("\nMeetingActor-handleDeskShareRecordingStartedRequest\n")
+
+    meetingModel.recordingStarted()
+    meetingModel.setVoiceRecordingFilename(msg.filename)
+  }
+
+  private def handleDeskShareRecordingStoppedRequest(msg: DeskShareRecordingStoppedRequest) {
+    // println("\nMeetingActor-handleDeskShareRecordingStoppedRequest\n")
+    // println("isRecording=" + meetingModel.isRecording())
+    // println("recorded=" + mProps.recorded)
+
+    //TODO check if recording/ed
+    meetingModel.recordingStopped()
+  }
+
+  private def handleDeskShareRTMPBroadcastStartedRequest(msg: DeskShareRTMPBroadcastStartedRequest) {
+    println("\nMeetingActor-handleDeskShareRTMPBroadcastStartedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
+
+    // only valid if not broadcasting yet
+    if (!meetingModel.isBroadcastingRTMP()) {
+      println("START broadcast ALLOWED when isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+      meetingModel.setRTMPBroadcastingUrl(msg.streamname)
+      meetingModel.broadcastingRTMPStarted()
+      meetingModel.setDesktopShareVideoWidth(msg.videoWidth)
+      meetingModel.setDesktopShareVideoHeight(msg.videoHeight)
+
+      // Notify viewers in the meeting that there's an rtmp stream to view
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname,
+        true, msg.videoWidth, msg.videoHeight, System.currentTimeMillis().toString()))
+      // println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE1 " + meetingModel.getRTMPBroadcastingUrl())
+    } else {
+      println("START broadcast NOT ALLOWED when isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+    }
+  }
+
+  private def handleDeskShareRTMPBroadcastStoppedRequest(msg: DeskShareRTMPBroadcastStoppedRequest) {
+    println("\nMeetingActor-handleDeskShareRTMPBroadcastStoppedRequest\n")
+    println("isRecording=" + meetingModel.isRecording())
+    println("recorded=" + mProps.recorded)
+
+    // only valid if currently broadcasting
+    if (meetingModel.isBroadcastingRTMP()) {
+      println("STOP broadcast ALLOWED when isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+      meetingModel.broadcastingRTMPStopped()
+
+      // notify viewers that RTMP broadcast stopped
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+        false, msg.videoWidth, msg.videoHeight, System.currentTimeMillis().toString()))
+      println("DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE")
+    } else {
+      println("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
+    }
+  }
+
+  private def handleDeskShareGetDeskShareInfoRequest(msg: DeskShareGetDeskShareInfoRequest): Unit = {
+
+    log.info("\n" + msg.conferenceName + "isBroadcasting=" + meetingModel.isBroadcastingRTMP())
+    if (meetingModel.isBroadcastingRTMP()) {
+      // if the meeting has an ongoing WebRTC Deskshare session, send a notification
+      outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, meetingModel.getRTMPBroadcastingUrl(),
+        true, meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight()))
+    }
   }
 
 }
