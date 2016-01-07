@@ -43,8 +43,8 @@ repositories {
 
 dependencies {   
   //redis
-  compile "redis.clients:jedis:2.7.2"
-  compile 'org.apache.commons:commons-pool2:2.3'
+    compile 'redis.clients:jedis:2.7.2'
+    compile 'org.apache.commons:commons-pool2:2.3'
   
 	compile 'commons-lang:commons-lang:2.5'
 	compile 'commons-io:commons-io:2.4'
@@ -52,7 +52,8 @@ dependencies {
 	compile 'commons-httpclient:commons-httpclient:3.1'
 	
 	compile 'org.bigbluebutton:bbb-common-message:0.0.16-SNAPSHOT'
-	
+	compile 'com.zaxxer:nuprocess:1.0.4'
+
   // Logging
   // Commenting out as it results in build failure (ralam - may 11, 2014)
   //compile 'ch.qos.logback:logback-core:1.0.9@jar'
@@ -64,7 +65,7 @@ dependencies {
 
 	//junit
 	compile 'junit:junit:4.8.2'
-	
+
 	// Logging
 /**** UNCOMMENT WHEN you want to run gradle test
 	compile 'ch.qos.logback:logback-core:1.0.13@jar'

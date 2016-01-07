@@ -1,10 +1,13 @@
 Template.slide.rendered = ->
-  currentSlide = getCurrentSlideDoc()
+  reactOnSlideChange(@)
+
+@reactOnSlideChange =  =>
+  currentSlide = BBB.getCurrentSlide("slide.rendered")
 
   pic = new Image()
   pic.onload = ->
-    setInSession 'slideOriginalWidth', this.width
-    setInSession 'slideOriginalHeight', this.height
+    setInSession 'slideOriginalWidth', @width
+    setInSession 'slideOriginalHeight', @height
     $(window).resize( ->
       # redraw the whiteboard to adapt to the resized window
       if !$('.panel-footer').hasClass('ui-resizable-resizing') # not in the middle of resizing the message input
@@ -14,13 +17,15 @@ Template.slide.rendered = ->
       createWhiteboardPaper (wpm) ->
         displaySlide wpm
   pic.src = currentSlide?.slide?.img_uri
+  return ""
 
 @createWhiteboardPaper = (callback) =>
+  # console.log "CREATING WPM"
   @whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper')
   callback(@whiteboardPaperModel)
 
 @displaySlide = (wpm) ->
-  currentSlide = getCurrentSlideDoc()
+  currentSlide = BBB.getCurrentSlide("displaySlide")
 
   wpm.create()
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'))
@@ -32,7 +37,7 @@ Template.slide.rendered = ->
 
   return if Meteor.WhiteboardCleanStatus.findOne({in_progress: true})?
 
-  currentSlide = getCurrentSlideDoc()
+  currentSlide = BBB.getCurrentSlide("manuallyDisplayShapes")
   wpm = @whiteboardPaperModel
   shapes = Meteor.Shapes.find({whiteboardId: currentSlide?.slide?.id}).fetch()
   for s in shapes
@@ -90,9 +95,7 @@ Template.slide.rendered = ->
 
 Template.slide.helpers
   updatePointerLocation: (pointer) ->
-    if whiteboardPaperModel?
-      wpm = whiteboardPaperModel
-      wpm?.moveCursor(pointer.x, pointer.y)
+    whiteboardPaperModel?.moveCursor(pointer.x, pointer.y)
 
 #### SHAPE ####
 Template.shape.rendered = ->

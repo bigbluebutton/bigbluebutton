@@ -29,7 +29,6 @@ body {
 }
 
 .component {
-  .radius;
   background: extract(@white, 1);
   border: 1px solid extract(@lightGrey, 3);
   float: left;
@@ -40,13 +39,26 @@ body {
 }
 
 @media @mobile-portrait {
-  .hamburgerToggledOn .unreadChat {
+  .menuToggledOn .unreadChat {
     display: none;
   }
 }
 
 .navbarButton {
   color: #469DCF;
+  &:hover, &:focus {
+    i {
+      color: #2A5E7C;
+    }
+  }
+  @media @phone-portrait-with-keyboard, @phone-portrait, @phone-landscape {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+  @media @tablet-portrait-with-keyboard, @tablet-portrait, @tablet-landscape {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
   .unreadChat {
     position: absolute;
     z-index: 1;
@@ -67,17 +79,44 @@ body {
   }
 
   i {
-    @media @phone-landscape {
-      font-size: 29px;
-    }
-    @media @desktop-portrait, @desktop-landscape, @tablet-landscape {
-      font-size: 30px;
-    }
+
+    // phone
     @media @phone-portrait-with-keyboard, @phone-portrait {
-      font-size: 35px;
+      font-size: 42px;
     }
+    @media @phone-landscape {
+      &.ion-navicon {
+        font-size: 35px;
+      }
+      &:not(.ion-navicon) {
+        font-size: 29px;
+      }
+    }
+
+    // tablet
     @media @tablet-portrait-with-keyboard, @tablet-portrait {
-      font-size: 40px;
+      font-size: 47px;
+    }
+    @media @tablet-landscape {
+      &.ion-navicon {
+        font-size: 37px;
+      }
+      &:not(.ion-navicon) {
+        font-size: 30px;
+      }
+    }
+
+    // desktop
+    @media @desktop-landscape {
+      &.ion-navicon {
+        font-size: 34px;
+      }
+      &:not(.ion-navicon) {
+        font-size: 30px;
+      }
+    }
+    @media @desktop-portrait {
+      font-size: 35px;
     }
   }
 }
@@ -181,8 +220,8 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     position: absolute;
+    color: extract(@darkGrey, 1);
     @media @mobile-portrait-with-keyboard, @mobile-portrait {
-      color: extract(@white, 1);
       margin-left: auto;
       margin-right: auto;
     }
@@ -196,7 +235,6 @@ body {
       padding-top: 27.5px; // half the height
       font-size: 21px;
     }
-
     @media @tablet-landscape {
       font-size: 18px;
       height: 50px;
@@ -216,9 +254,7 @@ body {
       height: 50px;
       padding-top: 25px; // half the height
     }
-
     @media @landscape, @desktop-portrait {
-      color: extract(@darkGrey, 1);
       padding-left: 15px;
       padding-right: 15px;
     }
@@ -313,7 +349,7 @@ body {
   font-weight: bold;
   line-height: 2em;
   margin: 0;
-
+  color: extract(@darkGrey, 1);
   @media @tablet-landscape {
     font-size: 18px;
     height: 50px;
@@ -332,18 +368,15 @@ body {
   }
 
   @media @mobile-portrait, @mobile-portrait-with-keyboard {
-    .linear-gradient(rgb(72,76,85), rgb(65,68,77));
-    color: white;
+    background-color: white;
     height: 50px;
   }
   @media @desktop-portrait {
     background-color: white;
     padding-top: 10px;
-    color: extract(@darkGrey, 1);
   }
   @media @landscape {
     border-bottom: 1px solid extract(@lightGrey, 1);
-    color: extract(@darkGrey, 1);
     padding-bottom: 5px;
     padding-top: 5px;
   }
@@ -378,12 +411,6 @@ body {
         background-color: black;
         opacity: 0;
         cursor: pointer;
-        @media @landscape, @desktop-portrait {
-          top: 50px;
-        }
-        @media @mobile-portrait-with-keyboard, @mobile-portrait {
-          top: 110px;
-        }
       }
     }
   }
@@ -412,8 +439,8 @@ body {
 }
 
 .slideButton {
-  padding: 0px !important;
-  line-height: 50px !important;
+  padding: 0px;
+  line-height: 50px;
 
   @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
     display: block;
@@ -424,12 +451,12 @@ body {
     margin-top: 0;
     margin-bottom: 0;
     &:hover {
-      background-color: extract(@lightGrey, 1);
+      background-color: white;
       span{
-        color: #3B97D3;
+        color: #788897;
       }
     }
-    i{
+    i {
       margin-left: 5%;
       color: #3B97D3;
     }
@@ -532,12 +559,6 @@ body {
 
 .signOutIcon {
   @media @landscape {
-    &:hover {
-      color: #2A5E7C;
-    }
-    &:focus {
-      color: #2A5E7C;
-    }
     height: 28px;
     width: 75px;
     margin-left: 10px;
@@ -595,21 +616,11 @@ body {
 }
 
 .toggleUserlistButton, .toggleMenuButton {
-  z-index: 1001;
-}
-
-.toggleUserlistButton, .toggleMenuButton {
   outline: none;
 }
 
 .settingsIcon {
   @media @landscape {
-    &:hover {
-      color: #2A5E7C;
-    }
-    &:focus {
-      color: #2A5E7C;
-    }
     width: 57px;
     margin-right: 5px;
   }
@@ -750,7 +761,6 @@ body {
 
 @media @desktop-portrait {
   .userlistMenu {
-    z-index: 1000;
     position: fixed;
     left: -400px;
     width: 400px !important; // overrides any width value set manually in landscape
@@ -759,7 +769,6 @@ body {
     }
   }
   .settingsMenu {
-    z-index: 1000;
     position: fixed;
     right: -400px;
     width: 400px;
@@ -771,6 +780,7 @@ body {
 
 .userlistMenu {
   height: 100%;
+  z-index: 1000;
   @media @tablet-landscape {
     width: 200px;
   }
@@ -783,7 +793,6 @@ body {
   @media @mobile-portrait-with-keyboard, @mobile-portrait {
     @userListMenuPortaitWidth: (2/3 * 100vw);
 
-    z-index: 1000;
     position: fixed;
     left: -@userListMenuPortaitWidth;
     width: @userListMenuPortaitWidth;
@@ -885,12 +894,7 @@ body {
   opacity: 0;
   z-index: 999;
   cursor: pointer;
-  @media @desktop-portrait {
-    top: 50px;
-  }
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    top: 50px;
-  }
+  top: 0px;
   @media @landscape {
     display: none;
   }
@@ -909,7 +913,7 @@ body {
     opacity: 0;
   }
   100% {
-    opacity: 0.5;
+    opacity: 0.8;
   }
 }
 
@@ -919,7 +923,6 @@ body {
   }
 }
 
-// same as Sled's left drawer except for animations
 .left-drawer {
   z-index: 1000;
   position: fixed;
@@ -928,7 +931,6 @@ body {
   height: 100%;
 }
 
-// same as Sled's right drawer except for animations
 .right-drawer {
   z-index: 1000;
   position: fixed;
@@ -937,160 +939,6 @@ body {
   .linear-gradient(rgb(65,68,77), rgb(58,60,69));
   width: 60vw;
 }
-
-.leftHamburgerButton, .rightHamburgerButton {
-  span {
-    &::before {
-      top: -225%;
-    }
-    &::before, &::after {
-      background-color: inherit;
-      content: '';
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      left: 0;
-    }
-    &::after {
-      bottom: -225%;
-    }
-    background-color: inherit;
-    height: 10%;
-    position: absolute;
-    left: 15%;
-    right: 15%;
-    top: 45%;
-  }
-}
-
-.leftHamburgerButton {
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    span {
-      &::before {
-        transform-origin: top right;
-        -moz-transform-origin: top right;
-        -webkit-transform-origin: top right;
-        -ms-transform-origin: top right;
-        -o-transform-origin: top right;
-
-        transition: width 0.3s, transform 0.3s, top 0.3s;
-        -moz-transition: width 0.3s, -moz-transform 0.3s, top 0.3s;
-        -webkit-transition: width 0.3s, -webkit-transform 0.3s, top 0.3s;
-        -o-transition: width 0.3s, -o-transform 0.3s, top 0.3s;
-      }
-      &::after {
-        transform-origin: bottom right;
-        -moz-transform-origin: bottom right;
-        -webkit-transform-origin: bottom right;
-        -ms-transform-origin: bottom right;
-        -o-transform-origin: bottom right;
-
-        transition: width 0.3s, transform 0.3s, bottom 0.3s;
-        -moz-transition: width 0.3s, -moz-transform 0.3s, bottom 0.3s;
-        -webkit-transition: width 0.3s, -webkit-transform 0.3s, bottom 0.3s;
-        -ms-transition: width 0.3s, -ms-transform 0.3s, bottom 0.3s;
-        -o-transition: width 0.3s, -o-transform 0.3s, bottom 0.3s;
-      }
-      transition: transform 0.3s;
-      -moz-transition: -moz-transform 0.3s;
-      -webkit-transition: -webkit-transform 0.3s;
-      -o-transition: -o-transform 0.3s;
-    }
-    &.hamburgerToggledOn span {
-      &::before {
-        transform: translateY(50%) translateX(95%) rotate(45deg);
-        -moz-transform: translateY(50%) translateX(95%) rotate(45deg);
-        -webkit-transform: translateY(50%) translateX(95%) rotate(45deg);
-        -ms-transform: translateY(50%) translateX(95%) rotate(45deg);
-        -o-transform: translateY(50%) translateX(95%) rotate(45deg);
-        top: 0px;
-      }
-      &::before, &::after {
-        width: 55%;
-      }
-      &::after {
-        transform: translateY(-50%) translateX(95%) rotate(-45deg);
-        -moz-transform: translateY(-50%) translateX(95%) rotate(-45deg);
-        -webkit-transform: translateY(-50%) translateX(95%) rotate(-45deg);
-        -ms-transform: translateY(-50%) translateX(95%) rotate(-45deg);
-        -o-transform: translateY(-50%) translateX(95%) rotate(-45deg);
-        bottom: 0px;
-      }
-      transform: rotate(0.5turn);
-      -moz-transform: rotate(0.5turn);
-      -webkit-transform: rotate(0.5turn);
-      -ms-transform: rotate(0.5turn);
-      -o-transform: rotate(0.5turn);
-    }
-  }
-}
-
-.rightHamburgerButton {
-  @media @mobile-portrait{
-    display: none;
-  }
-
-  @media @mobile-portrait-with-keyboard, @mobile-portrait {
-    span {
-      &::before {
-        transform-origin: top left;
-        -moz-transform-origin: top left;
-        -webkit-transform-origin: top left;
-        -ms-transform-origin: top left;
-        -o-transform-origin: top left;
-
-        transition: width 0.3s, transform 0.3s, top 0.3s;
-        -moz-transition: width 0.3s, -moz-transform 0.3s, top 0.3s;
-        -webkit-transition: width 0.3s, -webkit-transform 0.3s, top 0.3s;
-        -o-transition: width 0.3s, -o-transform 0.3s, top 0.3s;
-      }
-      &::after {
-        transform-origin: bottom left;
-        -moz-transform-origin: bottom left;
-        -webkit-transform-origin: bottom left;
-        -ms-transform-origin: bottom left;
-        -o-transform-origin: bottom left;
-
-        transition: transform 0.3s, width 0.3s, bottom 0.3s;
-        -moz-transition: -moz-transform 0.3s, width 0.3s, bottom 0.3s;
-        -webkit-transition: -webkit-transform 0.3s, width 0.3s, bottom 0.3s;
-        -ms-transition: -ms-transform 0.3s, width 0.3s, bottom 0.3s;
-        -o-transition: -o-transform 0.3s, width 0.3s, bottom 0.3s;
-      }
-      transition: transform 0.3s;
-      -moz-transition: -moz-transform 0.3s;
-      -webkit-transition: -webkit-transform 0.3s;
-      -o-transition: -o-transform 0.3s;
-    }
-    &.hamburgerToggledOn span {
-      &::before {
-        transform: translateY(53%) translateX(-20%) rotate(-45deg);
-        -moz-transform: translateY(53%) translateX(-20%) rotate(-45deg);
-        -webkit-transform: translateY(53%) translateX(-20%) rotate(-45deg);
-        -ms-transform: translateY(53%) translateX(-20%) rotate(-45deg);
-        -o-transform: translateY(53%) translateX(-20%) rotate(-45deg);
-        top: 0;
-      }
-      &::before, &::after {
-        width: 55%;
-      }
-      &::after {
-        transform: translateY(-53%) translateX(-20%) rotate(45deg);
-        -moz-transform: translateY(-53%) translateX(-20%) rotate(45deg);
-        -webkit-transform: translateY(-53%) translateX(-20%) rotate(45deg);
-        -ms-transform: translateY(-53%) translateX(-20%) rotate(45deg);
-        -o-transform: translateY(-53%) translateX(-20%) rotate(45deg);
-        bottom: 0;
-      }
-      transform: rotate(0.5turn);
-      -moz-transform: rotate(0.5turn);
-      -webkit-transform: rotate(0.5turn);
-      -ms-transform: rotate(0.5turn);
-      -o-transform: rotate(0.5turn);
-    }
-  }
-}
-
 
 /*********************************/
 /*Loading Spinning Bar's Styling */

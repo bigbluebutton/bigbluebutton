@@ -58,20 +58,17 @@ Template.header.events
     else
       if $('.settingsMenu').hasClass('menuOut')
         toggleSettingsMenu()
-        toggleRightHamburderIcon()
       else
         toggleShield()
       toggleUserlistMenu()
-      toggleLeftHamburderIcon()
 
   "click .toggleMenuButton": (event) ->
     if $('.userlistMenu').hasClass('menuOut')
       toggleUserlistMenu()
-      toggleLeftHamburderIcon()
     else
       toggleShield()
+    $('.toggleMenuButton').blur()
     toggleSettingsMenu()
-    toggleRightHamburderIcon()
 
   "click .btn": (event) ->
     $(".ui-tooltip").hide()
@@ -80,7 +77,6 @@ Template.menu.events
   'click .slideButton': (event) ->
     toggleShield()
     toggleSettingsMenu()
-    toggleRightHamburderIcon()
     $('.slideButton').blur()
 
   'click .toggleChatButton': (event) ->
@@ -137,7 +133,12 @@ Template.main.rendered = ->
     toggleSlidingMenu()
 
   if Meteor.config.app.autoJoinAudio
-    onAudioJoinHelper()
+    if Meteor.config.app.skipCheck
+      joinVoiceCall @, isListenOnly: Meteor.config.app.listenOnly
+    else
+      $("#settingsModal").foundation('reveal', 'open')
+      if Meteor.config.app.listenOnly
+        $('#joinMicrophone').prop('disabled', true)
 
 Template.main.events
   'click .shield': (event) ->
@@ -192,14 +193,14 @@ Template.main.gestures
           $('.shield').css('opacity', '')
           $('.left-drawer').removeClass('menuOut')
           $('.left-drawer').css('transform', '')
-          $('.toggleUserlistButton').removeClass('hamburgerToggledOn')
+          $('.toggleUserlistButton').removeClass('menuToggledOn')
           $('.shield').removeClass('darken') # in case it was opened by clicking a button
         else
           $('.left-drawer').css('transform', 'translateX(' + leftDrawerWidth + 'px)')
           $('.shield').css('opacity', 0.5)
           $('.left-drawer').addClass('menuOut')
           $('.left-drawer').css('transform', '')
-          $('.toggleUserlistButton').addClass('hamburgerToggledOn')
+          $('.toggleUserlistButton').addClass('menuToggledOn')
 
       if panIsValid and
       menuPanned is 'right' and
@@ -211,14 +212,14 @@ Template.main.gestures
           $('.right-drawer').css('transform', 'translateX(' + screenWidth + 'px)')
           $('.right-drawer').removeClass('menuOut')
           $('.right-drawer').css('transform', '')
-          $('.toggleMenuButton').removeClass('hamburgerToggledOn')
+          $('.toggleMenuButton').removeClass('menuToggledOn')
           $('.shield').removeClass('darken') # in case it was opened by clicking a button
         else
           $('.shield').css('opacity', 0.5)
           $('.right-drawer').css('transform', 'translateX(' + (screenWidth - $('.right-drawer').width()) + 'px)')
           $('.right-drawer').addClass('menuOut')
           $('.right-drawer').css('transform', '')
-          $('.toggleMenuButton').addClass('hamburgerToggledOn')
+          $('.toggleMenuButton').addClass('menuToggledOn')
 
       $('.left-drawer').addClass('userlistMenu')
       $('.userlistMenu').removeClass('left-drawer')
@@ -296,7 +297,6 @@ Template.main.gestures
 
         if $('.settingsMenu').hasClass('menuOut')
           toggleSettingsMenu()
-          toggleRightHamburderIcon()
 
         $('.left-drawer').css('transform', 'translateX(' + (initTransformValue + event.deltaX) + 'px)')
 
@@ -313,7 +313,6 @@ Template.main.gestures
 
         if $('.userlistMenu').hasClass('menuOut')
           toggleUserlistMenu()
-          toggleLeftHamburderIcon()
 
         $('.right-drawer').css('transform', 'translateX(' + (initTransformValue + event.deltaX) + 'px)')
 

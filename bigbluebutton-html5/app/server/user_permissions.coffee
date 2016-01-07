@@ -42,6 +42,10 @@ moderator =
   setEmojiStatus: true
   clearEmojiStatus: true
 
+  #user control
+  kickUser: true
+  setPresenter: true
+
 # holds the values for whether the viewer user is allowed to perform an action (true)
 # or false if not allowed. Some actions have dynamic values depending on the current lock settings
 viewer = (meetingId, userId) ->

@@ -28,7 +28,7 @@ class BreakoutRoomModel {
   def getBreakoutRoom(id: String): Option[BreakoutRoom] = {
     rooms.get(id)
   }
-  
+
   def getRooms() {
     rooms
   }

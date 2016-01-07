@@ -1,8 +1,12 @@
 <template name="whiteboard">
   <div id="{{id}}" {{visibility name}} class="component">
     {{#if getCurrentSlide}}
-      {{> slide}}
+      {{>slide}}
+      {{forceSlideShow}}
+    {{else}}
+      {{clearSlide}}
     {{/if}}
+
     <div id="whiteboard-container" class="{{whiteboardSize}}">
       <div id="whiteboard-paper">
       </div>
@@ -30,13 +34,13 @@
           <i class="ion-android-hand"></i>
         </button>
       </div>
-
       {{#if isMobile}}
         {{> makeButton btn_class="soaringButton fullscreenButton whiteboardFullscreenButton" i_class="ion-arrow-expand"}}
       {{/if}}
-
-      {{> whiteboardControls}}
     </div>
+    {{#if isCurrentUserPresenter}}
+      {{> whiteboardControls}}
+    {{/if}}
     {{#if isPollStarted}}
       {{> polling}}
     {{/if}}
@@ -52,6 +56,8 @@
         {{> presenterUploaderControl}}
       {{/unless}}
     </div>
+    <div class="whiteboard-buttons-right">
+    </div>
     <div class="whiteboard-buttons-center">
       {{#if isCurrentUserPresenter}}
         <div class="whiteboard-buttons-slide">
@@ -62,8 +68,6 @@
           {{> makeButton btn_class="next" i_class="ion-arrow-right-a" rel="tooltip" data_placement="top" title="Next"}}
         </div>
       {{/if}}
-    </div>
-    <div class="whiteboard-buttons-right">
     </div>
   </div>
 </template>
@@ -85,17 +89,14 @@
           <i class="presenter-uploader-dropzone-icon ion-archive"></i>
           <span class="presenter-uploader-dropzone-label">Drop files here <br/>or click to upload</span>
         </div>
-        <div class="presenter-uploader-tip">
-          Upload any office document or Portable Document Format (PDF) file.
-          <br/>
-          For best results upload PDF.
-        </div>
         {{> makeButton btn_class="presenter-uploader-control-btn js-close" i_class="ion-ios-close-outline"}}
+        <div class="presenter-uploader-tip">
+          UPLOAD ANY OFFICE DOCUMENT OR PORTABLE DOCUMENT FORMAT (PDF) FILE.
+          <br/>
+          FOR BEST RESULTS UPLOAD PDF.
+        </div>
       </div>
-
-      {{#unless isOpen}}
-        {{> makeButton btn_class="presenter-uploader-control-btn js-open" i_class="ion-ios-upload-outline"}}
-      {{/unless}}
+      {{> makeButton btn_class="presenter-uploader-control-btn js-open" i_class="ion-ios-upload-outline"}}
     </div>
   {{/if}}
 </template>

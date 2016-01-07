@@ -66,9 +66,10 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
 
     breakoutModel.getAssignedUsers(msg.breakoutRoomId) foreach { users =>
-      users.foreach { u => 
+      users.foreach { u =>
         log.debug("## Sending Join URL for users: {}", u);
-        sendJoinURL(u, msg.breakoutRoomId) }
+        sendJoinURL(u, msg.breakoutRoomId)
+      }
     }
   }
 

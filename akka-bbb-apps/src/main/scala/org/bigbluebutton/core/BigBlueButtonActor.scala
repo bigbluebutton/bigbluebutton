@@ -13,7 +13,6 @@ import org.bigbluebutton.core.api.ValidateAuthTokenTimedOut
 import scala.util.Success
 import scala.util.Failure
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.recorders.VoiceEventRecorder
 import org.bigbluebutton.core.recorders.events.VoiceUserJoinedRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceUserLeftRecordEvent
 import org.bigbluebutton.core.recorders.events.VoiceUserLockedRecordEvent
@@ -46,7 +45,7 @@ class BigBlueButtonActor(val system: ActorSystem,
     case msg: PubSubPing => handlePubSubPingMessage(msg)
     case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
-    //    case _ => // do nothing
+    // case _ => // do nothing
   }
 
   private def handleValidateAuthToken(msg: ValidateAuthToken) {

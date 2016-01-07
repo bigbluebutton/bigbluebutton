@@ -130,17 +130,17 @@ object MeetingMessageToJsonConverter {
     val header = Util.buildHeader(MessageNames.GET_ALL_MEETINGS_REPLY, None)
     Util.buildJson(header, payload)
   }
-  
+
   def breakoutRoomStartedOutMessageToJson(msg: BreakoutRoomStartedOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
     payload.put("breakoutId", msg.breakout.breakoutId)
     payload.put("name", msg.breakout.name)
-    
+
     val header = Util.buildHeader(BreakoutRoomStarted.NAME, None)
     Util.buildJson(header, payload)
   }
-  
+
   def breakoutRoomJoinURLOutMessageToJson(msg: BreakoutRoomJoinURLOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
@@ -151,26 +151,25 @@ object MeetingMessageToJsonConverter {
     val header = Util.buildHeader(BreakoutRoomJoinURL.NAME, None)
     Util.buildJson(header, payload)
   }
-  
+
   def updateBreakoutUsersOutMessageToJson(msg: UpdateBreakoutUsersOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
     payload.put("breakoutId", msg.breakoutId)
     payload.put("recorded", msg.recorded)
     payload.put("users", msg.users)
-    
+
     val header = Util.buildHeader(UpdateBreakoutUsers.NAME, None)
     Util.buildJson(header, payload)
   }
-  
+
   def meetingTimeRemainingUpdateToJson(msg: MeetingTimeRemainingUpdate): String = {
-        val payload = new java.util.HashMap[String, Any]()
+    val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
     payload.put("recorded", msg.recorded)
     payload.put("timeRemaining", msg.timeRemaining)
-    
+
     val header = Util.buildHeader(TimeRemainingUpdate.NAME, None)
     Util.buildJson(header, payload)
   }
 }
-  

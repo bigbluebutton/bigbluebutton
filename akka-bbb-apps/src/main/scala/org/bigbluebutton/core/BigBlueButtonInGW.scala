@@ -7,7 +7,6 @@ import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.recorders.VoiceEventRecorder
 import akka.actor.ActorSystem
 import org.bigbluebutton.core.apps.AnnotationVO
 import akka.pattern.{ ask, pipe }
