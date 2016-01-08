@@ -114,6 +114,11 @@
 			baseTabIndex="501"
 			maxFileSize="30"
 		/>
+		
+		<module name="CaptionModule" url="http://HOST/client/CaptionModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="UsersModule"
+		/>
 
 <!--
 		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"

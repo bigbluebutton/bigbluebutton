@@ -9,8 +9,8 @@ import org.bigbluebutton.core.api._
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util._
 import scala.concurrent.duration._
-import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp }
-import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel }
+import org.bigbluebutton.core.apps.{ PollApp, UsersApp, PresentationApp, LayoutApp, ChatApp, WhiteboardApp, CaptionApp }
+import org.bigbluebutton.core.apps.{ ChatModel, LayoutModel, UsersModel, PollModel, WhiteboardModel, CaptionModel }
 import org.bigbluebutton.core.apps.PresentationModel
 import org.bigbluebutton.core.apps.BreakoutRoomApp
 import org.bigbluebutton.core.apps.BreakoutRoomModel
@@ -79,12 +79,13 @@ class MeetingActor(val mProps: MeetingProperties,
   val wbModel = new WhiteboardModel()
   val presModel = new PresentationModel()
   val breakoutModel = new BreakoutRoomModel()
+  val captionModel = new CaptionModel()
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
   val liveMeeting = new LiveMeeting(mProps, eventBus, outGW,
     chatModel, layoutModel, meetingModel, usersModel, pollModel,
-    wbModel, presModel, breakoutModel)
+    wbModel, presModel, breakoutModel, captionModel)
 
   /**
    * Put the internal message injector into another actor so this
@@ -167,6 +168,11 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: ExtendMeetingDuration => liveMeeting.handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => liveMeeting.handleSendTimeRemainingUpdate(msg)
     case msg: EndMeeting => liveMeeting.handleEndMeeting(msg)
+
+    // Closed Caption
+    case msg: SendCaptionHistoryRequest => liveMeeting.handleSendCaptionHistoryRequest(msg)
+    case msg: UpdateCaptionOwnerRequest => liveMeeting.handleUpdateCaptionOwnerRequest(msg)
+    case msg: EditCaptionHistoryRequest => liveMeeting.handleEditCaptionHistoryRequest(msg)
 
     case _ => // do nothing
   }

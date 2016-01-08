@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.modules.caption.events.GetCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.ReceiveCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.ReceiveEditCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.ReceiveUpdateCaptionOwnerEvent;
+			import org.bigbluebutton.modules.caption.events.RequestTranscriptsEvent;
+			import org.bigbluebutton.modules.caption.events.SendEditCaptionHistoryEvent;
+			import org.bigbluebutton.modules.caption.events.SendUpdateCaptionOwnerEvent;
+			import org.bigbluebutton.modules.caption.events.StartCaptionModuleEvent;
+			import org.bigbluebutton.modules.caption.events.StopCaptionModuleEvent;
+			import org.bigbluebutton.modules.caption.managers.CaptionManager;
+			import org.bigbluebutton.modules.caption.services.CaptionService;
+		]]>
+	</mx:Script>
+	
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<ObjectBuilder generator="{CaptionManager}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{StartCaptionModuleEvent.START_CAPTION_MODULE_EVENT}">
+		<ObjectBuilder generator="{CaptionService}" />
+		<MethodInvoker generator="{CaptionManager}" method="openWindow" />
+	</EventHandlers>
+	
+	<EventHandlers type="{StopCaptionModuleEvent.STOP_CAPTION_MODULE_EVENT}">
+		<MethodInvoker generator="{CaptionManager}" method="closeWindow" />
+	</EventHandlers>
+	
+	<EventHandlers type="{RequestTranscriptsEvent.REQUEST_TRANSCRIPTS_EVENT}">
+		<MethodInvoker generator="{CaptionManager}" method="requestTranscripts" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{GetCaptionHistoryEvent.GET_CAPTION_HISTORY_EVENT}">
+		<MethodInvoker generator="{CaptionService}" method="getCaptionHistory" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ReceiveCaptionHistoryEvent.RECEIVE_CAPTION_HISTORY_EVENT}">
+		<MethodInvoker generator="{CaptionManager}" method="receiveCaptionHistory" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{SendUpdateCaptionOwnerEvent.SEND_UPDATE_CAPTION_OWNER_EVENT}">
+		<MethodInvoker generator="{CaptionService}" method="sendUpdateCaptionOwner" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ReceiveUpdateCaptionOwnerEvent.RECEIVE_UPDATE_CAPTION_OWNER_EVENT}">
+		<MethodInvoker generator="{CaptionManager}" method="receiveUpdateCaptionOwner" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{SendEditCaptionHistoryEvent.SEND_EDIT_CAPTION_HISTORY}">
+		<MethodInvoker generator="{CaptionService}" method="sendEditCaptionHistory" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ReceiveEditCaptionHistoryEvent.RECEIVE_EDIT_CAPTION_HISTORY}">
+		<MethodInvoker generator="{CaptionManager}" method="receiveEditCaptionHistory" arguments="{event}" />
+	</EventHandlers>
+</EventMap>

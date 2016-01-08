@@ -495,7 +495,12 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(voiceConfId, new VoiceConfRecordingStartedMessage(voiceConfId, recordingFile, recording, timestamp)))
   }
 
-  // Polling
+  /**
+   * *******************************************************************
+   * Message Interface for Polling
+   * *****************************************************************
+   */
+
   def votePoll(meetingId: String, userId: String, pollId: String, questionId: Integer, answerId: Integer) {
     eventBus.publish(BigBlueButtonEvent(meetingId, new RespondToPollRequest(meetingId, userId, pollId, questionId, answerId)))
   }
@@ -514,5 +519,23 @@ class BigBlueButtonInGW(
     } else {
       eventBus.publish(BigBlueButtonEvent(meetingId, new HidePollResultRequest(meetingId, requesterId, pollId)))
     }
+  }
+
+  /**
+   * *******************************************************************
+   * Message Interface for Caption
+   * *****************************************************************
+   */
+
+  def sendCaptionHistory(meetingID: String, requesterID: String) {
+    bbbActor ! new SendCaptionHistoryRequest(meetingID, requesterID)
+  }
+
+  def updateCaptionOwner(meetingID: String, locale: String, ownerID: String) {
+    bbbActor ! new UpdateCaptionOwnerRequest(meetingID, locale, ownerID)
+  }
+
+  def editCaptionHistory(meetingID: String, userID: String, startIndex: Integer, endIndex: Integer, locale: String, text: String) {
+    bbbActor ! new EditCaptionHistoryRequest(meetingID, userID, startIndex, endIndex, locale, text)
   }
 }

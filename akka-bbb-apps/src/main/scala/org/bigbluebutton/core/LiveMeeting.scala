@@ -20,6 +20,8 @@ import akka.actor.ActorContext
 import akka.actor.ActorSystem
 import java.util.concurrent.TimeUnit
 import akka.event.Logging
+import org.bigbluebutton.core.apps.CaptionApp
+import org.bigbluebutton.core.apps.CaptionModel
 
 class LiveMeeting(val mProps: MeetingProperties,
   val eventBus: IncomingEventBus,
@@ -31,10 +33,11 @@ class LiveMeeting(val mProps: MeetingProperties,
   val pollModel: PollModel,
   val wbModel: WhiteboardModel,
   val presModel: PresentationModel,
-  val breakoutModel: BreakoutRoomModel)(implicit val context: ActorContext)
+  val breakoutModel: BreakoutRoomModel,
+  val captionModel: CaptionModel)(implicit val context: ActorContext)
     extends UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
-    with BreakoutRoomApp {
+    with BreakoutRoomApp with CaptionApp {
 
   val log = Logging(context.system, getClass)
 

@@ -11,6 +11,7 @@ import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage
 import org.bigbluebutton.core.pubsub.senders.MeetingMessageToJsonConverter
 import org.bigbluebutton.core.pubsub.senders.PesentationMessageToJsonConverter
+import org.bigbluebutton.core.pubsub.senders.CaptionMessageToJsonConverter
 import org.bigbluebutton.common.messages.GetPresentationInfoReplyMessage
 import org.bigbluebutton.common.messages.PresentationRemovedMessage
 import org.bigbluebutton.core.apps.Page
@@ -129,6 +130,9 @@ class MessageSenderActor(val service: MessageSender)
     case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsersOutMessage(msg)
     case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
 
+    case msg: SendCaptionHistoryReply => handleSendCaptionHistoryReply(msg)
+    case msg: UpdateCaptionOwnerReply => handleUpdateCaptionOwnerReply(msg)
+    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
     case _ => // do nothing
   }
 
@@ -682,5 +686,22 @@ class MessageSenderActor(val service: MessageSender)
   private def handleMeetingTimeRemainingUpdate(msg: MeetingTimeRemainingUpdate) {
     val json = MeetingMessageToJsonConverter.meetingTimeRemainingUpdateToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleSendCaptionHistoryReply(msg: SendCaptionHistoryReply) {
+    val json = CaptionMessageToJsonConverter.sendCaptionHistoryReplyToJson(msg)
+    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
+  }
+
+  private def handleUpdateCaptionOwnerReply(msg: UpdateCaptionOwnerReply) {
+    val json = CaptionMessageToJsonConverter.updateCaptionOwnerReplyToJson(msg)
+    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
+  }
+
+  private def handleEditCaptionHistoryReply(msg: EditCaptionHistoryReply) {
+    println("handleEditCaptionHistoryReply")
+    val json = CaptionMessageToJsonConverter.editCaptionHistoryReplyToJson(msg)
+    println(json)
+    service.send(MessagingConstants.FROM_CAPTION_CHANNEL, json)
   }
 }
