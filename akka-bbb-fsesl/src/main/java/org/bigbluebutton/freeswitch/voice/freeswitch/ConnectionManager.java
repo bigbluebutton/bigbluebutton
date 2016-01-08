@@ -140,14 +140,6 @@ public class ConnectionManager  {
 		}
 	}
 
-	public void record(DeskShareRecordCommand dsrc) {
-		Client c = manager.getESLClient();
-		if (c.canSend()) {
-			EslMessage response = c.sendSyncApiCommand(dsrc.getCommand(), dsrc.getCommandArgs());
-			dsrc.handleResponse(response, conferenceEventListener);
-		}
-	}
-
 	public void broadcastRTMP(DeskShareBroadcastRTMPCommand rtmp) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {

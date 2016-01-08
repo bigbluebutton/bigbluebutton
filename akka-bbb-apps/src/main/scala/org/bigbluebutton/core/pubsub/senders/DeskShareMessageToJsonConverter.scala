@@ -1,8 +1,6 @@
 package org.bigbluebutton.core.pubsub.senders
 
 import org.bigbluebutton.core.api._
-import org.bigbluebutton.common.messages.DeskShareStartRecordingEventMessage
-import org.bigbluebutton.common.messages.DeskShareStopRecordingEventMessage
 import org.bigbluebutton.common.messages.DeskShareStartRTMPBroadcastEventMessage
 import org.bigbluebutton.common.messages.DeskShareStopRTMPBroadcastEventMessage
 import org.bigbluebutton.common.messages.DeskShareNotifyViewersRTMPEventMessage
@@ -20,18 +18,6 @@ object DeskShareMessageToJsonConverter {
     println("^^^^^getDeskShareNotifyASingleViewerToJson in DeskShareMessageToJsonConverter")
     val newMsg = new DeskShareNotifyASingleViewerEventMessage(msg.meetingID, msg.userID,
       msg.streamPath, msg.broadcasting, msg.videoWidth, msg.videoHeight, TimestampGenerator.getCurrentTime.toString())
-    newMsg.toJson()
-  }
-
-  def getDeskShareStartRecordingToJson(msg: DeskShareStartRecording): String = {
-    println("^^^^^getDeskShareStartRecordingToJson in DeskShareMessageToJsonConverter")
-    val newMsg = new DeskShareStartRecordingEventMessage(msg.conferenceName, msg.filename, msg.timestamp)
-    newMsg.toJson()
-  }
-
-  def getDeskShareStopRecordingToJson(msg: DeskShareStopRecording): String = {
-    println("^^^^^getDeskShareStopRecordingToJson in DeskShareMessageToJsonConverter")
-    val newMsg = new DeskShareStopRecordingEventMessage(msg.conferenceName, msg.filename, msg.timestamp)
     newMsg.toJson()
   }
 

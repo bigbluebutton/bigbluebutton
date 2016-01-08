@@ -113,8 +113,6 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
     case msg: WhiteboardEnabledEvent => handleWhiteboardEnabledEvent(msg)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
-    case msg: DeskShareStartRecording => handleDeskShareStartRecording(msg)
-    case msg: DeskShareStopRecording => handleDeskShareStopRecording(msg)
     case msg: DeskShareStartRTMPBroadcast => handleDeskShareStartRTMPBroadcast(msg)
     case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
     case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
@@ -126,18 +124,6 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   private def handleDeskShareHangUp(msg: DeskShareHangUp) {
     println("_____publish to FS__handleDeskShareHangUp____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareHangUpToJson(msg)
-    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
-  }
-
-  private def handleDeskShareStartRecording(msg: DeskShareStartRecording) {
-    println("_____publish to FS__handleDeskShareStartRecording____________")
-    val json = DeskShareMessageToJsonConverter.getDeskShareStartRecordingToJson(msg)
-    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
-  }
-
-  private def handleDeskShareStopRecording(msg: DeskShareStopRecording) {
-    println("_____publish to FS__handleDeskShareStopRecording____________")
-    val json = DeskShareMessageToJsonConverter.getDeskShareStopRecordingToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 

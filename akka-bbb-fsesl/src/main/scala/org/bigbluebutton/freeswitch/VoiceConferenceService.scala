@@ -14,11 +14,6 @@ import org.bigbluebutton.common.messages.DeskShareRecordingStoppedEventMessage
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStartedEventMessage
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStoppedEventMessage
 
-//import org.bigbluebutton.common.messages.DeskShareViewerJoinedEventMessage
-//import org.bigbluebutton.common.messages.DeskShareViewerLeftEventMessage
-//import org.bigbluebutton.common.messages.DeskShareStartRecordingEventMessage
-//import org.bigbluebutton.common.messages.DeskShareStopRecordingEventMessage
-
 class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceService {
 
   val FROM_VOICE_CONF_SYSTEM_CHAN = "bigbluebutton:from-voice-conf:system";
