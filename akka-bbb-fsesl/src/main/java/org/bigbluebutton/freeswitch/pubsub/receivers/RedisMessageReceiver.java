@@ -11,6 +11,7 @@ import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.DeskShareStartRecordingEventMessage;
 import org.bigbluebutton.common.messages.DeskShareStartRTMPBroadcastEventMessage;
 import org.bigbluebutton.common.messages.DeskShareStopRTMPBroadcastEventMessage;
+import org.bigbluebutton.common.messages.DeskShareHangUpEventMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
 import com.google.gson.JsonObject;
@@ -73,6 +74,10 @@ public class RedisMessageReceiver {
 						  System.out.println("\n\n\nDESKSHARE_STOP_RTMP_BROADCAST_MESSAGE\n\n");
 						  processDeskShareStopRTMPBroadcastEventMessage(message);
 					  break;
+					  case DeskShareHangUpEventMessage.DESKSHARE_HANG_UP_MESSAGE:
+						  System.out.println("\nDESKSHARE_HANG_UP_MESSAGE\n");
+						  processDeskShareHangUpEventMessage(message);
+					  break;
 					}
 				}
 			}
@@ -87,6 +92,11 @@ public class RedisMessageReceiver {
 	private void processDeskShareStopRTMPBroadcastEventMessage(String json) {
 		DeskShareStopRTMPBroadcastEventMessage msg = DeskShareStopRTMPBroadcastEventMessage.fromJson(json);
 		fsApp.deskShareBroadcastRTMP(msg.conferenceName, msg.streamUrl, msg.timestamp, false);
+	}
+
+	private void processDeskShareHangUpEventMessage(String json) {
+		DeskShareHangUpEventMessage msg = DeskShareHangUpEventMessage.fromJson(json);
+		fsApp.deskShareHangUp(msg.conferenceName, msg.fsConferenceName, msg.timestamp);
 	}
 
 	private void processDeskShareStartRecordingEventMessage(String json) {

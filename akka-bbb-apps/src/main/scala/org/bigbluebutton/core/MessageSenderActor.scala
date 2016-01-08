@@ -119,7 +119,14 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: DeskShareStopRTMPBroadcast => handleDeskShareStopRTMPBroadcast(msg)
     case msg: DeskShareNotifyViewersRTMP => handleDeskShareNotifyViewersRTMP(msg)
     case msg: DeskShareNotifyASingleViewer => handleDeskShareNotifyASingleViewer(msg)
+    case msg: DeskShareHangUp => handleDeskShareHangUp(msg)
     case _ => // do nothing
+  }
+
+  private def handleDeskShareHangUp(msg: DeskShareHangUp) {
+    println("_____publish to FS__handleDeskShareHangUp____________")
+    val json = DeskShareMessageToJsonConverter.getDeskShareHangUpToJson(msg)
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 
   private def handleDeskShareStartRecording(msg: DeskShareStartRecording) {

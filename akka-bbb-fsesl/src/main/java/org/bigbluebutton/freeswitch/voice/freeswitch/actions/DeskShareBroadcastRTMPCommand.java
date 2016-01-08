@@ -46,6 +46,6 @@ public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 		//Test for Known Conference
-		System.out.println("\n\n\n\n\nBROADCAST RTMP\n\n\n\n");
+		System.out.println("\nDeskShareBroadcastRTMPCommand\n");
 	}
 }

@@ -370,6 +370,13 @@ trait UsersApp {
         outGW.send(new UserLeft(msg.meetingID, mProps.recorded, u))
 
         if (u.presenter) {
+          log.info("THE PRESENTER LEFT.")
+          if (meetingModel.isBroadcastingRTMP()) {
+            log.info("AND WAS SHARING DESKTOP")
+            val fsConferenceName = mProps.voiceBridge + "-DESKSHARE";
+            outGW.send(new DeskShareHangUp(msg.meetingID, fsConferenceName)) //TODO change meetingModel / properties?!
+
+          }
 
           /* The current presenter has left the meeting. Find a moderator and make
 	       * him presenter. This way, if there is a moderator in the meeting, there

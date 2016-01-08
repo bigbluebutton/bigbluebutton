@@ -25,15 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeskShareRecordCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeskShareBroadcastRTMPCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 
 public class FreeswitchApplication {
 
@@ -110,6 +102,11 @@ public class FreeswitchApplication {
 		queueMessage(rtmp);
 	}
 
+	public void deskShareHangUp(String voiceConfId, String fsConferenceName, String timestamp){
+		DeskShareHangUpCommand huCmd = new DeskShareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
+		System.out.println("\n______FreeswitchApplication::deskShareHangUp___" + huCmd.getCommand() + "____\n");
+		queueMessage(huCmd);
+	}
 		private void sendMessageToFreeswitch(final FreeswitchCommand command) {
 			Runnable task = new Runnable() {
 				public void run() {
@@ -138,6 +135,10 @@ public class FreeswitchApplication {
 					} else if (command instanceof DeskShareBroadcastRTMPCommand) {
 						System.out.println("^^^^(send to FS) Sending DeskShareBroadcastRTMPCommand for conference = [" + command.getRoom() + "]");
 						manager.broadcastRTMP((DeskShareBroadcastRTMPCommand)command);
+					} else if (command instanceof DeskShareHangUpCommand) {
+						DeskShareHangUpCommand cmd = (DeskShareHangUpCommand) command;
+						System.out.println("^^^^(send to FS) Sending DeskShareHangUpCommand for conference = [" + cmd.getRoom() + "]");
+						manager.hangUp(cmd);
 					} else if (command instanceof BroadcastConferenceCommand) {
 						manager.broadcast((BroadcastConferenceCommand) command);
 					}

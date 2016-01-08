@@ -137,6 +137,7 @@ case class DeskShareStartRTMPBroadcast(conferenceName: String, streamPath: Strin
 case class DeskShareStopRTMPBroadcast(conferenceName: String, streamPath: String, timestamp: String) extends IOutMessage
 case class DeskShareNotifyViewersRTMP(meetingID: String, streamPath: String, broadcasting: Boolean, videoWidth: Int, videoHeight: Int, timestamp: String) extends IOutMessage
 case class DeskShareNotifyASingleViewer(meetingID: String, userID: String, streamPath: String, broadcasting: Boolean, videoWidth: Int, videoHeight: Int) extends IOutMessage
+case class DeskShareHangUp(meetingID: String, fsConferenceName: String) extends IOutMessage
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)
