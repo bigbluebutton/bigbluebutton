@@ -29,8 +29,8 @@ class BreakoutRoomModel {
     rooms.get(id)
   }
 
-  def getRooms() {
-    rooms
+  def getRooms(): Array[BreakoutRoom] = {
+    rooms.values.toArray
   }
 
   def getAssignedUsers(breakoutId: String): Option[Vector[String]] = {

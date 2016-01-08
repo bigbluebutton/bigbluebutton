@@ -49,7 +49,7 @@ object Boot extends App with SystemConfiguration {
   outgoingEventBus.subscribe(recorderActor, "outgoingMessageChannel")
   outgoingEventBus.subscribe(newMessageSenderActor, "outgoingMessageChannel")
 
-  val bbbInGW = new BigBlueButtonInGW(system, recorderApp, msgSender)
+  val bbbInGW = new BigBlueButtonInGW(system, eventBus, outGW)
   val redisMsgReceiver = new RedisMessageReceiver(bbbInGW)
 
   val redisSubscriberActor = system.actorOf(AppsRedisSubscriberActor.props(redisMsgReceiver), "redis-subscriber")
