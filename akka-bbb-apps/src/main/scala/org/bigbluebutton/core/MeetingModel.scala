@@ -30,6 +30,14 @@ class MeetingModel {
 
   val startedOn = timeNowInMinutes;
 
+  def resetDesktopSharingParams() = {
+    broadcastingRTMP = false
+    deskShareStarted = false
+    rtmpBroadcastingUrl = ""
+    desktopShareVideoWidth = 0
+    desktopShareVideoHeight = 0
+  }
+
   def getDeskShareStarted(): Boolean = {
     return deskShareStarted
   }
