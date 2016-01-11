@@ -36,59 +36,62 @@
     path: "/html5client"
     where: "client"
     action: ->
-      meetingId = BBB.getMeetingId()
-      userId = BBB.getMyUserId()
-      authToken = BBB.getMyAuthToken()
+      if Meteor.Meetings.find().count() is 0
+        meetingId = BBB.getMeetingId()
+        userId = BBB.getMyUserId()
+        authToken = BBB.getMyAuthToken()
 
-      onErrorFunction = (error, result) ->
-        console.log "ONERRORFUNCTION"
+        onErrorFunction = (error, result) ->
+          console.log "ONERRORFUNCTION"
 
-        #make sure the user is not let through
-        Meteor.call("userLogout", meetingId, userId, authToken)
+          #make sure the user is not let through
+          Meteor.call("userLogout", meetingId, userId, authToken)
 
-        clearSessionVar()
+          clearSessionVar()
 
-        # Attempt to log back in
-        unless error?
-          window.location.href = getInSession('loginUrl') or getInSession('logoutURL')
-        return
+          # Attempt to log back in
+          unless error?
+            window.location.href = getInSession('loginUrl') or getInSession('logoutURL')
+          return
 
-      Meteor.subscribe 'chat', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
-        Meteor.subscribe 'shapes', meetingId, onReady: =>
-          Meteor.subscribe 'slides', meetingId, onReady: =>
-            Meteor.subscribe 'meetings', meetingId, onReady: =>
-              Meteor.subscribe 'presentations', meetingId, onReady: =>
-                Meteor.subscribe 'users', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
-                  Meteor.subscribe 'whiteboard-clean-status', meetingId, onReady: =>
-                    Meteor.subscribe 'bbb_poll', meetingId,  userId, authToken, onReady: =>
-                      Meteor.subscribe 'bbb_cursor', meetingId, onReady: =>
-                        # done subscribing, start rendering the client and set default settings
-                        @render('main')
-                        onLoadComplete()
+        @render('loading')
+        Meteor.subscribe 'chat', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
+          Meteor.subscribe 'shapes', meetingId, onReady: =>
+            Meteor.subscribe 'slides', meetingId, onReady: =>
+              Meteor.subscribe 'meetings', meetingId, onReady: =>
+                Meteor.subscribe 'presentations', meetingId, onReady: =>
+                  Meteor.subscribe 'users', meetingId, userId, authToken, onError: onErrorFunction, onReady: =>
+                    Meteor.subscribe 'whiteboard-clean-status', meetingId, onReady: =>
+                      Meteor.subscribe 'bbb_poll', meetingId,  userId, authToken, onReady: =>
+                        Meteor.subscribe 'bbb_cursor', meetingId, onReady: =>
+                          # done subscribing, start rendering the client and set default settings
+                          @render('main')
+                          onLoadComplete()
 
-                        handleLogourUrlError = () ->
-                          alert "Error: could not find the logoutURL"
-                          setInSession("logoutURL", document.location.hostname)
-                          return
-
-                        # obtain the logoutURL
-                        a = $.ajax({dataType: 'json', url: '/bigbluebutton/api/enter'})
-                        a.done (data) ->
-                          if data.response.logoutURL? # for a meeting with 0 users
-                            setInSession("logoutURL", data.response.logoutURL)
+                          handleLogourUrlError = () ->
+                            alert "Error: could not find the logoutURL"
+                            setInSession("logoutURL", document.location.hostname)
                             return
-                          else
-                            if data.response.logoutUrl? # for a running meeting
-                              setInSession("logoutURL", data.response.logoutUrl)
+
+                          # obtain the logoutURL
+                          a = $.ajax({dataType: 'json', url: '/bigbluebutton/api/enter'})
+                          a.done (data) ->
+                            if data.response.logoutURL? # for a meeting with 0 users
+                              setInSession("logoutURL", data.response.logoutURL)
                               return
                             else
-                              handleLogourUrlError()
+                              if data.response.logoutUrl? # for a running meeting
+                                setInSession("logoutURL", data.response.logoutUrl)
+                                return
+                              else
+                                handleLogourUrlError()
 
-                        a.fail (data, textStatus, errorThrown) ->
-                          handleLogourUrlError()
+                          a.fail (data, textStatus, errorThrown) ->
+                            handleLogourUrlError()
 
-      @render('loading')
 
+      else
+        @next()
 
   # endpoint - is the html5client running (ready to handle a user)
   @route 'meteorEndpoint',
