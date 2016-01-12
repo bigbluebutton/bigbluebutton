@@ -56,6 +56,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURLInMessage) {
+    log.debug("$$ Received RequestBreakoutJoinURLInMessage: {}", msg.userId)
     sendJoinURL(msg.userId, msg.breakoutId)
   }
 
@@ -67,7 +68,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
     breakoutModel.getAssignedUsers(msg.breakoutRoomId) foreach { users =>
       users.foreach { u =>
-        log.debug("## Sending Join URL for users: {}", u);
+        log.debug("## Sending Join URL for users: {} for breakout room {}", u, msg.breakoutRoomId);
         sendJoinURL(u, msg.breakoutRoomId)
       }
     }
@@ -88,6 +89,14 @@ trait BreakoutRoomApp extends SystemConfiguration {
     val breakoutUsers = users map { u => new BreakoutUser(u.userID, u.name) }
     eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
       new BreakoutRoomUsersUpdate(mProps.externalMeetingID, mProps.meetingID, breakoutUsers)))
+  }
+
+  def handleEndAllBreakoutRooms(msg: EndAllBreakoutRooms) {
+    breakoutModel.getRooms().foreach { room =>
+      eventBus.publish(BigBlueButtonEvent(room.id,
+        new EndMeeting(room.id)))
+    }
+
   }
 }
 

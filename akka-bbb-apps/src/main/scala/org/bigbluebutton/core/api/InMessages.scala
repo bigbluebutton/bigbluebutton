@@ -54,6 +54,8 @@ case class BreakoutRoomUsersUpdate(meetingId: String, breakoutId: String,
   users: Vector[BreakoutUser]) extends InMessage
 // Send by internal actor to tell the breakout actor to send it's list of users to the main meeting actor.    
 case class SendBreakoutUsersUpdate(meetingId: String) extends InMessage
+// Sent by user to request ending all the breakout rooms
+case class EndAllBreakoutRooms(meetingId: String) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Lock

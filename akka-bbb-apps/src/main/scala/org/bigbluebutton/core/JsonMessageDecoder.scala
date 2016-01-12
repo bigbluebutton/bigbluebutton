@@ -63,6 +63,9 @@ object JsonMessageDecoder {
       case RequestBreakoutJoinURL.NAME => {
         msg.payload.convertTo[RequestBreakoutJoinURLInMessage]
       }
+      case EndAllBreakoutRoomsRequest.NAME => {
+        msg.payload.convertTo[EndAllBreakoutRooms]
+      }
       case _ => throw MessageProcessException("Cannot parse JSON message: [" + msg + "]")
     }
   }
