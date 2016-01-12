@@ -32,3 +32,4 @@ cfs:power-queue
 cfs:reactive-list
 cfs:micro-queue
 reactive-var
+ecmascript
