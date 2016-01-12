@@ -554,7 +554,7 @@ package org.bigbluebutton.main.model.users {
 				}
 			}
 			// Breakout room not found.
-			return -1;
+			return null;
 		}
 		
 		public function removeBreakoutRoom(breakoutId:String):void {
