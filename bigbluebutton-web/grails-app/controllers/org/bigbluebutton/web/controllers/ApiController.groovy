@@ -277,8 +277,8 @@ class ApiController {
     }
     
     Boolean isBreakoutRoom = false
-    if(!StringUtils.isEmpty(params.isBreakoutRoom)) {
-      isBreakoutRoom = new Boolean(StringUtils.strip(params.isBreakoutRoom))
+    if(!StringUtils.isEmpty(params.isBreakout)) {
+      isBreakoutRoom = new Boolean(StringUtils.strip(params.isBreakout))
     }
 
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
