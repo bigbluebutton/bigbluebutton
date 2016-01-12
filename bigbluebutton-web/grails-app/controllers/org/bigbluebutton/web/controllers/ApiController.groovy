@@ -1005,6 +1005,7 @@ class ApiController {
                   for (m in mtgs) {
                     meeting {
                       meetingID() { mkp.yield(m.getExternalId()) } 
+                      isBreakout() { mkp.yield(m.isBreakout()) } 
                       meetingName() { mkp.yield(m.getName()) }
                       createTime(m.getCreateTime())
                       createDate(formatPrettyDate(m.getCreateTime()))
@@ -2014,6 +2015,7 @@ class ApiController {
           response() {
             returncode(RESP_CODE_SUCCESS)
             meetingName() { mkp.yield(meeting.getName()) }
+            isBreakout() { mkp.yield(m.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
             createTime(meeting.getCreateTime())
