@@ -5,25 +5,27 @@
 		verticalAlign="middle">
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-
+			
+			private var globalDispatch:Dispatcher = new Dispatcher();
+			
 			[Bindable]
 			private var images:Images = new Images();
 			
 			protected function listenToBreakoutRoom(event:MouseEvent):void {
-				var e:BreakoutRoomEvent=new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
-				e.breakoutId=data as String;
-				dispatchEvent(e);
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+				e.breakoutId = data.breakoutId as String;
+				globalDispatch.dispatchEvent(e);
 			}
 			
 			protected function requestBreakoutJoinUrl(event:MouseEvent):void {
-				var e:BreakoutRoomEvent=new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
-				e.breakoutId=data as String;
-				dispatchEvent(e);
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
+				e.breakoutId = data.breakoutId as String;
+				globalDispatch.dispatchEvent(e);
 			}
-			
 		]]>
 	</mx:Script>
 	

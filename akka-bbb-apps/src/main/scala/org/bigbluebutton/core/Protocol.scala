@@ -4,6 +4,7 @@ import spray.json.{ DefaultJsonProtocol, JsValue, JsString, DeserializationExcep
 import org.bigbluebutton.core.api.BreakoutRoomInPayload
 import org.bigbluebutton.core.api.CreateBreakoutRooms
 import org.bigbluebutton.core.api.InMessageHeader
+import org.bigbluebutton.core.api.RequestBreakoutJoinURLInMessage
 
 object UserMessagesProtocol extends DefaultJsonProtocol {
   /*  
@@ -28,6 +29,7 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
 
   implicit val breakoutRoomInPayloadFormat = jsonFormat2(BreakoutRoomInPayload)
   implicit val createBreakoutRoomsFormat = jsonFormat3(CreateBreakoutRooms)
+  implicit val requestBreakoutJoinURLInMessageFormat = jsonFormat3(RequestBreakoutJoinURLInMessage)
   implicit val inMsgHeaderFormat = jsonFormat1(InMessageHeader)
   implicit val outMsgHeaderFormat = jsonFormat1(OutMsgHeader)
   implicit val outMsgEnvelopeHeaderFormat = jsonFormat2(OutMsgEnvelopeHeader)
