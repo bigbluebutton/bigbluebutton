@@ -568,8 +568,7 @@
 		</mx:DataGrid>
 		
 		<mx:Button id="closeRoomsBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.closeAllRooms')}"
-				   click="endAllBreakoutRoomsHandler(event)"
-				   visible="false" includeInLayout="false"/>
+				   click="endAllBreakoutRoomsHandler(event)" width="100%"/>
 		
 	</mx:VBox>
 	
