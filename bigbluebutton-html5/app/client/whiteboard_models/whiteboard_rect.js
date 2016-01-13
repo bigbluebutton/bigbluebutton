@@ -1,15 +1,16 @@
-const bind = function(fn, me) { return function() { return fn.apply(me, arguments); }; }, extend = function(child, parent) { for (let key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; }, hasProp = {}.hasOwnProperty;
+const bind = function(fn, me) {
+  return function() {
+    return fn.apply(me, arguments);
+  };
+};
 
-this.WhiteboardRectModel = (function(superClass) {
-  extend(WhiteboardRectModel, superClass);
-
-  class WhiteboardRectModel {
+this.WhiteboardRectModel = (function() {
+  class WhiteboardRectModel extends WhiteboardToolModel{
     constructor(paper) {
+      super(paper);
       this.paper = paper;
       this.make = bind(this.make, this);
-      WhiteboardRectModel.__super__.constructor.call(this, this.paper);
       this.definition = [0, 0, 0, 0, "#000", "0px"];
-      this.paper;
     }
 
     make(startingData) {
@@ -96,4 +97,4 @@ this.WhiteboardRectModel = (function(superClass) {
   }
 
   return WhiteboardRectModel;
-})(WhiteboardToolModel);
+})();

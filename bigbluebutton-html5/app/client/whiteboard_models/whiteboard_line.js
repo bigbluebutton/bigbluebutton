@@ -1,14 +1,10 @@
-let MAX_PATHS_IN_SEQUENCE, extend = function(child, parent) { for(let key in parent) { if(hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; }, hasProp = {}.hasOwnProperty;
+let MAX_PATHS_IN_SEQUENCE = 30;
 
-MAX_PATHS_IN_SEQUENCE = 30;
-
-this.WhiteboardLineModel = (function(superClass) {
-  extend(WhiteboardLineModel, superClass);
-
-  class WhiteboardLineModel {
+this.WhiteboardLineModel = (function() {
+  class WhiteboardLineModel extends WhiteboardToolModel {
     constructor(paper) {
+      super(paper);
       this.paper = paper;
-      WhiteboardLineModel.__super__.constructor.call(this, this.paper);
       this.definition = ["", "#000", "0px"];
     }
 
@@ -98,4 +94,4 @@ this.WhiteboardLineModel = (function(superClass) {
   }
 
   return WhiteboardLineModel;
-})(WhiteboardToolModel);
+})();

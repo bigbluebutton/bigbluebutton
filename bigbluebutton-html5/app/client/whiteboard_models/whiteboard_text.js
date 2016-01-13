@@ -1,14 +1,10 @@
-const extend = function(child, parent) { for(let key in parent) { if(hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; }, hasProp = {}.hasOwnProperty;
-
-this.WhiteboardTextModel = (function(superClass) {
+this.WhiteboardTextModel = (function() {
   let checkDashPosition, checkWidth;
 
-  extend(WhiteboardTextModel, superClass);
-
-  class WhiteboardTextModel {
+  class WhiteboardTextModel extends WhiteboardToolModel {
     constructor(paper) {
+      super(paper);
       this.paper = paper;
-      WhiteboardTextModel.__super__.constructor.call(this, this.paper);
       this.definition = [0, 0, 0, 0, "#000", 0, 0, ""];
     }
 
@@ -212,4 +208,4 @@ this.WhiteboardTextModel = (function(superClass) {
   };
 
   return WhiteboardTextModel;
-})(WhiteboardToolModel);
+})();

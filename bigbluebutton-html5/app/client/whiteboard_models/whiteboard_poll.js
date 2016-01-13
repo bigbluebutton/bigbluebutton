@@ -1,15 +1,17 @@
-let calculateFontAndWidth, getRenderedTextSize, bind = function(fn, me) { return function() { return fn.apply(me, arguments); }; }, extend = function(child, parent) { for (let key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; }, hasProp = {}.hasOwnProperty;
+let calculateFontAndWidth, getRenderedTextSize;
+let bind = function(fn, me) {
+  return function() {
+    return fn.apply(me, arguments);
+  };
+};
 
-this.WhiteboardPollModel = (function(superClass) {
-  extend(WhiteboardPollModel, superClass);
-
-  class WhiteboardPollModel {
+this.WhiteboardPollModel = (function() {
+  class WhiteboardPollModel extends WhiteboardToolModel {
     constructor(paper1) {
+      super(paper1);
       this.paper = paper1;
       this.make = bind(this.make, this);
-      WhiteboardPollModel.__super__.constructor.call(this, this.paper);
       this.definition = [0, 0, 0, 0, "#333333", "2px", "#ffffff"];
-      this.paper;
     }
 
     make(startingData) {
@@ -192,7 +194,7 @@ this.WhiteboardPollModel = (function(superClass) {
   }
 
   return WhiteboardPollModel;
-})(WhiteboardToolModel);
+})();
 
 calculateFontAndWidth = function(textArray, calcFontSize, width, height, x, y) {
   let calculatedData, flag, i, j, k, l, len, line, m, maxDigitWidth, maxLeftWidth, maxLineHeight, maxLineWidth, maxRightWidth, ref, ref1, spanHeight, spanWidth, test;

@@ -1,4 +1,8 @@
-const bind = function(fn, me) { return function() { return fn.apply(me, arguments); }; };
+const bind = function(fn, me) {
+  return function() {
+    return fn.apply(me, arguments);
+  };
+};
 
 this.WhiteboardCursorModel = (function() {
   class WhiteboardCursorModel {
@@ -14,7 +18,6 @@ this.WhiteboardCursorModel = (function() {
         this.color = "#ff6666";
       }
       this.cursor = null;
-      this.paper;
     }
 
     draw() {

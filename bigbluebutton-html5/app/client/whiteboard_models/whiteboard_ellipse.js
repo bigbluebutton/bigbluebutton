@@ -1,12 +1,8 @@
-const extend = function(child, parent) { for (let key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; }, hasProp = {}.hasOwnProperty;
-
-this.WhiteboardEllipseModel = (function(superClass) {
-  extend(WhiteboardEllipseModel, superClass);
-
-  class WhiteboardEllipseModel {
+this.WhiteboardEllipseModel = (function() {
+  class WhiteboardEllipseModel extends WhiteboardToolModel {
     constructor(paper) {
+      super(paper);
       this.paper = paper;
-      WhiteboardEllipseModel.__super__.constructor.call(this, this.paper);
       this.definition = [0, 0, 0, 0, "#000", "0px"];
     }
 
@@ -94,4 +90,4 @@ this.WhiteboardEllipseModel = (function(superClass) {
   }
 
   return WhiteboardEllipseModel;
-})(WhiteboardToolModel);
+})();
