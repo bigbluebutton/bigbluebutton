@@ -314,10 +314,8 @@ public class ESLEventListener implements IEslEventListener {
         if (path.contains("rtmp") && path.contains("channels")
                 && path.contains("samplerate") && path.contains("vw")
                 && path.contains("vh") && path.contains("fps")) {
-            // System.out.println("\n\n\n\nSTREAM\n\n\n");
             return true;
         } else {
-            // System.out.println("\n\n\n\nFILE\n\n\n");
             return false;
         }
     }
@@ -344,7 +342,7 @@ public class ESLEventListener implements IEslEventListener {
     private String getStreamUrl(EslEvent e) {
         String path = e.getEventHeaders().get("Path");
         if (isRTMPStream(e)){
-            return path.substring(path.indexOf("}") + 1);
+            return path.substring(path.lastIndexOf("}") + 1);
         } else {
             return "";
         }
