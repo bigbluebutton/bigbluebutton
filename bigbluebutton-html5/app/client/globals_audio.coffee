@@ -34,8 +34,9 @@
 
 # join the conference. If listen only send the request to the server
 @joinVoiceCall = (event, options) ->
-	extension = Meteor.Meetings.findOne().voiceConf
-	#TODO get rid of these references to verto_extensions global vars (conferenceUsername, conferenceIdNumber)
+	extension = Meteor.Meetings.findOne().voiceConf;
+	conferenceUsername = "FreeSWITCH User"
+	conferenceIdNumber = "1008";
 	if !isWebRTCAvailable()
 		notification_WebRTCNotSupported()
 		return
@@ -43,6 +44,13 @@
 	if not Meteor.config.useSIPAudio
 		if options.watchOnly?
 			toggleWhiteboardVideo("video")
+
+		vertoServerCredentials = {
+			vertoPort: "8082",
+			hostName: Meteor.config.vertoServerAddress,
+			login: "1008",
+			password: Meteor.config.freeswitchProfilePassword,
+		}
 
 		wasCallSuccessful = false
 		debuggerCallback = (message) ->
@@ -52,11 +60,11 @@
 			# Always fail the first time. Retry on failure.
 			#
 			if !!navigator.mozGetUserMedia and message.errorcode is 1001
-				callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam", options)
+				callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam", options, vertoServerCredentials)
 			#
 			# End of hacky method
 			#
-		callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam", options);
+		callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam", options, vertoServerCredentials);
 		return
 	else
 		# create voice call params
