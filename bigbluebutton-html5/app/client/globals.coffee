@@ -487,30 +487,35 @@ Handlebars.registerHelper "getPollQuestions", ->
             document.location = getInSession 'logoutURL'
     })
 
-    deskshareObject = Meteor.Meetings.findOne({meetingId:BBB.getMeetingId()})?.deskshare
-    if deskshareObject?.broadcasting
-      console.log "Deskshare is now broadcasting"
-      presenterDeskshareHasStarted()
+    # deskshareObject = Meteor.Meetings.findOne({meetingId:BBB.getMeetingId()})?.deskshare
+    # if deskshareObject?.broadcasting
+    #   console.log "Deskshare is now broadcasting"
+    #   presenterDeskshareHasStarted()
 
     # when the meeting information has been updated check to see if it was
     # desksharing. If it has changed either trigger a call to receive video
     # and display it, or end the call and hide the video
-    Meteor.Meetings.find().observe
+    Meteor.Deskshare.find().observe
         added:(newDocument) ->
-            if newDocument.deskshare.startedBy isnt BBB.getMyUserId()
-                if newDocument.deskshare.broadcasting
-                    console.log "Deskshare is now broadcasting"
+            console.log("meeting info added");
+            if newDocument.deskshare.broadcasting
+                console.log "Deskshare is now broadcasting"
+                if newDocument.deskshare.startedBy isnt BBB.getMyUserId()
+                    console.log("deskshare wasn't initiated by me");
                     presenterDeskshareHasStarted()
 
         changed: (newDocument, oldDocument) ->
-            console.log "Meeting information has been modified", newDocument
-            if oldDocument.deskshare isnt newDocument.deskshare and newDocument.deskshare.startedBy isnt BBB.getMyUserId()
+            console.log "Meeting information has been changed", newDocument
+            if (oldDocument.deskshare isnt newDocument.deskshare) and (newDocument.deskshare.startedBy isnt BBB.getMyUserId())
+                console.log("deskshare wasn't initiated by me");
                 if newDocument.deskshare.broadcasting
                     console.log "Deskshare is now broadcasting"
                     presenterDeskshareHasStarted()
                 else
                     console.log "Deskshare broadcasting has ended"
                     presenterDeskshareHasEnded()
+            else
+                console.log("I initiated deskshare");
 
     Meteor.Users.find().observe changed: (newUser, oldUser) ->
         if (Meteor.config.app.listenOnly is true and
