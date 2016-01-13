@@ -479,20 +479,12 @@ public class Client
                                         //Member transfered to another conf...
                                         listener.conferenceEventTransfer(uniqueId, confName, confSize, event);
                                         return;
-                                    } else if (eventFunc.equals("conference_add_member")) {
+                                    } else if (eventFunc.equals("conference_add_member") || eventFunc.equals("conference_member_add")) {
                                     	System.out.println("##### Client conference_add_member");
                                         listener.conferenceEventJoin(uniqueId, confName, confSize, event);
                                         return;
-                                    } else if (eventFunc.equals("conference_member_add")) { // added to address FS renaming in 14aa7205128b1938f43b3ae0524123723c013314
-                                        System.out.println("##### Client conference_member_add");
-                                        listener.conferenceEventJoin(uniqueId, confName, confSize, event);
-                                        return;
-                                    } else if (eventFunc.equals("conference_del_member")) {
+                                    } else if (eventFunc.equals("conference_del_member") || eventFunc.equals("conference_member_del")) {
                                     	System.out.println("##### Client conference_del_member");
-                                        listener.conferenceEventLeave(uniqueId, confName, confSize, event);
-                                        return;
-                                    } else if (eventFunc.equals("conference_member_del")) { // added to address FS renaming in 14aa7205128b1938f43b3ae0524123723c013314
-                                    	System.out.println("##### Client conference_member_del");
                                         listener.conferenceEventLeave(uniqueId, confName, confSize, event);
                                         return;
                                     } else if (eventFunc.equals("conf_api_sub_mute")) {
