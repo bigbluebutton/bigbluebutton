@@ -495,6 +495,9 @@ trait UsersApp {
 
     usersModel.getUser(msg.userId) match {
       case Some(user) => {
+        // this is used to restore the mute state on reconnect
+        val previouslyMuted = user.voiceUser.muted
+
         val vu = new VoiceUser(msg.voiceUserId, msg.userId, msg.callerIdName,
           msg.callerIdNum, joined = true, locked = false,
           msg.muted, msg.talking, msg.listenOnly)
@@ -504,10 +507,10 @@ trait UsersApp {
         log.info("User joined voice. meetingId=" + mProps.meetingID + " userId=" + user.userID + " user=" + nu)
         outGW.send(new UserJoinedVoice(mProps.meetingID, mProps.recorded, mProps.voiceBridge, nu))
 
-        if (meetingModel.isMeetingMuted()) {
+        if (meetingModel.isMeetingMuted() || previouslyMuted) {
           outGW.send(new MuteVoiceUser(mProps.meetingID, mProps.recorded,
             nu.userID, nu.userID, mProps.voiceBridge,
-            nu.voiceUser.userId, meetingModel.isMeetingMuted()))
+            nu.voiceUser.userId, true))
         }
 
         startRecordingVoiceConference()
