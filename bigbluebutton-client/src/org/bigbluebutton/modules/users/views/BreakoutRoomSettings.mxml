@@ -59,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// event.meetingId is filled in the event handler for BreakoutRoomEvent in UserService class
 				event.rooms = new Array();
 				for (var i:int = 0; i < roomsSlider.value; i++) {
-					var users:Array = BreakoutList(roomsContainer.getChildAt(0)).users.source;
+					var users:Array = BreakoutList(roomsContainer.getChildAt(i)).users.source;
 					totalUsers += users.length;
 					var room:Object = new Object();
 					room.users = new Array();

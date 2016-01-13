@@ -56,7 +56,6 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleRequestBreakoutJoinURL(msg: RequestBreakoutJoinURLInMessage) {
-    log.debug("$$ Received RequestBreakoutJoinURLInMessage: {}", msg.userId)
     sendJoinURL(msg.userId, msg.breakoutId)
   }
 
@@ -68,7 +67,6 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
     breakoutModel.getAssignedUsers(msg.breakoutRoomId) foreach { users =>
       users.foreach { u =>
-        log.debug("## Sending Join URL for users: {} for breakout room {}", u, msg.breakoutRoomId);
         sendJoinURL(u, msg.breakoutRoomId)
       }
     }
@@ -130,7 +128,7 @@ object BreakoutRoomsUtil {
   }
 
   def joinParams(username: String, isBreakout: Boolean, breakoutId: String,
-    password: String, redirect: Boolean): mutable.Map[String, String] = {
+                 password: String, redirect: Boolean): mutable.Map[String, String] = {
     val params = new collection.mutable.HashMap[String, String]
     params += "fullName" -> urlEncode(username)
     params += "isBreakout" -> urlEncode(isBreakout.toString())

@@ -1,5 +1,6 @@
 import org.bigbluebutton.core.api._
 import scala.util.{Try, Success, Failure}
+import org.bigbluebutton.core.JsonMessageDecoder
 //import org.bigbluebutton.core.JsonMessageDecoder
 
 object JsonTest {
@@ -34,7 +35,6 @@ object JsonTest {
    meetingId <-  xjson.fields.get("meetingId")
   } yield meetingId                               //> meetingId  : Option[spray.json.JsValue] = Some("test-meeting")
    
-  println(meetingId)                              //> Some("test-meeting")
   
 
   val cbrm = """
@@ -46,12 +46,22 @@ object JsonTest {
                                                   //| den","Yaya Dub"]}],"durationInMinutes":20}}
                                                   //|  "
  
-  println(cbrm)                                   //> 
-                                                  //|   {"header":{"name":"CreateBreakoutRoomsRequest"},"payload":{"meetingId":"a
-                                                  //| bc123","rooms":[{"name":"room1","users":["Tidora","Nidora","Tinidora"]},{"n
-                                                  //| ame":"room2","users":["Jose","Wally","Paolo"]},{"name":"room3","users":["Al
-                                                  //| den","Yaya Dub"]}],"durationInMinutes":20}}
-                                                  //|  
+  JsonMessageDecoder.decode(cbrm)                 //> res0: Option[org.bigbluebutton.core.api.InMessage] = Some(CreateBreakoutRoo
+                                                  //| ms(abc123,20,Vector(BreakoutRoomInPayload(room1,Vector(Tidora, Nidora, Tini
+                                                  //| dora)), BreakoutRoomInPayload(room2,Vector(Jose, Wally, Paolo)), BreakoutRo
+                                                  //| omInPayload(room3,Vector(Alden, Yaya Dub)))))
+val rbju  =  """
+  {"header":{"name":"RequestBreakoutJoinURL"},"payload":{"userId":"id6pa5t8m1c9_1","meetingId":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1452692983357","breakoutId":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1452692983357-2"}}
+ """                                              //> rbju  : String = "
+                                                  //|   {"header":{"name":"RequestBreakoutJoinURL"},"payload":{"userId":"id6pa5t8
+                                                  //| m1c9_1","meetingId":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1452692983357
+                                                  //| ","breakoutId":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1452692983357-2"}}
+                                                  //| 
+                                                  //|  "
+                           
+JsonMessageDecoder.decode(rbju)                   //> res1: Option[org.bigbluebutton.core.api.InMessage] = Some(RequestBreakoutJo
+                                                  //| inURLInMessage(183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1452692983357,183f0
+                                                  //| bf3a0982a127bdb8161e0c44eb696b3e75c-1452692983357-2,id6pa5t8m1c9_1))
  
 //  JsonMessageDecoder.unmarshall(cbrm) match {
 //    case Success(validMsg) => println(validMsg)
