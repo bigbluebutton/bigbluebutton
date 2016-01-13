@@ -143,7 +143,7 @@ public class ConnectionManager  {
 	public void broadcastRTMP(DeskShareBroadcastRTMPCommand rtmp) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			System.out.println("\n\n\n ConnectionManager broadcastRTMP \n\n\n");
+			System.out.println("ConnectionManager broadcastRTMP "  + rtmp.getCommandArgs());
 			EslMessage response = c.sendSyncApiCommand(rtmp.getCommand(), rtmp.getCommandArgs());
 			rtmp.handleResponse(response, conferenceEventListener);
 		}
@@ -152,7 +152,7 @@ public class ConnectionManager  {
 	public void hangUp(DeskShareHangUpCommand huCmd) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
-			System.out.println("\n ConnectionManager hangUp " + huCmd.getCommandArgs() + "\n");
+			System.out.println("ConnectionManager hangUp " + huCmd.getCommandArgs());
 			EslMessage response = c.sendSyncApiCommand(huCmd.getCommand(), huCmd.getCommandArgs());
 			huCmd.handleResponse(response, conferenceEventListener);
 		}

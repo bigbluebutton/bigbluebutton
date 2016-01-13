@@ -385,7 +385,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       // Notify viewers in the meeting that there's an rtmp stream to view
       outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname,
         true, msg.videoWidth, msg.videoHeight, System.currentTimeMillis().toString()))
-      // println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE1 " + meetingModel.getRTMPBroadcastingUrl())
+      println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE1 " + meetingModel.getDesktopShareVideoWidth() + "x" + meetingModel.getDesktopShareVideoHeight())
     } else {
       println("START broadcast NOT ALLOWED when isBroadcastingRTMP=" + meetingModel.isBroadcastingRTMP())
     }
