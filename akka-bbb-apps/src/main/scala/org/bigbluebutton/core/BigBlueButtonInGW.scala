@@ -89,6 +89,7 @@ class BigBlueButtonInGW(
     msg match {
       case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.userId, m))
+      case m: EndAllBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case _ => log.error("Unhandled message: {}", msg)
     }
   }
