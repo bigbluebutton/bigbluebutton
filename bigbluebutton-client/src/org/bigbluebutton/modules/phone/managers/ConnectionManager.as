@@ -134,7 +134,7 @@ package org.bigbluebutton.modules.phone.managers {
         disconnectedEvent.payload.callbackParameters = [];
         dispatcher.dispatchEvent(disconnectedEvent);
 
-        dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.DISCONNECTED));
+        dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.DISCONNECTED, reconnecting));
       }
     }
 

@@ -14,6 +14,12 @@ class UsersModel {
 
   private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
 
+  /* When reconnecting SIP audio, users may receive the connection message
+   * before the disconnection message.
+   * This variable is a connection counter that should control this scenario.
+   */
+  private var voiceConnectionCounter = new collection.immutable.HashMap[String, Integer]
+
   private var locked = false
   private var meetingMuted = false
 
@@ -142,6 +148,36 @@ class UsersModel {
         regUsers -= ru.authToken
       }
       case None =>
+    }
+  }
+
+  def addVoiceConnection(userID: String): Boolean = {
+    voiceConnectionCounter.get(userID) match {
+      case Some(vc) => {
+        voiceConnectionCounter += userID -> (vc + 1)
+        false
+      }
+      case None => {
+        voiceConnectionCounter += userID -> 1
+        true
+      }
+    }
+  }
+
+  def removeVoiceConnection(userID: String): Boolean = {
+    voiceConnectionCounter.get(userID) match {
+      case Some(vc) => {
+        if (vc == 1) {
+          voiceConnectionCounter -= userID
+          true
+        } else {
+          voiceConnectionCounter += userID -> (vc - 1)
+          false
+        }
+      }
+      case None => {
+        false
+      }
     }
   }
 }
