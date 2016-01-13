@@ -33,7 +33,6 @@ public class DeskShareMessageSender {
 				switch (messageName) {
 					case DeskShareNotifyViewersRTMPEventMessage.DESK_SHARE_NOTIFY_VIEWERS_RTMP:
 						DeskShareNotifyViewersRTMPEventMessage rtmp = DeskShareNotifyViewersRTMPEventMessage.fromJson(message);
-						// System.out.println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE:" + rtmp.toJson());
 
 						if (rtmp != null) {
 							processDeskShareNotifyViewersRTMPEventMessage(rtmp);
@@ -42,7 +41,6 @@ public class DeskShareMessageSender {
 					case DeskShareNotifyASingleViewerEventMessage.DESK_SHARE_NOTIFY_A_SINGLE_VIEWER:
 						DeskShareNotifyASingleViewerEventMessage singleViewerMsg = DeskShareNotifyASingleViewerEventMessage.fromJson(message);
 						if (singleViewerMsg != null) {
-							// System.out.println("DESK_SHARE_NOTIFY_A_SINGLE_VIEWER:" + singleViewerMsg.toJson());
 							processDeskShareNotifyASingleViewerEventMessage(singleViewerMsg);
 						}
 				}
@@ -53,9 +51,15 @@ public class DeskShareMessageSender {
 
 	private void processDeskShareNotifyViewersRTMPEventMessage(DeskShareNotifyViewersRTMPEventMessage msg) {
 		Map<String, Object> messageInfo = new HashMap<String, Object>();
-		System.out.println("RedisPubSubMessageHandler - processDeskShareNotifyViewersRTMPEventMessage \n" +msg.streamPath+ "\n");
 
-		messageInfo.put("rtmpUrl", msg.streamPath);
+		// split the string streamPath if there are params in the format:
+		// {channels=2,samplerate=48000,vw=1920,vh=1080,fps=5.00}rtmp://192.168.23.3/video-broadcast/.../..."
+		String fullPathString = msg.streamPath;
+		String delims = "[,{}]+";
+		String[] arr = fullPathString.split(delims);
+		String rtmpStreamPath = arr[arr.length -1];
+
+		messageInfo.put("rtmpUrl", rtmpStreamPath);
 		messageInfo.put("broadcasting", msg.broadcasting);
 		messageInfo.put("width", msg.vw);
 		messageInfo.put("height", msg.vh);
@@ -65,8 +69,6 @@ public class DeskShareMessageSender {
 
 	private void processDeskShareNotifyASingleViewerEventMessage(DeskShareNotifyASingleViewerEventMessage msg) {
 		Map<String, Object> messageInfo = new HashMap<String, Object>();
-		System.out.println("RedisPubSubMessageHandler-processDeskShareNotifyASingleViewerEventMessage \n" +
-			msg.streamPath+ "\n"+msg.userId);
 
 		messageInfo.put("rtmpUrl", msg.streamPath);
 		messageInfo.put("broadcasting", msg.broadcasting);
