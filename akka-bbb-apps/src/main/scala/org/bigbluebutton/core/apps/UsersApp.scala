@@ -26,7 +26,7 @@ trait UsersApp {
 
     val user = usersModel.getUser(msg.userid)
     user foreach { u =>
-      if (usersModel.addVoiceConnection(msg.userid)) {
+      if (usersModel.addGlobalAudioConnection(msg.userid)) {
         val vu = u.voiceUser.copy(joined = false, talking = false)
         val uvo = u.copy(listenOnly = true, voiceUser = vu)
         usersModel.addUser(uvo)
@@ -41,7 +41,7 @@ trait UsersApp {
 
     val user = usersModel.getUser(msg.userid)
     user foreach { u =>
-      if (usersModel.removeVoiceConnection(msg.userid)) {
+      if (usersModel.removeGlobalAudioConnection(msg.userid)) {
         if (!u.joinedWeb) {
           val userLeaving = usersModel.removeUser(u.userID)
           log.info("Not web user. Send user left message. meetingId=" + mProps.meetingID + " userId=" + u.userID + " user=" + u)
