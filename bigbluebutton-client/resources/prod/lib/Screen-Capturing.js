@@ -1,4 +1,5 @@
-// Last time updated at Sep 23, 2014, 08:32:23
+// Last time updated at January 07, 2016
+// By Daniel Perrone (perroned)
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -95,7 +96,7 @@ function getChromeExtensionStatus(extensionid, callback) {
 
     if (arguments.length != 2) {
         callback = extensionid;
-        extensionid = 'mlcengpcgchagkemmgjgafbcblmgmbkc'; // default extension-id
+        extensionid = 'ajhifddimkapgcifgcodmmfdlknahffk'; // Muaz Khan's Screen Capturing
     }
 
     var image = document.createElement('img');
@@ -105,7 +106,7 @@ function getChromeExtensionStatus(extensionid, callback) {
         window.postMessage('are-you-there', '*');
         setTimeout(function() {
             if (chromeMediaSource == 'screen') {
-                callback(extensionid == extensionid ? 'installed-enabled' : 'installed-disabled');
+                callback('installed-enabled');
             } else callback('installed-enabled');
         }, 2000);
     };
@@ -137,7 +138,8 @@ function getScreenConstraints(callback) {
     // this statement verifies chrome extension availability
     // if installed and available then it will invoke extension API
     // otherwise it will fallback to command-line based screen capturing API
-    if (chromeMediaSource == 'desktop' && !sourceId) {
+    sourceId = null;
+    if (chromeMediaSource == 'desktop') {
         getSourceId(function() {
             screen_constraints.mandatory.chromeMediaSourceId = sourceId;
             callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
