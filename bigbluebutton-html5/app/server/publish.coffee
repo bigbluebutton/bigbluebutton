@@ -93,3 +93,7 @@ Meteor.publish 'bbb_cursor', (meetingId) ->
 Meteor.publish 'whiteboard-clean-status', (meetingId) ->
   Meteor.log.info "whiteboard clean status #{meetingId}"
   Meteor.WhiteboardCleanStatus.find({meetingId: meetingId})
+
+Meteor.publish 'deskshare', (meetingId) ->
+  Meteor.log.info "publishing deskshare for #{meetingId}"
+  Meteor.Deskshare.find({meetingId: meetingId})

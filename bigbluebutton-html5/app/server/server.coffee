@@ -11,6 +11,7 @@ Meteor.startup ->
   clearPresentationsCollection()
   clearPollCollection()
   clearCursorCollection()
+  clearDeskshareCollection()
 
   # create create a PubSub connection, start listening
   Meteor.redisPubSub = new Meteor.RedisPubSub(->

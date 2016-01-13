@@ -6,5 +6,6 @@ Meteor.Cursor = new Meteor.Collection("bbb_cursor")
 Meteor.Shapes = new Meteor.Collection("shapes")
 Meteor.Slides = new Meteor.Collection("slides")
 Meteor.Polls = new Meteor.Collection("bbb_poll")
+Meteor.Deskshare = new Meteor.Collection("deskshare")
 
 Meteor.WhiteboardCleanStatus = new Meteor.Collection("whiteboard-clean-status")
