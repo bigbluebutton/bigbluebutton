@@ -605,7 +605,7 @@ package org.bigbluebutton.modules.users.services
 	private function handleTimeRemainingUpdate(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
 		var e : BreakoutRoomEvent=  new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME);
-		e.durationInMinutes = msg.timeRemaining;
+		e.durationInMinutes = map.timeRemaining;
 		dispatcher.dispatchEvent(e);
 	}
 	
