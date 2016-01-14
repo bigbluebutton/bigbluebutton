@@ -14,6 +14,12 @@ class UsersModel {
 
   private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
 
+  /* When reconnecting SIP global audio, users may receive the connection message
+   * before the disconnection message.
+   * This variable is a connection counter that should control this scenario.
+   */
+  private var globalAudioConnectionCounter = new collection.immutable.HashMap[String, Integer]
+
   private var locked = false
   private var meetingMuted = false
 
@@ -142,6 +148,36 @@ class UsersModel {
         regUsers -= ru.authToken
       }
       case None =>
+    }
+  }
+
+  def addGlobalAudioConnection(userID: String): Boolean = {
+    globalAudioConnectionCounter.get(userID) match {
+      case Some(vc) => {
+        globalAudioConnectionCounter += userID -> (vc + 1)
+        false
+      }
+      case None => {
+        globalAudioConnectionCounter += userID -> 1
+        true
+      }
+    }
+  }
+
+  def removeGlobalAudioConnection(userID: String): Boolean = {
+    globalAudioConnectionCounter.get(userID) match {
+      case Some(vc) => {
+        if (vc == 1) {
+          globalAudioConnectionCounter -= userID
+          true
+        } else {
+          globalAudioConnectionCounter += userID -> (vc - 1)
+          false
+        }
+      }
+      case None => {
+        false
+      }
     }
   }
 }

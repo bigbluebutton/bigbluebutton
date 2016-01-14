@@ -53,6 +53,7 @@ package org.bigbluebutton.modules.phone.managers {
     private var closedByUser:Boolean = false;
 
 		private var reconnecting:Boolean = false;
+		private var amIListenOnly:Boolean = false;
     
 		private var dispatcher:Dispatcher;
 		
@@ -83,19 +84,24 @@ package org.bigbluebutton.modules.phone.managers {
     }
     
 		public function connect():void {				
-      closedByUser = false;
-      var isTunnelling:Boolean = BBB.initConnectionManager().isTunnelling;
-      if (isTunnelling) {
-        uri = uri.replace(/rtmp:/gi, "rtmpt:");
-      }
-	  LOGGER.debug("Connecting to uri=[{0}]", [uri]);
-			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
-			netConnection = new NetConnection();
-			netConnection.proxyType = "best";
-			netConnection.client = this;
-			netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
-			netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-			netConnection.connect(uri, meetingId, externUserId, username);
+			if (!reconnecting || amIListenOnly) {
+				closedByUser = false;
+				var isTunnelling:Boolean = BBB.initConnectionManager().isTunnelling;
+				if (isTunnelling) {
+					uri = uri.replace(/rtmp:/gi, "rtmpt:");
+				}
+				LOGGER.debug("Connecting to uri=[{0}]", [uri]);
+				NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;
+				netConnection = new NetConnection();
+				netConnection.proxyType = "best";
+				netConnection.client = this;
+				netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
+				netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+				netConnection.connect(uri, meetingId, externUserId, username);
+			}
+			if (reconnecting && !amIListenOnly) {
+				handleConnectionSuccess();
+			}
 		}
 
 		public function disconnect(requestByUser:Boolean):void {
@@ -134,7 +140,7 @@ package org.bigbluebutton.modules.phone.managers {
         disconnectedEvent.payload.callbackParameters = [];
         dispatcher.dispatchEvent(disconnectedEvent);
 
-        dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.DISCONNECTED));
+        dispatcher.dispatchEvent(new FlashVoiceConnectionStatusEvent(FlashVoiceConnectionStatusEvent.DISCONNECTED, reconnecting));
       }
     }
 
@@ -212,12 +218,14 @@ package org.bigbluebutton.modules.phone.managers {
 		//
 		//********************************************************************************************		
 		public function doCall(dialStr:String, listenOnly:Boolean = false):void {
+			amIListenOnly = listenOnly;
 			LOGGER.debug("in doCall - Calling {0} {1}", [dialStr, listenOnly? "*listen only*": ""]);
 			netConnection.call("voiceconf.call", null, "default", username, dialStr, listenOnly.toString());
 		}
 				
 		public function doHangUp():void {			
 			if (isConnected()) {
+				amIListenOnly = false;
         		LOGGER.debug("hanging up call");
 				netConnection.call("voiceconf.hangup", null, "default");
 			}
