@@ -79,14 +79,16 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     private function startPublishing():void {
-      _streamName = newStreamName();
-      _shuttingDown = false;
+      if(!_shuttingDown){
+        _streamName = newStreamName();
+        _shuttingDown = false;
 
-      var e:StartBroadcastEvent = new StartBroadcastEvent();
-      e.stream = _streamName;
-      e.camera = _video.getCamera();
-      e.videoProfile = _videoProfile;
-      _dispatcher.dispatchEvent(e);
+        var e:StartBroadcastEvent = new StartBroadcastEvent();
+        e.stream = _streamName;
+        e.camera = _video.getCamera();
+        e.videoProfile = _videoProfile;
+        _dispatcher.dispatchEvent(e);
+      }
     }
 
     public function shutdown():void {

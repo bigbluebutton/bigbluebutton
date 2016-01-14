@@ -62,6 +62,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private var _dispatcher:Dispatcher = new Dispatcher();
             private var _images:Images = new Images();
             private var _user:BBBUser = null;
+            private var _streamName:String = "";
+            private var _userId:String = "";
 
             private var _hideMuteBtnTimer:Timer;
 
@@ -75,6 +77,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             public function set userId(value:String):void {
                 _user = UsersUtil.getUser(value);
+                _userId = value;
+            }
+
+            public function set streamName(value:String):void {
+                _streamName = value;
+            }
+
+            public function get streamName():String {
+                return _streamName;
+            }
+
+            public function get userId():String {
+                return _userId;
             }
 
             public function loadAvatar(options:VideoConfOptions):void {
