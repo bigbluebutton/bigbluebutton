@@ -27,6 +27,9 @@ package org.bigbluebutton.modules.present.events
 		
 		// Presentation has been removed from server.
 		public static const PRESENTATION_REMOVED_EVENT:String = "Presentation Removed Event";
+
+		// Presentation removed from the list of downloadable events.
+		public static const PRESENTATION_NOT_DOWNLOADABLE_EVENT:String = "Presentation Can't Be Downloaded Event";
 		
 		public var presentationName:String;
 		

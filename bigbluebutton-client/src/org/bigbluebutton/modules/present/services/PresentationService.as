@@ -169,6 +169,8 @@ package org.bigbluebutton.modules.present.services
 		}
 		
 		model.removePresentation(presentationID);
+    var notDownloadableEvent:RemovePresentationEvent = new RemovePresentationEvent(RemovePresentationEvent.PRESENTATION_NOT_DOWNLOADABLE_EVENT);
+    dispatcher.dispatchEvent(notDownloadableEvent); //this event will trigger the disabling of the download button. 
 	}
   }
 }

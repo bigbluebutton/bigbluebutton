@@ -297,7 +297,7 @@ DataGrid {
 
 
 .presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
-.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle, .presentationDownloadButtonDisabledStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -347,6 +347,10 @@ DataGrid {
 .presentationDownloadButtonStyle {
   icon:   Embed('assets/images/ic_file_download_16px.png');
 }
+.presentationDownloadButtonDisabledStyle {
+  icon:   Embed('assets/images/ic_file_download_grey_16px.png');
+}
+
 
 .presentationZoomSliderStyle{
   labelOffset: 0;
