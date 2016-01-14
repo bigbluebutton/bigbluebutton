@@ -64,30 +64,31 @@
                     Meteor.subscribe 'whiteboard-clean-status', meetingId, onReady: =>
                       Meteor.subscribe 'bbb_poll', meetingId,  userId, authToken, onReady: =>
                         Meteor.subscribe 'bbb_cursor', meetingId, onReady: =>
-                          # done subscribing, start rendering the client and set default settings
-                          @render('main')
-                          onLoadComplete()
+                          Meteor.subscribe 'deskshare', meetingId, onReady: =>
+                            # done subscribing, start rendering the client and set default settings
+                            @render('main')
+                            onLoadComplete()
 
-                          handleLogourUrlError = () ->
-                            alert "Error: could not find the logoutURL"
-                            setInSession("logoutURL", document.location.hostname)
-                            return
-
-                          # obtain the logoutURL
-                          a = $.ajax({dataType: 'json', url: '/bigbluebutton/api/enter'})
-                          a.done (data) ->
-                            if data.response.logoutURL? # for a meeting with 0 users
-                              setInSession("logoutURL", data.response.logoutURL)
+                            handleLogourUrlError = () ->
+                              alert "Error: could not find the logoutURL"
+                              setInSession("logoutURL", document.location.hostname)
                               return
-                            else
-                              if data.response.logoutUrl? # for a running meeting
-                                setInSession("logoutURL", data.response.logoutUrl)
+
+                            # obtain the logoutURL
+                            a = $.ajax({dataType: 'json', url: '/bigbluebutton/api/enter'})
+                            a.done (data) ->
+                              if data.response.logoutURL? # for a meeting with 0 users
+                                setInSession("logoutURL", data.response.logoutURL)
                                 return
                               else
-                                handleLogourUrlError()
+                                if data.response.logoutUrl? # for a running meeting
+                                  setInSession("logoutURL", data.response.logoutUrl)
+                                  return
+                                else
+                                  handleLogourUrlError()
 
-                          a.fail (data, textStatus, errorThrown) ->
-                            handleLogourUrlError()
+                            a.fail (data, textStatus, errorThrown) ->
+                              handleLogourUrlError()
 
 
       else
