@@ -406,6 +406,7 @@ class ApiController {
     us.conferencename = meeting.getName()
     us.meetingID = meeting.getInternalId()
     us.externMeetingID = meeting.getExternalId()
+    us.isBreakout = meeting.isBreakout()
     us.externUserID = externUserID
     us.fullname = fullName 
     us.role = role
@@ -565,6 +566,7 @@ class ApiController {
               webvoiceconf = us.webvoiceconf
               mode = us.mode
               record = us.record
+              isBreakout = meeting.isBreakout()
               allowStartStopRecording = meeting.getAllowStartStopRecording()
               welcome = us.welcome
               if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))

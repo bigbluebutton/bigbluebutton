@@ -20,6 +20,7 @@ package org.bigbluebutton.main.model.users {
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
@@ -42,6 +43,8 @@ package org.bigbluebutton.main.model.users {
 		public var voiceBridge:String;
 		
 		public var dialNumber:String;
+		
+		public var isBreakout:Boolean;
 		
 		[Bindable]
 		public var record:Boolean;

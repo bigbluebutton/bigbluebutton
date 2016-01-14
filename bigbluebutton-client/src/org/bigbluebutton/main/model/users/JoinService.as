@@ -103,6 +103,7 @@ package org.bigbluebutton.main.model.users
         response.conferenceName = result.response.confname;
         response.externMeetingID = result.response.externMeetingID;
         response.meetingID = result.response.meetingID;
+        response.isBreakout = result.response.isBreakout;
         response.externUserID = result.response.externUserID;
         response.internalUserId = result.response.internalUserID;
         response.role = result.response.role;
@@ -147,12 +148,12 @@ package org.bigbluebutton.main.model.users
                                              .withExternalId(response.externMeetingID).withRecorded(response.record.toUpperCase() == "TRUE")
                                              .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
                                              .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
-                                             .withAllowStartStopRecording(response.allowStartStopRecording)
+                                             .withAllowStartStopRecording(response.allowStartStopRecording).withBreakout(response.isBreakout.toUpperCase() == "TRUE")
                                              .build();
-        
+
 				if (_resultListener != null) _resultListener(true, response);
 			}
-			
+
 		}
 		 
 		public function get loader():URLLoader{
