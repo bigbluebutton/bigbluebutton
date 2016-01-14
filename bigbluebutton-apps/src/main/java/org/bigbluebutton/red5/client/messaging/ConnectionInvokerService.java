@@ -21,6 +21,7 @@ package org.bigbluebutton.red5.client.messaging;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -274,15 +275,31 @@ public class ConnectionInvokerService {
   }
 
   private IConnection getConnection(IScope scope, String userID) {
-    Set<IConnection> conns = scope.getClientConnections();
-    for (IConnection conn : conns) {
+    Set<IConnection> conns = new HashSet<IConnection>();
+    for (IConnection conn : scope.getClientConnections()) {
       String connID = (String) conn.getAttribute("USER_SESSION_ID");
       if (connID != null && connID.equals(userID)) {
-        return conn;
+        conns.add(conn);
       }
     }
-    log.warn("Failed to get connection for userId = " + userID);
-    return null;		
+    if (!conns.isEmpty()) {
+      return getLastConnection(conns);
+    } else {
+      log.warn("Failed to get connection for userId = " + userID);
+      return null;
+    }
+  }
+
+  private IConnection getLastConnection(Set<IConnection> conns) {
+    IConnection conn = null;
+    for (IConnection c : conns) {
+      if (conn == null) {
+        conn = c;
+      } else if ((long) conn.getAttribute("TIMESTAMP") < (long) c.getAttribute("TIMESTAMP")) {
+        conn = c;
+      }
+    }
+    return conn;
   }
 
   public IScope getScope(String meetingID) {
