@@ -276,7 +276,6 @@ public class ConnectionInvokerService {
 
   private IConnection getConnection(IScope scope, String userID) {
     Set<IConnection> conns = new HashSet<IConnection>();
-    System.out.println(scope.getClientConnections().size());
     for (IConnection conn : scope.getClientConnections()) {
       String connID = (String) conn.getAttribute("USER_SESSION_ID");
       if (connID != null && connID.equals(userID)) {
