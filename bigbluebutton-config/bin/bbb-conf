@@ -377,7 +377,7 @@ enable_webrtc(){
         if [[ $PROTOCOL == "https" ]]; then
                 PORT=7443
         fi
-        sed -i "s/proxy_pass .*/proxy_pass $PROTOCOL\/\/$IP:$PORT;/g" /etc/bigbluebutton/nginx/sip.nginx
+        sed -i "s/proxy_pass .*/proxy_pass $PROTOCOL:\/\/$IP:$PORT;/g" /etc/bigbluebutton/nginx/sip.nginx
 
 	echo 
 	echo "WebRTC audio enabled.  To apply settings to your server, do"
