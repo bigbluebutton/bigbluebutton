@@ -28,7 +28,12 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
     presURL
   }
-
+  
+  def handleBreakoutRoomsList(msg:BreakoutRoomsListMessage) {
+    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.id, r.name) }
+    outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms));
+  }
+  
   def handleCreateBreakoutRooms(msg: CreateBreakoutRooms) {
     var i = 0
     for (room <- msg.rooms) {

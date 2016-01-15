@@ -57,6 +57,9 @@ object JsonMessageDecoder {
 
   def convertMessage(msg: InHeaderAndJsonPayload): InMessage = {
     msg.header.name match {
+      case GetBreakoutRoomsList.NAME => {
+        msg.payload.convertTo[BreakoutRoomsListMessage]
+      }
       case CreateBreakoutRoomsRequest.NAME => {
         msg.payload.convertTo[CreateBreakoutRooms]
       }

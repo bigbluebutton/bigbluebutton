@@ -158,31 +158,32 @@ package org.bigbluebutton.main.model.users
     
     public function disconnect(onUserAction:Boolean):void {
       _connectionManager.disconnect(onUserAction);
-    }
-      
-    private function queryForRecordingStatus():void {
-      sender.queryForRecordingStatus();
-    }
-    
-    public function changeRecordingStatus(e:BBBEvent):void {
-      if (this.isModerator() && !e.payload.remote) {
-        var myUserId: String = UserManager.getInstance().getConference().getMyUserId();
-        sender.changeRecordingStatus(myUserId, e.payload.recording);
-      }
-    }
-       
-		public function userLoggedIn(e:UsersConnectionEvent):void{
+		}
+		
+		private function queryForRecordingStatus():void {
+			sender.queryForRecordingStatus();
+		}
+
+		public function changeRecordingStatus(e:BBBEvent):void {
+			if (this.isModerator() && !e.payload.remote) {
+				var myUserId:String = UserManager.getInstance().getConference().getMyUserId();
+				sender.changeRecordingStatus(myUserId, e.payload.recording);
+			}
+		}
+
+		public function userLoggedIn(e:UsersConnectionEvent):void {
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.userid = e.userid;
-			
-      sender.queryForParticipants();     
-      sender.queryForRecordingStatus();
-			
+			sender.queryForParticipants();
+			sender.queryForRecordingStatus();
+			if (!_conferenceParameters.isBreakout) {
+				sender.queryForBreakoutRooms(_conferenceParameters.meetingID);
+			}
 			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 			loadCommand.conferenceParameters = _conferenceParameters;
-			dispatcher.dispatchEvent(loadCommand);		
+			dispatcher.dispatchEvent(loadCommand);
 		}
-					
+
 		public function isModerator():Boolean {
 			return UserManager.getInstance().getConference().amIModerator();
 		}

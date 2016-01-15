@@ -94,6 +94,9 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case EjectUserFromVoiceRequestMessage.EJECT_USER_FROM_VOICE_REQUEST:
 						  processEjectUserFromVoiceRequestMessage(message);
 						  break;
+					  case GetBreakoutRoomsList.NAME:
+						  bbbInGW.handleJsonMessage(message);
+						  break;
 					  case CreateBreakoutRoomsRequest.NAME:
 						  bbbInGW.handleJsonMessage(message);
 						  break;

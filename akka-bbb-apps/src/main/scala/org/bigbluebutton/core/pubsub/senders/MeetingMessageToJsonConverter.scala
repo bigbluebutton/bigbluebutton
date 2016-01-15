@@ -1,10 +1,14 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import org.bigbluebutton.core.messaging.Util
+import scala.collection.mutable.ListBuffer
+
 import org.bigbluebutton.core.api._
-import com.google.gson.Gson
-import scala.collection.JavaConverters._
+import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.messages._
+
+import spray.json.JsArray
+import spray.json.JsObject
+import spray.json.JsString
 
 object MeetingMessageToJsonConverter {
   def meetingDestroyedToJson(msg: MeetingDestroyed): String = {
@@ -128,6 +132,21 @@ object MeetingMessageToJsonConverter {
     payload.put("meetings", msg.meetings)
 
     val header = Util.buildHeader(MessageNames.GET_ALL_MEETINGS_REPLY, None)
+    Util.buildJson(header, payload)
+  }
+
+  def breakoutRoomsListOutMessageToJson(msg: BreakoutRoomsListOutMessage): String = {
+    // We need to create a mutable list to able to fill it then convert it to a JsArray
+    val roomsJsVector: ListBuffer[JsObject] = new ListBuffer[JsObject]()
+    msg.rooms.foreach { r =>
+      roomsJsVector.append(JsObject("name" -> JsString(r.name), "breakoutId" -> JsString(r.breakoutId)))
+    }
+
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put("meetingId", msg.meetingId)
+    payload.put("rooms", JsArray(roomsJsVector.toVector).toString())
+
+    val header = Util.buildHeader(BreakoutRoomsList.NAME, None)
     Util.buildJson(header, payload)
   }
 

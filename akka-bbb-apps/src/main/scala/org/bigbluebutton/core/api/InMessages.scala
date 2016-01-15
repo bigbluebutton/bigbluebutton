@@ -39,6 +39,8 @@ case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String,
 // Breakout room
 /////////////////////////////////////////////////////////////////////////////////////
 
+// Sent by user to request the breakout rooms list of a room
+case class BreakoutRoomsListMessage(meetingId: String) extends InMessage
 // Sent by user to request creation of breakout rooms
 case class CreateBreakoutRooms(meetingId: String, durationInMinutes: Int,
   rooms: Vector[BreakoutRoomInPayload]) extends InMessage

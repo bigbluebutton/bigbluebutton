@@ -202,6 +202,23 @@ package org.bigbluebutton.modules.users.services
         }
       ); //_netConnection.call
     }
+	
+	public function queryForBreakoutRooms(meetingId:String):void {
+		var message:Object = new Object();
+		message["meetingId"] = meetingId;
+		var jsonMsg:String = JSON.stringify(message);
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage("breakoutroom.getBreakoutRoomsList", function(result:String):void
+		{
+			// On successful result
+		}, function(status:String):void
+		{ // status - On error occurred
+			LOGGER.error(status);
+		},
+			jsonMsg
+		);
+	}
     
     public function changeRecordingStatus(userID:String, recording:Boolean):void {
       var message:Object = new Object();

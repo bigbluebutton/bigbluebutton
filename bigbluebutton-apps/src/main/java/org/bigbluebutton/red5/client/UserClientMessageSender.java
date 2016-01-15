@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage;
 import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage;
 import org.bigbluebutton.common.messages.GetRecordingStatusReplyMessage;
@@ -27,6 +28,7 @@ import org.bigbluebutton.common.messages.ValidateAuthTokenReplyMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenTimeoutMessage;
 import org.bigbluebutton.messages.BreakoutRoomJoinURL;
 import org.bigbluebutton.messages.BreakoutRoomStarted;
+import org.bigbluebutton.messages.BreakoutRoomsList;
 import org.bigbluebutton.messages.TimeRemainingUpdate;
 import org.bigbluebutton.messages.UpdateBreakoutUsers;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
@@ -173,6 +175,12 @@ public class UserClientMessageSender {
           case LockLayoutMessage.LOCK_LAYOUT:
             processLockLayoutMessage(message);
             break;
+          case BreakoutRoomsList.NAME:
+        	BreakoutRoomsList brl = gson.fromJson(message, BreakoutRoomsList.class);
+            if (brl != null) {
+                processBreakoutRoomsList(brl);
+              }
+        	break;
           case BreakoutRoomJoinURL.NAME:
         	BreakoutRoomJoinURL brjum = gson.fromJson(message, BreakoutRoomJoinURL.class);
             if (brjum != null) {
@@ -488,6 +496,20 @@ public class UserClientMessageSender {
 
     DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "getUsersReply", message);
     service.sendMessage(m);
+  }
+  
+  private void processBreakoutRoomsList(BreakoutRoomsList msg) {
+	  Map<String, Object> args = new HashMap<String, Object>();	
+	  args.put("meetingId", msg.payload.meetingId);
+	  args.put("rooms", msg.payload.rooms);
+	  
+	  Map<String, Object> message = new HashMap<String, Object>();
+      Gson gson = new Gson();
+      message.put("msg", gson.toJson(args));
+      
+      BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomsList", message);
+ 	  log.debug("$$ Sending BreakoutRoomsList: {}", m);
+      service.sendMessage(m);
   }
   
   private void processBreakoutRoomJoinURL(BreakoutRoomJoinURL msg) {

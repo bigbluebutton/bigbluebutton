@@ -20,6 +20,7 @@ package org.bigbluebutton.red5.service;
 
 import org.bigbluebutton.messages.CreateBreakoutRoomsRequest;
 import org.bigbluebutton.messages.EndAllBreakoutRoomsRequest;
+import org.bigbluebutton.messages.GetBreakoutRoomsList;
 import org.bigbluebutton.messages.ListenInOnBreakout;
 import org.bigbluebutton.messages.RequestBreakoutJoinURL;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
@@ -35,6 +36,11 @@ public class BreakoutRoomService extends AbstractService {
 
 	public void setRed5Publisher(MessagePublisher inGW) {
 		red5GW = inGW;
+	}
+
+	public void getBreakoutRoomsList(String jsonMessage) {
+		red5GW.getBreakoutRoomsList(addHeaderToMessage(jsonMessage,
+				GetBreakoutRoomsList.NAME));
 	}
 
 	public void createBreakoutRooms(String jsonMessage) {

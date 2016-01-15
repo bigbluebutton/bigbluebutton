@@ -124,6 +124,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: WhiteboardEnabledEvent => handleWhiteboardEnabledEvent(msg)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
     // breakout room cases
+    case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
     case msg: BreakoutRoomJoinURLOutMessage => handleBreakoutRoomJoinURLOutMessage(msg)
     case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsersOutMessage(msg)
@@ -664,6 +665,11 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 
+  private def handleBreakoutRoomsListOutMessage(msg:BreakoutRoomsListOutMessage) {
+    val json = MeetingMessageToJsonConverter.breakoutRoomsListOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+  
   private def handleBreakoutRoomStartedOutMessage(msg: BreakoutRoomStartedOutMessage) {
     val json = MeetingMessageToJsonConverter.breakoutRoomStartedOutMessageToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)

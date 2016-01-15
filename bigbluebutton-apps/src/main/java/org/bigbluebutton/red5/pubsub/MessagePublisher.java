@@ -271,6 +271,10 @@ public class MessagePublisher {
 	}
 
 	// could be improved by doing some factorization
+	public void getBreakoutRoomsList(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
+	}
+
 	public void createBreakoutRooms(String jsonMessage) {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}
