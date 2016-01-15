@@ -1,3 +1,5 @@
+// Publish only the online users that are in the particular meetingId
+// On the client side we pass the meetingId parameter
 Meteor.publish('users', function(meetingId, userid, authToken) {
   let ref, ref1, u, username;
   Meteor.log.info(`attempt publishing users for ${meetingId}, ${userid}, ${authToken}`);
@@ -10,6 +12,8 @@ Meteor.publish('users', function(meetingId, userid, authToken) {
     if(isAllowedTo('subscribeUsers', meetingId, userid, authToken)) {
       Meteor.log.info(`${userid} was allowed to subscribe to 'users'`);
       username = (u != null ? (ref = u.user) != null ? ref.name : void 0 : void 0) || "UNKNOWN";
+
+      // offline -> online
       if(((ref1 = u.user) != null ? ref1.connection_status : void 0) !== 'online') {
         Meteor.call("validateAuthToken", meetingId, userid, authToken);
       }
@@ -37,6 +41,8 @@ Meteor.publish('users', function(meetingId, userid, authToken) {
           return requestUserLeaving(meetingId, userid);
         };
       })(this)));
+
+      //publish the users which are not offline
       return Meteor.Users.find({
         meetingId: meetingId,
         'user.connection_status': {
@@ -51,7 +57,7 @@ Meteor.publish('users', function(meetingId, userid, authToken) {
       Meteor.log.warn("was not authorized to subscribe to 'users'");
       return this.error(new Meteor.Error(402, "The user was not authorized to subscribe to 'users'"));
     }
-  } else {
+  } else { //subscribing before the user was added to the collection
     Meteor.call("validateAuthToken", meetingId, userid, authToken);
     Meteor.log.error(`there was no such user ${userid} in ${meetingId}`);
     return Meteor.Users.find({
@@ -90,7 +96,9 @@ Meteor.publish('chat', function(meetingId, userid, authToken) {
 });
 
 Meteor.publish('bbb_poll', function(meetingId, userid, authToken) {
+  //checking if it is allowed to see Poll Collection in general
   if(isAllowedTo('subscribePoll', meetingId, userid, authToken)) {
+    //checking if it is allowed to see a number of votes (presenter only)
     if(isAllowedTo('subscribeAnswers', meetingId, userid, authToken)) {
       Meteor.log.info("publishing Poll for presenter: " + meetingId + " " + userid + " " + authToken);
       return Meteor.Polls.find({

@@ -1,6 +1,11 @@
+// TODO: should be split on server and client side
+// // Global configurations file
+
 let config, file, ref, transports, winston;
 
 config = {};
+
+// Default global variables
 
 config.appName = 'BigBlueButton HTML5 Client';
 
@@ -20,11 +25,17 @@ config.maxChatLength = 140;
 
 config.lockOnJoin = true;
 
+//// Application configurations
+
 config.app = {};
+
+//default font sizes for mobile / desktop
 
 config.app.mobileFont = 16;
 
 config.app.desktopFont = 14;
+
+// Will offer the user to join the audio when entering the meeting
 
 config.app.autoJoinAudio = false;
 
@@ -32,7 +43,11 @@ config.app.listenOnly = false;
 
 config.app.skipCheck = false;
 
+// The amount of time the client will wait before making another call to successfully hangup the WebRTC conference call
+
 config.app.WebRTCHangupRetryInterval = 2000;
+
+// Configs for redis
 
 config.redis = {};
 
@@ -64,11 +79,14 @@ config.redis.channels.toBBBApps.whiteboard = "bigbluebutton:to-bbb-apps:whiteboa
 
 config.redis.channels.toBBBApps.polling = "bigbluebutton:to-bbb-apps:polling";
 
+// Logging
+
 config.log = {};
 
 if(Meteor.isServer) {
   config.log.path = (typeof process !== "undefined" && process !== null ? (ref = process.env) != null ? ref.NODE_ENV : void 0 : void 0) === "production" ? "/var/log/bigbluebutton/bbbnode.log" : `${process.env.PWD}/../log/development.log`;
-  winston = Winston;
+  // Setting up a logger in Meteor.log
+  winston = Winston; //Meteor.require 'winston'
   file = config.log.path;
   transports = [
     new winston.transports.Console(), new winston.transports.File({

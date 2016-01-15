@@ -1,4 +1,8 @@
 Meteor.methods({
+  // meetingId: the id of the meeting
+	// chatObject: the object including info on the chat message, including the text
+	// requesterUserId: the userId of the user sending chat
+	// requesterToken: the authToken of the requester
   sendChatMessagetoServer(meetingId, chatObject, requesterUserId, requesterToken) {
     let action, chatType, eventName, message, recipient;
     chatType = chatObject.chat_type;
@@ -11,7 +15,7 @@ Meteor.methods({
       } else {
         eventName = "send_private_chat_message";
         if(recipient === requesterUserId) {
-          return 'chatSelf';
+          return 'chatSelf'; //not allowed
         } else {
           return 'chatPrivate';
         }
@@ -35,6 +39,7 @@ Meteor.methods({
     }
   },
   deletePrivateChatMessages(userId, contact_id) {
+    // if authorized pass through
     let contact, requester;
     requester = Meteor.Users.findOne({
       userId: userId
@@ -46,8 +51,13 @@ Meteor.methods({
   }
 });
 
+// --------------------------------------------------------------------------------------------
+// Private methods on server
+// --------------------------------------------------------------------------------------------
 this.addChatToCollection = function(meetingId, messageObject) {
   let id;
+  // manually convert time from 1.408645053653E12 to 1408645053653 if necessary
+	// (this is the time_from that the Flash client outputs)
   messageObject.from_time = messageObject.from_time.toString().split('.').join("").split("E")[0];
   if((messageObject.from_userid != null) && (messageObject.to_userid != null)) {
     messageObject.message = translateFlashToHTML5(messageObject.message);
@@ -81,6 +91,7 @@ this.addChatToCollection = function(meetingId, messageObject) {
   }
 };
 
+// called on server start and meeting end
 this.clearChatCollection = function(meetingId) {
   if(meetingId != null) {
     return Meteor.Chat.remove({
@@ -91,6 +102,11 @@ this.clearChatCollection = function(meetingId) {
   }
 };
 
+// --------------------------------------------------------------------------------------------
+// end Private methods on server
+// --------------------------------------------------------------------------------------------
+
+// translate '\n' newline character and '\r' carriage returns to '<br/>' breakline character for Flash
 this.translateHTML5ToFlash = function(message) {
   let result;
   result = message;
@@ -99,6 +115,7 @@ this.translateHTML5ToFlash = function(message) {
   return result;
 };
 
+// translate '<br/>' breakline character to '\r' carriage return character for HTML5
 this.translateFlashToHTML5 = function(message) {
   let result;
   result = message;

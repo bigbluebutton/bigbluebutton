@@ -12,7 +12,8 @@ this.reactOnSlideChange = (_this => {
       setInSession('slideOriginalWidth', this.width);
       setInSession('slideOriginalHeight', this.height);
       $(window).resize(() => {
-        if(!$('.panel-footer').hasClass('ui-resizable-resizing')) {
+        // redraw the whiteboard to adapt to the resized window
+        if(!$('.panel-footer').hasClass('ui-resizable-resizing')) { // not in the middle of resizing the message input
           return scaleWhiteboard();
         }
       });
@@ -28,6 +29,7 @@ this.reactOnSlideChange = (_this => {
 })(this);
 
 this.createWhiteboardPaper = (_this => {
+  // console.log "CREATING WPM"
   return function(callback) {
     _this.whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper');
     return callback(_this.whiteboardPaperModel);
@@ -67,7 +69,7 @@ this.manuallyDisplayShapes = function() {
     shapeType = shapeInfo != null ? shapeInfo.type : void 0;
     if(shapeType !== "text") {
       len = shapeInfo.points.length;
-      for(num = j = 0, ref2 = len; 0 <= ref2 ? j <= ref2 : j >= ref2; num = 0 <= ref2 ? ++j : --j) {
+      for(num = j = 0, ref2 = len; 0 <= ref2 ? j <= ref2 : j >= ref2; num = 0 <= ref2 ? ++j : --j) { // the coordinates must be in the range 0 to 1
         if(shapeInfo != null) {
           shapeInfo.points[num] = (shapeInfo != null ? shapeInfo.points[num] : void 0) / 100;
         }
@@ -81,17 +83,29 @@ this.manuallyDisplayShapes = function() {
   return results;
 };
 
+// calculates and returns the best fitting {width, height} pair
+// based on the image's original width and height
 this.scaleSlide = function(originalWidth, originalHeight) {
   let adjustedHeight, adjustedWidth, boardHeight, boardWidth;
+
+  // set the size of the whiteboard space (frame) where the slide will be displayed
   if(window.matchMedia('(orientation: landscape)').matches) {
+    // for landscape orientation we want "fit to height" so that we can
+    // minimize the empty space above and below the slide (for best readability)
     boardWidth = $("#whiteboard-container").width();
     boardHeight = $("#whiteboard-container").height();
   } else {
+    // for portrait orientation we want "fit to width" so that we can
+    // minimize the empty space on the sides of the slide (for best readability)
     boardWidth = $("#whiteboard-container").width();
     boardHeight = 1.4 * $("#whiteboard-container").width();
   }
+
+  // this is the best fitting pair
   adjustedWidth = null;
   adjustedHeight = null;
+
+  // the slide image is in portrait orientation
   if(originalWidth <= originalHeight) {
     adjustedWidth = boardHeight * originalWidth / originalHeight;
     if (boardWidth < adjustedWidth) {
@@ -100,6 +114,8 @@ this.scaleSlide = function(originalWidth, originalHeight) {
     } else {
       adjustedHeight = boardHeight;
     }
+
+  // ths slide image is in landscape orientation
   } else {
     adjustedHeight = boardWidth * originalHeight / originalWidth;
     if (boardHeight < adjustedHeight) {
@@ -123,13 +139,16 @@ Template.slide.helpers({
   }
 });
 
+//// SHAPE ////
 Template.shape.rendered = function() {
   let i, len, num, ref, ref1, shapeInfo, shapeType, wpm;
+
+  // @data is the shape object coming from the {{#each}} in the html file
   shapeInfo = ((ref = this.data.shape) != null ? ref.shape : void 0) || this.data.shape;
   shapeType = shapeInfo != null ? shapeInfo.type : void 0;
   if(shapeType !== "text") {
     len = shapeInfo.points.length;
-    for (num = i = 0, ref1 = len; 0 <= ref1 ? i <= ref1 : i >= ref1; num = 0 <= ref1 ? ++i : --i) {
+    for (num = i = 0, ref1 = len; 0 <= ref1 ? i <= ref1 : i >= ref1; num = 0 <= ref1 ? ++i : --i) { // the coordinates must be in the range 0 to 1
       shapeInfo.points[num] = shapeInfo.points[num] / 100;
     }
   }

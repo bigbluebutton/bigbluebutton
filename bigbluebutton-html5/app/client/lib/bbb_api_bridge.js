@@ -72,6 +72,7 @@ this.BBB = (function() {
   for AM_I_SHARING_CAM_RESP (see below).
    */
   BBB.amISharingWebcam = function(callback) {
+    // BBB.isUserSharingWebcam BBB.getCurrentUser()?.userId
     return false;
   };
 
@@ -86,21 +87,30 @@ this.BBB = (function() {
   IS_USER_PUBLISHING_CAM_RESP (see below).
    */
   BBB.isUserSharingWebcam = function(userId, callback) {
+    // BBB.getUser(userId)?.user?.webcam_stream?.length isnt 0
     return false;
   };
+
+  // returns whether the user has joined any type of audio
   BBB.amIInAudio = function(callback) {
     let ref, ref1, ref2, user;
     user = BBB.getCurrentUser();
     return (user != null ? (ref = user.user) != null ? ref.listenOnly : void 0 : void 0) || (user != null ? (ref1 = user.user) != null ? (ref2 = ref1.voiceUser) != null ? ref2.joined : void 0 : void 0 : void 0);
   };
+
+  // returns true if the user has joined the listen only audio stream
   BBB.amIListenOnlyAudio = function(callback) {
     let ref, ref1;
     return (ref = BBB.getCurrentUser()) != null ? (ref1 = ref.user) != null ? ref1.listenOnly : void 0 : void 0;
   };
+
+  // returns whether the user has joined the voice conference and is sharing audio through a microphone
   BBB.amISharingAudio = function(callback) {
     let ref;
     return BBB.isUserSharingAudio((ref = BBB.getCurrentUser()) != null ? ref.userId : void 0);
   };
+
+  // returns whether the user is currently talking
   BBB.amITalking = function(callback) {
     let ref;
     return BBB.isUserTalking((ref = BBB.getCurrentUser()) != null ? ref.userId : void 0);
@@ -126,13 +136,20 @@ this.BBB = (function() {
     let ref, ref1;
     return (ref = BBB.getUser(userId)) != null ? (ref1 = ref.user) != null ? ref1.presenter : void 0 : void 0;
   };
+
+  // returns true if the current user is marked as locked
   BBB.amILocked = function() {
     let ref;
     return (ref = BBB.getCurrentUser()) != null ? ref.user.locked : void 0;
   };
+
+  // check whether the user is locked AND the current lock settings for the room
+  // includes locking the microphone of viewers (listenOnly is still alowed)
   BBB.isMyMicLocked = function() {
     let lockedMicForRoom, ref;
     lockedMicForRoom = (ref = Meteor.Meetings.findOne()) != null ? ref.roomLockSettings.disableMic : void 0;
+    // note that voiceUser.locked is not used in BigBlueButton at this stage (April 2015)
+
     return lockedMicForRoom && BBB.amILocked();
   };
   BBB.getCurrentSlide = function(callingLocaton) {
@@ -145,6 +162,7 @@ this.BBB = (function() {
       "presentationId": presentationId,
       "slide.current": true
     });
+    // console.log "trigger:#{callingLocaton} currentSlideId=#{currentSlide?._id}"
     return currentSlide;
   };
   BBB.getMeetingName = function() {
@@ -461,9 +479,13 @@ this.BBB = (function() {
   presentationID - the presentation to delete
    */
   BBB.deletePresentation = function(presentationID) {};
+
+  // Request to switch the presentation to the previous slide
   BBB.goToPreviousPage = function() {
     return Meteor.call('publishSwitchToPreviousSlideMessage', getInSession('meetingId'), getInSession('userId'), getInSession('authToken'));
   };
+
+  // Request to switch the presentation to the next slide
   BBB.goToNextPage = function() {
     return Meteor.call('publishSwitchToNextSlideMessage', getInSession('meetingId'), getInSession('userId'), getInSession('authToken'));
   };
@@ -484,6 +506,12 @@ this.BBB = (function() {
   BBB.webRTCWebcamRequest = function() {};
   BBB.webRTCWebcamRequestSuccess = function() {};
   BBB.webRTCWebcamRequestFail = function(reason) {};
+
+  // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
+
+  // ***********************************************************************************
+  // *       Broadcasting of events to 3rd-party apps.
+  // ************************************************************************************
 
   /*
   Stores the 3rd-party app event listeners **

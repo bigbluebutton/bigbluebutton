@@ -1,6 +1,7 @@
 const bind = function(fn, me) { return function() { return fn.apply(me, arguments); }; }, indexOf = [].indexOf || function(item) { for (let i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 Meteor.methods({
+  // Construct and send a message to bbb-web to validate the user
   validateAuthToken(meetingId, userId, authToken) {
     let message;
     Meteor.log.info("sending a validate_auth_token with", {
@@ -47,11 +48,13 @@ Meteor.RedisPubSub = (function() {
     _onSubscribe(channel, count) {
       let message;
       Meteor.log.info(`Subscribed to ${channel}`);
+
+      //grab data about all active meetings on the server
       message = {
         "header": {
           "name": "get_all_meetings_request"
         },
-        "payload": {}
+        "payload": {} // I need this, otherwise bbb-apps won't recognize the message
       };
       return publish(Meteor.config.redis.channels.toBBBApps.meeting, message);
     }
@@ -75,6 +78,11 @@ Meteor.RedisPubSub = (function() {
   return RedisPubSub;
 })();
 
+// --------------------------------------------------------------------------------------------
+// Private methods on server
+// --------------------------------------------------------------------------------------------
+
+// message should be an object
 this.publish = function(channel, message) {
   Meteor.log.info(`redis outgoing message  ${message.header.name}`, {
     channel: channel,

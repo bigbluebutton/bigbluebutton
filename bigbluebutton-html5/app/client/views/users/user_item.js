@@ -3,6 +3,10 @@ Template.displayUserIcons.events({
     return toggleMic(this);
   },
   'click .raisedHandIcon'(event) {
+    // the function to call 'userLowerHand'
+    // the meeting id
+    // the _id of the person whose land is to be lowered
+    // the userId of the person who is lowering the hand
     return BBB.lowerHand(getInSession("meetingId"), this.userId, getInSession("userId"), getInSession("authToken"));
   },
   'click .kickUser'(event) {
@@ -12,6 +16,8 @@ Template.displayUserIcons.events({
 
 Template.displayUserIcons.helpers({
   userLockedIconApplicable(userId) {
+    // the lock settings affect the user (and requiire a lock icon) if
+    // the user is set to be locked and there is a relevant lock in place
     let lockInAction, locked, ref, ref1, settings;
     locked = (ref = BBB.getUser(userId)) != null ? ref.user.locked : void 0;
     settings = (ref1 = Meteor.Meetings.findOne()) != null ? ref1.roomLockSettings : void 0;
@@ -20,6 +26,7 @@ Template.displayUserIcons.helpers({
   }
 });
 
+// Opens a private chat tab when a username from the userlist is clicked
 Template.usernameEntry.events({
   'click .usernameEntry'(event) {
     let ref, userIdSelected;
@@ -35,7 +42,7 @@ Template.usernameEntry.events({
       toggleUserlistMenu();
       toggleShield();
     }
-    return setTimeout(() => {
+    return setTimeout(() => { // waits until the end of execution queue
       return $("#newMessageInput").focus();
     }, 0);
   },

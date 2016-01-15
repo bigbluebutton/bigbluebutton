@@ -45,7 +45,7 @@ Template.settingsModal.events({
 
 Template.optionsFontSize.events({
   "click #decreaseFontSize"(event) {
-    if(getInSession("messageFontSize") === 8) {
+    if(getInSession("messageFontSize") === 8) { // min
       $('#decreaseFontSize').disabled = true;
       $('#decreaseFontSize').removeClass('icon fi-minus');
       return $('#decreaseFontSize').html('MIN');
@@ -60,7 +60,7 @@ Template.optionsFontSize.events({
     }
   },
   "click #increaseFontSize"(event) {
-    if(getInSession("messageFontSize") === 40) {
+    if(getInSession("messageFontSize") === 40) { // max
       $('#increaseFontSize').disabled = true;
       $('#increaseFontSize').removeClass('icon fi-plus');
       return $('#increaseFontSize').html('MAX');

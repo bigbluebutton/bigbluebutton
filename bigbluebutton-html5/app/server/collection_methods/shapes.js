@@ -1,3 +1,6 @@
+// --------------------------------------------------------------------------------------------
+// Private methods on server
+// --------------------------------------------------------------------------------------------
 this.addShapeToCollection = function(meetingId, whiteboardId, shapeObject) {
   let entry, id, removeTempTextShape;
   if((shapeObject != null ? shapeObject.shape_type : void 0) === "text") {
@@ -24,19 +27,25 @@ this.addShapeToCollection = function(meetingId, whiteboardId, shapeObject) {
       }
     };
     if(shapeObject.status === "textEdited" || shapeObject.status === "textPublished") {
+      // only keep the final version of the text shape
       removeTempTextShape = function(callback) {
         Meteor.Shapes.remove({
           'shape.id': shapeObject.shape.id
         });
+        // for s in Meteor.Shapes.find({'shape.id':shapeObject.shape.id}).fetch()
+        //   Meteor.log.info "there is this shape: #{s.shape.text}"
         return callback();
       };
       return removeTempTextShape(() => {
+        // display as the prestenter is typing
         let id;
         id = Meteor.Shapes.insert(entry);
         return Meteor.log.info(`${shapeObject.status} substituting the temp shapes with the newer one`);
       });
     }
   } else {
+    // the mouse button was released - the drawing is complete
+    // TODO: pencil messages currently don't send draw_end and are labeled all as DRAW_START
     if((shapeObject != null ? shapeObject.status : void 0) === "DRAW_END" || ((shapeObject != null ? shapeObject.status : void 0) === "DRAW_START" && (shapeObject != null ? shapeObject.shape_type : void 0) === "pencil")) {
       entry = {
         meetingId: meetingId,
@@ -78,6 +87,8 @@ this.removeAllShapesFromSlide = function(meetingId, whiteboardId) {
       whiteboardId: whiteboardId
     }, () => {
       Meteor.log.info("clearing all shapes from slide");
+
+      // After shapes are cleared, wait 1 second and set cleaning off
       return Meteor.setTimeout(() => {
         return Meteor.WhiteboardCleanStatus.update({
           meetingId: meetingId
@@ -108,6 +119,7 @@ whiteboardId: whiteboardId
   }
 };
 
+// called on server start and meeting end
 this.clearShapesCollection = function(meetingId) {
   if(meetingId != null) {
     return Meteor.Shapes.remove({
@@ -135,3 +147,7 @@ this.clearShapesCollection = function(meetingId) {
     });
   }
 };
+
+// --------------------------------------------------------------------------------------------
+// end Private methods on server
+// --------------------------------------------------------------------------------------------

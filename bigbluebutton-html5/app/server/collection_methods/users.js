@@ -1,4 +1,15 @@
+// --------------------------------------------------------------------------------------------
+// Public methods on server
+// All these method must first authenticate the user before it calls the private function counterpart below
+// which sends the request to bbbApps. If the method is modifying the media the current user is sharing,
+// you should perform the request before sending the request to bbbApps. This allows the user request to be performed
+// immediately, since they do not require permission for things such as muting themsevles.
+// --------------------------------------------------------------------------------------------
 Meteor.methods({
+  // meetingId: the meetingId of the meeting the user is in
+  // toSetUserId: the userId of the user joining
+  // requesterUserId: the userId of the requester
+  // requesterToken: the authToken of the requester
   listenOnlyRequestToggle(meetingId, userId, authToken, isJoining) {
     let message, ref, ref1, username, voiceConf;
     voiceConf = (ref = Meteor.Meetings.findOne({
@@ -46,6 +57,11 @@ Meteor.methods({
       }
     }
   },
+
+  // meetingId: the meetingId of the meeting the user[s] is in
+  // toMuteUserId: the userId of the user to be muted
+  // requesterUserId: the userId of the requester
+  // requesterToken: the authToken of the requester
   muteUser(meetingId, toMuteUserId, requesterUserId, requesterToken) {
     let action, message;
     action = function() {
@@ -78,6 +94,11 @@ Meteor.methods({
       });
     }
   },
+
+  // meetingId: the meetingId of the meeting the user[s] is in
+  // toMuteUserId: the userId of the user to be unmuted
+  // requesterUserId: the userId of the requester
+  // requesterToken: the authToken of the requester
   unmuteUser(meetingId, toMuteUserId, requesterUserId, requesterToken) {
     let action, message;
     action = function() {
@@ -125,15 +146,26 @@ Meteor.methods({
           version: "0.0.1"
         }
       };
+
+      // publish to pubsub
       publish(Meteor.config.redis.channels.toBBBApps.users, message);
     }
   },
+
+  // meetingId: the meeting where the user is
+  // userId: the userid of the user logging out
+  // authToken: the authToken of the user
   userLogout(meetingId, userId, authToken) {
     if(isAllowedTo('logoutSelf', meetingId, userId, authToken)) {
       Meteor.log.info(`a user is logging out from ${meetingId}:${userId}`);
       return requestUserLeaving(meetingId, userId);
     }
   },
+
+  //meetingId: the meeting where the user is
+  //toKickUserId: the userid of the user to kick
+  //requesterUserId: the userid of the user that wants to kick
+  //authToken: the authToken of the user that wants to kick
   kickUser(meetingId, toKickUserId, requesterUserId, authToken) {
     let message;
     if(isAllowedTo('kickUser', meetingId, requesterUserId, authToken)) {
@@ -150,6 +182,12 @@ Meteor.methods({
       return publish(Meteor.config.redis.channels.toBBBApps.users, message);
     }
   },
+
+  //meetingId: the meeting where the user is
+  //newPresenterId: the userid of the new presenter
+  //requesterSetPresenter: the userid of the user that wants to change the presenter
+  //newPresenterName: user name of the new presenter
+  //authToken: the authToken of the user that wants to kick
   setUserPresenter(
     meetingId,
     newPresenterId,
@@ -174,7 +212,18 @@ Meteor.methods({
   }
 });
 
+
+// --------------------------------------------------------------------------------------------
+// Private methods on server
+// --------------------------------------------------------------------------------------------
+
+// Only callable from server
+// Received information from BBB-Apps that a user left
+// Need to update the collection
+// params: meetingid, userid as defined in BBB-Apps
+// callback
 this.markUserOffline = function(meetingId, userId, callback) {
+  // mark the user as offline. remove from the collection on meeting_end #TODO
   let user;
   user = Meteor.Users.findOne({
     meetingId: meetingId,
@@ -227,6 +276,9 @@ this.markUserOffline = function(meetingId, userId, callback) {
   }
 };
 
+// Corresponds to a valid action on the HTML clientside
+// After authorization, publish a user_leaving_request in redis
+// params: meetingid, userid as defined in BBB-App
 this.requestUserLeaving = function(meetingId, userId) {
   let listenOnlyMessage, message, ref, userObject, voiceConf;
   userObject = Meteor.Users.findOne({
@@ -237,6 +289,8 @@ this.requestUserLeaving = function(meetingId, userId) {
     meetingId: meetingId
   })) != null ? ref.voiceConf : void 0;
   if((userObject != null) && (voiceConf != null) && (userId != null) && (meetingId != null)) {
+
+    // end listenOnly audio for the departing user
     if(userObject.user.listenOnly) {
       listenOnlyMessage = {
         payload: {
@@ -252,6 +306,8 @@ this.requestUserLeaving = function(meetingId, userId) {
       };
       publish(Meteor.config.redis.channels.toBBBApps.meeting, listenOnlyMessage);
     }
+
+    // remove user from meeting
     message = {
       payload: {
         meeting_id: meetingId,
@@ -269,6 +325,7 @@ this.requestUserLeaving = function(meetingId, userId) {
   }
 };
 
+//update a voiceUser - a helper method
 this.updateVoiceUser = function(meetingId, voiceUserObject, callback) {
   let u;
   u = Meteor.Users.findOne({
@@ -289,7 +346,7 @@ this.updateVoiceUser = function(meetingId, voiceUserObject, callback) {
         }
         return callback();
       });
-    }
+    } // talking
     if(voiceUserObject.joined != null) {
       Meteor.Users.update({
         meetingId: meetingId,
@@ -306,7 +363,7 @@ this.updateVoiceUser = function(meetingId, voiceUserObject, callback) {
         }
         return callback();
       });
-    }
+    } // joined
     if(voiceUserObject.locked != null) {
       Meteor.Users.update({
         meetingId: meetingId,
@@ -321,7 +378,7 @@ this.updateVoiceUser = function(meetingId, voiceUserObject, callback) {
         }
         return callback();
       });
-    }
+    } // locked
     if(voiceUserObject.muted != null) {
       Meteor.Users.update({
         meetingId: meetingId,
@@ -336,7 +393,7 @@ this.updateVoiceUser = function(meetingId, voiceUserObject, callback) {
         }
         return callback();
       });
-    }
+    } // muted
     if(voiceUserObject.listen_only != null) {
       return Meteor.Users.update({
         meetingId: meetingId,
@@ -351,7 +408,7 @@ this.updateVoiceUser = function(meetingId, voiceUserObject, callback) {
         }
         return callback();
       });
-    }
+    } // listenOnly
   } else {
     Meteor.log.error("ERROR! did not find such voiceUser!");
     return callback();
@@ -365,6 +422,10 @@ this.userJoined = function(meetingId, user, callback) {
     userId: user.userid,
     meetingId: meetingId
   });
+  // the collection already contains an entry for this user
+  // because the user is reconnecting OR
+  // in the case of an html5 client user we added a dummy user on
+  // register_user_message (to save authToken)
   if((u != null) && (u.authToken != null)) {
     Meteor.Users.update({
       userId: user.userid,
@@ -385,7 +446,7 @@ this.userJoined = function(meetingId, user, callback) {
           extern_userid: user.extern_userid,
           locked: user.locked,
           time_of_joining: user.timeOfJoining,
-          connection_status: "online",
+          connection_status: "online", // TODO consider other default value
           voiceUser: {
             web_userid: user.voiceUser.web_userid,
             callernum: user.voiceUser.callernum,
@@ -416,6 +477,7 @@ this.userJoined = function(meetingId, user, callback) {
       meetingId: meetingId
     })) != null ? ref.meetingName : void 0);
     welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter;
+    // add the welcome message if it's not there already OR update time_of_joining
     return Meteor.Chat.upsert({
       meetingId: meetingId,
       userId: userId,
@@ -439,8 +501,12 @@ this.userJoined = function(meetingId, user, callback) {
       } else {
         return Meteor.log.info(`_added/updated a system message in chat for user ${userId}`);
       }
+      // note that we already called callback() when updating the user. Adding
+      // the welcome message in the chat is not as vital and we can afford to
+      // complete it when possible, without blocking the serial event messages processing
     });
   } else {
+    // Meteor.log.info "NOTE: got user_joined_message #{user.name} #{user.userid}"
     return Meteor.Users.upsert({
       meetingId: meetingId,
       userId: userId
@@ -506,7 +572,7 @@ this.createDummyUser = function(meetingId, userId, authToken) {
       userId: userId,
       authToken: authToken,
       clientType: "HTML5",
-      validated: false
+      validated: false //will be validated on validate_auth_token_reply
     }, (err, id) => {
       return Meteor.log.info(`_added a dummy html5 user with: userId=[${userId}] Users.size is now ${Meteor.Users.find({
   meetingId: meetingId
@@ -515,7 +581,10 @@ this.createDummyUser = function(meetingId, userId, authToken) {
   }
 };
 
+// when new lock settings including disableMic are set,
+// all viewers that are in the audio bridge with a mic should be muted and locked
 this.handleLockingMic = function(meetingId, newSettings) {
+  // send mute requests for the viewer users joined with mic
   let i, len, ref, ref1, results, u;
   ref1 = (ref = Meteor.Users.find({
     meetingId: meetingId,
@@ -528,11 +597,13 @@ this.handleLockingMic = function(meetingId, newSettings) {
   results = [];
   for(i = 0, len = ref1.length; i < len; i++) {
     u = ref1[i];
-    results.push(Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true));
+    // Meteor.log.info u.user.name #
+    results.push(Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true)); //true for muted
   }
   return results;
 };
 
+// change the locked status of a user (lock settings)
 this.setUserLockedStatus = function(meetingId, userId, isLocked) {
   let u;
   u = Meteor.Users.findOne({
@@ -554,14 +625,17 @@ this.setUserLockedStatus = function(meetingId, userId, isLocked) {
         return Meteor.log.info(`_setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);
       }
     });
+    // if the user is sharing audio, he should be muted upon locking involving disableMic
     if(u.user.role === 'VIEWER' && !u.user.listenOnly && u.user.voiceUser.joined && !u.user.voiceUser.muted && isLocked) {
-      return Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true);
+      return Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true); //true for muted
     }
   } else {
     return Meteor.log.error(`(unsuccessful-no such user) setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);
   }
 };
 
+
+// called on server start and on meeting end
 this.clearUsersCollection = function(meetingId) {
   if(meetingId != null) {
     return Meteor.Users.remove({

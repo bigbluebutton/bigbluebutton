@@ -4,6 +4,7 @@ const bind = function(fn, me) {
   };
 };
 
+// The cursor/pointer in the whiteboard
 this.WhiteboardCursorModel = (function() {
   class WhiteboardCursorModel {
     constructor(paper, radius, color) {
@@ -15,7 +16,7 @@ this.WhiteboardCursorModel = (function() {
         this.radius = 6;
       }
       if(this.color == null) {
-        this.color = "#ff6666";
+        this.color = "#ff6666"; // a pinkish red
       }
       this.cursor = null;
     }

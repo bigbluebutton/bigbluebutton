@@ -1,5 +1,6 @@
 let fakeUpload;
 
+// scale the whiteboard to adapt to the resized window
 this.scaleWhiteboard = function(callback) {
   let adjustedDimensions;
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'));
@@ -27,9 +28,13 @@ this.scaleWhiteboard = function(callback) {
     },
     clearSlide() {
       let ref;
+
+      //clear the slide
       if(typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null) {
         whiteboardPaperModel.removeAllImagesFromPaper();
       }
+
+      // hide the cursor
       return typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null ? (ref = whiteboardPaperModel.cursor) != null ? ref.remove() : void 0 : void 0;
     }
   };
@@ -212,25 +217,29 @@ Template.whiteboard.rendered = function() {
       return adjustChatInputHeight();
     },
     start() {
-      if($('#chat').width() / $('#panels').width() > 0.2) {
-        return $('#whiteboard').resizable('option', 'maxWidth', $('#panels').width() - 200);
+      if($('#chat').width() / $('#panels').width() > 0.2) { // chat shrinking can't make it smaller than one fifth of the whiteboard-chat area
+        return $('#whiteboard').resizable('option', 'maxWidth', $('#panels').width() - 200); // gives the chat enough space (200px)
       } else {
         return $('#whiteboard').resizable('option', 'maxWidth', $('#whiteboard').width());
       }
     },
     stop() {
-      $('#whiteboard').css('width', `${100 * $('#whiteboard').width() / $('#panels').width()}%`);
+      $('#whiteboard').css('width', `${100 * $('#whiteboard').width() / $('#panels').width()}%`); // transforms width to %
       return $('#whiteboard').resizable('option', 'maxWidth', null);
     }
   });
+
+  // whiteboard element needs to be available
   Meteor.NotificationControl = new NotificationControl('notificationArea');
-  return $(document).foundation();
+
+  return $(document).foundation(); // initialize foundation javascript
 };
 
 Template.presenterUploaderControl.created = function() {
   this.isOpen = new ReactiveVar(false);
   this.files = new ReactiveList({
     sort(a, b) {
+      // Put the ones who still uploading first
       let ref, ref1;
       return (ref = a.isUploading === b.isUploading) != null ? ref : {
         0: (ref1 = a.isUploading) != null ? ref1 : -{
@@ -261,7 +270,7 @@ fakeUpload = function(file, list) {
     if(file.isUploading === true) {
       return fakeUpload(file, list);
     } else {
-      return list.remove(file.name);
+      return list.remove(file.name); // TODO: Here we should remove and update te presentation on mongo
     }
   }), 200);
 };

@@ -1,6 +1,10 @@
+// --------------------------------------------------------------------------------------------
+// Private methods on server
+// --------------------------------------------------------------------------------------------
 this.displayThisSlide = function(meetingId, newSlideId, slideObject) {
   let presentationId;
-  presentationId = newSlideId.split("/")[0];
+  presentationId = newSlideId.split("/")[0]; // grab the presentationId part of the slideId
+  // change current to false for the old slide
   Meteor.Slides.update({
     presentationId: presentationId,
     "slide.current": true
@@ -9,7 +13,10 @@ this.displayThisSlide = function(meetingId, newSlideId, slideObject) {
       "slide.current": false
     }
   });
+  // for the new slide: remove the version which came with presentation_shared_message from the Collection
+	// to avoid using old data (this message contains everything we need for the new slide)
   removeSlideFromCollection(meetingId, newSlideId);
+  // add the new slide to the collection
   return addSlideToCollection(meetingId, presentationId, slideObject);
 };
 
@@ -37,6 +44,7 @@ this.addSlideToCollection = function(meetingId, presentationId, slideObject) {
       }
     };
     return id = Meteor.Slides.insert(entry);
+    //Meteor.log.info "added slide id =[#{id}]:#{slideObject.id} in #{meetingId}. Now there are #{Meteor.Slides.find({meetingId: meetingId}).count()} slides in the meeting"
   }
 };
 
@@ -57,6 +65,7 @@ this.removeSlideFromCollection = function(meetingId, slideId) {
   }
 };
 
+// called on server start and meeting end
 this.clearSlidesCollection = function(meetingId) {
   if(meetingId != null) {
     return Meteor.Slides.remove({
@@ -66,3 +75,7 @@ this.clearSlidesCollection = function(meetingId) {
     return Meteor.Slides.remove({}, Meteor.log.info("cleared Slides Collection (all meetings)!"));
   }
 };
+
+// --------------------------------------------------------------------------------------------
+// end Private methods on server
+// --------------------------------------------------------------------------------------------

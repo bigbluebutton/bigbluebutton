@@ -1,4 +1,11 @@
+// General utility methods
+
 Meteor.methods({
+  // POST request using javascript
+  // @param  {string} path   path of submission
+  // @param  {string} params parameters to submit
+  // @param  {string} method method of submission ("post" is default)
+  // @return {undefined}
   postToUrl(path, params, method="post") {
     let $hiddenField, form, key;
     form = $("<form></form>");
@@ -22,16 +29,18 @@ Meteor.methods({
   }
 });
 
+// thickness can be a number (e.g. "2") or a string (e.g. "2px")
 this.formatThickness = function(thickness) {
   if(thickness == null) {
-    thickness = "1";
+    thickness = "1"; // default value
   }
   if(!thickness.toString().match(/.*px$/)) {
-    `#${thickness}px`;
+    `#${thickness}px`; // leading "#" - to be compatible with Firefox
   }
   return thickness;
 };
 
+// applies zooming to the stroke thickness
 this.zoomStroke = function(thickness) {
   let currentSlide, ratio;
   currentSlide = BBB.getCurrentSlide("zoomStroke");

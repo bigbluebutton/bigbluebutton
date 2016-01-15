@@ -1,3 +1,6 @@
+// --------------------------------------------------------------------------------------------
+// Public methods on server
+// --------------------------------------------------------------------------------------------
 Meteor.methods({
   publishVoteMessage(meetingId, pollAnswerId, requesterUserId, requesterToken) {
     let _poll_id, eventName, message, result;
@@ -44,20 +47,29 @@ Meteor.methods({
   }
 });
 
+
+// --------------------------------------------------------------------------------------------
+// Private methods on server
+// --------------------------------------------------------------------------------------------
 this.addPollToCollection = function(poll, requester_id, users, meetingId) {
   let _users, answer, entry, i, j, len, len1, ref, user;
+  //copying all the userids into an array
   _users = [];
   for (i = 0, len = users.length; i < len; i++) {
     user = users[i];
     _users.push(user.user.userid);
   }
+  //adding the initial number of votes for each answer
   ref = poll.answers;
   for (j = 0, len1 = ref.length; j < len1; j++) {
     answer = ref[j];
     answer.num_votes = 0;
   }
+  //adding the initial number of responders and respondents to the poll, which will be displayed for presenter (in HTML5 client) when he starts the poll
   poll.num_responders = -1;
   poll.num_respondents = -1;
+
+  //adding all together and inserting into the Polls collection
   entry = {
     poll_info: {
       "meetingId": meetingId,

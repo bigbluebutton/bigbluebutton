@@ -1,3 +1,6 @@
+// --------------------------------------------------------------------------------------------
+// Private methods on server
+// --------------------------------------------------------------------------------------------
 this.initializeCursor = function(meetingId) {
   return Meteor.Cursor.upsert({
     meetingId: meetingId
@@ -9,7 +12,7 @@ this.initializeCursor = function(meetingId) {
     if(err) {
       return Meteor.log.error(`err upserting cursor for ${meetingId}`);
     } else {
-
+      // Meteor.log.info "ok upserting cursor for #{meetingId}"
     }
   });
 };
@@ -26,11 +29,12 @@ this.updateCursorLocation = function(meetingId, cursorObject) {
     if(err != null) {
       return Meteor.log.error(`_unsucc update of cursor for ${meetingId} ${JSON.stringify(cursorObject)} err=${JSON.stringify(err)}`);
     } else {
-
+      // Meteor.log.info "updated cursor for #{meetingId} #{JSON.stringify cursorObject}"
     }
   });
 };
 
+// called on server start and meeting end
 this.clearCursorCollection = function(meetingId) {
   if(meetingId != null) {
     return Meteor.Cursor.remove({
@@ -44,3 +48,7 @@ this.clearCursorCollection = function(meetingId) {
     });
   }
 };
+
+// --------------------------------------------------------------------------------------------
+// end Private methods on server
+// --------------------------------------------------------------------------------------------

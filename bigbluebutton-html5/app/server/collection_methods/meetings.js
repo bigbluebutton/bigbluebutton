@@ -1,4 +1,10 @@
+// --------------------------------------------------------------------------------------------
+// Private methods on server
+// --------------------------------------------------------------------------------------------
+
 this.addMeetingToCollection = function(meetingId, name, intendedForRecording, voiceConf, duration, callback) {
+  //check if the meeting is already in the collection
+
   Meteor.Meetings.upsert({
     meetingId: meetingId
   }, {
@@ -9,13 +15,14 @@ this.addMeetingToCollection = function(meetingId, name, intendedForRecording, vo
       voiceConf: voiceConf,
       duration: duration,
       roomLockSettings: {
+        // by default the lock settings will be disabled on meeting create
         disablePrivateChat: false,
         disableCam: false,
         disableMic: false,
         lockOnJoin: Meteor.config.lockOnJoin,
         lockedLayout: false,
         disablePublicChat: false,
-        lockOnJoinConfigurable: false
+        lockOnJoinConfigurable: false // TODO
       }
     }
   }, (_this => {
@@ -33,6 +40,8 @@ this.addMeetingToCollection = function(meetingId, name, intendedForRecording, vo
       }
     };
   })(this));
+
+  // initialize the cursor in the meeting
   return initializeCursor(meetingId);
 };
 
@@ -46,18 +55,33 @@ this.clearMeetingsCollection = function(meetingId) {
   }
 };
 
+//clean up upon a meeting's end
 this.removeMeetingFromCollection = function(meetingId, callback) {
   let funct;
   if(Meteor.Meetings.findOne({
     meetingId: meetingId
   }) != null) {
     Meteor.log.info(`end of meeting ${meetingId}. Clear the meeting data from all collections`);
+
+    // delete all users in the meeting
     clearUsersCollection(meetingId);
+
+    // delete all slides in the meeting
     clearSlidesCollection(meetingId);
+
+    // delete all shapes in the meeting
     clearShapesCollection(meetingId);
+
+    // delete all presentations in the meeting
     clearPresentationsCollection(meetingId);
+
+    // delete all chat messages in the meeting
     clearChatCollection(meetingId);
+
+    // delete the meeting
     clearMeetingsCollection(meetingId);
+
+    // delete the cursor for the meeting
     clearCursorCollection(meetingId);
     return callback();
   } else {
@@ -68,3 +92,9 @@ this.removeMeetingFromCollection = function(meetingId, callback) {
     return funct(callback);
   }
 };
+
+
+
+// --------------------------------------------------------------------------------------------
+// end Private methods on server
+// --------------------------------------------------------------------------------------------

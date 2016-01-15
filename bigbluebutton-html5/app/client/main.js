@@ -1,15 +1,19 @@
 let loadLib;
 
+// Helper to load javascript libraries from the BBB server
 loadLib = function(libname) {
   let retryMessageCallback, successCallback;
   successCallback = function() {};
   retryMessageCallback = function(param) {
+    //return(Meteor.log.info("Failed to load library"), param);
     return console.log("Failed to load library", param);
   };
   return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback, 10000).fail(retryMessageCallback);
 };
 
+// These settings can just be stored locally in session, created at start up
 Meteor.startup(() => {
+  // Load SIP libraries before the application starts
   loadLib('sip.js');
   loadLib('bbb_webrtc_bridge_sip.js');
   loadLib('bbblogger.js');
@@ -24,6 +28,7 @@ Meteor.startup(() => {
   });
 });
 
+//
 Template.header.events({
   "click .chatBarIcon"(event) {
     $(".tooltip").hide();
@@ -126,6 +131,8 @@ Template.main.rendered = function() {
   lastOrientationWasLandscape = isLandscape();
   $(window).resize(() => {
     $('#dialog').dialog('close');
+
+    // when the orientation switches call the handler
     if(isLandscape() && !lastOrientationWasLandscape) {
       orientationBecameLandscape();
       return lastOrientationWasLandscape = true;
@@ -214,7 +221,7 @@ Template.main.gestures({
           $('.right-drawer').removeClass('menuOut');
           $('.right-drawer').css('transform', '');
           $('.toggleMenuButton').removeClass('menuToggledOn');
-          $('.shield').removeClass('darken');
+          $('.shield').removeClass('darken'); // in case it was opened by clicking a button
         } else {
           $('.shield').css('opacity', 0.5);
           $('.right-drawer').css('transform', `translateX(${screenWidth - $('.right-drawer').width()}px)`);
@@ -232,16 +239,26 @@ Template.main.gestures({
   'panright #container, panleft #container'(event, template) {
     let initTransformValue, leftDrawerWidth, menuPanned, panIsValid, rightDrawerWidth, screenWidth;
     if(isPortraitMobile() && isPanHorizontal(event)) {
+
+      // panright/panleft is always triggered once right before panstart
       if(!getInSession('panStarted')) {
+
+        // opening the left-hand menu
         if(event.type === 'panright' && event.center.x <= $('#container').width() * 0.1) {
           setInSession('panIsValid', true);
           setInSession('menuPanned', 'left');
+
+        // closing the left-hand menu
         } else if(event.type === 'panleft' && event.center.x < $('#container').width() * 0.9) {
           setInSession('panIsValid', true);
           setInSession('menuPanned', 'left');
+
+        // opening the right-hand menu
         } else if(event.type === 'panleft' && event.center.x >= $('#container').width() * 0.9) {
           setInSession('panIsValid', true);
           setInSession('menuPanned', 'right');
+
+        // closing the right-hand menu
         } else if(event.type === 'panright' && event.center.x > $('#container').width() * 0.1) {
           setInSession('panIsValid', true);
           setInSession('menuPanned', 'right');
@@ -250,11 +267,11 @@ Template.main.gestures({
         }
         setInSession('eventType', event.type);
         if(getInSession('menuPanned') === 'left') {
-          if($('.userlistMenu').css('transform') !== 'none') {
+          if($('.userlistMenu').css('transform') !== 'none') { // menu is already transformed
             setInSession(
               'initTransform',
               parseInt($('.userlistMenu').css('transform').split(',')[4])
-            );
+            ); // translateX value
           } else if($('.userlistMenu').hasClass('menuOut')) {
             setInSession('initTransform', $('.userlistMenu').width());
           } else {
@@ -263,11 +280,11 @@ Template.main.gestures({
           $('.userlistMenu').addClass('left-drawer');
           $('.left-drawer').removeClass('userlistMenu');
         } else if(getInSession('menuPanned') === 'right') {
-          if($('.settingsMenu').css('transform') !== 'none') {
+          if($('.settingsMenu').css('transform') !== 'none') { // menu is already transformed
             setInSession(
               'initTransform',
               parseInt($('.settingsMenu').css('transform').split(',')[4])
-            );
+            ); // translateX value
           } else if($('.settingsMenu').hasClass('menuOut')) {
             setInSession('initTransform', $('.settingsMenu').width());
           } else {
@@ -283,7 +300,12 @@ Template.main.gestures({
       leftDrawerWidth = $('.left-drawer').width();
       rightDrawerWidth = $('.right-drawer').width();
       screenWidth = $('#container').width();
-      if(panIsValid && menuPanned === 'left' && initTransformValue + event.deltaX >= 0 && initTransformValue + event.deltaX <= leftDrawerWidth) {
+
+      // moving the left-hand menu
+      if(panIsValid &&
+        menuPanned === 'left' &&
+        initTransformValue + event.deltaX >= 0 &&
+        initTransformValue + event.deltaX <= leftDrawerWidth) {
         if($('.settingsMenu').hasClass('menuOut')) {
           toggleSettingsMenu();
         }
@@ -292,7 +314,10 @@ Template.main.gestures({
           $('.shield').addClass('animatedShield');
         }
         return $('.shield').css('opacity', 0.5 * (initTransformValue + event.deltaX) / leftDrawerWidth);
-      } else if(panIsValid && menuPanned === 'right' && initTransformValue + event.deltaX >= screenWidth - rightDrawerWidth && initTransformValue + event.deltaX <= screenWidth) {
+      } else if(panIsValid &&
+        menuPanned === 'right' &&
+        initTransformValue + event.deltaX >= screenWidth - rightDrawerWidth &&
+        initTransformValue + event.deltaX <= screenWidth) { // moving the right-hand menu
         if($('.userlistMenu').hasClass('menuOut')) {
           toggleUserlistMenu();
         }
