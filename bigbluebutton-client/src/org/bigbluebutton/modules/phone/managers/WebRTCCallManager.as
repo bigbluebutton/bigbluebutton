@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.phone.managers
   public class WebRTCCallManager
   {
 	private static const LOGGER:ILogger = getClassLogger(WebRTCCallManager);      
-    private const MAX_RETRIES:Number = 5;
+    private const MAX_RETRIES:Number = 3;
     
     private var browserType:String = "unknown";
     private var browserVersion:int = 0;
