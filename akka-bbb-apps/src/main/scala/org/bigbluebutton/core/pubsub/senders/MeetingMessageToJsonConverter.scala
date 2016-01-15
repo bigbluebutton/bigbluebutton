@@ -172,11 +172,16 @@ object MeetingMessageToJsonConverter {
   }
 
   def updateBreakoutUsersOutMessageToJson(msg: UpdateBreakoutUsersOutMessage): String = {
+    val usersJsVector: ListBuffer[JsObject] = new ListBuffer[JsObject]()
+    msg.users.foreach { u =>
+      usersJsVector.append(JsObject("name" -> JsString(u.name), "id" -> JsString(u.id)))
+    }
+
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
     payload.put("breakoutId", msg.breakoutId)
     payload.put("recorded", msg.recorded)
-    payload.put("users", msg.users)
+    payload.put("users", JsArray(usersJsVector.toVector).toString())
 
     val header = Util.buildHeader(UpdateBreakoutUsers.NAME, None)
     Util.buildJson(header, payload)
