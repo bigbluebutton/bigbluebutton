@@ -637,7 +637,7 @@ this.setUserPresenter = function(
 // Clear the local user session
 this.clearSessionVar = function(callback) {
   amplify.store('authToken', null);
-  amplify.store('bbbServerVer1sion', null);
+  amplify.store('bbbServerVersion', null);
   amplify.store('chats', null);
   amplify.store('dateOfBuild', null);
   amplify.store('display_chatPane', null);
