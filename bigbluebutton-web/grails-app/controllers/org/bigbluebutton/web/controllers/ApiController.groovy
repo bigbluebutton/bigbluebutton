@@ -406,7 +406,6 @@ class ApiController {
     us.conferencename = meeting.getName()
     us.meetingID = meeting.getInternalId()
     us.externMeetingID = meeting.getExternalId()
-    us.isBreakout = meeting.isBreakout()
     us.externUserID = externUserID
     us.fullname = fullName 
     us.role = role
