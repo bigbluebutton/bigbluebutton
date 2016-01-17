@@ -148,7 +148,7 @@ package org.bigbluebutton.main.model.users
                                              .withExternalId(response.externMeetingID).withRecorded(response.record.toUpperCase() == "TRUE")
                                              .withDefaultAvatarUrl(response.avatarURL).withDialNumber(response.dialNumber)
                                              .withWelcomeMessage(response.welcome).withModOnlyMessage(response.modOnlyMessage)
-                                             .withAllowStartStopRecording(response.allowStartStopRecording).withBreakout(response.isBreakout.toUpperCase() == "TRUE")
+                                             .withAllowStartStopRecording(response.allowStartStopRecording).withBreakout(response.isBreakout)
                                              .build();
 
 				if (_resultListener != null) _resultListener(true, response);
