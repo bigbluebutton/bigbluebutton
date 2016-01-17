@@ -813,8 +813,18 @@ check_configuration() {
 		fi
 	fi
 
-        libreoffice_version=`dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g'`
+        PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx |  sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}')
+        if [[ $PROTOCOL == "https" ]]; then
+                if ! grep wss-binding /opt/freeswitch/conf/sip_profiles/external.xml > /dev/null; then
+			echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
+			echo "# but no definition for wss-binding found in "
+			echo "#"
+			echo "#    /opt/freeswitch/conf/sip_profiles/external.xml"
+			echo 
+		fi
+	fi
 
+        libreoffice_version=`dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g'`
         if [[ "$libreoffice_version" > 1.0 ]]; then
             if [[ "$libreoffice_version" < 4.4 ]]; then
                 echo "# Warning: Detected your running an older version of LibreOffice: $libreoffice_version"
@@ -1109,32 +1119,56 @@ check_state() {
 	fi
 
 
-		BBB_SIP_APP_IP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | grep -v '#' | sed -n '/^bbb.sip.app.ip=/{s/.*=//;s/;//;p}')
-		if [ $BBB_SIP_APP_IP != "127.0.0.1" ]; then
-			if [ "$BBB_SIP_APP_IP" != $IP ]; then
-				echo "# Warning: The setting of ($BBB_SIP_APP_IP) for bbb.sip.app.ip in"
-				echo "#"
-				echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-				echo "#"
-				echo "# does not match the local IP address ($IP)."
-				echo "# (This is OK if you've manually changed the values to an external "
-				echo "# FreeSWITCH server.)"
-				echo 
-			fi
-
-                        SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
-                        if [ -z $SIP_IP ]; then
-                                echo "# Error: Could not detect FreeSWITCH listening on port 5060"
-                                echo 
-                        else
-                            if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
-                                echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
-                                echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
-                                echo "#"
-                                echo 
-                            fi
-                        fi
+	BBB_SIP_APP_IP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | grep -v '#' | sed -n '/^bbb.sip.app.ip=/{s/.*=//;s/;//;p}')
+	if [ $BBB_SIP_APP_IP != "127.0.0.1" ]; then
+		if [ "$BBB_SIP_APP_IP" != $IP ]; then
+			echo "# Warning: The setting of $BBB_SIP_APP_IP for bbb.sip.app.ip in"
+			echo "#"
+			echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+			echo "#"
+			echo "# does not match the local IP address ($IP)."
+			echo "# (This is OK if you've manually changed the values to an external "
+			echo "# FreeSWITCH server.)"
+			echo 
 		fi
+
+		SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
+		if [ -z $SIP_IP ]; then
+			echo "# Error: Could not detect FreeSWITCH listening on port 5060"
+			echo 
+		else
+		    if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
+			echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
+			echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
+			echo "#"
+			echo 
+		    fi
+		fi
+	fi
+
+        SIP_NGINX_IP=$(cat /etc/bigbluebutton/nginx/sip.nginx |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}')
+        if [ "$SIP_NGINX_IP" != $IP ]; then
+                echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
+                echo "#"
+                echo "#    /etc/bigbluebutton/nginx/sip.nginx"
+                echo "#"
+                echo "# does not match the local IP address ($IP)."
+                echo "# (This is OK if you've manually changed the values)"
+                echo 
+        fi
+
+        VARS_IP=$(cat /opt/freeswitch/conf/vars.xml | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
+        if [[ "$VARS_IP" != "127.0.0.1" ]] && [[ "$VARS_IP" != "auto" ]]; then
+                if [ "$VARS_IP" != $IP ]; then
+                        echo "# Warning: The setting of $VARS_IP for local_ip_v4 in"
+                        echo "#"
+                        echo "#    /opt/freeswitch/conf/vars.xml"
+                        echo "#"
+                        echo "# does not match the local IP address ($IP)."
+                        echo "# (This is OK if you've manually changed the values)"
+                        echo 
+                fi
+        fi
 
 	if [ -d ${SERVLET_DIR}/lti ]; then
 		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
