@@ -51,6 +51,15 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			toolbarButtonManager = new ToolbarButtonManager();
 		}
 
+		private function getFreeswitchServerCredentials():Object {
+			var credentials:Object = new Object();
+			credentials.vertoPort = "PORT";
+			credentials.hostName = "HOST.NAME";
+			credentials.login = "LOGIN";
+			credentials.password = "PASSWORD";
+			return credentials;
+		}
+
 		public function handleStartModuleEvent(module:WebRTCDeskShareModule):void {
 			LOGGER.debug("WebRTC Deskshare Module starting");
 			this.module = module;
@@ -87,7 +96,14 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			LOGGER.debug("DeskshareManager::startWebRTCDeskshare");
 			var result:String;
 			if (ExternalInterface.available) {
-				result = ExternalInterface.call("vertoScreenStart");
+				var loggingCallback:Function = function():void {};
+				var videoTag:String = null;
+				var extensionId:String = 'EXTENSION-ID';
+				var modifyResolution:Boolean = false;
+				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); };
+				var onFail:Function = function():void { LOGGER.debug("onSuccess"); };
+				var vertoServerCredentials:Object = getFreeswitchServerCredentials();
+				result = ExternalInterface.call("startScreenshare", loggingCallback, videoTag, vertoServerCredentials, extensionId, modifyResolution, onSuccess, onFail);
 			}
 		}
 
