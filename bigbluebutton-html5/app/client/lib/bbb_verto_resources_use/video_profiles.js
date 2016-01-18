@@ -157,3 +157,27 @@ this.getAdjustedResolutions = function (callback) {
 		}
 	);
 }
+
+// return the webcam resolution that the user has selected
+this.getChosenDeskshareResolution = function() {
+	var videoConstraints = getAllPresetVideoResolutions(); // retrieve all resolutions
+	var selectedVideo = videoConstraints[$("#deskshareResolutions").find(":selected").val()];
+	return selectedVideo;
+}
+
+// receives a video resolution profile, and converts it into a constraints format for getUserMedia
+this.getDeskshareConstraintsFromResolution = function(resolution, constraints) {
+	return {
+		"audio": false,
+		"video": {
+			"mandatory": {
+				"maxWidth": resolution.constraints.maxWidth,
+				"maxHeight": resolution.constraints.maxHeight,
+				"chromeMediaSource": constraints.mandatory.chromeMediaSource,
+				"chromeMediaSourceId": constraints.mandatory.chromeMediaSourceId,
+				"minFrameRate": resolution.constraints.minFrameRate
+			},
+			"optional": []
+		}
+	};
+}
