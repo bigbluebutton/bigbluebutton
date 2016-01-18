@@ -48,8 +48,8 @@ Template.deskshareModal.events
 	"click .screenshareStart": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')
 		success = ->
-			setInSession("sharingMyScreen", true)
-			# simulatePresenterDeskshareHasStarted()
+			console.log("Screenshare success");
+			setInSession("sharingMyScreen", true);
 		fail = ->
 			setInSession("sharingMyScreen", false)
 		vertoServerCredentials = {
@@ -58,7 +58,7 @@ Template.deskshareModal.events
 			login: "1008",
 			password: Meteor.config.freeswitchProfilePassword,
 		}
-		startScreenshare(((m)-> console.log(m)), "webcam", vertoServerCredentials, Meteor.config.deskshareExtensionKey, success, fail)
+		startScreenshare(((m)-> console.log(m)), "webcam", vertoServerCredentials, Meteor.config.deskshareExtensionKey, true, success, fail)
 
 	# the user is the presenter sharing their screen and wishes to stop
 	"click .screenshareStop": (event) ->
