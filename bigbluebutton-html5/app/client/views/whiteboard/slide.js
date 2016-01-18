@@ -5,7 +5,7 @@ Template.slide.rendered = function() {
 this.reactOnSlideChange = (_this => {
   return function() {
     let currentSlide, pic, ref;
-    currentSlide = BBB.getCurrentSlide("slide.rendered");
+    currentSlide = BBB.getCurrentSlide();
     pic = new Image();
     pic.onload = function() {
       let ref;
@@ -38,7 +38,7 @@ this.createWhiteboardPaper = (_this => {
 
 this.displaySlide = function(wpm) {
   let adjustedDimensions, currentSlide, ref;
-  currentSlide = BBB.getCurrentSlide("displaySlide");
+  currentSlide = BBB.getCurrentSlide();
   wpm.create();
   adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'));
   wpm._displayPage(
@@ -57,7 +57,7 @@ this.manuallyDisplayShapes = function() {
   }) != null) {
     return;
   }
-  currentSlide = BBB.getCurrentSlide("manuallyDisplayShapes");
+  currentSlide = BBB.getCurrentSlide();
   wpm = this.whiteboardPaperModel;
   shapes = Meteor.Shapes.find({
     whiteboardId: currentSlide != null ? (ref = currentSlide.slide) != null ? ref.id : void 0 : void 0

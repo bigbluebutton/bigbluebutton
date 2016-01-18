@@ -287,7 +287,7 @@ Meteor.WhiteboardPaperModel = (function() {
 
     _updateZoomRatios() {
       let currentSlideDoc;
-      currentSlideDoc = BBB.getCurrentSlide("_updateZoomRatios");
+      currentSlideDoc = BBB.getCurrentSlide();
       this.widthRatio = currentSlideDoc != null ? currentSlideDoc.slide.width_ratio : void 0;
       return this.heightRatio = currentSlideDoc != null ? currentSlideDoc.slide.height_ratio : void 0;
     }
@@ -390,7 +390,7 @@ Meteor.WhiteboardPaperModel = (function() {
       this._updateContainerDimensions();
       boardWidth = this.containerWidth;
       boardHeight = this.containerHeight;
-      currentSlide = BBB.getCurrentSlide("_displayPage");
+      currentSlide = BBB.getCurrentSlide();
       currentPresentation = Meteor.Presentations.findOne({
         "presentation.current": true
       });
