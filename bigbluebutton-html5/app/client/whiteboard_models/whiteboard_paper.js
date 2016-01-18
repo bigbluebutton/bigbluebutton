@@ -377,7 +377,7 @@ Meteor.WhiteboardPaperModel = (function() {
       if(url != null ? url.match(/http[s]?:/) : void 0) {
         return url;
       } else {
-        return console.log(`The url '${url}'' did not match the expected format of: http/s`);
+        return console.log(`The url '${url}' did not match the expected format of: http/s`);
         //globals.presentationServer + url
       }
     }
