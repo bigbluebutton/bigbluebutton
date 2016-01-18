@@ -8,7 +8,7 @@ package org.bigbluebutton.lib.user.services {
 		function kickUser(userID:String):void;
 		function queryForParticipants():void;
 		function assignPresenter(userid:String, name:String, assignedBy:String):void;
-		function changeMood(mood:String):void
+		function emojiStatus(status:String):void;
 		function clearUserStatus(userID:String):void
 		function addStream(userID:String, streamName:String):void;
 		function getGuestPolicy():void
@@ -33,6 +33,5 @@ package org.bigbluebutton.lib.user.services {
 		function unmute(user:User):void;
 		function validateToken():void;
 		function changeRole(userID:String, role:String):void;
-		function lowerHand(userID:String, loweredBy:String):void;
 	}
 }

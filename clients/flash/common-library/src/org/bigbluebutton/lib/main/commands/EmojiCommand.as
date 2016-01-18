@@ -5,7 +5,7 @@ package org.bigbluebutton.lib.main.commands {
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
-	public class MoodCommand extends Command {
+	public class EmojiCommand extends Command {
 		
 		[Inject]
 		public var userSession:IUserSession;
@@ -14,11 +14,11 @@ package org.bigbluebutton.lib.main.commands {
 		public var userService:IUsersService;
 		
 		[Inject]
-		public var mood:String;
+		public var status:String;
 		
 		override public function execute():void {
-			trace("MoodCommand.execute() - change mood");
-			userService.changeMood(mood);
+			trace("EmojiCommand.execute() - change emoji statu");
+			userService.emojiStatus(status);
 		}
 	}
 }

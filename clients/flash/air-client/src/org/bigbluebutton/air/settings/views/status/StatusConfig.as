@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.settings.views.status {
 	
-	import org.bigbluebutton.lib.main.commands.MoodCommand;
-	import org.bigbluebutton.lib.main.commands.MoodSignal;
+	import org.bigbluebutton.lib.main.commands.EmojiCommand;
+	import org.bigbluebutton.lib.main.commands.EmojiSignal;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -44,7 +44,7 @@ package org.bigbluebutton.air.settings.views.status {
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			signalCommandMap.map(MoodSignal).toCommand(MoodCommand);
+			signalCommandMap.map(EmojiSignal).toCommand(EmojiCommand);
 		}
 	}
 }

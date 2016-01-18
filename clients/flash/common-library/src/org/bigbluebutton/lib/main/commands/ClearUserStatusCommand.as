@@ -22,11 +22,7 @@ package org.bigbluebutton.lib.main.commands {
 		
 		override public function execute():void {
 			trace("ClearUserStatusCommand.execute() - clear status");
-			if (conferenceParameters.serverIsMconf) {
-				userService.clearUserStatus(userID);
-			} else {
-				userService.lowerHand(userID, userSession.userList.me.userID);
-			}
+			userService.clearUserStatus(userID);
 		}
 	}
 }

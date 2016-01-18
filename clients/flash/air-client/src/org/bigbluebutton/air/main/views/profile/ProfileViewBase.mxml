@@ -4,10 +4,6 @@
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:view="org.bigbluebutton.air.common.views.*"
 				styleName="audioSettingsStyle">
-	<view:states>
-		<s:State name="bbb" />
-		<s:State name="mconf" />
-	</view:states>
 	<fx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
@@ -25,18 +21,9 @@
 				  gap="1">
 
 			<s:Button id="statusBtn0"
-					  visible.bbb="false"
-					  includeInLayout.bbb="false"
 					  width="100%"
 					  label="{resourceManager.getString('resources', 'profile.status.title')}"
 					  styleName="videoAudioSettingStyle contentFontSize" />
-
-			<s:Button id="handBtn0"
-					  visible.mconf="false"
-					  includeInLayout.mconf="false"
-					  width="100%"
-					  label="{resourceManager.getString('resources', 'profile.settings.handRaise')}"
-					  styleName="raiseHandButtonStyle videoAudioSettingStyle contentFontSize" />
 
 			<s:Button id="shareCameraBtn0"
 					  width="100%"

@@ -12,7 +12,7 @@ package org.bigbluebutton.air.main.views.profile {
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
-	import org.bigbluebutton.lib.main.commands.MoodSignal;
+	import org.bigbluebutton.lib.main.commands.EmojiSignal;
 	import org.bigbluebutton.lib.main.commands.RaiseHandSignal;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -35,7 +35,7 @@ package org.bigbluebutton.air.main.views.profile {
 		public var userUISession:IUserUISession;
 		
 		[Inject]
-		public var moodSignal:MoodSignal;
+		public var emojiSignal:EmojiSignal;
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
@@ -55,7 +55,6 @@ package org.bigbluebutton.air.main.views.profile {
 		private var navigateToLockSettings:Function = navigateTo(PagesENUM.LOCKSETTINGS);
 		
 		override public function initialize():void {
-			view.currentState = (conferenceParameters.serverIsMconf) ? "mconf" : "bbb";
 			var userMe:User = userSession.userList.me;
 			changeStatusIcon(userMe.status);
 			disableCamButton(userSession.lockSettings.disableCam && !userMe.presenter && userMe.locked && userMe.role != User.MODERATOR);
@@ -69,13 +68,8 @@ package org.bigbluebutton.air.main.views.profile {
 				view.muteAllButton.addEventListener(MouseEvent.CLICK, onMuteAllButton);
 				view.muteAllExceptPresenterButton.addEventListener(MouseEvent.CLICK, onMuteAllExceptPresenterButton);
 			}
-			if (!conferenceParameters.serverIsMconf) {
-				view.clearAllStatusButton.label = ResourceManager.getInstance().getString('resources', 'management.lowerAllHands');
-				view.clearAllStatusButton.styleName = "lowerAllHandsButtonStyle videoAudioSettingStyle contentFontSize";
-			}
 			userSession.userList.userChangeSignal.add(userChanged);
 			view.logoutButton.addEventListener(MouseEvent.CLICK, logoutClick);
-			view.handButton.addEventListener(MouseEvent.CLICK, raiseHandClick);
 			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'profile.title');
 			FlexGlobals.topLevelApplication.profileBtn.visible = false;
@@ -95,30 +89,11 @@ package org.bigbluebutton.air.main.views.profile {
 			switch (status) {
 				case User.RAISE_HAND:
 					view.statusButton.styleName = "handStatusButtonStyle videoAudioSettingStyle contentFontSize";
-					view.handButton.label = ResourceManager.getInstance().getString('resources', 'profile.settings.handLower');
 					break;
-				case User.AGREE:
-					view.statusButton.styleName = "agreeStatusButtonStyle";
-					break;
-				case User.DISAGREE:
-					view.statusButton.styleName = "disagreeStatusButtonStyle";
-					break;
-				case User.SPEAK_LOUDER:
-					view.statusButton.styleName = "speakLouderStatusButtonStyle";
-					break;
-				case User.SPEAK_LOWER:
-					view.statusButton.styleName = "speakSofterStatusButtonStyle";
-					break;
-				case User.SPEAK_FASTER:
-					view.statusButton.styleName = "speakFasterStatusButtonStyle";
-					break;
-				case User.SPEAK_SLOWER:
-					view.statusButton.styleName = "speakSlowerStatusButtonStyle";
-					break;
-				case User.BE_RIGHT_BACK:
+				case User.AWAY:
 					view.statusButton.styleName = "beRightBackStatusButtonStyle";
 					break;
-				case User.LAUGHTER:
+				case User.HAPPY:
 					view.statusButton.styleName = "laughterStatusButtonStyle";
 					break;
 				case User.SAD:
@@ -188,15 +163,6 @@ package org.bigbluebutton.air.main.views.profile {
 		 */
 		public function logoutClick(event:MouseEvent):void {
 			userUISession.pushPage(PagesENUM.EXIT);
-		}
-		
-		public function raiseHandClick(event:MouseEvent):void {
-			if (userSession.userList.me.status == User.RAISE_HAND) {
-				moodSignal.dispatch(User.NO_STATUS);
-			} else {
-				moodSignal.dispatch(User.RAISE_HAND);
-			}
-			userUISession.popPage();
 		}
 		
 		protected function onClearAllButton(event:MouseEvent):void {

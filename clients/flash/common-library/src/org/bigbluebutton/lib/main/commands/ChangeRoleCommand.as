@@ -22,7 +22,7 @@ package org.bigbluebutton.lib.main.commands {
 		
 		override public function execute():void {
 			getRoleOptions(roleOptions);
-			trace("ChangeRoleCommand.execute() - change mood");
+			trace("ChangeRoleCommand.execute() - change role");
 			userService.changeRole(_userID, _role);
 		}
 		

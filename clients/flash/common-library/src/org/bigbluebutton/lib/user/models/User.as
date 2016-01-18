@@ -13,27 +13,20 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const UNKNOWN_USER:String = "UNKNOWN USER";
 		
-		public static const NO_STATUS:String = "NO_STATUS";
+		public static const NO_STATUS:String = "none";
 		
-		public static const AGREE:String = "AGREE";
+		public static const RAISE_HAND:String = "raiseHand";
+	
+		public static const HAPPY:String = "happy";
+
+		public static const NEUTRAL:String = "neutral";
 		
-		public static const RAISE_HAND:String = "RAISE_HAND";
+		public static const SAD:String = "sad";
 		
-		public static const DISAGREE:String = "DISAGREE";
+		public static const CONFUSED:String = "confused";
 		
-		public static const SPEAK_LOUDER:String = "SPEAK_LOUDER";
+		public static const AWAY:String = "away";
 		
-		public static const SPEAK_LOWER:String = "SPEAK_LOWER";
-		
-		public static const SPEAK_FASTER:String = "SPEAK_FASTER";
-		
-		public static const SPEAK_SLOWER:String = "SPEAK_SLOWER";
-		
-		public static const BE_RIGHT_BACK:String = "BE_RIGHT_BACK";
-		
-		public static const LAUGHTER:String = "LAUGHTER";
-		
-		public static const SAD:String = "SAD";
 		
 		/**
 		 * Flag to tell that user is in the process of leaving the meeting.

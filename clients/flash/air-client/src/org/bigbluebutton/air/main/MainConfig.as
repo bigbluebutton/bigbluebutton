@@ -22,8 +22,8 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.ui.recordingstatus.RecordingStatusMediator;
 	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
-	import org.bigbluebutton.lib.main.commands.MoodCommand;
-	import org.bigbluebutton.lib.main.commands.MoodSignal;
+	import org.bigbluebutton.lib.main.commands.EmojiCommand;
+	import org.bigbluebutton.lib.main.commands.EmojiSignal;
 	import org.bigbluebutton.lib.main.commands.RaiseHandCommand;
 	import org.bigbluebutton.lib.main.commands.RaiseHandSignal;
 	
@@ -79,7 +79,7 @@ package org.bigbluebutton.air.main {
 			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommandAIR);
 			signalCommandMap.map(RaiseHandSignal).toCommand(RaiseHandCommand);
 			signalCommandMap.map(NavigateToSignal).toCommand(NavigateToCommand);
-			signalCommandMap.map(MoodSignal).toCommand(MoodCommand);
+			signalCommandMap.map(EmojiSignal).toCommand(EmojiCommand);
 		}
 	}
 }

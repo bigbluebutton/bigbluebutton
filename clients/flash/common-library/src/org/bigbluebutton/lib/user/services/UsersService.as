@@ -78,19 +78,12 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.disconnect(onUserAction);
 		}
 		
-		public function changeMood(mood:String):void {
-			usersMessageSender.changeMood(userSession.userList.me.userID, mood);
-			if (!conferenceParameters.serverIsMconf) {
-				if (mood == User.RAISE_HAND) {
-					usersMessageSender.raiseHand();
-				} else if (mood == User.NO_STATUS) {
-					usersMessageSender.lowerHand(userSession.userList.me.userID, userSession.userList.me.userID);
-				}
-			}
+		public function emojiStatus(status:String):void {
+			usersMessageSender.emojiStatus(userSession.userList.me.userID, status);
 		}
 		
 		public function clearUserStatus(userID:String):void {
-			usersMessageSender.changeMood(userID, User.NO_STATUS);
+			usersMessageSender.emojiStatus(userID, User.NO_STATUS);
 		}
 		
 		public function kickUser(userID:String):void {
@@ -163,10 +156,6 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function responseToGuest(userId:String, response:Boolean):void {
 			usersMessageSender.responseToGuest(userId, response);
-		}
-		
-		public function lowerHand(userID:String, loweredBy:String):void {
-			usersMessageSender.lowerHand(userID, loweredBy);
 		}
 		
 		public function responseToAllGuests(response:Boolean):void {

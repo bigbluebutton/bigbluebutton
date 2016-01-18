@@ -15,14 +15,8 @@
 				if (obj) {
 					profileIcon.visible = profileIcon.includeInLayout = obj.signal == User.NO_STATUS;
 					handIcon.visible = handIcon.includeInLayout = obj.signal == User.RAISE_HAND;
-					agreeIcon.visible = agreeIcon.includeInLayout = obj.signal == User.AGREE;
-					disagreeIcon.visible = disagreeIcon.includeInLayout = obj.signal == User.DISAGREE;
-					speakLouderIcon.visible = speakLouderIcon.includeInLayout = obj.signal == User.SPEAK_LOUDER;
-					speakSofterIcon.visible = speakSofterIcon.includeInLayout = obj.signal == User.SPEAK_LOWER;
-					speakFasterIcon.visible = speakFasterIcon.includeInLayout = obj.signal == User.SPEAK_FASTER;
-					speakSlowerIcon.visible = speakSlowerIcon.includeInLayout = obj.signal == User.SPEAK_SLOWER;
-					beRightBackIcon.visible = beRightBackIcon.includeInLayout = obj.signal == User.BE_RIGHT_BACK;
-					laughterIcon.visible = laughterIcon.includeInLayout = obj.signal == User.LAUGHTER;
+					beRightBackIcon.visible = beRightBackIcon.includeInLayout = obj.signal == User.AWAY;
+					laughterIcon.visible = laughterIcon.includeInLayout = obj.signal == User.HAPPY;
 					sadIcon.visible = sadIcon.includeInLayout = obj.signal == User.SAD;
 				}
 			}
@@ -40,24 +34,6 @@
 				 height="100%" />
 		<s:Image id="handIcon"
 				 styleName="iconStyle handIconStyle"
-				 height="100%" />
-		<s:Image id="agreeIcon"
-				 styleName="iconStyle agreeIconStyle"
-				 height="100%" />
-		<s:Image id="disagreeIcon"
-				 styleName="iconStyle disagreeIconStyle"
-				 height="100%" />
-		<s:Image id="speakLouderIcon"
-				 styleName="iconStyle speakLouderIconStyle"
-				 height="100%" />
-		<s:Image id="speakSofterIcon"
-				 styleName="iconStyle speakSofterIconStyle"
-				 height="100%" />
-		<s:Image id="speakFasterIcon"
-				 styleName="iconStyle speakFasterIconStyle"
-				 height="100%" />
-		<s:Image id="speakSlowerIcon"
-				 styleName="iconStyle speakSlowerIconStyle"
 				 height="100%" />
 		<s:Image id="beRightBackIcon"
 				 styleName="iconStyle beRightBackIconStyle"
