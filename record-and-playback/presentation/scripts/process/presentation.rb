@@ -54,32 +54,32 @@ if not FileTest.directory?(target_dir)
   BigBlueButton.logger = logger
   BigBlueButton.logger.info("Processing script presentation.rb")
   FileUtils.mkdir_p target_dir
-  
+
  begin
 
   # Create a copy of the raw archives
   temp_dir = "#{target_dir}/temp"
   FileUtils.mkdir_p temp_dir
   FileUtils.cp_r(raw_archive_dir, temp_dir)
-  
+
   BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
   events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
   FileUtils.cp(events_xml, target_dir)
-  
+
   presentation_dir = "#{temp_dir}/#{meeting_id}/presentation"
   presentations = BigBlueButton::Presentation.get_presentations(events_xml)
-  
+
   processed_pres_dir = "#{target_dir}/presentation"
   FileUtils.mkdir_p processed_pres_dir
-  
+
   presentations.each do |pres|
     pres_dir = "#{presentation_dir}/#{pres}"
     num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
-    
+
     target_pres_dir = "#{processed_pres_dir}/#{pres}"
     FileUtils.mkdir_p target_pres_dir
     FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
-    
+
     images=Dir.glob("#{pres_dir}/#{pres}.{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}")
     if images.empty?
       pres_name = "#{pres_dir}/#{pres}"
@@ -113,7 +113,7 @@ if not FileTest.directory?(target_dir)
       BigBlueButton.execute(command)
     end
   end
-  
+
   if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and !Dir["#{raw_archive_dir}/deskshare/*"].empty?)
     width = presentation_props['video_output_width']
     height = presentation_props['video_output_height']
@@ -128,13 +128,13 @@ if not FileTest.directory?(target_dir)
   process_done.write("Processed #{meeting_id}")
   process_done.close
 #else
-#	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")  
+#	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")
  rescue Exception => e
         BigBlueButton.logger.error(e.message)
-	e.backtrace.each do |traceline|
-		BigBlueButton.logger.error(traceline)
-	end
-	exit 1
+  e.backtrace.each do |traceline|
+    BigBlueButton.logger.error(traceline)
+  end
+  exit 1
  end
 end
-    
+
