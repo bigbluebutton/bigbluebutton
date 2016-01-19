@@ -989,7 +989,7 @@ if ($playback == "presentation")
 
     metaxml = b.recording {
       b.id($meeting_id)
-      b.state("available")
+      b.state("published")
       b.published(true)
       # Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
       b.start_time(real_start_time)
