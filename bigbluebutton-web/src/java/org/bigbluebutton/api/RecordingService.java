@@ -35,6 +35,7 @@ public class RecordingService {
 	
 	private String publishedDir = "/var/bigbluebutton/published";
 	private String unpublishedDir = "/var/bigbluebutton/unpublished";
+	private String deletedDir = "/var/bigbluebutton/deleted";
 	private RecordingServiceHelper recordingServiceHelper;
 	private String recordStatusDir;
 	
@@ -61,6 +62,7 @@ public class RecordingService {
 		if(meetingIds.isEmpty()){
 			meetingIds.addAll(getAllRecordingIds(publishedDir));
 			meetingIds.addAll(getAllRecordingIds(unpublishedDir));
+			meetingIds.addAll(getAllRecordingIds(deletedDir));
 		}
 		
 		for(String meetingId : meetingIds){
@@ -73,6 +75,11 @@ public class RecordingService {
 			if (!unpublished.isEmpty()) {
 				recs.addAll(unpublished);
 			}	
+
+			ArrayList<Recording> deleted = getRecordingsForPath(meetingId, deletedDir);
+			if (!deleted.isEmpty()) {
+				recs.addAll(deleted);
+			}
 		}
 		
 		return recs;
