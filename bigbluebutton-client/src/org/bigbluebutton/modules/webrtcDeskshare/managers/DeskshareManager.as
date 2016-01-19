@@ -91,7 +91,9 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 		private function stopWebRTCDeskshare():void {
 			LOGGER.debug("DeskshareManager::stopWebRTCDeskshare");
 			if (ExternalInterface.available) {
-				ExternalInterface.call("vertoScreenStop");
+				var loggingCallback:Function = function():void {};
+				var onSuccess:Function = function():void {};
+				ExternalInterface.call("endScreenshare", loggingCallback, onSuccess);
 			} else {
 				LOGGER.error("Error! ExternalInterface not available (webrtcDeskshare)");
 			}
