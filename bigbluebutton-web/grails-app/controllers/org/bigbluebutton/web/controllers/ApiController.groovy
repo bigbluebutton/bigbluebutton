@@ -1735,6 +1735,7 @@ class ApiController {
                                         mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
                                     }
                                     published(r.isPublished())
+                                    state(r.getState())
                                     startTime(r.getStartTime())
                                     endTime(r.getEndTime())
                                     metadata() {

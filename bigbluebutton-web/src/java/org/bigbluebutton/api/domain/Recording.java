@@ -54,6 +54,10 @@ public class Recording {
 	}
 	
 	public String getState() {
+	    String state = this.state;
+	    if ( state.equals("available") ) {
+	        state = isPublished()? "published": "unpublished";
+	    }
 		return state;
 	}
 	
