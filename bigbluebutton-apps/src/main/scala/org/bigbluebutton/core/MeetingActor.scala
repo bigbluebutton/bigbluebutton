@@ -162,10 +162,10 @@ class MeetingActor(val meetingID: String, val externalMeetingID: String, val mee
   
   override def exceptionHandler() = {
     case e: Exception => {
-      logger.warn("An exception has been thrown on MeetingActor, meeting [" + meetingID + "], exception message [" + e.getMessage() + "] (full stacktrace below)")
-      val sw:StringWriter = new StringWriter();
-      e.printStackTrace(new PrintWriter(sw));
-      logger.warn(sw.toString())
+      val sw:StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on MeetingActor, meeting [" + meetingID + "], exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      logger.error(sw.toString())
     }
   }
 

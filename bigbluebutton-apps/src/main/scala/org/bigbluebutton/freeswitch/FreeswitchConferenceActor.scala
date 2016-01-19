@@ -51,10 +51,10 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
   
   override def exceptionHandler() = {
     case e: Exception => {
-      logger.warn("An exception has been thrown on FreeswitchConferenceActor, exception message [" + e.getMessage() + "] (full stacktrace below)")
-      val sw:StringWriter = new StringWriter();
-      e.printStackTrace(new PrintWriter(sw));
-      logger.warn(sw.toString())
+      val sw:StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on FreeswitchConferenceActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
+      e.printStackTrace(new PrintWriter(sw))
+      logger.error(sw.toString())
     }
   }
 
