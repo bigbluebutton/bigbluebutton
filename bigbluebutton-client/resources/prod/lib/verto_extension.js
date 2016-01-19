@@ -290,17 +290,6 @@ function make_call_verto(voiceBridge, conferenceUsername, conferenceIdNumber, us
 }
 
 function makeVerto(callbacks, stunsConfig, videoTag, vertoServerCredentials) {
-	// var vertoPort = "8082";
-	// //var hostName = window.location.hostname; //TODO
-	// var hostName = "IP"; //TODO
-	// //var socketUrl = "ws://" + hostName + ":5066"; //TODO
-	// var socketUrl = "wss://" + hostName + ":" + vertoPort; //TODO
-	// var login = "1008"; //TODO
-	// var password = "PASSWORD"; //TODO
-	// var minWidth = "640";
-	// var minHeight = "480";
-	// var maxWidth = "1920";
-	// var maxHeight = "1080";
 	var vertoPort = vertoServerCredentials.vertoPort;
 	var hostName = vertoServerCredentials.hostName;
 	var socketUrl = "wss://" + hostName + ":" + vertoPort;

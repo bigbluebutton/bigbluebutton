@@ -51,6 +51,11 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			toolbarButtonManager = new ToolbarButtonManager();
 		}
 
+		private function getChromeExtensionKey():String {
+			var key:String = 'your-extension-key';
+			return key;
+		}
+
 		private function getFreeswitchServerCredentials():Object {
 			var credentials:Object = new Object();
 			credentials.vertoPort = "PORT";
@@ -97,8 +102,8 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			var result:String;
 			if (ExternalInterface.available) {
 				var loggingCallback:Function = function():void {};
-				var videoTag:String = null;
-				var extensionId:String = 'EXTENSION-ID';
+				var videoTag:String = "localVertoVideo";
+				var extensionId:String = getChromeExtensionKey();
 				var modifyResolution:Boolean = false;
 				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); };
 				var onFail:Function = function():void { LOGGER.debug("onSuccess"); };

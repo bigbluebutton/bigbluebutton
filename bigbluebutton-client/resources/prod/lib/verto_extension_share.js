@@ -15,7 +15,7 @@ function startScreenshare(loggingCallback, videoTag, vertoServerCredentials, ext
 	if(!isLoggedIntoVerto()) { // start the verto log in procedure
 		// runs when the websocket is successfully created
 		callbacks.onWSLogin = function(v, success) {
-			startScreenshare2(loggingCallback, videoTag, extensionId, modifyResolution, onSuccess, onFail);
+			startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modifyResolution, onSuccess, onFail);
 			loggingCallback({'status':'success', 'message': 'screenshare started'});
 			console.log("logged in. starting screenshare");
 		}
@@ -23,12 +23,12 @@ function startScreenshare(loggingCallback, videoTag, vertoServerCredentials, ext
 		init(window.videoTag, vertoServerCredentials);
 	} else {
 		console.log("already logged into verto, going straight to making a call");
-		startScreenshare2(loggingCallback, videoTag, extensionId, modifyResolution, onSuccess, onFail);
+		startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modifyResolution, onSuccess, onFail);
 		loggingCallback({'status':'success', 'message': 'screenshare started'});
 	}
 }
 
-function startScreenshare2(loggingCallback, videoTag, extensionId, modifyResolution, onSuccess, onFail) {
+function startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modifyResolution, onSuccess, onFail) {
 	if (share_call) {
 		return;
 	}
@@ -97,8 +97,27 @@ function startScreenshare2(loggingCallback, videoTag, extensionId, modifyResolut
 					console.log(selectedDeskshareConstraints);
 					screen_constraints = selectedDeskshareConstraints.video.mandatory;
 				} else {
-					screen_constraints = screen_constraints.mandatory;
-					screen_constraints.minFrameRate = 10;
+					// BigBlueButton low
+					var getDeskshareConstraints = function(constraints) {
+						return {
+							"audio": false,
+							"video": {
+								"mandatory": {
+									"maxWidth": 160,
+									"maxHeight": 120,
+									"chromeMediaSource": constraints.mandatory.chromeMediaSource,
+									"chromeMediaSourceId": constraints.mandatory.chromeMediaSourceId,
+									"minFrameRate": 10,
+								},
+								"optional": []
+							}
+						};
+					}
+
+					console.log("not modifying video quality");
+					var selectedDeskshareConstraints = getDeskshareConstraints(screen_constraints); // convert to a valid constraints object
+					console.log(selectedDeskshareConstraints);
+					screen_constraints = selectedDeskshareConstraints.video.mandatory;
 				}
 
 				doCall(screen_constraints, videoTag, callbacks);
