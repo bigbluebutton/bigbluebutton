@@ -11,6 +11,8 @@ package org.bigbluebutton.lib.main.models
 		
 		private var _disablePublicChatSignal:Signal = new Signal();
 		
+		private var _lockOnJoinConfigurable:Boolean;
+		
 		private var _disableCam:Boolean;
 		
 		private var _disableMic:Boolean;
@@ -20,6 +22,8 @@ package org.bigbluebutton.lib.main.models
 		private var _disablePublicChat:Boolean;
 		
 		private var _lockedLayout:Boolean;
+		
+		private var _lockOnJoin:Boolean;
 		
 		private var _loaded:Boolean = false;
 		
@@ -96,6 +100,22 @@ package org.bigbluebutton.lib.main.models
 		
 		public function set lockedLayout(disable:Boolean) {
 			_lockedLayout = disable;
+		}
+		
+		public function get lockOnJoin():Boolean {
+			return _lockOnJoin;
+		}
+		
+		public function set lockOnJoin(disable:Boolean):void {
+				_lockOnJoin = disable;
+		}
+		
+		public function get lockOnJoinConfigurable():Boolean {
+			return _lockOnJoinConfigurable;
+		}
+		
+		public function set lockOnJoinConfigurable(disable:Boolean):void {
+			_lockOnJoinConfigurable = disable;
 		}
 	}
 }

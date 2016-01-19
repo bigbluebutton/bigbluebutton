@@ -65,6 +65,8 @@ package org.bigbluebutton.air.settings.views.lock {
 			newLockSettings.disablePrivateChat = !view.privateChatSwitch.selected;
 			newLockSettings.disablePublicChat = !view.publicChatSwitch.selected;
 			newLockSettings.lockedLayout = !view.layoutSwitch.selected;
+			newLockSettings.lockOnJoin = userSession.lockSettings.lockOnJoin;
+			newLockSettings.lockOnJoinConfigurable = userSession.lockSettings.lockOnJoinConfigurable;
 			userService.saveLockSettings(newLockSettings);
 			userUISession.popPage();
 			if (!FlexGlobals.topLevelApplication.isTabletLandscape()) {
