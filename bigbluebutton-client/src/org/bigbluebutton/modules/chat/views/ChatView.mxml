@@ -71,7 +71,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  private var publicWaiting:Boolean = false;
 		  private var publicFocus:Boolean = false;
 		  private var noticeLabel:String;
-		  private var chatNoiseEnabled:Boolean = true;
+		  private var chatNoiseEnabled:Boolean = false;
 			
 		  [Embed(source="../sounds/notice.mp3")] 
 		  private var noticeSoundClass:Class;
@@ -309,7 +309,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function playSound():void {
-				if (Accessibility.active && chatNoiseEnabled){
+				if (chatNoiseEnabled){
 					noticeSound.play();
 				}
 			}
