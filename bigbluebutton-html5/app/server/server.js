@@ -343,7 +343,6 @@ Meteor.startup(() => {
             "presentation.current": false
           }
         });
-
         //update(if already present) entirely the presentation with the fresh data
         removePresentationFromCollection(meetingId, presentationId);
         addPresentationToCollection(meetingId, message.payload.presentation);
@@ -355,9 +354,6 @@ Meteor.startup(() => {
             (ref10 = message.payload.presentation) != null ? ref10.id : void 0,
             slide
           );
-          if(slide.current) {
-            displayThisSlide(meetingId, slide.id, slide);
-          }
         }
         return callback();
 
