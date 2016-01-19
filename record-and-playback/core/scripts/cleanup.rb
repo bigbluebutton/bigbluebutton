@@ -22,6 +22,7 @@ require "redis"
 
 PUBLISHED_DIR="/var/bigbluebutton/published"
 UNPUBLISHED_DIR="/var/bigbluebutton/unpublished"
+DELETED_DIR="/var/bigbluebutton/deleted"
 RECORDING_DIR="/var/bigbluebutton/recording"
 
 
@@ -80,5 +81,4 @@ end
 
 cleanProcessedFiles(PUBLISHED_DIR)
 cleanProcessedFiles(UNPUBLISHED_DIR)
-
 
