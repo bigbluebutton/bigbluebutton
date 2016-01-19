@@ -407,14 +407,16 @@ package org.bigbluebutton.main.model.users
 			
 		private function sendConnectionFailedEvent(reason:String):void{
       var logData:Object = new Object();
-      
+
 			if (this.logoutOnUserCommand) {
         logData.reason = "User requested.";
         logData.user = UsersUtil.getUserData();
         JSLog.debug("User logged out from BBB App.", logData);
         sendUserLoggedOutEvent();
-      } else if (reason == ConnectionFailedEvent.CONNECTION_CLOSED) {
+      } else if (reason == ConnectionFailedEvent.CONNECTION_CLOSED && !UsersUtil.isUserEjected()) {
         // do not try to reconnect if the connection failed is different than CONNECTION_CLOSED
+		  
+		  
         logData.reason = reason;
         logData.user = UsersUtil.getUserData();
         JSLog.warn("User disconnected from BBB App.", logData);
