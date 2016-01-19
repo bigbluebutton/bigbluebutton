@@ -3,10 +3,14 @@ window[deskshareStream] = null;
 this.share_call = null;
 
 function endScreenshare(loggingCallback, onSuccess) {
+	console.log("endScreenshare");
 	if (share_call) {
+		console.log("a screenshare call is active. Hanging up");
 		share_call.hangup();
 		share_call = null;
 		onSuccess();
+	} else {
+		console.log("a screenshare call is NOT active. Doing nothing");
 	}
 	loggingCallback({'status':'success', 'message': 'screenshare ended'});
 }
