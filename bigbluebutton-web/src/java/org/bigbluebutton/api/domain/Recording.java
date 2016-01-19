@@ -43,8 +43,16 @@ public class Recording {
 	private String playbackFormat;
 	private String playbackDuration;
 	private GPathResult playbackExtensions;
-	
-	
+
+    public static final String STATE_PROCESSING = "processing";
+    public static final String STATE_PROCESSED = "processed";
+    public static final String STATE_PUBLISING = "publishing";
+    public static final String STATE_PUBLISHED = "published";
+    public static final String STATE_UNPUBLISING = "unpublishing";
+    public static final String STATE_UNPUBLISHED = "unpublished";
+    public static final String STATE_DELETING = "deleting";
+    public static final String STATE_DELETED = "deleted";
+
 	public String getId() {
 		return id;
 	}
@@ -56,7 +64,7 @@ public class Recording {
 	public String getState() {
 	    String state = this.state;
 	    if ( state.equals("available") ) {
-	        state = isPublished()? "published": "unpublished";
+	        state = isPublished()? STATE_PUBLISHED: STATE_UNPUBLISHED;
 	    }
 		return state;
 	}

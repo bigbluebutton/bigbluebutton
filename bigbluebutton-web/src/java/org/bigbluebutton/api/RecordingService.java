@@ -184,6 +184,7 @@ public class RecordingService {
 						if (moved) {
 							log.debug("Recording successfully moved!");
 							r.setPublished(publish);
+                            r.setState(publish? Recording.STATE_PUBLISHED: Recording.STATE_UNPUBLISHED);
 							recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings[f].getName(), r);
 						}
 					}
@@ -191,7 +192,7 @@ public class RecordingService {
 			}
 		}
 	}
-		
+
 	public void delete(String recordingId) {
 		deleteRecording(recordingId, publishedDir);
 		deleteRecording(recordingId, unpublishedDir);
