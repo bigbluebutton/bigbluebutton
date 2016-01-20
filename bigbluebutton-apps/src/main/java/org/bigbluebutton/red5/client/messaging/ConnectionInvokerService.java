@@ -191,7 +191,7 @@ public class ConnectionInvokerService {
               if (log.isTraceEnabled()) {
                 Gson gson = new Gson();
                 String json = gson.toJson(msg.getMessage());
-                log.trace("Send direct message: " + msg.getMessageName() + " msg=" + json);
+                log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
               }
 
               ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());

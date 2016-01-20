@@ -129,9 +129,16 @@ package org.bigbluebutton.modules.users.services
 		case "userLocked":
           handleUserLocked(message);
           break;
+		case "userEjectedFromMeeting":
+		 handleUserEjectedFromMeeting(message);
+		 break;
       }
     }  
     
+	private function handleUserEjectedFromMeeting(msg: Object):void {
+		UsersUtil.setUserEjected();
+	}
+	
 	private function handleUserLocked(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
 		var user:BBBUser = UsersUtil.getUser(map.user);
@@ -376,11 +383,9 @@ package org.bigbluebutton.modules.users.services
 		  
 		  UserManager.getInstance().getConference().removeUser(webUserId);	    
 	  }
-	  
-    
     }
     
-    public function handleParticipantJoined(msg:Object):void {
+	public function handleParticipantJoined(msg:Object):void {
 		LOGGER.info("handleParticipantJoined = " + msg.msg);
 		
       var map:Object = JSON.parse(msg.msg);
