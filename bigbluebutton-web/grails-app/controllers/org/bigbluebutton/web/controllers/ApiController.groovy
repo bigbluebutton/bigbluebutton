@@ -1683,7 +1683,7 @@ class ApiController {
 
         // Do we have a checksum? If none, complain.
         if (StringUtils.isEmpty(params.checksum)) {
-            errors.missingParamError("checksum");
+            errors.missingParamError("checksum")
             respondWithErrors(errors)
             return
         }
@@ -1695,14 +1695,28 @@ class ApiController {
             return
         }
 
-        ArrayList<String> externalMeetingIds = new ArrayList<String>();
+        ArrayList<String> externalMeetingIds = new ArrayList<String>()
         if (!StringUtils.isEmpty(params.meetingID)) {
-            externalMeetingIds=paramsProcessorUtil.decodeIds(params.meetingID);
+            externalMeetingIds = paramsProcessorUtil.decodeIds(params.meetingID)
         }
 
-        // Everything is good so far. Translate the external meeting ids to an internal meeting ids.
-        ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
-        HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
+        ArrayList<String> internalRecordIds = new ArrayList<String>()
+        if (!StringUtils.isEmpty(params.recordID)) {
+            internalRecordIds = paramsProcessorUtil.decodeIds(params.recordID)
+        }
+
+        ArrayList<String> filters = new ArrayList<String>()
+        if (!StringUtils.isEmpty(params.filter)) {
+            filters = paramsProcessorUtil.decodeIds(params.filter)
+        }
+
+        // Everything is good so far.
+        if ( internalRecordIds.size() == 0 ) {
+            // No recordIDs, process the request based on meetingID(s)
+            // Translate the external meeting ids to an internal meeting ids.
+            internalRecordIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
+        }
+        HashMap<String,Recording> recs = meetingService.getRecordings(internalRecordIds);
         recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 
         if (recs.isEmpty()) {
