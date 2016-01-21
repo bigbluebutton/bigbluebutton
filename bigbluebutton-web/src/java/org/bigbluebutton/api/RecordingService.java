@@ -149,23 +149,27 @@ public class RecordingService {
         return recs;
     }
 
-    public Recording getRecordingInfo(String recordingId, String format) {
-        return getRecordingInfo(publishedDir, recordingId, format);
-    }
-
     private Recording getRecordingInfo(String path, String recordingId, String format) {
         Recording rec = recordingServiceHelper.getRecordingInfo(recordingId, path, format);
         return rec;
     }
 
-    public void publish(String recordingId, boolean publish) {
-        if(publish)
-            publish(unpublishedDir, recordingId, publish);
-        else
-            publish(publishedDir, recordingId, publish);
+    public void changeState(String recordingId, String state) {
+        if ( state.equals(Recording.STATE_PUBLISHED) ) {
+        // It can only be published if it is unpublished
+            changeState(unpublishedDir, recordingId, state);
+        } else if ( state.equals(Recording.STATE_UNPUBLISHED) ) {
+        // It can only be unpublished if it is published
+            changeState(publishedDir, recordingId, state);
+        } if ( state.equals(Recording.STATE_DELETED) ) {
+        // It can be deleted from any state
+            changeState(publishedDir, recordingId, state);
+            changeState(unpublishedDir, recordingId, state);
+            changeState(deletedDir, recordingId, state);
+        }
     }
 
-    private void publish(String path, String recordingId, boolean publish) {
+    private void changeState(String path, String recordingId, String state) {
         String[] format = getPlaybackFormats(path);
         for (int i = 0; i < format.length; i++) {
             File[] recordings = getDirectories(path + File.separatorChar + format[i]);
@@ -174,28 +178,35 @@ public class RecordingService {
                     Recording r = getRecordingInfo(path, recordingId, format[i]);
                     if (r != null) {
                         File dest;
-                        if (publish) {
-                            dest = new File(publishedDir+ File.separatorChar + format[i]);
+                        if (state.equals(Recording.STATE_PUBLISHED)) {
+                            dest = new File(publishedDir + File.separatorChar + format[i]);
+                        } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
+                            dest = new File(unpublishedDir + File.separatorChar + format[i]);
+                        } else if (state.equals(Recording.STATE_DELETED)) {
+                            dest = new File(deletedDir + File.separatorChar + format[i]);
                         } else {
-                            dest = new File(unpublishedDir+ File.separatorChar + format[i]);
+                            log.debug(String.format("State: %s, is not supported", state));
+                            return;
                         }
                         if(!dest.exists()) dest.mkdir();
                         boolean moved = recordings[f].renameTo(new File(dest, recordings[f].getName()));
                         if (moved) {
                             log.debug("Recording successfully moved!");
-                            r.setPublished(publish);
-                            r.setState(publish? Recording.STATE_PUBLISHED: Recording.STATE_UNPUBLISHED);
+                            r.setState(state);
+                            r.setPublished(state.equals(Recording.STATE_PUBLISHED));
+                            if (state.equals(Recording.STATE_DELETED)) {
+                                r.setPlaybackFormat(null);
+                                deleteRecording(recordingId, deletedDir);
+                            }
                             recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings[f].getName(), r);
+                            log.debug(String.format("Recording successfully %s!", state));
+                        } else {
+                            log.debug("Recording was not moved");
                         }
                     }
                 }
             }
         }
-    }
-
-    public void delete(String recordingId) {
-        deleteRecording(recordingId, publishedDir);
-        deleteRecording(recordingId, unpublishedDir);
     }
 
     private void deleteRecording(String id, String path) {
@@ -205,9 +216,14 @@ public class RecordingService {
             for (int f = 0; f < recordings.length; f++) {
                 if (recordings[f].getName().equals(id)) {
                     deleteDirectory(recordings[f]);
+                    createDirectory(recordings[f]);
                 }
             }
         }
+    }
+
+    private void createDirectory(File directory) {
+        if(!directory.exists()) directory.mkdir();
     }
 
     private void deleteDirectory(File directory) {

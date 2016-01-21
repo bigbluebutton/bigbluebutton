@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+
 import groovy.util.slurpersupport.GPathResult;
 
 public class Recording {
@@ -108,7 +109,7 @@ public class Recording {
 	public String getPlaybackFormat() {
 		return playbackFormat;
 	}
-	
+
 	public void setPlaybackFormat(String playbackFormat) {
 		this.playbackFormat = playbackFormat;
 	}
