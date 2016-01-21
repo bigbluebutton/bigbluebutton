@@ -23,6 +23,7 @@ import java.io.File;
 
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.PageExtractor;
+import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class PdfPageToImageConversionService {
 	private PageConverter pdfToImageConverter;
 	private PageConverter imageToSwfConverter;
 	
-	public boolean convertPageAsAnImage(File presentationFile, File output, int page) {
+	public boolean convertPageAsAnImage(File presentationFile, File output, int page, UploadedPresentation pres) {
 		File tempDir = new File(presentationFile.getParent() + File.separatorChar + "temp");
 		tempDir.mkdir();
 
@@ -42,8 +43,8 @@ public class PdfPageToImageConversionService {
 		if (extractor.extractPage(presentationFile, tempPdfFile, page)) {
 			File tempPngFile = new File(tempDir.getAbsolutePath() + "/temp-" + page + ".svg");
 
-			if (pdfToImageConverter.convert(tempPdfFile, tempPngFile, 1)) {
-				if (imageToSwfConverter.convert(tempPngFile, output, 1)) {
+			if (pdfToImageConverter.convert(tempPdfFile, tempPngFile, 1, pres)) {
+				if (imageToSwfConverter.convert(tempPngFile, output, 1, pres)) {
 					return true;
 				}
 			}

@@ -21,18 +21,21 @@ package org.bigbluebutton.presentation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.imp.PdfPageToImageConversionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
 public class PdfToSwfSlide {
 	private static Logger log = LoggerFactory.getLogger(PdfToSwfSlide.class);
 	
 	private UploadedPresentation pres;
 	private int page;
-	
 	private PageConverter pdfToSwfConverter;
 	private PdfPageToImageConversionService imageConvertService;
 	private String BLANK_SLIDE;
@@ -49,16 +52,22 @@ public class PdfToSwfSlide {
 	public PdfToSwfSlide createSlide() {		
 		File presentationFile = pres.getUploadedFile();
 		slide = new File(presentationFile.getParent() + File.separatorChar + "slide-" + page + ".swf");
-		if (! pdfToSwfConverter.convert(presentationFile, slide, page)) {
-			log.info("Failed to convert slide. Let's take an image snapshot and convert to SWF");
-			imageConvertService.convertPageAsAnImage(presentationFile, slide, page);
-		} else {			
-			if (slideMayHaveTooManyObjects(slide)) {
-				log.info("Slide is too big. Let's take an image snapshot and convert to SWF");
-				imageConvertService.convertPageAsAnImage(presentationFile, slide, page);
-			}
-		}
+		if (! pdfToSwfConverter.convert(presentationFile, slide, page, pres)) {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("page", page);
+      logData.put("size(KB)", slide.length()/1024);
+      
+      Gson gson = new Gson();
+      String logStr =  gson.toJson(logData);
+      
+      log.warn("Failed to convert slide: data={}", logStr);
 
+			imageConvertService.convertPageAsAnImage(presentationFile, slide, page, pres);
+		} 
+		
 		// If all fails, generate a blank slide.
 		if (!slide.exists()) {
 			log.warn("Failed to create slide. Creating blank slide for " + slide.getAbsolutePath());
@@ -79,9 +88,29 @@ public class PdfToSwfSlide {
 	
 	public void generateBlankSlide() {
 		if (BLANK_SLIDE != null) {
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("page", page);
+      
+      Gson gson = new Gson();
+      String logStr =  gson.toJson(logData);
+      
+      log.warn("Creating blank slide: data={}", logStr);
+      
 			copyBlankSlide(slide);
 		} else {
-			log.error("Blank slide has not been set");
+      Map<String, Object> logData = new HashMap<String, Object>();
+      logData.put("meetingId", pres.getMeetingId());
+      logData.put("presId", pres.getId());
+      logData.put("filename", pres.getName());
+      logData.put("page", page);
+      
+      Gson gson = new Gson();
+      String logStr =  gson.toJson(logData);
+      
+      log.warn("Failed to create blank slide: data={}", logStr);
 		}		
 	}
 	

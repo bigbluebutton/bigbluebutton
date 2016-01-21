@@ -47,7 +47,7 @@ public class ImageToSwfSlide {
 		File presentationFile = pres.getUploadedFile();
 		slide = new File(presentationFile.getParent() + File.separatorChar + "slide-" + page + ".swf");
 		log.debug("Creating slide " + slide.getAbsolutePath());
-		imageToSwfConverter.convert(presentationFile, slide, page);
+		imageToSwfConverter.convert(presentationFile, slide, page, pres);
 		
 		// If all fails, generate a blank slide.
 		if (!slide.exists()) {

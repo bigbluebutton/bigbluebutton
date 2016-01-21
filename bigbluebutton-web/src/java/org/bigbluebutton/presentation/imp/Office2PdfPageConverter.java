@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bigbluebutton.presentation.PageConverter;
+import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ import com.artofsolving.jodconverter.openoffice.converter.*;
 public class Office2PdfPageConverter implements PageConverter {
 	private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 	
-	public boolean convert(File presentationFile, File output, int page){
+	public boolean convert(File presentationFile, File output, int page, UploadedPresentation pres){
 		SocketOpenOfficeConnection connection = new SocketOpenOfficeConnection(8100);
 
 		try {
