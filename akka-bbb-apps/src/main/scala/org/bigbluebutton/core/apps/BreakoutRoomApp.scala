@@ -30,7 +30,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
   
   def handleBreakoutRoomsList(msg:BreakoutRoomsListMessage) {
-    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.id, r.name) }
+    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id) }
     outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms));
   }
   

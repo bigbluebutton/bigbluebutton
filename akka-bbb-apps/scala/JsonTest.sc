@@ -103,13 +103,18 @@ object JsonTest {
   }
 
   roomsJsVector.length                            //> res2: Int = 1
-  JsArray(roomsJsVector.toVector).toString()      //> res3: String = [{"name":"Breakout Room","breakoutId":"br-id-1"}]
+
+  val jsonAst = List(1, 2, 3).toJson              //> jsonAst  : spray.json.JsValue = [1,2,3]
+
+  roomsJsVector.toList.toJson                     //> res3: spray.json.JsValue = [{"name":"Breakout Room","breakoutId":"br-id-1"}
+                                                  //| ]
+  JsArray(roomsJsVector.toVector)                 //> res4: spray.json.JsArray = [{"name":"Breakout Room","breakoutId":"br-id-1"}
+                                                  //| ]
 
   MeetingMessageToJsonConverter.breakoutRoomsListOutMessageToJson(brlum);
-                                                  //> res4: String = {"payload":{"meetingId":"main-meeting-1","rooms":"[{\"name\"
-                                                  //| :\"Breakout Room\",\"breakoutId\":\"br-id-1\"}]"},"header":{"timestamp":132
-                                                  //| 888341,"name":"BreakoutRoomsList","current_time":1452892184834,"version":"0
-                                                  //| .0.1"}}
+                                                  //> res5: String = {"payload":{"meetingId":"main-meeting-1","rooms":[{"name":"B
+                                                  //| reakout Room","breakoutId":"br-id-1"}]},"header":{"timestamp":47333494,"nam
+                                                  //| e":"BreakoutRoomsList","current_time":1453399680291,"version":"0.0.1"}}
 
   //  JsonMessageDecoder.unmarshall(cbrm) match {
   //    case Success(validMsg) => println(validMsg)

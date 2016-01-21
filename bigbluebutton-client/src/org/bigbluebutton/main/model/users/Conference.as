@@ -528,9 +528,9 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function updateBreakoutRoomUsers(breakoutId:String, users:Array):void {
-			var r:Object = getBreakoutRoom(breakoutId);
-			if (r != null) {
-				BreakoutRoom(r.room).users = new ArrayCollection(users);
+			var room:Object = getBreakoutRoom(breakoutId);
+			if (room!= null) {
+				BreakoutRoom(room).users = new ArrayCollection(users);
 			}
 		}
 		

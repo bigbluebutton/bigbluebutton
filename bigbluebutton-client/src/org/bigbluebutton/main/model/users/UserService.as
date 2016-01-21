@@ -91,7 +91,7 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().setMyUserid(result.internalUserId);
 				
 				UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
-				UserManager.getInstance().getConference().isBreakout = (result.isBreakout != "false");
+				UserManager.getInstance().getConference().isBreakout = result.isBreakout;
 				UserManager.getInstance().getConference().meetingName = result.conferenceName;
 				UserManager.getInstance().getConference().internalMeetingID = result.room;
 				UserManager.getInstance().getConference().externalUserID = result.externUserID;
@@ -105,7 +105,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.meetingName = result.conferenceName;
 				_conferenceParameters.externMeetingID = result.externMeetingID;
-				_conferenceParameters.isBreakout = (result.isBreakout != "false");
+				_conferenceParameters.isBreakout = result.isBreakout;
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
 				_conferenceParameters.role = result.role;

@@ -136,15 +136,9 @@ object MeetingMessageToJsonConverter {
   }
 
   def breakoutRoomsListOutMessageToJson(msg: BreakoutRoomsListOutMessage): String = {
-    // We need to create a mutable list to able to fill it then convert it to a JsArray
-    val roomsJsVector: ListBuffer[JsObject] = new ListBuffer[JsObject]()
-    msg.rooms.foreach { r =>
-      roomsJsVector.append(JsObject("name" -> JsString(r.name), "breakoutId" -> JsString(r.breakoutId)))
-    }
-
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
-    payload.put("rooms", JsArray(roomsJsVector.toVector).toString())
+    payload.put("rooms", msg.rooms.toArray)
 
     val header = Util.buildHeader(BreakoutRoomsList.NAME, None)
     Util.buildJson(header, payload)
@@ -172,16 +166,11 @@ object MeetingMessageToJsonConverter {
   }
 
   def updateBreakoutUsersOutMessageToJson(msg: UpdateBreakoutUsersOutMessage): String = {
-    val usersJsVector: ListBuffer[JsObject] = new ListBuffer[JsObject]()
-    msg.users.foreach { u =>
-      usersJsVector.append(JsObject("name" -> JsString(u.name), "id" -> JsString(u.id)))
-    }
-
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
     payload.put("breakoutId", msg.breakoutId)
     payload.put("recorded", msg.recorded)
-    payload.put("users", JsArray(usersJsVector.toVector).toString())
+    payload.put("users", msg.users.toArray)
 
     val header = Util.buildHeader(UpdateBreakoutUsers.NAME, None)
     Util.buildJson(header, payload)

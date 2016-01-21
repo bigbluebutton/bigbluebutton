@@ -135,7 +135,7 @@ package org.bigbluebutton.modules.users.services
           handleUserLocked(message);
           break;
 		// Breakout room feature
-		case "getBreakoutRoomsList":
+		case "breakoutRoomsList":
 		  handleBreakoutRoomsList(message)
 		  break;
 		case "breakoutRoomJoinURL":
@@ -594,7 +594,14 @@ package org.bigbluebutton.modules.users.services
     }
 	
 	private function handleBreakoutRoomsList(msg:Object):void{
-		LOGGER.debug("*** handleBreakoutRoomsList " + msg.msg + " **** \n"); 
+		var map:Object = JSON.parse(msg.msg);
+		for each(var room : Object in map.rooms)
+		{
+			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
+			breakoutRoom.breakoutId = room.breakoutId;
+			breakoutRoom.name = room.name;
+			UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+		}
 	}
 	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
