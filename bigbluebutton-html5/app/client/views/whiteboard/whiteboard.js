@@ -10,35 +10,35 @@ this.scaleWhiteboard = function(callback) {
   if(callback) {
     callback();
   }
-  return {
-    isPollStarted() {
-      if(BBB.isPollGoing(getInSession('userId'))) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-    hasNoPresentation() {
-      return Meteor.Presentations.findOne({
-        'presentation.current': true
-      });
-    },
-    forceSlideShow() {
-      return reactOnSlideChange();
-    },
-    clearSlide() {
-      let ref;
-
-      //clear the slide
-      if(typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null) {
-        whiteboardPaperModel.removeAllImagesFromPaper();
-      }
-
-      // hide the cursor
-      return typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null ? (ref = whiteboardPaperModel.cursor) != null ? ref.remove() : void 0 : void 0;
-    }
-  };
 };
+
+Template.whiteboard.helpers({
+  isPollStarted() {
+    if(BBB.isPollGoing(getInSession('userId'))) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  hasNoPresentation() {
+    return Meteor.Presentations.findOne({
+      'presentation.current': true
+    });
+  },
+  forceSlideShow() {
+    return reactOnSlideChange();
+  },
+  clearSlide() {
+    let ref;
+    //clear the slide
+    if(typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null) {
+      whiteboardPaperModel.removeAllImagesFromPaper();
+    }
+    //hide the cursor
+    return typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null ? (ref = whiteboardPaperModel.cursor) != null ? ref.remove() : void 0 : void 0;
+  }
+});
+
 
 Template.whiteboard.events({
   'click .whiteboardFullscreenButton'(event, template) {
