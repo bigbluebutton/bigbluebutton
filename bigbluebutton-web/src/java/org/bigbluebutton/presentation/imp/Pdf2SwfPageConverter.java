@@ -54,7 +54,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
   private long imageTagThreshold;
   private String convTimeout = "5s";
   private int WAIT_FOR_SEC = 6;
-  
+
   public boolean convert(File presentation, File output, int page, UploadedPresentation pres) {
     long convertStart = System.currentTimeMillis();
 
@@ -69,23 +69,23 @@ public class Pdf2SwfPageConverter implements PageConverter {
             "/bin/sh",
             "-c",
             SWFTOOLS_DIR
-                + File.separator
-                + "pdf2swf"
-                + " -vv "
-                + AVM2SWF
-                + " -F "
-                + fontsDir
-                + " -p "
-                + String.valueOf(page)
-                + " "
-                + source
-                + " -o "
-                + dest
-                + " | egrep  'shape id|Updating font|Drawing' | sed 's/  / /g' | cut -d' ' -f 1-3  | sort | uniq -cw 15"));
+            + File.separator
+            + "pdf2swf"
+            + " -vv "
+            + AVM2SWF
+            + " -F "
+            + fontsDir
+            + " -p "
+            + String.valueOf(page)
+            + " "
+            + source
+            + " -o "
+            + dest
+            + " | egrep  'shape id|Updating font|Drawing' | sed 's/  / /g' | cut -d' ' -f 1-3  | sort | uniq -cw 15"));
 
     Pdf2SwfPageConverterHandler pHandler = new Pdf2SwfPageConverterHandler();
     pb.setProcessListener(pHandler);
-    
+
     long pdf2SwfStart = System.currentTimeMillis();
 
     NuProcess process = pb.start();
@@ -94,10 +94,10 @@ public class Pdf2SwfPageConverter implements PageConverter {
     } catch (InterruptedException e) {
       log.error(e.getMessage());
     }
-    
+
     long pdf2SwfEnd = System.currentTimeMillis();   
     log.debug("Pdf2Swf conversion duration: {} sec", (pdf2SwfEnd - pdf2SwfStart)/1000);
-    
+
     File destFile = new File(dest);
     if (pHandler.isConversionSuccessfull() && destFile.exists()
         && pHandler.numberOfPlacements() < placementsThreshold
@@ -117,9 +117,9 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("numImageTags", pHandler.numberOfImageTags());
       Gson gson = new Gson();
       String logStr =  gson.toJson(logData);
-      
+
       log.warn("Potential problem with generated SWF: data={}", logStr);
-      
+
       File tempPdfPage = null;
       File tempPng = null;
       String basePresentationame = FilenameUtils.getBaseName(presentation.getName());
@@ -151,9 +151,9 @@ public class Pdf2SwfPageConverter implements PageConverter {
 
       long gsEnd = System.currentTimeMillis();
       log.debug("Ghostscript conversion duration: {} sec", (gsStart - gsEnd)/1000);
-      
+
       long magickStart = System.currentTimeMillis();
-      
+
       // Step 2: Convert a PDF page to PNG
       NuProcessBuilder pbPng = new NuProcessBuilder(Arrays.asList("timeout", convTimeout,
           IMAGEMAGICK_DIR + File.separator + "convert", "-density", "150",
@@ -175,13 +175,13 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("filename", pres.getName());
       logData.put("page", page);
       logData.put("conversionTime(sec)", (magickEnd - magickStart)/1000);
-      
+
       logStr =  gson.toJson(logData);
-      
+
       log.debug("ImageMagick conversion duration: {} sec", (magickEnd - magickStart)/1000);
-      
+
       long png2swfStart = System.currentTimeMillis();
-      
+
       // Step 3: Convert a PNG image to SWF
       source = tempPng.getAbsolutePath();
       NuProcessBuilder pbSwf = new NuProcessBuilder(Arrays.asList("timeout", convTimeout, SWFTOOLS_DIR
@@ -194,10 +194,10 @@ public class Pdf2SwfPageConverter implements PageConverter {
       } catch (InterruptedException e) {
         log.error(e.getMessage());
       }
-      
+
       long png2swfEnd = System.currentTimeMillis();
       log.debug("ImageMagick conversion duration: {} sec", (png2swfEnd - png2swfStart)/1000);
-      
+
       // Delete the temporary PNG and PDF files after finishing the image
       // conversion
       tempPdfPage.delete();
@@ -213,12 +213,12 @@ public class Pdf2SwfPageConverter implements PageConverter {
       logData.put("filename", pres.getName());
       logData.put("page", page);
       logData.put("conversionTime(sec)", (convertEnd - convertStart)/1000);
-      
+
       logStr =  gson.toJson(logData);
-      
+
       log.debug("Problem page conversion duration: {} sec", (convertEnd - convertStart)/1000);
-      
-      
+
+
       if (doneSwf && destFile.exists()) {
         return true;
       } else {
