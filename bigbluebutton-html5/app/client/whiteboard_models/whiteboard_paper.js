@@ -209,9 +209,6 @@ Meteor.WhiteboardPaperModel = (function() {
       let base, base1, i, len, obj, tool, toolModel;
       data.thickness *= this.adjustedWidth / 1000;
       tool = null;
-      //TODO pay attention to this array, data in this array slows down the whiteboard
-      //console.log @current
-      //console.log @
       this.current[shape] = this._createTool(shape);
       toolModel = this.current[shape];
       tool = this.current[shape].make(data);

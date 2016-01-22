@@ -163,7 +163,6 @@ Template.whiteboardControls.helpers({
     totalSlideNum = (ref1 = Meteor.Slides.find({
       'presentationId': currentPresentation != null ? currentPresentation.presentation.id : void 0
     })) != null ? ref1.count() : void 0;
-    console.log('slide', currentSlideNum);
     if(currentSlideNum !== void 0) {
       return `${currentSlideNum}/${totalSlideNum}`;
     } else {

@@ -29,7 +29,6 @@ this.reactOnSlideChange = (_this => {
 })(this);
 
 this.createWhiteboardPaper = (_this => {
-  // console.log "CREATING WPM"
   return function(callback) {
     _this.whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper');
     return callback(_this.whiteboardPaperModel);
