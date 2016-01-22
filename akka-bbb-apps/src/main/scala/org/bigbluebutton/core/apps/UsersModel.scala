@@ -182,11 +182,11 @@ class UsersModel {
     }
   }
 
-  def startRecordingVoice {
+  def startRecordingVoice() {
     recordingVoice = true
   }
 
-  def stopRecordingVoice {
+  def stopRecordingVoice() {
     recordingVoice = false
   }
 
