@@ -57,7 +57,7 @@ public class RecordingService {
         }
     }
 
-    private boolean shouldIncludeDir( Map<String, Object> filters, String type ) {
+    private boolean shouldIncludeDir( Map<String, Map<String, Object>> filters, String type ) {
         boolean r = false;
 
         if( filters.containsKey("state") ) {
@@ -83,7 +83,18 @@ public class RecordingService {
         return r;
     }
 
-    public ArrayList<Recording> getRecordings(ArrayList<String> meetingIds, Map<String, Object> filters) {
+    private String[] recordingIdsFromFilters( Map<String, Map<String, Object>> filters ) {
+        String[] recordingIds = {};
+
+        if( filters.containsKey("id") ) {
+            Map<String, Object> filter = (Map<String, Object>)filters.get("id");
+            recordingIds = (String[])filter.get("values");
+        }
+
+        return recordingIds;
+    }
+
+    public ArrayList<Recording> getRecordings(ArrayList<String> meetingIds, Map<String, Map<String, Object>> filters) {
         ArrayList<Recording> recs = new ArrayList<Recording>();
 
         if(meetingIds.isEmpty()){
@@ -99,21 +110,21 @@ public class RecordingService {
 
         for(String meetingId : meetingIds){
             if ( shouldIncludeDir(filters, Recording.STATE_PUBLISHED) ) {
-                ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
+                ArrayList<Recording> published = getRecordingsForPath(meetingId, recordingIdsFromFilters(filters), publishedDir);
                 if (!published.isEmpty()) {
                     recs.addAll(published);
                 }
             }
 
             if ( shouldIncludeDir(filters, Recording.STATE_UNPUBLISHED) ) {
-                ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
+                ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, recordingIdsFromFilters(filters), unpublishedDir);
                 if (!unpublished.isEmpty()) {
                     recs.addAll(unpublished);
                 }
             }
 
             if ( shouldIncludeDir(filters, Recording.STATE_DELETED) ) {
-                ArrayList<Recording> deleted = getRecordingsForPath(meetingId, deletedDir);
+                ArrayList<Recording> deleted = getRecordingsForPath(meetingId, recordingIdsFromFilters(filters), deletedDir);
                 if (!deleted.isEmpty()) {
                     recs.addAll(deleted);
                 }
@@ -171,7 +182,7 @@ public class RecordingService {
         return ids;
     }
 
-    private ArrayList<Recording> getRecordingsForPath(String meetingId, String path) {
+    private ArrayList<Recording> getRecordingsForPath(String meetingId, String[] recordingId, String path) {
         ArrayList<Recording> recs = new ArrayList<Recording>();
 
         String[] format = getPlaybackFormats(path);
@@ -180,7 +191,9 @@ public class RecordingService {
             for (int f = 0; f < recordings.length; f++) {
                 if (recordings[f].getName().startsWith(meetingId)) {
                     Recording r = getRecordingInfo(path, recordings[f].getName(), format[i]);
-                    if (r != null) recs.add(r);
+                    if (r != null && ( recordingId.length == 0 || Arrays.asList(recordingId).contains("any") || Arrays.asList(recordingId).contains(r.getId())) ) {
+                        recs.add(r);
+                    }
                 }
             }
         }

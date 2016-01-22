@@ -740,8 +740,8 @@ public class ParamsProcessorUtil {
 		return resp;
 	}
 
-	public Map<String, Object> decodeFilters(String encodedFilters) {
-        Map<String, Object> filters = new LinkedHashMap<String, Object>();
+	public Map<String, Map<String, Object>> decodeFilters(String encodedFilters) {
+        Map<String, Map<String, Object>> filters = new LinkedHashMap<String, Map<String, Object>>();
 
         try {
             String[] sFilters = encodedFilters.split(URLDECODER_SEPARATOR);

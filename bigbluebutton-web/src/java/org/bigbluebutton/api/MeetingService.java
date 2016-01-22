@@ -339,7 +339,7 @@ public class MeetingService implements MessageListener {
 		return null;
 	} 
 	
-	public HashMap<String,Recording> getRecordings(ArrayList<String> idList, Map<String, Object> filters) {
+	public HashMap<String,Recording> getRecordings(ArrayList<String> idList, Map<String, Map<String, Object>> filters) {
 		//TODO: this method shouldn't be used 
 		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList, filters));
 		return recs;

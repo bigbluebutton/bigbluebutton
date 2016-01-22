@@ -1711,11 +1711,10 @@ class ApiController {
             internalRecordIds = paramsProcessorUtil.decodeIds(params.recordID)
         }
 
-        Map<String, Object> filters = new LinkedHashMap<String, Object>()
+        Map<String, Map<String, Object>> filters = new LinkedHashMap<String, Map<String, Object>>()
         if (!StringUtils.isEmpty(params.filter)) {
             filters = paramsProcessorUtil.decodeFilters(params.filter)
         }
-        log.debug(new groovy.json.JsonBuilder( filters ).toPrettyString())
 
         // Everything is good so far.
         if ( internalRecordIds.size() == 0 ) {
