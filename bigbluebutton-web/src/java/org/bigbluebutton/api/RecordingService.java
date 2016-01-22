@@ -22,6 +22,7 @@ package org.bigbluebutton.api;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,29 +57,66 @@ public class RecordingService {
         }
     }
 
-    public ArrayList<Recording> getRecordings(ArrayList<String> meetingIds) {
+    private boolean shouldIncludeDir( Map<String, Object> filters, String type ) {
+        boolean r = false;
+
+        if( filters.containsKey("state") ) {
+            Map<String, Object> filter = (Map<String, Object>)filters.get("state");
+            String[] values = (String[])filter.get("values");
+            if ( Arrays.asList(values).contains("any") ) {
+                r = true;
+            } else {
+                if ( type.equals(Recording.STATE_PUBLISHED) && Arrays.asList(values).contains(Recording.STATE_PUBLISHED) ) {
+                    r = true;
+                } else if ( type.equals(Recording.STATE_UNPUBLISHED) && Arrays.asList(values).contains(Recording.STATE_UNPUBLISHED) ) {
+                    r = true;
+                } else if ( type.equals(Recording.STATE_DELETED) && Arrays.asList(values).contains(Recording.STATE_DELETED) ) {
+                    r = true;
+                }
+            }
+        } else {
+            if ( type.equals(Recording.STATE_PUBLISHED) || type.equals(Recording.STATE_UNPUBLISHED) ) {
+                r = true;
+            }
+        }
+
+        return r;
+    }
+
+    public ArrayList<Recording> getRecordings(ArrayList<String> meetingIds, Map<String, Object> filters) {
         ArrayList<Recording> recs = new ArrayList<Recording>();
 
         if(meetingIds.isEmpty()){
-            meetingIds.addAll(getAllRecordingIds(publishedDir));
-            meetingIds.addAll(getAllRecordingIds(unpublishedDir));
-            meetingIds.addAll(getAllRecordingIds(deletedDir));
+            if ( shouldIncludeDir(filters, Recording.STATE_PUBLISHED) )
+                meetingIds.addAll(getAllRecordingIds(publishedDir));
+
+            if ( shouldIncludeDir(filters, Recording.STATE_UNPUBLISHED) )
+                meetingIds.addAll(getAllRecordingIds(unpublishedDir));
+
+            if ( shouldIncludeDir(filters, Recording.STATE_DELETED) )
+                meetingIds.addAll(getAllRecordingIds(deletedDir));
         }
 
         for(String meetingId : meetingIds){
-            ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
-            if (!published.isEmpty()) {
-                recs.addAll(published);
+            if ( shouldIncludeDir(filters, Recording.STATE_PUBLISHED) ) {
+                ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
+                if (!published.isEmpty()) {
+                    recs.addAll(published);
+                }
             }
 
-            ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
-            if (!unpublished.isEmpty()) {
-                recs.addAll(unpublished);
+            if ( shouldIncludeDir(filters, Recording.STATE_UNPUBLISHED) ) {
+                ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
+                if (!unpublished.isEmpty()) {
+                    recs.addAll(unpublished);
+                }
             }
 
-            ArrayList<Recording> deleted = getRecordingsForPath(meetingId, deletedDir);
-            if (!deleted.isEmpty()) {
-                recs.addAll(deleted);
+            if ( shouldIncludeDir(filters, Recording.STATE_DELETED) ) {
+                ArrayList<Recording> deleted = getRecordingsForPath(meetingId, deletedDir);
+                if (!deleted.isEmpty()) {
+                    recs.addAll(deleted);
+                }
             }
         }
 

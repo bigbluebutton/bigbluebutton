@@ -19,9 +19,11 @@
 package org.bigbluebutton.web.controllers
 
 import javax.servlet.ServletRequest;
+
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.binary.Base64;
@@ -38,14 +40,18 @@ import org.bigbluebutton.web.services.turn.StunTurnService;
 import org.bigbluebutton.web.services.turn.TurnEntry;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.presentation.UploadedPresentation
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ClientConfigService;
 import org.bigbluebutton.api.ParamsProcessorUtil;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Map;
 import java.text.DateFormat;
 
 class ApiController {
@@ -1705,10 +1711,11 @@ class ApiController {
             internalRecordIds = paramsProcessorUtil.decodeIds(params.recordID)
         }
 
-        ArrayList<String> filters = new ArrayList<String>()
+        Map<String, Object> filters = new LinkedHashMap<String, Object>()
         if (!StringUtils.isEmpty(params.filter)) {
-            filters = paramsProcessorUtil.decodeIds(params.filter)
+            filters = paramsProcessorUtil.decodeFilters(params.filter)
         }
+        log.debug(new groovy.json.JsonBuilder( filters ).toPrettyString())
 
         // Everything is good so far.
         if ( internalRecordIds.size() == 0 ) {
@@ -1716,7 +1723,7 @@ class ApiController {
             // Translate the external meeting ids to an internal meeting ids.
             internalRecordIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
         }
-        HashMap<String,Recording> recs = meetingService.getRecordings(internalRecordIds);
+        HashMap<String,Recording> recs = meetingService.getRecordings(internalRecordIds, filters);
         recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 
         if (recs.isEmpty()) {
