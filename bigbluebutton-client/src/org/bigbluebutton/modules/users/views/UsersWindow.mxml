@@ -253,8 +253,9 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
-				
+				if (breakoutRoomsList.length == 0) {
+					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
+				}
 				
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
