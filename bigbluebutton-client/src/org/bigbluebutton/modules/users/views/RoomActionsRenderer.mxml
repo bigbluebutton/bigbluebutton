@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
-		verticalScrollPolicy="off"
-		horizontalScrollPolicy="off"
-		verticalAlign="middle">
+		 verticalScrollPolicy="off"
+		 horizontalScrollPolicy="off"
+		 verticalAlign="middle">
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -28,7 +28,7 @@
 			}
 		]]>
 	</mx:Script>
-	
+
 	<mx:Button id="listenImg" width="20" height="20"
 			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"
 			   click="listenToBreakoutRoom(event)"/>

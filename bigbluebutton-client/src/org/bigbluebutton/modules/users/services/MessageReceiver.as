@@ -159,7 +159,6 @@ package org.bigbluebutton.modules.users.services
 		
 		if(user.userLocked != map.lock)
 			user.lockStatusChanged(map.lock);
-		
 		return;
 	}
 	

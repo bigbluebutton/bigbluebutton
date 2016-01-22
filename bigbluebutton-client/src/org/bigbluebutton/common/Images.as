@@ -132,6 +132,9 @@ package org.bigbluebutton.common
 
         [Embed(source="assets/images/user.png")]
         public var user:Class;		
+
+        [Embed(source="assets/images/users.png")]
+        public var users:Class;		
         
         [Embed(source="assets/images/administrator.gif")]
         public var admin:Class;
