@@ -1582,6 +1582,14 @@ class ApiController {
 			}
 		  }
 		}
+
+    //TESTING HERE FOR MESSAGE
+    if (publish == "true"){
+      meetingService.publishRecording(params.meetingID,params.recordID);
+    }
+    if (publish == "false"){
+      meetingService.unpublishRecording(params.meetingID,params.recordID);
+    }
   }
   
   /******************************************************
@@ -1660,6 +1668,7 @@ class ApiController {
 			}
 		  }
 		}
+   meetingService.deleteRecording(params.meetingID,params.recordID);
   }
   
   def uploadDocuments(conf) { 

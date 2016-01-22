@@ -53,7 +53,10 @@ public class MessagingConstants {
 	public static final String USER_SHARE_WEBCAM_EVENT       = "user_shared_webcam_message";
 	public static final String USER_UNSHARE_WEBCAM_EVENT     = "user_unshared_webcam_message";
 	public static final String USER_ROLE_CHANGE_EVENT        = "user_role_changed_message";
-	
+	public static final String RECORDING_PUBLISHED_EVEN      = "recording_publish_message";
+	public static final String RECORDING_UNPUBLISHED_EVENT   = "recording_unpublish_message";
+	public static final String RECORDING_DELETED_EVENT       = "recording_deleted_message";
+
 			
 	public static final String SEND_POLLS_EVENT = "SendPollsEvent";
 	public static final String KEEP_ALIVE_REPLY = "keep_alive_reply";

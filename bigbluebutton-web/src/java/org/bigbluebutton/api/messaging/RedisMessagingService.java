@@ -33,6 +33,9 @@ import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
+import org.bigbluebutton.api.messaging.converters.messages.PublishRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.UnpublishRecordingMessage;
+import org.bigbluebutton.api.messaging.converters.messages.DeleteRecordingMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -124,4 +127,25 @@ public class RedisMessagingService implements MessagingService {
 		storeService.removeMeeting(meetingId);
 	}
 	
+	public void publishRecording(String meetingID, String recordingID) {
+		PublishRecordingMessage msg = new PublishRecordingMessage(meetingID, recordingID);
+		String json = MessageToJson.publishRecordingMessageToJson(msg);
+		log.info("Sending Recording has been Published message:[{}]", json);
+		sender.send(MessagingConstants.RECORDING_PUBLISHED_EVENT, json);		
+	}
+
+	public void unpublishRecording(String meetingID, String recordingID) {
+		UnpublishRecordingMessage msg = new UnpublishRecordingMessage(meetingID, recordingID);
+		String json = MessageToJson.unpublishRecordingMessageToJson(msg);
+		log.info("Sending Recording has been Unublished message:[{}]", json);
+		sender.send(MessagingConstants.RECORDING_UNPUBLISHED_EVENT, json);		
+	}
+
+	public void deleteRecording(String meetingID, String recordingID) {
+		DeleteRecordingMessage msg = new DeleteRecordingMessage(meetingID, recordingID);
+		String json = MessageToJson.deleteRecordingMessageToJson(msg);
+		log.info("Sending Recording has been Deleted message:[{}]", json);
+		sender.send(MessagingConstants.RECORDING_DELETED_EVENT, json);		
+	}
+
 }
