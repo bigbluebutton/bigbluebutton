@@ -479,17 +479,29 @@ Meteor.startup(() => {
         xOffset = (ref17 = message.payload.page) != null ? ref17.x_offset : void 0;
         yOffset = (ref18 = message.payload.page) != null ? ref18.y_offset : void 0;
         presentationId = slideId.split("/")[0];
-        Meteor.Slides.update({
-          presentationId: presentationId,
-          "slide.current": true
-        }, {
-          $set: {
-            "slide.height_ratio": heightRatio,
-            "slide.width_ratio": widthRatio,
-            "slide.x_offset": xOffset,
-            "slide.y_offset": yOffset
-          }
-        });
+
+        /*In the case when we don't resize, but switch a slide, this message
+        follows a 'presentation_page_changed' and all these properties are already set. */
+        var currentSlide = Meteor.Slides.findOne({presentationId: presentationId,
+          "slide.current": true});
+        if(currentSlide) {
+          currentSlide = currentSlide.slide;
+        }
+        if(currentSlide.height_ratio != heightRatio || currentSlide.width_ratio != widthRatio
+          || currentSlide.x_offset != xOffset || currentSlide.y_offset != yOffset) {
+          Meteor.Slides.update({
+            presentationId: presentationId,
+            "slide.current": true
+          }, {
+            $set: {
+              "slide.height_ratio": heightRatio,
+              "slide.width_ratio": widthRatio,
+              "slide.x_offset": xOffset,
+              "slide.y_offset": yOffset
+            }
+          });
+        }
+
         return callback();
 
       // for now not handling this serially #TODO
