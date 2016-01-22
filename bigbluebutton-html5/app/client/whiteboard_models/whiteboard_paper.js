@@ -288,7 +288,7 @@ Meteor.WhiteboardPaperModel = (function() {
     _updateZoomRatios() {
       let currentSlideDoc;
       currentSlideDoc = BBB.getCurrentSlide();
-      this.widthRatio = currentSlideDoc != null ? currentSlideDoc.slide.width_ratio : void 0;
+      this.widthRatio = (currentSlideDoc != null ? currentSlideDoc.slide.width_ratio : void 0) || 100;
       return this.heightRatio = currentSlideDoc != null ? currentSlideDoc.slide.height_ratio : void 0;
     }
 
