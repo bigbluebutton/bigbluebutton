@@ -14,12 +14,17 @@ this.displayThisSlide = function(meetingId, newSlideId, slideObject) {
     }
   });
 
+  //change current to true for the new slide and update its ratios and offsets
   Meteor.Slides.update({
     presentationId: presentationId,
     "slide.id": newSlideId
   }, {
     $set: {
-      "slide.current": true
+      "slide.current": true,
+      "slide.height_ratio": slideObject.height_ratio,
+      "slide.width_ratio": slideObject.width_ratio,
+      "slide.x_offset": slideObject.x_offset,
+      "slide.y_offset": slideObject.y_offset
     }
   });
 };
