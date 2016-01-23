@@ -310,7 +310,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function playSound():void {
 				if (chatNoiseEnabled){
-					noticeSound.play();
+					noticeSound.play(0, 0, new SoundTransform(0.3));
 				}
 			}
 			
