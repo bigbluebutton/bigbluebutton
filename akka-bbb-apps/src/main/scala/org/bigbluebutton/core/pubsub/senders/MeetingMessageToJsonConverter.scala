@@ -1,7 +1,5 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import scala.collection.mutable.ListBuffer
-
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.messages._
@@ -151,6 +149,15 @@ object MeetingMessageToJsonConverter {
     payload.put("name", msg.breakout.name)
 
     val header = Util.buildHeader(BreakoutRoomStarted.NAME, None)
+    Util.buildJson(header, payload)
+  }
+
+  def breakoutRoomEndedOutMessageToJson(msg: BreakoutRoomEndedOutMessage): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put("meetingId", msg.meetingId)
+    payload.put("breakoutId", msg.breakoutId)
+
+    val header = Util.buildHeader(BreakoutRoomClosed.NAME, None)
     Util.buildJson(header, payload)
   }
 

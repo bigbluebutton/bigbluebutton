@@ -30,6 +30,7 @@ case object IsAliveMessage extends IOutMessage
 // Breakout Rooms
 case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomBody]) extends IOutMessage
 case class CreateBreakoutRoom(meetingId: String, recorded: Boolean, room: BreakoutRoomOutPayload) extends IOutMessage
+case class EndBreakoutRoom(breakoutId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
   defaultPresentationURL: String)
@@ -38,6 +39,7 @@ case class BreakoutRoomStartedOutMessage(meetingId: String, recorded: Boolean, b
 case class BreakoutRoomBody(name: String, breakoutId: String)
 case class UpdateBreakoutUsersOutMessage(meetingId: String, recorded: Boolean, breakoutId: String, users: Vector[BreakoutUser]) extends IOutMessage
 case class MeetingTimeRemainingUpdate(meetingId: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
+case class BreakoutRoomEndedOutMessage(meetingId: String, breakoutId: String) extends IOutMessage
 
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage

@@ -150,6 +150,9 @@ package org.bigbluebutton.modules.users.services
 		case "breakoutRoomStarted":
 		  handleBreakoutRoomStarted(message);
 		  break;
+		case "breakoutRoomClosed":
+		  handleBreakoutRoomClosed(message);
+		  break;
       }
     }  
     
@@ -628,6 +631,11 @@ package org.bigbluebutton.modules.users.services
 		breakoutRoom.breakoutId = map.breakoutId;
 		breakoutRoom.name = map.name;
 		UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+	}
+	
+	private function handleBreakoutRoomClosed(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);	
+		UserManager.getInstance().getConference().removeBreakoutRoom((map.breakoutId);
 	}
 
   }

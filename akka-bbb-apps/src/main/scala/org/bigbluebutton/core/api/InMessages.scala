@@ -49,8 +49,7 @@ case class BreakoutRoomInPayload(name: String, users: Vector[String])
 case class RequestBreakoutJoinURLInMessage(meetingId: String, breakoutId: String,
   userId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor that breakout room has been created.
-case class BreakoutRoomCreated(meetingId: String,
-  breakoutRoomId: String) extends InMessage
+case class BreakoutRoomCreated(meetingId: String, breakoutRoomId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor the list of users in the breakout room.    
 case class BreakoutRoomUsersUpdate(meetingId: String, breakoutId: String,
   users: Vector[BreakoutUser]) extends InMessage
@@ -58,6 +57,8 @@ case class BreakoutRoomUsersUpdate(meetingId: String, breakoutId: String,
 case class SendBreakoutUsersUpdate(meetingId: String) extends InMessage
 // Sent by user to request ending all the breakout rooms
 case class EndAllBreakoutRooms(meetingId: String) extends InMessage
+// Sent by breakout actor to tell meeting actor that breakout room has been ended
+case class BreakoutRoomEnded(meetingId: String, breakoutRoomId: String) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Lock

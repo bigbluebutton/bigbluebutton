@@ -26,6 +26,7 @@ import org.bigbluebutton.common.messages.UserVoiceMutedMessage;
 import org.bigbluebutton.common.messages.UserVoiceTalkingMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenReplyMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenTimeoutMessage;
+import org.bigbluebutton.messages.BreakoutRoomClosed;
 import org.bigbluebutton.messages.BreakoutRoomJoinURL;
 import org.bigbluebutton.messages.BreakoutRoomStarted;
 import org.bigbluebutton.messages.BreakoutRoomsList;
@@ -205,6 +206,12 @@ public class UserClientMessageSender {
                 processBreakoutRoomStarted(brsm);
               }
         	break;
+          case BreakoutRoomClosed.NAME:
+        	BreakoutRoomClosed brcm = gson.fromJson(message, BreakoutRoomClosed.class);
+          	if (brcm != null) {
+                  processBreakoutRoomClosed(brcm);
+                }
+          	break;
         }
       }
     }
@@ -565,6 +572,19 @@ public class UserClientMessageSender {
 	  message.put("msg", gson.toJson(args));
 	  
 	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomStarted", message);
+      service.sendMessage(m);
+  }
+  
+  private void processBreakoutRoomClosed(BreakoutRoomClosed msg) {
+	  Map<String, Object> args = new HashMap<String, Object>();	
+	  args.put("breakoutId", msg.payload.breakoutId);
+	  args.put("meetingId", msg.payload.meetingId);
+	  
+	  Map<String, Object> message = new HashMap<String, Object>();
+	  Gson gson = new Gson();
+	  message.put("msg", gson.toJson(args));
+	  
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomClosed", message);
       service.sendMessage(m);
   }
 }

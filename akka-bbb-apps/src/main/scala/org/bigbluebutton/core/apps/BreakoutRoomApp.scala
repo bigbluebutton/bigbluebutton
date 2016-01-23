@@ -80,6 +80,10 @@ trait BreakoutRoomApp extends SystemConfiguration {
   def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutId: String, voiceConfId: String) {
     outGW.send(new BreakoutRoomStartedOutMessage(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, breakoutId)))
   }
+  
+  def handleBreakoutRoomEnded(msg: BreakoutRoomEnded) {
+    outGW.send(new BreakoutRoomEndedOutMessage(msg.meetingId, msg.breakoutRoomId))
+  }
 
   def handleBreakoutRoomUsersUpdate(msg: BreakoutRoomUsersUpdate) {
     breakoutModel.updateBreakoutUsers(msg.breakoutId, msg.users) foreach { room =>
@@ -96,10 +100,16 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleEndAllBreakoutRooms(msg: EndAllBreakoutRooms) {
     breakoutModel.getRooms().foreach { room =>
-      eventBus.publish(BigBlueButtonEvent(room.id,
-        new EndMeeting(room.id)))
+      outGW.send(new EndBreakoutRoom(room.id))
     }
+  }
 
+  def handleEndMeeting(msg: EndMeeting) {
+    if (mProps.isBreakout) {
+      breakoutModel.remove(msg.meetingID)
+      eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
+        BreakoutRoomEnded(mProps.externalMeetingID, mProps.meetingID)))
+    }
   }
 }
 

@@ -22,8 +22,7 @@ public class GetBreakoutRoomsListPayload {
 
 	public final String meetingId;
 
-	public GetBreakoutRoomsListPayload(String meetingId, String breakoutId,
-			String userId, String joinURL) {
+	public GetBreakoutRoomsListPayload(String meetingId) {
 		this.meetingId = meetingId;
 	}
 }

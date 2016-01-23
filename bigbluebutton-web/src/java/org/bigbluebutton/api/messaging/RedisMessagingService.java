@@ -19,40 +19,21 @@
 
 package org.bigbluebutton.api.messaging;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.Map;
 
-import javax.imageio.ImageIO;
-
-import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
-import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.bigbluebutton.common.converters.ToJsonEncoder;
-import org.bigbluebutton.common.messages.MessageHeader;
 import org.bigbluebutton.common.messages.MessagingConstants;
-import org.bigbluebutton.common.messages.PubSubPingMessage;
-import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
-import org.bigbluebutton.messages.BreakoutRoomStarted;
 import org.bigbluebutton.messages.CreateMeetingRequest;
 import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
-import org.bigbluebutton.messages.payload.BreakoutRoomPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPubSub;
 
 public class RedisMessagingService implements MessagingService {
 	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);

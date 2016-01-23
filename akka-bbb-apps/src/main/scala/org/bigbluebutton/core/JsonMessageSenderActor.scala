@@ -37,9 +37,11 @@ class JsonMessageSenderActor(val service: MessageSender)
 
     // Breakout
     case msg: CreateBreakoutRoom            => handleCreateBreakoutRoom(msg)
+    case msg: EndBreakoutRoom               => handleEndBreakoutRoom(msg)
     case msg: BreakoutRoomsListOutMessage   => handleBreakoutRoomsList(msg)
     case msg: BreakoutRoomJoinURLOutMessage => handleBreakoutRoomJoinURL(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStarted(msg)
+    case msg: BreakoutRoomEndedOutMessage   => handleBreakoutRoomEnded(msg)
     case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsers(msg)
     case msg: MeetingTimeRemainingUpdate    => handleMeetingTimeRemainingUpdate(msg)
 
@@ -50,6 +52,12 @@ class JsonMessageSenderActor(val service: MessageSender)
   private def handleBreakoutRoomStarted(msg: BreakoutRoomStartedOutMessage) {
     val payload = new BreakoutRoomPayload(msg.meetingId, msg.breakout.breakoutId, msg.breakout.name)
     val request = new BreakoutRoomStarted(payload)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson)
+  }
+
+  private def handleBreakoutRoomEnded(msg: BreakoutRoomEndedOutMessage) {
+    val payload = new BreakoutRoomPayload(msg.meetingId, msg.breakoutId, "")
+    val request = new BreakoutRoomClosed(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson)
   }
 
@@ -80,6 +88,12 @@ class JsonMessageSenderActor(val service: MessageSender)
       msg.room.voiceConfId, msg.room.viewerPassword, msg.room.moderatorPassword,
       msg.room.durationInMinutes, msg.room.defaultPresentationURL)
     val request = new CreateBreakoutRoomRequest(payload)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
+  }
+  
+  private def handleEndBreakoutRoom(msg: EndBreakoutRoom) {
+    val payload = new EndBreakoutRoomRequestPayload(msg.breakoutId)
+    val request = new EndBreakoutRoomRequest(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
   }
 

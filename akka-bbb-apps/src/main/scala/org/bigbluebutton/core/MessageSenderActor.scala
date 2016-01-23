@@ -27,17 +27,6 @@ import org.bigbluebutton.common.messages.BroadcastLayoutMessage
 import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
-import org.bigbluebutton.messages.payload.BreakoutRoomPayload
-import org.bigbluebutton.messages.BreakoutRoomStarted
-import org.bigbluebutton.messages.payload.CreateBreakoutRoomRequestPayload
-import org.bigbluebutton.messages.CreateBreakoutRoomRequest
-import org.bigbluebutton.messages.payload.BreakoutRoomJoinURLPayload
-import org.bigbluebutton.messages.BreakoutRoomJoinURL
-import org.bigbluebutton.messages.payload.UpdateBreakoutUsersPayload
-import org.bigbluebutton.messages.payload.BreakoutUserPayload
-import org.bigbluebutton.messages.UpdateBreakoutUsers
-import org.bigbluebutton.messages.payload.MeetingTimeRemainingPayload
-import org.bigbluebutton.messages.TimeRemainingUpdate
 
 object MessageSenderActor {
   def props(msgSender: MessageSender): Props =
@@ -126,6 +115,7 @@ class MessageSenderActor(val service: MessageSender)
     // breakout room cases
     case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
+    case msg: BreakoutRoomEndedOutMessage => handleBreakoutRoomEndedOutMessage(msg)
     case msg: BreakoutRoomJoinURLOutMessage => handleBreakoutRoomJoinURLOutMessage(msg)
     case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsersOutMessage(msg)
     case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
@@ -672,6 +662,11 @@ class MessageSenderActor(val service: MessageSender)
   
   private def handleBreakoutRoomStartedOutMessage(msg: BreakoutRoomStartedOutMessage) {
     val json = MeetingMessageToJsonConverter.breakoutRoomStartedOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleBreakoutRoomEndedOutMessage(msg: BreakoutRoomEndedOutMessage) {
+    val json = MeetingMessageToJsonConverter.breakoutRoomEndedOutMessageToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 
