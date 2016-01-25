@@ -81,17 +81,17 @@ class BigBlueButtonInGW(
   def handleJsonMessage(json: String) {
     JsonMessageDecoder.decode(json) match {
       case Some(validMsg) => forwardMessage(validMsg)
-      case None => log.error("Unhandled message: {}", json)
+      case None           => log.error("Unhandled message: {}", json)
     }
   }
 
   def forwardMessage(msg: InMessage) = {
     msg match {
-      case m: BreakoutRoomsListMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: BreakoutRoomsListMessage        => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: CreateBreakoutRooms             => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: EndAllBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case _ => log.error("Unhandled message: {}", msg)
+      case m: EndAllBreakoutRooms             => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case _                                  => log.error("Unhandled message: {}", msg)
     }
   }
 
@@ -112,8 +112,7 @@ class BigBlueButtonInGW(
   }
 
   def lockSettings(meetingID: String, locked: java.lang.Boolean,
-    lockSettings: java.util.Map[String, java.lang.Boolean]) {
-
+                   lockSettings: java.util.Map[String, java.lang.Boolean]) {
   }
 
   def statusMeetingAudit(meetingID: String) {
@@ -470,7 +469,7 @@ class BigBlueButtonInGW(
   }
 
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
-    callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
+                      callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
 
     eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
       callerIdNum, muted, talking, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )))
