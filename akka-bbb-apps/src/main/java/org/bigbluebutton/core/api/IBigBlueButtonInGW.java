@@ -10,7 +10,7 @@ public interface IBigBlueButtonInGW {
 	
 	void isAliveAudit(String aliveID);
 	void statusMeetingAudit(String meetingID);
-	void endMeeting(String meetingID);
+	void endMeeting(String meetingId);
 	void endAllMeetings();
 
 	void destroyMeeting(String meetingID);

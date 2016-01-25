@@ -119,8 +119,8 @@ class BigBlueButtonInGW(
 
   }
 
-  def endMeeting(meetingID: String) {
-    eventBus.publish(BigBlueButtonEvent("meeting-manager", new EndMeeting(meetingID)))
+  def endMeeting(meetingId: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new EndMeeting(meetingId)))
   }
 
   def endAllMeetings() {

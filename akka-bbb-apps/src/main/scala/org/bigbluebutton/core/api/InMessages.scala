@@ -32,7 +32,7 @@ case class CreateMeeting(meetingID: String, mProps: MeetingProperties) extends I
 case class InitializeMeeting(meetingID: String, recorded: Boolean) extends InMessage
 case class DestroyMeeting(meetingID: String) extends InMessage
 case class StartMeeting(meetingID: String) extends InMessage
-case class EndMeeting(meetingID: String) extends InMessage
+case class EndMeeting(meetingId: String) extends InMessage
 case class LockSetting(meetingID: String, locked: Boolean, settings: Map[String, Boolean]) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////// 

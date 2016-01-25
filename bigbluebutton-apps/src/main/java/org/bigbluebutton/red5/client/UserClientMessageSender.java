@@ -515,7 +515,6 @@ public class UserClientMessageSender {
       message.put("msg", gson.toJson(args));
       
       BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomsList", message);
- 	  log.debug("$$ Sending BreakoutRoomsList: {}", m);
       service.sendMessage(m);
   }
   

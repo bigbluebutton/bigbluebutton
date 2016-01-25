@@ -82,6 +82,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
   
   def handleBreakoutRoomEnded(msg: BreakoutRoomEnded) {
+    breakoutModel.remove(msg.breakoutRoomId)
     outGW.send(new BreakoutRoomEndedOutMessage(msg.meetingId, msg.breakoutRoomId))
   }
 
@@ -106,7 +107,6 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleEndMeeting(msg: EndMeeting) {
     if (mProps.isBreakout) {
-      breakoutModel.remove(msg.meetingID)
       eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
         BreakoutRoomEnded(mProps.externalMeetingID, mProps.meetingID)))
     }
