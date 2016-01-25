@@ -635,7 +635,7 @@ package org.bigbluebutton.modules.users.services
 	
 	private function handleBreakoutRoomClosed(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);	
-		UserManager.getInstance().getConference().removeBreakoutRoom((map.breakoutId);
+		UserManager.getInstance().getConference().removeBreakoutRoom(map.breakoutId);
 	}
 
   }
