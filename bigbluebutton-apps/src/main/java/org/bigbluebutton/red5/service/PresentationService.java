@@ -104,7 +104,11 @@ public class PresentationService {
 		} else {
 			xOffset = (Double) msg.get("xOffset");
 		}
-
+    if (Double.isNaN(xOffset)) {
+      log.warn("resizeAndMoveSlide came with xOffset as NaN, setting it to 0");
+      xOffset = 0.0;
+    }
+    
 		Double yOffset;
 		
 		if (msg.get("yOffset") instanceof Integer) {
@@ -113,7 +117,11 @@ public class PresentationService {
 		} else {
 			yOffset = (Double) msg.get("yOffset");
 		}
-		 
+    if (Double.isNaN(yOffset)) {
+      log.warn("resizeAndMoveSlide came with yOffset as NaN, setting it to 0");
+      yOffset = 0.0;
+    }
+    
 		Double widthRatio;
 		if (msg.get("widthRatio") instanceof Integer) {
 			Integer tempWRatio = (Integer) msg.get("widthRatio");
@@ -121,6 +129,10 @@ public class PresentationService {
 		} else {
 			widthRatio = (Double) msg.get("widthRatio");
 		}
+		if (Double.isNaN(widthRatio)) {
+      log.warn("resizeAndMoveSlide came with widthRatio as NaN, setting it to 100");
+      widthRatio = 100.0;
+    }
 				
 		
 		Double heightRatio;
@@ -130,6 +142,10 @@ public class PresentationService {
 		} else {
 			heightRatio = (Double) msg.get("heightRatio");
 		}
+    if (Double.isNaN(heightRatio)) {
+      log.warn("resizeAndMoveSlide came with heightRatio as NaN, setting it to 100");
+      heightRatio = 100.0;
+    }
 		
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
