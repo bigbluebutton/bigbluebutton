@@ -305,7 +305,7 @@ package org.bigbluebutton.lib.user.models {
 					user.hasStream = true;
 					if (user.streamName == "") {
 						user.streamName = streamName;
-					} else {
+					} else if (user.streamName.indexOf(streamName) == -1){
 						user.streamName += "|" + streamName;
 					}
 				} else {
