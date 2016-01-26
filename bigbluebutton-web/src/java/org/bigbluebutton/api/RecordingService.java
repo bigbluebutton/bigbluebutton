@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class RecordingService {
     private static Logger log = LoggerFactory.getLogger(RecordingService.class);
 	
+    private String processDir = "/var/bigbluebutton/recording/process";
     private String publishedDir = "/var/bigbluebutton/published";
     private String unpublishedDir = "/var/bigbluebutton/unpublished";
     private String deletedDir = "/var/bigbluebutton/deleted";
@@ -72,6 +73,10 @@ public class RecordingService {
                     r = true;
                 } else if ( type.equals(Recording.STATE_DELETED) && Arrays.asList(values).contains(Recording.STATE_DELETED) ) {
                     r = true;
+                } else if ( type.equals(Recording.STATE_PROCESSING) && Arrays.asList(values).contains(Recording.STATE_PROCESSING) ) {
+                    r = true;
+                } else if ( type.equals(Recording.STATE_PROCESSED) && Arrays.asList(values).contains(Recording.STATE_PROCESSED) ) {
+                    r = true;
                 }
             }
         } else {
@@ -106,6 +111,13 @@ public class RecordingService {
 
             if ( shouldIncludeDir(filters, Recording.STATE_DELETED) )
                 meetingIds.addAll(getAllRecordingIds(deletedDir));
+
+            if ( shouldIncludeDir(filters, Recording.STATE_PROCESSING) )
+                meetingIds.addAll(getAllRecordingIds(processDir));
+
+            if ( shouldIncludeDir(filters, Recording.STATE_PROCESSED) )
+                meetingIds.addAll(getAllRecordingIds(processDir));
+
         }
 
         for(String meetingId : meetingIds){
@@ -127,6 +139,20 @@ public class RecordingService {
                 ArrayList<Recording> deleted = getRecordingsForPath(meetingId, recordingIdsFromFilters(filters), deletedDir);
                 if (!deleted.isEmpty()) {
                     recs.addAll(deleted);
+                }
+            }
+
+            if ( shouldIncludeDir(filters, Recording.STATE_PROCESSING) ) {
+                ArrayList<Recording> processing = getRecordingsForPath(meetingId, recordingIdsFromFilters(filters), processDir);
+                if (!processing.isEmpty()) {
+                    recs.addAll(processing);
+                }
+            }
+
+            if ( shouldIncludeDir(filters, Recording.STATE_PROCESSED) ) {
+                ArrayList<Recording> processed = getRecordingsForPath(meetingId, recordingIdsFromFilters(filters), processDir);
+                if (!processed.isEmpty()) {
+                    recs.addAll(processed);
                 }
             }
         }

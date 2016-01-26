@@ -354,23 +354,23 @@ public class MeetingService implements MessageListener {
         for (Recording r:olds) {
             if (!map.containsKey(r.getId())) {
                 Map<String,String> meta= r.getMetadata();
-				String mid = meta.remove("meetingId");
-				String name = meta.remove("meetingName");
+                String mid = meta.remove("meetingId");
+                String name = meta.remove("meetingName");
 
-				r.setMeetingID(mid);
-				r.setName(name);
+                r.setMeetingID(mid);
+                r.setName(name);
 
-				ArrayList<Playback> plays = new ArrayList<Playback>();
-				if ( r.getPlaybackFormat() != null ) {
-	                plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
-	                        getDurationRecording(r.getPlaybackDuration(),
-	                                r.getEndTime(),
-	                                r.getStartTime()),
-	                                r.getPlaybackExtensions()));
-				}
+                ArrayList<Playback> plays = new ArrayList<Playback>();
+                if ( r.getPlaybackFormat() != null ) {
+                    plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+                            getDurationRecording(r.getPlaybackDuration(),
+                                    r.getEndTime(),
+                                    r.getStartTime()),
+                                    r.getPlaybackExtensions()));
+                }
 
-				r.setPlaybacks(plays);
-				map.put(r.getId(), r);
+                r.setPlaybacks(plays);
+                map.put(r.getId(), r);
             } else {
                 Recording rec = map.get(r.getId());
                 rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
