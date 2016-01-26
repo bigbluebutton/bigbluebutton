@@ -46,7 +46,6 @@ recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 log_dir = props['log_dir']
 
-
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p "#{log_dir}/presentation"
@@ -55,86 +54,108 @@ if not FileTest.directory?(target_dir)
   BigBlueButton.logger.info("Processing script presentation.rb")
   FileUtils.mkdir_p target_dir
 
- begin
+  begin
+    # Create initial metadata.xml
+    b = Builder::XmlMarkup.new(:indent => 2)
 
-  # Create a copy of the raw archives
-  temp_dir = "#{target_dir}/temp"
-  FileUtils.mkdir_p temp_dir
-  FileUtils.cp_r(raw_archive_dir, temp_dir)
+    metaxml = b.recording {
+      b.id(meeting_id)
+      b.state("processing")
+    }
+    metadata_xml = File.new("#{target_dir}/metadata.xml","w")
+    metadata_xml.write(metaxml)
+    metadata_xml.close
+    BigBlueButton.logger.info("Created inital metadata.xml")
 
-  BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
-  events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
-  FileUtils.cp(events_xml, target_dir)
+    # Create a copy of the raw archives
+    temp_dir = "#{target_dir}/temp"
+    FileUtils.mkdir_p temp_dir
+    FileUtils.cp_r(raw_archive_dir, temp_dir)
 
-  presentation_dir = "#{temp_dir}/#{meeting_id}/presentation"
-  presentations = BigBlueButton::Presentation.get_presentations(events_xml)
+    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio")
+    events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
+    FileUtils.cp(events_xml, target_dir)
 
-  processed_pres_dir = "#{target_dir}/presentation"
-  FileUtils.mkdir_p processed_pres_dir
+    presentation_dir = "#{temp_dir}/#{meeting_id}/presentation"
+    presentations = BigBlueButton::Presentation.get_presentations(events_xml)
 
-  presentations.each do |pres|
-    pres_dir = "#{presentation_dir}/#{pres}"
-    num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
+    processed_pres_dir = "#{target_dir}/presentation"
+    FileUtils.mkdir_p processed_pres_dir
 
-    target_pres_dir = "#{processed_pres_dir}/#{pres}"
-    FileUtils.mkdir_p target_pres_dir
-    FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
+    presentations.each do |pres|
+      pres_dir = "#{presentation_dir}/#{pres}"
+      num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
 
-    images=Dir.glob("#{pres_dir}/#{pres}.{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}")
-    if images.empty?
-      pres_name = "#{pres_dir}/#{pres}"
-      if File.exists?("#{pres_name}.pdf")
-        pres_pdf = "#{pres_name}.pdf"
-        BigBlueButton.logger.info("Found pdf file for presentation #{pres_pdf}")
-      elsif File.exists?("#{pres_name}.PDF")
-        pres_pdf = "#{pres_name}.PDF"
-        BigBlueButton.logger.info("Found PDF file for presentation #{pres_pdf}")
-      elsif File.exists?("#{pres_name}")
-        pres_pdf = pres_name
-        BigBlueButton.logger.info("Falling back to old presentation filename #{pres_pdf}")
-      else
-        pres_pdf = ""
-        BigBlueButton.logger.warn("Could not find pdf file for presentation #{pres}")
-      end
+      target_pres_dir = "#{processed_pres_dir}/#{pres}"
+      FileUtils.mkdir_p target_pres_dir
+      FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
 
-      if !pres_pdf.empty?
-        1.upto(num_pages) do |page|
-          BigBlueButton::Presentation.extract_png_page_from_pdf(
-            page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
-          if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
-            FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+      images=Dir.glob("#{pres_dir}/#{pres}.{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}")
+      if images.empty?
+        pres_name = "#{pres_dir}/#{pres}"
+        if File.exists?("#{pres_name}.pdf")
+          pres_pdf = "#{pres_name}.pdf"
+          BigBlueButton.logger.info("Found pdf file for presentation #{pres_pdf}")
+        elsif File.exists?("#{pres_name}.PDF")
+          pres_pdf = "#{pres_name}.PDF"
+          BigBlueButton.logger.info("Found PDF file for presentation #{pres_pdf}")
+        elsif File.exists?("#{pres_name}")
+          pres_pdf = pres_name
+          BigBlueButton.logger.info("Falling back to old presentation filename #{pres_pdf}")
+        else
+          pres_pdf = ""
+          BigBlueButton.logger.warn("Could not find pdf file for presentation #{pres}")
+        end
+
+        if !pres_pdf.empty?
+          1.upto(num_pages) do |page|
+            BigBlueButton::Presentation.extract_png_page_from_pdf(
+              page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1200')
+            if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
+              FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+            end
           end
         end
+      else
+        ext = File.extname("#{images[0]}")
+        #BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
+        command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
+        BigBlueButton.execute(command)
       end
-    else
-      ext = File.extname("#{images[0]}")
-      #BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
-      command="convert #{images[0]} -resize 1600x1200 -background white -flatten #{target_pres_dir}/slide-1.png"
-      BigBlueButton.execute(command)
     end
-  end
 
-  if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and !Dir["#{raw_archive_dir}/deskshare/*"].empty?)
-    width = presentation_props['video_output_width']
-    height = presentation_props['video_output_height']
-    if !Dir["#{raw_archive_dir}/deskshare/*"].empty?
-      width = presentation_props['deskshare_output_width']
-      height = presentation_props['deskshare_output_height']
+    if !Dir["#{raw_archive_dir}/video/*"].empty? or (presentation_props['include_deskshare'] and !Dir["#{raw_archive_dir}/deskshare/*"].empty?)
+      width = presentation_props['video_output_width']
+      height = presentation_props['video_output_height']
+      if !Dir["#{raw_archive_dir}/deskshare/*"].empty?
+        width = presentation_props['deskshare_output_width']
+        height = presentation_props['deskshare_output_height']
+      end
+      BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, width, height, presentation_props['audio_offset'], presentation_props['include_deskshare'])
     end
-    BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, width, height, presentation_props['audio_offset'], presentation_props['include_deskshare'])
-  end
 
-  process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
-  process_done.write("Processed #{meeting_id}")
-  process_done.close
-#else
-#	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")
- rescue Exception => e
-        BigBlueButton.logger.error(e.message)
-  e.backtrace.each do |traceline|
-    BigBlueButton.logger.error(traceline)
+    process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
+    process_done.write("Processed #{meeting_id}")
+    process_done.close
+
+    ## Build updated metadata.xml
+    b = Builder::XmlMarkup.new(:indent => 2)
+
+    metaxml = b.recording {
+      b.id(meeting_id)
+      b.state("processed")
+    }
+    metadata_xml = File.new("#{target_dir}/metadata.xml","w")
+    metadata_xml.write(metaxml)
+    metadata_xml.close
+    BigBlueButton.logger.info("Created an updated metadata.xml with state=processed")
+
+  rescue Exception => e
+    BigBlueButton.logger.error(e.message)
+    e.backtrace.each do |traceline|
+      BigBlueButton.logger.error(traceline)
+    end
+    exit 1
   end
-  exit 1
- end
 end
 

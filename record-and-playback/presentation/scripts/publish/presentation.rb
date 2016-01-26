@@ -728,24 +728,24 @@ def processShapesAndClears
             end
 
             if(in_this_image)
-                                                        # Get variables
-                                                        BigBlueButton.logger.info shape.to_xml(:indent => 2)
-                                                        $shapeType = shape.xpath(".//type")[0].text()
-                                                        $pageNumber = shape.xpath(".//pageNumber")[0].text()
-                                                        $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
+              # Get variables
+              BigBlueButton.logger.info shape.to_xml(:indent => 2)
+              $shapeType = shape.xpath(".//type")[0].text()
+              $pageNumber = shape.xpath(".//pageNumber")[0].text()
+              $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 
-                                                        case $shapeType
-                                                        when 'pencil', 'rectangle', 'ellipse', 'triangle', 'line'
-                                                                $shapeThickness = shape.xpath(".//thickness")[0].text()
-                                                                colour = shape.xpath(".//color")[0].text()
-                                                        when 'text'
-                                                                $textValue = shape.xpath(".//text")[0].text()
-                                                                $textFontType = "Arial"
-                                                                $textFontSize = shape.xpath(".//fontSize")[0].text()
-                                                                colour = shape.xpath(".//fontColor")[0].text()
-                                                        when 'poll_result'
-                                                          # Just hand the 'shape' xml object to the poll rendering code.
-                                                        end
+              case $shapeType
+                when 'pencil', 'rectangle', 'ellipse', 'triangle', 'line'
+                  $shapeThickness = shape.xpath(".//thickness")[0].text()
+                  colour = shape.xpath(".//color")[0].text()
+                when 'text'
+                  $textValue = shape.xpath(".//text")[0].text()
+                  $textFontType = "Arial"
+                  $textFontSize = shape.xpath(".//fontSize")[0].text()
+                  colour = shape.xpath(".//fontColor")[0].text()
+                when 'poll_result'
+                  # Just hand the 'shape' xml object to the poll rendering code.
+              end
 
               # figure out undo time
               BigBlueButton.logger.info("Figuring out undo time")
@@ -796,35 +796,35 @@ def processShapesAndClears
                 end
               end
 
-                                                        case $shapeType
-                                                        when 'pencil'
-                storePencilShape()
-                                                        when 'line'
-                storeLineShape()
-                                                        when 'rectangle'
-                square = shape.xpath(".//square")
-                if square.length > 0
-                  $is_square = square[0].text()
-                else
-                  $is_square = 'false'
-                end
-                storeRectShape()
-                                                        when 'triangle'
-                storeTriangleShape()
-                                                        when 'ellipse'
-                circle = shape.xpath(".//circle")
-                if circle.length > 0
-                  $is_circle = circle[0].text()
-                else
-                  $is_circle = 'false'
-                end
-                storeEllipseShape()
-                                                        when 'text'
-                $textBoxWidth = shape.xpath(".//textBoxWidth")[0].text()
-                $textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
-                storeTextShape()
-                                                        when 'poll_result'
-                                                          storePollResultShape($xml, shape)
+              case $shapeType
+                when 'pencil'
+                  storePencilShape()
+                when 'line'
+                  storeLineShape()
+                when 'rectangle'
+                  square = shape.xpath(".//square")
+                  if square.length > 0
+                    $is_square = square[0].text()
+                  else
+                    $is_square = 'false'
+                  end
+                  storeRectShape()
+                when 'triangle'
+                  storeTriangleShape()
+                when 'ellipse'
+                  circle = shape.xpath(".//circle")
+                  if circle.length > 0
+                    $is_circle = circle[0].text()
+                  else
+                    $is_circle = 'false'
+                  end
+                  storeEllipseShape()
+                when 'text'
+                  $textBoxWidth = shape.xpath(".//textBoxWidth")[0].text()
+                  $textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
+                  storeTextShape()
+                when 'poll_result'
+                  storePollResultShape($xml, shape)
               end
             end # end if(in_this_image)
           end # end shape_events.each do |shape|
@@ -910,189 +910,189 @@ puts $playback
 
 begin
 
-if ($playback == "presentation")
+  if ($playback == "presentation")
 
-  # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-  bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-  simple_props = YAML::load(File.open('presentation.yml'))
+    # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
+    bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+    simple_props = YAML::load(File.open('presentation.yml'))
 
     log_dir = bbb_props['log_dir']
 
-  logger = Logger.new("#{log_dir}/presentation/publish-#{$meeting_id}.log", 'daily' )
-  BigBlueButton.logger = logger
+    logger = Logger.new("#{log_dir}/presentation/publish-#{$meeting_id}.log", 'daily' )
+    BigBlueButton.logger = logger
 
-  BigBlueButton.logger.info("Setting recording dir")
-  recording_dir = bbb_props['recording_dir']
-  BigBlueButton.logger.info("Setting process dir")
-  $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
-  BigBlueButton.logger.info("setting publish dir")
-  publish_dir = simple_props['publish_dir']
-  BigBlueButton.logger.info("setting playback url info")
-        playback_protocol = bbb_props['playback_protocol']
-  playback_host = bbb_props['playback_host']
-  BigBlueButton.logger.info("setting target dir")
-  target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
-  if not FileTest.directory?(target_dir)
-    BigBlueButton.logger.info("Making dir target_dir")
-    FileUtils.mkdir_p target_dir
+    BigBlueButton.logger.info("Setting recording dir")
+    recording_dir = bbb_props['recording_dir']
+    BigBlueButton.logger.info("Setting process dir")
+    $process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
+    BigBlueButton.logger.info("setting publish dir")
+    publish_dir = simple_props['publish_dir']
+    BigBlueButton.logger.info("setting playback url info")
+    playback_protocol = bbb_props['playback_protocol']
+    playback_host = bbb_props['playback_host']
+    BigBlueButton.logger.info("setting target dir")
+    target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
+    if not FileTest.directory?(target_dir)
+      BigBlueButton.logger.info("Making dir target_dir")
+      FileUtils.mkdir_p target_dir
 
-    package_dir = "#{target_dir}/#{$meeting_id}"
-    BigBlueButton.logger.info("Making dir package_dir")
-    FileUtils.mkdir_p package_dir
+      package_dir = "#{target_dir}/#{$meeting_id}"
+      BigBlueButton.logger.info("Making dir package_dir")
+      FileUtils.mkdir_p package_dir
 
-    begin
+      begin
 
-    if File.exist?("#{$process_dir}/webcams.webm")
-      BigBlueButton.logger.info("Making video dir")
-      video_dir = "#{package_dir}/video"
-      FileUtils.mkdir_p video_dir
-      BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
-      FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
-      BigBlueButton.logger.info("Copied .webm file")
-    else
-      audio_dir = "#{package_dir}/audio"
-      BigBlueButton.logger.info("Making audio dir")
-      FileUtils.mkdir_p audio_dir
-      BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
-      FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
-      BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
-      FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
-      BigBlueButton.logger.info("Copied audio.ogg file")
-    end
-
-
-    processing_time = File.read("#{$process_dir}/processing_time")
-
-    # Retrieve record events and calculate total recording duration.
-    $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
-        BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
-
-    recording_time = computeRecordingLength()
-
-    # presentation_url = "/slides/" + $meeting_id + "/presentation"
-    @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
-
-    $meeting_start = @doc.xpath("//event")[0][:timestamp]
-    $meeting_end = @doc.xpath("//event").last()[:timestamp]
-
-    $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
-    $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
-    BigBlueButton.logger.info("Creating metadata.xml")
-
-                # Get the real-time start and end timestamp
-                match = /.*-(\d+)$/.match($meeting_id)
-                real_start_time = match[1]
-                real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
-
-    # Create metadata.xml
-    b = Builder::XmlMarkup.new(:indent => 2)
-
-    metaxml = b.recording {
-      b.id($meeting_id)
-      b.state("published")
-      b.published(true)
-      # Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-      b.start_time(real_start_time)
-      b.end_time(real_end_time)
-      b.playback {
-        b.format("presentation")
-        b.link("#{playback_protocol}://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
-        b.processing_time("#{processing_time}")
-        b.duration("#{recording_time}")
-      }
-      b.meta {
-        BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
-      }
-    }
-    metadata_xml = File.new("#{package_dir}/metadata.xml","w")
-    metadata_xml.write(metaxml)
-    metadata_xml.close
-    BigBlueButton.logger.info("Generating xml for slides and chat")
-
-    #Create slides.xml
-
-    # Gathering all the events from the events.xml
-    $slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
-    $chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
-    $shape_events = @doc.xpath("//event[@eventname='AddShapeEvent' or @eventname='ModifyTextEvent']") # for the creation of shapes
-    $panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
-    $cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
-    $clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
-    $undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
-    $join_time = $meeting_start.to_f
-    $end_time = $meeting_end.to_f
-
-    calculateRecordEventsOffset()
-
-    first_presentation_start_node = @doc.xpath("//event[@eventname='SharePresentationEvent']")
-    first_presentation_start = $meeting_end
-    if not first_presentation_start_node.empty?
-      first_presentation_start = first_presentation_start_node[0][:timestamp]
-    end
-    $first_slide_start = ( translateTimestamp(first_presentation_start) / 1000 ).round(1)
-
-    processChatMessages()
-
-    processShapesAndClears()
-
-    processPanAndZooms()
-
-    processCursorEvents()
-
-    # Write slides.xml to file
-    File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
-    # Write shapes.svg to file
-    File.open("#{package_dir}/#{$shapes_svg_filename}", 'w') { |f| f.puts $shapes_svg.to_xml.gsub(%r"\s*\<g.*/\>", "") } #.gsub(%r"\s*\<g.*\>\s*\</g\>", "") }
-
-    # Write panzooms.xml to file
-    File.open("#{package_dir}/#{$panzooms_xml_filename}", 'w') { |f| f.puts $panzooms_xml.to_xml }
-
-    # Write panzooms.xml to file
-    File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
-
-    BigBlueButton.logger.info("Copying files to package dir")
-    FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
-    BigBlueButton.logger.info("Copied files to package dir")
-
-          BigBlueButton.logger.info("Publishing slides")
-    # Now publish this recording files by copying them into the publish folder.
-    if not FileTest.directory?(publish_dir)
-      FileUtils.mkdir_p publish_dir
-    end
-    FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
-    BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
-
-                BigBlueButton.logger.info("Removing processed files.")
-    FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
-
-    BigBlueButton.logger.info("Removing published files.")
-    FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
-                rescue  Exception => e
-                        BigBlueButton.logger.error(e.message)
-      e.backtrace.each do |traceline|
-        BigBlueButton.logger.error(traceline)
-      end
-      exit 1
-    end
-        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", "w")
-        publish_done.write("Published #{$meeting_id}")
-        publish_done.close
-
-  else
-    BigBlueButton.logger.info("#{target_dir} is already there")
-  end
-end
-
-
-rescue Exception => e
-        BigBlueButton.logger.error(e.message)
-        e.backtrace.each do |traceline|
-            BigBlueButton.logger.error(traceline)
+        if File.exist?("#{$process_dir}/webcams.webm")
+          BigBlueButton.logger.info("Making video dir")
+          video_dir = "#{package_dir}/video"
+          FileUtils.mkdir_p video_dir
+          BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
+          FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
+          BigBlueButton.logger.info("Copied .webm file")
+        else
+          audio_dir = "#{package_dir}/audio"
+          BigBlueButton.logger.info("Making audio dir")
+          FileUtils.mkdir_p audio_dir
+          BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.webm to -> #{audio_dir}")
+          FileUtils.cp("#{$process_dir}/audio.webm", audio_dir)
+          BigBlueButton.logger.info("Copied audio.webm file - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
+          FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
+          BigBlueButton.logger.info("Copied audio.ogg file")
         end
-        publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.fail", "w")
-        publish_done.write("Failed Publishing #{$meeting_id}")
-        publish_done.close
 
+
+        processing_time = File.read("#{$process_dir}/processing_time")
+
+        # Retrieve record events and calculate total recording duration.
+        $rec_events = BigBlueButton::Events.match_start_and_stop_rec_events(
+          BigBlueButton::Events.get_start_and_stop_rec_events("#{$process_dir}/events.xml"))
+
+        recording_time = computeRecordingLength()
+
+        # presentation_url = "/slides/" + $meeting_id + "/presentation"
+        @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
+
+        $meeting_start = @doc.xpath("//event")[0][:timestamp]
+        $meeting_end = @doc.xpath("//event").last()[:timestamp]
+
+        $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
+        $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
+        BigBlueButton.logger.info("Creating metadata.xml")
+
+        # Get the real-time start and end timestamp
+        match = /.*-(\d+)$/.match($meeting_id)
+        real_start_time = match[1]
+        real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
+
+        # Create a new metadata.xml
+        b = Builder::XmlMarkup.new(:indent => 2)
+
+        metaxml = b.recording {
+          b.id($meeting_id)
+          b.state("published")
+          b.published(true)
+          # Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
+          b.start_time(real_start_time)
+          b.end_time(real_end_time)
+          b.playback {
+            b.format("presentation")
+            b.link("#{playback_protocol}://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
+            b.processing_time("#{processing_time}")
+            b.duration("#{recording_time}")
+          }
+          b.meta {
+            BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
+          }
+        }
+        metadata_xml = File.new("#{package_dir}/metadata.xml","w")
+        metadata_xml.write(metaxml)
+        metadata_xml.close
+        BigBlueButton.logger.info("Generating xml for slides and chat")
+
+        #Create slides.xml
+
+        # Gathering all the events from the events.xml
+        $slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
+        $chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
+        $shape_events = @doc.xpath("//event[@eventname='AddShapeEvent' or @eventname='ModifyTextEvent']") # for the creation of shapes
+        $panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
+        $cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
+        $clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
+        $undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
+        $join_time = $meeting_start.to_f
+        $end_time = $meeting_end.to_f
+
+        calculateRecordEventsOffset()
+
+        first_presentation_start_node = @doc.xpath("//event[@eventname='SharePresentationEvent']")
+        first_presentation_start = $meeting_end
+        if not first_presentation_start_node.empty?
+          first_presentation_start = first_presentation_start_node[0][:timestamp]
+        end
+        $first_slide_start = ( translateTimestamp(first_presentation_start) / 1000 ).round(1)
+
+        processChatMessages()
+
+        processShapesAndClears()
+
+        processPanAndZooms()
+
+        processCursorEvents()
+
+        # Write slides.xml to file
+        File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
+        # Write shapes.svg to file
+        File.open("#{package_dir}/#{$shapes_svg_filename}", 'w') { |f| f.puts $shapes_svg.to_xml.gsub(%r"\s*\<g.*/\>", "") } #.gsub(%r"\s*\<g.*\>\s*\</g\>", "") }
+
+        # Write panzooms.xml to file
+        File.open("#{package_dir}/#{$panzooms_xml_filename}", 'w') { |f| f.puts $panzooms_xml.to_xml }
+
+        # Write panzooms.xml to file
+        File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
+
+        BigBlueButton.logger.info("Copying files to package dir")
+        FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
+        BigBlueButton.logger.info("Copied files to package dir")
+
+        BigBlueButton.logger.info("Publishing slides")
+        # Now publish this recording files by copying them into the publish folder.
+        if not FileTest.directory?(publish_dir)
+          FileUtils.mkdir_p publish_dir
+        end
+        FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
+        BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
+
+        BigBlueButton.logger.info("Removing processed files.")
+        FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
+
+        BigBlueButton.logger.info("Removing published files.")
+        FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
+        rescue  Exception => e
+          BigBlueButton.logger.error(e.message)
+          e.backtrace.each do |traceline|
+          BigBlueButton.logger.error(traceline)
+        end
         exit 1
+      end
+      publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.done", "w")
+      publish_done.write("Published #{$meeting_id}")
+      publish_done.close
+
+    else
+      BigBlueButton.logger.info("#{target_dir} is already there")
+    end
+  end
+
+
+  rescue Exception => e
+    BigBlueButton.logger.error(e.message)
+    e.backtrace.each do |traceline|
+      BigBlueButton.logger.error(traceline)
+  end
+  publish_done = File.new("#{recording_dir}/status/published/#{$meeting_id}-presentation.fail", "w")
+  publish_done.write("Failed Publishing #{$meeting_id}")
+  publish_done.close
+
+  exit 1
 end
 
