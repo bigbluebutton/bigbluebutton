@@ -119,6 +119,16 @@ object UsersMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
+  def sendUserEjectedFromMeetingToJson(msg: UserEjectedFromMeeting) {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put(Constants.MEETING_ID, msg.meetingID)
+    payload.put(Constants.USER_ID, msg.userId)
+    payload.put(Constants.EJECTED_BY, msg.ejectedBy)
+
+    val header = Util.buildHeader(MessageNames.USER_EJECTED_FROM_MEETING, None)
+    Util.buildJson(header, payload)
+  }
+
   def permissionsSettingInitializedToJson(msg: PermissionsSettingInitialized): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put(Constants.MEETING_ID, msg.meetingID)

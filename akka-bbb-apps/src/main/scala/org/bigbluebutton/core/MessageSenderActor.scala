@@ -25,6 +25,7 @@ import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.EjectUserFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage
+import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage
 import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
@@ -40,6 +41,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   val encoder = new ToJsonEncoder()
 
   def receive = {
+    case msg: UserEjectedFromMeeting => handleUserEjectedFromMeeting(msg)
     case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
     case msg: SendPrivateMessageEvent => handleSendPrivateMessageEvent(msg)
@@ -122,6 +124,11 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: CreateAdditionalNotesReply => handleCreateAdditionalNotesReply(msg)
     case msg: DestroyAdditionalNotesReply => handleDestroyAdditionalNotesReply(msg)
     case _ => // do nothing
+  }
+
+  private def handleUserEjectedFromMeeting(msg: UserEjectedFromMeeting) {
+    val m = new UserEjectedFromMeetingMessage(msg.meetingID, msg.userId, msg.ejectedBy)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, m.toJson)
   }
 
   private def handleGetChatHistoryReply(msg: GetChatHistoryReply) {

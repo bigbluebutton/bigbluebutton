@@ -36,9 +36,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import mx.collections.ArrayCollection;
-
+			
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -51,27 +53,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.layout.events.LayoutsReadyEvent;
 			import org.bigbluebutton.modules.layout.model.LayoutModel;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private static const LOGGER:ILogger = getClassLogger(LayoutsCombo);      
       
 			private var _dispatcher:Dispatcher = new Dispatcher();
       [Bindable] private var layoutNames:ArrayCollection = new ArrayCollection();
       
       private function init():void {
+        //trace(LOG + "initing");
         dataProvider = layoutNames;
         populateComboBox();
         refreshRole(UsersUtil.amIModerator());
       }
       
       private function lockSettingsChanged(e:LockControlEvent):void {
-        var conference:Conference = UserManager.getInstance().getConference();
-        var thisUser:BBBUser = conference.getMyUser();
-        this.enabled = ! thisUser.lockedLayout;
+		  var conference:Conference = UserManager.getInstance().getConference();
+		  var thisUser:BBBUser = conference.getMyUser();
+		  this.enabled = ! thisUser.lockedLayout;
       }
       
 			private function populateLayoutsList(e:LayoutsReadyEvent):void {
+        //trace(LOG + " handling layout ready event.");       
         populateComboBox();
 			}
       
       private function populateComboBox():void {
+        //trace(LOG + " populating layout combo.");  
         layoutNames = new ArrayCollection();         
         var layouts:Array = LayoutModel.getInstance().getLayoutNames();
         
@@ -80,6 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var translatedName:String = ResourceUtil.getInstance().getString(lay.name)
           if (translatedName == "undefined") translatedName = lay.name;
           var item:Object = {index: idx, label: translatedName, localeKey: lay.name, currentLayout: lay.currentLayout };
+          //trace(LOG + " layout [" + lay.name + ", current=" + lay.currentLayout + "]");
           layoutNames.addItem(item);
           if (lay.currentLayout) {
             currentLayoutIndex = idx;
@@ -91,8 +99,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         invalidateDisplayList();        
       }
 						
-			private function onLayoutChanged(e:SwitchedLayoutEvent):void {	
+			private function onLayoutChanged(e:SwitchedLayoutEvent):void {
+				lockSettingsChanged(null);
+        //trace(LOG + " handling SwitchedLayoutEvent layout=[" + e.layoutID + "]");
         populateComboBox();
+        //trace(LOG + " selected layout coming in is: " + selectedIndex);
 				var idx:int = -1;					
 				for each (var obj:Object in dataProvider) {
 					if (obj.localeKey == e.layoutID)
@@ -105,9 +116,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					prompt = dataProvider[idx].label;
 				}
 				invalidateDisplayList();
+				
+				//trace(LOG + " selected layout afterwards is: " + selectedIndex);
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void {
+				//trace(LOG + " locale change recieved");
 				populateComboBox();
 			}
 			

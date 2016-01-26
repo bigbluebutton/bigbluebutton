@@ -109,6 +109,7 @@ object MessageNames {
   val PRESENTER_ASSIGNED = "presenter_assigned_message"
   val END_AND_KICK_ALL = "end_and_kick_all_message"
   val GET_USERS_REPLY = "get_users_reply"
+  val USER_EJECTED_FROM_MEETING = "user_ejected_from_meeting"
   val USER_JOINED = "user_joined_message"
   val USER_EMOJI_STATUS = "user_emoji_status_message"
   val USER_SHARED_WEBCAM = "user_shared_webcam_message"

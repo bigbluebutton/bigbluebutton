@@ -49,7 +49,7 @@
 #   2014-01-13 FFD  Working on updates for 0.9.0 
 #   2014-03-10 GUG  Enable Webrtc
 #   2015-03-12 FFD  Added start/stop of HTML5 server
-#   2014-01-13 FFD  Working on updates for 1.0.0
+#   2016-01-13 FFD  Updates for 1.0
 
 #set -x
 #set -e
@@ -307,7 +307,7 @@ start_bigbluebutton () {
 	echo "Note: monit will automatically start bbb-record-core and LibreOffice within 60 seconds."
 	echo
 
-	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 	if [ -f /etc/init/bbb-html5.conf ]; then
 		echo -n "Waiting for Meteor (HTML5 server) to finish starting up (this may take a minute): "
 		start bbb-html5
@@ -332,7 +332,7 @@ start_bigbluebutton () {
 	#
 	echo -n "Waiting for BigBlueButton to finish starting up (this may take a minute): "
 
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
 
         if ! nc -z -w 1 127.0.0.1 9123; then
@@ -512,8 +512,8 @@ while [ $# -gt 0 ]; do
 	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" ]; then
 		SALT="${2}"
 		if [ -z "$SALT" ]; then
-			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2);
+			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
 			echo
 			echo "       URL: http://$BBB_WEB/bigbluebutton/"
 			echo "      Salt: $SALT"
@@ -530,8 +530,8 @@ while [ $# -gt 0 ]; do
 	if [ "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
 		SALT="${2}"
 		if [ -z "$SALT" ]; then
-			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2);
+			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
 			echo
 			echo "       URL: http://$BBB_WEB/bigbluebutton/"
 			echo "    Secret: $SALT"
@@ -545,9 +545,9 @@ while [ $# -gt 0 ]; do
 	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
 		if [ -z "$SALT" ]; then
 			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
-				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
-				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
+				LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
+				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
 				echo
 				echo "       URL: $LTI_URL"
 				echo "  Customer: $CUSTOMER"
@@ -673,7 +673,7 @@ check_configuration() {
 		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
 		check_no_value event_socket /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
 
-		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep esl.host | sed 's/freeswitch.esl.host=//g')
+		ESL_HOST=$(cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties | grep -v '#' | grep esl.host | sed 's/freeswitch.esl.host=//g')
 		check_no_value esl.host /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties $ESL_HOST
 
 		if [ "$FREESWITCH_ESL_IP" != "$ESL_HOST" ]; then
@@ -737,7 +737,7 @@ check_configuration() {
 	#
 	# Check if the IP resolves to a different host
 	#
- 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+ 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $NGINX_IP
  	
 	HOSTS=$(which host)
@@ -758,8 +758,8 @@ check_configuration() {
 		#
 		# Make sure the salt for the API matches the server
 		#
-		SALT_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-		SALT_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
+		SALT_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+		SALT_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
 		if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
 			echo "# Warning: API Salt mismatch: "
@@ -768,7 +768,7 @@ check_configuration() {
 			echo 
 		fi
 
-		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
 		if [ "$IP" != "$API_IP" ]; then
 			echo "# Warning: API URL IPs do not match host:"
 			echo "#"
@@ -778,8 +778,8 @@ check_configuration() {
 		fi
 	fi
 
-	BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
+	BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 
 	if [ -f /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee ]; then
 		WEBHOOKS_SALT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.bbb.sharedSecret[ =]*' | cut -d '"' -f2)
@@ -791,7 +791,7 @@ check_configuration() {
 			echo
 		fi
 		
-		WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+		WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
 		WEBHOOKS_APP_PORT=$(cat /usr/local/bigbluebutton/bbb-webhooks/config_local.coffee | grep '^[ \t]*config.server.port[ =]*' | cut -d '=' -f2 | xargs)
 
 		if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
@@ -803,8 +803,8 @@ check_configuration() {
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
-                BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
+                BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
 
 		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
 			echo "# Warning: LTI shared secret (salt) mismatch:"
@@ -814,8 +814,8 @@ check_configuration() {
 		fi
 	fi
 
-        libreoffice_version=`dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g'`
 
+        libreoffice_version=`dpkg-query -W --showformat='${Version}\n' libreoffice | sed 's/.*://g' | sed 's/\.[^\.]*$//g'`
         if [[ "$libreoffice_version" > 1.0 ]]; then
             if [[ "$libreoffice_version" < 4.4 ]]; then
                 echo "# Warning: Detected your running an older version of LibreOffice: $libreoffice_version"
@@ -908,7 +908,7 @@ check_state() {
 	# Check if running development environment
 	#
 	if ! grep /var/www/bigbluebutton /etc/bigbluebutton/nginx/client.nginx > /dev/null; then
-		NEW_LOCATION=$(cat  /etc/bigbluebutton/nginx/client.nginx  | sed -n '/root/{s/[ \t]*root[ \t]*//;s/;//;p}' | head -n 1)
+		NEW_LOCATION=$(cat  /etc/bigbluebutton/nginx/client.nginx  | grep -v '#' | sed -n '/root/{s/[ \t]*root[ \t]*//;s/;//;p}' | head -n 1)
 		echo "# Warning: nginx is not serving the client from /var/www/bigbluebutton/."
 		echo "# Instead, it's being served from"
 		echo "#"
@@ -1083,7 +1083,7 @@ check_state() {
 	# Check if the local server can access the API.  This is a common problem when setting up BigBlueButton behind
 	# a firewall
 	#
-        BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+        BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
 	if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then 
 		echo "# Error: Could not connect to the configured hostname/IP address"
@@ -1110,32 +1110,56 @@ check_state() {
 	fi
 
 
-		BBB_SIP_APP_IP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/^bbb.sip.app.ip=/{s/.*=//;s/;//;p}')
-		if [ $BBB_SIP_APP_IP != "127.0.0.1" ]; then
-			if [ "$BBB_SIP_APP_IP" != $IP ]; then
-				echo "# Warning: The setting of ($BBB_SIP_APP_IP) for bbb.sip.app.ip in"
-				echo "#"
-				echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-				echo "#"
-				echo "# does not match the local IP address ($IP)."
-				echo "# (This is OK if you've manually changed the values to an external "
-				echo "# FreeSWITCH server.)"
-				echo 
-			fi
-
-                        SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
-                        if [ -z $SIP_IP ]; then
-                                echo "# Error: Could not detect FreeSWITCH listening on port 5060"
-                                echo 
-                        else
-                            if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
-                                echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
-                                echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
-                                echo "#"
-                                echo 
-                            fi
-                        fi
+	BBB_SIP_APP_IP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | grep -v '#' | sed -n '/^bbb.sip.app.ip=/{s/.*=//;s/;//;p}')
+	if [ $BBB_SIP_APP_IP != "127.0.0.1" ]; then
+		if [ "$BBB_SIP_APP_IP" != $IP ]; then
+			echo "# Warning: The setting of $BBB_SIP_APP_IP for bbb.sip.app.ip in"
+			echo "#"
+			echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+			echo "#"
+			echo "# does not match the local IP address ($IP)."
+			echo "# (This is OK if you've manually changed the values to an external "
+			echo "# FreeSWITCH server.)"
+			echo 
 		fi
+
+		SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
+		if [ -z $SIP_IP ]; then
+			echo "# Error: Could not detect FreeSWITCH listening on port 5060"
+			echo 
+		else
+		    if [ "$BBB_SIP_APP_IP" != $SIP_IP ]; then
+			echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
+			echo "# The IP address ($BBB_SIP_APP_IP) set bbb.sip.app.ip."
+			echo "#"
+			echo 
+		    fi
+		fi
+	fi
+
+        SIP_NGINX_IP=$(cat /etc/bigbluebutton/nginx/sip.nginx |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}')
+        if [ "$SIP_NGINX_IP" != $IP ]; then
+                echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
+                echo "#"
+                echo "#    /etc/bigbluebutton/nginx/sip.nginx"
+                echo "#"
+                echo "# does not match the local IP address ($IP)."
+                echo "# (This is OK if you've manually changed the values)"
+                echo 
+        fi
+
+        VARS_IP=$(cat /opt/freeswitch/conf/vars.xml | sed -n '/"local_ip_v4/{s/.*local_ip_v4=//;s/".*//;p}')
+        if [[ "$VARS_IP" != "127.0.0.1" ]] && [[ "$VARS_IP" != "auto" ]]; then
+                if [ "$VARS_IP" != $IP ]; then
+                        echo "# Warning: The setting of $VARS_IP for local_ip_v4 in"
+                        echo "#"
+                        echo "#    /opt/freeswitch/conf/vars.xml"
+                        echo "#"
+                        echo "# does not match the local IP address ($IP)."
+                        echo "# (This is OK if you've manually changed the values)"
+                        echo 
+                fi
+        fi
 
 	if [ -d ${SERVLET_DIR}/lti ]; then
 		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
@@ -1180,7 +1204,7 @@ check_state() {
 
 	
 	if [ -f ${SERVLET_DIR}/demo/demo1.jsp ]; then
-		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
 		echo "#    http://$BBB_WEB/"
@@ -1204,7 +1228,7 @@ check_state() {
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
+		LTI_URL='http://'$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
 		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
 		echo "#"
 		echo "#    $LTI_URL"
@@ -1215,8 +1239,8 @@ check_state() {
 		echo 
 	fi
 
-	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
-	DEFAULT_PDF=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^beans.presentationService.defaultUploadedPresentation/{s/.*=//;p}')
+	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
+	DEFAULT_PDF=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^beans.presentationService.defaultUploadedPresentation/{s/.*=//;p}')
 	if echo $DEFAULT_PDF | grep -q "bigbluebutton.web.serverURL"; then
         	if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs wget -q -O /dev/null; then
 			echo "# Error: Unable to reach default URL for presentation:"
@@ -1294,29 +1318,32 @@ if [ $CHECK ]; then
 
 	echo
 	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
-	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1 | cut -d' ' -f1)
+	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}' | cut -d' ' -f1)
 	echo "                       server name: $NGINX_IP"
 
-	PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
-	echo "                              port: $PORT"
+        PORT=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep -v ssl)
+        echo "                              port: $PORT"
+        if cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}' | grep ssl > /dev/null; then
+          echo "                              port: 443 ssl"
+        fi
 
-	BBB_CLIENT_DOC_ROOT=$(cat /etc/bigbluebutton/nginx/client.nginx | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ \t]*root[ ]*//;s/;//;p}')
+	BBB_CLIENT_DOC_ROOT=$(cat /etc/bigbluebutton/nginx/client.nginx | grep -v '#' | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ \t]*root[ ]*//;s/;//;p}')
 	echo "                    bbb-client dir: $BBB_CLIENT_DOC_ROOT"
 
-	BBB_WEB_IP=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+	BBB_WEB_IP=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 	echo
 	echo "${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
 	echo "                      bbb-web host: $BBB_WEB_IP"
 
 	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
-		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
 		echo "${SERVLET_DIR}/demo/bbb_api_conf.jsp (API demos)"
 		echo "                           api url: $API_IP"
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
-		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties  | sed -n '/^bigbluebuttonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
 		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
 		echo "                           api url: $LTI_URL"
@@ -1343,7 +1370,7 @@ if [ $CHECK ]; then
 
 
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
-		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml  | sed -n '/^playback_host/{s/.*:[ ]*//;s/;//;p}' | tail -n 1)
+		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | grep -v '#' | sed -n '/^playback_host/{s/.*:[ ]*//;s/;//;p}' | tail -n 1)
 		echo
 		echo "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)"
 		echo "                     playback host: $PLAYBACK_IP"

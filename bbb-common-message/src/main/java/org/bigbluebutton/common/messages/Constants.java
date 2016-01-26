@@ -70,6 +70,7 @@ public class Constants {
   public static final String PRESENTER                       = "presenter";
   public static final String USERS                           = "users";
   public static final String EMOJI_STATUS                    = "emoji_status";
+  public static final String EJECTED_BY                      = "ejected_by";
   public static final String HAS_STREAM                      = "has_stream";
   public static final String WEBCAM_STREAM                   = "webcam_stream";
   public static final String PHONE_USER                      = "phone_user"; 

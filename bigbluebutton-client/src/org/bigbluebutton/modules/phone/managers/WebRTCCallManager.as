@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.phone.managers
   public class WebRTCCallManager
   {
 	private static const LOGGER:ILogger = getClassLogger(WebRTCCallManager);      
+    private const MAX_RETRIES:Number = 3;
     
     private var browserType:String = "unknown";
     private var browserVersion:int = 0;
@@ -44,7 +45,6 @@ package org.bigbluebutton.modules.phone.managers
     
     private var model:WebRTCModel = PhoneModel.getInstance().webRTCModel;
 
-    private var MAX_RETRIES:Number = 3;
     private var reconnect:AutoReconnect = new AutoReconnect();
     private var reconnecting:Boolean = false;
     
@@ -150,8 +150,6 @@ package org.bigbluebutton.modules.phone.managers
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
 	  LOGGER.debug("handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
       
-      usingWebRTC = checkIfToUseWebRTC();
-      
       if (!usingWebRTC || !event.mic) return;
       
       if ((options.skipCheck && PhoneOptions.firstAudioJoin) || echoTestDone) {
@@ -236,13 +234,14 @@ package org.bigbluebutton.modules.phone.managers
       }
       else {
         LOGGER.debug("WebRTC call reconnection failed");
-        if( reconnect.Retries < MAX_RETRIES ) {
-          LOGGER.debug("Retring... " + reconnect.Retries);
+        if( reconnect.attempts < MAX_RETRIES ) {
+          LOGGER.debug("Retrying, attempt " + reconnect.attempts);
           reconnect.onConnectionAttemptFailed();
         }
         else {
           LOGGER.debug("Giving up");
           reconnecting = false;
+
           if (event.errorCode == 1004) {
             errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError." + event.errorCode, [event.cause]);
           } else {
@@ -252,12 +251,12 @@ package org.bigbluebutton.modules.phone.managers
           if (!errorString) {
             errorString = ResourceUtil.getInstance().getString("bbb.webrtcWarning.failedError.unknown", [event.errorCode]);
           }
-
-          var logData:Object = new Object();
+          
+          var logData:Object = new Object();       
           logData.user = UsersUtil.getUserData();
           logData.user.reason = errorString;
           LOGGER.info(jsonXify(logData));
-
+          
           sendWebRTCAlert(ResourceUtil.getInstance().getString("bbb.webrtcWarning.title"), ResourceUtil.getInstance().getString("bbb.webrtcWarning.message", [errorString]), errorString);
         }
       }

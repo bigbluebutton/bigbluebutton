@@ -29,6 +29,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	
 	public class Conference {		
+		public var userEjectedFromMeeting:Boolean = false;
     public var meetingName:String;
     public var externalMeetingID:String;
     public var internalMeetingID:String;
@@ -329,6 +330,14 @@ package org.bigbluebutton.main.model.users {
 		
 		public function get locked():Boolean {
 			return me.userLocked;
+		}
+		
+		public function setUserEjectedFromMeeting():void {
+			userEjectedFromMeeting = true;
+		}
+		
+		public function getUserEjectedFromMeeting():Boolean {
+			return userEjectedFromMeeting;
 		}
 		
     public function getMyExternalUserID():String {

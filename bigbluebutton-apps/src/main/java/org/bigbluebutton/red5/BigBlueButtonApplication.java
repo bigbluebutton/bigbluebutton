@@ -138,6 +138,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		connection.setAttribute(Constants.SESSION, bbbSession);        
 		connection.setAttribute("INTERNAL_USER_ID", internalUserID);
 		connection.setAttribute("USER_SESSION_ID", sessionId);
+		connection.setAttribute("TIMESTAMP", System.currentTimeMillis());
         
 		red5InGW.initLockSettings(room, lsMap);
 		

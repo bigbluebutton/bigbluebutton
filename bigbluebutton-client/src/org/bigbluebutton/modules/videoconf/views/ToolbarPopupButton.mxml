@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   mouseOver = "mouseOverHandler(event)"
 		   mouseOut = "mouseOutHandler(event)"
            height="24"
-		   toolTip="{this.selected ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
+		   toolTip="{_currentState == ON_STATE ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="false"
 		   enabled="true"
 		   selected="false"
@@ -70,6 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public const STOP_PUBLISHING:Number = 0;
 			public const START_PUBLISHING:Number = 1;
 
+			[Bindable]
 			private var _currentState:Number = OFF_STATE;
 
 			private var dp:Object = [];

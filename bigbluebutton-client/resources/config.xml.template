@@ -73,6 +73,7 @@
 		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			dependson = "UsersModule"
+			baseTabIndex="401"
 			presenterShareOnly = "false"
 			controlsForPresenter = "false"
 			autoStart = "false"

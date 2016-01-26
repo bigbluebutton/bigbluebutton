@@ -123,6 +123,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
 
   <EventHandlers type="{BBBEvent.RECONNECT_SIP_SUCCEEDED_EVENT}">
-    <MethodInvoker generator="{FlashCallManager}" method="onReconnected"/>
+    <MethodInvoker generator="{FlashCallManager}" method="handleReconnectSIPSucceededEvent"/>
   </EventHandlers>
 </EventMap>

@@ -58,6 +58,14 @@ package org.bigbluebutton.core
       return false;
     }
     
+	public static function setUserEjected():void {
+		UserManager.getInstance().getConference().setUserEjectedFromMeeting();	
+	}
+	
+	public static function isUserEjected():Boolean {
+		return UserManager.getInstance().getConference().getUserEjectedFromMeeting();
+	}
+	
     public static function amIPublishing():CameraSettingsVO {
      return UserManager.getInstance().getConference().amIPublishing();
     }

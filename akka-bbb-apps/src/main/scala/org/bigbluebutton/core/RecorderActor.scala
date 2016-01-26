@@ -297,21 +297,30 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
   }
 
   private def handleChangedUserEmojiStatus(msg: UserChangedEmojiStatus) {
-    val status = UserStatusChange(msg.meetingID, msg.recorded,
-      msg.userID, "emojiStatus", msg.emojiStatus)
-    handleUserStatusChange(status)
+    if (msg.recorded) {
+      val status = UserStatusChange(msg.meetingID, msg.recorded,
+        msg.userID, "emojiStatus", msg.emojiStatus)
+      handleUserStatusChange(status)
+    }
+
   }
 
   private def handleUserSharedWebcam(msg: UserSharedWebcam) {
-    val status = UserStatusChange(msg.meetingID, msg.recorded,
-      msg.userID, "hasStream", "true,stream=" + msg.stream)
-    handleUserStatusChange(status)
+    if (msg.recorded) {
+      val status = UserStatusChange(msg.meetingID, msg.recorded,
+        msg.userID, "hasStream", "true,stream=" + msg.stream)
+      handleUserStatusChange(status)
+    }
+
   }
 
   private def handleUserUnsharedWebcam(msg: UserUnsharedWebcam) {
-    val status = UserStatusChange(msg.meetingID, msg.recorded,
-      msg.userID, "hasStream", "false,stream=" + msg.stream)
-    handleUserStatusChange(status)
+    if (msg.recorded) {
+      val status = UserStatusChange(msg.meetingID, msg.recorded,
+        msg.userID, "hasStream", "false,stream=" + msg.stream)
+      handleUserStatusChange(status)
+    }
+
   }
 
   private def handleUserStatusChange(msg: UserStatusChange): Unit = {
@@ -365,55 +374,64 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
   }
 
   private def handleSendWhiteboardAnnotationEvent(msg: SendWhiteboardAnnotationEvent) {
-    if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.TEXT_CREATED_STATUS)) {
+    if (msg.recorded) {
+      if ((msg.shape.shapeType == WhiteboardKeyUtil.TEXT_TYPE) && (msg.shape.status != WhiteboardKeyUtil.TEXT_CREATED_STATUS)) {
 
-      val event = new ModifyTextWhiteboardRecordEvent()
+        val event = new ModifyTextWhiteboardRecordEvent()
+        event.setMeetingId(msg.meetingID)
+        event.setTimestamp(TimestampGenerator.generateTimestamp)
+        event.setPresentation(getPresentationId(msg.whiteboardId))
+        event.setPageNumber(getPageNum(msg.whiteboardId))
+        event.setWhiteboardId(msg.whiteboardId)
+        event.addAnnotation(mapAsJavaMap(msg.shape.shape))
+        recorder.record(msg.meetingID, event)
+      } else if ((msg.shape.shapeType == WhiteboardKeyUtil.POLL_RESULT_TYPE)) {
+        val event = new AddShapeWhiteboardRecordEvent()
+        event.setMeetingId(msg.meetingID)
+        event.setTimestamp(TimestampGenerator.generateTimestamp)
+        event.setPresentation(getPresentationId(msg.whiteboardId))
+        event.setPageNumber(getPageNum(msg.whiteboardId))
+        event.setWhiteboardId(msg.whiteboardId);
+        event.addAnnotation(mapAsJavaMap(msg.shape.shape))
+        recorder.record(msg.meetingID, event)
+      } else {
+        val event = new AddShapeWhiteboardRecordEvent()
+        event.setMeetingId(msg.meetingID)
+        event.setTimestamp(TimestampGenerator.generateTimestamp)
+        event.setPresentation(getPresentationId(msg.whiteboardId))
+        event.setPageNumber(getPageNum(msg.whiteboardId))
+        event.setWhiteboardId(msg.whiteboardId);
+        event.addAnnotation(mapAsJavaMap(msg.shape.shape))
+        recorder.record(msg.meetingID, event)
+      }
+    }
+
+  }
+
+  private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
+    if (msg.recorded) {
+      val event = new ClearPageWhiteboardRecordEvent()
       event.setMeetingId(msg.meetingID)
       event.setTimestamp(TimestampGenerator.generateTimestamp)
       event.setPresentation(getPresentationId(msg.whiteboardId))
       event.setPageNumber(getPageNum(msg.whiteboardId))
       event.setWhiteboardId(msg.whiteboardId)
-      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
-      recorder.record(msg.meetingID, event)
-    } else if ((msg.shape.shapeType == WhiteboardKeyUtil.POLL_RESULT_TYPE)) {
-      val event = new AddShapeWhiteboardRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp)
-      event.setPresentation(getPresentationId(msg.whiteboardId))
-      event.setPageNumber(getPageNum(msg.whiteboardId))
-      event.setWhiteboardId(msg.whiteboardId);
-      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
-      recorder.record(msg.meetingID, event)
-    } else {
-      val event = new AddShapeWhiteboardRecordEvent()
-      event.setMeetingId(msg.meetingID)
-      event.setTimestamp(TimestampGenerator.generateTimestamp)
-      event.setPresentation(getPresentationId(msg.whiteboardId))
-      event.setPageNumber(getPageNum(msg.whiteboardId))
-      event.setWhiteboardId(msg.whiteboardId);
-      event.addAnnotation(mapAsJavaMap(msg.shape.shape))
       recorder.record(msg.meetingID, event)
     }
-  }
 
-  private def handleClearWhiteboardEvent(msg: ClearWhiteboardEvent) {
-    val event = new ClearPageWhiteboardRecordEvent()
-    event.setMeetingId(msg.meetingID)
-    event.setTimestamp(TimestampGenerator.generateTimestamp)
-    event.setPresentation(getPresentationId(msg.whiteboardId))
-    event.setPageNumber(getPageNum(msg.whiteboardId))
-    event.setWhiteboardId(msg.whiteboardId)
-    recorder.record(msg.meetingID, event)
   }
 
   private def handleUndoWhiteboardEvent(msg: UndoWhiteboardEvent) {
-    val event = new UndoShapeWhiteboardRecordEvent()
-    event.setMeetingId(msg.meetingID)
-    event.setTimestamp(TimestampGenerator.generateTimestamp)
-    event.setPresentation(getPresentationId(msg.whiteboardId))
-    event.setPageNumber(getPageNum(msg.whiteboardId))
-    event.setWhiteboardId(msg.whiteboardId)
-    event.setShapeId(msg.shapeId);
-    recorder.record(msg.meetingID, event)
+    if (msg.recorded) {
+      val event = new UndoShapeWhiteboardRecordEvent()
+      event.setMeetingId(msg.meetingID)
+      event.setTimestamp(TimestampGenerator.generateTimestamp)
+      event.setPresentation(getPresentationId(msg.whiteboardId))
+      event.setPageNumber(getPageNum(msg.whiteboardId))
+      event.setWhiteboardId(msg.whiteboardId)
+      event.setShapeId(msg.shapeId);
+      recorder.record(msg.meetingID, event)
+    }
+
   }
 }

@@ -868,8 +868,7 @@ Alert {
 
 .lockSettingsDefaultLabelStyle {
 	fontFamily: Arial;
-	fontSize: 14;  
-	fontWeight: bold;    
+	fontSize: 14;
 }
 
 .lockSettingsWindowTitleStyle {

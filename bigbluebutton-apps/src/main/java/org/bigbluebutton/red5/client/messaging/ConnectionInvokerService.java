@@ -20,8 +20,8 @@ package org.bigbluebutton.red5.client.messaging;
 
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -181,22 +181,20 @@ public class ConnectionInvokerService {
         IScope meetingScope = getScope(msg.getMeetingID());
         if (meetingScope != null) {
 
-          Set<IConnection> conns = getConnections(meetingScope, sessionId);
-          if (conns != null) {
-            for (IConnection conn : conns) {
-              if (conn.isConnected()) {
-                List<Object> params = new ArrayList<Object>();
-                params.add(msg.getMessageName());
-                params.add(msg.getMessage());
+          IConnection conn = getConnection(meetingScope, sessionId);
+          if (conn != null) {
+            if (conn.isConnected()) {
+              List<Object> params = new ArrayList<Object>();
+              params.add(msg.getMessageName());
+              params.add(msg.getMessage());
 
-                if (log.isTraceEnabled()) {
-                  Gson gson = new Gson();
-                  String json = gson.toJson(msg.getMessage());
-                  log.trace("Send direct message: " + msg.getMessageName() + " msg=" + json);
-                }
-
-                ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
+              if (log.isTraceEnabled()) {
+                Gson gson = new Gson();
+                String json = gson.toJson(msg.getMessage());
+                log.debug("Send direct message: " + msg.getMessageName() + " msg=" + json);
               }
+
+              ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
             }
           } else {
             log.info("Cannot send message=[" + msg.getMessageName() + "] to [" + sessionId 
@@ -277,20 +275,6 @@ public class ConnectionInvokerService {
   }
 
   private IConnection getConnection(IScope scope, String userID) {
-    Set<IConnection> conns = scope.getClientConnections();
-    for (IConnection conn : conns) {
-      String connID = (String) conn.getAttribute("USER_SESSION_ID");
-      if (connID != null && connID.equals(userID)) {
-        return conn;
-      }
-    }
-    log.warn("Failed to get connection for userId = " + userID);
-    return null;		
-  }
-
-  // We need this for now while sessionId is not fully implemented
-  // Users keep more than a session for a while when reconnecting
-  private Set<IConnection> getConnections(IScope scope, String userID) {
     Set<IConnection> conns = new HashSet<IConnection>();
     for (IConnection conn : scope.getClientConnections()) {
       String connID = (String) conn.getAttribute("USER_SESSION_ID");
@@ -299,10 +283,23 @@ public class ConnectionInvokerService {
       }
     }
     if (!conns.isEmpty()) {
-      return conns;
+      return getLastConnection(conns);
     } else {
+      log.warn("Failed to get connection for userId = " + userID);
       return null;
     }
+  }
+
+  private IConnection getLastConnection(Set<IConnection> conns) {
+    IConnection conn = null;
+    for (IConnection c : conns) {
+      if (conn == null) {
+        conn = c;
+      } else if ((long) conn.getAttribute("TIMESTAMP") < (long) c.getAttribute("TIMESTAMP")) {
+        conn = c;
+      }
+    }
+    return conn;
   }
 
   public IScope getScope(String meetingID) {
