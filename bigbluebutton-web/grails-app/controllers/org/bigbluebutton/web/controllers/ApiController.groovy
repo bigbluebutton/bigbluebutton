@@ -47,6 +47,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
+import freemarker.template.Template;
+import freemarker.template.Configuration;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
@@ -1728,45 +1730,43 @@ class ApiController {
       }
       return;
     }
+    def cfg = new Configuration()
+    // Still missing this inside mkp.yield(item.getExtensions()) playbacks. Not a clue why we do this
+    def ftl = new Template("getRecordings", new StringReader('''<response>
+          <returncode>${code}</returncode>
+          <recordings>
+          <#list recs as r>
+            <recording>
+              <recordID>${r.getId()}</recordID>
+              <meetingID>${r.getMeetingID()?html}</meetingID>
+              <name>${r.getName()?html}</name>
+              <published>${r.isPublished()?string}</published>
+              <startTime>${r.getStartTime()}</startTime>
+              <endTime>${r.getEndTime()}</endTime>
+              <#assign m = r.getMetadata()>
+              <metadata>
+              <#list m?keys as prop>
+                <${prop}>${m[prop]?html}</${prop}>
+              </#list>
+              </metadata>
+              <playback>
+                <#list r.getPlaybacks() as p>
+                  <format>
+                    <type>${p.getFormat()}</type>
+                    <url>${p.getUrl()}</url>
+                    <length>${p.getLength()}</length>
+                  </format>
+                </#list>
+              </playback>
+            </recording>
+          </#list>
+          </recordings>
+        </response>'''), cfg)
+    def xmlText = new StringWriter()
+    ftl.process([code:RESP_CODE_SUCCESS, recs:recs.values()], xmlText)
     withFormat {  
       xml {
-        render(contentType:"text/xml") {
-          response() {
-           returncode(RESP_CODE_SUCCESS)
-            recordings() {
-              recs.values().each { r ->
-				  recording() {
-                  recordID(r.getId())
-				  meetingID() { mkp.yield(r.getMeetingID()) }
-				  name('') {
-					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
-				  }
-                  published(r.isPublished())
-                  startTime(r.getStartTime())
-                  endTime(r.getEndTime())
-				  metadata() {
-					 r.getMetadata().each { k,v ->
-						 "$k"(''){ 
-							 mkp.yieldUnescaped("<![CDATA[$v]]>") 
-						 }
-					 }
-				  }
-				  playback() {
-					  r.getPlaybacks().each { item ->
-						  format{
-							  type(item.getFormat())
-							  url(item.getUrl())
-							  length(item.getLength())
-							  mkp.yield(item.getExtensions())
-						  }
-					  }
-                  }
-                  
-                }
-              }
-            }
-          }
-        }
+        render(text: xmlText.toString(), contentType: "text/xml")
       }
     }
   } 
