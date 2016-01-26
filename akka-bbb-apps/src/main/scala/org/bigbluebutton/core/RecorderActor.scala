@@ -31,8 +31,6 @@ import org.bigbluebutton.core.recorders.events.ClearPageWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.AddShapeWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.DeskShareStartRTMPRecordEvent
 import org.bigbluebutton.core.recorders.events.DeskShareStopRTMPRecordEvent
-import org.bigbluebutton.core.recorders.events.DeskShareStartRecordingRecordEvent
-import org.bigbluebutton.core.recorders.events.DeskShareStopRecordingRecordEvent
 import org.bigbluebutton.core.recorders.events.DeskShareNotifyViewersRTMPRecordEvent
 // import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import org.bigbluebutton.common.messages.WhiteboardKeyUtil

@@ -92,13 +92,11 @@ public class FreeswitchApplication {
 
 	public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast){
 		DeskShareBroadcastRTMPCommand rtmp = new DeskShareBroadcastRTMPCommand(voiceConfId, USER, streamUrl, timestamp, broadcast);
-		System.out.println("\n______FreeswitchApplication::deskShareBroadcastRTMP___" + rtmp.getCommand() + "____\n");
 		queueMessage(rtmp);
 	}
 
 	public void deskShareHangUp(String voiceConfId, String fsConferenceName, String timestamp){
 		DeskShareHangUpCommand huCmd = new DeskShareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
-		System.out.println("\n______FreeswitchApplication::deskShareHangUp___" + huCmd.getCommand() + "____\n");
 		queueMessage(huCmd);
 	}
 		private void sendMessageToFreeswitch(final FreeswitchCommand command) {
@@ -110,7 +108,6 @@ public class FreeswitchApplication {
 						manager.getUsers(cmd);
 					} else if (command instanceof MuteUserCommand) {
 						MuteUserCommand cmd = (MuteUserCommand) command;
-						System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						manager.mute(cmd);
 					} else if (command instanceof EjectUserCommand) {
@@ -124,11 +121,9 @@ public class FreeswitchApplication {
 					} else if (command instanceof RecordConferenceCommand) {
 						manager.record((RecordConferenceCommand) command);
 					} else if (command instanceof DeskShareBroadcastRTMPCommand) {
-						System.out.println("^^^^(send to FS) Sending DeskShareBroadcastRTMPCommand for conference = [" + command.getRoom() + "]");
 						manager.broadcastRTMP((DeskShareBroadcastRTMPCommand)command);
 					} else if (command instanceof DeskShareHangUpCommand) {
 						DeskShareHangUpCommand cmd = (DeskShareHangUpCommand) command;
-						System.out.println("^^^^(send to FS) Sending DeskShareHangUpCommand for conference = [" + cmd.getRoom() + "]");
 						manager.hangUp(cmd);
 					} else if (command instanceof BroadcastConferenceCommand) {
 						manager.broadcast((BroadcastConferenceCommand) command);

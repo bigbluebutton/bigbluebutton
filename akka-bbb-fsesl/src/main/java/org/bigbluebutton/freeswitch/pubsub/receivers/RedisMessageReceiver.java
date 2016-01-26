@@ -57,15 +57,15 @@ public class RedisMessageReceiver {
 						  processStopRecordingVoiceConfRequestMessage(message);
 					  break;
 					  case DeskShareStartRTMPBroadcastEventMessage.DESKSHARE_START_RTMP_BROADCAST_MESSAGE:
-						  System.out.println("\n\n\nDESKSHARE_START_RTMP_BROADCAST_MESSAGE\n\n");
+						  System.out.println("RedisMessageReceiver got DESKSHARE_START_RTMP_BROADCAST_MESSAGE");
 						  processDeskShareStartRTMPBroadcastEventMessage(message);
 					  break;
 					  case DeskShareStopRTMPBroadcastEventMessage.DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE:
-						  System.out.println("\n\n\nDESKSHARE_STOP_RTMP_BROADCAST_MESSAGE\n\n");
+						  System.out.println("RedisMessageReceiver got DESKSHARE_STOP_RTMP_BROADCAST_MESSAGE");
 						  processDeskShareStopRTMPBroadcastEventMessage(message);
 					  break;
 					  case DeskShareHangUpEventMessage.DESKSHARE_HANG_UP_MESSAGE:
-						  System.out.println("\nDESKSHARE_HANG_UP_MESSAGE\n");
+						  System.out.println("RedisMessageReceiver got DESKSHARE_HANG_UP_MESSAGE");
 						  processDeskShareHangUpEventMessage(message);
 					  break;
 					}
