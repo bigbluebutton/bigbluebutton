@@ -457,20 +457,13 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
   def deskShareStopped(conferenceName: String, callerId: String, callerIdName: String) {
     bbbActor ! new DeskShareStoppedRequest(conferenceName, callerId, callerIdName)
   }
-  def deskShareRecordingStarted(conferenceName: String, filename: String, timestamp: String) {
-    bbbActor ! new DeskShareRecordingStartedRequest(conferenceName, filename, timestamp)
+
+  def deskShareRTMPBroadcastStarted(conferenceName: String, streamname: String, timestamp: String) {
+    bbbActor ! new DeskShareRTMPBroadcastStartedRequest(conferenceName, streamname, timestamp)
   }
 
-  def deskShareRecordingStopped(conferenceName: String, filename: String, timestamp: String) {
-    bbbActor ! new DeskShareRecordingStoppedRequest(conferenceName, filename, timestamp)
-  }
-
-  def deskShareRTMPBroadcastStarted(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
-    bbbActor ! new DeskShareRTMPBroadcastStartedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
-  }
-
-  def deskShareRTMPBroadcastStopped(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String) {
-    bbbActor ! new DeskShareRTMPBroadcastStoppedRequest(conferenceName, streamname, videoWidth, videoHeight, timestamp)
+  def deskShareRTMPBroadcastStopped(conferenceName: String, streamname: String, timestamp: String) {
+    bbbActor ! new DeskShareRTMPBroadcastStoppedRequest(conferenceName, streamname, timestamp)
   }
 
   def deskShareGetInfoRequest(meetingId: String, requesterId: String, replyTo: String): Unit = {

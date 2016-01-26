@@ -131,12 +131,10 @@ case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, reques
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
 
 // DeskShare
-case class DeskShareStartRecording(conferenceName: String, filename: String, timestamp: String) extends IOutMessage
-case class DeskShareStopRecording(conferenceName: String, filename: String, timestamp: String) extends IOutMessage
 case class DeskShareStartRTMPBroadcast(conferenceName: String, streamPath: String, timestamp: String) extends IOutMessage
 case class DeskShareStopRTMPBroadcast(conferenceName: String, streamPath: String, timestamp: String) extends IOutMessage
-case class DeskShareNotifyViewersRTMP(meetingID: String, streamPath: String, broadcasting: Boolean, videoWidth: Int, videoHeight: Int, timestamp: String) extends IOutMessage
-case class DeskShareNotifyASingleViewer(meetingID: String, userID: String, streamPath: String, broadcasting: Boolean, videoWidth: Int, videoHeight: Int) extends IOutMessage
+case class DeskShareNotifyViewersRTMP(meetingID: String, streamPath: String, broadcasting: Boolean) extends IOutMessage
+case class DeskShareNotifyASingleViewer(meetingID: String, userID: String, streamPath: String, broadcasting: Boolean) extends IOutMessage
 case class DeskShareHangUp(meetingID: String, fsConferenceName: String) extends IOutMessage
 
 // Value Objects

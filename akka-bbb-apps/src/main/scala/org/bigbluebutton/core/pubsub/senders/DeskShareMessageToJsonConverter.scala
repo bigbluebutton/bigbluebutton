@@ -17,7 +17,7 @@ object DeskShareMessageToJsonConverter {
   def getDeskShareNotifyASingleViewerToJson(msg: DeskShareNotifyASingleViewer): String = {
     println("^^^^^getDeskShareNotifyASingleViewerToJson in DeskShareMessageToJsonConverter")
     val newMsg = new DeskShareNotifyASingleViewerEventMessage(msg.meetingID, msg.userID,
-      msg.streamPath, msg.broadcasting, msg.videoWidth, msg.videoHeight, TimestampGenerator.getCurrentTime.toString())
+      msg.streamPath, msg.broadcasting, TimestampGenerator.getCurrentTime.toString())
     newMsg.toJson()
   }
 
@@ -38,7 +38,7 @@ object DeskShareMessageToJsonConverter {
   def getDeskShareNotifyViewersRTMPToJson(msg: DeskShareNotifyViewersRTMP): String = {
     println("^^^^^getDeskShareNotifyViewersRTMPToJson in DeskShareMessageToJsonConverter")
     val newMsg = new DeskShareNotifyViewersRTMPEventMessage(msg.meetingID, msg.streamPath,
-      msg.broadcasting, msg.videoWidth, msg.videoHeight, msg.timestamp)
+      msg.broadcasting, TimestampGenerator.getCurrentTime.toString())
     newMsg.toJson()
   }
 }

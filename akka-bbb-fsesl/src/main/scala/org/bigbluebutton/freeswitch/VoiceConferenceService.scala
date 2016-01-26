@@ -9,8 +9,6 @@ import org.bigbluebutton.common.messages.UserMutedInVoiceConfMessage
 import org.bigbluebutton.common.messages.UserTalkingInVoiceConfMessage
 import org.bigbluebutton.common.messages.DeskShareStartedEventMessage
 import org.bigbluebutton.common.messages.DeskShareStoppedEventMessage
-import org.bigbluebutton.common.messages.DeskShareRecordingStartedEventMessage
-import org.bigbluebutton.common.messages.DeskShareRecordingStoppedEventMessage
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStartedEventMessage
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStoppedEventMessage
 
@@ -66,68 +64,16 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
-  def deskShareRecordingStarted(voiceConfId: String, filename: String,
-    channels: java.lang.Integer, samplerate: java.lang.Integer, vw: java.lang.Integer,
-    vh: java.lang.Integer, fps: java.lang.Double, timestamp: String) {
-    println("******** FreeswitchConferenceService received deskShareRecordingStarted")
-    printf(" IN FS deskShareRecordingStarted")
-    val msg = new DeskShareRecordingStartedEventMessage(voiceConfId, filename, channels,
-      samplerate, vw, vh, fps, timestamp)
-    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
-  }
-
-  def deskShareRecordingStopped(voiceConfId: String, filename: String,
-    channels: java.lang.Integer, samplerate: java.lang.Integer, vw: java.lang.Integer,
-    vh: java.lang.Integer, fps: java.lang.Double, timestamp: String) {
-    println("******** FreeswitchConferenceService received deskShareRecordingStopped")
-    printf(" IN FS deskShareRecordingStopped")
-    val msg = new DeskShareRecordingStoppedEventMessage(voiceConfId, filename, channels,
-      samplerate, vw, vh, fps, timestamp)
-    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
-  }
-
-  def deskShareRTMPBroadcastStarted(voiceConfId: String, filename: String,
-    channels: java.lang.Integer, samplerate: java.lang.Integer, vw: java.lang.Integer,
-    vh: java.lang.Integer, fps: java.lang.Double, timestamp: String) {
+  def deskShareRTMPBroadcastStarted(voiceConfId: String, streamname: String, timestamp: String) {
     println("******** FreeswitchConferenceService received deskShareRTMPBroadcastStarted")
-    val msg = new DeskShareRTMPBroadcastStartedEventMessage(voiceConfId, filename, channels,
-      samplerate, vw, vh, fps, timestamp)
+    val msg = new DeskShareRTMPBroadcastStartedEventMessage(voiceConfId, streamname, timestamp)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
-  def deskShareRTMPBroadcastStopped(voiceConfId: String, filename: String,
-    channels: java.lang.Integer, samplerate: java.lang.Integer, vw: java.lang.Integer,
-    vh: java.lang.Integer, fps: java.lang.Double, timestamp: String) {
+  def deskShareRTMPBroadcastStopped(voiceConfId: String, streamname: String, timestamp: String) {
     println("******** FreeswitchConferenceService received deskShareRTMPBroadcastStopped")
-    printf(" IN FS deskShareRTMPBroadcastStopped")
-    val msg = new DeskShareRTMPBroadcastStoppedEventMessage(voiceConfId, filename, channels,
-      samplerate, vw, vh, fps, timestamp)
+    val msg = new DeskShareRTMPBroadcastStoppedEventMessage(voiceConfId, streamname, timestamp)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
-
-  //
-  //  def deskShareViewerJoined(voiceConfId: String, callerIdNum: String, callerIdName: String) {
-  //    println("******** FreeswitchConferenceService received deskShareViewerJoined")
-  //    val msg = new DeskShareViewerJoinedEventMessage(voiceConfId, callerIdNum, callerIdName)
-  //    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
-  //  }
-  //
-  //  def deskShareViewerLeft(voiceConfId: String, callerIdNum: String, callerIdName: String) {
-  //    println("******** FreeswitchConferenceService received deskShareViewerLeft")
-  //    val msg = new DeskShareViewerLeftEventMessage(voiceConfId, callerIdNum, callerIdName)
-  //    sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
-  //  }
-
-  //  def deskShareRecording(voiceConfId: String, recordingFilename: String, record: Boolean, timestamp: String) {
-  //    if (record) {
-  //      println("******** FreeswitchConferenceService received deskShareRecording - start")
-  //      val msg = new DeskShareRecordingStartedEventMessage(voiceConfId, recordingFilename, timestamp)
-  //      sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
-  //    } else {
-  //      println("******** FreeswitchConferenceService received deskShareRecording - stop")
-  //      val msg = new DeskShareRecordingStoppedEventMessage(voiceConfId, recordingFilename, timestamp)
-  //      sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
-  //    }
-  //  }
 
 }

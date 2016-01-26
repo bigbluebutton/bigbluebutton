@@ -5,10 +5,6 @@ import com.google.gson.JsonObject;
 
 import org.bigbluebutton.common.messages.DeskShareStartedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareStoppedEventMessage;
-//import org.bigbluebutton.common.messages.DeskShareViewerJoinedEventMessage;
-//import org.bigbluebutton.common.messages.DeskShareViewerLeftEventMessage;
-import org.bigbluebutton.common.messages.DeskShareRecordingStartedEventMessage;
-import org.bigbluebutton.common.messages.DeskShareRecordingStoppedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStartedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareRTMPBroadcastStoppedEventMessage;
 import org.bigbluebutton.common.messages.DeskShareGetInfoRequestMessage;
@@ -41,35 +37,19 @@ public class DeskShareMessageReceiver implements MessageHandler {
 						DeskShareStoppedEventMessage msg = DeskShareStoppedEventMessage.fromJson(message);
 						System.out.println("^^^^^^^DESKSHARE STOPPED^^^^^^");
 						bbbGW.deskShareStopped(msg.conferenceName, msg.callerId, msg.callerIdName);
-					} else if (DeskShareRecordingStartedEventMessage.DESKSHARE_RECORDING_STARTED_MESSAGE.equals(messageName)) {
-						System.out.println("^^^^^^^REC STARTED^^^^^^");
-						DeskShareRecordingStartedEventMessage msg = DeskShareRecordingStartedEventMessage.fromJson(message);
-						bbbGW.deskShareRecordingStarted(msg.conferenceName, msg.filename, msg.timestamp);
-					} else if (DeskShareRecordingStoppedEventMessage.DESKSHARE_RECORDING_STOPPED_MESSAGE.equals(messageName)) {
-						System.out.println("^^^^^^^REC STOPPED^^^^^^");
-						DeskShareRecordingStoppedEventMessage msg = DeskShareRecordingStoppedEventMessage.fromJson(message);
-						bbbGW.deskShareRecordingStopped(msg.conferenceName, msg.filename, msg.timestamp);
 					} else if (DeskShareRTMPBroadcastStartedEventMessage.DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE.equals(messageName)) {
 						System.out.println("^^^^^^^DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE^^^^^^");
 						DeskShareRTMPBroadcastStartedEventMessage msg = DeskShareRTMPBroadcastStartedEventMessage.fromJson(message);
-						bbbGW.deskShareRTMPBroadcastStarted(msg.conferenceName, msg.streamname, msg.vw, msg.vh, msg.timestamp);
+						bbbGW.deskShareRTMPBroadcastStarted(msg.conferenceName, msg.streamname, msg.timestamp);
 					} else if (DeskShareRTMPBroadcastStoppedEventMessage.DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE.equals(messageName)) {
 						System.out.println("^^^^^^^DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE^^^^^^");
 						DeskShareRTMPBroadcastStoppedEventMessage msg = DeskShareRTMPBroadcastStoppedEventMessage.fromJson(message);
-						bbbGW.deskShareRTMPBroadcastStopped(msg.conferenceName, msg.streamname, msg.vw, msg.vh, msg.timestamp);
+						bbbGW.deskShareRTMPBroadcastStopped(msg.conferenceName, msg.streamname, msg.timestamp);
 					} else if (DeskShareGetInfoRequestMessage.GET_DESKTOP_SHARE_GET_INFO_REQUEST.equals(messageName)) {
 						System.out.println("^^^^^^^GET_DESKTOP_SHARE_INFO_REQUEST^^^^^^");
 						DeskShareGetInfoRequestMessage msg = DeskShareGetInfoRequestMessage.fromJson(message);
 						bbbGW.deskShareGetInfoRequest(msg.meetingId, msg.requesterId, msg.replyTo);
 					}
-//					else if (DeskShareViewerJoinedEventMessage.DESK_SHARE_VIEWER_JOINED_MESSAGE.equals(messageName)) {
-//						DeskShareViewerJoinedEventMessage msg = DeskShareViewerJoinedEventMessage.fromJson(message);
-//						// TODO
-//					}
-//					else if (DeskShareViewerLeftEventMessage.DESK_SHARE_VIEWER_LEFT_MESSAGE.equals(messageName)) {
-//						DeskShareViewerLeftEventMessage msg = DeskShareViewerLeftEventMessage.fromJson(message);
-//						// TODO
-//					}
 				}
 			}
 		}

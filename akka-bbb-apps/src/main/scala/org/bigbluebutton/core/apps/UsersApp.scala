@@ -376,9 +376,7 @@ trait UsersApp {
             outGW.send(new DeskShareHangUp(msg.meetingID, fsConferenceName))
 
             // notify other clients to close their deskshare view
-            outGW.send(new DeskShareNotifyViewersRTMP(msg.meetingID, meetingModel.getRTMPBroadcastingUrl(),
-              false, meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight(),
-              System.currentTimeMillis().toString()))
+            outGW.send(new DeskShareNotifyViewersRTMP(msg.meetingID, meetingModel.getRTMPBroadcastingUrl(), false))
 
             // reset the meeting info
             meetingModel.resetDesktopSharingParams()
