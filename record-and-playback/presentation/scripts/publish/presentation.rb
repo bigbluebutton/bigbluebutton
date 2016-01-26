@@ -972,9 +972,10 @@ begin
         # presentation_url = "/slides/" + $meeting_id + "/presentation"
         @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
 
-        $meeting_start = @doc.xpath("//event")[0][:timestamp]
-        $meeting_end = @doc.xpath("//event").last()[:timestamp]
+        #$meeting_start = @doc.xpath("//event")[0][:timestamp]
+        #$meeting_end = @doc.xpath("//event").last()[:timestamp]
 
+        ## These $version variables are not used anywere in this code ##
         $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
         $version_atleast_0_9_0 = BigBlueButton::Events.bbb_version_compare("#{$process_dir}/events.xml", 0, 9, 0)
         BigBlueButton.logger.info("Creating metadata.xml")
@@ -984,29 +985,39 @@ begin
         real_start_time = match[1]
         real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
 
-        # Create a new metadata.xml
-        b = Builder::XmlMarkup.new(:indent => 2)
+        #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, IT SHOULD ONLY ADD <playback>
+        # Copy metadata.xml from process_dir
+        FileUtils.cp("#{$process_dir}/metadata.xml", package_dir)
+        BigBlueButton.logger.info("Copied metadata.xml file")
 
-        metaxml = b.recording {
-          b.id($meeting_id)
-          b.state("published")
-          b.published(true)
-          # Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-          b.start_time(real_start_time)
-          b.end_time(real_end_time)
-          b.playback {
-            b.format("presentation")
-            b.link("#{playback_protocol}://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
-            b.processing_time("#{processing_time}")
-            b.duration("#{recording_time}")
-          }
-          b.meta {
-            BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
-          }
-        }
+        # Add playback to metadata.xml
+        ## Load metadata.xml
+        metadata = Nokogiri::XML(File.open("#{package_dir}/metadata.xml"))
+        ## Update status
+        recording = metadata.root
+        state = recording.at_xpath("state")
+        state.content = "published"
+        ## remove empty playback
+        metadata.search('//recording/playback').each do |playback|
+          playback.remove
+        end
+        ## Update status and add the actual playback
+        metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
+            xml.playback {
+              xml.format("presentation")
+              xml.link("#{playback_protocol}://#{playback_host}/playback/presentation/0.9.0/playback.html?meetingId=#{$meeting_id}")
+              xml.processing_time("#{processing_time}")
+              xml.duration("#{recording_time}")
+            }
+        end
+        BigBlueButton.logger.info(metadata.to_xml)
+
+        ## Write the new metadata.xml
         metadata_xml = File.new("#{package_dir}/metadata.xml","w")
-        metadata_xml.write(metaxml)
+        metadata_xml.write(metadata.to_xml)
         metadata_xml.close
+        BigBlueButton.logger.info("Added playback to metadata.xml")
+
         BigBlueButton.logger.info("Generating xml for slides and chat")
 
         #Create slides.xml

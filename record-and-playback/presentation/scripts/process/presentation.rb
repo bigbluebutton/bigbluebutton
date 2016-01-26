@@ -55,18 +55,6 @@ if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p target_dir
 
   begin
-    # Create initial metadata.xml
-    b = Builder::XmlMarkup.new(:indent => 2)
-
-    metaxml = b.recording {
-      b.id(meeting_id)
-      b.state("processing")
-    }
-    metadata_xml = File.new("#{target_dir}/metadata.xml","w")
-    metadata_xml.write(metaxml)
-    metadata_xml.close
-    BigBlueButton.logger.info("Created inital metadata.xml")
-
     # Create a copy of the raw archives
     temp_dir = "#{target_dir}/temp"
     FileUtils.mkdir_p temp_dir
@@ -82,6 +70,37 @@ if not FileTest.directory?(target_dir)
     processed_pres_dir = "#{target_dir}/presentation"
     FileUtils.mkdir_p processed_pres_dir
 
+    # Get the real-time start and end timestamp
+    @doc = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
+
+    meeting_start = @doc.xpath("//event")[0][:timestamp]
+    meeting_end = @doc.xpath("//event").last()[:timestamp]
+
+    match = /.*-(\d+)$/.match(meeting_id)
+    real_start_time = match[1]
+    real_end_time = (real_start_time.to_i + (meeting_end.to_i - meeting_start.to_i)).to_s
+
+    # Create initial metadata.xml
+    b = Builder::XmlMarkup.new(:indent => 2)
+
+    metaxml = b.recording {
+      b.id(meeting_id)
+      b.state("processing")
+      b.published(false)
+      # Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
+      b.start_time(real_start_time)
+      b.end_time(real_end_time)
+      b.playback
+      b.meta {
+        BigBlueButton::Events.get_meeting_metadata("#{target_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
+      }
+    }
+    metadata_xml = File.new("#{target_dir}/metadata.xml","w")
+    metadata_xml.write(metaxml)
+    metadata_xml.close
+    BigBlueButton.logger.info("Created inital metadata.xml")
+
+    # Start processing raw files
     presentations.each do |pres|
       pres_dir = "#{presentation_dir}/#{pres}"
       num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
@@ -138,15 +157,16 @@ if not FileTest.directory?(target_dir)
     process_done.write("Processed #{meeting_id}")
     process_done.close
 
-    ## Build updated metadata.xml
-    b = Builder::XmlMarkup.new(:indent => 2)
-
-    metaxml = b.recording {
-      b.id(meeting_id)
-      b.state("processed")
-    }
+    # Build updated metadata.xml
+    ## Load metadata.xml
+    metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+    ## Update status
+    recording = metadata.root
+    state = recording.at_xpath("state")
+    state.content = "processed"
+    ## Write the new metadata.xml
     metadata_xml = File.new("#{target_dir}/metadata.xml","w")
-    metadata_xml.write(metaxml)
+    metadata_xml.write(metadata.to_xml)
     metadata_xml.close
     BigBlueButton.logger.info("Created an updated metadata.xml with state=processed")
 
