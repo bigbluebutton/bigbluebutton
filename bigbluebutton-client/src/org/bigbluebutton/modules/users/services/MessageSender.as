@@ -284,7 +284,25 @@ package org.bigbluebutton.modules.users.services
         },
         message
       );          
-     } 
+     }
+
+	public function transferUser(userId:String, breakoutId:String, toBreakout:Boolean) : void {
+		var message:Object = new Object();
+		message["userId"] = userId;
+		message["breakoutId"] = breakoutId;
+		message["toBreakout"] = toBreakout;
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage(
+			"voice.transferUserToMeeting",
+			function(result:String):void { // On successful result
+			},	                   
+			function(status:String):void { // status - On error occurred
+				LOGGER.error(status); 
+			},
+			message
+		);     
+	}
     
     public function ejectUser(userid:String):void {
       var message:Object = new Object();

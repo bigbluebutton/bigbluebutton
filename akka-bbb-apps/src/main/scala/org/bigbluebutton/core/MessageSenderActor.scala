@@ -27,6 +27,7 @@ import org.bigbluebutton.common.messages.BroadcastLayoutMessage
 import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
+import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
 
 object MessageSenderActor {
   def props(msgSender: MessageSender): Props =
@@ -98,6 +99,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
     case msg: MuteVoiceUser => handleMuteVoiceUser(msg)
     case msg: EjectVoiceUser => handleEjectVoiceUser(msg)
+    case msg: TransferUserToMeeting => handleTransferUserToMeeting(msg)
     case msg: GetUsersInVoiceConference => handleGetUsersFromVoiceConference(msg)
     case msg: UserJoinedVoice => handleUserJoinedVoice(msg)
     case msg: UserLeftVoice => handleUserLeftVoice(msg)
@@ -568,7 +570,11 @@ class MessageSenderActor(val service: MessageSender)
   private def handleEjectVoiceUser(msg: EjectVoiceUser) {
     val m = new EjectUserFromVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.voiceUserId)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
+  }
 
+  private def handleTransferUserToMeeting(msg: TransferUserToMeeting) {
+    val m = new TransferUserToVoiceConfRequestMessage(msg.voiceConfId, msg.breakoutVoiceConfId, msg.userId, msg.toBreakout);
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
   }
 
   private def handleUserLeftVoice(msg: UserLeftVoice) {

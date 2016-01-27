@@ -142,11 +142,15 @@ public class MessagePublisher {
 	public void ejectUserFromVoice(String meetingID, String userId, String ejectedBy) {
 		EjectUserFromVoiceRequestMessage msg = new EjectUserFromVoiceRequestMessage(meetingID, ejectedBy, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-
 	}
 
 	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
 		EjectUserFromMeetingRequestMessage msg = new EjectUserFromMeetingRequestMessage(meetingId, userId, ejectedBy);
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+	}
+	
+	public void transferUserToMeeting(String meetingId, String breakoutId, String userId, Boolean toBreakout) {
+		TransferUserToMeetingRequestMessage msg = new TransferUserToMeetingRequestMessage(meetingId, breakoutId, userId, toBreakout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
 	}
 

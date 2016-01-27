@@ -7,6 +7,8 @@ import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage;
+import org.bigbluebutton.common.messages.TransferUserToMeetingRequestMessage;
+import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
 import com.google.gson.JsonObject;
@@ -47,6 +49,9 @@ public class RedisMessageReceiver {
 					  case MuteUserInVoiceConfRequestMessage.MUTE_VOICE_USER_REQUEST:
 						  processMuteVoiceUserRequestMessage(message);
 					  break;
+					  case TransferUserToVoiceConfRequestMessage.TRANSFER_USER_TO_VOICE_CONF_REQUEST:
+						  processTransferUserToVoiceConfRequestMessage(message);
+					  break;
 					  case StartRecordingVoiceConfRequestMessage.START_RECORD_VOICE_CONF_REQUEST:
 						  processStartRecordingVoiceConfRequestMessage(message);
 					  break;
@@ -77,6 +82,13 @@ public class RedisMessageReceiver {
 	private void processMuteVoiceUserRequestMessage(String json) {
 		MuteUserInVoiceConfRequestMessage msg = MuteUserInVoiceConfRequestMessage.fromJson(json);
 		fsApp.muteUser(msg.voiceConfId, msg.voiceUserId, msg.mute);
+	}
+	
+	private void processTransferUserToVoiceConfRequestMessage(String json) {
+		TransferUserToVoiceConfRequestMessage msg = TransferUserToVoiceConfRequestMessage
+				.fromJson(json);
+		fsApp.transferUserToMeeting(msg.voiceConfId, msg.breakoutVoiceConfId,
+				msg.voiceUserId, msg.toBreakout);
 	}
 	
 	private void processStartRecordingVoiceConfRequestMessage(String json) {

@@ -162,6 +162,7 @@ case class LockUserRequest(meetingID: String, requesterID: String, userID: Strin
 case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedBy: String) extends InMessage
 case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
   callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
+case class TransferUserToMeetingRequest(meetingId: String, breakoutId: String, userId: String, toBreakout: Boolean) extends InMessage
 
 case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
   callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean) extends InMessage

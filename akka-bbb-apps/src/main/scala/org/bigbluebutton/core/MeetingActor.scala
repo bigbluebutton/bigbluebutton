@@ -115,6 +115,7 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: IsMeetingMutedRequest => liveMeeting.handleIsMeetingMutedRequest(msg)
     case msg: MuteUserRequest => liveMeeting.handleMuteUserRequest(msg)
     case msg: EjectUserFromVoiceRequest => liveMeeting.handleEjectUserRequest(msg)
+    case msg: TransferUserToMeetingRequest => liveMeeting.handleTransferUserToMeeting(msg)
     case msg: SetLockSettings => liveMeeting.handleSetLockSettings(msg)
     case msg: GetLockSettings => liveMeeting.handleGetLockSettings(msg)
     case msg: LockUserRequest => liveMeeting.handleLockUserRequest(msg)

@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
@@ -31,6 +32,7 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUsetToMeetingCommand;
 
 public class FreeswitchApplication {
 	
@@ -66,6 +68,11 @@ public class FreeswitchApplication {
 	  public void muteUser(String voiceConfId, String voiceUserId, Boolean mute) {
 	    MuteUserCommand mpc = new MuteUserCommand(voiceConfId, voiceUserId, mute, USER);
 	    queueMessage(mpc);
+	  }
+	  
+	  public void transferUserToMeeting(String voiceConfId, String targetVoiceConfId, String voiceUserId, Boolean forward) {
+		  TransferUsetToMeetingCommand tutmc = new TransferUsetToMeetingCommand(voiceConfId, targetVoiceConfId, voiceUserId, forward, USER);
+		  queueMessage(tutmc);
 	  }
 	
 	  public void eject(String voiceConfId, String voiceUserId) {

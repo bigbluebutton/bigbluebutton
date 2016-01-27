@@ -94,6 +94,8 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case EjectUserFromVoiceRequestMessage.EJECT_USER_FROM_VOICE_REQUEST:
 						  processEjectUserFromVoiceRequestMessage(message);
 						  break;
+					  case TransferUserToMeetingRequestMessage.TRANSFER_USER_TO_MEETING:
+						  processTransferUserToMeetingRequestMessage(message);
 					  case GetBreakoutRoomsList.NAME:
 						  bbbInGW.handleJsonMessage(message);
 						  break;
@@ -332,6 +334,13 @@ public class UsersMessageReceiver implements MessageHandler{
 		EjectUserFromVoiceRequestMessage msg = EjectUserFromVoiceRequestMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.ejectUserFromVoice(msg.meetingId, msg.userId, msg.requesterId);
-		}		
+		}
+	}
+	
+	private void processTransferUserToMeetingRequestMessage(String message) {
+		TransferUserToMeetingRequestMessage msg = TransferUserToMeetingRequestMessage.fromJson(message);
+		if (msg != null) {
+			bbbInGW.transferUserToMeeting(msg.meetingId, msg.breakoutId, msg.userId, msg.toBreakout);
+		}
 	}
 }

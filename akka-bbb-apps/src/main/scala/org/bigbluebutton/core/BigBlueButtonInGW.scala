@@ -468,12 +468,14 @@ class BigBlueButtonInGW(
     eventBus.publish(BigBlueButtonEvent(meetingId, new EjectUserFromVoiceRequest(meetingId, userId, ejectedBy)))
   }
 
+  def transferUserToMeeting(meetingId: String, breakoutId: String, userId: String, toBreakout: java.lang.Boolean) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new TransferUserToMeetingRequest(meetingId, breakoutId, userId, toBreakout)))
+  }
+
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
                       callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
-
     eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
       callerIdNum, muted, talking, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )))
-
   }
 
   def voiceUserLeft(voiceConfId: String, voiceUserId: String) {
