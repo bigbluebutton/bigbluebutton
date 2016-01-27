@@ -314,7 +314,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       log.info("handleDeskShareStartedRequest: streamPath=" + streamPath)
 
       // Tell FreeSwitch to broadcast to RTMP
-      outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath, timestamp))
+      outGW.send(new DeskShareStartRTMPBroadcast(msg.conferenceName, streamPath))
 
       meetingModel.setDeskShareStarted(true)
     }
@@ -324,8 +324,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     log.info("handleDeskShareStoppedRequest: dsStarted=" + meetingModel.getDeskShareStarted())
 
     // Tell FreeSwitch to stop broadcasting to RTMP
-    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, meetingModel.getRTMPBroadcastingUrl(),
-      System.currentTimeMillis().toString()))
+    outGW.send(new DeskShareStopRTMPBroadcast(msg.conferenceName, meetingModel.getRTMPBroadcastingUrl()))
 
     meetingModel.setDeskShareStarted(false)
   }

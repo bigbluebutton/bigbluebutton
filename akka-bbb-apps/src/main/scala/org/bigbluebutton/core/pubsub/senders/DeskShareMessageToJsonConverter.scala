@@ -21,13 +21,13 @@ object DeskShareMessageToJsonConverter {
 
   def getDeskShareStartRTMPBroadcastToJson(msg: DeskShareStartRTMPBroadcast): String = {
     val newMsg = new DeskShareStartRTMPBroadcastEventMessage(msg.conferenceName, msg.streamPath,
-      msg.timestamp)
+      TimestampGenerator.getCurrentTime.toString())
     newMsg.toJson()
   }
 
   def getDeskShareStopRTMPBroadcastToJson(msg: DeskShareStopRTMPBroadcast): String = {
     val newMsg = new DeskShareStopRTMPBroadcastEventMessage(msg.conferenceName, msg.streamPath,
-      msg.timestamp)
+      TimestampGenerator.getCurrentTime.toString())
     newMsg.toJson()
   }
 
