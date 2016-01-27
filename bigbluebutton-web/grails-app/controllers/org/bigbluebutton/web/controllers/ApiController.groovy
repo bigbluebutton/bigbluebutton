@@ -2016,7 +2016,7 @@ class ApiController {
           response() {
             returncode(RESP_CODE_SUCCESS)
             meetingName() { mkp.yield(meeting.getName()) }
-            isBreakout() { mkp.yield(m.isBreakout()) }
+            isBreakout() { mkp.yield(meeting.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
             createTime(meeting.getCreateTime())
