@@ -134,6 +134,9 @@ package org.bigbluebutton.modules.users.services
 		case "userLocked":
           handleUserLocked(message);
           break;
+		case "userEjectedFromMeeting":
+		 handleUserEjectedFromMeeting(message);
+		 break;
 		// Breakout room feature
 		case "breakoutRoomsList":
 		  handleBreakoutRoomsList(message)
@@ -156,6 +159,10 @@ package org.bigbluebutton.modules.users.services
       }
     }  
     
+	private function handleUserEjectedFromMeeting(msg: Object):void {
+		UsersUtil.setUserEjected();
+	}
+	
 	private function handleUserLocked(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
 		var user:BBBUser = UsersUtil.getUser(map.user);
@@ -399,8 +406,6 @@ package org.bigbluebutton.modules.users.services
 		  
 		  UserManager.getInstance().getConference().removeUser(webUserId);	    
 	  }
-	  
-    
     }
     
     public function handleParticipantJoined(msg:Object):void {

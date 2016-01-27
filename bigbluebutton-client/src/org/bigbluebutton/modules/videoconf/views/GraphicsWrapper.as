@@ -252,6 +252,7 @@ package org.bigbluebutton.modules.videoconf.views
 			LOGGER.debug("[GraphicsWrapper:addVideoForHelper] streamName {0}", [streamName]);
             var graphic:UserGraphicHolder = new UserGraphicHolder();
             graphic.userId = userId;
+            graphic.streamName = streamName;
             graphic.addEventListener(FlexEvent.CREATION_COMPLETE, function(event:FlexEvent):void {
                 graphic.loadVideo(_options, connection, streamName);
                 onChildAdd(event);
@@ -375,7 +376,7 @@ package org.bigbluebutton.modules.videoconf.views
 
             for (var i:int = 0; i < numChildren; ++i) {
                 var item:UserGraphicHolder = getChildAt(i) as UserGraphicHolder;
-                if (item.user && item.user.userID == userId && item.visibleComponent is UserVideo && item.video.streamName == streamName) {
+                if (item.userId == userId && item.streamName == streamName) {
                     camIndex = item.video.camIndex;
                     removeChildHelper(item);
                     break;

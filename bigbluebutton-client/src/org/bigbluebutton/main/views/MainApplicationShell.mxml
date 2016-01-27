@@ -45,6 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{AppVersionEvent.APP_VERSION_EVENT}" method="handleApplicationVersionEvent" />	
 	<mate:Listener type="{MeetingNotFoundEvent.MEETING_NOT_FOUND}" method="handleMeetingNotFoundEvent" />
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="handleLogout" />
+    <mate:Listener type="{ConnectionFailedEvent.USER_EJECTED_FROM_MEETING}" method="handleLogout" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_FAILED}" method="attemptReconnect" />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />

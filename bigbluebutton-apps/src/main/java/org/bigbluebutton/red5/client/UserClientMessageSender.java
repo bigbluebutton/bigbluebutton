@@ -26,6 +26,7 @@ import org.bigbluebutton.common.messages.UserVoiceMutedMessage;
 import org.bigbluebutton.common.messages.UserVoiceTalkingMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenReplyMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenTimeoutMessage;
+import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage;
 import org.bigbluebutton.messages.BreakoutRoomClosed;
 import org.bigbluebutton.messages.BreakoutRoomJoinURL;
 import org.bigbluebutton.messages.BreakoutRoomStarted;
@@ -37,7 +38,6 @@ import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -176,6 +176,9 @@ public class UserClientMessageSender {
           case LockLayoutMessage.LOCK_LAYOUT:
             processLockLayoutMessage(message);
             break;
+          case UserEjectedFromMeetingMessage.USER_EJECTED_FROM_MEETING:
+            processUserEjectedFromMeetingMessage(message);
+            break;
           case BreakoutRoomsList.NAME:
         	BreakoutRoomsList brl = gson.fromJson(message, BreakoutRoomsList.class);
             if (brl != null) {
@@ -217,6 +220,17 @@ public class UserClientMessageSender {
     }
   }
 
+  private void processUserEjectedFromMeetingMessage(String message) {
+    UserEjectedFromMeetingMessage msg = UserEjectedFromMeetingMessage.fromJson(message);
+    if (msg != null) {
+      Map<String, Object> args = new HashMap<String, Object>();  
+      args.put("ejectedBy", msg.ejectedBy);
+      System.out.println("**** User [" + msg.userId + "] was ejected by [" + msg.ejectedBy + "]");  
+      DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.userId, "userEjectedFromMeeting", args);
+      service.sendMessage(m);
+    }
+  }
+  
   private void processLockLayoutMessage(String message) {
     LockLayoutMessage msg = LockLayoutMessage.fromJson(message);
     if (msg != null) {

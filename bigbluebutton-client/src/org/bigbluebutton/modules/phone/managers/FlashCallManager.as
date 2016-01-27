@@ -12,6 +12,7 @@
   import org.as3commons.logging.util.jsonXify;
   import org.bigbluebutton.common.Media;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.phone.PhoneOptions;
   import org.bigbluebutton.modules.phone.events.FlashCallConnectedEvent;
@@ -451,6 +452,14 @@
       if (isConnected()) {
         streamManager.stopStreams();
         connectionManager.disconnect(true);
+      }
+    }
+
+    public function handleReconnectSIPSucceededEvent():void {
+      if (state != ON_LISTEN_ONLY_STREAM) {
+        var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
+        e.userid = UsersUtil.getMyUserID();
+        dispatcher.dispatchEvent(e);
       }
     }
   }
