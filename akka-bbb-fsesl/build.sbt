@@ -47,7 +47,7 @@ libraryDependencies ++= {
 	  "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
 	  "commons-codec"             %  "commons-codec"     % "1.8",
 	  "joda-time"                 %  "joda-time"         % "2.3",
-	  "com.google.code.gson"      %  "gson"              % "1.7.1",
+	  "com.google.code.gson"      %  "gson"              % "2.5",
 	  "redis.clients"             %  "jedis"             % "2.1.0",
       "org.apache.commons"        %  "commons-lang3"     % "3.2",
       "org.bigbluebutton"         %  "bbb-common-message" % "0.0.16-SNAPSHOT",

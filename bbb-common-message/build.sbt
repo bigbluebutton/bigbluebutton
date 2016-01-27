@@ -15,7 +15,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 
 libraryDependencies ++= {
   Seq(
-	  "com.google.code.gson"      %  "gson"              % "1.7.1"
+	  "com.google.code.gson"      %  "gson"              % "2.5"
 	)}
 
 libraryDependencies += "junit" % "junit" % "4.12" % "test"

@@ -48,7 +48,7 @@ dependencies {
   
 	compile 'commons-lang:commons-lang:2.5'
 	compile 'commons-io:commons-io:2.4'
-    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.google.code.gson:gson:2.5'
 	compile 'commons-httpclient:commons-httpclient:3.1'
 	
 	compile 'org.bigbluebutton:bbb-common-message:0.0.16-SNAPSHOT'
