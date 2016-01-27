@@ -209,9 +209,6 @@ Meteor.WhiteboardPaperModel = (function() {
       let base, base1, i, len, obj, tool, toolModel;
       data.thickness *= this.adjustedWidth / 1000;
       tool = null;
-      //TODO pay attention to this array, data in this array slows down the whiteboard
-      //console.log @current
-      //console.log @
       this.current[shape] = this._createTool(shape);
       toolModel = this.current[shape];
       tool = this.current[shape].make(data);
@@ -287,8 +284,8 @@ Meteor.WhiteboardPaperModel = (function() {
 
     _updateZoomRatios() {
       let currentSlideDoc;
-      currentSlideDoc = BBB.getCurrentSlide("_updateZoomRatios");
-      this.widthRatio = currentSlideDoc != null ? currentSlideDoc.slide.width_ratio : void 0;
+      currentSlideDoc = BBB.getCurrentSlide();
+      this.widthRatio = (currentSlideDoc != null ? currentSlideDoc.slide.width_ratio : void 0) || 100;
       return this.heightRatio = currentSlideDoc != null ? currentSlideDoc.slide.height_ratio : void 0;
     }
 
@@ -377,7 +374,7 @@ Meteor.WhiteboardPaperModel = (function() {
       if(url != null ? url.match(/http[s]?:/) : void 0) {
         return url;
       } else {
-        return console.log(`The url '${url}'' did not match the expected format of: http/s`);
+        return console.log(`The url '${url}' did not match the expected format of: http/s`);
         //globals.presentationServer + url
       }
     }
@@ -390,7 +387,7 @@ Meteor.WhiteboardPaperModel = (function() {
       this._updateContainerDimensions();
       boardWidth = this.containerWidth;
       boardHeight = this.containerHeight;
-      currentSlide = BBB.getCurrentSlide("_displayPage");
+      currentSlide = BBB.getCurrentSlide();
       currentPresentation = Meteor.Presentations.findOne({
         "presentation.current": true
       });
