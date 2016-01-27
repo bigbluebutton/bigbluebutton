@@ -163,14 +163,14 @@ trait UsersApp {
   }
   
   def handleTransferUserToMeeting(msg: TransferUserToMeetingRequest) {
-      log.info("Received transfer user to meeting request. meetingId=" + mProps.meetingID + " breakoutId=" + msg.breakoutId  + " userId=" + msg.userId + " toBreakout=" + msg.toBreakout)
+      log.info("Received transfer user to meeting request. meetingId=" + mProps.meetingID + " breakoutId=" + msg.breakoutId  + " userId=" + msg.userId + " toBreakout=" + msg.listen)
       breakoutModel.getBreakoutRoom(msg.breakoutId) match {
         case Some(b) => {
           usersModel.getUser(msg.userId) match {
             case Some(u) => {
               if (u.voiceUser.joined) {
                   log.info("Transferring user between meetingId=" + mProps.meetingID + " userId=" + u.userID + " and breakoutId=" + b.id)
-                  outGW.send(new TransferUserToMeeting(mProps.voiceBridge, b.voiceConfId, u.voiceUser.userId, msg.toBreakout))
+                  outGW.send(new TransferUserToMeeting(mProps.voiceBridge, b.voiceConfId, u.voiceUser.userId, msg.listen))
               }
             }
             case None => // do nothing

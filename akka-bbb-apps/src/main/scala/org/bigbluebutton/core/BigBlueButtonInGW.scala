@@ -90,6 +90,7 @@ class BigBlueButtonInGW(
       case m: BreakoutRoomsListMessage        => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case m: CreateBreakoutRooms             => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: TransferUserToMeetingRequest    => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case m: EndAllBreakoutRooms             => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
       case _                                  => log.error("Unhandled message: {}", msg)
     }
@@ -466,10 +467,6 @@ class BigBlueButtonInGW(
 
   def ejectUserFromVoice(meetingId: String, userId: String, ejectedBy: String) {
     eventBus.publish(BigBlueButtonEvent(meetingId, new EjectUserFromVoiceRequest(meetingId, userId, ejectedBy)))
-  }
-
-  def transferUserToMeeting(meetingId: String, breakoutId: String, userId: String, toBreakout: java.lang.Boolean) {
-    eventBus.publish(BigBlueButtonEvent(meetingId, new TransferUserToMeetingRequest(meetingId, breakoutId, userId, toBreakout)))
   }
 
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,

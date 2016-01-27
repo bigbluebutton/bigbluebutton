@@ -6,6 +6,7 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.BreakoutRoomEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -18,6 +19,7 @@
 			protected function listenToBreakoutRoom(event:MouseEvent):void {
 				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
 				e.breakoutId = data.breakoutId as String;
+				e.listen = event.type == MouseEvent.MOUSE_DOWN;
 				globalDispatch.dispatchEvent(e);
 			}
 			
@@ -31,7 +33,7 @@
 
 	<mx:Button id="listenImg" width="20" height="20"
 			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"
-			   click="listenToBreakoutRoom(event)"/>
+			   mouseDown="listenToBreakoutRoom(event)" mouseUp="listenToBreakoutRoom(event)" mouseOut="listenToBreakoutRoom(event)"/>
 	<mx:Button id="joinImg" width="20" height="20"
 			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
 			   click="requestBreakoutJoinUrl(event)"/>

@@ -59,6 +59,8 @@ case class SendBreakoutUsersUpdate(meetingId: String) extends InMessage
 case class EndAllBreakoutRooms(meetingId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor that breakout room has been ended
 case class BreakoutRoomEnded(meetingId: String, breakoutRoomId: String) extends InMessage
+// Sent by user actor to ask for voice conference transfer 
+case class TransferUserToMeetingRequest(meetingId: String, breakoutId: String, userId: String, listen: Boolean) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Lock
@@ -162,8 +164,6 @@ case class LockUserRequest(meetingID: String, requesterID: String, userID: Strin
 case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedBy: String) extends InMessage
 case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
   callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
-case class TransferUserToMeetingRequest(meetingId: String, breakoutId: String, userId: String, toBreakout: Boolean) extends InMessage
-
 case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
   callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean) extends InMessage
 case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String) extends InMessage

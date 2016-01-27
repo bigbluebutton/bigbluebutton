@@ -78,16 +78,6 @@ public class VoiceService {
 		red5InGW.ejectUserFromVoice(meetingID, userId, ejectedBy); 	
 	}
 	
-	public void transferUserToMeeting(Map<String, Object> msg) {
-		Boolean toBreakout = (Boolean) msg.get("toBreakout");
-		String userId = (String) msg.get("userId");
-		String breakoutId = (String) msg.get("breakoutId");
-		String meetingId = Red5.getConnectionLocal().getScope().getName();
-
-		red5InGW.transferUserToMeeting(meetingId, breakoutId, userId, toBreakout); 
-
-	}
-		
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}

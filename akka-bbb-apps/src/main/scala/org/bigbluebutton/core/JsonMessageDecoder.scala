@@ -66,6 +66,9 @@ object JsonMessageDecoder {
       case RequestBreakoutJoinURL.NAME => {
         msg.payload.convertTo[RequestBreakoutJoinURLInMessage]
       }
+      case ListenInOnBreakout.NAME => {
+        msg.payload.convertTo[TransferUserToMeetingRequest]
+      }
       case EndAllBreakoutRoomsRequest.NAME => {
         msg.payload.convertTo[EndAllBreakoutRooms]
       }

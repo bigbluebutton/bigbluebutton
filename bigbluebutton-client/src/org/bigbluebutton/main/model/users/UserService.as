@@ -213,9 +213,8 @@ package org.bigbluebutton.main.model.users
 			sender.requestBreakoutJoinUrl(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid);
 		}
 		
-		public function listenInOnBreakout(e:BreakoutRoomEvent):void{
-			// @todo: the last parameter should be dependant on the current listening status
-			sender.listenInOnBreakout(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid, true);
+		public function listenInOnBreakout(e:BreakoutRoomEvent):void {
+			sender.listenInOnBreakout(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid, e.listen);
 		}
 
 		public function endAllBreakoutRooms(e:BreakoutRoomEvent):void{
