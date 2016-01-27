@@ -47,8 +47,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
-import freemarker.template.Template;
 import freemarker.template.Configuration;
+import freemarker.cache.WebappTemplateLoader;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
@@ -1731,37 +1731,12 @@ class ApiController {
       return;
     }
     def cfg = new Configuration()
-    // Still missing this inside mkp.yield(item.getExtensions()) playbacks. Not a clue why we do this
-    def ftl = new Template("getRecordings", new StringReader('''<response>
-          <returncode>${code}</returncode>
-          <recordings>
-          <#list recs as r>
-            <recording>
-              <recordID>${r.getId()}</recordID>
-              <meetingID>${r.getMeetingID()?html}</meetingID>
-              <name>${r.getName()?html}</name>
-              <published>${r.isPublished()?string}</published>
-              <startTime>${r.getStartTime()}</startTime>
-              <endTime>${r.getEndTime()}</endTime>
-              <#assign m = r.getMetadata()>
-              <metadata>
-              <#list m?keys as prop>
-                <${prop}>${m[prop]?html}</${prop}>
-              </#list>
-              </metadata>
-              <playback>
-                <#list r.getPlaybacks() as p>
-                  <format>
-                    <type>${p.getFormat()}</type>
-                    <url>${p.getUrl()}</url>
-                    <length>${p.getLength()}</length>
-                  </format>
-                </#list>
-              </playback>
-            </recording>
-          </#list>
-          </recordings>
-        </response>'''), cfg)
+
+    // Load the XML template
+    // TODO: Maybe there is a better way to define the templates path
+    def wtl = new WebappTemplateLoader(getServletContext(), "/WEB-INF/freemarker")
+    cfg.setTemplateLoader(wtl)
+    def ftl = cfg.getTemplate("get-recordings.ftl")
     def xmlText = new StringWriter()
     ftl.process([code:RESP_CODE_SUCCESS, recs:recs.values()], xmlText)
     withFormat {  
