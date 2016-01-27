@@ -70,7 +70,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					event.rooms.push(room);
 				}
 				if (totalUsers > 0) {
-					event.durationInMinutes = durtaiontStepper.value;
+					event.durationInMinutes = durationStepper.value;
 					dispatcher.dispatchEvent(event);
 					PopUpManager.removePopUp(this);
 				} else {
@@ -126,7 +126,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		<mx:HBox width="100%" paddingTop="20">
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.timeLimit')}" />
-			<mx:NumericStepper id="durtaiontStepper" minimum="1" maximum="600"/>
+			<mx:NumericStepper id="durationStepper" value="15" minimum="1" maximum="600"/>
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.users.breakout.minutes')}"/>
 		</mx:HBox>
 		

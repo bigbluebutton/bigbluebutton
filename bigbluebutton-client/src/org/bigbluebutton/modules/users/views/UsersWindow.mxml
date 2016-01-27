@@ -123,6 +123,7 @@
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+				closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = amIModerator;
 				
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
@@ -253,7 +254,7 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				if (breakoutRoomsList.length == 0) {
+				if (breakoutRoomsList.length == 0 && amIModerator) {
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
 				}
 				
