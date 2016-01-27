@@ -25,6 +25,8 @@ class MeetingModel {
   private var voiceRecordingFilename: String = ""
   private var rtmpBroadcastingUrl: String = ""
   private var deskShareStarted = false
+  private var desktopShareVideoWidth = 0
+  private var desktopShareVideoHeight = 0
 
   val startedOn = timeNowInMinutes;
 
@@ -32,6 +34,8 @@ class MeetingModel {
     broadcastingRTMP = false
     deskShareStarted = false
     rtmpBroadcastingUrl = ""
+    desktopShareVideoWidth = 0
+    desktopShareVideoHeight = 0
   }
 
   def getDeskShareStarted(): Boolean = {
@@ -41,6 +45,22 @@ class MeetingModel {
   def setDeskShareStarted(b: Boolean) {
     deskShareStarted = b
     println("---deskshare status changed to:" + b)
+  }
+
+  def setDesktopShareVideoWidth(videoWidth: Int) {
+    desktopShareVideoWidth = videoWidth
+  }
+
+  def setDesktopShareVideoHeight(videoHeight: Int) {
+    desktopShareVideoHeight = videoHeight
+  }
+
+  def getDesktopShareVideoWidth(): Int = {
+    desktopShareVideoWidth
+  }
+
+  def getDesktopShareVideoHeight(): Int = {
+    desktopShareVideoHeight
   }
 
   def muteMeeting() {

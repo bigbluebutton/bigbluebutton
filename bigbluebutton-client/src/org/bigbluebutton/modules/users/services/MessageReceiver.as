@@ -152,8 +152,8 @@ package org.bigbluebutton.modules.users.services
         event = new ViewStreamEvent(ViewStreamEvent.STOP);
       }
 
-      event.videoWidth = 1920; // TODO pick the value from somewhere
-      event.videoHeight = 1080; // TODO pick the value from somewhere
+      event.videoWidth = msg.width;
+      event.videoHeight = msg.height;
       event.rtmp = msg.rtmpUrl;
 
       dispatcher.dispatchEvent(event);

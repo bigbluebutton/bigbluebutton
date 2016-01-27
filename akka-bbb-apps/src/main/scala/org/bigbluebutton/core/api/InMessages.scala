@@ -119,7 +119,7 @@ case class GetAllMeetingsRequest(meetingID: String /** Not used. Just to satisfy
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String)
 case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String)
-case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, timestamp: String)
-case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, timestamp: String)
+case class DeskShareRTMPBroadcastStartedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String)
+case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamname: String, videoWidth: Int, videoHeight: Int, timestamp: String)
 case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String)
 

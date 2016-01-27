@@ -64,15 +64,15 @@ class VoiceConferenceService(sender: RedisPublisher) extends IVoiceConferenceSer
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
-  def deskShareRTMPBroadcastStarted(voiceConfId: String, streamname: String, timestamp: String) {
+  def deskShareRTMPBroadcastStarted(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
     println("******** FreeswitchConferenceService received deskShareRTMPBroadcastStarted")
-    val msg = new DeskShareRTMPBroadcastStartedEventMessage(voiceConfId, streamname, timestamp)
+    val msg = new DeskShareRTMPBroadcastStartedEventMessage(voiceConfId, streamname, vw, vh, timestamp)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 
-  def deskShareRTMPBroadcastStopped(voiceConfId: String, streamname: String, timestamp: String) {
+  def deskShareRTMPBroadcastStopped(voiceConfId: String, streamname: String, vw: java.lang.Integer, vh: java.lang.Integer, timestamp: String) {
     println("******** FreeswitchConferenceService received deskShareRTMPBroadcastStopped")
-    val msg = new DeskShareRTMPBroadcastStoppedEventMessage(voiceConfId, streamname, timestamp)
+    val msg = new DeskShareRTMPBroadcastStoppedEventMessage(voiceConfId, streamname, vw, vh, timestamp)
     sender.publish(FROM_VOICE_CONF_SYSTEM_CHAN, msg.toJson())
   }
 

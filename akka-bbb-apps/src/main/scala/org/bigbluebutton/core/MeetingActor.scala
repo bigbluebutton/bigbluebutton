@@ -337,10 +337,12 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     if (!meetingModel.isBroadcastingRTMP()) {
       meetingModel.setRTMPBroadcastingUrl(msg.streamname)
       meetingModel.broadcastingRTMPStarted()
+      meetingModel.setDesktopShareVideoWidth(msg.videoWidth)
+      meetingModel.setDesktopShareVideoHeight(msg.videoHeight)
       log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
 
       // Notify viewers in the meeting that there's an rtmp stream to view
-      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname, true))
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, msg.streamname, msg.videoWidth, msg.videoHeight, true))
     } else {
       log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
     }
@@ -355,7 +357,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       meetingModel.broadcastingRTMPStopped()
 
       // notify viewers that RTMP broadcast stopped
-      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(), false))
+      outGW.send(new DeskShareNotifyViewersRTMP(mProps.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+        msg.videoWidth, msg.videoHeight, false))
     } else {
       log.info("STOP broadcast NOT ALLOWED when isBroadcastingRTMP=false")
     }
@@ -366,7 +369,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     log.info("handleDeskShareGetDeskShareInfoRequest: " + msg.conferenceName + "isBroadcasting=" + meetingModel.isBroadcastingRTMP())
     if (meetingModel.isBroadcastingRTMP()) {
       // if the meeting has an ongoing WebRTC Deskshare session, send a notification
-      outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, meetingModel.getRTMPBroadcastingUrl(), true))
+      outGW.send(new DeskShareNotifyASingleViewer(mProps.meetingID, msg.requesterID, meetingModel.getRTMPBroadcastingUrl(),
+        meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight(), true))
     }
   }
 

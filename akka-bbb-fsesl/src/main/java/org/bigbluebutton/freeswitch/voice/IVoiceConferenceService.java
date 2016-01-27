@@ -10,7 +10,7 @@ public interface IVoiceConferenceService {
 	void userTalkingInVoiceConf(String voiceConfId, String voiceUserId, Boolean talking);
 	void deskShareStarted(String voiceConfId, String callerIdNum, String callerIdName);
 	void deskShareEnded(String voiceConfId, String callerIdNum, String callerIdName);
-	void deskShareRTMPBroadcastStarted(String room, String streamname, String timestamp);
-	void deskShareRTMPBroadcastStopped(String room, String streamname, String timestamp);
+	void deskShareRTMPBroadcastStarted(String room, String streamname, Integer videoWidth, Integer videoHeight, String timestamp);
+	void deskShareRTMPBroadcastStopped(String room, String streamname, Integer videoWidth, Integer videoHeight, String timestamp);
 
 }

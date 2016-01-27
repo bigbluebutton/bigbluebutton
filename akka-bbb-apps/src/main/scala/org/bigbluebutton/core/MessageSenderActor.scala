@@ -122,31 +122,26 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
   }
 
   private def handleDeskShareHangUp(msg: DeskShareHangUp) {
-    println("_____publish to FS__handleDeskShareHangUp____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareHangUpToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 
   private def handleDeskShareStopRTMPBroadcast(msg: DeskShareStopRTMPBroadcast) {
-    println("_____publish to FS__handleDeskShareStopRTMPBroadcast____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareStopRTMPBroadcastToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }
 
   private def handleDeskShareNotifyViewersRTMP(msg: DeskShareNotifyViewersRTMP) {
-    println("_____publish to bigbluebutton-apps(red5) __handleDeskShareNotifyViewersRTMP____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareNotifyViewersRTMPToJson(msg)
     service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
   }
 
   def handleDeskShareNotifyASingleViewer(msg: DeskShareNotifyASingleViewer) {
-    println("_____publish to bigbluebutton-apps(red5) __handleDeskShareNotifyASingleViewer____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareNotifyASingleViewerToJson(msg)
     service.send(MessagingConstants.FROM_DESK_SHARE_CHANNEL, json)
   }
 
   private def handleDeskShareStartRTMPBroadcast(msg: DeskShareStartRTMPBroadcast) {
-    println("_____publish to FS__handleDeskShareStartRTMPBroadcast____________")
     val json = DeskShareMessageToJsonConverter.getDeskShareStartRTMPBroadcastToJson(msg)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, json)
   }

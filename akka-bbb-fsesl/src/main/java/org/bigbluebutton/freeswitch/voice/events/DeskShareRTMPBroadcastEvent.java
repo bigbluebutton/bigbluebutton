@@ -23,6 +23,8 @@ public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 	private String timestamp;
 	private boolean broadcast;
 	private String streamUrl;
+	private Integer vw;
+	private Integer vh;
 
 
 	public DeskShareRTMPBroadcastEvent(String room, boolean broadcast) {
@@ -37,6 +39,14 @@ public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 	public void setBroadcastingStreamUrl(String streamUrl) {
 		this.streamUrl = streamUrl;
 	}
+
+	public void setVideoWidth(Integer vw) {this.vw = vw;}
+
+	public void setVideoHeight(Integer vh) {this.vh = vh;}
+
+	public Integer getVideoHeight() {return vh;}
+
+	public Integer getVideoWidth() {return vw;}
 
 	public String getTimestamp() {
 		return timestamp;

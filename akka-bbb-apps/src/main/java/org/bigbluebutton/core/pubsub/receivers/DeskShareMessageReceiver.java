@@ -40,11 +40,11 @@ public class DeskShareMessageReceiver implements MessageHandler {
 					} else if (DeskShareRTMPBroadcastStartedEventMessage.DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE.equals(messageName)) {
 						System.out.println("^^^^^^^DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE^^^^^^");
 						DeskShareRTMPBroadcastStartedEventMessage msg = DeskShareRTMPBroadcastStartedEventMessage.fromJson(message);
-						bbbGW.deskShareRTMPBroadcastStarted(msg.conferenceName, msg.streamname, msg.timestamp);
+						bbbGW.deskShareRTMPBroadcastStarted(msg.conferenceName, msg.streamname, msg.vw, msg.vh, msg.timestamp);
 					} else if (DeskShareRTMPBroadcastStoppedEventMessage.DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE.equals(messageName)) {
 						System.out.println("^^^^^^^DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE^^^^^^");
 						DeskShareRTMPBroadcastStoppedEventMessage msg = DeskShareRTMPBroadcastStoppedEventMessage.fromJson(message);
-						bbbGW.deskShareRTMPBroadcastStopped(msg.conferenceName, msg.streamname, msg.timestamp);
+						bbbGW.deskShareRTMPBroadcastStopped(msg.conferenceName, msg.streamname, msg.vw, msg.vh, msg.timestamp);
 					} else if (DeskShareGetInfoRequestMessage.GET_DESKTOP_SHARE_GET_INFO_REQUEST.equals(messageName)) {
 						System.out.println("^^^^^^^GET_DESKTOP_SHARE_INFO_REQUEST^^^^^^");
 						DeskShareGetInfoRequestMessage msg = DeskShareGetInfoRequestMessage.fromJson(message);

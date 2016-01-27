@@ -13,15 +13,21 @@ public class DeskShareRTMPBroadcastStoppedEventMessage {
 	public static final String CONFERENCE_NAME = "conference_name";
 	public static final String STREAMNAME = "streamname";
 	public static final String TIMESTAMP = "timestamp";
+	public static final String VIDEO_WIDTH = "vw";
+	public static final String VIDEO_HEIGHT = "vh";
 
 	public final String conferenceName;
 	public final String streamname;
 	public final String timestamp;
+	public final int vw;
+	public final int vh;
 
-	public DeskShareRTMPBroadcastStoppedEventMessage(String conferenceName, String streamname, String timestamp) {
+	public DeskShareRTMPBroadcastStoppedEventMessage(String conferenceName, String streamname, int vw, int vh, String timestamp) {
 		this.conferenceName = conferenceName;
 		this.streamname = streamname;
 		this.timestamp = timestamp;
+		this.vw = vw;
+		this.vh = vh;
 	}
 
 	public String toJson() {
@@ -29,6 +35,8 @@ public class DeskShareRTMPBroadcastStoppedEventMessage {
 		payload.put(CONFERENCE_NAME, conferenceName);
 		payload.put(STREAMNAME, streamname);
 		payload.put(TIMESTAMP, timestamp);
+		payload.put(VIDEO_HEIGHT, vh);
+		payload.put(VIDEO_WIDTH, vw);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE, VERSION, null);
 
@@ -48,12 +56,16 @@ public class DeskShareRTMPBroadcastStoppedEventMessage {
 				if (DESKSHARE_RTMP_BROADCAST_STOPPED_MESSAGE.equals(messageName)) {
 					if (payload.has(CONFERENCE_NAME)
 							&& payload.has(TIMESTAMP)
+							&& payload.has(VIDEO_HEIGHT)
+							&& payload.has(VIDEO_WIDTH)
 							&& payload.has(STREAMNAME)) {
 						String conferenceName = payload.get(CONFERENCE_NAME).getAsString();
 						String streamname = payload.get(STREAMNAME).getAsString();
 						String timestamp = payload.get(TIMESTAMP).getAsString();
+						int vh = payload.get(VIDEO_HEIGHT).getAsInt();
+						int vw = payload.get(VIDEO_WIDTH).getAsInt();
 
-						return new DeskShareRTMPBroadcastStoppedEventMessage(conferenceName, streamname, timestamp);
+						return new DeskShareRTMPBroadcastStoppedEventMessage(conferenceName, streamname, vw, vh, timestamp);
 					}
 				}
 			}

@@ -33,7 +33,6 @@ public class DeskShareMessageSender {
 				switch (messageName) {
 					case DeskShareNotifyViewersRTMPEventMessage.DESK_SHARE_NOTIFY_VIEWERS_RTMP:
 						DeskShareNotifyViewersRTMPEventMessage rtmp = DeskShareNotifyViewersRTMPEventMessage.fromJson(message);
-						// System.out.println("DESKSHARE_RTMP_BROADCAST_STARTED_MESSAGE:" + rtmp.toJson());
 
 						if (rtmp != null) {
 							processDeskShareNotifyViewersRTMPEventMessage(rtmp);
@@ -42,7 +41,6 @@ public class DeskShareMessageSender {
 					case DeskShareNotifyASingleViewerEventMessage.DESK_SHARE_NOTIFY_A_SINGLE_VIEWER:
 						DeskShareNotifyASingleViewerEventMessage singleViewerMsg = DeskShareNotifyASingleViewerEventMessage.fromJson(message);
 						if (singleViewerMsg != null) {
-							// System.out.println("DESK_SHARE_NOTIFY_A_SINGLE_VIEWER:" + singleViewerMsg.toJson());
 							processDeskShareNotifyASingleViewerEventMessage(singleViewerMsg);
 						}
 				}
@@ -60,22 +58,23 @@ public class DeskShareMessageSender {
 		String delims = "[,{}]+";
 		String[] arr = fullPathString.split(delims);
 		String rtmpStreamPath = arr[arr.length -1];
-		System.out.println("RedisPubSubMessageHandler - processDeskShareNotifyViewersRTMPEventMessage \n" +rtmpStreamPath);
-		System.out.println(msg.toString()+ "\n");
 
 		messageInfo.put("rtmpUrl", rtmpStreamPath);
 		messageInfo.put("broadcasting", msg.broadcasting);
+		messageInfo.put("width", msg.vw);
+		messageInfo.put("height", msg.vh);
+
 		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "DeskShareRTMPBroadcastNotification", messageInfo);
 		service.sendMessage(m);
 	}
 
 	private void processDeskShareNotifyASingleViewerEventMessage(DeskShareNotifyASingleViewerEventMessage msg) {
 		Map<String, Object> messageInfo = new HashMap<String, Object>();
-		System.out.println("RedisPubSubMessageHandler-processDeskShareNotifyASingleViewerEventMessage \n" +
-			msg.streamPath+ "\n"+msg.userId);
 
 		messageInfo.put("rtmpUrl", msg.streamPath);
 		messageInfo.put("broadcasting", msg.broadcasting);
+		messageInfo.put("width", msg.vw);
+		messageInfo.put("height", msg.vh);
 
 		String toUserId = msg.userId;
 		DirectClientMessage receiver = new DirectClientMessage(msg.meetingId, toUserId,

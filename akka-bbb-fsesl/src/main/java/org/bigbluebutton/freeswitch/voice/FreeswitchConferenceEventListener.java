@@ -95,11 +95,13 @@ public class FreeswitchConferenceEventListener implements ConferenceEventListene
 					if (((DeskShareRTMPBroadcastEvent) event).getBroadcast()) {
 						DeskShareRTMPBroadcastEvent evt = (DeskShareRTMPBroadcastEvent) event;
 						System.out.println("************** FreeswitchConferenceEventListener DeskShareRTMPBroadcastStartedEvent");
-						vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getBroadcastingStreamUrl(), evt.getTimestamp());
+						vcs.deskShareRTMPBroadcastStarted(evt.getRoom(), evt.getBroadcastingStreamUrl(),
+								evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
 					} else {
 						DeskShareRTMPBroadcastEvent evt = (DeskShareRTMPBroadcastEvent) event;
 						System.out.println("************** FreeswitchConferenceEventListener DeskShareRTMPBroadcastStoppedEvent");
-						vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(), evt.getTimestamp());
+						vcs.deskShareRTMPBroadcastStopped(evt.getRoom(), evt.getBroadcastingStreamUrl(),
+								evt.getVideoWidth(), evt.getVideoHeight(), evt.getTimestamp());
 					}
 				}
 			}
