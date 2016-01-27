@@ -8,14 +8,14 @@
     <recording>
       <recordID>${r.getId()}</recordID>
       <meetingID>${r.getMeetingID()?html}</meetingID>
-      <name>${r.getName()?html}</name>
+      <name><![CDATA[${r.getName()}]]></name>
       <published>${r.isPublished()?string}</published>
       <startTime>${r.getStartTime()}</startTime>
       <endTime>${r.getEndTime()}</endTime>
       <#assign m = r.getMetadata()>
       <metadata>
       <#list m?keys as prop>
-        <${prop}>${m[prop]?html}</${prop}>
+        <${prop}><![CDATA[${m[prop]}]]></${prop}>
       </#list>
       </metadata>
       <playback>
