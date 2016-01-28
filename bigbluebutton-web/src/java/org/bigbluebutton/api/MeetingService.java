@@ -355,9 +355,8 @@ public class MeetingService implements MessageListener {
 
     public HashMap<String, Recording> getRecordings(
             ArrayList<String> recordingIDs, ArrayList<String> states) {
-        // TODO: this method shouldn't be used
-        HashMap<String, Recording> recs = reorderRecordings(recordingService
-                .getRecordings(recordingIDs, states));
+        ArrayList<Recording> recsList = recordingService.getRecordings(recordingIDs, states);
+        HashMap<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
 
@@ -381,6 +380,7 @@ public class MeetingService implements MessageListener {
                 r.setName(name);
 
                 ArrayList<Playback> plays = new ArrayList<Playback>();
+
                 if (r.getPlaybackFormat() != null) {
                     plays.add(new Playback(r.getPlaybackFormat(), r
                             .getPlaybackLink(), getDurationRecording(

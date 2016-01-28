@@ -88,8 +88,12 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 	public Recording getRecordingInfo(String id, String recordingDir, String playbackFormat) {
 		String path = recordingDir + File.separatorChar + playbackFormat;		
 		File dir = new File(path);
+		return getRecordingInfo(dir);
+	}
+	
+	public Recording getRecordingInfo(File dir) {
 		if (dir.isDirectory()) {
-			def recording = new XmlSlurper().parse(new File(path + File.separatorChar + id + File.separatorChar + "metadata.xml"));
+			def recording = new XmlSlurper().parse(new File(dir.getPath() + File.separatorChar + "metadata.xml"));
 			return getInfo(recording);
 		}
 		return null;
