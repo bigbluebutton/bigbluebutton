@@ -7,7 +7,6 @@ import org.bigbluebutton.common.messages.GetUsersFromVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StartRecordingVoiceConfRequestMessage;
 import org.bigbluebutton.common.messages.StopRecordingVoiceConfRequestMessage;
-import org.bigbluebutton.common.messages.TransferUserToMeetingRequestMessage;
 import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage;
 import org.bigbluebutton.freeswitch.voice.freeswitch.FreeswitchApplication;
 
