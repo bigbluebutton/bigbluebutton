@@ -1711,19 +1711,19 @@ class ApiController {
             internalRecordIds = paramsProcessorUtil.decodeIds(params.recordID)
         }
 
-        Map<String, Map<String, Object>> filters = new LinkedHashMap<String, Map<String, Object>>()
-        if (!StringUtils.isEmpty(params.filter)) {
-            filters = paramsProcessorUtil.decodeFilters(params.filter)
+        ArrayList<String> states = new ArrayList<String>()
+        if (!StringUtils.isEmpty(params.state)) {
+            states = paramsProcessorUtil.decodeIds(params.state)
         }
 
         // Everything is good so far.
-        if ( internalRecordIds.size() == 0 ) {
+        if ( internalRecordIds.size() == 0 && externalMeetingIds.size() > 0 ) {
             // No recordIDs, process the request based on meetingID(s)
-            // Translate the external meeting ids to an internal meeting ids.
+            // Translate the external meeting ids to internal meeting ids (which is the seed for the recordIDs).
             internalRecordIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);
         }
 
-        HashMap<String,Recording> recs = meetingService.getRecordings(internalRecordIds, filters);
+        HashMap<String,Recording> recs = meetingService.getRecordings(internalRecordIds, states);
         recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 
         if (recs.isEmpty()) {
