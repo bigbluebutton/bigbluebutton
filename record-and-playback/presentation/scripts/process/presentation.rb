@@ -166,7 +166,7 @@ if not FileTest.directory?(target_dir)
     state.content = "processed"
     ## Write the new metadata.xml
     metadata_xml = File.new("#{target_dir}/metadata.xml","w")
-    metadata_xml.write(metadata.to_xml)
+    metadata_xml.write(metadata.root)
     metadata_xml.close
     BigBlueButton.logger.info("Created an updated metadata.xml with state=processed")
 

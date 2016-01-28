@@ -985,7 +985,7 @@ begin
         real_start_time = match[1]
         real_end_time = (real_start_time.to_i + ($meeting_end.to_i - $meeting_start.to_i)).to_s
 
-        #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, IT SHOULD ONLY ADD <playback>
+        #### INSTEAD OF CREATING THE WHOLE metadata.xml FILE AGAIN, ONLY ADD <playback>
         # Copy metadata.xml from process_dir
         FileUtils.cp("#{$process_dir}/metadata.xml", package_dir)
         BigBlueButton.logger.info("Copied metadata.xml file")
@@ -997,7 +997,7 @@ begin
         recording = metadata.root
         state = recording.at_xpath("state")
         state.content = "published"
-        ## remove empty playback
+        ## Remove empty playback
         metadata.search('//recording/playback').each do |playback|
           playback.remove
         end
@@ -1014,7 +1014,8 @@ begin
 
         ## Write the new metadata.xml
         metadata_xml = File.new("#{package_dir}/metadata.xml","w")
-        metadata_xml.write(metadata.to_xml)
+        metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
+        metadata_xml.write(metadata.root)
         metadata_xml.close
         BigBlueButton.logger.info("Added playback to metadata.xml")
 
