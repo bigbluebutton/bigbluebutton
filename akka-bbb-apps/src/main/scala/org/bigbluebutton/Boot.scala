@@ -25,7 +25,7 @@ object Boot extends App with SystemConfiguration {
   val redisPublisher = new RedisPublisher(system)
   val msgSender = new MessageSender(redisPublisher)
 
-  val redisDispatcher = new RedisDispatcher(redisHost, redisPort, redisPassword)
+  val redisDispatcher = new RedisDispatcher(redisHost, redisPort, redisPassword, keysExpiresInSec)
   val recorderApp = new RecorderApplication(redisDispatcher)
   recorderApp.start()
 

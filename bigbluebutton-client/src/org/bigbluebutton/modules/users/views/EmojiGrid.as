@@ -46,10 +46,8 @@ package org.bigbluebutton.modules.users.views {
 			this.verticalScrollPolicy = ScrollPolicy.OFF;
 			width = 134;
 			drawEmoji();
-			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
-				addRemoveEmoji();
-				this.setStyle("paddingBottom", 10);
-			}
+			addRemoveEmoji();
+			this.setStyle("paddingBottom", 10);
 		}
 		
 		private function drawEmoji():void {
@@ -77,9 +75,16 @@ package org.bigbluebutton.modules.users.views {
 		private function addRemoveEmoji():void {
 			var button:Button = new Button();
 			button.id = "btnnone";
-			button.height = 64;
 			button.height = 24;
-			button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear');
+			if (UserManager.getInstance().getConference().myEmojiStatus != "none") {
+				button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear');
+				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear.toolTip');
+				button.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.clear.toolTip');
+			} else {
+				button.label = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.close');
+				button.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.close.toolTip');
+				button.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.close.toolTip');
+			}
 			button.addEventListener(MouseEvent.CLICK, buttonMouseEventHandler);
 			this.addChild(button);
 		}

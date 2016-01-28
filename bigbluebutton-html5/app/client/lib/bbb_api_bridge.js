@@ -152,7 +152,7 @@ this.BBB = (function() {
 
     return lockedMicForRoom && BBB.amILocked();
   };
-  BBB.getCurrentSlide = function(callingLocaton) {
+  BBB.getCurrentSlide = function() {
     let currentPresentation, currentSlide, presentationId, ref;
     currentPresentation = Meteor.Presentations.findOne({
       "presentation.current": true
@@ -162,7 +162,6 @@ this.BBB = (function() {
       "presentationId": presentationId,
       "slide.current": true
     });
-    // console.log "trigger:#{callingLocaton} currentSlideId=#{currentSlide?._id}"
     return currentSlide;
   };
   BBB.getMeetingName = function() {

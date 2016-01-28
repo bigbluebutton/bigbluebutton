@@ -459,7 +459,8 @@ trait UsersApp {
   }
 
   def startRecordingVoiceConference() {
-    if (usersModel.numUsersInVoiceConference == 1 && mProps.recorded) {
+    if (usersModel.numUsersInVoiceConference == 1 && mProps.recorded && !usersModel.isVoiceRecording) {
+      usersModel.startRecordingVoice()
       log.info("Send START RECORDING voice conf. meetingId=" + mProps.meetingID + " voice conf=" + mProps.voiceBridge)
       outGW.send(new StartRecordingVoiceConf(mProps.meetingID, mProps.recorded, mProps.voiceBridge))
     }
@@ -527,7 +528,8 @@ trait UsersApp {
   }
 
   def stopRecordingVoiceConference() {
-    if (usersModel.numUsersInVoiceConference == 0 && mProps.recorded) {
+    if (usersModel.numUsersInVoiceConference == 0 && mProps.recorded && usersModel.isVoiceRecording) {
+      usersModel.stopRecordingVoice()
       log.info("Send STOP RECORDING voice conf. meetingId=" + mProps.meetingID + " voice conf=" + mProps.voiceBridge)
       outGW.send(new StopRecordingVoiceConf(mProps.meetingID, mProps.recorded,
         mProps.voiceBridge, meetingModel.getVoiceRecordingFilename()))

@@ -22,6 +22,7 @@ class UsersModel {
 
   private var locked = false
   private var meetingMuted = false
+  private var recordingVoice = false
 
   private var currentPresenter = new Presenter("system", "system", "system")
 
@@ -179,5 +180,17 @@ class UsersModel {
         false
       }
     }
+  }
+
+  def startRecordingVoice() {
+    recordingVoice = true
+  }
+
+  def stopRecordingVoice() {
+    recordingVoice = false
+  }
+
+  def isVoiceRecording: Boolean = {
+    recordingVoice
   }
 }

@@ -27,8 +27,9 @@ public class RedisDispatcher implements Recorder {
 
 	private static final String COLON=":";
 	private JedisPool redisPool;
-
-	public RedisDispatcher(String host, int port, String password) {
+	private int keysExpiresInSec;
+	
+	public RedisDispatcher(String host, int port, String password, int keysExpiresInSec) {
 		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
 		config.setMaxTotal(32);
 		config.setMaxIdle(8);
@@ -41,6 +42,8 @@ public class RedisDispatcher implements Recorder {
 		config.setTimeBetweenEvictionRunsMillis(60000);
 		config.setBlockWhenExhausted(true);
 		
+		this.keysExpiresInSec = keysExpiresInSec;
+		
 		// Set the name of this client to be able to distinguish when doing
 		// CLIENT LIST on redis-cli
 		redisPool = new JedisPool(config, host, port, Protocol.DEFAULT_TIMEOUT, null,
@@ -52,8 +55,12 @@ public class RedisDispatcher implements Recorder {
 		Jedis jedis = redisPool.getResource();
 		try {
 			Long msgid = jedis.incr("global:nextRecordedMsgId");
-			jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
-			jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());
+			String key = "recording" + COLON + session + COLON + msgid;
+			jedis.hmset(key, message.toMap());
+			jedis.expire(key, keysExpiresInSec);
+			key = "meeting" + COLON + session + COLON + "recordings";
+			jedis.rpush(key, msgid.toString());
+			jedis.expire(key, keysExpiresInSec);
 		} finally {
 			jedis.close();
 		}						
