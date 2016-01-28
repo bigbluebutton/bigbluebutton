@@ -37,11 +37,9 @@ public class TransferUsetToMeetingCommand extends FreeswitchCommand {
 	public String getCommandArgs() {
 		String action = "";
 		if (forward)
-			action = "conference" + SPACE + room + SPACE + "transfer" + SPACE
-					+ targetRoom;
+			action = room + SPACE + "transfer" + SPACE + targetRoom;
 		else {
-			action = "conference" + SPACE + targetRoom + SPACE + "transfer"
-					+ SPACE + room;
+			action = targetRoom + SPACE + "transfer" + SPACE + room;
 		}
 
 		return action + SPACE + participant;
