@@ -14,7 +14,6 @@ this.WhiteboardTextModel = (function() {
 
     // Make a text on the whiteboard
     make(startingData) {
-      //console.log "making text:" + JSON.stringify startingData
       let calcFontSize, colour, fontSize, height, text, width, x, y;
       x = startingData.x;
       y = startingData.y;
@@ -47,7 +46,6 @@ this.WhiteboardTextModel = (function() {
     // Update text shape drawn
     // @param  {object} the object containing the shape info
     update(startingData) {
-      //console.log "updating text" + JSON.stringify startingData
       let calcFontSize, cell, colour, computedTextLength, cumulY, curNumChars, dashArray, dashFound, dy, fontSize, height, i, indexPos, line, maxWidth, myText, myTextNode, result, svgNS, tempText, tspanEl, word, words, x, y;
       x = startingData.x;
       y = startingData.y;
