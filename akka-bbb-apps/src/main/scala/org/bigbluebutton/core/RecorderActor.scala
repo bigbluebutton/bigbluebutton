@@ -4,9 +4,13 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorLogging
 import akka.actor.Props
+import akka.actor.OneForOneStrategy
+import akka.actor.SupervisorStrategy.Resume
+import java.io.{ PrintWriter, StringWriter }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
+import scala.concurrent.duration._
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.core.recorders.events.PublicChatRecordEvent
 import org.bigbluebutton.core.recorders.events.ConversionCompletedPresentationRecordEvent
@@ -40,6 +44,16 @@ object RecorderActor {
 
 class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
     extends Actor with ActorLogging {
+
+  override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+    case e: Exception => {
+      log.warning("An exception has been thrown on RecorderActor, exception message [" + e.getMessage() + "] (full stacktrace below)")
+      val sw: StringWriter = new StringWriter()
+      e.printStackTrace(new PrintWriter(sw))
+      log.warning(sw.toString())
+      Resume
+    }
+  }
 
   def receive = {
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
