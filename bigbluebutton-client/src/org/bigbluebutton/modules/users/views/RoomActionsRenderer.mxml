@@ -33,7 +33,7 @@
 
 	<mx:Button id="listenImg" width="20" height="20"
 			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"
-			   mouseDown="listenToBreakoutRoom(event)" mouseUp="listenToBreakoutRoom(event)" mouseOut="listenToBreakoutRoom(event)"/>
+			   mouseDown="listenToBreakoutRoom(event)" mouseUp="listenToBreakoutRoom(event)"/>
 	<mx:Button id="joinImg" width="20" height="20"
 			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
 			   click="requestBreakoutJoinUrl(event)"/>

@@ -28,29 +28,29 @@ public class TransferUserToVoiceConfRequestMessage {
 	public static final String VERSION = "0.0.1";
 
 	public static final String VOICE_CONF_ID = "voice_conf_id";
-	public static final String BREAKOUT_VOICE_CONF_ID = "meeting_id";
+	public static final String TARGET_VOICE_CONF_ID = "target_voice_conf_id";
 	public static final String VOICE_USER_ID = "voice_user_id";
-	public static final String TO_BREAKOUT = "mute";
+	public static final String FORWARD = "forward";
 
 	public final String voiceConfId;
-	public final String breakoutVoiceConfId;
+	public final String targetVoiceConfId;
 	public final String voiceUserId;
-	public final Boolean toBreakout;
+	public final Boolean forward;
 
 	public TransferUserToVoiceConfRequestMessage(String voiceConfId,
 			String breakoutVoiceConfId, String voiceUserId, Boolean toBreakout) {
 		this.voiceConfId = voiceConfId;
-		this.breakoutVoiceConfId = breakoutVoiceConfId;
+		this.targetVoiceConfId = breakoutVoiceConfId;
 		this.voiceUserId = voiceUserId;
-		this.toBreakout = toBreakout;
+		this.forward = toBreakout;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(VOICE_CONF_ID, voiceConfId);
-		payload.put(BREAKOUT_VOICE_CONF_ID, breakoutVoiceConfId);
+		payload.put(TARGET_VOICE_CONF_ID, targetVoiceConfId);
 		payload.put(VOICE_USER_ID, voiceUserId);
-		payload.put(TO_BREAKOUT, toBreakout);
+		payload.put(FORWARD, forward);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(
 				TRANSFER_USER_TO_VOICE_CONF_REQUEST, VERSION, null);
@@ -70,18 +70,18 @@ public class TransferUserToVoiceConfRequestMessage {
 				String messageName = header.get("name").getAsString();
 				if (TRANSFER_USER_TO_VOICE_CONF_REQUEST.equals(messageName)) {
 					if (payload.has(VOICE_CONF_ID)
-							&& payload.has(BREAKOUT_VOICE_CONF_ID)
+							&& payload.has(TARGET_VOICE_CONF_ID)
 							&& payload.has(VOICE_USER_ID)
-							&& payload.has(TO_BREAKOUT)) {
+							&& payload.has(FORWARD)) {
 						String id = payload.get(VOICE_CONF_ID).getAsString();
-						String breakoutVoiceConfId = payload.get(
-								BREAKOUT_VOICE_CONF_ID).getAsString();
+						String targetVoiceConfId = payload.get(
+								TARGET_VOICE_CONF_ID).getAsString();
 						String voiceUserId = payload.get(VOICE_USER_ID)
 								.getAsString();
-						Boolean toBreakout = payload.get(TO_BREAKOUT)
+						Boolean forward = payload.get(FORWARD)
 								.getAsBoolean();
 						return new TransferUserToVoiceConfRequestMessage(id,
-								breakoutVoiceConfId, voiceUserId, toBreakout);
+								targetVoiceConfId, voiceUserId, forward);
 					}
 				}
 			}

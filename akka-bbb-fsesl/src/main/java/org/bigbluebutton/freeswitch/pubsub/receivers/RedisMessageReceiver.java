@@ -86,8 +86,8 @@ public class RedisMessageReceiver {
 	private void processTransferUserToVoiceConfRequestMessage(String json) {
 		TransferUserToVoiceConfRequestMessage msg = TransferUserToVoiceConfRequestMessage
 				.fromJson(json);
-		fsApp.transferUserToMeeting(msg.voiceConfId, msg.breakoutVoiceConfId,
-				msg.voiceUserId, msg.toBreakout);
+		fsApp.transferUserToMeeting(msg.voiceConfId, msg.targetVoiceConfId,
+				msg.voiceUserId, msg.forward);
 	}
 	
 	private void processStartRecordingVoiceConfRequestMessage(String json) {
