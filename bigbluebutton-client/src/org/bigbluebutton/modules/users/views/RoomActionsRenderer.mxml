@@ -19,7 +19,7 @@
 			protected function listenToBreakoutRoom(event:MouseEvent):void {
 				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
 				e.breakoutId = data.breakoutId as String;
-				e.listen = event.type == MouseEvent.MOUSE_DOWN;
+				e.listen = listenBtn.selected;
 				globalDispatch.dispatchEvent(e);
 			}
 			
@@ -31,9 +31,10 @@
 		]]>
 	</mx:Script>
 
-	<mx:Button id="listenImg" width="20" height="20"
+	<mx:Button id="listenBtn" toggle="true"
+			   width="20" height="20"
 			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"
-			   mouseDown="listenToBreakoutRoom(event)" mouseUp="listenToBreakoutRoom(event)"/>
+			   click="listenToBreakoutRoom(event)"/>
 	<mx:Button id="joinImg" width="20" height="20"
 			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
 			   click="requestBreakoutJoinUrl(event)"/>
