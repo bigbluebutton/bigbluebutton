@@ -150,6 +150,8 @@ package org.bigbluebutton.modules.phone.managers
     public function handleJoinVoiceConferenceCommand(event:JoinVoiceConferenceCommand):void {
 	  LOGGER.debug("handleJoinVoiceConferenceCommand - usingWebRTC: " + usingWebRTC + ", event.mic: " + event.mic);
       
+      usingWebRTC = checkIfToUseWebRTC();
+      
       if (!usingWebRTC || !event.mic) return;
       
       if ((options.skipCheck && PhoneOptions.firstAudioJoin) || echoTestDone) {
