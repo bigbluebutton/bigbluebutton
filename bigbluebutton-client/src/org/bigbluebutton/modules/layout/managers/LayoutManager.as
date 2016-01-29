@@ -135,7 +135,6 @@ package org.bigbluebutton.modules.layout.managers
 				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _canvas);
 			});
 			_fileRef.save(_layoutModel.toString(), "layouts.xml");
-
 		}
 
 		public function loadLayoutsFromFile():void {
