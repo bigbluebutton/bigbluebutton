@@ -26,6 +26,8 @@ public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 	private Integer vw;
 	private Integer vh;
 
+	private final String DESKSHARE_SUFFIX = "-DESKSHARE";
+
 
 	public DeskShareRTMPBroadcastEvent(String room, boolean broadcast) {
 		super(room);
@@ -52,7 +54,11 @@ public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 		return timestamp;
 	}
 
-	public String getBroadcastingStreamUrl() {
+	public String getBroadcastingStreamUrl()
+	{
+		if (streamUrl.endsWith(DESKSHARE_SUFFIX)) {
+			streamUrl = streamUrl.replace(DESKSHARE_SUFFIX, "");
+		}
 		return streamUrl;
 	}
 

@@ -9,6 +9,7 @@ import org.freeswitch.esl.client.transport.message.EslMessage;
 public class DeskShareHangUpCommand  extends FreeswitchCommand {
     private String timestamp;
     private String fsConferenceName;
+    private final String DESKSHARE_SUFFIX = "-DESKSHARE";
 
     public DeskShareHangUpCommand(String room, String fsConferenceName, String requesterId, String timestamp){
         super(room, requesterId);
@@ -21,6 +22,9 @@ public class DeskShareHangUpCommand  extends FreeswitchCommand {
     public String getCommandArgs() {
         String action = "kick all";
 
+        if(!fsConferenceName.endsWith(DESKSHARE_SUFFIX)) {
+            fsConferenceName = fsConferenceName + DESKSHARE_SUFFIX;
+        }
         return SPACE + fsConferenceName + SPACE + action;
     }
 

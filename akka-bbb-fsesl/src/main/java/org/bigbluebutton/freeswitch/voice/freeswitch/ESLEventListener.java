@@ -76,7 +76,7 @@ public class ESLEventListener implements IEslEventListener {
             return;
         }
 
-        // Deskstop sharing conferences have their name in the form 7dddd-DESKSHARE
+        // Deskstop sharing conferences have their name in the form ddddd-DESKSHARE
         // Deskstop sharing conferences have the user with the desktop video displayed in this way:
         // username (Screen) and usernum (screen)
         if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX) &&
@@ -103,7 +103,7 @@ public class ESLEventListener implements IEslEventListener {
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
 
-        // Deskstop sharing conferences have their name in the form 7dddd-DESKSHARE
+        // Deskstop sharing conferences have their name in the form ddddd-DESKSHARE
         // Deskstop sharing conferences have the user with the desktop video displayed in this way:
         // username (Screen) and usernum (screen)
         if (confName.endsWith(DESKSHARE_CONFERENCE_NAME_SUFFIX) &&

@@ -372,8 +372,7 @@ trait UsersApp {
         if (u.presenter) {
           if (meetingModel.isBroadcastingRTMP()) {
             // The presenter left during desktop sharing. Stop desktop sharing on FreeSWITCH
-            val fsConferenceName = mProps.voiceBridge + "-DESKSHARE"
-            outGW.send(new DeskShareHangUp(msg.meetingID, fsConferenceName))
+            outGW.send(new DeskShareHangUp(msg.meetingID, mProps.voiceBridge))
 
             // notify other clients to close their deskshare view
             outGW.send(new DeskShareNotifyViewersRTMP(msg.meetingID, meetingModel.getRTMPBroadcastingUrl(),

@@ -26,6 +26,7 @@ public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
 	private String broadcastPath;
 	private boolean broadcast;
 	private String timestamp;
+	private final String DESKSHARE_SUFFIX = "-DESKSHARE";
 
 	public DeskShareBroadcastRTMPCommand(String room, String requesterId, String broadcastPath, String timestamp, boolean broadcast){
 		super(room, requesterId);
@@ -38,10 +39,16 @@ public class DeskShareBroadcastRTMPCommand extends FreeswitchCommand {
 	@Override
 	public String getCommandArgs() {
 		String action = "norecord";
-		if (broadcast)
+		if (broadcast) {
 			action = "record";
+		}
 
-		return SPACE + getRoom() + SPACE + action + SPACE + broadcastPath;
+		String room = getRoom();
+		if (!room.endsWith(DESKSHARE_SUFFIX)) {
+			room = room + DESKSHARE_SUFFIX;
+		}
+
+		return SPACE + room + SPACE + action + SPACE + broadcastPath;
 	}
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
