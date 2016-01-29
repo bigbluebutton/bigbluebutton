@@ -107,7 +107,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             public function loadCamera(options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile):void {
                 video.user = _user;
                 video.options = options;
-                video.publish(camIndex, videoProfile);
+                _streamName = UserVideo.newStreamName(_user.userID, videoProfile);
+                video.publish(camIndex, videoProfile, _streamName);
 
                 videoVisibility = true;
                 setUserProperties();
