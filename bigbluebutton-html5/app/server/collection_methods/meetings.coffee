@@ -66,6 +66,8 @@
 		# delete the cursor for the meeting
 		clearCursorCollection(meetingId)
 
+		clearDeskshareCollection(meetingId)
+
 		callback()
 	else
 		funct = (localCallback) ->
@@ -88,33 +90,40 @@
 	# TODO have to send the voicebridge!
 
 
+@clearDeskshareCollection = (meetingId) ->
+	if meetingId?
+		Meteor.Deskshare.remove({meetingId: meetingId},
+			Meteor.log.info "cleared Deskshare Collection (meetingId: #{meetingId}!")
+	else
+		Meteor.Deskshare.remove({}, Meteor.log.info "cleared Deskshare Collection (all meetings)!")
+
+
 # --------------------------------------------------------------------------------------------
 # end Private methods on server
 # --------------------------------------------------------------------------------------------
 
-###
 # updates the server side database for deskshare information for a meeting
 Meteor.methods
-    simulatePresenterDeskshareHasStarted: (meetingId, bridge, startedBy) ->
-        console.log("\n\n\n\n\n\n\nmeeting started")
-        console.log("started by: #{startedBy}\n\n\n\n\n\n\n")
-        Meteor.Meetings.update({meetingId: meetingId}, {$set: {
-            "deskshare.broadcasting": true
-            "deskshare.timestamp": "now"
-            "deskshare.vw": null
-            "deskshare.vh": null
-            "deskshare.voice_bridge": bridge
-            "deskshare.startedBy": startedBy
-        }})
+  simulatePresenterDeskshareHasStarted: (meetingId, bridge, startedBy) ->
+      console.log("meeting started")
+      console.log("meeting id: #{meetingId}")
+      console.log("started by: #{startedBy}")
+      Meteor.Deskshare.upsert({meetingId: meetingId}, {$set: {
+          "deskshare.broadcasting": true,
+          "deskshare.timestamp": "now",
+          "deskshare.vw": null,
+          "deskshare.vh": null,
+          "deskshare.voice_bridge": bridge,
+          "deskshare.startedBy": startedBy
+      }})
 
-    simulatePresenterDeskshareHasEnded: (meetingId, startedBy) ->
-        console.log "\n\n\n\n\n\n\nmeeting is being ended\n\n\n\n\n\n\n"
-        Meteor.Meetings.update({meetingId: meetingId}, {$set: {
-            "deskshare.broadcasting": false
-            "deskshare.timestamp": "now"
-            "deskshare.vw": null
-            "deskshare.vh": null
-            # "deskshare.voice_bridge": bridge
-            "deskshare.startedBy": null
-        }})
-###
+  simulatePresenterDeskshareHasEnded: (meetingId, bridge, startedBy) ->
+      console.log "meeting is being ended"
+      Meteor.Deskshare.upsert({meetingId: meetingId}, {$set: {
+          "deskshare.broadcasting": false
+          "deskshare.timestamp": "now"
+          "deskshare.vw": null
+          "deskshare.vh": null
+          "deskshare.voice_bridge": bridge
+          "deskshare.startedBy": null
+      }})

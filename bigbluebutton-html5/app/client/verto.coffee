@@ -11,8 +11,10 @@ Template.vertoDeskshareMenu.events
 			$("#webcam").src = null;
 			window["deskshareStream"].stop();
 		else
-			screenStart(false, (->))
+			setInSession("sharingMyScreen", false)
+			console.log("Hiding screenshare");
 			simulatePresenterDeskshareHasEnded();
+			endScreenshare((->), (->))
 
 	"click #installChromeExtension": (event) ->
 		# do a check for Chrome desksharing extension
@@ -42,20 +44,36 @@ Handlebars.registerHelper "browserIs", (name) ->
 	name is getBrowserName()
 
 Template.deskshareModal.events
+	# the user wants to present their screen
 	"click .screenshareStart": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')
-		screenStart(true, ((m)-> console.log(m)), "webcam")
+		success = ->
+			console.log("Screenshare success");
+			setInSession("sharingMyScreen", true);
+		fail = ->
+			setInSession("sharingMyScreen", false)
+		vertoServerCredentials = {
+			vertoPort: "8082",
+			hostName: Meteor.config.vertoServerAddress,
+			login: "1008",
+			password: Meteor.config.freeswitchProfilePassword,
+		}
+		startScreenshare(((m)-> console.log(m)), "webcam", vertoServerCredentials, Meteor.config.deskshareExtensionKey, true, success, fail)
 
+	# the user is the presenter sharing their screen and wishes to stop
 	"click .screenshareStop": (event) ->
 		$("#deskshareModal").foundation('reveal', 'close')
-		screenStart(false, (->))
+		setInSession("sharingMyScreen", false)
+		console.log("sending signal to end deskshare");
+		simulatePresenterDeskshareHasEnded()
+		endScreenshare((->), (->))
 
 	"click #desksharePreview": (event) ->
 		success = ->
 			toggleWhiteboardVideo("video")
 			setInSession("isPreviewingDeskshare", true)
 			notification_desksharePreview()
-		doDesksharePreview((-> success()), (->), "webcam");
+		doDesksharePreview((-> success()), (->), "webcam", Meteor.config.deskshareExtensionKey);
 
 	"click #stopDesksharePreview": (event) ->
 		toggleWhiteboardVideo("whiteboard");
@@ -92,7 +110,7 @@ Template.webcamModal.events
 		$("#webcamStop").hide()
 
 	"click #webcamPreview": (event) ->
-		doWebcamPreview((->), (->), "webcam");
+		# doWebcamPreview((->), (->), "webcam");
 
 	"click #getAdjustedResolutions": (event) ->
 		getAdjustedResolutions (result) ->
@@ -128,7 +146,7 @@ Template.webcamModal.events
 	Meteor.call("simulatePresenterDeskshareHasStarted", BBB.getMeetingId(), "3500", BBB.getMyUserId())
 
 @simulatePresenterDeskshareHasEnded = ->
-	Meteor.call("simulatePresenterDeskshareHasEnded", BBB.getMeetingId(), BBB.getMyUserId())
+	Meteor.call("simulatePresenterDeskshareHasEnded", BBB.getMeetingId(), "3500", BBB.getMyUserId())
 
 Handlebars.registerHelper "canIPresentDeskshare", ->
 	Meteor.Users.findOne({userId: BBB.getMyUserId()})?.user.presenter and not Meteor.config.useSIPAudio

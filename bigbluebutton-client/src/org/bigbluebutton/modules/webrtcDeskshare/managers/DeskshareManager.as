@@ -51,6 +51,20 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			toolbarButtonManager = new ToolbarButtonManager();
 		}
 
+		private function getChromeExtensionKey():String {
+			var key:String = 'your-extension-key';
+			return key;
+		}
+
+		private function getFreeswitchServerCredentials():Object {
+			var credentials:Object = new Object();
+			credentials.vertoPort = "PORT";
+			credentials.hostName = "HOST.NAME";
+			credentials.login = "LOGIN";
+			credentials.password = "PASSWORD";
+			return credentials;
+		}
+
 		public function handleStartModuleEvent(module:WebRTCDeskShareModule):void {
 			LOGGER.debug("WebRTC Deskshare Module starting");
 			this.module = module;
@@ -77,7 +91,9 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 		private function stopWebRTCDeskshare():void {
 			LOGGER.debug("DeskshareManager::stopWebRTCDeskshare");
 			if (ExternalInterface.available) {
-				ExternalInterface.call("vertoScreenStop");
+				var loggingCallback:Function = function():void {};
+				var onSuccess:Function = function():void {};
+				ExternalInterface.call("endScreenshare", loggingCallback, onSuccess);
 			} else {
 				LOGGER.error("Error! ExternalInterface not available (webrtcDeskshare)");
 			}
@@ -87,7 +103,14 @@ package org.bigbluebutton.modules.webrtcDeskshare.managers
 			LOGGER.debug("DeskshareManager::startWebRTCDeskshare");
 			var result:String;
 			if (ExternalInterface.available) {
-				result = ExternalInterface.call("vertoScreenStart");
+				var loggingCallback:Function = function():void {};
+				var videoTag:String = "localVertoVideo";
+				var extensionId:String = getChromeExtensionKey();
+				var modifyResolution:Boolean = false;
+				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); };
+				var onFail:Function = function():void { LOGGER.debug("onSuccess"); };
+				var vertoServerCredentials:Object = getFreeswitchServerCredentials();
+				result = ExternalInterface.call("startScreenshare", loggingCallback, videoTag, vertoServerCredentials, extensionId, modifyResolution, onSuccess, onFail);
 			}
 		}
 

@@ -1,6 +1,6 @@
 # Periodically check the status of the WebRTC call, when a call has been established attempt to hangup,
 # retry if a call is in progress, send the leave voice conference message to BBB
-@exitVoiceCall = (event) ->
+@exitVoiceCall = (event, afterExitCall) ->
 	if not Meteor.config.useSIPAudio
 		leaveWebRTCVoiceConference_verto();
 		cur_call = null;
@@ -8,7 +8,7 @@
 	else
 		# To be called when the hangup is initiated
 		hangupCallback = ->
-		console.log "Exiting Voice Conference"
+			console.log "Exiting Voice Conference"
 
 		# Checks periodically until a call is established so we can successfully end the call
 		# clean state
@@ -24,6 +24,8 @@
 			BBB.leaveVoiceConference hangupCallback
 			getInSession("triedHangup", true) # we have hung up, prevent retries
 			notification_WebRTCAudioExited()
+			if afterExitCall
+				afterExitCall this, Meteor.config.app.listenOnly
 		else
 			console.log "RETRYING hangup on WebRTC call in #{Meteor.config.app.WebRTCHangupRetryInterval} ms"
 			setTimeout checkToHangupCall, Meteor.config.app.WebRTCHangupRetryInterval # try again periodically
@@ -32,8 +34,9 @@
 
 # join the conference. If listen only send the request to the server
 @joinVoiceCall = (event, options) ->
-	extension = Meteor.Meetings.findOne().voiceConf
-	#TODO get rid of these references to verto_extensions global vars (conferenceUsername, conferenceIdNumber)
+	extension = Meteor.Meetings.findOne().voiceConf;
+	conferenceUsername = "FreeSWITCH User"
+	conferenceIdNumber = "1008";
 	if !isWebRTCAvailable()
 		notification_WebRTCNotSupported()
 		return
@@ -41,6 +44,13 @@
 	if not Meteor.config.useSIPAudio
 		if options.watchOnly?
 			toggleWhiteboardVideo("video")
+
+		vertoServerCredentials = {
+			vertoPort: "8082",
+			hostName: Meteor.config.vertoServerAddress,
+			login: "1008",
+			password: Meteor.config.freeswitchProfilePassword,
+		}
 
 		wasCallSuccessful = false
 		debuggerCallback = (message) ->
@@ -50,11 +60,11 @@
 			# Always fail the first time. Retry on failure.
 			#
 			if !!navigator.mozGetUserMedia and message.errorcode is 1001
-				callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam", options)
+				callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, ((m) -> console.log("CALLBACK: "+JSON.stringify(m))), "webcam", options, vertoServerCredentials)
 			#
 			# End of hacky method
 			#
-		callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam", options);
+		callIntoConference_verto(extension, conferenceUsername, conferenceIdNumber, debuggerCallback, "webcam", options, vertoServerCredentials);
 		return
 	else
 		# create voice call params

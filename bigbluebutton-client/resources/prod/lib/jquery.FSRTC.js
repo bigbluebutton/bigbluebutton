@@ -603,7 +603,7 @@
                 onICEComplete: function() {
                     return onICEComplete(self);
                 },
-                onRemoteStream: screen ? function(stream) {verto_afterStreamPublish();} : function(stream) {
+                onRemoteStream: screen ? function(stream) { verto_afterStreamPublish();} : function(stream) {
                     return onRemoteStream(self, stream);
                 },
                 onOfferSDP: function(sdp) {

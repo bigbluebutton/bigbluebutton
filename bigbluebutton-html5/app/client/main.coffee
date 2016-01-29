@@ -1,7 +1,5 @@
 # Helper to load javascript libraries from the BBB server
-loadLib = (libname) ->
-  successCallback = ->
-
+loadLib = (libname, successCallback) ->
   retryMessageCallback = (param) ->
     #Meteor.log.info "Failed to load library", param
     console.log "Failed to load library", param
@@ -14,6 +12,17 @@ Meteor.startup ->
   loadLib('sip.js')
   loadLib('bbb_webrtc_bridge_sip.js')
   loadLib('bbblogger.js')
+  loadLib 'getScreenId.js', ->
+    loadLib 'jquery.FSRTC.js', ->
+      loadLib 'jquery.verto.js', ->
+        loadLib 'jquery.jsonrpcclient.js', ->
+          loadLib 'Screen-Capturing.js', ->
+            loadLib 'verto_extension.js', ->
+              window.verto_afterStreamPublish = ->
+                console.log("Video stream published - notifying clients to subscribe");
+                notification_ScreenShared();
+                return simulatePresenterDeskshareHasStarted();
+              loadLib 'verto_extension_share.js', ->
 
   @SessionAmplify = _.extend({}, Session,
     keys: _.object(_.map(amplify.store.sessionStorage(), (value, key) ->
@@ -145,7 +154,7 @@ Template.main.rendered = ->
 
 @checkIfFirefoxExtExists = ->
     # check if element that extension added exists on the webpage
-    true
+    false
 
 @checkIfScreenSharingExtensionsExist = ->
     browserName = getBrowserName()
