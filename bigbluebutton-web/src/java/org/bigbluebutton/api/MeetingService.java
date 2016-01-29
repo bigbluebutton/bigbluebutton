@@ -353,19 +353,14 @@ public class MeetingService implements MessageListener {
         return null;
     }
 
-    public Map<String, Recording> getRecordings(List<String> recordingIDs,
-            ArrayList<String> states) {
-        List<Recording> recsList = recordingService.getRecordings(recordingIDs,
-                states);
+    public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
+        List<Recording> recsList = recordingService.getRecordings(idList, states);
         Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
 
-    public Map<String, Recording> filterRecordingsByMetadata(
-            Map<String, Recording> recordings,
-            Map<String, String> metadataFilters) {
-        return recordingService.filterRecordingsByMetadata(recordings,
-                metadataFilters);
+    public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {
+        return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
     }
 
     public Map<String, Recording> reorderRecordings(List<Recording> olds) {
@@ -423,11 +418,11 @@ public class MeetingService implements MessageListener {
         return duration;
     }
 
-    public boolean existsAnyRecording(ArrayList<String> idList) {
+    public boolean existsAnyRecording(List<String> idList) {
         return recordingService.existAnyRecording(idList);
     }
 
-    public void setPublishRecording(ArrayList<String> idList, boolean publish) {
+    public void setPublishRecording(List<String> idList, boolean publish) {
         for (String id : idList) {
             if (publish) {
                 recordingService.changeState(id, Recording.STATE_PUBLISHED);

@@ -86,7 +86,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
     }
 		
 	public Recording getRecordingInfo(String id, String recordingDir, String playbackFormat) {
-		String path = recordingDir + File.separatorChar + playbackFormat;		
+		String path = recordingDir + File.separatorChar + playbackFormat + File.separatorChar + id;
 		File dir = new File(path);
 		return getRecordingInfo(dir);
 	}

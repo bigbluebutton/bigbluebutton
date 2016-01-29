@@ -206,8 +206,8 @@ public class RecordingService {
         return resultRecordings;
     }
 
-    //// CODE INSPECT : JFEDERIC 2016/01/28
-    //// IS THIS METHOD EVER USED
+    //// CODE INSPECT : JFEDERIC 2016/01/29
+    //// METHOD USED BEFORE EXECUTING PUBLISH/UNPUBLISH, IT SHOULD BE MODIFIED TO USE THE NEW METHODS
     public boolean existAnyRecording(List<String> idList) {
         List<String> publishList = getAllRecordingIds(publishedDir);
         List<String> unpublishList = getAllRecordingIds(unpublishedDir);
@@ -239,6 +239,7 @@ public class RecordingService {
                     ids.add(recordings.get(f).getName());
             }
         }
+
         return ids;
     }
 
@@ -311,8 +312,7 @@ public class RecordingService {
         } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
             // It can only be unpublished if it is published
             changeState(publishedDir, recordingId, state);
-        }
-        if (state.equals(Recording.STATE_DELETED)) {
+        } else if (state.equals(Recording.STATE_DELETED)) {
             // It can be deleted from any state
             changeState(publishedDir, recordingId, state);
             changeState(unpublishedDir, recordingId, state);
@@ -431,7 +431,7 @@ public class RecordingService {
             List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
             for (int f = 0; f < recordings.size(); f++) {
                 if (recordings.get(f).getName().equalsIgnoreCase(recordingId)) {
-                    Recording r = getRecordingInfo(path, recordingId, format[i]);
+                    Recording r = getRecordingInfo(recordings.get(f));
                     if (r != null) {
                         File dest;
                         if (state.equals(Recording.STATE_PUBLISHED)) {
