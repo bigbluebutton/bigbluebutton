@@ -353,10 +353,11 @@ public class MeetingService implements MessageListener {
         return null;
     }
 
-    public HashMap<String, Recording> getRecordings(
-            ArrayList<String> recordingIDs, ArrayList<String> states) {
-        ArrayList<Recording> recsList = recordingService.getRecordings(recordingIDs, states);
-        HashMap<String, Recording> recs = reorderRecordings(recsList);
+    public Map<String, Recording> getRecordings(List<String> recordingIDs,
+            ArrayList<String> states) {
+        List<Recording> recsList = recordingService.getRecordings(recordingIDs,
+                states);
+        Map<String, Recording> recs = reorderRecordings(recsList);
         return recs;
     }
 
@@ -367,9 +368,8 @@ public class MeetingService implements MessageListener {
                 metadataFilters);
     }
 
-    public HashMap<String, Recording> reorderRecordings(
-            ArrayList<Recording> olds) {
-        HashMap<String, Recording> map = new HashMap<String, Recording>();
+    public Map<String, Recording> reorderRecordings(List<Recording> olds) {
+        Map<String, Recording> map = new HashMap<String, Recording>();
         for (Recording r : olds) {
             if (!map.containsKey(r.getId())) {
                 Map<String, String> meta = r.getMetadata();
