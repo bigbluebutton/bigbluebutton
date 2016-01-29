@@ -32,7 +32,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import com.asfusion.mate.events.Dispatcher;
 
 			import flash.events.Event;
-			
+
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.managers.PopUpManager;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -48,6 +51,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_EVENT));
 			}
 			
+
+
 			public function refreshRole(amIModerator:Boolean):void {
 				this.enabled = amIModerator;
 			}

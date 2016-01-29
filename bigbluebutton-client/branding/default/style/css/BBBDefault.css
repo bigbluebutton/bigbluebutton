@@ -981,6 +981,14 @@ Alert {
   icon:   Embed('assets/images/ic_file_download_16px.png');
 }
 
+.saveCurrentLayoutConfirmStyle{
+  icon:   Embed('assets/images/status_success_16px.png');
+}
+
+.saveCurrentLayoutDenyStyle{
+  icon:   Embed('assets/images/status_fail_16px.png');
+}
+
 .loadLayoutButtonStyle {
   icon:   Embed('assets/images/ic_file_upload_16px.png');
 }

@@ -116,7 +116,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_EVENT}">
    		<MethodInvoker generator="{LayoutManager}" method="saveLayoutsToFile" />
     </EventHandlers>
-	
+
+    <EventHandlers type="{LayoutEvent.SAVE_LAYOUTS_WINDOW_EVENT}">
+      <MethodInvoker generator="{LayoutManager}" method="saveLayoutsWindow" />
+    </EventHandlers>
+
     <EventHandlers type="{LayoutEvent.LOAD_LAYOUTS_EVENT}">
       <MethodInvoker generator="{LayoutManager}" method="loadLayoutsFromFile" />
     </EventHandlers>
