@@ -11,6 +11,7 @@
       <meetingID>${r.getMeetingID()?html}</meetingID>
       <name><![CDATA[${r.getName()}]]></name>
       <published>${r.isPublished()?string}</published>
+      <state>${r.getState()?string}</state>
       <startTime>${r.getStartTime()}</startTime>
       <endTime>${r.getEndTime()}</endTime>
       <#assign m = r.getMetadata()>
