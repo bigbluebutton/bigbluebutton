@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------------------------------
 this.addShapeToCollection = function(meetingId, whiteboardId, shapeObject) {
   let entry, id, removeTempTextShape;
-  if((shapeObject != null ? shapeObject.shape_type : void 0) === "text") {
+  if(shapeObject != null && shapeObject.shape_type === "text") {
     Meteor.log.info(`we are dealing with a text shape and the event is:${shapeObject.status}`);
     entry = {
       meetingId: meetingId,
@@ -43,10 +43,9 @@ this.addShapeToCollection = function(meetingId, whiteboardId, shapeObject) {
         return Meteor.log.info(`${shapeObject.status} substituting the temp shapes with the newer one`);
       });
     }
-  } else {
     // the mouse button was released - the drawing is complete
     // TODO: pencil messages currently don't send draw_end and are labeled all as DRAW_START
-    if((shapeObject != null ? shapeObject.status : void 0) === "DRAW_END" || ((shapeObject != null ? shapeObject.status : void 0) === "DRAW_START" && (shapeObject != null ? shapeObject.shape_type : void 0) === "pencil")) {
+  } else if(shapeObject != null && shapeObject.status === "DRAW_END" || (shapeObject != null && shapeObject.status === "DRAW_START" && shapeObject.shape_type === "pencil")) {
       entry = {
         meetingId: meetingId,
         whiteboardId: whiteboardId,
@@ -73,7 +72,6 @@ this.addShapeToCollection = function(meetingId, whiteboardId, shapeObject) {
       };
       return id = Meteor.Shapes.insert(entry);
     }
-  }
 };
 
 this.removeAllShapesFromSlide = function(meetingId, whiteboardId) {
@@ -104,18 +102,21 @@ this.removeAllShapesFromSlide = function(meetingId, whiteboardId) {
 
 this.removeShapeFromSlide = function(meetingId, whiteboardId, shapeId) {
   let shapeToRemove;
-  shapeToRemove = Meteor.Shapes.findOne({
-    meetingId: meetingId,
-    whiteboardId: whiteboardId,
-      "shape.id": shapeId
-  });
-  if((meetingId != null) && (whiteboardId != null) && (shapeId != null) && (shapeToRemove != null)) {
-    Meteor.Shapes.remove(shapeToRemove._id);
-    Meteor.log.info(`----removed shape[${shapeId}] from ${whiteboardId}`);
-    return Meteor.log.info(`remaining shapes on the slide:${Meteor.Shapes.find({
-meetingId: meetingId,
-whiteboardId: whiteboardId
-}).count()}`);
+  if(meetingId != null && whiteboardId != null && shapeId != null) {
+    shapeToRemove = Meteor.Shapes.findOne({
+      meetingId: meetingId,
+      whiteboardId: whiteboardId,
+        "shape.id": shapeId
+    });
+    if(shapeToRemove != null) {
+      Meteor.Shapes.remove(shapeToRemove._id);
+      Meteor.log.info(`----removed shape[${shapeId}] from ${whiteboardId}`);
+      return Meteor.log.info(`remaining shapes on the slide: ${
+        Meteor.Shapes.find({
+          meetingId: meetingId,
+          whiteboardId: whiteboardId
+          }).count()}`);
+    }
   }
 };
 

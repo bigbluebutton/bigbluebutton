@@ -1,7 +1,7 @@
 // TODO: should be split on server and client side
 // // Global configurations file
 
-let config, file, ref, transports, winston;
+let config, file, transports, winston;
 
 config = {};
 
@@ -84,7 +84,16 @@ config.redis.channels.toBBBApps.polling = "bigbluebutton:to-bbb-apps:polling";
 config.log = {};
 
 if(Meteor.isServer) {
-  config.log.path = (typeof process !== "undefined" && process !== null ? (ref = process.env) != null ? ref.NODE_ENV : void 0 : void 0) === "production" ? "/var/log/bigbluebutton/bbbnode.log" : `${process.env.PWD}/../log/development.log`;
+  if(process !== null) {
+    var localEnv = process.env;
+    if(localEnv != null) {
+      if(localEnv.NODE_ENV === "production") {
+        config.log.path = "/var/log/bigbluebutton/bbbnode.log";
+      } else {
+        config.log.path = `${process.env.PWD}/../log/development.log`
+      }
+    }
+  }
   // Setting up a logger in Meteor.log
   winston = Winston; //Meteor.require 'winston'
   file = config.log.path;
