@@ -960,6 +960,15 @@ begin
           BigBlueButton.logger.info("Copied audio.ogg file")
         end
 
+        if File.exist?("#{$process_dir}/captions.json")
+          BigBlueButton.logger.info("Copying caption files")
+          FileUtils.cp("#{$process_dir}/captions.json", package_dir)
+          Dir.glob("#{$process_dir}/caption_*.vtt").each do |caption|
+            BigBlueButton.logger.debug(caption)
+            FileUtils.cp(caption, package_dir)
+          end
+        end
+
 
         processing_time = File.read("#{$process_dir}/processing_time")
 
