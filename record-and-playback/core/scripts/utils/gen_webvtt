@@ -16,7 +16,7 @@
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
 # To install dependencies on Ubuntu:
-# apt-get install python3 python-lxml python-pyicu
+# apt-get install python3 python3-lxml python3-pyicu
 
 from lxml import etree
 from collections import deque
