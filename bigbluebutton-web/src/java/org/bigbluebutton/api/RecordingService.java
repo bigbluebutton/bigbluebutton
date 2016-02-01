@@ -108,8 +108,6 @@ public class RecordingService {
         return resultRecordings;
     }
 
-    //// CODE INSPECTION : JFEDERIC 2016/01/29
-    //// METHOD USED BEFORE EXECUTING PUBLISH/UNPUBLISH, IT SHOULD BE MODIFIED TO USE THE NEW METHODS
     public boolean existAnyRecording(List<String> idList) {
         List<String> publishList = getAllRecordingIds(publishedDir);
         List<String> unpublishList = getAllRecordingIds(unpublishedDir);
@@ -121,10 +119,7 @@ public class RecordingService {
         }
         return false;
     }
-    ////
 
-    //// CODE INSPECTION : JFEDERIC 2016/01/28
-    //// CAN WE SIMPLIFY THE USE OF THESE METHODS, ONLY ONE MAY BE REQUIRED
     private List<String> getAllRecordingIds(String path) {
         String[] format = getPlaybackFormats(path);
 
@@ -152,26 +147,8 @@ public class RecordingService {
         while (iterator.hasNext()) {
             ids.add(iterator.next().getName());
         }
+
         return ids;
-    }
-    ////
-
-    //// CODE INSPECTION : JFEDERIC 2016/01/28
-    //// CAN WE SIMPLIFY THE USE OF THESE TWO METHODS, DO WE REALLY NEED TO KEEP THE TWO OF THEM AFTER THE REFACTORY
-    private List<Recording> getRecordingsForPath(String id, String path) {
-        List<Recording> recs = new ArrayList<Recording>();
-
-        String[] format = getPlaybackFormats(path);
-        for (int i = 0; i < format.length; i++) {
-            List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
-            for (int f = 0; f < recordings.size(); f++) {
-                if (recordings.get(f).getName().startsWith(id)) {
-                    Recording r = getRecordingInfo(path, recordings.get(f).getName(), format[i]);
-                    recs.add(r);
-                }
-            }
-        }
-        return recs;
     }
 
     private List<Recording> getRecordingsForPath(String id, List<File> recordings) {
@@ -188,38 +165,10 @@ public class RecordingService {
         }
         return recs;
     }
-    ////
-
-    //// CODE INSPECTION : JFEDERIC 2016/01/28
-    //// SAME AS BEFORE, WHICH ONES ARE REALLY USED
-    public Recording getRecordingInfo(String recordingId, String format) {
-        return getRecordingInfo(publishedDir, recordingId, format);
-    }
-
-    private Recording getRecordingInfo(String path, String recordingId, String format) {
-        Recording rec = recordingServiceHelper.getRecordingInfo(recordingId, path, format);
-        return rec;
-    }
 
     private Recording getRecordingInfo(File dir) {
         Recording rec = recordingServiceHelper.getRecordingInfo(dir);
         return rec;
-    }
-    ////
-    
-    public void changeState(String recordingId, String state) {
-        if (state.equals(Recording.STATE_PUBLISHED)) {
-            // It can only be published if it is unpublished
-            changeState(unpublishedDir, recordingId, state);
-        } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
-            // It can only be unpublished if it is published
-            changeState(publishedDir, recordingId, state);
-        } else if (state.equals(Recording.STATE_DELETED)) {
-            // It can be deleted from any state
-            changeState(publishedDir, recordingId, state);
-            changeState(unpublishedDir, recordingId, state);
-            changeState(deletedDir, recordingId, state);
-        }
     }
 
     private void deleteRecording(String id, String path) {
@@ -325,6 +274,20 @@ public class RecordingService {
         }
 
         return r;
+    }
+
+    public void changeState(String recordingId, String state) {
+        if (state.equals(Recording.STATE_PUBLISHED)) {
+            // It can only be published if it is unpublished
+            changeState(unpublishedDir, recordingId, state);
+        } else if (state.equals(Recording.STATE_UNPUBLISHED)) {
+            // It can only be unpublished if it is published
+            changeState(publishedDir, recordingId, state);
+        } else if (state.equals(Recording.STATE_DELETED)) {
+            // It can be deleted from any state
+            changeState(publishedDir, recordingId, state);
+            changeState(unpublishedDir, recordingId, state);
+        }
     }
 
     private void changeState(String path, String recordingId, String state) {

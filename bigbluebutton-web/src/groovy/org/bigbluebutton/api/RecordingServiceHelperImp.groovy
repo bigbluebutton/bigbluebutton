@@ -84,13 +84,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         def xmlEventFile = new File(path + File.separatorChar + "metadata.xml")
         xmlEventFile.write writer.toString()
     }
-		
-	public Recording getRecordingInfo(String id, String recordingDir, String playbackFormat) {
-		String path = recordingDir + File.separatorChar + playbackFormat + File.separatorChar + id;
-		File dir = new File(path);
-		return getRecordingInfo(dir);
-	}
-	
+
 	public Recording getRecordingInfo(File dir) {
 		if (dir.isDirectory()) {
 			def recording = new XmlSlurper().parse(new File(dir.getPath() + File.separatorChar + "metadata.xml"));
@@ -98,7 +92,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		}
 		return null;
 	}
-	
+
     private Recording getInfo(GPathResult rec) {
         Recording r = new Recording();
         r.setId(rec.id.text());
