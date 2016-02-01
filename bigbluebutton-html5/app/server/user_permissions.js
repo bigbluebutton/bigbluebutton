@@ -145,7 +145,9 @@ this.isAllowedTo = function(action, meetingId, userId, authToken) {
       return false;
     }
   } else {
-    Meteor.log.error(`in meetingId=${meetingId} userId=${userId} tried to perform ${action} without permission${"\n..while the authToken was " + (user != null && user.authToken != null ? user.authToken : void 0) + "    and the user's object is " + (JSON.stringify(user))}`);
+    Meteor.log.error(`in meetingId=${meetingId} userId=${userId} tried to perform ${action} without permission${"\n..while the authToken was " +
+      (user != null && user.authToken != null ? user.authToken : void 0) + "    and the user's object is " + (JSON.stringify(user))}`);
+
     return false;
   }
 };

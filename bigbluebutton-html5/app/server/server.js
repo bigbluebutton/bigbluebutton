@@ -57,7 +57,11 @@ Meteor.startup(() => {
   // for example: a user_left event reaching the collection before a user_joined
   // for the same user.
   return this.handleRedisMessage = function(data, callback) {
-    let chatMessage, currentlyBeingRecorded, cursor, dbUser, duration, emojiStatus, eventName, heightRatio, i, intendedForRecording, isLocked, j, k, l, listOfMeetings, m, meetingId, meetingName, meetingObject, message, messageObject, newPresenterId, newSettings, newSlide, notLoggedEventTypes, oldSettings, page, pages, pollObj, poll_id, presentation, presentationId, processMeeting, processUser, payload, chatHistory, _chat_history_length, presentations, shapes, shapes_length, replyTo, requesterId, set_emoji_time, shape, shapeId, slide, slideId, status, user, userId, userObj, users, validStatus, voiceConf, voiceUserObj, _voiceUser, whiteboardId, widthRatio, xOffset, yOffset;
+    let chatMessage, currentlyBeingRecorded, cursor, dbUser, duration, emojiStatus, eventName, heightRatio, i, intendedForRecording;
+    let isLocked, j, k, l, listOfMeetings, m, meetingId, meetingName, meetingObject, message, messageObject, newPresenterId, newSettings;
+    let newSlide, notLoggedEventTypes, oldSettings, page, pages, pollObj, poll_id, presentation, presentationId, processMeeting, processUser;
+    let payload, chatHistory, _chat_history_length, presentations, shapes, shapes_length, replyTo, requesterId, set_emoji_time, shape, shapeId;
+    let slide, slideId, status, user, userId, userObj, users, validStatus, voiceConf, voiceUserObj, _voiceUser, whiteboardId, widthRatio, xOffset, yOffset;
     message = JSON.parse(data.jsonMsg);
     payload = message.payload;
     if(payload != null) {
@@ -158,6 +162,7 @@ Meteor.startup(() => {
           return callback(); //return without joining the user
         } else {
           if(dbUser != null && dbUser.clientType === "HTML5") {
+            // typically html5 users will be in
             // the db [as a dummy user] before the joining message
             status = dbUser.validated;
             Meteor.log.info(`in user_joined_message the validStatus of the user was ${status}`);

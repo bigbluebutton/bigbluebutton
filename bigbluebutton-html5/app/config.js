@@ -84,15 +84,10 @@ config.redis.channels.toBBBApps.polling = "bigbluebutton:to-bbb-apps:polling";
 config.log = {};
 
 if(Meteor.isServer) {
-  if(process !== null) {
-    var localEnv = process.env;
-    if(localEnv != null) {
-      if(localEnv.NODE_ENV === "production") {
-        config.log.path = "/var/log/bigbluebutton/bbbnode.log";
-      } else {
-        config.log.path = `${process.env.PWD}/../log/development.log`
-      }
-    }
+  if(process != null && process.env != null && process.env.NODE_ENV == "production") {
+    config.log.path = "/var/log/bigbluebutton/bbbnode.log";
+  } else {
+    config.log.path = `${process.env.PWD}/../log/development.log`
   }
   // Setting up a logger in Meteor.log
   winston = Winston; //Meteor.require 'winston'
