@@ -87,16 +87,32 @@ public class RecordingService {
     }
 
     public boolean recordingMatchesMetadata(Recording recording, Map<String, String> metadataFilters) {
+        boolean matchesMetadata = true;
         for (Map.Entry<String, String> filter : metadataFilters.entrySet()) {
             String metadataValue = recording.getMetadata().get(filter.getKey());
-            if (metadataValue != null && metadataValue.equals(filter.getValue())) {
-                // the recording has the metadata specified
-                // AND the value is the same as the filter
+            if ( metadataValue == null ) {
+                // The recording doesn't have metadata specified
+                matchesMetadata = false;
             } else {
-                return false;
+                String filterValue = filter.getValue();
+                if( filterValue.charAt(0) == '%' && filterValue.charAt(filterValue.length()-1) == '%' && metadataValue.contains(filterValue.substring(1, filterValue.length()-1)) ){
+                    // Filter value embraced by two wild cards
+                    // AND the filter value is part of the metadata value
+                } else if( filterValue.charAt(0) == '%' && metadataValue.endsWith(filterValue.substring(1, filterValue.length())) ) {
+                    // Filter value starts with a wild cards
+                    // AND the filter value ends with the metadata value
+                } else if( filterValue.charAt(filterValue.length()-1) == '%' && metadataValue.startsWith(filterValue.substring(0, filterValue.length()-1)) ) {
+                    // Filter value ends with a wild cards
+                    // AND the filter value starts with the metadata value
+                } else if( metadataValue.equals(filterValue) ) {
+                    // Filter value doesnt have wildcards
+                    // AND the filter value is the same as metadata value
+                } else {
+                    matchesMetadata = false;
+                }
             }
         }
-        return true;
+        return matchesMetadata;
     }
 
     public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {

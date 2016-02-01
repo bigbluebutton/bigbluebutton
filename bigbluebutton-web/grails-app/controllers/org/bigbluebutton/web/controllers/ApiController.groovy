@@ -1702,17 +1702,17 @@ class ApiController {
             return
         }
 
-        ArrayList<String> externalMeetingIds = new ArrayList<String>();
+        List<String> externalMeetingIds = new ArrayList<String>();
         if (!StringUtils.isEmpty(params.meetingID)) {
             externalMeetingIds=paramsProcessorUtil.decodeIds(params.meetingID);
         }
 
-        ArrayList<String> internalRecordIds = new ArrayList<String>()
+        List<String> internalRecordIds = new ArrayList<String>()
         if (!StringUtils.isEmpty(params.recordID)) {
             internalRecordIds = paramsProcessorUtil.decodeIds(params.recordID)
         }
 
-        ArrayList<String> states = new ArrayList<String>()
+        List<String> states = new ArrayList<String>()
         if (!StringUtils.isEmpty(params.state)) {
             states = paramsProcessorUtil.decodeIds(params.state)
         }
@@ -1725,7 +1725,7 @@ class ApiController {
         }
 
 
-        HashMap<String,Recording> recs = meetingService.getRecordings(internalRecordIds, states);
+        Map<String,Recording> recs = meetingService.getRecordings(internalRecordIds, states);
         recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 
         if (recs.isEmpty()) {
