@@ -70,6 +70,7 @@
 		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			dependson = "UsersModule"
+			baseTabIndex="401"
 			presenterShareOnly = "false"
 			controlsForPresenter = "false"
 			autoStart = "false"
@@ -114,22 +115,6 @@
 			baseTabIndex="501"
 			maxFileSize="30"
 		/>
-
-<!--
-		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
-			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="VideoconfModule, UsersModule"
-			autoDock="true"
-			showControls="true"
-			maximizeWindow="false"
-			position="bottom-right"
-			width="172"
-			height="179"
-			layout="smart"
-			oneAlwaysBigger="false"
-			baseTabIndex="401"
-		/>
--->
 
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"

@@ -826,8 +826,7 @@ Alert {
 
 .lockSettingsDefaultLabelStyle {
 	fontFamily: Arial;
-	fontSize: 14;  
-	fontWeight: bold;    
+	fontSize: 14;
 }
 
 .lockSettingsWindowTitleStyle {
@@ -908,5 +907,10 @@ EmojiGrid {
 }
 
 .breakoutTipBox {
+	horizontalAlign: center;
+}
+
+.breakoutRoomsBox {
+	paddingTop: 12;
 	horizontalAlign: center;
 }

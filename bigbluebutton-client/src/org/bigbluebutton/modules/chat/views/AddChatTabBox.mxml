@@ -64,7 +64,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 } else {
                     LOGGER.debug("fontSize in config.xml not found: {0}", [chatOptions.fontSize]);
                 }
-                chatNoiseCheckBox.visible = Accessibility.active;
+                chatNoiseCheckBox.selected = Accessibility.active;
+                changeChatNoise();
             }
             
             public function accessibleClick(event:KeyboardEvent):void{
@@ -140,5 +141,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                      selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
     </mx:HBox>
 	<mx:CheckBox id="chatNoiseCheckBox"  label="Audible Chat Notification" labelPlacement="left" 
-				 selected="true" change="changeChatNoise()" styleName="chatOptionsLabel" />
+				 change="changeChatNoise()" styleName="chatOptionsLabel" />
 </mx:VBox>

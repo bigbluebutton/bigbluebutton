@@ -277,8 +277,8 @@ class ApiController {
     }
     
     Boolean isBreakoutRoom = false
-    if(!StringUtils.isEmpty(params.isBreakoutRoom)) {
-      isBreakoutRoom = new Boolean(StringUtils.strip(params.isBreakoutRoom))
+    if(!StringUtils.isEmpty(params.isBreakout)) {
+      isBreakoutRoom = new Boolean(StringUtils.strip(params.isBreakout))
     }
 
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
@@ -565,6 +565,7 @@ class ApiController {
               webvoiceconf = us.webvoiceconf
               mode = us.mode
               record = us.record
+              isBreakout = meeting.isBreakout()
               allowStartStopRecording = meeting.getAllowStartStopRecording()
               welcome = us.welcome
               if (! StringUtils.isEmpty(meeting.moderatorOnlyMessage))
@@ -1005,6 +1006,7 @@ class ApiController {
                   for (m in mtgs) {
                     meeting {
                       meetingID() { mkp.yield(m.getExternalId()) } 
+                      isBreakout() { mkp.yield(m.isBreakout()) } 
                       meetingName() { mkp.yield(m.getName()) }
                       createTime(m.getCreateTime())
                       createDate(formatPrettyDate(m.getCreateTime()))
@@ -2014,6 +2016,7 @@ class ApiController {
           response() {
             returncode(RESP_CODE_SUCCESS)
             meetingName() { mkp.yield(meeting.getName()) }
+            isBreakout() { mkp.yield(meeting.isBreakout()) }
             meetingID() { mkp.yield(meeting.getExternalId()) }
             internalMeetingID(meeting.getInternalId())
             createTime(meeting.getCreateTime())

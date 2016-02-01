@@ -24,20 +24,11 @@ import org.bigbluebutton.common.messages.MuteUserInVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.EjectUserFromVoiceConfRequestMessage
 import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage
+import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage
 import org.bigbluebutton.common.messages.LockLayoutMessage
 import org.bigbluebutton.core.pubsub.senders.WhiteboardMessageToJsonConverter
 import org.bigbluebutton.common.converters.ToJsonEncoder
-import org.bigbluebutton.messages.payload.BreakoutRoomPayload
-import org.bigbluebutton.messages.BreakoutRoomStarted
-import org.bigbluebutton.messages.payload.CreateBreakoutRoomRequestPayload
-import org.bigbluebutton.messages.CreateBreakoutRoomRequest
-import org.bigbluebutton.messages.payload.BreakoutRoomJoinURLPayload
-import org.bigbluebutton.messages.BreakoutRoomJoinURL
-import org.bigbluebutton.messages.payload.UpdateBreakoutUsersPayload
-import org.bigbluebutton.messages.payload.BreakoutUserPayload
-import org.bigbluebutton.messages.UpdateBreakoutUsers
-import org.bigbluebutton.messages.payload.MeetingTimeRemainingPayload
-import org.bigbluebutton.messages.TimeRemainingUpdate
+import org.bigbluebutton.common.messages.TransferUserToVoiceConfRequestMessage
 
 object MessageSenderActor {
   def props(msgSender: MessageSender): Props =
@@ -50,6 +41,7 @@ class MessageSenderActor(val service: MessageSender)
   val encoder = new ToJsonEncoder()
 
   def receive = {
+    case msg: UserEjectedFromMeeting => handleUserEjectedFromMeeting(msg)
     case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
     case msg: SendPrivateMessageEvent => handleSendPrivateMessageEvent(msg)
@@ -109,6 +101,7 @@ class MessageSenderActor(val service: MessageSender)
     case msg: UserVoiceTalking => handleUserVoiceTalking(msg)
     case msg: MuteVoiceUser => handleMuteVoiceUser(msg)
     case msg: EjectVoiceUser => handleEjectVoiceUser(msg)
+    case msg: TransferUserToMeeting => handleTransferUserToMeeting(msg)
     case msg: GetUsersInVoiceConference => handleGetUsersFromVoiceConference(msg)
     case msg: UserJoinedVoice => handleUserJoinedVoice(msg)
     case msg: UserLeftVoice => handleUserLeftVoice(msg)
@@ -124,9 +117,19 @@ class MessageSenderActor(val service: MessageSender)
     case msg: WhiteboardEnabledEvent => handleWhiteboardEnabledEvent(msg)
     case msg: IsWhiteboardEnabledReply => handleIsWhiteboardEnabledReply(msg)
     // breakout room cases
+    case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsListOutMessage(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStartedOutMessage(msg)
+    case msg: BreakoutRoomEndedOutMessage => handleBreakoutRoomEndedOutMessage(msg)
+    case msg: BreakoutRoomJoinURLOutMessage => handleBreakoutRoomJoinURLOutMessage(msg)
+    case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsersOutMessage(msg)
+    case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
 
     case _ => // do nothing
+  }
+
+  private def handleUserEjectedFromMeeting(msg: UserEjectedFromMeeting) {
+    val m = new UserEjectedFromMeetingMessage(msg.meetingID, msg.userId, msg.ejectedBy)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, m.toJson)
   }
 
   private def handleGetChatHistoryReply(msg: GetChatHistoryReply) {
@@ -574,7 +577,11 @@ class MessageSenderActor(val service: MessageSender)
   private def handleEjectVoiceUser(msg: EjectVoiceUser) {
     val m = new EjectUserFromVoiceConfRequestMessage(msg.meetingID, msg.voiceConfId, msg.voiceUserId)
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
+  }
 
+  private def handleTransferUserToMeeting(msg: TransferUserToMeeting) {
+    val m = new TransferUserToVoiceConfRequestMessage(msg.voiceConfId, msg.breakoutVoiceConfId, msg.userId, msg.forward);
+    service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
   }
 
   private def handleUserLeftVoice(msg: UserLeftVoice) {
@@ -661,8 +668,33 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 
+  private def handleBreakoutRoomsListOutMessage(msg:BreakoutRoomsListOutMessage) {
+    val json = MeetingMessageToJsonConverter.breakoutRoomsListOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+  
   private def handleBreakoutRoomStartedOutMessage(msg: BreakoutRoomStartedOutMessage) {
     val json = MeetingMessageToJsonConverter.breakoutRoomStartedOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleBreakoutRoomEndedOutMessage(msg: BreakoutRoomEndedOutMessage) {
+    val json = MeetingMessageToJsonConverter.breakoutRoomEndedOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleBreakoutRoomJoinURLOutMessage(msg: BreakoutRoomJoinURLOutMessage) {
+    val json = MeetingMessageToJsonConverter.breakoutRoomJoinURLOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleUpdateBreakoutUsersOutMessage(msg: UpdateBreakoutUsersOutMessage) {
+    val json = MeetingMessageToJsonConverter.updateBreakoutUsersOutMessageToJson(msg)
+    service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
+  }
+
+  private def handleMeetingTimeRemainingUpdate(msg: MeetingTimeRemainingUpdate) {
+    val json = MeetingMessageToJsonConverter.meetingTimeRemainingUpdateToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
 }

@@ -18,6 +18,11 @@
  */
 package org.bigbluebutton.red5.service;
 
+import org.bigbluebutton.messages.CreateBreakoutRoomsRequest;
+import org.bigbluebutton.messages.EndAllBreakoutRoomsRequest;
+import org.bigbluebutton.messages.GetBreakoutRoomsList;
+import org.bigbluebutton.messages.ListenInOnBreakout;
+import org.bigbluebutton.messages.RequestBreakoutJoinURL;
 import org.bigbluebutton.red5.pubsub.MessagePublisher;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -33,23 +38,28 @@ public class BreakoutRoomService extends AbstractService {
 		red5GW = inGW;
 	}
 
-	public void createBreakoutRooms(String jsonMessage) {
-		red5GW.createBreakoutRooms(addHeaderToMessage(jsonMessage,
-				"CreateBreakoutRoomsRequest"));
+	public void getBreakoutRoomsList(String jsonMessage) {
+		red5GW.getBreakoutRoomsList(addHeaderToMessage(jsonMessage,
+				GetBreakoutRoomsList.NAME));
 	}
 
-	public void requestBreakoutJoinURL(String jsonMessage) {
+	public void createBreakoutRooms(String jsonMessage) {
+		red5GW.createBreakoutRooms(addHeaderToMessage(jsonMessage,
+				CreateBreakoutRoomsRequest.NAME));
+	}
+
+	public void requestBreakoutJoinUrl(String jsonMessage) {
 		red5GW.requestBreakoutJoinURL(addHeaderToMessage(jsonMessage,
-				"RequestBreakoutJoinURL"));
+				RequestBreakoutJoinURL.NAME));
 	}
 
 	public void listenInOnBreakout(String jsonMessage) {
 		red5GW.listenInOnBreakout(addHeaderToMessage(jsonMessage,
-				"ListenInOnBreakout"));
+				ListenInOnBreakout.NAME));
 	}
 
 	public void endAllBreakoutRooms(String jsonMessage) {
 		red5GW.endAllBreakoutRooms(addHeaderToMessage(jsonMessage,
-				"EndAllBreakoutRooms"));
+				EndAllBreakoutRoomsRequest.NAME));
 	}
 }

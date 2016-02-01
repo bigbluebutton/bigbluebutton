@@ -26,7 +26,9 @@ package org.bigbluebutton.main.events {
 		public static const CREATE_BREAKOUT_ROOMS:String = "CREATE_BREAKOUT_ROOMS";
 		
 		public static const REQUEST_BREAKOUT_JOIN_URL:String = "REQUEST_BREAKOUT_JOIN_URL";
-
+		
+		public static const BREAKOUT_JOIN_URL:String = "BREAKOUT_JOIN_URL";
+		
 		public static const LISTEN_IN:String = "LISTEN_IN";
 		
 		public static const END_ALL_BREAKOUT_ROOMS:String = "END_ALL_BREAKOUT_ROOMS";
@@ -40,6 +42,10 @@ package org.bigbluebutton.main.events {
 		public var rooms:Array;
 		
 		public var durationInMinutes:int;
+		
+		public var joinURL:String;
+		
+		public var listen:Boolean;
 		
 		public function BreakoutRoomEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false) {
 			super(type, bubbles, cancelable);

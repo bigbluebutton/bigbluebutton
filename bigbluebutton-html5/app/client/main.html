@@ -1,6 +1,6 @@
 <template name="header">
   <nav id="navbar" class="myNavbar top-bar" role="navigation">
-    {{> makeButton btn_class="btn toggleUserlistButton navbarButton leftHamburgerButton" rel="tooltip" title="Toggle Userlist" span=true notification="all_chats"}}
+    {{> makeButton btn_class="btn toggleUserlistButton navbarButton" i_class="ion-navicon" rel="tooltip" title="Toggle Userlist" span=true notification="all_chats"}}
 
       {{#if amIInAudio}}
         <div class="audioNavbarSection">
@@ -37,7 +37,7 @@
       {{> makeButton id="logout" btn_class="signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
       title="Logout"}}
     </div>
-    {{> makeButton btn_class="btn toggleMenuButton navbarButton rightHamburgerButton" rel="tooltip" title="Toggle Menu" span=true}}
+    {{> makeButton btn_class="btn toggleMenuButton navbarButton" i_class="ion-android-more-vertical" rel="tooltip" title="Toggle Menu" span=true}}
   </nav>
 </template>
 
@@ -54,7 +54,6 @@
         {{> usersList id="users" name="usersList"}}
       </div>
       <div class="settingsMenu">
-        <div class="titleArea"></div>
         {{> menu id="menu"}}
       </div>
       <div id="main">

@@ -142,7 +142,6 @@ public class MessagePublisher {
 	public void ejectUserFromVoice(String meetingID, String userId, String ejectedBy) {
 		EjectUserFromVoiceRequestMessage msg = new EjectUserFromVoiceRequestMessage(meetingID, ejectedBy, userId);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());	
-
 	}
 
 	public void ejectUserFromMeeting(String meetingId, String userId, String ejectedBy) {
@@ -271,6 +270,10 @@ public class MessagePublisher {
 	}
 
 	// could be improved by doing some factorization
+	public void getBreakoutRoomsList(String jsonMessage) {
+		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
+	}
+
 	public void createBreakoutRooms(String jsonMessage) {
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, jsonMessage);
 	}

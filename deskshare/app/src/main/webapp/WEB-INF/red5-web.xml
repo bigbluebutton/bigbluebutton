@@ -69,5 +69,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <bean id="redisRecorder" class="org.bigbluebutton.deskshare.server.recorder.EventRecorder">
     <constructor-arg index="0" value="${redis.host}"/>
     <constructor-arg index="1" value="${redis.port}"/>
+    <constructor-arg index="2" value="${redis.keyExpiry}"/>
   </bean>
 </beans>

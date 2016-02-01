@@ -7,7 +7,6 @@ import java.util.ArrayList
 import scala.collection.mutable.ArrayBuffer
 import org.bigbluebutton.core.apps.Page
 import org.bigbluebutton.core.apps.Presentation
-import org.bigbluebutton.core.recorders.VoiceEventRecorder
 import akka.actor.ActorSystem
 import org.bigbluebutton.core.apps.AnnotationVO
 import akka.pattern.{ ask, pipe }
@@ -23,7 +22,6 @@ import org.bigbluebutton.messages._
 import org.bigbluebutton.messages.payload._
 import akka.event.Logging
 import spray.json.JsonParser
-import org.bigbluebutton.messages.BreakoutRoomStarted
 
 class BigBlueButtonInGW(
     val system: ActorSystem,
@@ -83,15 +81,18 @@ class BigBlueButtonInGW(
   def handleJsonMessage(json: String) {
     JsonMessageDecoder.decode(json) match {
       case Some(validMsg) => forwardMessage(validMsg)
-      case None => log.error("Unhandled message: {}", json)
+      case None           => log.error("Unhandled message: {}", json)
     }
   }
 
   def forwardMessage(msg: InMessage) = {
     msg match {
-      case m: CreateBreakoutRooms => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
-      case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.userId, m))
-      case _ => log.error("Unhandled message: {}", msg)
+      case m: BreakoutRoomsListMessage        => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: CreateBreakoutRooms             => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: RequestBreakoutJoinURLInMessage => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: TransferUserToMeetingRequest    => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case m: EndAllBreakoutRooms             => eventBus.publish(BigBlueButtonEvent(m.meetingId, m))
+      case _                                  => log.error("Unhandled message: {}", msg)
     }
   }
 
@@ -112,16 +113,15 @@ class BigBlueButtonInGW(
   }
 
   def lockSettings(meetingID: String, locked: java.lang.Boolean,
-    lockSettings: java.util.Map[String, java.lang.Boolean]) {
-
+                   lockSettings: java.util.Map[String, java.lang.Boolean]) {
   }
 
   def statusMeetingAudit(meetingID: String) {
 
   }
 
-  def endMeeting(meetingID: String) {
-    eventBus.publish(BigBlueButtonEvent("meeting-manager", new EndMeeting(meetingID)))
+  def endMeeting(meetingId: String) {
+    eventBus.publish(BigBlueButtonEvent(meetingId, new EndMeeting(meetingId)))
   }
 
   def endAllMeetings() {
@@ -470,11 +470,9 @@ class BigBlueButtonInGW(
   }
 
   def voiceUserJoined(voiceConfId: String, voiceUserId: String, userId: String, callerIdName: String,
-    callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
-
+                      callerIdNum: String, muted: java.lang.Boolean, talking: java.lang.Boolean) {
     eventBus.publish(BigBlueButtonEvent(voiceConfId, new UserJoinedVoiceConfMessage(voiceConfId, voiceUserId, userId, userId, callerIdName,
       callerIdNum, muted, talking, false /*hardcode listenOnly to false as the message for listenOnly is ConnectedToGlobalAudio*/ )))
-
   }
 
   def voiceUserLeft(voiceConfId: String, voiceUserId: String) {

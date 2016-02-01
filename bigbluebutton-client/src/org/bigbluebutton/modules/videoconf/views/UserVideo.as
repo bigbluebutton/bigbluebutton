@@ -39,6 +39,11 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     public function publish(camIndex:int, videoProfile:VideoProfile):void {
+      if (_shuttingDown) {
+        LOGGER.warn("Method publish called while shutting down the video window, ignoring...");
+        return;
+      }
+
       _camIndex = camIndex;
       _videoProfile = videoProfile;
       setOriginalDimensions(_videoProfile.width, _videoProfile.height);
@@ -124,6 +129,11 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     public function view(connection:NetConnection, streamName:String):void {
+      if (_shuttingDown) {
+        LOGGER.warn("Method view called while shutting down the video window, ignoring...");
+        return;
+      }
+
       _streamName = streamName;
       _shuttingDown = false;
 

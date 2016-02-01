@@ -53,7 +53,6 @@ public class VoiceService {
 		red5InGW.isMeetingMuted(meetingID, requesterID); 	
 	}
 
-	// not sure if this is used
 	public void muteUnmuteUser(Map<String, Object> msg) {
 		Boolean mute = (Boolean) msg.get(VoiceKeyUtil.MUTE);
 		String userid = (String) msg.get(VoiceKeyUtil.USERID);
@@ -77,9 +76,8 @@ public class VoiceService {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String ejectedBy = getBbbSession().getInternalUserID();		
 		red5InGW.ejectUserFromVoice(meetingID, userId, ejectedBy); 	
-		
 	}
-		
+	
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}

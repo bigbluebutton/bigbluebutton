@@ -36,15 +36,20 @@
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
 	<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME}" method="handleRemainingTimeUpdate" />
+	<mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.net.navigateToURL;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.controls.Menu;
 			import mx.controls.listClasses.IListItemRenderer;
 			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
@@ -118,6 +123,7 @@
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+				closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = amIModerator;
 				
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
@@ -248,8 +254,9 @@
 					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio, handler:muteAll});
 								
 				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.lockSettings'), icon: images.lock_open, handler: lockSettings});
-				paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
-				
+				if (breakoutRoomsList.length == 0 && amIModerator) {
+					paramsMenuData.push({label: ResourceUtil.getInstance().getString('bbb.users.settings.breakoutRooms'), handler: breakoutRooms});
+				}
 				
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
@@ -297,6 +304,20 @@
 			private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void{
 				breakoutTimeLabel.text = ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms');
 				breakoutTimeLabel.text += " " + ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [event.durationInMinutes]);
+			}
+			
+			private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void{
+				var alert:Alert = Alert.show(
+					ResourceUtil.getInstance().getString('bbb.users.breakout.openJoinURL'),
+					ResourceUtil.getInstance().getString('bbb.users.breakout.confirm'),
+					Alert.YES | Alert.NO,
+					this,
+					function(e:CloseEvent):void{
+						if (e.detail==Alert.YES) {
+							navigateToURL(new URLRequest(event.joinURL)); 
+						}
+					},
+					null,Alert.YES);
 			}
 			
 			/*private function unlockAll():void {
@@ -534,26 +555,25 @@
     	</mx:columns>
     </mx:DataGrid>
 	
-	<mx:VBox id="roomsBox" visible="false" includeInLayout="false" paddingTop="12"
-			 horizontalAlign="center" width="100%" height="50%">
+	<mx:VBox id="roomsBox" styleName="breakoutRoomsBox" visible="{breakoutRoomsList.length > 0}" includeInLayout="{breakoutRoomsList.length > 0}"
+			 width="100%" height="50%">
 		<mx:Label id="breakoutTimeLabel" text="{ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms')}"/>
 
 		<mx:DataGrid id="roomsGrid" editable="false" sortableColumns="false" dataProvider="{breakoutRoomsList}"
 					 dragEnabled="false" width="100%" height="100%" draggableColumns="false">
 			<mx:columns>
 				<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
-				<mx:DataGridColumn dataField="users" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
+				<mx:DataGridColumn dataField="users" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"
+								   itemRenderer="org.bigbluebutton.modules.users.views.RoomUsersRenderer"/>
 				<mx:DataGridColumn dataField="breakoutId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}" 
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</mx:columns>
 		</mx:DataGrid>
-		
+
 		<mx:Button id="closeRoomsBtn" label="{ResourceUtil.getInstance().getString('bbb.users.breakout.closeAllRooms')}"
-				   click="endAllBreakoutRoomsHandler(event)"
-				   visible="false" includeInLayout="false"/>
-		
+				   click="endAllBreakoutRoomsHandler(event)" width="100%"/>
 	</mx:VBox>
-	
+
 	<mx:ControlBar width="100%">
 		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"

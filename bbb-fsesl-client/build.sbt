@@ -6,7 +6,7 @@ description := "BigBlueButton custom FS-ESL client built on top of FS-ESL Java l
 
 organization := "org.bigbluebutton"
 
-version := "0.0.2"
+version := "0.0.3"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -19,7 +19,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 
 libraryDependencies ++= {
   Seq(
-	  "org.jboss.netty"           %  "netty"             % "3.2.1.Final",
+	  "org.jboss.netty"          %  "netty"             % "3.2.1.Final",
 	  "junit"                    %  "junit"             % "4.11",
 	  "ch.qos.logback"           %  "logback-classic"   % "1.0.3"
 	)}
@@ -80,5 +80,4 @@ pomExtra := (
   
 licenses := Seq("Apache License, Version 2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 
-homepage := Some(url("http://www.bigbluebutton.org"))
-  
+homepage := Some(url("http://www.bigbluebutton.org")) 

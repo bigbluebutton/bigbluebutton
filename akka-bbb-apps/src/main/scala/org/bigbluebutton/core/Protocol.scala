@@ -1,9 +1,7 @@
 package org.bigbluebutton.core
 
 import spray.json.{ DefaultJsonProtocol, JsValue, JsString, DeserializationException, JsonFormat }
-import org.bigbluebutton.core.api.BreakoutRoomInPayload
-import org.bigbluebutton.core.api.CreateBreakoutRooms
-import org.bigbluebutton.core.api.InMessageHeader
+import org.bigbluebutton.core.api._
 
 object UserMessagesProtocol extends DefaultJsonProtocol {
   /*  
@@ -17,10 +15,10 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
   }
 */
 
-  implicit object MessageTypeFormat extends JsonFormat[MessageType.FooType] {
-    def write(obj: MessageType.FooType): JsValue = JsString(obj.toString)
+  implicit object MessageTypeFormat extends JsonFormat[MessageType.MessageType] {
+    def write(obj: MessageType.MessageType): JsValue = JsString(obj.toString)
 
-    def read(json: JsValue): MessageType.FooType = json match {
+    def read(json: JsValue): MessageType.MessageType = json match {
       case JsString(str) => MessageType.withName(str)
       case _ => throw new DeserializationException("Enum string expected")
     }
@@ -28,6 +26,10 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
 
   implicit val breakoutRoomInPayloadFormat = jsonFormat2(BreakoutRoomInPayload)
   implicit val createBreakoutRoomsFormat = jsonFormat3(CreateBreakoutRooms)
+  implicit val breakoutRoomsListMessageFormat = jsonFormat1(BreakoutRoomsListMessage)
+  implicit val requestBreakoutJoinURLInMessageFormat = jsonFormat3(RequestBreakoutJoinURLInMessage)
+  implicit val transferUserToMeetingRequestFormat = jsonFormat4(TransferUserToMeetingRequest)
+  implicit val endBreakoutRoomsFormat = jsonFormat1(EndAllBreakoutRooms)
   implicit val inMsgHeaderFormat = jsonFormat1(InMessageHeader)
   implicit val outMsgHeaderFormat = jsonFormat1(OutMsgHeader)
   implicit val outMsgEnvelopeHeaderFormat = jsonFormat2(OutMsgEnvelopeHeader)

@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
@@ -43,10 +42,10 @@ import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
-import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
+import org.bigbluebutton.api.messaging.messages.EndBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
@@ -62,8 +61,6 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
-import org.bigbluebutton.messages.BreakoutRoomStarted;
-import org.bigbluebutton.messages.payload.BreakoutRoomPayload;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
@@ -462,6 +459,10 @@ public class MeetingService implements MessageListener {
 	  handleCreateMeeting(breakout);
 	}
 	
+  private void processEndBreakoutRoom(EndBreakoutRoom message) {
+    processEndMeeting(new EndMeeting(message.breakoutId));
+  }
+	
 	private void processEndMeeting(EndMeeting message) {
 		messagingService.endMeeting(message.meetingId);
 		
@@ -711,6 +712,8 @@ public class MeetingService implements MessageListener {
 	  			processRegisterUser((RegisterUser) message);
 	  		}	else if (message instanceof CreateBreakoutRoom) {
 	  		  processCreateBreakoutRoom((CreateBreakoutRoom) message);
+	  		} else if (message instanceof EndBreakoutRoom) {
+	        processEndBreakoutRoom((EndBreakoutRoom) message);
 	  		}
 	    }
 		};

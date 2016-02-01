@@ -28,9 +28,13 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
     presURL
   }
-
+  
+  def handleBreakoutRoomsList(msg:BreakoutRoomsListMessage) {
+    val breakoutRooms = breakoutModel.getRooms().toVector map { r => new BreakoutRoomBody(r.name, r.id) }
+    outGW.send(new BreakoutRoomsListOutMessage(mProps.meetingID, breakoutRooms));
+  }
+  
   def handleCreateBreakoutRooms(msg: CreateBreakoutRooms) {
-    log.debug("## handleCreateBreakoutRooms{}", msg)
     var i = 0
     for (room <- msg.rooms) {
       i += 1
@@ -38,7 +42,6 @@ trait BreakoutRoomApp extends SystemConfiguration {
       val breakoutMeetingId = BreakoutRoomsUtil.createMeetingId(mProps.meetingID, i)
       val voiceConfId = BreakoutRoomsUtil.createVoiceConfId(mProps.voiceBridge, i)
       val r = breakoutModel.createBreakoutRoom(breakoutMeetingId, room.name, voiceConfId, room.users, presURL)
-      log.debug("## Added breakout room {}", r)
       val p = new BreakoutRoomOutPayload(r.id, r.name, mProps.meetingID,
         r.voiceConfId, msg.durationInMinutes, bbbWebModeratorPassword, bbbWebViewerPassword,
         r.defaultPresentationURL)
@@ -62,11 +65,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def handleBreakoutRoomCreated(msg: BreakoutRoomCreated) {
-    log.debug("## Breakout room created {}!!!", msg)
-    val rooms = breakoutModel.getBreakoutRoom(msg.breakoutRoomId)
-    log.debug("## Looking in rooms {}", breakoutModel.getRooms());
-    log.debug("## Found rooms {} for breakoutRoomId", rooms)
-    rooms foreach { room =>
+    val room = breakoutModel.getBreakoutRoom(msg.breakoutRoomId)
+    room foreach { room =>
       sendBreakoutRoomStarted(mProps.meetingID, room.name, room.id, room.voiceConfId)
     }
 
@@ -79,8 +79,12 @@ trait BreakoutRoomApp extends SystemConfiguration {
   }
 
   def sendBreakoutRoomStarted(meetingId: String, breakoutName: String, breakoutId: String, voiceConfId: String) {
-    log.debug("## Sending BreakoutRoomStartedOutMessage for {}", meetingId)
     outGW.send(new BreakoutRoomStartedOutMessage(meetingId, mProps.recorded, new BreakoutRoomBody(breakoutName, breakoutId)))
+  }
+  
+  def handleBreakoutRoomEnded(msg: BreakoutRoomEnded) {
+    breakoutModel.remove(msg.breakoutRoomId)
+    outGW.send(new BreakoutRoomEndedOutMessage(msg.meetingId, msg.breakoutRoomId))
   }
 
   def handleBreakoutRoomUsersUpdate(msg: BreakoutRoomUsersUpdate) {
@@ -94,6 +98,19 @@ trait BreakoutRoomApp extends SystemConfiguration {
     val breakoutUsers = users map { u => new BreakoutUser(u.userID, u.name) }
     eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
       new BreakoutRoomUsersUpdate(mProps.externalMeetingID, mProps.meetingID, breakoutUsers)))
+  }
+
+  def handleEndAllBreakoutRooms(msg: EndAllBreakoutRooms) {
+    breakoutModel.getRooms().foreach { room =>
+      outGW.send(new EndBreakoutRoom(room.id))
+    }
+  }
+
+  def handleEndMeeting(msg: EndMeeting) {
+    if (mProps.isBreakout) {
+      eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
+        BreakoutRoomEnded(mProps.externalMeetingID, mProps.meetingID)))
+    }
   }
 }
 
@@ -127,7 +144,7 @@ object BreakoutRoomsUtil {
   }
 
   def joinParams(username: String, isBreakout: Boolean, breakoutId: String,
-    password: String, redirect: Boolean): mutable.Map[String, String] = {
+                 password: String, redirect: Boolean): mutable.Map[String, String] = {
     val params = new collection.mutable.HashMap[String, String]
     params += "fullName" -> urlEncode(username)
     params += "isBreakout" -> urlEncode(isBreakout.toString())
