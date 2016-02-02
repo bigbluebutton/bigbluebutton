@@ -90,7 +90,7 @@ Template.menu.events({
 });
 
 Template.main.rendered = function() {
-  ReactDOM.render(<ReactUserList />, document.getElementById("users"));
+  ReactDOM.render(<UserList />, document.getElementById("users"));
   Meteor.Users.find().observeChanges({
     added(){
       // React.render(<ReactUserList />, document.getElementById("users"));
