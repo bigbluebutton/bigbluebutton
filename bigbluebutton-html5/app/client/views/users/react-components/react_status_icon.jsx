@@ -29,7 +29,6 @@ ReactStatusIcon = React.createClass({
       )
     }
   },
-
   render() {
     return (
       <span>
