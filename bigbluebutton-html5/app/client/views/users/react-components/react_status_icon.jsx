@@ -13,7 +13,7 @@ ReactStatusIcon = React.createClass({
     else if(user.user.role === "MODERATOR"){
       return (
         <div className="status">
-          <span rel="tooltip" data-placement="bottom" title={user.user.name +  " is a moderator"}>
+          <span rel="tooltip" data-placement="bottom" title={user.user.name +  " is a moderatorabc"}>
             <i className="icon fi-torso statusIcon"></i>
           </span>
         </div>
