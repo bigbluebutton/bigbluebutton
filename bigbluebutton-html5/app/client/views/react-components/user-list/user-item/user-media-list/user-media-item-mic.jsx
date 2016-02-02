@@ -1,9 +1,7 @@
 UserMediaItemMic = React.createClass({
   render() {
     return (
-      <ul>
-        UserMediaItemMic
-      </ul>
+      <Icon icon="mic" title="is talking"/>
     );
   }
 })
