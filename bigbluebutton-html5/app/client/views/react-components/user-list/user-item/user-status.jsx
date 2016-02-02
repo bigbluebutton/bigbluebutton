@@ -1,9 +1,9 @@
 UserStatus = React.createClass({
   render() {
     return (
-      <ul>
-        UserStatus
-      </ul>
+      <div className="user-status">
+        <Icon icon="torso" title="is moderator"/>
+      </div>
     );
   }
 })
