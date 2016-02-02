@@ -584,5 +584,18 @@ package org.bigbluebutton.main.model.users {
 			}
 			return false;
 		}
+		
+		public function setBreakoutRoomInListen(listen:Boolean, breakoutId:String):void {
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
+				if (listen == false) {
+					br.listenStatus = BreakoutRoom.NONE;
+				} else if (listen == true && br.breakoutId == breakoutId) {
+					br.listenStatus = BreakoutRoom.SELF;
+				} else {
+					br.listenStatus = BreakoutRoom.OTHER;
+				}
+			}
+		}
 	}
 }
