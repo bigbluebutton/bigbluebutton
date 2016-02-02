@@ -1,9 +1,9 @@
 UserName = React.createClass({
   render() {
     return (
-      <ul>
-        UserName
-      </ul>
+      <div className="user-name">
+        {this.props.user.user.name}
+      </div>
     );
   }
 })

@@ -1,10 +1,18 @@
 UserList = React.createClass({
+  mixins: [ReactMeteorData],
+  getMeteorData() {
+    return {
+      users: Meteor.Users.find().fetch()
+    };
+  },
+
   render() {
     return (
-      <ul>
-        <li>UserList</li>
-        <li><UserItem /></li>
-      </ul>
+      <div className="user-list ScrollableWindowY">
+        {this.data.users.map(function(user) {
+          return <UserItem user={user}/>
+        })}
+      </div>
     );
   }
 })

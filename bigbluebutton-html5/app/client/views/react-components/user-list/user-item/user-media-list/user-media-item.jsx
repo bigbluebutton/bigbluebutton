@@ -1,9 +1,9 @@
 UserMediaItem = React.createClass({
   render() {
     return (
-      <ul>
-        UserMediaItem
-      </ul>
+      <span rel="tooltip" data-placement="bottom" title="is only listening">
+        <i className="icon fi-volume-none usericon"></i>
+      </span>
     );
   }
 })

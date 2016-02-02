@@ -1,0 +1,37 @@
+.user-list {
+  background-color: #34495E;
+  height: calc(~'100% - 50px');
+  color: #fff;
+  font-size: 4.5mm;
+
+  .user-item {
+    height: 30px;
+    line-height: 30px;
+    margin: 5px 10px;
+
+    transition: all 0.2s;
+
+    /**remove after **/
+    overflow: hidden;
+
+    .user-status{
+      display: inline-block;
+      margin-left: 5px;
+      width: 15px;
+      margin-right: 10px;
+    }
+
+    .user-name{
+      display: inline-block;
+      width: calc(~'100% - 120px');
+    }
+
+    .user-media-list{
+      display: inline-block;
+    }
+
+    &:hover{
+      background-color: #2C4155;
+    }
+  }
+}
