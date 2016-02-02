@@ -24,6 +24,7 @@ check@1.0.6
 chriswessels:hammer@3.1.1
 clinical:nightwatch@2.0.1
 coffeescript@1.0.10
+cosmos:browserify@0.8.2
 ddp@1.2.2
 ddp-client@1.2.1
 ddp-common@1.2.1
@@ -52,6 +53,7 @@ iron:middleware-stack@1.0.9
 iron:router@1.0.9
 iron:url@1.0.9
 jquery@1.11.4
+jsx@0.2.3
 launch-screen@1.0.4
 less@2.5.0_3
 livedata@1.0.15
@@ -80,6 +82,11 @@ practicalmeteor:loglevel@1.2.0_2
 promise@0.5.0
 raix:eventemitter@0.1.3
 random@1.0.4
+react@0.14.1_1
+react-meteor-data@0.2.4
+react-runtime@0.14.1_1
+react-runtime-dev@0.14.1
+react-runtime-prod@0.14.1
 reactive-dict@1.1.2
 reactive-var@1.0.6
 reload@1.1.4

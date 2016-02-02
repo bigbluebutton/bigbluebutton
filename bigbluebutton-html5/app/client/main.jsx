@@ -91,6 +91,19 @@ Template.menu.events({
 });
 
 Template.main.rendered = function() {
+  ReactDOM.render(<ReactUserList />, document.getElementById("users"));
+  Meteor.Users.find().observeChanges({
+    added(){
+      // React.render(<ReactUserList />, document.getElementById("users"));
+    },
+    changed(){
+      // React.render(<ReactUserList />, document.getElementById("users"));
+    },
+    removed(){
+      // React.render(<ReactUserList />, document.getElementById("users"));
+    }
+  });
+
   let lastOrientationWasLandscape;
   $("#dialog").dialog({
     modal: true,
