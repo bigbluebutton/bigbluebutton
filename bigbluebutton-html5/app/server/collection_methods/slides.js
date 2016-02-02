@@ -44,7 +44,7 @@ this.addSlideToCollection = function(meetingId, presentationId, slideObject) {
         num: slideObject.num,
         x_offset: slideObject.x_offset,
         current: slideObject.current,
-        img_uri: slideObject.svg_uri !== void 0 ? slideObject.svg_uri : slideObject.png_uri,
+        img_uri: slideObject.svg_uri != null ? slideObject.svg_uri : slideObject.png_uri,
         txt_uri: slideObject.txt_uri,
         id: slideObject.id,
         width_ratio: slideObject.width_ratio,

@@ -18,36 +18,36 @@ this.WhiteboardCursorModel = (function() {
       if(this.color == null) {
         this.color = "#ff6666"; // a pinkish red
       }
-      this.cursor = null;
+      this.cursorDOM = null;
     }
 
     draw() {
-      this.cursor = this.paper.circle(0, 0, this.radius);
-      this.cursor.attr({
+      this.cursorDOM = this.paper.circle(0, 0, this.radius);
+      this.cursorDOM.attr({
         "fill": this.color,
         "stroke": this.color,
         "opacity": "0.8"
       });
-      return $(this.cursor.node).on("mousewheel", _.bind(this._onMouseWheel, this));
+      return $(this.cursorDOM.node).on("mousewheel", _.bind(this._onMouseWheel, this));
     }
 
     toFront() {
-      if(this.cursor != null) {
-        return this.cursor.toFront();
+      if(this.cursorDOM != null) {
+        return this.cursorDOM.toFront();
       }
     }
 
     setRadius(value) {
-      if(this.cursor != null) {
-        return this.cursor.attr({
+      if(this.cursorDOM != null) {
+        return this.cursorDOM.attr({
           r: value
         });
       }
     }
 
     setPosition(x, y) {
-      if(this.cursor != null) {
-        return this.cursor.attr({
+      if(this.cursorDOM != null) {
+        return this.cursorDOM.attr({
           cx: x,
           cy: y
         });
@@ -55,8 +55,8 @@ this.WhiteboardCursorModel = (function() {
     }
 
     undrag() {
-      if(this.cursor != null) {
-        return this.cursor.undrag();
+      if(this.cursorDOM != null) {
+        return this.cursorDOM.undrag();
       }
     }
 
@@ -64,9 +64,9 @@ this.WhiteboardCursorModel = (function() {
       if(target == null) {
         target = null;
       }
-      if(this.cursor != null) {
+      if(this.cursorDOM != null) {
         target || (target = this);
-        return this.cursor.drag(_.bind(onMove, target), _.bind(onStart, target), _.bind(onEnd, target));
+        return this.cursorDOM.drag(_.bind(onMove, target), _.bind(onStart, target), _.bind(onEnd, target));
       }
     }
 
@@ -75,7 +75,7 @@ this.WhiteboardCursorModel = (function() {
     }
 
     remove() {
-      return this.cursor.remove();
+      return this.cursorDOM.remove();
     }
   }
 

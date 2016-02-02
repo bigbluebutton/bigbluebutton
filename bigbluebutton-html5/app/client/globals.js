@@ -116,7 +116,7 @@ Handlebars.registerHelper("getUsersInMeeting", () => {
 });
 
 Handlebars.registerHelper("getWhiteboardTitle", () => {
-  return BBB.currentPresentationName() || "Loading presentation...";
+  return BBB.currentPresentationName() || "No active presentation";
 });
 
 Handlebars.registerHelper("getCurrentUserEmojiStatus", () => {
