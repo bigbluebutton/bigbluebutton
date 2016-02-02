@@ -105,12 +105,6 @@ trait BreakoutRoomApp extends SystemConfiguration {
     }
   }
 
-  def handleEndMeeting(msg: EndMeeting) {
-    if (mProps.isBreakout) {
-      eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
-        BreakoutRoomEnded(mProps.externalMeetingID, mProps.meetingID)))
-    }
-  }
 }
 
 object BreakoutRoomsUtil {

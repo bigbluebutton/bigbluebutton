@@ -116,8 +116,7 @@ class LiveMeeting(val mProps: MeetingProperties,
     outGW.send(new DisconnectUser(mProps.meetingID, userId))
   }
 
-  override def handleEndMeeting(msg: EndMeeting) {
-    super.handleEndMeeting(msg)
+  def handleEndMeeting(msg: EndMeeting) {
     meetingModel.meetingHasEnded
     outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
     outGW.send(new DisconnectAllUsers(msg.meetingId))
