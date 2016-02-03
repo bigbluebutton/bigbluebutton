@@ -28,12 +28,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.bigbluebutton.api.domain.Recording;
 import org.slf4j.Logger;
@@ -115,7 +115,7 @@ public class RecordingService {
 	}
 
 	public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {
-		Map<String, Recording> resultRecordings = new HashMap<String, Recording>();
+		Map<String, Recording> resultRecordings = new TreeMap<String, Recording>();
 		for (Map.Entry<String, Recording> entry : recordings.entrySet()) {
 			if (recordingMatchesMetadata(entry.getValue(), metadataFilters))
 				resultRecordings.put(entry.getKey(), entry.getValue());

@@ -15,7 +15,7 @@
       <endTime>${r.getEndTime()}</endTime>
       <#assign m = r.getMetadata()>
       <metadata>
-      <#list m?keys as prop>
+      <#list m?keys?sort as prop>
         <${prop}><![CDATA[${m[prop]}]]></${prop}>
       </#list>
       </metadata>

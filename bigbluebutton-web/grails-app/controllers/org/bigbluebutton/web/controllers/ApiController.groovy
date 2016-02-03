@@ -1420,7 +1420,7 @@ class ApiController {
     
     // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
     ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
-	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
+	Map<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
 	recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 	
     if (recs.isEmpty()) {

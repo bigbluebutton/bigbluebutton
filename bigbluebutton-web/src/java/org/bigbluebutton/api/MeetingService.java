@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -352,13 +353,9 @@ public class MeetingService implements MessageListener {
 		return null;
 	} 
 	
-	public HashMap<String,Recording> getRecordings(ArrayList<String> idList) {
+	public Map<String,Recording> getRecordings(ArrayList<String> idList) {
 		//TODO: this method shouldn't be used 
-		log.debug("starting to fetch recordings");
-		ArrayList<Recording> recsList = recordingService.getRecordings(idList);
-		log.debug("got all recordings, without ordering");
-		HashMap<String,Recording> recs= reorderRecordings(recsList);
-		log.debug("returning ordered recordings");
+		Map<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList));
 		return recs;
 	}
 	
@@ -366,8 +363,8 @@ public class MeetingService implements MessageListener {
 		return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
 	}
 	
-	public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
-		HashMap<String,Recording> map= new HashMap<String, Recording>();
+	public Map<String,Recording> reorderRecordings(ArrayList<Recording> olds){
+		Map<String,Recording> map= new TreeMap<String, Recording>();
 		for (Recording r:olds) {
 			if (!map.containsKey(r.getId())) {
 				Map<String,String> meta= r.getMetadata();
