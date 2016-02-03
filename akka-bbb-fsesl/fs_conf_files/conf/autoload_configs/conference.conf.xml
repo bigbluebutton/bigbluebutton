@@ -1,0 +1,73 @@
+<!-- http://wiki.freeswitch.org/wiki/Mod_conference -->
+<!-- None of these paths are real if you want any of these options you need to really set them up -->
+<configuration name="conference.conf" description="Audio Conference">
+    <!-- Advertise certain presence on startup . -->
+    <advertise>
+        <room name="3001@$${domain}" status="FreeSWITCH"/>
+    </advertise>
+
+    <!-- These are the default keys that map when you do not specify a caller control group -->
+    <!-- Note: none and default are reserved names for group names.  Disabled if dist-dtmf member flag is set. -->
+    <caller-controls>
+        <group name="default">
+            <control action="mute" digits="0"/>
+            <control action="deaf mute" digits="*"/>
+            <control action="energy up" digits="9"/>
+            <control action="energy equ" digits="8"/>
+            <control action="energy dn" digits="7"/>
+            <control action="vol talk up" digits="3"/>
+            <control action="vol talk zero" digits="2"/>
+            <control action="vol talk dn" digits="1"/>
+            <control action="vol listen up" digits="6"/>
+            <control action="vol listen zero" digits="5"/>
+            <control action="vol listen dn" digits="4"/>
+            <control action="hangup" digits="#"/>
+        </group>
+    </caller-controls>
+
+    <!-- Profiles are collections of settings you can reference by name. -->
+    <profiles>
+
+        <!-- profile used for WebRTC Desktop Sharing -->
+        <profile name="video-mcu-stereo">
+            <param name="domain" value="$${domain}"/>
+            <param name="rate" value="48000"/>
+            <param name="channels" value="2"/>
+            <param name="interval" value="20"/>
+            <param name="energy-level" value="200"/>
+            <!-- <param name="tts-engine" value="flite"/> -->
+            <!-- <param name="tts-voice" value="kal16"/> -->
+
+            <!--remove audio for when user is alone since we hit this case every time-->
+            <!--with -DESKSHARE conference. It has a single user only by default-->
+
+            <!--<param name="muted-sound" value="conference/conf-muted.wav"/>-->
+            <!--<param name="unmuted-sound" value="conference/conf-unmuted.wav"/>-->
+            <!-- <param name="alone-sound" value="conference/conf-alone.wav"/> -->
+            <!-- <param name="moh-sound" value="local_stream://stereo"/> -->
+            <!--<param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>-->
+            <!--<param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>-->
+            <!--<param name="kicked-sound" value="conference/conf-kicked.wav"/>-->
+            <!--<param name="locked-sound" value="conference/conf-locked.wav"/>-->
+            <!--<param name="is-locked-sound" value="conference/conf-is-locked.wav"/>-->
+            <!--<param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>-->
+            <!--<param name="pin-sound" value="conference/conf-pin.wav"/>-->
+            <!--<param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>-->
+
+            <param name="caller-id-name" value="$${outbound_caller_name}"/>
+            <param name="caller-id-number" value="$${outbound_caller_id}"/>
+            <param name="comfort-noise" value="false"/>
+            <param name="conference-flags" value="video-floor-only|video-required-for-canvas|rfc-4579|livearray-sync|minimize-video-encoding"/>
+
+            <param name="video-mode" value="mux"/> <!-- other values for video-mode are transcode or passthrough -->
+            <param name="video-layout-name" value="1x1"/> <!-- 1x1 since we only have 1 video stream -->
+            <param name="video-layout-name" value="group:grid"/>
+            <param name="video-canvas-size" value="1920x1080"/>
+            <param name="video-canvas-bgcolor" value="#333333"/>
+            <param name="video-layout-bgcolor" value="#000000"/>
+            <param name="video-codec-bandwidth" value="1mb"/>
+            <param name="video-fps" value="15"/>
+        </profile>
+
+    </profiles>
+</configuration>
