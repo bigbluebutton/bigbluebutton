@@ -13,6 +13,8 @@
       <published>${r.isPublished()?string}</published>
       <startTime>${r.getStartTime()}</startTime>
       <endTime>${r.getEndTime()}</endTime>
+      <size>${r.getSize()}</size>
+      <rawSize>${r.getRawSize()}</rawSize>
       <#assign m = r.getMetadata()>
       <metadata>
       <#list m?keys?sort as prop>
@@ -25,10 +27,23 @@
             <type>${p.getFormat()}</type>
             <url>${p.getUrl()}</url>
             <length>${p.getLength()}</length>
+            <size>${p.getSize()}</size>
             <#-- Missing p.getExtensions() -->
           </format>
         </#list>
       </playback>
+      <download>
+        <#list r.getDownloads() as p>
+          <format>
+            <type>${p.getFormat()}</type>
+            <url>${p.getUrl()}</url>
+            <md5>${p.getMd5()}</md5>
+            <key>${p.getKey()}</key>
+            <length>${p.getLength()}</length>
+            <size>${p.getSize()}</size>
+          </format>
+        </#list>
+      </download>
     </recording>
   </#list>
   </recordings>
