@@ -214,7 +214,11 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function listenInOnBreakout(e:BreakoutRoomEvent):void {
-			sender.listenInOnBreakout(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid, e.listen);
+			if (e.listen) {
+				sender.listenInOnBreakout(_conferenceParameters.meetingID, e.breakoutId, _conferenceParameters.userid);
+			} else {
+				sender.listenInOnBreakout(e.breakoutId, _conferenceParameters.meetingID, _conferenceParameters.userid);
+			}
 			UserManager.getInstance().getConference().setBreakoutRoomInListen(e.listen, e.breakoutId);
 		}
 

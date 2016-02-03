@@ -81,7 +81,7 @@ class BigBlueButtonInGW(
   def handleJsonMessage(json: String) {
     JsonMessageDecoder.decode(json) match {
       case Some(validMsg) => forwardMessage(validMsg)
-      case None           => log.error("Unhandled message: {}", json)
+      case None           => log.error("Unhandled json message: {}", json)
     }
   }
 

@@ -30,19 +30,16 @@ public class TransferUserToVoiceConfRequestMessage {
 	public static final String VOICE_CONF_ID = "voice_conf_id";
 	public static final String TARGET_VOICE_CONF_ID = "target_voice_conf_id";
 	public static final String VOICE_USER_ID = "voice_user_id";
-	public static final String FORWARD = "forward";
 
 	public final String voiceConfId;
 	public final String targetVoiceConfId;
 	public final String voiceUserId;
-	public final Boolean forward;
 
 	public TransferUserToVoiceConfRequestMessage(String voiceConfId,
-			String breakoutVoiceConfId, String voiceUserId, Boolean toBreakout) {
+			String breakoutVoiceConfId, String voiceUserId) {
 		this.voiceConfId = voiceConfId;
 		this.targetVoiceConfId = breakoutVoiceConfId;
 		this.voiceUserId = voiceUserId;
-		this.forward = toBreakout;
 	}
 
 	public String toJson() {
@@ -50,7 +47,6 @@ public class TransferUserToVoiceConfRequestMessage {
 		payload.put(VOICE_CONF_ID, voiceConfId);
 		payload.put(TARGET_VOICE_CONF_ID, targetVoiceConfId);
 		payload.put(VOICE_USER_ID, voiceUserId);
-		payload.put(FORWARD, forward);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(
 				TRANSFER_USER_TO_VOICE_CONF_REQUEST, VERSION, null);
@@ -71,17 +67,14 @@ public class TransferUserToVoiceConfRequestMessage {
 				if (TRANSFER_USER_TO_VOICE_CONF_REQUEST.equals(messageName)) {
 					if (payload.has(VOICE_CONF_ID)
 							&& payload.has(TARGET_VOICE_CONF_ID)
-							&& payload.has(VOICE_USER_ID)
-							&& payload.has(FORWARD)) {
+							&& payload.has(VOICE_USER_ID)) {
 						String id = payload.get(VOICE_CONF_ID).getAsString();
 						String targetVoiceConfId = payload.get(
 								TARGET_VOICE_CONF_ID).getAsString();
 						String voiceUserId = payload.get(VOICE_USER_ID)
 								.getAsString();
-						Boolean forward = payload.get(FORWARD)
-								.getAsBoolean();
 						return new TransferUserToVoiceConfRequestMessage(id,
-								targetVoiceConfId, voiceUserId, forward);
+								targetVoiceConfId, voiceUserId);
 					}
 				}
 			}

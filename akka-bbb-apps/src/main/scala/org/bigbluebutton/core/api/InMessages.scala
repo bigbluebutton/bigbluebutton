@@ -60,7 +60,7 @@ case class EndAllBreakoutRooms(meetingId: String) extends InMessage
 // Sent by breakout actor to tell meeting actor that breakout room has been ended
 case class BreakoutRoomEnded(meetingId: String, breakoutRoomId: String) extends InMessage
 // Sent by user actor to ask for voice conference transfer 
-case class TransferUserToMeetingRequest(meetingId: String, breakoutId: String, userId: String, listen: Boolean) extends InMessage
+case class TransferUserToMeetingRequest(meetingId: String, targetMeetingId: String, userId: String) extends InMessage
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Lock
