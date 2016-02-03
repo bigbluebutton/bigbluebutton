@@ -24,7 +24,7 @@ import org.bigbluebutton.messages.payload.EndBreakoutRoomRequestPayload;
 import com.google.gson.Gson;
 
 public class EndBreakoutRoomRequest implements IBigBlueButtonMessage {
-	public final static String NAME = "GetBreakoutRoomsList";
+	public final static String NAME = "EndBreakoutRoomRequest";
 
 	public final Header header;
 	public final EndBreakoutRoomRequestPayload payload;
