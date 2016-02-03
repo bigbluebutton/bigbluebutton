@@ -47,10 +47,10 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
-      log.warning("An exception has been thrown on RecorderActor, exception message [" + e.getMessage() + "] (full stacktrace below)")
       val sw: StringWriter = new StringWriter()
+      sw.write("An exception has been thrown on RecorderActor, exception message [" + e.getMessage() + "] (full stacktrace below)\n")
       e.printStackTrace(new PrintWriter(sw))
-      log.warning(sw.toString())
+      log.error(sw.toString())
       Resume
     }
   }
