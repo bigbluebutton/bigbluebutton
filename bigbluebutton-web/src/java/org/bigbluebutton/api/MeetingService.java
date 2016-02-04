@@ -72,8 +72,7 @@ public class MeetingService implements MessageListener {
     private BlockingQueue<IMessage> receivedMessages = new LinkedBlockingQueue<IMessage>();
     private volatile boolean processMessage = false;
 
-    private final Executor msgProcessorExec = Executors
-            .newSingleThreadExecutor();
+    private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
     private final Executor runExec = Executors.newSingleThreadExecutor();
 
     /**
@@ -525,7 +524,31 @@ public class MeetingService implements MessageListener {
             return;
         }
     }
-
+    
+    private void meetingDestroyed(MeetingDestroyed message) {
+      Meeting m = getMeeting(message.meetingId);
+      if (m != null) {
+        long now = System.currentTimeMillis();
+        m.setEndTime(now);
+        
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingId", m.getInternalId());
+        logData.put("externalMeetingId", m.getExternalId());
+        logData.put("name", m.getName());
+        logData.put("duration", m.getDuration());
+        logData.put("record", m.isRecord());
+        logData.put("event", "meeting_destroyed");
+        logData.put("description", "Meeting has been destroyed.");
+        
+        Gson gson = new Gson();
+          String logStr =  gson.toJson(logData);
+        
+        log.info("Meeting destroyed: data={}", logStr);
+        
+        return;
+      }
+    }
+    
     private void meetingEnded(MeetingEnded message) {
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
@@ -553,6 +576,12 @@ public class MeetingService implements MessageListener {
     private void userJoined(UserJoined message) {
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
+          if (m.getNumUsers() == 0) {
+            // First user joins the meeting. Reset the end time to zero
+            // in case the meeting has been rejoined.
+            m.setEndTime(0);
+          }
+          
             User user = new User(message.userId, message.externalUserId,
                     message.name, message.role);
             m.userJoined(user);
@@ -598,7 +627,13 @@ public class MeetingService implements MessageListener {
                 String logStr = gson.toJson(logData);
 
                 log.info("User left meeting: data={}", logStr);
-
+                
+                if (m.getNumUsers() == 0) {
+                  // Last user the meeting. Mark this as the time
+                  // the meeting ended.
+                  m.setEndTime(System.currentTimeMillis());
+                }
+                
                 return;
             }
             return;
@@ -684,6 +719,8 @@ public class MeetingService implements MessageListener {
 
                 } else if (message instanceof MeetingStarted) {
                     meetingStarted((MeetingStarted) message);
+                } else if (message instanceof MeetingDestroyed) {
+                  meetingDestroyed((MeetingDestroyed)message);
                 } else if (message instanceof MeetingEnded) {
                     meetingEnded((MeetingEnded) message);
                 } else if (message instanceof UserJoined) {
