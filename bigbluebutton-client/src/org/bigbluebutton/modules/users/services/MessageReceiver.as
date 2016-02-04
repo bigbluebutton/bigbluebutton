@@ -48,31 +48,32 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
   import org.bigbluebutton.modules.present.events.UploadEvent;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-  import org.bigbluebutton.modules.webrtcDeskshare.events.ViewStreamEvent;
+  import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+  import org.bigbluebutton.modules.deskshare.events.WebRTCViewStreamEvent;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
-  
+
   public class MessageReceiver implements IMessageListener
   {
-	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);      
-       
+	private static const LOGGER:ILogger = getClassLogger(MessageReceiver);
+
     private var dispatcher:Dispatcher;
     private var _conference:Conference;
     private static var globalDispatcher:Dispatcher = new Dispatcher();
-    
+
     public function MessageReceiver() {
       _conference = UserManager.getInstance().getConference();
       BBB.initConnectionManager().addMessageListener(this);
       this.dispatcher = new Dispatcher();
     }
-    
+
     public function onMessage(messageName:String, message:Object):void {
       // LOGGER.debug(" received message " + messageName);
-      
+
       switch (messageName) {
         case "getUsersReply":
           handleGetUsersReply(message);
-          break;		
+          break;
         case "assignPresenterCallback":
           handleAssignPresenterCallback(message);
           break;
@@ -145,11 +146,11 @@ package org.bigbluebutton.modules.users.services
     private function handleDeskShareRTMPBroadcastNotification(msg:Object):void {
       LOGGER.debug("*** handleDeskShareRTMPBroadcastNotification **** \n", [msg]);
 
-      var event:ViewStreamEvent;
+      var event:WebRTCViewStreamEvent;
       if (msg.broadcasting) {
-        event = new ViewStreamEvent(ViewStreamEvent.START);
+        event = new WebRTCViewStreamEvent(ViewStreamEvent.START);
       } else {
-        event = new ViewStreamEvent(ViewStreamEvent.STOP);
+        event = new WebRTCViewStreamEvent(ViewStreamEvent.STOP);
       }
 
       event.videoWidth = msg.width;
