@@ -47,6 +47,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
+import freemarker.template.Configuration;
+import freemarker.cache.WebappTemplateLoader;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
@@ -1728,45 +1730,18 @@ class ApiController {
       }
       return;
     }
+    def cfg = new Configuration()
+
+    // Load the XML template
+    // TODO: Maybe there is a better way to define the templates path
+    def wtl = new WebappTemplateLoader(getServletContext(), "/WEB-INF/freemarker")
+    cfg.setTemplateLoader(wtl)
+    def ftl = cfg.getTemplate("get-recordings.ftl")
+    def xmlText = new StringWriter()
+    ftl.process([code:RESP_CODE_SUCCESS, recs:recs.values()], xmlText)
     withFormat {  
       xml {
-        render(contentType:"text/xml") {
-          response() {
-           returncode(RESP_CODE_SUCCESS)
-            recordings() {
-              recs.values().each { r ->
-				  recording() {
-                  recordID(r.getId())
-				  meetingID() { mkp.yield(r.getMeetingID()) }
-				  name('') {
-					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
-				  }
-                  published(r.isPublished())
-                  startTime(r.getStartTime())
-                  endTime(r.getEndTime())
-				  metadata() {
-					 r.getMetadata().each { k,v ->
-						 "$k"(''){ 
-							 mkp.yieldUnescaped("<![CDATA[$v]]>") 
-						 }
-					 }
-				  }
-				  playback() {
-					  r.getPlaybacks().each { item ->
-						  format{
-							  type(item.getFormat())
-							  url(item.getUrl())
-							  length(item.getLength())
-							  mkp.yield(item.getExtensions())
-						  }
-					  }
-                  }
-                  
-                }
-              }
-            }
-          }
-        }
+        render(text: xmlText.toString(), contentType: "text/xml")
       }
     }
   } 
