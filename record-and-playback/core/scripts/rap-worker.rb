@@ -36,7 +36,7 @@ def archive_recorded_meeting(recording_dir)
   recorded_done_files.each do |recorded_done|
     match = /([^\/]*).done$/.match(recorded_done)
     meeting_id = match[1]
-    
+
     if File.mtime(recorded_done) + ARCHIVE_DELAY_SECONDS > Time.now
       BigBlueButton.logger.info("Temporarily skipping #{meeting_id} for Red5 race workaround")
       next
@@ -359,4 +359,4 @@ rescue Exception => e
   e.backtrace.each do |traceline|
     BigBlueButton.logger.error(traceline)
   end
-end	
+end

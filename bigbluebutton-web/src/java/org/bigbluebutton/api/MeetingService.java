@@ -63,6 +63,7 @@ import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 
 public class MeetingService implements MessageListener {
@@ -338,9 +339,9 @@ public class MeetingService implements MessageListener {
 		return null;
 	} 
 	
-	public HashMap<String,Recording> getRecordings(ArrayList<String> idList) {
+	public HashMap<String,Recording> getRecordings(ArrayList<String> recordingIDs, ArrayList<String> states) {
 		//TODO: this method shouldn't be used 
-		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList));
+		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(recordingIDs, states));
 		return recs;
 	}
 	
@@ -348,37 +349,40 @@ public class MeetingService implements MessageListener {
 		return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
 	}
 	
-	public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
-		HashMap<String,Recording> map= new HashMap<String, Recording>();
-		for (Recording r:olds) {
-			if (!map.containsKey(r.getId())) {
-				Map<String,String> meta= r.getMetadata();
-				String mid = meta.remove("meetingId");
-				String name = meta.remove("meetingName");
-				
-				r.setMeetingID(mid);
-				r.setName(name);
+    public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
+        HashMap<String,Recording> map= new HashMap<String, Recording>();
+        for (Recording r:olds) {
+            if (!map.containsKey(r.getId())) {
+                Map<String,String> meta= r.getMetadata();
+                String mid = meta.remove("meetingId");
+                String name = meta.remove("meetingName");
 
-				ArrayList<Playback> plays = new ArrayList<Playback>();
-				
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
-						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime()),
-						r.getPlaybackExtensions()));
-				r.setPlaybacks(plays);
-				map.put(r.getId(), r);
-			} else {
-				Recording rec = map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), 
-						getDurationRecording(r.getPlaybackDuration(), 
-								r.getEndTime(), r.getStartTime()),
-						r.getPlaybackExtensions()));
-			}
-		}
-		
-		return map;
-	}
-	
+                r.setMeetingID(mid);
+                r.setName(name);
+
+                ArrayList<Playback> plays = new ArrayList<Playback>();
+                if ( r.getPlaybackFormat() != null ) {
+                    plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+                            getDurationRecording(r.getPlaybackDuration(),
+                                    r.getEndTime(),
+                                    r.getStartTime()),
+                                    r.getPlaybackExtensions()));
+                }
+
+                r.setPlaybacks(plays);
+                map.put(r.getId(), r);
+            } else {
+                Recording rec = map.get(r.getId());
+                rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),
+                        getDurationRecording(r.getPlaybackDuration(),
+                                r.getEndTime(), r.getStartTime()),
+                                r.getPlaybackExtensions()));
+            }
+        }
+
+        return map;
+    }
+
 	private int getDurationRecording(String playbackDuration, String end, String start) {
 		int duration;
 		try {
@@ -398,19 +402,23 @@ public class MeetingService implements MessageListener {
 	public boolean existsAnyRecording(ArrayList<String> idList){
 		return recordingService.existAnyRecording(idList);
 	}
-	
-	public void setPublishRecording(ArrayList<String> idList,boolean publish){
-		for(String id:idList){
-			recordingService.publish(id,publish);
-		}
-	}
-	
-	public void deleteRecordings(ArrayList<String> idList){
-		for(String id:idList){
-			recordingService.delete(id);
-		}
-	}
-	
+
+    public void setPublishRecording(ArrayList<String> idList,boolean publish){
+        for (String id:idList) {
+            if( publish ) {
+                recordingService.changeState(id, Recording.STATE_PUBLISHED);
+            } else {
+                recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
+            }
+        }
+    }
+
+    public void deleteRecordings(ArrayList<String> idList){
+        for(String id:idList){
+            recordingService.changeState(id, Recording.STATE_DELETED);
+        }
+    }
+
 	public void processRecording(String meetingId) {
 		recordingService.startIngestAndProcessing(meetingId);
 	}
