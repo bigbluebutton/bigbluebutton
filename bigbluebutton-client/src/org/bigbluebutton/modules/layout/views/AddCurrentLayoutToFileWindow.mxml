@@ -72,8 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
             <mx:Text text="{ResourceUtil.getInstance().getString('bbb.layout.addCurrentToFileWindow.text')}" width="100%" height="100%" />
-            <mx:Button id="cancelButton" click="cancelButton_clickHandler()" enabled="true" styleName="saveCurrentLayoutDenyStyle"  toolTip="{ResourceUtil.getInstance().getString('bbb.layout.denyAddToFile.toolTip')}"/>
-            <mx:Button id="addButton" click="addButton_clickHandler()" enabled="true" styleName="saveCurrentLayoutConfirmStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.confirmAddToFile.toolTip')}"/>
+            <mx:Button id="cancelButton" click="cancelButton_clickHandler()" enabled="true" styleName="denyButtonStyle"  toolTip="{ResourceUtil.getInstance().getString('bbb.layout.denyAddToFile.toolTip')}"/>
+            <mx:Button id="addButton" click="addButton_clickHandler()" enabled="true" styleName="confirmButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.confirmAddToFile.toolTip')}"/>
   </mx:HBox>
 
 </mx:TitleWindow>

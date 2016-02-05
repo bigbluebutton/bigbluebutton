@@ -49,7 +49,16 @@ package org.bigbluebutton.modules.layout.model
 		public function push(layoutDefinition:LayoutDefinition):void {
 			_layouts.push(layoutDefinition);
 		}
+
+		public function splice(position:int):void{
+			_layouts.splice(position,1);
+		}
 		
+		public function indexOf(layoutDefinition:LayoutDefinition):int{
+			return _layouts.indexOf(layoutDefinition);
+		}
+
+
 		public function getDefault():LayoutDefinition {
 			for each (var value:LayoutDefinition in _layouts) {
 				if (value.defaultLayout)

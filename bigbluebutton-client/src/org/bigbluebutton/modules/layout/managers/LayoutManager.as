@@ -57,14 +57,16 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.events.LockLayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutFromRemoteEvent;
   import org.bigbluebutton.modules.layout.events.RemoteSyncLayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutNameInUseEvent;
   import org.bigbluebutton.modules.layout.events.SyncLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.LayoutModel;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
-  import org.bigbluebutton.util.i18n.ResourceUtil;
+  import org.bigbluebutton.modules.layout.views.OverwriteWindow;
   import org.bigbluebutton.modules.layout.views.AddCurrentLayoutToFileWindow;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class LayoutManager extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(LayoutManager);      
@@ -150,11 +152,35 @@ package org.bigbluebutton.modules.layout.managers
 			loader.loadFromLocalFile();
 		}
 
-		public function addCurrentLayoutToList(layoutName:String):void {
+		public function addCurrentLayoutToList(e:LayoutEvent):void {
 				// Layout Name Window Popup calls this function
 				var newLayout:LayoutDefinition;
-				if (layoutName != "") {
-					newLayout = LayoutDefinition.getLayout(_canvas, layoutName);
+				if (e.layoutName != "") {
+					newLayout = LayoutDefinition.getLayout(_canvas, e.layoutName);
+					
+					// This is true when the name given is already in use
+					// Or when the user picks a name from their preferred location
+					if (_layoutModel.hasLayout(e.layoutName) ||
+						e.layoutName == ResourceUtil.getInstance().getString('bbb.layout.name.defaultlayout') ||
+						e.layoutName == ResourceUtil.getInstance().getString('bbb.layout.name.videochat') ||
+						e.layoutName == ResourceUtil.getInstance().getString('bbb.layout.name.webcamsfocus') ||
+						e.layoutName == ResourceUtil.getInstance().getString('bbb.layout.name.presentfocus')) {
+
+						if (!e.overwrite) {
+							var layoutName:LayoutNameInUseEvent = new LayoutNameInUseEvent();
+							layoutName.inUse = true;
+							_globalDispatcher.dispatchEvent(layoutName);
+
+							var overwriteWindow:OverwriteWindow;
+							overwriteWindow = OverwriteWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OverwriteWindow, true));
+							PopUpManager.centerPopUp(overwriteWindow);
+							overwriteWindow.layoutNameOverwrite = e.layoutName;
+							
+							return;
+						} else {
+							_layoutModel.removeLayout(newLayout);
+						}
+					}
 				} else {
 					// if the user set the name empty
 					newLayout = LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
@@ -170,6 +196,10 @@ package org.bigbluebutton.modules.layout.managers
 				// this is to force LayoutCombo to update the current label
 				redefineLayout.remote = true;
 				_globalDispatcher.dispatchEvent(redefineLayout);
+
+				var layoutName:LayoutNameInUseEvent = new LayoutNameInUseEvent();
+				layoutName.inUse = false;
+				_globalDispatcher.dispatchEvent(layoutName);
 		}
 		
 		public function setCanvas(canvas:MDICanvas):void {

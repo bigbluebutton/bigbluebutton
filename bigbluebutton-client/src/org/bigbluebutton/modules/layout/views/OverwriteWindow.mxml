@@ -27,46 +27,40 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           showCloseButton="true"
           close="onCancelClicked()"
           creationComplete="onCreationComplete()"
-          width="250"
-          title="{ResourceUtil.getInstance().getString('bbb.layout.window.name')}">
+          height="90"
+          width="300"
+          title="Overwrite Window">
 
-
-  <mate:Listener type="{LayoutNameInUseEvent.LAYOUT_NAME_IN_USE_EVENT}" method="handleLayoutNameInUse"/>
   
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
 
       import mx.managers.PopUpManager;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       import org.bigbluebutton.modules.layout.events.LayoutEvent;
-      import org.bigbluebutton.modules.layout.events.LayoutNameInUseEvent;
 
-      public var savingForFileDownload:Boolean = false;
+      public var layoutNameOverwrite:String = "Overwrite Layout"
 
       private function addButton_clickHandler():void {
         var e:LayoutEvent = new LayoutEvent(LayoutEvent.ADD_CURRENT_LAYOUT_EVENT);
-        if (textInput.text != ResourceUtil.getInstance().getString('bbb.layout.combo.customName')) {
-          e.layoutName = textInput.text;
-        }
+        e.layoutName = layoutNameOverwrite;
+        e.overwrite = true;
+
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(e);
 
-        if (savingForFileDownload) {
-          dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_WINDOW_EVENT));
-        }
+        PopUpManager.removePopUp(this);
       }
 
-      private function handleLayoutNameInUse(event:LayoutNameInUseEvent):void {
-        if (!event.inUse) {
-          PopUpManager.removePopUp(this);
-        } else {
-          trace("The name is already in use, waiting for overwrite command or rename");
-        }
+      private function cancelButton_clickHandler():void{
+        PopUpManager.removePopUp(this);
       }
 
       private function onCreationComplete():void {
-        textInput.setFocus();
+        cancelButton.setFocus();
       }
 
       private function onCancelClicked():void {
@@ -75,8 +69,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
 
-  <mx:HBox width="100%" height="100%">
-      <mx:TextInput id="textInput" restrict="a-zA-Z0-9 " maxChars="32" width="100%" text="{ResourceUtil.getInstance().getString('bbb.layout.combo.customName')}"/>
-      <mx:Button id="addButton" click="addButton_clickHandler()" enabled="{textInput.text.length > 0}" styleName="addLayoutButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}"/>
+  <mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+            <mx:Text text="{ResourceUtil.getInstance().getString('bbb.layout.overwriteText')}" width="100%" height="100%" />
+            <mx:Button id="cancelButton" click="cancelButton_clickHandler()" enabled="true" styleName="denyButtonStyle"  toolTip="{ResourceUtil.getInstance().getString('bbb.layout.denyOverwrite.toolTip')}"/>
+            <mx:Button id="addButton" click="addButton_clickHandler()" enabled="true" styleName="confirmButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.layout.confirmOverwrite.toolTip')}"/>
   </mx:HBox>
+
 </mx:TitleWindow>

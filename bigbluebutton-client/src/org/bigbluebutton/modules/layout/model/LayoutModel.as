@@ -48,6 +48,10 @@ package org.bigbluebutton.modules.layout.model
     public function addLayout(layout: LayoutDefinition):void {
       _layouts.push(layout);
     }
+
+    public function removeLayout(layout: LayoutDefinition):void{
+      _layouts.splice(_layouts.indexOf(layout));
+    }
     
     public function getLayoutNames():Array {
       if (_layouts == null) return new Array();
