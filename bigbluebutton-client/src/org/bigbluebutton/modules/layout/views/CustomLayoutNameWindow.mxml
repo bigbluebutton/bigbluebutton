@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(e);
 
-        if(savingForFileDownload){
+        if (savingForFileDownload) {
           dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_WINDOW_EVENT));
         }
 

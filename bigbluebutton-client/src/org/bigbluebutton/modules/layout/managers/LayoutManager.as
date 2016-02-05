@@ -120,11 +120,10 @@ package org.bigbluebutton.modules.layout.managers
     }
 		
 		public function saveLayoutsToFile():void {
-			if(!_currentLayout.currentLayout){
-					var addCurrentWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, AddCurrentLayoutToFileWindow, true);
+			if (!_currentLayout.currentLayout) {
+				var addCurrentWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, AddCurrentLayoutToFileWindow, true);
 				PopUpManager.centerPopUp(addCurrentWindow);
-			}
-			else{
+			} else {
 				saveLayoutsWindow();
 			}
 		}
