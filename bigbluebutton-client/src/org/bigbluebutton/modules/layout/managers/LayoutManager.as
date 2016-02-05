@@ -19,6 +19,11 @@
 package org.bigbluebutton.modules.layout.managers
 {
   import com.asfusion.mate.events.Dispatcher;  
+  import flash.display.DisplayObject;
+  import mx.core.FlexGlobals;
+  import mx.core.IFlexDisplayObject;
+  import mx.managers.PopUpManager;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
@@ -59,6 +64,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.model.LayoutModel;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
   import org.bigbluebutton.util.i18n.ResourceUtil;
+  import org.bigbluebutton.modules.layout.views.AddCurrentLayoutToFileWindow;
 
 	public class LayoutManager extends EventDispatcher {
 		private static const LOGGER:ILogger = getClassLogger(LayoutManager);      
@@ -114,6 +120,16 @@ package org.bigbluebutton.modules.layout.managers
     }
 		
 		public function saveLayoutsToFile():void {
+			if(!_currentLayout.currentLayout){
+					var addCurrentWindow:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, AddCurrentLayoutToFileWindow, true);
+				PopUpManager.centerPopUp(addCurrentWindow);
+			}
+			else{
+				saveLayoutsWindow();
+			}
+		}
+
+		public function saveLayoutsWindow():void{
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _canvas);

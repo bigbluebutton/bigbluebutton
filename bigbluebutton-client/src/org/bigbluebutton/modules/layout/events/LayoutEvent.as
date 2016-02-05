@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.layout.events
     public static const VIEW_INITIALIZED_EVENT:String = 'VIEW_INITIALIZED_EVENT';
 
     public static const SAVE_LAYOUTS_EVENT:String = 'SAVE_LAYOUTS_EVENT';
+    public static const SAVE_LAYOUTS_WINDOW_EVENT:String = 'SAVE_LAYOUTS_WINDOW_EVENT';
     public static const LOAD_LAYOUTS_EVENT:String = 'LOAD_LAYOUTS_EVENT';
     public static const ADD_CURRENT_LAYOUT_EVENT:String = 'ADD_CURRENT_LAYOUT_EVENT';
     public static const FILE_LOADED_SUCCESSFULLY_EVENT:String = 'FILE_LOADED_SUCCESSFULLY_EVENT';
