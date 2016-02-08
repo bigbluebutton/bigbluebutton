@@ -132,7 +132,7 @@
 					emojiBtn.enabled = true;
 				} else if (data.hasEmojiStatus) {
 					emojiImg.source = images["emoji_" + data.emojiStatus];
-					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.' + data.emojiStatus) + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
+					emojiImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.emojiStatus.' + data.emojiStatus) + " - " + data.emojiStatusTime.hours + ":" + data.emojiStatusTime.minutes + ":" + data.emojiStatusTime.seconds;
 					emojiImg.visible = true;
 					emojiBtn.visible = false;
 					emojiBtn.enabled = false;
