@@ -668,11 +668,11 @@ class MessageSenderActor(val service: MessageSender)
     service.send(MessagingConstants.FROM_WHITEBOARD_CHANNEL, json)
   }
 
-  private def handleBreakoutRoomsListOutMessage(msg:BreakoutRoomsListOutMessage) {
+  private def handleBreakoutRoomsListOutMessage(msg: BreakoutRoomsListOutMessage) {
     val json = MeetingMessageToJsonConverter.breakoutRoomsListOutMessageToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)
   }
-  
+
   private def handleBreakoutRoomStartedOutMessage(msg: BreakoutRoomStartedOutMessage) {
     val json = MeetingMessageToJsonConverter.breakoutRoomStartedOutMessageToJson(msg)
     service.send(MessagingConstants.FROM_USERS_CHANNEL, json)

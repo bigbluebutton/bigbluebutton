@@ -36,16 +36,16 @@ class JsonMessageSenderActor(val service: MessageSender)
   def receive = {
 
     // Breakout
-    case msg: CreateBreakoutRoom            => handleCreateBreakoutRoom(msg)
-    case msg: EndBreakoutRoom               => handleEndBreakoutRoom(msg)
-    case msg: BreakoutRoomsListOutMessage   => handleBreakoutRoomsList(msg)
+    case msg: CreateBreakoutRoom => handleCreateBreakoutRoom(msg)
+    case msg: EndBreakoutRoom => handleEndBreakoutRoom(msg)
+    case msg: BreakoutRoomsListOutMessage => handleBreakoutRoomsList(msg)
     case msg: BreakoutRoomJoinURLOutMessage => handleBreakoutRoomJoinURL(msg)
     case msg: BreakoutRoomStartedOutMessage => handleBreakoutRoomStarted(msg)
-    case msg: BreakoutRoomEndedOutMessage   => handleBreakoutRoomEnded(msg)
+    case msg: BreakoutRoomEndedOutMessage => handleBreakoutRoomEnded(msg)
     case msg: UpdateBreakoutUsersOutMessage => handleUpdateBreakoutUsers(msg)
-    case msg: MeetingTimeRemainingUpdate    => handleMeetingTimeRemainingUpdate(msg)
+    case msg: MeetingTimeRemainingUpdate => handleMeetingTimeRemainingUpdate(msg)
 
-    case _                                  => // do nothing
+    case _ => // do nothing
   }
 
   // Breakout
@@ -90,7 +90,7 @@ class JsonMessageSenderActor(val service: MessageSender)
     val request = new CreateBreakoutRoomRequest(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
   }
-  
+
   private def handleEndBreakoutRoom(msg: EndBreakoutRoom) {
     val payload = new EndBreakoutRoomRequestPayload(msg.breakoutId)
     val request = new EndBreakoutRoomRequest(payload)

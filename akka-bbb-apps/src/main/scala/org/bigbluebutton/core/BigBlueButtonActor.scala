@@ -25,13 +25,13 @@ import com.google.gson.Gson
 
 object BigBlueButtonActor extends SystemConfiguration {
   def props(system: ActorSystem,
-            eventBus: IncomingEventBus,
-            outGW: OutMessageGateway): Props =
+    eventBus: IncomingEventBus,
+    outGW: OutMessageGateway): Props =
     Props(classOf[BigBlueButtonActor], system, eventBus, outGW)
 }
 
 class BigBlueButtonActor(val system: ActorSystem,
-                         eventBus: IncomingEventBus, outGW: OutMessageGateway) extends Actor with ActorLogging {
+    eventBus: IncomingEventBus, outGW: OutMessageGateway) extends Actor with ActorLogging {
 
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
@@ -39,11 +39,11 @@ class BigBlueButtonActor(val system: ActorSystem,
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
 
   def receive = {
-    case msg: CreateMeeting         => handleCreateMeeting(msg)
-    case msg: DestroyMeeting        => handleDestroyMeeting(msg)
-    case msg: KeepAliveMessage      => handleKeepAliveMessage(msg)
-    case msg: PubSubPing            => handlePubSubPingMessage(msg)
-    case msg: ValidateAuthToken     => handleValidateAuthToken(msg)
+    case msg: CreateMeeting => handleCreateMeeting(msg)
+    case msg: DestroyMeeting => handleDestroyMeeting(msg)
+    case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
+    case msg: PubSubPing => handlePubSubPingMessage(msg)
+    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
     case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
     // case _ => // do nothing
   }
