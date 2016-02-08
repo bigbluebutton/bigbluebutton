@@ -69,7 +69,7 @@ case class MuteVoiceUser(meetingID: String, recorded: Boolean, requesterID: Stri
 case class UserVoiceMuted(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class UserVoiceTalking(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class EjectVoiceUser(meetingID: String, recorded: Boolean, requesterID: String, userId: String, voiceConfId: String, voiceUserId: String) extends IOutMessage
-case class TransferUserToMeeting(voiceConfId: String, breakoutVoiceConfId: String, userId: String, forward: Boolean) extends IOutMessage
+case class TransferUserToMeeting(voiceConfId: String, targetVoiceConfId: String, userId: String) extends IOutMessage
 case class UserJoinedVoice(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class UserLeftVoice(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 

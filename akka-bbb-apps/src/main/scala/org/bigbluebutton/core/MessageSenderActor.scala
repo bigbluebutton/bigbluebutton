@@ -580,7 +580,7 @@ class MessageSenderActor(val service: MessageSender)
   }
 
   private def handleTransferUserToMeeting(msg: TransferUserToMeeting) {
-    val m = new TransferUserToVoiceConfRequestMessage(msg.voiceConfId, msg.breakoutVoiceConfId, msg.userId, msg.forward);
+    val m = new TransferUserToVoiceConfRequestMessage(msg.voiceConfId, msg.targetVoiceConfId, msg.userId);
     service.send(MessagingConstants.TO_VOICE_CONF_SYSTEM_CHAN, m.toJson())
   }
 

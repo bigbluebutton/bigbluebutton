@@ -22,8 +22,8 @@
 				if (!data.users || data.users.length == 0) {
 					return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.noUsers');
 				} else {
-					var userNames:String;
-					for each (var user:Object in data.users as Array) {
+					var userNames:String = "";
+					for each (var user:Object in data.users.source as Array) {
 						userNames += user.name + "\n";
 					}
 					return userNames;
@@ -33,6 +33,6 @@
 	</mx:Script>
 
 	<mx:Label text="{data.users.length} {ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
-	<mx:Button id="joinImg" width="20" height="20"
-			   icon="{images.users}" toolTip="{getToolTip()}"/>
+	<mx:Image width="20" height="20"
+			  source="{images.users}" toolTip="{getToolTip()}"/>
 </mx:HBox>

@@ -23,25 +23,17 @@ public class TransferUsetToMeetingCommand extends FreeswitchCommand {
 
 	private final String targetRoom;
 	private final String participant;
-	private final Boolean forward;
 
 	public TransferUsetToMeetingCommand(String room, String targetRoom,
-			String participant, Boolean forward, String requesterId) {
+			String participant, String requesterId) {
 		super(room, requesterId);
 		this.targetRoom = targetRoom;
 		this.participant = participant;
-		this.forward = forward;
 	}
 
 	@Override
 	public String getCommandArgs() {
-		String action = "";
-		if (forward)
-			action = room + SPACE + "transfer" + SPACE + targetRoom;
-		else {
-			action = targetRoom + SPACE + "transfer" + SPACE + room;
-		}
-
-		return action + SPACE + participant;
+		return room + SPACE + "transfer" + SPACE + targetRoom + SPACE
+				+ participant;
 	}
 }

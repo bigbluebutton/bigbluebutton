@@ -28,7 +28,7 @@ object UserMessagesProtocol extends DefaultJsonProtocol {
   implicit val createBreakoutRoomsFormat = jsonFormat3(CreateBreakoutRooms)
   implicit val breakoutRoomsListMessageFormat = jsonFormat1(BreakoutRoomsListMessage)
   implicit val requestBreakoutJoinURLInMessageFormat = jsonFormat3(RequestBreakoutJoinURLInMessage)
-  implicit val transferUserToMeetingRequestFormat = jsonFormat4(TransferUserToMeetingRequest)
+  implicit val transferUserToMeetingRequestFormat = jsonFormat3(TransferUserToMeetingRequest)
   implicit val endBreakoutRoomsFormat = jsonFormat1(EndAllBreakoutRooms)
   implicit val inMsgHeaderFormat = jsonFormat1(InMessageHeader)
   implicit val outMsgHeaderFormat = jsonFormat1(OutMsgHeader)

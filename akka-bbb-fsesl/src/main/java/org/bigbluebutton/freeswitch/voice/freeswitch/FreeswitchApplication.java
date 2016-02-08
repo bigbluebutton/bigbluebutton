@@ -74,9 +74,9 @@ public class FreeswitchApplication {
 	}
 
 	public void transferUserToMeeting(String voiceConfId,
-			String targetVoiceConfId, String voiceUserId, Boolean forward) {
+			String targetVoiceConfId, String voiceUserId) {
 		TransferUsetToMeetingCommand tutmc = new TransferUsetToMeetingCommand(
-				voiceConfId, targetVoiceConfId, voiceUserId, forward, USER);
+				voiceConfId, targetVoiceConfId, voiceUserId, USER);
 		queueMessage(tutmc);
 	}
 
