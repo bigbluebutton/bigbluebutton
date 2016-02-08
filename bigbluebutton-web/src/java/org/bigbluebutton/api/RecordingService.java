@@ -20,14 +20,12 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -231,6 +229,7 @@ public class RecordingService {
                 Path next = iter.next();
                 files.add(next.toFile());
             }
+            stream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
