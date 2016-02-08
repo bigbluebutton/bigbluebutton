@@ -269,8 +269,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function openShortcutHelpWindow(e:Event = null):void{
 				if (scWindow == null) {
 					scWindow = new ShortcutHelpWindow();
-					scWindow.width = 300;
-					scWindow.height = 300;
 				}
 				
 				if (scWindow.minimized)
@@ -280,7 +278,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					scWindow.restore();
 				
 				mdiCanvas.windowManager.add(scWindow);
-				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - scWindow.width/2, mdiCanvas.height/2 - scWindow.height/2);
 				
 				scWindow.focusHead();
 			}
