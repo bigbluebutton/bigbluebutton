@@ -536,10 +536,10 @@ package org.bigbluebutton.main.model.users {
 			breakoutRooms.refresh();
 		}
 		
-		public function updateBreakoutRoomUsers(breakoutId:String, users:Array):void {
+		public function updateBreakoutRoomUsers(breakoutId:String, users:int):void {
 			var room:Object = getBreakoutRoom(breakoutId);
-			if (room!= null) {
-				BreakoutRoom(room).users = new ArrayCollection(users);
+			if (room != null) {
+				BreakoutRoom(room).numberOfUsers = users;
 			}
 		}
 		

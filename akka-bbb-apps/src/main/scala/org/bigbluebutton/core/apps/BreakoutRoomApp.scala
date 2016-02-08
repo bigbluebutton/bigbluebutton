@@ -88,7 +88,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleBreakoutRoomUsersUpdate(msg: BreakoutRoomUsersUpdate) {
     breakoutModel.updateBreakoutUsers(msg.breakoutId, msg.users) foreach { room =>
-      outGW.send(new UpdateBreakoutUsersOutMessage(mProps.meetingID, mProps.recorded, msg.breakoutId, room.users))
+      outGW.send(new UpdateBreakoutUsersOutMessage(mProps.meetingID, mProps.recorded, msg.breakoutId, room.users.length))
     }
   }
 

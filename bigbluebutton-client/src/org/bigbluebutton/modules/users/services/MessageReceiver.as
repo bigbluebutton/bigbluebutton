@@ -617,7 +617,7 @@ package org.bigbluebutton.modules.users.services
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
-		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.users);
+		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.numberOfUsers);
 	}
 	
 	private function handleTimeRemainingUpdate(msg:Object):void{
