@@ -200,7 +200,7 @@ public class RecordingService {
 
     private void createDirectory(File directory) {
         if (!directory.exists())
-            directory.mkdir();
+            directory.mkdirs();
     }
 
     private void deleteDirectory(File directory) {
@@ -325,7 +325,7 @@ public class RecordingService {
                             return;
                         }
                         if (!dest.exists())
-                            dest.mkdir();
+                            dest.mkdirs();
                         boolean moved = recordings.get(f).renameTo(new File(dest, recordings.get(f).getName()));
                         if (moved) {
                             log.debug("Recording successfully moved!");
