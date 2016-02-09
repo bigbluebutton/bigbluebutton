@@ -997,11 +997,13 @@ begin
         recording = metadata.root
         state = recording.at_xpath("state")
         state.content = "published"
+        published = recording.at_xpath("published")
+        published.content = "true"
         ## Remove empty playback
         metadata.search('//recording/playback').each do |playback|
           playback.remove
         end
-        ## Update status and add the actual playback
+        ## Add the actual playback
         metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
             xml.playback {
               xml.format("presentation")
