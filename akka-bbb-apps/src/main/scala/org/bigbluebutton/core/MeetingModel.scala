@@ -5,12 +5,12 @@ import java.util.concurrent.TimeUnit
 
 case object StopMeetingActor
 case class MeetingProperties(meetingID: String, externalMeetingID: String, meetingName: String, recorded: Boolean,
-  voiceBridge: String, duration: Int, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
-  moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, isBreakout: Boolean)
+                             voiceBridge: String, duration: Int, autoStartRecording: Boolean, allowStartStopRecording: Boolean,
+                             moderatorPass: String, viewerPass: String, createTime: Long, createDate: String, isBreakout: Boolean)
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,
-  sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
-  sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
+                                sendNotice: Boolean = true, sent15MinNotice: Boolean = false,
+                                sent10MinNotice: Boolean = false, sent5MinNotice: Boolean = false)
 
 class MeetingModel {
   private var audioSettingsInited = false
@@ -29,7 +29,7 @@ class MeetingModel {
 
   private var extension = new MeetingExtensionProp
 
-  val startedOn = timeNowInMinutes;
+  val startedOn = timeNowInSeconds;
 
   def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
   def incNumExtension(): Int = {
@@ -66,4 +66,5 @@ class MeetingModel {
   def meetingHasEnded() = meetingEnded = true
   def hasMeetingEnded(): Boolean = meetingEnded
   def timeNowInMinutes(): Long = TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
+  def timeNowInSeconds(): Long = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
 }

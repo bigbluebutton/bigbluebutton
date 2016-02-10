@@ -22,16 +22,16 @@ import java.util.concurrent.TimeUnit
 import akka.event.Logging
 
 class LiveMeeting(val mProps: MeetingProperties,
-  val eventBus: IncomingEventBus,
-  val outGW: OutMessageGateway,
-  val chatModel: ChatModel,
-  val layoutModel: LayoutModel,
-  val meetingModel: MeetingModel,
-  val usersModel: UsersModel,
-  val pollModel: PollModel,
-  val wbModel: WhiteboardModel,
-  val presModel: PresentationModel,
-  val breakoutModel: BreakoutRoomModel)(implicit val context: ActorContext)
+                  val eventBus: IncomingEventBus,
+                  val outGW: OutMessageGateway,
+                  val chatModel: ChatModel,
+                  val layoutModel: LayoutModel,
+                  val meetingModel: MeetingModel,
+                  val usersModel: UsersModel,
+                  val pollModel: PollModel,
+                  val wbModel: WhiteboardModel,
+                  val presModel: PresentationModel,
+                  val breakoutModel: BreakoutRoomModel)(implicit val context: ActorContext)
     extends UsersApp with PresentationApp
     with LayoutApp with ChatApp with WhiteboardApp with PollApp
     with BreakoutRoomApp {
@@ -72,7 +72,7 @@ class LiveMeeting(val mProps: MeetingProperties,
   }
 
   def sendTimeRemainingNotice() {
-    val now = timeNowInMinutes
+    val now = timeNowInSeconds
 
     if (mProps.duration > 0 && (((meetingModel.startedOn + mProps.duration) - now) < 15)) {
       //  log.warning("MEETING WILL END IN 15 MINUTES!!!!")
@@ -88,19 +88,12 @@ class LiveMeeting(val mProps: MeetingProperties,
     }
   }
 
-  def calculateTimeRemaining(): Int = {
-    val endMeetingTime = meetingModel.startedOn + mProps.duration
-    val timeRemaining = endMeetingTime - timeNowInMinutes()
-    timeRemaining.toInt
-  }
-
   def handleSendTimeRemainingUpdate(msg: SendTimeRemainingUpdate) {
     if (mProps.duration > 0) {
-      val endMeetingTime = meetingModel.startedOn + mProps.duration
-      val timeRemaining = endMeetingTime - timeNowInMinutes()
+      val endMeetingTime = meetingModel.startedOn + (mProps.duration * 60)
+      val timeRemaining = endMeetingTime - timeNowInSeconds
       outGW.send(new MeetingTimeRemainingUpdate(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
     }
-
   }
 
   def handleExtendMeetingDuration(msg: ExtendMeetingDuration) {
@@ -109,6 +102,10 @@ class LiveMeeting(val mProps: MeetingProperties,
 
   def timeNowInMinutes(): Long = {
     TimeUnit.NANOSECONDS.toMinutes(System.nanoTime())
+  }
+
+  def timeNowInSeconds(): Long = {
+    TimeUnit.NANOSECONDS.toSeconds(System.nanoTime())
   }
 
   def sendMeetingHasEnded(userId: String) {
