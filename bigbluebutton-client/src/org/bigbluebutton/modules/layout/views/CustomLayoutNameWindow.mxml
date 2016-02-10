@@ -51,15 +51,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
         var dispatcher:Dispatcher = new Dispatcher();
         dispatcher.dispatchEvent(e);
-
-        if (savingForFileDownload) {
-          dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_WINDOW_EVENT));
-        }
       }
 
       private function handleLayoutNameInUse(event:LayoutNameInUseEvent):void {
         if (!event.inUse) {
           PopUpManager.removePopUp(this);
+          if (savingForFileDownload) {
+            var dispatcher:Dispatcher = new Dispatcher();
+            dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.SAVE_LAYOUTS_WINDOW_EVENT));
+          }
         } else {
           trace("The name is already in use, waiting for overwrite command or rename");
         }

@@ -55,7 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         PopUpManager.removePopUp(this);
       }
 
-      private function cancelButton_clickHandler():void{
+      private function cancelButton_clickHandler():void {
         PopUpManager.removePopUp(this);
       }
 
