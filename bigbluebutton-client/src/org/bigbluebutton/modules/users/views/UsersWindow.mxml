@@ -35,7 +35,7 @@
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
-	<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME}" method="handleRemainingTimeUpdate" />
+	<mate:Listener type="{BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT}" method="handleRemainingTimeUpdate" />
 	<mate:Listener type="{BreakoutRoomEvent.BREAKOUT_JOIN_URL}" method="handleBreakoutJoinUrl" />
 	<mx:Script>
 		<![CDATA[
@@ -59,6 +59,7 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.TimerUtil;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
@@ -303,7 +304,7 @@
 			
 			private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void{
 				breakoutTimeLabel.text = ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms');
-				breakoutTimeLabel.text += " " + ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [event.durationInMinutes]);
+				TimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes);
 			}
 			
 			private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void{

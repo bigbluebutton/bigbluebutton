@@ -619,10 +619,11 @@ package org.bigbluebutton.modules.users.services
 		var map:Object = JSON.parse(msg.msg);
 		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.numberOfUsers);
 	}
-	
-	private function handleTimeRemainingUpdate(msg:Object):void{
+		
+	private function handleTimeRemainingUpdate(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
-		var e : BreakoutRoomEvent=  new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME);
+		var e:BreakoutRoomEvent = new BreakoutRoomEvent(UserManager.getInstance().getConference().isBreakout ?
+														BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT : BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
 		e.durationInMinutes = map.timeRemaining;
 		dispatcher.dispatchEvent(e);
 	}
