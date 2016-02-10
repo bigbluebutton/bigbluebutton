@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<project name="bbb-deskshare-applet" basedir=".">	
+	<!-- How to sign the applet. From Ant in Action book -->
+
+	<target name="get-password" depends="init-security" description="Prompts for password for keystore">
+		<input addproperty="keystore.password" >password for keystore:</input>
+		<echo level="verbose">password = ${keystore.password}</echo>
+	</target>
+	
+	<target name="init-security">
+		<property name="keystore.dir" location="${user.home}/.secret" />
+		<mkdir dir="${keystore.dir}" />
+		<chmod file="${keystore.dir}" perm="700"/>
+		<property name="keystore"
+			location="${keystore.dir}/local.keystore" />
+		<property file="${keystore.dir}/keystore.properties" />
+		<property name="keystore.alias" value="code.signer"/>
+	</target>
+	
+	<target name="create-signing-key" depends="get-password">
+		<genkey	alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="366" >
+			<dname>
+				<param name="CN" value="BigBlueButton"/>
+				<param name="OU" value="BigBlueButton Project"/>
+				<param name="O" value="BigBlueButton"/>
+				<param name="C" value="CA"/>
+			</dname>
+		</genkey>
+	</target>
+
+	<!-- Sign jar with Certificate using pkcs12 file -->
+	<target name="check-certificate">
+		<input message="Enter cetificate filename:" addproperty="cert.name" />
+		<input message="Enter cetificate password:" addproperty="cert.password" />
+                <exec executable="/usr/bin/keytool" outputproperty="cert.info">
+			<arg line="-list" />
+			<arg line="-storetype pkcs12" />
+                        <arg line="-keystore ${cert.name}" />
+			<arg line="-storepass ${cert.password}" />
+			<arg line="-v" /> 
+		</exec>
+        </target>
+
+	<target name="get-alias-name" depends="check-certificate">
+		<script language="javascript">
+        		<![CDATA[
+			// getting the value
+                	info = project.getProperty("cert.info");
+                	alias = (info.match(/Alias name:(.*)/)[0]).replace("Alias name: ","");
+                	project.setProperty("cert.alias",alias);
+            		]]>
+    		</script> 
+	</target>
+	
+
+	<target name="sign-jar" depends="get-alias-name">
+		<signjar jar="build/libs/javacv-screenshare-0.0.1.jar"
+			storetype="pkcs12"
+			keystore="${cert.name}"
+			storepass="${cert.password}"
+			alias="${cert.alias}" />
+	</target>
+
+</project>
