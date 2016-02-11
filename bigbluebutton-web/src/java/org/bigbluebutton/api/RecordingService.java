@@ -289,6 +289,7 @@ public class RecordingService {
 				Path next = iter.next();
 				files.add(next.toFile());
 			}
+			stream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
