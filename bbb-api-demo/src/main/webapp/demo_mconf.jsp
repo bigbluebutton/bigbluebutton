@@ -173,7 +173,7 @@ if (request.getParameterMap().isEmpty()) {
 				<td>
 					&nbsp;</td>
 				<td>
-					<input type="radio" name="password" value="prof123" text"Moderator" checked>Moderator</input>
+					<input type="radio" name="password" value="prof123" text="Moderator" checked>Moderator</input>
 					<input type="radio" name="password" value="student123">Viewer</input>
 				</td>
 			</tr>
