@@ -867,6 +867,17 @@ class WindowlessFrame implements Serializable {
     mBottomBorder.removeMouseMotionListener(resizingAdapter);
     mResizeBarFrame.removeMouseListener(resizingAdapter);
     mResizeBarFrame.removeMouseMotionListener(resizingAdapter);
+    
+    mRightBorder.removeMouseListener(movingAdapter);
+    mRightBorder.removeMouseMotionListener(movingAdapter);
+    mLeftBorder.removeMouseListener(movingAdapter);
+    mLeftBorder.removeMouseMotionListener(movingAdapter);
+    mTopBorder.removeMouseListener(movingAdapter);
+    mTopBorder.removeMouseMotionListener(movingAdapter);
+    mBottomBorder.removeMouseListener(movingAdapter);
+    mBottomBorder.removeMouseMotionListener(movingAdapter);
+    mResizeBarFrame.removeMouseListener(movingAdapter);
+    mResizeBarFrame.removeMouseMotionListener(movingAdapter);
     mMoveBarFrame.removeMouseListener(movingAdapter);
     mMoveBarFrame.removeMouseMotionListener(movingAdapter);
     repaint();

@@ -34,5 +34,14 @@
 	<classpathentry kind="lib" path="app/lib/spring-core-4.0.8.RELEASE.jar"/>
 	<classpathentry kind="lib" path="app/lib/spring-web-4.0.8.RELEASE.jar"/>
 	<classpathentry kind="lib" path="app/lib/spring-webmvc-4.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/ffmpeg-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/ffmpeg-linux-x86.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/ffmpeg-macosx-x86_64.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/ffmpeg-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/ffmpeg-windows-x86.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/ffmpeg.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/javacpp.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/javacv-screenshare-0.0.1.jar"/>
+	<classpathentry kind="lib" path="app/jws/lib/javacv.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
