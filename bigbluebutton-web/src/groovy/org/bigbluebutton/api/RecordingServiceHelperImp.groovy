@@ -22,6 +22,7 @@ package org.bigbluebutton.api;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import org.bigbluebutton.api.domain.Recording;
@@ -85,13 +86,22 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         xmlEventFile.write writer.toString()
     }
 
-	public Recording getRecordingInfo(File dir) {
-		if (dir.isDirectory()) {
-			def recording = new XmlSlurper().parse(new File(dir.getPath() + File.separatorChar + "metadata.xml"));
-			return getInfo(recording);
-		}
-		return null;
-	}
+    public Recording getRecordingInfo(File dir) {
+        if (dir.isDirectory()) {
+            try {
+                File file = new File(dir.getPath() + File.separatorChar + "metadata.xml");
+                if ( file ) {
+                    def recording = new XmlSlurper().parse(file);
+                    return getInfo(recording);
+                }
+            } catch ( FileNotFoundException e) {
+                // Do nothing, just return null
+            } catch ( Exception e) {
+                log.debug(e.getMessage())
+            }
+        }
+        return null;
+    }
 
     private Recording getInfo(GPathResult rec) {
         Recording r = new Recording();
