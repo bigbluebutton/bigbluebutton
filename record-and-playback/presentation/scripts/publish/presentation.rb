@@ -990,10 +990,10 @@ begin
         FileUtils.cp("#{$process_dir}/metadata.xml", package_dir)
         BigBlueButton.logger.info("Copied metadata.xml file")
 
-        # Add playback to metadata.xml
+        # Update state and add playback to metadata.xml
         ## Load metadata.xml
         metadata = Nokogiri::XML(File.open("#{package_dir}/metadata.xml"))
-        ## Update status
+        ## Update state
         recording = metadata.root
         state = recording.at_xpath("state")
         state.content = "published"
@@ -1012,18 +1012,15 @@ begin
               xml.duration("#{recording_time}")
             }
         end
-        BigBlueButton.logger.info(metadata.to_xml)
-
         ## Write the new metadata.xml
-        metadata_xml = File.new("#{package_dir}/metadata.xml","w")
+        metadata_file = File.new("#{package_dir}/metadata.xml","w")
         metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
-        metadata_xml.write(metadata.root)
-        metadata_xml.close
+        metadata_file.write(metadata.root)
+        metadata_file.close
         BigBlueButton.logger.info("Added playback to metadata.xml")
 
-        BigBlueButton.logger.info("Generating xml for slides and chat")
-
         #Create slides.xml
+        BigBlueButton.logger.info("Generating xml for slides and chat")
 
         # Gathering all the events from the events.xml
         $slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
