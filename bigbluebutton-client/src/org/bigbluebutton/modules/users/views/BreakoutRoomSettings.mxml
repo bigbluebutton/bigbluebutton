@@ -77,22 +77,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
 				}
 			}
-
+			
 			protected function assignUsers():void {
 				dispatcher = new Dispatcher();
-
 				var originalUsers:ArrayCollection = UserManager.getInstance().getConference().users;
 				var users:ArrayCollection = new ArrayCollection();
+				var me:BBBUser;
 				// Copy users to avoid removing the references from the original ArrayCollection
 				for (var l:int = 0; l < originalUsers.length; l++) {
-					users.addItem(BBBUser.copy(originalUsers[l]));
+					if (!UserManager.getInstance().getConference().amIThisUser(BBBUser(originalUsers[l]).userID)) {
+						users.addItem(BBBUser.copy(originalUsers[l]));
+					} // Put the current user to the unassigned box because he is the moderator
+					else {
+						me = originalUsers[l];
+					}
 				}
 				var rooms:int = roomsSlider.value;
 				var perRoom:int = users.length / rooms;
 				var remaining:int = users.length % rooms;
 				var user:BBBUser;
 				roomsContainer.removeAllChildren();
-				// @fixme: don't send duplicate users and be sure that the number of rooms is correct
 				for (var r:int = 0; r < rooms; r++) {
 					var list:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
 					list.users = new ArrayCollection();
@@ -104,13 +108,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				for (var j:int = 0; j < remaining; j++) {
 					BreakoutList(roomsContainer.getChildAt(j)).users.addItem(users.removeItemAt(Math.floor(Math.random() * users.length)) as BBBUser);
 				}
-				var outList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
-				outList.users = new ArrayCollection();
-				outList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
-				
+				var unassignedList:BreakoutList = roomsContainer.addChild(new BreakoutList()) as BreakoutList;
+				unassignedList.users = new ArrayCollection([me]);
+				unassignedList.roomName = ResourceUtil.getInstance().getString('bbb.users.breakout.notAssigned');
 				startButton.enabled = true;
-			}
-			
+			}			
 		]]>
 	</fx:Script>
 
