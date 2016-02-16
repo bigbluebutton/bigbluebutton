@@ -454,9 +454,9 @@ public class MeetingService implements MessageListener {
 	  
 	  Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 	  
-	  presDownloadService.downloadAndProcessDocument(message.defaultPresentationURL, breakout.getInternalId());
-	  
 	  handleCreateMeeting(breakout);
+ 
+	  presDownloadService.downloadAndProcessDocument(message.defaultPresentationURL, breakout.getInternalId());
 	}
 	
   private void processEndBreakoutRoom(EndBreakoutRoom message) {
