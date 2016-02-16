@@ -85,6 +85,10 @@ function startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modi
 		doCall(screen_constraints, videoTag, callbacks);
 	} else {
 		getChromeExtensionStatus(extensionId, function(status) {
+			if (status != "installed-enabled") {
+				console.error("No chrome Extension");
+				return -1;
+			}
 			getScreenConstraints(function(error, screen_constraints) {
 				if(error) {
 					return console.error(error);
