@@ -8,12 +8,12 @@
   <#list recs as r>
     <recording>
       <recordID>${r.getId()}</recordID>
-      <meetingID>${r.getMeetingID()?html}</meetingID>
-      <name><![CDATA[${r.getName()}]]></name>
+      <meetingID><#if r.getMeetingID()?? && r.getMeetingID() != "">${r.getMeetingID()?html}</#if></meetingID>
+      <name><#if r.getName()?? && r.getName() != ""><![CDATA[${r.getName()}]]></#if></name>
       <published>${r.isPublished()?string}</published>
       <state>${r.getState()?string}</state>
-      <startTime>${r.getStartTime()}</startTime>
-      <endTime>${r.getEndTime()}</endTime>
+      <startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
+      <endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
       <#assign m = r.getMetadata()>
       <metadata>
       <#list m?keys as prop>
@@ -21,14 +21,18 @@
       </#list>
       </metadata>
       <playback>
+        <#if r.getPlaybacks()??>
         <#list r.getPlaybacks() as p>
+          <#if p?? && p.getFormat()??>
           <format>
             <type>${p.getFormat()}</type>
             <url>${p.getUrl()}</url>
             <length>${p.getLength()}</length>
             <#-- Missing p.getExtensions() -->
           </format>
+          </#if>
         </#list>
+        </#if>
       </playback>
     </recording>
   </#list>
