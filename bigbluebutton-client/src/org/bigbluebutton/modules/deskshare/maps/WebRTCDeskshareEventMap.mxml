@@ -30,7 +30,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.deskshare.events.ModuleEvent;
-			import org.bigbluebutton.modules.deskshare.events.WebRTCShareEvent;
+			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
+			import org.bigbluebutton.modules.deskshare.events.UseJavaModeCommand;
 			import org.bigbluebutton.modules.deskshare.events.WebRTCShareWindowEvent;
 			import org.bigbluebutton.modules.deskshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.WebRTCViewStreamEvent;
@@ -46,7 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<ObjectBuilder generator="{WebRTCDeskshareManager}"/>
 	</EventHandlers>
 
-	<EventHandlers type="{WebRTCShareEvent.START_SHARING}">
+	<EventHandlers type="{ShareEvent.START_SHARING}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleStartSharingEvent" arguments="{false}"/>
 	</EventHandlers>
 
@@ -80,6 +81,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	<EventHandlers type="{WebRTCViewWindowEvent.CLOSE}">
 		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleViewWindowCloseEvent"/>
+	</EventHandlers>
+
+	<EventHandlers type="{UseJavaModeCommand.USE_JAVA_MODE}">
+		<MethodInvoker generator="{WebRTCDeskshareManager}" method="handleUseJavaModeCommand"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleEvent.STOP}">

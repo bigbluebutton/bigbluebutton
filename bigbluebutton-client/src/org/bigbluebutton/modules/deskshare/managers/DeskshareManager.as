@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.modules.deskshare.events.UseJavaModeCommand;
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 	import org.bigbluebutton.modules.deskshare.utils.JavaCheck;
@@ -158,6 +159,10 @@ package org.bigbluebutton.modules.deskshare.managers
 			viewWindowManager.startViewing(module.getRoom(), videoWidth, videoHeight);
 		}
 
+		public function handleUseJavaModeCommand():void {
+			usingJava = true;
+			handleStartSharingEvent(true);
+		}
 
 	}
 }
