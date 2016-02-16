@@ -92,7 +92,17 @@ var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isChrome = !!window.chrome && !isOpera;
 
 function getChromeExtensionStatus(extensionid, callback) {
-    if (isFirefox) return callback('not-chrome');
+    var assessCallback = function(callback, args) {
+        if (typeof callback == "function") {
+            callback(args);
+        } else {
+            document.getElementById("BigBlueButton").callback(args);
+        }
+    };
+
+    if (isFirefox) return assessCallback(callback, 'not-chrome');
+
+    if (chromeMediaSource == 'desktop') return assessCallback(callback, 'installed-enabled');
 
     if (arguments.length != 2) {
         callback = extensionid;
@@ -105,13 +115,11 @@ function getChromeExtensionStatus(extensionid, callback) {
         chromeMediaSource = 'screen';
         window.postMessage('are-you-there', '*');
         setTimeout(function() {
-            if (chromeMediaSource == 'screen') {
-                callback('installed-enabled');
-            } else callback('installed-enabled');
+          assessCallback(callback, 'installed-enabled');
         }, 2000);
     };
     image.onerror = function() {
-        callback('not-installed');
+        assessCallback(callback, 'not-installed');
     };
 }
 
