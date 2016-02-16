@@ -30,9 +30,8 @@ package org.bigbluebutton.modules.deskshare.model
 		public var useTLS:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
 		public var publishURI:String;
-
-		[Bindable]
-		public var useWebRTCIfAvailable:Boolean = true;
+		[Bindable] public var useWebRTCIfAvailable:Boolean = true;
+		[Bindable] public var chromeExtensionKey:String = null;
 
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("DeskShareModule");
@@ -65,6 +64,9 @@ package org.bigbluebutton.modules.deskshare.model
 				}
 				if (vxml.@useWebRTCIfAvailable != undefined) {
 					useWebRTCIfAvailable = (vxml.@useWebRTCIfAvailable.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@chromeExtensionKey != undefined) {
+					chromeExtensionKey = vxml.@chromeExtensionKey.toString();
 				}
 			}
 		}
