@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />
 	<mate:Listener type="{WebRTCViewStreamEvent.STOP}" method="closePublishWindow" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	<mate:Listener type="{WebRTCStopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
+	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
 	<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
 
 
@@ -57,7 +57,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.WebRTCShareWindowEvent;
-			import org.bigbluebutton.modules.deskshare.events.WebRTCStopSharingButtonEvent;
+			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 			import org.bigbluebutton.modules.deskshare.events.WebRTCStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.WebRTCViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
@@ -165,7 +165,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				closeWindow();
 			}
 
-			public function stopSharingEvent(evt:WebRTCStopSharingButtonEvent):void{
+			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
+				JSLog.warn("stopSharingEvent WebRTCDesktopPublishWindow.mxml", {});
 				stopSharing();
 			}
 
