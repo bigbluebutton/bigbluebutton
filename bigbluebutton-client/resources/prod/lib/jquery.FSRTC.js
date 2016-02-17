@@ -1075,28 +1075,34 @@
     };
 
     function getUserMedia(options) {
-        debugger;
         var n = navigator,
         media;
         n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
 
+        // Added by Dan Perrone (perroned)
+        // https://github.com/perroned
+        // Date: February 17, 2016
+        // Commit: 
 
-        // n.getMedia(options.constraints || {
-        //     audio: true,
-        //     video: video_constraints
-        // },
+        var constraints = {};
+        if (window.firefoxDesksharePresent) {
+            window.firefoxDesksharePresent = false;
+            constraints = {
+                audio: false,
+                video: {
+                    mediaSource: 'window',
+                    mozMediaSource: 'window'
+                }
+            };
+        } else {
+            constraints = options.constraints || {
+                audio: true,
+                video: video_constraints
+            };
+        }
 
-        n.getMedia({
-            audio: false,
-            video: {
-              // mandatory: {
-                mediaSource: 'window',
-                mozMediaSource: 'window'
-              // }
-            }
-        },
-
-
+        n.getMedia(constraints,
+        // ----------------------------------------------------------
         streaming, options.onerror ||
         function(e) {
             console.error(e);
