@@ -71,16 +71,63 @@ function startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modi
 		}
 	};
 
+	// ---------------------------------------
+	// if (!!navigator.mozGetUserMedia) {
+	// 	if (modifyResolution) {
+	// 		configDeskshareFromFirefoxHTML5();
+	// 	} else {
+	// 		configDeskshareFromFirefoxFlash();
+	// 	}
+	// } else if (!!window.chrome) {
+	// 	if (modifyResolution) {
+	// 		configDeskshareFromChromeHTML5();
+	// 	} else {
+	// 		configDeskshareFromChromeFlash();
+	// 	}
+	// }
+
+
+
+
+
+
+
+
+
+
 	if (!!navigator.mozGetUserMedia) {
-		var selectedDeskshareResolution = getChosenDeskshareResolution(); // this is the video profile the user chose
-		my_real_size(selectedDeskshareResolution);
+		// var selectedDeskshareResolution = getChosenDeskshareResolution(); // this is the video profile the user chose
+		// my_real_size(selectedDeskshareResolution);
 		var screen_constraints = {
-			"mozMediaSource": 'window',
-			"mediaSource": 'window',
-			"width": 0,
-			"height": 0,
-			frameRate : {min: 15, max: 30}
+			video: {
+				"mozMediaSource": 'window',
+				"mediaSource": 'window',
+			}
+			// "width": 0,
+			// "height": 0,
+			// frameRate : {min: 15, max: 30}
 		};
+
+		// debugger;
+
+		// getScreenId(function(error, sourceId, screen_constraints) {
+		// 	navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+		// 	navigator.getUserMedia(screen_constraints, function(stream) {
+		// 		console.log(stream);
+				// console.log("screen constraints here");
+				// console.log(screen_constraints.video.mandatory);
+		// 		document.getElementById('localVertoVideo').style.display="block";
+		// 		document.getElementById('localVertoVideo').src = URL.createObjectURL(stream);
+		//
+		// 		stream.onended = function() {
+		// 			document.getElementById('localVertoVideo').src = null;
+		// 		};
+		// 	}, function(error) {
+		// 		// alert(JSON.stringify(error, null, '\t'));
+		// 	});
+		// });
+
+
 
 		doCall(screen_constraints, videoTag, callbacks);
 	} else {

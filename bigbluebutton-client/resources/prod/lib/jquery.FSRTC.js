@@ -625,7 +625,6 @@
         function onError(e) {
             onStreamError(self, e);
         }
-
 	var mediaParams = getMediaParams(self);
 
 	console.log("Audio constraints", mediaParams.audio);
@@ -1065,13 +1064,28 @@
     };
 
     function getUserMedia(options) {
+        debugger;
         var n = navigator,
         media;
         n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-        n.getMedia(options.constraints || {
-            audio: true,
-            video: video_constraints
+
+
+        // n.getMedia(options.constraints || {
+        //     audio: true,
+        //     video: video_constraints
+        // },
+
+        n.getMedia({
+            audio: false,
+            video: {
+              // mandatory: {
+                mediaSource: 'window',
+                mozMediaSource: 'window'
+              // }
+            }
         },
+
+
         streaming, options.onerror ||
         function(e) {
             console.error(e);
