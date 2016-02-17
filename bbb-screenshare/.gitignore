@@ -4,6 +4,7 @@
 .gradle/
 .project
 app/build/
-lib/
-build
+app/lib/
+jws/webstart/lib/
+build/
 /bin/
