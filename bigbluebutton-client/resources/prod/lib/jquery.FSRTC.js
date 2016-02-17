@@ -603,7 +603,15 @@
                 onICEComplete: function() {
                     return onICEComplete(self);
                 },
-                onRemoteStream: screen ? function(stream) { verto_afterStreamPublish();} : function(stream) {
+                onRemoteStream: screen ? function(stream) {
+                  // Added by Dan Perrone (perroned)
+                  // https://github.com/perroned
+                  // Date: January 13, 2016
+                  // Commit: 279f40a4c280bba11052adc621fddbb3135ccb6d
+
+                  verto_afterStreamPublish();} :
+                  // ----------------------------------------------------
+                  function(stream) {
                     return onRemoteStream(self, stream);
                 },
                 onOfferSDP: function(sdp) {
