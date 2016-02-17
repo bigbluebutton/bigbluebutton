@@ -70,12 +70,17 @@ public class FfmpegScreenshare {
     Map<String, String> codecOptions = splitToMap(ssi.codecOptions, "&", "=");
     Double frameRate = parseFrameRate(codecOptions.get(FRAMERATE_KEY));
     
-    grabber = new FFmpegFrameGrabber("desktop");
-    grabber.setImageWidth(width);
-    grabber.setImageHeight(height);
-    grabber.setOption("offset_x", new Integer(x).toString());
-    grabber.setOption("offset_y", new Integer(y).toString());
-    grabber.setFormat("gdigrab");
+    String platform = Loader.getPlatform();
+    String osName = System.getProperty("os.name").toLowerCase();
+    if (platform.startsWith("windows")) {
+      grabber = setupWindowsGrabber(width, height, x, y);
+    } else if (osName.startsWith("linux")) {
+      grabber = setupLinuxGrabber(width, height, x, y);
+    } else if (platform.startsWith("macosx")) {
+      grabber = setupMacOsXGrabber(width, height, x, y);
+    }
+    
+
     grabber.setFrameRate(frameRate);
     try {
       grabber.start();
@@ -225,18 +230,77 @@ public class FfmpegScreenshare {
     recorder.setVideoOption("intra-refresh", "1"); 
   }
   
-  private void userSVC2(FFmpegFrameRecorder recorder) {
+  private void useSVC2(FFmpegFrameRecorder recorder) {
     recorder.setFormat("flv");
     
     ///
     // Flash SVC2
     recorder.setVideoCodec(AV_CODEC_ID_FLASHSV2);
     recorder.setPixelFormat(AV_PIX_FMT_BGR24);
-
-    recorder.setVideoOption("crf", "38");
-    recorder.setVideoOption("preset", "veryfast");
-    recorder.setVideoOption("tune", "zerolatency");
-    recorder.setVideoOption("intra-refresh", "1");
     
-}
+  }
+  
+  // Need to construct our grabber depending on which
+  // platform the user is using.
+  // https://trac.ffmpeg.org/wiki/Capture/Desktop
+  //
+  private FFmpegFrameGrabber setupWindowsGrabber(int width, int height, int x, int y) {
+    System.out.println("Setting up grabber for windows.");
+    FFmpegFrameGrabber winGrabber = new FFmpegFrameGrabber("desktop");
+    winGrabber.setImageWidth(width);
+    winGrabber.setImageHeight(height);
+    
+    if (ssi.fullScreen) {
+      winGrabber.setOption("offset_x", new Integer(0).toString());
+      winGrabber.setOption("offset_y", new Integer(0).toString());      
+    } else {
+      winGrabber.setOption("offset_x", new Integer(x).toString());
+      winGrabber.setOption("offset_y", new Integer(y).toString());       
+    }
+    winGrabber.setFormat("gdigrab");   
+    
+    return winGrabber;
+  }
+  
+  private FFmpegFrameGrabber setupLinuxGrabber(int width, int height, int x, int y) {
+    // ffmpeg -video_size 1024x768 -framerate 25 -f x11grab -i :0.0+100,200 output.mp4
+    // This will grab the image from desktop, starting with the upper-left corner at (x=100, y=200) 
+    // with the width and height of 1024x768.
+
+    String inputDevice = ":"; 
+    if (ssi.fullScreen) {
+      inputDevice.concat(new Integer(0).toString()).concat(".").concat(new Integer(0).toString());
+      inputDevice.concat("+").concat(new Integer(0).toString()).concat(",").concat(new Integer(0).toString());     
+    } else {
+      inputDevice.concat(new Integer(0).toString()).concat(".").concat(new Integer(0).toString());
+      inputDevice.concat("+").concat(new Integer(x).toString()).concat(",").concat(new Integer(y).toString());      
+    }
+    
+    String videoSize = new Integer(width).toString().concat("x").concat(new Integer(height).toString());
+    
+    System.out.println("Setting up grabber for linux.");
+    System.out.println("input:" + inputDevice + " videoSize:" + videoSize);
+    
+    FFmpegFrameGrabber linuxGrabber = new FFmpegFrameGrabber(inputDevice);
+    linuxGrabber.setImageWidth(width);
+    linuxGrabber.setImageHeight(height);
+    linuxGrabber.setOption("video_size", videoSize); 
+    linuxGrabber.setFormat("x11grab");    
+    return linuxGrabber;
+  }
+  
+  private FFmpegFrameGrabber setupMacOsXGrabber(int width, int height, int x, int y) {
+    
+    //ffmpeg -f avfoundation -i "Capture screen 0" test.mkv
+    String inputDevice = "Capture screen 0";     
+    String videoSize = new Integer(width).toString().concat("x").concat(new Integer(height).toString());
+
+    System.out.println("Setting up grabber for linux.");
+    System.out.println("input:" + inputDevice + " videoSize:" + videoSize);
+    
+    FFmpegFrameGrabber macGrabber = new FFmpegFrameGrabber(inputDevice);
+    macGrabber.setOption("video_size", videoSize); 
+    macGrabber.setFormat("avfoundation");
+    return macGrabber;
+  }
 }

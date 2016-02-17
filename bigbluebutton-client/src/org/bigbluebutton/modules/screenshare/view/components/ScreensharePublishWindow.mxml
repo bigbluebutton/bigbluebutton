@@ -54,7 +54,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.screenshare.events.RequestToStopSharing;
-      import org.bigbluebutton.modules.screenshare.events.ScreenshareAppletLaunchedEvent;
       import org.bigbluebutton.modules.screenshare.events.ShareWindowEvent;
       import org.bigbluebutton.modules.screenshare.events.StartShareRequestSuccessEvent;
       import org.bigbluebutton.modules.screenshare.events.StopSharingButtonEvent;
@@ -62,7 +61,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.screenshare.events.ViewStreamEvent;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareModel;
       import org.bigbluebutton.modules.screenshare.model.ScreenshareOptions;
-      import org.bigbluebutton.modules.screenshare.utils.JavaCheck;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       private static const LOG:String = "SC::ScreensharePublishWIndow - ";	
@@ -90,10 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var captureWidth:Number = Capabilities.screenResolutionX;
       private var autoStart:Boolean = false;
       private var globalDispatcher:Dispatcher = new Dispatcher();
-      private var javaTimer:Timer;
       
-      
-      [Bindable] private var cursor:Sprite;
       [Bindable] private var baseIndex:int;
       [Bindable] private var dsOptions:ScreenshareOptions;
       
@@ -103,22 +98,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function onCreationComplete():void {
-        windowControls.maximizeRestoreBtn.enabled = false;
-        
-        cursor = new Sprite();
-        cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-        cursor.graphics.drawCircle(0,0,3);		
-        
-        var javaIssue:String = JavaCheck.checkJava();
+        windowControls.maximizeRestoreBtn.enabled = false;    
         
         if (isUsingLessThanChrome38OnMac()) {
           setCurrentState("chromeOnMacWarningState");
-        }
-        else if (javaIssue != null) {
-          setCurrentState("javaIssueWarningState");
-          javaIssueWarningStateLbl.htmlText = javaIssue;
-        }
-        else {
+        } else {
           setCurrentState("dispFullRegionControlBar");
         }
         resourcesChanged();
@@ -177,9 +161,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace(LOG + "Calling shareScreen");
         btnFSPublish.enabled = false;
         btnRegionPublish.enabled = false;
-        javaTimer = new Timer(1000, 1);
-        javaTimer.addEventListener(TimerEvent.TIMER, onJavaTimer);
-        javaTimer.start();
         startSharing(connection, uri, room, fullScreen);
       }
       
@@ -217,13 +198,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         closeWindow();
       }
-      
-      private function onJavaTimer(e:TimerEvent):void {
-        var browser:Array = ExternalInterface.call("determineBrowser");
-        if (browser[0] == "Chrome")
-          javaHelpArea.visible = javaHelpArea.includeInLayout = true;
-      }
-      
+           
       private function handleStartViewStreamEvent(event:ViewStreamEvent):void{
         trace(LOG + "handleStartViewStreamEvent");
         var width: int = ScreenshareModel.getInstance().width;
@@ -233,8 +208,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function startPreviewStream(nc:NetConnection, streamId:String, capWidth:Number, capHeight:Number):void{			
-        
-        removeJavaHelpArea();
         
         trace(LOG + "Viewing stream =[" + streamId + "]");
         streaming = true;
@@ -274,8 +247,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         
         videoHolder.addChild(video);
-        videoHolder.addChild(cursor);
-        cursor.visible = false;
         this.addChild(videoHolder);
         
         ns = new NetStream(nc);
@@ -336,12 +307,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         shareScreen(sharingFullScreen);
       }
       
-      private function removeJavaHelpArea():void {
-        if (javaTimer && javaTimer.running) {
-          javaTimer.stop();
-        }
-        javaHelpArea.visible = javaHelpArea.includeInLayout = false;
-      }
       
       /*
       * Override the close handler. We want the Event Map to send a message to
@@ -389,11 +354,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </mx:Script>
   
   <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
-  <mx:VBox id="javaHelpArea" includeInLayout="false" visible="false" height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
-    <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.chromeHint.title')}" />
-    <mx:Image id="javaHelpImg" styleName="chromeJavaHelpImage" source="{javaHelpImg.getStyle('imageSource')}" />
-    <mx:Text width="80%" textAlign="center" styleName="desktopShareTextStyle" text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.chromeHint.message')}" />
-  </mx:VBox>
   <dspub:states>	    
     <mx:State name="dispFullRegionControlBar">   
       <mx:AddChild>
@@ -429,20 +389,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         </mx:ControlBar>
       </mx:AddChild>
     </mx:State>	
-    <mx:State name="chromeOnMacWarningState">
-      <mx:AddChild>
-        <mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
-          <mx:Text id="chromeOnMacWarningLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle"
-                   text="{ResourceUtil.getInstance().getString('bbb.screensharePublish.chromeOnMacUnsupportedHint')}" />
-        </mx:VBox>
-      </mx:AddChild>
-    </mx:State>
-    <mx:State name="javaIssueWarningState">
-      <mx:AddChild>
-        <mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
-          <mx:Text id="javaIssueWarningStateLbl" width="80%" textAlign="center" styleName="desktopShareTextStyle" />
-        </mx:VBox>
-      </mx:AddChild>
-    </mx:State>
   </dspub:states>
 </dspub:MDIWindow>

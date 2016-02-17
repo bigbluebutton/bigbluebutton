@@ -1,5 +1,6 @@
+FFMPEG=ffmpeg-2.8.5-1.2-SNAPSHOT-macosx-x86_64.jar
 mkdir workdir
-cp ffmpeg-macosx-x86_64.jar workdir
+cp $FFMPEG workdir/ffmpeg-macosx-x86_64.jar
 rm -rf src
 mkdir -p src/main/resources
 cd workdir
