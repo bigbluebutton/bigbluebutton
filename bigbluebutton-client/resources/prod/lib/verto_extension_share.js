@@ -2,6 +2,85 @@ var deskshareStream = "deskshareStream";
 window[deskshareStream] = null;
 this.share_call = null;
 
+var configDeskshareFromChrome = function(videoTag, callbacks, extensionId, resolutionConstruction) {
+	getChromeExtensionStatus(extensionId, function(status) {
+		if (status != "installed-enabled") {
+			console.error("No chrome Extension");
+			return -1;
+		}
+
+		getScreenConstraints(function(error, screen_constraints) {
+			if(error) {
+				return console.error(error);
+			}
+
+			screen_constraints = resolutionConstruction(screen_constraints);
+			window.firefoxDesksharePresent = false;
+			doCall(screen_constraints, videoTag, callbacks);
+		});
+	});
+};
+
+var configDeskshareFromChromeHTML5 = function(videoTag, callbacks, extensionId) {
+	var resolutionConstruction = function(screen_constraints) {
+		console.log("modifying video quality");
+		var selectedDeskshareResolution = getChosenDeskshareResolution(); // this is the video profile the user chose
+		my_real_size(selectedDeskshareResolution);
+		var selectedDeskshareConstraints = getDeskshareConstraintsFromResolution(selectedDeskshareResolution, screen_constraints); // convert to a valid constraints object
+		console.log(selectedDeskshareConstraints);
+		return selectedDeskshareConstraints.video.mandatory;
+	};
+	configDeskshareFromChrome(videoTag, callbacks, extensionId, resolutionConstruction);
+};
+
+var configDeskshareFromChromeFlash = function(videoTag, callbacks, extensionId) {
+	var resolutionConstruction = function(screen_constraints) {
+		// BigBlueButton low
+		var getDeskshareConstraints = function(constraints) {
+			return {
+				"audio": false,
+				"video": {
+					"mandatory": {
+						"maxWidth": 160,
+						"maxHeight": 120,
+						"chromeMediaSource": constraints.mandatory.chromeMediaSource,
+						"chromeMediaSourceId": constraints.mandatory.chromeMediaSourceId,
+						"minFrameRate": 10,
+					},
+					"optional": []
+				}
+			};
+		};
+
+		console.log("not modifying video quality");
+		var selectedDeskshareConstraints = getDeskshareConstraints(screen_constraints); // convert to a valid constraints object
+		console.log(selectedDeskshareConstraints);
+		return selectedDeskshareConstraints.video.mandatory;
+	};
+	configDeskshareFromChrome(videoTag, callbacks, extensionId, resolutionConstruction);
+};
+
+var configDeskshareFromFirefox = function(screen_constraints, videoTag, callbacks) {
+	window.firefoxDesksharePresent = true;
+	var screen_constraints = {
+		video: {
+			"mozMediaSource": 'window',
+			"mediaSource": 'window',
+		}
+	};
+	doCall(screen_constraints, videoTag, callbacks);
+};
+
+var configDeskshareFromFirefoxFlash = function(screen_constraints, videoTag, callbacks) {
+	console.log("deskshare from firefox flash");
+	configDeskshareFromFirefox(screen_constraints, videoTag, callbacks);
+};
+
+var configDeskshareFromFirefoxHTML5 = function(screen_constraints, videoTag, callbacks) {
+	console.log("deskshare from firefox html5");
+	configDeskshareFromFirefox(screen_constraints, videoTag, callbacks);
+};
+
 function endScreenshare(loggingCallback, onSuccess) {
 	console.log("endScreenshare");
 	if (share_call) {
@@ -71,113 +150,18 @@ function startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modi
 		}
 	};
 
-	// ---------------------------------------
-	// if (!!navigator.mozGetUserMedia) {
-	// 	if (modifyResolution) {
-	// 		configDeskshareFromFirefoxHTML5();
-	// 	} else {
-	// 		configDeskshareFromFirefoxFlash();
-	// 	}
-	// } else if (!!window.chrome) {
-	// 	if (modifyResolution) {
-	// 		configDeskshareFromChromeHTML5();
-	// 	} else {
-	// 		configDeskshareFromChromeFlash();
-	// 	}
-	// }
-
-
-
-
-
-
-
-
-
-
 	if (!!navigator.mozGetUserMedia) {
-		// var selectedDeskshareResolution = getChosenDeskshareResolution(); // this is the video profile the user chose
-		// my_real_size(selectedDeskshareResolution);
-		var screen_constraints = {
-			video: {
-				"mozMediaSource": 'window',
-				"mediaSource": 'window',
-			}
-			// "width": 0,
-			// "height": 0,
-			// frameRate : {min: 15, max: 30}
-		};
-
-		// debugger;
-
-		// getScreenId(function(error, sourceId, screen_constraints) {
-		// 	navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-		// 	navigator.getUserMedia(screen_constraints, function(stream) {
-		// 		console.log(stream);
-				// console.log("screen constraints here");
-				// console.log(screen_constraints.video.mandatory);
-		// 		document.getElementById('localVertoVideo').style.display="block";
-		// 		document.getElementById('localVertoVideo').src = URL.createObjectURL(stream);
-		//
-		// 		stream.onended = function() {
-		// 			document.getElementById('localVertoVideo').src = null;
-		// 		};
-		// 	}, function(error) {
-		// 		// alert(JSON.stringify(error, null, '\t'));
-		// 	});
-		// });
-
-
-
-		doCall(screen_constraints, videoTag, callbacks);
-	} else {
-		getChromeExtensionStatus(extensionId, function(status) {
-			if (status != "installed-enabled") {
-				console.error("No chrome Extension");
-				return -1;
-			}
-			getScreenConstraints(function(error, screen_constraints) {
-				if(error) {
-					return console.error(error);
-				}
-
-				console.log("status", status);
-				console.log('screen_constraints', screen_constraints);
-
-				if (modifyResolution) {
-					console.log("modifying video quality");
-					var selectedDeskshareResolution = getChosenDeskshareResolution(); // this is the video profile the user chose
-					my_real_size(selectedDeskshareResolution);
-					var selectedDeskshareConstraints = getDeskshareConstraintsFromResolution(selectedDeskshareResolution, screen_constraints); // convert to a valid constraints object
-					console.log(selectedDeskshareConstraints);
-					screen_constraints = selectedDeskshareConstraints.video.mandatory;
-				} else {
-					// BigBlueButton low
-					var getDeskshareConstraints = function(constraints) {
-						return {
-							"audio": false,
-							"video": {
-								"mandatory": {
-									"maxWidth": 160,
-									"maxHeight": 120,
-									"chromeMediaSource": constraints.mandatory.chromeMediaSource,
-									"chromeMediaSourceId": constraints.mandatory.chromeMediaSourceId,
-									"minFrameRate": 10,
-								},
-								"optional": []
-							}
-						};
-					}
-
-					console.log("not modifying video quality");
-					var selectedDeskshareConstraints = getDeskshareConstraints(screen_constraints); // convert to a valid constraints object
-					console.log(selectedDeskshareConstraints);
-					screen_constraints = selectedDeskshareConstraints.video.mandatory;
-				}
-
-				doCall(screen_constraints, videoTag, callbacks);
-			});
-		});
+		if (modifyResolution) {
+			configDeskshareFromFirefoxHTML5(videoTag, callbacks);
+		} else {
+			configDeskshareFromFirefoxFlash(videoTag, callbacks);
+		}
+	} else if (!!window.chrome) {
+		if (modifyResolution) {
+			configDeskshareFromChromeHTML5(videoTag, callbacks, extensionId);
+		} else {
+			configDeskshareFromChromeFlash(videoTag, callbacks, extensionId);
+		}
 	}
 }
 
