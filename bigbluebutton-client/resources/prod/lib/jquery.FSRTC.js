@@ -638,10 +638,13 @@
 	console.log("Audio constraints", mediaParams.audio);
 	console.log("Video constraints", mediaParams.video);
 
-    // watchOnly
-    // listenOnly
-    // joinAudio
-    //
+  // Added by Dan Perrone (perroned)
+  // https://github.com/perroned
+  // Date: January 13, 2016
+  // Commit: 279f40a4c280bba11052adc621fddbb3135ccb6d
+
+    // watchOnly, listenOnly, joinAudio
+    // modify the gUM calls based on additional types of calls I added
     if (window.watchOnly && !window.listenOnly && !window.joinAudio) {
         var stream = null;
         if (typeof webkitMediaStream !== 'undefined') {
@@ -680,7 +683,7 @@
         });
         return;
     }
-
+    // ---------------------------------------------------
 
 	if (mediaParams.audio || mediaParams.video) {
 
