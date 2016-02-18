@@ -33,6 +33,7 @@ import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.bigbluebutton.common.converters.ToJsonEncoder;
 import org.bigbluebutton.common.messages.MessageHeader;
 import org.bigbluebutton.common.messages.MessagingConstants;
+import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.PubSubPingMessage;
 import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
 import org.bigbluebutton.common.messages.SendStunTurnInfoReplyMessage;
@@ -136,17 +137,16 @@ public class RedisMessagingService implements MessagingService {
 	public List<Map<String,String>> listSubscriptions(String meetingId){
 		return storeService.listSubscriptions(meetingId);	
 	}	
-	
+
 	public void removeMeeting(String meetingId){
 		storeService.removeMeeting(meetingId);
 	}
 
 	public void sendStunTurnInfo(String meetingId, String internalUserId, Set<StunServer> stuns, Set<TurnEntry> turns) {
-		System.out.println("RedisMessagingService::sendStunTurnInfo ");
-
 		ArrayList<String> stunsArrayList = new ArrayList<String>();
 		Iterator stunsIter = stuns.iterator();
-		if (stunsIter.hasNext()) {
+
+		while (stunsIter.hasNext()) {
 			StunServer aStun = (StunServer) stunsIter.next();
 			if (aStun != null) {
 				stunsArrayList.add(aStun.url);
@@ -155,14 +155,14 @@ public class RedisMessagingService implements MessagingService {
 
 		ArrayList<Map<String, Object>> turnsArrayList = new ArrayList<Map<String, Object>>();
 		Iterator turnsIter = turns.iterator();
-		if (turnsIter.hasNext()) {
+		while (turnsIter.hasNext()) {
 			TurnEntry te = (TurnEntry) turnsIter.next();
 			if (null != te) {
 				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("username", te.username);
-				map.put("url", te.url);
-				map.put("ttl", te.ttl);
-				map.put("password", te.password);
+				map.put(Constants.USERNAME, te.username);
+				map.put(Constants.URL, te.url);
+				map.put(Constants.TTL, te.ttl);
+				map.put(Constants.PASSWORD, te.password);
 
 				turnsArrayList.add(map);
 			}
@@ -171,6 +171,6 @@ public class RedisMessagingService implements MessagingService {
 		SendStunTurnInfoReplyMessage msg = new SendStunTurnInfoReplyMessage(meetingId, internalUserId,
 				stunsArrayList, turnsArrayList);
 
-		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());
+		sender.send(MessagingConstants.TO_BBB_HTML5_CHANNEL, msg.toJson());
 	}
 }

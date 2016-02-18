@@ -43,7 +43,9 @@ public class MessagingConstants {
 	public static final String TO_WHITEBOARD_CHANNEL = TO_BBB_APPS_CHANNEL + ":whiteboard";
 
 	public static final String BBB_APPS_KEEP_ALIVE_CHANNEL = "bigbluebutton:from-bbb-apps:keepalive";
-	
+
+	public static final String TO_BBB_HTML5_CHANNEL = "bigbluebutton:to-bbb-html5";
+
 	public static final String TO_VOICE_CONF_CHANNEL = "bigbluebutton:to-voice-conf";	
 	public static final String TO_VOICE_CONF_PATTERN = TO_VOICE_CONF_CHANNEL + ":*";
 	public static final String TO_VOICE_CONF_SYSTEM_CHAN = TO_VOICE_CONF_CHANNEL + ":system";
