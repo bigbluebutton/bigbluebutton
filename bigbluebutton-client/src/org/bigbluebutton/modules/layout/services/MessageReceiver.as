@@ -60,8 +60,13 @@ package org.bigbluebutton.modules.layout.services
     
     private function onReceivedFirstLayout(message:Object):void {
       LOGGER.debug("LayoutService: handling the first layout. locked = [{0}] layout = [{1}]", [message.locked, message.layout]);
-      lockLayout(message.locked, message.setById);
-      handleSyncLayout(message);
+	  trace("LayoutService: handling the first layout. locked = [" + message.locked + "] layout = [" + message.layout + "]");
+	  if(message.layout == "")
+		  _dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+	  else {
+      	lockLayout(message.locked, message.setById);
+      	handleSyncLayout(message);
+	  }
 	  
       _dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
     }
