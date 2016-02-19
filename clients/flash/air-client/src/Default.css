@@ -12,12 +12,22 @@ s|List.cameraProfilesListStyle
 
 s|Button {
 	fontWeight: normal;	
+s|Group.participantIconStyle
+{
+	circleColor: #8898A5;	
+}
+
 s|Button.bottomPresentationBtnStyle
 {
 	backgroundColor: #4998D0;
 	selectedBackgroundColor: #DBDBDB;
 	color: #FFFFFF;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.PresentationButtonSkin");
+}
+
+s|View.participantsViewStyle
+{
+	subRectangleColor: #F1F3F7;
 }
 
 s|Group.bottomMenuStyle
@@ -558,7 +568,7 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/video.png");
 	}
 	
-	s|Image.iconStyle
+	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 32;
 		height: 32;
@@ -706,6 +716,9 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/publicChat.png");
 	}
 	
+	s|Image.participantInitialsCircleIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/participantCircle.png");
 	}
 	
 	s|Image.arrowRightStyle
@@ -891,7 +904,12 @@ s|TextInput.msgInputBoxStyle
 		fontSize:18;
 	}
 	
-	s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle
+	.nameIconText
+	{
+		fontSize:12;
+	}
+	
+	s|ItemRenderer.chatRoomItemStyle, s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle, s|ItemRenderer.statusItemStyle
 	{
 		itemHeight:96;
 		lineColor: #F2F2F2;
@@ -1078,7 +1096,7 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/video.png");
 	}
 	
-	s|Image.iconStyle
+	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 48;
 		height: 48;
@@ -1226,6 +1244,9 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/publicChat.png");
 	}
 	
+	s|Image.participantInitialsCircleIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/participantCircle.png");
 	}
 	
 	s|Image.arrowRightStyle
@@ -1418,7 +1439,12 @@ s|TextInput.msgInputBoxStyle
 		fontSize:24;
 	}
 	
-	s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle
+	.nameIconText
+	{
+		fontSize:16;
+	}
+	
+	s|ItemRenderer.chatRoomItemStyle, s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle, s|ItemRenderer.statusItemStyle
 	{
 		itemHeight:128;
 		lineColor: #F2F2F2;
@@ -1605,7 +1631,7 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/video.png");
 	}
 	
-	s|Image.iconStyle
+	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 64;
 		height: 64;
@@ -1753,8 +1779,9 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/publicChat.png");
 	}
 	
+	s|Image.participantInitialsCircleIconStyle
 	{
-		backgroundImage: Embed(source="assets/res/drawable-xhdpi/user.png");
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/participantCircle.png");
 	}
 	
 	s|Image.arrowRightStyle
@@ -1940,7 +1967,12 @@ s|TextInput.msgInputBoxStyle
 		fontSize:36;
 	}
 	
-	s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle
+	.nameIconText
+	{
+		fontSize:24;
+	}
+	
+	s|ItemRenderer.chatRoomItemStyle, s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle, s|ItemRenderer.statusItemStyle
 	{
 		itemHeight:192;
 		lineColor: #F2F2F2;
@@ -2137,7 +2169,7 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/video.png");
 	}
 	
-	s|Image.iconStyle
+	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 96;
 		height: 96;
@@ -2285,6 +2317,9 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/publicChat.png");
 	}
 	
+	s|Image.participantInitialsCircleIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/participantCircle.png");
 	}
 	
 	s|Image.arrowRightStyle

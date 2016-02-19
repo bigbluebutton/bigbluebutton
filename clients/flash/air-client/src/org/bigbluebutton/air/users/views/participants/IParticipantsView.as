@@ -12,5 +12,6 @@ package org.bigbluebutton.air.users.views.participants {
 		function get allGuests():SkinnableComponent;
 		function get allowAllButton():Button;
 		function get denyAllButton():Button;
+		function get conversationsList():List;
 	}
 }

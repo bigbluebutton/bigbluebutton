@@ -34,6 +34,10 @@ package org.bigbluebutton.air.users.views.participants {
 			return denyAllButton0;
 		}
 		
+		public function get conversationsList():List {
+			return conversationslist;
+		}
+		
 		/*
 		   public function onClick(e:MouseEvent):void
 		   {

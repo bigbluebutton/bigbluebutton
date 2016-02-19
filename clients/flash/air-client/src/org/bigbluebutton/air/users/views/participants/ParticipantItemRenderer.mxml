@@ -2,20 +2,17 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:participanticon="org.bigbluebutton.air.common.views.*"
 				styleName="participantItemStyle">
 
 	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
-			
 			import org.bigbluebutton.lib.user.models.User;
 			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
-					presentationIcon.visible = presentationIcon.includeInLayout = obj.presenter && (obj.status == User.NO_STATUS);
-					profileIcon.visible = ((obj.role == User.MODERATOR) && (!obj.presenter) && (obj.status == User.NO_STATUS));
-					profileIcon.includeInLayout = (!obj.presenter) && (obj.status == User.NO_STATUS);
 					cameraIcon.visible = obj.hasStream;
 					micIcon.visible = micIcon.includeInLayout = (obj.voiceJoined && !obj.muted);
 					lockIcon.visible = obj.locked;
@@ -28,19 +25,10 @@
 					} else {
 						labelDisplay.text = obj.name;
 					}
-					handIcon.visible = handIcon.includeInLayout = obj.status == User.RAISE_HAND;
-					beRightBackIcon.visible = beRightBackIcon.includeInLayout = obj.status == User.AWAY;
-					laughterIcon.visible = laughterIcon.includeInLayout = obj.status == User.HAPPY;
-					sadIcon.visible = sadIcon.includeInLayout = obj.status == User.SAD;
+					participantIcon.participantName = obj.name;
 					if (obj.presenter) {
 						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;
 						subLabelDisplay.text = resourceManager.getString('resources', 'participants.status.presenter');
-						if (obj.role == User.MODERATOR) {
-							subLabelDisplay.text += "/" + resourceManager.getString('resources', 'participants.status.moderator');
-						}
-					} else if (obj.role == User.MODERATOR) {
-						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;
-						subLabelDisplay.text = resourceManager.getString('resources', 'participants.status.moderator');
 					} else {
 						subLabelDisplay.visible = subLabelDisplay.includeInLayout = false;
 					}
@@ -55,44 +43,10 @@
 								paddingLeft="{getStyle('itemPaddingLeft')}"
 								paddingRight="{getStyle('itemPaddingRight')}" />
 		</s:layout>
-		<s:Image id="profileIcon"
-				 styleName="iconStyle moderatorIconStyle"
-				 height="100%" />
-		<s:Image id="presentationIcon"
-				 styleName="iconStyle presentationIconStyle"
-				 height="100%" />
-		<s:Image id="handIcon"
-				 styleName="iconStyle handIconStyle"
-				 height="100%" />
-		<s:Image id="agreeIcon"
-				 styleName="iconStyle agreeIconStyle"
-				 height="100%" />
-		<s:Image id="disagreeIcon"
-				 styleName="iconStyle disagreeIconStyle"
-				 height="100%" />
-		<s:Image id="speakLouderIcon"
-				 styleName="iconStyle speakLouderIconStyle"
-				 height="100%" />
-		<s:Image id="speakSofterIcon"
-				 styleName="iconStyle speakSofterIconStyle"
-				 height="100%" />
-		<s:Image id="speakFasterIcon"
-				 styleName="iconStyle speakFasterIconStyle"
-				 height="100%" />
-		<s:Image id="speakSlowerIcon"
-				 styleName="iconStyle speakSlowerIconStyle"
-				 height="100%" />
-		<s:Image id="beRightBackIcon"
-				 styleName="iconStyle beRightBackIconStyle"
-				 height="100%" />
-		<s:Image id="laughterIcon"
-				 styleName="iconStyle laughterIconStyle"
-				 height="100%" />
-		<s:Image id="sadIcon"
-				 styleName="iconStyle sadIconStyle"
-				 height="100%" />
 
-		<s:Group width="70%">
+		<participanticon:ParticipantIcon id="participantIcon" />
+
+		<s:Group width="100%">
 			<s:layout>
 				<s:VerticalLayout />
 			</s:layout>
