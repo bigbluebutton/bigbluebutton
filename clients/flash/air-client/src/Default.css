@@ -168,7 +168,7 @@ s|SkinnableContainer.containerStyle
 
 global
 {
-	font-family: Myriad Pro;
+	font-family: Helvetica;
 	vertical-align: middle;
 	font-weight: normal;
 	text-align: left;
@@ -176,6 +176,14 @@ global
 	symbol-color: #F6F2F2;
 	chrome-color: #0C0B0B;
 	color: #777777;
+.presentationStyle, .loadingScreenStyle
+{
+	backgroundColor: #2A2D33;
+}
+.loadingScreenStyle
+{
+	lineColor: #959699;
+	color: #FFFFFF
 }
 
 s|Image.bigbbbLogoStyle
@@ -309,6 +317,11 @@ s|Image.bigbbbLogoStyle
 	s|Label.pageNameStyle
 	{
 		fontSize:18;
+	}
+	
+	.loadingScreenTitle
+	{
+		fontSize:21;
 	}
 	
 	.contentFontSize
@@ -1271,6 +1284,11 @@ s|Image.bigbbbLogoStyle
 		fontSize:36;
 	}
 	
+	.loadingScreenTitle
+	{
+		fontSize:46;
+	}
+	
 	s|Button.topButtonStyle
 	{
 		paddingLeft: 48;
@@ -1750,6 +1768,11 @@ s|Image.bigbbbLogoStyle
 	s|Label.pageNameStyle
 	{
 		fontSize:54;
+	}
+	
+	.loadingScreenTitle
+	{
+		fontSize:70;
 	}
 	
 	.contentFontSize
