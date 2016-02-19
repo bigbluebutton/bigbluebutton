@@ -3,7 +3,7 @@
 @namespace view "org.bigbluebutton.top.view.*";
 @namespace navigationbutton "org.bigbluebutton.air.main.views.ui.navigationbutton.*";
 @namespace skins "org.bigbluebutton.air.main.views.skins.*";
-@namespace common "org.bigbluebutton.view.navigation.pages.common.*";
+@namespace common "org.bigbluebutton.air.common.views.*";
 @namespace presentation "org.bigbluebutton.air.presentation.views.*";
 @namespace selectWebcam "org.bigbluebutton.air.presentation.views.selectWebcam.*";
 
@@ -12,13 +12,32 @@ s|List.cameraProfilesListStyle
 	verticalScrollPolicy: off;
 }
 
-s|Button {
-	fontWeight: normal;	
 selectWebcam|SelectStreamPopUpBase
 {
 	modalTransparency: .8;
 	modalTransparencyBlur: .25;
 	modalTransparencyColor: #000000;
+}
+
+.changeStatusPopUp
+{
+	backgroundAlpha: 0;
+	modalTransparency: .8;
+	modalTransparencyBlur: .25;
+	modalTransparencyColor: #000000;
+}
+
+s|RichEditableText.msgTextStyle
+{
+	color: #9BA9B4;	
+}
+
+s|ItemRenderer.statusItemStyle
+{
+	backgroundAlpha: 0;
+	color: #B0B0B0;
+	selectedColor: #35CB83;
+	strokeColor: #FFFFFF;
 }
 
 .selectStreamTitle {
@@ -69,9 +88,18 @@ s|Group.bottomMenuStyle
 	circleColor: #FFFFFF;
 }
 
+.nameIconText {
+	color: #8898A5;
+}
+
 .videoStreamNamePresenter
 {
 	color: #A3AFB9;
+}
+
+s|Button.QuitButtonStyle
+{
+	color: #65A7D7;
 }
 
 s|Label.settingsUserNameStyle
@@ -103,7 +131,7 @@ s|ToggleSwitch
 
 s|Button.sendButtonStyle
 {
-	backgroundColor:#FFFFFF;
+	backgroundColor:#F1F3F7;
 	onClickBackgroundColor:#DBDBDB;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.SendMsgBtnSkin");
 }
@@ -129,8 +157,7 @@ s|SkinnableContainer.topToolBarStyle
 
 navigationbutton|NavigationButton
 {
-	backgroundColor: #F4F4F4;
-	strokeColor: #CCCCCC;
+	backgroundColor: #4998D0;
 	selectedBackgroundColor: #DBDBDB;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.NavigationButtonSkin");
 }
@@ -140,10 +167,6 @@ s|Label.chatTimeColor
 	color: #8898A5;
 }
 
-s|Button.logoutButtonStyle
-{
-	backgroundColor: #3385FF;
-	textColor:#FFFFFF;
 s|Label.showSharedCamsLabel {
 	color:#CCCDCE;
 	textDecoration: underline;
@@ -178,7 +201,7 @@ s|Button.pushToTalkStyle
 
 s|Button.videoAudioSettingStyle
 {
-	backgroundColor:#F1F3F7;
+	backgroundColor:#FFFFFF;
 	onClickBackgroundColor:#DBDBDB;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.VideoAudioSettingsBtnSkin");
 	labelTextAlign:left;
@@ -364,7 +387,6 @@ s|TextInput.msgInputBoxStyle
 	
 	s|RichEditableText.msgTextStyle
 	{
-		paddingLeft:12;
 		paddingRight:12;
 		paddingBottom:12;
 	}
@@ -437,6 +459,11 @@ s|TextInput.msgInputBoxStyle
 		fontSize:18;
 	}
 	
+	.settingsUserFirstLettersStyle
+	{
+		fontSize:21;
+	}
+	
 	.loadingScreenTitle
 	{
 		fontSize:21;
@@ -457,7 +484,12 @@ s|TextInput.msgInputBoxStyle
 		fontSize:12;
 	}
 	
-	s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle
+	.nameIconText
+	{
+		fontSize:8;
+	}
+	
+	s|ItemRenderer.chatRoomItemStyle, s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle, s|ItemRenderer.statusItemStyle
 	{
 		itemHeight:64;
 		lineColor: #F2F2F2;
@@ -480,10 +512,12 @@ s|TextInput.msgInputBoxStyle
 		itemPaddingRight:6;
 	}
 	
-	s|ItemRenderer.chatRoomItemStyle, s|View.lockSettingsStyle, s|View.audioSettingsStyle, s|Button.videoAudioSettingStyle
+	s|View.lockSettingsStyle, s|View.audioSettingsStyle, s|Button.videoAudioSettingStyle
 	{
 		lineColor: #F2F2F2;
 		lineWeight:0.5;
+		itemPaddingLeft:6;
+		itemPaddingRight:6;
 	}
 	
 	s|Group.videoTextFieldStyle
@@ -1009,8 +1043,15 @@ s|TextInput.msgInputBoxStyle
 		fontSize:35;
 	}
 	
+	.loadingScreenTitle
+	{
+		fontSize:35;
+	}
+	
 	s|Button.topButtonStyle
 	{
+		paddingLeft: 36;
+		paddingRight: 36;
 		width: 72;
 		height: 72;
 	}
@@ -1058,10 +1099,12 @@ s|TextInput.msgInputBoxStyle
 		itemPaddingRight:9;
 	}
 	
-	s|ItemRenderer.chatRoomItemStyle, s|View.lockSettingsStyle, s|View.audioSettingsStyle, s|Button.videoAudioSettingStyle
+	s|View.lockSettingsStyle, s|View.audioSettingsStyle, s|Button.videoAudioSettingStyle
 	{
 		lineColor: #F2F2F2;
 		lineWeight:0.75;
+		itemPaddingLeft:9;
+		itemPaddingRight:9;
 	}
 	
 	s|Group.videoTextFieldStyle
@@ -1630,10 +1673,12 @@ s|TextInput.msgInputBoxStyle
 		itemPaddingRight:12;
 	}
 	
-	s|ItemRenderer.chatRoomItemStyle, s|View.lockSettingsStyle, s|View.audioSettingsStyle, s|Button.videoAudioSettingStyle
+	s|View.lockSettingsStyle, s|View.audioSettingsStyle, s|Button.videoAudioSettingStyle
 	{
 		lineColor: #F2F2F2;
 		lineWeight:1;
+		itemPaddingLeft:12;
+		itemPaddingRight:12;
 	}
 	
 	s|Group.videoTextFieldStyle
@@ -1974,10 +2019,10 @@ s|TextInput.msgInputBoxStyle
 	
 	s|Button.newMessagesButtonStyle
 	{
-		width: 50;
+		width: 55;
 		height: 40;
-		radiusX: 8;
-		radiusY: 8;
+		radiusX: 32;
+		radiusY: 32;
 		fontSize:24;
 	}
 	
@@ -2069,7 +2114,6 @@ s|TextInput.msgInputBoxStyle
 	
 	s|RichEditableText.msgTextStyle
 	{
-		paddingLeft:36;
 		paddingRight:36;
 		paddingBottom:36;
 	}
@@ -2197,10 +2241,12 @@ s|TextInput.msgInputBoxStyle
 	}
 	
 	
-	s|ItemRenderer.chatRoomItemStyle, s|View.lockSettingsStyle, s|View.audioSettingsStyle, s|Button.videoAudioSettingStyle
+	s|View.lockSettingsStyle, s|View.audioSettingsStyle, s|Button.videoAudioSettingStyle
 	{
 		lineColor: #F2F2F2;
 		lineWeight:1.5;
+		itemPaddingLeft:18;
+		itemPaddingRight:18;
 	}
 	
 	s|Group.videoTextFieldStyle
