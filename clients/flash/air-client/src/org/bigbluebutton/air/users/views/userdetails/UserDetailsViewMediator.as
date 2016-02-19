@@ -59,34 +59,22 @@ package org.bigbluebutton.air.users.views.userdetails {
 			view.clearStatusButton.addEventListener(MouseEvent.CLICK, onClearStatusButton);
 			view.makePresenterButton.addEventListener(MouseEvent.CLICK, onMakePresenterButton);
 			view.promoteButton.addEventListener(MouseEvent.CLICK, onPromoteButton);
-			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			view.updateLockButtons(isRoomLocked());
 			view.lockButton.addEventListener(MouseEvent.CLICK, onLockUser);
 			view.unlockButton.addEventListener(MouseEvent.CLICK, onUnlockUser);
-			if (!FlexGlobals.topLevelApplication.isTabletLandscape()) {
-				FlexGlobals.topLevelApplication.pageName.text = view.user.name;
-			}
-			FlexGlobals.topLevelApplication.backBtn.visible = !FlexGlobals.topLevelApplication.isTabletLandscape();
-			FlexGlobals.topLevelApplication.profileBtn.visible = FlexGlobals.topLevelApplication.isTabletLandscape();
-		}
-		
-		private function stageOrientationChangingHandler(e:Event):void {
-			var tabletLandscape:Boolean = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.pushPage(PagesENUM.SPLITPARTICIPANTS, _user);
-			}
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = view.user.name;
 		}
 		
 		protected function onLockUser(event:MouseEvent):void {
 			//dispatch lock signal
 			lockUserSignal.dispatch(_user.userID, true);
-			popPage();
+			userUISession.popPage();
 		}
 		
 		protected function onUnlockUser(event:MouseEvent):void {
 			//dispatch lock signal
 			lockUserSignal.dispatch(_user.userID, false);
-			popPage();
+			userUISession.popPage();
 		}
 		
 		private function isRoomLocked():Boolean {
@@ -106,7 +94,7 @@ package org.bigbluebutton.air.users.views.userdetails {
 			userSession.userList.getUser(_user.userID).status = User.NO_STATUS;
 			view.clearStatusButton.includeInLayout = false;
 			view.clearStatusButton.visible = false;
-			popPage();
+			userUISession.popPage();
 		}
 		
 		protected function onPromoteButton(event:MouseEvent):void {
@@ -114,22 +102,16 @@ package org.bigbluebutton.air.users.views.userdetails {
 			roleOptions.userID = _user.userID;
 			roleOptions.role = (_user.role == User.MODERATOR) ? User.VIEWER : User.MODERATOR;
 			changeRoleSignal.dispatch(roleOptions);
-			popPage();
+			userUISession.popPage();
 		}
 		
 		protected function onMakePresenterButton(event:MouseEvent):void {
 			presenterSignal.dispatch(_user, userSession.userList.me.userID);
-			popPage();
+			userUISession.popPage();
 		}
 		
 		private function userRemoved(userID:String):void {
 			if (_user.userID == userID) {
-				popPage();
-			}
-		}
-		
-		private function popPage():void {
-			if (!FlexGlobals.topLevelApplication.isTabletLandscape()) {
 				userUISession.popPage();
 			}
 		}
@@ -145,7 +127,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 			super.destroy();
 			view.showCameraButton.removeEventListener(MouseEvent.CLICK, onShowCameraButton);
 			view.showPrivateChat.removeEventListener(MouseEvent.CLICK, onShowPrivateChatButton);
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			userSession.userList.userChangeSignal.remove(userChanged);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			view.dispose();

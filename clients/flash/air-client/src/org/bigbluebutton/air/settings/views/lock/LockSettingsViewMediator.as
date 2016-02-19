@@ -44,18 +44,13 @@ package org.bigbluebutton.air.settings.views.lock {
 			loadLockSettings();
 			view.applyButton.addEventListener(MouseEvent.CLICK, onApply);
 			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
-			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			FlexGlobals.topLevelApplication.backBtn.visible = true;
 			FlexGlobals.topLevelApplication.profileBtn.visible = false;
 		}
 		
-		private function stageOrientationChangingHandler(e:Event):void {
-			var tabletLandscape = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.popPage();
-				userUISession.popPage();
-				userUISession.pushPage(PagesENUM.SPLITSETTINGS, PagesENUM.LOCKSETTINGS);
-			}
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
+			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = true;
+			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = false;
 		}
 		
 		private function onApply(event:MouseEvent):void {
@@ -69,9 +64,7 @@ package org.bigbluebutton.air.settings.views.lock {
 			newLockSettings.lockOnJoinConfigurable = userSession.lockSettings.lockOnJoinConfigurable;
 			userService.saveLockSettings(newLockSettings);
 			userUISession.popPage();
-			if (!FlexGlobals.topLevelApplication.isTabletLandscape()) {
-				userUISession.popPage();
-			}
+			userUISession.popPage();
 		}
 		
 		private function loadLockSettings() {
@@ -84,7 +77,6 @@ package org.bigbluebutton.air.settings.views.lock {
 		
 		override public function destroy():void {
 			super.destroy();
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 		}
 	}
 }

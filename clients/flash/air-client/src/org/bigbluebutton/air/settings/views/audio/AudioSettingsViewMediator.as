@@ -50,9 +50,6 @@ package org.bigbluebutton.air.settings.views.audio {
 			view.enableAudio.addEventListener(Event.CHANGE, onEnableAudioClick);
 			view.enableMic.addEventListener(Event.CHANGE, onEnableMicClick);
 			view.enablePushToTalk.addEventListener(Event.CHANGE, onEnablePushToTalkClick);
-			if (!userSession.phoneOptions.autoJoin) {
-				FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
-			}
 			view.gainSlider.addEventListener(Event.CHANGE, gainChange);
 			userSession.lockSettings.disableMicSignal.add(disableMic);
 			disableMic(userSession.lockSettings.disableMic && userMe.role != User.MODERATOR && !userMe.presenter && userMe.locked);
@@ -66,17 +63,6 @@ package org.bigbluebutton.air.settings.views.audio {
 			micActivityTimer.addEventListener(TimerEvent.TIMER, micActivity);
 			micActivityTimer.start();
 			view.continueBtn.visible = userSession.phoneOptions.autoJoin;
-		}
-		
-		private function stageOrientationChangingHandler(e:Event):void {
-			var tabletLandscape = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.popPage();
-				if (userUISession.currentPage == PagesENUM.PROFILE) {
-					userUISession.popPage();
-				}
-				userUISession.pushPage(PagesENUM.SPLITSETTINGS, PagesENUM.AUDIOSETTINGS);
-			}
 		}
 		
 		private function loadMicGain() {
@@ -164,7 +150,6 @@ package org.bigbluebutton.air.settings.views.audio {
 			view.continueBtn.removeEventListener(MouseEvent.CLICK, onContinueClick);
 			view.enableAudio.removeEventListener(MouseEvent.CLICK, onEnableAudioClick);
 			view.enableMic.removeEventListener(MouseEvent.CLICK, onEnableMicClick);
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			if (micActivityTimer) {
 				micActivityTimer.removeEventListener(TimerEvent.TIMER, micActivity);
 			}

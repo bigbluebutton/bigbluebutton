@@ -70,7 +70,6 @@ package org.bigbluebutton.air.users.views.participants {
 			dataProviderGuests = new ArrayCollection();
 			view.guestsList.dataProvider = dataProviderGuests;
 			view.guestsList.addEventListener(GuestResponseEvent.GUEST_RESPONSE, onSelectGuest);
-			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			view.allowAllButton.addEventListener(MouseEvent.CLICK, allowAllGuests);
 			view.denyAllButton.addEventListener(MouseEvent.CLICK, denyAllGuests);
 			dicUserIdtoGuest = new Dictionary();
@@ -86,25 +85,15 @@ package org.bigbluebutton.air.users.views.participants {
 				view.allGuests.visible = true;
 				view.allGuests.includeInLayout = true;
 			}
-			if (FlexGlobals.topLevelApplication.isTabletLandscape()) {
-				if (userUISession.currentPageDetails is User) {
-					view.list.setSelectedIndex(dataProvider.getItemIndex(userUISession.currentPageDetails), true);
 				} else {
 					view.list.setSelectedIndex(0, true);
 				}
 			}
-			var tabletLandscape:Boolean = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.pushPage(PagesENUM.SPLITPARTICIPANTS);
 			} else {
-				userUISession.pushPage(PagesENUM.PARTICIPANTS);
+				throw new Error("item null on ChatRoomsViewMediator");
 			}
 		}
 		
-		private function stageOrientationChangingHandler(e:Event):void {
-			var tabletLandscape:Boolean = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.pushPage(PagesENUM.SPLITPARTICIPANTS);
 			}
 		}
 		
@@ -133,9 +122,6 @@ package org.bigbluebutton.air.users.views.participants {
 			dataProvider.removeItemAt(index);
 			dicUserIdtoUser[user.userID] = null;
 			setPageTitle();
-			if (FlexGlobals.topLevelApplication.isTabletLandscape() && userUISession.currentPageDetails == user) {
-				view.list.setSelectedIndex(0, true);
-			}
 		}
 		
 		private function guestRemoved(userID:String):void {
@@ -171,11 +157,7 @@ package org.bigbluebutton.air.users.views.participants {
 		protected function onSelectParticipant(event:IndexChangeEvent):void {
 			if (event.newIndex >= 0) {
 				var user:User = dataProvider.getItemAt(event.newIndex) as User;
-				if (FlexGlobals.topLevelApplication.isTabletLandscape()) {
-					eventDispatcher.dispatchEvent(new SplitViewEvent(SplitViewEvent.CHANGE_VIEW, PagesENUM.getClassfromName(PagesENUM.USER_DETAILS), user, true))
-				} else {
-					userUISession.pushPage(PagesENUM.USER_DETAILS, user, TransitionAnimationENUM.SLIDE_LEFT);
-				}
+				userUISession.pushPage(PagesENUM.USER_DETAILS, user, TransitionAnimationENUM.SLIDE_LEFT);
 			}
 		}
 		
@@ -204,7 +186,6 @@ package org.bigbluebutton.air.users.views.participants {
 			super.destroy();
 			view.dispose();
 			view = null;
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			userSession.userList.userChangeSignal.remove(userChanged);
 			userSession.userList.userAddedSignal.remove(addUser);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
