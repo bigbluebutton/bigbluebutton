@@ -48,8 +48,7 @@ s|Button.guestResponseButtonStyle
 
 s|SkinnableContainer.topToolBarStyle
 {
-	gradientColorTop: #4A4C58;
-	gradientColorBottom: #43434B;
+	gradientColor: #2A2D33;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.TopToolBarSkin");
 }
 
@@ -121,10 +120,8 @@ s|Label.participantStatusStyle, s|Label.roomUrlStyle
 
 s|Button.topButtonStyle
 {
-	gradientColorTop:#4A4C58;
-	gradientColorBottom:#43434B;
-	selectedGradientColorTop:#454852;
-	selectedGradientColorBottom:#393942;
+	verticalAlign: middle;
+	horizontalAlign: middle;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.TopButtonSkin");
 }
 
@@ -492,6 +489,8 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.topButtonStyle
 	{
+		paddingLeft: 24;
+		paddingRight: 24;
 		width: 48;
 		height: 48;
 	}
@@ -1274,6 +1273,8 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.topButtonStyle
 	{
+		paddingLeft: 48;
+		paddingRight: 48;
 		width: 96;
 		height: 96;
 	}
@@ -1931,6 +1932,8 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.topButtonStyle
 	{
+		paddingLeft: 72;
+		paddingRight: 72;
 		width: 144;
 		height: 144;
 	}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark"
+					  xmlns:view="org.bigbluebutton.core.view.*"
+					  xmlns:navigationbutton="org.bigbluebutton.air.main.views.ui.navigationbutton.*"
+					  xmlns:common="org.bigbluebutton.view.navigation.pages.common.*"
+					  width="100%"
+					  height="100%"
+					  styleName="topToolBarStyle"
+					  verticalCenter="0"
+					  horizontalCenter="0">
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			
+			import org.bigbluebutton.air.common.views.PagesENUM;
+			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:HGroup width="100%"
+			  height="100%"
+			  horizontalAlign="center"
+			  verticalAlign="middle">
+
+		<s:HGroup width="95%">
+
+			<navigationbutton:NavigationButton id="leftPresentationBtn0"
+											   styleName="presentationButtonStyle topButtonStyle"
+											   navigateTo="{[PagesENUM.PRESENTATION]}"
+											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
+
+			<navigationbutton:NavigationButton id="participantsBtn0"
+											   styleName="chatButtonStyle topButtonStyle"
+											   navigateTo="{[PagesENUM.PARTICIPANTS]}"
+											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
+
+
+			<navigationbutton:NavigationButton id="backBtn0"
+											   styleName="backButtonStyle topButtonStyle"
+											   navigateTo="{[PagesENUM.LAST]}"
+											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
+			<s:Label id="pageName0"
+					 styleName="pageNameStyle"
+					 width="100%"
+					 height="100%" />
+			<navigationbutton:NavigationButton id="profileBtn0"
+											   styleName="profileButtonStyle topButtonStyle"
+											   navigateTo="{[PagesENUM.PROFILE]}"
+											   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
+
+			<navigationbutton:NavigationButton id="rightPresentationBtn0"
+											   styleName="presentationButtonStyle topButtonStyle"
+											   navigateTo="{[PagesENUM.PRESENTATION]}"
+											   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
+		</s:HGroup>
+	</s:HGroup>
+
+</s:SkinnableContainer>

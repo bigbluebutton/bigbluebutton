@@ -13,17 +13,6 @@
 		<s:State name="over" />
 		<s:State name="up" />
 	</s:states>
-	<s:Rect width="{hostComponent.getStyle('width')}"
-			height="{hostComponent.getStyle('height')}">
-		<s:fill>
-			<s:LinearGradient rotation="90">
-				<s:GradientEntry color="{hostComponent.getStyle('gradientColorTop')}"
-								 color.down="{hostComponent.getStyle('selectedGradientColorTop')}" />
-				<s:GradientEntry color="{hostComponent.getStyle('gradientColorBottom')}"
-								 color.down="{hostComponent.getStyle('selectedGradientColorBottom')}" />
-			</s:LinearGradient>
-		</s:fill>
-	</s:Rect>
 	<s:BitmapImage source="{getStyle('backgroundImage')}"
 				   verticalCenter="0"
 				   horizontalCenter="0" />

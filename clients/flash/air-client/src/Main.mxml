@@ -12,6 +12,7 @@
 			   xmlns:pagesnavigator="org.bigbluebutton.air.main.views.pagesnavigator.*"
 			   xmlns:menubuttons="org.bigbluebutton.air.main.views.menubuttons.*"
 			   xmlns:navigationbutton="org.bigbluebutton.air.main.views.ui.navigationbutton.*"
+			   xmlns:topbar="org.bigbluebutton.air.main.views.topbar.*"
 			   xmlns:recordingstatus="org.bigbluebutton.air.main.views.recordingstatus.*"
 			   xmlns:recordingstatus1="org.bigbluebutton.air.main.views.ui.recordingstatus.*"
 			   xmlns:videobutton="org.bigbluebutton.air.main.views.ui.videobutton.*">
@@ -168,36 +169,13 @@
 		<s:layout>
 			<s:VerticalLayout gap="0" />
 		</s:layout>
-		<s:SkinnableContainer id="topActionBar"
-							  width="100%"
-							  height="{getStyle('toolBarHeight')}"
-							  styleName="topToolBarStyle"
-							  verticalCenter="0">
-			<s:HGroup width="100%"
-					  height="100%">
-				<s:Group>
-					<navigationbutton:NavigationButton id="profileBtn"
-													   styleName="profileButtonStyle topButtonStyle"
-													   navigateTo="{isTabletLandscape() ? [PagesENUM.SPLITSETTINGS] : [PagesENUM.PROFILE]}"
-													   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
-					<navigationbutton:NavigationButton id="backBtn"
-													   styleName="backButtonStyle topButtonStyle"
-													   navigateTo="{[PagesENUM.LAST]}"
-													   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
-				</s:Group>
-				<s:Label id="pageName"
-						 styleName="pageNameStyle"
-						 width="100%"
-						 height="100%" />
-				<recordingstatus1:RecordingStatus id="recordingStatus"
-												  styleName="recordingStatusIconStyle topButtonStyle"
-												  visible="false" />
-				<videobutton:VideoButton id="videoBtn"
-										 styleName="videoButtonStyle topButtonStyle" />
-				<voice:MicButton id="microphoneBtn"
-								 styleName="micButtonStyle topButtonStyle" />
-			</s:HGroup>
-		</s:SkinnableContainer>
+
+		<topbar:TopBarView id="topActionBar"
+						   width="100%"
+						   depth="999"
+						   verticalCenter="0"
+						   horizontalCenter="0"
+						   height="{getStyle('toolBarHeight')}" />
 
 		<pagesnavigator:PagesNavigatorView id="pagesNavigatorView"
 										   width="100%"
