@@ -4,6 +4,8 @@
 @namespace navigationbutton "org.bigbluebutton.air.main.views.ui.navigationbutton.*";
 @namespace skins "org.bigbluebutton.air.main.views.skins.*";
 @namespace common "org.bigbluebutton.view.navigation.pages.common.*";
+@namespace presentation "org.bigbluebutton.air.presentation.views.*";
+@namespace selectWebcam "org.bigbluebutton.air.presentation.views.selectWebcam.*";
 
 s|List.cameraProfilesListStyle
 {
@@ -12,6 +14,30 @@ s|List.cameraProfilesListStyle
 
 s|Button {
 	fontWeight: normal;	
+selectWebcam|SelectStreamPopUpBase
+{
+	modalTransparency: .8;
+	modalTransparencyBlur: .25;
+	modalTransparencyColor: #000000;
+}
+
+.selectStreamTitle {
+	color: #8898A5;
+}
+
+.selectStreamPopUp {
+	closeButtonColor: #8F9EAA; 
+}
+
+.streamItemStyle
+{
+	selectedColor: #63D79F;
+	normalColor: #D0D6DC;
+	selectionColor: #FFFFFF;
+	lineColor: #F4F6F7;
+	lineWeight: 1;
+}
+
 s|Group.participantIconStyle
 {
 	circleColor: #8898A5;	
@@ -41,6 +67,11 @@ s|Group.bottomMenuStyle
 	rectangleColor: #4998D0;
 	subRectangleColor: #F1F3F7;
 	circleColor: #FFFFFF;
+}
+
+.videoStreamNamePresenter
+{
+	color: #A3AFB9;
 }
 
 s|Label.settingsUserNameStyle
@@ -113,6 +144,9 @@ s|Button.logoutButtonStyle
 {
 	backgroundColor: #3385FF;
 	textColor:#FFFFFF;
+s|Label.showSharedCamsLabel {
+	color:#CCCDCE;
+	textDecoration: underline;
 }
 
 s|Button.userSettingsButtonStyle
@@ -214,6 +248,11 @@ s|SkinnableContainer.containerStyle
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.ProfileViewContainerSkin");
 }
 
+s|Button
+{
+	fontWeight: normal;	
+}
+
 global
 {
 	font-family: Helvetica;
@@ -223,11 +262,19 @@ global
 	content-background-color: #FFFFFF;
 	symbol-color: #F6F2F2;
 	chrome-color: #0C0B0B;
-	color: #777777;
+	color: #43474F;
+}
+
+common|NoTabView
+{
+	backgroundColor: #FFFFFF;
+}
+
 .presentationStyle, .loadingScreenStyle
 {
 	backgroundColor: #2A2D33;
 }
+
 .loadingScreenStyle
 {
 	lineColor: #959699;
@@ -385,6 +432,11 @@ s|TextInput.msgInputBoxStyle
 		fontSize:18;
 	}
 	
+	.selectStreamTitle 
+	{
+		fontSize:18;
+	}
+	
 	.loadingScreenTitle
 	{
 		fontSize:21;
@@ -412,6 +464,11 @@ s|TextInput.msgInputBoxStyle
 		lineWeight:0.5;
 		itemPaddingLeft:6;
 		itemPaddingRight:6;
+	}
+	
+	s|ItemRenderer.streamItemStyle
+	{
+		itemHeight:64;
 	}
 	
 	s|ItemRenderer.cameraProfileItemStyle
@@ -584,6 +641,16 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/settings.png");
 	}
 	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/presentation.png");
+	}
+	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/presentation.png");
+	}
+	
 	s|Button.backButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/backButton.png");
@@ -609,6 +676,16 @@ s|TextInput.msgInputBoxStyle
 	s|Image.cameraIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/video.png");
+	}
+	
+	s|Image.selectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/selected.png");
+	}
+	
+	s|Image.unselectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/unselected.png");
 	}
 	
 	s|Image.userDetailIconStyle
@@ -922,6 +999,11 @@ s|TextInput.msgInputBoxStyle
 		fontSize:27;
 	}
 	
+	.selectStreamTitle 
+	{
+		fontSize:27;
+	}
+	
 	.settingsUserFirstLettersStyle
 	{
 		fontSize:35;
@@ -960,6 +1042,11 @@ s|TextInput.msgInputBoxStyle
 		lineWeight:0.75;
 		itemPaddingLeft:9;
 		itemPaddingRight:9;
+	}
+	
+	s|ItemRenderer.streamItemStyle
+	{
+		itemHeight:96;
 	}
 	
 	s|ItemRenderer.cameraProfileItemStyle
@@ -1124,6 +1211,11 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/settings.png");
 	}
 	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/presentation.png");
+	}
+	
 	s|Button.backButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/backButton.png");
@@ -1149,6 +1241,16 @@ s|TextInput.msgInputBoxStyle
 	s|Image.cameraIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/video.png");
+	}
+	
+	s|Image.selectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/selected.png");
+	}
+	
+	s|Image.unselectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/unselected.png");
 	}
 	
 	s|Image.userDetailIconStyle
@@ -1462,6 +1564,11 @@ s|TextInput.msgInputBoxStyle
 		fontSize:36;
 	}
 	
+	.selectStreamTitle
+	{
+		fontSize:36;
+	}
+	
 	.settingsUserFirstLettersStyle
 	{
 		fontSize:46;
@@ -1507,6 +1614,11 @@ s|TextInput.msgInputBoxStyle
 		lineWeight:1;
 		itemPaddingLeft:12;
 		itemPaddingRight:12;
+	}
+	
+	s|ItemRenderer.streamItemStyle
+	{
+		itemHeight:128;
 	}
 	
 	s|ItemRenderer.cameraProfileItemStyle
@@ -1671,6 +1783,11 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/settings.png");
 	}
 	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/presentation.png");
+	}
+	
 	s|Button.backButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/backButton.png");
@@ -1696,6 +1813,16 @@ s|TextInput.msgInputBoxStyle
 	s|Image.cameraIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/video.png");
+	}
+	
+	s|Image.selectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/selected.png");
+	}
+	
+	s|Image.unselectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/unselected.png");
 	}
 	
 	s|Image.userDetailIconStyle
@@ -2010,6 +2137,12 @@ s|TextInput.msgInputBoxStyle
 		fontSize:54;
 	}
 	
+	
+	.selectStreamTitle
+	{
+		fontSize:54;
+	}
+	
 	.settingsUserFirstLettersStyle
 	{
 		fontSize:70;
@@ -2047,6 +2180,11 @@ s|TextInput.msgInputBoxStyle
 		lineWeight:1.5;
 		itemPaddingLeft:18;
 		itemPaddingRight:18;
+	}
+	
+	s|ItemRenderer.streamItemStyle
+	{
+		itemHeight:192;
 	}
 	
 	s|ItemRenderer.cameraProfileItemStyle
@@ -2221,6 +2359,11 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/settings.png");
 	}
 	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/presentation.png");
+	}
+	
 	s|Button.backButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/backButton.png");
@@ -2246,6 +2389,16 @@ s|TextInput.msgInputBoxStyle
 	s|Image.cameraIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/video.png");
+	}
+	
+	s|Image.selectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/selected.png");
+	}
+	
+	s|Image.unselectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/unselected.png");
 	}
 	
 	s|Image.userDetailIconStyle
