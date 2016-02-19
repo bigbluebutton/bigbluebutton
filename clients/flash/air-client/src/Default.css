@@ -35,6 +35,27 @@ s|Group.bottomMenuStyle
 	gradientColor: #2A2D33;
 }
 
+.settingsStyle
+{
+	backgroundColor: #FFFFFF;
+	rectangleColor: #4998D0;
+	subRectangleColor: #F1F3F7;
+	circleColor: #FFFFFF;
+}
+
+s|Label.settingsUserNameStyle
+{
+	color: #FFFFFF;
+}
+
+s|Label.settingsSubtitleStyle
+{
+	color: #ABB6C0;
+}
+
+.settingsUserFirstLettersStyle
+{
+	color: #FFFFFF;
 }
 
 s|Group.videoTextFieldStyle
@@ -97,6 +118,10 @@ s|Button.logoutButtonStyle
 s|Button.userSettingsButtonStyle
 {	
 	onClickBackgroundColor:#DBDBDB;
+	backgroundColor: #4998D0;
+	disabledBackgroundColor: #A4CBE7;
+	textColor:#FDFEFE;
+	disabledTextColor:#CCE2F1;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.UserSettingsParticipantBtnSkin");
 }
 
@@ -238,6 +263,13 @@ s|TextInput.msgInputBoxStyle
 		toolBarHeight:48;
 		itemPaddingLeft:6;
 		itemPaddingRight:6;
+		itemHeight:32;
+	}
+	
+	s|View.settingsStyle
+	{
+		itemHeight:32;
+		topRectHeight:160;
 	}
 	
 	s|Button.recordingStatusIconStyle
@@ -770,6 +802,13 @@ s|TextInput.msgInputBoxStyle
 		toolBarHeight:72;
 		itemPaddingLeft:9;
 		itemPaddingRight:9;
+		itemHeight:48;
+	}
+	
+	s|View.settingsStyle
+	{
+		itemHeight:48;
+		topRectHeight:240;
 	}
 	
 	s|Button.recordingStatusIconStyle
@@ -881,6 +920,11 @@ s|TextInput.msgInputBoxStyle
 	s|Label.pageNameStyle
 	{
 		fontSize:27;
+	}
+	
+	.settingsUserFirstLettersStyle
+	{
+		fontSize:35;
 	}
 	
 	s|Button.topButtonStyle
@@ -1297,6 +1341,13 @@ s|TextInput.msgInputBoxStyle
 		toolBarHeight:72;
 		itemPaddingLeft:12;
 		itemPaddingRight:12;
+		itemHeight:64;
+	}
+	
+	s|View.settingsStyle
+	{
+		itemHeight:64;
+		topRectHeight:320;
 	}
 	
 	s|Button.recordingStatusIconStyle
@@ -1409,6 +1460,11 @@ s|TextInput.msgInputBoxStyle
 	s|Label.pageNameStyle
 	{
 		fontSize:36;
+	}
+	
+	.settingsUserFirstLettersStyle
+	{
+		fontSize:46;
 	}
 	
 	.loadingScreenTitle
@@ -1832,6 +1888,13 @@ s|TextInput.msgInputBoxStyle
 		toolBarHeight:144;
 		itemPaddingLeft:18;
 		itemPaddingRight:18;
+		itemHeight:86;
+	}
+	
+	s|View.settingsStyle
+	{
+		itemHeight:86;
+		topRectHeight:430;
 	}
 	
 	s|Button.recordingStatusIconStyle
@@ -1945,6 +2008,11 @@ s|TextInput.msgInputBoxStyle
 	s|Label.pageNameStyle
 	{
 		fontSize:54;
+	}
+	
+	.settingsUserFirstLettersStyle
+	{
+		fontSize:70;
 	}
 	
 	.loadingScreenTitle
