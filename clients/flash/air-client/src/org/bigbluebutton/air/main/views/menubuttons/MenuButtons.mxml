@@ -5,57 +5,57 @@
 		 xmlns:navigationbutton="org.bigbluebutton.air.main.views.ui.navigationbutton.*"
 		 xmlns:common="org.bigbluebutton.view.navigation.pages.common.*"
 		 width="100%"
-		 height="100%">
+		 height="100%"
+		 styleName="bottomMenuStyle">
 	<fx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
-			
 			import org.bigbluebutton.air.common.views.PagesENUM;
 		]]>
 	</fx:Script>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:layout>
-		<s:HorizontalLayout gap="0" />
-	</s:layout>
 
+	<s:Rect left="0"
+			right="0"
+			top="0"
+			bottom="0">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry alpha="0"
+								 color="{getStyle('gradientColor')}" />
+				<s:GradientEntry color="{getStyle('gradientColor')}" />
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
 
-	<s:Spacer id="pushToTalkSpacer"
-			  width="{pushToTalkButton0.getStyle('EllipseWidth')}" />
+	<s:Group width="50%"
+			 height="100%"
+			 id="buttons"
+			 x="{(this.width - buttons.width)/2}"
+			 y="{(this.height - buttons.height * 1.1)}">
 
-	<s:Button id="pushToTalkButton0"
-			  width="100%"
-			  height="100"
-			  includeInLayout="false"
-			  creationComplete="{pushToTalkButton0.y=participantsBtn0.height}"
-			  styleName="pushToTalkStyle" />
+		<s:layout>
+			<s:HorizontalLayout gap="0"
+								horizontalAlign="center" />
+		</s:layout>
 
-	<navigationbutton:NavigationButton id="deskshareBtn0"
-									   navigateTo="{[PagesENUM.DESKSHARE]}"
-									   width="100%"
-									   height="100%"
-									   visible="false"
-									   includeInLayout="false"
-									   styleName="deskshareBtnStyle" />
-	<navigationbutton:NavigationButton id="presentationBtn0"
-									   width="100%"
-									   height="100%"
-									   navigateTo="{[PagesENUM.PRESENTATION]}"
-									   styleName="presentationBtnStyle" />
-	<navigationbutton:NavigationButton id="videochatBtn0"
-									   navigateTo="{[PagesENUM.VIDEO_CHAT]}"
-									   width="100%"
-									   height="100%"
-									   styleName="videochatBtnStyle" />
-	<navigationbutton:NavigationButton id="chatBtn0"
-									   navigateTo="{FlexGlobals.topLevelApplication.isTabletLandscape() ? [PagesENUM.SPLITCHAT] : [PagesENUM.CHATROOMS,PagesENUM.CHAT,PagesENUM.SELECT_PARTICIPANT]}"
-									   width="100%"
-									   height="100%"
-									   styleName="chatBtnStyle" />
-	<navigationbutton:NavigationButton id="participantsBtn0"
-									   navigateTo="{FlexGlobals.topLevelApplication.isTabletLandscape() ? [PagesENUM.SPLITPARTICIPANTS] : [PagesENUM.PARTICIPANTS,PagesENUM.USER_DETAILS]}"
-									   width="100%"
-									   height="100%"
-									   styleName="participantsBtnStyle" />
+		<s:Button id="micBtn0"
+				  width="100%"
+				  height="100%"
+				  label="Mic on"
+				  styleName="micOnButtonStyle bottomPresentationBtnStyle" />
+		<s:Button id="camBtn0"
+				  width="100%"
+				  height="100%"
+				  label="Cam off"
+				  styleName="camOnButtonStyle bottomPresentationBtnStyle" />
+		<s:Button id="statusBtn0"
+				  width="100%"
+				  height="100%"
+				  label="Raise"
+				  styleName="handStatusButtonStyle bottomPresentationBtnStyle" />
+
+	</s:Group>
 </s:Group>
