@@ -20,7 +20,8 @@
 			width="100%">
 		<s:fill>
 			<s:SolidColor color="{hostComponent.getStyle('backgroundColor')}"
-						  color.down="{hostComponent.getStyle('onClickBackgroundColor')}" />
+						  color.down="{hostComponent.getStyle('onClickBackgroundColor')}"
+						  color.disabled="{hostComponent.getStyle('disabledBackgroundColor')}" />
 		</s:fill>
 	</s:Rect>
 	<s:Label width="100%"
