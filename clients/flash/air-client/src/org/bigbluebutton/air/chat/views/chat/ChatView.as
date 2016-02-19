@@ -21,7 +21,7 @@ package org.bigbluebutton.air.chat.views.chat {
 		}
 		
 		public function get pageName():Label {
-			return FlexGlobals.topLevelApplication.pageName;
+			return FlexGlobals.topLevelApplication.topActionBar.pageName;
 		}
 		
 		override protected function childrenCreated():void {

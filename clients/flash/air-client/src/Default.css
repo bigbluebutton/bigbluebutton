@@ -75,7 +75,7 @@ navigationbutton|NavigationButton
 
 s|Label.chatTimeColor
 {
-	color: #C3C3C3;
+	color: #8898A5;
 }
 
 s|Button.logoutButtonStyle
@@ -109,7 +109,7 @@ s|Button.pushToTalkStyle
 
 s|Button.videoAudioSettingStyle
 {
-	backgroundColor:#FFFFFF;
+	backgroundColor:#F1F3F7;
 	onClickBackgroundColor:#DBDBDB;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.VideoAudioSettingsBtnSkin");
 	labelTextAlign:left;
@@ -140,7 +140,7 @@ s|Button.topButtonStyle
 
 s|Button.newMessagesButtonStyle
 {
-	fillColor: #777777;
+	fillColor: #F0625F;
 	textColor: #FFFFFF;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.NewMessagesButtonSkin");
 }
@@ -203,6 +203,17 @@ s|Image.bigbbbLogoStyle
 {
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.BBBLogoSkin");
 }
+
+s|View.chatViewStyle
+{
+	backgroundColor: #F1F3F7;
+}
+
+s|TextInput.msgInputBoxStyle
+{
+	borderVisible: false;
+}
+
 
 @media (application-dpi: 160) {
 	
@@ -473,6 +484,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/chat.png");
 	}
 	
+	s|Button.chatNewMessagesButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/chat_new_message.png");
+	}
+	
 	s|Button.MuteButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/micOffIcon_dark.png");
@@ -685,6 +701,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/clear_status.png");
 	}
 	
+	s|Image.publicChatIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/publicChat.png");
+	}
+	
 	}
 	
 	s|Image.arrowRightStyle
@@ -694,10 +715,10 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.newMessagesButtonStyle
 	{
-		width: 38;
+		width: 41;
 		height: 30;
-		radiusX: 4;
-		radiusY: 4;
+		radiusX: 16;
+		radiusY: 16;
 		fontSize:12;
 	}
 	
@@ -783,7 +804,6 @@ s|Image.bigbbbLogoStyle
 	
 	s|RichEditableText.msgTextStyle
 	{
-		paddingLeft:18;
 		paddingRight:18;
 		paddingBottom:18;
 	}
@@ -960,6 +980,11 @@ s|Image.bigbbbLogoStyle
 	s|Button.chatButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/chat.png");
+	}
+	
+	s|Button.chatNewMessagesButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/chat_new_message.png");
 	}
 	
 	s|Button.MuteButtonStyle
@@ -1195,6 +1220,12 @@ s|Image.bigbbbLogoStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/clear_status.png");
 	}
+	
+	s|Image.publicChatIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/publicChat.png");
+	}
+	
 	}
 	
 	s|Image.arrowRightStyle
@@ -1204,10 +1235,10 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.newMessagesButtonStyle
 	{
-		width: 45;
+		width: 50;
 		height: 45;
-		radiusX: 6;
-		radiusY: 6;
+		radiusX: 24;
+		radiusY: 24;
 		fontSize:18;
 	}
 	
@@ -1292,7 +1323,6 @@ s|Image.bigbbbLogoStyle
 	
 	s|RichEditableText.msgTextStyle
 	{
-		paddingLeft:24;
 		paddingRight:24;
 		paddingBottom:24;
 	}
@@ -1477,6 +1507,11 @@ s|Image.bigbbbLogoStyle
 	s|Button.chatButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/chat.png");
+	}
+	
+	s|Button.chatNewMessagesButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/chat_new_message.png");
 	}
 	
 	s|Button.MuteButtonStyle
@@ -1711,6 +1746,11 @@ s|Image.bigbbbLogoStyle
 	s|Button.clearStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/clear_status.png");
+	}
+	
+	s|Image.publicChatIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/publicChat.png");
 	}
 	
 	{
@@ -2022,6 +2062,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/chat.png");
 	}
 	
+	s|Button.chatNewMessagesButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/chat_new_message.png");
+	}
+	
 	s|Button.MuteButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/micOffIcon_dark.png");
@@ -2235,8 +2280,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/clear_status.png");
 	}
 	
+	s|Image.publicChatIconStyle
 	{
-		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/user.png");
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/publicChat.png");
+	}
+	
 	}
 	
 	s|Image.arrowRightStyle
@@ -2246,10 +2294,10 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.newMessagesButtonStyle
 	{
-		width: 75;
+		width: 82;
 		height: 60;
-		radiusX: 12;
-		radiusY: 12;
+		radiusX: 48;
+		radiusY: 48;
 		fontSize:36;
 	}
 	
