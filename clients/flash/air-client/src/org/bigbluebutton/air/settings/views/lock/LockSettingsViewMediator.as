@@ -43,11 +43,6 @@ package org.bigbluebutton.air.settings.views.lock {
 		override public function initialize():void {
 			loadLockSettings();
 			view.applyButton.addEventListener(MouseEvent.CLICK, onApply);
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
-			FlexGlobals.topLevelApplication.backBtn.visible = true;
-			FlexGlobals.topLevelApplication.profileBtn.visible = false;
-		}
-		
 			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
 			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = true;
 			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = false;

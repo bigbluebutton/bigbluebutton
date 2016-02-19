@@ -44,7 +44,7 @@ package org.bigbluebutton.air.settings.views.audio {
 		
 		override public function initialize():void {
 			userSession.userList.userChangeSignal.add(userChangeHandler);
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'audioSettings.title');
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'audioSettings.title');
 			var userMe:User = userSession.userList.me;
 			view.continueBtn.addEventListener(MouseEvent.CLICK, onContinueClick);
 			view.enableAudio.addEventListener(Event.CHANGE, onEnableAudioClick);
@@ -56,8 +56,8 @@ package org.bigbluebutton.air.settings.views.audio {
 			view.enableAudio.selected = (userMe.voiceJoined || userMe.listenOnly);
 			view.enablePushToTalk.enabled = view.enableMic.selected = userMe.voiceJoined;
 			view.enablePushToTalk.selected = (userSession.pushToTalk || userSession.phoneOptions.autoJoin);
-			FlexGlobals.topLevelApplication.backBtn.visible = true;
-			FlexGlobals.topLevelApplication.profileBtn.visible = false;
+			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = true;
+			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = false;
 			loadMicGain();
 			micActivityTimer = new Timer(100);
 			micActivityTimer.addEventListener(TimerEvent.TIMER, micActivity);

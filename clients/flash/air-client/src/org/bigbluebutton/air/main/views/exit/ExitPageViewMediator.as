@@ -45,7 +45,7 @@ package org.bigbluebutton.air.main.views.exit {
 			view.yesButton.addEventListener(MouseEvent.CLICK, applicationExit);
 			view.noButton.addEventListener(MouseEvent.CLICK, backToApplication);
 			changeConnectionStatus(userUISession.currentPageDetails as int);
-			FlexGlobals.topLevelApplication.pageName.text = "";
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = "";
 			_topBar = FlexGlobals.topLevelApplication.topActionBar.visible;
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
 			_bottomMenu = FlexGlobals.topLevelApplication.bottomMenu.visible;

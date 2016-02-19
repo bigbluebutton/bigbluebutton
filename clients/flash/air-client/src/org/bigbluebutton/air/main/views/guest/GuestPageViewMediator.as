@@ -26,7 +26,7 @@ package org.bigbluebutton.air.main.views.guest {
 			} else {
 				view.exitButton.addEventListener(MouseEvent.CLICK, applicationExit);
 			}
-			FlexGlobals.topLevelApplication.pageName.text = "";
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = "";
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = false;
 		}

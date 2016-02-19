@@ -45,13 +45,6 @@ package org.bigbluebutton.air.main.views.loginpage.openroom.recentrooms {
 			}
 			view.roomsList.dataProvider = dataProvider;
 			view.roomsList.addEventListener(MouseEvent.CLICK, selectRoom);
-			FlexGlobals.topLevelApplication.profileBtn.visible = false;
-			FlexGlobals.topLevelApplication.backBtn.visible = false;
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'recentRooms.title');
-			FlexGlobals.topLevelApplication.topActionBar.visible = true;
-			FlexGlobals.topLevelApplication.bottomMenu.includeInLayout = false;
-			FlexGlobals.topLevelApplication.backBtn.includeInLayout = true;
-			FlexGlobals.topLevelApplication.backBtn.visible = true;
 		}
 		
 		protected function selectRoom(event:MouseEvent):void {
