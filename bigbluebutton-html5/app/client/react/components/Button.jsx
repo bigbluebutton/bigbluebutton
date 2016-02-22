@@ -61,9 +61,4 @@ Button = React.createClass({
       </Component>
     );
   },
-
-
-  handleClick() {
-    alert('cliquei2');
-  },
 });

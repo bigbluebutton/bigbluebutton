@@ -8,12 +8,13 @@ Tooltip = React.createClass({
 
   getDefaultProps() {
     return {
-      placement: 'bottom'
+      placement: 'bottom',
+      componentClass: 'span'
     };
   },
 
   render() {
-    let Component = this.props.componentClass || 'span';
+    let Component = this.props.componentClass;
 
     return (
       <Component
