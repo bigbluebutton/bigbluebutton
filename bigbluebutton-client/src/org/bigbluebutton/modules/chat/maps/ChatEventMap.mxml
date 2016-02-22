@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
       import org.bigbluebutton.modules.chat.events.ChatEvent;
       import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
+      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
@@ -95,6 +96,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{ChatCopyEvent.COPY_CHAT_EVENT}">
     <MethodInvoker generator="{ChatCopy}" method="copyAllText" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{ChatToolbarButtonEvent.CLEAR_CHAT_TOOLBAR_EVENT}">
+    <MethodInvoker generator="{ChatMessageService}" method="clearPublicChatMessages"/>   
   </EventHandlers>
 
   <Injectors target="{ChatMessageService}">

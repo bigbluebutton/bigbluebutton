@@ -86,6 +86,17 @@ package org.bigbluebutton.modules.chat.model
       var msg:ChatMessage = messages.getItemAt(messages.length - 1) as ChatMessage;
       return msg.time;
     }
+
+    public function clearChat():void{      
+      var cm:ChatMessage = new ChatMessage();
+      cm.time = getLastTime();
+      cm.text = "The chat was cleared by a moderator";
+      cm.name = "";
+      cm.senderColor = uint(0x086187);
+      
+      messages.removeAll();
+      messages.addItem(cm); 
+    }
             
   }
 }

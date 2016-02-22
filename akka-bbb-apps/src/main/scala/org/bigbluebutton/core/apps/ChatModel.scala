@@ -16,4 +16,8 @@ class ChatModel {
   def addNewChatMessage(msg: Map[String, String]) {
     messages append msg
   }
+
+  def clearChatHistory() {
+    messages.clear();
+  }
 }

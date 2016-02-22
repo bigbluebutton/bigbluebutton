@@ -45,6 +45,7 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: GetChatHistoryReply => handleGetChatHistoryReply(msg)
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
     case msg: SendPrivateMessageEvent => handleSendPrivateMessageEvent(msg)
+    case msg: ClearChatHistoryReply => handleClearChatHistoryReply(msg)
     case msg: MeetingCreated => handleMeetingCreated(msg)
     case msg: VoiceRecordingStarted => handleVoiceRecordingStarted(msg)
     case msg: VoiceRecordingStopped => handleVoiceRecordingStopped(msg)
@@ -143,6 +144,11 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
 
   private def handleSendPrivateMessageEvent(msg: SendPrivateMessageEvent) {
     val json = ChatMessageToJsonConverter.sendPrivateMessageEventToJson(msg)
+    service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
+  }
+
+  private def handleClearChatHistoryReply(msg: ClearChatHistoryReply) {
+    val json = ChatMessageToJsonConverter.clearChatHistoryReplyToJson(msg)
     service.send(MessagingConstants.FROM_CHAT_CHANNEL, json)
   }
 

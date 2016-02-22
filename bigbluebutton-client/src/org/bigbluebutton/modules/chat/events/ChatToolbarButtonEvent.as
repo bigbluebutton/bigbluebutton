@@ -6,6 +6,7 @@ package org.bigbluebutton.modules.chat.events
 	{
 		public static const SAVE_CHAT_TOOLBAR_EVENT:String = "SAVE_CHAT_TOOLBAR_EVENT";
 		public static const COPY_CHAT_TOOLBAR_EVENT:String = "COPY_CHAT_TOOLBAR_EVENT";
+		public static const CLEAR_CHAT_TOOLBAR_EVENT:String = "CLEAR_CHAT_TOOLBAR_EVENT";
 
 		public function ChatToolbarButtonEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

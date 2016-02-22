@@ -4,6 +4,7 @@ import org.bigbluebutton.common.messages.GetChatHistoryRequestMessage;
 import org.bigbluebutton.common.messages.MessagingConstants;
 import org.bigbluebutton.common.messages.SendPrivateChatMessage;
 import org.bigbluebutton.common.messages.SendPublicChatMessage;
+import org.bigbluebutton.common.messages.ClearChatHistoryRequestMessage;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
@@ -36,6 +37,9 @@ public class ChatMessageReceiver implements MessageHandler{
 					} else if (SendPrivateChatMessage.SEND_PRIVATE_CHAT_MESSAGE.equals(messageName)){
 						SendPrivateChatMessage msg = SendPrivateChatMessage.fromJson(message);
 						bbbGW.sendPrivateMessage(msg.meetingId, msg.requesterId, msg.messageInfo);
+					} else if (ClearChatHistoryRequestMessage.CLEAR_CHAT_HISTORY_REQUEST.equals(messageName)){
+						ClearChatHistoryRequestMessage msg = ClearChatHistoryRequestMessage.fromJson(message);
+						bbbGW.clearChatHistory(msg.meetingId, msg.requesterId, msg.replyTo);
 					}
 				}
 			}

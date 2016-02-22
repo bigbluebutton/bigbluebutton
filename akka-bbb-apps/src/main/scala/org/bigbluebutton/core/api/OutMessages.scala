@@ -74,6 +74,8 @@ case class SendPublicMessageEvent(meetingID: String, recorded: Boolean, requeste
   message: Map[String, String]) extends IOutMessage
 case class SendPrivateMessageEvent(meetingID: String, recorded: Boolean, requesterID: String,
   message: Map[String, String]) extends IOutMessage
+case class ClearChatHistoryReply(meetingID: String, recorded: Boolean, requesterID: String,
+  replyTo: String) extends IOutMessage
 
 // Layout
 case class GetCurrentLayoutReply(meetingID: String, recorded: Boolean, requesterID: String, layoutID: String,

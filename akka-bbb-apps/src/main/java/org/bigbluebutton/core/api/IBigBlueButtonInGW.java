@@ -106,6 +106,7 @@ public interface IBigBlueButtonInGW {
 	void getChatHistory(String meetingID, String requesterID, String replyTo);
 	void sendPublicMessage(String meetingID, String requesterID, Map<String, String> message);
 	void sendPrivateMessage(String meetingID, String requesterID, Map<String, String> message);
+	void clearChatHistory(String meetingID, String requesterID, String replyTo);
 
 	// Whiteboard
 	void sendWhiteboardAnnotation(String meetingID, String requesterID, java.util.Map<String, Object> annotation);	
