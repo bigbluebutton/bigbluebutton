@@ -1,4 +1,4 @@
-UserList = class UserList extends React.Component {
+UserList UserListContainer = React.createClass({
   render() {
     return (
       <div className="userlist ScrollableWindowY">
@@ -6,4 +6,4 @@ UserList = class UserList extends React.Component {
       </div>
     );
   }
-}
+})

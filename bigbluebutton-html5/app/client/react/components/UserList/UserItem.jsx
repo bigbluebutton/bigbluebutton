@@ -1,4 +1,4 @@
-UserItem = class UserItem extends React.Component {
+UserItem = React.createClass({
   statusicons(user){
     if(user.isPresenter){
       return (
@@ -30,10 +30,10 @@ UserItem = class UserItem extends React.Component {
     else{
       return (
         <div className="status">
-        </div>  
+        </div>
       )
     }
-  };
+  },
 
   render() {
     return (
@@ -45,4 +45,4 @@ UserItem = class UserItem extends React.Component {
       </div>
     );
   }
-}
+})
