@@ -1,4 +1,4 @@
-UserList = React.createClass({
+_UserList = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     const currentUserId = BBB.getCurrentUser().userId;

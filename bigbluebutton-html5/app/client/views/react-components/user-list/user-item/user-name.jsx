@@ -1,4 +1,4 @@
-UserName = React.createClass({
+_UserName = React.createClass({
   render() {
     return (
       <div className="user-name">

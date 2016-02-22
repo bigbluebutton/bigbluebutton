@@ -1,4 +1,4 @@
-Icon = React.createClass({
+_Icon = React.createClass({
   getDefaultProps: function() {
     return {
       icon: 'die-six',

@@ -1,4 +1,4 @@
-UserMediaItemMic = React.createClass({
+_UserMediaItemMic = React.createClass({
   render() {
     return (
       <ul>

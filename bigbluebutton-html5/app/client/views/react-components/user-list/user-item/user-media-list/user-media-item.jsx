@@ -1,4 +1,4 @@
-UserMediaItem = React.createClass({
+_UserMediaItem = React.createClass({
   render() {
     return (
       <span rel="tooltip" data-placement="bottom" title="is only listening">
