@@ -55,11 +55,6 @@ package org.bigbluebutton.modules.deskshare.managers
 			/*toolbarButtonManager = new ToolbarButtonManager();*/
 		}
 
-		private function getChromeExtensionKey():String {
-			var key:String = 'your-extension-key';
-			return key;
-		}
-
 		private function getFreeswitchServerCredentials():Object {
 			var credentials:Object = new Object();
 			credentials.vertoPort = "PORT";
