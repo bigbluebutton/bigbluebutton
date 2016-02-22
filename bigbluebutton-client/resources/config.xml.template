@@ -41,7 +41,6 @@
 			baseTabIndex="301"
 		/>
 
-<!--
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
@@ -52,6 +51,7 @@
 			autoFullScreen="false"
 			baseTabIndex="201"
 			useWebRTCIfAvailable="true"
+			chromeExtensionKey=""
 		/>
 
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION"
