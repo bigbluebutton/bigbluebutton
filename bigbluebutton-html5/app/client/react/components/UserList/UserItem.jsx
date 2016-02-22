@@ -1,4 +1,4 @@
-UserItem = React.createClass({
+UserItem = class UserItem extends React.Component {
   statusicons(user){
     if(user.isPresenter){
       return (
@@ -18,7 +18,7 @@ UserItem = React.createClass({
         </div>
       )
     }
-    else{
+    else if(this.props.currentUserModerator){
       return (
         <div className="status">
           <span className="setPresenter" rel="tooltip" data-placement="bottom" title={"set " + user.name + " as presenter"}>
@@ -27,7 +27,13 @@ UserItem = React.createClass({
         </div>
       )
     }
-  },
+    else{
+      return (
+        <div className="status">
+        </div>  
+      )
+    }
+  };
 
   render() {
     return (
@@ -39,4 +45,4 @@ UserItem = React.createClass({
       </div>
     );
   }
-})
+}

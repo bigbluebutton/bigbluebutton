@@ -91,7 +91,7 @@ Template.menu.events({
 });
 
 Template.main.rendered = function() {
-  ReactDOM.render(<UserListContainer />, document.getElementById("users"));
+  ReactDOM.render(<UserListContainer />, document.getElementById("userListSidebar"));
 
   let lastOrientationWasLandscape;
   $("#dialog").dialog({
