@@ -238,20 +238,6 @@ Handlebars.registerHelper("canJoinWithMic", () => {
   }
 });
 
-
-/*Handlebars.registerHelper "visibility", (section) ->
-  if getInSession "display_#{section}"
-    style: 'display:block;'
-  else
-    style: 'display:none;'
- */
-
-Handlebars.registerHelper("visibility", section => {
-  return {
-    style: 'display:block;'
-  };
-});
-
 Handlebars.registerHelper('containerPosition', section => {
   if(getInSession('display_usersList')) {
     return 'moved-to-right';

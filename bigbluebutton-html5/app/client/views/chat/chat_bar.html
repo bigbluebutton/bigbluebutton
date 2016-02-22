@@ -1,5 +1,5 @@
 <template name="chatbar">
-  <div id="{{id}}" {{visibility name}} class="component">
+  <div id="{{id}}" class="component">
     <div class="chatBodyContainer">
       {{#if inPrivateChat}}
         {{> privateChatTab}}
@@ -52,7 +52,7 @@
 <template name="chatInputControls">
   <div class="button-group radius">
     <textarea id="newMessageInput" {{messageFontSize}} rel="tooltip" data-placement="top" title="Write a new message"></textarea>
-    <input type="submit" id="sendMessageButton" class="button radius" rel="tooltip" data-placement="top" value="Send" />
+    <button type="submit" id="sendMessageButton" class="button radius" rel="tooltip" data-placement="top">Send</button>
   </div>
 </template>
 
