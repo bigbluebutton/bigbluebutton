@@ -1,4 +1,4 @@
-UserMediaItem = React.createClass({
+_UserMediaItem = React.createClass({
   render() {
     return (
       <Icon icon="volume-none" title="is only listening"/>

@@ -1,4 +1,4 @@
-UserActionList = React.createClass({
+_UserActionList = React.createClass({
   render() {
     return (
       <ul>

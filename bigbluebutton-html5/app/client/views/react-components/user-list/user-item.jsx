@@ -1,4 +1,4 @@
-UserItem = React.createClass({
+_UserItem = React.createClass({
   render() {
     let user = this.props.user;
 

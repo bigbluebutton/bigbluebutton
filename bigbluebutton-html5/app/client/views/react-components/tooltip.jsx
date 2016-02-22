@@ -1,4 +1,4 @@
-Tooltip = React.createClass({
+_Tooltip = React.createClass({
   getDefaultProps: function() {
     return {
       placement: 'bottom'

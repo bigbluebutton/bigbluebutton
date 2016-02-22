@@ -1,4 +1,4 @@
-UserActionKick = React.createClass({
+_UserActionKick = React.createClass({
   render() {
     return (
       <Icon icon="x-circle" title="kick user"/>

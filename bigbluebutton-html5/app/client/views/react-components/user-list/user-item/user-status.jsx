@@ -1,4 +1,4 @@
-UserStatus = React.createClass({
+_UserStatus = React.createClass({
   render() {
     return (
       <div className="user-status">
