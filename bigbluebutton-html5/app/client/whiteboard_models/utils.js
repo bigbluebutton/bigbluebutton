@@ -43,7 +43,7 @@ this.formatThickness = function(thickness) {
 // applies zooming to the stroke thickness
 this.zoomStroke = function(thickness) {
   let currentSlide, ratio;
-  currentSlide = BBB.getCurrentSlide("zoomStroke");
+  currentSlide = BBB.getCurrentSlide();
   ratio = ((currentSlide != null ? currentSlide.slide.width_ratio : void 0) + (currentSlide != null ? currentSlide.slide.height_ratio : void 0)) / 2;
   return thickness * 100 / ratio;
 };

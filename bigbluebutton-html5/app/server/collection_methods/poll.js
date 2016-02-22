@@ -52,17 +52,19 @@ Meteor.methods({
 // Private methods on server
 // --------------------------------------------------------------------------------------------
 this.addPollToCollection = function(poll, requester_id, users, meetingId) {
-  let _users, answer, entry, i, j, len, len1, ref, user;
+  let _users, answer, entry, i, j, user;
   //copying all the userids into an array
   _users = [];
-  for (i = 0, len = users.length; i < len; i++) {
+  _users_length = users.length;
+  for (i = 0; i < _users_length; i++) {
     user = users[i];
     _users.push(user.user.userid);
   }
   //adding the initial number of votes for each answer
-  ref = poll.answers;
-  for (j = 0, len1 = ref.length; j < len1; j++) {
-    answer = ref[j];
+  _answers = poll.answers;
+  _answers_length = _answers.length;
+  for (j = 0; j < _answers_length; j++) {
+    answer = _answers[j];
     answer.num_votes = 0;
   }
   //adding the initial number of responders and respondents to the poll, which will be displayed for presenter (in HTML5 client) when he starts the poll
@@ -83,10 +85,10 @@ this.addPollToCollection = function(poll, requester_id, users, meetingId) {
 };
 
 this.clearPollCollection = function(meetingId, poll_id) {
-  if ((meetingId != null) && (poll_id != null) && (Meteor.Polls.findOne({
+  if (meetingId != null && poll_id != null && Meteor.Polls.findOne({
     "poll_info.meetingId": meetingId,
     "poll_info.poll.id": poll_id
-  }) != null)) {
+  }) != null) {
     return Meteor.Polls.remove({
       "poll_info.meetingId": meetingId,
       "poll_info.poll.id": poll_id

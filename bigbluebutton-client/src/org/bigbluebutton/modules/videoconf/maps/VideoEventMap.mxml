@@ -56,10 +56,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.CAMERA_SETTING}" >
     <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCameraSetting" arguments="{event}"/>
   </EventHandlers>
-	
-	<EventHandlers type="{BBBEvent.RECONNECT_CONNECTION_ATTEMPT_SUCCEEDED_EVENT}" >
-		<MethodInvoker generator="{VideoEventMapDelegate}" method="handleRestream" arguments="{event}"/>
-	</EventHandlers>
   
 	<EventHandlers type="{BBBEvent.ERASE_CAMERA_SETTING}" >
 		<MethodInvoker generator="{VideoEventMapDelegate}" method="handleEraseCameraSetting" arguments="{event}"/>

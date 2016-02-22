@@ -16,8 +16,6 @@ this.WhiteboardEllipseModel = (function() {
     // @param    {string} colour        the colour of the object
     // @param    {number} thickness the thickness of the object's line(s)
     make(info) {
-      //console.log "Whiteboard - Making ellipse: "
-      //console.log info
       let color, thickness, x, y;
       if((info != null ? info.points : void 0) != null) {
         x = info.points[0];
@@ -39,7 +37,6 @@ this.WhiteboardEllipseModel = (function() {
     // @param    {number} y2 the y value of the bottom right corner in percent of current slide size
     // @param    {boolean} square (draw a circle or not
     update(info) {
-      //console.log info
       let circle, coords, r, ref, ref1, reversed, rx, ry, x1, x2, y1, y2;
       if((info != null ? info.points : void 0) != null) {
         x1 = info.points[0];
@@ -71,8 +68,6 @@ this.WhiteboardEllipseModel = (function() {
             y1: y1,
             y2: y2
           };
-
-          //console.log(coords)
 
           rx = (x2 - x1) / 2;
           ry = (y2 - y1) / 2;

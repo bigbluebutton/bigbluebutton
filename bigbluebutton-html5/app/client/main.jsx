@@ -5,7 +5,6 @@ loadLib = function(libname) {
   let retryMessageCallback, successCallback;
   successCallback = function() {};
   retryMessageCallback = function(param) {
-    //return(Meteor.log.info("Failed to load library"), param);
     return console.log("Failed to load library", param);
   };
   return Meteor.Loader.loadJs(`${window.location.origin}/client/lib/${libname}`, successCallback, 10000).fail(retryMessageCallback);

@@ -52,7 +52,7 @@ moderator = {
 // holds the values for whether the viewer user is allowed to perform an action (true)
 // or false if not allowed. Some actions have dynamic values depending on the current lock settings
 viewer = function(meetingId, userId) {
-  let ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7;
+  let meeting, user;
   return {
 
     // listen only
@@ -68,12 +68,8 @@ viewer = function(meetingId, userId) {
 
     // muting
     muteSelf: true,
-    unmuteSelf: !((ref = Meteor.Meetings.findOne({
-      meetingId: meetingId
-    })) != null ? ref.roomLockSettings.disableMic : void 0) || !((ref1 = Meteor.Users.findOne({
-      meetingId: meetingId,
-      userId: userId
-    })) != null ? ref1.user.locked : void 0),
+    unmuteSelf: !((meeting = Meteor.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disableMic) ||
+    !((user = Meteor.Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked),
 
     logoutSelf: true,
 
@@ -82,24 +78,13 @@ viewer = function(meetingId, userId) {
     subscribeChat: true,
 
     //chat
-    chatPublic: !((ref2 = Meteor.Meetings.findOne({
-      meetingId: meetingId
-    })) != null ? ref2.roomLockSettings.disablePublicChat : void 0) || !((ref3 = Meteor.Users.findOne({
-      meetingId: meetingId,
-      userId: userId
-    })) != null ? ref3.user.locked : void 0) || ((ref4 = Meteor.Users.findOne({
-      meetingId: meetingId,
-      userId: userId
-    })) != null ? ref4.user.presenter : void 0),
-    chatPrivate: !((ref5 = Meteor.Meetings.findOne({
-      meetingId: meetingId
-    })) != null ? ref5.roomLockSettings.disablePrivateChat : void 0) || !((ref6 = Meteor.Users.findOne({
-      meetingId: meetingId,
-      userId: userId
-    })) != null ? ref6.user.locked : void 0) || ((ref7 = Meteor.Users.findOne({
-      meetingId: meetingId,
-      userId: userId
-    })) != null ? ref7.user.presenter : void 0),
+    chatPublic: !((meeting = Meteor.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePublicChat) ||
+    !((user = Meteor.Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
+    (user != null && user.user.presenter),
+
+    chatPrivate: !((meeting = Meteor.Meetings.findOne({ meetingId: meetingId })) != null && meeting.roomLockSettings.disablePrivateChat) ||
+    !((user = Meteor.Users.findOne({ meetingId: meetingId, userId: userId })) != null && user.user.locked) ||
+    (user != null && user.user.presenter),
 
     //poll
     subscribePoll: true,
@@ -114,11 +99,14 @@ viewer = function(meetingId, userId) {
 // carries out the decision making for actions affecting users. For the list of
 // actions and the default value - see 'viewer' and 'moderator' in the beginning of the file
 this.isAllowedTo = function(action, meetingId, userId, authToken) {
-  let ref, ref1, ref2, ref3, user, validated;
-  validated = (ref = Meteor.Users.findOne({
+  let user, validated;
+  user = Meteor.Users.findOne({
     meetingId: meetingId,
     userId: userId
-  })) != null ? ref.validated : void 0;
+  });
+  if(user != null) {
+    validated = user.validated;
+  }
   Meteor.log.info(`in isAllowedTo: action-${action}, userId=${userId}, authToken=${authToken} validated:${validated}`);
   user = Meteor.Users.findOne({
     meetingId: meetingId,
@@ -130,17 +118,17 @@ this.isAllowedTo = function(action, meetingId, userId, authToken) {
 
       // PRESENTER
       // check presenter specific actions or fallback to regular viewer actions
-      if((ref1 = user.user) != null ? ref1.presenter : void 0) {
+      if(user.user != null && user.user.presenter) {
         Meteor.log.info("user permissions presenter case");
         return presenter[action] || viewer(meetingId, userId)[action] || false;
 
       // VIEWER
-      } else if(((ref2 = user.user) != null ? ref2.role : void 0) === 'VIEWER') {
+      } else if(user.user != null && user.user.role === 'VIEWER') {
         Meteor.log.info("user permissions viewer case");
         return viewer(meetingId, userId)[action] || false;
 
       // MODERATOR
-      } else if(((ref3 = user.user) != null ? ref3.role : void 0) === 'MODERATOR') {
+      } else if(user.user != null && user.user.role === 'MODERATOR') {
         Meteor.log.info("user permissions moderator case");
         return moderator[action] || false;
       } else {
@@ -157,7 +145,9 @@ this.isAllowedTo = function(action, meetingId, userId, authToken) {
       return false;
     }
   } else {
-    Meteor.log.error(`..while the authToken was ${user != null ? user.authToken : void 0}    and the user's object is ${JSON.stringify(user)}in meetingId=${meetingId} userId=${userId} tried to perform ${action} without permission${"\n..while the authToken was " + (user != null ? user.authToken : void 0) + "    and the user's object is " + (JSON.stringify(user))}`);
+    Meteor.log.error(`in meetingId=${meetingId} userId=${userId} tried to perform ${action} without permission${"\n..while the authToken was " +
+      (user != null && user.authToken != null ? user.authToken : void 0) + "    and the user's object is " + (JSON.stringify(user))}`);
+
     return false;
   }
 };

@@ -448,13 +448,14 @@ package org.bigbluebutton.modules.videoconf.maps
     public function connectedToVideoApp(event: ConnectedEvent):void{
       LOGGER.debug("VideoEventMapDelegate:: [{0}] Connected to video application.", [me]);
       _ready = true;
-		if (event.reconnection) {
-		 closeAllWindows()
-		} else {
-			addToolbarButton();					  
-		}
-		openWebcamWindows();
-	
+      if (event.reconnection) {
+        closeAllWindows();
+        handleRestream();
+      } else {
+        addToolbarButton();
+      }
+      
+      openWebcamWindows();
     }
 
     public function handleCameraSetting(event:BBBEvent):void {
@@ -471,7 +472,7 @@ package org.bigbluebutton.modules.videoconf.maps
 		_restream = event.payload.restream;
 	}
 	
-	public function handleRestream(event:BBBEvent):void {
+	private function handleRestream():void {
 		if(_restream){
 			LOGGER.debug("VideoEventMapDelegate::handleRestream [{0},{1}]", [_cameraIndex, _videoProfile.id]);
 			initCameraWithSettings(_cameraIndex, _videoProfile);

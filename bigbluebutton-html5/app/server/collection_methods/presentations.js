@@ -5,27 +5,31 @@ Meteor.methods({
       "meetingId": meetingId,
       "presentation.current": true
     });
-    currentSlideDoc = Meteor.Slides.findOne({
-      "meetingId": meetingId,
-      "presentationId": currentPresentationDoc != null ? currentPresentationDoc.presentation.id : void 0,
-      "slide.current": true
-    });
-    previousSlideDoc = Meteor.Slides.findOne({
-      "meetingId": meetingId,
-      "presentationId": currentPresentationDoc != null ? currentPresentationDoc.presentation.id : void 0,
-      "slide.num": (currentSlideDoc != null ? currentSlideDoc.slide.num : void 0) - 1
-    });
-    if((previousSlideDoc != null) && isAllowedTo('switchSlide', meetingId, userId, authToken)) {
-      message = {
-        "payload": {
-          "page": previousSlideDoc.slide.id,
-          "meeting_id": meetingId
-        },
-        "header": {
-          "name": "go_to_slide"
+    if(currentPresentationDoc != null) {
+      currentSlideDoc = Meteor.Slides.findOne({
+        "meetingId": meetingId,
+        "presentationId": currentPresentationDoc.presentation.id,
+        "slide.current": true
+      });
+      if(currentSlideDoc != null) {
+        previousSlideDoc = Meteor.Slides.findOne({
+          "meetingId": meetingId,
+          "presentationId": currentPresentationDoc.presentation.id,
+          "slide.num": currentSlideDoc.slide.num - 1
+        });
+        if((previousSlideDoc != null) && isAllowedTo('switchSlide', meetingId, userId, authToken)) {
+          message = {
+            "payload": {
+              "page": previousSlideDoc.slide.id,
+              "meeting_id": meetingId
+            },
+            "header": {
+              "name": "go_to_slide"
+            }
+          };
+          return publish(Meteor.config.redis.channels.toBBBApps.presentation, message);
         }
-      };
-      return publish(Meteor.config.redis.channels.toBBBApps.presentation, message);
+      }
     }
   },
   publishSwitchToNextSlideMessage(meetingId, userId, authToken) {
@@ -34,27 +38,31 @@ Meteor.methods({
       "meetingId": meetingId,
       "presentation.current": true
     });
-    currentSlideDoc = Meteor.Slides.findOne({
-      "meetingId": meetingId,
-      "presentationId": currentPresentationDoc != null ? currentPresentationDoc.presentation.id : void 0,
-      "slide.current": true
-    });
-    nextSlideDoc = Meteor.Slides.findOne({
-      "meetingId": meetingId,
-      "presentationId": currentPresentationDoc != null ? currentPresentationDoc.presentation.id : void 0,
-      "slide.num": (currentSlideDoc != null ? currentSlideDoc.slide.num : void 0) + 1
-    });
-    if((nextSlideDoc != null) && isAllowedTo('switchSlide', meetingId, userId, authToken)) {
-      message = {
-        "payload": {
-          "page": nextSlideDoc.slide.id,
-          "meeting_id": meetingId
-        },
-        "header": {
-          "name": "go_to_slide"
+    if(currentPresentationDoc != null) {
+      currentSlideDoc = Meteor.Slides.findOne({
+        "meetingId": meetingId,
+        "presentationId": currentPresentationDoc.presentation.id,
+        "slide.current": true
+      });
+      if(currentSlideDoc != null) {
+        nextSlideDoc = Meteor.Slides.findOne({
+          "meetingId": meetingId,
+          "presentationId": currentPresentationDoc.presentation.id,
+          "slide.num": currentSlideDoc.slide.num + 1
+        });
+        if((nextSlideDoc != null) && isAllowedTo('switchSlide', meetingId, userId, authToken)) {
+          message = {
+            "payload": {
+              "page": nextSlideDoc.slide.id,
+              "meeting_id": meetingId
+            },
+            "header": {
+              "name": "go_to_slide"
+            }
+          };
+          return publish(Meteor.config.redis.channels.toBBBApps.presentation, message);
         }
-      };
-      return publish(Meteor.config.redis.channels.toBBBApps.presentation, message);
+      }
     }
   }
 });
@@ -63,12 +71,13 @@ Meteor.methods({
 // Private methods on server
 // --------------------------------------------------------------------------------------------
 this.addPresentationToCollection = function(meetingId, presentationObject) {
-  let entry, id;
+  let entry, id, presentationObj;
   //check if the presentation is already in the collection
-  if(Meteor.Presentations.findOne({
+  presentationObj = Meteor.Presentations.findOne({
     meetingId: meetingId,
     'presentation.id': presentationObject.id
-  }) == null) {
+  });
+  if(presentationObj == null) {
     entry = {
       meetingId: meetingId,
       presentation: {
@@ -83,22 +92,17 @@ this.addPresentationToCollection = function(meetingId, presentationObject) {
 };
 
 this.removePresentationFromCollection = function(meetingId, presentationId) {
-  let id;
-  if((meetingId != null) && (presentationId != null) && (Meteor.Presentations.findOne({
+  let id, presentationObject;
+  presentationObject = Meteor.Presentations.findOne({
     meetingId: meetingId,
     "presentation.id": presentationId
-  }) != null)) {
-    id = Meteor.Presentations.findOne({
-      meetingId: meetingId,
-      "presentation.id": presentationId
-    });
-    if(id != null) {
-      Meteor.Slides.remove({
+  });
+  if(presentationObject != null){
+    Meteor.Slides.remove({
         presentationId: presentationId
       }, Meteor.log.info(`cleared Slides Collection (presentationId: ${presentationId}!`));
-      Meteor.Presentations.remove(id._id);
-      return Meteor.log.info(`----removed presentation[${presentationId}] from ${meetingId}`);
-    }
+    Meteor.Presentations.remove(presentationObject._id);
+    return Meteor.log.info(`----removed presentation[${presentationId}] from ${meetingId}`);
   }
 };
 
