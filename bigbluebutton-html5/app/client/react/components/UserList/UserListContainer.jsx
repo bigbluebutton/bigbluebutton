@@ -23,7 +23,6 @@ UserListContainer = React.createClass({
       };
     });
 
-    console.log(currentUser);
     return {
       // All this mapping should be on a service and not on the component itself
       currentUser: users.find(u => u.isCurrent),
