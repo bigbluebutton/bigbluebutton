@@ -1,45 +1,42 @@
-const { PropTypes, Component } = React;
-const types = [
+const { PropTypes } = React;
+const TYPES = [
   'button', 'reset', 'submit'
 ];
 
-class Button extends Component {
-  constructor() {
-    super(...arguments);
+Button = React.createClass({
+  propTypes: {
+    disabled: PropTypes.bool,
 
-    this.propTypes = {
-      disabled: PropTypes.bool,
+    /**
+     * You can use a custom element for this component
+     */
+    componentClass: CustomPropTypes.elementType,
 
-      /**
-       * You can use a custom element for this component
-       */
-      componentClass: PropTypes.elementType,
-      
-      /**
-       * Defines HTML button type Attribute
-       * @type {("button"|"reset"|"submit")}
-       * @defaultValue 'button'
-       */
-      type: PropTypes.oneOf(types),
-    }
-  }
+    /**
+     * Defines HTML button type Attribute
+     * @type {("button"|"reset"|"submit")}
+     * @defaultValue 'button'
+     */
+    type: PropTypes.oneOf(TYPES),
+  },
 
   getDefaultProps() {
     return {
       disabled: false,
-      role: 'button'
+      type: 'button',
+      onClick: this.handleClick
     };
-  }
+  },
 
   render() {
     let renderFuncName = this.props.href || this.props.target ?
       'renderAnchor' : 'renderButton';
 
     return this[renderFuncName]();
-  }
+  },
 
   renderAnchor() {
-    let Component = this.props.componentClass || 'a';
+    let Component = 'a';
     let href = this.props.href || '#';
 
     return (
@@ -50,17 +47,23 @@ class Button extends Component {
         {this.props.children}
       </Component>
     );
-  }
+  },
 
   renderButton() {
-    let Component = this.props.componentClass || 'button';
+    let Component = 'button';
 
     return (
       <Component
         {...this.props}
-        type={this.props.type || 'button'}>
+        type={this.props.type || 'button'}
+        role="button">
         {this.props.children}
       </Component>
     );
-  }
-}
+  },
+
+
+  handleClick() {
+    alert('cliquei2');
+  },
+});
