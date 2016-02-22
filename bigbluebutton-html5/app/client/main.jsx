@@ -90,22 +90,7 @@ Template.menu.events({
 });
 
 Template.main.rendered = function() {
-<<<<<<< HEAD:bigbluebutton-html5/app/client/main.jsx
   ReactDOM.render(<UserListContainer />, document.getElementById("userListSidebar"));
-=======
-  ReactDOM.render(<ReactUserList />, document.getElementById("users"));
-  Meteor.Users.find().observeChanges({
-    added(){
-      // React.render(<ReactUserList />, document.getElementById("users"));
-    },
-    changed(){
-      // React.render(<ReactUserList />, document.getElementById("users"));
-    },
-    removed(){
-      // React.render(<ReactUserList />, document.getElementById("users"));
-    }
-  });
->>>>>>> master:bigbluebutton-html5/app/client/main.jsx
 
   let lastOrientationWasLandscape;
   $("#dialog").dialog({
