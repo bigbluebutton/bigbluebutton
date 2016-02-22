@@ -217,7 +217,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		public function handleStreamStartEvent(e:WebRTCViewStreamEvent):void{
 			 if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
 			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
-			LOGGER.debug("Received start vieweing command when isPresenter==[{0}]",[isPresenter]);
+			LOGGER.debug("Received start viewing command when isPresenter==[{0}]",[isPresenter]);
 
 			if(isPresenter) {
 				publishWindowManager.startViewing(e.rtmp, e.videoWidth, e.videoHeight);
