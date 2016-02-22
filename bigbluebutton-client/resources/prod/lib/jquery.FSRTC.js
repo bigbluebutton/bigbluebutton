@@ -1082,7 +1082,7 @@
         // Added by Dan Perrone (perroned)
         // https://github.com/perroned
         // Date: February 17, 2016
-        // Commit: 
+        // Commit: 05488dda5d9d1048e286b0bdee27515d217b15a5
 
         var constraints = {};
         if (window.firefoxDesksharePresent) {
