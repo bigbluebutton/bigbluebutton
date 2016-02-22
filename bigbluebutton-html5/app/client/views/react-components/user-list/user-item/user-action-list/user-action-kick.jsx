@@ -1,9 +1,7 @@
 _UserActionKick = React.createClass({
   render() {
     return (
-      <ul>
-        UserActionKick
-      </ul>
+      <Icon icon="x-circle" title="kick user"/>
     );
   }
 })
