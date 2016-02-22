@@ -1,6 +1,6 @@
 UserItem = React.createClass({
-  statusicons(user){
-    if(user.isPresenter){
+  statusicons(user) {
+    if(user.isPresenter) {
       return (
         <div className="status">
           <span rel="tooltip" data-placement="bottom" title={user.name + " is the presenter"}>
@@ -9,7 +9,7 @@ UserItem = React.createClass({
         </div>
       )
     }
-    else if(user.isModerator){
+    else if(user.isModerator) {
       return (
         <div className="status">
           <span rel="tooltip" data-placement="bottom" title={user.name +  " is a moderatorabc"}>
@@ -18,7 +18,7 @@ UserItem = React.createClass({
         </div>
       )
     }
-    else if(this.props.currentUserModerator){
+    else if(this.props.currentUserModerator) {
       return (
         <div className="status">
           <span className="setPresenter" rel="tooltip" data-placement="bottom" title={"set " + user.name + " as presenter"}>
@@ -27,7 +27,7 @@ UserItem = React.createClass({
         </div>
       )
     }
-    else{
+    else {
       return (
         <div className="status">
         </div>
@@ -36,13 +36,46 @@ UserItem = React.createClass({
   },
 
   render() {
+    const user = this.props.user;
     return (
       <div id="content" className="userItem">
-        {this.statusicons(this.props.user)}
-        <span className="usernameEntry" rel="tooltip" data-placement="bottom" title={this.props.user.name}>
-          <span className="userName">{this.props.user.name}</span>
-        </span>
+        {this.statusicons(user)}
+        {this.renderUserName(user)}
+        {this.renderUnreadBadge(user.unreadMessagesCount)}
       </div>
     );
-  }
+  },
+
+  renderUserName(user) {
+    let classes = ['usernameEntry'];
+    let userName = user.name;
+
+    if(user.isCurrent) {
+      userName = userName.concat(' (you)');
+      classes.push('userCurrent');
+    }
+
+    if(user.unreadMessagesCount) {
+      classes.push('gotUnreadMail');
+    }
+
+    return (
+      <Tooltip className={classNames(classes)} title={userName}>
+        <span className="userName">{userName}</span>
+      </Tooltip>
+    );
+  },
+
+  renderUnreadBadge(unreadMessagesCount) {
+    if(!unreadMessagesCount) {
+      return;
+    }
+
+    return (
+      <div className="unreadChatNumber">
+        {(unreadMessagesCount > 9) ? '9+' : unreadMessagesCount }
+      </div>
+    );
+  },
+
 })
