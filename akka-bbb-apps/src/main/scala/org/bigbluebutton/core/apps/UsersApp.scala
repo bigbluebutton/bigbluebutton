@@ -234,6 +234,21 @@ trait UsersApp {
     }
   }
 
+  def makeSurePresenterIsAssigned(user: UserVO): Unit = {
+    if (user.presenter) {
+      /* The current presenter has left the meeting. Find a moderator and make
+       * him presenter. This way, if there is a moderator in the meeting, there
+       * will always be a presenter.
+       */
+      val moderator = usersModel.findAModerator()
+      moderator.foreach { mod =>
+        log.info("Presenter left meeting.  meetingId=" + mProps.meetingID + " userId=" + user.userID
+          + ". Making user=[" + mod.userID + "] presenter.")
+        assignNewPresenter(mod.userID, mod.name, mod.userID)
+      }
+    }
+  }
+
   def handleEjectUserFromMeeting(msg: EjectUserFromMeeting) {
     usersModel.getUser(msg.userId) foreach { user =>
       if (user.voiceUser.joined) {
@@ -243,6 +258,8 @@ trait UsersApp {
 
       usersModel.removeUser(msg.userId)
       usersModel.removeRegUser(msg.userId)
+
+      makeSurePresenterIsAssigned(user)
 
       log.info("Ejecting user from meeting.  meetingId=" + mProps.meetingID + " userId=" + msg.userId)
       outGW.send(new UserEjectedFromMeeting(mProps.meetingID, mProps.recorded, msg.userId, msg.ejectedBy))
@@ -373,19 +390,7 @@ trait UsersApp {
         log.info("User left meeting. meetingId=" + mProps.meetingID + " userId=" + u.userID + " user=" + u)
         outGW.send(new UserLeft(msg.meetingID, mProps.recorded, u))
 
-        if (u.presenter) {
-
-          /* The current presenter has left the meeting. Find a moderator and make
-	       * him presenter. This way, if there is a moderator in the meeting, there
-	       * will always be a presenter.
-	       */
-          val moderator = usersModel.findAModerator()
-          moderator.foreach { mod =>
-            log.info("Presenter left meeting.  meetingId=" + mProps.meetingID + " userId=" + u.userID
-              + ". Making user=[" + mod.userID + "] presenter.")
-            assignNewPresenter(mod.userID, mod.name, mod.userID)
-          }
-        }
+        makeSurePresenterIsAssigned(u)
 
         val vu = u.voiceUser
         if (vu.joined || u.listenOnly) {
