@@ -17,18 +17,18 @@ UserItem = React.createClass({
   },
 
   render() {
-    const user = this.props.user;
     return (
       <div id="content" className="userItem">
-        {this.renderStatusIcons(user)}
-        {this.renderUserName(user)}
-        {this.renderUnreadBadge(user.unreadMessagesCount)}
-        {this.renderSharingStatus(user)}
+        {this.renderStatusIcons()}
+        {this.renderUserName()}
+        {this.renderUnreadBadge()}
+        {this.renderSharingStatus()}
       </div>
     );
   },
 
-  renderStatusIcons(user) {
+  renderStatusIcons() {
+    const user = this.props.user;
     let statusIcons = [];
 
     if (this.props.currentUser.isModerator && !user.isPresenter) {
@@ -53,7 +53,8 @@ UserItem = React.createClass({
   },
 
 
-  renderUserName(user) {
+  renderUserName() {
+    const user = this.props.user;
     let classes = ['usernameEntry'];
     let userName = user.name;
 
@@ -73,7 +74,8 @@ UserItem = React.createClass({
     );
   },
 
-  renderUnreadBadge(unreadMessagesCount) {
+  renderUnreadBadge() {
+    const unreadMessagesCount = this.props.user.unreadMessagesCount;
     if (!unreadMessagesCount) {
       return;
     }
@@ -85,7 +87,8 @@ UserItem = React.createClass({
     );
   },
 
-  renderSharingStatus(user) {
+  renderSharingStatus() {
+    const user = this.props.user;
     const { sharingStatus, name: userName } = user;
     const currentUser = this.props.currentUser;
 
