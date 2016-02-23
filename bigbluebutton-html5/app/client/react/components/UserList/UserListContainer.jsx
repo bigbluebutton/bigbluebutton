@@ -16,7 +16,7 @@ UserListContainer = React.createClass({
         isModerator: u.role === "MODERATOR",
         emoji: u.emoji_status,
         sharingStatus: {
-          isLocked: true, //TODO: Migrate blaze logic
+          isLocked: false, //TODO: Migrate blaze logic
           isWebcamOpen: u.webcam_stream.length,
           isListenOnly: u.listenOnly,
           isMuted: u.voiceUser.muted,
@@ -37,7 +37,7 @@ UserListContainer = React.createClass({
           user.unreadMessagesCount = c.number;
         }
       });
-
+      
       return user;
     });
 
