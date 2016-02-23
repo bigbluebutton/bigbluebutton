@@ -47,6 +47,8 @@ trait BreakoutRoomApp extends SystemConfiguration {
         r.defaultPresentationURL)
       outGW.send(new CreateBreakoutRoom(mProps.meetingID, mProps.recorded, p))
     }
+    meetingModel.breakoutRoomsdurationInMinutes = msg.durationInMinutes;
+    meetingModel.breakoutRoomsStartedOn = timeNowInSeconds;
   }
 
   def sendJoinURL(userId: String, breakoutId: String) {
@@ -128,7 +130,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
   def handleEndAllBreakoutRooms(msg: EndAllBreakoutRooms) {
     log.info("EndAllBreakoutRooms event received for meetingId={}", mProps.meetingID)
     breakoutModel.getRooms().foreach { room =>
-      outGW.send(new EndBreakoutRoom(room.id)) 
+      outGW.send(new EndBreakoutRoom(room.id))
     }
   }
 

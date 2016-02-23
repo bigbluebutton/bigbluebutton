@@ -27,20 +27,20 @@ package org.bigbluebutton.core {
 	public final class TimerUtil {
 		public static var timers:Dictionary = new Dictionary(true);
 		
-		public static function setCountDownTimer(label:Label, seconds:int):void {
+		public static function setCountDownTimer(label:Label, seconds:int, preLabel:String = ''):void {
 			var timer:Timer = getTimer(label.id, seconds);
 			if (!timer.hasEventListener(TimerEvent.TIMER)) {
 				timer.addEventListener(TimerEvent.TIMER, function():void {
-					var remainingSeconds : int = seconds - timer.currentCount; 
+					var remainingSeconds : int = timer.repeatCount - timer.currentCount; 
 					var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
-					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [formattedTime]);
+					label.text = preLabel + ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [formattedTime]);
 				});
 				timer.addEventListener(TimerEvent.TIMER_COMPLETE, function():void {
 					label.text = ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTimeEnded');
 				});
 			} else {
 				timer.stop();
-				timer.repeatCount = seconds;
+				timer.reset();
 			}
 			timer.start();
 		}
@@ -49,6 +49,7 @@ package org.bigbluebutton.core {
 			if (timers[name] == undefined) {
 				timers[name] = new Timer(1000, defaultRepeatCount);
 			}
+			Timer(timers[name]).repeatCount = defaultRepeatCount;
 			return timers[name];
 		}
 	}

@@ -1,24 +1,12 @@
 package org.bigbluebutton.core
 
-import org.bigbluebutton.core.bus.IncomingEventBus
-import org.bigbluebutton.core.apps.UsersApp
-import org.bigbluebutton.core.apps.PresentationApp
-import org.bigbluebutton.core.apps.PollApp
-import org.bigbluebutton.core.apps.WhiteboardApp
-import org.bigbluebutton.core.apps.ChatApp
-import org.bigbluebutton.core.apps.LayoutApp
-import org.bigbluebutton.core.apps.BreakoutRoomApp
-import org.bigbluebutton.core.apps.ChatModel
-import org.bigbluebutton.core.apps.LayoutModel
-import org.bigbluebutton.core.apps.UsersModel
-import org.bigbluebutton.core.apps.PollModel
-import org.bigbluebutton.core.apps.WhiteboardModel
-import org.bigbluebutton.core.apps.PresentationModel
-import org.bigbluebutton.core.apps.BreakoutRoomModel
-import org.bigbluebutton.core.api._
-import akka.actor.ActorContext
-import akka.actor.ActorSystem
 import java.util.concurrent.TimeUnit
+
+import org.bigbluebutton.core.api._
+import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.bus.IncomingEventBus
+
+import akka.actor.ActorContext
 import akka.event.Logging
 
 class LiveMeeting(val mProps: MeetingProperties,
@@ -93,6 +81,15 @@ class LiveMeeting(val mProps: MeetingProperties,
       val endMeetingTime = meetingModel.startedOn + (mProps.duration * 60)
       val timeRemaining = endMeetingTime - timeNowInSeconds
       outGW.send(new MeetingTimeRemainingUpdate(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+    }
+    if (!mProps.isBreakout && breakoutModel.getRooms().length > 0) {
+      val room = breakoutModel.getRooms()(0);
+      val endMeetingTime = meetingModel.breakoutRoomsStartedOn + (meetingModel.breakoutRoomsdurationInMinutes * 60)
+      val timeRemaining = endMeetingTime - timeNowInSeconds
+      outGW.send(new BreakoutRoomsTimeRemainingUpdateOutMessage(mProps.meetingID, mProps.recorded, timeRemaining.toInt))
+    } else if (meetingModel.breakoutRoomsStartedOn != 0) {
+      meetingModel.breakoutRoomsdurationInMinutes = 0;
+      meetingModel.breakoutRoomsStartedOn = 0;
     }
   }
 

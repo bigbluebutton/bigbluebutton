@@ -147,6 +147,9 @@ package org.bigbluebutton.modules.users.services
 		case "timeRemainingUpdate":
 	      handleTimeRemainingUpdate(message);
 		  break;
+		case "breakoutRoomsTimeRemainingUpdate":
+			handleBreakoutRoomsTimeRemainingUpdate(message);
+			break;
 		case "breakoutRoomStarted":
 		  handleBreakoutRoomStarted(message);
 		  break;
@@ -622,8 +625,14 @@ package org.bigbluebutton.modules.users.services
 		
 	private function handleTimeRemainingUpdate(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
-		var e:BreakoutRoomEvent = new BreakoutRoomEvent(UserManager.getInstance().getConference().isBreakout ?
-														BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT : BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
+		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT);
+		e.durationInMinutes = map.timeRemaining;
+		dispatcher.dispatchEvent(e);
+	}
+	
+	private function handleBreakoutRoomsTimeRemainingUpdate(msg:Object):void {
+		var map:Object = JSON.parse(msg.msg);
+		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_PARENT);
 		e.durationInMinutes = map.timeRemaining;
 		dispatcher.dispatchEvent(e);
 	}

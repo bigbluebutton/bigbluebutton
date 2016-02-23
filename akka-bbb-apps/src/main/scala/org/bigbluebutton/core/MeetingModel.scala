@@ -21,7 +21,6 @@ class MeetingModel {
   private var meetingEnded = false
   private var meetingMuted = false
 
-  val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
   private var lastWebUserLeftOnTimestamp: Long = 0
 
@@ -30,6 +29,9 @@ class MeetingModel {
   private var extension = new MeetingExtensionProp
 
   val startedOn = timeNowInSeconds;
+
+  var breakoutRoomsStartedOn: Long = 0;
+  var breakoutRoomsdurationInMinutes: Int = 0;
 
   def isExtensionAllowed(): Boolean = extension.numExtensions < extension.maxExtensions
   def incNumExtension(): Int = {
