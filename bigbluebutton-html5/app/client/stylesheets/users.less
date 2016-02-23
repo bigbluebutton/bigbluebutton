@@ -252,6 +252,30 @@
   &-item {
     background-color: transparent !important; //need this here to reset bg-color
 
+    @media @desktop-landscape, @desktop-portrait {
+      .kickUser, .setPresenter{
+        opacity:0;
+        color: #fff;
+        cursor: pointer;
+        display: none;
+        -webkit-animation: fadeInAnimation .5s;
+        animation: fadeInAnimation .5s;
+      }
+    }
+
+    &:hover{
+      background-color: #2C4155 !important;
+
+      @media @landscape, @desktop-portrait {
+        background-color: #2C4155;
+
+        .kickUser, .setPresenter{
+          display: inline;
+          opacity:1;
+        }
+      }
+    }
+
     &-status {
       color: inherit;
       width: 1.6em;
