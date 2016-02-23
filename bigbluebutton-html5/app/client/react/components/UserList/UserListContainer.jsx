@@ -22,6 +22,32 @@ UserListContainer = React.createClass({
           isMuted: u.voiceUser.muted,
           isTalking: u.voiceUser.talking
         },
+        actions: {
+          kick(user) {
+            kickUser(BBB.getMeetingId(), user.id, getInSession("userId"), getInSession("authToken"))
+          },
+          setPresenter(user) {
+            setUserPresenter(BBB.getMeetingId(), user.id, getInSession('userId'), user.name, getInSession('authToken'));
+          },
+          openChat(user) {
+            let userIdSelected = user.id;
+
+            if (userIdSelected !== null) {
+              if (userIdSelected === currentUserId) {
+                setInSession("inChatWith", "PUBLIC_CHAT");
+              } else {
+                setInSession("inChatWith", userIdSelected);
+              }
+            }
+            if (isPortrait() || isPortraitMobile()) {
+              toggleUserlistMenu();
+              toggleShield();
+            }
+            return setTimeout(() => { // waits until the end of execution queue
+              return $("#newMessageInput").focus();
+            }, 0);
+          }
+        },
         unreadMessagesCount: 0
       };
 
@@ -37,7 +63,7 @@ UserListContainer = React.createClass({
           user.unreadMessagesCount = c.number;
         }
       });
-      
+
       return user;
     });
 

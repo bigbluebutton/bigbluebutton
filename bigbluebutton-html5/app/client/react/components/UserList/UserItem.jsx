@@ -1,7 +1,7 @@
 UserItem = React.createClass({
 
   handleKick(user) {
-    kickUser(BBB.getMeetingId(), user.id, getInSession("userId"), getInSession("authToken"));
+    return user.actions.kick(user);
   },
 
   handleMute(user) {
@@ -13,26 +13,11 @@ UserItem = React.createClass({
   },
 
   handleOpenPrivateChat(user) {
-    let userIdSelected = user.id;
-
-    if (userIdSelected !== null) {
-      if (userIdSelected === this.props.currentUser.id) {
-        setInSession("inChatWith", "PUBLIC_CHAT");
-      } else {
-        setInSession("inChatWith", userIdSelected);
-      }
-    }
-    if (isPortrait() || isPortraitMobile()) {
-      toggleUserlistMenu();
-      toggleShield();
-    }
-    return setTimeout(() => { // waits until the end of execution queue
-      return $("#newMessageInput").focus();
-    }, 0);
+    return user.actions.openChat(user)
   },
 
   handleSetPresenter(user){
-    setUserPresenter(BBB.getMeetingId(), user.id, getInSession('userId'), user.name, getInSession('authToken'));
+    return user.actions.setPresenter(user);
   },
 
   render() {
