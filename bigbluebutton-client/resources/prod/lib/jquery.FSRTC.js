@@ -1085,6 +1085,7 @@
         // Commit: 05488dda5d9d1048e286b0bdee27515d217b15a5
 
         var constraints = {};
+        var errorCallback = null;
         if (window.firefoxDesksharePresent) {
             window.firefoxDesksharePresent = false;
             constraints = {
@@ -1100,12 +1101,18 @@
                 video: video_constraints
             };
         }
+        // if a callback was added use it, otherwise use default error handler
+        if (typeof window.firefoxDesksharePresentErrorCallback === "function") {
+          errorCallback = window.firefoxDesksharePresentErrorCallback;
+        } else {
+          errorCallback = options.onerror ||
+          function(e) {
+              console.error(e);
+          }
+        }
 
-        n.getMedia(constraints,
-        // ----------------------------------------------------------
-        streaming, options.onerror ||
-        function(e) {
-            console.error(e);
+        n.getMedia(constraints, streaming, function() {
+          errorCallback({'status': 'Failed to getUserMedia on Firefox', 'errorcode': 2000});
         });
 
         function streaming(stream) {
