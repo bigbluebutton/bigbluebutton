@@ -1,7 +1,9 @@
 # TODO
 
- [] Migrate kick functionality
  [] Migrate user lock status, currently is just a dummy boolean.
+ [] Migrate set presenter functionality to a service
+ [] Migrate kick user functionality to a service
+ [] Migrate open private chat to a service
 
 # Know Issues
 

@@ -1,7 +1,7 @@
 UserItem = React.createClass({
 
   handleKick(user) {
-    alert('Should kick user ' + user.name);
+    kickUser(BBB.getMeetingId(), user.id, getInSession("userId"), getInSession("authToken"));
   },
 
   handleMute(user) {
@@ -32,7 +32,6 @@ UserItem = React.createClass({
   },
 
   handleSetPresenter(user){
-    /*this is a global function and should be looked at to be changed to a better solution*/
     setUserPresenter(BBB.getMeetingId(), user.id, getInSession('userId'), user.name, getInSession('authToken'));
   },
 
@@ -108,6 +107,8 @@ UserItem = React.createClass({
   renderSharingStatus(user) {
     const { sharingStatus, name: userName } = user;
 
+    const currentUser = this.props.currentUser;
+
     let icons = [];
 
     if(sharingStatus.isListenOnly) {
@@ -143,7 +144,7 @@ UserItem = React.createClass({
       }
     }
 
-    if (!user.isCurrent && user.isModerator) {
+    if (!user.isCurrent && currentUser.isModerator) {
       icons.push(
         <Button className="kickUser" onClick={() => this.handleKick(user)} componentClass="span">
           <Icon iconName="x-circle" title={`Kick ${userName}`} className="icon usericon"/>
@@ -160,11 +161,8 @@ UserItem = React.createClass({
     }
 
     return (
-      <div className="sharing-status">
-        {icons.map((icon, i) =>  {
-          icon.prop.key = i;
-          return icon;
-        })}
+      <div id="usericons">
+        {icons.map(i => i)}
       </div>
     );
   }
