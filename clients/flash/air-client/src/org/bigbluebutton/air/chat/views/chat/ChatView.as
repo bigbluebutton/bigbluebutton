@@ -1,8 +1,11 @@
 package org.bigbluebutton.air.chat.views.chat {
 	
 	import flash.events.MouseEvent;
+	
 	import mx.core.FlexGlobals;
+	
 	import spark.components.Button;
+	import spark.components.Group;
 	import spark.components.Label;
 	import spark.components.List;
 	import spark.components.TextInput;
@@ -31,6 +34,14 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		public function onClick(e:MouseEvent):void {
 			//buttonTestSignal.dispatch();
+		}
+		
+		public function get newMessages():Group {
+			return newMessagesBar;
+		}
+		
+		public function get newMessagesLabel():Label {
+			return newMessagesLabel0;
 		}
 		
 		public function dispose():void {
