@@ -39,16 +39,16 @@ UserItem = React.createClass({
 
     if (this.props.currentUser.isModerator && !user.isPresenter) {
       statusIcons.push((
-        <Tooltip onClick={this.handleSetPresenter.bind(this, user)} className="setPresenter" title={"set " + user.name + " as presenter"}>
+        <Tooltip key="1" onClick={this.handleSetPresenter.bind(this, user)} className="setPresenter" title={"set " + user.name + " as presenter"}>
           <Icon iconName="projection-screen" className="statusIcon"/>
         </Tooltip>
       ));
     }
 
     if (user.isPresenter) {
-      statusIcons.push((<Icon iconName="projection-screen" title={user.name + " is the presenter"} className="statusIcon"/>));
+      statusIcons.push((<Icon key="2" iconName="projection-screen" title={user.name + " is the presenter"} className="statusIcon"/>));
     } else if (user.isModerator) {
-      statusIcons.push((<Icon iconName="torso" title={user.name + " is a moderator"} className="statusIcon"/>))
+      statusIcons.push((<Icon key="3" iconName="torso" title={user.name + " is a moderator"} className="statusIcon"/>))
     }
 
     return (
@@ -57,6 +57,7 @@ UserItem = React.createClass({
       </div>
     );
   },
+
 
   renderUserName(user) {
     let classes = ['usernameEntry'];

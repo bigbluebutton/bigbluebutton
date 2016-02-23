@@ -23,8 +23,7 @@ Button = React.createClass({
   getDefaultProps() {
     return {
       disabled: false,
-      type: 'button',
-      onClick: this.handleClick
+      type: 'button'
     };
   },
 
