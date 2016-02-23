@@ -5,12 +5,14 @@ this.share_call = null;
 var configDeskshareFromChrome = function(videoTag, callbacks, extensionId, resolutionConstruction) {
 	getChromeExtensionStatus(extensionId, function(status) {
 		if (status != "installed-enabled") {
+			callbacks.onError({'status': 'failed', 'errorcode': 2001});
 			console.error("No chrome Extension");
 			return -1;
 		}
 
 		getScreenConstraints(function(error, screen_constraints) {
 			if(error) {
+				callbacks.onError({'status': 'failed', 'errorcode': 2021});
 				return console.error(error);
 			}
 
@@ -68,6 +70,8 @@ var configDeskshareFromFirefox = function(screen_constraints, videoTag, callback
 			"mediaSource": 'window',
 		}
 	};
+	// register the callback to the window namespace to be available in jquery.FSRTC.js
+	window.firefoxDesksharePresentErrorCallback = callbacks.onError;
 	doCall(screen_constraints, videoTag, callbacks);
 };
 
@@ -140,9 +144,14 @@ function startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modi
 	}
 
 	var callbacks = {
-		onError: function(vertoErrorObject, errorMessage) {
-			console.error("custom callback: onError");
-			onFail();
+		// allows the callback to be invoked whether the name of a registered callback is passed (actionscript)
+		// or a JS function is passed
+		onError: function(args) {
+			if (typeof onFail == "function") {
+				onFail(args);
+			} else {
+				document.getElementById("BigBlueButton").onFail(args);
+			}
 		},
 		onICEComplete: function(self, candidate) { // ICE candidate negotiation is complete
 			console.log("custom callback: onICEComplete");
@@ -152,9 +161,9 @@ function startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modi
 
 	if (!!navigator.mozGetUserMedia) {
 		if (modifyResolution) {
-			configDeskshareFromFirefoxHTML5(videoTag, callbacks);
+			configDeskshareFromFirefoxHTML5(null, videoTag, callbacks);
 		} else {
-			configDeskshareFromFirefoxFlash(videoTag, callbacks);
+			configDeskshareFromFirefoxFlash(null, videoTag, callbacks);
 		}
 	} else if (!!window.chrome) {
 		if (modifyResolution) {
