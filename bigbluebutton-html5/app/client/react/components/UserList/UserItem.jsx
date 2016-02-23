@@ -18,10 +18,15 @@ UserItem = React.createClass({
     }, 0);
   },
 
+  setPresenter(user){
+    /*this is a global function and should be */
+    setUserPresenter(BBB.getMeetingId(), user.id, getInSession('userId'), user.name, getInSession('authToken'));
+  },
+
   render() {
     const user = this.props.user;
     return (
-      <div onClick={this.openPrivateChat.bind(this, user)} id="content" className="userItem">
+      <div id="content" className="userItem">
         {this.renderStatusIcons(user)}
         {this.renderUserName(user)}
         {this.renderUnreadBadge(user.unreadMessagesCount)}
@@ -32,9 +37,9 @@ UserItem = React.createClass({
   renderStatusIcons(user) {
     let statusIcons = [];
 
-    if (this.props.currentUser.isModerator && this.props.currentUser.id !== user.id && !user.isPresenter) {
+    if (this.props.currentUser.isModerator && !user.isPresenter) {
       statusIcons.push((
-        <Tooltip className="setPresenter" title={"set " + user.name + " as presenter"}>
+        <Tooltip onClick={this.setPresenter.bind(this, user)} className="setPresenter" title={"set " + user.name + " as presenter"}>
           <Icon iconName="projection-screen" className="statusIcon"/>
         </Tooltip>
       ));
@@ -67,7 +72,7 @@ UserItem = React.createClass({
     }
 
     return (
-      <Tooltip className={classNames(classes)} title={userName}>
+      <Tooltip onClick={this.openPrivateChat.bind(this, user)} className={classNames(classes)} title={userName}>
         <span className="userName">{userName}</span>
       </Tooltip>
     );
