@@ -1,4 +1,4 @@
-UserItem = React.createClass({
+UserListItem = React.createClass({
 
   handleKick(user) {
     return user.actions.kick(user);
@@ -17,21 +17,18 @@ UserItem = React.createClass({
   },
 
   render() {
+    const user = this.props.user;
+
     return (
-<<<<<<< HEAD
-      <div id="content" className="userItem">
+      <tr className={classNames(
+        'user-list-item',
+        user.isCurrent ? 'is-current' : null,
+        user.unreadMessagesCount ? 'has-messages' : null
+      )}>
         {this.renderStatusIcons()}
         {this.renderUserName()}
-        {this.renderUnreadBadge()}
         {this.renderSharingStatus()}
-      </div>
-=======
-      <tr className={classNames('user-list-item', user.isCurrent ? 'is-current' : null)}>
-        {this.renderStatusIcons(user)}
-        {this.renderUserName(user)}
-        {this.renderSharingStatus(user)}
       </tr>
->>>>>>> 6b4e97a... Change user-list to a tabular markup
     );
   },
 
@@ -59,28 +56,19 @@ UserItem = React.createClass({
   },
 
 
-<<<<<<< HEAD
   renderUserName() {
     const user = this.props.user;
-    let classes = ['usernameEntry'];
-=======
-  renderUserName(user) {
-    let classes = ['user-list-item-name'];
->>>>>>> 6b4e97a... Change user-list to a tabular markup
+
     let userName = user.name;
 
     if (user.isCurrent) {
       userName = userName.concat(' (you)');
     }
 
-    if (user.unreadMessagesCount) {
-      classes.push('has-messages');
-    }
-
     return (
-      <td className={classNames(classes)} onClick={() => this.handleOpenPrivateChat(user)}>
+      <td className="user-list-item-name" onClick={() => this.handleOpenPrivateChat(user)}>
         <Tooltip title={userName}>
-          {userName} {this.renderUnreadBadge(user.unreadMessagesCount)}
+          {userName} {this.renderUnreadBadge()}
         </Tooltip>
       </td>
     );
@@ -88,6 +76,7 @@ UserItem = React.createClass({
 
   renderUnreadBadge() {
     const unreadMessagesCount = this.props.user.unreadMessagesCount;
+
     if (!unreadMessagesCount) {
       return;
     }
