@@ -23,8 +23,7 @@ Button = React.createClass({
   getDefaultProps() {
     return {
       disabled: false,
-      type: 'button',
-      onClick: this.handleClick
+      type: 'button'
     };
   },
 
@@ -36,7 +35,7 @@ Button = React.createClass({
   },
 
   renderAnchor() {
-    let Component = 'a';
+    let Component = this.props.componentClass || 'a';
     let href = this.props.href || '#';
 
     return (

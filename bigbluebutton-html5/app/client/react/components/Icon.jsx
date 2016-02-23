@@ -23,7 +23,7 @@ Icon = React.createClass({
 
   renderTooltip() {
     return (
-      <Tooltip title={this.props.title} placement={this.props.placement}>
+      <Tooltip title={this.props.title} placement={this.props.placement} className={classNames(this.props.tooltipClassName)}>
         {this.renderIcon()}
       </Tooltip>
     );
