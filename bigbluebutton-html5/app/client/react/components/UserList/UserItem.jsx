@@ -18,16 +18,18 @@ UserItem = React.createClass({
 
   render() {
     const user = this.props.user;
+
     return (
       <tr className={classNames('user-list-item', user.isCurrent ? 'is-current' : null)}>
-        {this.renderStatusIcons(user)}
-        {this.renderUserName(user)}
-        {this.renderSharingStatus(user)}
+        {this.renderStatusIcons()}
+        {this.renderUserName()}
+        {this.renderSharingStatus()}
       </tr>
     );
   },
 
-  renderStatusIcons(user) {
+  renderStatusIcons() {
+    const user = this.props.user;
     let statusIcons = [];
 
     if (this.props.currentUser.isModerator && !user.isPresenter) {
@@ -50,9 +52,10 @@ UserItem = React.createClass({
   },
 
 
-  renderUserName(user) {
-    let classes = ['user-list-item-name'];
+  renderUserName() {
+    const user = this.props.user;
     let userName = user.name;
+    let classes = ['user-list-item-name'];
 
     if (user.isCurrent) {
       userName = userName.concat(' (you)');
@@ -65,13 +68,15 @@ UserItem = React.createClass({
     return (
       <td className={classNames(classes)} onClick={() => this.handleOpenPrivateChat(user)}>
         <Tooltip title={userName}>
-          {userName} {this.renderUnreadBadge(user.unreadMessagesCount)}
+          {userName} {this.renderUnreadBadge()}
         </Tooltip>
       </td>
     );
   },
 
-  renderUnreadBadge(unreadMessagesCount) {
+  renderUnreadBadge() {
+    const unreadMessagesCount = this.props.user.unreadMessagesCount;
+
     if (!unreadMessagesCount) {
       return;
     }
@@ -83,7 +88,8 @@ UserItem = React.createClass({
     );
   },
 
-  renderSharingStatus(user) {
+  renderSharingStatus() {
+    const user = this.props.user;
     const { sharingStatus, name: userName } = user;
     const currentUser = this.props.currentUser;
 

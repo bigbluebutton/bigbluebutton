@@ -1,5 +1,7 @@
 # TODO
 - [x] Migrate user lock status, currently is just a dummy boolean.
+
+###### These are currently on the UserListContainer but should be in a service or something similar. We need to decide what to do.
 - [ ] Migrate set presenter functionality to a service.
 - [ ] Migrate kick user functionality to a service.
 - [ ] Migrate open private chat to a service.

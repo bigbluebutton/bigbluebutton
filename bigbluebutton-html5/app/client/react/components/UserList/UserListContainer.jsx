@@ -1,3 +1,48 @@
+/*This should be somewhere else, the question is, where should it be.*/
+let shouldUserBeLocked = function(userId) {
+  let lockInAction, locked, meeting, settings;
+  locked = (locked = BBB.getUser(userId)) != null ? locked.user.locked : null;
+  settings = (meeting = Meteor.Meetings.findOne()) != null ? meeting.roomLockSettings : null;
+  lockInAction = settings.disablePrivateChat || settings.disableCam || settings.disableMic || settings.lockedLayout || settings.disablePublicChat;
+  return locked && lockInAction;
+}
+
+let setUserPresenter = function(user) {
+  setUserPresenter(BBB.getMeetingId(), user.id, getInSession('userId'), user.name, getInSession('authToken'));
+}
+
+let openChat = function(user) {
+  const currentUser = BBB.getCurrentUser();
+  const currentUserId = currentUser.userId;
+
+  let userIdSelected = user.id;
+
+  if (userIdSelected !== null) {
+    if (userIdSelected === currentUserId) {
+      setInSession("inChatWith", "PUBLIC_CHAT");
+    } else {
+      setInSession("inChatWith", userIdSelected);
+    }
+  }
+  if (isPortrait() || isPortraitMobile()) {
+    toggleUserlistMenu();
+    toggleShield();
+  }
+  return setTimeout(() => { // waits until the end of execution queue
+    return $("#newMessageInput").focus();
+  }, 0);
+}
+
+let kickUser = function(user){
+  kickUser(BBB.getMeetingId(), user.id, getInSession("userId"), getInSession("authToken"));
+}
+
+let muteUser = function(){
+  BBB.toggleMyMic();
+}
+
+/*------------------------------*/
+
 UserListContainer = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
@@ -5,14 +50,6 @@ UserListContainer = React.createClass({
     const isCurrentUserModerator = currentUser.user.role === "MODERATOR";
     const currentUserId = currentUser.userId;
 
-    /*This should be somewhere else, the question is, where should it be.*/
-    const shouldUserBeLocked = function(userId){
-      let lockInAction, locked, meeting, settings;
-      locked = (locked = BBB.getUser(userId)) != null ? locked.user.locked : null;
-      settings = (meeting = Meteor.Meetings.findOne()) != null ? meeting.roomLockSettings : null;
-      lockInAction = settings.disablePrivateChat || settings.disableCam || settings.disableMic || settings.lockedLayout || settings.disablePublicChat;
-      return locked && lockInAction;
-    }
     const chats = getInSession('chats');
 
     let users = Meteor.Users.find().fetch().map(u => u.user).map(u => {
@@ -33,31 +70,16 @@ UserListContainer = React.createClass({
         },
         actions: {
           kick(user) {
-            kickUser(BBB.getMeetingId(), user.id, getInSession("userId"), getInSession("authToken"))
+            kickUser(user);
           },
           setPresenter(user) {
-            setUserPresenter(BBB.getMeetingId(), user.id, getInSession('userId'), user.name, getInSession('authToken'));
+            setUserPresenter(user);
           },
           openChat(user) {
-            let userIdSelected = user.id;
-
-            if (userIdSelected !== null) {
-              if (userIdSelected === currentUserId) {
-                setInSession("inChatWith", "PUBLIC_CHAT");
-              } else {
-                setInSession("inChatWith", userIdSelected);
-              }
-            }
-            if (isPortrait() || isPortraitMobile()) {
-              toggleUserlistMenu();
-              toggleShield();
-            }
-            return setTimeout(() => { // waits until the end of execution queue
-              return $("#newMessageInput").focus();
-            }, 0);
+            openChat(user);
           },
-          mute(user){
-            BBB.toggleMyMic();
+          muteUser(){
+            muteUser();
           }
         },
         unreadMessagesCount: 0
