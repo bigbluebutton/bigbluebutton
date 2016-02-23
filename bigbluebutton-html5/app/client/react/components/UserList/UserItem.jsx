@@ -4,12 +4,8 @@ UserItem = React.createClass({
     return user.actions.kick(user);
   },
 
-  handleMute(user) {
-    alert('Should mute user ' + user.name);
-  },
-
-  handleUnmute(user) {
-    alert('Should unmute user ' + user.name);
+  handleMuteUnmute(user) {
+    return user.actions.mute(user);
   },
 
   handleOpenPrivateChat(user) {
@@ -72,7 +68,7 @@ UserItem = React.createClass({
 
     return (
       <Tooltip className={classNames(classes)} title={userName}>
-        <Button componentClass="span" onClick={this.handleOpenPrivateChat.bind(this, user)} className="userName">{userName}</Button>
+        <Button componentClass="span" onClick={() => this.handleOpenPrivateChat(user)} className="userName">{userName} {user.sharingStatus.isInAudio}</Button>
       </Tooltip>
     );
   },
@@ -91,41 +87,64 @@ UserItem = React.createClass({
 
   renderSharingStatus(user) {
     const { sharingStatus, name: userName } = user;
-
     const currentUser = this.props.currentUser;
 
     let icons = [];
 
-    if(sharingStatus.isListenOnly) {
-      icons.push(<Icon iconName="fi-volume-none"
-      title={`${userName} is only listening`} className="icon usericon"/>);
-    } else {
-      if(sharingStatus.isMuted) {
-        icons.push(
-          <Button className="muteIcon"
-            onClick={() => this.handleMute(user)} componentClass="span">
-            <Icon prependIconName="ion-" iconName="ios-mic-off"
-              title={`${userName} is muted`} className="icon usericon"/>
-          </Button>
-        );
-      } else {
-        let talkingStatusIcon = <Icon prependIconName="ion-"
-          iconName="ios-mic-outline" title={`${userName} is not talking`}
-          className="icon usericon"/>;
-
-        if(sharingStatus.isTalking) {
-          talkingStatusIcon = <Icon prependIconName="ion-" iconName="ios-mic"
-          title={`${userName} is talking`}
-          className="icon usericon"/>;
+    if(sharingStatus.isInAudio){
+      if(sharingStatus.isListenOnly) {
+        icons.push(<Icon iconName="volume-none"
+        title={`${userName} is only listening`} className="icon usericon"/>);
+      }
+      else{
+        if(sharingStatus.isMuted) {
+          if(user.id === currentUser.id){
+            icons.push(
+              <Button className="muteIcon"
+                onClick={() => this.handleMuteUnmute(user)}
+                componentClass="span">
+                <Icon prependIconName="ion-" iconName="ios-mic-off"
+                  title={`${userName} is muted`} className="icon usericon"/>
+              </Button>
+            );
+          }
+          else{
+            icons.push(
+              <Button componentClass="span">
+                <Icon prependIconName="ion-" iconName="ios-mic-off"
+                  title={`${userName} is muted`} className="icon usericon"/>
+              </Button>
+            );
+          }
         }
+        else{
+          let talkingStatusIcon = <Icon prependIconName="ion-"
+            iconName="ios-mic-outline" title={`${userName} is not talking`}
+            className="icon usericon"/>;
 
-        icons.push(
-          <Button className="muteIcon"
-            onClick={() => this.handleUnmute(user)}
-            componentClass="span">
-            {talkingStatusIcon}
-          </Button>
-        );
+          if(sharingStatus.isTalking) {
+            talkingStatusIcon = <Icon prependIconName="ion-" iconName="ios-mic"
+            title={`${userName} is talking`}
+            className="icon usericon"/>;
+          }
+
+          if(user.id === currentUser.id){
+            icons.push(
+              <Button className="muteIcon"
+                onClick={() => this.handleMuteUnmute(user)}
+                componentClass="span">
+                {talkingStatusIcon}
+              </Button>
+            );
+          }
+          else{
+            icons.push(
+              <Button componentClass="span">
+                {talkingStatusIcon}
+              </Button>
+            );
+          }
+        }
       }
     }
 

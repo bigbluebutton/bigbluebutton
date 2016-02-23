@@ -5,6 +5,14 @@ UserListContainer = React.createClass({
     const isCurrentUserModerator = currentUser.user.role === "MODERATOR";
     const currentUserId = currentUser.userId;
 
+    /*This should be somewhere else, the question is, where should it be.*/
+    const shouldUserBeLocked = function(userId){
+      let lockInAction, locked, meeting, settings;
+      locked = (locked = BBB.getUser(userId)) != null ? locked.user.locked : null;
+      settings = (meeting = Meteor.Meetings.findOne()) != null ? meeting.roomLockSettings : null;
+      lockInAction = settings.disablePrivateChat || settings.disableCam || settings.disableMic || settings.lockedLayout || settings.disablePublicChat;
+      return locked && lockInAction;
+    }
     const chats = getInSession('chats');
 
     let users = Meteor.Users.find().fetch().map(u => u.user).map(u => {
@@ -16,7 +24,8 @@ UserListContainer = React.createClass({
         isModerator: u.role === "MODERATOR",
         emoji: u.emoji_status,
         sharingStatus: {
-          isLocked: false, //TODO: Migrate blaze logic
+          isInAudio: BBB.isUserInAudio(u.userid),
+          isLocked: shouldUserBeLocked(u.userid), //TODO: Migrate blaze logic
           isWebcamOpen: u.webcam_stream.length,
           isListenOnly: u.listenOnly,
           isMuted: u.voiceUser.muted,
@@ -46,6 +55,9 @@ UserListContainer = React.createClass({
             return setTimeout(() => { // waits until the end of execution queue
               return $("#newMessageInput").focus();
             }, 0);
+          },
+          mute(user){
+            BBB.toggleMyMic();
           }
         },
         unreadMessagesCount: 0
