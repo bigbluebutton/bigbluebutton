@@ -108,9 +108,13 @@ package org.bigbluebutton.modules.deskshare.managers
 				var modifyResolution:Boolean = false;
 				// register these callbacks
 				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); };
-				var onFail:Function = function():void { LOGGER.debug("onFail"); }; //dispatcher.dispatchEvent(new UseFlashModeCommand());
+				
+				var onFail:Function = function(args:Object):void { JSLog.warn("onFail", args); }; //dispatcher.dispatchEvent(new UseFlashModeCommand());
+				ExternalInterface.addCallback("onFail", onFail);
+				
 				var vertoServerCredentials:Object = getFreeswitchServerCredentials();
-				result = ExternalInterface.call("startScreenshare", loggingCallback, videoTag, vertoServerCredentials, chromeExtensionKey, modifyResolution, onSuccess, onFail);
+				JSLog.warn("calling startScreenshare", {});
+				result = ExternalInterface.call("startScreenshare", loggingCallback, videoTag, vertoServerCredentials, chromeExtensionKey, modifyResolution, onSuccess, "onFail");
 			}
 		}
 
