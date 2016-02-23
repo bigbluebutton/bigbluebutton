@@ -19,12 +19,11 @@ UserItem = React.createClass({
   render() {
     const user = this.props.user;
     return (
-      <div id="content" className="userItem">
+      <tr className={classNames('user-list-item', user.isCurrent ? 'is-current' : null)}>
         {this.renderStatusIcons(user)}
         {this.renderUserName(user)}
-        {this.renderUnreadBadge(user.unreadMessagesCount)}
         {this.renderSharingStatus(user)}
-      </div>
+      </tr>
     );
   },
 
@@ -33,43 +32,42 @@ UserItem = React.createClass({
 
     if (this.props.currentUser.isModerator && !user.isPresenter) {
       statusIcons.push((
-        <Tooltip key="1" onClick={this.handleSetPresenter.bind(this, user)} className="setPresenter" title={"set " + user.name + " as presenter"}>
-          <Icon iconName="projection-screen" className="statusIcon"/>
-        </Tooltip>
+        <Icon key="1" iconName="projection-screen" onClick={this.handleSetPresenter.bind(this, user)} title={`Set ${user.name} as presenter`}/>
       ));
     }
 
     if (user.isPresenter) {
-      statusIcons.push((<Icon key="2" iconName="projection-screen" title={user.name + " is the presenter"} className="statusIcon"/>));
+      statusIcons.push((<Icon key="2" iconName="projection-screen" title={`${user.name} is the presenter`}/>));
     } else if (user.isModerator) {
-      statusIcons.push((<Icon key="3" iconName="torso" title={user.name + " is a moderator"} className="statusIcon"/>))
+      statusIcons.push((<Icon key="3" iconName="torso" title={`${user.name} is a moderator`}/>))
     }
 
     return (
-      <div className="status">
+      <td className="user-list-item-status">
         {statusIcons.map(i => i)}
-      </div>
+      </td>
     );
   },
 
 
   renderUserName(user) {
-    let classes = ['usernameEntry'];
+    let classes = ['user-list-item-name'];
     let userName = user.name;
 
     if (user.isCurrent) {
       userName = userName.concat(' (you)');
-      classes.push('userCurrent');
     }
 
     if (user.unreadMessagesCount) {
-      classes.push('gotUnreadMail');
+      classes.push('has-messages');
     }
 
     return (
-      <Tooltip className={classNames(classes)} title={userName}>
-        <Button componentClass="span" onClick={() => this.handleOpenPrivateChat(user)} className="userName">{userName} {user.sharingStatus.isInAudio}</Button>
-      </Tooltip>
+      <td className={classNames(classes)} onClick={() => this.handleOpenPrivateChat(user)}>
+        <Tooltip title={userName}>
+          {userName} {this.renderUnreadBadge(user.unreadMessagesCount)}
+        </Tooltip>
+      </td>
     );
   },
 
@@ -79,9 +77,9 @@ UserItem = React.createClass({
     }
 
     return (
-      <div className="unreadChatNumber">
+      <span className="user-list-item-messages">
         {(unreadMessagesCount > 9) ? '9+' : unreadMessagesCount}
-      </div>
+      </span>
     );
   },
 
@@ -91,53 +89,43 @@ UserItem = React.createClass({
 
     let icons = [];
 
-    if(sharingStatus.isInAudio){
+    if(sharingStatus.isInAudio) {
       if(sharingStatus.isListenOnly) {
         icons.push(<Icon iconName="volume-none"
-        title={`${userName} is only listening`} className="icon usericon"/>);
-      }
-      else{
+        title={`${userName} is only listening`}/>);
+      } else {
         if(sharingStatus.isMuted) {
-          if(user.id === currentUser.id){
+          if(user.isCurrent) {
             icons.push(
               <Button className="muteIcon"
                 onClick={() => this.handleMuteUnmute(user)}
                 componentClass="span">
                 <Icon prependIconName="ion-" iconName="ios-mic-off"
-                  title={`${userName} is muted`} className="icon usericon"/>
+                  title={`${userName} is muted`}/>
               </Button>
             );
+          } else {
+            icons.push(<Icon prependIconName="ion-" iconName="ios-mic-off"
+                  title={`${userName} is muted`}/>);
           }
-          else{
-            icons.push(
-              <Button componentClass="span">
-                <Icon prependIconName="ion-" iconName="ios-mic-off"
-                  title={`${userName} is muted`} className="icon usericon"/>
-              </Button>
-            );
-          }
-        }
-        else{
+        } else {
           let talkingStatusIcon = <Icon prependIconName="ion-"
-            iconName="ios-mic-outline" title={`${userName} is not talking`}
-            className="icon usericon"/>;
+            iconName="ios-mic-outline" title={`${userName} is not talking`}/>;
 
           if(sharingStatus.isTalking) {
             talkingStatusIcon = <Icon prependIconName="ion-" iconName="ios-mic"
-            title={`${userName} is talking`}
-            className="icon usericon"/>;
+            title={`${userName} is talking`}/>;
           }
 
-          if(user.id === currentUser.id){
+          if(user.isCurrent) {
             icons.push(
-              <Button className="muteIcon"
+              <Button
                 onClick={() => this.handleMuteUnmute(user)}
                 componentClass="span">
                 {talkingStatusIcon}
               </Button>
             );
-          }
-          else{
+          } else {
             icons.push(
               <Button componentClass="span">
                 {talkingStatusIcon}
@@ -157,17 +145,29 @@ UserItem = React.createClass({
     }
 
     if (sharingStatus.isWebcamOpen) {
-      icons.push(<Icon iconName="video" title={`${userName} is sharing their webcam`} className="icon usericon"/>);
+      icons.push(<Icon iconName="video" title={`${userName} is sharing their webcam`}/>);
     }
 
     if (sharingStatus.isLocked) {
-      icons.push(<Icon iconName="lock" title={`${userName} is locked`} className="icon usericon"/>);
+      icons.push(<Icon iconName="lock" title={`${userName} is locked`}/>);
     }
 
+    // {icons.map((item, i) => {
+    //   return (<td key={i}>oi</td>);
+    // })}
+
     return (
-      <div id="usericons">
-        {icons.map(i => i)}
-      </div>
+      <td className="user-list-item-sharing">
+        <table className="user-list-item-sharing-list">
+          <tbody>
+            <tr>
+              {icons.map((item, i) => {
+                return (<td key={i}>{item}</td>);
+              })}
+            </tr>
+          </tbody>
+        </table>
+      </td>
     );
   }
 })

@@ -404,10 +404,11 @@ body {
     @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
       z-index: 1; // same level as notifications
       .shield {
-        position: absolute;
+        position: fixed;
         left: 0;
-        width: 100%;
-        height: 100%;
+        top: 0;
+        right: 0;
+        bottom: 0;
         background-color: black;
         opacity: 0;
         cursor: pointer;
@@ -886,15 +887,15 @@ body {
 }
 
 .shield {
-  position: absolute;
+  position: fixed;
   left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  bottom: 0;
+  right: 0;
   background-color: black;
   opacity: 0;
   z-index: 999;
   cursor: pointer;
-  top: 0px;
   @media @landscape {
     display: none;
   }
