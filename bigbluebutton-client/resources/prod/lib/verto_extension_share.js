@@ -103,14 +103,17 @@ function endScreenshare(loggingCallback, onSuccess) {
 		console.log("a screenshare call is active. Hanging up");
 		share_call.hangup();
 		share_call = null;
-		onSuccess();
+		normalizeCallback(onSuccess)();
 	} else {
 		console.log("a screenshare call is NOT active. Doing nothing");
 	}
-	loggingCallback({'status':'success', 'message': 'screenshare ended'});
+	normalizeCallback(loggingCallback)({'status':'success', 'message': 'screenshare ended'});
 }
 
 function startScreenshare(loggingCallback, videoTag, vertoServerCredentials, extensionId, modifyResolution, onSuccess, onFail) {
+	onSuccess = normalizeCallback(onSuccess);
+	onFail = normalizeCallback(onFail);
+	loggingCallback = normalizeCallback(loggingCallback);
 	console.log("startScreenshare");
 	if(!isLoggedIntoVerto()) { // start the verto log in procedure
 		// runs when the websocket is successfully created
@@ -157,18 +160,10 @@ function startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modi
 	}
 
 	var callbacks = {
-		// allows the callback to be invoked whether the name of a registered callback is passed (actionscript)
-		// or a JS function is passed
-		onError: function(args) {
-			if (typeof onFail == "function") {
-				onFail(args);
-			} else {
-				document.getElementById("BigBlueButton").onFail(args);
-			}
-		},
+		onError: normalizeCallback(onFail),
 		onICEComplete: function(self, candidate) { // ICE candidate negotiation is complete
 			console.log("custom callback: onICEComplete");
-			onSuccess();
+			normalizeCallback(onSuccess)(candidate);
 		}
 	};
 
