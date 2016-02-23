@@ -10,6 +10,22 @@ window[webcamStream] = null;
 verto = null;
 videoTag = null;
 
+// receives either a string variable holding the name of an actionscript
+// registered callback, or a javascript function object.
+// The function will return either the function if it is a javascript Function
+// or if it is an actionscript string it will return a javascript Function
+// that when invokved will invoke the actionscript registered callback
+// and passes along parameters
+function normalizeCallback(callback) {
+	if (typeof callback == "function") {
+		return callback;
+	} else {
+		return function(args) {
+			document.getElementById("BigBlueButton")[callback](args);
+		};
+	}
+}
+
 // save a copy of the hangup function registered for the verto object
 var oldHangup = $.verto.prototype.hangup;
 // overwrite the verto hangup handler with my own handler
