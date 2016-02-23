@@ -1,5 +1,5 @@
 UserItem = React.createClass({
-  openPrivateChat(user) {
+  handleOpenPrivateChat(user) {
     let userIdSelected = user.id;
 
     if (userIdSelected !== null) {
@@ -18,7 +18,7 @@ UserItem = React.createClass({
     }, 0);
   },
 
-  setPresenter(user){
+  handleSetPresenter(user){
     /*this is a global function and should be looked at to be changed to a better solution*/
     setUserPresenter(BBB.getMeetingId(), user.id, getInSession('userId'), user.name, getInSession('authToken'));
   },
@@ -39,7 +39,7 @@ UserItem = React.createClass({
 
     if (this.props.currentUser.isModerator && !user.isPresenter) {
       statusIcons.push((
-        <Tooltip onClick={this.setPresenter.bind(this, user)} className="setPresenter" title={"set " + user.name + " as presenter"}>
+        <Tooltip onClick={this.handleSetPresenter.bind(this, user)} className="setPresenter" title={"set " + user.name + " as presenter"}>
           <Icon iconName="projection-screen" className="statusIcon"/>
         </Tooltip>
       ));
@@ -72,7 +72,7 @@ UserItem = React.createClass({
     }
 
     return (
-      <Tooltip onClick={this.openPrivateChat.bind(this, user)} className={classNames(classes)} title={userName}>
+      <Tooltip onClick={this.handleOpenPrivateChat.bind(this, user)} className={classNames(classes)} title={userName}>
         <span className="userName">{userName}</span>
       </Tooltip>
     );
