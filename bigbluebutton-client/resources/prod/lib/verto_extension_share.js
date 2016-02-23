@@ -2,7 +2,10 @@ var deskshareStream = "deskshareStream";
 window[deskshareStream] = null;
 this.share_call = null;
 
+// final entry point for sharing from Chrome.
+// already have the resolution and constraints chosen
 var configDeskshareFromChrome = function(videoTag, callbacks, extensionId, resolutionConstruction) {
+	// do initial check for extension
 	getChromeExtensionStatus(extensionId, function(status) {
 		if (status != "installed-enabled") {
 			callbacks.onError({'status': 'failed', 'errorcode': 2001});
@@ -10,6 +13,7 @@ var configDeskshareFromChrome = function(videoTag, callbacks, extensionId, resol
 			return -1;
 		}
 
+		// bring up Chrome screen picker
 		getScreenConstraints(function(error, screen_constraints) {
 			if(error) {
 				callbacks.onError({'status': 'failed', 'errorcode': 2021});
@@ -23,6 +27,8 @@ var configDeskshareFromChrome = function(videoTag, callbacks, extensionId, resol
 	});
 };
 
+// entry point for Chrome HTML5 sharing
+// connects with html5 client libraries to retrieve a selected resolution
 var configDeskshareFromChromeHTML5 = function(videoTag, callbacks, extensionId) {
 	var resolutionConstruction = function(screen_constraints) {
 		console.log("modifying video quality");
@@ -35,6 +41,9 @@ var configDeskshareFromChromeHTML5 = function(videoTag, callbacks, extensionId) 
 	configDeskshareFromChrome(videoTag, callbacks, extensionId, resolutionConstruction);
 };
 
+// entry point when desksharing using Google Chrome via the flash Client
+// currently uses a default preset resolution in place of a resolution picker
+// prepares the constraints and passes off to generic Chrome handler
 var configDeskshareFromChromeFlash = function(videoTag, callbacks, extensionId) {
 	var resolutionConstruction = function(screen_constraints) {
 		// BigBlueButton low
@@ -62,8 +71,11 @@ var configDeskshareFromChromeFlash = function(videoTag, callbacks, extensionId) 
 	configDeskshareFromChrome(videoTag, callbacks, extensionId, resolutionConstruction);
 };
 
+// final entry point for Firefox sharing
 var configDeskshareFromFirefox = function(screen_constraints, videoTag, callbacks) {
+	// bypass all the default gUM calls inside jquery.FSRTC.js to use my own
 	window.firefoxDesksharePresent = true;
+	// the gUM args to invoke the Firefox screen picker
 	var screen_constraints = {
 		video: {
 			"mozMediaSource": 'window',
@@ -99,6 +111,7 @@ function endScreenshare(loggingCallback, onSuccess) {
 }
 
 function startScreenshare(loggingCallback, videoTag, vertoServerCredentials, extensionId, modifyResolution, onSuccess, onFail) {
+	console.log("startScreenshare");
 	if(!isLoggedIntoVerto()) { // start the verto log in procedure
 		// runs when the websocket is successfully created
 		callbacks.onWSLogin = function(v, success) {
@@ -159,6 +172,8 @@ function startScreenshareAfterLogin(loggingCallback, videoTag, extensionId, modi
 		}
 	};
 
+	// determine if Firefox or Chrome
+	// for now the only difference is that html5 has a resolution dialog
 	if (!!navigator.mozGetUserMedia) {
 		if (modifyResolution) {
 			configDeskshareFromFirefoxHTML5(null, videoTag, callbacks);
