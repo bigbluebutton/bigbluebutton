@@ -2,7 +2,6 @@
 package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.*;
-import org.bigbluebutton.core.api.EndAllBreakoutRooms;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.messages.*;
 import org.slf4j.Logger;
