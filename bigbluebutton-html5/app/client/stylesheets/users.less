@@ -281,7 +281,7 @@
       width: 1.6em;
       font-size: 1.25em;
       text-align: center;
-      padding: 0.625em 0 0.625em 0.625em;
+      padding: 0;
     }
 
     &-name {
@@ -296,6 +296,24 @@
       .is-current & {
         font-weight: bold;
       }
+
+      .has-messages & {
+        padding-right: 30px;
+        position: relative;
+      }
+    }
+
+    &-messages {
+      position: absolute;
+      width: 28px;
+      height: 18px;
+      border-radius: 41%;
+      font-size: 12px;
+      color: #fff;
+      text-align: center;
+      background: #3896D3;
+      right: 0;
+      top: 9px;
     }
 
     &-sharing {

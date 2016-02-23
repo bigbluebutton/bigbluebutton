@@ -1,4 +1,4 @@
-UserItem = React.createClass({
+UserListItem = React.createClass({
 
   handleKick(user) {
     return user.actions.kick(user);
@@ -20,7 +20,11 @@ UserItem = React.createClass({
     const user = this.props.user;
 
     return (
-      <tr className={classNames('user-list-item', user.isCurrent ? 'is-current' : null)}>
+      <tr className={classNames(
+        'user-list-item',
+        user.isCurrent ? 'is-current' : null,
+        user.unreadMessagesCount ? 'has-messages' : null
+      )}>
         {this.renderStatusIcons()}
         {this.renderUserName()}
         {this.renderSharingStatus()}
@@ -54,19 +58,15 @@ UserItem = React.createClass({
 
   renderUserName() {
     const user = this.props.user;
+
     let userName = user.name;
-    let classes = ['user-list-item-name'];
 
     if (user.isCurrent) {
       userName = userName.concat(' (you)');
     }
 
-    if (user.unreadMessagesCount) {
-      classes.push('has-messages');
-    }
-
     return (
-      <td className={classNames(classes)} onClick={() => this.handleOpenPrivateChat(user)}>
+      <td className="user-list-item-name" onClick={() => this.handleOpenPrivateChat(user)}>
         <Tooltip title={userName}>
           {userName} {this.renderUnreadBadge()}
         </Tooltip>
@@ -93,16 +93,21 @@ UserItem = React.createClass({
     const { sharingStatus, name: userName } = user;
     const currentUser = this.props.currentUser;
 
-    let icons = [];
+    let icons = {
+      mic: null,
+      webcam: null,
+      lock: null,
+      kick: null,
+    };
 
     if(sharingStatus.isInAudio) {
       if(sharingStatus.isListenOnly) {
-        icons.push(<Icon iconName="volume-none"
+        icons.mic = (<Icon iconName="volume-none"
         title={`${userName} is only listening`}/>);
       } else {
         if(sharingStatus.isMuted) {
           if(user.isCurrent) {
-            icons.push(
+            icons.mic = (
               <Button className="muteIcon"
                 onClick={() => this.handleMuteUnmute(user)}
                 componentClass="span">
@@ -111,7 +116,7 @@ UserItem = React.createClass({
               </Button>
             );
           } else {
-            icons.push(<Icon prependIconName="ion-" iconName="ios-mic-off"
+            icons.mic = (<Icon prependIconName="ion-" iconName="ios-mic-off"
                   title={`${userName} is muted`}/>);
           }
         } else {
@@ -124,7 +129,7 @@ UserItem = React.createClass({
           }
 
           if(user.isCurrent) {
-            icons.push(
+            icons.mic = (
               <Button
                 onClick={() => this.handleMuteUnmute(user)}
                 componentClass="span">
@@ -132,7 +137,7 @@ UserItem = React.createClass({
               </Button>
             );
           } else {
-            icons.push(
+            icons.mic = (
               <Button componentClass="span">
                 {talkingStatusIcon}
               </Button>
@@ -143,7 +148,7 @@ UserItem = React.createClass({
     }
 
     if (!user.isCurrent && currentUser.isModerator) {
-      icons.push(
+      icons.kick = (
         <Button className="kickUser" onClick={() => this.handleKick(user)} componentClass="span">
           <Icon iconName="x-circle" title={`Kick ${userName}`} className="icon usericon"/>
         </Button>
@@ -151,11 +156,11 @@ UserItem = React.createClass({
     }
 
     if (sharingStatus.isWebcamOpen) {
-      icons.push(<Icon iconName="video" title={`${userName} is sharing their webcam`}/>);
+      icons.webcam = (<Icon iconName="video" title={`${userName} is sharing their webcam`}/>);
     }
 
     if (sharingStatus.isLocked) {
-      icons.push(<Icon iconName="lock" title={`${userName} is locked`}/>);
+      icons.lock = icons.push(<Icon iconName="lock" title={`${userName} is locked`}/>);
     }
 
     // {icons.map((item, i) => {
@@ -167,8 +172,8 @@ UserItem = React.createClass({
         <table className="user-list-item-sharing-list">
           <tbody>
             <tr>
-              {icons.map((item, i) => {
-                return (<td key={i}>{item}</td>);
+              {Object.keys(icons).map((key) => {
+                return (<td key={key}>{icons[key]}</td>);
               })}
             </tr>
           </tbody>

@@ -1,4 +1,4 @@
-/*This should be somewhere else, the question is, where should it be.*/
+/* This should be somewhere else, the question is, where should it be. */
 let shouldUserBeLocked = function(userId) {
   let lockInAction, locked, meeting, settings;
   locked = (locked = BBB.getUser(userId)) != null ? locked.user.locked : null;
@@ -60,6 +60,7 @@ UserListContainer = React.createClass({
         isPresenter: u.presenter,
         isModerator: u.role === "MODERATOR",
         emoji: u.emoji_status,
+        unreadMessagesCount: 0,
         sharingStatus: {
           isInAudio: BBB.isUserInAudio(u.userid),
           isLocked: shouldUserBeLocked(u.userid), //TODO: Migrate blaze logic
@@ -82,7 +83,6 @@ UserListContainer = React.createClass({
             muteUser();
           }
         },
-        unreadMessagesCount: 0
       };
 
       chats.forEach(c => {
