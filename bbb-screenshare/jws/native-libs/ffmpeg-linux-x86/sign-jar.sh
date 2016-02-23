@@ -1,5 +1,6 @@
+FFMPEG=ffmpeg-2.8.5-1.2-SNAPSHOT-linux-x86.jar
 mkdir workdir
-cp ffmpeg-linux-x86.jar workdir
+cp $FFMPEG workdir/ffmpeg-linux-x86.jar
 rm -rf src
 mkdir -p src/main/resources
 cd workdir

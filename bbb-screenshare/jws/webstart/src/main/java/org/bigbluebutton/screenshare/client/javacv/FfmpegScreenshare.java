@@ -3,6 +3,7 @@ package org.bigbluebutton.screenshare.client.javacv;
 import static org.bytedeco.javacpp.avcodec.AV_CODEC_ID_FLASHSV2;
 import static org.bytedeco.javacpp.avcodec.AV_CODEC_ID_H264;
 import static org.bytedeco.javacpp.avutil.AV_PIX_FMT_BGR24;
+import static org.bytedeco.javacpp.avutil.AV_PIX_FMT_BGR0;
 import static org.bytedeco.javacpp.avutil.AV_PIX_FMT_YUV420P;
 import java.awt.AWTException;
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class FfmpegScreenshare {
   private volatile boolean startBroadcast = false;
   private final Executor startBroadcastExec = Executors.newSingleThreadExecutor();
   private Runnable startBroadcastRunner; 
-  private FFmpegFrameRecorder recorder = null;
+  private FFmpegFrameRecorder mainRecorder = null;
   private Double defaultFrameRate = 12.0;
   private Double frameRate = 12.0;
   private int defaultKeyFrameInterval = 6;
@@ -74,13 +75,15 @@ public class FfmpegScreenshare {
     String osName = System.getProperty("os.name").toLowerCase();
     if (platform.startsWith("windows")) {
       grabber = setupWindowsGrabber(width, height, x, y);
-    } else if (osName.startsWith("linux")) {
+      mainRecorder = setupWindowsRecorder(URL, width, height, codecOptions);
+    } else if (platform.startsWith("linux")) {
       grabber = setupLinuxGrabber(width, height, x, y);
-    } else if (platform.startsWith("macosx")) {
+      mainRecorder = setupLinuxRecorder(URL, width, height, codecOptions);
+    } else if (platform.startsWith("macosx-x86_64")) {
       grabber = setupMacOsXGrabber(width, height, x, y);
+      mainRecorder = setupMacOsXRecorder(URL, width, height, codecOptions);
     }
     
-
     grabber.setFrameRate(frameRate);
     try {
       grabber.start();
@@ -89,14 +92,14 @@ public class FfmpegScreenshare {
       e.printStackTrace();
     }
     
-    recorder = new FFmpegFrameRecorder(URL, grabber.getImageWidth(), grabber.getImageHeight());
     
-    useH264(recorder, codecOptions);
+    
+//    useH264(recorder, codecOptions);
     
     startTime = System.currentTimeMillis();
     
     try {
-      recorder.start();
+      mainRecorder.start();
     } catch (Exception e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
@@ -135,7 +138,7 @@ public class FfmpegScreenshare {
       frame = grabber.grabImage();
       if (frame != null) {
         try {
-          recorder.record(frame);
+          mainRecorder.record(frame);
         } catch (Exception e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
@@ -149,10 +152,10 @@ public class FfmpegScreenshare {
 
     long sleepFramerate = (long) (1000 / frameRate);
     long timestamp = now - startTime;
-    recorder.setTimestamp(timestamp * 1000);
+    mainRecorder.setTimestamp(timestamp * 1000);
 
     //        System.out.println("i=[" + i + "] timestamp=[" + timestamp + "]");
-    recorder.setFrameNumber(frameNumber);
+    mainRecorder.setFrameNumber(frameNumber);
 
 //    System.out.println("[ENCODER] encoded image " + frameNumber + " in " + (System.currentTimeMillis() - now));
     frameNumber++;
@@ -186,11 +189,11 @@ public class FfmpegScreenshare {
 
   public void stop() {
     startBroadcast = false;
-    if (recorder != null) {
+    if (mainRecorder != null) {
 
       try {
-        recorder.stop();
-        recorder.release();
+        mainRecorder.stop();
+        mainRecorder.release();
         grabber.stop();
       } catch (Exception e) {
         // TODO Auto-generated catch block
@@ -240,6 +243,115 @@ public class FfmpegScreenshare {
     
   }
   
+//==============================================
+// RECORDERS
+//==============================================
+private  FFmpegFrameRecorder setupWindowsRecorder(String url, int width, int height, Map<String, String> codecOptions) {
+  FFmpegFrameRecorder winRecorder = new FFmpegFrameRecorder(url, grabber.getImageWidth(), grabber.getImageHeight());
+  Double frameRate = parseFrameRate(codecOptions.get(FRAMERATE_KEY));
+  winRecorder.setFrameRate(frameRate);
+  
+  int keyFrameInterval =  parseKeyFrameInterval(codecOptions.get(KEYFRAMEINTERVAL_KEY));
+  int gopSize = frameRate.intValue() * keyFrameInterval;
+  winRecorder.setGopSize(gopSize);
+  
+  System.out.println("==== CODEC OPTIONS =====");
+  for (Map.Entry<String, String> entry : codecOptions.entrySet()) {
+    System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+    if (entry.getKey().equals(FRAMERATE_KEY) || entry.getKey().equals(KEYFRAMEINTERVAL_KEY)) {
+      // ignore as we have handled this above
+    } else {
+      winRecorder.setVideoOption(entry.getKey(), entry.getValue());        
+    }
+
+  }
+  System.out.println("==== END CODEC OPTIONS =====");
+  
+  winRecorder.setFormat("flv");
+    
+  // H264
+  winRecorder.setVideoCodec(AV_CODEC_ID_H264);
+  winRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
+  winRecorder.setVideoOption("crf", "38");
+  winRecorder.setVideoOption("preset", "veryfast");
+  winRecorder.setVideoOption("tune", "zerolatency");
+  winRecorder.setVideoOption("intra-refresh", "1"); 
+  
+  return winRecorder;
+}
+
+private  FFmpegFrameRecorder setupLinuxRecorder(String url, int width, int height, Map<String, String> codecOptions) {
+  FFmpegFrameRecorder linuxRecorder = new FFmpegFrameRecorder(url, grabber.getImageWidth(), grabber.getImageHeight());
+  Double frameRate = parseFrameRate(codecOptions.get(FRAMERATE_KEY));
+  linuxRecorder.setFrameRate(frameRate);
+  
+  int keyFrameInterval =  parseKeyFrameInterval(codecOptions.get(KEYFRAMEINTERVAL_KEY));
+  int gopSize = frameRate.intValue() * keyFrameInterval;
+  linuxRecorder.setGopSize(gopSize);
+  
+  System.out.println("==== CODEC OPTIONS =====");
+  for (Map.Entry<String, String> entry : codecOptions.entrySet()) {
+    System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+    if (entry.getKey().equals(FRAMERATE_KEY) || entry.getKey().equals(KEYFRAMEINTERVAL_KEY)) {
+      // ignore as we have handled this above
+    } else {
+      linuxRecorder.setVideoOption(entry.getKey(), entry.getValue());        
+    }
+
+  }
+  System.out.println("==== END CODEC OPTIONS =====");
+  
+  linuxRecorder.setFormat("flv");
+    
+  // H264
+  linuxRecorder.setVideoCodec(AV_CODEC_ID_H264);
+  linuxRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
+  linuxRecorder.setVideoOption("crf", "38");
+  linuxRecorder.setVideoOption("preset", "veryfast");
+  linuxRecorder.setVideoOption("tune", "zerolatency");
+  linuxRecorder.setVideoOption("intra-refresh", "1"); 
+  
+  return linuxRecorder;
+}
+
+private  FFmpegFrameRecorder setupMacOsXRecorder(String url, int width, int height, Map<String, String> codecOptions) {
+  FFmpegFrameRecorder macRecorder = new FFmpegFrameRecorder(url, grabber.getImageWidth(), grabber.getImageHeight());
+  Double frameRate = parseFrameRate(codecOptions.get(FRAMERATE_KEY));
+  macRecorder.setFrameRate(frameRate);
+  
+  int keyFrameInterval =  parseKeyFrameInterval(codecOptions.get(KEYFRAMEINTERVAL_KEY));
+  int gopSize = frameRate.intValue() * keyFrameInterval;
+  macRecorder.setGopSize(gopSize);
+  
+  System.out.println("==== CODEC OPTIONS =====");
+  for (Map.Entry<String, String> entry : codecOptions.entrySet()) {
+    System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+    if (entry.getKey().equals(FRAMERATE_KEY) || entry.getKey().equals(KEYFRAMEINTERVAL_KEY)) {
+      // ignore as we have handled this above
+    } else {
+      macRecorder.setVideoOption(entry.getKey(), entry.getValue());        
+    }
+
+  }
+  System.out.println("==== END CODEC OPTIONS =====");
+  
+  macRecorder.setFormat("flv");
+    
+  // H264
+  macRecorder.setVideoCodec(AV_CODEC_ID_H264);
+  macRecorder.setPixelFormat(AV_PIX_FMT_YUV420P);
+  macRecorder.setVideoOption("crf", "34");
+  macRecorder.setVideoOption("preset", "veryfast");
+//  macRecorder.setVideoOption("tune", "zerolatency");
+//  macRecorder.setVideoOption("intra-refresh", "1"); 
+  
+  return macRecorder;
+}
+
+//==============================================
+// GRABBERS
+//==============================================
+  
   // Need to construct our grabber depending on which
   // platform the user is using.
   // https://trac.ffmpeg.org/wiki/Capture/Desktop
@@ -269,11 +381,11 @@ public class FfmpegScreenshare {
 
     String inputDevice = ":"; 
     if (ssi.fullScreen) {
-      inputDevice.concat(new Integer(0).toString()).concat(".").concat(new Integer(0).toString());
-      inputDevice.concat("+").concat(new Integer(0).toString()).concat(",").concat(new Integer(0).toString());     
+      inputDevice = inputDevice.concat(new Integer(0).toString()).concat(".").concat(new Integer(0).toString());
+      inputDevice = inputDevice.concat("+").concat(new Integer(0).toString()).concat(",").concat(new Integer(0).toString());     
     } else {
-      inputDevice.concat(new Integer(0).toString()).concat(".").concat(new Integer(0).toString());
-      inputDevice.concat("+").concat(new Integer(x).toString()).concat(",").concat(new Integer(y).toString());      
+      inputDevice = inputDevice.concat(new Integer(0).toString()).concat(".").concat(new Integer(0).toString());
+      inputDevice = inputDevice.concat("+").concat(new Integer(x).toString()).concat(",").concat(new Integer(y).toString());      
     }
     
     String videoSize = new Integer(width).toString().concat("x").concat(new Integer(height).toString());
@@ -292,15 +404,20 @@ public class FfmpegScreenshare {
   private FFmpegFrameGrabber setupMacOsXGrabber(int width, int height, int x, int y) {
     
     //ffmpeg -f avfoundation -i "Capture screen 0" test.mkv
-    String inputDevice = "Capture screen 0";     
+    String inputDevice = "Capture screen 0:none";     
     String videoSize = new Integer(width).toString().concat("x").concat(new Integer(height).toString());
 
-    System.out.println("Setting up grabber for linux.");
+    System.out.println("Setting up grabber for macosx.");
     System.out.println("input:" + inputDevice + " videoSize:" + videoSize);
     
     FFmpegFrameGrabber macGrabber = new FFmpegFrameGrabber(inputDevice);
-    macGrabber.setOption("video_size", videoSize); 
+    macGrabber.setImageWidth(width);
+    macGrabber.setImageHeight(height);
+    macGrabber.setFrameRate(frameRate);
+    macGrabber.setPixelFormat(AV_PIX_FMT_BGR0);
     macGrabber.setFormat("avfoundation");
+    macGrabber.setOption("capture_cursor", "1");
+    macGrabber.setOption("capture_mouse_clicks", "1");
     return macGrabber;
   }
 }

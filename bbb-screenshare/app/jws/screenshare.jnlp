@@ -32,7 +32,10 @@
     <resources os="Linux" arch="x86 i386 i486 i586 i686">
         <nativelib href="$$jnlpUrl/lib/ffmpeg-linux-x86.jar" download="eager"/>
     </resources>
-
+    
+    <resources os="Mac OS X">
+        <nativelib href="$$jnlpUrl/lib/ffmpeg-macosx-x86_64.jar" download="eager"/>
+    </resources>
 
     <application-desc
          name="Desktop Sharing Demo Application"
