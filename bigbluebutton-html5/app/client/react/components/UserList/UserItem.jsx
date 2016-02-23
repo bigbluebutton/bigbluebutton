@@ -72,8 +72,8 @@ UserItem = React.createClass({
     }
 
     return (
-      <Tooltip onClick={this.handleOpenPrivateChat.bind(this, user)} className={classNames(classes)} title={userName}>
-        <span className="userName">{userName}</span>
+      <Tooltip className={classNames(classes)} title={userName}>
+        <Button componentClass="span" onClick={this.handleOpenPrivateChat.bind(this, user)} className="userName">{userName}</Button>
       </Tooltip>
     );
   },
