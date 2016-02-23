@@ -31,7 +31,7 @@ package org.bigbluebutton.core {
 			var timer:Timer = getTimer(label.id, seconds);
 			if (!timer.hasEventListener(TimerEvent.TIMER)) {
 				timer.addEventListener(TimerEvent.TIMER, function():void {
-					var remainingSeconds : int = timer.repeatCount - timer.currentCount; 
+					var remainingSeconds:int = timer.repeatCount - timer.currentCount;
 					var formattedTime:String = (Math.floor(remainingSeconds / 60)) + ":" + (remainingSeconds % 60 >= 10 ? "" : "0") + (remainingSeconds % 60);
 					label.text = preLabel + ResourceUtil.getInstance().getString('bbb.users.breakout.remainingTime', [formattedTime]);
 				});
@@ -51,6 +51,10 @@ package org.bigbluebutton.core {
 			}
 			Timer(timers[name]).repeatCount = defaultRepeatCount;
 			return timers[name];
+		}
+		
+		public static function stopTimer(name:String):void {
+			timers[name].stop();
 		}
 	}
 }

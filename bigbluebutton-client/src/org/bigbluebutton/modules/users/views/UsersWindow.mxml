@@ -40,7 +40,9 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import flash.net.navigateToURL;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -48,9 +50,11 @@
 			import mx.controls.listClasses.IListItemRenderer;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
+			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -117,7 +121,10 @@
 				dispatcher = new Dispatcher();
 			
 				users = UserManager.getInstance().getConference().users;
+
 				breakoutRoomsList = UserManager.getInstance().getConference().breakoutRooms;
+				breakoutRoomsList.addEventListener(CollectionEvent.COLLECTION_CHANGE, breakoutRoomsListChangeListener);
+
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
@@ -299,6 +306,13 @@
 			
 			private function handleRemainingTimeUpdate(event:BreakoutRoomEvent):void {
 				TimerUtil.setCountDownTimer(breakoutTimeLabel, event.durationInMinutes, ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms'));
+			}
+
+			private function breakoutRoomsListChangeListener(event:CollectionEvent):void {
+				if(breakoutRoomsList.length == 0) {
+					breakoutTimeLabel.text = ResourceUtil.getInstance().getString('bbb.users.breakout.breakoutRooms');
+					TimerUtil.stopTimer(breakoutTimeLabel.id);
+				}
 			}
 
 			private function handleBreakoutJoinUrl(event:BreakoutRoomEvent):void {
