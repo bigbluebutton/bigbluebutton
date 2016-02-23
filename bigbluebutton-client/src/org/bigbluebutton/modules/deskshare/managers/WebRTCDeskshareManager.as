@@ -103,18 +103,18 @@ package org.bigbluebutton.modules.deskshare.managers
 
 			var result:String;
 			if (ExternalInterface.available) {
-				var loggingCallback:Function = function():void {};
+				var loggingCallback:Function = function(args:Object):void {LOGGER.debug(args); JSLog.warn("loggingCallback", args)};
+				ExternalInterface.addCallback("loggingCallback", loggingCallback);
 				var videoTag:String = "localVertoVideo";
 				var modifyResolution:Boolean = false;
 				// register these callbacks
-				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); };
-				
-				var onFail:Function = function(args:Object):void { JSLog.warn("onFail", args); }; //dispatcher.dispatchEvent(new UseFlashModeCommand());
+				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
+				ExternalInterface.addCallback("onSuccess", onSuccess);
+				var onFail:Function = function(args:Object):void { JSLog.warn("onFail - as", args); }; //dispatcher.dispatchEvent(new UseFlashModeCommand());
 				ExternalInterface.addCallback("onFail", onFail);
-				
 				var vertoServerCredentials:Object = getFreeswitchServerCredentials();
 				JSLog.warn("calling startScreenshare", {});
-				result = ExternalInterface.call("startScreenshare", loggingCallback, videoTag, vertoServerCredentials, chromeExtensionKey, modifyResolution, onSuccess, "onFail");
+				result = ExternalInterface.call("startScreenshare", "loggingCallback", videoTag, vertoServerCredentials, chromeExtensionKey, modifyResolution, "onSuccess", "onFail");
 			}
 		}
 
