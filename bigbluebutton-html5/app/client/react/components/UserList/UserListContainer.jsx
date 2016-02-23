@@ -110,12 +110,7 @@ UserListContainer = React.createClass({
 
   render() {
     return (
-      <div id="users" className="component">
-        <h3 className="meetingTitle">DEMO</h3>
-        <div id="user-contents">
-          <UserList users={this.data.users} currentUser={this.data.currentUser}/>
-        </div>
-      </div>
+      <UserList users={this.data.users} currentUser={this.data.currentUser}/>
     );
   }
 })

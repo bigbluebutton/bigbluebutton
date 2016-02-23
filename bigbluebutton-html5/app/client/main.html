@@ -50,7 +50,73 @@
     {{#if isDisconnected}}
       {{>status}}
     {{else}}
-      <div id="userListSidebar" class="userlistMenu">
+      <div class="userlistMenu ui-resizable">
+        <div id="users" class="component" style="display:block;">
+          <h3 class="meetingTitle">
+            Demo Meeting
+          </h3>
+          <div id="user-contents">
+            <table class="user-list">
+              <tbody>
+                <tr class="user-list-item is-current">
+                  <td class="user-list-item-status"><i class="fi-projection-screen"></i></td>
+                  <td class="user-list-item-name">Oswaldo Acauan com o Nome super Longo (you)</td>
+                  <td class="user-list-item-sharing">
+                    <table class="user-list-item-sharing-list">
+                      <tr>
+                        <td><i class="ion-ios-mic"></i></td><!-- mic sharing -->
+                        <td><i class="fi-video"></i></td><!-- webcam sharing -->
+                        <td><i class="fi-lock"></i></td><!-- lock status -->
+                        <td><i class="fi-x-circle"></i></td><!-- kick button -->
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr class="user-list-item">
+                  <td class="user-list-item-status"></td>
+                  <td class="user-list-item-name">Oswaldo Acauan com o Nome super Longo</td>
+                  <td class="user-list-item-sharing">
+                    <table class="user-list-item-sharing-list">
+                      <tr>
+                        <td><i class="fi-volume-none"></i></td><!-- mic sharing -->
+                        <td><i class="fi-video"></i></td><!-- webcam sharing -->
+                        <td></td><!-- lock status -->
+                        <td></td><!-- kick button -->
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr class="user-list-item">
+                  <td class="user-list-item-status"></td>
+                  <td class="user-list-item-name">Oswaldo Acauan com o Nome super Longo</td>
+                  <td class="user-list-item-sharing">
+                    <table class="user-list-item-sharing-list">
+                      <tr>
+                        <td><i class="ion-ios-mic"></i></td><!-- mic sharing -->
+                        <td><i class="fi-video"></i></td><!-- webcam sharing -->
+                        <td></td><!-- lock status -->
+                        <td></td><!-- kick button -->
+                      </tr>
+                    </table>
+                  </td>
+                </tr><tr class="user-list-item">
+                  <td class="user-list-item-status"></td>
+                  <td class="user-list-item-name">Oswaldo Acauan com o Nome super Longo</td>
+                  <td class="user-list-item-sharing">
+                    <table class="user-list-item-sharing-list">
+                      <tr>
+                        <td><i class="ion-ios-mic"></i></td><!-- mic sharing -->
+                        <td><i class="fi-video"></i></td><!-- webcam sharing -->
+                        <td></td><!-- lock status -->
+                        <td></td><!-- kick button -->
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
       <div class="settingsMenu">
         {{> menu id="menu"}}

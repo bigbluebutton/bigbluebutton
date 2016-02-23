@@ -90,6 +90,8 @@
 }
 
 #user-contents {
+  overflow-y: auto;
+
   @media @phone-landscape {
     height: calc(~'100% - 46px');
   }
@@ -223,5 +225,72 @@
   }
   100% {
     opacity: 1;
+  }
+}
+
+.table-user-fixed() {
+  background-color: transparent;
+  color: #fff;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  table-layout: fixed;
+  width: 100%;
+  font-size: 16px;
+
+  @media @mobile-portrait {
+    font-size: 14px;
+  }
+}
+
+
+// Everything is using EM to be easier to shrink sizes on mobile
+.user-list {
+  .table-user-fixed;
+  margin-bottom: 0.625em;
+
+  &-item {
+    background-color: transparent !important; //need this here to reset bg-color
+
+    &-status {
+      color: inherit;
+      width: 1.6em;
+      font-size: 1.25em;
+      text-align: center;
+      padding: 0.625em 0 0.625em 0.625em;
+    }
+
+    &-name {
+      color: inherit;
+      width: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 1em;
+      padding: 0.625em;
+
+      .is-current & {
+        font-weight: bold;
+      }
+    }
+
+    &-sharing {
+      padding-right: 10px;
+      color: inherit;
+      width: 7.2em;
+      padding: 0.625em 0.625em 0.625em 0;
+
+      &-list {
+        .table-user-fixed;
+
+        td, th {
+          padding: 0;
+          width: 25%;
+          color: inherit;
+          font-size: 1.25em;
+          text-align: right;
+        }
+      }
+    }
   }
 }
