@@ -19,7 +19,7 @@ UserItem = React.createClass({
   },
 
   setPresenter(user){
-    /*this is a global function and should be */
+    /*this is a global function and should be looked at to be changed to a better solution*/
     setUserPresenter(BBB.getMeetingId(), user.id, getInSession('userId'), user.name, getInSession('authToken'));
   },
 
