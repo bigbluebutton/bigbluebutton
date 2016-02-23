@@ -3,7 +3,7 @@ UserList = React.createClass({
     return (
       <table className="user-list">
         <tbody>
-          {this.props.users.map((user) => <UserItem key={user.id} user={user} currentUser={this.props.currentUser}/>)}
+          {this.props.users.map((user) => <UserListItem key={user.id} user={user} currentUser={this.props.currentUser}/>)}
         </tbody>
       </table>
     );

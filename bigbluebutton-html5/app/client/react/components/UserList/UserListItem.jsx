@@ -1,4 +1,4 @@
-UserItem = React.createClass({
+UserListItem = React.createClass({
 
   handleKick(user) {
     return user.actions.kick(user);
@@ -20,7 +20,11 @@ UserItem = React.createClass({
     const user = this.props.user;
 
     return (
-      <tr className={classNames('user-list-item', user.isCurrent ? 'is-current' : null)}>
+      <tr className={classNames(
+        'user-list-item',
+        user.isCurrent ? 'is-current' : null,
+        user.unreadMessagesCount ? 'has-messages' : null
+      )}>
         {this.renderStatusIcons()}
         {this.renderUserName()}
         {this.renderSharingStatus()}
@@ -54,19 +58,15 @@ UserItem = React.createClass({
 
   renderUserName() {
     const user = this.props.user;
+
     let userName = user.name;
-    let classes = ['user-list-item-name'];
 
     if (user.isCurrent) {
       userName = userName.concat(' (you)');
     }
 
-    if (user.unreadMessagesCount) {
-      classes.push('has-messages');
-    }
-
     return (
-      <td className={classNames(classes)} onClick={() => this.handleOpenPrivateChat(user)}>
+      <td className="user-list-item-name" onClick={() => this.handleOpenPrivateChat(user)}>
         <Tooltip title={userName}>
           {userName} {this.renderUnreadBadge()}
         </Tooltip>
