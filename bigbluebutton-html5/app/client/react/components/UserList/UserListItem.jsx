@@ -160,12 +160,8 @@ UserListItem = React.createClass({
     }
 
     if (sharingStatus.isLocked) {
-      icons.lock = icons.push(<Icon iconName="lock" title={`${userName} is locked`}/>);
+      icons.lock = (<Icon iconName="lock" title={`${userName} is locked`}/>);
     }
-
-    // {icons.map((item, i) => {
-    //   return (<td key={i}>oi</td>);
-    // })}
 
     return (
       <td className="user-list-item-sharing">
