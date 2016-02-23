@@ -931,6 +931,14 @@ Alert {
   icon:   Embed('assets/images/ic_add_circle_outline_16px.png');
 }
 
+.confirmButtonStyle {
+  icon:   Embed('assets/images/status_success_16px.png');
+}
+
+.denyButtonStyle {
+  icon:   Embed('assets/images/status_fail_16px.png');
+}
+
 .saveLayoutButtonStyle {
   icon:   Embed('assets/images/ic_file_download_16px.png');
 }

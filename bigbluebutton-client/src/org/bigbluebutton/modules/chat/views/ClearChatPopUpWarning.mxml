@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2015 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+          xmlns:mate="http://mate.asfusion.com/"
+          verticalScrollPolicy="off"
+          horizontalScrollPolicy="off"
+          horizontalAlign="center"
+          showCloseButton="true"
+          close="onCancelClicked()"
+          creationComplete="onCreationComplete()"
+          height="90"
+          width="300"
+          title="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.title')}">
+
+  
+  <mx:Script>
+    <![CDATA[
+      import com.asfusion.mate.events.Dispatcher;
+
+      import mx.core.FlexGlobals;
+      import mx.core.IFlexDisplayObject;
+      import mx.managers.PopUpManager;
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.modules.chat.events.ChatToolbarButtonEvent;
+
+      private var _dispatcher:Dispatcher = new Dispatcher();
+
+      private function confirmButtonclickHandler():void {
+        var clearEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_CHAT_TOOLBAR_EVENT);
+        _dispatcher.dispatchEvent(clearEvent);
+        PopUpManager.removePopUp(this);
+      }
+
+      private function cancelButtonclickHandler():void{
+        PopUpManager.removePopUp(this);
+      }
+
+      private function onCreationComplete():void {
+        cancelButton.setFocus();
+      }
+
+      private function onCancelClicked():void {
+        PopUpManager.removePopUp(this);
+      }
+    ]]>
+  </mx:Script>
+
+  <mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+            <mx:Text text="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.text')}" width="100%" height="100%" />
+            <mx:Button id="cancelButton" click="cancelButtonclickHandler()" enabled="true" styleName="denyButtonStyle"  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.cancel.tooltip')}"/>
+            <mx:Button id="confirmButton" click="confirmButtonclickHandler()" enabled="true" styleName="confirmButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.confirm.tooltip')}"/>
+  </mx:HBox>
+
+</mx:TitleWindow>

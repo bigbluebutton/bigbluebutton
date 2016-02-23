@@ -24,6 +24,9 @@
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import mx.managers.PopUpManager;
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
 			//import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			
 			[Bindable] public var chatOptions:ChatOptions;
@@ -86,8 +89,8 @@
 			}
 
 			public function sendClearEvent():void{
-				var clearEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_CHAT_TOOLBAR_EVENT);
-				globalDispatcher.dispatchEvent(clearEvent);
+				var clearPupUpWarning:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClearChatPopUpWarning, true);
+				PopUpManager.centerPopUp(clearPupUpWarning);
 			}
 
 			public function onChangeMyRole(e:ChangeMyRole):void{

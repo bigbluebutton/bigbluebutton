@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.chat.model
   import mx.collections.ArrayCollection;
   
   import org.bigbluebutton.modules.chat.ChatUtil;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
   public class ChatConversation
@@ -90,7 +91,7 @@ package org.bigbluebutton.modules.chat.model
     public function clearChat():void{      
       var cm:ChatMessage = new ChatMessage();
       cm.time = getLastTime();
-      cm.text = "The chat was cleared by a moderator";
+      cm.text = ResourceUtil.getInstance().getString('bbb.chat.clearBtn.chatMessage');
       cm.name = "";
       cm.senderColor = uint(0x086187);
       
