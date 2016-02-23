@@ -55,12 +55,12 @@ UserListContainer = React.createClass({
     let users = Meteor.Users.find().fetch().map(u => u.user).map(u => {
       let user = {
         id: u.userid,
-        name: u.name + 'asd sadasd asd as dasd asd asd asda sda dasd sa d',
+        name: u.name,
         isCurrent: u.userid === currentUserId,
         isPresenter: u.presenter,
         isModerator: u.role === "MODERATOR",
         emoji: u.emoji_status,
-        unreadMessagesCount: 10,
+        unreadMessagesCount: 0,
         sharingStatus: {
           isInAudio: BBB.isUserInAudio(u.userid),
           isLocked: shouldUserBeLocked(u.userid), //TODO: Migrate blaze logic
