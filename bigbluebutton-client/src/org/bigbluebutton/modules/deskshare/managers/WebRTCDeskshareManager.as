@@ -90,9 +90,11 @@ package org.bigbluebutton.modules.deskshare.managers
 		private function stopWebRTCDeskshare():void {
 			LOGGER.debug("DeskshareManager::stopWebRTCDeskshare");
 			if (ExternalInterface.available) {
-				var loggingCallback:Function = function():void {};
-				var onSuccess:Function = function():void {};
-				ExternalInterface.call("endScreenshare", loggingCallback, onSuccess);
+				var loggingCallback:Function = function(args:Object):void {LOGGER.debug(args); JSLog.warn("loggingCallback", args)};
+				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
+				ExternalInterface.addCallback("loggingCallback", loggingCallback);
+				ExternalInterface.addCallback("onSuccess", onSuccess);
+				ExternalInterface.call("endScreenshare", "loggingCallback", "onSuccess");
 			} else {
 				LOGGER.error("Error! ExternalInterface not available (webrtcDeskshare)");
 			}
@@ -110,7 +112,7 @@ package org.bigbluebutton.modules.deskshare.managers
 				// register these callbacks
 				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
 				ExternalInterface.addCallback("onSuccess", onSuccess);
-				var onFail:Function = function(args:Object):void { JSLog.warn("onFail - as", args); }; //dispatcher.dispatchEvent(new UseFlashModeCommand());
+				var onFail:Function = function(args:Object):void { JSLog.warn("onFail - as", args); globalDispatcher.dispatchEvent(new UseJavaModeCommand()) };
 				ExternalInterface.addCallback("onFail", onFail);
 				var vertoServerCredentials:Object = getFreeswitchServerCredentials();
 				JSLog.warn("calling startScreenshare", {});
@@ -173,7 +175,7 @@ package org.bigbluebutton.modules.deskshare.managers
 								}
 							};
 							ExternalInterface.addCallback("callback", success);
-							ExternalInterface.call("getChromeExtensionStatus", chromeExtensionKey, null);
+							ExternalInterface.call("getChromeExtensionStatus", chromeExtensionKey, "callback");
 						}
 					} else {
 						onFailure("No chromeExtensionKey in config.xml");
