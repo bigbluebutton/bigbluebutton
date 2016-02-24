@@ -9,6 +9,15 @@
 		<![CDATA[
 			import org.bigbluebutton.lib.chat.models.ChatMessages;
 			
+			private function setFirstLetters(participantName:String):void {
+				var names:Array = participantName.split(" ");
+				var firstLettersText:String = names[0].charAt(0);
+				if (names[1]) {
+					firstLettersText += names[1].charAt(0);
+				}
+				participantIcon.firstLetters.text = firstLettersText.toUpperCase();
+			}
+			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
@@ -18,7 +27,7 @@
 							publicChatIcon.visible = true;
 							publicChatIcon.includeInLayout = true;
 						} else {
-							participantIcon.participantName = obj.name;
+							setFirstLetters(obj.name);
 							participantIcon.visible = true;
 							participantIcon.includeInLayout = true;
 						}

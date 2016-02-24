@@ -8,27 +8,52 @@
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
 			
+			import mx.utils.ObjectUtil;
+			
 			import org.bigbluebutton.lib.chat.models.ChatMessage;
+			
+			private function setFirstLetters(participantName:String):void {
+				var names:Array = participantName.split(" ");
+				var firstLettersText:String = names[0].charAt(0);
+				if (names[1]) {
+					firstLettersText += names[1].charAt(0);
+				}
+				participantIcon.firstLetters.text = firstLettersText.toUpperCase();
+			}
 			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				var m:ChatMessage = obj as ChatMessage;
 				if (m) {
-					username.text = m.name;
-					participantIcon.participantName = m.name;
-					if (m.name == " ") {
-						participantIcon.visible = false;
-						username.visible = false;
-						username.includeInLayout = false;
-					}
 					time.text = m.time
 					if (!isHTMLString(m.senderText)) {
 						message.text = m.senderText;
 					} else {
 						message.textFlow = TextConverter.importToFlow(m.senderText, TextConverter.TEXT_FIELD_HTML_FORMAT);
 					}
-						//TODO: What is translatedText, where should it be used?	
-						//removeUnneededInformationFromDisplay(m);
+					var sameUser:Boolean = (m.lastSenderId == m.senderId);
+					var sameTime:Boolean = (m.lastTime == m.time);
+					if (sameUser && sameTime) {
+						nameTimeGroup.includeInLayout = false;
+						messageSpacer.includeInLayout = false;
+						nameTimeGroup.visible = false;
+						participantIcon.visible = false;
+					} else {
+						nameTimeGroup.includeInLayout = true;
+						messageSpacer.includeInLayout = true;
+						nameTimeGroup.visible = true;
+						if (m.name == " ") {
+							participantIcon.visible = false;
+							username.visible = false;
+							username.includeInLayout = false;
+						} else {
+							username.text = m.name;
+							setFirstLetters(m.name);
+							participantIcon.visible = true;
+							username.visible = true;
+							username.includeInLayout = true;
+						}
+					}
 				}
 			}
 			
@@ -43,48 +68,40 @@
 				}
 				return true;
 			}
-			
-			private function removeUnneededInformationFromDisplay(m:ChatMessage):void {
-				var sameUser:Boolean = (m.lastSenderId == m.senderId);
-				var sameTime:Boolean = (m.lastTime == m.time);
-				if (sameUser && sameTime) {
-					nameTimeGroup.includeInLayout = false;
-				} else if (sameUser) {
-					username.visible = false;
-				} else if (sameTime) {
-					time.visible = false;
-				}
-			}
 		]]>
 	</fx:Script>
 	<s:states>
 		<s:State name="others_state" />
 		<s:State name="me_state" />
 	</s:states>
-	<s:HGroup width="100%">
-		<participanticon:ParticipantIcon id="participantIcon"
-										 height="100%" />
-		<s:VGroup width="100%">
-			<s:Spacer height="10%" />
-			<s:Group id="nameTimeGroup"
-					 width="100%"
-					 height="100%">
-				<s:layout>
-					<s:HorizontalLayout verticalAlign="bottom" />
-				</s:layout>
-				<s:Label id="username"
-						 styleName="contentFontSize" />
-				<s:Label id="time"
-						 styleName="chatTimeColor subContentFontSize" />
-			</s:Group>
-			<s:HGroup width="100%">
-				<s:RichEditableText editable="false"
-									selectable="false"
-									id="message"
-									width="100%"
-									styleName="msgTextStyle contentFontSize" />
-			</s:HGroup>
-			<s:Spacer height="{nameTimeGroup.height}" />
-		</s:VGroup>
-	</s:HGroup>
+	<s:VGroup width="100%">
+		<s:Spacer height="{nameTimeGroup.height}"
+				  id="messageSpacer" />
+		<s:HGroup width="100%">
+			<participanticon:ParticipantIcon id="participantIcon"
+											 height="100%" />
+			<s:VGroup width="100%">
+				<s:Spacer height="10%" />
+				<s:Group id="nameTimeGroup"
+						 width="100%"
+						 height="100%">
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="bottom" />
+					</s:layout>
+					<s:Label id="username"
+							 visible="true"
+							 styleName="contentFontSize" />
+					<s:Label id="time"
+							 styleName="chatTimeColor subContentFontSize" />
+				</s:Group>
+				<s:HGroup width="100%">
+					<s:RichEditableText editable="false"
+										selectable="false"
+										id="message"
+										width="100%"
+										styleName="msgTextStyle contentFontSize" />
+				</s:HGroup>
+			</s:VGroup>
+		</s:HGroup>
+	</s:VGroup>
 </s:ItemRenderer>
