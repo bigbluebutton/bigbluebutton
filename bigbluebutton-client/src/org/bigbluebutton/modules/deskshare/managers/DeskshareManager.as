@@ -116,7 +116,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			var options:DeskshareOptions = new DeskshareOptions();
 			options.parseOptions();
 
-			if (options.useWebRTCIfAvailable && !BrowserCheck.isWebRTCSupported()) {
+			if (autoStart || (options.useWebRTCIfAvailable && !BrowserCheck.isWebRTCSupported())) {
 				if (BrowserCheck.isUsingLessThanChrome38OnMac()) {
 					usingJava = false;
 				} else {
