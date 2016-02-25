@@ -38,6 +38,8 @@
 			private var globalDispatcher:Dispatcher;
 			private var _toolbarHideTimer:Timer;
 			
+			[Bindable] public var publicChat:Boolean = true;
+
 			public function init():void{
 				chatOptions = new ChatOptions();
 				baseIndex = chatOptions.baseTabIndex;
@@ -90,13 +92,15 @@
 
 			public function sendClearEvent():void{
 				var clearPupUpWarning:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClearChatPopUpWarning, true);
-				PopUpManager.centerPopUp(clearPupUpWarning);
+
+				clearPupUpWarning.x = this.localToGlobal(new Point()).x - clearPupUpWarning.width + clearBtn.width + 7;
+				clearPupUpWarning.y = this.localToGlobal(new Point()).y + clearPupUpWarning.height/2 + clearBtn.height + 5;
 			}
 
 			public function onChangeMyRole(e:ChangeMyRole):void{
-				clearBtn.visible = UsersUtil.amIModerator();
-				clearBtn.enabled = UsersUtil.amIModerator();
-				clearBtn.includeInLayout = UsersUtil.amIModerator();
+				clearBtn.visible = UsersUtil.amIModerator() && publicChat;
+				clearBtn.enabled = UsersUtil.amIModerator() && publicChat;
+				clearBtn.includeInLayout = UsersUtil.amIModerator() && publicChat;
 			}
 
 			public function registerListeners(component:UIComponent):void {
@@ -131,9 +135,9 @@
 			   styleName="clearButtonStyle"
 			   width="22"
 			   height="22"
-			   visible = "{UsersUtil.amIModerator()}"
-			   enabled = "{UsersUtil.amIModerator()}"
-			   includeInLayout = "{UsersUtil.amIModerator()}"
+			   visible = "{UsersUtil.amIModerator() &amp;&amp; publicChat}"
+			   enabled = "{UsersUtil.amIModerator() &amp;&amp; publicChat}"
+			   includeInLayout = "{UsersUtil.amIModerator() &amp;&amp; publicChat}"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.toolTip')}" 
 			   click="sendClearEvent()"
 			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/> 

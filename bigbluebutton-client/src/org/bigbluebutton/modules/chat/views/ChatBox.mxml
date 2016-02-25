@@ -767,9 +767,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 
 		private function handleClearChatBoxMessages(event:ClearPublicChatEvent):void{
-			chatMessages.clearChat();
-			invalidateDisplayList();
-        	validateNow();
+			if(publicChat){
+				chatMessages.clearChat();
+				invalidateDisplayList();
+        		validateNow();
+        	}
 		}
 
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
@@ -785,7 +787,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			chatToolbar.x = (chatMessagesCanvas.width - chatToolbar.width) - 10;
 			chatToolbar.y = 20;
 
-			if(chatMessagesList.mx_internal::scroll_verticalScrollBar != null && chatMessagesList.mx_internal::scroll_verticalScrollBar.visible){
+			if (!publicChat){
+				chatToolbar.publicChat = false;
+			}
+
+			if (chatMessagesList.mx_internal::scroll_verticalScrollBar != null && chatMessagesList.mx_internal::scroll_verticalScrollBar.visible) {
 				chatToolbar.width -= chatMessagesList.mx_internal::scroll_verticalScrollBar.width;
 			}
 		}

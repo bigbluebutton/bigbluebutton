@@ -24,10 +24,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           verticalScrollPolicy="off"
           horizontalScrollPolicy="off"
           horizontalAlign="center"
-          showCloseButton="true"
-          close="onCancelClicked()"
           creationComplete="onCreationComplete()"
-          height="90"
+          height="110"
           width="300"
           title="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.title')}">
 
@@ -57,19 +55,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
 
       private function onCreationComplete():void {
-        cancelButton.setFocus();
-      }
-
-      private function onCancelClicked():void {
-        PopUpManager.removePopUp(this);
+        confirmButton.setFocus();
       }
     ]]>
   </mx:Script>
 
-  <mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
-            <mx:Text text="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.text')}" width="100%" height="100%" />
-            <mx:Button id="cancelButton" click="cancelButtonclickHandler()" enabled="true" styleName="denyButtonStyle"  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.cancel.tooltip')}"/>
-            <mx:Button id="confirmButton" click="confirmButtonclickHandler()" enabled="true" styleName="confirmButtonStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.confirm.tooltip')}"/>
-  </mx:HBox>
+  <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+            <mx:Text text="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.text')}" width="270" height="100%" color = "0x000000"/>
+            <mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle"> 
+                      <mx:Button id="confirmButton" width = "60" height = "22"  click="confirmButtonclickHandler()" enabled="true" label = "{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.confirm.label')}" color = "0x0a323b" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.confirm.tooltip')}"/>
+                      <mx:Button id="cancelButton" width = "60" height = "22" click="cancelButtonclickHandler()" enabled="true" label = "{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.cancel.label')}" color = "0x0a323b" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.popUpWarning.cancel.tooltip')}"/>
+            </mx:HBox>
+  </mx:VBox>
 
 </mx:TitleWindow>
