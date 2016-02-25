@@ -370,6 +370,17 @@ trait UsersApp {
         outGW.send(new UserLeft(msg.meetingID, mProps.recorded, u))
 
         if (u.presenter) {
+          if (meetingModel.isBroadcastingRTMP()) {
+            // The presenter left during desktop sharing. Stop desktop sharing on FreeSWITCH
+            outGW.send(new DeskShareHangUp(msg.meetingID, mProps.voiceBridge))
+
+            // notify other clients to close their deskshare view
+            outGW.send(new DeskShareNotifyViewersRTMP(msg.meetingID, meetingModel.getRTMPBroadcastingUrl(),
+              meetingModel.getDesktopShareVideoWidth(), meetingModel.getDesktopShareVideoHeight(), false))
+
+            // reset the meeting info
+            meetingModel.resetDesktopSharingParams()
+          }
 
           /* The current presenter has left the meeting. Find a moderator and make
 	       * him presenter. This way, if there is a moderator in the meeting, there

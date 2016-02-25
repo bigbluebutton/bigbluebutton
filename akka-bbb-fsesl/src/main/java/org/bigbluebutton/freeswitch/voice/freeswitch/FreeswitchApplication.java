@@ -25,15 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.BroadcastConferenceCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeskShareRecordCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeskShareBroadcastRTMPCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectAllUsersCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
-import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
 
 public class FreeswitchApplication {
 
@@ -98,18 +90,15 @@ public class FreeswitchApplication {
 		queueMessage(rcc);
 	}
 
-	public void deskShareRecording(String voiceConfId, String filePath, Boolean record){
-		DeskShareRecordCommand dsrc = new DeskShareRecordCommand(voiceConfId, USER, record, filePath);
-		System.out.println("\n______FreeswitchApplication::deskShareRecording__" + dsrc.getCommand() + "____\n");
-		queueMessage(dsrc);
-	}
-
 	public void deskShareBroadcastRTMP(String voiceConfId, String streamUrl, String timestamp, Boolean broadcast){
 		DeskShareBroadcastRTMPCommand rtmp = new DeskShareBroadcastRTMPCommand(voiceConfId, USER, streamUrl, timestamp, broadcast);
-		System.out.println("\n______FreeswitchApplication::deskShareBroadcastRTMP___" + rtmp.getCommand() + "____\n");
 		queueMessage(rtmp);
 	}
 
+	public void deskShareHangUp(String voiceConfId, String fsConferenceName, String timestamp){
+		DeskShareHangUpCommand huCmd = new DeskShareHangUpCommand(voiceConfId, fsConferenceName, USER, timestamp);
+		queueMessage(huCmd);
+	}
 		private void sendMessageToFreeswitch(final FreeswitchCommand command) {
 			Runnable task = new Runnable() {
 				public void run() {
@@ -119,7 +108,6 @@ public class FreeswitchApplication {
 						manager.getUsers(cmd);
 					} else if (command instanceof MuteUserCommand) {
 						MuteUserCommand cmd = (MuteUserCommand) command;
-						System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						System.out.println("Sending MuteParticipantCommand for conference = [" + cmd.getRoom() + "]");
 						manager.mute(cmd);
 					} else if (command instanceof EjectUserCommand) {
@@ -132,12 +120,11 @@ public class FreeswitchApplication {
 						manager.ejectAll(cmd);
 					} else if (command instanceof RecordConferenceCommand) {
 						manager.record((RecordConferenceCommand) command);
-					} else if (command instanceof DeskShareRecordCommand) {
-						System.out.println("^^^^(send to FS) Sending DeskShareRecordCommand for conference = [" + command.getRoom() + "]");
-						manager.record((DeskShareRecordCommand)command);
 					} else if (command instanceof DeskShareBroadcastRTMPCommand) {
-						System.out.println("^^^^(send to FS) Sending DeskShareBroadcastRTMPCommand for conference = [" + command.getRoom() + "]");
 						manager.broadcastRTMP((DeskShareBroadcastRTMPCommand)command);
+					} else if (command instanceof DeskShareHangUpCommand) {
+						DeskShareHangUpCommand cmd = (DeskShareHangUpCommand) command;
+						manager.hangUp(cmd);
 					} else if (command instanceof BroadcastConferenceCommand) {
 						manager.broadcast((BroadcastConferenceCommand) command);
 					}

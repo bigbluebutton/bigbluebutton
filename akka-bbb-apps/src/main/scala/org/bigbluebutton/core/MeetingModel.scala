@@ -17,8 +17,6 @@ class MeetingModel {
   private var muted = false;
   private var meetingEnded = false
   private var meetingMuted = false
-  private var desktopShareVideoWidth = 0
-  private var desktopShareVideoHeight = 0
 
   val TIMER_INTERVAL = 30000
   private var hasLastWebUserLeft = false
@@ -27,8 +25,18 @@ class MeetingModel {
   private var voiceRecordingFilename: String = ""
   private var rtmpBroadcastingUrl: String = ""
   private var deskShareStarted = false
+  private var desktopShareVideoWidth = 0
+  private var desktopShareVideoHeight = 0
 
   val startedOn = timeNowInMinutes;
+
+  def resetDesktopSharingParams() = {
+    broadcastingRTMP = false
+    deskShareStarted = false
+    rtmpBroadcastingUrl = ""
+    desktopShareVideoWidth = 0
+    desktopShareVideoHeight = 0
+  }
 
   def getDeskShareStarted(): Boolean = {
     return deskShareStarted
@@ -45,6 +53,14 @@ class MeetingModel {
 
   def setDesktopShareVideoHeight(videoHeight: Int) {
     desktopShareVideoHeight = videoHeight
+  }
+
+  def getDesktopShareVideoWidth(): Int = {
+    desktopShareVideoWidth
+  }
+
+  def getDesktopShareVideoHeight(): Int = {
+    desktopShareVideoHeight
   }
 
   def muteMeeting() {
@@ -104,19 +120,12 @@ class MeetingModel {
   }
 
   def setRTMPBroadcastingUrl(path: String) {
+    println("---RTMP broadcastUrl changed to:" + path)
     rtmpBroadcastingUrl = path
   }
 
   def getRTMPBroadcastingUrl(): String = {
     rtmpBroadcastingUrl
-  }
-
-  def getDesktopShareVideoWidth(): Int = {
-    desktopShareVideoWidth
-  }
-
-  def getDesktopShareVideoHeight(): Int = {
-    desktopShareVideoHeight
   }
 
   def permisionsInitialized(): Boolean = {

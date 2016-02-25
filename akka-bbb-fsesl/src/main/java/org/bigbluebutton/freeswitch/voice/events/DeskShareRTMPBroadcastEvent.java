@@ -21,81 +21,48 @@ package org.bigbluebutton.freeswitch.voice.events;
 public class DeskShareRTMPBroadcastEvent extends VoiceConferenceEvent {
 
 	private String timestamp;
-	private boolean record;
-	//{channels=2,samplerate=48000,vw=1920,vh=1080,fps=15.00}rtmp://192.168.0.109/live/abc/dev-test
+	private boolean broadcast;
 	private String streamUrl;
-	private Integer channels;
-	private Integer sampleRate;
 	private Integer vw;
 	private Integer vh;
-	private double fps;
 
-	public DeskShareRTMPBroadcastEvent(String room, boolean record) {
+	private final String DESKSHARE_SUFFIX = "-DESKSHARE";
+
+
+	public DeskShareRTMPBroadcastEvent(String room, boolean broadcast) {
 		super(room);
-		this.record = record;
+		this.broadcast = broadcast;
 	}
 
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
 
-	public void setRecordingStreamUrl(String streamUrl) {
+	public void setBroadcastingStreamUrl(String streamUrl) {
 		this.streamUrl = streamUrl;
 	}
 
-//	public void setRecord(Boolean record) {
-//		this.record = record;
-//	}
+	public void setVideoWidth(Integer vw) {this.vw = vw;}
 
-	public void setChannels(Integer channels) {
-		this.channels = channels;
-	}
+	public void setVideoHeight(Integer vh) {this.vh = vh;}
 
-	public void setSampleRate(Integer sampleRate) {
-		this.sampleRate = sampleRate;
-	}
+	public Integer getVideoHeight() {return vh;}
 
-	public void setVideoWidth(Integer vw) {
-		this.vw = vw;
-	}
-
-	public void setVideoHeight(Integer vh) {
-		this.vh = vh;
-	}
-
-	public void setFramesPerSecond(Double fps) {
-		this.fps = fps;
-	}
+	public Integer getVideoWidth() {return vw;}
 
 	public String getTimestamp() {
 		return timestamp;
 	}
 
-	public String getRecordingStreamUrl() {
+	public String getBroadcastingStreamUrl()
+	{
+		if (streamUrl.endsWith(DESKSHARE_SUFFIX)) {
+			streamUrl = streamUrl.replace(DESKSHARE_SUFFIX, "");
+		}
 		return streamUrl;
 	}
 
-	public boolean getRecord() {
-		return record;
-	}
-
-	public Integer getChannels() {
-		return channels;
-	}
-
-	public Integer getSampleRate() {
-		return sampleRate;
-	}
-
-	public Integer getVideoHeight() {
-		return vh;
-	}
-
-	public Integer getVideoWidth() {
-		return vw;
-	}
-
-	public Double getFramesPerSecond() {
-		return fps;
+	public boolean getBroadcast() {
+		return broadcast;
 	}
 }

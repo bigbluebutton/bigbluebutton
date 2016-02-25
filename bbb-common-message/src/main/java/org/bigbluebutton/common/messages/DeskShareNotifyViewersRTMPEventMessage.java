@@ -13,10 +13,10 @@ public class DeskShareNotifyViewersRTMPEventMessage {
 	public static final String MEETING_ID = "meeting_id";
 	public static final String STREAM_PATH = "stream_path";
 	public static final String BROADCASTING = "broadcasting";
-	public static final String TIMESTAMP = "timestamp";
 	public static final String VIDEO_WIDTH = "vw";
 	public static final String VIDEO_HEIGHT = "vh";
 
+	public static final String TIMESTAMP = "timestamp";
 	public final String meetingId;
 	public final String streamPath;
 	public final boolean broadcasting;
