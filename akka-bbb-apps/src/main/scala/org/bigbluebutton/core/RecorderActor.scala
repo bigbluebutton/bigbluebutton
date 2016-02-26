@@ -9,6 +9,7 @@ import org.bigbluebutton.core.api._
 import scala.collection.JavaConversions._
 import org.bigbluebutton.core.service.recorder.RecorderApplication
 import org.bigbluebutton.core.recorders.events.PublicChatRecordEvent
+import org.bigbluebutton.core.recorders.events.ClearPublicChatRecordEvent
 import org.bigbluebutton.core.recorders.events.ConversionCompletedPresentationRecordEvent
 import org.bigbluebutton.core.recorders.events.GotoSlidePresentationRecordEvent
 import org.bigbluebutton.core.recorders.events.ResizeAndMoveSlidePresentationRecordEvent
@@ -43,6 +44,7 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
 
   def receive = {
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
+    case msg: ClearChatHistoryReply => handleClearChatHistoryReply(msg)
     case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
     case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
     case msg: SendCursorUpdateOutMsg => handleSendCursorUpdateOutMsg(msg)
@@ -79,6 +81,15 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
       ev.setSender(message.get("fromUsername"));
       ev.setMessage(message.get("message"));
       ev.setColor(message.get("fromColor"));
+      recorder.record(msg.meetingID, ev);
+    }
+  }
+
+  private def handleClearChatHistoryReply(msg: ClearChatHistoryReply) {
+    if (msg.recorded) {
+      val ev = new ClearPublicChatRecordEvent();
+      ev.setTimestamp(TimestampGenerator.generateTimestamp);
+      ev.setMeetingId(msg.meetingID);
       recorder.record(msg.meetingID, ev);
     }
   }

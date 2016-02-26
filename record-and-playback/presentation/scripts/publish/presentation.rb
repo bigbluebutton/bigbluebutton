@@ -849,7 +849,16 @@ def processChatMessages
 						chat_sender = node.xpath(".//sender")[0].text()
 						chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
 						chat_start = ( translateTimestamp(chat_timestamp) / 1000).to_i
-						$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+						chat_end = ( translateTimestamp(re[:stop_timestamp]) / 1000).to_i
+						$clear_chat_events.reverse_each do |clear|
+							if (clear[:timestamp].to_i >= node[:timestamp].to_i)
+								chat_end = ( translateTimestamp(clear[:timestamp]) / 1000).to_i
+							end
+						end
+						if $clear_chat_events.last[:timestamp].to_i <= node[:timestamp].to_i
+							chat_end = ( translateTimestamp(re[:stop_timestamp]) / 1000).to_i
+						end
+						$xml.chattimeline(:in => chat_start, :out => chat_end, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
 					end
 				end
 				current_time += re[:stop_timestamp] - re[:start_timestamp]
@@ -1014,6 +1023,7 @@ if ($playback == "presentation")
 		# Gathering all the events from the events.xml
 		$slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		$chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
+		$clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
 		$shape_events = @doc.xpath("//event[@eventname='AddShapeEvent' or @eventname='ModifyTextEvent']") # for the creation of shapes
 		$panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
 		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
