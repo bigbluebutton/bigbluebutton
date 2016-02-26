@@ -100,11 +100,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onCreationComplete():void {
         windowControls.maximizeRestoreBtn.enabled = false;    
         
-        if (isUsingLessThanChrome38OnMac()) {
-          setCurrentState("chromeOnMacWarningState");
-        } else {
-          setCurrentState("dispFullRegionControlBar");
-        }
+        setCurrentState("dispFullRegionControlBar");
+        
+        if (isUsingMac()) {
+          btnRegionPublish.enabled = false;
+        } 
+        
         resourcesChanged();
         
         titleBarOverlay.tabIndex = baseIndex;
@@ -346,9 +347,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         closeWindow();
       }
       
-      private function isUsingLessThanChrome38OnMac():Boolean {
-        var browser:Array = ExternalInterface.call("determineBrowser");
-        return ((browser[0] == "Chrome") && (parseInt(browser[1]) <= 38) && (Capabilities.os.indexOf("Mac") >= 0));
+      private function isUsingMac():Boolean {
+        return (Capabilities.os.indexOf("Mac") >= 0);
       }
     ]]>
   </mx:Script>
@@ -379,6 +379,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                          toolTip="{ResourceUtil.getInstance().getString('bbb.screensharePublish.region.tooltip')}" 
                          label="{ResourceUtil.getInstance().getString('bbb.screensharePublish.region.label')}" 
                          visible="true" 
+                         enabled="true"
                          click="shareScreen(false)" 
                          tabIndex="{baseIndex+6}"
                          focusEnabled="false"
