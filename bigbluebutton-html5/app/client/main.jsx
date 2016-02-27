@@ -90,6 +90,8 @@ Template.menu.events({
 });
 
 Template.main.rendered = function() {
+  ReactDOM.render(<Chat />, document.getElementById("chat"));
+
   let lastOrientationWasLandscape;
   $("#dialog").dialog({
     modal: true,

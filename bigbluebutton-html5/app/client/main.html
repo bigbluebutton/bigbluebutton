@@ -61,9 +61,7 @@
         <div id="panels">
           <div class="shield"></div>
           {{> whiteboard id="whiteboard" name="whiteboard"}}
-          {{#if getInSession "display_chatbar"}}
-            {{> chatbar id="chat" title="Chat" name="chatbar"}}
-          {{/if}}
+          <div id="chat" class="component"></div>
         </div>
         {{> modals}}
       </div>
