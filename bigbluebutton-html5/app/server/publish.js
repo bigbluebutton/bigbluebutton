@@ -1,21 +1,25 @@
 // Publish only the online users that are in the particular meetingId
 // On the client side we pass the meetingId parameter
 Meteor.publish('users', function(meetingId, userid, authToken) {
-  let ref, ref1, u, username;
+  let user, userObject, username;
   Meteor.log.info(`attempt publishing users for ${meetingId}, ${userid}, ${authToken}`);
-  u = Meteor.Users.findOne({
+  userObject = Meteor.Users.findOne({
     'userId': userid,
     'meetingId': meetingId
   });
-  if(u != null) {
+  if(userObject != null) {
     Meteor.log.info("found it from the first time " + userid);
     if(isAllowedTo('subscribeUsers', meetingId, userid, authToken)) {
       Meteor.log.info(`${userid} was allowed to subscribe to 'users'`);
-      username = (u != null ? (ref = u.user) != null ? ref.name : void 0 : void 0) || "UNKNOWN";
-
-      // offline -> online
-      if(((ref1 = u.user) != null ? ref1.connection_status : void 0) !== 'online') {
-        Meteor.call("validateAuthToken", meetingId, userid, authToken);
+      user = userObject.user;
+      if(user != null) {
+        username = user.name;
+        // offline -> online
+        if(user.connection_status !== 'online') {
+          Meteor.call("validateAuthToken", meetingId, userid, authToken);
+        }
+      } else {
+        username = "UNKNOWN";
       }
       Meteor.Users.update({
         'meetingId': meetingId,

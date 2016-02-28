@@ -181,23 +181,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (!showToolbarOpt) {
 					toolbarHeight = 0;
 					toolbarPaddingTop = 0;
+					calculateCanvasHeight();
 				}
 				toolbar.displayToolbar();
-				ShortcutOptions.initialize();
-      
-        showFooterOpt = layoutOptions.showFooter;
-        
-        var locale:Object = BBB.getConfigManager().config.language;
-        langSelector.visible = locale.userSelectionEnabled
- 
-        if (!showFooterOpt) {
-          footerHeight = 0;
-          controlBar.visible = false;
-        }        
-      }
+				
+				showFooterOpt = layoutOptions.showFooter;
+				var locale:Object = BBB.getConfigManager().config.language;
+				langSelector.visible = locale.userSelectionEnabled;
+				
+				if (!showFooterOpt) {
+					footerHeight = 0;
+					controlBar.visible = false;
+					calculateCanvasHeight();
+				}
+			}
 		
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();
+				
+				systemManager.addEventListener(Event.RESIZE, handleApplicationResizeEvent);
+				calculateCanvasHeight();
+			}
+			
+			private function handleApplicationResizeEvent(e:Event):void {
+				calculateCanvasHeight();
 			}
 		
 			protected function initFullScreen():void {				
@@ -207,6 +214,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}					
 			
 			private var sendStartModulesEvent:Boolean = true;
+			
+			// We have to calculate the canvas height manually because if you set it to a 
+			// percentage you will get execution timeout errors.
+			// See issue #2437 for why you shouldn't set height to 100% 
+			//             https://github.com/bigbluebutton/bigbluebutton/issues/2437
+			private function calculateCanvasHeight():void {
+				var screenRect:Rectangle = systemManager.screen;
+				mdiCanvas.height = screenRect.height - footerHeight - toolbarHeight - 12;
+			}
 			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				if (event.configLocaleVersion == true) {
@@ -258,8 +274,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function openShortcutHelpWindow(e:Event = null):void{
 				if (scWindow == null) {
 					scWindow = new ShortcutHelpWindow();
-					scWindow.width = 300;
-					scWindow.height = 300;
 				}
 				
 				if (scWindow.minimized)
@@ -269,7 +283,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					scWindow.restore();
 				
 				mdiCanvas.windowManager.add(scWindow);
-				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - scWindow.width/2, mdiCanvas.height/2 - scWindow.height/2);
 				
 				scWindow.focusHead();
 			}
@@ -657,8 +671,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  horizontalScrollPolicy="off" 
 					  verticalScrollPolicy="off" 
 					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
-					  width="100%" 
-					  height="100%">
+					  width="100%" >
 		<views:LoadingBar id="progressBar" horizontalCenter="0" verticalCenter="0" width="50%" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	

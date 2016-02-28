@@ -11,14 +11,20 @@ Meteor.methods({
   // requesterUserId: the userId of the requester
   // requesterToken: the authToken of the requester
   listenOnlyRequestToggle(meetingId, userId, authToken, isJoining) {
-    let message, ref, ref1, username, voiceConf;
-    voiceConf = (ref = Meteor.Meetings.findOne({
+    let message, userObject, username, voiceConf, meetingObject;
+    meetingObject = Meteor.Meetings.findOne({
       meetingId: meetingId
-    })) != null ? ref.voiceConf : void 0;
-    username = (ref1 = Meteor.Users.findOne({
+    });
+    if(meetingObject != null) {
+      voiceConf = meetingObject.voiceConf;
+    }
+    userObject = Meteor.Users.findOne({
       meetingId: meetingId,
       userId: userId
-    })) != null ? ref1.user.name : void 0;
+    });
+    if(userObject != null) {
+      username = userObject.user.name;
+    }
     if(isJoining) {
       if(isAllowedTo('joinListenOnly', meetingId, userId, authToken)) {
         message = {
@@ -229,7 +235,7 @@ this.markUserOffline = function(meetingId, userId, callback) {
     meetingId: meetingId,
     userId: userId
   });
-  if((user != null ? user.clientType : void 0) === "HTML5") {
+  if(user != null && user.clientType === "HTML5") {
     Meteor.log.info(`marking html5 user [${userId}] as offline in meeting[${meetingId}]`);
     return Meteor.Users.update({
       meetingId: meetingId,
@@ -246,11 +252,11 @@ this.markUserOffline = function(meetingId, userId, callback) {
     }, (err, numChanged) => {
       let funct;
       if(err != null) {
-        Meteor.log.error(`_unsucc update (mark as offline) of user ${user != null ? user.user.name : void 0} ${userId} err=${JSON.stringify(err)}`);
+        Meteor.log.error(`_unsucc update (mark as offline) of user ${user.user.name} ${userId} err=${JSON.stringify(err)}`);
         return callback();
       } else {
         funct = function(cbk) {
-          Meteor.log.info(`_marking as offline html5 user ${user != null ? user.user.name : void 0} ${userId}  numChanged=${numChanged}`);
+          Meteor.log.info(`_marking as offline html5 user ${user.user.name} ${userId}  numChanged=${numChanged}`);
           return cbk();
         };
         return funct(callback);
@@ -280,14 +286,17 @@ this.markUserOffline = function(meetingId, userId, callback) {
 // After authorization, publish a user_leaving_request in redis
 // params: meetingid, userid as defined in BBB-App
 this.requestUserLeaving = function(meetingId, userId) {
-  let listenOnlyMessage, message, ref, userObject, voiceConf;
+  let listenOnlyMessage, message, userObject, meetingObject, voiceConf;
   userObject = Meteor.Users.findOne({
     'meetingId': meetingId,
     'userId': userId
   });
-  voiceConf = (ref = Meteor.Meetings.findOne({
+  meetingObject = Meteor.Meetings.findOne({
     meetingId: meetingId
-  })) != null ? ref.voiceConf : void 0;
+  });
+  if(meetingObject != null) {
+    voiceConf = meetingObject.voiceConf;
+  }
   if((userObject != null) && (voiceConf != null) && (userId != null) && (meetingId != null)) {
 
     // end listenOnly audio for the departing user
@@ -327,11 +336,11 @@ this.requestUserLeaving = function(meetingId, userId) {
 
 //update a voiceUser - a helper method
 this.updateVoiceUser = function(meetingId, voiceUserObject, callback) {
-  let u;
-  u = Meteor.Users.findOne({
+  let userObject;
+  userObject = Meteor.Users.findOne({
     userId: voiceUserObject.web_userid
   });
-  if(u != null) {
+  if(userObject != null) {
     if(voiceUserObject.talking != null) {
       Meteor.Users.update({
         meetingId: meetingId,
@@ -416,9 +425,9 @@ this.updateVoiceUser = function(meetingId, voiceUserObject, callback) {
 };
 
 this.userJoined = function(meetingId, user, callback) {
-  let ref, ref1, u, userId, welcomeMessage;
+  let userObject, userId, welcomeMessage, meetingObject;
   userId = user.userid;
-  u = Meteor.Users.findOne({
+  userObject = Meteor.Users.findOne({
     userId: user.userid,
     meetingId: meetingId
   });
@@ -426,7 +435,7 @@ this.userJoined = function(meetingId, user, callback) {
   // because the user is reconnecting OR
   // in the case of an html5 client user we added a dummy user on
   // register_user_message (to save authToken)
-  if((u != null) && (u.authToken != null)) {
+  if(userObject != null && userObject.authToken != null) {
     Meteor.Users.update({
       userId: user.userid,
       meetingId: meetingId
@@ -467,15 +476,18 @@ this.userJoined = function(meetingId, user, callback) {
         return callback();
       } else {
         funct = function(cbk) {
-          Meteor.log.info(`_(case1) UPDATING USER ${user.userid}, authToken= ${u.authToken}, locked=${user.locked}, username=${user.name}`);
+          Meteor.log.info(`_(case1) UPDATING USER ${user.userid}, authToken= ${userObject.authToken}, locked=${user.locked}, username=${user.name}`);
           return cbk();
         };
         return funct(callback);
       }
     });
-    welcomeMessage = Meteor.config.defaultWelcomeMessage.replace(/%%CONFNAME%%/, (ref = Meteor.Meetings.findOne({
+    meetingObject = Meteor.Meetings.findOne({
       meetingId: meetingId
-    })) != null ? ref.meetingName : void 0);
+    });
+    if(meetingObject != null) {
+      welcomeMessage = Meteor.config.defaultWelcomeMessage.replace(/%%CONFNAME%%/, meetingObject.meetingName);
+    }
     welcomeMessage = welcomeMessage + Meteor.config.defaultWelcomeMessageFooter;
     // add the welcome message if it's not there already OR update time_of_joining
     return Meteor.Chat.upsert({
@@ -493,7 +505,7 @@ this.userJoined = function(meetingId, user, callback) {
         to_userid: userId,
         from_userid: 'SYSTEM_MESSAGE',
         from_username: '',
-        from_time: (ref1 = user.timeOfJoining) != null ? ref1.toString() : void 0
+        from_time: (user != null && user.timeOfJoining != null) ? user.timeOfJoining.toString() : void 0
       }
     }, err => {
       if(err != null) {
@@ -585,32 +597,33 @@ this.createDummyUser = function(meetingId, userId, authToken) {
 // all viewers that are in the audio bridge with a mic should be muted and locked
 this.handleLockingMic = function(meetingId, newSettings) {
   // send mute requests for the viewer users joined with mic
-  let i, len, ref, ref1, results, u;
-  ref1 = (ref = Meteor.Users.find({
+  let i, results, userObject;
+  userObjects = Meteor.Users.find({
     meetingId: meetingId,
     'user.role': 'VIEWER',
     'user.listenOnly': false,
     'user.locked': true,
     'user.voiceUser.joined': true,
     'user.voiceUser.muted': false
-  })) != null ? ref.fetch() : void 0;
+  }).fetch();
+
+  _userObjects_length = userObjects.length;
   results = [];
-  for(i = 0, len = ref1.length; i < len; i++) {
-    u = ref1[i];
-    // Meteor.log.info u.user.name #
-    results.push(Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true)); //true for muted
+  for(i = 0; i < _userObjects_length; i++) {
+    userObject = userObjects[i];
+    results.push(Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId, userObject.authToken, true)); //true for muted
   }
   return results;
 };
 
 // change the locked status of a user (lock settings)
 this.setUserLockedStatus = function(meetingId, userId, isLocked) {
-  let u;
-  u = Meteor.Users.findOne({
+  let userObject;
+  userObject = Meteor.Users.findOne({
     meetingId: meetingId,
     userId: userId
   });
-  if(u != null) {
+  if(userObject != null) {
     Meteor.Users.update({
       userId: userId,
       meetingId: meetingId
@@ -626,8 +639,8 @@ this.setUserLockedStatus = function(meetingId, userId, isLocked) {
       }
     });
     // if the user is sharing audio, he should be muted upon locking involving disableMic
-    if(u.user.role === 'VIEWER' && !u.user.listenOnly && u.user.voiceUser.joined && !u.user.voiceUser.muted && isLocked) {
-      return Meteor.call('muteUser', meetingId, u.userId, u.userId, u.authToken, true); //true for muted
+    if(userObject.user.role === 'VIEWER' && !userObject.user.listenOnly && userObject.user.voiceUser.joined && !userObject.user.voiceUser.muted && isLocked) {
+      return Meteor.call('muteUser', meetingId, userObject.userId, userObject.userId, userObject.authToken, true); //true for muted
     }
   } else {
     return Meteor.log.error(`(unsuccessful-no such user) setting user locked status for userid:[${userId}] from [${meetingId}] locked=${isLocked}`);

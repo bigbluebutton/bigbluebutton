@@ -70,6 +70,7 @@ mark_for_rebuild() {
 	for type in $TYPES; do
 		rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
 		rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+		rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
 	done
 
 	# Restart processing at the 'archived' step
@@ -92,6 +93,7 @@ mark_for_republish() {
 	for type in $TYPES; do
 		rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
 		rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+		rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID
 	done
 
 	# Restart processing at the 'processed' step
@@ -359,6 +361,7 @@ if [ $DELETE ]; then
   for type in $TYPES; do
     rm -rf /var/bigbluebutton/published/$type/$MEETING_ID*
     rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID*
+	rm -rf /var/bigbluebutton/deleted/$type/$MEETING_ID*
 
     rm -rf /var/bigbluebutton/recording/process/$type/$MEETING_ID*
     rm -rf /var/bigbluebutton/recording/publish/$type/$MEETING_ID*
@@ -386,6 +389,7 @@ if [ $DELETEALL ]; then
   for type in $TYPES; do
     rm -rf /var/bigbluebutton/published/$type/*
     rm -rf /var/bigbluebutton/unpublished/$type/*
+    rm -rf /var/bigbluebutton/deleted/$type/*
 
     rm -rf /var/bigbluebutton/recording/process/$type/*
     rm -rf /var/bigbluebutton/recording/publish/$type/*

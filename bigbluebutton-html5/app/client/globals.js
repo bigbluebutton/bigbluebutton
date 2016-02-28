@@ -80,7 +80,7 @@ Handlebars.registerHelper("getCurrentMeeting", () => {
 
 Handlebars.registerHelper("getCurrentSlide", () => {
   let result;
-  result = BBB.getCurrentSlide("helper getCurrentSlide");
+  result = BBB.getCurrentSlide();
   // console.log "result=#{JSON.stringify result}"
   return result;
 });
@@ -96,7 +96,7 @@ Handlebars.registerHelper("getMeetingName", () => {
 
 Handlebars.registerHelper("getShapesForSlide", () => {
   let currentSlide, ref;
-  currentSlide = BBB.getCurrentSlide("helper getShapesForSlide");
+  currentSlide = BBB.getCurrentSlide();
 
   // try to reuse the lines above
   return Meteor.Shapes.find({
@@ -116,7 +116,7 @@ Handlebars.registerHelper("getUsersInMeeting", () => {
 });
 
 Handlebars.registerHelper("getWhiteboardTitle", () => {
-  return BBB.currentPresentationName() || "Loading presentation...";
+  return BBB.currentPresentationName() || "No active presentation";
 });
 
 Handlebars.registerHelper("getCurrentUserEmojiStatus", () => {

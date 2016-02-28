@@ -90,10 +90,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				openChatBoxFor(PUBLIC_CHAT_USERID, true);
 				makePublicChatUncloseable();
 				
-				if (chatOptions.privateEnabled) {
-					createAddTabBox();
-					makeAddPrivateChatUncloseable();
-				}
+				createAddTabBox();
+				makeAddPrivateChatUncloseable();
 				
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
 				
