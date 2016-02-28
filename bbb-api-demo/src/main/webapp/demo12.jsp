@@ -160,7 +160,7 @@ Author: Jesus Federico <jesus@123it.ca>
 
 	//Set skin
 	Element skinElement = (Element)  doc.getElementsByTagName("skinning").item(0);
-	skinElement.setAttribute("url", "http://" + getBigBlueButtonIP() + "/client/branding/css/" + param_Skin + ".css.swf" );
+	skinElement.setAttribute("url", "https://" + getBigBlueButtonIP() + "/client/branding/css/" + param_Skin + ".css.swf" );
 
 	//Set layout
 	Element layoutElement = (Element)  doc.getElementsByTagName("layout").item(0);
@@ -210,7 +210,7 @@ Author: Jesus Federico <jesus@123it.ca>
 		String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
 		String joinURL = getJoinURLwithDynamicConfigXML(username, confname, configXML);
 
-		if (joinURL.startsWith("http://")) { 
+		if (joinURL.startsWith("https://") || joinURL.startsWith("https://")) { 
 %>
             <h2>Customized sessions using a dynamic config.xml, submit</h2>
 
