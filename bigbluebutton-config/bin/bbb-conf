@@ -753,7 +753,7 @@ check_configuration() {
 			echo 
 		fi
 
-		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
+		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]*:\/\///;s/\/.*//;p}' | tr -d '\015')
 		if [ "$IP" != "$API_IP" ]; then
 			echo "# Warning: API URL IPs do not match host:"
 			echo "#"
