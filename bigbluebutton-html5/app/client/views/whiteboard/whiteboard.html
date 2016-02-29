@@ -17,7 +17,7 @@
         </button>
         {{#each emojiIcons}}
           <button type="submit" value={{name}} class="{{name}}EmojiButton {{#if equals getCurrentUserEmojiStatus name}}activeEmojiButton{{else}}inactiveEmojiButton{{/if}}">
-            {{> icon name=icon size="50"}}
+            {{> icon name=icon size="50" title=title}}
           </button>
         {{/each}}
       </div>

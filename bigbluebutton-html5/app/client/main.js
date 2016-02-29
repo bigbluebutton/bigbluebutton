@@ -334,3 +334,12 @@ Template.main.gestures({
 Template.makeButton.rendered = function() {
   return $('button[rel=tooltip]').tooltip();
 };
+
+Template.icon.helpers({
+  regularIcon(iconName) {
+    var regularIcons = ['ion-thumbsup', 'ion-thumbsdown', 'ion-ios-fastforward',
+      'ion-ios-rewind', 'ion-volume-high', 'ion-volume-low', 'ion-android-hand'];
+
+    return regularIcons.indexOf(iconName) >= 0;
+  }
+});
