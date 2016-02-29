@@ -310,6 +310,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function onToolbarEffectEnd():void {
 				_showToolbar = showToolbarOpt && (toolbar.height > 0);
+				calculateCanvasHeight();
 			}
 
 			private function set showFooter(visible:Boolean):void {
@@ -339,6 +340,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private function onControlBarEffectEnd():void {
 				_showFooter = showFooterOpt && (controlBar.height > 0);
+				calculateCanvasHeight();
 			}
 
 			private function onHideToolbarsTimerComplete(event:TimerEvent):void {
@@ -378,8 +380,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			//             https://github.com/bigbluebutton/bigbluebutton/issues/2437
 			private function calculateCanvasHeight():void {
 				var screenRect:Rectangle = systemManager.screen;
-				mdiCanvas.height = screenRect.height - footerHeight - toolbarHeight - 12;
-				onCanvasResize();
+				mdiCanvas.height = screenRect.height - (_showFooter? footerHeight: 0) - (_showToolbar? toolbarHeight: 0);
+				updateCanvasBackgroundDimensions();
 			}
 			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
@@ -873,9 +875,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (toolbarHeight != 0) {
 					toolbarHeight = Math.max(DEFAULT_TOOLBAR_HEIGHT, toolbar.logo.height + 10);
 				}
+				calculateCanvasHeight();
 			}
 
-			private function onCanvasResize():void {
+			private function updateCanvasBackgroundDimensions():void {
 				if (canvasBackground == null) {
 					return;
 				}
@@ -905,7 +908,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						canvasBackgroundAspectRatio = width / height;
 						backgroundPlaceHolder.rawChildren.addChild(canvasBackground);
 						backgroundPlaceHolder.invalidateDisplayList();
-						onCanvasResize();
+						updateCanvasBackgroundDimensions();
 					});
 				}
 			}
