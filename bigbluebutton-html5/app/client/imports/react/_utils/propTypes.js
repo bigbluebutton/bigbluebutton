@@ -1,4 +1,4 @@
-CustomPropTypes = {};
+var CustomPropTypes = {};
 
 CustomPropTypes.elementType = function(props, propName, componentName) {
   const errBeginning = `Invalid prop '${propName}' of value '${props[propName]}'` +
@@ -14,4 +14,6 @@ CustomPropTypes.elementType = function(props, propName, componentName) {
         ' such as a tag name or return value of React.createClass(...)');
     }
   }
-}
+};
+
+export default CustomPropTypes;

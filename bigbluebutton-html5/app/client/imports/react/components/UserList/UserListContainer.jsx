@@ -1,3 +1,5 @@
+import {UserList} from './UserList.jsx'
+
 /* This should be somewhere else, the question is, where should it be. */
 let shouldUserBeLocked = function(userId) {
   let lockInAction, locked, meeting, settings;
@@ -43,7 +45,7 @@ let muteUser = function(){
 
 /*------------------------------*/
 
-UserListContainer = React.createClass({
+export let UserListContainer = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
     const currentUser = BBB.getCurrentUser();
