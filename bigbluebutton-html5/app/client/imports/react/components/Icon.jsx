@@ -1,8 +1,9 @@
 import classNames from 'classnames';
+import {Tooltip} from './Tooltip.jsx'
 
 const { PropTypes } = React;
 
-Icon = React.createClass({
+export let Icon = React.createClass({
   propTypes: {
     iconName: PropTypes.string.isRequired
   },

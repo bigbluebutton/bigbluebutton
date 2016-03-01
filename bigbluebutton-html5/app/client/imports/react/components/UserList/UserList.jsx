@@ -1,4 +1,6 @@
-UserList = React.createClass({
+import {UserListItem} from './UserListItem.jsx'
+
+export let UserList = React.createClass({
   render() {
     return (
       <table className="user-list">

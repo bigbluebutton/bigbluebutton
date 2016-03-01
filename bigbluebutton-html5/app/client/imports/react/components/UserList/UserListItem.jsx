@@ -1,6 +1,9 @@
+import {Button} from '../Button.jsx'
+import {Icon} from '../Icon.jsx'
+import {Tooltip} from '../Tooltip.jsx'
 import classNames from 'classnames';
 
-UserListItem = React.createClass({
+export let UserListItem = React.createClass({
 
   handleKick(user) {
     return user.actions.kick(user);

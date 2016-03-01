@@ -1,9 +1,11 @@
+import {default as CustomPropTypes} from '../_utils/propTypes.js';
+
 const { PropTypes } = React;
 const TYPES = [
   'button', 'reset', 'submit'
 ];
 
-Button = React.createClass({
+export let Button = React.createClass({
   propTypes: {
     disabled: PropTypes.bool,
 

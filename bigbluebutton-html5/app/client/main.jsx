@@ -1,3 +1,5 @@
+import {UserListContainer} from './imports/react/components/UserList/UserListContainer.jsx'
+
 let loadLib;
 
 // Helper to load javascript libraries from the BBB server
