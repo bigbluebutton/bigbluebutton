@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 UserListItem = React.createClass({
 
   handleKick(user) {
