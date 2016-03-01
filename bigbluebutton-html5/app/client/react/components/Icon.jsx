@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+
 const { PropTypes } = React;
 
 Icon = React.createClass({
