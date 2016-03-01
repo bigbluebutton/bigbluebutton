@@ -1,4 +1,4 @@
-import {default as CustomPropTypes} from '../_utils/propTypes.js';
+import CustomPropTypes from '../utils/propTypes.js';
 const { PropTypes } = React;
 
 export let Tooltip = React.createClass({
