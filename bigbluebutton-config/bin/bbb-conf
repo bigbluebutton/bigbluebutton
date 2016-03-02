@@ -50,6 +50,7 @@
 #   2014-03-10 GUG  Enable Webrtc
 #   2015-03-12 FFD  Added start/stop of HTML5 server
 #   2016-01-13 FFD  Updates for 1.0
+#   2016-02-28 FFD  Updates to support HTTPS configuration
 
 #set -x
 #set -e
@@ -511,29 +512,14 @@ while [ $# -gt 0 ]; do
 		continue
 	fi		
 	
-	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" ]; then
+	if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" -o "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
 		SALT="${2}"
 		if [ -z "$SALT" ]; then
-			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+			BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
 			echo
-			echo "       URL: http://$BBB_WEB/bigbluebutton/"
+			echo "       URL: $BBB_WEB_URL/bigbluebutton/"
 			echo "      Salt: $SALT"
-			echo
-			exit 0
-		fi
-		shift; shift
-		continue
-	fi
-
-	if [ "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
-		SALT="${2}"
-		if [ -z "$SALT" ]; then
-			BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-			SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | grep securitySalt | cut -d= -f2);
-			echo
-			echo "       URL: http://$BBB_WEB/bigbluebutton/"
-			echo "    Secret: $SALT"
 			echo
 			exit 0
 		fi
@@ -767,7 +753,7 @@ check_configuration() {
 			echo 
 		fi
 
-		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http[s]*:\/\///;s/\/.*//;p}' | tr -d '\015')
 		if [ "$IP" != "$API_IP" ]; then
 			echo "# Warning: API URL IPs do not match host:"
 			echo "#"
@@ -1213,10 +1199,10 @@ check_state() {
 
 	
 	if [ -f ${SERVLET_DIR}/demo/demo1.jsp ]; then
-		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+                BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
-		echo "#    http://$BBB_WEB/"
+		echo "#    $BBB_WEB_URL/demo/demo1.jsp"
 		echo "#"
 		echo "# These API demos allow anyone to access your server without authentication"
 		echo "# to create/manage meetings and recordings. They are for testing purposes only."
@@ -1228,9 +1214,10 @@ check_state() {
 
 	if [ -f /var/www/bigbluebutton/check/conf/config.xml ]; then
 		CHECK_HOST=$(cat /var/www/bigbluebutton/check/conf/config.xml  | grep "<uri>rtmp" | head -1 | sed  's/.*rtmp[s]*:\/\///g' | sed 's/\/.*//g' | tr -d '\015')
+                BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
 		echo "# Warning: The client self check is installed and accessible from:"
 		echo "#"
-		echo "#    http://$CHECK_HOST/check"
+		echo "#    $BBB_WEB_URL/check"
 		echo "#"
 		echo 
 
@@ -1292,7 +1279,7 @@ if [ $CHECK ]; then
 	need_root
 	
 	echo 
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb  | sed -n '/[0-9].[0-9].[0-9]-1ubuntu/{s/.*ubuntu//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-demo | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-1ubuntu/{s/.*ubuntu//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
 	echo "                    Kernel version:" `uname -r`
 
 	if [ -e /etc/lsb-release ]; then
@@ -1345,10 +1332,10 @@ if [ $CHECK ]; then
 	echo "                      bbb-web host: $BBB_WEB_IP"
 
 	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
-		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | grep -v '^//' | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		BBB_WEB_URL=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 		echo
 		echo "${SERVLET_DIR}/demo/bbb_api_conf.jsp (API demos)"
-		echo "                           api url: $API_IP"
+		echo "                               url: $BBB_WEB_URL"
 	fi
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
@@ -1539,7 +1526,7 @@ if [ -n "$HOST" ]; then
 	#
 	# Update configuration for BigBlueButton client
 	#
-	echo "Assigning $HOST for http:// in /var/www/bigbluebutton/client/conf/config.xml"
+	echo "Assigning $HOST for http[s]:// in /var/www/bigbluebutton/client/conf/config.xml"
 	sudo sed -i "s/http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/$PROTOCOL_HTTP:\/\/$HOST\2/g"  /var/www/bigbluebutton/client/conf/config.xml
 
         echo "Assigning $HOST for publishURI in /var/www/bigbluebutton/client/conf/config.xml"
@@ -1553,7 +1540,7 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/bigbluebutton.web.serverURL=http[s]*:\/\/.*/bigbluebutton.web.serverURL=$PROTOCOL_HTTP:\/\/$HOST/g" \
 				${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
-    # 3 paramenter: the file, the variable name, the new value
+	# 3 paramenter: the file, the variable name, the new value
 	# echo "Assigning $HOST for FreeSWITCH Event Socket Layer URL in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
 	# change_var_ip /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties esl.host $HOST
 
@@ -1576,7 +1563,10 @@ if [ -n "$HOST" ]; then
 
 	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
 		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
+		# We don't wat to guess on http/https as the lti endpoint may be a different BigBlueButton server
         	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+        	sed -i "s/bigbluebuttonURL=https:\/\/.*/bigbluebuttonURL=https:\/\/$HOST\/bigbluebutton/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
         	sed -i "s/ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
                 	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
@@ -1591,12 +1581,16 @@ if [ -n "$HOST" ]; then
         echo -n "Assigning $HOST for playback of recordings: "
         for metadata in $(find /var/bigbluebutton/published -name metadata.xml); do
                 echo -n "."
+		# Ensure we update both types of URLs
                 sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
+                sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/https:\/\/$HOST\/playback\/$type\2/g}" $metadata
         done
 
         for metadata in $(find /var/bigbluebutton/unpublished -name metadata.xml); do
                 echo -n "."
+		# Ensure we update both types of URLs
                 sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
+                sed -i "/<link>/{s/https:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/https:\/\/$HOST\/playback\/$type\2/g}" $metadata
         done
 	echo 
 

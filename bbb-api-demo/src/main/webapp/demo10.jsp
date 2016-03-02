@@ -265,7 +265,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		//
 		String welcomeMsg = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(you can mute yourself in the Listeners window)</b>.<br><br>This meeting is being recorded.";
 		String joinURL = getJoinURL(username, meetingID, "true", welcomeMsg, metadata, null);
-		if (joinURL.startsWith("http://")) {
+		if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
 <script language="javascript" type="text/javascript">
   window.location.href="<%=joinURL%>";
