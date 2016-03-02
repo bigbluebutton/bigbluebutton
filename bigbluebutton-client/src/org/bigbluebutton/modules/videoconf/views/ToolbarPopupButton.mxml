@@ -36,6 +36,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
 	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="lockSettingsChanged" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -55,6 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopShareCameraRequestEvent;
@@ -78,6 +80,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var dispatcher:Dispatcher;
 
 			public function lockSettingsChanged(e:*):void{
+				updateButton();
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				updateButton();
+			}
+
+			private function updateButton():void {
 				var userManager:UserManager = UserManager.getInstance();
 				var conference:Conference = userManager.getConference();
 				var me:BBBUser = conference.getMyUser();

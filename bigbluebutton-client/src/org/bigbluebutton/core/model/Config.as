@@ -86,9 +86,17 @@ package org.bigbluebutton.core.model
 			return new XML(config.browserVersions.toXMLString());
 		}
 
-	    public function get layout():XML {
-	      return new XML(config.layout.toXMLString());
-	    }
+		public function get branding():Object{
+			var a:Object = new Object();
+			a.copyright = config.branding.@copyright;
+			a.logo = config.branding.@logo;
+			a.background = config.branding.@background;
+			return a
+		}
+
+    public function get layout():XML {
+      return new XML(config.layout.toXMLString());
+    }
     	
 		public function get meeting():XML {
 			return new XML(config.meeting.toXMLString());

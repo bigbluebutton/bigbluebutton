@@ -7,12 +7,14 @@ package org.bigbluebutton.modules.present.services.messages
     private var _name:String;
     private var _current:Boolean = false;
     private var _pages:ArrayCollection;
+    private var _downloadable:Boolean = false;
     
-    public function PresentationVO(id: String, name: String, current: Boolean, pages: ArrayCollection) {
+    public function PresentationVO(id: String, name: String, current: Boolean, pages: ArrayCollection, downloadable: Boolean) {
       _id = id;
       _name = name;
       _current = current;
       _pages = pages
+      _downloadable = downloadable;
     }
     
     public function get id():String {
@@ -35,6 +37,10 @@ package org.bigbluebutton.modules.present.services.messages
       }
       
       return pages;
+    }
+
+    public function get downloadable():Boolean {
+      return _downloadable;
     }
   }
 }

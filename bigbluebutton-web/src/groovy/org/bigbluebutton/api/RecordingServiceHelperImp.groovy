@@ -65,6 +65,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             builder.published(info.isPublished())
             builder.start_time(info.getStartTime())
             builder.end_time(info.getEndTime())
+            builder.raw_size(info.getRawSize())
             if ( info.getPlaybackFormat() == null ) {
                 builder.playback()
             } else {
@@ -72,7 +73,18 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                     builder.format(info.getPlaybackFormat())
                     builder.link(info.getPlaybackLink())
                     builder.duration(info.getPlaybackDuration())
+                    builder.duration(info.getPlaybackSize())
                     builder.extension(info.getPlaybackExtensions())
+                }
+            }
+            if ( info.getDownloadFormat() == null ) {
+                builder.download()
+            } else {
+                builder.download {
+                    builder.format(info.getDownloadFormat())
+                    builder.link(info.getDownloadLink())
+                    builder.md5(info.getDownloadMd5())
+                    builder.key(info.getDownloadKey())
                 }
             }
             Map<String,String> metainfo = info.getMetadata();
@@ -110,10 +122,12 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         r.setPublished(Boolean.parseBoolean(rec.published.text()));
         r.setStartTime(rec.start_time.text());
         r.setEndTime(rec.end_time.text());
+        r.setRawSize(rec.raw_size.text());
         if ( !rec.playback.text().equals("") ) {
             r.setPlaybackFormat(rec.playback.format.text());
             r.setPlaybackLink(rec.playback.link.text());
             r.setPlaybackDuration(rec.playback.duration.text());
+            r.setPlaybackSize(rec.playback.size.text());
         }
 
 /*
@@ -121,6 +135,13 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
         OOM in tomcat7 (ralam july 23, 2015)
         r.setPlaybackExtensions(rec.playback.extension.children());
 */		
+        if ( !rec.download.text().equals("") ) {
+            r.setDownloadFormat(rec.download.format.text());
+            r.setDownloadLink(rec.download.link.text());
+            r.setDownloadMd5(rec.download.md5.text());
+            r.setDownloadKey(rec.download.key.text());
+            r.setDownloadSize(rec.download.size.text());
+        }
         Map<String, String> meta = new HashMap<String, String>();
         rec.meta.children().each { anode ->
             meta.put(anode.name().toString(), anode.text().toString());

@@ -74,11 +74,12 @@ public class ParamsProcessorUtil {
     private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
         String welcomeMessage = message;
 
+	    String SERVER_URL = "%%SERVERURL%%";
         String DIAL_NUM = "%%DIALNUM%%";
         String CONF_NUM = "%%CONFNUM%%";
         String CONF_NAME = "%%CONFNAME%%";
         ArrayList<String> keywordList = new ArrayList<String>();
-        keywordList.add(DIAL_NUM);keywordList.add(CONF_NUM);keywordList.add(CONF_NAME);
+        keywordList.add(DIAL_NUM);keywordList.add(CONF_NUM);keywordList.add(CONF_NAME);keywordList.add(SERVER_URL);
 
         Iterator<String> itr = keywordList.iterator();
         while(itr.hasNext()) {
@@ -89,6 +90,8 @@ public class ParamsProcessorUtil {
                 welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
             } else if (keyword.equals(CONF_NAME)) {
                 welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
+            } else if (keyword.equals(SERVER_URL)) {
+                welcomeMessage = welcomeMessage.replaceAll(SERVER_URL, defaultServerUrl);
             }
         }
         return  welcomeMessage;

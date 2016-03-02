@@ -28,5 +28,6 @@ package org.bigbluebutton.main.model
 		public var role:String;
 		public var isPresenter:Boolean;
 		public var authToken:String;
+		public var guest:Boolean;
 	}
 }

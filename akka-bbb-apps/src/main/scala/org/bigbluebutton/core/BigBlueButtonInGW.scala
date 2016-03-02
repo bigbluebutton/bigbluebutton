@@ -83,9 +83,9 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new ValidateAuthToken(meetingId, userId, token, correlationId, sessionId)
   }
 
-  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String): Unit = {
+  def registerUser(meetingID: String, userID: String, name: String, role: String, extUserID: String, authToken: String, guest: java.lang.Boolean): Unit = {
     val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
-    bbbActor ! new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken)
+    bbbActor ! new RegisterUser(meetingID, userID, name, userRole, extUserID, authToken, guest)
   }
 
   def sendLockSettings(meetingID: String, userId: String, settings: java.util.Map[String, java.lang.Boolean]) {
@@ -178,6 +178,11 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new ChangeUserStatus(meetingID, userID, status, value)
   }
 
+  def setUserRole(meetingID: String, userID: String, role: String) {
+    val userRole = if (role == "MODERATOR") Role.MODERATOR else Role.VIEWER
+    bbbActor ! new ChangeUserRole(meetingID, userID, userRole)
+  }
+
   def getUsers(meetingID: String, requesterID: String) {
     bbbActor ! new GetUsers(meetingID, requesterID)
   }
@@ -208,6 +213,31 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     // we are required to pass the meeting_id as first parameter (just to satisfy trait)
     // but it's not used anywhere. That's why we pass voiceConf twice instead
     bbbActor ! new UserDisconnectedFromGlobalAudio(voiceConf, voiceConf, userid, name)
+  }
+
+  /**
+   * ***********************************************************************
+   * Message Interface for Guest
+   * *******************************************************************
+   */
+
+  def getGuestPolicy(meetingID: String, requesterID: String) {
+    bbbActor ! new GetGuestPolicy(meetingID, requesterID)
+  }
+
+  def setGuestPolicy(meetingID: String, guestPolicy: String, setBy: String) {
+    val policy = guestPolicy.toUpperCase() match {
+      case "ALWAYS_ACCEPT" => GuestPolicy.ALWAYS_ACCEPT
+      case "ALWAYS_DENY" => GuestPolicy.ALWAYS_DENY
+      case "ASK_MODERATOR" => GuestPolicy.ASK_MODERATOR
+      //default
+      case undef => GuestPolicy.ASK_MODERATOR
+    }
+    bbbActor ! new SetGuestPolicy(meetingID, policy, setBy)
+  }
+
+  def responseToGuest(meetingID: String, userId: String, response: java.lang.Boolean, requesterID: String) {
+    bbbActor ! new RespondToGuest(meetingID, userId, response, requesterID)
   }
 
   /**
@@ -254,10 +284,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     pages
   }
 
-  def sendConversionCompleted(messageKey: String, meetingId: String, code: String, presentationId: String, numPages: Int, presName: String, presBaseUrl: String) {
+  def sendConversionCompleted(messageKey: String, meetingId: String, code: String, presentationId: String, numPages: Int, presName: String, presBaseUrl: String, downloadable: Boolean) {
 
     val pages = generatePresentationPages(presentationId, numPages, presBaseUrl)
-    val presentation = new Presentation(id = presentationId, name = presName, pages = pages)
+    val presentation = new Presentation(id = presentationId, name = presName, pages = pages, downloadable = downloadable)
     bbbActor ! new PresentationConversionCompleted(meetingId, messageKey, code, presentation)
 
   }
@@ -462,5 +492,31 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     } else {
       bbbActor ! new HidePollResultRequest(meetingId, requesterId, pollId)
     }
+  }
+
+  /**
+   * *******************************************************************
+   * Message Interface for Shared Notes
+   * *****************************************************************
+   */
+
+  def patchDocument(meetingId: String, userId: String, noteId: String, patch: String) {
+    bbbActor ! new PatchDocumentRequest(meetingId, userId, noteId, patch)
+  }
+
+  def getCurrentDocument(meetingId: String, userId: String) {
+    bbbActor ! new GetCurrentDocumentRequest(meetingId, userId)
+  }
+
+  def createAdditionalNotes(meetingId: String, userId: String, noteName: String) {
+    bbbActor ! new CreateAdditionalNotesRequest(meetingId, userId, noteName)
+  }
+
+  def destroyAdditionalNotes(meetingId: String, userId: String, noteId: String) {
+    bbbActor ! new DestroyAdditionalNotesRequest(meetingId, userId, noteId)
+  }
+
+  def requestAdditionalNotesSet(meetingId: String, userId: String, additionalNotesSetSize: Int) {
+    bbbActor ! new RequestAdditionalNotesSetRequest(meetingId, userId, additionalNotesSetSize)
   }
 }

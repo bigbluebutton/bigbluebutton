@@ -34,11 +34,12 @@ public interface IBigBlueButtonInGW {
 	
 	// Users
 	void validateAuthToken(String meetingId, String userId, String token, String correlationId, String sessionId);
-	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken);
+	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken, Boolean guest);
 	void userEmojiStatus(String meetingId, String userId, String emojiStatus);	
 	void shareWebcam(String meetingId, String userId, String stream);
 	void unshareWebcam(String meetingId, String userId, String stream);
 	void setUserStatus(String meetingID, String userID, String status, Object value);
+	void setUserRole(String meetingID, String userID, String role);
 	void getUsers(String meetingID, String requesterID);
 	void userLeft(String meetingID, String userID, String sessionId);
 	void userJoin(String meetingID, String userID, String authToken);
@@ -48,6 +49,9 @@ public interface IBigBlueButtonInGW {
 	void getRecordingStatus(String meetingId, String userId);
 	void userConnectedToGlobalAudio(String voiceConf, String userid, String name);
 	void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
+	void getGuestPolicy(String meetingID, String userID);
+	void setGuestPolicy(String meetingID, String guestPolicy, String setBy);
+	void responseToGuest(String meetingID, String userID, Boolean response, String requesterID);
 	
 	// Voice
 	void initAudioSettings(String meetingID, String requesterID, Boolean muted);
@@ -89,7 +93,7 @@ public interface IBigBlueButtonInGW {
             int pagesCompleted, String presName);
 	
 	void sendConversionCompleted(String messageKey, String meetingId, 
-            String code, String presId, int numPages, String presName, String presBaseUrl);
+            String code, String presId, int numPages, String presName, String presBaseUrl, boolean downloadable);
 	
 	// Layout
 	void getCurrentLayout(String meetingID, String requesterID);
@@ -111,4 +115,10 @@ public interface IBigBlueButtonInGW {
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
 	
+	// Shared notes
+	void patchDocument(String meetingID, String requesterID, String noteID, String patch);
+	void getCurrentDocument(String meetingID, String requesterID);
+	void createAdditionalNotes(String meetingID, String requesterID, String noteName);
+	void destroyAdditionalNotes(String meetingID, String requesterID, String noteID);
+	void requestAdditionalNotesSet(String meetingID, String requesterID, int additionalNotesSetSize);
 }

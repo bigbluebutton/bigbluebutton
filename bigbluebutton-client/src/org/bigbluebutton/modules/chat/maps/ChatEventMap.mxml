@@ -30,7 +30,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ModuleStartedEvent;
+      import org.bigbluebutton.modules.chat.events.ChatCopyEvent;
       import org.bigbluebutton.modules.chat.events.ChatEvent;
+      import org.bigbluebutton.modules.chat.events.ChatSaveEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
@@ -39,6 +41,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.chat.services.ChatMessageService;
       import org.bigbluebutton.modules.chat.services.MessageReceiver;
       import org.bigbluebutton.modules.chat.services.MessageSender;
+      import org.bigbluebutton.modules.chat.services.ChatCopy;
+      import org.bigbluebutton.modules.chat.services.ChatSaver;
       import org.bigbluebutton.modules.chat.views.ChatView;
       import org.bigbluebutton.modules.chat.views.ChatWindow;
 		]]>
@@ -85,6 +89,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <EventAnnouncer generator="{TranscriptEvent}" type="{TranscriptEvent.LOAD_TRANSCRIPT}"/>
   </EventHandlers>
   
+  <EventHandlers type="{ChatSaveEvent.SAVE_CHAT_EVENT}">
+    <MethodInvoker generator="{ChatSaver}" method="saveChatToFile" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{ChatCopyEvent.COPY_CHAT_EVENT}">
+    <MethodInvoker generator="{ChatCopy}" method="copyAllText" arguments="{event}"/>
+  </EventHandlers>
+
   <Injectors target="{ChatMessageService}">
     <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
     <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>

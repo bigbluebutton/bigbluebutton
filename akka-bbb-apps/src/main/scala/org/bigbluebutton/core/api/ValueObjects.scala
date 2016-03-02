@@ -8,6 +8,13 @@ object Role extends Enumeration {
   val VIEWER = Value("VIEWER")
 }
 
+object GuestPolicy extends Enumeration {
+  type GuestPolicy = Value
+  val ALWAYS_ACCEPT = Value("ALWAYS_ACCEPT")
+  val ALWAYS_DENY = Value("ALWAYS_DENY")
+  val ASK_MODERATOR = Value("ASK_MODERATOR")
+}
+
 case class StatusCode(val code: Int, val text: String)
 object StatusCodes {
   // Borrowed from https://dev.twitter.com/overview/api/response-codes (ralam June 18, 2015)
@@ -69,7 +76,9 @@ case class RegisteredUser(
   externId: String,
   name: String,
   role: Role.Role,
-  authToken: String)
+  authToken: String,
+  guest: Boolean,
+  waitingForAcceptance: Boolean)
 
 case class Voice(
   id: String,
@@ -86,6 +95,8 @@ case class UserVO(
   externUserID: String,
   name: String,
   role: Role.Role,
+  guest: Boolean,
+  waitingForAcceptance: Boolean,
   emojiStatus: String,
   presenter: Boolean,
   hasStream: Boolean,
@@ -116,7 +127,8 @@ case class MeetingConfig(name: String,
   record: Boolean = false,
   duration: MeetingDuration,
   defaultAvatarURL: String,
-  defaultConfigToken: String)
+  defaultConfigToken: String,
+  guestPolicy: GuestPolicy.GuestPolicy = GuestPolicy.ASK_MODERATOR)
 
 case class MeetingName(name: String)
 
@@ -130,3 +142,7 @@ case class MeetingDuration(duration: Int = 0, createdTime: Long = 0,
   startTime: Long = 0, endTime: Long = 0)
 
 case class MeetingInfo(meetingID: String, meetingName: String, recorded: Boolean, voiceBridge: String, duration: Long)
+
+case class Note(
+  name: String,
+  document: String)

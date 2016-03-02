@@ -23,24 +23,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.layout.loadButton.toolTip')}"
-		   icon="{icon_load}"
+		   styleName="loadLayoutButtonStyle"
 		   click="onClick(event)"
 		   enabled="{UserManager.getInstance().getConference().amIModerator()}">
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
-			import org.bigbluebutton.common.Images;
+
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _images:Images = new Images();
-			[Bindable] private var icon_load:Class = _images.folder;
 			
 			private function init():void {
 			}
@@ -49,6 +44,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.LOAD_LAYOUTS_EVENT));
 			}
 			
+			public function refreshRole(amIModerator:Boolean):void {
+				this.enabled = amIModerator;
+			}
 		]]>
 	</mx:Script>
 </views:LayoutButton>

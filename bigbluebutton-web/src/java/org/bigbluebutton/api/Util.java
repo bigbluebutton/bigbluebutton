@@ -27,4 +27,12 @@ public final class Util {
 		}
 		return null;
 	}
+
+	public static File downloadPresentationDirectory(String uploadDirectory) {
+		File dir = new File(uploadDirectory + File.separatorChar + "download");
+		if (dir.mkdirs()) {
+			return dir;
+		}
+		return null;
+	}
 }

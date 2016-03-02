@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.api.domain;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,15 +36,24 @@ public class Recording {
 	private boolean published;
 	private String startTime;
 	private String endTime;
+	private String rawSize;
 	private Map<String, String> metadata = new HashMap<String, String>();
 	private ArrayList<Playback> playbacks=new ArrayList<Playback>();
+	private ArrayList<Download> downloads=new ArrayList<Download>();
 	
 	//TODO: 
 	private String state;
 	private String playbackLink;
 	private String playbackFormat;
 	private String playbackDuration;
+	private String playbackSize;
 	private GPathResult playbackExtensions;
+
+	private String downloadLink;
+	private String downloadFormat;
+	private String downloadMd5;
+	private String downloadKey;
+	private String downloadSize;
 
     public static final String STATE_PROCESSING = "processing";
     public static final String STATE_PROCESSED = "processed";
@@ -98,6 +108,65 @@ public class Recording {
 		this.endTime = convertOldDateFormat(endTime);
 	}
 	
+	public String getSize() {
+		BigInteger size = BigInteger.ZERO;
+		for (Playback p: playbacks) {
+			size = size.add(new BigInteger(p.getSize()));
+		}
+		for (Download p: downloads) {
+			size = size.add(new BigInteger(p.getSize()));
+		}
+		return size.toString();
+	}
+
+	public String getRawSize() {
+		return rawSize;
+	}
+
+	public void setRawSize(String rawSize) {
+		this.rawSize = rawSize;
+	}
+
+	public String getDownloadLink() {
+		return downloadLink;
+	}
+	
+	public void setDownloadLink(String downloadLink) {
+		this.downloadLink = downloadLink;
+	}
+
+	public String getDownloadFormat() {
+		return downloadFormat;
+	}
+	
+	public void setDownloadFormat(String downloadFormat) {
+		this.downloadFormat = downloadFormat;
+	}
+
+	public String getDownloadMd5() {
+		return downloadMd5;
+	}
+	
+	public void setDownloadMd5(String downloadMd5) {
+		this.downloadMd5 = downloadMd5;
+	}
+
+	public String getDownloadKey() {
+		return downloadKey;
+	}
+	
+	public void setDownloadKey(String downloadKey) {
+		this.downloadKey = downloadKey;
+	}
+
+	public String getDownloadSize() {
+		return downloadSize;
+	}
+
+	public void setDownloadSize(String downloadSize) {
+		this.downloadSize = downloadSize;
+	}
+
 	public String getPlaybackLink() {
 		return playbackLink;
 	}
@@ -120,6 +189,14 @@ public class Recording {
 	
 	public void setPlaybackDuration(String playbackDuration) {
 		this.playbackDuration = playbackDuration;
+	}
+
+	public String getPlaybackSize() {
+		return playbackSize;
+	}
+
+	public void setPlaybackSize(String playbackSize) {
+		this.playbackSize = playbackSize;
 	}
 
 	public GPathResult getPlaybackExtensions() {
@@ -152,6 +229,14 @@ public class Recording {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public ArrayList<Download> getDownloads() {
+		return downloads;
+	}
+
+	public void setDownloads(ArrayList<Download> downloads) {
+		this.downloads = downloads;
 	}
 
 	public ArrayList<Playback> getPlaybacks() {

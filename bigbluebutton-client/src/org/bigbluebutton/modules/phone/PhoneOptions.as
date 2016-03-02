@@ -21,6 +21,8 @@ package org.bigbluebutton.modules.phone
 	import org.bigbluebutton.core.BBB;
 	
 	public class PhoneOptions {
+		static public var firstAudioJoin:Boolean = true;
+
     public var uri:String = "unknown";
     
 		[Bindable]
@@ -49,6 +51,12 @@ package org.bigbluebutton.modules.phone
 		
 		[Bindable]
 		public var showPhoneOption:Boolean = false;
+
+		[Bindable]
+		public var showMicrophoneHint:Boolean = true;
+
+		[Bindable]
+		public var forceListenOnly:Boolean = false;
 		
 		public function PhoneOptions() {
 			parseOptions();
@@ -81,11 +89,17 @@ package org.bigbluebutton.modules.phone
 				if (vxml.@listenOnlyMode != undefined) {
 					listenOnlyMode = (vxml.@listenOnlyMode.toString().toUpperCase() == "TRUE");
 				}
+				if (vxml.@forceListenOnly != undefined) {
+					forceListenOnly = (vxml.@forceListenOnly.toString().toUpperCase() == "TRUE");
+				}
 				if (vxml.@presenterShareOnly != undefined) {
 					presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE");
 				}
 				if (vxml.@showPhoneOption != undefined) {
 					showPhoneOption = (vxml.@showPhoneOption.toString().toUpperCase() == "TRUE");
+				}
+				if (vxml.@showMicrophoneHint != undefined) {
+					showMicrophoneHint = (vxml.@showMicrophoneHint.toString().toUpperCase() == "TRUE");
 				}
 			}
 		}		

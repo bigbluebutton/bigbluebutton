@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.present.managers
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
+	import org.bigbluebutton.modules.present.ui.views.FileDownloadWindow;
 	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
 	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 	
@@ -37,6 +38,7 @@ package org.bigbluebutton.modules.present.managers
 	{
 		private var globalDispatcher:Dispatcher;
 		private var uploadWindow:FileUploadWindow;
+		private var downloadWindow:FileDownloadWindow;
 		private var presentWindow:PresentationWindow;
 		
 		public function PresentManager() {
@@ -80,6 +82,24 @@ package org.bigbluebutton.modules.present.managers
 		public function handleCloseUploadWindow():void{
 			PopUpManager.removePopUp(uploadWindow);
 			uploadWindow = null;
+		}
+
+		public function handleOpenDownloadWindow():void {
+			if (downloadWindow != null) return;
+			
+			downloadWindow = FileDownloadWindow(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FileDownloadWindow, true));
+
+			var point1:Point = new Point();
+			point1.x = FlexGlobals.topLevelApplication.width / 2;
+			point1.y = FlexGlobals.topLevelApplication.height / 2;  
+			
+			downloadWindow.x = point1.x - (downloadWindow.width/2);
+			downloadWindow.y = point1.y - (downloadWindow.height/2);
+		}
+
+		public function handleCloseDownloadWindow():void {
+			PopUpManager.removePopUp(downloadWindow);
+			downloadWindow = null;
 		}
 	}
 }

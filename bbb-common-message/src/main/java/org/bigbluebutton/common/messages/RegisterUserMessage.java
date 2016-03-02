@@ -14,14 +14,16 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 	public final String role;
 	public final String externUserID;
 	public final String authToken;
+	public final Boolean guest;
 
-	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken) {
+	public RegisterUserMessage(String meetingID, String internalUserId, String fullname, String role, String externUserID, String authToken, Boolean guest) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
 		this.role = role;
 		this.externUserID = externUserID;
 		this.authToken = authToken;
+		this.guest = guest;
 	}
 
 	public String toJson() {
@@ -33,6 +35,7 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 		payload.put(Constants.ROLE, role);
 		payload.put(Constants.EXT_USER_ID, externUserID);
 		payload.put(Constants.AUTH_TOKEN, authToken);
+		payload.put(Constants.GUEST, guest.toString());
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(REGISTER_USER, VERSION, null);
 
@@ -53,16 +56,18 @@ public class RegisterUserMessage implements IBigBlueButtonMessage {
 							&& payload.has(Constants.NAME)
 							&& payload.has(Constants.ROLE)
 							&& payload.has(Constants.EXT_USER_ID)
-							&& payload.has(Constants.AUTH_TOKEN)) {
+							&& payload.has(Constants.AUTH_TOKEN)
+							&& payload.has(Constants.GUEST)) {
 
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String fullname = payload.get(Constants.NAME).getAsString();
 						String role = payload.get(Constants.ROLE).getAsString();
 						String externUserID = payload.get(Constants.EXT_USER_ID).getAsString();
 						String authToken = payload.get(Constants.AUTH_TOKEN).getAsString();
+						Boolean guest = payload.get(Constants.GUEST).getAsBoolean();
 
 						//use externalUserId twice - once for external, once for internal
-						return new RegisterUserMessage(meetingID, externUserID, fullname, role, externUserID, authToken);
+						return new RegisterUserMessage(meetingID, externUserID, fullname, role, externUserID, authToken, guest);
 					}
 				}
 			}

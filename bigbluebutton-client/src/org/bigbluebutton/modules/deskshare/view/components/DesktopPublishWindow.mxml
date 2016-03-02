@@ -29,7 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	initialize="init()"
 	creationComplete="onCreationComplete()"	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	width="365" height="350"
+	width="326" height="262"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
 	
@@ -72,9 +72,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);      
 
-			public static const SCALE:Number = 5;
-			private static const VID_HEIGHT_PAD:Number = 73;
-			private static const VID_WIDTH_PAD:Number = 6;
+			private const DEFAULT_PREVIEW_WIDTH:int = 320;
+			private const DEFAULT_PREVIEW_HEIGHT:int = 180; // 16x9 aspect ratio
 			
 			private var images:Images = new Images();
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -230,15 +229,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
 				cursor.x = video.x + ((event.x/captureWidth)) * video.width;
 				cursor.y = video.y + ((event.y/captureHeight)) * video.height;
-				cursorImg.visible = true;
 
 				// Do not display cursor if they are outside the capture area.
-                if (cursor.x < video.x) cursor.x = video.x;
-                if (cursor.y < video.y) cursor.y = video.y;
-                if (cursor.x > video.x + video.width) cursor.x = video.x + video.width;
-                if (cursor.y > video.y + video.height) cursor.y = video.y + video.height;
-                cursorImg.x =  cursor.x;
-                cursorImg.y = cursor.y;
+				cursorImg.visible = !(cursor.x < video.x
+						|| cursor.y < video.y
+						|| cursor.x > video.x + video.width
+						|| cursor.y > video.y + video.height);
+				cursorImg.x =  cursor.x;
+				cursorImg.y = cursor.y;
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
@@ -258,35 +256,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Store capture dimensions so we can position cursor properly.
 				captureWidth = capWidth;
 				captureHeight = capHeight;
+				var captureAspectRatio:Number = captureWidth / captureHeight;
+				var videoHolderAspectRatio:Number = DEFAULT_PREVIEW_WIDTH / DEFAULT_PREVIEW_HEIGHT;
 				
 				videoHolder = new UIComponent();
 				
-				var vidW:Number = captureWidth;
-				var vidH:Number = captureHeight;
-				
-				// Don't scale if capture dimension is smaller than window.
-				if((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight < this.height - VID_HEIGHT_PAD)){
-					vidW = this.width - VID_WIDTH_PAD;
-					vidH = (captureHeight / captureWidth) * vidW;
-				}
-				else if( ((captureWidth < this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) 
-				|| ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) ){
-					vidH = this.height - VID_HEIGHT_PAD;
-					vidW = (captureWidth / captureHeight) * vidH;
-				}
-				else{
-					vidW = captureWidth;
-					vidH = captureHeight;
+				var vidW:Number;
+				var vidH:Number;
+				if (captureAspectRatio > videoHolderAspectRatio) {
+					vidW = DEFAULT_PREVIEW_WIDTH;
+					vidH = Math.floor(DEFAULT_PREVIEW_WIDTH / captureAspectRatio);
+				} else {
+					vidH = DEFAULT_PREVIEW_HEIGHT;
+					vidW = Math.floor(DEFAULT_PREVIEW_HEIGHT * captureAspectRatio);
 				}
 
 				LOGGER.debug("deskshare preview[{0},{1}][{2},{3}]", [captureWidth, captureHeight, vidW, vidH]);
 				video = new Video(vidW, vidH);
 				video.width = vidW;
 				video.height = vidH;
-				videoHolder.width = vidW;
-				videoHolder.height = vidH;
-				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
-				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
+				videoHolder.width = DEFAULT_PREVIEW_WIDTH;
+				videoHolder.height = DEFAULT_PREVIEW_HEIGHT;
+				video.x = Math.floor((DEFAULT_PREVIEW_WIDTH - video.width) / 2);
+				video.y = Math.floor((DEFAULT_PREVIEW_HEIGHT - video.height) / 2);
 
 				
 				videoHolder.addChild(video);

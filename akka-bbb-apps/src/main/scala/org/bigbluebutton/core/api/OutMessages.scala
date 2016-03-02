@@ -50,6 +50,7 @@ case class UserListeningOnly(meetingID: String, recorded: Boolean, userID: Strin
 case class UserSharedWebcam(meetingID: String, recorded: Boolean, userID: String, stream: String) extends IOutMessage
 case class UserUnsharedWebcam(meetingID: String, recorded: Boolean, userID: String, stream: String) extends IOutMessage
 case class UserStatusChange(meetingID: String, recorded: Boolean, userID: String, status: String, value: Object) extends IOutMessage
+case class UserRoleChange(meetingID: String, recorded: Boolean, userID: String, role: String) extends IOutMessage
 case class GetUsersInVoiceConference(meetingID: String, recorded: Boolean, voiceConfId: String) extends IOutMessage
 case class MuteVoiceUser(meetingID: String, recorded: Boolean, requesterID: String,
   userId: String, voiceConfId: String, voiceUserId: String, mute: Boolean) extends IOutMessage
@@ -129,6 +130,17 @@ case class UndoWhiteboardEvent(meetingID: String, recorded: Boolean, requesterID
 case class WhiteboardEnabledEvent(meetingID: String, recorded: Boolean, requesterID: String, enable: Boolean) extends IOutMessage
 case class IsWhiteboardEnabledReply(meetingID: String, recorded: Boolean, requesterID: String, enabled: Boolean, replyTo: String) extends IOutMessage
 case class GetAllMeetingsReply(meetings: Array[MeetingInfo]) extends IOutMessage
+
+// Guest
+case class GetGuestPolicyReply(meetingID: String, recorded: Boolean, requesterID: String, policy: String) extends IOutMessage
+case class GuestPolicyChanged(meetingID: String, recorded: Boolean, policy: String) extends IOutMessage
+case class GuestAccessDenied(meetingID: String, recorded: Boolean, userId: String) extends IOutMessage
+
+// Shared Notes
+case class PatchDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, patch: String) extends IOutMessage
+case class GetCurrentDocumentReply(meetingID: String, recorded: Boolean, requesterID: String, notes: Map[String, Note]) extends IOutMessage
+case class CreateAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String, noteName: String) extends IOutMessage
+case class DestroyAdditionalNotesReply(meetingID: String, recorded: Boolean, requesterID: String, noteID: String) extends IOutMessage
 
 // Value Objects
 case class MeetingVO(id: String, recorded: Boolean)

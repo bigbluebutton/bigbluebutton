@@ -38,29 +38,44 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_LOGOUT_BUTTON}" method="focusLogoutButton" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="retrieveMeetingName" />
+	<mate:Listener type="{ConnectionFailedEvent.MODERATOR_DENIED_ME}" method="hideToolbar" />
+	<mate:Listener type="{SettingsComponentEvent.ADD}" method="addSettingsComponent" />
+	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="removeSettingsComponent"/>
   <mate:Listener type="{BBBEvent.CHANGE_RECORDING_STATUS}" method="onRecordingStatusChanged" />
+	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="refreshModeratorButtonsVisibility" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="refreshRole" />
   
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.accessibility.AlertAccImpl;
+			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
+			import mx.core.IToolTip;
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
+			import mx.events.ToolTipEvent;
+			import mx.managers.PopUpManager;
 			
 			import org.as3commons.logging.api.ILogger;
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbToolbarComponent;
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
+			import org.bigbluebutton.main.events.NetworkStatsEvent;
 			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.NetworkStatsData;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -74,9 +89,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			[Bindable] private var showHelpBtn:Boolean = false;
 			[Bindable] private var showToolbar:Boolean = false;
+			[Bindable] private var showGuestSettingsButton:Boolean = false;
+			[Bindable] private var showRecordButton:Boolean = false;
 			[Bindable] public var toolbarOptions:LayoutOptions = new LayoutOptions();		
 			[Bindable] private var numButtons:int;
       
+			[Bindable] private var _bandwidthConsumedUp:String = "-";
+			[Bindable] private var _bandwidthConsumedDown:String = "-";
+			private var _updateBandwidthTimer:Timer = new Timer(1000);
+			private var _bandwidthToolTip:IToolTip;
+
 			/*
 			 * Because of the de-centralized way buttons are added to the toolbar, there is a large gap between the tab indexes of the main buttons
 			 * on the left and the tab indexes of the "other" items on the right (shortcut glossary, language slector, etc). This will make it more
@@ -86,6 +108,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */
 			
 			private var xml:XML;
+			private var settingsComponents:Array = new Array();
+			private var settingsPopup:BBBSettings = null;
 			
 			private function init():void{
 				if (Capabilities.hasAccessibility) {
@@ -99,6 +123,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 timer.addEventListener(TimerEvent.TIMER, checkAccessiblity);
                 timer.start();
 
+				BindingUtils.bindSetter(refreshModeratorButtonsVisibility, UserManager.getInstance().getConference(), "record");
 			}
       
       private function onCreationComplete():void {
@@ -143,6 +168,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				} else {
 					showHelpBtn = false;
 				}
+				if(toolbarOptions.showNetworkMonitor) {
+					initBandwidthToolTip();
+				}
 			}
 			
       private function retrieveMeetingName(e:ConferenceCreatedEvent):void {
@@ -154,6 +182,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                } 
           }
           logFlashPlayerCapabilities();
+      }
+
+      private function refreshModeratorButtonsVisibility(e:*):void {
+          var userLoaded:Boolean = UserManager.getInstance().getConference().getMyUser() != null
+                  && ! UserManager.getInstance().getConference().getMyUser().waitingForAcceptance;
+
+          showGuestSettingsButton = userLoaded && UsersUtil.amIModerator();
+
+          showRecordButton = userLoaded && UserManager.getInstance().getConference().record;
       }
 
       private function getFlashPlayerCapabilities():Object {
@@ -314,6 +351,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function gotConfigParameters(e:ConfigEvent):void{
 				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = e.config.shortcutKeysShowButton; 
 				DEFAULT_HELP_URL = e.config.helpURL;
+
+				if (e.config.logo == "") {
+					hideLogo();
+				} else {
+					logo.source = e.config.logo;
+				}
 			}
 			
 			private function onDisconnectTest():void{
@@ -371,6 +414,61 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
 
+			private function onNetStatsButtonClick(e:Event = null):void {
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(new NetworkStatsEvent(NetworkStatsEvent.OPEN_NETSTATS_WIN));
+			}
+
+			private function initBandwidthToolTip():void {
+				_updateBandwidthTimer.addEventListener(TimerEvent.TIMER, updateBandwidthTimerHandler);
+				_updateBandwidthTimer.start();
+				btnNetwork.addEventListener(ToolTipEvent.TOOL_TIP_SHOW, bwToolTipShowHandler);
+				btnNetwork.addEventListener(ToolTipEvent.TOOL_TIP_END, bwToolTipEndHandler);
+			}
+
+			private function bwToolTipShowHandler(e:ToolTipEvent):void {
+				// The ToolTip must be stored so it's text can be updated
+				_bandwidthToolTip = e.toolTip;
+				updateBwToolTip();
+			}
+
+			private function bwToolTipEndHandler(e:ToolTipEvent):void {
+				_bandwidthToolTip = null;
+			}
+
+			private function updateBandwidthTimerHandler(e:TimerEvent):void {
+				_bandwidthConsumedDown = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
+				_bandwidthConsumedUp = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
+				updateBwToolTip();
+			}
+
+			private function updateBwToolTip():void {
+				if(_bandwidthToolTip) {
+					_bandwidthToolTip.text = ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short') + ": " + _bandwidthConsumedUp +
+						" | " + ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')+": "+_bandwidthConsumedDown;
+				}
+			}
+
+			private function hideLogo():void {
+				logoHolder.visible = logoHolder.includeInLayout = false;
+			}
+
+			private function addSettingsComponent(e:SettingsComponentEvent = null):void {
+				settingsComponents.push(e.component);
+			}
+
+			private function removeSettingsComponent(e:SettingsComponentEvent = null):void {
+				throw("Not implemented");
+			}
+
+			private function onSettingsButtonClick():void {
+				settingsPopup = BBBSettings(PopUpManager.createPopUp(this.parent, BBBSettings, true));
+				settingsPopup.pushComponents(settingsComponents);
+			}
+
+			private function refreshRole(e:ChangeMyRole):void {
+				refreshModeratorButtonsVisibility(null);
+			}
 		]]>
 	</mx:Script>
 	
@@ -379,6 +477,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   tabIndices="{[recordBtn, muteMeBtn, shortcutKeysBtn, helpBtn, btnLogout]}"/>
 
     
+    <mx:HBox id="logoHolder" paddingRight="12" >
+        <mx:Image id="logo" ioError="hideLogo()" />
+    </mx:HBox>
     <mx:HBox id="quickLinks" width="1" includeInLayout="false">
         <mx:LinkButton id="usersLinkBtn" click="onQuickLinkClicked('users')" label="{ResourceUtil.getInstance().getString('bbb.users.quickLink.label')}"
                        accessibilityDescription="{usersLinkBtn.label}" toolTip="{usersLinkBtn.label}"
@@ -394,14 +495,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                        height="22" styleName="quickWindowLinkStyle" />
     </mx:HBox>
 	<mx:HBox id="addedBtns"/>
-	<views:RecordButton id="recordBtn"/>
+	<views:RecordButton id="recordBtn" visible="{showRecordButton}" includeInLayout="{showRecordButton}"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}" includeInLayout="{muteMeBtn.includeInLayout}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20"/>
 	<mx:Label id="meetingNameLbl" width="100%" minWidth="1" styleName="meetingNameLabelStyle" />
 
+	<mx:Button
+			id="bbbSettings"
+			visible="{showGuestSettingsButton}"
+			includeInLayout="{showGuestSettingsButton}"
+			toolTip="{ResourceUtil.getInstance().getString('bbb.settings.btn.toolTip')}"
+			click="onSettingsButtonClick()"
+			styleName="settingsButtonStyle"
+			height="22"
+	/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
+	<mx:Button
+			id="btnNetwork"
+			styleName="bandwidthButtonStyle"
+			toolTip="dummy text"
+			click="onNetStatsButtonClick()"
+			visible="{toolbarOptions.showNetworkMonitor}" />
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"/>

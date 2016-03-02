@@ -35,6 +35,7 @@
 	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mate:Listener type="{MeetingMutedEvent.MEETING_MUTED}" method="handleMeetingMuted" />
 	<mate:Listener type="{LockControlEvent.CHANGED_LOCK_SETTINGS}" method="handleChangedLockSettingsEvent" />
+	<mate:Listener type="{ChangeMyRole.CHANGE_MY_ROLE_EVENT}" method="onChangeMyRole" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -52,6 +53,7 @@
 			import org.as3commons.logging.api.getClassLogger;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.events.LockControlEvent;
@@ -61,6 +63,8 @@
 			import org.bigbluebutton.core.vo.LockSettingsVO;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.events.ChangeMyRole;
+			import org.bigbluebutton.main.model.users.events.ChangeRoleEvent;
 			import org.bigbluebutton.main.model.users.events.EmojiStatusEvent;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -105,13 +109,15 @@
 			
 			private var muteMeRolled:Boolean = false;
 			
+			private function onChangeMyRole(e:ChangeMyRole):void {
+				refreshRole(e.role == Role.MODERATOR);
+			}
+			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
 				users = UserManager.getInstance().getConference().users;
-				amIModerator = UserManager.getInstance().getConference().amIModerator();
-				
-				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+				refreshRole(UserManager.getInstance().getConference().amIModerator());
 				
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
@@ -136,6 +142,16 @@
 				usersGrid.addEventListener(MouseEvent.MOUSE_OVER, handleUsersGridMouseOver);
 				
 				addContextMenuItems();
+			}
+			
+			private function refreshRole(moderator:Boolean = true):void {
+				amIModerator = moderator;
+
+				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
+
+				changeButtons(UserManager.getInstance().getConference().amIPresenter);
+
+				if (paramsMenu) paramsMenu.hide();
 			}
 			
 			public function getPrefferedPosition():String{
@@ -224,10 +240,9 @@
 			
 			private function openEmojiStatusMenu() : void
 			{
-				var grid : EmojiGrid = PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication), EmojiGrid, false) as EmojiGrid;
-				var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - grid.height));
-				grid.x = menuXY.x;
-				grid.y = menuXY.y;
+				var moodMenu:MoodMenu = PopUpManager.createPopUp(DisplayObject(FlexGlobals.topLevelApplication), MoodMenu, false) as MoodMenu;
+				var menuXY:Point = emojiStatusBtn.localToGlobal(new Point(emojiStatusBtn.width + 2, emojiStatusBtn.height - moodMenu.height));
+				moodMenu.show(menuXY);
 			}
 			
 			private function openSettings():void {
@@ -515,7 +530,7 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
-		<mx:Button id="emojiStatusBtn" icon="{images.emoji_raiseHand}" width="30" height="30"
+		<mx:Button id="emojiStatusBtn" icon="{images.mood}" width="30" height="30"
 				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}"
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.users.emojiStatusBtn.toolTip')}" click="openEmojiStatusMenu()"
 				   visible="true" tabIndex="{partOptions.baseTabIndex+10}" />

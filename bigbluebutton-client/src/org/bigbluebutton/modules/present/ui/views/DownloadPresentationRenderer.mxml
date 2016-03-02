@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="90%" verticalAlign="middle">
+  <mx:Script>
+    <![CDATA[
+      import com.asfusion.mate.events.Dispatcher; 
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.modules.present.events.DownloadEvent;
+      
+      private var globalDispatch:Dispatcher = new Dispatcher();
+      
+      private function downloadPresentation():void {	
+        	var downloadEvent:DownloadEvent = new DownloadEvent(DownloadEvent.DOWNLOAD_PRESENTATION);
+        	downloadEvent.fileNameToDownload = data.id as String;
+        	globalDispatch.dispatchEvent(downloadEvent);
+      }
+    ]]>
+  </mx:Script>
+  <mx:Label id="presentationNameLabel" text="{data.name as String}" styleName="presentationNameLabelStyle" width="80%"/>
+  <mx:Button id="downloadBtn" label="{ResourceUtil.getInstance().getString('bbb.filedownload.downloadBtn')}" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.filedownload.downloadBtn')}" 
+             styleName="presentationUploadShowButtonStyle"
+             click="downloadPresentation()" enabled="{data.downloadable as Boolean}"/>
+  
+</mx:HBox>
