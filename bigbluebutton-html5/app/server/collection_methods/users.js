@@ -93,11 +93,6 @@ Meteor.methods({
       };
       Meteor.log.info(`publishing a user mute request for ${toMuteUserId}`);
       publish(Meteor.config.redis.channels.toBBBApps.users, message);
-      updateVoiceUser(meetingId, {
-        'web_userid': toMuteUserId,
-        talking: false,
-        muted: true
-      });
     }
   },
 
@@ -130,11 +125,6 @@ Meteor.methods({
       };
       Meteor.log.info(`publishing a user unmute request for ${toMuteUserId}`);
       publish(Meteor.config.redis.channels.toBBBApps.users, message);
-      updateVoiceUser(meetingId, {
-        'web_userid': toMuteUserId,
-        talking: false,
-        muted: false
-      });
     }
   },
   userSetEmoji(meetingId, toRaiseUserId, raisedByUserId, raisedByToken, status) {
