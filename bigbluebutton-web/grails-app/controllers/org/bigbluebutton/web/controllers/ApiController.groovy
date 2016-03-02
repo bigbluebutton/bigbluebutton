@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -465,8 +463,9 @@ class ApiController {
     }
 
     if (redirectClient){
+      String destUrl = clientURL + "?sessionToken=" + session['user-token']
       log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}");
-      redirect(url: clientURL);
+      redirect(url: destUrl);
     }
     else{
       log.info("Successfully joined. Sending XML response.");
