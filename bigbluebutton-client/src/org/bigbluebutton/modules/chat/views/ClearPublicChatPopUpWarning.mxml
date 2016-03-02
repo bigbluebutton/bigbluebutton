@@ -45,7 +45,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var _dispatcher:Dispatcher = new Dispatcher();
 
       private function confirmButtonclickHandler():void {
-        var clearEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_CHAT_TOOLBAR_EVENT);
+        var clearEvent:ChatToolbarButtonEvent = new ChatToolbarButtonEvent(ChatToolbarButtonEvent.CLEAR_PUBLIC_CHAT_TOOLBAR_EVENT);
         _dispatcher.dispatchEvent(clearEvent);
         PopUpManager.removePopUp(this);
       }

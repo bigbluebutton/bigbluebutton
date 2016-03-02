@@ -1,34 +1,36 @@
 package org.bigbluebutton.common.messages;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-public class ClearChatHistoryRequestMessage implements IBigBlueButtonMessage {
-	public static final String CLEAR_CHAT_HISTORY_REQUEST = "clear_chat_history_request";
+
+public class ClearPublicChatHistoryReplyMessage implements ISubscribedMessage {
+	public static final String CLEAR_PUBLIC_CHAT_HISTORY_REPLY = "clear_public_chat_history_reply";
 	public static final String VERSION = "0.0.1";
 
 	public final String meetingId;
-	public final String replyTo;
 	public final String requesterId;
 
 
-	public ClearChatHistoryRequestMessage(String meetingId, String requesterId, String replyTo) {
+	public ClearPublicChatHistoryReplyMessage(String meetingId, String requesterId) {
 		this.meetingId = meetingId;
-		this.replyTo = replyTo;
 		this.requesterId = requesterId;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
-		payload.put(Constants.REPLY_TO, replyTo);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 
-		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(CLEAR_CHAT_HISTORY_REQUEST, VERSION, null);
+		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(CLEAR_PUBLIC_CHAT_HISTORY_REPLY, VERSION, null);
 		return MessageBuilder.buildJson(header, payload);
 	}
 
-	public static ClearChatHistoryRequestMessage fromJson(String message) {
+	public static ClearPublicChatHistoryReplyMessage fromJson(String message) {
 		JsonParser parser = new JsonParser();
 		JsonObject obj = (JsonObject) parser.parse(message);
 		if (obj.has("header") && obj.has("payload")) {
@@ -37,16 +39,13 @@ public class ClearChatHistoryRequestMessage implements IBigBlueButtonMessage {
 
 			if (header.has("name")) {
 				String messageName = header.get("name").getAsString();
-				if (CLEAR_CHAT_HISTORY_REQUEST.equals(messageName)) {
-
+				if (CLEAR_PUBLIC_CHAT_HISTORY_REPLY.equals(messageName)) {
 					if (payload.has(Constants.MEETING_ID) 
-							&& payload.has(Constants.REPLY_TO)
-							&& payload.has(Constants.REQUESTER_ID)) {
+						&& payload.has(Constants.REQUESTER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
-						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
-						return new ClearChatHistoryRequestMessage(meetingId, requesterId, replyTo);
+						return new ClearPublicChatHistoryReplyMessage(meetingId, requesterId);
 					}
 				} 
 			}

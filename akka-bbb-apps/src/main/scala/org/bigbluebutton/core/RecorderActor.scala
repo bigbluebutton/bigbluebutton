@@ -44,7 +44,7 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
 
   def receive = {
     case msg: SendPublicMessageEvent => handleSendPublicMessageEvent(msg)
-    case msg: ClearChatHistoryReply => handleClearChatHistoryReply(msg)
+    case msg: ClearPublicChatHistoryReply => handleClearPublicChatHistoryReply(msg)
     case msg: ClearPresentationOutMsg => handleClearPresentationOutMsg(msg)
     case msg: RemovePresentationOutMsg => handleRemovePresentationOutMsg(msg)
     case msg: SendCursorUpdateOutMsg => handleSendCursorUpdateOutMsg(msg)
@@ -85,7 +85,7 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
     }
   }
 
-  private def handleClearChatHistoryReply(msg: ClearChatHistoryReply) {
+  private def handleClearPublicChatHistoryReply(msg: ClearPublicChatHistoryReply) {
     if (msg.recorded) {
       val ev = new ClearPublicChatRecordEvent();
       ev.setTimestamp(TimestampGenerator.generateTimestamp);

@@ -91,7 +91,7 @@
 			}
 
 			public function sendClearEvent():void{
-				var clearPupUpWarning:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClearChatPopUpWarning, true);
+				var clearPupUpWarning:IFlexDisplayObject = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, ClearPublicChatPopUpWarning, true);
 
 				clearPupUpWarning.x = this.localToGlobal(new Point()).x - clearPupUpWarning.width + clearBtn.width + 7;
 				clearPupUpWarning.y = this.localToGlobal(new Point()).y + clearPupUpWarning.height/2 + clearBtn.height + 5;

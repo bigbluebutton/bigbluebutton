@@ -94,7 +94,7 @@ package org.bigbluebutton.modules.chat.model
       return msg.time;
     }
 
-    public function clearChat():void{      
+    public function clearPublicChat():void{      
       var cm:ChatMessage = new ChatMessage();
       cm.time = getLastTime();
       cm.text = "<b><i>"+ResourceUtil.getInstance().getString('bbb.chat.clearBtn.chatMessage')+"</b></i>";

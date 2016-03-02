@@ -17,7 +17,7 @@ class ChatModel {
     messages append msg
   }
 
-  def clearChatHistory() {
+  def clearPublicChatHistory() {
     messages.clear();
   }
 }
