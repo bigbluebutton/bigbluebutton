@@ -22,9 +22,18 @@ package org.bigbluebutton.api;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.bigbluebutton.api.domain.Recording;
 import org.slf4j.Logger;
@@ -58,18 +67,32 @@ public class RecordingService {
 	public ArrayList<Recording> getRecordings(ArrayList<String> meetingIds) {
 		ArrayList<Recording> recs = new ArrayList<Recording>();
 		
+		List<File> allPublishedDirectories = new ArrayList<File>();
+		String[] publishedFormats = getPlaybackFormats(publishedDir);
+		for (int i = 0; i < publishedFormats.length; ++i) {
+			allPublishedDirectories.addAll(getDirectories(publishedDir + File.separatorChar + publishedFormats[i]));
+		}
+
+		List<File> allUnpublishedDirectories = new ArrayList<File>();
+		String[] unpublishedFormats = getPlaybackFormats(unpublishedDir);
+		for (int i = 0; i < unpublishedFormats.length; ++i) {
+			allUnpublishedDirectories.addAll(getDirectories(unpublishedDir + File.separatorChar + unpublishedFormats[i]));
+		}
+
 		if(meetingIds.isEmpty()){
-			meetingIds.addAll(getAllRecordingIds(publishedDir));
-			meetingIds.addAll(getAllRecordingIds(unpublishedDir));
+			meetingIds.addAll(getAllRecordingIds(allPublishedDirectories));
+			meetingIds.addAll(getAllRecordingIds(allUnpublishedDirectories));
 		}
 		
+		log.debug("got all recording ids");
+		
 		for(String meetingId : meetingIds){
-			ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
+			List<Recording> published = getRecordingsForPath(meetingId, allPublishedDirectories);
 			if (!published.isEmpty()) {
 				recs.addAll(published);
 			}
 			
-			ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
+			List<Recording> unpublished = getRecordingsForPath(meetingId, allUnpublishedDirectories);
 			if (!unpublished.isEmpty()) {
 				recs.addAll(unpublished);
 			}	
@@ -92,7 +115,7 @@ public class RecordingService {
 	}
 
 	public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {
-		Map<String, Recording> resultRecordings = new HashMap<String, Recording>();
+		Map<String, Recording> resultRecordings = new TreeMap<String, Recording>();
 		for (Map.Entry<String, Recording> entry : recordings.entrySet()) {
 			if (recordingMatchesMetadata(entry.getValue(), metadataFilters))
 				resultRecordings.put(entry.getKey(), entry.getValue());
@@ -100,9 +123,9 @@ public class RecordingService {
 		return resultRecordings;
 	}
 	
-	public boolean existAnyRecording(ArrayList<String> idList){
-		ArrayList<String> publishList=getAllRecordingIds(publishedDir);
-		ArrayList<String> unpublishList=getAllRecordingIds(unpublishedDir);
+	public boolean existAnyRecording(List<String> idList){
+		List<String> publishList=getAllRecordingIds(publishedDir);
+		List<String> unpublishList=getAllRecordingIds(unpublishedDir);
 		
 		for(String id:idList){
 			if(publishList.contains(id)||unpublishList.contains(id)){
@@ -112,33 +135,62 @@ public class RecordingService {
 		return false;
 	}
 	
-	private ArrayList<String> getAllRecordingIds(String path){
-		ArrayList<String> ids=new ArrayList<String>();
-		
+	private List<String> getAllRecordingIds(String path){
 		String[] format = getPlaybackFormats(path);
+		
+		return getAllRecordingIds(path, format);
+	}
+	
+	private List<String> getAllRecordingIds(String path, String[] format) {
+		List<String> ids=new ArrayList<String>();
+		
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
-			for (int f = 0; f < recordings.length; f++) {
-				if(!ids.contains(recordings[f].getName()))
-					ids.add(recordings[f].getName());				
+			List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
+			for (int f = 0; f < recordings.size(); f++) {
+				if(!ids.contains(recordings.get(f).getName()))
+					ids.add(recordings.get(f).getName());				
 			}
 		}
 		return ids;
 	}
 	
-	private ArrayList<Recording> getRecordingsForPath(String meetingId, String path) {
-		ArrayList<Recording> recs = new ArrayList<Recording>();
+	private Set<String> getAllRecordingIds(List<File> recs) {
+		Set<String> ids=new HashSet<String>();
+		
+		Iterator<File> iterator = recs.iterator();
+		while (iterator.hasNext()) {
+			ids.add(iterator.next().getName());
+		}
+		return ids;
+	}
+
+	private List<Recording> getRecordingsForPath(String meetingId, String path) {
+		List<Recording> recs = new ArrayList<Recording>();
 		
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
-			for (int f = 0; f < recordings.length; f++) {
-				if (recordings[f].getName().startsWith(meetingId)) {
-					Recording r = getRecordingInfo(path, recordings[f].getName(), format[i]);
+			List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
+			for (int f = 0; f < recordings.size(); f++) {
+				if (recordings.get(f).getName().startsWith(meetingId)) {
+					Recording r = getRecordingInfo(path, recordings.get(f).getName(), format[i]);
 					if (r != null) recs.add(r);
 				}				
 			}
 		}			
+		return recs;
+	}
+	
+	private List<Recording> getRecordingsForPath(String meetingId, List<File> recordings) {
+		List<Recording> recs = new ArrayList<Recording>();
+
+		Iterator<File> iterator = recordings.iterator();
+		while (iterator.hasNext()) {
+			File recording = iterator.next();
+			if (recording.getName().startsWith(meetingId)) {
+				Recording r = getRecordingInfo(recording);
+				if (r != null) recs.add(r);
+			}
+		}
 		return recs;
 	}
 	
@@ -148,6 +200,11 @@ public class RecordingService {
 
 	private Recording getRecordingInfo(String path, String recordingId, String format) {
 		Recording rec = recordingServiceHelper.getRecordingInfo(recordingId, path, format);
+		return rec;
+	}
+	
+	private Recording getRecordingInfo(File dir) {
+		Recording rec = recordingServiceHelper.getRecordingInfo(dir);
 		return rec;
 	}
 	
@@ -161,9 +218,10 @@ public class RecordingService {
 	private void publish(String path, String recordingId, boolean publish) {
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
-			for (int f = 0; f < recordings.length; f++) {
-				if (recordings[f].getName().equalsIgnoreCase(recordingId)) {
+			List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
+			for (int f = 0; f < recordings.size(); f++) {
+				File recording = recordings.get(f);
+				if (recording.getName().equalsIgnoreCase(recordingId)) {
 					Recording r = getRecordingInfo(path, recordingId, format[i]);
 					if (r != null) {
 						File dest;
@@ -173,11 +231,11 @@ public class RecordingService {
 							dest = new File(unpublishedDir+ File.separatorChar + format[i]);
 						}
 						if(!dest.exists()) dest.mkdir();
-						boolean moved = recordings[f].renameTo(new File(dest, recordings[f].getName()));
+						boolean moved = recording.renameTo(new File(dest, recording.getName()));
 						if (moved) {
 							log.debug("Recording successfully moved!");
 							r.setPublished(publish);
-							recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings[f].getName(), r);
+							recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recording.getName(), r);
 						}
 					}
 				}				
@@ -193,10 +251,10 @@ public class RecordingService {
 	private void deleteRecording(String id, String path) {
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
-			for (int f = 0; f < recordings.length; f++) {
-				if (recordings[f].getName().equals(id)) {
-					deleteDirectory(recordings[f]);
+			List<File> recordings = getDirectories(path + File.separatorChar + format[i]);
+			for (int f = 0; f < recordings.size(); f++) {
+				if (recordings.get(f).getName().equals(id)) {
+					deleteDirectory(recordings.get(f));
 				}				
 			}
 		}		
@@ -220,23 +278,30 @@ public class RecordingService {
 		directory.delete();	
 	}
 	
-	private File[] getDirectories(String path) {
-		
-		File dir = new File(path);
-		FileFilter fileFilter = new FileFilter() {
-		    public boolean accept(File file) {
-		        return file.isDirectory();
-		    }
-		};		
-		return dir.listFiles(fileFilter);		
+	private List<File> getDirectories(String path) {
+		// Collection<File> files = FileUtils.listFilesAndDirs(new File(path), new NotFileFilter(TrueFileFilter.INSTANCE), DirectoryFileFilter.DIRECTORY);
+		log.debug("getting directories for {}", path);
+		List<File> files = new ArrayList<File>();
+		try {
+			DirectoryStream<Path> stream = Files.newDirectoryStream(FileSystems.getDefault().getPath(path));
+			Iterator<Path> iter = stream.iterator();
+			while (iter.hasNext()) {
+				Path next = iter.next();
+				files.add(next.toFile());
+			}
+			stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return files;
 	}
 	
 	private String[] getPlaybackFormats(String path) {
-		File[] dirs = getDirectories(path);
-		String[] formats = new String[dirs.length];
+		List<File> dirs = getDirectories(path);
+		String[] formats = new String[dirs.size()];
 		
-		for (int i = 0; i < dirs.length; i++) {
-			formats[i] = dirs[i].getName();
+		for (int i = 0; i < dirs.size(); i++) {
+			formats[i] = dirs.get(i).getName();
 		}
 		return formats;
 	}

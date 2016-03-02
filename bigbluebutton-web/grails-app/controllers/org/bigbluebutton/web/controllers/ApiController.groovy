@@ -1478,7 +1478,7 @@ class ApiController {
     
     // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
     ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
-	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
+	Map<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
 	recs = meetingService.filterRecordingsByMetadata(recs, ParamsProcessorUtil.processMetaParam(params));
 	
     if (recs.isEmpty()) {
@@ -1497,60 +1497,18 @@ class ApiController {
       }
       return;
     }
+    def cfg = new Configuration()
+
+    // Load the XML template
+    // TODO: Maybe there is a better way to define the templates path
+    def wtl = new WebappTemplateLoader(getServletContext(), "/WEB-INF/freemarker")
+    cfg.setTemplateLoader(wtl)
+    def ftl = cfg.getTemplate("get-recordings.ftl")
+    def xmlText = new StringWriter()
+    ftl.process([code:RESP_CODE_SUCCESS, recs:recs.values()], xmlText)
     withFormat {  
       xml {
-        render(contentType:"text/xml") {
-          response() {
-           returncode(RESP_CODE_SUCCESS)
-            recordings() {
-              recs.values().each { r ->
-				  recording() {
-                  recordID(r.getId())
-				  meetingID() { mkp.yield(r.getMeetingID()) }
-				  name('') {
-					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
-				  }
-                  published(r.isPublished())
-                  startTime(r.getStartTime())
-                  endTime(r.getEndTime())
-                  size(r.getSize())
-                  rawSize(r.getRawSize())
-				  metadata() {
-					 r.getMetadata().each { k,v ->
-						 "$k"(''){ 
-							 mkp.yieldUnescaped("<![CDATA[$v]]>") 
-						 }
-					 }
-				  }
-				  playback() {
-					  r.getPlaybacks().each { item ->
-						  format{
-							  type(item.getFormat())
-							  url(item.getUrl())
-							  length(item.getLength())
-							  size(item.getSize())
-							  mkp.yield(item.getExtensions())
-						  }
-					  }
-                  }
-				  download() {
-					  r.getDownloads().each { item ->
-						  format{
-							  type(item.getFormat())
-							  url(item.getUrl())
-							  md5(item.getMd5())
-							  key(item.getKey())
-							  length(item.getLength())
-							  size(item.getSize())
-						  }
-					  }
-                  }
-                  
-                }
-              }
-            }
-          }
-        }
+        render(text: xmlText.toString(), contentType: "text/xml")
       }
     }
   } 
