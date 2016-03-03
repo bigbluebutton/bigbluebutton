@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
+
 import org.apache.commons.codec.binary.Base64
 
 class LtiService {
@@ -30,8 +31,7 @@ class LtiService {
     def endPoint = "localhost"
     def consumers = "demo:welcome"
     def mode = "simple"
-
-	def ssl_enabled
+    def restrictedAccess = "true"
 
     Map<String, String> consumerMap
     
@@ -92,45 +92,55 @@ class LtiService {
         return Base64.encodeBase64URLSafeString(signBytes)
     }
 
-    def logParameters(Object params) {
-        log.debug "----------------------------------"
-        for( param in params ) log.debug "${param.getKey()}=${param.getValue()}"
-        log.debug "----------------------------------"
+    def logParameters(Object params, boolean debug = false) {
+        def divider = "----------------------------------"
+        Map<String, String> ordered_params = new LinkedHashMap<String, String>(params)
+        ordered_params = ordered_params.sort {it.key}
+        if( debug ) log.debug divider else log.info divider
+        for( param in ordered_params ) {
+            if( debug ) {
+                log.debug "${param.getKey()}=${param.getValue()}"
+            } else {
+                log.info "${param.getKey()}=${param.getValue()}"
+            }
+        }
+        if( debug ) log.debug divider else log.info divider
     }
 
     def boolean isSSLEnabled(String query) {
-        if ( ssl_enabled == null ) {
-			ssl_enabled = false
-			log.debug("Pinging SSL connection")
+        def ssl_enabled = false
 
-			try {
-				// open connection
-				StringBuilder urlStr = new StringBuilder(query)
-				URL url = new URL(urlStr.toString())
-				HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection()
-				httpConnection.setUseCaches(false)
-				httpConnection.setDoOutput(true)
-				httpConnection.setRequestMethod("HEAD")
-				httpConnection.setConnectTimeout(5000)
-				httpConnection.connect()
+        log.debug("Pinging SSL connection")
+        try {
+            // open connection
+            StringBuilder urlStr = new StringBuilder(query)
+            URL url = new URL(urlStr.toString())
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection()
+            httpConnection.setUseCaches(false)
+            httpConnection.setDoOutput(true)
+            httpConnection.setRequestMethod("HEAD")
+            httpConnection.setConnectTimeout(5000)
+            httpConnection.connect()
 
-				int responseCode = httpConnection.getResponseCode()
-				if (responseCode == HttpURLConnection.HTTP_OK) {
-					ssl_enabled = true
-				} else {
-					log.debug("HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode)
-				}
+            int responseCode = httpConnection.getResponseCode()
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                ssl_enabled = true
+            } else {
+                log.debug("HTTPERROR: Message=" + "BBB server responded with HTTP status code " + responseCode)
+            }
 
-			} catch(IOException e) {
-				log.debug("IOException: Message=" + e.getMessage())
-			} catch(IllegalArgumentException e) {
-				log.debug("IllegalArgumentException: Message=" + e.getMessage())
-			} catch(Exception e) {
-				log.debug("Exception: Message=" + e.getMessage())
-			}
-		}
+        } catch(IOException e) {
+            log.debug("IOException: Message=" + e.getMessage())
+        } catch(IllegalArgumentException e) {
+            log.debug("IllegalArgumentException: Message=" + e.getMessage())
+        } catch(Exception e) {
+            log.debug("Exception: Message=" + e.getMessage())
+        }
 
 		return ssl_enabled
     }
 
+    def boolean hasRestrictedAccess() {
+        return Boolean.parseBoolean(this.restrictedAccess);
+    }
 }
