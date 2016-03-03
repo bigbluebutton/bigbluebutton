@@ -6,8 +6,10 @@ import java.util.Map;
 import org.bigbluebutton.common.messages.Constants;
 import org.bigbluebutton.common.messages.DisconnectAllUsersMessage;
 import org.bigbluebutton.common.messages.DisconnectUserMessage;
+import org.bigbluebutton.common.messages.InactivityWarningMessage;
 import org.bigbluebutton.common.messages.MeetingEndedMessage;
 import org.bigbluebutton.common.messages.MeetingHasEndedMessage;
+import org.bigbluebutton.common.messages.MeetingIsActiveMessage;
 import org.bigbluebutton.common.messages.MeetingMutedMessage;
 import org.bigbluebutton.common.messages.MeetingStateMessage;
 import org.bigbluebutton.common.messages.NewPermissionsSettingMessage;
@@ -88,6 +90,18 @@ public class MeetingClientMessageSender {
 						  processUserLockedMessage(ulm);
 					  }
 					  break;
+				  case InactivityWarningMessage.INACTIVITY_WARNING:
+					  InactivityWarningMessage iwm = InactivityWarningMessage.fromJson(message);
+					  if (iwm != null) {
+						  processInactivityWarningMessage(iwm);
+					  }
+					  break;
+				  case MeetingIsActiveMessage.MEETING_IS_ACTIVE:
+					  MeetingIsActiveMessage miam = MeetingIsActiveMessage.fromJson(message);
+					  if (miam != null) {
+						  processMeetingIsActiveMessage(miam);
+					  }
+					  break;
 				}
 			}
 		}		
@@ -161,7 +175,7 @@ public class MeetingClientMessageSender {
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingEnded", message);
 	  	service.sendMessage(m); 
 	}
-	
+
 	private void processDisconnectAllUsersMessage(DisconnectAllUsersMessage msg) {
 		DisconnectAllClientsMessage dm = new DisconnectAllClientsMessage(msg.meetingId);
 		service.sendMessage(dm);	  	 
@@ -183,6 +197,30 @@ public class MeetingClientMessageSender {
 		message.put("msg", gson.toJson(args));
 	  	    		  	    
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "userLocked", message);
+		service.sendMessage(m);
+	}
+
+	private void processInactivityWarningMessage(InactivityWarningMessage msg) {
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("status", "Meeting seems inactive.");
+
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "inactivityWarning", message);
+		service.sendMessage(m);
+	}
+
+	private void processMeetingIsActiveMessage(MeetingIsActiveMessage msg) {
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("status", "Meeting is active.");
+
+		Map<String, Object> message = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		message.put("msg", gson.toJson(args));
+
+		BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingIsActive", message);
 		service.sendMessage(m);
 	}
 }

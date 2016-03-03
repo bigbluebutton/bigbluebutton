@@ -23,6 +23,8 @@ case class MeetingState(meetingID: String, recorded: Boolean, userId: String, pe
 case class MeetingHasEnded(meetingID: String, userId: String) extends IOutMessage
 case class MeetingDestroyed(meetingID: String) extends IOutMessage
 case class DisconnectAllUsers(meetingID: String) extends IOutMessage
+case class InactivityWarning(meetingID: String, duration: Long) extends IOutMessage
+case class MeetingIsActive(meetingID: String) extends IOutMessage
 case class DisconnectUser(meetingID: String, userId: String) extends IOutMessage
 case class KeepAliveMessageReply(aliveID: String) extends IOutMessage
 case class PubSubPong(system: String, timestamp: Long) extends IOutMessage

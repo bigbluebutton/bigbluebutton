@@ -54,6 +54,8 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
     case msg: MeetingDestroyed => handleMeetingDestroyed(msg)
     case msg: KeepAliveMessageReply => handleKeepAliveMessageReply(msg)
     case msg: PubSubPong => handlePubSubPong(msg)
+    case msg: InactivityWarning => handleInactivityWarning(msg)
+    case msg: MeetingIsActive => handleMeetingIsActive(msg)
     case msg: StartRecording => handleStartRecording(msg)
     case msg: StopRecording => handleStopRecording(msg)
     case msg: GetAllMeetingsReply => handleGetAllMeetingsReply(msg)
@@ -221,6 +223,16 @@ class MessageSenderActor(val meetingId: String, val service: MessageSender)
 
   private def handleGetAllMeetingsReply(msg: GetAllMeetingsReply) {
     val json = MeetingMessageToJsonConverter.getAllMeetingsReplyToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+
+  private def handleInactivityWarning(msg: InactivityWarning) {
+    val json = MeetingMessageToJsonConverter.inactivityWarningToJson(msg)
+    service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
+  }
+
+  private def handleMeetingIsActive(msg: MeetingIsActive) {
+    val json = MeetingMessageToJsonConverter.meetingIsActiveToJson(msg)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, json)
   }
 

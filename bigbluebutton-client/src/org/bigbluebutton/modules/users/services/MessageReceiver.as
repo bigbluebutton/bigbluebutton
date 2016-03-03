@@ -81,6 +81,12 @@ package org.bigbluebutton.modules.users.services
         case "meetingState":
           handleMeetingState(message);
           break;  
+        case "inactivityWarning":
+          handleInactivityWarning(message);
+          break;
+        case "meetingIsActive":
+          handleMeetingIsActive(message);
+          break;
         case "participantJoined":
           handleParticipantJoined(message);
           break;
@@ -211,7 +217,17 @@ package org.bigbluebutton.modules.users.services
       
       UserManager.getInstance().getConference().applyLockSettings();
     }
-    
+
+    private function handleInactivityWarning(msg:Object):void {
+      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.INACTIVITY_WARNING_EVENT);
+      globalDispatcher.dispatchEvent(bbbEvent);
+    }
+
+    private function handleMeetingIsActive(msg:Object):void {
+      var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.MEETING_IS_ACTIVE_EVENT);
+      globalDispatcher.dispatchEvent(bbbEvent);
+    }
+
     private function handleGetRecordingStatusReply(msg: Object):void {     
       var map:Object = JSON.parse(msg.msg);
       sendRecordingStatusUpdate(map.recording);      

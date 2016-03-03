@@ -18,6 +18,7 @@ public interface IBigBlueButtonInGW {
 	void destroyMeeting(String meetingID);
 	void getAllMeetings(String meetingID);
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
+	void activityResponse(String meetingID);
 	
 	// Polling
 	void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId);

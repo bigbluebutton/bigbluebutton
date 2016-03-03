@@ -270,4 +270,9 @@ public class MessagePublisher {
 		LockLayoutRequestMessage msg = new LockLayoutRequestMessage(meetingID, setById, lock, viewersOnly, layout);
 		sender.send(MessagingConstants.TO_USERS_CHANNEL, msg.toJson());		
 	}
+
+	public void activityResponse(String meetingID) {
+		ActivityResponseMessage msg = new ActivityResponseMessage(meetingID);
+		sender.send(MessagingConstants.TO_MEETING_CHANNEL, msg.toJson());
+	}
 }

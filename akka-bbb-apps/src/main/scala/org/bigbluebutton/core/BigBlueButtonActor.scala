@@ -27,28 +27,46 @@ object BigBlueButtonActor extends SystemConfiguration {
     Props(classOf[BigBlueButtonActor], system, recorderApp, messageSender)
 }
 
-class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender) extends Actor with ActorLogging {
+class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplication, messageSender: MessageSender) extends Actor with ActorLogging with SystemConfiguration {
   implicit def executionContext = system.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
+  private val InactivityDeadline = FiniteDuration(inactivityDeadline, "minutes")
+  private val InactivityTimeLeft = FiniteDuration(inactivityTimeLeft, "minutes")
+  private val MonitorFrequency = 5 seconds
+  private val NoMeeting = "NO_MEETING"
+
   private var meetings = new collection.immutable.HashMap[String, RunningMeeting]
+  private var monitors = new collection.immutable.HashMap[String, Deadline]
   private val outGW = new OutMessageGateway("bbbActorOutGW", recorderApp, messageSender)
 
+  context.system.scheduler.schedule(10 seconds, MonitorFrequency, self, "ActivityMonitor")
+
   def receive = {
-    case msg: CreateMeeting => handleCreateMeeting(msg)
-    case msg: DestroyMeeting => handleDestroyMeeting(msg)
-    case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
-    case msg: PubSubPing => handlePubSubPingMessage(msg)
-    case msg: ValidateAuthToken => handleValidateAuthToken(msg)
-    case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
-    case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
-    case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
-    case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
-    case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
-    case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
-    case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
-    case msg: InMessage => handleMeetingMessage(msg)
+    case "ActivityMonitor" => handleActivityMonitor()
+    case msg: Object => handleMessage(msg)
     case _ => // do nothing
+  }
+
+  private def handleMessage(msg: Object) {
+    notifyMonitor(msg)
+    msg match {
+      case msg: CreateMeeting => handleCreateMeeting(msg)
+      case msg: DestroyMeeting => handleDestroyMeeting(msg)
+      case msg: KeepAliveMessage => handleKeepAliveMessage(msg)
+      case msg: PubSubPing => handlePubSubPingMessage(msg)
+      case msg: ValidateAuthToken => handleValidateAuthToken(msg)
+      case msg: ActivityResponse => handleActivityResponse(msg)
+      case msg: GetAllMeetingsRequest => handleGetAllMeetingsRequest(msg)
+      case msg: UserJoinedVoiceConfMessage => handleUserJoinedVoiceConfMessage(msg)
+      case msg: UserLeftVoiceConfMessage => handleUserLeftVoiceConfMessage(msg)
+      case msg: UserLockedInVoiceConfMessage => handleUserLockedInVoiceConfMessage(msg)
+      case msg: UserMutedInVoiceConfMessage => handleUserMutedInVoiceConfMessage(msg)
+      case msg: UserTalkingInVoiceConfMessage => handleUserTalkingInVoiceConfMessage(msg)
+      case msg: VoiceConfRecordingStartedMessage => handleVoiceConfRecordingStartedMessage(msg)
+      case msg: InMessage => handleMeetingMessage(msg)
+      case _ =>
+    }
   }
 
   private def findMeetingWithVoiceConfId(voiceConfId: String): Option[RunningMeeting] = {
@@ -164,6 +182,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
       case None => log.info("Could not find meetingId={}", msg.meetingID)
       case Some(m) => {
         meetings -= msg.meetingID
+        monitors -= msg.meetingID
         log.info("Kick everyone out on meetingId={}", msg.meetingID)
         outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
         outGW.send(new DisconnectAllUsers(msg.meetingID))
@@ -184,6 +203,7 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
         var m = RunningMeeting(msg.mProps, moutGW)
 
         meetings += m.mProps.meetingID -> m
+        monitors += m.mProps.meetingID -> InactivityDeadline.fromNow
         outGW.send(new MeetingCreated(m.mProps.meetingID, m.mProps.externalMeetingID, m.mProps.recorded, m.mProps.meetingName,
           m.mProps.voiceBridge, msg.mProps.duration, msg.mProps.moderatorPass,
           msg.mProps.viewerPass, msg.mProps.createTime, msg.mProps.createDate))
@@ -235,4 +255,52 @@ class BigBlueButtonActor(val system: ActorSystem, recorderApp: RecorderApplicati
     outGW.send(new GetAllMeetingsReply(resultArray))
   }
 
+  private def handleActivityResponse(msg: ActivityResponse) {
+    monitors.get(msg.meetingID) match {
+      case Some(inactivity) => {
+        log.debug("User endorsed that meeting {} is active", msg.meetingID)
+        monitors += msg.meetingID -> InactivityDeadline.fromNow
+        outGW.send(new MeetingIsActive(msg.meetingID))
+      }
+      case None =>
+    }
+  }
+
+  private def notifyMonitor(msg: Object) {
+    val meetingID = msg match {
+      case msg: InMessage => msg.meetingID
+      case msg: VoiceConfMessage => {
+        findMeetingWithVoiceConfId(msg.voiceConfId) match {
+          case Some(m) => m.mProps.meetingID
+          case None => NoMeeting
+        }
+      }
+      case _ => NoMeeting
+    }
+
+    monitors.get(meetingID) match {
+      case Some(inactivity) => {
+        // Only updates if not in inactive warning already
+        if (inactivity.timeLeft > InactivityTimeLeft) {
+          monitors += meetingID -> InactivityDeadline.fromNow
+        }
+      }
+      case None =>
+    }
+  }
+
+  private def handleActivityMonitor() {
+    monitors foreach {
+      case (meetingID, inactivity) => {
+        if (inactivity.isOverdue()) {
+          log.debug("Closing meeting {} due to inactivity for {} minutes", meetingID, InactivityDeadline.toMinutes)
+          self.ask(DestroyMeeting(meetingID))(5 seconds)
+          // Else make sure to send only one warning message
+        } else if (inactivity.timeLeft <= InactivityTimeLeft && inactivity.timeLeft > InactivityTimeLeft - MonitorFrequency) {
+          log.debug("Sending inactivity warning to meeting {}", meetingID)
+          outGW.send(new InactivityWarning(meetingID, inactivity.timeLeft.toSeconds))
+        }
+      }
+    }
+  }
 }

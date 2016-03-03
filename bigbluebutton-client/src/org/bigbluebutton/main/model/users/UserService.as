@@ -160,6 +160,10 @@ package org.bigbluebutton.main.model.users
     private function queryForRecordingStatus():void {
       sender.queryForRecordingStatus();
     }
+
+    public function activityResponse():void {
+      sender.activityResponse();
+    }
     
     public function changeRecordingStatus(e:BBBEvent):void {
       if (this.isModerator() && !e.payload.remote) {

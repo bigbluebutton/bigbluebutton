@@ -163,4 +163,6 @@ object MessageNames {
   val KEEP_ALIVE_REPLY = "keep_alive_reply"
   val USER_LISTEN_ONLY = "user_listening_only"
   val GET_ALL_MEETINGS_REPLY = "get_all_meetings_reply"
+  val INACTIVITY_WARNING = "inactivity_warning_message"
+  val MEETING_IS_ACTIVE = "meeting_is_active_message"
 }

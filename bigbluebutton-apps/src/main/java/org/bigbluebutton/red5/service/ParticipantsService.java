@@ -53,7 +53,13 @@ public class ParticipantsService {
 		String userId = getBbbSession().getInternalUserID();
 		red5InGW.getUsers(meetingId, userId);
 	}
-	
+
+	public void activityResponse() {
+		IScope scope = Red5.getConnectionLocal().getScope();
+		String meetingId = scope.getName();
+		red5InGW.activityResponse(meetingId);
+	}
+
 	public void userEmojiStatus(Map<String, String> msg) {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		String meetingId = scope.getName();

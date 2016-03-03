@@ -74,6 +74,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
 
   }
 
+  def activityResponse(meetingID: String) {
+    bbbActor ! new ActivityResponse(meetingID)
+  }
+
   /**
    * ***********************************************************
    * Message Interface for Users
