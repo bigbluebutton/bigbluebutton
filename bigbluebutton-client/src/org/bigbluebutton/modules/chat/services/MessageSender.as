@@ -60,7 +60,7 @@ package org.bigbluebutton.modules.chat.services
         message.toObj()
       );
     }
-
+    
     public function sendPrivateMessage(message:ChatMessageVO):void
     {  
 	  LOGGER.debug("Sending [chat.sendPrivateMessage] to server.");

@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.chat.services
         
     private function handleChatReceivePublicMessageCommand(message:Object, history:Boolean = false):void {
       LOGGER.debug("Handling public chat message [{0}]", [message.message]);
-
+      
       var msg:ChatMessageVO = new ChatMessageVO();
       msg.chatType = message.chatType;
       msg.fromUserID = message.fromUserID;
