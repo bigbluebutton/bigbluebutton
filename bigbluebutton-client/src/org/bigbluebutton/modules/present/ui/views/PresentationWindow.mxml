@@ -368,6 +368,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function setupPresenter(isPresenter:Boolean):void {
 				uploadPres.visible = isPresenter;				
 				downloadPres.visible = true;
+				quickPollBtn.visible = isPresenter;
 				var page:Page = PresentationModel.getInstance().getCurrentPage();
 				if (page != null) {
 					displaySlideNumber(page.num);		
