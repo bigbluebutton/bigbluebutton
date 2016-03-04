@@ -44,6 +44,17 @@ ToolTip {
   cornerRadius: 5;
   borderStyle: solid;
   borderThickness: 1;
+  paddingBottom: 3;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+}
+
+.chatToolbarStyle {
+  backgroundColor: #CCCCCC;
+  cornerRadius: 5;
+  borderStyle: solid;
+  borderThickness: 1;
   paddingBottom: 2;
   paddingTop: 2;
   paddingLeft: 2;
@@ -209,9 +220,10 @@ DataGrid {
 }
 
 
-.whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .clearButtonStyle,
+.whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
 .whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
-.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle
+.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle,
+.chatClearButtonStyle
 {
   textIndent: 0;
   paddingLeft: 0;
@@ -239,7 +251,11 @@ DataGrid {
   icon: Embed('assets/images/ellipse.png');  
 }
 
-.clearButtonStyle {
+.whiteboardClearButtonStyle {
+  icon: Embed('assets/images/delete.png');    
+}
+
+.chatClearButtonStyle {
   icon: Embed('assets/images/delete.png');    
 }
 
@@ -306,7 +322,7 @@ DataGrid {
 
 .presentationUploadButtonStyle, .pollStartButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle, .presentationDownloadButtonStyle,
-.saveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle, .copyButtonStyle
+.sharedNotesSaveButtonStyle, .sharedNotesNewButtonStyle, .sharedNotesFormatButtonStyle, .chatCopyButtonStyle, .chatSaveButtonStyle
 {
   textIndent: 0;
   paddingLeft: 10;
@@ -325,11 +341,15 @@ DataGrid {
   fontSize: 12;
 }
 
-.saveButtonStyle {
+.sharedNotesSaveButtonStyle {
   icon: Embed('assets/images/ic_save_16px.png');
 }
 
-.copyButtonStyle{
+.chatSaveButtonStyle {
+  icon: Embed('assets/images/ic_save_16px.png');
+}
+
+.chatCopyButtonStyle{
   icon: Embed('assets/images/ic_content_copy_black_16px.png');
 }
 

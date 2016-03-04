@@ -29,7 +29,7 @@ trait ChatApp {
 
   def handleClearPublicChatHistoryRequest(msg: ClearPublicChatHistoryRequest) {
     chatModel.clearPublicChatHistory()
-    outGW.send(new ClearPublicChatHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID, msg.replyTo))
+    outGW.send(new ClearPublicChatHistoryReply(mProps.meetingID, mProps.recorded, msg.requesterID))
   }
 
 }

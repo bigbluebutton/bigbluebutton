@@ -244,7 +244,7 @@ public class MessagePublisher {
 	}
 
 	public void clearPublicChatMessages(String meetingID, String requesterID, String replyTo) {
-		ClearPublicChatHistoryRequestMessage msg = new ClearPublicChatHistoryRequestMessage(meetingID, requesterID, replyTo);
+		ClearPublicChatHistoryRequestMessage msg = new ClearPublicChatHistoryRequestMessage(meetingID, requesterID);
 		sender.send(MessagingConstants.TO_CHAT_CHANNEL, msg.toJson());
 	}
 

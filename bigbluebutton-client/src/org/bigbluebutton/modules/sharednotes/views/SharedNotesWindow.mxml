@@ -348,7 +348,7 @@
 
 		<mx:HBox width="100%" horizontalAlign="right" paddingTop="0">		<mx:Button id="btnNew" styleName="sharedNotesNewButtonStyle" width="26" height="26" click="btnNew_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.new.toolTip')}"/>
 			<mx:Button styleName="sharedNotesFormatButtonStyle" width="26" height="26" click="btnToolbar_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.toolbar.toolTip')}" visible="{options.showToolbarButton}" includeInLayout="{options.showToolbarButton}"/>
-			<mx:Button id="btnSave" styleName="saveButtonStyle" width="26" height="26" click="btnSave_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
+			<mx:Button id="btnSave" styleName="sharedNotesSaveButtonStyle" width="26" height="26" click="btnSave_clickHandler(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.sharedNotes.save.toolTip')}"/>
 		</mx:HBox>
 	</mx:VBox>
 </containers:CustomMdiWindow>

@@ -849,18 +849,15 @@ def processChatMessages
 						chat_sender = node.xpath(".//sender")[0].text()
 						chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
 						chat_start = ( translateTimestamp(chat_timestamp) / 1000).to_i
-						#this chat_end argument will carry the time to remove a message if a clear was issued
-						chat_end = ( translateTimestamp(re[:stop_timestamp]) / 1000).to_i
-						#unless there is a clear event (after the messge was sent) it will be there until the end of the recording 
-						unless $clear_chat_events.last[:timestamp].to_i <= node[:timestamp].to_i
-							$clear_chat_events.reverse_each do |clear|
-								#but if there is a clear after the message, then the first clear after it will be the end time of this message
-								if (clear[:timestamp].to_i >= node[:timestamp].to_i)
-									chat_end = ( translateTimestamp(clear[:timestamp]) / 1000).to_i
-								end
-							end
+						# Creates a list of the clear timestamps that matter for this message
+						next_clear_timestamps = $clear_chat_timestamps.select{ |e| e >= node[:timestamp] }
+						# If there is none we skip it, or else we add the out time that will remove a message
+						if next_clear_timestamps.empty?
+							$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
+						else
+							chat_end = ( translateTimestamp( next_clear_timestamps.first ) / 1000).to_i
+							$xml.chattimeline(:in => chat_start, :out => chat_end, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
 						end
-						$xml.chattimeline(:in => chat_start, :out => chat_end, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
 					end
 				end
 				current_time += re[:stop_timestamp] - re[:start_timestamp]
@@ -1025,7 +1022,6 @@ if ($playback == "presentation")
 		# Gathering all the events from the events.xml
 		$slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		$chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
-		$clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
 		$shape_events = @doc.xpath("//event[@eventname='AddShapeEvent' or @eventname='ModifyTextEvent']") # for the creation of shapes
 		$panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
 		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
@@ -1033,6 +1029,12 @@ if ($playback == "presentation")
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
 		$join_time = $meeting_start.to_f
 		$end_time = $meeting_end.to_f
+
+		# Create a list of timestamps when the moderator cleared the public chat
+		$clear_chat_timestamps = [ ]
+		clear_chat_events = @doc.xpath("//event[@eventname='ClearPublicChatEvent']")
+		clear_chat_events.each { |clear| $clear_chat_timestamps << clear[:timestamp] }
+		$clear_chat_timestamps.sort!
 
 		calculateRecordEventsOffset()
 		

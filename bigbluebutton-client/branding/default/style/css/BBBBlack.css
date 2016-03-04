@@ -93,7 +93,7 @@ DataGrid {
 }
 
 
-.whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .clearButtonStyle,
+.whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
 .whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
 .whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle
 {
@@ -123,7 +123,7 @@ DataGrid {
   icon: Embed('assets/images/ellipse.png');  
 }
 
-.clearButtonStyle {
+.whiteboardClearButtonStyle {
   icon: Embed('assets/images/delete.png');    
 }
 

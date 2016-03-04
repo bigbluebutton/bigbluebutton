@@ -7,7 +7,7 @@
 		 xmlns:common="org.bigbluebutton.common.*" 
 		 creationComplete="onCreationComplete()"
 		 visible="{toolbarVisible}" 
-		 styleName="whiteboardToolbarStyle"
+		 styleName="chatToolbarStyle"
 		 horizontalAlign="center"
 		 hideEffect="{fadeOut}" showEffect="{fadeIn}" 
 		 backgroundColor="{bgColor}">
@@ -98,9 +98,7 @@
 			}
 
 			public function onChangeMyRole(e:ChangeMyRole):void{
-				clearBtn.visible = UsersUtil.amIModerator() && publicChat;
-				clearBtn.enabled = UsersUtil.amIModerator() && publicChat;
-				clearBtn.includeInLayout = UsersUtil.amIModerator() && publicChat;
+				clearBtn.visible = clearBtn.enabled = clearBtn.includeInLayout = UsersUtil.amIModerator() && publicChat;
 			}
 
 			public function registerListeners(component:UIComponent):void {
@@ -116,7 +114,7 @@
 	<mx:Fade id="fadeIn" duration="200" alphaFrom="0.0" alphaTo="1.0" />
 
 	<mx:Button id="saveBtn" 
-			   styleName="saveButtonStyle"
+			   styleName="chatSaveButtonStyle"
 			   width="22"
 			   height="22"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.toolTip')}" 
@@ -124,7 +122,7 @@
 			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.saveBtn.accessibilityName')}"/>  
 	
 	<mx:Button id="copyBtn" 
-			   styleName="copyButtonStyle"
+			   styleName="chatCopyButtonStyle"
 			   width="22"
 			   height="22"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.toolTip')}" 
@@ -132,7 +130,7 @@
 			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.copyBtn.accessibilityName')}"/> 
 	
 	<mx:Button id="clearBtn" 
-			   styleName="clearButtonStyle"
+			   styleName="chatClearButtonStyle"
 			   width="22"
 			   height="22"
 			   visible = "{UsersUtil.amIModerator() &amp;&amp; publicChat}"

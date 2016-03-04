@@ -124,11 +124,10 @@ public class ChatClientMessageSender {
 		Map<String, Object> args = new HashMap<String, Object>();	
 		args.put("meetingId", gcl.meetingId);
 		args.put("requester_id", gcl.requesterId);
-		args.put("message", "ClearPublicChat");
 
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();
-		message.put("msg", gson.toJson(args.get("message")));
+		message.put("msg", gson.toJson(args));
 
 		BroadcastClientMessage m = new BroadcastClientMessage(gcl.meetingId, "ChatClearPublicMessageCommand", message);
 		service.sendMessage(m);

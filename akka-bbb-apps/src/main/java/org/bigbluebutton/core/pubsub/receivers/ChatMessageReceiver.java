@@ -39,7 +39,7 @@ public class ChatMessageReceiver implements MessageHandler{
 						bbbGW.sendPrivateMessage(msg.meetingId, msg.requesterId, msg.messageInfo);
 					} else if (ClearPublicChatHistoryRequestMessage.CLEAR_PUBLIC_CHAT_HISTORY_REQUEST.equals(messageName)){
 						ClearPublicChatHistoryRequestMessage msg = ClearPublicChatHistoryRequestMessage.fromJson(message);
-						bbbGW.clearPublicChatHistory(msg.meetingId, msg.requesterId, msg.replyTo);
+						bbbGW.clearPublicChatHistory(msg.meetingId, msg.requesterId);
 					}
 				}
 			}

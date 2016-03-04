@@ -8,20 +8,17 @@ public class ClearPublicChatHistoryRequestMessage implements IBigBlueButtonMessa
 	public static final String VERSION = "0.0.1";
 
 	public final String meetingId;
-	public final String replyTo;
 	public final String requesterId;
 
 
-	public ClearPublicChatHistoryRequestMessage(String meetingId, String requesterId, String replyTo) {
+	public ClearPublicChatHistoryRequestMessage(String meetingId, String requesterId) {
 		this.meetingId = meetingId;
-		this.replyTo = replyTo;
 		this.requesterId = requesterId;
 	}
 
 	public String toJson() {
 		HashMap<String, Object> payload = new HashMap<String, Object>();
 		payload.put(Constants.MEETING_ID, meetingId);
-		payload.put(Constants.REPLY_TO, replyTo);
 		payload.put(Constants.REQUESTER_ID, requesterId);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(CLEAR_PUBLIC_CHAT_HISTORY_REQUEST, VERSION, null);
@@ -40,13 +37,11 @@ public class ClearPublicChatHistoryRequestMessage implements IBigBlueButtonMessa
 				if (CLEAR_PUBLIC_CHAT_HISTORY_REQUEST.equals(messageName)) {
 
 					if (payload.has(Constants.MEETING_ID) 
-							&& payload.has(Constants.REPLY_TO)
 							&& payload.has(Constants.REQUESTER_ID)) {
 						String meetingId = payload.get(Constants.MEETING_ID).getAsString();
-						String replyTo = payload.get(Constants.REPLY_TO).getAsString();
 						String requesterId = payload.get(Constants.REQUESTER_ID).getAsString();
 
-						return new ClearPublicChatHistoryRequestMessage(meetingId, requesterId, replyTo);
+						return new ClearPublicChatHistoryRequestMessage(meetingId, requesterId);
 					}
 				} 
 			}

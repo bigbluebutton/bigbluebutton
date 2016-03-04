@@ -46,10 +46,8 @@ public class ChatService {
 	public void clearPublicChatMessages() {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		String requesterID = getBbbSession().getInternalUserID();
-		// Just hardcode as we don't really need it for flash client. (ralam may 7, 2014)
-		String replyTo = meetingID + "/" + requesterID; 
 		
-		red5BBBInGw.clearPublicChatMessages(meetingID, requesterID, replyTo);
+		red5BBBInGw.clearPublicChatMessages(meetingID, requesterID);
 	}
 
 	private BigBlueButtonSession getBbbSession() {
