@@ -972,8 +972,8 @@ begin
         # presentation_url = "/slides/" + $meeting_id + "/presentation"
         @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
 
-        #$meeting_start = @doc.xpath("//event")[0][:timestamp]
-        #$meeting_end = @doc.xpath("//event").last()[:timestamp]
+        $meeting_start = @doc.xpath("//event")[0][:timestamp]
+        $meeting_end = @doc.xpath("//event").last()[:timestamp]
 
         ## These $version variables are not used anywere in this code ##
         $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
