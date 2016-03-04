@@ -6,7 +6,6 @@ import org.bigbluebutton.core.apps.Presentation
 import org.bigbluebutton.core.MeetingProperties
 
 trait InMessage { val meetingID: String }
-trait VoiceConfMessage { val voiceConfId: String }
 
 case class PubSubPing(system: String, timestamp: Long)
 
@@ -102,12 +101,12 @@ case class EjectUserFromVoiceRequest(meetingID: String, userId: String, ejectedB
 case class VoiceUserJoinedMessage(meetingID: String, user: String, voiceConfId: String,
   callerIdNum: String, callerIdName: String, muted: Boolean, talking: Boolean) extends InMessage
 case class UserJoinedVoiceConfMessage(voiceConfId: String, voiceUserId: String, userId: String, externUserId: String,
-  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean) extends VoiceConfMessage
-case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String) extends VoiceConfMessage
-case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean) extends VoiceConfMessage
-case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean) extends VoiceConfMessage
-case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean) extends VoiceConfMessage
-case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String) extends VoiceConfMessage
+  callerIdName: String, callerIdNum: String, muted: Boolean, talking: Boolean, listenOnly: Boolean)
+case class UserLeftVoiceConfMessage(voiceConfId: String, voiceUserId: String)
+case class UserLockedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, locked: Boolean)
+case class UserMutedInVoiceConfMessage(voiceConfId: String, voiceUserId: String, muted: Boolean)
+case class UserTalkingInVoiceConfMessage(voiceConfId: String, voiceUserId: String, talking: Boolean)
+case class VoiceConfRecordingStartedMessage(voiceConfId: String, recordStream: String, recording: Boolean, timestamp: String)
 
 // Whiteboard
 case class SendWhiteboardAnnotationRequest(meetingID: String, requesterID: String, annotation: AnnotationVO) extends InMessage

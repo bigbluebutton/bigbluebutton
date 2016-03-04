@@ -405,7 +405,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 
 			private function handleInactivityWarningEvent(e:BBBEvent):void {
-				var inactivityWarning:IFlexDisplayObject = PopUpManager.createPopUp(mdiCanvas, InactivityWarningWindow, true);
+				var inactivityWarning:InactivityWarningWindow = PopUpManager.createPopUp(mdiCanvas, InactivityWarningWindow, true) as InactivityWarningWindow;
+				inactivityWarning.duration = e.payload.duration;
 				PopUpManager.centerPopUp(inactivityWarning);
 			}
 			

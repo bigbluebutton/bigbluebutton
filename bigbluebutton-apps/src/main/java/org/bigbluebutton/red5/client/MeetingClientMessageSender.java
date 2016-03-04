@@ -203,6 +203,7 @@ public class MeetingClientMessageSender {
 	private void processInactivityWarningMessage(InactivityWarningMessage msg) {
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put("status", "Meeting seems inactive.");
+		args.put("duration", msg.duration);
 
 		Map<String, Object> message = new HashMap<String, Object>();
 		Gson gson = new Gson();

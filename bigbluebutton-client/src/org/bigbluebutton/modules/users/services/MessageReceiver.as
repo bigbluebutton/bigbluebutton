@@ -219,7 +219,10 @@ package org.bigbluebutton.modules.users.services
     }
 
     private function handleInactivityWarning(msg:Object):void {
+      var map:Object = JSON.parse(msg.msg);
+
       var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.INACTIVITY_WARNING_EVENT);
+      bbbEvent.payload.duration = map.duration;
       globalDispatcher.dispatchEvent(bbbEvent);
     }
 
