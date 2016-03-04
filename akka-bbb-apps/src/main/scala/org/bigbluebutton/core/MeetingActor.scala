@@ -33,7 +33,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
 
   private val InactivityDeadline = FiniteDuration(inactivityDeadline, "seconds")
   private val InactivityTimeLeft = FiniteDuration(inactivityTimeLeft, "seconds")
-  private val MonitorFrequency = 5 seconds
+  private val MonitorFrequency = 30 seconds
   private var deadline = InactivityDeadline.fromNow
 
   import context.dispatcher

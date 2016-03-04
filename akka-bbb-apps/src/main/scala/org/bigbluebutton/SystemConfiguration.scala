@@ -13,5 +13,5 @@ trait SystemConfiguration {
   lazy val keysExpiresInSec = Try(config.getInt("redis.keyExpiry")).getOrElse(14 * 86400) // 14 days
 
   lazy val inactivityDeadline = Try(config.getInt("inactivity.deadline")).getOrElse(2 * 3600) // 2 hours
-  lazy val inactivityTimeLeft = Try(config.getInt("inactivity.timeLeft")).getOrElse(3600 / 2) // 30 minutes
+  lazy val inactivityTimeLeft = Try(config.getInt("inactivity.timeLeft")).getOrElse(5 * 60) // 5 minutes
 }

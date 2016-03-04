@@ -20,7 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
 		xmlns:mate="http://mate.asfusion.com/"
 		verticalScrollPolicy="off"
 		horizontalScrollPolicy="off"

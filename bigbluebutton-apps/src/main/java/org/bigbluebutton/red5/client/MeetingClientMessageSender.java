@@ -175,7 +175,7 @@ public class MeetingClientMessageSender {
 	  	BroadcastClientMessage m = new BroadcastClientMessage(msg.meetingId, "meetingEnded", message);
 	  	service.sendMessage(m); 
 	}
-
+	
 	private void processDisconnectAllUsersMessage(DisconnectAllUsersMessage msg) {
 		DisconnectAllClientsMessage dm = new DisconnectAllClientsMessage(msg.meetingId);
 		service.sendMessage(dm);	  	 
