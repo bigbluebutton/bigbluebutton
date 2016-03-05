@@ -47,64 +47,64 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </bean>
   
   <bean id="web.handler" class="org.bigbluebutton.app.screenshare.red5.Red5AppAdapter">
-    <property name="streamBaseUrl" value="${streamBaseUrl}"/>
-    <property name="eventRecordingService" ref="eventRecordingService"/>
-    <property name="recordingDirectory" value="${recordingDirectory}"/>
-    <property name="application" ref="screenShareApplication"/>
-    <property name="messageSender" ref="connectionInvokerService"/>
+    <!--<property name="streamBaseUrl" value="${streamBaseUrl}"/>-->
+    <!--<property name="eventRecordingService" ref="eventRecordingService"/>-->
+    <!--<property name="recordingDirectory" value="${recordingDirectory}"/>-->
+    <!--<property name="application" ref="screenShareApplication"/>-->
+    <!--<property name="messageSender" ref="connectionInvokerService"/>-->
   </bean>
   
   <bean id="screenshare.service" class="org.bigbluebutton.app.screenshare.red5.Red5AppService">
-    <property name="appHandler" ref="red5AppHandler"/>
+    <!--<property name="appHandler" ref="red5AppHandler"/>-->
   </bean>
   
-  <bean id="red5AppHandler" class="org.bigbluebutton.app.screenshare.red5.Red5AppHandler">
-    <property name="application" ref="screenShareApplication"/>
-    <property name="messageSender" ref="connectionInvokerService"/>
-  </bean>
-  
-  <!-- The IoHandler implementation -->
-  <bean id="screenCaptureHandler" class="org.bigbluebutton.app.screenshare.server.socket.BlockStreamEventMessageHandler">
-    <property name="application" ref="screenShareApplication"/>
-  </bean>
-  
-  <bean id="screenShareApplication" class="org.bigbluebutton.app.screenshare.ScreenShareApplication">
-    <constructor-arg index="0" ref="messageBus"/>
-    <constructor-arg index="1" value="${jnlpFile}"/>
-    <constructor-arg index="2" value="${streamBaseUrl}"/>
-  </bean>
+  <!--<bean id="red5AppHandler" class="org.bigbluebutton.app.screenshare.red5.Red5AppHandler">-->
+    <!--<property name="application" ref="screenShareApplication"/>-->
+    <!--<property name="messageSender" ref="connectionInvokerService"/>-->
+  <!--</bean>-->
 
-  <bean id="eventListenerImp" class="org.bigbluebutton.app.screenshare.red5.EventListenerImp">
-    <property name="messageSender" ref="connectionInvokerService"/>
-  </bean>
-  
-  <bean id="jnlpConfigurator" class="org.bigbluebutton.app.screenshare.server.servlet.JnlpConfigurator">
-    <property name="jnlpUrl" value="${jnlpUrl}"/>
-    <property name="streamBaseUrl" value="${streamBaseUrl}"/>
-    <property name="codecOptions" value="${codecOptions}"/>
-    <property name="application" ref="screenShareApplication"/>
-  </bean>
-  
-  <bean id="messageBus" class="org.bigbluebutton.app.screenshare.events.EventMessageBusImp"
-      init-method="start" destroy-method="stop">
-    <property name="listeners">
-        <set>
-        <ref bean="eventListenerImp" />
-        </set>
-      </property> 
-  </bean>
-    
-  <bean id="connectionInvokerService" class="org.bigbluebutton.app.screenshare.red5.ConnectionInvokerService"
-        init-method="start" destroy-method="stop">
-  </bean>
-   
-  <bean id="eventRecordingService" class="org.bigbluebutton.app.screenshare.EventRecordingService">
-    <constructor-arg index="0" value="${redis.host}"/>
-    <constructor-arg index="1" value="${redis.port}"/>
-  </bean>
-  
-  <bean id="redisRecorder" class="org.bigbluebutton.app.screenshare.server.recorder.EventRecorder">
-    <constructor-arg index="0" value="${redis.host}"/>
-    <constructor-arg index="1" value="${redis.port}"/>
-  </bean>
+  <!-- The IoHandler implementation -->
+  <!--<bean id="screenCaptureHandler" class="org.bigbluebutton.app.screenshare.server.socket.BlockStreamEventMessageHandler">-->
+    <!--<property name="application" ref="screenShareApplication"/>-->
+  <!--</bean>-->
+  <!---->
+  <!--<bean id="screenShareApplication" class="org.bigbluebutton.app.screenshare.ScreenShareApplication">-->
+    <!--<constructor-arg index="0" ref="messageBus"/>-->
+    <!--<constructor-arg index="1" value="${jnlpFile}"/>-->
+    <!--<constructor-arg index="2" value="${streamBaseUrl}"/>-->
+  <!--</bean>-->
+
+  <!--<bean id="eventListenerImp" class="org.bigbluebutton.app.screenshare.red5.EventListenerImp">-->
+    <!--<property name="messageSender" ref="connectionInvokerService"/>-->
+  <!--</bean>-->
+  <!---->
+  <!--<bean id="jnlpConfigurator" class="org.bigbluebutton.app.screenshare.server.servlet.JnlpConfigurator">-->
+    <!--<property name="jnlpUrl" value="${jnlpUrl}"/>-->
+    <!--<property name="streamBaseUrl" value="${streamBaseUrl}"/>-->
+    <!--<property name="codecOptions" value="${codecOptions}"/>-->
+    <!--<property name="application" ref="screenShareApplication"/>-->
+  <!--</bean>-->
+  <!---->
+  <!--<bean id="messageBus" class="org.bigbluebutton.app.screenshare.events.EventMessageBusImp"-->
+      <!--init-method="start" destroy-method="stop">-->
+    <!--<property name="listeners">-->
+        <!--<set>-->
+        <!--<ref bean="eventListenerImp" />-->
+        <!--</set>-->
+      <!--</property> -->
+  <!--</bean>-->
+    <!---->
+  <!--<bean id="connectionInvokerService" class="org.bigbluebutton.app.screenshare.red5.ConnectionInvokerService"-->
+        <!--init-method="start" destroy-method="stop">-->
+  <!--</bean>-->
+   <!---->
+  <!--<bean id="eventRecordingService" class="org.bigbluebutton.app.screenshare.EventRecordingService">-->
+    <!--<constructor-arg index="0" value="${redis.host}"/>-->
+    <!--<constructor-arg index="1" value="${redis.port}"/>-->
+  <!--</bean>-->
+  <!---->
+  <!--<bean id="redisRecorder" class="org.bigbluebutton.app.screenshare.server.recorder.EventRecorder">-->
+    <!--<constructor-arg index="0" value="${redis.host}"/>-->
+    <!--<constructor-arg index="1" value="${redis.port}"/>-->
+  <!--</bean>-->
 </beans>

@@ -18,9 +18,9 @@
  */
 package org.bigbluebutton.app.screenshare.server.sessions
 
-import scala.actors.Actor
-import scala.actors.Actor._
-import net.lag.logging.Logger
+//import scala.actors.Actor
+//import scala.actors.Actor._
+//import net.lag.logging.Logger
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
@@ -31,9 +31,10 @@ case class HasScreenShareSession(meetingId: String)
 case class HasScreenShareSessionReply(meetingId: String, sharing: Boolean, streamId:Option[String])
 case class MeetingHasEnded(meetingId: String)
 
-class ScreenshareSessionManager(val bus: IEventsMessageBus)
-                                extends Actor with LogHelper {
-
+//class ScreenshareSessionManager(val bus: IEventsMessageBus)
+//                                extends Actor with LogHelper {
+class ScreenshareSessionManager() {
+/*
   private val meetings = new HashMap[String, MeetingActor]
 
   def act() = {
@@ -203,5 +204,5 @@ class ScreenshareSessionManager(val bus: IEventsMessageBus)
       logger.debug("RemoveSession: Session length [%d,%d]", old, meetings.size)
       }
   }
-
+*/
 }

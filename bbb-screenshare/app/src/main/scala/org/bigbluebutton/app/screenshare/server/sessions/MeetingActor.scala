@@ -1,17 +1,20 @@
 package org.bigbluebutton.app.screenshare.server.sessions
 
-import scala.actors.Actor
-import scala.actors.Actor._
+//import scala.actors.Actor
+//import scala.actors.Actor._
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.util._
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 
 
-class MeetingActor(val sessionManager: ScreenshareSessionManager, 
-                  val bus: IEventsMessageBus,
-                  val meetingId: String) extends Actor with LogHelper {
-  
+//class MeetingActor(val sessionManager: ScreenshareSessionManager,
+//                  val bus: IEventsMessageBus,
+//                  val meetingId: String) extends Actor with LogHelper {
+//
+
+class MeetingActor() {
+  /*
   private val sessions = new HashMap[String, ScreenshareSession]
 
   private var lastHasSessionCheck:Long = TimeUtil.getCurrentMonoTime
@@ -248,5 +251,5 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
     }
   }
   
-  
+ */
 }

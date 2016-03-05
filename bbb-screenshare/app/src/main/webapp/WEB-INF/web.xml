@@ -48,40 +48,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<!--listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener-->
-	    
-    <servlet>
-        <servlet-name>tunnel</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
 
-    <!-- maps the sample dispatcher to *.form -->
-    <servlet-mapping>
-        <servlet-name>tunnel</servlet-name>
-        <url-pattern>/tunnel/*</url-pattern>
-    </servlet-mapping>
-	 
-	<servlet>
-    <servlet-name>JnlpDownloadServlet</servlet-name>
-    <servlet-class>jnlp.sample.servlet.JnlpDownloadServlet</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>JnlpDownloadServlet</servlet-name>
-    <url-pattern>*.jnlp</url-pattern>
-  </servlet-mapping>
 
-  <servlet-mapping>
-    <servlet-name>JnlpDownloadServlet</servlet-name>
-    <url-pattern>*.jar</url-pattern>
-  </servlet-mapping>
-     
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Forbidden</web-resource-name>
-            <url-pattern>/streams/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint/>
-    </security-constraint>
+
+
+    <!--<servlet>-->
+        <!--<servlet-name>tunnel</servlet-name>-->
+        <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+        <!--<load-on-startup>1</load-on-startup>-->
+    <!--</servlet>-->
+
+    <!--&lt;!&ndash; maps the sample dispatcher to *.form &ndash;&gt;-->
+    <!--<servlet-mapping>-->
+        <!--<servlet-name>tunnel</servlet-name>-->
+        <!--<url-pattern>/tunnel/*</url-pattern>-->
+    <!--</servlet-mapping>-->
+	 <!---->
+	<!--<servlet>-->
+    <!--<servlet-name>JnlpDownloadServlet</servlet-name>-->
+    <!--<servlet-class>jnlp.sample.servlet.JnlpDownloadServlet</servlet-class>-->
+  <!--</servlet>-->
+  <!---->
+  <!--<servlet-mapping>-->
+    <!--<servlet-name>JnlpDownloadServlet</servlet-name>-->
+    <!--<url-pattern>*.jnlp</url-pattern>-->
+  <!--</servlet-mapping>-->
+
+  <!--<servlet-mapping>-->
+    <!--<servlet-name>JnlpDownloadServlet</servlet-name>-->
+    <!--<url-pattern>*.jar</url-pattern>-->
+  <!--</servlet-mapping>-->
+     <!---->
+    <!--<security-constraint>-->
+        <!--<web-resource-collection>-->
+            <!--<web-resource-name>Forbidden</web-resource-name>-->
+            <!--<url-pattern>/streams/*</url-pattern>-->
+        <!--</web-resource-collection>-->
+        <!--<auth-constraint/>-->
+    <!--</security-constraint>-->
     
 </web-app>

@@ -1,7 +1,7 @@
 package org.bigbluebutton.app.screenshare.server.util
 
 import org.slf4j.Logger
-import org.red5.logging.Red5LoggerFactory;
+import org.red5.logging.Red5LoggerFactory
 
 /**
  * LogHelper is a trait you can mix in to provide easy log4j logging 

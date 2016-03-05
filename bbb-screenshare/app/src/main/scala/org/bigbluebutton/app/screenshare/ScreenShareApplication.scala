@@ -5,10 +5,11 @@ import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSessionManag
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.server.util.LogHelper
 
-class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
-                             val streamBaseUrl: String)
-                              extends IScreenShareApplication with LogHelper {
-
+class ScreenShareApplication() {
+//class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
+//                             val streamBaseUrl: String)
+//                              extends IScreenShareApplication with LogHelper {
+/*
   val sessionManager: ScreenshareSessionManager = new ScreenshareSessionManager(bus)
   sessionManager.start 
   
@@ -180,4 +181,5 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
   
     stopped
   }
+  */
 }
