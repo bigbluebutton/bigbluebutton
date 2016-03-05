@@ -1,0 +1,48 @@
+<html>
+  <head>
+   <script type='text/javascript' src='jwplayer.js'></script>
+   <!--<script type="text/javascript"
+     src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js">
+   </script>-->
+  </head>
+  <body>
+
+    <div id='mediaplayer'></div>
+
+    <script type="text/javascript">
+      jwplayer('mediaplayer').setup({
+        flashplayer: 'player.swf',
+        id: 'playerID',
+        width: '320',
+        height: '240',
+        file: '320x2401-1328884730718',
+        streamer: 'rtmp://143.54.12.217/video/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1328884719358',
+        autostart: 'true',
+        provider: 'rtmp',
+        duration: '0',
+        bufferlength: '1', // it's not working
+        //start: '0',
+        //live: 'true',
+        //repeat: 'none',
+      });
+  </script>
+
+  <!-- using swfobject
+  <div id='container'>The player will be placed here</div>
+    <script type="text/javascript">
+      var flashvars = {
+        file:'320x2401-1328884730718',
+        bufferlength: '1',
+        streamer: 'rtmp://143.54.12.217/video/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1328884719358/',
+        autostart: 'true',
+      };
+      swfobject.embedSWF('player.swf','container','320','240','9.0.115','false', flashvars,
+        {allowfullscreen:'true',allowscriptaccess:'always', wmode:'transparent'},
+        {id:'jwplayer',name:'jwplayer'}
+      );
+  </script>
+  -->
+
+  </body>
+</html>
+

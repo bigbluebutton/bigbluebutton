@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <title>bbb-video-stream-html-client</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="actions.js"></script>
+
+    <script type="text/javascript" src="jw-player/jwplayer.js"></script>
+    <script type="text/javascript" src="flowplayer/example/flowplayer-3.2.6.min.js"></script>
+  </head>
+  <body>
+
+    <a href="https://github.com/daronco/bbb-video-stream-html-client"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+    <div id="menu">
+
+      <form action="#">
+        <div class="field">
+          <label class="label" for="server_ip">Server IP</label>
+          <input type="text" id="server_ip" name="server_ip" value="192.168.23.23" />
+        </div>
+        <div class="field">
+          <label class="label" for="meeting_id">Meeting ID</label>
+          <input type="text" id="meeting_id" name="meeting_id" value="foo" />
+        </div>
+        <div class="field">
+          <label class="label" for="stream_id">Stream ID</label>
+          <input type="text" id="stream_id" name="stream_id" value="room2" />
+        </div>
+        <div class="field">
+          <label class="label">Player</label>
+          <input type="radio" name="player" value="jw-player"> jw-player
+          <input type="radio" name="player" value="flowplayer" checked="checked"> flowplayer
+          <button type="button" id="submit">Submit</button>
+        </div>
+      </form>
+
+    </div>
+
+    <div id="content">
+      <div id="wrapper">Your video will be played here...</div>
+    </div>
+
+  </body>
+</html>

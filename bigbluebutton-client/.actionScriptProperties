@@ -15,6 +15,7 @@
   </compiler>
   <applications>
     <application path="BigBlueButton.mxml"/>
+    <application path="ScreenshareStandalone.mxml"/>
   </applications>
   <modules/>
   <workers/>
