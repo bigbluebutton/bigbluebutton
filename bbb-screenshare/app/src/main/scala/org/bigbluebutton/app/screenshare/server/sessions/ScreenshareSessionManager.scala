@@ -21,6 +21,9 @@ package org.bigbluebutton.app.screenshare.server.sessions
 //import scala.actors.Actor
 //import scala.actors.Actor._
 //import net.lag.logging.Logger
+
+import akka.actor.{ActorSystem, Actor, Props}
+
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
@@ -31,32 +34,33 @@ case class HasScreenShareSession(meetingId: String)
 case class HasScreenShareSessionReply(meetingId: String, sharing: Boolean, streamId:Option[String])
 case class MeetingHasEnded(meetingId: String)
 
-//class ScreenshareSessionManager(val bus: IEventsMessageBus)
-//                                extends Actor with LogHelper {
-class ScreenshareSessionManager() {
-/*
+object ScreenshareSessionManager {
+  def props(system: ActorSystem, bus: IEventsMessageBus): Props =
+    Props(classOf[ScreenshareSessionManager], system, bus)
+}
+class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
+                                extends Actor with LogHelper {
   private val meetings = new HashMap[String, MeetingActor]
+  val actorSystem = aSystem
+  val actorRef = context.actorOf(ScreenshareSessionManager.props(aSystem, bus), // TODO DANGER
+    "screenshare-session-manager-actor")
 
-  def act() = {
-    loop {
-      react {
-      case msg: StartShareRequestMessage    => handleStartShareRequestMessage(msg)
-      case msg: StopShareRequestMessage     => handleStopShareRequestMessage(msg)
-      case msg: StreamStartedMessage        => handleStreamStartedMessage(msg)
-      case msg: StreamStoppedMessage        => handleStreamStoppedMessage(msg)
-      case msg: SharingStartedMessage       => handleSharingStartedMessage(msg)
-      case msg: SharingStoppedMessage       => handleSharingStoppedMessage(msg)
-      case msg: IsStreamRecorded            => handleIsStreamRecorded(msg)
-      case msg: IsSharingStopped            => handleIsSharingStopped(msg) 
-      case msg: IsScreenSharing             => handleIsScreenSharing(msg)
-      case msg: ScreenShareInfoRequest      => handleScreenShareInfoRequest(msg)
-      case msg: UpdateShareStatus           => handleUpdateShareStatus(msg)
-      case msg: UserDisconnected            => handleUserDisconnected(msg)
-      case msg: MeetingHasEnded             => handleMeetingHasEnded(msg)
+  def receive() = {
+    case msg: StartShareRequestMessage    => handleStartShareRequestMessage(msg)
+    case msg: StopShareRequestMessage     => handleStopShareRequestMessage(msg)
+    case msg: StreamStartedMessage        => handleStreamStartedMessage(msg)
+    case msg: StreamStoppedMessage        => handleStreamStoppedMessage(msg)
+    case msg: SharingStartedMessage       => handleSharingStartedMessage(msg)
+    case msg: SharingStoppedMessage       => handleSharingStoppedMessage(msg)
+    case msg: IsStreamRecorded            => handleIsStreamRecorded(msg)
+    case msg: IsSharingStopped            => handleIsSharingStopped(msg)
+    case msg: IsScreenSharing             => handleIsScreenSharing(msg)
+    case msg: ScreenShareInfoRequest      => handleScreenShareInfoRequest(msg)
+    case msg: UpdateShareStatus           => handleUpdateShareStatus(msg)
+    case msg: UserDisconnected            => handleUserDisconnected(msg)
+    case msg: MeetingHasEnded             => handleMeetingHasEnded(msg)
 
-      case msg: Any => logger.warn("Unknown message " + msg)
-      }
-    }
+    case msg: Any => logger.warn("Unknown message " + msg)
   }
 
   
@@ -66,7 +70,7 @@ class ScreenshareSessionManager() {
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }  
   }
   
@@ -76,7 +80,7 @@ class ScreenshareSessionManager() {
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }  
   }
     
@@ -86,7 +90,7 @@ class ScreenshareSessionManager() {
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }  
   }
   
@@ -101,7 +105,7 @@ class ScreenshareSessionManager() {
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }  
   }
   
@@ -111,7 +115,7 @@ class ScreenshareSessionManager() {
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }      
   }
   
@@ -121,7 +125,7 @@ class ScreenshareSessionManager() {
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }      
   }
   
@@ -131,13 +135,13 @@ class ScreenshareSessionManager() {
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }    
   }
   
 
   private def handleIsSharingStopped(msg: IsSharingStopped) {
-    meetings.get(msg.meetingId) foreach { s => s forward msg }
+    meetings.get(msg.meetingId) foreach { s => s.actorRef ! msg }
   }
 
   private def handleStreamStoppedMessage(msg: StreamStoppedMessage) {
@@ -146,7 +150,7 @@ class ScreenshareSessionManager() {
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }    
   }
     
@@ -156,7 +160,7 @@ class ScreenshareSessionManager() {
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }    
   }
   
@@ -166,7 +170,7 @@ class ScreenshareSessionManager() {
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-      meeting forward msg
+      meeting.actorRef ! msg
     }
   }
   
@@ -181,16 +185,16 @@ class ScreenshareSessionManager() {
             logger.debug("Creating meeting=[" + msg.meetingId + "]")            
           }
 
-          val meeting: MeetingActor = new MeetingActor(this, bus, msg.meetingId) 
+          val meeting: MeetingActor = new MeetingActor(this, bus, msg.meetingId) //TODO change the way the meetingActor is created
           meetings += msg.meetingId -> meeting
-          meeting.start			  
-          meeting forward msg
+//          meeting.start
+          meeting.actorRef ! msg
         }
         case Some(meeting) => {
           if (logger.isDebugEnabled()) {
             logger.debug("Meeting already exists. meeting=[" + msg.meetingId + "]")            
           }
-          meeting forward msg
+          meeting.actorRef ! msg
         }
       }
   }
@@ -198,11 +202,11 @@ class ScreenshareSessionManager() {
   private def removeSession(meetingId: String): Unit = {
       logger.debug("SessionManager: Removing session " + meetingId);
       meetings.get(meetingId) foreach { s =>
-      s ! StopSession
-      val old:Int = meetings.size
-      meetings -= meetingId; 
-      logger.debug("RemoveSession: Session length [%d,%d]", old, meetings.size)
+        s.actorRef ! StopSession
+        val old:Int = meetings.size
+        meetings -= meetingId
+        logger.debug("RemoveSession: Session length [%d,%d]", old, meetings.size)
       }
   }
-*/
+
 }

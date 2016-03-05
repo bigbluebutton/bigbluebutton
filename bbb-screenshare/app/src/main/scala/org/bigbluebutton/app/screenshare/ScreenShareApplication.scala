@@ -4,15 +4,23 @@ import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSessionManager
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.server.util.LogHelper
+import akka.actor.ActorSystem
+import akka.actor.Props
+import akka.pattern.ask
+import scala.util.{Success, Failure}
 
-class ScreenShareApplication() {
-//class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
-//                             val streamBaseUrl: String)
-//                              extends IScreenShareApplication with LogHelper {
-/*
-  val sessionManager: ScreenshareSessionManager = new ScreenshareSessionManager(bus)
-  sessionManager.start 
-  
+class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
+                             val streamBaseUrl: String)
+                              extends IScreenShareApplication with LogHelper {
+
+//  val sessionManager: ScreenshareSessionManager = new ScreenshareSessionManager(bus)
+//  sessionManager.start
+
+  implicit val system = ActorSystem("bigbluebutton-screenshare-system")
+  val sessionManager = system.actorOf(ScreenshareSessionManager.props(system, bus), "session-manager")
+  implicit def executionContext = system.dispatcher
+  import scala.concurrent.duration._
+
   val initError: Error = new Error("Uninitialized error.")
   
   def userDisconnected(meetingId: String, userId: String) {
@@ -32,18 +40,50 @@ class ScreenShareApplication() {
     }
     
     var response: IsScreenSharingResponse = new IsScreenSharingResponse(null, initError)
-    sessionManager !? (3000, IsScreenSharing(meetingId)) match {
-        case None => {
-          logger.info("Failed to get response to is screen sharing request on meeting=" + meetingId + "]")
-          val info = new StreamInfo(false, "none", 0, 0, "none")
-          response = new IsScreenSharingResponse(info, new Error("Timedout waiting for response"))
-        }
-        case Some(rep) => {
-          val reply = rep.asInstanceOf[IsScreenSharingReply]
-          val info = new StreamInfo(true, reply.streamId, reply.width, reply.height, reply.url)
-          response = new IsScreenSharingResponse(info, null)
-        }
-      }   
+
+
+
+
+
+
+    val future = sessionManager.ask(IsScreenSharing(meetingId))(3.seconds)
+    future onComplete {
+      case Success(result) => {
+//        result.match {
+//          case None => {
+//            logger.info("Failed to get response to is screen sharing request on meeting=" + meetingId + "]")
+//            val info = new StreamInfo(false, "none", 0, 0, "none")
+//            response = new IsScreenSharingResponse(info, new Error("Timedout waiting for response"))
+//          }
+//          case Some(rep) => {
+//            val reply = rep.asInstanceOf[IsScreenSharingReply]
+//            val info = new StreamInfo(true, reply.streamId, reply.width, reply.height, reply.url)
+//            response = new IsScreenSharingResponse(info, null)
+//          }
+//        }
+
+        // TODO handle the some and none case
+        logger.info("CASE1111111")
+      }
+      case Failure(failure) => {
+        logger.warn("CASE2222222")
+      }
+    }
+
+
+
+//    sessionManager !? (3000, IsScreenSharing(meetingId)) match {
+//        case None => {
+//          logger.info("Failed to get response to is screen sharing request on meeting=" + meetingId + "]")
+//          val info = new StreamInfo(false, "none", 0, 0, "none")
+//          response = new IsScreenSharingResponse(info, new Error("Timedout waiting for response"))
+//        }
+//        case Some(rep) => {
+//          val reply = rep.asInstanceOf[IsScreenSharingReply]
+//          val info = new StreamInfo(true, reply.streamId, reply.width, reply.height, reply.url)
+//          response = new IsScreenSharingResponse(info, null)
+//        }
+//      }
     
     response
   }
@@ -55,18 +95,20 @@ class ScreenShareApplication() {
     }
     
     var response: ScreenShareInfoResponse = new ScreenShareInfoResponse(null, initError)
-    sessionManager !? (3000, ScreenShareInfoRequest(meetingId, token)) match {
-      case None => {
-        logger.info("Failed to get response to get screen sharing info request on token=" + token + "]")
-        response = new ScreenShareInfoResponse(null, new Error("Timedout waiting for response."))
-      }
-      case Some(rep) => {
-        val reply = rep.asInstanceOf[ScreenShareInfoRequestReply]
-        val publishUrl = streamBaseUrl + "/" + meetingId + "/" + reply.streamId
-        val info = new ScreenShareInfo(publishUrl, reply.streamId)
-        response = new ScreenShareInfoResponse(info, null)
-      }
-    }   
+
+    //TODO
+//    sessionManager !? (3000, ScreenShareInfoRequest(meetingId, token)) match {
+//      case None => {
+//        logger.info("Failed to get response to get screen sharing info request on token=" + token + "]")
+//        response = new ScreenShareInfoResponse(null, new Error("Timedout waiting for response."))
+//      }
+//      case Some(rep) => {
+//        val reply = rep.asInstanceOf[ScreenShareInfoRequestReply]
+//        val publishUrl = streamBaseUrl + "/" + meetingId + "/" + reply.streamId
+//        val info = new ScreenShareInfo(publishUrl, reply.streamId)
+//        response = new ScreenShareInfoResponse(info, null)
+//      }
+//    }
     
     response
   }
@@ -77,18 +119,19 @@ class ScreenShareApplication() {
     }    
     
     var record = false
-    
-    sessionManager !? (3000, IsStreamRecorded(meetingId, streamId)) match {
-        case None => {
-          logger.info("Failed to get response to record stream request on streamId=" 
-              + streamId + "]")
-          record = false
-        }
-        case Some(rep) => {
-          val reply = rep.asInstanceOf[IsStreamRecordedReply]
-          record = reply.record
-        }
-      }
+
+    //TODO
+//    sessionManager !? (3000, IsStreamRecorded(meetingId, streamId)) match {
+//        case None => {
+//          logger.info("Failed to get response to record stream request on streamId="
+//              + streamId + "]")
+//          record = false
+//        }
+//        case Some(rep) => {
+//          val reply = rep.asInstanceOf[IsStreamRecordedReply]
+//          record = reply.record
+//        }
+//      }
   
       record     
   }
@@ -100,18 +143,19 @@ class ScreenShareApplication() {
     }
     
     var response: StartShareRequestResponse = new StartShareRequestResponse(null, null, initError)
-    
-    sessionManager !? (3000, StartShareRequestMessage(meetingId, userId, record)) match {
-        case None => {
-          logger.info("Failed to get response to start share request on meeting=" 
-              + meetingId + " for user=" + userId + "]")
-          response = new StartShareRequestResponse(null, null, new Error("Timedout waiting for response"))
-        }
-        case Some(rep) => {
-          val reply = rep.asInstanceOf[StartShareRequestReplyMessage]
-          response = new StartShareRequestResponse(reply.token, jnlpFile, null)
-        }
-      }
+
+    // TODO
+//    sessionManager !? (3000, StartShareRequestMessage(meetingId, userId, record)) match {
+//        case None => {
+//          logger.info("Failed to get response to start share request on meeting="
+//              + meetingId + " for user=" + userId + "]")
+//          response = new StartShareRequestResponse(null, null, new Error("Timedout waiting for response"))
+//        }
+//        case Some(rep) => {
+//          val reply = rep.asInstanceOf[StartShareRequestReplyMessage]
+//          response = new StartShareRequestResponse(reply.token, jnlpFile, null)
+//        }
+//      }
   
       response      
   }
@@ -171,15 +215,15 @@ class ScreenShareApplication() {
     }
     
     var stopped = false
-    sessionManager !? (3000, IsSharingStopped(meetingId, streamId)) match {
-      case None => stopped = true
-      case Some(rep) => {
-        val reply = rep.asInstanceOf[IsSharingStoppedReply]
-        stopped = reply.stopped
-      }
-    }
+    // TODO
+//    sessionManager !? (3000, IsSharingStopped(meetingId, streamId)) match {
+//      case None => stopped = true
+//      case Some(rep) => {
+//        val reply = rep.asInstanceOf[IsSharingStoppedReply]
+//        stopped = reply.stopped
+//      }
+//    }
   
     stopped
   }
-  */
 }

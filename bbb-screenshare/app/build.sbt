@@ -7,8 +7,8 @@ organization := "org.bigbluebutton"
 
 version := "0.0.1"
 
-scalaVersion  := "2.11.6"
-//scalaVersion  := "2.11.7"
+//scalaVersion  := "2.11.6"
+scalaVersion  := "2.11.7"
 
 scalacOptions ++= Seq(
   "-unchecked",
@@ -34,8 +34,8 @@ publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/d
 retrieveManaged := true
 
 libraryDependencies ++= {
-  val akkaVersion  = "2.3.11"
-  //  val akkaVersion  = "2.4.2"
+//  val akkaVersion  = "2.3.11"
+    val akkaVersion  = "2.4.2"
   Seq(
     "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
     "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
