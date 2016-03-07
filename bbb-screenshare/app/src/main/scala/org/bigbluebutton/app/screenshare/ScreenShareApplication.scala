@@ -13,19 +13,16 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
                              val streamBaseUrl: String)
                               extends IScreenShareApplication with LogHelper {
 
-//  val sessionManager: ScreenshareSessionManager = new ScreenshareSessionManager(bus)
-//  sessionManager.start
-
   implicit val system = ActorSystem("bigbluebutton-screenshare-system")
   val sessionManager = system.actorOf(ScreenshareSessionManager.props(system, bus), "session-manager") //top level actor
+
   implicit def executionContext = system.dispatcher
+  val initError: Error = new Error("Uninitialized error.")
   import scala.concurrent.duration._
 
   sessionManager ! "test001"
-
   logger.info("_____ScreenShareApplication")
 
-  val initError: Error = new Error("Uninitialized error.")
 
   def userDisconnected(meetingId: String, userId: String) {
     if (logger.isDebugEnabled()) {

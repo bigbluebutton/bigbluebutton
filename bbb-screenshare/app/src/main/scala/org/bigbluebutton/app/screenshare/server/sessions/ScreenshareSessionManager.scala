@@ -41,7 +41,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
                                 extends Actor with LogHelper {
   logger.info("_________________ScreenshareSessionManager")
 
-  private val meetings = new HashMap[String, MeetingActor]
+  private val meetings = new HashMap[String, ActiveScreenshare]
   val actorSystem = aSystem
   val actorRef = null //aSystem.actorOf(ScreenshareSessionManager.props(aSystem, bus), // TODO DANGER
     //"screenshare-session-manager-actor")
@@ -188,9 +188,10 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
           }
 
           //TODO !!!!
-//          val meeting: MeetingActor = context.actorOf(classOf[MeetingActor](this, bus, msg.meetingId)) //TODO change the way the meetingActor is created
-//          meetings += msg.meetingId -> meeting
-//          meeting.actorRef ! msg
+          val activeScreenshare = ActiveScreenshare(this, bus, msg.meetingId)
+          //context.actorOf(MeetingActor.props(this, bus, msg.meetingId), "a-meeting-actor")
+          meetings += msg.meetingId -> activeScreenshare
+          activeScreenshare.actorRef ! msg
         }
         case Some(meeting) => {
           if (logger.isDebugEnabled()) {
