@@ -62,6 +62,7 @@ public class ParticipantsService {
 		String emojiStatus = (String) msg.get("emojiStatus");
 		
 		if (StringUtils.isEmpty(emojiStatus)) {
+	    log.warn("Invalid EmojiStatus from client: meetingId=" + meetingId + ", userId=" + userId + ",emoji=" + emojiStatus);
 			// Set emojiStatus=none if passed is null.
 			emojiStatus = "none";
 		}
