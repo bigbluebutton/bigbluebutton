@@ -60,7 +60,7 @@ Template.whiteboard.events({
         getInSession('userId'),
         getInSession('userId'),
         getInSession('authToken'),
-        event.target.value
+        this.name
       );
       $('.FABTriggerButton').blur();
       return toggleEmojisFAB();
