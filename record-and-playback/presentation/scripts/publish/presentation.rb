@@ -467,7 +467,7 @@ def storePollResultShape(xml, shape)
   end
   File.open(gpl_file, 'w') do |g|
     g.puts('reset')
-    g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\"")
+    g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\" noenhanced")
     g.puts('unset key')
     g.puts('set style data boxes')
     g.puts('set style fill solid border -1')
@@ -475,7 +475,7 @@ def storePollResultShape(xml, shape)
     g.puts('set yrange [0:*]')
     g.puts('unset border')
     g.puts('unset ytics')
-    xtics = result.map{ |r| "\"#{r['key'].gsub('%', '%%')}\" #{r['id']}" }.join(', ')
+    xtics = result.map{ |r| "#{r['key'].gsub('%', '%%').inspect} #{r['id']}" }.join(', ')
     g.puts("set xtics rotate by 90 scale 0 right (#{xtics})")
     if num_responders > 0
       x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
