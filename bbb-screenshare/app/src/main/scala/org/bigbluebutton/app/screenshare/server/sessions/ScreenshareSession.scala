@@ -20,9 +20,7 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 
 import akka.actor.{Actor, Props}
-
-//import scala.actors.Actor
-//import scala.actors.Actor._
+import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSession.KeepAliveTimeout
 //import net.lag.logging.Logger
 import org.bigbluebutton.app.screenshare.server.util.LogHelper
 import org.bigbluebutton.app.screenshare.server.util.TimeUtil
@@ -35,14 +33,17 @@ import org.bigbluebutton.app.screenshare.events.StreamStartedEvent
 import scala.concurrent.duration._
 
 
-case object StartSession                           
-case object StopSession
-case class KeepAliveTimeout(streamId: String)
+
 
 object ScreenshareSession {
   def props(): Props =
     Props(classOf[ScreenshareSession])
+
+  case object StartSession
+  case object StopSession
+  case class KeepAliveTimeout(streamId: String)
 }
+
 class ScreenshareSession(parent: MeetingActor,
                         bus: IEventsMessageBus,
                         val meetingId: String,
@@ -51,6 +52,7 @@ class ScreenshareSession(parent: MeetingActor,
                         val recorded: Boolean,
                         val userId: String) extends Actor with LogHelper {
 
+  logger.info("_____ScreenshareSession")
 	private var timeOfLastKeepAliveUpdate:Long = TimeUtil.getCurrentMonoTime
 	private val KEEP_ALIVE_TIMEOUT = 60000
 
@@ -72,7 +74,7 @@ class ScreenshareSession(parent: MeetingActor,
 
 	private val IS_STREAM_ALIVE = "IsStreamAlive"
 
-  val actorRef = context.actorOf(ScreenshareSession.props(), "screenshare-session-actor")
+  val actorRef = parent.sessionManager.actorSystem.actorOf(ScreenshareSession.props(), "screenshare-session-actor")
   implicit def executionContext = parent.sessionManager.actorSystem.dispatcher
 
 	def scheduleKeepAliveCheck() {
@@ -90,20 +92,20 @@ class ScreenshareSession(parent: MeetingActor,
 
     }
 
-	def receive() = {
-    case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
-    case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
-    case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
-    case msg: StreamStoppedMessage => handleStreamStoppedMessage(msg)
-    case msg: SharingStartedMessage => handleSharingStartedMessage(msg)
-    case msg: SharingStoppedMessage => handleSharingStoppedMessage(msg)
-    case msg: IsSharingStopped => handleIsSharingStopped(msg)
-    case msg: IsScreenSharing => handleIsScreenSharing(msg)
-    case msg: IsStreamRecorded => handleIsStreamRecorded(msg)
-    case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
-    case msg: UserDisconnected => handleUserDisconnected(msg)
-    case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
-    case IS_STREAM_ALIVE => checkIfStreamIsAlive()
+	def receive = {
+//    case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
+//    case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
+//    case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
+//    case msg: StreamStoppedMessage => handleStreamStoppedMessage(msg)
+//    case msg: SharingStartedMessage => handleSharingStartedMessage(msg)
+//    case msg: SharingStoppedMessage => handleSharingStoppedMessage(msg)
+//    case msg: IsSharingStopped => handleIsSharingStopped(msg)
+//    case msg: IsScreenSharing => handleIsScreenSharing(msg)
+//    case msg: IsStreamRecorded => handleIsStreamRecorded(msg)
+//    case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
+//    case msg: UserDisconnected => handleUserDisconnected(msg)
+//    case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
+//    case IS_STREAM_ALIVE => checkIfStreamIsAlive()
     case m: Any => logger.warn("Session: Unknown message [%s]", m)
   }
 
@@ -210,7 +212,7 @@ class ScreenshareSession(parent: MeetingActor,
 	private def checkIfStreamIsAlive() {
         if (TimeUtil.getCurrentMonoTime - timeOfLastKeepAliveUpdate > KEEP_ALIVE_TIMEOUT) {
             logger.warn("Did not received updates for more than 1 minute. Removing stream {}", streamId)
-            parent.actorRef ! new KeepAliveTimeout(streamId) // TODO not sure if this is the right way
+//            parent.actorRef ! new KeepAliveTimeout(streamId) // TODO not sure if this is the right way
         } else {
           scheduleKeepAliveCheck()
         }

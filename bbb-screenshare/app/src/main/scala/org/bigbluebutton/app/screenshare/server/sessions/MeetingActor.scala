@@ -2,9 +2,8 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 import akka.actor.Actor
 import akka.actor.Props
-
-//import scala.actors.Actor
-//import scala.actors.Actor._
+import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSession.KeepAliveTimeout
+import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSessionManager.MeetingHasEnded
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.util._
@@ -12,13 +11,15 @@ import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import scala.concurrent.duration._
 
 object MeetingActor {
-  def props(): Props =
-    Props(classOf[MeetingActor])
+  def props(screenshareSessionManager: ScreenshareSessionManager, bus: IEventsMessageBus, meetingId:String): Props =
+    Props(classOf[MeetingActor], screenshareSessionManager, bus, meetingId)
 }
+
 class MeetingActor(val sessionManager: ScreenshareSessionManager,
                   val bus: IEventsMessageBus,
                   val meetingId: String) extends Actor with LogHelper {
 
+  logger.info("_________________MeetingActor")
   private val sessions = new HashMap[String, ScreenshareSession]
 
   private var lastHasSessionCheck:Long = TimeUtil.getCurrentMonoTime
@@ -27,7 +28,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
   private var stopped = false
   
   private val IS_MEETING_RUNNING = "IsMeetingRunning"
-  val actorRef = context.actorOf(MeetingActor.props(), "meeting-actor")
+  //val actorRef = sessionManager.actorSystem.actorOf(MeetingActor.props(), "meeting-actor")
 
   implicit def executionContext = sessionManager.actorSystem.dispatcher
 
@@ -42,20 +43,20 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
   }
   
   def receive = {
-    case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
-    case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
-    case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
-    case msg: StreamStoppedMessage => handleStreamStoppedMessage(msg)
-    case msg: SharingStartedMessage => handleSharingStartedMessage(msg)
-    case msg: SharingStoppedMessage => handleSharingStoppedMessage(msg)
-    case msg: IsSharingStopped => handleIsSharingStopped(msg)
-    case msg: IsScreenSharing => handleIsScreenSharing(msg)
-    case msg: IsStreamRecorded => handleIsStreamRecorded(msg)
-    case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
-    case msg: UserDisconnected => handleUserDisconnected(msg)
-    case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
-    case IS_MEETING_RUNNING => handleIsMeetingRunning()
-    case msg: KeepAliveTimeout => handleKeepAliveTimeout(msg)
+//    case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
+//    case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
+//    case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
+//    case msg: StreamStoppedMessage => handleStreamStoppedMessage(msg)
+//    case msg: SharingStartedMessage => handleSharingStartedMessage(msg)
+//    case msg: SharingStoppedMessage => handleSharingStoppedMessage(msg)
+//    case msg: IsSharingStopped => handleIsSharingStopped(msg)
+//    case msg: IsScreenSharing => handleIsScreenSharing(msg)
+//    case msg: IsStreamRecorded => handleIsStreamRecorded(msg)
+//    case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
+//    case msg: UserDisconnected => handleUserDisconnected(msg)
+//    case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
+//    case IS_MEETING_RUNNING => handleIsMeetingRunning()
+//    case msg: KeepAliveTimeout => handleKeepAliveTimeout(msg)
     case m: Any => logger.warn("Session: Unknown message [{}]", m)
   }
 
@@ -72,7 +73,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
       logger.debug("Received UserDisconnected for meetingId=[" + msg.meetingId + "]")      
     } 
         
-    findSessionByUser(msg.userId) foreach (s => s.actorRef ! msg)
+//    findSessionByUser(msg.userId) foreach (s => s.actorRef ! msg)
   }
     
   private def handleIsScreenSharing(msg: IsScreenSharing) {
@@ -80,7 +81,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
       logger.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "]")      
     } 
         
-    activeSession foreach (s => s.actorRef ! msg)
+//    activeSession foreach (s => s.actorRef ! msg)
   }
     
   private def handleScreenShareInfoRequest(msg: ScreenShareInfoRequest) {
@@ -88,7 +89,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
       logger.debug("Received ScreenShareInfoRequest for token=[" + msg.token + "]")      
     } 
         
-    findSessionWithToken(msg.token) foreach (s => s.actorRef ! msg)
+//    findSessionWithToken(msg.token) foreach (s => s.actorRef ! msg)
   }
   
   private def handleIsStreamRecorded(msg: IsStreamRecorded) {
@@ -98,7 +99,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
     
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+//        session.actorRef ! msg
       }
       case None => {
         logger.info("IsStreamRecorded on a non-existing session=[" + msg.streamId + "]")
@@ -113,7 +114,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
     
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+//        session.actorRef ! msg
       }
       case None => {
         logger.info("Sharing stopped on a non-existing session=[" + msg.streamId + "]")
@@ -128,7 +129,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
         
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+//        session.actorRef ! msg
         
       }
       case None => {
@@ -144,7 +145,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
         
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+//        session.actorRef ! msg
       }
       case None => {
         logger.info("Sharing started on a non-existing session=[" + msg.streamId + "]")
@@ -159,7 +160,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
     
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+//        session.actorRef ! msg
         activeSession = None
       }
       case None => {
@@ -175,7 +176,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
            
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+//        session.actorRef ! msg
         activeSession = Some(session)
       }
       case None => {
@@ -190,7 +191,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
     }    
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+//        session.actorRef ! msg
       }
       case None => {
         logger.info("Stop share request on a non-existing session=[" + msg.streamId + "]")
@@ -208,14 +209,14 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
     sessions += streamId -> session
 //    session.start
     
-    session.actorRef ! msg
+//    session.actorRef ! msg
     
   }
   
   private def handleIsSharingStopped(msg: IsSharingStopped) {
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+//        session.actorRef ! msg
       }
       case None => {
         logger.info("Stream stopped on a non-existing session=[" + msg.streamId + "]")
@@ -239,7 +240,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
 
         //sessionManager ! MeetingHasEnded(meetingId)
         //TODO not sure if this is the right way of doing it
-        sessionManager.actorRef ! MeetingHasEnded(meetingId)
+//        sessionManager.actorRef ! MeetingHasEnded(meetingId)
       } else {
         scheduleIsMeetingRunningCheck
       }

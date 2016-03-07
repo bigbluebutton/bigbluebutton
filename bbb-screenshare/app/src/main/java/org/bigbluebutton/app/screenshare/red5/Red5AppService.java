@@ -81,7 +81,7 @@ public class Red5AppService {
 //  }
 //
 //
-//  public void setAppHandler(Red5AppHandler handler) {
-//    this.handler = handler;
-//  }
+  public void setAppHandler(Red5AppHandler handler) {
+    this.handler = handler;
+  }
 }
