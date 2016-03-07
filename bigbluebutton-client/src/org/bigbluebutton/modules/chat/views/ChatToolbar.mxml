@@ -33,6 +33,7 @@
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var toolbarVisible:Boolean = false;
 			[Bindable] private var bgColor:Number = 0xCCCCCC;
+			[Bindable] private var clrBtnVisible = false;
 
 			private var mousedOver:Boolean = false;
 			private var globalDispatcher:Dispatcher;
@@ -46,6 +47,7 @@
 
 				_toolbarHideTimer = new Timer(500, 1);
 				_toolbarHideTimer.addEventListener(TimerEvent.TIMER, closeToolbar);
+				clrBtnVisible = UsersUtil.amIModerator() && publicChat;
 			}
 			
 			private function onCreationComplete():void {
@@ -98,7 +100,7 @@
 			}
 
 			public function onChangeMyRole(e:ChangeMyRole):void{
-				clearBtn.visible = clearBtn.enabled = clearBtn.includeInLayout = UsersUtil.amIModerator() && publicChat;
+				clearBtn.visible = clearBtn.enabled = clearBtn.includeInLayout = clrBtnVisible = UsersUtil.amIModerator() && publicChat;
 			}
 
 			public function registerListeners(component:UIComponent):void {
@@ -133,9 +135,9 @@
 			   styleName="chatClearButtonStyle"
 			   width="22"
 			   height="22"
-			   visible = "{UsersUtil.amIModerator() &amp;&amp; publicChat}"
-			   enabled = "{UsersUtil.amIModerator() &amp;&amp; publicChat}"
-			   includeInLayout = "{UsersUtil.amIModerator() &amp;&amp; publicChat}"
+			   visible = "{clrBtnVisible}"
+			   enabled = "{clrBtnVisible}"
+			   includeInLayout = "{clrBtnVisible}"
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.toolTip')}" 
 			   click="sendClearEvent()"
 			   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.clearBtn.accessibilityName')}"/> 

@@ -19,8 +19,6 @@
 package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
-	
-	import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
 	public class ClearPublicChatEvent extends Event
 	{
