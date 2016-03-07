@@ -233,9 +233,9 @@ this.markUserOffline = function(meetingId, userId, callback) {
     }, {
       $set: {
         'user.connection_status': 'offline',
-        'voiceUser.talking': false,
-        'voiceUser.joined': false,
-        'voiceUser.muted': false,
+        'user.voiceUser.talking': false,
+        'user.voiceUser.joined': false,
+        'user.voiceUser.muted': false,
         'user.time_of_joining': 0,
         'user.listenOnly': false
       }
