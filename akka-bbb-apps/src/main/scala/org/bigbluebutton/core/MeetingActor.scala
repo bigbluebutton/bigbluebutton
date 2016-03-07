@@ -35,6 +35,7 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   private val InactivityTimeLeft = FiniteDuration(inactivityTimeLeft, "seconds")
   private val MonitorFrequency = 30 seconds
   private var deadline = InactivityDeadline.fromNow
+  private var inactivityWarning = InactivityTimeLeft.fromNow
 
   import context.dispatcher
   context.system.scheduler.schedule(2 seconds, MonitorFrequency, self, "Monitor")
@@ -251,14 +252,16 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
   }
 
   private def activity() {
-    if (deadline.isOverdue()) {
+    if (deadline.isOverdue() && inactivityWarning.isOverdue()) {
       log.debug("Closing meeting {} due to inactivity for {} seconds", mProps.meetingID, InactivityDeadline.toSeconds)
       updateDeadline()
       self ! EndMeeting(mProps.meetingID)
       // Or else make sure to send only one warning message
     } else if (deadline.timeLeft <= InactivityTimeLeft && deadline.timeLeft > InactivityTimeLeft - MonitorFrequency) {
       log.debug("Sending inactivity warning to meeting {}", mProps.meetingID)
-      outGW.send(new InactivityWarning(mProps.meetingID, deadline.timeLeft.toSeconds))
+      outGW.send(new InactivityWarning(mProps.meetingID, InactivityTimeLeft.toSeconds))
+      // We add 5 seconds so clients will have enough time to process the message
+      inactivityWarning = (InactivityTimeLeft + (5 seconds)).fromNow
     }
   }
 

@@ -71,7 +71,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				duration--;
 			} else {
 				tickTimer.stop();
-				PopUpManager.removePopUp(this);
+				cancelButton.visible = false;
+				warningMessage.text = ResourceUtil.getInstance().getString('bbb.shuttingDown.message');
 			}
 		}
 
@@ -92,7 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" horizontalAlign="center">
-		<mx:Text selectable="false" text="{ResourceUtil.getInstance().getString('bbb.inactivityWarning.message')}" styleName="inactivityWarningTextStyle"/>
+		<mx:Text id="warningMessage" selectable="false" text="{ResourceUtil.getInstance().getString('bbb.inactivityWarning.message')}" styleName="inactivityWarningTextStyle"/>
 		<mx:Button id="cancelButton" click="cancelButtonClicked()" styleName="inactivityWarningWindowCancelButtonStyle"/>
 	</mx:VBox>
 </mx:Panel>
