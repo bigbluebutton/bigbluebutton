@@ -18,6 +18,7 @@ sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/bbb-sc
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/scala-library-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/akka-* \
  ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/config-1.3.0.jar \
+ ~/dev/bigbluebutton/bbb-screenshare/app/target/webapp/WEB-INF/lib/gson-1.7.1.jar \
   /usr/share/red5/webapps/screenshare/WEB-INF/lib/
 
 
@@ -25,6 +26,13 @@ sudo mkdir /usr/share/red5/webapps/screenshare/WEB-INF/classes
 cd /usr/share/red5/webapps/screenshare/WEB-INF/classes/
 sudo jar -xf ../lib/bbb-screenshare-akka_2.11-0.0.1.jar
 sudo rm /usr/share/red5/webapps/screenshare/WEB-INF/lib/bbb-screenshare-akka_2.11-0.0.1.jar
+
+cd /usr/share/red5/webapps/screenshare
+sudo mkdir lib
+cd lib
+sudo cp -r ~/dev/bigbluebutton/bbb-screenshare/app/jws/lib/* .
+cd ..
+sudo cp ~/dev/bigbluebutton/bbb-screenshare/app/jws/screenshare.jnlp .
 
 sudo chmod -R 777 /usr/share/red5/webapps/screenshare
 sudo chown -R red5:red5 /usr/share/red5/webapps/screenshare

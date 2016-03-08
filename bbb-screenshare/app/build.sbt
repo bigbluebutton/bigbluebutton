@@ -40,7 +40,7 @@ libraryDependencies ++= {
     "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
     "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
     "com.typesafe.akka"        %%  "akka-slf4j"        % akkaVersion,
-    "com.typesafe"              %  "config"            % "1.3.0", //TODO JUST ADDED
+    "com.typesafe"              %  "config"            % "1.3.0",
     "ch.qos.logback"            %  "logback-classic"   % "1.0.13" % "runtime",
     //    "org.pegdown"               %  "pegdown"           % "1.4.0",
     //    "junit"                     %  "junit"             % "4.11",
@@ -48,8 +48,8 @@ libraryDependencies ++= {
     "commons-codec"             %  "commons-codec"     % "1.8",
         "redis.clients"             %  "jedis"             % "2.7.2",
     //    "org.apache.commons"        %  "commons-lang3"     % "3.2",
-    "org.red5"                  %  "red5-server"       % "1.0.6-RELEASE", //NOTE this can't be runtime
-        "com.google.code.gson"      %  "gson"              % "1.7.1",
+    "org.red5"                  %  "red5-server"       % "1.0.6-RELEASE",
+    "com.google.code.gson"      %  "gson"              % "1.7.1",
 
     "org.springframework"       %  "spring-web"        % "4.1.7.RELEASE",
     "org.springframework"       %  "spring-beans"      % "4.1.7.RELEASE",
