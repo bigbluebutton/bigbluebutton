@@ -73,7 +73,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                     builder.format(info.getPlaybackFormat())
                     builder.link(info.getPlaybackLink())
                     builder.duration(info.getPlaybackDuration())
-                    builder.duration(info.getPlaybackSize())
+                    builder.size(info.getPlaybackSize())
                     builder.extension(info.getPlaybackExtensions())
                 }
             }

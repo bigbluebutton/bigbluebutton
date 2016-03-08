@@ -111,10 +111,14 @@ public class Recording {
 	public String getSize() {
 		BigInteger size = BigInteger.ZERO;
 		for (Playback p: playbacks) {
-			size = size.add(new BigInteger(p.getSize()));
+			if (p.getSize().length() > 0) {
+				size = size.add(new BigInteger(p.getSize()));
+			}
 		}
 		for (Download p: downloads) {
-			size = size.add(new BigInteger(p.getSize()));
+			if (p.getSize().length() > 0) {
+				size = size.add(new BigInteger(p.getSize()));
+			}
 		}
 		return size.toString();
 	}
