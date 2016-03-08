@@ -35,6 +35,8 @@
 
 	<mx:Script>
 		<![CDATA[
+			import org.as3commons.logging.api.ILogger;
+			import org.as3commons.logging.api.getClassLogger;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.utils.getTimer;
@@ -65,9 +67,11 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import flash.utils.getQualifiedClassName;
 			import mx.collections.ArrayCollection;
+			private static const LOGGER:ILogger = getClassLogger(SharedNotesWindow);
 
 			protected var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
+			private var _lastPatch:Number = -1;
 			protected var _notesId:String="MAIN_WINDOW";
 			protected var _noteName:String = "";
 
@@ -149,6 +153,7 @@
 				var note:Object = notes[noteId];
 				_document = note["document"];
 				_noteName = note["name"];
+				_lastPatch = note["patchCounter"];
 				richTextEditor.htmlText = _document;
 				if (!this.enabled) this.enabled = true;
 				updateTitle();
@@ -171,13 +176,20 @@
 			private function receivePatch(e:ReceivePatchEvent):void {
 //				LOGGER.debug("SharedNotesWindow: patch received");
 //				LOGGER.debug("=====\n" + e.patch + "\n=====");
-				if (e.patch != "" && e.noteId==noteId) {
-					var result:String = DiffPatch.patch(e.patch, _document);
-//					LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
-//					LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
-					_document = result;
-//					LOGGER.debug("SharedNotes: patching local with server modifications");
-					richTextEditor.patch(e.patch);
+				if (e.noteId == noteId) {
+					if (_lastPatch == (e.patchId - 1)) {
+						if (e.patch != "") {
+							var result:String = DiffPatch.patch(e.patch, _document);
+//							LOGGER.debug("SharedNotesWindow: before the patch\n" + _document);
+//							LOGGER.debug("SharedNotesWindow: after the patch\n" + result);
+							_document = result;
+//							LOGGER.debug("SharedNotes: patching local with server modifications");
+							richTextEditor.patch(e.patch);
+						}
+						_lastPatch = e.patchId;
+					} else {
+						LOGGER.error("Patch missmatch");
+					}
 				}
 			}
 

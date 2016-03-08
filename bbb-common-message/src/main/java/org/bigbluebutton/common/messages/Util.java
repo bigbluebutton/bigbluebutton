@@ -682,10 +682,12 @@ public class Util {
 	class Note {
 		String name = "";
 		String document = "";
+		Integer patchCounter = 0;
 
-		public Note(String name, String document) {
+		public Note(String name, String document, Integer patchCounter) {
 			this.name = name;
 			this.document = document;
+			this.patchCounter = patchCounter;
 		}
 	}
 
@@ -696,7 +698,8 @@ public class Util {
 			JsonObject obj = entry.getValue().getAsJsonObject();
 			String name = obj.get("name").getAsString();
 			String document = obj.get("document").getAsString();
-			Note note = new Note(name, document);
+			Integer patchCounter = obj.get("patchCounter").getAsInt();
+			Note note = new Note(name, document, patchCounter);
 			notesMap.put(entry.getKey(), (Object) note);
 		}
 

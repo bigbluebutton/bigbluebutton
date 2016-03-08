@@ -16,12 +16,14 @@ public class PatchDocumentReplyMessage implements ISubscribedMessage {
 	public final String requesterID;
 	public final String noteID;
 	public final String patch;
+	public final Integer patchID;
 
-	public PatchDocumentReplyMessage(String meetingID, String requesterID, String noteID, String patch) {
+	public PatchDocumentReplyMessage(String meetingID, String requesterID, String noteID, String patch, Integer patchID) {
 		this.meetingID = meetingID;
 		this.requesterID = requesterID;
 		this.noteID = noteID;
 		this.patch = patch;
+		this.patchID = patchID;
 	}
 
 	public String toJson() {
@@ -30,6 +32,7 @@ public class PatchDocumentReplyMessage implements ISubscribedMessage {
 		payload.put(Constants.REQUESTER_ID, requesterID);
 		payload.put(Constants.NOTE_ID, noteID);
 		payload.put(Constants.PATCH, patch);
+		payload.put(Constants.PATCH_ID, patchID);
 
 		java.util.HashMap<String, Object> header = MessageBuilder.buildHeader(PATCH_DOCUMENT_REPLY, VERSION, null);
 
@@ -50,13 +53,15 @@ public class PatchDocumentReplyMessage implements ISubscribedMessage {
 					if (payload.has(Constants.MEETING_ID)
 							&& payload.has(Constants.REQUESTER_ID)
 							&& payload.has(Constants.NOTE_ID)
-							&& payload.has(Constants.PATCH)) {
+							&& payload.has(Constants.PATCH)
+							&& payload.has(Constants.PATCH_ID)) {
 						String meetingID = payload.get(Constants.MEETING_ID).getAsString();
 						String requesterID = payload.get(Constants.REQUESTER_ID).getAsString();
 						String noteID = payload.get(Constants.NOTE_ID).getAsString();
 						String patch = payload.get(Constants.PATCH).getAsString();
+						Integer patchID = payload.get(Constants.PATCH_ID).getAsInt();
 
-						return new PatchDocumentReplyMessage(meetingID, requesterID, noteID, patch);
+						return new PatchDocumentReplyMessage(meetingID, requesterID, noteID, patch, patchID);
 					}
 				}
 			}
