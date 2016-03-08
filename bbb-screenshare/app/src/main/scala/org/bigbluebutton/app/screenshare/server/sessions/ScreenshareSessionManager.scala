@@ -48,19 +48,19 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
 
   def receive = {
     case "test001" => logger.info("SSM received test001!");
-//    case msg: StartShareRequestMessage    => handleStartShareRequestMessage(msg)
-//    case msg: StopShareRequestMessage     => handleStopShareRequestMessage(msg)
-//    case msg: StreamStartedMessage        => handleStreamStartedMessage(msg)
-//    case msg: StreamStoppedMessage        => handleStreamStoppedMessage(msg)
-//    case msg: SharingStartedMessage       => handleSharingStartedMessage(msg)
-//    case msg: SharingStoppedMessage       => handleSharingStoppedMessage(msg)
-//    case msg: IsStreamRecorded            => handleIsStreamRecorded(msg)
-//    case msg: IsSharingStopped            => handleIsSharingStopped(msg)
-//    case msg: IsScreenSharing             => handleIsScreenSharing(msg)
-//    case msg: ScreenShareInfoRequest      => handleScreenShareInfoRequest(msg)
-//    case msg: UpdateShareStatus           => handleUpdateShareStatus(msg)
-//    case msg: UserDisconnected            => handleUserDisconnected(msg)
-//    case msg: MeetingHasEnded             => handleMeetingHasEnded(msg)
+    case msg: StartShareRequestMessage    => handleStartShareRequestMessage(msg)
+    case msg: StopShareRequestMessage     => handleStopShareRequestMessage(msg)
+    case msg: StreamStartedMessage        => handleStreamStartedMessage(msg)
+    case msg: StreamStoppedMessage        => handleStreamStoppedMessage(msg)
+    case msg: SharingStartedMessage       => handleSharingStartedMessage(msg)
+    case msg: SharingStoppedMessage       => handleSharingStoppedMessage(msg)
+    case msg: IsStreamRecorded            => handleIsStreamRecorded(msg)
+    case msg: IsSharingStopped            => handleIsSharingStopped(msg)
+    case msg: IsScreenSharing             => handleIsScreenSharing(msg)
+    case msg: ScreenShareInfoRequest      => handleScreenShareInfoRequest(msg)
+    case msg: UpdateShareStatus           => handleUpdateShareStatus(msg)
+    case msg: UserDisconnected            => handleUserDisconnected(msg)
+    case msg: MeetingHasEnded             => handleMeetingHasEnded(msg)
 
     case msg: Any => logger.warn("Unknown message " + msg)
   }
@@ -72,7 +72,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }  
   }
   
@@ -82,7 +82,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }  
   }
     
@@ -92,7 +92,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }  
   }
   
@@ -107,7 +107,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }  
   }
   
@@ -117,7 +117,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }      
   }
   
@@ -127,7 +127,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }      
   }
   
@@ -137,13 +137,13 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }    
   }
   
 
   private def handleIsSharingStopped(msg: IsSharingStopped) {
-//    meetings.get(msg.meetingId) foreach { s => s.actorRef ! msg }
+    meetings.get(msg.meetingId) foreach { s => s.actorRef ! msg }
   }
 
   private def handleStreamStoppedMessage(msg: StreamStoppedMessage) {
@@ -152,7 +152,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }    
   }
     
@@ -162,7 +162,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }     
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }    
   }
   
@@ -172,7 +172,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     }    
     
     meetings.get(msg.meetingId) foreach { meeting =>
-//      meeting.actorRef ! msg
+      meeting.actorRef ! msg
     }
   }
   
@@ -187,9 +187,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
             logger.debug("Creating meeting=[" + msg.meetingId + "]")            
           }
 
-          //TODO !!!!
           val activeScreenshare = ActiveScreenshare(this, bus, msg.meetingId)
-          //context.actorOf(MeetingActor.props(this, bus, msg.meetingId), "a-meeting-actor")
           meetings += msg.meetingId -> activeScreenshare
           activeScreenshare.actorRef ! msg
         }
@@ -197,7 +195,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
           if (logger.isDebugEnabled()) {
             logger.debug("Meeting already exists. meeting=[" + msg.meetingId + "]")            
           }
-//          meeting.actorRef ! msg
+          meeting.actorRef ! msg
         }
       }
   }
@@ -205,7 +203,7 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
   private def removeSession(meetingId: String): Unit = {
       logger.debug("SessionManager: Removing session " + meetingId);
       meetings.get(meetingId) foreach { s =>
-//        s.actorRef ! StopSession
+        s.actorRef ! StopSession
         val old:Int = meetings.size
         meetings -= meetingId
         logger.debug("RemoveSession: Session length [%d,%d]", old, meetings.size)

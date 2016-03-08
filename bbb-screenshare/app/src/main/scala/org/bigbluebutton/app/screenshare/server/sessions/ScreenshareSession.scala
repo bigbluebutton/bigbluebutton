@@ -32,12 +32,10 @@ import org.bigbluebutton.app.screenshare.events.StreamStoppedEvent
 import org.bigbluebutton.app.screenshare.events.StreamStartedEvent
 import scala.concurrent.duration._
 
-
-
-
 object ScreenshareSession {
-  def props(): Props =
-    Props(classOf[ScreenshareSession])
+  def props(parent: MeetingActor, bus: IEventsMessageBus, meetingId: String, streamId: String, token: String,
+   recorded: Boolean, userId: String): Props = Props(classOf[ScreenshareSession], parent, bus, meetingId,
+    streamId, token, recorded, userId)
 
   case object StartSession
   case object StopSession
@@ -74,7 +72,7 @@ class ScreenshareSession(parent: MeetingActor,
 
 	private val IS_STREAM_ALIVE = "IsStreamAlive"
 
-  val actorRef = parent.sessionManager.actorSystem.actorOf(ScreenshareSession.props(), "screenshare-session-actor")
+//  val actorRef = parent.sessionManager.actorSystem.actorOf(ScreenshareSession.props(), "screenshare-session-actor")
   implicit def executionContext = parent.sessionManager.actorSystem.dispatcher
 
 	def scheduleKeepAliveCheck() {
