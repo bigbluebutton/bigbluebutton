@@ -225,7 +225,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
   
   private def handleStartSession() {
     stopped = false
-    scheduleIsMeetingRunningCheck
+    scheduleIsMeetingRunningCheck()
   }
     
   private def handleIsMeetingRunning() {
@@ -233,15 +233,14 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
     if (sessions.isEmpty) {
       if (TimeUtil.getCurrentMonoTime - lastHasSessionCheck > 300000) {
 
-        //sessionManager ! MeetingHasEnded(meetingId)
         //TODO not sure if this is the right way of doing it
-//        sessionManager.actorRef ! MeetingHasEnded(meetingId)
+        context.parent ! MeetingHasEnded(meetingId)
       } else {
-        scheduleIsMeetingRunningCheck
+        scheduleIsMeetingRunningCheck()
       }
     } else {
-      lastHasSessionCheck = TimeUtil.getCurrentMonoTime
-      scheduleIsMeetingRunningCheck
+      lastHasSessionCheck = TimeUtil.getCurrentMonoTime()
+      scheduleIsMeetingRunningCheck()
     } 
   }
   

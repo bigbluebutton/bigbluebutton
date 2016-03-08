@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" 
    version="2.4"> 
 
-    <display-name>deskShare</display-name>
+    <display-name>screenShare</display-name>
 	
 	<context-param>
 		<param-name>webAppRootKey</param-name>

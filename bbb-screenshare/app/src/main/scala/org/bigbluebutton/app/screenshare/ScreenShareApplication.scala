@@ -8,17 +8,16 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.pattern.ask
 import scala.util.{Success, Failure}
+import scala.concurrent.duration._
 
 class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
-                             val streamBaseUrl: String)
-                              extends IScreenShareApplication with LogHelper {
+                             val streamBaseUrl: String) extends IScreenShareApplication with LogHelper {
 
   implicit val system = ActorSystem("bigbluebutton-screenshare-system")
   val sessionManager = system.actorOf(ScreenshareSessionManager.props(system, bus), "session-manager") //top level actor
 
   implicit def executionContext = system.dispatcher
   val initError: Error = new Error("Uninitialized error.")
-  import scala.concurrent.duration._
 
   sessionManager ! "test001"
   logger.info("_____ScreenShareApplication")

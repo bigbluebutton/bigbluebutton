@@ -72,15 +72,10 @@ class ScreenshareSession(parent: MeetingActor,
 
 	private val IS_STREAM_ALIVE = "IsStreamAlive"
 
-//  val actorRef = parent.sessionManager.actorSystem.actorOf(ScreenshareSession.props(), "screenshare-session-actor")
   implicit def executionContext = parent.sessionManager.actorSystem.dispatcher
 
 	def scheduleKeepAliveCheck() {
-        val mainActor = self
-//        actor {
-//            Thread.sleep(5000)
-//            mainActor ! IS_STREAM_ALIVE
-//        }
+    val mainActor = self
 
     parent.sessionManager.actorSystem.scheduler.schedule(
       (5.seconds),
@@ -91,19 +86,19 @@ class ScreenshareSession(parent: MeetingActor,
     }
 
 	def receive = {
-//    case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
-//    case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
-//    case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
-//    case msg: StreamStoppedMessage => handleStreamStoppedMessage(msg)
-//    case msg: SharingStartedMessage => handleSharingStartedMessage(msg)
-//    case msg: SharingStoppedMessage => handleSharingStoppedMessage(msg)
-//    case msg: IsSharingStopped => handleIsSharingStopped(msg)
-//    case msg: IsScreenSharing => handleIsScreenSharing(msg)
-//    case msg: IsStreamRecorded => handleIsStreamRecorded(msg)
-//    case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
-//    case msg: UserDisconnected => handleUserDisconnected(msg)
-//    case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
-//    case IS_STREAM_ALIVE => checkIfStreamIsAlive()
+    case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
+    case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
+    case msg: StreamStartedMessage => handleStreamStartedMessage(msg)
+    case msg: StreamStoppedMessage => handleStreamStoppedMessage(msg)
+    case msg: SharingStartedMessage => handleSharingStartedMessage(msg)
+    case msg: SharingStoppedMessage => handleSharingStoppedMessage(msg)
+    case msg: IsSharingStopped => handleIsSharingStopped(msg)
+    case msg: IsScreenSharing => handleIsScreenSharing(msg)
+    case msg: IsStreamRecorded => handleIsStreamRecorded(msg)
+    case msg: UpdateShareStatus => handleUpdateShareStatus(msg)
+    case msg: UserDisconnected => handleUserDisconnected(msg)
+    case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
+    case IS_STREAM_ALIVE => checkIfStreamIsAlive()
     case m: Any => logger.warn("Session: Unknown message [%s]", m)
   }
 
@@ -210,7 +205,7 @@ class ScreenshareSession(parent: MeetingActor,
 	private def checkIfStreamIsAlive() {
         if (TimeUtil.getCurrentMonoTime - timeOfLastKeepAliveUpdate > KEEP_ALIVE_TIMEOUT) {
             logger.warn("Did not received updates for more than 1 minute. Removing stream {}", streamId)
-//            parent.actorRef ! new KeepAliveTimeout(streamId) // TODO not sure if this is the right way
+            context.parent ! new KeepAliveTimeout(streamId) // TODO not sure if this is the right way
         } else {
           scheduleKeepAliveCheck()
         }

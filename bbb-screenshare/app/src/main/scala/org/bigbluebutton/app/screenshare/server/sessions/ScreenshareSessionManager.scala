@@ -43,8 +43,6 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
 
   private val meetings = new HashMap[String, ActiveScreenshare]
   val actorSystem = aSystem
-  val actorRef = null //aSystem.actorOf(ScreenshareSessionManager.props(aSystem, bus), // TODO DANGER
-    //"screenshare-session-manager-actor")
 
   def receive = {
     case "test001" => logger.info("SSM received test001!");
