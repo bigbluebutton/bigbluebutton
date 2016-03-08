@@ -47,6 +47,7 @@ public class Recording {
 	private String playbackFormat;
 	private String playbackDuration;
 	private String playbackSize;
+	private String processingTime;
 	private GPathResult playbackExtensions;
 
 	private String downloadLink;
@@ -201,6 +202,14 @@ public class Recording {
 
 	public void setPlaybackSize(String playbackSize) {
 		this.playbackSize = playbackSize;
+	}
+
+	public String getProcessingTime() {
+		return processingTime;
+	}
+
+	public void setProcessingTime(String processingTime) {
+		this.processingTime = processingTime;
 	}
 
 	public GPathResult getPlaybackExtensions() {

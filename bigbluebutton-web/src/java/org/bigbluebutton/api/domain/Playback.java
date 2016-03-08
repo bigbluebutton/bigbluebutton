@@ -25,13 +25,15 @@ public class Playback {
 	private String url;
 	private int length;
 	private String size;
+	private String processingTime;
 	private GPathResult extensions;
 	
-	public Playback(String format, String url, int length, String size, GPathResult extensions) {
+	public Playback(String format, String url, int length, String size, String processingTime, GPathResult extensions) {
 		this.format = format;
 		this.url = url;
 		this.length = length;
 		this.size = size;
+		this.processingTime = processingTime;
 		this.extensions = extensions;
 	}
 	public String getFormat() {
@@ -57,6 +59,12 @@ public class Playback {
 	}
 	public void setSize(String size) {
 		this.size = size;
+	}
+	public String getProcessingTime() {
+		return processingTime;
+	}
+	public void setProcessingTime(String processingTime) {
+		this.processingTime = processingTime;
 	}
 	public GPathResult getExtensions() {
 		return extensions;

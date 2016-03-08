@@ -31,6 +31,7 @@
             <url>${p.getUrl()}</url>
             <length>${p.getLength()}</length>
             <size>${p.getSize()}</size>
+            <processingTime>${p.getProcessingTime()}</processingTime>
             <#-- Missing p.getExtensions() -->
           </format>
           </#if>

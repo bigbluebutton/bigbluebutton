@@ -75,6 +75,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
                     builder.duration(info.getPlaybackDuration())
                     builder.size(info.getPlaybackSize())
                     builder.extension(info.getPlaybackExtensions())
+                    builder.processing_time(info.getProcessingTime())
                 }
             }
             if ( info.getDownloadFormat() == null ) {
@@ -128,6 +129,7 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
             r.setPlaybackLink(rec.playback.link.text());
             r.setPlaybackDuration(rec.playback.duration.text());
             r.setPlaybackSize(rec.playback.size.text());
+            r.setProcessingTime(rec.playback.processing_time.text());
         }
 
 /*
