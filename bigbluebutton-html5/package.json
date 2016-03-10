@@ -1,9 +1,13 @@
 {
-  "name": "BBB-HTML-CLIENT",
+  "name": "bbb-html5-client",
+  "description": "BigBlueButton HTML5 Client",
   "scripts": {
     "start": "cd app;./start.sh",
     "preinstall": "sudo npm install -g grunt-cli",
     "test": "cd app;JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 meteor run --test"
+  },
+  "dependencies": {
+    "classnames": "^2.2.3"
   },
   "devDependencies": {
     "coffeelint": "^1.6.0",
@@ -13,4 +17,3 @@
     "grunt-contrib-jshint": "^0.10.0"
   }
 }
-

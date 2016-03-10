@@ -87,7 +87,7 @@ if(Meteor.isServer) {
   if(process != null && process.env != null && process.env.NODE_ENV == "production") {
     config.log.path = "/var/log/bigbluebutton/bbbnode.log";
   } else {
-    config.log.path = `${process.env.PWD}/../log/development.log`
+    config.log.path = `${process.env.PWD}/log/development.log`
   }
   // Setting up a logger in Meteor.log
   winston = Winston; //Meteor.require 'winston'
