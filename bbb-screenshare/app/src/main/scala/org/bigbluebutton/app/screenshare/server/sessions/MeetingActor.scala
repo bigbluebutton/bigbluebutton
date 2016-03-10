@@ -40,7 +40,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
       mainActor,
       IS_MEETING_RUNNING)
   }
-  
+
   def receive = {
     case msg: StartShareRequestMessage => handleStartShareRequestMessage(msg)
     case msg: StopShareRequestMessage => handleStopShareRequestMessage(msg)
@@ -78,16 +78,19 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
   private def handleIsScreenSharing(msg: IsScreenSharing) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "]")      
-    } 
-        
-    activeSession foreach (s => s.actorRef ! msg)
+    }
+    logger.info("___MeetingActor::handleIsScreenSharing ")
+
+    if (activeSession.isEmpty) {
+      activeSession foreach (s => s.actorRef ! msg)
+    }
   }
     
   private def handleScreenShareInfoRequest(msg: ScreenShareInfoRequest) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received ScreenShareInfoRequest for token=[" + msg.token + "]")      
     } 
-        
+
     findSessionWithToken(msg.token) foreach (s => s.actorRef ! msg)
   }
   
@@ -199,13 +202,17 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
   }
   
   private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
+    logger.info("MActor::handleStartShareRequestMessage" + msg.meetingId)
     val token = RandomStringGenerator.randomAlphanumericString(16)
     val streamId = msg.meetingId + "-" + System.currentTimeMillis();
     
     val session = ActiveSession(this, bus, meetingId, streamId, token, msg.record, msg.userId)
     sessions += streamId -> session
     session.actorRef ! msg
-    
+
+    logger.info("MA before")
+    sender ! new StartShareRequestReplyMessage(token)
+    logger.info("MA after")
   }
   
   private def handleIsSharingStopped(msg: IsSharingStopped) {
@@ -218,7 +225,7 @@ class MeetingActor(val sessionManager: ScreenshareSessionManager,
       }
     }
   }
-    
+
   private def handleStopSession() {
     stopped = true
   }

@@ -21,12 +21,15 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 //import net.lag.logging.Logger
 import akka.actor.{ActorSystem, Actor, Props}
+import akka.util.Timeout
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSession.StopSession
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSessionManager.MeetingHasEnded
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.server.util.LogHelper
+
+import scala.concurrent.Await
 
 object ScreenshareSessionManager {
   def props(system: ActorSystem, bus: IEventsMessageBus): Props =
@@ -87,11 +90,16 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
   private def handleIsScreenSharing(msg: IsScreenSharing) {
     if (logger.isDebugEnabled()) {
       logger.debug("Received IsScreenSharing message for meeting=[" + msg.meetingId + "]")      
-    }    
-    
-    meetings.get(msg.meetingId) foreach { meeting =>
-      meeting.actorRef ! msg
-    }  
+    }
+    logger.info("______SSM::handleIsScreenSharing " + meetings.size)
+
+    if (meetings.get(msg.meetingId).isEmpty) {
+      sender ! new IsScreenSharingReply(false, "none", 0, 0, "none")
+    } else {
+      meetings.get(msg.meetingId) foreach { meeting =>
+        meeting.actorRef ! msg
+      }
+    }
   }
   
   private def handleMeetingHasEnded(msg: MeetingHasEnded) {
@@ -178,24 +186,48 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
     if (logger.isDebugEnabled()) {
       logger.debug("Received start share request message for meeting=[" + msg.meetingId + "]")      
     }
-
-      meetings.get(msg.meetingId) match {
-        case None => {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Creating meeting=[" + msg.meetingId + "]")            
-          }
-
-          val activeScreenshare = ActiveScreenshare(this, bus, msg.meetingId)
-          meetings += msg.meetingId -> activeScreenshare
-          activeScreenshare.actorRef ! msg
+    logger.info("_________________Received start share request message for meeting=[" + msg.meetingId + "]")
+    meetings.get(msg.meetingId) match {
+      case None => {
+        if (logger.isDebugEnabled()) {
+          logger.debug("______Creating meeting=[" + msg.meetingId + "]")
         }
-        case Some(meeting) => {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Meeting already exists. meeting=[" + msg.meetingId + "]")            
-          }
-          meeting.actorRef ! msg
-        }
+
+        logger.info("________case none in handleStartShareRequestMessage")
+        val activeScreenshare = ActiveScreenshare(this, bus, msg.meetingId)
+        meetings += msg.meetingId -> activeScreenshare
+
+        import akka.pattern.ask
+        import scala.concurrent.duration._
+
+        implicit val timeout = Timeout(3 seconds)
+        val future = activeScreenshare.actorRef ? msg
+        logger.info("SSMa_0001")
+        val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
+
+        logger.info("SSMa_0002")
+        sender ! reply
+        logger.info("SSMa_0003" + reply.token)
       }
+      case Some(meeting) => {
+        if (logger.isDebugEnabled()) {
+          logger.debug("Meeting already exists. meeting=[" + msg.meetingId + "]")
+        }
+        logger.info("__________case Some in handleStartShareRequestMessage")
+
+        import akka.pattern.ask
+        import scala.concurrent.duration._
+
+        implicit val timeout = Timeout(3 seconds)
+        val future = meeting.actorRef ? msg
+        logger.info("SSMb_0001")
+        val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
+
+        logger.info("SSMb_0002")
+        sender ! reply
+        logger.info("SSMb_0003" + reply.token)
+      }
+    }
   }
 
   private def removeSession(meetingId: String): Unit = {
@@ -209,3 +241,4 @@ class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessag
   }
 
 }
+

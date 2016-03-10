@@ -122,7 +122,7 @@ class ScreenshareSession(parent: MeetingActor,
       if (logger.isDebugEnabled()) {
         logger.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "]")
       }
-
+    logger.info("_______ScreenshareSession::handleIsScreenSharing")
     sender() ! new IsScreenSharingReply(true, streamId, width, height, streamUrl)
     }
 
@@ -186,13 +186,12 @@ class ScreenshareSession(parent: MeetingActor,
 	}
 
 	private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Received StartShareRequestMessage for streamId=[" + msg.meetingId + "]")
-      }
-
-     scheduleKeepAliveCheck()
-    sender() ! new StartShareRequestReplyMessage(token)
+    if (logger.isDebugEnabled()) {
+      logger.debug("Received StartShareRequestMessage for streamId=[" + msg.meetingId + "]")
     }
+    scheduleKeepAliveCheck()
+//    sender ! new StartShareRequestReplyMessage(token) //TODO I don't think I should be replying to this but have to double check
+  }
 
     private def handleIsSharingStopped(msg: IsSharingStopped) {
        sender() ! new IsSharingStoppedReply(stopShareRequested)
