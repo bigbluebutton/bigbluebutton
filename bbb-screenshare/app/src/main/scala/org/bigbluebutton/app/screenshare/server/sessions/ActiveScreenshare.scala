@@ -5,11 +5,11 @@ import akka.actor.ActorContext
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 
 object ActiveScreenshare {
-  def apply(screenshareSessionManager: ScreenshareSessionManager, bus: IEventsMessageBus,
+  def apply(screenshareSessionManager: ScreenshareManager, bus: IEventsMessageBus,
             meetingId:String)(implicit context: ActorContext) = new ActiveScreenshare(screenshareSessionManager, bus, meetingId)(context)
 }
 
-class ActiveScreenshare(val screenshareSessionManager: ScreenshareSessionManager,
+class ActiveScreenshare(val screenshareSessionManager: ScreenshareManager,
                         val bus: IEventsMessageBus, val meetingId:String)(implicit val context: ActorContext) {
-  val actorRef = context.actorOf(MeetingActor.props(screenshareSessionManager, bus, meetingId))
+  val actorRef = context.actorOf(Screenshare.props(screenshareSessionManager, bus, meetingId))
 }

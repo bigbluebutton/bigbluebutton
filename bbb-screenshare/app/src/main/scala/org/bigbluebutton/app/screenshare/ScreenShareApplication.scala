@@ -2,7 +2,7 @@ package org.bigbluebutton.app.screenshare
 
 import akka.util.Timeout
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
-import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSessionManager
+import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.server.util.LogHelper
 import akka.actor.ActorSystem
@@ -16,7 +16,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
                              val streamBaseUrl: String) extends IScreenShareApplication with LogHelper {
 
   implicit val system = ActorSystem("bigbluebutton-screenshare-system")
-  val sessionManager = system.actorOf(ScreenshareSessionManager.props(system, bus), "session-manager") //top level actor
+  val sessionManager = system.actorOf(ScreenshareManager.props(system, bus), "session-manager") //top level actor
 
   implicit def executionContext = system.dispatcher
   val initError: Error = new Error("Uninitialized error.")

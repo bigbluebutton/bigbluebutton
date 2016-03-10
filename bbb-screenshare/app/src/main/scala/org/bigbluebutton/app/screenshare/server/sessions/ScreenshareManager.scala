@@ -22,8 +22,8 @@ package org.bigbluebutton.app.screenshare.server.sessions
 //import net.lag.logging.Logger
 import akka.actor.{ActorSystem, Actor, Props}
 import akka.util.Timeout
-import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSession.StopSession
-import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSessionManager.MeetingHasEnded
+import org.bigbluebutton.app.screenshare.server.sessions.Session.StopSession
+import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager.MeetingHasEnded
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
@@ -31,16 +31,16 @@ import org.bigbluebutton.app.screenshare.server.util.LogHelper
 
 import scala.concurrent.Await
 
-object ScreenshareSessionManager {
+object ScreenshareManager {
   def props(system: ActorSystem, bus: IEventsMessageBus): Props =
-  Props(classOf[ScreenshareSessionManager], system, bus)
+  Props(classOf[ScreenshareManager], system, bus)
 
   case class HasScreenShareSession(meetingId: String)
   case class HasScreenShareSessionReply(meetingId: String, sharing: Boolean, streamId:Option[String])
   case class MeetingHasEnded(meetingId: String)
 }
 
-class ScreenshareSessionManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
+class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
                                 extends Actor with LogHelper {
   logger.info("_________________ScreenshareSessionManager")
 

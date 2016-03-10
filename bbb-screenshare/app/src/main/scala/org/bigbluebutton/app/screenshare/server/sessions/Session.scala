@@ -20,7 +20,7 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 
 import akka.actor.{Actor, Props}
-import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSession.KeepAliveTimeout
+import org.bigbluebutton.app.screenshare.server.sessions.Session.KeepAliveTimeout
 //import net.lag.logging.Logger
 import org.bigbluebutton.app.screenshare.server.util.LogHelper
 import org.bigbluebutton.app.screenshare.server.util.TimeUtil
@@ -32,9 +32,9 @@ import org.bigbluebutton.app.screenshare.events.StreamStoppedEvent
 import org.bigbluebutton.app.screenshare.events.StreamStartedEvent
 import scala.concurrent.duration._
 
-object ScreenshareSession {
-  def props(parent: MeetingActor, bus: IEventsMessageBus, meetingId: String, streamId: String, token: String,
-   recorded: Boolean, userId: String): Props = Props(classOf[ScreenshareSession], parent, bus, meetingId,
+object Session {
+  def props(parent: Screenshare, bus: IEventsMessageBus, meetingId: String, streamId: String, token: String,
+            recorded: Boolean, userId: String): Props = Props(classOf[Session], parent, bus, meetingId,
     streamId, token, recorded, userId)
 
   case object StartSession
@@ -42,13 +42,13 @@ object ScreenshareSession {
   case class KeepAliveTimeout(streamId: String)
 }
 
-class ScreenshareSession(parent: MeetingActor,
-                        bus: IEventsMessageBus,
-                        val meetingId: String,
-                        val streamId: String,
-                        val token: String,
-                        val recorded: Boolean,
-                        val userId: String) extends Actor with LogHelper {
+class Session(parent: Screenshare,
+              bus: IEventsMessageBus,
+              val meetingId: String,
+              val streamId: String,
+              val token: String,
+              val recorded: Boolean,
+              val userId: String) extends Actor with LogHelper {
 
   logger.info("_____ScreenshareSession")
 	private var timeOfLastKeepAliveUpdate:Long = TimeUtil.getCurrentMonoTime

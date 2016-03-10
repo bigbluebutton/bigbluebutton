@@ -2,20 +2,20 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 import akka.actor.Actor
 import akka.actor.Props
-import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSession.KeepAliveTimeout
-import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareSessionManager.MeetingHasEnded
+import org.bigbluebutton.app.screenshare.server.sessions.Session.KeepAliveTimeout
+import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager.MeetingHasEnded
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.util._
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import scala.concurrent.duration._
 
-object MeetingActor {
-  def props(screenshareSessionManager: ScreenshareSessionManager, bus: IEventsMessageBus, meetingId:String): Props =
-    Props(classOf[MeetingActor], screenshareSessionManager, bus, meetingId)
+object Screenshare {
+  def props(screenshareSessionManager: ScreenshareManager, bus: IEventsMessageBus, meetingId:String): Props =
+    Props(classOf[Screenshare], screenshareSessionManager, bus, meetingId)
 }
 
-class MeetingActor(val sessionManager: ScreenshareSessionManager,
+class Screenshare(val sessionManager: ScreenshareManager,
                   val bus: IEventsMessageBus,
                   val meetingId: String) extends Actor with LogHelper {
 
