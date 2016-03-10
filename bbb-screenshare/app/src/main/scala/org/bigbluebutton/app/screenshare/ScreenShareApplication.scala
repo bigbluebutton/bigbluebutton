@@ -16,12 +16,12 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
                              val streamBaseUrl: String) extends IScreenShareApplication with LogHelper {
 
   implicit val system = ActorSystem("bigbluebutton-screenshare-system")
-  val sessionManager = system.actorOf(ScreenshareManager.props(system, bus), "session-manager") //top level actor
+  val screenshareManager = system.actorOf(ScreenshareManager.props(system, bus),
+    "screenshare-manager")
 
   implicit def executionContext = system.dispatcher
   val initError: Error = new Error("Uninitialized error.")
 
-  sessionManager ! "test001"
   logger.info("_____ScreenShareApplication")
 
 
@@ -31,7 +31,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
           + "] userid=[" + userId + "]")
     }    
     
-    sessionManager ! new UserDisconnected(meetingId, userId)
+    screenshareManager ! new UserDisconnected(meetingId, userId)
   }
   
   
@@ -42,7 +42,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     logger.info("AAAAAAAAAAAAAAAAAAAA")
 
     implicit val timeout = Timeout(3 seconds)
-    val future = sessionManager ? IsScreenSharing(meetingId)
+    val future = screenshareManager ? IsScreenSharing(meetingId)
     val reply = Await.result(future, timeout.duration).asInstanceOf[IsScreenSharingReply]
 
     val info = new StreamInfo(false, reply.streamId, reply.width, reply.height, reply.url)
@@ -56,7 +56,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     
     logger.info("BBBBBBBBBBBBBBBBBBBB")
     implicit val timeout = Timeout(3 seconds)
-    val future = sessionManager ? ScreenShareInfoRequest(meetingId, token)
+    val future = screenshareManager ? ScreenShareInfoRequest(meetingId, token)
     val reply = Await.result(future, timeout.duration).asInstanceOf[ScreenShareInfoRequestReply]
 
 
@@ -75,7 +75,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     logger.info("CCCCCCCCCCCCCCCCC")
 
     implicit val timeout = Timeout(3 seconds)
-    val future = sessionManager ? IsStreamRecorded(meetingId, streamId)
+    val future = screenshareManager ? IsStreamRecorded(meetingId, streamId)
     val reply = Await.result(future, timeout.duration).asInstanceOf[IsStreamRecordedReply]
     record = reply.record
     record
@@ -89,7 +89,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     logger.info("DDDDDDDDDDDDDDD")
 
     implicit val timeout = Timeout(3 seconds)
-    val future = sessionManager ? StartShareRequestMessage(meetingId, userId, record)
+    val future = screenshareManager ? StartShareRequestMessage(meetingId, userId, record)
     logger.info("SSA_0001")
     val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
 
@@ -104,7 +104,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       logger.debug("Received stop share request on meeting=[" + meetingId 
           + "] for stream=[" + streamId + "]")          
     }
-    sessionManager ! new StopShareRequestMessage(meetingId, streamId)     
+    screenshareManager ! new StopShareRequestMessage(meetingId, streamId)     
   }
   
   def streamStarted(meetingId: String, streamId: String, url: String) {
@@ -112,7 +112,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       logger.debug("Received stream started on meeting=[" + meetingId 
           + "] for stream=[" + streamId + "]")          
     }
-    sessionManager ! new StreamStartedMessage(meetingId, streamId, url)
+    screenshareManager ! new StreamStartedMessage(meetingId, streamId, url)
   }
   
   def streamStopped(meetingId: String, streamId: String) {
@@ -120,7 +120,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       logger.debug("Received stream stopped on meeting=[" + meetingId 
           + "] for stream=[" + streamId + "]")          
     }
-    sessionManager ! new StreamStoppedMessage(meetingId, streamId)      
+    screenshareManager ! new StreamStoppedMessage(meetingId, streamId)      
   }
   
   def sharingStarted(meetingId: String, streamId: String, width: java.lang.Integer, height: java.lang.Integer) {
@@ -128,7 +128,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       logger.debug("Received share started on meeting=[" + meetingId 
           + "] for stream=[" + streamId + "] with region=[" + width + "x" + height + "]")          
     }
-    sessionManager ! new SharingStartedMessage(meetingId, streamId, width, height)
+    screenshareManager ! new SharingStartedMessage(meetingId, streamId, width, height)
   }
   
   def sharingStopped(meetingId: String, streamId: String) {
@@ -136,7 +136,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       logger.debug("Received sharing stopped on meeting=" + meetingId 
           + "for stream=" + streamId + "]")          
     }
-    sessionManager ! new SharingStoppedMessage(meetingId, streamId)      
+    screenshareManager ! new SharingStoppedMessage(meetingId, streamId)      
   }
   
   def updateShareStatus(meetingId: String, streamId : String, seqNum: java.lang.Integer) {
@@ -144,7 +144,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
       logger.debug("Received sharing status on meeting=" + meetingId 
           + "for stream=" + streamId + "]")          
     }
-    sessionManager ! new UpdateShareStatus(meetingId, streamId, seqNum)
+    screenshareManager ! new UpdateShareStatus(meetingId, streamId, seqNum)
   }
   
   def isSharingStopped(meetingId: String, streamId: String): java.lang.Boolean = {
@@ -158,7 +158,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     logger.info("EEEEEEEEEEE")
 
     implicit val timeout = Timeout(3 seconds)
-    val future = sessionManager ? IsSharingStopped(meetingId, streamId)
+    val future = screenshareManager ? IsSharingStopped(meetingId, streamId)
     val reply = Await.result(future, timeout.duration).asInstanceOf[IsSharingStoppedReply]
 
     stopped = reply.stopped
