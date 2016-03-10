@@ -18,7 +18,8 @@
  */
 package org.bigbluebutton.app.screenshare.server.sessions
 
-
+import akka.pattern.ask
+import scala.concurrent.duration._
 //import net.lag.logging.Logger
 import akka.actor.{ActorSystem, Actor, Props}
 import akka.util.Timeout
@@ -110,9 +111,15 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     if (logger.isDebugEnabled()) {
       logger.debug("Received ScreenShareInfoRequest message for meetingId=[" + msg.meetingId + "]")      
     }    
-    
+
     screenshares.get(msg.meetingId) foreach { screenshare =>
-      screenshare.actorRef ! msg
+      implicit val timeout = Timeout(3 seconds)
+      val future = screenshare.actorRef ? msg
+      logger.info("BBBB before (SM)")
+      val reply = Await.result(future, timeout.duration).asInstanceOf[ScreenShareInfoRequestReply]
+      logger.info("BBBB after (SM)")
+
+      sender ! reply
     }  
   }
   
@@ -196,9 +203,6 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
         val activeScreenshare = ActiveScreenshare(this, bus, msg.meetingId)
         screenshares += msg.meetingId -> activeScreenshare
 
-        import akka.pattern.ask
-        import scala.concurrent.duration._
-
         implicit val timeout = Timeout(3 seconds)
         val future = activeScreenshare.actorRef ? msg
         logger.info("SSMa_0001")
@@ -213,9 +217,6 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
           logger.debug("Screenshare already exists. screenshare=[" + msg.meetingId + "]")
         }
         logger.info("__________case Some in handleStartShareRequestMessage")
-
-        import akka.pattern.ask
-        import scala.concurrent.duration._
 
         implicit val timeout = Timeout(3 seconds)
         val future = screenshare.actorRef ? msg

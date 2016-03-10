@@ -57,7 +57,9 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     logger.info("BBBBBBBBBBBBBBBBBBBB")
     implicit val timeout = Timeout(3 seconds)
     val future = screenshareManager ? ScreenShareInfoRequest(meetingId, token)
+    logger.info("BBBB before (SSA)")
     val reply = Await.result(future, timeout.duration).asInstanceOf[ScreenShareInfoRequestReply]
+    logger.info("BBBB after (SSA)")
 
 
     val publishUrl = streamBaseUrl + "/" + meetingId + "/" + reply.streamId
@@ -90,12 +92,11 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
 
     implicit val timeout = Timeout(3 seconds)
     val future = screenshareManager ? StartShareRequestMessage(meetingId, userId, record)
-    logger.info("SSA_0001")
+    logger.info("DDDD before (SSA)")
     val reply = Await.result(future, timeout.duration).asInstanceOf[StartShareRequestReplyMessage]
 
-    logger.info("SSA_0002")
+    logger.info("DDDD after (SSA)")
     val response = new StartShareRequestResponse(reply.token, jnlpFile, null)
-    logger.info("SSA_0003" + response.token)
     response
   }
   

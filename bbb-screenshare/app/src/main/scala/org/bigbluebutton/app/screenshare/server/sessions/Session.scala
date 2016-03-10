@@ -130,7 +130,6 @@ class Session(parent: Screenshare,
 	  if (logger.isDebugEnabled()) {
         logger.debug("Received ScreenShareInfoRequest for token=" + msg.token + " streamId=[" + streamId + "]")
       }
-
       sender ! new ScreenShareInfoRequestReply(msg.meetingId, streamId)
     }
 

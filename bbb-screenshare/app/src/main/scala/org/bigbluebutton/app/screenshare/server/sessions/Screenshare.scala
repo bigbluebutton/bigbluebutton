@@ -2,13 +2,16 @@ package org.bigbluebutton.app.screenshare.server.sessions
 
 import akka.actor.Actor
 import akka.actor.Props
+import akka.util.Timeout
 import org.bigbluebutton.app.screenshare.server.sessions.Session.KeepAliveTimeout
 import org.bigbluebutton.app.screenshare.server.sessions.ScreenshareManager.MeetingHasEnded
 import scala.collection.mutable.HashMap
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
 import org.bigbluebutton.app.screenshare.server.util._
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
+import scala.concurrent.Await
 import scala.concurrent.duration._
+import akka.pattern.ask
 
 object Screenshare {
   def props(screenshareSessionManager: ScreenshareManager, bus: IEventsMessageBus, meetingId:String): Props =
@@ -91,7 +94,16 @@ class Screenshare(val sessionManager: ScreenshareManager,
       logger.debug("Received ScreenShareInfoRequest for token=[" + msg.token + "]")      
     } 
 
-    findSessionWithToken(msg.token) foreach (s => s.actorRef ! msg)
+    //TODO
+    findSessionWithToken(msg.token) foreach { session =>
+      implicit val timeout = Timeout(3 seconds)
+      val future = session.actorRef ? msg
+      logger.info("BBBB before (SS)")
+      val reply = Await.result(future, timeout.duration).asInstanceOf[ScreenShareInfoRequestReply]
+      logger.info("BBBB after (SS)")
+
+      sender ! reply
+    }
   }
   
   private def handleIsStreamRecorded(msg: IsStreamRecorded) {
