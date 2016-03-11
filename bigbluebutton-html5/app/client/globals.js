@@ -262,18 +262,19 @@ Handlebars.registerHelper('whiteboardSize', section => {
 });
 
 Handlebars.registerHelper("getPollQuestions", () => {
-  let answer, buttonStyle, j, len, marginStyle, number, polls, ref, widthStyle;
+  let answers, buttonStyle, j, answersLen, marginStyle, number, polls, ref, widthStyle;
   polls = BBB.getCurrentPoll(getInSession('userId'));
   if((polls != null) && polls !== void 0) {
     number = polls.poll_info.poll.answers.length;
     widthStyle = `width: calc(75%/${number});`;
     marginStyle = `margin-left: calc(25%/${number * 2});margin-right: calc(25%/${number * 2});`;
     buttonStyle = widthStyle + marginStyle;
-    ref = polls.poll_info.poll.answers;
-    for(j = 0, len = ref.length; j < len; j++) {
-      answer = ref[j];
-      answer.style = buttonStyle;
+    answers = polls.poll_info.poll.answers;
+    answersLen = answers.length;
+    for(j = 0; j < answersLen; j++) {
+      answers[j].style = buttonStyle;
     }
+    console.log(answers);
     return polls.poll_info.poll.answers;
   }
 });
