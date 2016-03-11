@@ -144,7 +144,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/matterhorn.pdf'/></module></modules>";
 		String joinURL = getJoinURL(username, confname, "true", null, metadata, preUploadPDF);
 
-		if (joinURL.startsWith("http://")) { 
+		if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) { 
 %>
 
 <script language="javascript" type="text/javascript">

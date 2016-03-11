@@ -104,44 +104,52 @@
 </template>
 
 <template name="icon">
-  <svg width="{{size}}" height="{{size}}" viewBox="0 0 50 50">
-    {{#if equals name "happy-face"}}
-      <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
-      <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
-      <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
-      <path d="m18 30 C 21 33, 29 33, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-    {{else}}
-      {{#if equals name "neutral-face"}}
-        <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
-        <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
-        <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
-        <path d="m18 30 l 14 0" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-      {{else}}
-        {{#if equals name "confused-face"}}
-          <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
-          <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
-          <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
-          <path d="M18 30 C 20 28, 22 28, 25 30 S 30 32, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-        {{else}}
-          {{#if equals name "sad-face"}}
-            <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
-            <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
-            <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
-            <path d="m18 30 C 21 27, 29 27, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-          {{else}}
-            {{#if equals name "clock"}}
-              <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
-              <path d="m25 25 l 0 -8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="m25 25 l 5 5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            {{else}}
-              {{#if equals name "plus"}}
-                <path d="m25 18 l 0 14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="m18 25 l 14 0" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-              {{/if}}
-            {{/if}}
-          {{/if}}
-        {{/if}}
-      {{/if}}
-    {{/if}}
-  </svg>
+  {{#if equals name "hand"}}
+    <span rel="tooltip" data-placement="bottom" title="{{title}}">
+      <i class="ion-android-hand"></i>
+    </span>
+  {{else}}
+    <svg width="{{size}}" height="{{size}}" viewBox="0 0 50 50">
+      {{> Template.dynamic template=name}}
+    </svg>
+  {{/if}}
+</template>
+
+<template name="happy-face">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <path d="m18 30 C 21 33, 29 33, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+</template>
+
+<template name="neutral-face">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <path d="m18 30 l 14 0" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</template>
+
+<template name="confused-face">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <path d="M18 30 C 20 28, 22 28, 25 30 S 30 32, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</template>
+
+<template name="sad-face">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <path d="m18 30 C 21 27, 29 27, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+</template>
+
+<template name="clock">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <path d="m25 25 l 0 -8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="m25 25 l 5 5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</template>
+
+<template name="plus">
+  <path d="m25 18 l 0 14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="m18 25 l 14 0" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
 </template>

@@ -54,17 +54,26 @@ class ToolController {
         ltiService.logParameters(params)
 
         if( request.post ){
-            def endPoint = getScheme() + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
+            def scheme = request.isSecure()? "https": "http"
+            def endPoint = scheme + "://" + ltiService.endPoint + "/" + grailsApplication.metadata['app.name'] + "/" + params.get("controller") + (params.get("format") != null? "." + params.get("format"): "")
+            log.info "endPoint: " + endPoint
             Map<String, String> result = new HashMap<String, String>()
             ArrayList<String> missingParams = new ArrayList<String>()
 
             if (hasAllRequiredParams(params, missingParams)) {
                 def sanitizedParams = sanitizePrametersForBaseString(params)
                 def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
-                if (consumer != null) {
-                    log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                    if (checkValidSignature(params.get(REQUEST_METHOD), endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
-                        log.debug  "The message has a valid signature."
+                if ( !ltiService.hasRestrictedAccess() || consumer != null) {
+                    if (ltiService.hasRestrictedAccess() ) {
+                        log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
+                    }
+
+                    if (!ltiService.hasRestrictedAccess() || checkValidSignature(params.get(REQUEST_METHOD), endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
+                        if (!ltiService.hasRestrictedAccess() ) {
+                            log.debug  "Access not restricted, valid signature is not required."
+                        } else {
+                            log.debug  "The message has a valid signature."
+                        }
 
                         def mode = params.containsKey(Parameter.CUSTOM_MODE)? params.get(Parameter.CUSTOM_MODE): ltiService.mode
                         if( !"extended".equals(mode) ) {
@@ -77,11 +86,13 @@ class ToolController {
                                 result = doJoinMeeting(params)
                             }
                         }
+
                     } else {
                         log.debug  "The message has NOT a valid signature."
                         result.put("resultMessageKey", "InvalidSignature")
                         result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
                     }
+
                 } else {
                     result.put("resultMessageKey", "ConsumerNotFound")
                     result.put("resultMessage", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
@@ -311,12 +322,12 @@ class ToolController {
         log.debug "Checking for required parameters"
 
         boolean hasAllParams = true
-        if ( !params.containsKey(Parameter.CONSUMER_ID) ) {
+        if ( ltiService.hasRestrictedAccess() && !params.containsKey(Parameter.CONSUMER_ID) ) {
             missingParams.add(Parameter.CONSUMER_ID);
             hasAllParams = false;
         }
 
-        if ( !params.containsKey(Parameter.OAUTH_SIGNATURE)) {
+        if ( ltiService.hasRestrictedAccess() && !params.containsKey(Parameter.OAUTH_SIGNATURE)) {
             missingParams.add(Parameter.OAUTH_SIGNATURE);
             hasAllParams = false;
         }
@@ -341,22 +352,27 @@ class ToolController {
     private boolean checkValidSignature(String method, String url, String conSecret, Properties postProp, String signature) {
         def validSignature = false
 
-        try {
-            OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
-            //log.debug "OAuthMessage oam = " + oam.toString()
+        if ( ltiService.hasRestrictedAccess() ) {
+            try {
+                OAuthMessage oam = new OAuthMessage(method, url, postProp.entrySet())
+                //log.debug "OAuthMessage oam = " + oam.toString()
 
-            HMAC_SHA1 hmac = new HMAC_SHA1()
-            //log.debug "HMAC_SHA1 hmac = " + hmac.toString()
+                HMAC_SHA1 hmac = new HMAC_SHA1()
+                //log.debug "HMAC_SHA1 hmac = " + hmac.toString()
 
-            hmac.setConsumerSecret(conSecret)
+                hmac.setConsumerSecret(conSecret)
 
-            log.debug "Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
-            String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
-            log.debug "Calculated: " + calculatedSignature + " Received: " + signature
+                log.debug "Base Message String = [ " + hmac.getBaseString(oam) + " ]\n"
+                String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
+                log.debug "Calculated: " + calculatedSignature + " Received: " + signature
 
-            validSignature = calculatedSignature.equals(signature)
-        } catch( Exception e ) {
-            log.debug "Exception error: " + e.message
+                validSignature = calculatedSignature.equals(signature)
+            } catch( Exception e ) {
+                log.debug "Exception error: " + e.message
+            }
+
+        } else {
+            validSignature = true
         }
 
         return validSignature
@@ -397,19 +413,5 @@ class ToolController {
                 '</cartridge_basiclti_link>'
 
         return cartridge
-    }
-
-    private String getScheme(){
-        def scheme
-        if ( request.isSecure() ) {
-            scheme = 'https'
-        } else {
-            scheme = request.getHeader("scheme")
-            if ( scheme == null || !(scheme == 'http' || scheme == 'https') ) {
-                scheme = 'http'
-            }
-        }
-
-        return scheme
     }
 }

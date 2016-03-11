@@ -53,79 +53,14 @@ Template.whiteboard.events({
       return document.webkitExitFullscreen();
     }
   },
-  'click .sadEmojiButton.inactiveEmojiButton'(event) {
-    if($('.sadEmojiButton').css('opacity') === '1') {
+  'click .inactiveEmojiButton'(event) {
+    if($(event.target).css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
         getInSession('userId'),
         getInSession('userId'),
         getInSession('authToken'),
-        "sad"
-      );
-      $('.FABTriggerButton').blur();
-      return toggleEmojisFAB();
-    }
-  },
-  'click .happyEmojiButton.inactiveEmojiButton'(event) {
-    if($('.happyEmojiButton').css('opacity') === '1') {
-      BBB.setEmojiStatus(
-        BBB.getMeetingId(),
-        getInSession('userId'),
-        getInSession('userId'),
-        getInSession('authToken'),
-        "happy"
-      );
-      $('.FABTriggerButton').blur();
-      return toggleEmojisFAB();
-    }
-  },
-  'click .confusedEmojiButton.inactiveEmojiButton'(event) {
-    if($('.confusedEmojiButton').css('opacity') === '1') {
-      BBB.setEmojiStatus(
-        BBB.getMeetingId(),
-        getInSession('userId'),
-        getInSession('userId'),
-        getInSession('authToken'),
-        "confused"
-      );
-      $('.FABTriggerButton').blur();
-      return toggleEmojisFAB();
-    }
-  },
-  'click .neutralEmojiButton.inactiveEmojiButton'(event) {
-    if($('.neutralEmojiButton').css('opacity') === '1') {
-      BBB.setEmojiStatus(
-        BBB.getMeetingId(),
-        getInSession('userId'),
-        getInSession('userId'),
-        getInSession('authToken'),
-        "neutral"
-      );
-      $('.FABTriggerButton').blur();
-      return toggleEmojisFAB();
-    }
-  },
-  'click .awayEmojiButton.inactiveEmojiButton'(event) {
-    if($('.awayEmojiButton').css('opacity') === '1') {
-      BBB.setEmojiStatus(
-        BBB.getMeetingId(),
-        getInSession('userId'),
-        getInSession('userId'),
-        getInSession('authToken'),
-        "away"
-      );
-      $('.FABTriggerButton').blur();
-      return toggleEmojisFAB();
-    }
-  },
-  'click .raiseHandEmojiButton.inactiveEmojiButton'(event) {
-    if($('.raiseHandEmojiButton').css('opacity') === '1') {
-      BBB.setEmojiStatus(
-        BBB.getMeetingId(),
-        getInSession('userId'),
-        getInSession('userId'),
-        getInSession('authToken'),
-        "raiseHand"
+        this.name
       );
       $('.FABTriggerButton').blur();
       return toggleEmojisFAB();

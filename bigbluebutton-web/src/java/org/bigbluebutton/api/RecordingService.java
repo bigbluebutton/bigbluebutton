@@ -20,14 +20,12 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -202,7 +200,7 @@ public class RecordingService {
 
     private void createDirectory(File directory) {
         if (!directory.exists())
-            directory.mkdir();
+            directory.mkdirs();
     }
 
     private void deleteDirectory(File directory) {
@@ -231,6 +229,7 @@ public class RecordingService {
                 Path next = iter.next();
                 files.add(next.toFile());
             }
+            stream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -326,7 +325,7 @@ public class RecordingService {
                             return;
                         }
                         if (!dest.exists())
-                            dest.mkdir();
+                            dest.mkdirs();
                         boolean moved = recordings.get(f).renameTo(new File(dest, recordings.get(f).getName()));
                         if (moved) {
                             log.debug("Recording successfully moved!");

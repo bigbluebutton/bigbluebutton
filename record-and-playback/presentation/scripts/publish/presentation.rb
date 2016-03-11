@@ -467,7 +467,7 @@ def storePollResultShape(xml, shape)
   end
   File.open(gpl_file, 'w') do |g|
     g.puts('reset')
-    g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\"")
+    g.puts("set term pdfcairo size #{height / 72}, #{width / 72} font \"Arial,48\" noenhanced")
     g.puts('unset key')
     g.puts('set style data boxes')
     g.puts('set style fill solid border -1')
@@ -475,7 +475,7 @@ def storePollResultShape(xml, shape)
     g.puts('set yrange [0:*]')
     g.puts('unset border')
     g.puts('unset ytics')
-    xtics = result.map{ |r| "\"#{r['key'].gsub('%', '%%')}\" #{r['id']}" }.join(', ')
+    xtics = result.map{ |r| "#{r['key'].gsub('%', '%%').inspect} #{r['id']}" }.join(', ')
     g.puts("set xtics rotate by 90 scale 0 right (#{xtics})")
     if num_responders > 0
       x2tics = result.map{ |r| "\"#{(r['num_votes'].to_f / num_responders * 100).to_i}%%\" #{r['id']}" }.join(', ')
@@ -972,8 +972,8 @@ begin
         # presentation_url = "/slides/" + $meeting_id + "/presentation"
         @doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
 
-        #$meeting_start = @doc.xpath("//event")[0][:timestamp]
-        #$meeting_end = @doc.xpath("//event").last()[:timestamp]
+        $meeting_start = @doc.xpath("//event")[0][:timestamp]
+        $meeting_end = @doc.xpath("//event").last()[:timestamp]
 
         ## These $version variables are not used anywere in this code ##
         $version = BigBlueButton::Events.bbb_version("#{$process_dir}/events.xml")
@@ -990,18 +990,20 @@ begin
         FileUtils.cp("#{$process_dir}/metadata.xml", package_dir)
         BigBlueButton.logger.info("Copied metadata.xml file")
 
-        # Add playback to metadata.xml
+        # Update state and add playback to metadata.xml
         ## Load metadata.xml
         metadata = Nokogiri::XML(File.open("#{package_dir}/metadata.xml"))
-        ## Update status
+        ## Update state
         recording = metadata.root
         state = recording.at_xpath("state")
         state.content = "published"
+        published = recording.at_xpath("published")
+        published.content = "true"
         ## Remove empty playback
         metadata.search('//recording/playback').each do |playback|
           playback.remove
         end
-        ## Update status and add the actual playback
+        ## Add the actual playback
         metadata_with_playback = Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
             xml.playback {
               xml.format("presentation")
@@ -1010,18 +1012,15 @@ begin
               xml.duration("#{recording_time}")
             }
         end
-        BigBlueButton.logger.info(metadata.to_xml)
-
         ## Write the new metadata.xml
-        metadata_xml = File.new("#{package_dir}/metadata.xml","w")
+        metadata_file = File.new("#{package_dir}/metadata.xml","w")
         metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
-        metadata_xml.write(metadata.root)
-        metadata_xml.close
+        metadata_file.write(metadata.root)
+        metadata_file.close
         BigBlueButton.logger.info("Added playback to metadata.xml")
 
-        BigBlueButton.logger.info("Generating xml for slides and chat")
-
         #Create slides.xml
+        BigBlueButton.logger.info("Generating xml for slides and chat")
 
         # Gathering all the events from the events.xml
         $slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")

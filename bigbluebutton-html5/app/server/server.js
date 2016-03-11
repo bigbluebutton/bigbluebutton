@@ -615,8 +615,7 @@ Meteor.startup(() => {
         return callback();
       } else { // keep moving in the queue
         if(indexOf.call(notLoggedEventTypes, eventName) < 0) {
-          Meteor.log.info(`WARNING!!! THE JSON MESSAGE WAS NOT OF TYPE SUPPORTED BY THIS APPLICATION
-            ${eventName} \n {JSON.stringify(message)}`);
+          Meteor.log.info(`WARNING!!! THE JSON MESSAGE WAS NOT OF TYPE SUPPORTED BY THIS APPLICATION: ${eventName} \n${JSON.stringify(message)}`);
         }
         return callback();
       }

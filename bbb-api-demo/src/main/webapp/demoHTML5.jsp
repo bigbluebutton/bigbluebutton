@@ -100,7 +100,7 @@ if (request.getParameterMap().isEmpty()) {
 	// redirect towards the html5 client which is waiting for the following parameters
 	String html5url = ip + "/html5client/" + meetingId + "/" + userId + "/" + authToken;
 
-	if (joinURL.startsWith("http://")) {
+	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
 
 <script language="javascript" type="text/javascript">

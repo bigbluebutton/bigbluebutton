@@ -89,14 +89,6 @@ if (request.getParameterMap().isEmpty()) {
         <tr>
             <td>&nbsp;</td>
             <td style="text-align: left ">
-                <a href="#" id="google" title="Sign-in with Google OpenID">
-                    <img src="images/google.png" alt="Sign in"></br>
-                </a>
-            </td>
-        </tr>   
-        <tr>
-            <td>&nbsp;</td>
-            <td style="text-align: left ">
                 <a href="#" id="yahoo" title="Sign-in with Yahoo OpenID">
                     <img src="images/yahoo.png" alt="Sign in"></br>
                 </a>
@@ -147,7 +139,7 @@ if (request.getParameterMap().isEmpty()) {
     Authentication authentication = manager.getAuthentication(request, mac_key, alias);
 	String joinURL = getJoinURL(authentication.getFullname(), "Demo Meeting", null, null, null, null );
 
-	if (joinURL.startsWith("http://")) { 
+	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) { 
 %>
 
 <script language="javascript" type="text/javascript">

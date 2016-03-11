@@ -64,7 +64,7 @@ public class Recording {
 	
 	public String getState() {
 	    String state = this.state;
-	    if ( state.equals("available") ) {
+	    if ( state == null || state.equals("") || state.equals("available") ) {
 	        state = isPublished()? STATE_PUBLISHED: STATE_UNPUBLISHED;
 	    }
 		return state;
