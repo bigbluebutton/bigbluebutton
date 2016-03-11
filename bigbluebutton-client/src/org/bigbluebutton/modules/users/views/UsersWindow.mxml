@@ -74,6 +74,7 @@
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceCommand;
 			import org.bigbluebutton.modules.users.events.MeetingMutedEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
@@ -328,6 +329,7 @@
 					this,
 					function(e:CloseEvent):void {
 						if (e.detail == Alert.YES) {
+							dispatcher.dispatchEvent(new LeaveVoiceConferenceCommand());
 							navigateToURL(new URLRequest(event.joinURL));
 						}
 					},
