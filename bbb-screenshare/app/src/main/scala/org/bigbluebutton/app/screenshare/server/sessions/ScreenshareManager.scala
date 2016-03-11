@@ -81,9 +81,15 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
     if (logger.isDebugEnabled()) {
       logger.debug("Received IsStreamRecorded message for meeting=[" + msg.meetingId + "]")      
     }    
-    
+
+
     screenshares.get(msg.meetingId) foreach { screenshare =>
-      screenshare.actorRef ! msg
+      implicit val timeout = Timeout(3 seconds)
+      val future = screenshare.actorRef ? msg
+      logger.info("CCCCC before (SM)")
+      val reply = Await.result(future, timeout.duration).asInstanceOf[IsStreamRecordedReply]
+      logger.info("CCCCC after (SM)")
+      sender ! reply
     }  
   }
     
@@ -97,7 +103,12 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
       sender ! new IsScreenSharingReply(false, "none", 0, 0, "none")
     } else {
       screenshares.get(msg.meetingId) foreach { screenshare =>
-        screenshare.actorRef ! msg
+        implicit val timeout = Timeout(3 seconds)
+        val future = screenshare.actorRef ? msg
+        logger.info("AAAAA before (SSM)")
+        val reply = Await.result(future, timeout.duration).asInstanceOf[IsScreenSharingReply]
+        logger.info("AAAAA after (SSM)")
+        sender ! reply
       }
     }
   }
@@ -155,7 +166,15 @@ class ScreenshareManager(val aSystem: ActorSystem, val bus: IEventsMessageBus)
   
 
   private def handleIsSharingStopped(msg: IsSharingStopped) {
-    screenshares.get(msg.meetingId) foreach { s => s.actorRef ! msg }
+    screenshares.get(msg.meetingId) foreach { s =>
+      implicit val timeout = Timeout(3 seconds)
+      val future = s.actorRef ? msg
+      logger.info("EEEEEE before (SSM)")
+      val reply = Await.result(future, timeout.duration).asInstanceOf[IsSharingStoppedReply]
+      logger.info("EEEEEE after (SSM)")
+
+      sender ! reply
+    }
   }
 
   private def handleStreamStoppedMessage(msg: StreamStoppedMessage) {

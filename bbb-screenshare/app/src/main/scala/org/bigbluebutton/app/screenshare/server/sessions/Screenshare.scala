@@ -85,7 +85,16 @@ class Screenshare(val sessionManager: ScreenshareManager,
     logger.info("___MeetingActor::handleIsScreenSharing ")
 
     if (activeSession.isEmpty) {
-      activeSession foreach (s => s.actorRef ! msg)
+      sender ! new IsScreenSharingReply(false, "none", 0, 0, "none")
+    } else {
+      activeSession foreach {session =>
+        implicit val timeout = Timeout(3 seconds)
+        val future = session.actorRef ? msg
+        logger.info("AAAAA before (SS)")
+        val reply = Await.result(future, timeout.duration).asInstanceOf[IsScreenSharingReply]
+        logger.info("AAAAA after (SS)")
+        sender ! reply
+      }
     }
   }
     
@@ -113,7 +122,12 @@ class Screenshare(val sessionManager: ScreenshareManager,
     
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+        implicit val timeout = Timeout(3 seconds)
+        val future = session.actorRef ? msg
+        logger.info("CCCCC before (SS)")
+        val reply = Await.result(future, timeout.duration).asInstanceOf[IsStreamRecordedReply]
+        logger.info("CCCCC after (SS)")
+        sender ! reply
       }
       case None => {
         logger.info("IsStreamRecorded on a non-existing session=[" + msg.streamId + "]")
@@ -230,7 +244,13 @@ class Screenshare(val sessionManager: ScreenshareManager,
   private def handleIsSharingStopped(msg: IsSharingStopped) {
     sessions.get(msg.streamId) match {
       case Some(session) => {
-        session.actorRef ! msg
+        implicit val timeout = Timeout(3 seconds)
+        val future = session.actorRef ? msg
+        logger.info("EEEEEE before (SS)")
+        val reply = Await.result(future, timeout.duration).asInstanceOf[IsSharingStoppedReply]
+        logger.info("EEEEEE after (SS)")
+
+        sender ! reply
       }
       case None => {
         logger.info("Stream stopped on a non-existing session=[" + msg.streamId + "]")
@@ -265,6 +285,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
   
   private def handleKeepAliveTimeout(msg: KeepAliveTimeout) {
     sessions.remove(msg.streamId) foreach { s =>
+
+
       if (activeSession != None) {
         activeSession foreach { as =>
           if (as.streamId == s.streamId) activeSession = None
