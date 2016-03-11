@@ -20,7 +20,7 @@ PrivateChatToolBar = React.createClass({
   render(){
     return (
       <div className="privateChatTab">
-        <Button onClick={this.handleClick} id="close" btn_class="secondary tiny toPublic " i_class="ion-ios-arrow-left" rel="tooltip"
+        <Button onClick={this.handleClick} id="close" btn_class=" secondary tiny toPublic " i_class="ion-ios-arrow-left" rel="tooltip"
         data_placement="bottom" title="Back to public" label="Public" notification="PUBLIC_CHAT" />
         <div className="privateChatName">
           {this.props.privateChatName}
