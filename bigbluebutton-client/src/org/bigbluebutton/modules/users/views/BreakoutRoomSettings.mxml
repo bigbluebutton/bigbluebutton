@@ -73,7 +73,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (totalUsers > 0) {
 					event.durationInMinutes = durationStepper.value;
 					dispatcher.dispatchEvent(event);
-					dispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.MUTE_ALL_BUT_PRES));
 					PopUpManager.removePopUp(this);
 				} else {
 					Alert.show(ResourceUtil.getInstance().getString('bbb.users.breakout.insufficientUsers'));
