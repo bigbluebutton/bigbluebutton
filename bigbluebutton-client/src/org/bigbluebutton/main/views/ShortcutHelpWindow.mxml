@@ -137,6 +137,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					shownKeys.addAll(userKeys);
 					break;
 				}
+				
+				shownKeys.refresh();
 			}
 			
 			private function loadKeys(resource:Array, global:Boolean=false):ArrayList {
