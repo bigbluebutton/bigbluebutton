@@ -71,13 +71,8 @@ class Session(parent: Screenshare,
   implicit def executionContext = parent.sessionManager.actorSystem.dispatcher
 
   def scheduleKeepAliveCheck() {
-    val mainActor = self
-
-    parent.sessionManager.actorSystem.scheduler.schedule(
-      5.seconds,
-      5.seconds,
-      mainActor,
-      IS_STREAM_ALIVE)
+    parent.sessionManager.actorSystem.scheduler.scheduleOnce(5.seconds,
+      self, IS_STREAM_ALIVE)
   }
 
   def receive = {

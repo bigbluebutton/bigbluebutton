@@ -53,13 +53,8 @@ class Screenshare(val sessionManager: ScreenshareManager,
   implicit def executionContext = sessionManager.actorSystem.dispatcher
 
   def scheduleIsMeetingRunningCheck() {
-    val mainActor = self
-
-    sessionManager.actorSystem.scheduler.schedule(
-      5.seconds,
-      60.seconds,
-      mainActor,
-      IS_MEETING_RUNNING)
+    sessionManager.actorSystem.scheduler.scheduleOnce(
+      60.seconds, self, IS_MEETING_RUNNING)
   }
 
   def receive = {
