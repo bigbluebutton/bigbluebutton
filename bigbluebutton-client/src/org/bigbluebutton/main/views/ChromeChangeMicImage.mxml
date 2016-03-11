@@ -34,9 +34,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
 	<mx:Script>
 		<![CDATA[
-      import mx.managers.PopUpManager;
-      
-      import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.modules.phone.events.UseFlashModeCommand;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 						
       private function connectUsingFlashClicked():void {
         dispatchEvent(new UseFlashModeCommand());
@@ -53,22 +54,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                   width="400"
                   left="0"/>
     <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Show the list of microphones."
+      <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.chromeChangeMic.showMicrophones')"
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
       <mx:Image source="@Embed('assets/chrome-show-mics.png')"/>	
     </mx:HBox>
     <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Select a microphone."
+      <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.chromeChangeMic.selectMicrophone')"
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
       <mx:Image source="@Embed('assets/chrome-switch-mic.png')"/>	
     </mx:HBox>
     <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Click Done."
+      <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.chromeChangeMic.clickDone')"
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
       <mx:Image source="@Embed('assets/chrome-mic-switch-done.png')"/>	
     </mx:HBox>
     <mx:HBox width="100%">      
-      <mx:Text width="100%" text="Reload page for the change to take effect."
+      <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.chromeChangeMic.reloadPage')"
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
       <mx:Image source="@Embed('assets/chrome-reload-page.png')"/>	
     </mx:HBox>
@@ -77,7 +78,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Text width="100%" text="If no microphone worked, try joining the voice conference using Flash."
                styleName="micSettingsWindowSpeakIntoMicLabelStyle" />		
       <mx:Button id="noButton" 
-                 label="Connect Using Flash" 
+                 label="{ResourceUtil.getInstance().getString('bbb.chromeChangeMic.connectUsingFlash')}" 
                  styleName="micSettingsWindowPlaySoundButtonStyle"
                  click="connectUsingFlashClicked()" 
                  toolTip=""/>
