@@ -107,7 +107,11 @@
 			[Bindable]
 			private var breakoutRoomsList:ArrayCollection = new ArrayCollection();
 			
+			[Bindable]
 			private var amIModerator:Boolean = false;
+			
+			[Bindable]
+			private var amIPresenter:Boolean = false;
 			
 			private const FOCUS_USERS_LIST:String = "Focus Users List";
 			private const MAKE_PRESENTER:String = "Make Presenter";
@@ -126,6 +130,7 @@
 				breakoutRoomsList.addEventListener(CollectionEvent.COLLECTION_CHANGE, breakoutRoomsListChangeListener);
 
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
+				amIPresenter = UserManager.getInstance().getConference().amIPresenter;
 				
 				settingsBtn.visible = settingsBtn.includeInLayout = partOptions.enableSettingsButton && amIModerator;
 				closeRoomsBtn.visible = closeRoomsBtn.includeInLayout = amIModerator;
@@ -572,7 +577,8 @@
 			<mx:columns>
 				<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.room')}" />
 				<mx:DataGridColumn dataField="numberOfUsers" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
-				<mx:DataGridColumn dataField="breakoutId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}" 
+				<mx:DataGridColumn dataField="breakoutId" headerText="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.action')}"
+								   visible="{amIModerator &amp;&amp; amIPresenter}"
 								   itemRenderer="org.bigbluebutton.modules.users.views.RoomActionsRenderer"/>
 			</mx:columns>
 		</mx:DataGrid>
