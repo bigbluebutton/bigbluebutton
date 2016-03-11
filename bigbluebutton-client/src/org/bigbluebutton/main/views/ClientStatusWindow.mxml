@@ -46,5 +46,5 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	<chat:AdvancedList id="messageList" width="100%" dragEnabled="false" variableRowHeight="true" wordWrap="true" alternatingItemColors="[#EFEFEF, #FEFEFE]" itemRenderer="org.bigbluebutton.main.views.ClientStatusItemRenderer"/>
-	<mx:Button id="closeBtn" label="{ResourceUtil.getInstance().getString('bbb.clientstatus.close')}" click="handleCloseButtonClick();" />
+	<mx:Button id="closeBtn" label="Close" click="handleCloseButtonClick();" />
 </mx:TitleWindow>
