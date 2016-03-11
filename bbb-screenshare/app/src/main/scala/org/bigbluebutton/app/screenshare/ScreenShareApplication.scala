@@ -56,7 +56,7 @@ class ScreenShareApplication(val bus: IEventsMessageBus, val jnlpFile: String,
     val future = screenshareManager ? IsScreenSharing(meetingId)
     val reply = Await.result(future, timeout.duration).asInstanceOf[IsScreenSharingReply]
 
-    val info = new StreamInfo(false, reply.streamId, reply.width, reply.height, reply.url)
+    val info = new StreamInfo(reply.sharing, reply.streamId, reply.width, reply.height, reply.url)
     new IsScreenSharingResponse(info, null)
   }
   
