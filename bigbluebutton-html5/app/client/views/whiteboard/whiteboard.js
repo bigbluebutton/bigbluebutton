@@ -1,17 +1,5 @@
 let fakeUpload;
 
-// scale the whiteboard to adapt to the resized window
-this.scaleWhiteboard = function(callback) {
-  let adjustedDimensions;
-  adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'));
-  if(typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null) {
-    whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height);
-  }
-  if(callback) {
-    callback();
-  }
-};
-
 Template.whiteboard.helpers({
   isPollStarted() {
     if(BBB.isPollGoing(getInSession('userId'))) {
@@ -117,23 +105,6 @@ Template.whiteboardControls.events({
     return $('.tooltip').hide();
   }
 });
-
-Template.polling.events({
-  'click .pollButtons'(event) {
-    let _id, _key;
-    _key = this.label;
-    _id = this.answer;
-    return BBB.sendPollResponseMessage(_key, _id);
-  }
-});
-
-Template.polling.rendered = function() {
-  return scaleWhiteboard();
-};
-
-Template.polling.destroyed = function() {
-  return setTimeout(scaleWhiteboard, 0);
-};
 
 Template.whiteboardControls.rendered = function() {
   return scaleWhiteboard();

@@ -261,24 +261,6 @@ Handlebars.registerHelper('whiteboardSize', section => {
   }
 });
 
-Handlebars.registerHelper("getPollQuestions", () => {
-  let answers, buttonStyle, j, answersLen, marginStyle, number, polls, ref, widthStyle;
-  polls = BBB.getCurrentPoll(getInSession('userId'));
-  if((polls != null) && polls !== void 0) {
-    number = polls.poll_info.poll.answers.length;
-    widthStyle = `width: calc(75%/${number});`;
-    marginStyle = `margin-left: calc(25%/${number * 2});margin-right: calc(25%/${number * 2});`;
-    buttonStyle = widthStyle + marginStyle;
-    answers = polls.poll_info.poll.answers;
-    answersLen = answers.length;
-    for(j = 0; j < answersLen; j++) {
-      answers[j].style = buttonStyle;
-    }
-    console.log(answers);
-    return polls.poll_info.poll.answers;
-  }
-});
-
 Template.registerHelper('emojiIcons', function () {
   return [
     { name: 'sad', icon: 'sad-face', title: '' },
@@ -289,6 +271,18 @@ Template.registerHelper('emojiIcons', function () {
     { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand'}
   ];
 });
+
+// scale the whiteboard to adapt to the resized window
+this.scaleWhiteboard = function(callback) {
+  let adjustedDimensions;
+  adjustedDimensions = scaleSlide(getInSession('slideOriginalWidth'), getInSession('slideOriginalHeight'));
+  if(typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null) {
+    whiteboardPaperModel.scale(adjustedDimensions.width, adjustedDimensions.height);
+  }
+  if(callback) {
+    callback();
+  }
+};
 
 this.getSortedUserList = function(users) {
   if((users != null ? users.length : void 0) > 1) {
