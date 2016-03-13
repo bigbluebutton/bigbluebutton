@@ -66,7 +66,6 @@ Button = React.createClass({
     }
   },
   render(){
-    console.log(this.props);
     return (
       <button onClick={this.props.onClick} type="submit" id={this.props.id} className={'btn' + this.props.btn_class} rel={this.props.rel} data-placement={this.props.data_placement} title={this.props.title} style={this.props.style}>
       {this.props.notification ? this.processNotification(this.props.notification) : null }
