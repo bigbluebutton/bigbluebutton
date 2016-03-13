@@ -17,6 +17,10 @@
     "grunt-coffeelint": "0.0.13",
     "grunt-contrib-coffee": "^0.11.1",
     "grunt-contrib-jshint": "^0.10.0",
-    "jscs": "~2.11.0"
+    "jscs": "~2.11.0",
+    "grunt-jscs": "~2.8.0",
+    "grunt-shell": "~1.2.1",
+    "load-grunt-tasks": "~3.4.1",
+    "grunt-force-task": "~2.0.0"
   }
 }

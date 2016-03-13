@@ -1,7 +1,12 @@
 /* jshint node: true */
 'use strict';
 
+//require('load-grunt-tasks')(grunt);
+
 module.exports = function(grunt) {
+
+  require('load-grunt-tasks')(grunt);
+
   // configure Grunt
   grunt.initConfig({
     // files to lint with the JSHint task
@@ -22,15 +27,29 @@ module.exports = function(grunt) {
           '!app/packages/**/*'
         ]
       }
+    },
+
+    jscs: {
+      src: ['**/*.js', '**/*.jsx'],
+      options: {
+        config: '.jscsrc',
+        verbose: true,
+        esnext: true
+      }
+    },
+
+    shell: {
+      start_meteor: {
+        command: 'HOME=/usr/share/meteor JASMINE_SERVER_UNIT=0 JASMINE_SERVER_INTEGRATION=0 JASMINE_CLIENT_INTEGRATION=0 JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 ROOT_URL=http://127.0.0.1/html5client meteor'
+      }
     }
   });
 
-  // load the module containing the JSHint task
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-coffeelint');
+  grunt.loadNpmTasks('grunt-jscs');
+  grunt.loadNpmTasks('grunt-force-task');
 
-  // register a default task to run JSHint
-  // (allows `grunt` rather than `grunt jshint`)
-  
-  grunt.registerTask('default', ['jshint', 'coffeelint']);
+  // sets the default task to run JSCS first (forcing our way past warnings) and then start Meteor:
+  grunt.registerTask('default', ['force:jscs', 'shell:start_meteor']);
 };
