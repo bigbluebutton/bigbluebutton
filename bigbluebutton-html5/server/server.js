@@ -100,7 +100,7 @@ Meteor.startup(() => {
       'bbb_apps_is_alive_message',
       'user_voice_talking_message',
       'meeting_state_message',
-      'get_recording_status_reply',];
+      'get_recording_status_reply', ];
 
     if (message == null || message.header == null || payload == null) {
       Meteor.log.error('ERROR!! No header or payload');
