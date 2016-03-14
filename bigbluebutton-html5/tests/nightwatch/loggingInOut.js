@@ -1,5 +1,5 @@
 module.exports = {
-  'Logging into Demo Meeting using Enter key': function(browser) {
+  'Logging into Demo Meeting using Enter key': function (browser) {
     browser
       .url('http://192.168.244.140:4000')
       .waitForElementVisible('body', 1000)
@@ -13,7 +13,8 @@ module.exports = {
       .closeWindow()
       .end();
   },
-  'Logging into Demo Meeting using Send button': function(browser) {
+
+  'Logging into Demo Meeting using Send button': function (browser) {
     browser
       .url('http://192.168.244.140:4000')
       .waitForElementVisible('body', 1000)
@@ -28,7 +29,8 @@ module.exports = {
       .closeWindow()
       .end();
   },
-  'Logging into a meeting with non-default name': function(browser) {
+
+  'Logging into a meeting with non-default name': function (browser) {
     browser
       .url('http://192.168.244.140:4000')
       .waitForElementVisible('body', 1000)
@@ -42,7 +44,8 @@ module.exports = {
       .closeWindow()
       .end();
   },
-  'Loading the presentation': function(browser) {
+
+  'Loading the presentation': function (browser) {
     browser
       .url('http://192.168.244.140:4000')
       .waitForElementVisible('body', 1000)
@@ -53,5 +56,5 @@ module.exports = {
       .deleteCookies()
       .closeWindow()
       .end();
-  }
+  },
 };

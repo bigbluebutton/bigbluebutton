@@ -4,8 +4,9 @@
 
 Logger = {};
 Logger.prototype = {
-  constructor: Logger
-}
-Logger.info = function() {};
+  constructor: Logger,
+};
+Logger.info = function () {};
+
 Meteor.log = Logger;
 

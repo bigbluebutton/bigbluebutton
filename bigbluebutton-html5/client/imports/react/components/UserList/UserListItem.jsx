@@ -1,6 +1,6 @@
-import {Button} from '../Button.jsx'
-import {Icon} from '../Icon.jsx'
-import {Tooltip} from '../Tooltip.jsx'
+import {Button} from '../Button.jsx';
+import {Icon} from '../Icon.jsx';
+import {Tooltip} from '../Tooltip.jsx';
 import classNames from 'classnames';
 
 export let UserListItem = React.createClass({
@@ -14,10 +14,10 @@ export let UserListItem = React.createClass({
   },
 
   handleOpenPrivateChat(user) {
-    return user.actions.openChat(user)
+    return user.actions.openChat(user);
   },
 
-  handleSetPresenter(user){
+  handleSetPresenter(user) {
     return user.actions.setPresenter(user);
   },
 
@@ -50,7 +50,7 @@ export let UserListItem = React.createClass({
     if (user.isPresenter) {
       statusIcons.push((<Icon key="2" iconName="projection-screen" title={`${user.name} is the presenter`}/>));
     } else if (user.isModerator) {
-      statusIcons.push((<Icon key="3" iconName="torso" title={`${user.name} is a moderator`}/>))
+      statusIcons.push((<Icon key="3" iconName="torso" title={`${user.name} is a moderator`}/>));
     }
 
     return (
@@ -59,7 +59,6 @@ export let UserListItem = React.createClass({
       </td>
     );
   },
-
 
   renderUserName() {
     const user = this.props.user;
@@ -105,13 +104,13 @@ export let UserListItem = React.createClass({
       kick: null,
     };
 
-    if(sharingStatus.isInAudio) {
-      if(sharingStatus.isListenOnly) {
+    if (sharingStatus.isInAudio) {
+      if (sharingStatus.isListenOnly) {
         icons.mic = (<Icon iconName="volume-none"
         title={`${userName} is only listening`}/>);
       } else {
-        if(sharingStatus.isMuted) {
-          if(user.isCurrent) {
+        if (sharingStatus.isMuted) {
+          if (user.isCurrent) {
             icons.mic = (
               <Button className="muteIcon"
                 onClick={() => this.handleMuteUnmute(user)}
@@ -128,12 +127,12 @@ export let UserListItem = React.createClass({
           let talkingStatusIcon = <Icon prependIconName="ion-"
             iconName="ios-mic-outline" title={`${userName} is not talking`}/>;
 
-          if(sharingStatus.isTalking) {
+          if (sharingStatus.isTalking) {
             talkingStatusIcon = <Icon prependIconName="ion-" iconName="ios-mic"
             title={`${userName} is talking`}/>;
           }
 
-          if(user.isCurrent) {
+          if (user.isCurrent) {
             icons.mic = (
               <Button
                 onClick={() => this.handleMuteUnmute(user)}
@@ -181,5 +180,5 @@ export let UserListItem = React.createClass({
         </table>
       </td>
     );
-  }
-})
+  },
+});;

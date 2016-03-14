@@ -1,11 +1,11 @@
-const bind = function(fn, me) {
-  return function() {
+const bind = function (fn, me) {
+  return function () {
     return fn.apply(me, arguments);
   };
 };
 
 // A rectangle in the whiteboard
-this.WhiteboardRectModel = (function() {
+this.WhiteboardRectModel = (function () {
   class WhiteboardRectModel extends WhiteboardToolModel{
     constructor(paper) {
       super(paper);
@@ -14,7 +14,7 @@ this.WhiteboardRectModel = (function() {
 
       // the defintion of this shape, kept so we can redraw the shape whenever needed
       // format: x1, y1, x2, y2, stroke color, thickness
-      this.definition = [0, 0, 0, 0, "#000", "0px"];
+      this.definition = [0, 0, 0, 0, '#000', '0px'];
     }
 
     // Creates a rectangle in the paper
@@ -29,11 +29,11 @@ this.WhiteboardRectModel = (function() {
       color = startingData.color;
       thickness = startingData.thickness;
       this.obj = this.paper.rect(x * this.gw + this.xOffset, y * this.gh + this.yOffset, 0, 0, 1);
-      this.obj.attr("stroke", formatColor(color));
-      this.obj.attr("stroke-width", zoomStroke(formatThickness(thickness)));
+      this.obj.attr('stroke', formatColor(color));
+      this.obj.attr('stroke-width', zoomStroke(formatThickness(thickness)));
       this.definition = {
-        shape: "rect",
-        data: [x, y, 0, 0, this.obj.attrs["stroke"], this.obj.attrs["stroke-width"]]
+        shape: 'rect',
+        data: [x, y, 0, 0, this.obj.attrs['stroke'], this.obj.attrs['stroke-width']],
       };
       return this.obj;
     }
@@ -51,31 +51,35 @@ this.WhiteboardRectModel = (function() {
       x2 = startingData.points[2];
       y2 = startingData.points[3];
       square = startingData.square;
-      if(this.obj != null) {
-        if(x2 < x1) {
+      if (this.obj != null) {
+        if (x2 < x1) {
           ref = [x2, x1], x1 = ref[0], x2 = ref[1];
         }
-        if(y2 < y1) {
+
+        if (y2 < y1) {
           ref1 = [y2, y1], y1 = ref1[0], y2 = ref1[1];
           reversed = true;
         }
-        if(square) {
-          if(reversed) { //if reveresed, the y1 coordinate gets updated, not the y2 coordinate
+
+        if (square) {
+          if (reversed) { //if reveresed, the y1 coordinate gets updated, not the y2 coordinate
             y1 = y2 - (x2 - x1) * this.gw / this.gh;
           } else {
             y2 = y1 + (x2 - x1) * this.gw / this.gh;
           }
         }
+
         x = x1 * this.gw + this.xOffset;
         y = y1 * this.gh + this.yOffset;
         width = (x2 * this.gw + this.xOffset) - x;
         height = (y2 * this.gh + this.yOffset) - y;
+
         //if !square
         this.obj.attr({
           x: x,
           y: y,
           width: width,
-          height: height
+          height: height,
         });
 
         /*else
@@ -103,16 +107,18 @@ this.WhiteboardRectModel = (function() {
     // @param  {number} thickness the thickness of the object's line(s)
     draw(x1, y1, x2, y2, colour, thickness) {
       let r, ref, ref1, x, y;
-      if(x2 < x1) {
+      if (x2 < x1) {
         ref = [x2, x1], x1 = ref[0], x2 = ref[1];
       }
-      if(y2 < y1) {
+
+      if (y2 < y1) {
         ref1 = [y2, y1], y1 = ref1[0], y2 = ref1[1];
       }
+
       x = x1 * this.gw;
       y = y1 * this.gh;
       r = this.paper.rect(x + this.xOffset, y + this.yOffset, (x2 * this.gw) - x, (y2 * this.gh) - y, 1);
-      r.attr(Meteor.call("strokeAndThickness", colour, thickness));
+      r.attr(Meteor.call('strokeAndThickness', colour, thickness));
       return r;
     }
 

@@ -1,4 +1,4 @@
-import {UserListItem} from './UserListItem.jsx'
+import {UserListItem} from './UserListItem.jsx';
 
 export let UserList = React.createClass({
   render() {
@@ -9,5 +9,5 @@ export let UserList = React.createClass({
         </tbody>
       </table>
     );
-  }
-})
+  },
+});;

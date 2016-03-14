@@ -1,5 +1,5 @@
 module.exports = {
-  'Receiving the correct welcome message title in the public chat of Demo Meeting': function(browser) {
+  'Receiving the correct welcome message title in the public chat of Demo Meeting': function (browser) {
     browser
       .url('http://192.168.244.140:4000')
       .waitForElementVisible('body', 1000)
@@ -11,7 +11,8 @@ module.exports = {
       .closeWindow()
       .end();
   },
-  'Receiving the correct welcome message title in the public chat of a meeting with non-default name': function(browser) {
+
+  'Receiving the correct welcome message title in the public chat of a meeting with non-default name': function (browser) {
     browser
       .url('http://192.168.244.140:4000')
       .waitForElementVisible('body', 1000)
@@ -25,7 +26,8 @@ module.exports = {
       .closeWindow()
       .end();
   },
-  'Sending a message in a public chat using Enter': function(browser) {
+
+  'Sending a message in a public chat using Enter': function (browser) {
     browser
       .url('http://192.168.244.140:4000')
       .waitForElementVisible('body', 1000)
@@ -40,7 +42,8 @@ module.exports = {
       .closeWindow()
       .end();
   },
-  'Sending a message in a public chat using Send button': function(browser) {
+
+  'Sending a message in a public chat using Send button': function (browser) {
     browser
       .url('http://192.168.244.140:4000')
       .waitForElementVisible('body', 1000)
@@ -55,5 +58,5 @@ module.exports = {
       .deleteCookies()
       .closeWindow()
       .end();
-  }
+  },
 };
