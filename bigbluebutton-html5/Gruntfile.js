@@ -30,12 +30,23 @@ module.exports = function(grunt) {
     },
 
     jscs: {
-      src: ['**/*.js', '**/*.jsx'],
-      options: {
-        config: '.jscsrc',
-        verbose: true,
-        esnext: true
-      }
+      check: {
+        src: ['**/*.js', '**/*.jsx'],
+        options: {
+          config: '.jscsrc',
+          verbose: true,
+          esnext: true,
+        },
+      },
+      fix: {
+        src: ['**/*.js', '**/*.jsx'],
+        options: {
+          config: '.jscsrc',
+          verbose: true,
+          esnext: true,
+          fix: true,
+        },
+      },
     },
 
     shell: {
@@ -51,5 +62,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-force-task');
 
   // sets the default task to run JSCS first (forcing our way past warnings) and then start Meteor:
-  grunt.registerTask('default', ['force:jscs', 'shell:start_meteor']);
+  grunt.registerTask('default', ['force:jscs:check', 'shell:start_meteor']);
+
+  // sets the autofix task to fix JSCS warning when possible and then start Meteor:
+  grunt.registerTask('autofix', ['force:jscs:fix', 'shell:start_meteor']);
 };
