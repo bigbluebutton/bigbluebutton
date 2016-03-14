@@ -18,10 +18,8 @@
 */
 package org.bigbluebutton.app.screenshare.server.sessions
 
-import akka.actor.{Actor, Props}
+import akka.actor.{ActorLogging, Actor, Props}
 import org.bigbluebutton.app.screenshare.server.sessions.Session.KeepAliveTimeout
-//import net.lag.logging.Logger
-import org.bigbluebutton.app.screenshare.server.util.LogHelper
 import org.bigbluebutton.app.screenshare.server.util.TimeUtil
 import org.bigbluebutton.app.screenshare.server.sessions.messages._
 import org.bigbluebutton.app.screenshare.events.IEventsMessageBus
@@ -47,9 +45,9 @@ class Session(parent: Screenshare,
               val streamId: String,
               val token: String,
               val recorded: Boolean,
-              val userId: String) extends Actor with LogHelper {
+              val userId: String) extends Actor with ActorLogging {
 
-  logger.info("Creating of new Session")
+  log.info("Creating of new Session")
   private var timeOfLastKeepAliveUpdate:Long = TimeUtil.getCurrentMonoTime()
   private val KEEP_ALIVE_TIMEOUT = 60000
 
@@ -89,41 +87,41 @@ class Session(parent: Screenshare,
     case msg: UserDisconnected => handleUserDisconnected(msg)
     case msg: ScreenShareInfoRequest => handleScreenShareInfoRequest(msg)
     case IS_STREAM_ALIVE => checkIfStreamIsAlive()
-    case m: Any => logger.warn("Session: Unknown message [%s]", m)
+    case m: Any => log.warning("Session: Unknown message [%s]", m)
   }
 
   private def handleUserDisconnected(msg: UserDisconnected) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received UserDisconnected for streamId=[" + streamId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received UserDisconnected for streamId=[" + streamId + "]")
     }
     stopShareRequested = true
   }
 
   private def handleIsStreamRecorded(msg: IsStreamRecorded) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received IsStreamRecorded for streamId=[" + msg.streamId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received IsStreamRecorded for streamId=[" + msg.streamId + "]")
     }
     sender ! new IsStreamRecordedReply(recorded)
   }
 
   private def handleIsScreenSharing(msg: IsScreenSharing) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received IsScreenSharing for meetingId=[" + msg.meetingId + "]")
     }
     sender ! new IsScreenSharingReply(true, streamId, width, height, streamUrl)
   }
 
   private def handleScreenShareInfoRequest(msg: ScreenShareInfoRequest) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received ScreenShareInfoRequest for token=" + msg.token + " streamId=[" +
+    if (log.isDebugEnabled) {
+      log.debug("Received ScreenShareInfoRequest for token=" + msg.token + " streamId=[" +
         streamId + "]")
     }
     sender ! new ScreenShareInfoRequestReply(msg.meetingId, streamId)
   }
 
   private def handleSharingStoppedMessage(msg: SharingStoppedMessage) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received SharingStoppedMessage for streamId=[" + msg.streamId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received SharingStoppedMessage for streamId=[" + msg.streamId + "]")
     }
     shareStopped = true
     width = 0
@@ -132,8 +130,8 @@ class Session(parent: Screenshare,
   }
 
   private def handleSharingStartedMessage(msg: SharingStartedMessage) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received SharingStartedMessagefor streamId=[" + msg.streamId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received SharingStartedMessagefor streamId=[" + msg.streamId + "]")
     }
     stopShareRequested = false
     shareStopped = false
@@ -143,16 +141,16 @@ class Session(parent: Screenshare,
   }
 
   private def handleStreamStoppedMessage(msg: StreamStoppedMessage) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received StreamStoppedMessage streamId=[" + msg.streamId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received StreamStoppedMessage streamId=[" + msg.streamId + "]")
     }
     streamStopped = true
     bus.send(new StreamStoppedEvent(meetingId, streamId))
   }
 
   private def handleStreamStartedMessage(msg: StreamStartedMessage) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received StreamStartedMessage for streamId=[" + msg.streamId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received StreamStartedMessage for streamId=[" + msg.streamId + "]")
     }
     streamStopped = false
     streamUrl = msg.url
@@ -160,16 +158,16 @@ class Session(parent: Screenshare,
   }
 
   private def handleStopShareRequestMessage(msg: StopShareRequestMessage) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received StopShareRequestMessage for streamId=[" + msg.streamId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received StopShareRequestMessage for streamId=[" + msg.streamId + "]")
     }
     stopShareRequested = true
     bus.send(new ShareStoppedEvent(meetingId, streamId))
   }
 
   private def handleStartShareRequestMessage(msg: StartShareRequestMessage) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Received StartShareRequestMessage for streamId=[" + msg.meetingId + "]")
+    if (log.isDebugEnabled) {
+      log.debug("Received StartShareRequestMessage for streamId=[" + msg.meetingId + "]")
     }
     scheduleKeepAliveCheck()
   }
@@ -184,7 +182,7 @@ class Session(parent: Screenshare,
 
   private def checkIfStreamIsAlive() {
     if (TimeUtil.getCurrentMonoTime - timeOfLastKeepAliveUpdate > KEEP_ALIVE_TIMEOUT) {
-      logger.warn("Did not receive updates for more than 1 minute. Removing stream {}", streamId)
+      log.warning("Did not receive updates for more than 1 minute. Removing stream {}", streamId)
       context.parent ! new KeepAliveTimeout(streamId)
     } else {
       scheduleKeepAliveCheck()
