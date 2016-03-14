@@ -2,7 +2,7 @@ import CustomPropTypes from '../utils/propTypes.js';
 
 const { PropTypes } = React;
 const TYPES = [
-  'button', 'reset', 'submit'
+  'button', 'reset', 'submit',
 ];
 
 export let Button = React.createClass({
@@ -25,7 +25,7 @@ export let Button = React.createClass({
   getDefaultProps() {
     return {
       disabled: false,
-      type: 'button'
+      type: 'button',
     };
   },
 

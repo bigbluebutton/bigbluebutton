@@ -1,8 +1,8 @@
 var CustomPropTypes = {};
 
-CustomPropTypes.elementType = function(props, propName, componentName) {
+CustomPropTypes.elementType = function (props, propName, componentName) {
   const errBeginning = `Invalid prop '${propName}' of value '${props[propName]}'` +
-` supplied to '${componentName}'. Expected an Element \`type\``;
+` supplied to '${componentName}'. Expected an Element 'type'`;
 
   if (typeof props[propName] !== 'function') {
     if (React.isValidElement(props[propName])) {

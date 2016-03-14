@@ -1,6 +1,6 @@
 module.exports = {
-  'Scaling the window horizontally to verify the navbar height is consistent in a meeting with a long name': function(browser) {
-    var longMeetingName = new Array(101).join('x') // 100-element array of 'x'
+  'Scaling the window horizontally to verify the navbar height is consistent in a meeting with a long name': function (browser) {
+    var longMeetingName = new Array(101).join('x'); // 100-element array of 'x'
     browser
       .url('http://192.168.244.140:4000')
       .resizeWindow(1920, 1080)
@@ -10,19 +10,20 @@ module.exports = {
       .assert.visible('input[ng-model=meetingName]')
       .setValue('input[ng-model=meetingName]', [longMeetingName, browser.Keys.ENTER])
       .waitForElementVisible('#navbar', 10000)
-      .getElementSize('#navbar', function(result1) {
-        _this = this
-        for(var w = 1900; w >= 100; w -= 100) {
+      .getElementSize('#navbar', function (result1) {
+        _this = this;
+        for (var w = 1900; w >= 100; w -= 100) {
           _this = _this
             .resizeWindow(w, 1080)
-            .getElementSize('#navbar', function(result2) {
+            .getElementSize('#navbar', function (result2) {
               this.verify.equal(result2.value.height, result1.value.height);
             });
         }
-        for(var w = 100; w <= 1900; w += 100) {
+
+        for (var w = 100; w <= 1900; w += 100) {
           _this = _this
             .resizeWindow(w, 1080)
-            .getElementSize('#navbar', function(result2) {
+            .getElementSize('#navbar', function (result2) {
               this.verify.equal(result2.value.height, result1.value.height);
             });
         }
@@ -31,8 +32,9 @@ module.exports = {
       .closeWindow()
       .end();
   },
-  'Scaling the window horizontally to verify the margin between the navbar and the top of the page is consistent in a meeting with a long name': function(browser) {
-    var longMeetingName = new Array(101).join('x') // 100-element array of 'x'
+
+  'Scaling the window horizontally to verify the margin between the navbar and the top of the page is consistent in a meeting with a long name': function (browser) {
+    var longMeetingName = new Array(101).join('x'); // 100-element array of 'x'
     browser
       .url('http://192.168.244.140:4000')
       .resizeWindow(1920, 1080)
@@ -42,19 +44,20 @@ module.exports = {
       .assert.visible('input[ng-model=meetingName]')
       .setValue('input[ng-model=meetingName]', [longMeetingName, browser.Keys.ENTER])
       .waitForElementVisible('#navbar', 10000)
-      .getLocation('#whiteboard-navbar', function(result1) {
-        _this = this
-        for(var w = 1000; w >= 100; w -= 100) {
+      .getLocation('#whiteboard-navbar', function (result1) {
+        _this = this;
+        for (var w = 1000; w >= 100; w -= 100) {
           _this = _this
             .resizeWindow(w, 1080)
-            .getLocation('#whiteboard-navbar', function(result2) {
+            .getLocation('#whiteboard-navbar', function (result2) {
               this.verify.equal(result2.value.y, result1.value.y);
             });
         }
-        for(var w = 100; w <= 100; w += 100) {
+
+        for (var w = 100; w <= 100; w += 100) {
           _this = _this
             .resizeWindow(w, 1080)
-            .getLocation('#whiteboard-navbar', function(result2) {
+            .getLocation('#whiteboard-navbar', function (result2) {
               this.verify.equal(result2.value.y, result1.value.y);
             });
         }
@@ -62,5 +65,5 @@ module.exports = {
       .deleteCookies()
       .closeWindow()
       .end();
-  }
+  },
 };

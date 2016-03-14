@@ -1,5 +1,5 @@
 // A slide in the whiteboard
-this.WhiteboardSlideModel = (function() {
+this.WhiteboardSlideModel = (function () {
   class WhiteboardSlideModel {
 
     // TODO: check if we really need original and display width and heights separate or if they can be the same

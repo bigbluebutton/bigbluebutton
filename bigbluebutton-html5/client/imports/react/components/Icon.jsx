@@ -1,17 +1,17 @@
 import classNames from 'classnames';
-import {Tooltip} from './Tooltip.jsx'
+import {Tooltip} from './Tooltip.jsx';
 
 const { PropTypes } = React;
 
 export let Icon = React.createClass({
   propTypes: {
-    iconName: PropTypes.string.isRequired
+    iconName: PropTypes.string.isRequired,
   },
 
   getDefaultProps() {
     return {
       prependIconName: 'fi-',
-      title: ''
+      title: '',
     };
   },
 
@@ -30,5 +30,5 @@ export let Icon = React.createClass({
         {this.renderIcon()}
       </Tooltip>
     );
-  }
+  },
 });

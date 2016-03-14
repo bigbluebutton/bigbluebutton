@@ -1,5 +1,5 @@
 // A base class for whiteboard tools
-this.WhiteboardToolModel = (function() {
+this.WhiteboardToolModel = (function () {
   class WhiteboardToolModel {
     constructor() {}
 
@@ -9,6 +9,7 @@ this.WhiteboardToolModel = (function() {
       this.gh = 0;
       this.gw = 0;
       this.obj = 0;
+
       // the defintion of this shape, kept so we can redraw the shape whenever needed
       return this.definition = [];
     }
@@ -37,7 +38,7 @@ this.WhiteboardToolModel = (function() {
     }
 
     hide() {
-      if(this.obj != null) {
+      if (this.obj != null) {
         return this.obj.hide();
       }
     }

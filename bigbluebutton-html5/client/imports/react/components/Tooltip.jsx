@@ -4,13 +4,13 @@ const { PropTypes } = React;
 export let Tooltip = React.createClass({
   propTypes: {
     componentClass: CustomPropTypes.elementType,
-    title: PropTypes.string.isRequired
+    title: PropTypes.string.isRequired,
   },
 
   getDefaultProps() {
     return {
       placement: 'bottom',
-      componentClass: 'span'
+      componentClass: 'span',
     };
   },
 
@@ -28,5 +28,5 @@ export let Tooltip = React.createClass({
         {this.props.children}
       </Component>
     );
-  }
+  },
 });

@@ -3,7 +3,7 @@
 
 //require('load-grunt-tasks')(grunt);
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
   require('load-grunt-tasks')(grunt);
 
@@ -13,9 +13,9 @@ module.exports = function(grunt) {
     jshint: {
       files: {
         src: [
-          'Gruntfile.js'
-        ]
-      }
+          'Gruntfile.js',
+        ],
+      },
     },
 
     coffeelint: {
@@ -24,9 +24,9 @@ module.exports = function(grunt) {
           '**/*.coffee',
           '!node_modules/**/*',
           '!app/.meteor/**/*',
-          '!app/packages/**/*'
-        ]
-      }
+          '!app/packages/**/*',
+        ],
+      },
     },
 
     jscs: {
@@ -51,9 +51,9 @@ module.exports = function(grunt) {
 
     shell: {
       start_meteor: {
-        command: 'HOME=/usr/share/meteor JASMINE_SERVER_UNIT=0 JASMINE_SERVER_INTEGRATION=0 JASMINE_CLIENT_INTEGRATION=0 JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 ROOT_URL=http://127.0.0.1/html5client meteor'
-      }
-    }
+        command: 'HOME=/usr/share/meteor JASMINE_SERVER_UNIT=0 JASMINE_SERVER_INTEGRATION=0 JASMINE_CLIENT_INTEGRATION=0 JASMINE_BROWSER=PhantomJS JASMINE_MIRROR_PORT=3000 ROOT_URL=http://127.0.0.1/html5client meteor',
+      },
+    },
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');

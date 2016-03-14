@@ -11,5 +11,5 @@ export let UserListContainer = React.createClass({
     return (
       <UserList users={this.data.users} currentUser={this.data.currentUser}/>
     );
-  }
-})
+  },
+});;
