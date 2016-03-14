@@ -9,25 +9,6 @@ module.exports = function (grunt) {
 
   // configure Grunt
   grunt.initConfig({
-    // files to lint with the JSHint task
-    jshint: {
-      files: {
-        src: [
-          'Gruntfile.js',
-        ],
-      },
-    },
-
-    coffeelint: {
-      files: {
-        src: [
-          '**/*.coffee',
-          '!node_modules/**/*',
-          '!app/.meteor/**/*',
-          '!app/packages/**/*',
-        ],
-      },
-    },
 
     jscs: {
       check: {
