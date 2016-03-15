@@ -526,9 +526,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           logoutWindow.y = point1.y - (logoutWindow.height/2);
           
           logoutWindow.setReason(reason);
-          mdiCanvas.removeAllWindows(); 				
         } else {
-          mdiCanvas.removeAllWindows();
           var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
           var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
           LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
