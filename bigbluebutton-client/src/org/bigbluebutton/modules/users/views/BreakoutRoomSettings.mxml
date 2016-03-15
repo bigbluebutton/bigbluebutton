@@ -64,7 +64,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					totalUsers += users.length;
 					var room:Object = new Object();
 					room.users = new Array();
-					room.name = ResourceUtil.getInstance().getString('bbb.users.breakout.room') + " " + (i + 1).toString();
+					room.name =
+						UserManager.getInstance().getConference().meetingName + " (" + 
+						ResourceUtil.getInstance().getString('bbb.users.breakout.room')
+						+ " - " + (i + 1).toString() + ")";;
 					for (var j:int = 0; j < users.length; j++) {
 						room.users.push(users[j].userID);
 					}
