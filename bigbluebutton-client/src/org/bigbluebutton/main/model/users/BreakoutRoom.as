@@ -18,6 +18,8 @@
  */
 package org.bigbluebutton.main.model.users {
 	
+	import mx.collections.ArrayCollection;
+	
 	[Bindable]
 	public class BreakoutRoom {
 		public static const NONE:String = "none";
@@ -30,9 +32,18 @@ package org.bigbluebutton.main.model.users {
 		
 		public var name:String;
 		
-		public var numberOfUsers:int;
+		public var users:ArrayCollection;
 		
 		// Can be one of three following values self, none, other
 		public var listenStatus:String = NONE;
+		
+		public function BreakoutRoom() {
+			users = new ArrayCollection();
+		}
+		
+		public function get numberOfUsers():int {
+			return users.length;
+		}
+
 	}
 }

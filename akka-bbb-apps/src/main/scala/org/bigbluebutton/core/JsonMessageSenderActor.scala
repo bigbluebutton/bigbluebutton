@@ -62,7 +62,9 @@ class JsonMessageSenderActor(val service: MessageSender)
   }
 
   private def handleUpdateBreakoutUsers(msg: UpdateBreakoutUsersOutMessage) {
-    val payload = new UpdateBreakoutUsersPayload(msg.meetingId, msg.breakoutId, msg.numberOfUsers)
+    val users = new java.util.ArrayList[BreakoutUserPayload]()
+    msg.users.foreach(x => users.add(new BreakoutUserPayload(x.id, x.name)))
+    val payload = new UpdateBreakoutUsersPayload(msg.meetingId, msg.breakoutId, users)
     val request = new UpdateBreakoutUsers(payload)
     service.send(MessagingConstants.FROM_MEETING_CHANNEL, request.toJson())
   }

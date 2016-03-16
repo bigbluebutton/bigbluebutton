@@ -620,9 +620,9 @@ package org.bigbluebutton.modules.users.services
 	
 	private function handleUpdateBreakoutUsers(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
-		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.numberOfUsers);
+		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.users);
 	}
-		
+
 	private function handleTimeRemainingUpdate(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
 		var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME_BREAKOUT);

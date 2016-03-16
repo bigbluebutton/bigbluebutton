@@ -585,7 +585,7 @@ public class UserClientMessageSender {
 	  Map<String, Object> args = new HashMap<String, Object>();	
 	  args.put("meetingId", msg.payload.meetingId);
 	  args.put("breakoutId", msg.payload.breakoutId);
-	  args.put("numberOfUsers", msg.payload.numberOfUsers);
+	  args.put("users", msg.payload.users);
 	  
 	  Map<String, Object> message = new HashMap<String, Object>();
 	  Gson gson = new Gson();
