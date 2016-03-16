@@ -4,11 +4,11 @@ UploadingFileListItem = React.createClass ({
   },
 
   render() {
-    <li class="presenter-uploader-file-item is-uploading">
-      <span class="presenter-uploader-file-item-name">
+    <li className="presenter-uploader-file-item is-uploading">
+      <span className="presenter-uploader-file-item-name">
         {this.props.name}
       </span>
-      <span class="presenter-uploader-file-item-progress">
+      <span className="presenter-uploader-file-item-progress">
         {percUploaded}%
       </span>
     </li>
