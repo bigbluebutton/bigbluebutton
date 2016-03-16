@@ -9,7 +9,7 @@ PresentationListItem = React.createClass({
   render() {
     var fileItemClasses = "presenter-uploader-file-item" + (this.props.current ? " current" : "" )
     return(
-      <li onClick={this.handleClickShow} class="presenter-uploader-file-item {{#if current}}current{{/if}}">
+      <li onClick={this.handleClickShow} className={ classNames('presenter-uploader-file-item', this.props.current ? 'current' : '') }>
         <span className="presenter-uploader-file-item-name" data-action-show>
           {this.props.name}
         </span>
