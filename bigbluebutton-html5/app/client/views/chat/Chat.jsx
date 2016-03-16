@@ -126,7 +126,7 @@ Chat = React.createClass({
           <div id="chatbody">
             <ul className="chat" style={this.data.messageFontSize}>
               {this.getCombinedMessagesForChat(this.data.chatMessages).map((message) =>
-              <ChatMessage key={message.id} message={message} messageFontSize={this.data.messageFontSize}/>
+              <ChatMessage key={message._id} message={message} messageFontSize={this.data.messageFontSize}/>
               )}
               {this.userExists ? null : <li>The user has left</li> }
             </ul>
