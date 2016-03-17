@@ -544,6 +544,7 @@ package org.bigbluebutton.main.model.users {
 				for (var i:int = 0; i < breakoutUsers.length; i++) {
 					getUser(StringUtils.substringBeforeLast(breakoutUsers[i].id,"-")).breakoutRoom = StringUtils.substringAfterLast(breakoutId, "-");
 				}
+				users.refresh();
 			}
 		}
 		
@@ -585,6 +586,7 @@ package org.bigbluebutton.main.model.users {
 						users[i].breakoutRoom = null;
 					}
 				}
+				users.refresh();
 			}
 			
 		}
