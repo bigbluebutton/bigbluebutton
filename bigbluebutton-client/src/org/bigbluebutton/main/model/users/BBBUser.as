@@ -20,6 +20,7 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.as3commons.lang.StringUtils;
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
@@ -326,7 +327,28 @@ package org.bigbluebutton.main.model.users
 		public function getStatus(name:String):Status {
 			return _status.getStatus(name);
 		}
-	
+
+		private var _breakoutRoom : String = null;
+		
+		[Bindable("displayNameChange")]
+		public function get displayName() : String {
+			if (StringUtils.isBlank(_breakoutRoom)){
+				return name;
+			}
+			else {
+				return "[" + _breakoutRoom + "]" +name;
+			}
+		}
+		
+		public function get breakoutRoom() : String {
+			return _breakoutRoom;
+		}
+		
+		public function set breakoutRoom( roomNumber : String ) : void {
+			_breakoutRoom = roomNumber;
+			dispatchEvent(new Event("displayNameChange")); 
+		}
+
 		public static function copy(user:BBBUser):BBBUser {
 			var n:BBBUser = new BBBUser();
 			n.authToken = user.authToken;
