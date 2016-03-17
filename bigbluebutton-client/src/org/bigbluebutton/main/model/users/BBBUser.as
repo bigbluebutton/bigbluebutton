@@ -336,7 +336,7 @@ package org.bigbluebutton.main.model.users
 				return name;
 			}
 			else {
-				return "[" + _breakoutRoom + "]" +name;
+				return "[" + _breakoutRoom + "] " +name;
 			}
 		}
 		
