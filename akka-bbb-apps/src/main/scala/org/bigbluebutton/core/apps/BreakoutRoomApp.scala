@@ -96,7 +96,7 @@ trait BreakoutRoomApp extends SystemConfiguration {
 
   def handleSendBreakoutUsersUpdate(msg: SendBreakoutUsersUpdate) {
     val users = usersModel.getUsers().toVector
-    val breakoutUsers = users map { u => new BreakoutUser(u.userID, u.name) }
+    val breakoutUsers = users map { u => new BreakoutUser(u.externUserID, u.name) }
     eventBus.publish(BigBlueButtonEvent(mProps.externalMeetingID,
       new BreakoutRoomUsersUpdate(mProps.externalMeetingID, mProps.meetingID, breakoutUsers)))
   }
