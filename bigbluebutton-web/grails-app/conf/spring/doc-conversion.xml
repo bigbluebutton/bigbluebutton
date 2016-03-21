@@ -92,6 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
 	
 	<bean id="pdfToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService">
+	   <constructor-arg index="0" value="${numConversionThreads}"/>
 		<property name="counterService" ref="pageCounterService"/>
 		<property name="pageConverter" ref="pdf2SwfPageConverter"/>
 		<property name="pdfPageToImageConversionService" ref="imageConvSvc"/>

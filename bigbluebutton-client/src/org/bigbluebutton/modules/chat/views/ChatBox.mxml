@@ -192,7 +192,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remoteSendMessage(e:ShortcutEvent):void{
-				focusManager.setFocus(sendBtn);
 				sendMessages();
 			}
       
@@ -496,6 +495,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function goToLatestReadMessage(e:ShortcutEvent):void {
 				if (e.otherUserID == chatWithUserID){
+					if (latestMessage < 0) {
+						latestMessage = 0;
+					}
 					currentMessage = latestMessage;
 					chatMessagesList.accessibilityProperties.description = navRecentString + " " + chatMessages.messages.getItemAt(currentMessage).toString();
 					navigationMaintenance();

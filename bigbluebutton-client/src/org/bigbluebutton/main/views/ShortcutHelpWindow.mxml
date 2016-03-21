@@ -24,6 +24,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 		   xmlns:common="org.bigbluebutton.common.*"
 		   showCloseButton="true"
+		   height="350"
+		   width="430"
 		   initialize="init()"
 	       creationComplete="onCreationComplete()"
 		   xmlns:mate="http://mate.asfusion.com/" 
@@ -135,6 +137,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					shownKeys.addAll(userKeys);
 					break;
 				}
+				
+				shownKeys.refresh();
 			}
 			
 			private function loadKeys(resource:Array, global:Boolean=false):ArrayList {
@@ -256,7 +260,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:ComboBox>
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
 		<mx:columns>
-			<mx:DataGridColumn dataField="shortcut" headerText="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.headers.shortcut')}"/>
+			<mx:DataGridColumn dataField="shortcut" width="150" headerText="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.headers.shortcut')}"/>
 			<mx:DataGridColumn dataField="func" headerText="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.headers.function')}"/>
 		</mx:columns>
 	</mx:DataGrid>

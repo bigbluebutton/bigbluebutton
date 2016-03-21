@@ -1,10 +1,8 @@
-
-
 name := "bbb-common-message"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.16-SNAPSHOT"
+version := "0.0.17-SNAPSHOT"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -17,10 +15,10 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 
 libraryDependencies ++= {
   Seq(
-	  "com.google.code.gson"      %  "gson"              % "1.7.1"
+	  "com.google.code.gson"      %  "gson"              % "2.5"
 	)}
 
-libraryDependencies += "junit" % "junit" % "4.11" % "test"
+libraryDependencies += "junit" % "junit" % "4.12" % "test"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
 seq(Revolver.settings: _*)

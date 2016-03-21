@@ -28,10 +28,12 @@ public class EventRecordingService {
 	
 	private final String  host;
 	private final int port;
+	private final int keyExpiry;
 	
-	public EventRecordingService(String host, int port) {
+	public EventRecordingService(String host, int port, int keyExpiry) {
 		this.host = host;
 		this.port = port;
+		this.keyExpiry = keyExpiry;
 	}
 	
 	public void record(String meetingId, Map<String, String> event) {		
@@ -44,9 +46,9 @@ public class EventRecordingService {
 		 * recording the event into redis even if the meeting is not
 		 * recorded. (ralam sept 23, 2015) 
 		 */
-		jedis.expire(key, 14*24*60*60 /*14days*/);
+		jedis.expire(key, keyExpiry);
 		key = "meeting:" + meetingId + COLON + "recordings";
 		jedis.rpush(key, msgid.toString());	
-		jedis.expire(key, 14*24*60*60 /*14days*/);
+		jedis.expire(key, keyExpiry);
 	}
 }

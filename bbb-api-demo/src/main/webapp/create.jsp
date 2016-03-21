@@ -277,7 +277,7 @@ function mycallback() {
 		// the meeting was created.
 		String joinURL = getJoinURLViewer(request.getParameter("username"), request.getParameter("meetingID"));
 			
-		if (joinURL.startsWith("http://")) {
+		if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
 
 <script language="javascript" type="text/javascript">

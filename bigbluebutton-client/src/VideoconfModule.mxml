@@ -74,21 +74,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				else return false;
 			}
 			
-			public function start(attributes:Object):void {	
+			public function start(attributes:Object):void {
 				LOGGER.debug("Starting Video Module");
-        _attributes = attributes;
-        
-        var globalDispatcher:Dispatcher = new Dispatcher();
-        var event:VideoModuleStartEvent = new VideoModuleStartEvent(VideoModuleStartEvent.START);
-        event.uri = uri;
-        globalDispatcher.dispatchEvent(event);
-			}
-		
-			public function stop():void {
-        var globalDispatcher:Dispatcher = new Dispatcher();
-        globalDispatcher.dispatchEvent(new VideoModuleStopEvent(VideoModuleStopEvent.STOP));
+				_attributes = attributes;
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				var event:VideoModuleStartEvent = new VideoModuleStartEvent(VideoModuleStartEvent.START);
+				event.uri = uri;
+				globalDispatcher.dispatchEvent(event);
 			}
 			
+			public function stop():void {
+				var globalDispatcher:Dispatcher = new Dispatcher();
+				globalDispatcher.dispatchEvent(new VideoModuleStopEvent(VideoModuleStopEvent.STOP));
+			}
 		]]>
 	</mx:Script>
 	

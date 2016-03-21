@@ -48,7 +48,7 @@ dependencies {
   
 	compile 'commons-lang:commons-lang:2.5'
 	compile 'commons-io:commons-io:2.4'
-    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.google.code.gson:gson:2.5'
 	compile 'commons-httpclient:commons-httpclient:3.1'
 	
 	compile 'org.bigbluebutton:bbb-common-message:0.0.16-SNAPSHOT'
@@ -62,6 +62,9 @@ dependencies {
   //compile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
   //compile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
   //compile 'org.slf4j:slf4j-api:1.7.2@jar'
+
+  // XML creation speedup
+  compile 'org.freemarker:freemarker:2.3.23'
 
 	//junit
 	compile 'junit:junit:4.8.2'

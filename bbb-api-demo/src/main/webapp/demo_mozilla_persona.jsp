@@ -132,7 +132,6 @@ function loggedIn(res){
 
         Gson gson = new Gson();
 		HashMap<String,String> map = gson.fromJson(jsonResp, new TypeToken<Map<String, String>>() {}.getType());
-
 		if(map.get("status").equalsIgnoreCase("okay")){
 			joinURL = getJoinURL(map.get("email"), "Demo Meeting", "false", null, null, null);
 		}
@@ -143,7 +142,7 @@ function loggedIn(res){
 	// String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
 	
 
-	if (joinURL.startsWith("http://")) { 
+	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) { 
 %>
 
 <script language="javascript" type="text/javascript">

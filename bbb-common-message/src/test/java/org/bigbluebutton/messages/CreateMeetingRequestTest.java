@@ -43,5 +43,6 @@ public class CreateMeetingRequestTest {
     Assert.assertEquals(rxMsg.payload.viewerPassword, viewerPassword);
     Assert.assertEquals(rxMsg.payload.moderatorPassword, moderatorPassword);
     Assert.assertEquals(rxMsg.payload.durationInMinutes, durationInMinutes);
+    Assert.assertEquals(rxMsg.payload.isBreakout, isBreakout);
   }
 }

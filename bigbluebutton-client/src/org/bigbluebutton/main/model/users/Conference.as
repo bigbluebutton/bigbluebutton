@@ -20,6 +20,7 @@ package org.bigbluebutton.main.model.users {
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
+	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
 	import org.bigbluebutton.common.Role;
@@ -29,6 +30,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.vo.LockSettingsVO;
 	
 	public class Conference {
+		public var userEjectedFromMeeting:Boolean = false;
 		public var meetingName:String;
 		
 		public var externalMeetingID:String;
@@ -42,6 +44,8 @@ package org.bigbluebutton.main.model.users {
 		public var voiceBridge:String;
 		
 		public var dialNumber:String;
+		
+		public var isBreakout:Boolean;
 		
 		[Bindable]
 		public var record:Boolean;
@@ -124,7 +128,7 @@ package org.bigbluebutton.main.model.users {
 				return 1;
 			return 0;
 		}
-		
+
 		public function addUser(newuser:BBBUser):void {
 			if (hasUser(newuser.userID)) {
 				removeUser(newuser.userID);
@@ -151,11 +155,11 @@ package org.bigbluebutton.main.model.users {
 		public function setDefaultLayout(defaultLayout:String):void {
 			this.defaultLayout = defaultLayout;
 		}
-		
+
 		public function getDefaultLayout():String {
 			return defaultLayout;
 		}
-		
+
 		public function hasUser(userID:String):Boolean {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
@@ -163,7 +167,7 @@ package org.bigbluebutton.main.model.users {
 			}
 			return false;
 		}
-		
+
 		public function hasOnlyOneModerator():Boolean {
 			var p:BBBUser;
 			var moderatorCount:int = 0;
@@ -177,7 +181,7 @@ package org.bigbluebutton.main.model.users {
 				return true;
 			return false;
 		}
-		
+
 		public function getTheOnlyModerator():BBBUser {
 			var p:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
@@ -199,7 +203,7 @@ package org.bigbluebutton.main.model.users {
 			}
 			return null;
 		}
-		
+
 		public function getUser(userID:String):BBBUser {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
@@ -207,7 +211,7 @@ package org.bigbluebutton.main.model.users {
 			}
 			return null;
 		}
-		
+
 		public function getUserWithExternUserID(userID:String):BBBUser {
 			var p:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
@@ -218,7 +222,7 @@ package org.bigbluebutton.main.model.users {
 			}
 			return null;
 		}
-		
+
 		public function isUserPresenter(userID:String):Boolean {
 			var user:Object = getUserIndex(userID);
 			if (user == null) {
@@ -227,7 +231,7 @@ package org.bigbluebutton.main.model.users {
 			var a:BBBUser = user.participant as BBBUser;
 			return a.presenter;
 		}
-		
+
 		public function removeUser(userID:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
@@ -236,7 +240,7 @@ package org.bigbluebutton.main.model.users {
 				users.refresh();
 			}
 		}
-		
+
 		/**
 		 * Get the index number of the participant with the specific userid
 		 * @param userid
@@ -331,6 +335,14 @@ package org.bigbluebutton.main.model.users {
 		
 		public function get locked():Boolean {
 			return me.userLocked;
+		}
+		
+		public function setUserEjectedFromMeeting():void {
+			userEjectedFromMeeting = true;
+		}
+		
+		public function getUserEjectedFromMeeting():Boolean {
+			return userEjectedFromMeeting;
 		}
 		
 		public function getMyExternalUserID():String {
@@ -525,9 +537,9 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function updateBreakoutRoomUsers(breakoutId:String, users:Array):void {
-			var r:Object = getBreakoutRoom(breakoutId);
-			if (r != null) {
-				BreakoutRoom(r.room).users = new ArrayCollection(users);
+			var room:Object = getBreakoutRoom(breakoutId);
+			if (room!= null) {
+				BreakoutRoom(room).users = new ArrayCollection(users);
 			}
 		}
 		
@@ -554,7 +566,7 @@ package org.bigbluebutton.main.model.users {
 				}
 			}
 			// Breakout room not found.
-			return -1;
+			return null;
 		}
 		
 		public function removeBreakoutRoom(breakoutId:String):void {
@@ -571,6 +583,19 @@ package org.bigbluebutton.main.model.users {
 				return true;
 			}
 			return false;
+		}
+		
+		public function setBreakoutRoomInListen(listen:Boolean, breakoutId:String):void {
+			for (var i:int = 0; i < breakoutRooms.length; i++) {
+				var br:BreakoutRoom = BreakoutRoom(breakoutRooms.getItemAt(i));
+				if (listen == false) {
+					br.listenStatus = BreakoutRoom.NONE;
+				} else if (listen == true && br.breakoutId == breakoutId) {
+					br.listenStatus = BreakoutRoom.SELF;
+				} else {
+					br.listenStatus = BreakoutRoom.OTHER;
+				}
+			}
 		}
 	}
 }

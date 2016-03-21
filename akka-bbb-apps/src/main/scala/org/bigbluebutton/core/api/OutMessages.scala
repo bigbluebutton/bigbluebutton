@@ -28,7 +28,9 @@ case class PubSubPong(system: String, timestamp: Long) extends IOutMessage
 case object IsAliveMessage extends IOutMessage
 
 // Breakout Rooms
+case class BreakoutRoomsListOutMessage(meetingId: String, rooms: Vector[BreakoutRoomBody]) extends IOutMessage
 case class CreateBreakoutRoom(meetingId: String, recorded: Boolean, room: BreakoutRoomOutPayload) extends IOutMessage
+case class EndBreakoutRoom(breakoutId: String) extends IOutMessage
 case class BreakoutRoomOutPayload(breakoutId: String, name: String, parentId: String,
   voiceConfId: String, durationInMinutes: Int, moderatorPassword: String, viewerPassword: String,
   defaultPresentationURL: String)
@@ -37,6 +39,7 @@ case class BreakoutRoomStartedOutMessage(meetingId: String, recorded: Boolean, b
 case class BreakoutRoomBody(name: String, breakoutId: String)
 case class UpdateBreakoutUsersOutMessage(meetingId: String, recorded: Boolean, breakoutId: String, users: Vector[BreakoutUser]) extends IOutMessage
 case class MeetingTimeRemainingUpdate(meetingId: String, recorded: Boolean, timeRemaining: Int) extends IOutMessage
+case class BreakoutRoomEndedOutMessage(meetingId: String, breakoutId: String) extends IOutMessage
 
 // Permissions
 case class PermissionsSettingInitialized(meetingID: String, permissions: Permissions, applyTo: Array[UserVO]) extends IOutMessage
@@ -66,6 +69,7 @@ case class MuteVoiceUser(meetingID: String, recorded: Boolean, requesterID: Stri
 case class UserVoiceMuted(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class UserVoiceTalking(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class EjectVoiceUser(meetingID: String, recorded: Boolean, requesterID: String, userId: String, voiceConfId: String, voiceUserId: String) extends IOutMessage
+case class TransferUserToMeeting(voiceConfId: String, targetVoiceConfId: String, userId: String) extends IOutMessage
 case class UserJoinedVoice(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 case class UserLeftVoice(meetingID: String, recorded: Boolean, confNum: String, user: UserVO) extends IOutMessage
 

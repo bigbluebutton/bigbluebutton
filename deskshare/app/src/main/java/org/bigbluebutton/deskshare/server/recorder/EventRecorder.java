@@ -30,10 +30,12 @@ public class EventRecorder implements RecordStatusListener {
 	private static final String COLON=":";
 	private String host;
 	private int port;
-
-	public EventRecorder(String host, int port){
+	private final int keyExpiry;
+	
+	public EventRecorder(String host, int port, int keyExpiry){
 		this.host = host;
 		this.port = port;		
+		this.keyExpiry = keyExpiry;
 	}
 	
   private Long genTimestamp() {
@@ -50,10 +52,10 @@ public class EventRecorder implements RecordStatusListener {
 		 * recording the event into redis even if the meeting is not
 		 * recorded. (ralam sept 23, 2015) 
 		 */
-		jedis.expire(key, 14*24*60*60 /*14days*/);
+		jedis.expire(key, keyExpiry);
 		key = "meeting" + COLON + session + COLON + "recordings";
 		jedis.rpush(key, msgid.toString());
-		jedis.expire(key, 14*24*60*60 /*14days*/);
+		jedis.expire(key, keyExpiry);
 	}
 	
 	@Override

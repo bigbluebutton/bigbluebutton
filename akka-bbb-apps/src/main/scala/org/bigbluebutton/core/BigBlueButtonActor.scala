@@ -85,6 +85,11 @@ class BigBlueButtonActor(val system: ActorSystem,
       case Some(m) => {
         meetings -= msg.meetingID
         log.info("Kick everyone out on meetingId={}", msg.meetingID)
+        if (m.mProps.isBreakout) {
+          log.info("Informing parent meeting {} that a breakout room has been ended{}", m.mProps.externalMeetingID, m.mProps.meetingID)
+          eventBus.publish(BigBlueButtonEvent(m.mProps.externalMeetingID,
+            BreakoutRoomEnded(m.mProps.externalMeetingID, m.mProps.meetingID)))
+        }
         outGW.send(new EndAndKickAll(msg.meetingID, m.mProps.recorded))
         outGW.send(new DisconnectAllUsers(msg.meetingID))
         log.info("Destroyed meetingId={}", msg.meetingID)

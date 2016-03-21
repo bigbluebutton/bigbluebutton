@@ -96,23 +96,27 @@ environments {
 
 // log4j configuration
 log4j = {
-   appenders {
-     appender new org.apache.log4j.DailyRollingFileAppender(
+    appenders {
+        appender new org.apache.log4j.DailyRollingFileAppender(
                    name: "dailyRollingFileAppender",
                    datePattern: "'.'yyyy-MM-dd",
                    file: "/var/log/bigbluebutton/bbb-web.log",
                    encoding:"utf-8",
                    threshold:org.apache.log4j.Level.toLevel( config.appLogLevel ),
                    layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSSXXX} %-5p %c %x - %m%n'))
-      console     name:'consoleAppender', 
+        console     name:'consoleAppender',
                   threshold:org.apache.log4j.Level.toLevel( config.appLogLevel ), 
                   layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSSXXX} %-5p %c %x - %m%n')
-  }
+    }
 
-  root {
-    warn 'dailyRollingFileAppender', 'consoleAppender'
-    additivity = true
-  }
+    root {
+        warn 'dailyRollingFileAppender', 'consoleAppender'
+        additivity = true
+    }
+
+    debug  logfile:    'org.bigbluebutton.*',
+                       'grails.app.controllers',
+                       'grails.app.services'
 
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers
            'org.codehaus.groovy.grails.web.pages',          // GSP
@@ -125,5 +129,6 @@ log4j = {
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
+
     debug  'org.bigbluebutton'
 }

@@ -196,6 +196,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 	String create_parameters = "name=" + urlEncode(meetingID)
 		+ "&meetingID=" + urlEncode(meetingID) + welcome_param + voiceBridge_param
 		+ "&attendeePW=ap&moderatorPW=mp"
+		+ "&isBreakoutRoom=false"
 		+ "&record=" + record + getMetaData( metadata );
 
 

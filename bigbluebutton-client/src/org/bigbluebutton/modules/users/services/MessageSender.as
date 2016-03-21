@@ -125,8 +125,8 @@ package org.bigbluebutton.modules.users.services
 			jsonMsg
 			);
 		}
-
-		public function listenInOnBreakout(meetingId:String, breakoutId:String, userId:String, listen:Boolean):void {
+		
+		public function listenInOnBreakout(meetingId:String, targetMeetingId:String, userId:String):void {
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("breakoutroom.listenInOnBreakout", function(result:String):void
 			{
@@ -135,16 +135,11 @@ package org.bigbluebutton.modules.users.services
 			{ // status - On error occurred
 				LOGGER.error(status);
 			},
-			JSON.stringify({meetingId:meetingId, breakoutId:breakoutId, userId:userId, listen:listen})
+			JSON.stringify({meetingId: meetingId, targetMeetingId: targetMeetingId, userId: userId})
 			);
 		}
-
-		public function endAllBreakoutRooms(meetingId:String):void{
-			var message:Object = new Object();
-			message["meetingId"] = meetingId;
-			
-			var jsonMsg:String = JSON.stringify(message);
-			
+		
+		public function endAllBreakoutRooms(meetingId:String):void {
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("breakoutroom.endAllBreakoutRooms", function(result:String):void
 			{
@@ -153,7 +148,7 @@ package org.bigbluebutton.modules.users.services
 			{ // status - On error occurred
 				LOGGER.error(status);
 			},
-			jsonMsg
+			JSON.stringify({meetingId: meetingId})
 			);
 		}
     
@@ -202,6 +197,23 @@ package org.bigbluebutton.modules.users.services
         }
       ); //_netConnection.call
     }
+	
+	public function queryForBreakoutRooms(meetingId:String):void {
+		var message:Object = new Object();
+		message["meetingId"] = meetingId;
+		var jsonMsg:String = JSON.stringify(message);
+		
+		var _nc:ConnectionManager = BBB.initConnectionManager();
+		_nc.sendMessage("breakoutroom.getBreakoutRoomsList", function(result:String):void
+		{
+			// On successful result
+		}, function(status:String):void
+		{ // status - On error occurred
+			LOGGER.error(status);
+		},
+			jsonMsg
+		);
+	}
     
     public function changeRecordingStatus(userID:String, recording:Boolean):void {
       var message:Object = new Object();
@@ -267,8 +279,8 @@ package org.bigbluebutton.modules.users.services
         },
         message
       );          
-     } 
-    
+     }
+
     public function ejectUser(userid:String):void {
       var message:Object = new Object();
       message["userId"] = userid;

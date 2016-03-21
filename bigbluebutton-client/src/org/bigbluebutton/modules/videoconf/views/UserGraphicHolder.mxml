@@ -51,6 +51,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
             import org.bigbluebutton.util.i18n.ResourceUtil;
 
+            private var videoOptions:VideoConfOptions = new VideoConfOptions();
+            
             [Bindable]
             private var _rolledOverMuteBtn:Boolean = false;
             [Bindable]
@@ -62,6 +64,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             private var _dispatcher:Dispatcher = new Dispatcher();
             private var _images:Images = new Images();
             private var _user:BBBUser = null;
+            private var _streamName:String = "";
+            private var _userId:String = "";
 
             private var _hideMuteBtnTimer:Timer;
 
@@ -71,10 +75,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             protected function onCreationComplete():void {
+                closeBtn.tabIndex = videoOptions.baseTabIndex + 10;
             }
 
             public function set userId(value:String):void {
                 _user = UsersUtil.getUser(value);
+                _userId = value;
+            }
+
+            public function set streamName(value:String):void {
+                _streamName = value;
+            }
+
+            public function get streamName():String {
+                return _streamName;
+            }
+
+            public function get userId():String {
+                return _userId;
             }
 
             public function loadAvatar(options:VideoConfOptions):void {
@@ -89,7 +107,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             public function loadCamera(options:VideoConfOptions, camIndex:int, videoProfile:VideoProfile):void {
                 video.user = _user;
                 video.options = options;
-                video.publish(camIndex, videoProfile);
+                _streamName = UserVideo.newStreamName(_user.userID, videoProfile);
+                video.publish(camIndex, videoProfile, _streamName);
 
                 videoVisibility = true;
                 setUserProperties();
@@ -298,7 +317,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                         truncateToFit="true"
                         styleName="videoToolbarLabelStyle" />
                 <mx:Box paddingRight="5">
-                    <mx:Button styleName="closeBtnFocus" buttonMode="true" click="shutdown()" />
+                    <mx:Button id="closeBtn" styleName="closeBtnFocus" buttonMode="true" click="shutdown()" 
+                               toolTip="{ResourceUtil.getInstance().getString('bbb.video.streamClose.toolTip', [_username])}" />
                 </mx:Box>
             </mx:HBox>
             <mx:Box
