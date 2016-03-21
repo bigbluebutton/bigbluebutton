@@ -53,6 +53,15 @@
 			baseTabIndex="201"
 		/>
 		
+		<module name="ScreenshareModule" 
+      url="http://HOST/client/ScreenshareModule.swf?v=VERSION" 
+      uri="rtmp://HOST/screenshare"
+      showButton="true"
+      autoStart="false"
+      autoFullScreen="false"
+      baseTabIndex="201"
+    />
+    
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"

@@ -51,7 +51,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.5'
 	compile 'commons-httpclient:commons-httpclient:3.1'
 	
-	compile 'org.bigbluebutton:bbb-common-message:0.0.16-SNAPSHOT'
+	compile 'org.bigbluebutton:bbb-common-message:0.0.17-SNAPSHOT'
 	compile 'com.zaxxer:nuprocess:1.0.4'
 
   // Logging

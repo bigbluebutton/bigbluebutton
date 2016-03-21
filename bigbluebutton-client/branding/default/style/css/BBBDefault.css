@@ -512,7 +512,7 @@ TitleWindow {
 }
 
 .chromeJavaHelpImage {
-	imageSource: Embed(source='assets/images/chromePluginBlocked.png');
+	imageSource: Embed(source='assets/images/jnlp-run-chrome.png');
 }
 
 .webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {

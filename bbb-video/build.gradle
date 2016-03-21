@@ -92,7 +92,7 @@ dependencies {
 	providedCompile 'commons-pool:commons-pool:1.5.6'
 	compile 'com.google.code.gson:gson:2.5'
 	
-	compile 'org.bigbluebutton:bbb-common-message:0.0.16-SNAPSHOT'
+	compile 'org.bigbluebutton:bbb-common-message:0.0.17-SNAPSHOT'
 }
 
 test {

@@ -1,0 +1,10 @@
+.manager
+.scala_dependencies
+.classpath
+.gradle/
+.project
+app/build/
+app/lib/
+jws/webstart/lib/
+build/
+/bin/
