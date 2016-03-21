@@ -905,3 +905,12 @@ EmojiGrid {
 	verticalGap: 6;
 	horizontalGap: 6;
 }
+
+.breakoutTipBox {
+	horizontalAlign: center;
+}
+
+.breakoutRoomsBox {
+	paddingTop: 12;
+	horizontalAlign: center;
+}

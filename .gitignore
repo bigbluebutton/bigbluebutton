@@ -6,6 +6,8 @@ record-and-playback/playback-web/playback-web-0.1.war
 record-and-playback/.project
 push_to_git.py
 **/target/*
+**/.cache-main
+**/.cache-tests
 .vagrant/*
 **/.settings/*
 */.gradle

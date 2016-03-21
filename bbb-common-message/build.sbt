@@ -1,10 +1,8 @@
-
-
 name := "bbb-common-message"
 
 organization := "org.bigbluebutton"
 
-version := "0.0.16"
+version := "0.0.16-SNAPSHOT"
 
 // We want to have our jar files in lib_managed dir.
 // This way we'll have the right path when we import
@@ -17,10 +15,10 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/sc
 
 libraryDependencies ++= {
   Seq(
-	  "com.google.code.gson"      %  "gson"              % "1.7.1"
+	  "com.google.code.gson"      %  "gson"              % "2.5"
 	)}
 
-libraryDependencies += "junit" % "junit" % "4.11" % "test"
+libraryDependencies += "junit" % "junit" % "4.12" % "test"
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
 
 seq(Revolver.settings: _*)
@@ -48,12 +46,12 @@ autoScalaLibrary := false
 * publish to the local maven repo using "sbt publish"
 */
 // Uncomment this to publish to local maven repo while commenting out the nexus repo
-//publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
 
 
 // Comment this out when publishing to local maven repo using SNAPSHOT version.
 // To push to sonatype "sbt publishSigned"
-
+/*
 publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value)
@@ -61,7 +59,7 @@ publishTo := {
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
-
+*/
 
 // Enables publishing to maven repo
 publishMavenStyle := true

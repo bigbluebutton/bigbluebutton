@@ -76,6 +76,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
     </bean>
     
+    <bean id="breakoutroom.service" class="org.bigbluebutton.red5.service.BreakoutRoomService">
+        <property name="red5Publisher"> <ref bean="red5Publisher"/> </property>
+    </bean>
+    
     <bean id="presentationApplication" class="org.bigbluebutton.red5.service.PresentationApplication">
         <property name="red5Publisher"><ref bean="red5Publisher"/></property>
     </bean>

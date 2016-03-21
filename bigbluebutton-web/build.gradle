@@ -48,12 +48,12 @@ dependencies {
   
 	compile 'commons-lang:commons-lang:2.5'
 	compile 'commons-io:commons-io:2.4'
-    compile 'com.google.code.gson:gson:1.7.1'
+    compile 'com.google.code.gson:gson:2.5'
 	compile 'commons-httpclient:commons-httpclient:3.1'
+	
+	compile 'org.bigbluebutton:bbb-common-message:0.0.16-SNAPSHOT'
 	compile 'com.zaxxer:nuprocess:1.0.4'
 
-	compile 'org.bigbluebutton:bbb-common-message:0.0.13'
-	
   // Logging
   // Commenting out as it results in build failure (ralam - may 11, 2014)
   //compile 'ch.qos.logback:logback-core:1.0.9@jar'

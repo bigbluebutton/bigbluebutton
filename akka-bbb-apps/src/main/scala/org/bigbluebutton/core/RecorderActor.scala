@@ -34,11 +34,11 @@ import org.bigbluebutton.core.recorders.events.ModifyTextWhiteboardRecordEvent
 import scala.collection.immutable.StringOps
 
 object RecorderActor {
-  def props(meetingId: String, recorder: RecorderApplication): Props =
-    Props(classOf[RecorderActor], meetingId, recorder)
+  def props(recorder: RecorderApplication): Props =
+    Props(classOf[RecorderActor], recorder)
 }
 
-class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
+class RecorderActor(val recorder: RecorderApplication)
     extends Actor with ActorLogging {
 
   def receive = {

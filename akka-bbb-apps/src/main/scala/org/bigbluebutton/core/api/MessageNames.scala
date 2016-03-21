@@ -163,4 +163,7 @@ object MessageNames {
   val KEEP_ALIVE_REPLY = "keep_alive_reply"
   val USER_LISTEN_ONLY = "user_listening_only"
   val GET_ALL_MEETINGS_REPLY = "get_all_meetings_reply"
+
+  // breakout rooms
+  val BREAKOUT_ROOM_STARTED = "BreakoutRoomStarted"
 }

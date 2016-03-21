@@ -19,36 +19,21 @@
 
 package org.bigbluebutton.api.messaging;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.Map;
 
-import javax.imageio.ImageIO;
-
-import org.bigbluebutton.api.messaging.converters.messages.CreateMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
-import org.bigbluebutton.api.messaging.converters.messages.KeepAliveMessage;
 import org.bigbluebutton.api.messaging.converters.messages.RegisterUserMessage;
 import org.bigbluebutton.common.converters.ToJsonEncoder;
-import org.bigbluebutton.common.messages.MessageHeader;
 import org.bigbluebutton.common.messages.MessagingConstants;
-import org.bigbluebutton.common.messages.PubSubPingMessage;
-import org.bigbluebutton.common.messages.payload.PubSubPingMessagePayload;
+import org.bigbluebutton.messages.CreateMeetingRequest;
+import org.bigbluebutton.messages.CreateMeetingRequest.CreateMeetingRequestPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPubSub;
 
 public class RedisMessagingService implements MessagingService {
 	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
@@ -76,15 +61,18 @@ public class RedisMessagingService implements MessagingService {
 	}
 	
 	public void createMeeting(String meetingID, String externalMeetingID, String meetingName, Boolean recorded, 
-			                      String voiceBridge, Long duration, 
+			                      String voiceBridge, Integer duration, 
 			                      Boolean autoStartRecording, Boolean allowStartStopRecording,
 			                      String moderatorPass, String viewerPass, Long createTime,
-			                      String createDate) {
-		CreateMeetingMessage msg = new CreateMeetingMessage(meetingID, externalMeetingID, meetingName, 
+			                      String createDate, Boolean isBreakout) {
+	  CreateMeetingRequestPayload payload = new CreateMeetingRequestPayload(meetingID, externalMeetingID, meetingName, 
 				                                  recorded, voiceBridge, duration, 
 				                                  autoStartRecording, allowStartStopRecording,
-				                                  moderatorPass, viewerPass, createTime, createDate);
-		String json = MessageToJson.createMeetingMessageToJson(msg);
+				                                  moderatorPass, viewerPass, createTime, createDate, isBreakout);
+	  CreateMeetingRequest msg = new CreateMeetingRequest(payload);
+	  
+	  Gson gson = new Gson();
+		String json = gson.toJson(msg);
 		log.info("Sending create meeting message to bbb-apps:[{}]", json);
 		sender.send(MessagingConstants.TO_MEETING_CHANNEL, json);			
 	}
@@ -118,7 +106,7 @@ public class RedisMessagingService implements MessagingService {
 		
 		sender.send(MessagingConstants.TO_POLLING_CHANNEL, gson.toJson(map));		
 	}
-
+	
 	public void setMessageSender(MessageSender sender) {
 		this.sender = sender;
 	}

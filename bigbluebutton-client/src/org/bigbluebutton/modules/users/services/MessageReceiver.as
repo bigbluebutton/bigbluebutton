@@ -33,12 +33,14 @@ package org.bigbluebutton.modules.users.services
   import org.bigbluebutton.core.vo.LockSettingsVO;
   import org.bigbluebutton.main.api.JSLog;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.BreakoutRoomEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.PresenterStatusEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
+  import org.bigbluebutton.main.model.users.BreakoutRoom;
   import org.bigbluebutton.main.model.users.Conference;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.main.model.users.events.StreamStoppedEvent;
@@ -132,6 +134,25 @@ package org.bigbluebutton.modules.users.services
 		case "userEjectedFromMeeting":
 		 handleUserEjectedFromMeeting(message);
 		 break;
+		// Breakout room feature
+		case "breakoutRoomsList":
+		  handleBreakoutRoomsList(message)
+		  break;
+		case "breakoutRoomJoinURL":
+		  handleBreakoutRoomJoinURL(message);
+		  break;
+		case "updateBreakoutUsers":
+		  handleUpdateBreakoutUsers(message);
+		  break;
+		case "timeRemainingUpdate":
+	      handleTimeRemainingUpdate(message);
+		  break;
+		case "breakoutRoomStarted":
+		  handleBreakoutRoomStarted(message);
+		  break;
+		case "breakoutRoomClosed":
+		  handleBreakoutRoomClosed(message);
+		  break;
       }
     }  
     
@@ -145,7 +166,6 @@ package org.bigbluebutton.modules.users.services
 		
 		if(user.userLocked != map.lock)
 			user.lockStatusChanged(map.lock);
-		
 		return;
 	}
 	
@@ -385,8 +405,8 @@ package org.bigbluebutton.modules.users.services
 	  }
     }
     
-	public function handleParticipantJoined(msg:Object):void {
-		LOGGER.info("handleParticipantJoined = " + msg.msg);
+    public function handleParticipantJoined(msg:Object):void {
+	  LOGGER.info("handleParticipantJoined = " + msg.msg);
 		
       var map:Object = JSON.parse(msg.msg);
       
@@ -560,7 +580,6 @@ package org.bigbluebutton.modules.users.services
       var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
       joinEvent.userID = user.userID;
       dispatcher.dispatchEvent(joinEvent);	
-   
     }
     
     /**
@@ -577,5 +596,49 @@ package org.bigbluebutton.modules.users.services
         dispatcher.dispatchEvent(e);
       }		
     }
+	
+	private function handleBreakoutRoomsList(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);
+		for each(var room : Object in map.rooms)
+		{
+			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
+			breakoutRoom.breakoutId = room.breakoutId;
+			breakoutRoom.name = room.name;
+			UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+		}
+	}
+	
+	private function handleBreakoutRoomJoinURL(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);
+		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
+		event.joinURL = map.joinURL;
+		dispatcher.dispatchEvent(event);
+	}
+	
+	private function handleUpdateBreakoutUsers(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);
+		UserManager.getInstance().getConference().updateBreakoutRoomUsers(map.breakoutId, map.users);
+	}
+	
+	private function handleTimeRemainingUpdate(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);
+		var e : BreakoutRoomEvent=  new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME);
+		e.durationInMinutes = map.timeRemaining;
+		dispatcher.dispatchEvent(e);
+	}
+	
+	private function handleBreakoutRoomStarted(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);	
+		var breakoutRoom : BreakoutRoom = new BreakoutRoom();
+		breakoutRoom.breakoutId = map.breakoutId;
+		breakoutRoom.name = map.name;
+		UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+	}
+	
+	private function handleBreakoutRoomClosed(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);	
+		UserManager.getInstance().getConference().removeBreakoutRoom(map.breakoutId);
+	}
+
   }
 }

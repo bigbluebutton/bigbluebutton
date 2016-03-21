@@ -319,6 +319,12 @@ public class ParamsProcessorUtil {
 	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
 	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
 	   
+	    // set is breakout room property
+	    boolean isBreakout = false;
+	    if (! StringUtils.isEmpty(params.get("isBreakout"))) {
+	      isBreakout = new Boolean(params.get("isBreakout"));
+	    }
+	      
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 	    
 	    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
@@ -353,20 +359,31 @@ public class ParamsProcessorUtil {
 	    long createTime = System.currentTimeMillis();
 	    internalMeetingId = internalMeetingId + '-' + new Long(createTime).toString();
 	    
+      // If this create meeting request is for a breakout room, we just used
+      // the passed in breakoutId as the internal meetingId so we can correlate
+      // the breakout meeting with it's parent meeting.
+      if (isBreakout) {
+        internalMeetingId = params.get("breakoutId");
+      }
+      
 	    // Create the meeting with all passed in parameters.
 	    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId, createTime)
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 	        .withDefaultAvatarURL(defaultAvatarURL).withAutoStartRecording(autoStartRec).withAllowStartStopRecording(allowStartStoptRec)
-	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
+	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).isBreakout(isBreakout).build();
 	    
 	    String configXML = getDefaultConfigXML();
 	    meeting.storeConfig(true, configXML);
+	     
+	    if (! StringUtils.isEmpty(params.get("moderatorOnlyMessage"))) {
+	      String moderatorOnlyMessage = params.get("moderatorOnlyMessage");
+	      meeting.setModeratorOnlyMessage(moderatorOnlyMessage);
+	    }
 	    
 	    return meeting;
 	}
-	
 	
 	public String getApiVersion() {
 		return apiVersion;
