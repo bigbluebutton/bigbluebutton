@@ -18,6 +18,8 @@
     "grunt-jscs": "~2.8.0",
     "grunt-shell": "~1.2.1",
     "load-grunt-tasks": "~3.4.1",
-    "grunt-force-task": "~2.0.0"
+    "grunt-force-task": "~2.0.0",
+    "grunt-contrib-watch": "~1.0.0",
+    "grunt-concurrent": "~2.2.1"
   }
 }
