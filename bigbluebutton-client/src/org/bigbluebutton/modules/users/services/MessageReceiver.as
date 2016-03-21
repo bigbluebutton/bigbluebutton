@@ -20,9 +20,6 @@ package org.bigbluebutton.modules.users.services
 {
   import com.asfusion.mate.events.Dispatcher;
   
-  import flash.net.URLRequest;
-  import flash.net.navigateToURL;
-  
   import org.as3commons.logging.api.ILogger;
   import org.as3commons.logging.api.getClassLogger;
   import org.bigbluebutton.core.BBB;
@@ -134,7 +131,13 @@ package org.bigbluebutton.modules.users.services
 		case "userLocked":
           handleUserLocked(message);
           break;
+		case "userEjectedFromMeeting":
+		 handleUserEjectedFromMeeting(message);
+		 break;
 		// Breakout room feature
+		case "breakoutRoomsList":
+		  handleBreakoutRoomsList(message)
+		  break;
 		case "breakoutRoomJoinURL":
 		  handleBreakoutRoomJoinURL(message);
 		  break;
@@ -147,16 +150,22 @@ package org.bigbluebutton.modules.users.services
 		case "breakoutRoomStarted":
 		  handleBreakoutRoomStarted(message);
 		  break;
+		case "breakoutRoomClosed":
+		  handleBreakoutRoomClosed(message);
+		  break;
       }
     }  
     
+	private function handleUserEjectedFromMeeting(msg: Object):void {
+		UsersUtil.setUserEjected();
+	}
+	
 	private function handleUserLocked(msg:Object):void {
 		var map:Object = JSON.parse(msg.msg);
 		var user:BBBUser = UsersUtil.getUser(map.user);
 		
 		if(user.userLocked != map.lock)
 			user.lockStatusChanged(map.lock);
-		
 		return;
 	}
 	
@@ -394,8 +403,6 @@ package org.bigbluebutton.modules.users.services
 		  
 		  UserManager.getInstance().getConference().removeUser(webUserId);	    
 	  }
-	  
-    
     }
     
     public function handleParticipantJoined(msg:Object):void {
@@ -590,6 +597,17 @@ package org.bigbluebutton.modules.users.services
       }		
     }
 	
+	private function handleBreakoutRoomsList(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);
+		for each(var room : Object in map.rooms)
+		{
+			var breakoutRoom : BreakoutRoom = new BreakoutRoom();
+			breakoutRoom.breakoutId = room.breakoutId;
+			breakoutRoom.name = room.name;
+			UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+		}
+	}
+	
 	private function handleBreakoutRoomJoinURL(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
 		var event : BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.BREAKOUT_JOIN_URL);
@@ -605,7 +623,7 @@ package org.bigbluebutton.modules.users.services
 	private function handleTimeRemainingUpdate(msg:Object):void{
 		var map:Object = JSON.parse(msg.msg);
 		var e : BreakoutRoomEvent=  new BreakoutRoomEvent(BreakoutRoomEvent.UPDATE_REMAINING_TIME);
-		e.durationInMinutes = msg.timeRemaining;
+		e.durationInMinutes = map.timeRemaining;
 		dispatcher.dispatchEvent(e);
 	}
 	
@@ -615,6 +633,11 @@ package org.bigbluebutton.modules.users.services
 		breakoutRoom.breakoutId = map.breakoutId;
 		breakoutRoom.name = map.name;
 		UserManager.getInstance().getConference().addBreakoutRoom(breakoutRoom);
+	}
+	
+	private function handleBreakoutRoomClosed(msg:Object):void{
+		var map:Object = JSON.parse(msg.msg);	
+		UserManager.getInstance().getConference().removeBreakoutRoom(map.breakoutId);
 	}
 
   }

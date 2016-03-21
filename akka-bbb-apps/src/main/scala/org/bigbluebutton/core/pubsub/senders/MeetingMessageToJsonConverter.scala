@@ -1,10 +1,12 @@
 package org.bigbluebutton.core.pubsub.senders
 
-import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.core.api._
-import com.google.gson.Gson
-import scala.collection.JavaConverters._
+import org.bigbluebutton.core.messaging.Util
 import org.bigbluebutton.messages._
+
+import spray.json.JsArray
+import spray.json.JsObject
+import spray.json.JsString
 
 object MeetingMessageToJsonConverter {
   def meetingDestroyedToJson(msg: MeetingDestroyed): String = {
@@ -131,6 +133,15 @@ object MeetingMessageToJsonConverter {
     Util.buildJson(header, payload)
   }
 
+  def breakoutRoomsListOutMessageToJson(msg: BreakoutRoomsListOutMessage): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put("meetingId", msg.meetingId)
+    payload.put("rooms", msg.rooms.toArray)
+
+    val header = Util.buildHeader(BreakoutRoomsList.NAME, None)
+    Util.buildJson(header, payload)
+  }
+
   def breakoutRoomStartedOutMessageToJson(msg: BreakoutRoomStartedOutMessage): String = {
     val payload = new java.util.HashMap[String, Any]()
     payload.put("meetingId", msg.meetingId)
@@ -138,6 +149,15 @@ object MeetingMessageToJsonConverter {
     payload.put("name", msg.breakout.name)
 
     val header = Util.buildHeader(BreakoutRoomStarted.NAME, None)
+    Util.buildJson(header, payload)
+  }
+
+  def breakoutRoomEndedOutMessageToJson(msg: BreakoutRoomEndedOutMessage): String = {
+    val payload = new java.util.HashMap[String, Any]()
+    payload.put("meetingId", msg.meetingId)
+    payload.put("breakoutId", msg.breakoutId)
+
+    val header = Util.buildHeader(BreakoutRoomClosed.NAME, None)
     Util.buildJson(header, payload)
   }
 
@@ -157,7 +177,7 @@ object MeetingMessageToJsonConverter {
     payload.put("meetingId", msg.meetingId)
     payload.put("breakoutId", msg.breakoutId)
     payload.put("recorded", msg.recorded)
-    payload.put("users", msg.users)
+    payload.put("users", msg.users.toArray)
 
     val header = Util.buildHeader(UpdateBreakoutUsers.NAME, None)
     Util.buildJson(header, payload)

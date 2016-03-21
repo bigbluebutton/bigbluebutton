@@ -79,10 +79,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			public function removeAllWindows():void{
-				this.windowManager.removeAll();
-			}
-			
 			public function resetWindowLayout():void{
 				var windows:Array = this.windowManager.getOpenWindowList();
 				for (var i:Number=0; i<windows.length; i++){

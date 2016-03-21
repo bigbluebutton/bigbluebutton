@@ -1,21 +1,21 @@
 /**
-* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
-*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 3.0 of the License, or (at your option) any later
-* version.
-* 
-* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License along
-* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ * 
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 package org.bigbluebutton.api;
 
@@ -35,18 +35,16 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
-import org.bigbluebutton.api.messaging.MessagingConstants;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.CreateMeeting;
+import org.bigbluebutton.api.messaging.messages.EndBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.EndMeeting;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
@@ -62,7 +60,6 @@ import org.bigbluebutton.api.messaging.messages.UserListeningOnly;
 import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
-import org.bigbluebutton.messages.payload.BreakoutRoomPayload;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
@@ -344,18 +341,18 @@ public class MeetingService implements MessageListener {
 		return null;
 	} 
 	
-	public HashMap<String,Recording> getRecordings(ArrayList<String> idList) {
-		//TODO: this method shouldn't be used 
-		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList));
-		return recs;
+	public Map<String, Recording> getRecordings(List<String> idList, List<String> states) {
+          List<Recording> recsList = recordingService.getRecordings(idList, states);
+          Map<String, Recording> recs = reorderRecordings(recsList);
+          return recs;
 	}
 	
 	public Map<String, Recording> filterRecordingsByMetadata(Map<String, Recording> recordings, Map<String, String> metadataFilters) {
 		return recordingService.filterRecordingsByMetadata(recordings, metadataFilters);
 	}
 	
-	public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
-		HashMap<String,Recording> map= new HashMap<String, Recording>();
+	public Map<String, Recording> reorderRecordings(List<Recording> olds) {
+		Map<String, Recording> map= new HashMap<String, Recording>();
 		for (Recording r:olds) {
 			if (!map.containsKey(r.getId())) {
 				Map<String,String> meta= r.getMetadata();
@@ -406,15 +403,19 @@ public class MeetingService implements MessageListener {
 	}
 	
 	public void setPublishRecording(ArrayList<String> idList,boolean publish){
-		for(String id:idList){
-			recordingService.publish(id,publish);
-		}
+          for (String id : idList) {
+            if (publish) {
+              recordingService.changeState(id, Recording.STATE_PUBLISHED);
+            } else {
+              recordingService.changeState(id, Recording.STATE_UNPUBLISHED);
+	    }
+          }
 	}
 	
 	public void deleteRecordings(ArrayList<String> idList){
-		for(String id:idList){
-			recordingService.delete(id);
-		}
+          for (String id : idList) {
+            recordingService.changeState(id, Recording.STATE_DELETED);
+          }
 	}
 	
 	public void processRecording(String meetingId) {
@@ -460,6 +461,10 @@ public class MeetingService implements MessageListener {
 	  
 	  handleCreateMeeting(breakout);
 	}
+	
+  private void processEndBreakoutRoom(EndBreakoutRoom message) {
+    processEndMeeting(new EndMeeting(message.breakoutId));
+  }
 	
 	private void processEndMeeting(EndMeeting message) {
 		messagingService.endMeeting(message.meetingId);
@@ -710,6 +715,8 @@ public class MeetingService implements MessageListener {
 	  			processRegisterUser((RegisterUser) message);
 	  		}	else if (message instanceof CreateBreakoutRoom) {
 	  		  processCreateBreakoutRoom((CreateBreakoutRoom) message);
+	  		} else if (message instanceof EndBreakoutRoom) {
+	        processEndBreakoutRoom((EndBreakoutRoom) message);
 	  		}
 	    }
 		};

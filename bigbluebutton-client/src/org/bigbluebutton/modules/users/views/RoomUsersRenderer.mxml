@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 verticalScrollPolicy="off"
+		 horizontalScrollPolicy="off"
+		 verticalAlign="middle">
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			import mx.core.IToolTip;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var namesToolTip:IToolTip;
+			
+			private var globalDispatch:Dispatcher = new Dispatcher();
+			
+			[Bindable]
+			private var images:Images = new Images();
+			
+			[Bindable("dataChange")]
+			private function getToolTip():String {
+				if (!data.users || data.users.length == 0) {
+					return ResourceUtil.getInstance().getString('bbb.users.roomsGrid.noUsers');
+				} else {
+					var userNames:String = "";
+					for each (var user:Object in data.users.source as Array) {
+						userNames += user.name + "\n";
+					}
+					return userNames;
+				}
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Label text="{data.users.length} {ResourceUtil.getInstance().getString('bbb.users.roomsGrid.users')}"/>
+	<mx:Image width="20" height="20"
+			  source="{images.users}" toolTip="{getToolTip()}"/>
+</mx:HBox>

@@ -6,6 +6,8 @@ record-and-playback/playback-web/playback-web-0.1.war
 record-and-playback/.project
 push_to_git.py
 **/target/*
+**/.cache-main
+**/.cache-tests
 .vagrant/*
 **/.settings/*
 */.gradle
@@ -15,6 +17,7 @@ bbb-lti/bin
 bbb-lti/lti-0.1.1.war
 bbb-lti/make.sh
 bbb-lti/deploy.sh
+bbb-lti/target*
 bbb-api-demo/bin*
 bbb-api-demo/.classpath
 bbb-api-demo/.project
@@ -23,3 +26,5 @@ bigbluebutton-web/.classpath
 bigbluebutton-web/.project
 akka-bbb-apps/akka-bbb-apps*.log
 bigbluebutton-html5/log/development.log
+bigbluebutton-web/target-eclipse*
+record-and-playback/.loadpath

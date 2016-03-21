@@ -121,8 +121,8 @@ class LiveMeeting(val mProps: MeetingProperties,
 
   def handleEndMeeting(msg: EndMeeting) {
     meetingModel.meetingHasEnded
-    outGW.send(new MeetingEnded(msg.meetingID, mProps.recorded, mProps.voiceBridge))
-    outGW.send(new DisconnectAllUsers(msg.meetingID))
+    outGW.send(new MeetingEnded(msg.meetingId, mProps.recorded, mProps.voiceBridge))
+    outGW.send(new DisconnectAllUsers(msg.meetingId))
   }
 
   def handleVoiceConfRecordingStartedMessage(msg: VoiceConfRecordingStartedMessage) {

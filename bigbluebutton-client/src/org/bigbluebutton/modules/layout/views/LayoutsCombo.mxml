@@ -97,7 +97,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         invalidateDisplayList();        
       }
 						
-			private function onLayoutChanged(e:SwitchedLayoutEvent):void {	
+			private function onLayoutChanged(e:SwitchedLayoutEvent):void {
+				lockSettingsChanged(null);
         //trace(LOG + " handling SwitchedLayoutEvent layout=[" + e.layoutID + "]");
         populateComboBox();
         //trace(LOG + " selected layout coming in is: " + selectedIndex);

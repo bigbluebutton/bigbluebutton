@@ -38,9 +38,15 @@ package org.bigbluebutton.modules.videoconf.views
       _background.addChild(_video);
     }
 
-    public function publish(camIndex:int, videoProfile:VideoProfile):void {
+    public function publish(camIndex:int, videoProfile:VideoProfile, streamName:String):void {
+      if (_shuttingDown) {
+        LOGGER.warn("Method publish called while shutting down the video window, ignoring...");
+        return;
+      }
+
       _camIndex = camIndex;
       _videoProfile = videoProfile;
+      _streamName = streamName;
       setOriginalDimensions(_videoProfile.width, _videoProfile.height);
 
       _video.updateCamera(camIndex, _videoProfile, _background.width, _background.height);
@@ -49,27 +55,26 @@ package org.bigbluebutton.modules.videoconf.views
       startPublishing();
     }
 
-    private function newStreamName():String {
+    public static function newStreamName(userId:String, profile:VideoProfile):String {
       /**
        * Add timestamp to create a unique stream name. This way we can record   
        * stream without overwriting previously recorded streams.    
        */   
       var d:Date = new Date();
       var curTime:Number = d.getTime(); 
-      var uid:String = user.userID;
-      return _videoProfile.id + "-" + uid + "-" + curTime;
+      return profile.id + "-" + userId + "-" + curTime;
     }
 
-    protected function getVideoProfile(stream:String):VideoProfile {
+    public static function getVideoProfile(stream:String):VideoProfile {
       LOGGER.debug("Parsing stream name [{0}]", [stream]);
       var pattern:RegExp = new RegExp("([A-Za-z0-9]+)-([A-Za-z0-9_]+)-\\d+", "");
       if (pattern.test(stream)) {
         LOGGER.debug("The stream name is well formatted");
         LOGGER.debug("Video profile resolution is [{0}]", [pattern.exec(stream)[1]]);
-		LOGGER.debug("Userid [{0}]", [pattern.exec(stream)[2]]);
+        LOGGER.debug("Userid [{0}]", [pattern.exec(stream)[2]]);
         return BBB.getVideoProfileById(pattern.exec(stream)[1]);
       } else {
-		LOGGER.debug("Bad stream name format");
+        LOGGER.debug("Bad stream name format");
         var profile:VideoProfile = BBB.defaultVideoProfile;
         if (profile == null) {
           profile = BBB.fallbackVideoProfile;
@@ -79,7 +84,6 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     private function startPublishing():void {
-      _streamName = newStreamName();
       _shuttingDown = false;
 
       var e:StartBroadcastEvent = new StartBroadcastEvent();
@@ -124,6 +128,11 @@ package org.bigbluebutton.modules.videoconf.views
     }
 
     public function view(connection:NetConnection, streamName:String):void {
+      if (_shuttingDown) {
+        LOGGER.warn("Method view called while shutting down the video window, ignoring...");
+        return;
+      }
+
       _streamName = streamName;
       _shuttingDown = false;
 
@@ -135,7 +144,7 @@ package org.bigbluebutton.modules.videoconf.views
       _ns.receiveVideo(true);
       _ns.receiveAudio(false);
       
-      _videoProfile = getVideoProfile(streamName);
+      _videoProfile = UserVideo.getVideoProfile(streamName);
       LOGGER.debug("Remote video profile: {0}", [_videoProfile.toString()]);
       if (_videoProfile == null) {
         throw("Invalid video profile");

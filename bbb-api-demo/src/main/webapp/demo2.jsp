@@ -110,7 +110,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		// String joinURL = getJoinURL(username, meetingID, "false", "<br>Welcome to course: %%CONFNAME%%.<br>", null, preUploadPDF );
 		String joinURL = getJoinURL(username, meetingID, "false", null, null, null );
 
-		if (joinURL.startsWith("http://")) {
+		if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) {
 %>
 
 <script language="javascript" type="text/javascript">

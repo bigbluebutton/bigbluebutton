@@ -21,4 +21,5 @@ trait SystemConfiguration {
   lazy val bbbWebModeratorPassword = Try(config.getString("services.moderatorPassword")).getOrElse("changeme")
   lazy val bbbWebViewerPassword = Try(config.getString("services.viewerPassword")).getOrElse("changeme")
   lazy val bbbWebDefaultPresentationURL = Try(config.getString("services.defaultPresentationURL")).getOrElse("changeme")
+  lazy val keysExpiresInSec = Try(config.getInt("redis.keyExpiry")).getOrElse(14 * 86400) // 14 days
 }

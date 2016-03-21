@@ -116,9 +116,9 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
   highlightAlphas: 0.4, 0;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;
   themeColor: haloBlue;
   fontFamily: Arial;
@@ -180,10 +180,10 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle, .cameraD
 DataGrid {
   backgroundColor: #e1e2e5;
   rollOverColor: #f3f3f3;
-  textRollOverColor: #5e5f63;
+  textRollOverColor: #3f3f41;
   selectionColor: #e1e2e5;
-  color: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textSelectedColor: #3f3f41;
   dropShadowEnabled: false;
   fontFamily: arial;
   fontSize: 11;
@@ -191,7 +191,7 @@ DataGrid {
 }
 
 .mydataGridHeaderStyle {
-  color: #5e5f63;
+  color: #3f3f41;
   fontFamily: arial;
   fontSize: 12;
 }
@@ -209,9 +209,9 @@ DataGrid {
   highlightAlphas: 0.4, 0;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;
   themeColor: haloBlue;
   fontFamily: Arial;
@@ -303,9 +303,9 @@ DataGrid {
   highlightAlphas: 0.4, 0;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;
   themeColor: haloBlue;
   fontFamily: Arial;
@@ -363,16 +363,16 @@ DataGrid {
 }
 
 .presentationZoomSliderLabelStyle {
-  color: #5e5f63;
+  color: #3f3f41;
   fontFamily: Arial;
 }
 
 .deskshareControlButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 17;
 }
@@ -380,9 +380,9 @@ DataGrid {
 .videoMuteButtonStyle, .videoUnmutedButtonStyle, .videoSwitchPresenterButtonStyle, .videoEjectUserButtonStyle, .videoPrivateChatButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 17;
 }
@@ -392,8 +392,8 @@ DataGrid {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   color: #ffffff;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 17;
   icon:   Embed('assets/images/webcam-muted.png');
@@ -445,9 +445,9 @@ TitleWindow {
 .presentationUploadChooseFileButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 5;  
 }
@@ -455,9 +455,9 @@ TitleWindow {
 .presentationUploadCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 5;    
 }
@@ -465,9 +465,9 @@ TitleWindow {
 .presentationUploadShowButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 5;  
 }
@@ -475,9 +475,9 @@ TitleWindow {
 .presentationUploadDeleteButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 5;    
   icon:   Embed('assets/images/trash.png');
@@ -536,9 +536,9 @@ TitleWindow {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 5;      
 }
@@ -547,9 +547,9 @@ TitleWindow {
 	fillAlphas: 1, 1, 1, 1;
 	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
 	rollOverColor: #eeeeee;
-	color: #5e5f63;
-	textRollOverColor: #5e5f63;
-	textSelectedColor: #5e5f63;
+	color: #3f3f41;
+	textRollOverColor: #3f3f41;
+	textSelectedColor: #3f3f41;
 	borderColor: #b9babc;  
 	cornerRadius: 5; 
 	icon:   Embed('assets/images/headset.png');
@@ -559,9 +559,9 @@ TitleWindow {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
+  color: #3f3f41;
+  textRollOverColor: #3f3f41;
+  textSelectedColor: #3f3f41;
   borderColor: #b9babc;  
   cornerRadius: 5;    
 }
@@ -741,7 +741,7 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 }
 
 .mdiWindowTitle {
-  color: #5e5f63;
+  color: #3f3f41;
   fontFamily: Arial;
   fontSize: 12;
   fontWeight: bold;
@@ -826,8 +826,7 @@ Alert {
 
 .lockSettingsDefaultLabelStyle {
 	fontFamily: Arial;
-	fontSize: 14;  
-	fontWeight: bold;    
+	fontSize: 14;
 }
 
 .lockSettingsWindowTitleStyle {
@@ -908,5 +907,10 @@ EmojiGrid {
 }
 
 .breakoutTipBox {
+	horizontalAlign: center;
+}
+
+.breakoutRoomsBox {
+	paddingTop: 12;
 	horizontalAlign: center;
 }

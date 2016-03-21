@@ -3,16 +3,18 @@ import org.bigbluebutton.core.apps.Answer
 import org.bigbluebutton.core.apps.Question
 
 object TestWorksheet {
-  println("Welcome to the Scala worksheet")
+  println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet
 
 
-  val YesNoPollType = "YN"
-  val TrueFalsePollType = "TF"
-  val LetterPollType = "A-"
-  val NumberPollType = "1-"
+  val YesNoPollType = "YN"                        //> YesNoPollType  : String = YN
+  val TrueFalsePollType = "TF"                    //> TrueFalsePollType  : String = TF
+  val LetterPollType = "A-"                       //> LetterPollType  : String = A-
+  val NumberPollType = "1-"                       //> NumberPollType  : String = 1-
   
   val LetterArray = Array("A", "B", "C", "D", "E", "F")
+                                                  //> LetterArray  : Array[String] = Array(A, B, C, D, E, F)
   val NumberArray = Array("1", "2", "3", "4", "5", "6")
+                                                  //> NumberArray  : Array[String] = Array(1, 2, 3, 4, 5, 6)
 
   def processYesNoPollType(qType: String):Question = {
     val answers = new Array[Answer](2)
@@ -20,7 +22,7 @@ object TestWorksheet {
     answers(1) = new Answer(1, "Y", Some("Yes"))
     
     new Question(0, YesNoPollType, false, None, answers)
-  }
+  }                                               //> processYesNoPollType: (qType: String)org.bigbluebutton.core.apps.Question
   
   def processTrueFalsePollType(qType: String):Question = {
     val answers = new Array[Answer](2)
@@ -29,7 +31,8 @@ object TestWorksheet {
     answers(1) = new Answer(1, "T", Some("True"))
     
     new Question(0, TrueFalsePollType, false, None, answers)
-  }
+  }                                               //> processTrueFalsePollType: (qType: String)org.bigbluebutton.core.apps.Questio
+                                                  //| n
   
     
   def processLetterPollType(qType: String, multiResponse: Boolean):Option[Question] = {
@@ -49,7 +52,8 @@ object TestWorksheet {
     }
     
     questionOption
-  }
+  }                                               //> processLetterPollType: (qType: String, multiResponse: Boolean)Option[org.bi
+                                                  //| gbluebutton.core.apps.Question]
 
   def processNumberPollType(qType: String, multiResponse: Boolean):Option[Question] = {
     val q = qType.split('-')
@@ -67,7 +71,8 @@ object TestWorksheet {
       }
     }
     questionOption
-  }
+  }                                               //> processNumberPollType: (qType: String, multiResponse: Boolean)Option[org.bi
+                                                  //| gbluebutton.core.apps.Question]
 
   def createQuestion(qType: String):Option[Question] = {
     val qt = qType.toUpperCase()
@@ -85,7 +90,8 @@ object TestWorksheet {
     }
     
     questionOption
-  }
+  }                                               //> createQuestion: (qType: String)Option[org.bigbluebutton.core.apps.Question]
+                                                  //| 
 
   def determineQType3(qType: String) {
     val qt = qType.toUpperCase()
@@ -103,18 +109,18 @@ object TestWorksheet {
     } else {
       println("No Match for [" + qType + "]")
     }
-  }
+  }                                               //> determineQType3: (qType: String)Unit
   
-  determineQType3("YN")
-  determineQType3("YF")
-  determineQType3("TF")
-  determineQType3("A-5")
-  determineQType3("1-5")
+  determineQType3("YN")                           //> YN
+  determineQType3("YF")                           //> No Match for [YF]
+  determineQType3("TF")                           //> TF
+  determineQType3("A-5")                          //> A5
+  determineQType3("1-5")                          //> 1
 
-  val list = new java.util.ArrayList[String]()
-  list.add("Red")
-  list.add("Green")
-  list.add("Blue")
+  val list = new java.util.ArrayList[String]()    //> list  : java.util.ArrayList[String] = []
+  list.add("Red")                                 //> res0: Boolean = true
+  list.add("Green")                               //> res1: Boolean = true
+  list.add("Blue")                                //> res2: Boolean = true
   
 
 }

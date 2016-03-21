@@ -55,10 +55,10 @@ libraryDependencies ++= {
     "com.etaty.rediscala"      %%  "rediscala"                            % "1.4.0",
     "commons-codec"             %  "commons-codec"                        % "1.8",
     "joda-time"                 %  "joda-time"                            % "2.3",
-    "com.google.code.gson"      %  "gson"                                 % "2.4",
+    "com.google.code.gson"      %  "gson"                                 % "2.5",
     "redis.clients"             %  "jedis"                                % "2.7.2",
     "org.apache.commons"        %  "commons-lang3"                        % "3.2",
-    "org.bigbluebutton"         %  "bbb-common-message"                   % "0.0.16-SNAPSHOT",
+    "org.bigbluebutton"         %  "bbb-common-message"                   % "0.0.17-SNAPSHOT",
     "io.spray"                 %%  "spray-json"                           % "1.3.2"
   )}
 

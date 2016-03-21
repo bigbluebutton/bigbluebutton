@@ -116,6 +116,7 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: IsMeetingMutedRequest => liveMeeting.handleIsMeetingMutedRequest(msg)
     case msg: MuteUserRequest => liveMeeting.handleMuteUserRequest(msg)
     case msg: EjectUserFromVoiceRequest => liveMeeting.handleEjectUserRequest(msg)
+    case msg: TransferUserToMeetingRequest => liveMeeting.handleTransferUserToMeeting(msg)
     case msg: SetLockSettings => liveMeeting.handleSetLockSettings(msg)
     case msg: GetLockSettings => liveMeeting.handleGetLockSettings(msg)
     case msg: LockUserRequest => liveMeeting.handleLockUserRequest(msg)
@@ -159,11 +160,14 @@ class MeetingActor(val mProps: MeetingProperties,
     case msg: GetPollRequest => liveMeeting.handleGetPollRequest(msg)
     case msg: GetCurrentPollRequest => liveMeeting.handleGetCurrentPollRequest(msg)
     // Breakout rooms
+    case msg: BreakoutRoomsListMessage => liveMeeting.handleBreakoutRoomsList(msg)
     case msg: CreateBreakoutRooms => liveMeeting.handleCreateBreakoutRooms(msg)
     case msg: BreakoutRoomCreated => liveMeeting.handleBreakoutRoomCreated(msg)
+    case msg: BreakoutRoomEnded => liveMeeting.handleBreakoutRoomEnded(msg)
     case msg: RequestBreakoutJoinURLInMessage => liveMeeting.handleRequestBreakoutJoinURL(msg)
     case msg: BreakoutRoomUsersUpdate => liveMeeting.handleBreakoutRoomUsersUpdate(msg)
     case msg: SendBreakoutUsersUpdate => liveMeeting.handleSendBreakoutUsersUpdate(msg)
+    case msg: EndAllBreakoutRooms => liveMeeting.handleEndAllBreakoutRooms(msg)
 
     case msg: ExtendMeetingDuration => liveMeeting.handleExtendMeetingDuration(msg)
     case msg: SendTimeRemainingUpdate => liveMeeting.handleSendTimeRemainingUpdate(msg)

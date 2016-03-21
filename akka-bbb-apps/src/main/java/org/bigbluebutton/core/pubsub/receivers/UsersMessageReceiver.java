@@ -2,6 +2,7 @@
 package org.bigbluebutton.core.pubsub.receivers;
 
 import org.bigbluebutton.common.messages.*;
+import org.bigbluebutton.core.api.EndAllBreakoutRooms;
 import org.bigbluebutton.core.api.IBigBlueButtonInGW;
 import org.bigbluebutton.messages.*;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class UsersMessageReceiver implements MessageHandler{
 						  break;
 					  case SetRecordingStatusRequestMessage.SET_RECORDING_STATUS_REQUEST:
 						  processSetRecordingStatusRequestMessage(message);
-						  break;
+						  break; 
 					  case GetRecordingStatusRequestMessage.GET_RECORDING_STATUS_REQUEST:
 						  processGetRecordingStatusRequestMessage(message);
 						  break;
@@ -93,6 +94,9 @@ public class UsersMessageReceiver implements MessageHandler{
 					  case EjectUserFromVoiceRequestMessage.EJECT_USER_FROM_VOICE_REQUEST:
 						  processEjectUserFromVoiceRequestMessage(message);
 						  break;
+					  case GetBreakoutRoomsList.NAME:
+						  bbbInGW.handleJsonMessage(message);
+						  break;
 					  case CreateBreakoutRoomsRequest.NAME:
 						  bbbInGW.handleJsonMessage(message);
 						  break;
@@ -100,6 +104,9 @@ public class UsersMessageReceiver implements MessageHandler{
 						  bbbInGW.handleJsonMessage(message);
 						  break;
 					  case RequestBreakoutJoinURL.NAME:
+						  bbbInGW.handleJsonMessage(message);
+						  break;
+					  case EndAllBreakoutRoomsRequest.NAME:
 						  bbbInGW.handleJsonMessage(message);
 						  break;
 					}
@@ -325,6 +332,6 @@ public class UsersMessageReceiver implements MessageHandler{
 		EjectUserFromVoiceRequestMessage msg = EjectUserFromVoiceRequestMessage.fromJson(message);
 		if (msg != null) {
 			bbbInGW.ejectUserFromVoice(msg.meetingId, msg.userId, msg.requesterId);
-		}		
+		}
 	}
 }

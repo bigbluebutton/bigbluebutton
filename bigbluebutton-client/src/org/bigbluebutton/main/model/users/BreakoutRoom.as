@@ -20,16 +20,22 @@ package org.bigbluebutton.main.model.users {
 	
 	import mx.collections.ArrayCollection;
 	
+	[Bindable]
 	public class BreakoutRoom {
+		public static const NONE:String = "none";
 		
-		[Bindable]
+		public static const SELF:String = "self";
+		
+		public static const OTHER:String = "other";
+		
 		public var breakoutId:String;
 		
-		[Bindable]
 		public var name:String;
 		
-		[Bindable]
 		public var users:ArrayCollection;
+		
+		// Can be one of three following values self, none, other
+		public var listenStatus:String = NONE;
 		
 		public function BreakoutRoom() {
 			users = new ArrayCollection();

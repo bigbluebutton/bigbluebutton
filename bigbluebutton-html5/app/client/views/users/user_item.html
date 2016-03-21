@@ -73,43 +73,24 @@
           </span>
         {{/unless}}
       {{/if}}
-      {{#if equals user.emoji_status "happy"}}
-        {{> icon name="happy-face" size="25"}}
+      {{#if user.presenter}}
+        <span rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter">
+          <i class="icon fi-projection-screen statusIcon"></i>
+        </span>
       {{else}}
-        {{#if equals user.emoji_status "neutral"}}
-          {{> icon name="neutral-face" size="25"}}
+        {{#if equals user.role "MODERATOR"}}
+          <span rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator">
+            <i class="icon fi-torso statusIcon"></i>
+          </span>
         {{else}}
-          {{#if equals user.emoji_status "confused"}}
-            {{> icon name="confused-face" size="25"}}
-          {{else}}
-            {{#if equals user.emoji_status "sad"}}
-              {{> icon name="sad-face" size="25"}}
-            {{else}}
-              {{#if equals user.emoji_status "away"}}
-                {{> icon name="clock" size="25"}}
-              {{else}}
-                {{#if equals user.emoji_status "raiseHand"}}
-                  <span rel="tooltip" data-placement="bottom" title="Lower your hand">
-                    <i class="icon ion-android-hand statusIcon"></i>
-                  </span>
-                {{else}}
-                  {{#if user.presenter}}
-                    <span rel="tooltip" data-placement="bottom" title="{{user.name}} is the presenter">
-                      <i class="icon fi-projection-screen statusIcon"></i>
-                    </span>
-                  {{else}}
-                    {{#if equals user.role "MODERATOR"}}
-                      <span rel="tooltip" data-placement="bottom" title="{{user.name}} is a moderator">
-                        <i class="icon fi-torso statusIcon"></i>
-                      </span>
-                    {{/if}}
-                  {{/if}}
-                {{/if}}
-              {{/if}}
+          {{#each emojiIcons}}
+            {{#if equals name ../user.emoji_status}}
+              {{> icon name=icon size="25" title=title}}
             {{/if}}
-          {{/if}}
+          {{/each}}
         {{/if}}
       {{/if}}
+
     </div>
 
     {{#if isCurrentUser userId}}

@@ -57,8 +57,20 @@ object JsonMessageDecoder {
 
   def convertMessage(msg: InHeaderAndJsonPayload): InMessage = {
     msg.header.name match {
+      case GetBreakoutRoomsList.NAME => {
+        msg.payload.convertTo[BreakoutRoomsListMessage]
+      }
       case CreateBreakoutRoomsRequest.NAME => {
         msg.payload.convertTo[CreateBreakoutRooms]
+      }
+      case RequestBreakoutJoinURL.NAME => {
+        msg.payload.convertTo[RequestBreakoutJoinURLInMessage]
+      }
+      case ListenInOnBreakout.NAME => {
+        msg.payload.convertTo[TransferUserToMeetingRequest]
+      }
+      case EndAllBreakoutRoomsRequest.NAME => {
+        msg.payload.convertTo[EndAllBreakoutRooms]
       }
       case _ => throw MessageProcessException("Cannot parse JSON message: [" + msg + "]")
     }

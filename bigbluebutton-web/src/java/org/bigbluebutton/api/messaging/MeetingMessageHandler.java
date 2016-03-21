@@ -3,6 +3,7 @@ package org.bigbluebutton.api.messaging;
 import java.util.Set;
 
 import org.bigbluebutton.api.messaging.messages.CreateBreakoutRoom;
+import org.bigbluebutton.api.messaging.messages.EndBreakoutRoom;
 import org.bigbluebutton.api.messaging.messages.IMessage;
 import org.bigbluebutton.api.messaging.messages.KeepAliveReply;
 import org.bigbluebutton.api.messaging.messages.MeetingDestroyed;
@@ -17,10 +18,10 @@ import org.bigbluebutton.api.messaging.messages.UserSharedWebcam;
 import org.bigbluebutton.api.messaging.messages.UserStatusChanged;
 import org.bigbluebutton.api.messaging.messages.UserUnsharedWebcam;
 import org.bigbluebutton.common.converters.FromJsonDecoder;
-import org.bigbluebutton.common.messages.BbbAppsIsAliveMessage;
 import org.bigbluebutton.common.messages.IBigBlueButtonMessage;
 import org.bigbluebutton.common.messages.PubSubPongMessage;
 import org.bigbluebutton.messages.CreateBreakoutRoomRequest;
+import org.bigbluebutton.messages.EndBreakoutRoomRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +79,13 @@ public class MeetingMessageHandler implements MessageHandler {
                   msg.payload.durationInMinutes, 
                   msg.payload.defaultPresentationURL));
               
+            }
+          }
+          else if (EndBreakoutRoomRequest.NAME.equals(messageName)) {
+            EndBreakoutRoomRequest msg = new Gson().fromJson(message, EndBreakoutRoomRequest.class);
+            log.info("Received an end breakout room request message for breakout meeting id=[{}]", msg.payload.meetingId);
+            for (MessageListener listener : listeners) {
+              listener.handle(new EndBreakoutRoom(msg.payload.meetingId));
             }
           }
         }
