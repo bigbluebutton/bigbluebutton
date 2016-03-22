@@ -79,6 +79,7 @@ Button = React.createClass({
       {this.props.span ? 
         <span></span>
       : null }
+
     </button>
     )
   }
