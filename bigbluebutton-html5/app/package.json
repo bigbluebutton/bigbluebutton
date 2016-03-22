@@ -1,7 +1,0 @@
-{
-  "name": "bbb-html5-client",
-  "description": "BigBlueButton HTML5 Client",
-  "dependencies": {
-    "classnames": "^2.2.3"
-  }
-}
