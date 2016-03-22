@@ -79,8 +79,10 @@ Button = React.createClass({
       {this.props.span ? 
         <span></span>
       : null }
-
+      {this.props.emoji ?
+        <EmojisSVG emoji={ this.props.emoji } size="50"/>
+      : null}
     </button>
     )
   }
-}); 
+});
