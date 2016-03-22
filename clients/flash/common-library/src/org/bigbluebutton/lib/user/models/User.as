@@ -13,6 +13,21 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const UNKNOWN_USER:String = "UNKNOWN USER";
 		
+		public static const NO_STATUS:String = "none";
+		
+		public static const RAISE_HAND:String = "raiseHand";
+	
+		public static const HAPPY:String = "happy";
+
+		public static const NEUTRAL:String = "neutral";
+		
+		public static const SAD:String = "sad";
+		
+		public static const CONFUSED:String = "confused";
+		
+		public static const AWAY:String = "away";
+		
+		
 		/**
 		 * Flag to tell that user is in the process of leaving the meeting.
 		 */
@@ -79,14 +94,14 @@ package org.bigbluebutton.lib.user.models {
 			verifyUserStatus();
 		}
 		
-		private var _raiseHand:Boolean = false;
+		private var _status:String = User.NO_STATUS;
 		
-		public function get raiseHand():Boolean {
-			return _raiseHand;
+		public function get status():String {
+			return _status;
 		}
 		
-		public function set raiseHand(r:Boolean):void {
-			_raiseHand = r;
+		public function set status(s:String):void {
+			_status = s;
 			verifyUserStatus();
 		}
 		
@@ -177,6 +192,26 @@ package org.bigbluebutton.lib.user.models {
 		
 		public function set listenOnly(value:Boolean):void {
 			_listenOnly = value;
+		}
+		
+		private var _guest:Boolean;
+		
+		public function get guest():Boolean {
+			return _guest;
+		}
+		
+		public function set guest(value:Boolean):void {
+			_guest = value;
+		}
+		
+		private var _waitingForAcceptance:Boolean;
+		
+		public function get waitingForAcceptance():Boolean {
+			return _waitingForAcceptance;
+		}
+		
+		public function set waitingForAcceptance(value:Boolean):void {
+			_waitingForAcceptance = value;
 		}
 	}
 }

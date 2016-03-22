@@ -8,5 +8,7 @@ package org.bigbluebutton.lib.main.utils {
 		public static const CONNECTION_STATUS_USER_LOGGED_OUT:int = 3;
 		
 		public static const CONNECTION_STATUS_USER_KICKED_OUT:int = 4;
+		
+		public static const CONNECTION_STATUS_MODERATOR_DENIED:int = 5;
 	}
 }

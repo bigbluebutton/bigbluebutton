@@ -19,9 +19,9 @@ package org.bigbluebutton.lib.deskshare.services {
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
 		
-		private var _connectionSuccessSignal:ISignal = new Signal();
+		private var _successConnected:ISignal = new Signal();
 		
-		private var _connectionFailureSignal:ISignal = new Signal();
+		private var _unsuccessConnected:ISignal = new Signal();
 		
 		private var _isStreamingSignal:ISignal = new Signal();
 		
@@ -47,44 +47,44 @@ package org.bigbluebutton.lib.deskshare.services {
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
-			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
-			baseConnection.connectionFailureSignal.add(onConnectionFailure);
+			baseConnection.successConnected.add(onConnectionSuccess);
+			baseConnection.connectionFailureSignal.add(onConnectionUnsuccess);
 		}
 		
-		private function onConnectionSuccess():void {
+		public function onConnectionSuccess():void {
 			_deskSO = SharedObject.getRemote(room + "-deskSO", applicationURI, false);
 			_deskSO.client = this;
 			_deskSO.connect(baseConnection.connection);
 			checkIfStreamIsPublishing();
-			_connectionSuccessSignal.dispatch();
+			_successConnected.dispatch();
 		}
 		
 		private function checkIfStreamIsPublishing():void {
 			baseConnection.connection.call("deskshare.checkIfStreamIsPublishing",
-										   new Responder(
-										   function(result:Object):void {
-											   if (result != null && (result.publishing as Boolean)) {
-												   streamHeight = result.height as Number;
-												   streamWidth = result.width as Number;
-												   
-												   trace("Deskshare stream is streaming [" + streamWidth + "," + streamHeight + "]");
-												   
-												   // if we receive result from the server, then somebody is sharing their desktop - dispatch the notification signal
-												   isStreaming = true;
-											   } else {
-												   trace("No deskshare stream being published");
-											   }
-										   },
-										   function(status:Object):void {
-											   trace("Error while trying to call remote method on the server");
-										   }
-										   ),
-										   _room
-										   );
+				new Responder(
+					function(result:Object):void {
+						if (result != null && (result.publishing as Boolean)) {
+							streamHeight = result.height as Number;
+							streamWidth = result.width as Number;
+							
+							trace("Deskshare stream is streaming [" + streamWidth + "," + streamHeight + "]");
+							
+							// if we receive result from the server, then somebody is sharing their desktop - dispatch the notification signal
+							isStreaming = true;
+						} else {
+							trace("No deskshare stream being published");
+						}
+					},
+					function(status:Object):void {
+						trace("Error while trying to call remote method on the server");
+					}
+				),
+				_room
+			);
 		}
 		
-		private function onConnectionFailure(reason:String):void {
-			_connectionFailureSignal.dispatch(reason);
+		public function onConnectionUnsuccess(reason:String):void {
+			_unsuccessConnected.dispatch(reason);
 		}
 		
 		public function get applicationURI():String {
@@ -127,6 +127,10 @@ package org.bigbluebutton.lib.deskshare.services {
 			baseConnection.connect(applicationURI);
 		}
 		
+		public function disconnect(onUserCommand:Boolean):void {
+			baseConnection.disconnect(onUserCommand);
+		}
+		
 		public function get isStreaming():Boolean {
 			return _isStreaming;
 		}
@@ -144,12 +148,12 @@ package org.bigbluebutton.lib.deskshare.services {
 			return _mouseLocationChangedSignal;
 		}
 		
-		public function get connectionFailureSignal():ISignal {
-			return _connectionFailureSignal;
+		public function get unsuccessConnected():ISignal {
+			return _unsuccessConnected;
 		}
 		
-		public function get connectionSuccessSignal():ISignal {
-			return _connectionSuccessSignal;
+		public function get successConnected():ISignal {
+			return _successConnected;
 		}
 		
 		public function appletStarted(videoWidth:Number, videoHeight:Number):void {

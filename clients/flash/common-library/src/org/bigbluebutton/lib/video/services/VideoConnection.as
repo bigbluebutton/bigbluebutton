@@ -4,12 +4,18 @@ package org.bigbluebutton.lib.video.services {
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.media.Camera;
+	import flash.media.CameraPosition;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	import flash.system.Capabilities;
 	
+	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.common.services.DefaultConnectionCallback;
 	import org.bigbluebutton.lib.common.services.IBaseConnection;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
+	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
+	import org.bigbluebutton.lib.video.models.VideoProfile;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -21,6 +27,19 @@ package org.bigbluebutton.lib.video.services {
 		
 		[Inject]
 		public var conferenceParameters:IConferenceParameters;
+		
+		[Inject]
+		public var userSession:IUserSession;
+		
+		[Inject]
+		public var saveData:ISaveData;
+		
+		[Inject]
+		public var shareCameraSignal:ShareCameraSignal;
+		
+		private var cameraToNetStreamMap:Object = new Object();
+		
+		private var cameraToStreamNameMap:Object = new Object;
 		
 		private var _ns:NetStream;
 		
@@ -34,25 +53,49 @@ package org.bigbluebutton.lib.video.services {
 		
 		private var _camera:Camera;
 		
-		private var _selectedCameraQuality:int;
+		private var _selectedCameraQuality:VideoProfile;
 		
-		public static var CAMERA_QUALITY_LOW:int = 0;
-		
-		public static var CAMERA_QUALITY_MEDIUM:int = 1;
-		
-		public static var CAMERA_QUALITY_HIGH:int = 2;
-		
-		public function VideoConnection() {
-		}
+		private var _selectedCameraRotation:int;
 		
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
-			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
-			baseConnection.connectionFailureSignal.add(onConnectionFailure);
+			userSession.successJoiningMeetingSignal.add(loadCameraSettings);
+			baseConnection.successConnected.add(onConnectionSuccess);
+			baseConnection.connectionFailureSignal.add(onConnectionUnsuccess);
+			userSession.lockSettings.disableCamSignal.add(disableCam);
 		}
 		
-		private function onConnectionFailure(reason:String):void {
+		private function disableCam(disable:Boolean) {
+			if (disable && userSession.userList.me.locked && !userSession.userList.me.presenter) {
+				shareCameraSignal.dispatch(false, null);
+			}
+		}
+		
+		private function loadCameraSettings():void {
+			if (saveData.read("cameraQuality") != null) {
+				_selectedCameraQuality = userSession.videoProfileManager.getVideoProfileById(saveData.read("cameraQuality") as String);
+				if (!_selectedCameraQuality) {
+					_selectedCameraQuality = userSession.videoProfileManager.defaultVideoProfile;
+				}
+			} else {
+				_selectedCameraQuality = userSession.videoProfileManager.defaultVideoProfile;
+			}
+			if (Capabilities.cpuArchitecture == "ARM") {
+				if (saveData.read("cameraRotation") != null) {
+					_selectedCameraRotation = saveData.read("cameraRotation") as int;
+				} else {
+					_selectedCameraRotation = 0;
+				}
+				if (saveData.read("cameraPosition") != null) {
+					_cameraPosition = saveData.read("cameraPosition") as String;
+				} else {
+					_cameraPosition = CameraPosition.FRONT;
+				}
+			}
+		}
+		
+		private function onConnectionUnsuccess(reason:String):void {
 			connectionFailureSignal.dispatch(reason);
 		}
 		
@@ -82,12 +125,11 @@ package org.bigbluebutton.lib.video.services {
 		}
 		
 		public function connect():void {
-			var uri:String = _applicationURI + "/" + conferenceParameters.room;
-			var connectParams:Array = [
-				conferenceParameters.room,
-				conferenceParameters.internalUserID
-				];
-			baseConnection.connect.apply(null, new Array(uri).concat(connectParams));
+			baseConnection.connect(uri, conferenceParameters.meetingID, userSession.userId);
+		}
+		
+		public function disconnect(onUserCommand:Boolean):void {
+			baseConnection.disconnect(onUserCommand);
 		}
 		
 		public function get cameraPosition():String {
@@ -106,48 +148,55 @@ package org.bigbluebutton.lib.video.services {
 			_camera = value;
 		}
 		
-		public function get selectedCameraQuality():int {
+		public function get selectedCameraQuality():VideoProfile {
 			return _selectedCameraQuality;
 		}
 		
-		public function set selectedCameraQuality(value:int):void {
-			_selectedCameraQuality = value;
+		public function set selectedCameraQuality(profile:VideoProfile):void {
+			_selectedCameraQuality = profile;
+		}
+		
+		public function get selectedCameraRotation():int {
+			return (conferenceParameters.serverIsMconf) ? _selectedCameraRotation : 0;
+		}
+		
+		public function set selectedCameraRotation(rotation:int):void {
+			_selectedCameraRotation = rotation;
 		}
 		
 		/**
 		 * Set video quality based on the user selection
 		 **/
-		public function selectCameraQuality(value:int):void {
-			switch (value) {
-				case CAMERA_QUALITY_LOW:
-					camera.setMode(160, 120, 10);
-					camera.setQuality(camera.bandwidth, 50);
-					selectedCameraQuality = CAMERA_QUALITY_LOW;
-					break;
-				case CAMERA_QUALITY_MEDIUM:
-					camera.setMode(320, 240, 10);
-					camera.setQuality(camera.bandwidth, 50);
-					selectedCameraQuality = CAMERA_QUALITY_MEDIUM;
-					break;
-				case CAMERA_QUALITY_HIGH:
-					camera.setMode(640, 480, 10);
-					camera.setQuality(camera.bandwidth, 75);
-					selectedCameraQuality = CAMERA_QUALITY_HIGH;
-					break;
-				default:
-					camera.setMode(320, 240, 10);
-					camera.setQuality(camera.bandwidth, 50);
-					selectedCameraQuality = CAMERA_QUALITY_MEDIUM;
-					break;
+		public function selectCameraQuality(profile:VideoProfile):void {
+			if (selectedCameraRotation == 90 || selectedCameraRotation == 270) {
+				camera.setMode(profile.height, profile.width, profile.modeFps);
+			} else {
+				camera.setMode(profile.width, profile.height, profile.modeFps);
 			}
+			camera.setQuality(profile.qualityBandwidth, profile.qualityPicture);
+			selectedCameraQuality = profile;
 		}
 		
 		public function startPublishing(camera:Camera, streamName:String):void {
+			cameraToStreamNameMap[camera.index] = streamName;
+			cameraToNetStreamMap[camera.index] = new NetStream(baseConnection.connection);
 			_ns.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			_ns.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			_ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			_ns.client = this;
 			_ns.attachCamera(camera);
+			switch (selectedCameraRotation) {
+				case 90:
+					streamName = "rotate_right/" + streamName;
+					break;
+				case 180:
+					streamName = "rotate_left/rotate_left/" + streamName;
+					break;
+				case 270:
+					streamName = "rotate_left/" + streamName;
+					break;
+			}
+			trace(streamName);
 			_ns.publish(streamName);
 		}
 		
@@ -163,12 +212,30 @@ package org.bigbluebutton.lib.video.services {
 			trace(LOG + "onAsyncError() " + e.toString());
 		}
 		
-		public function stopPublishing():void {
-			if (_ns != null) {
-				_ns.attachCamera(null);
-				_ns.close();
-				_ns = null;
-				_ns = new NetStream(baseConnection.connection);
+		public function getStreamNameForCamera(camera:Camera):String {
+			return cameraToStreamNameMap[camera.index];
+		}
+		
+		public function stopPublishing(camera:Camera):void {
+			if (camera) {
+				cameraToStreamNameMap[camera.index] = null;
+				var ns:NetStream = cameraToNetStreamMap[camera.index] as NetStream;
+				if (ns != null) {
+					ns.attachCamera(null);
+					ns.close();
+					ns = null;
+				}
+			}
+		}
+		
+		public function stopAllPublishing():void {
+			for (var key:Object in cameraToNetStreamMap) {
+				var ns:NetStream = cameraToNetStreamMap[key] as NetStream;
+				if (ns != null) {
+					ns.attachCamera(null);
+					ns.close();
+					ns = null;
+				}
 			}
 		}
 	}

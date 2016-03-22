@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<common:NoTabView xmlns:fx="http://ns.adobe.com/mxml/2009"
+				  xmlns:s="library://ns.adobe.com/flex/spark"
+				  xmlns:mx="library://ns.adobe.com/flex/mx"
+				  xmlns:participants="org.bigbluebutton.air.users.views.participants.*"
+				  xmlns:guests="org.bigbluebutton.air.users.views.participants.guests.*"
+				  xmlns:common="org.bigbluebutton.air.common.views.*"
+				  xmlns:chatrooms="org.bigbluebutton.air.chat.views.chatrooms.*"
+				  styleName="participantsViewStyle">
+	<s:Scroller width="100%"
+				height="100%">
+		<s:Group width="100%"
+				 height="100%">
+			<s:layout>
+				<s:VerticalLayout verticalAlign="middle"
+								  gap="0" />
+			</s:layout>
+			<s:Group width="100%"
+					 height="{getStyle('itemHeight')}">
+				<s:Rect width="100%"
+						height="100%">
+					<s:fill>
+						<s:SolidColor color="{getStyle('subRectangleColor')}" />
+					</s:fill>
+				</s:Rect>
+				<s:HGroup height="100%">
+					<s:Spacer width="2%" />
+					<s:Label id="conversationLabel"
+							 styleName="settingsSubtitleStyle subContentFontSize"
+							 height="100%"
+							 text="{resourceManager.getString('resources', 'participants.conversations')}" />
+				</s:HGroup>
+			</s:Group>
+
+			<chatrooms:ChatRoomsList id="conversationslist"
+									 width="100%" />
+			<s:Group width="100%"
+					 height="{getStyle('itemHeight')}">
+				<s:Rect width="100%"
+						height="100%">
+					<s:fill>
+						<s:SolidColor color="{getStyle('subRectangleColor')}" />
+					</s:fill>
+				</s:Rect>
+				<s:HGroup height="100%">
+					<s:Spacer width="2%" />
+					<s:Label id="onlineLabel"
+							 styleName="settingsSubtitleStyle subContentFontSize"
+							 height="100%"
+							 text="{resourceManager.getString('resources', 'participants.online')}" />
+				</s:HGroup>
+			</s:Group>
+
+			<participants:ParticipantsList id="participantslist"
+										   width="100%"
+										   height="100%" />
+
+			<s:SkinnableContainer includeInLayout="false"
+								  visible="false"
+								  id="allguests"
+								  width="100%"
+								  height="{getStyle('toolBarHeight')}"
+								  styleName="topToolBarStyle"
+								  verticalCenter="0">
+				<s:HGroup width="100%"
+						  height="100%"
+						  verticalAlign="middle"
+						  paddingRight="{getStyle('itemPaddingRight')}"
+						  paddingLeft="{getStyle('itemPaddingLeft')}">
+
+					<s:Group width="70%">
+						<s:layout>
+							<s:VerticalLayout />
+						</s:layout>
+						<s:Label id="guestsLabel"
+								 text="{resourceManager.getString('resources', 'participants.guests')}"
+								 width="100%"
+								 height="100%"
+								 styleName="pageNameStyle" />
+					</s:Group>
+
+					<s:Button id="allowAllButton0"
+							  width="20%"
+							  styleName="allowButtonStyle guestResponseButtonStyle" />
+					<mx:Spacer width="3%" />
+					<s:Button id="denyAllButton0"
+							  width="20%"
+							  styleName="denyButtonStyle guestResponseButtonStyle" />
+				</s:HGroup>
+			</s:SkinnableContainer>
+
+			<guests:GuestsList includeInLayout="false"
+							   visible="false"
+							   id="guestslist"
+							   width="100%"
+							   height="100%" />
+		</s:Group>
+
+	</s:Scroller>
+</common:NoTabView>

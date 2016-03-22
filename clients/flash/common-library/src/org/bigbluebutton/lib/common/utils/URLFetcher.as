@@ -1,5 +1,6 @@
 package org.bigbluebutton.lib.common.utils {
 	
+	import flash.desktop.NativeApplication;
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;
@@ -22,6 +23,12 @@ package org.bigbluebutton.lib.common.utils {
 		
 		protected var _responseURL:String = null;
 		
+		protected var _userAgent:String = null;
+		
+		public function URLFetcher(userAgent:String = null) {
+			_userAgent = userAgent;
+		}
+		
 		public function get successSignal():ISignal {
 			return _successSignal;
 		}
@@ -35,6 +42,9 @@ package org.bigbluebutton.lib.common.utils {
 			_urlRequest = urlRequest;
 			if (_urlRequest == null) {
 				_urlRequest = new URLRequest();
+				if (_userAgent) {
+					_urlRequest.userAgent = _userAgent;
+				}
 				//_urlRequest.manageCookies = true; // only available in AIR, defaults to "true"
 				//_urlRequest.followRedirects = true; // only available in AIR, defaults to "true"
 				_urlRequest.method = URLRequestMethod.GET;

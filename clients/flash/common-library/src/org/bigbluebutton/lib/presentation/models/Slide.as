@@ -5,7 +5,10 @@ package org.bigbluebutton.lib.presentation.models {
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	import flash.utils.ByteArray;
+	
 	import mx.controls.SWFLoader;
+	
+	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -26,14 +29,31 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		private var _swfFile:SWFLoader = new SWFLoader();
 		
+		private var _annotations:Array = [];
+		
+		private var _x:Number = 0;
+		
+		private var _y:Number = 0;
+		
+		private var _widthPercent:Number = 100;
+		
+		private var _heightPercent:Number = 100;
+		
+		private var _sizeSynced:Boolean = false;
+		
 		private var _slideLoadedSignal:ISignal = new Signal;
 		
-		public function Slide(slideNum:Number, slideURI:String, thumbURI:String, txtURI:String, current:Boolean) {
+		public function Slide(slideNum:Number, slideURI:String, thumbURI:String, txtURI:String, current:Boolean, x:Number, y:Number, widthPercent:Number, heightPercent:Number) {
 			_slideNum = slideNum;
 			_slideURI = slideURI;
 			_thumbURI = thumbURI;
 			_txtURI = txtURI;
 			_current = current;
+			_x = x;
+			_y = y;
+			_widthPercent = widthPercent;
+			_heightPercent = heightPercent;
+			_sizeSynced = true;
 		}
 		
 		public function get thumb():String {
@@ -86,6 +106,69 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		public function get current():Boolean {
 			return _current;
+		}
+		
+		public function get annotations():Array {
+			return _annotations;
+		}
+		
+		public function get x():Number {
+			return _x;
+		}
+		
+		public function get y():Number {
+			return _y;
+		}
+		
+		public function get widthPercent():Number {
+			return _widthPercent;
+		}
+		
+		public function get heightPercent():Number {
+			return _heightPercent;
+		}
+		
+		public function get sizeSynced():Boolean {
+			return _sizeSynced;
+		}
+		
+		public function addAnnotation(annotation:IAnnotation):void {
+			trace("adding a new annotation");
+			_annotations.push(annotation);
+		}
+		
+		public function updateAnnotation(annotation:IAnnotation):IAnnotation {
+			for (var i:int = 0; i < _annotations.length; i++) {
+				if ((_annotations[i] as IAnnotation).anID == annotation.anID) {
+					_annotations[i].update(annotation);
+					trace("updating an existing annotation");
+					return _annotations[i];
+				}
+			}
+			// if the annotation can't be found then add it instead
+			addAnnotation(annotation);
+			return annotation;
+		}
+		
+		public function undoAnnotation():IAnnotation {
+			if (_annotations.length > 0) {
+				return _annotations.pop();
+			}
+			return null;
+		}
+		
+		public function clearAnnotations():void {
+			while (_annotations.length > 0) {
+				_annotations.pop();
+			}
+		}
+		
+		public function setViewedRegion(x:Number, y:Number, widthPercent:Number, heightPercent:Number):void {
+			_x = x;
+			_y = y;
+			_widthPercent = widthPercent;
+			_heightPercent = heightPercent;
+			_sizeSynced = true;
 		}
 	}
 }

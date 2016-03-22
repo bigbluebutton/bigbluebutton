@@ -4,18 +4,30 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
 	import org.bigbluebutton.lib.user.models.UserList;
+	import org.bigbluebutton.lib.video.models.VideoProfile;
+	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
+	import org.bigbluebutton.lib.voice.models.PhoneOptions;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceStreamManager;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
 	public interface IUserSession {
+		function get videoAutoStart():Boolean;
+		function set videoAutoStart(value:Boolean):void;
+		function get skipCamSettingsCheck():Boolean;
+		function set skipCamSettingsCheck(value:Boolean):void;
 		function get config():Config;
 		function set config(value:Config):void;
 		function get userId():String;
 		function set userId(value:String):void;
 		function get userList():UserList;
+		function set userList(userList:UserList):void;
+		function get phoneOptions():PhoneOptions;
+		function set phoneOptions(value:PhoneOptions):void;
+		function get guestList():UserList;
+		function set guestList(userList:UserList):void;
 		function get voiceConnection():IVoiceConnection;
 		function set voiceConnection(value:IVoiceConnection):void;
 		function get mainConnection():IBigBlueButtonConnection;
@@ -27,12 +39,32 @@ package org.bigbluebutton.lib.main.models {
 		function get deskshareConnection():IDeskshareConnection;
 		function set deskshareConnection(value:IDeskshareConnection):void;
 		function get presentationList():PresentationList;
-		function get guestSignal():ISignal;
+		function get guestPolicySignal():ISignal;
+		function get guestEntranceSignal():ISignal;
 		function get successJoiningMeetingSignal():ISignal;
 		function get failureJoiningMeetingSignal():ISignal;
+		function get loadedMessageHistorySignal():ISignal;
+		function get assignedDeskshareSignal():ISignal;
 		function get logoutSignal():Signal;
+		function get globalVideoSignal():ISignal;
 		function get recordingStatusChangedSignal():ISignal;
 		function joinMeetingResponse(msg:Object):void;
 		function recordingStatusChanged(recording:Boolean):void;
+		function get videoProfileManager():VideoProfileManager
+		function set videoProfileManager(value:VideoProfileManager):void;
+		function get authTokenSignal():ISignal
+		function get joinUrl():String;
+		function set joinUrl(value:String):void;
+		function get lockSettings():LockSettings;
+		function set meetingMuted(mute:Boolean):void;
+		function get meetingMuted():Boolean;
+		function get globalVideoStreamName():String;
+		function get globalVideoProfile():VideoProfile;
+		function dispatchLockSettings():void;
+		function set globalVideoStreamName(value:String):void;
+		function setGlobalVideoProfileDimensions(w:int, h:int):void;
+		function get pushToTalk():Boolean;
+		function set pushToTalk(value:Boolean):void;
+		function get pushToTalkSignal():ISignal;
 	}
 }

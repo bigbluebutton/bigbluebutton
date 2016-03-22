@@ -37,11 +37,11 @@ package org.bigbluebutton.lib.main.services {
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
-			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
-			baseConnection.connectionFailureSignal.add(onConnectionUnsuccess);
+			baseConnection.successConnected.add(onConnectionSuccess);
+			baseConnection.connectionFailureSignal.add(onConnectionFailure);
 		}
 		
-		private function onConnectionUnsuccess(reason:String):void {
+		private function onConnectionFailure(reason:String):void {
 			connectionFailureSignal.dispatch(reason);
 		}
 		
@@ -50,19 +50,15 @@ package org.bigbluebutton.lib.main.services {
 		}
 		
 		private function getMyUserId():void {
-			baseConnection.connection.call("participants.getMyUserId",
-										   new Responder(function(result:String):void {
-											   trace("Success connected: My user ID is [" + result + "]");
-											   _userId = result as String;
-											   connectionSuccessSignal.dispatch();
-										   },
-										   function(status:Object):void {
-											   trace("Error occurred");
-											   trace(ObjectUtil.toString(status));
-											   connectionFailureSignal.dispatch("Failed to get the userId");
-										   }
-										   )
-										   );
+			baseConnection.connection.call("participants.getMyUserId", new Responder(function(result:String):void {
+				trace("Success connected: My user ID is [" + result + "]");
+				_userId = result as String;
+				connectionSuccessSignal.dispatch();
+			}, function(status:Object):void {
+				trace("Error occurred");
+				trace(ObjectUtil.toString(status));
+				connectionFailureSignal.dispatch("Failed to get the userId");
+			}));
 		}
 		
 		public function get connectionFailureSignal():ISignal {
@@ -98,15 +94,13 @@ package org.bigbluebutton.lib.main.services {
 			_conferenceParameters = params;
 			_tried_tunneling = tunnel;
 			var uri:String = _applicationURI + "/" + _conferenceParameters.room;
-			var connectParams:Array = [
-				_conferenceParameters.username,
-				_conferenceParameters.role,
-				_conferenceParameters.room,
-				_conferenceParameters.voicebridge,
-				_conferenceParameters.record,
-				_conferenceParameters.externUserID,
-				_conferenceParameters.internalUserID
-				];
+			var lockSettings:Object = {disableCam: false, disableMic: false, disablePrivateChat: false, disablePublicChat: false, lockedLayout: false, lockOnJoin: false, lockOnJoinConfigurable: false};
+			var connectParams:Array = [_conferenceParameters.username, _conferenceParameters.role, _conferenceParameters.room, _conferenceParameters.voicebridge, _conferenceParameters.record, _conferenceParameters.externUserID, _conferenceParameters.internalUserID, _conferenceParameters.muteOnStart, lockSettings];
+			if (_conferenceParameters.isGuestDefined()) {
+				trace(_conferenceParameters.guest);
+				connectParams.push(_conferenceParameters.guest);
+			}
+			trace(connectParams);
 			baseConnection.connect.apply(null, new Array(uri).concat(connectParams));
 		}
 		

@@ -14,21 +14,30 @@
 		<s:State name="up" />
 	</s:states>
 
-	<s:Rect top="0"
-			bottom="0"
-			right="0"
-			left="0">
-		<s:stroke>
-			<s:SolidColorStroke color="{hostComponent.getStyle('strokeColor')}"
-								weight="{hostComponent.getStyle('strokeWeight')}"
-								alpha="0.5" />
-		</s:stroke>
+	<s:Ellipse id="backgroundEllipse" height="{image.height * 3/2}" width="{backgroundEllipse.height}"
+			   x="{(this.width - backgroundEllipse.width)/2}"
+			   y="{(this.height - backgroundEllipse.height)/2}">
 		<s:fill>
 			<s:SolidColor color="{hostComponent.getStyle('backgroundColor')}"
 						  color.down="{hostComponent.getStyle('selectedBackgroundColor')}" />
 		</s:fill>
-	</s:Rect>
-	<s:BitmapImage source="{getStyle('backgroundImage')}"
+	</s:Ellipse>
+	<s:BitmapImage id="image"
+				   source="{getStyle('backgroundImage')}"
 				   horizontalCenter="0"
 				   verticalCenter="0" />
+	
+	<s:Label id="iconLabel" text="{hostComponent.label}" x="{(this.width - iconLabel.width)/2}" y="{backgroundEllipse.y + backgroundEllipse.height * 9/8}" />
+
+	<s:Ellipse id="notification"
+			   visible="false"
+			   height="{image.width/5}"
+			   width="{image.width/5}"
+			   left="{image.x + image.width - (notification.width * 1.5)}"
+			   top="{image.y + notification.height/2}">
+		<s:fill>
+			<s:SolidColor color="#EE4C4C" />
+		</s:fill>
+	</s:Ellipse>
+
 </s:Skin>

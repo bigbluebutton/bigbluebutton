@@ -18,5 +18,6 @@ package org.bigbluebutton.lib.main.services {
 		function get userId():String;
 		function addMessageListener(listener:IMessageListener):void
 		function removeMessageListener(listener:IMessageListener):void
+		//function clearMessageListeners():void;
 	}
 }

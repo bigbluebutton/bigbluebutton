@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnablePopUpContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+						   xmlns:s="library://ns.adobe.com/flex/spark"
+						   xmlns:mx="library://ns.adobe.com/flex/mx"
+						   width="100%"
+						   height="100%"
+						   styleName="changeStatusPopUp">
+
+	<s:VGroup width="100%"
+			  horizontalAlign="center"
+			  verticalAlign="middle">
+
+		<s:List id="statusList0"
+				width="100%"
+				contentBackgroundAlpha="0"
+				itemRenderer="org.bigbluebutton.air.main.views.menubuttons.changestatus.StatusItemRenderer"
+				height="100%"
+				labelField="data"
+				verticalScrollPolicy="off"
+				horizontalScrollPolicy="off">
+			<s:ArrayList>
+				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.beRightBack')}"
+						   signal="away" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.handRaise')}"
+						   signal="raiseHand" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.neutral')}"
+						   signal="neutral" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.confused')}"
+						   signal="confused" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.sad')}"
+						   signal="sad" />
+				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.laughter')}"
+						   signal="happy" />
+
+				<fx:Object data="{resourceManager.getString('resources', 'profile.settings.clearStatus')}"
+						   signal="none" />
+			</s:ArrayList>
+		</s:List>
+
+	</s:VGroup>
+
+</s:SkinnablePopUpContainer>

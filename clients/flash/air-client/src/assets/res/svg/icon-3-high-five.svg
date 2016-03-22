@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32px"
+   height="32px"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="icon-3-high-five.svg"
+   inkscape:export-filename="/var/lib/lxc/bbb-dev090-14/rootfs/home/ubuntu/dev/bigbluebutton/bigbluebutton-client/branding/default/style/css/assets/images/icon-3-high-five.png"
+   inkscape:export-xdpi="50"
+   inkscape:export-ydpi="50">
+  <metadata
+     id="metadata15">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>icon 3 high five</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="753"
+     inkscape:window-height="480"
+     id="namedview13"
+     showgrid="false"
+     inkscape:zoom="7.375"
+     inkscape:cx="39.864407"
+     inkscape:cy="16"
+     inkscape:window-x="75"
+     inkscape:window-y="34"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <!-- Generator: Sketch 3.0.3 (7891) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title4">icon 3 high five</title>
+  <desc
+     id="desc6">Created with Sketch.</desc>
+  <defs
+     id="defs8" />
+  <g
+     id="Page-1"
+     stroke="none"
+     stroke-width="1"
+     fill="none"
+     fill-rule="evenodd"
+     sketch:type="MSPage"
+     style="fill:#000000;stroke:#000000;stroke-opacity:1">
+    <g
+       id="icon-3-high-five"
+       sketch:type="MSArtboardGroup"
+       fill="#929292"
+       style="fill:#000000;stroke:#000000;stroke-opacity:1">
+      <path
+         d="M28.1244203,21.5 C28.1244203,26.1944206 24.3188409,30 19.6244203,30.0000003 C16.5115051,30.0000003 13.2262274,28.5474856 10.9652407,24.4282229 C7.70175208,18.4825159 3.52827319,14.5832077 5.51553361,12.5959473 C6.9371827,11.1742982 9.16926196,12.5381668 11.1244203,14.3667868 L11.1244203,14.3667868 L11.1244203,6.50840855 C11.1244203,5.11541748 12.2437085,4 13.6244203,4 C14.1892809,4 14.7078132,4.18537107 15.1244253,4.49839144 C15.1271484,3.1148807 16.2453908,2 17.6244203,2 C19.014265,2 20.1236329,3.12004027 20.1244199,4.50198455 C20.5422503,4.18708451 21.0616172,4 21.6244203,4 C23.0147583,4 24.1244203,5.12055197 24.1244203,6.50282288 L24.1244203,7.49767249 C24.5422506,7.18504628 25.0616174,7 25.6244203,7 C27.0147583,7 28.1244203,8.11599243 28.1244203,9.49263886 L28.1244203,21.5 L28.1244203,21.5 Z M19.6244203,29 C15.8647052,28.9995418 13.6344162,26.9488875 11.8717958,23.9830936 C7.95978233,17.4007216 5.15828327,14.3887562 6.24545305,13.2957153 C7.35605012,12.1791206 10.0660207,14.5979243 12.1244203,16.7983451 L12.1244203,6.49309635 C12.1244203,5.66388585 12.7959932,5 13.6244203,5 C14.4586231,5 15.1244203,5.66848201 15.1244203,6.49309635 L15.1244203,16 L16.1244203,16 L16.1244203,4.49089813 C16.1244203,3.67622006 16.7959932,3 17.6244203,3 C18.4586231,3 19.1244203,3.66749783 19.1244203,4.49089813 L19.1244203,15 L20.1244203,15 L20.1244203,6.50370994 C20.1244203,5.66197696 20.7959932,5 21.6244203,5 C22.4586231,5 23.1244203,5.67323387 23.1244203,6.50370994 L23.1244203,16 L24.1244203,16 L24.1244203,9.4912653 C24.1244203,8.66254437 24.7959932,8 25.6244203,8 C26.4586231,8 27.1244203,8.66766222 27.1244203,9.4912653 L27.1244203,17.7543674 L27.1244203,21.5 C27.1244203,25.6421358 23.7665562,29 19.6244203,29 L19.6244203,29 Z"
+         id="high-five"
+         sketch:type="MSShapeGroup"
+         style="fill:#000000;stroke:#000000;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

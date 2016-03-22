@@ -23,7 +23,6 @@ package org.bigbluebutton.web.user.views {
 			userSession.userList.userChangeSignal.add(userChangeHandler);
 			view.usersGrid.amIModerator = userSession.userList.me.role == User.MODERATOR;
 			view.usersGrid.dataProvider = userSession.userList.users;
-			view.lowerHandSignal.add(onLowerHandSignal);
 			view.changePresenterSignal.add(onChangePresenterSignal);
 			view.changeMuteSignal.add(onChangeMuteSignal);
 			view.kickUserSignal.add(onKickUserSignal);
@@ -32,16 +31,12 @@ package org.bigbluebutton.web.user.views {
 		
 		private function userChangeHandler(user:User, type:int):void {
 			if (user.me && type == UserList.RAISE_HAND) {
-				view.raiseHandButton.selected = user.raiseHand;
+				view.raiseHandButton.selected = (user.status == User.RAISE_HAND);
 			}
 		}
 		
-		private function onLowerHandSignal(userID:String):void {
-			usersService.lowerHand(userID);
-		}
-		
 		private function onChangePresenterSignal(userID:String):void {
-			usersService.assignPresenter(userID, "temp");
+			usersService.assignPresenter(userID, "temp", userSession.userId);
 		}
 		
 		private function onChangeMuteSignal(userID:String, mute:Boolean):void {
@@ -54,15 +49,14 @@ package org.bigbluebutton.web.user.views {
 		
 		private function handleRaiseHandButtonClick(e:MouseEvent):void {
 			if (view.raiseHandButton.selected) {
-				usersService.raiseHand();
+				usersService.emojiStatus(User.RAISE_HAND);
 			} else {
-				usersService.lowerHand(userSession.userId);
+				usersService.emojiStatus(User.NO_STATUS);
 			}
 		}
 		
 		override public function destroy():void {
 			super.destroy();
-			view.lowerHandSignal.remove(onLowerHandSignal);
 			view.changePresenterSignal.remove(onChangePresenterSignal);
 			view.changeMuteSignal.remove(onChangeMuteSignal);
 			view.kickUserSignal.remove(onKickUserSignal);

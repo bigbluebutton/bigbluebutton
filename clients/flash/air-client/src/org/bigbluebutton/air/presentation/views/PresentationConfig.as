@@ -1,5 +1,7 @@
 package org.bigbluebutton.air.presentation.views {
 	
+	import org.bigbluebutton.lib.presentation.views.IPresentationView;
+	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
@@ -41,7 +43,6 @@ package org.bigbluebutton.air.presentation.views {
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			//signalCommandMap.map(ButtonTestSignal).toCommand(ButtonTestCommand);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.main.commands {
 	
-	import org.bigbluebutton.air.common.utils.PagesENUM;
+	import org.bigbluebutton.air.common.views.PagesENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
