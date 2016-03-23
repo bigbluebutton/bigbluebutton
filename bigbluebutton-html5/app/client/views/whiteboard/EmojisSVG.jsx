@@ -1,17 +1,17 @@
 EmojisSVG = React.createClass ({
   render() {
-  	if(this.props.emoji == "happy-face") {
-  	  return ( <svg width={this.props.size} height={this.props.size} viewBox="0 0 50 50">
+    if(this.props.emoji == "happy-face") {
+      return ( <svg width={this.props.size} height={this.props.size} viewBox="0 0 50 50">
         <circle cx="25" cy="25" r="14" stroke="white" strokeWidth="3" fill="transparent"/>
         <circle cx="19" cy="22" r="1" stroke="white" strokeWidth="2" fill="white"/>
         <circle cx="31" cy="22" r="1" stroke="white" strokeWidth="2" fill="white"/>
         <path d="m18 30 C 21 33, 29 33, 32 30" stroke="white" strokeWidth="3" strokeLinecap="round" stroke-linejoin="round" fill="none" />
       </svg> 
       );
-  	}
+    }
     else if(this.props.emoji == "neutral-face") {
       return (
-      	<svg width={this.props.size} height={this.props.size} viewBox="0 0 50 50">
+        <svg width={this.props.size} height={this.props.size} viewBox="0 0 50 50">
           <circle cx="25" cy="25" r="14" stroke="white" strokeWidth="3" fill="transparent"/>
           <circle cx="19" cy="22" r="1" stroke="white" strokeWidth="2" fill="white"/>
           <circle cx="31" cy="22" r="1" stroke="white" strokeWidth="2" fill="white"/>
@@ -56,8 +56,8 @@ EmojisSVG = React.createClass ({
       );
     }
     else {
-    	console.log("This shouldn't be happening");
-    	return ( <span></span> );
+      console.log("This shouldn't be happening");
+      return ( <span></span> );
     }
   }
 });

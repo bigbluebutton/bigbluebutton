@@ -54,7 +54,7 @@ Button = React.createClass({
   },
 
   processNotification(notification) {
-  	let _className, _number;
+    let _className, _number;
     if(this.hasGotUnreadMail(notification)){
       _className = this.getNotificationClass(notification);
       _number = this.getNumberOfUnreadMessages(notification);
@@ -65,6 +65,7 @@ Button = React.createClass({
       )
     }
   },
+
   render(){
     return (
       <button onClick={this.props.onClick} type="submit" id={this.props.id} className={'btn' + this.props.btn_class} rel={this.props.rel} data-placement={this.props.data_placement} title={this.props.title} style={this.props.style}>

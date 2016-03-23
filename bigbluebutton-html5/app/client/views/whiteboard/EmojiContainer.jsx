@@ -46,6 +46,7 @@ EmojiContainer = React.createClass ({
       return toggleEmojisFAB();
     }
   },
+
   handleActive(event) {
     if($('.activeEmojiButton').css('opacity') === '1') {
       BBB.setEmojiStatus(
@@ -59,13 +60,14 @@ EmojiContainer = React.createClass ({
       return toggleEmojisFAB();
     }
   },
+
   handleFABTriggerButton(event) {
     $('.FABTriggerButton').blur();
     return toggleEmojisFAB();
   },
 
   render() {
-  	return (
+    return (
       <div className={ classNames('FABContainer', !this.data.current_presentation ? 'noPresentation' : '' ) }>
         <Button onClick={ this.handleFABTriggerButton } btn_class="FABTriggerButton" i_class="ion-android-hand"/>
         {this.emojiIcons().map((emoji) =>
