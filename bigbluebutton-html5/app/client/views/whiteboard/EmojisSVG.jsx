@@ -1,12 +1,4 @@
 EmojisSVG = React.createClass ({
-  isCurrent(emojiName) {
-    return this.name == emojiName;
-  },
-
-  renderEmoji(name) {
-    <div></div>
-  },
-  
   render() {
   	if(this.props.emoji == "happy-face") {
   	  return ( <svg width={this.props.size} height={this.props.size} viewBox="0 0 50 50">

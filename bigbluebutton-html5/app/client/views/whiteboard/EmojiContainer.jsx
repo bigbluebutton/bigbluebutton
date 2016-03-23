@@ -1,21 +1,25 @@
 EmojiContainer = React.createClass ({
- /* mixins: [ReactMeteorData],
+  mixins: [ReactMeteorData],
   getMeteorData() {
-  
-  },
-*/
-  hasNoPresentation() {
-    return Meteor.Presentations.findOne({
+    let user, emoji_status, current_presentation;
+    user = BBB.getCurrentUser();
+    if(user != null) {
+      emoji_status = user.user.emoji_status;
+    } else {
+      emoji_status = "none";
+    }
+    current_presentation = Meteor.Presentations.findOne({
       'presentation.current': true
     });
+    current_presentation ? current_presentation = true : current_presentation = false;
+    return {
+      emoji_status: emoji_status,
+      current_presentation: current_presentation
+    };
   },
 
   getCurrentUserEmojiStatus(name) {
-    let user;
-    user = BBB.getCurrentUser();
-    if(user != null) {
-      return name == user.user.emoji_status
-    }
+    return name == this.data.emoji_status;
   },
 
   emojiIcons() {
@@ -29,14 +33,14 @@ EmojiContainer = React.createClass ({
     ];
   },
 
-  handleInactive(event) {
+  handleInactive(name, event) {
     if($(event.target).css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
         getInSession('userId'),
         getInSession('userId'),
         getInSession('authToken'),
-        this.name
+        name
       );
       $('.FABTriggerButton').blur();
       return toggleEmojisFAB();
@@ -62,11 +66,11 @@ EmojiContainer = React.createClass ({
 
   render() {
   	return (
-      <div className={ classNames('FABContainer', !this.hasNoPresentation() ? 'noPresentation' : '' ) }>
+      <div className={ classNames('FABContainer', !this.data.current_presentation ? 'noPresentation' : '' ) }>
         <Button onClick={ this.handleFABTriggerButton } btn_class="FABTriggerButton" i_class="ion-android-hand"/>
         {this.emojiIcons().map((emoji) =>
           <Button btn_class={ classNames(' ' + emoji.name + 'EmojiButton', this.getCurrentUserEmojiStatus(emoji.name) ? 'activeEmojiButton' : 'inactiveEmojiButton') }
-          onClick={ this.getCurrentUserEmojiStatus(emoji.name) ? this.handleActive.bind(null, emoji.name) : this.handleInactive.bind(null, emoji.name) }
+          onClick={ this.getCurrentUserEmojiStatus(emoji.name) ? this.handleActive : this.handleInactive.bind(null, emoji.name) }
           key={emoji.name} emoji={ emoji.icon }/>
         )}
       </div>
