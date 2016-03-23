@@ -211,13 +211,14 @@ class Caption:
                     next_break = prev_break
                     do_break = True
 
-            # Status [100,200) indicates a required (hard) line break
-            if next_break >= len(self.text) or \
-                    (status >= 100 and status < 200):
-                line.text = text_section
-                line.start_time = start_time
-                line.end_time = end_time
-                do_break = True
+            else:
+                # Status [100,200) indicates a required (hard) line break
+                if next_break >= len(self.text) or \
+                        (status >= 100 and status < 200):
+                    line.text = text_section
+                    line.start_time = start_time
+                    line.end_time = end_time
+                    do_break = True
 
             if do_break:
                 logger.debug("text section %d -> %d (%d): %s",
