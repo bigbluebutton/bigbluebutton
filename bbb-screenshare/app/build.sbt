@@ -36,20 +36,20 @@ retrieveManaged := true
 libraryDependencies ++= {
 //  val akkaVersion  = "2.3.11"
     val akkaVersion  = "2.4.2"
-    val springVersion = "4.1.8.RELEASE"
+    val springVersion = "4.2.5.RELEASE"
   Seq(
     "com.typesafe.akka"        %%  "akka-actor"        % akkaVersion,
     "com.typesafe.akka"        %%  "akka-testkit"      % akkaVersion    % "test",
     "com.typesafe.akka"        %%  "akka-slf4j"        % akkaVersion,
     "com.typesafe"              %  "config"            % "1.3.0",
-    "ch.qos.logback"            %  "logback-classic"   % "1.0.13" % "runtime",
+    "ch.qos.logback"            %  "logback-classic"   % "1.1.6" % "runtime",
     //    "org.pegdown"               %  "pegdown"           % "1.4.0",
     //    "junit"                     %  "junit"             % "4.11",
     //    "com.etaty.rediscala"      %%  "rediscala"         % "1.4.0",
     "commons-codec"             %  "commons-codec"     % "1.8",
         "redis.clients"             %  "jedis"             % "2.7.2",
     //    "org.apache.commons"        %  "commons-lang3"     % "3.2",
-    "org.red5"                  %  "red5-server"       % "1.0.6-RELEASE",
+    "org.red5"                  %  "red5-server"       % "1.0.7-M8",
     "com.google.code.gson"      %  "gson"              % "1.7.1",
 
     "org.springframework"       %  "spring-web"        % springVersion,
