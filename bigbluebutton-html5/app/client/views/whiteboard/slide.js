@@ -2,38 +2,33 @@ Template.slide.rendered = function() {
   return reactOnSlideChange(this);
 };
 
-this.reactOnSlideChange = (_this => {
-  return function() {
-    let currentSlide, pic, ref;
-    currentSlide = BBB.getCurrentSlide();
-    pic = new Image();
-    pic.onload = function() {
-      let ref;
-      setInSession('slideOriginalWidth', this.width);
-      setInSession('slideOriginalHeight', this.height);
-      $(window).resize(() => {
-        // redraw the whiteboard to adapt to the resized window
-        if(!$('.panel-footer').hasClass('ui-resizable-resizing')) { // not in the middle of resizing the message input
-          return scaleWhiteboard();
-        }
-      });
-      if((currentSlide != null ? (ref = currentSlide.slide) != null ? ref.img_uri : void 0 : void 0) != null) {
-        return createWhiteboardPaper(wpm => {
-          return displaySlide(wpm);
-        });
+this.reactOnSlideChange = function() {
+  var currentSlide, pic, ref;
+  currentSlide = BBB.getCurrentSlide("slide.rendered");
+  pic = new Image();
+  pic.onload = function() {
+    var ref;
+    setInSession('slideOriginalWidth', this.width);
+    setInSession('slideOriginalHeight', this.height);
+    $(window).resize(function() {
+      if (!$('.panel-footer').hasClass('ui-resizable-resizing')) {
+        return scaleWhiteboard();
       }
-    };
-    pic.src = currentSlide != null ? (ref = currentSlide.slide) != null ? ref.img_uri : void 0 : void 0;
-    return "";
+    });
+    if ((currentSlide != null ? (ref = currentSlide.slide) != null ? ref.img_uri : void 0 : void 0) != null) {
+      return createWhiteboardPaper(function(wpm) {
+        return displaySlide(wpm);
+      });
+    }
   };
-})(this);
+  pic.src = currentSlide != null ? (ref = currentSlide.slide) != null ? ref.img_uri : void 0 : void 0;
+  return "";
+};
 
-this.createWhiteboardPaper = (_this => {
-  return function(callback) {
-    _this.whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper');
-    return callback(_this.whiteboardPaperModel);
-  };
-})(this);
+this.createWhiteboardPaper = function(callback) {
+  this.whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper');
+  return callback(this.whiteboardPaperModel);
+};
 
 this.displaySlide = function(wpm) {
   let adjustedDimensions, currentSlide, ref;
