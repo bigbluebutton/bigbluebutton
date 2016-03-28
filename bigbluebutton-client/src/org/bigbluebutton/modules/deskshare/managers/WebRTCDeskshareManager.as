@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.deskshare.services.WebRTCDeskshareService;
 	import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
+	import org.bigbluebutton.main.api.JSLog;
 
 	public class WebRTCDeskshareManager {
 		private static const LOGGER:ILogger = getClassLogger(WebRTCDeskshareManager);
@@ -89,6 +90,7 @@ package org.bigbluebutton.modules.deskshare.managers
 
 		private function stopWebRTCDeskshare():void {
 			LOGGER.debug("DeskshareManager::stopWebRTCDeskshare");
+			viewWindowManager.stopViewing();
 			if (ExternalInterface.available) {
 				var loggingCallback:Function = function(args:Object):void {LOGGER.debug(args); JSLog.warn("loggingCallback", args)};
 				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
@@ -146,6 +148,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			/*toolbarButtonManager.removeToolbarButton();*/
 			if (sharing) {
 				publishWindowManager.stopSharing();
+				stopWebRTCDeskshare();
 			}
 			sharing = false;
 		}
@@ -194,7 +197,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			var onFailure:Function = function(message:String):void {
 				JSLog.warn(message, {});
 				usingWebRTC = false;
-				//send out event to fallback to Java
+				// send out event to fallback to Java
 				globalDispatcher.dispatchEvent(new UseJavaModeCommand());
 				return;
 			};
@@ -212,6 +215,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			//toolbarButtonManager.enableToolbarButton();
 			publishWindowManager.handleShareWindowCloseEvent();
 			sharing = false;
+			stopWebRTCDeskshare();
 			/*toolbarButtonManager.stopedSharing();*/
 		}
 
@@ -222,7 +226,7 @@ package org.bigbluebutton.modules.deskshare.managers
 
 		public function handleStreamStartEvent(e:WebRTCViewStreamEvent):void{
 			if (!usingWebRTC) { return; }
-			 if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
+			if (sharing) return; //TODO must uncomment this for the non-webrtc desktop share
 			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
 			LOGGER.debug("Received start viewing command when isPresenter==[{0}]",[isPresenter]);
 
