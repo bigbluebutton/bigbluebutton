@@ -52,6 +52,7 @@ public interface IBigBlueButtonInGW {
 	void getGuestPolicy(String meetingID, String userID);
 	void setGuestPolicy(String meetingID, String guestPolicy, String setBy);
 	void responseToGuest(String meetingID, String userID, Boolean response, String requesterID);
+	void logoutEndMeeting(String meetingID, String userID);
 	
 	// Voice
 	void initAudioSettings(String meetingID, String requesterID, Boolean muted);

@@ -71,6 +71,8 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
       handleChangeUserRole(msg)
     case msg: EjectUserFromMeeting =>
       handleEjectUserFromMeeting(msg)
+    case msg: LogoutEndMeeting =>
+      handleLogoutEndMeeting(msg)
     case msg: UserEmojiStatus =>
       handleUserEmojiStatus(msg)
     case msg: UserShareWebcam =>
@@ -321,4 +323,9 @@ class MeetingActor(val mProps: MeetingProperties, val outGW: OutMessageGateway)
     meetingModel.permissionsEqual(other)
   }
 
+  def handleLogoutEndMeeting(msg: LogoutEndMeeting) {
+    if (usersModel.isModerator(msg.userID)) {
+      self ! EndMeeting(mProps.meetingID)
+    }
+  }
 }

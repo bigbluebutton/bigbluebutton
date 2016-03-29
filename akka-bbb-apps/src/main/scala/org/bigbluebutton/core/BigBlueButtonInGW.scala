@@ -166,6 +166,10 @@ class BigBlueButtonInGW(val system: ActorSystem, recorderApp: RecorderApplicatio
     bbbActor ! new EjectUserFromMeeting(meetingId, userId, ejectedBy)
   }
 
+  def logoutEndMeeting(meetingId: String, userId: String) {
+    bbbActor ! new LogoutEndMeeting(meetingId, userId)
+  }
+
   def shareWebcam(meetingId: String, userId: String, stream: String) {
     bbbActor ! new UserShareWebcam(meetingId, userId, stream)
   }

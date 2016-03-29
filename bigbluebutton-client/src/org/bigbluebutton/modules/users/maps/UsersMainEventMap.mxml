@@ -177,5 +177,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{BBBEvent.BROADCAST_GUEST_POLICY}" >
     <MethodInvoker generator="{UserService}" method="setGuestPolicy" arguments="{event}" />
   </EventHandlers>
+
+  <EventHandlers type="{BBBEvent.LOGOUT_END_MEETING_EVENT}" >
+    <MethodInvoker generator="{UserService}" method="logoutEndMeeting" />
+  </EventHandlers>
   <!-- End Guest Events -->
 </EventMap>
