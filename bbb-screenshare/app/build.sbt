@@ -49,7 +49,7 @@ libraryDependencies ++= {
     "commons-codec"             %  "commons-codec"     % "1.8",
         "redis.clients"             %  "jedis"             % "2.7.2",
     //    "org.apache.commons"        %  "commons-lang3"     % "3.2",
-    "org.red5"                  %  "red5-server"       % "1.0.7-M8",
+    "org.red5"                  %  "red5-server"       % "1.0.7-M10",
     "com.google.code.gson"      %  "gson"              % "1.7.1",
 
     "org.springframework"       %  "spring-web"        % springVersion,

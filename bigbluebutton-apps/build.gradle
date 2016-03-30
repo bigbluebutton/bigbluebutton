@@ -70,8 +70,8 @@ dependencies {
   providedCompile 'org.springframework:spring-core:4.2.5.RELEASE@jar'
 
   // Red5
-  providedCompile 'org.red5:red5-server:1.0.7-M8@jar'
-  providedCompile 'org.red5:red5-server-common:1.0.7-M8@jar'
+  providedCompile 'org.red5:red5-server:1.0.7-M10@jar'
+  providedCompile 'org.red5:red5-server-common:1.0.7-M10@jar'
   
   // Logging
   providedCompile 'ch.qos.logback:logback-core:1.1.6@jar'

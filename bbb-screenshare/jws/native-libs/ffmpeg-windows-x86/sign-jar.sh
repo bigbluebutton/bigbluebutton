@@ -1,5 +1,6 @@
+FFMPEG=ffmpeg-3.0-1.2-SNAPSHOT-windows-x86.jar
 mkdir workdir
-cp ffmpeg-2.8.5-1.2-SNAPSHOT-windows-x86.jar workdir/ffmpeg-windows-x86.jar
+cp $FFMPEG workdir/ffmpeg-windows-x86.jar
 rm -rf src
 mkdir -p src/main/resources
 mkdir -p src/main/java
