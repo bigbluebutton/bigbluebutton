@@ -479,7 +479,9 @@ public class MeetingService implements MessageListener {
 
     private void processEndMeeting(EndMeeting message) {
         messagingService.endMeeting(message.meetingId);
+    }
 
+    private void processRemoveEndedMeeting(MeetingEnded message) {
         Meeting m = getMeeting(message.meetingId);
         if (m != null) {
             m.setForciblyEnded(true);
@@ -583,6 +585,8 @@ public class MeetingService implements MessageListener {
             String logStr = gson.toJson(logData);
 
             log.info("Meeting ended: data={}", logStr);
+
+            processRemoveEndedMeeting(message);
 
             return;
         }
