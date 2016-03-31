@@ -19,11 +19,12 @@
 package org.bigbluebutton.modules.deskshare.events
 {
 	import flash.events.Event;
+	import org.bigbluebutton.main.api.JSLog;
 
 	public class WebRTCViewStreamEvent extends Event
 	{
-		public static const START:String = "Start Viewing Stream Event";
-		public static const STOP:String = "Stop Viewing Stream Event";
+		public static const START:String = "WebRTC Start Viewing Stream Event";
+		public static const STOP:String = "WebRTC Stop Viewing Stream Event";
 
 		public var videoWidth:Number = 0;
 		public var videoHeight:Number = 0;
@@ -32,7 +33,9 @@ package org.bigbluebutton.modules.deskshare.events
 		public function WebRTCViewStreamEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
+			JSLog.warn("creating a WebRTCViewStreamEvent event " + type, null);
 		}
 
 	}
 }
+

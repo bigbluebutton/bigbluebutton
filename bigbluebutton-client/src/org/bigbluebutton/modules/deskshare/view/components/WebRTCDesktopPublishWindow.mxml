@@ -63,6 +63,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.main.api.JSLog;
 
 			private static const LOGGER:ILogger = getClassLogger(DesktopPublishWindow);
 

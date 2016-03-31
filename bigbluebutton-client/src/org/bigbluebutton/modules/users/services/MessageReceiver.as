@@ -148,9 +148,9 @@ package org.bigbluebutton.modules.users.services
 
       var event:WebRTCViewStreamEvent;
       if (msg.broadcasting) {
-        event = new WebRTCViewStreamEvent(ViewStreamEvent.START);
+        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.START);
       } else {
-        event = new WebRTCViewStreamEvent(ViewStreamEvent.STOP);
+        event = new WebRTCViewStreamEvent(WebRTCViewStreamEvent.STOP);
       }
 
       event.videoWidth = msg.width;

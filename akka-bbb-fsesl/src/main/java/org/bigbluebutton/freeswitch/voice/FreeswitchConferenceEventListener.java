@@ -27,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 import org.bigbluebutton.freeswitch.voice.events.DeskShareStartedEvent;
 import org.bigbluebutton.freeswitch.voice.events.DeskShareEndedEvent;
 import org.bigbluebutton.freeswitch.voice.events.ConferenceEventListener;
-import org.bigbluebutton.freeswitch.voice.events.DeskShareViewerJoinedEvent;
-import org.bigbluebutton.freeswitch.voice.events.DeskShareViewerLeftEvent;
 import org.bigbluebutton.freeswitch.voice.events.DeskShareRTMPBroadcastEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceConferenceEvent;
 import org.bigbluebutton.freeswitch.voice.events.VoiceStartRecordingEvent;
