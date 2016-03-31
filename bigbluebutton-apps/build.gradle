@@ -17,41 +17,8 @@ task resolveDeps(type: Copy) {
 }
 
 repositories {
-        ivy {
-            // URL can refer to a local directory
-            url "./lib"
-        }
   mavenCentral()
   mavenLocal()
-  add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
-    name = 'remote'
-    returnFirst = true
-    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-      name = "googlecode"
-      addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
-      addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
-    }
-    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-      name = "blindside-repos"
-      addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
-      addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
-    }             
-    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-      name = "testng_ibiblio_maven2"
-      m2compatible = true
-      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
-      addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
-    }  
-    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-      name = "spring-bundles"
-      m2compatible = true
-      addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-      addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-    }        
-    mavenRepo name: "jboss", urls: "http://repository.jboss.org/nexus/content/groups/public-jboss"
-    mavenRepo name: "sonatype-snapshot", urls: "http://oss.sonatype.org/content/repositories/snapshots"
-    mavenRepo name: "sonatype-releases", urls: "http://oss.sonatype.org/content/repositories/releases"
-  }
 }
 
 dependencies {	 
@@ -81,12 +48,14 @@ dependencies {
   providedCompile 'org.slf4j:jul-to-slf4j:1.7.18@jar'
   providedCompile 'org.slf4j:slf4j-api:1.7.18@jar'
   	
+/*
   compile "org.codehaus.jackson:jackson-core-asl:$jacksonVersion"
   compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
   compile "javax.servlet:com.springsource.javax.servlet.jsp.jstl:1.2.0"
   compile ("org.springframework.data:spring-data-redis:$springRedisVersion") {
     exclude group: 'commons-logging'
   }
+*/
    
   // Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
   // Otherwise we get exception on aop utils class not found.
