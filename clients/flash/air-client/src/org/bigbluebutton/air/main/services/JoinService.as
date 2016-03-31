@@ -15,6 +15,8 @@ package org.bigbluebutton.air.main.services {
 		
 		private static const URL_REQUEST_INVALID_URL_ERROR:String = "invalidURL";
 		
+		private static const XML_RETURN_CODE_SUCCESS:String = "SUCCESS";
+		
 		private static const URL_REQUEST_GENERIC_ERROR:String = "genericError";
 		
 		private static const XML_RETURN_CODE_FAILED:String = "FAILED";
@@ -40,19 +42,29 @@ package org.bigbluebutton.air.main.services {
 			fetcher.fetch(joinUrl);
 		}
 		
-		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest):void {
-			try {
-				var xml:XML = new XML(data);
-				if (xml.returncode == XML_RETURN_CODE_FAILED) {
-					onFailure(xml.messageKey);
+		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 200):void {
+			if (httpStatusCode == 200) {
+				try {
+					var xml:XML = new XML(data);
+					switch (xml.returncode.toString()) {
+						case XML_RETURN_CODE_FAILED:
+							onFailure(xml.messageKey);
+							break;
+						case XML_RETURN_CODE_SUCCESS:
+							successSignal.dispatch(urlRequest, responseUrl);
+							break;
+						default:
+							onFailure(URL_REQUEST_GENERIC_ERROR);
+							break;
+					}
+				} catch (e:Error) {
+					trace("The response is probably not a XML. " + e.message);
+					successSignal.dispatch(urlRequest, responseUrl);
 					return;
 				}
-			} catch (e:Error) {
-				trace("The response is probably not a XML. " + e.message);
-				successSignal.dispatch(urlRequest, responseUrl);
-				return;
+			} else {
+				onFailure(URL_REQUEST_GENERIC_ERROR);
 			}
-			onFailure(URL_REQUEST_GENERIC_ERROR);
 		}
 		
 		protected function onFailure(reason:String):void {
