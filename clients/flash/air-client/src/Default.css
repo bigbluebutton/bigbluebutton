@@ -2,6 +2,11 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace main "org.bigbluebutton.air.main.views.*";
 
+s|List.cameraProfilesListStyle
+{
+	verticalScrollPolicy:off
+}
+
 s|Group.videoTextFieldStyle
 {
 	color: #FFFFFF;
@@ -246,6 +251,15 @@ global
 	s|ItemRenderer.participantItemStyle
 	{
 		itemHeight:64;
+		lineColor: #F2F2F2;
+		lineWeight:0.5;
+		itemPaddingLeft:6;
+		itemPaddingRight:6;
+	}
+	
+	s|ItemRenderer.cameraProfileItemStyle
+	{
+		itemHeight:48;
 		lineColor: #F2F2F2;
 		lineWeight:0.5;
 		itemPaddingLeft:6;
@@ -575,6 +589,15 @@ global
 		itemPaddingRight:9;
 	}
 	
+	s|ItemRenderer.cameraProfileItemStyle
+	{
+		itemHeight:72;
+		lineColor: #F2F2F2;
+		lineWeight:0.75;
+		itemPaddingLeft:9;
+		itemPaddingRight:9;
+	}
+	
 	s|ItemRenderer.chatRoomItemStyle
 	{
 		lineColor: #F2F2F2;
@@ -891,6 +914,15 @@ global
 		itemPaddingRight:12;
 	}
 	
+	s|ItemRenderer.cameraProfileItemStyle
+	{
+		itemHeight:96;
+		lineColor: #F2F2F2;
+		lineWeight:1;
+		itemPaddingLeft:12;
+		itemPaddingRight:12;
+	}
+	
 	s|ItemRenderer.chatRoomItemStyle
 	{
 		lineColor: #F2F2F2;
@@ -1195,6 +1227,15 @@ global
 	s|ItemRenderer.participantItemStyle
 	{
 		itemHeight:192;
+		lineColor: #F2F2F2;
+		lineWeight:1.5;
+		itemPaddingLeft:18;
+		itemPaddingRight:18;
+	}
+	
+	s|ItemRenderer.cameraProfileItemStyle
+	{
+		itemHeight:144;
 		lineColor: #F2F2F2;
 		lineWeight:1.5;
 		itemPaddingLeft:18;

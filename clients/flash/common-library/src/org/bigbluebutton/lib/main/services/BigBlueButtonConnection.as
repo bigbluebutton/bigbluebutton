@@ -107,6 +107,7 @@ package org.bigbluebutton.lib.main.services {
 				_conferenceParameters.externUserID,
 				_conferenceParameters.internalUserID
 				];
+			trace("++ main connection connect");
 			baseConnection.connect.apply(null, new Array(uri).concat(connectParams));
 		}
 		

@@ -1,5 +1,6 @@
 package org.bigbluebutton.air.video.views {
 	
+	import flash.media.Video;
 	import flash.net.NetConnection;
 	
 	import org.bigbluebutton.air.common.views.IView;
@@ -7,6 +8,8 @@ package org.bigbluebutton.air.video.views {
 	import spark.components.Group;
 	import spark.components.Label;
 	import spark.components.List;
+	import spark.components.Scroller;
+	import spark.components.VideoDisplay;
 	
 	public interface IVideoChatView extends IView {
 		function stopStream():void
@@ -15,5 +18,8 @@ package org.bigbluebutton.air.video.views {
 		function getDisplayedUserID():String
 		function get videoGroup():Group
 		function get streamlist():List
+		function get streamListScroller():Scroller;
+		function get videoStream():VideoDisplay;
+		function get video():Video;
 	}
 }

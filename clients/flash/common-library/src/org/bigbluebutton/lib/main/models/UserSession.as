@@ -4,6 +4,7 @@ package org.bigbluebutton.lib.main.models {
 	import org.bigbluebutton.lib.main.services.IBigBlueButtonConnection;
 	import org.bigbluebutton.lib.presentation.models.PresentationList;
 	import org.bigbluebutton.lib.user.models.UserList;
+	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	import org.bigbluebutton.lib.voice.services.VoiceStreamManager;
@@ -31,6 +32,16 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _recording:Boolean;
 		
+		protected var _phoneAutoJoin:Boolean;
+		
+		protected var _phoneSkipCheck:Boolean;
+		
+		protected var _videoAutoStart:Boolean;
+		
+		protected var _skipCamSettingsCheck:Boolean;
+		
+		protected var _lockSettings:LockSettings;
+		
 		protected var _guestSignal:ISignal = new Signal();
 		
 		protected var _successJoiningMeetingSignal:ISignal = new Signal();
@@ -41,8 +52,50 @@ package org.bigbluebutton.lib.main.models {
 		
 		protected var _logoutSignal:Signal = new Signal();
 		
+		protected var _videoProfileManager:VideoProfileManager = new VideoProfileManager();
+		
+		public function get videoProfileManager():VideoProfileManager {
+			return _videoProfileManager;
+		}
+		
+		public function set videoProfileManager(value:VideoProfileManager):void {
+			_videoProfileManager = value;
+		}
+		
 		public function get userList():UserList {
 			return _userList;
+		}
+		
+		public function get phoneAutoJoin():Boolean {
+			return _phoneAutoJoin;
+		}
+		
+		public function set phoneAutoJoin(value:Boolean):void {
+			_phoneAutoJoin = value;
+		}
+		
+		public function get phoneSkipCheck():Boolean {
+			return _phoneSkipCheck;
+		}
+		
+		public function set phoneSkipCheck(value:Boolean):void {
+			_phoneSkipCheck = value;
+		}
+		
+		public function get videoAutoStart():Boolean {
+			return _videoAutoStart;
+		}
+		
+		public function set videoAutoStart(value:Boolean):void {
+			_videoAutoStart = value;
+		}
+		
+		public function get skipCamSettingsCheck():Boolean {
+			return _skipCamSettingsCheck;
+		}
+		
+		public function set skipCamSettingsCheck(value:Boolean):void {
+			_skipCamSettingsCheck = value;
 		}
 		
 		public function get config():Config {
@@ -86,6 +139,10 @@ package org.bigbluebutton.lib.main.models {
 			_voiceStreamManager = value;
 		}
 		
+		public function get lockSettings():LockSettings {
+			return _lockSettings
+		}
+		
 		public function get videoConnection():IVideoConnection {
 			return _videoConnection;
 		}
@@ -105,6 +162,7 @@ package org.bigbluebutton.lib.main.models {
 		public function UserSession() {
 			_userList = new UserList();
 			_presentationList = new PresentationList();
+			_lockSettings = new LockSettings();
 		}
 		
 		public function get presentationList():PresentationList {

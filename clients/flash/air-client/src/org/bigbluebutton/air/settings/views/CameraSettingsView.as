@@ -1,7 +1,12 @@
 package org.bigbluebutton.air.settings.views {
 	
 	import spark.components.Button;
+	import spark.components.Group;
+	import spark.components.Label;
+	import spark.components.List;
 	import spark.components.RadioButtonGroup;
+	import spark.components.Scroller;
+	import spark.components.VideoDisplay;
 	
 	public class CameraSettingsView extends CameraSettingsViewBase implements ICameraSettingsView {
 		override protected function childrenCreated():void {
@@ -19,22 +24,28 @@ package org.bigbluebutton.air.settings.views {
 			return swapCameraBtn0;
 		}
 		
-		public function get cameraQualityRadioGroup():RadioButtonGroup {
-			return cameraQualityTypeRadioButtonGroup;
+		public function get cameraProfilesList():List {
+			return cameraprofileslist;
 		}
 		
-		public function setCameraQuality(value:int):void {
-			switch (value) {
-				case 0:
-					cameraQualityTypeRadioButtonGroup.selectedValue = "low";
-					break;
-				case 1:
-					cameraQualityTypeRadioButtonGroup.selectedValue = "medium";
-					break;
-				case 2:
-					cameraQualityTypeRadioButtonGroup.selectedValue = "high";
-					break;
-			}
+		public function get previewVideo():VideoDisplay {
+			return previewvideo;
+		}
+		
+		public function get videoGroup():Group {
+			return videoGroup0;
+		}
+		
+		public function get settingsGroup():Group {
+			return settingsGroup0;
+		}
+		
+		public function get noVideoMessage():Label {
+			return noVideoMessage0;
+		}
+		
+		public function get cameraSettingsScroller():Scroller {
+			return cameraSettingsScroller0;
 		}
 	}
 }

@@ -5,6 +5,7 @@ package org.bigbluebutton.air.common.views {
 	import flash.media.Video;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+
 	import spark.components.Group;
 	
 	public class VideoView extends Group {
@@ -170,8 +171,8 @@ package org.bigbluebutton.air.common.views {
 		}
 		
 		public function close():void {
-			if (video && this.stage.contains(video)) {
-				this.stage.removeChild(video);
+			if (video && video.parent) {
+				video.parent.removeChild(video);
 				video = null;
 			}
 			if (ns) {

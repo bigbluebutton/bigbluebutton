@@ -2,8 +2,12 @@ package org.bigbluebutton.lib.main.services {
 	
 	import flash.net.URLRequest;
 	
+	import mx.utils.ObjectUtil;
+	
 	import org.bigbluebutton.lib.common.utils.URLParser;
 	import org.bigbluebutton.lib.main.models.Config;
+	import org.bigbluebutton.lib.video.models.VideoProfileManager;
+	import org.bigbluebutton.lib.video.services.ProfilesService;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -14,7 +18,13 @@ package org.bigbluebutton.lib.main.services {
 		
 		protected var _getConfigSuccessSignal:Signal = new Signal();
 		
+		protected var _getProfilesSuccessSignal:Signal = new Signal();
+		
+		protected var _successGetProfilesSignal:Signal = new Signal();
+		
 		protected var _loginFailureSignal:Signal = new Signal();
+		
+		protected var _config:Config;
 		
 		public function get loginSuccessSignal():ISignal {
 			return _loginSuccessSignal;
@@ -26,6 +36,10 @@ package org.bigbluebutton.lib.main.services {
 		
 		public function get getConfigSuccessSignal():ISignal {
 			return _getConfigSuccessSignal;
+		}
+		
+		public function get getProfilesSuccessSignal():ISignal {
+			return _getProfilesSuccessSignal;
 		}
 		
 		protected function fail(reason:String):void {
@@ -42,18 +56,41 @@ package org.bigbluebutton.lib.main.services {
 			configSubservice.getConfig(getServerUrl(url), _urlRequest);
 		}
 		
+		protected function dispatchVideoProfileManager(manager:VideoProfileManager):void {
+			getProfilesSuccessSignal.dispatch(manager);
+			var enterSubservice:EnterService = new EnterService();
+			enterSubservice.successSignal.add(afterEnter);
+			enterSubservice.failureSignal.add(fail);
+			enterSubservice.enter(_config.application.host, _urlRequest);
+		}
+		
+		
+		protected function onProfilesResponse(xml:XML):void{
+			trace("success video profile");
+			var prof:VideoProfileManager = new VideoProfileManager();
+			prof.parseProfilesXml(xml);
+			dispatchVideoProfileManager(prof);
+		}
+		
+		protected function failedLoadingProfiles(reason:String):void {
+			trace("failed video profile: " + reason);
+			var prof:VideoProfileManager = new VideoProfileManager();
+			prof.parseConfigXml(_config.getConfigFor("VideoconfModule"));
+			dispatchVideoProfileManager(prof);
+		}
+		
 		protected function getServerUrl(url:String):String {
 			var parser:URLParser = new URLParser(url);
 			return parser.protocol + "://" + parser.host + ":" + parser.port;
 		}
 		
 		protected function afterConfig(xml:XML):void {
-			var config:Config = new Config(xml);
-			getConfigSuccessSignal.dispatch(config);
-			var enterSubservice:EnterService = new EnterService();
-			enterSubservice.successSignal.add(afterEnter);
-			enterSubservice.failureSignal.add(fail);
-			enterSubservice.enter(config.application.host, _urlRequest);
+			_config = new Config(xml);
+			getConfigSuccessSignal.dispatch(_config);
+			var profilesService:ProfilesService = new ProfilesService();
+			profilesService.successSignal.add(onProfilesResponse);
+			profilesService.unsuccessSignal.add(failedLoadingProfiles);
+			profilesService.getProfiles(getServerUrl(_config.application.host), _urlRequest);
 		}
 		
 		protected function afterEnter(result:Object):void {
