@@ -83,9 +83,18 @@ package org.bigbluebutton.modules.deskshare.managers
 			service.disconnect();
 		}
 
+		/*presenter stopped their program stream*/
 		public function handleStreamStoppedEvent():void {
 			LOGGER.debug("DeskshareManager::handleStreamStoppedEvent Sending deskshare stopped command");
+			JSLog.warn("WebRTCDeskshareManager::handleStreamStoppedEvent", {});
 			stopWebRTCDeskshare();
+		}
+
+		/*viewer being told there is no more stream*/
+		public function handleStreamStopEvent(args:Object):void {
+			LOGGER.debug("WebRTCDeskshareManager::handleStreamStopEvent");
+			JSLog.warn("WebRTCDeskshareManager::handleStreamStopEvent", {});
+			viewWindowManager.handleViewWindowCloseEvent();
 		}
 
 		private function stopWebRTCDeskshare():void {
@@ -114,7 +123,11 @@ package org.bigbluebutton.modules.deskshare.managers
 				// register these callbacks
 				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
 				ExternalInterface.addCallback("onSuccess", onSuccess);
-				var onFail:Function = function(args:Object):void { JSLog.warn("onFail - as", args); globalDispatcher.dispatchEvent(new UseJavaModeCommand()) };
+				var onFail:Function = function(args:Object):void {
+					JSLog.warn("onFail - as", args);
+					JSLog.warn("WebRTCDeskshareManager::startWebRTCDeskshare - falling back to java", {});
+					globalDispatcher.dispatchEvent(new UseJavaModeCommand())
+				};
 				ExternalInterface.addCallback("onFail", onFail);
 				var vertoServerCredentials:Object = getFreeswitchServerCredentials();
 				JSLog.warn("calling startScreenshare", {});
@@ -193,11 +206,13 @@ package org.bigbluebutton.modules.deskshare.managers
 
 		/*handle start sharing event*/
 		public function handleStartSharingEvent(autoStart:Boolean):void {
-			LOGGER.debug("DeskshareManager::handleStartSharingEvent");
+			LOGGER.debug("WebRTCDeskshareManager::handleStartSharingEvent");
+			JSLog.warn("WebRTCDeskshareManager::handleStartSharingEvent", {});
 			var onFailure:Function = function(message:String):void {
 				JSLog.warn(message, {});
 				usingWebRTC = false;
 				// send out event to fallback to Java
+				JSLog.warn("WebRTCDeskshareManager::handleStartSharingEvent - falling back to java", {});
 				globalDispatcher.dispatchEvent(new UseJavaModeCommand());
 				return;
 			};
@@ -221,6 +236,7 @@ package org.bigbluebutton.modules.deskshare.managers
 
 		public function handleViewWindowCloseEvent():void {
 			LOGGER.debug("Received stop viewing command");
+			JSLog.warn("WebRTCDeskshareManager::handleViewWindowCloseEvent", {});
 			viewWindowManager.handleViewWindowCloseEvent();
 		}
 
