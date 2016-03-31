@@ -1,6 +1,6 @@
 type = 'swc'
 
-srcDirs = ['/src']
+srcDirs = ['src']
 
 additionalCompilerOptions = [
     "-target-player=11.2"
