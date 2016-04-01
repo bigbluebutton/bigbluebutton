@@ -32,6 +32,10 @@ package org.bigbluebutton.modules.deskshare.model
 		public var publishURI:String;
 		[Bindable] public var useWebRTCIfAvailable:Boolean = true;
 		[Bindable] public var chromeExtensionKey:String = null;
+		[Bindable] public var vertoPort:String = null;
+		[Bindable] public var hostName:String = null;
+		[Bindable] public var login:String = null;
+		[Bindable] public var password:String = null;
 
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("DeskShareModule");
@@ -67,6 +71,18 @@ package org.bigbluebutton.modules.deskshare.model
 				}
 				if (vxml.@chromeExtensionKey != undefined) {
 					chromeExtensionKey = vxml.@chromeExtensionKey.toString();
+				}
+				if (vxml.@vertoPort != undefined) {
+					vertoPort = vxml.@vertoPort.toString();
+				}
+				if (vxml.@hostName != undefined) {
+					hostName = vxml.@hostName.toString();
+				}
+				if (vxml.@login != undefined) {
+					login = vxml.@login.toString();
+				}
+				if (vxml.@password != undefined) {
+					password = vxml.@password.toString();
 				}
 			}
 		}

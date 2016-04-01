@@ -52,6 +52,10 @@
 			baseTabIndex="201"
 			useWebRTCIfAvailable="true"
 			chromeExtensionKey=""
+			vertoPort="PORT"
+			hostName="HOST.NAME"
+			login="LOGIN"
+			password="PASSWORD"
 		/>
 
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION"

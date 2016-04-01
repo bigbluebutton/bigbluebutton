@@ -48,21 +48,13 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var sharing:Boolean = false;
 		private var usingWebRTC:Boolean = false;
 		private var chromeExtensionKey:String = null;
+		private var vertoServerCredentials:Object = new Object();
 
 		public function WebRTCDeskshareManager() {
 			service = new WebRTCDeskshareService();
 			globalDispatcher = new Dispatcher();
 			publishWindowManager = new WebRTCPublishWindowManager(service);
 			viewWindowManager = new WebRTCViewerWindowManager(service);
-		}
-
-		private function getFreeswitchServerCredentials():Object {
-			var credentials:Object = new Object();
-			credentials.vertoPort = "PORT";
-			credentials.hostName = "HOST.NAME";
-			credentials.login = "LOGIN";
-			credentials.password = "PASSWORD";
-			return credentials;
 		}
 
 		public function handleStartModuleEvent(module:DeskShareModule):void {
@@ -132,7 +124,6 @@ package org.bigbluebutton.modules.deskshare.managers
 					globalDispatcher.dispatchEvent(new UseJavaModeCommand())
 				};
 				ExternalInterface.addCallback("onFail", onFail);
-				var vertoServerCredentials:Object = getFreeswitchServerCredentials();
 				JSLog.warn("calling startScreenshare", {});
 				result = ExternalInterface.call("startScreenshare", "loggingCallback", videoTag, vertoServerCredentials, chromeExtensionKey, modifyResolution, "onSuccess", "onFail");
 			}
@@ -145,7 +136,18 @@ package org.bigbluebutton.modules.deskshare.managers
 			if (options.chromeExtensionKey) {
 				chromeExtensionKey = options.chromeExtensionKey;
 			}
-
+			if (options.vertoPort) {
+				vertoServerCredentials.vertoPort = options.vertoPort;
+			}
+			if (options.hostName) {
+				vertoServerCredentials.hostName = options.hostName;
+			}
+			if (options.login) {
+				vertoServerCredentials.login = options.login;
+			}
+			if (options.password) {
+				vertoServerCredentials.password = options.password;
+			}
 			if (options.autoStart) {
 				handleStartSharingEvent(true);
 			}
