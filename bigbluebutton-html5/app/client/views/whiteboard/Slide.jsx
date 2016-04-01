@@ -49,30 +49,61 @@ this.scaleSlide = function(originalWidth, originalHeight) {
 Slide = React.createClass({
   mixins: [ReactMeteorData],
   getMeteorData() {
-    let currentSlide, shapes;
+    let currentSlide, shapes, pointer;
     currentSlide = BBB.getCurrentSlide();
 
-    // try to reuse the lines above
     if(currentSlide != null) {
       shapes = Meteor.Shapes.find({
         whiteboardId: currentSlide.slide.id
       }).fetch();
     }
     
+    pointer = Meteor.Cursor.findOne();
+    pointer.x = (-currentSlide.slide.x_offset * 2 + currentSlide.slide.width_ratio * pointer.x) / 100;
+    pointer.y = (-currentSlide.slide.y_offset * 2 + currentSlide.slide.height_ratio * pointer.y) / 100;
+
     return {
       current_slide: currentSlide,
-      shapes: shapes
+      shapes: shapes,
+      pointer: pointer
     };
   },
+
   componentDidMount: function() {
+    console.log('componentDidMount');
     this.reactOnSlideChange();
+  },
+
+  shouldComponentUpdate: function() {
+    console.log('shouldComponentUpdate');
+  },
+
+  componentWillUpdate: function() {
+    if(typeof this.whiteboardPaperModel !== "undefined" && this.whiteboardPaperModel !== null) {
+      wpm = this.whiteboardPaperModel;
+      wpm.clearShapes();
+      //this.manuallyDisplayShapes();
+    }
+    console.log('componentWillUpdate');
+  },
+
+  componentDidUpdate: function() {
+    console.log('componentDidUpdate');
+    if(this.data.shapes){
+      this.data.shapes.map((shape) =>
+      this.renderShape(shape));
+    }
+    this.reactOnSlideChange();
+  },
+
+  componentWillUnmount: function() {
+    console.log('componentWillUnmount');
   },
 
   createWhiteboardPaper: function(callback) {
     this.whiteboardPaperModel = new Meteor.WhiteboardPaperModel('whiteboard-paper');
     return callback(this.whiteboardPaperModel);
   },
-
 
   displaySlide: function(wpm) {
     let adjustedDimensions, currentSlide, ref;
@@ -87,7 +118,6 @@ Slide = React.createClass({
     this.manuallyDisplayShapes();
     return wpm.scale(adjustedDimensions.width, adjustedDimensions.height);
   },
-
 
   manuallyDisplayShapes: function() {
     let currentSlide, i, j, len, len1, num, ref, ref1, ref2, results, s, shapeInfo, shapeType, shapes, wpm;
@@ -124,7 +154,7 @@ Slide = React.createClass({
   },
 
   reactOnSlideChange: function() {
-  	var _this = this;
+    var _this = this;
     var currentSlide, pic, ref;
     currentSlide = BBB.getCurrentSlide("slide.rendered");
     pic = new Image();
@@ -148,7 +178,9 @@ Slide = React.createClass({
   },
 
   updatePointerLocation(pointer) {
-    return typeof whiteboardPaperModel !== "undefined" && whiteboardPaperModel !== null ? whiteboardPaperModel.moveCursor(pointer.x, pointer.y) : void 0;
+    if(typeof this.whiteboardPaperModel !== "undefined" && this.whiteboardPaperModel !== null) {
+      this.whiteboardPaperModel.moveCursor(pointer.x, pointer.y);
+    }
   },
   
   renderShape(data) {
@@ -156,17 +188,13 @@ Slide = React.createClass({
     // @data is the shape object coming from the {{#each}} in the html file
     shapeInfo = ((ref = data.shape) != null ? ref.shape : void 0) || data.shape;
     shapeType = shapeInfo != null ? shapeInfo.type : void 0;
-    console.log(shapeInfo);
-    console.log(shapeType);
     if(shapeType !== "text") {
       len = shapeInfo.points.length;
       for (num = i = 0, ref1 = len; 0 <= ref1 ? i <= ref1 : i >= ref1; num = 0 <= ref1 ? ++i : --i) { // the coordinates must be in the range 0 to 1
         shapeInfo.points[num] = shapeInfo.points[num] / 100;
       }
     }
-    console.log(this.whiteboardPaperModel);
     if(typeof this.whiteboardPaperModel !== "undefined" && this.whiteboardPaperModel !== null) {
-      console.log('hey');
       wpm = this.whiteboardPaperModel;
       if(wpm != null) {
         wpm.makeShape(shapeType, shapeInfo);
@@ -176,11 +204,8 @@ Slide = React.createClass({
   },
 
   render() {
-  	return (
-  	  <div id="whiteboard-paper">
-  	  {this.data.shapes.map((shape) =>
-        this.renderShape(shape)
-  	  	)}
+    return (
+      <div id="whiteboard-paper">
       </div>
     );
   }
