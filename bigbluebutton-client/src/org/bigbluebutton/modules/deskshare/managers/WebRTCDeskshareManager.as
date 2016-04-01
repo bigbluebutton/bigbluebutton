@@ -54,7 +54,6 @@ package org.bigbluebutton.modules.deskshare.managers
 			globalDispatcher = new Dispatcher();
 			publishWindowManager = new WebRTCPublishWindowManager(service);
 			viewWindowManager = new WebRTCViewerWindowManager(service);
-			/*toolbarButtonManager = new ToolbarButtonManager();*/
 		}
 
 		private function getFreeswitchServerCredentials():Object {
@@ -150,9 +149,6 @@ package org.bigbluebutton.modules.deskshare.managers
 			if (options.autoStart) {
 				handleStartSharingEvent(true);
 			}
-			if(options.showButton){
-				/*toolbarButtonManager.addToolbarButton();*/
-			}
 		}
 
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
@@ -162,7 +158,6 @@ package org.bigbluebutton.modules.deskshare.managers
 
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
 			LOGGER.debug("Got MadeViewerEvent ");
-			/*toolbarButtonManager.removeToolbarButton();*/
 			if (sharing) {
 				publishWindowManager.stopSharing();
 				stopWebRTCDeskshare();
@@ -231,11 +226,9 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 
 		public function handleShareWindowCloseEvent():void {
-			//toolbarButtonManager.enableToolbarButton();
 			publishWindowManager.handleShareWindowCloseEvent();
 			sharing = false;
 			stopWebRTCDeskshare();
-			/*toolbarButtonManager.stopedSharing();*/
 		}
 
 		public function handleViewWindowCloseEvent():void {
