@@ -41,7 +41,9 @@ Meteor.startup(() => {
             return "";
           }
         };
-        Meteor.log.info(`in callback after handleRedisMessage ${eventName}. ${lengthString()}`);
+        // Uncomment for DEVELOPMENT purposes only
+        // Otherwise dynamic shapes' updates will slow down significantly
+        //Meteor.log.info(`in callback after handleRedisMessage ${eventName}. ${lengthString()}`);
         return next();
       });
     }
@@ -97,9 +99,13 @@ Meteor.startup(() => {
       callback();
     }
     if(eventName, indexOf.call(notLoggedEventTypes, eventName) < 0) {
+      // Uncomment for DEVELOPMENT purposes only
+      // Otherwise dynamic shapes' updates will slow down significantly
+      /*
       Meteor.log.info(`redis incoming message  ${eventName}  `, {
         message: data.jsonMsg
       });
+      */
     }
 
     // we currently disregard the pattern and channel
