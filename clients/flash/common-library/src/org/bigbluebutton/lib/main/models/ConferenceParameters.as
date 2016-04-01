@@ -1,6 +1,7 @@
 package org.bigbluebutton.lib.main.models {
 	
 	import flash.net.NetConnection;
+	
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -79,6 +80,8 @@ package org.bigbluebutton.lib.main.models {
 		private var _record:Boolean;
 		
 		private var _authToken:String;
+		
+		private var _avatarUrl:String;
 		
 		public function ConferenceParameters() {
 		}
@@ -234,6 +237,14 @@ package org.bigbluebutton.lib.main.models {
 			_authToken = authToken;
 		}
 		
+		public function get avatarUrl():String {
+			return _avatarUrl;
+		}
+		
+		public function set avatarUrl(value:String):void {
+			_avatarUrl = value;
+		}
+		
 		public function load(obj:Object):void {
 			_meetingName = obj.conferenceName;
 			_externMeetingID = obj.externMeetingID;
@@ -250,6 +261,7 @@ package org.bigbluebutton.lib.main.models {
 			_logoutUrl = obj.logoutUrl;
 			_record = !(obj.record == "false");
 			_authToken = obj.authToken;
+			_avatarUrl = obj.avatarURL;
 			_changedSignal.dispatch();
 		}
 	}

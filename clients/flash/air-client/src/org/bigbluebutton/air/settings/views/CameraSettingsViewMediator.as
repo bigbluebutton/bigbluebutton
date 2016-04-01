@@ -122,15 +122,12 @@ package org.bigbluebutton.air.settings.views {
 		}
 		
 		protected function onCameraQualitySelected(event:IndexChangeEvent):void {
-			trace("++ hi!");
 			if (event.newIndex >= 0) {
 				var profile:VideoProfile = dataProvider.getItemAt(event.newIndex) as VideoProfile;
 				if (userSession.userList.me.hasStream) {
 					changeQualitySignal.dispatch(profile);
-					trace("++ dispatched signal " + profile)
 				} else {
 					userSession.videoConnection.selectedCameraQuality = profile;
-					trace("++ selected profile " + profile)
 				}
 				saveData.save("cameraQuality", userSession.videoConnection.selectedCameraQuality.id);
 				displayPreviewCamera();
