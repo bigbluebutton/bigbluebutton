@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	import org.bigbluebutton.modules.deskshare.events.UseJavaModeCommand;
 	import org.bigbluebutton.modules.deskshare.events.WebRTCViewStreamEvent;
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
+	import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
 	import org.bigbluebutton.modules.deskshare.services.WebRTCDeskshareService;
 	import org.bigbluebutton.modules.deskshare.utils.BrowserCheck;
 	import org.bigbluebutton.main.api.JSLog;
@@ -100,6 +101,9 @@ package org.bigbluebutton.modules.deskshare.managers
 		private function stopWebRTCDeskshare():void {
 			LOGGER.debug("DeskshareManager::stopWebRTCDeskshare");
 			viewWindowManager.stopViewing();
+			/* stopping WebRTC deskshare. Alert DeskshareManager to reset toolbar */
+			globalDispatcher.dispatchEvent(new ShareWindowEvent(ShareWindowEvent.CLOSE));
+
 			if (ExternalInterface.available) {
 				var loggingCallback:Function = function(args:Object):void {LOGGER.debug(args); JSLog.warn("loggingCallback", args)};
 				var onSuccess:Function = function():void { LOGGER.debug("onSuccess"); JSLog.warn("onSuccess - as", {})};
