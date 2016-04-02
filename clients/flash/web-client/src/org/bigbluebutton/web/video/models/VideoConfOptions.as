@@ -146,7 +146,6 @@ package org.bigbluebutton.web.video.models {
 				} else {
 					baseTabIndex = 101;
 				}
-				
 				if (vxml.@displayAvatar != undefined) {
 					displayAvatar = (vxml.@displayAvatar.toString().toUpperCase() == "TRUE") ? true : false;
 				}

@@ -265,7 +265,18 @@ package org.bigbluebutton.lib.user.models {
 			if (p) {
 				var user:User = p.participant as User;
 				user.hasStream = hasStream;
-				user.streamName = streamName;
+				if (hasStream) {
+					if (user.streamName && user.streamName != "") {
+						user.streamName += "|" + streamName;
+					} else {
+						user.streamName = streamName;
+					}
+				} else {
+					user.streamName = user.streamName.replace("|" + streamName, "");
+					user.streamName = user.streamName.replace(streamName + "|", "");
+					user.streamName = user.streamName.replace(streamName, "");
+				}
+				
 				userChangeSignal.dispatch(user, HAS_STREAM);
 			}
 		}

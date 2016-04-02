@@ -6,9 +6,13 @@ package org.bigbluebutton.lib.user.services {
 		public var userSession:IUserSession;
 		
 		// The default callbacks of userSession.mainconnection.sendMessage
-		private var defaultSuccessResponse:Function = function(result:String):void {trace(result);};
+		private var defaultSuccessResponse:Function = function(result:String):void {
+			trace(result);
+		};
 		
-		private var defaultFailureResponse:Function = function(status:String):void {trace(status);};
+		private var defaultFailureResponse:Function = function(status:String):void {
+			trace(status);
+		};
 		
 		public function UsersMessageSender() {
 		}
@@ -27,8 +31,7 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
-			trace("UsersMessageSender::assignPresenter() -- Sending [participants.assignPresenter] message to server with message " +
-				  "[newPresenterID:" + userid + ", newPresenterName:" + name + ", assignedBy:" + assignedBy + "]");
+			trace("UsersMessageSender::assignPresenter() -- Sending [participants.assignPresenter] message to server with message " + "[newPresenterID:" + userid + ", newPresenterName:" + name + ", assignedBy:" + assignedBy + "]");
 			var message:Object = new Object();
 			message["newPresenterID"] = userid;
 			message["newPresenterName"] = name;
@@ -56,7 +59,7 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function removeStream(userID:String, streamName:String):void {
 			trace("UsersMessageSender::removeStream() -- Sending [participants.unshareWebcam] message to server");
-			userSession.mainConnection.sendMessage("participants.unshareWebcam", defaultSuccessResponse, defaultFailureResponse);
+			userSession.mainConnection.sendMessage("participants.unshareWebcam", defaultSuccessResponse, defaultFailureResponse, streamName);
 		}
 		
 		public function queryForRecordingStatus():void {

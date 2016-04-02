@@ -8,6 +8,7 @@ package org.bigbluebutton.web.main.commands {
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.services.ILoginService;
+	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
@@ -37,8 +38,13 @@ package org.bigbluebutton.web.main.commands {
 			
 			loginService.loginSuccessSignal.add(loginSuccess);
 			loginService.getConfigSuccessSignal.add(configSuccess);
+			loginService.getProfilesSuccessSignal.add(profilesSuccess);
 			loginService.loginFailureSignal.add(loginFailure);
 			loginService.login(urlRequest, url);
+		}
+		
+		protected function profilesSuccess(profiles:VideoProfileManager):void {
+			userSession.videoProfileManager = profiles;
 		}
 		
 		protected function loginSuccess(userObject:Object):void {

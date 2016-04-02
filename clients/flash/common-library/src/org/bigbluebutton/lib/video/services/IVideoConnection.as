@@ -20,7 +20,9 @@ package org.bigbluebutton.lib.video.services {
 		function set selectedCameraQuality(profile:VideoProfile):void
 		function connect():void
 		function startPublishing(camera:Camera, streamName:String):void
-		function stopPublishing():void
+		function getStreamNameForCamera(camera:Camera):String;
+		function stopPublishing(camera:Camera):void
+		function stopAllPublishing():void;
 		function selectCameraQuality(profile:VideoProfile):void
 	}
 }

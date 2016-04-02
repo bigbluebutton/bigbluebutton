@@ -54,6 +54,7 @@ package org.bigbluebutton.air.main.views {
 		 * User pressed log out button
 		 */
 		public function logoutClick(event:MouseEvent):void {
+			userSession.logoutSignal.dispatch();
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_USER_LOGGED_OUT);
 		}
 		

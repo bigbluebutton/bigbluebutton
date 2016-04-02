@@ -157,7 +157,7 @@ package org.bigbluebutton.lib.user.services {
 		private function handleUserUnsharedWebcam(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace(LOG + "handleUserUnsharedWebcam() -- user [" + msg.userId + "] has unshared their webcam");
-			userSession.userList.userStreamChange(msg.userId, false, "");
+			userSession.userList.userStreamChange(msg.userId, false, msg.webcamStream);
 		}
 		
 		private function handleUserListeningOnly(m:Object):void {

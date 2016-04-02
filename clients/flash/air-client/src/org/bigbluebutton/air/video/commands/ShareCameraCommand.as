@@ -35,7 +35,7 @@ package org.bigbluebutton.air.video.commands {
 			var d:Date = new Date();
 			var curTime:Number = d.getTime();
 			var uid:String = userSession.userId;
-			if(userSession.videoProfileManager == null){
+			if (userSession.videoProfileManager == null) {
 				trace("null video profile manager");
 			}
 			var videoProfile:VideoProfile = userSession.videoConnection.selectedCameraQuality;
@@ -101,7 +101,7 @@ package org.bigbluebutton.air.video.commands {
 		
 		private function disableCamera():void {
 			usersService.removeStream(userSession.userId, "");
-			userSession.videoConnection.stopPublishing();
+			userSession.videoConnection.stopPublishing(setupCamera(position));
 		}
 	}
 }

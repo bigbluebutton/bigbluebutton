@@ -1,5 +1,12 @@
 package org.bigbluebutton.lib.video.models {
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	
+	import mx.core.FlexGlobals;
+	import mx.utils.ObjectUtil;
+	import mx.utils.URLUtil;
 	
 	public class VideoProfileManager extends EventDispatcher {
 		public static const PROFILES_XML:String = "client/conf/profiles.xml";
@@ -56,13 +63,10 @@ package org.bigbluebutton.lib.video.models {
 		}
 		
 		public function getVideoProfileByStreamName(streamName:String):VideoProfile {
-			trace("stream name: " + streamName);
 			var pattern:RegExp = new RegExp("([a-z0-9]+)-([A-Za-z0-9_]+)-\\d+", "");
 			if (pattern.test(streamName)) {
-				trace("good profiel " + profiles);
 				var profileID:String = pattern.exec(streamName)[1]
 				for each (var profile:VideoProfile in _profiles) {
-					trace("another profile, is it me?");
 					if (profile.id == profileID) {
 						return profile;
 					}
@@ -82,7 +86,7 @@ package org.bigbluebutton.lib.video.models {
 			if (_profiles.length > 0) {
 				return _profiles[0];
 			} else {
-				return null;
+				return fallbackVideoProfile;
 			}
 		}
 		

@@ -8,6 +8,7 @@ package org.bigbluebutton.lib.main.commands {
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.video.services.IVideoConnection;
+	import org.bigbluebutton.lib.voice.models.PhoneOptions;
 	import org.bigbluebutton.lib.voice.services.IVoiceConnection;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -52,6 +53,7 @@ package org.bigbluebutton.lib.main.commands {
 		public var connectingFailedSignal:ConnectingFailedSignal;
 		
 		override public function execute():void {
+			userSession.phoneOptions = new PhoneOptions(userSession.config.getConfigFor("PhoneModule"));
 			connection.uri = uri;
 			connection.connectionSuccessSignal.add(successConnected);
 			connection.connectionFailureSignal.add(unsuccessConnected);

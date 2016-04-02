@@ -11,6 +11,8 @@ package org.bigbluebutton.web.main {
 	import org.bigbluebutton.web.main.models.UISession;
 	import org.bigbluebutton.web.main.views.LoadingScreen;
 	import org.bigbluebutton.web.main.views.LoadingScreenMediator;
+	import org.bigbluebutton.web.toolbar.webcambutton.commands.ShareCameraCommandWeb;
+	import org.bigbluebutton.web.toolbar.webcambutton.commands.ShareCameraSignal;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -18,6 +20,7 @@ package org.bigbluebutton.web.main {
 	import robotlegs.bender.framework.api.IInjector;
 	
 	public class MainConfig implements IConfig {
+		
 		[Inject]
 		public var injector:IInjector;
 		
@@ -55,6 +58,7 @@ package org.bigbluebutton.web.main {
 		private function signals():void {
 			signalCommandMap.map(JoinMeetingSignal).toCommand(JoinMeetingCommandWeb);
 			signalCommandMap.map(AuthenticationSignal).toCommand(AuthenticationCommandWeb);
+			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommandWeb);
 			signalCommandMap.map(ConnectingFinishedSignal).toCommand(ConnectingFinishedCommandWeb);
 			signalCommandMap.map(ConnectingFailedSignal).toCommand(ConnectingFailedCommandWeb);
 		}

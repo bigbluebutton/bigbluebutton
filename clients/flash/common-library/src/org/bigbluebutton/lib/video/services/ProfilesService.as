@@ -1,4 +1,8 @@
 package org.bigbluebutton.lib.video.services {
+	import flash.events.Event;
+	import flash.events.HTTPStatusEvent;
+	import flash.events.IOErrorEvent;
+	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
 	import org.bigbluebutton.lib.common.utils.URLFetcher;
