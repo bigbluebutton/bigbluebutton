@@ -56,11 +56,11 @@ Slide = React.createClass({
       shapes = Meteor.Shapes.find({
         whiteboardId: currentSlide.slide.id
       }).fetch();
+
+      pointer = Meteor.Cursor.findOne();
+      pointer.x = (-currentSlide.slide.x_offset * 2 + currentSlide.slide.width_ratio * pointer.x) / 100;
+      pointer.y = (-currentSlide.slide.y_offset * 2 + currentSlide.slide.height_ratio * pointer.y) / 100;
     }
-    
-    pointer = Meteor.Cursor.findOne();
-    pointer.x = (-currentSlide.slide.x_offset * 2 + currentSlide.slide.width_ratio * pointer.x) / 100;
-    pointer.y = (-currentSlide.slide.y_offset * 2 + currentSlide.slide.height_ratio * pointer.y) / 100;
 
     return {
       current_slide: currentSlide,
