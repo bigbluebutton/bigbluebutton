@@ -7,6 +7,7 @@ import org.bigbluebutton.red5.client.PresentationClientMessageSender;
 import org.bigbluebutton.red5.client.UserClientMessageSender;
 import org.bigbluebutton.red5.client.ChatClientMessageSender;
 import org.bigbluebutton.red5.client.WhiteboardClientMessageSender;
+import org.bigbluebutton.red5.client.CaptionClientMessageSender;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.monitoring.BbbAppsIsKeepAliveHandler;
 
@@ -20,6 +21,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 	private WhiteboardClientMessageSender whiteboardMessageSender;
 	private BbbAppsIsKeepAliveHandler bbbAppsIsKeepAliveHandler;
 	private PollingClientMessageSender pollingMessageSender;
+	private CaptionClientMessageSender captionMessageSender;
 	
 	public void setConnectionInvokerService(ConnectionInvokerService s) {
 		this.service = s;
@@ -29,6 +31,7 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 		presentationMessageSender = new PresentationClientMessageSender(service);
 		whiteboardMessageSender = new WhiteboardClientMessageSender(service);
 		pollingMessageSender = new PollingClientMessageSender(service);
+		captionMessageSender = new CaptionClientMessageSender(service);
 	}
 	
 	public void setBbbAppsIsKeepAliveHandler(BbbAppsIsKeepAliveHandler handler) {
@@ -51,6 +54,8 @@ public class RedisPubSubMessageHandler implements MessageHandler {
 			bbbAppsIsKeepAliveHandler.handleKeepAliveMessage(message);
 		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_POLLING_CHANNEL)) {
 			pollingMessageSender.handlePollMessage(message);
+		} else if (channel.equalsIgnoreCase(MessagingConstants.FROM_CAPTION_CHANNEL)) {
+			captionMessageSender.handleCaptionMessage(message);
 		}
 	}
 

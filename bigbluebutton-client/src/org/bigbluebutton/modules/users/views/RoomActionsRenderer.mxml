@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 verticalScrollPolicy="off"
+		 horizontalScrollPolicy="off"
+		 verticalAlign="middle">
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.events.BreakoutRoomEvent;
+			import org.bigbluebutton.main.model.users.BreakoutRoom;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var globalDispatch:Dispatcher = new Dispatcher();
+			
+			[Bindable]
+			private var images:Images = new Images();
+			
+			protected function listenToBreakoutRoom(event:MouseEvent):void {
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.LISTEN_IN);
+				e.breakoutId = data.breakoutId as String;
+				e.listen = listenBtn.selected;
+				globalDispatch.dispatchEvent(e);
+			}
+			
+			protected function requestBreakoutJoinUrl(event:MouseEvent):void {
+				var e:BreakoutRoomEvent = new BreakoutRoomEvent(BreakoutRoomEvent.REQUEST_BREAKOUT_JOIN_URL);
+				e.breakoutId = data.breakoutId as String;
+				globalDispatch.dispatchEvent(e);
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Button id="listenBtn" toggle="true"
+			   width="20" height="20"
+			   icon="{images.listen}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.listen')}"
+			   click="listenToBreakoutRoom(event)" visible="{data.listenStatus != BreakoutRoom.OTHER}"/>
+	<mx:Button id="joinImg" width="20" height="20"
+			   icon="{images.join}" toolTip="{ResourceUtil.getInstance().getString('bbb.users.roomsGrid.join')}"
+			   click="requestBreakoutJoinUrl(event)"/>
+</mx:HBox>

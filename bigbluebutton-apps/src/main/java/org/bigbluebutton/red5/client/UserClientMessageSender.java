@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import org.bigbluebutton.common.messages.BroadcastLayoutMessage;
 import org.bigbluebutton.common.messages.GetCurrentLayoutReplyMessage;
 import org.bigbluebutton.common.messages.GetRecordingStatusReplyMessage;
@@ -26,6 +27,12 @@ import org.bigbluebutton.common.messages.UserVoiceTalkingMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenReplyMessage;
 import org.bigbluebutton.common.messages.ValidateAuthTokenTimeoutMessage;
 import org.bigbluebutton.common.messages.UserEjectedFromMeetingMessage;
+import org.bigbluebutton.messages.BreakoutRoomClosed;
+import org.bigbluebutton.messages.BreakoutRoomJoinURL;
+import org.bigbluebutton.messages.BreakoutRoomStarted;
+import org.bigbluebutton.messages.BreakoutRoomsList;
+import org.bigbluebutton.messages.TimeRemainingUpdate;
+import org.bigbluebutton.messages.UpdateBreakoutUsers;
 import org.bigbluebutton.red5.client.messaging.BroadcastClientMessage;
 import org.bigbluebutton.red5.client.messaging.ConnectionInvokerService;
 import org.bigbluebutton.red5.client.messaging.DirectClientMessage;
@@ -48,11 +55,14 @@ public class UserClientMessageSender {
   public void handleUsersMessage(String message) {
     JsonParser parser = new JsonParser();
     JsonObject obj = (JsonObject) parser.parse(message);
-    
+
     if (obj.has("header") && obj.has("payload")) {
       JsonObject header = (JsonObject) obj.get("header");
 
       if (header.has("name")) {
+    	// Used for JSON unmarshalling
+      	Gson gson = new Gson();
+      	
         String messageName = header.get("name").getAsString();
         switch (messageName) {
           case ValidateAuthTokenReplyMessage.VALIDATE_AUTH_TOKEN_REPLY:
@@ -169,6 +179,42 @@ public class UserClientMessageSender {
           case UserEjectedFromMeetingMessage.USER_EJECTED_FROM_MEETING:
             processUserEjectedFromMeetingMessage(message);
             break;
+          case BreakoutRoomsList.NAME:
+        	BreakoutRoomsList brl = gson.fromJson(message, BreakoutRoomsList.class);
+            if (brl != null) {
+                processBreakoutRoomsList(brl);
+              }
+        	break;
+          case BreakoutRoomJoinURL.NAME:
+        	BreakoutRoomJoinURL brjum = gson.fromJson(message, BreakoutRoomJoinURL.class);
+            if (brjum != null) {
+              processBreakoutRoomJoinURL(brjum);
+            }
+        	break;
+          case TimeRemainingUpdate.NAME:
+        	TimeRemainingUpdate trum = gson.fromJson(message, TimeRemainingUpdate.class);
+            if (trum != null) {
+              processTimeRemainingUpdate(trum);
+            }
+        	break;
+          case UpdateBreakoutUsers.NAME:
+        	UpdateBreakoutUsers ubum = gson.fromJson(message, UpdateBreakoutUsers.class);
+        	if (ubum != null) {
+        	  processUpdateBreakoutUsers(ubum);
+            }
+        	break;
+          case BreakoutRoomStarted.NAME:
+        	BreakoutRoomStarted brsm = gson.fromJson(message, BreakoutRoomStarted.class);
+        	if (brsm != null) {
+                processBreakoutRoomStarted(brsm);
+              }
+        	break;
+          case BreakoutRoomClosed.NAME:
+        	BreakoutRoomClosed brcm = gson.fromJson(message, BreakoutRoomClosed.class);
+          	if (brcm != null) {
+                  processBreakoutRoomClosed(brcm);
+                }
+          	break;
         }
       }
     }
@@ -471,5 +517,87 @@ public class UserClientMessageSender {
 
     DirectClientMessage m = new DirectClientMessage(msg.meetingId, msg.requesterId, "getUsersReply", message);
     service.sendMessage(m);
+  }
+  
+  private void processBreakoutRoomsList(BreakoutRoomsList msg) {
+	  Map<String, Object> args = new HashMap<String, Object>();	
+	  args.put("meetingId", msg.payload.meetingId);
+	  args.put("rooms", msg.payload.rooms);
+	  
+	  Map<String, Object> message = new HashMap<String, Object>();
+      Gson gson = new Gson();
+      message.put("msg", gson.toJson(args));
+      
+      BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomsList", message);
+      service.sendMessage(m);
+  }
+  
+  private void processBreakoutRoomJoinURL(BreakoutRoomJoinURL msg) {
+	  Map<String, Object> args = new HashMap<String, Object>();	
+	  args.put("meetingId", msg.payload.meetingId);
+	  args.put("breakoutId", msg.payload.breakoutId);
+	  args.put("userId", msg.payload.userId);
+	  args.put("joinURL", msg.payload.joinURL);
+	  
+	  Map<String, Object> message = new HashMap<String, Object>();
+      Gson gson = new Gson();
+      message.put("msg", gson.toJson(args));
+      
+      DirectClientMessage m = new DirectClientMessage(msg.payload.meetingId, msg.payload.userId, "breakoutRoomJoinURL", message);
+      service.sendMessage(m);
+  }
+  
+  private void processTimeRemainingUpdate(TimeRemainingUpdate msg) {
+	  Map<String, Object> args = new HashMap<String, Object>();	
+	  args.put("meetingId", msg.payload.meetingId);
+	  args.put("timeRemaining", msg.payload.timeRemaining);
+	  
+	  Map<String, Object> message = new HashMap<String, Object>();
+	  Gson gson = new Gson();
+	  message.put("msg", gson.toJson(args));
+      
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "timeRemainingUpdate", message);
+      service.sendMessage(m);
+  }
+  
+  private void processUpdateBreakoutUsers(UpdateBreakoutUsers msg) {
+	  Map<String, Object> args = new HashMap<String, Object>();	
+	  args.put("meetingId", msg.payload.meetingId);
+	  args.put("breakoutId", msg.payload.breakoutId);
+	  args.put("users", msg.payload.users);
+	  
+	  Map<String, Object> message = new HashMap<String, Object>();
+	  Gson gson = new Gson();
+	  message.put("msg", gson.toJson(args));
+      
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "updateBreakoutUsers", message);
+      service.sendMessage(m);
+  }
+  
+  private void processBreakoutRoomStarted(BreakoutRoomStarted msg) {
+	  Map<String, Object> args = new HashMap<String, Object>();	
+	  args.put("breakoutId", msg.payload.breakoutId);
+	  args.put("meetingId", msg.payload.meetingId);
+	  args.put("name", msg.payload.name);
+	  
+	  Map<String, Object> message = new HashMap<String, Object>();
+	  Gson gson = new Gson();
+	  message.put("msg", gson.toJson(args));
+	  
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomStarted", message);
+      service.sendMessage(m);
+  }
+  
+  private void processBreakoutRoomClosed(BreakoutRoomClosed msg) {
+	  Map<String, Object> args = new HashMap<String, Object>();	
+	  args.put("breakoutId", msg.payload.breakoutId);
+	  args.put("meetingId", msg.payload.meetingId);
+	  
+	  Map<String, Object> message = new HashMap<String, Object>();
+	  Gson gson = new Gson();
+	  message.put("msg", gson.toJson(args));
+	  
+	  BroadcastClientMessage m = new BroadcastClientMessage(msg.payload.meetingId, "breakoutRoomClosed", message);
+      service.sendMessage(m);
   }
 }

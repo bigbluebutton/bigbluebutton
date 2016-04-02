@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Timer;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -18,7 +20,42 @@ public class PresentationUrlDownloadService {
 	private static Logger log = LoggerFactory.getLogger(PresentationUrlDownloadService.class);
 	
 	private final int maxRedirects = 5;
+	private DocumentConversionService documentConversionService;
+	private String presentationBaseURL;
+	private String presentationDir;
 	
+  public void processUploadedPresentation(UploadedPresentation uploadedPres) {
+    documentConversionService.processDocument(uploadedPres);
+  }
+  
+  public void processUploadedFile(String meetingId, String presId, String filename, File presFile) {
+    UploadedPresentation uploadedPres = new UploadedPresentation(meetingId, presId, filename, presentationBaseURL);
+    uploadedPres.setUploadedFile(presFile);
+    processUploadedPresentation(uploadedPres);
+  }
+  
+	public void downloadAndProcessDocument(String address, String meetingId) {
+	    log.debug("downloadAndProcessDocument [pres=" + address + ", meeting=" + meetingId + "]");
+	    
+	    String presFilename = address.substring(address.lastIndexOf('/') + 1);
+	    log.debug("downloadAndProcessDocument [filename=" + presFilename + "]");
+	    String filenameExt = getFilenameExt(presFilename);
+
+	    String presId = generatePresentationId(presFilename);
+	    File uploadDir = createPresentationDirectory(meetingId, presentationDir, presId);
+	    if (uploadDir != null) {
+	      String newFilename = createNewFilename(presId, filenameExt);
+	      String newFilePath = uploadDir.getAbsolutePath() + File.separatorChar + newFilename;
+	        
+	      if (savePresentation(meetingId, newFilePath, address)) {
+	        File pres = new File(newFilePath);
+	        processUploadedFile(meetingId, presId, presFilename, pres);
+	      } else {
+	        log.error("Failed to download presentation=[" + address + "], meeting=[" + meetingId + "]");
+	      }
+	    } 
+	  }
+	 
 	public String generatePresentationId(String name) {
 		long timestamp = System.currentTimeMillis();		
 		return DigestUtils.shaHex(name) + "-" + timestamp;
@@ -115,4 +152,18 @@ public class PresentationUrlDownloadService {
 		
 		return success;
 	}
+	
+	public void setPresentationDir(String presDir) {
+	  presentationDir = presDir;
+	}
+	
+	public void setPresentationBaseURL(String presentationBaseUrl) {
+	  presentationBaseURL = presentationBaseUrl;
+	}
+	
+	public void setDocumentConversionService(DocumentConversionService documentConversionService) {
+	  this.documentConversionService = documentConversionService;
+	}
+	
+	
 }

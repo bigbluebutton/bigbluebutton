@@ -101,10 +101,10 @@ dependencies {
   compile "redis.clients:jedis:2.7.2"
   compile 'org.apache.commons:commons-pool2:2.3'
  
-   compile 'com.google.code.gson:gson:1.7.1'
+   compile 'com.google.code.gson:gson:2.5'
    providedCompile 'org.apache.commons:commons-lang3:3.2'
 
-  compile 'org.bigbluebutton:bbb-common-message:0.0.16'
+  compile 'org.bigbluebutton:bbb-common-message:0.0.17-SNAPSHOT'
 }
 
 test {
@@ -125,4 +125,3 @@ task deploy() << {
     fileset(dir: "$buildDir/$appName")
   }
 } 
-        

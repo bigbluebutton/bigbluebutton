@@ -31,14 +31,15 @@ import org.bigbluebutton.core.recorders.events.ClearPageWhiteboardRecordEvent
 import org.bigbluebutton.core.recorders.events.AddShapeWhiteboardRecordEvent
 import org.bigbluebutton.core.service.whiteboard.WhiteboardKeyUtil
 import org.bigbluebutton.core.recorders.events.ModifyTextWhiteboardRecordEvent
+import org.bigbluebutton.core.recorders.events.EditCaptionHistoryRecordEvent
 import scala.collection.immutable.StringOps
 
 object RecorderActor {
-  def props(meetingId: String, recorder: RecorderApplication): Props =
-    Props(classOf[RecorderActor], meetingId, recorder)
+  def props(recorder: RecorderApplication): Props =
+    Props(classOf[RecorderActor], recorder)
 }
 
-class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
+class RecorderActor(val recorder: RecorderApplication)
     extends Actor with ActorLogging {
 
   def receive = {
@@ -67,6 +68,7 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
     case msg: SendWhiteboardAnnotationEvent => handleSendWhiteboardAnnotationEvent(msg)
     case msg: ClearWhiteboardEvent => handleClearWhiteboardEvent(msg)
     case msg: UndoWhiteboardEvent => handleUndoWhiteboardEvent(msg)
+    case msg: EditCaptionHistoryReply => handleEditCaptionHistoryReply(msg)
     case _ => // do nothing
   }
 
@@ -433,5 +435,18 @@ class RecorderActor(val meetingId: String, val recorder: RecorderApplication)
       recorder.record(msg.meetingID, event)
     }
 
+  }
+
+  private def handleEditCaptionHistoryReply(msg: EditCaptionHistoryReply) {
+    if (msg.recorded) {
+      val ev = new EditCaptionHistoryRecordEvent();
+      ev.setTimestamp(TimestampGenerator.generateTimestamp);
+      ev.setMeetingId(msg.meetingID);
+      ev.setStartIndex(msg.startIndex.toString());
+      ev.setEndIndex(msg.endIndex.toString());
+      ev.setLocale(msg.locale);
+      ev.setText(msg.text);
+      recorder.record(msg.meetingID, ev);
+    }
   }
 }

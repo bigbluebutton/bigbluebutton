@@ -24,17 +24,20 @@ package org.bigbluebutton.core.managers
 	import flash.events.EventDispatcher;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
+	import flash.utils.Dictionary;	
 	import mx.core.FlexGlobals;
-	import mx.utils.URLUtil;
-	
+	import mx.utils.URLUtil;	
 	import org.as3commons.logging.api.ILogger;
 	import org.as3commons.logging.api.getClassLogger;
-	import org.bigbluebutton.core.EventBroadcaster;
 	import org.bigbluebutton.core.model.Config;
+	import org.bigbluebutton.main.events.ConfigLoadedEvent;
 	import org.bigbluebutton.main.events.MeetingNotFoundEvent;
+	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
+	import org.bigbluebutton.util.QueryStringParameters;
 	
-	public class ConfigManager2 extends EventDispatcher {
+	public class ConfigManager2 {
 		private static const LOGGER:ILogger = getClassLogger(ConfigManager2);      
     
         public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
@@ -42,12 +45,27 @@ package org.bigbluebutton.core.managers
 		private var _config:Config = null;
 				
 		public function loadConfig():void {
+			var p:QueryStringParameters = new QueryStringParameters();
+			p.collectParameters();
+			var sessionToken:String = p.getParameter("sessionToken");
+			
+			var reqVars:URLVariables = new URLVariables();
+			reqVars.sessionToken = sessionToken;
+			
 			var urlLoader:URLLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			
 			var date:Date = new Date();
-      var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
-      LOGGER.debug("::loadConfig [{0}]", [localeReqURL]);
-			urlLoader.load(new URLRequest(localeReqURL));			
+            var localeReqURL:String = buildRequestURL();
+            trace("::loadConfig [{0}]", [localeReqURL]);
+			
+			trace(localeReqURL + " session=[" + sessionToken + "]"); 
+			
+			var request:URLRequest = new URLRequest(localeReqURL);
+			request.method = URLRequestMethod.GET;
+			request.data = reqVars;
+			
+			urlLoader.load(request);			
 		}		
 		
     private function buildRequestURL():String {
@@ -58,24 +76,45 @@ package org.bigbluebutton.core.managers
     }
     
 		private function handleComplete(e:Event):void{
-      LOGGER.debug("handleComplete [{0}]", [new XML(e.target.data)]);
+      trace("handleComplete [{0}]", [new XML(e.target.data)]);
       
       var xml:XML = new XML(e.target.data)
-      
+	  var dispatcher:Dispatcher = new Dispatcher();
+	  
       if (xml.returncode == "FAILED") {
         
-        LOGGER.debug("Getting configXML failed [{0}]", [xml]);        
-        var dispatcher:Dispatcher = new Dispatcher();
+        trace("Getting configXML failed [{0}]", [xml]);        
+        
         dispatcher.dispatchEvent(new MeetingNotFoundEvent(xml.response.logoutURL));
       } else { 
-        LOGGER.debug("Getting configXML passed [{0}]", [xml]);
-			  _config = new Config(new XML(e.target.data));
-			  EventBroadcaster.getInstance().dispatchEvent(new Event("configLoadedEvent", true));	
+        trace("Getting configXML passed [{0}]", [xml]);
+		_config = new Config(new XML(e.target.data));
+		dispatcher.dispatchEvent(new ConfigLoadedEvent()); 	
       }
 		}
 		
 		public function get config():Config {
 			return _config;
+		}
+		
+		public function getModules():Dictionary {
+			return _config.getModules();
+		}
+		
+		public function getPortortTestHost():String {
+			return _config.porttest.host;
+		}
+		
+		public function getPortTestApplication():String {
+			return _config.porttest.application;
+		}
+		
+		public function getPortTestTimeout():int {
+			return _config.porttest.timeout;
+		}
+		
+		public function getModuleFor(name:String):ModuleDescriptor {
+			return _config.getModuleFor(name);
 		}
 	}
 }

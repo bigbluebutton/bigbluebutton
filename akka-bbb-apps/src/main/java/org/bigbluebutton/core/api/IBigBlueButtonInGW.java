@@ -5,33 +5,30 @@ import org.bigbluebutton.common.messages.*;
 
 public interface IBigBlueButtonInGW {
 
+	void handleJsonMessage(String json);
 	void handleBigBlueButtonMessage(IBigBlueButtonMessage message);
-	
+
 	void isAliveAudit(String aliveID);
 	void statusMeetingAudit(String meetingID);
-	void endMeeting(String meetingID);
+	void endMeeting(String meetingId);
 	void endAllMeetings();
-	void createMeeting2(String meetingID, String externalMeetingID, String meetingName, boolean recorded, 
-			    String voiceBridge, long duration, boolean autoStartRecording,
-			    boolean allowStartStopRecording, String moderatorPass, String viewerPass,
-			    long createTime, String createDate);
+
 	void destroyMeeting(String meetingID);
 	void getAllMeetings(String meetingID);
 	void lockSettings(String meetingID, Boolean locked, Map<String, Boolean> lockSettigs);
-	
+
 	// Polling
 	void votePoll(String meetingId, String userId, String pollId, Integer questionId, Integer answerId);
 	void startPoll(String meetingId, String requesterId, String pollId, String pollType);
 	void stopPoll(String meetingId, String userId, String pollId);
 	void showPollResult(String meetingId, String requesterId, String pollId, Boolean show);
-	
+
 	// Lock
 	void initLockSettings(String meetingID, Map<String, Boolean> settings);
 	void sendLockSettings(String meetingID, String userId, Map<String, Boolean> settings);
 	void getLockSettings(String meetingId, String userId);
 	void lockUser(String meetingId, String requesterID, boolean lock, String internalUserID);
-	
-	
+
 	// Users
 	void validateAuthToken(String meetingId, String userId, String token, String correlationId, String sessionId);
 	void registerUser(String roomName, String userid, String username, String role, String externUserID, String authToken);
@@ -48,7 +45,7 @@ public interface IBigBlueButtonInGW {
 	void getRecordingStatus(String meetingId, String userId);
 	void userConnectedToGlobalAudio(String voiceConf, String userid, String name);
 	void userDisconnectedFromGlobalAudio(String voiceConf, String userid, String name);
-	
+
 	// Voice
 	void initAudioSettings(String meetingID, String requesterID, Boolean muted);
 	void muteAllExceptPresenter(String meetingID, String requesterID, Boolean mute);
@@ -66,7 +63,7 @@ public interface IBigBlueButtonInGW {
 	void voiceUserTalking(String meetingId, String userId, Boolean talking);
 	void voiceRecording(String meetingId, String recordingFile, 
 			            String timestamp, Boolean recording);
-	
+
 	// Presentation
 	void clear(String meetingID);
 	void removePresentation(String meetingID, String presentationID);
@@ -79,18 +76,18 @@ public interface IBigBlueButtonInGW {
 
 	void sendConversionUpdate(String messageKey, String meetingId, 
             String code, String presId, String presName); 
-	
+
 	void sendPageCountError(String messageKey, String meetingId, 
             String code, String presId, int numberOfPages,
             int maxNumberPages, String presName);
-	
+
 	void sendSlideGenerated(String messageKey, String meetingId, 
             String code, String presId, int numberOfPages,
             int pagesCompleted, String presName);
-	
+
 	void sendConversionCompleted(String messageKey, String meetingId, 
             String code, String presId, int numPages, String presName, String presBaseUrl);
-	
+
 	// Layout
 	void getCurrentLayout(String meetingID, String requesterID);
 	void broadcastLayout(String meetingID, String requesterID, String layout);
@@ -111,4 +108,8 @@ public interface IBigBlueButtonInGW {
 	void enableWhiteboard(String meetingID, String requesterID, Boolean enable);
 	void isWhiteboardEnabled(String meetingID, String requesterID, String replyTo);
 	
+	// Caption
+	void sendCaptionHistory(String meetingID, String requesterID);
+    void updateCaptionOwner(String meetingID, String locale, String ownerID);
+	void editCaptionHistory(String meetingID, String userID, Integer startIndex, Integer endIndex, String locale, String text);
 }

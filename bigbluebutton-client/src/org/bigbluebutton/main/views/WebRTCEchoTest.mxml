@@ -193,7 +193,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onHelpButtonClicked():void {
-				DEFAULT_HELP_URL =  BBB.initConfigManager().config.help.url;
+				DEFAULT_HELP_URL =  BBB.getConfigManager().config.help.url;
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
 			}
 			

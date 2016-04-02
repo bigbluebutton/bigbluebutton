@@ -132,6 +132,9 @@ package org.bigbluebutton.common
 
         [Embed(source="assets/images/user.png")]
         public var user:Class;		
+
+        [Embed(source="assets/images/users.png")]
+        public var users:Class;		
         
         [Embed(source="assets/images/administrator.gif")]
         public var admin:Class;
@@ -324,5 +327,11 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/emoji_confused.png")]
 		public var emoji_confused:Class;
+		
+		[Embed(source="assets/images/listen.png")]
+		public var listen:Class;
+		
+		[Embed(source="assets/images/join.png")]
+		public var join:Class;
 	}
 }
