@@ -170,6 +170,8 @@ package org.bigbluebutton.lib.user.services {
 			userSession.lockSettings.disablePrivateChat = msg.hasOwnProperty("disablePrivChat") ? msg.disablePrivChat : msg.disablePrivateChat;
 			userSession.lockSettings.disablePublicChat = msg.hasOwnProperty("disablePubChat") ? msg.disablePubChat : msg.disablePublicChat;
 			userSession.lockSettings.lockedLayout = msg.lockedLayout;
+			userSession.lockSettings.lockOnJoin = msg.lockOnJoin;
+			userSession.lockSettings.lockOnJoinConfigurable = msg.lockOnJoinConfigurable;
 			userSession.dispatchLockSettings();
 		}
 		
