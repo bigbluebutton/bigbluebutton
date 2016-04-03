@@ -68,7 +68,7 @@
 		<s:List id="streamList0"
 				width="90%"
 				height="100%"
-				itemRenderer="org.bigbluebutton.air.presentation.views.selectWebcam.StreamItemRenderer" />
+				itemRenderer="org.bigbluebutton.air.presentation.views.selectwebcam.StreamItemRenderer" />
 		<s:Button label="Stop viewing webcams"
 				  id="actionButton0"
 				  width="90%"

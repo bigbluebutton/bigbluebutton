@@ -1,4 +1,4 @@
-package org.bigbluebutton.air.presentation.views.selectWebcam {
+package org.bigbluebutton.air.presentation.views.selectwebcam {
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;

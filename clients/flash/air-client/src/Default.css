@@ -5,7 +5,8 @@
 @namespace skins "org.bigbluebutton.air.main.views.skins.*";
 @namespace common "org.bigbluebutton.view.navigation.pages.common.*";
 @namespace presentation "org.bigbluebutton.air.presentation.views.*";
-@namespace selectWebcam "org.bigbluebutton.air.presentation.views.selectWebcam.*";
+@namespace selectwebcam "org.bigbluebutton.air.presentation.views.selectwebcam.*";
+@namespace commonviews "org.bigbluebutton.air.common.views.*";
 
 s|List.cameraProfilesListStyle
 {
@@ -16,7 +17,7 @@ s|Button {
 	fontWeight: normal;
 }
 
-selectWebcam|SelectStreamPopUpBase
+selectwebcam|SelectStreamPopUpBase
 {
 	modalTransparency: .8;
 	modalTransparencyBlur: .25;
@@ -269,7 +270,7 @@ global
 	color: #43474F;
 }
 
-common|NoTabView
+commonviews|NoTabView
 {
 	backgroundColor: #FFFFFF;
 }

@@ -1,28 +1,20 @@
-package org.bigbluebutton.air.presentation.views.selectWebcam {
+package org.bigbluebutton.air.presentation.views.selectwebcam {
 	
-	import flash.display.Screen;
-	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
 	import mx.collections.ArrayCollection;
-	import mx.core.FlexGlobals;
 	import mx.events.FlexMouseEvent;
-	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
-	import mx.utils.ObjectUtil;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import spark.components.SkinnablePopUpContainer;
+	
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
 	import org.bigbluebutton.lib.video.models.UserStreamName;
-	import org.bigbluebutton.lib.video.models.VideoProfile;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.SkinnablePopUpContainer;
-	import spark.events.IndexChangeEvent;
 	
 	public class SelectStreamPopUpMediator extends Mediator {
 		
@@ -75,7 +67,7 @@ package org.bigbluebutton.air.presentation.views.selectWebcam {
 		/**
 		 *
 		 */
-		private function updateSelectedIndex() {
+		private function updateSelectedIndex():void {
 			view.streamList.selectedIndex = selectedIndex;
 			if (selectedIndex == -1) {
 				view.actionButton.enabled = false;
@@ -94,7 +86,7 @@ package org.bigbluebutton.air.presentation.views.selectWebcam {
 			}
 		}
 		
-		private function clickedActionButton(e:MouseEvent) {
+		private function clickedActionButton(e:MouseEvent):void {
 			var selectedStream:Object = null;
 			if (displayWebcam) {
 				selectedStream = dataProvider.getItemAt(view.streamList.selectedIndex);
@@ -169,7 +161,7 @@ package org.bigbluebutton.air.presentation.views.selectWebcam {
 			}
 		}
 		
-		private function removeUserFromDataProvider(userID:String) {
+		private function removeUserFromDataProvider(userID:String):void {
 			for (var item:int; item < dataProvider.length; item++) {
 				if ((dataProvider.getItemAt(item).user as User).userID == userID) {
 					// -- in the end. see: http://stackoverflow.com/questions/4255226/how-to-remove-an-item-while-iterating-over-collection

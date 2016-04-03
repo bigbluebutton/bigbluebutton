@@ -1,8 +1,6 @@
-package org.bigbluebutton.air.presentation.views.selectWebcam {
+package org.bigbluebutton.air.presentation.views.selectwebcam {
 	import spark.components.Button;
-	import spark.components.Group;
 	import spark.components.List;
-	import spark.components.supportClasses.SkinnableComponent;
 	
 	public class SelectStreamPopUp extends SelectStreamPopUpBase implements ISelectStreamPopUp {
 		

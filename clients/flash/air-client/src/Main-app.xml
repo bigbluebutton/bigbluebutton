@@ -318,8 +318,9 @@
 		</InfoAdditions>
 		<requestedDisplayResolution>high</requestedDisplayResolution>
 	</iPhone>
-	<extensions>
-		<extensionID>com.freshplanet.AirCapabilities</extensionID>
-		<extensionID>com.juankpro.ane.LocalNotification</extensionID>
-	</extensions>
+	
+<extensions>
+        <extensionID>com.freshplanet.AirCapabilities</extensionID>
+        <extensionID>com.juankpro.ane.LocalNotification</extensionID>
+    </extensions>
 </application>
