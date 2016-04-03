@@ -9,6 +9,6 @@ package org.bigbluebutton.air.settings.views.status {
 	import spark.components.RadioButtonGroup;
 	
 	public interface IStatusView extends IView {
-		function get moodList():List;
+		function get statusList():List;
 	}
 }

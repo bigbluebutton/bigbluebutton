@@ -13,7 +13,6 @@ package org.bigbluebutton.air.main.views.profile {
 		function get logoutButton():Button;
 		function get currentState():String;
 		function set currentState(value:String):void;
-		function get handButton():Button;
 		function get clearAllStatusButton():Button;
 		function get muteAllButton():Button;
 		function get muteAllExceptPresenterButton():Button;

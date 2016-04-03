@@ -2,10 +2,10 @@ package org.bigbluebutton.lib.main.commands {
 	
 	import org.osflash.signals.Signal;
 	
-	public class MoodSignal extends Signal {
-		public function MoodSignal() {
+	public class EmojiSignal extends Signal {
+		public function EmojiSignal() {
 			/**
-			 * @1 mood
+			 * @1 status
 			 */
 			super(String);
 		}

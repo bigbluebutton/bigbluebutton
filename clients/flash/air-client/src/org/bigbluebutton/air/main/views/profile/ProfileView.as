@@ -34,10 +34,6 @@ package org.bigbluebutton.air.main.views.profile {
 			return logoutButton0;
 		}
 		
-		public function get handButton():Button {
-			return handBtn0;
-		}
-		
 		public function get clearAllStatusButton():Button {
 			return clearAllStatusBtn;
 		}

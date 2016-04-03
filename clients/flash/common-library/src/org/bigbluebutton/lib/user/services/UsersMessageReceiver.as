@@ -71,8 +71,8 @@ package org.bigbluebutton.lib.user.services {
 				case "meetingEnded":
 					handleMeetingHasEnded(message);
 					break;
-				case "participantStatusChange":
-					handleStatusChange(message);
+				case "userEmojiStatus":
+					handleEmojiStatusHand(message);
 					break;
 				case "guest_access_denied":
 				case "response_to_guest":
@@ -200,47 +200,10 @@ package org.bigbluebutton.lib.user.services {
 			}
 		}
 		
-		private function handleStatusChange(m:Object):void {
+		private function handleEmojiStatusHand(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			trace("UsersMessageReceiver::handleStatusChange() -- user [" + msg.userID + "," + msg.value + "] ");
-			var value:String = msg.value;
-			switch (value.substr(0, value.indexOf(","))) {
-				case "RAISE_HAND":
-					userSession.userList.statusChange(msg.userID, User.RAISE_HAND);
-					break;
-				case "CLEAR_STATUS":
-				case "CLEAR_MOOD":
-				case "NO_STATUS":
-					userSession.userList.statusChange(msg.userID, User.NO_STATUS);
-					break;
-				case "AGREE":
-					userSession.userList.statusChange(msg.userID, User.AGREE);
-					break;
-				case "DISAGREE":
-					userSession.userList.statusChange(msg.userID, User.DISAGREE);
-					break;
-				case "SPEAK_LOUDER":
-					userSession.userList.statusChange(msg.userID, User.SPEAK_LOUDER);
-					break;
-				case "SPEAK_LOWER":
-					userSession.userList.statusChange(msg.userID, User.SPEAK_LOWER);
-					break;
-				case "SPEAK_FASTER":
-					userSession.userList.statusChange(msg.userID, User.SPEAK_FASTER);
-					break;
-				case "SPEAK_SLOWER":
-					userSession.userList.statusChange(msg.userID, User.SPEAK_SLOWER);
-					break;
-				case "BE_RIGHT_BACK":
-					userSession.userList.statusChange(msg.userID, User.BE_RIGHT_BACK);
-					break;
-				case "LAUGHTER":
-					userSession.userList.statusChange(msg.userID, User.LAUGHTER);
-					break;
-				case "SAD":
-					userSession.userList.statusChange(msg.userID, User.SAD);
-					break;
-			}
+			trace("UsersMessageReceiver::handleEmojiStatusHand() -- user [" + msg.userId + "," + msg.emojiStatus + "] ");
+			userSession.userList.statusChange(msg.userId, msg.emojiStatus);
 		}
 		
 		private function handleVoiceUserTalking(m:Object):void {
@@ -281,44 +244,32 @@ package org.bigbluebutton.lib.user.services {
 			user.muted = newUser.voiceUser.muted;
 			user.guest = newUser.guest;
 			user.waitingForAcceptance = newUser.waitingForAcceptance;
-			var mood:String = newUser.mood;
+			var status:String = newUser.status;
 			if (newUser.raiseHand) {
 				user.status = User.RAISE_HAND;
 			}
-			if (mood) {
-				switch (mood.substr(0, mood.indexOf(","))) {
-					case "AGREE":
-						user.status = User.AGREE;
+			if (status) {
+				switch (status.substr(0, status.indexOf(","))) {
+					case "away":
+						user.status = User.AWAY;
 						break;
-					case "DISAGREE":
-						user.status = User.DISAGREE;
+					case "happy":
+						user.status = User.HAPPY;
 						break;
-					case "SPEAK_LOUDER":
-						user.status = User.SPEAK_LOUDER;
+					case "neutral":
+						user.status = User.NEUTRAL;
 						break;
-					case "SPEAK_LOWER":
-						user.status = User.SPEAK_LOWER;
-						break;
-					case "SPEAK_FASTER":
-						user.status = User.SPEAK_FASTER;
-						break;
-					case "SPEAK_SLOWER":
-						user.status = User.SPEAK_SLOWER;
-						break;
-					case "BE_RIGHT_BACK":
-						user.status = User.BE_RIGHT_BACK;
-						break;
-					case "LAUGHTER":
-						user.status = User.LAUGHTER;
-						break;
-					case "SAD":
+					case "sad":
 						user.status = User.SAD;
 						break;
-					case "RAISE_HAND":
+					case "confused":
+						user.status = User.CONFUSED;
+						break;
+					case "raiseHand":
 						user.status = User.RAISE_HAND;
 						break;
 					case "":
-					case "CLEAR_MOOD":
+					case "none":
 						user.status = User.NO_STATUS;
 						break;
 				}

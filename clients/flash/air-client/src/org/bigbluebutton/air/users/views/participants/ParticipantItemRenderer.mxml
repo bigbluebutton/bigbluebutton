@@ -29,14 +29,8 @@
 						labelDisplay.text = obj.name;
 					}
 					handIcon.visible = handIcon.includeInLayout = obj.status == User.RAISE_HAND;
-					agreeIcon.visible = agreeIcon.includeInLayout = obj.status == User.AGREE;
-					disagreeIcon.visible = disagreeIcon.includeInLayout = obj.status == User.DISAGREE;
-					speakLouderIcon.visible = speakLouderIcon.includeInLayout = obj.status == User.SPEAK_LOUDER;
-					speakSofterIcon.visible = speakSofterIcon.includeInLayout = obj.status == User.SPEAK_LOWER;
-					speakFasterIcon.visible = speakFasterIcon.includeInLayout = obj.status == User.SPEAK_FASTER;
-					speakSlowerIcon.visible = speakSlowerIcon.includeInLayout = obj.status == User.SPEAK_SLOWER;
-					beRightBackIcon.visible = beRightBackIcon.includeInLayout = obj.status == User.BE_RIGHT_BACK;
-					laughterIcon.visible = laughterIcon.includeInLayout = obj.status == User.LAUGHTER;
+					beRightBackIcon.visible = beRightBackIcon.includeInLayout = obj.status == User.AWAY;
+					laughterIcon.visible = laughterIcon.includeInLayout = obj.status == User.HAPPY;
 					sadIcon.visible = sadIcon.includeInLayout = obj.status == User.SAD;
 					if (obj.presenter) {
 						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;

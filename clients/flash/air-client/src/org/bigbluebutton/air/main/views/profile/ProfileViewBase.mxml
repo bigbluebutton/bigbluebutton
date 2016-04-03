@@ -18,13 +18,6 @@
 					  label="{resourceManager.getString('resources', 'profile.status.title')}"
 					  styleName="videoAudioSettingStyle contentFontSize" />
 
-			<s:Button id="handBtn0"
-					  visible="true"
-					  includeInLayout="true"
-					  width="100%"
-					  label="{resourceManager.getString('resources', 'profile.settings.handRaise')}"
-					  styleName="raiseHandButtonStyle videoAudioSettingStyle contentFontSize" />
-
 			<s:Button id="shareCameraBtn0"
 					  width="100%"
 					  label="{resourceManager.getString('resources', 'cameraSettings.title')}"

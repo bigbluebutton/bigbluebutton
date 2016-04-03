@@ -18,8 +18,8 @@ package org.bigbluebutton.air.settings.views.status {
 		public function dispose():void {
 		}
 		
-		public function get moodList():List {
-			return moodList0;
+		public function get statusList():List {
+			return statusList0;
 		}
 	}
 }

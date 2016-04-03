@@ -26,25 +26,18 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const LISTEN_ONLY:int = 8;
 		
-		public static const AGREE:int = 9;
+		public static const NO_STATUS:int = 9;
 		
-		public static const NO_STATUS:int = 10;
+		public static const AWAY:int = 10;
 		
-		public static const DISAGREE:int = 11;
+		public static const HAPPY:int = 11;
 		
-		public static const SPEAK_LOUDER:int = 12;
+		public static const NEUTRAL:int = 12;	
 		
-		public static const SPEAK_LOWER:int = 13;
+		public static const SAD:int = 13;
 		
-		public static const SPEAK_FASTER:int = 14;
+		public static const CONFUSED:int = 14;
 		
-		public static const SPEAK_SLOWER:int = 15;
-		
-		public static const BE_RIGHT_BACK:int = 16;
-		
-		public static const LAUGHTER:int = 17;
-		
-		public static const SAD:int = 18;
 		
 		private var _users:ArrayCollection;
 		
@@ -194,32 +187,20 @@ package org.bigbluebutton.lib.user.models {
 				if (newuser.status == User.RAISE_HAND) {
 					userChangeSignal.dispatch(newuser, RAISE_HAND);
 				}
-				if (newuser.status == User.AGREE) {
-					userChangeSignal.dispatch(newuser, AGREE);
+				if (newuser.status == User.AWAY) {
+					userChangeSignal.dispatch(newuser, AWAY);
 				}
-				if (newuser.status == User.DISAGREE) {
-					userChangeSignal.dispatch(newuser, DISAGREE);
+				if (newuser.status == User.HAPPY) {
+					userChangeSignal.dispatch(newuser, HAPPY);
 				}
-				if (newuser.status == User.SPEAK_LOUDER) {
-					userChangeSignal.dispatch(newuser, SPEAK_LOUDER);
-				}
-				if (newuser.status == User.SPEAK_LOWER) {
-					userChangeSignal.dispatch(newuser, SPEAK_LOWER);
-				}
-				if (newuser.status == User.SPEAK_FASTER) {
-					userChangeSignal.dispatch(newuser, SPEAK_FASTER);
-				}
-				if (newuser.status == User.SPEAK_SLOWER) {
-					userChangeSignal.dispatch(newuser, SPEAK_SLOWER);
-				}
-				if (newuser.status == User.BE_RIGHT_BACK) {
-					userChangeSignal.dispatch(newuser, BE_RIGHT_BACK);
-				}
-				if (newuser.status == User.LAUGHTER) {
-					userChangeSignal.dispatch(newuser, LAUGHTER);
+				if (newuser.status == User.NEUTRAL) {
+					userChangeSignal.dispatch(newuser, NEUTRAL);
 				}
 				if (newuser.status == User.SAD) {
 					userChangeSignal.dispatch(newuser, SAD);
+				}
+				if (newuser.status == User.CONFUSED) {
+					userChangeSignal.dispatch(newuser, CONFUSED);
 				}
 				if (newuser.status == User.NO_STATUS) {
 					userChangeSignal.dispatch(newuser, NO_STATUS);
@@ -359,32 +340,20 @@ package org.bigbluebutton.lib.user.models {
 					case User.RAISE_HAND:
 						userChangeSignal.dispatch(p.participant, RAISE_HAND);
 						break;
-					case User.AGREE:
-						userChangeSignal.dispatch(p.participant, AGREE);
+					case User.AWAY:
+						userChangeSignal.dispatch(p.participant, AWAY);
 						break;
-					case User.DISAGREE:
-						userChangeSignal.dispatch(p.participant, DISAGREE);
+					case User.HAPPY:
+						userChangeSignal.dispatch(p.participant, HAPPY);
 						break;
-					case User.SPEAK_LOUDER:
-						userChangeSignal.dispatch(p.participant, SPEAK_LOUDER);
-						break;
-					case User.SPEAK_LOWER:
-						userChangeSignal.dispatch(p.participant, SPEAK_LOWER);
-						break;
-					case User.SPEAK_FASTER:
-						userChangeSignal.dispatch(p.participant, SPEAK_FASTER);
-						break;
-					case User.SPEAK_SLOWER:
-						userChangeSignal.dispatch(p.participant, SPEAK_SLOWER);
-						break;
-					case User.BE_RIGHT_BACK:
-						userChangeSignal.dispatch(p.participant, BE_RIGHT_BACK);
-						break;
-					case User.LAUGHTER:
-						userChangeSignal.dispatch(p.participant, LAUGHTER);
+					case User.NEUTRAL:
+						userChangeSignal.dispatch(p.participant, NEUTRAL);
 						break;
 					case User.SAD:
 						userChangeSignal.dispatch(p.participant, SAD);
+						break;
+					case User.CONFUSED:
+						userChangeSignal.dispatch(p.participant, CONFUSED);
 						break;
 					case User.NO_STATUS:
 						userChangeSignal.dispatch(p.participant, NO_STATUS);

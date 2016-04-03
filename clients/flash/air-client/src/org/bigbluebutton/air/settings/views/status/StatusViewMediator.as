@@ -12,7 +12,7 @@ package org.bigbluebutton.air.settings.views.status {
 	import org.bigbluebutton.air.common.views.PagesENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.settings.views.status.IStatusView;
-	import org.bigbluebutton.lib.main.commands.MoodSignal;
+	import org.bigbluebutton.lib.main.commands.EmojiSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	
@@ -32,17 +32,17 @@ package org.bigbluebutton.air.settings.views.status {
 		public var userUISession:IUserUISession;
 		
 		[Inject]
-		public var moodSignal:MoodSignal;
+		public var emojiSignal:EmojiSignal;
 		
 		override public function initialize():void {
 			var userMe:User = userSession.userList.me;
-			view.moodList.addEventListener(IndexChangeEvent.CHANGE, onMoodChange);
+			view.statusList.addEventListener(IndexChangeEvent.CHANGE, onEmojiChange);
 			userSession.userList.userChangeSignal.add(userChanged);
 			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'profile.status');
 			FlexGlobals.topLevelApplication.profileBtn.visible = false;
 			FlexGlobals.topLevelApplication.backBtn.visible = true;
-			selectMood(userMe.status);
+			selectEmoji(userMe.status);
 		}
 		
 		private function stageOrientationChangingHandler(e:Event):void {
@@ -56,23 +56,23 @@ package org.bigbluebutton.air.settings.views.status {
 		
 		private function userChanged(user:User, type:int):void {
 			if (user == userSession.userList.me) {
-				selectMood(user.status);
+				selectEmoji(user.status);
 			}
 		}
 		
-		private function selectMood(mood:String):void {
-			for (var i:Number = 0; i < view.moodList.dataProvider.length; i++) {
-				if (mood == view.moodList.dataProvider.getItemAt(i).signal) {
-					view.moodList.setSelectedIndex(i);
+		private function selectEmoji(status:String):void {
+			for (var i:Number = 0; i < view.statusList.dataProvider.length; i++) {
+				if (status == view.statusList.dataProvider.getItemAt(i).signal) {
+					view.statusList.setSelectedIndex(i);
 					break;
 				}
 			}
 		}
 		
-		protected function onMoodChange(event:IndexChangeEvent):void {
+		protected function onEmojiChange(event:IndexChangeEvent):void {
 			var obj:Object;
-			obj = view.moodList.selectedItem;
-			moodSignal.dispatch(view.moodList.selectedItem.signal);
+			obj = view.statusList.selectedItem;
+			emojiSignal.dispatch(view.statusList.selectedItem.signal);
 			if (!FlexGlobals.topLevelApplication.isTabletLandscape()) {
 				userUISession.popPage();
 				userUISession.popPage();
@@ -81,7 +81,7 @@ package org.bigbluebutton.air.settings.views.status {
 		
 		override public function destroy():void {
 			super.destroy();
-			view.moodList.removeEventListener(IndexChangeEvent.CHANGE, onMoodChange);
+			view.statusList.removeEventListener(IndexChangeEvent.CHANGE, onEmojiChange);
 			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			userSession.userList.userChangeSignal.remove(userChanged);
 			view.dispose();

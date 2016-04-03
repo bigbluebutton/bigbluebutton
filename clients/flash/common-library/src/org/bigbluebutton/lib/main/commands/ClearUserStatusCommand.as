@@ -22,7 +22,7 @@ package org.bigbluebutton.lib.main.commands {
 		
 		override public function execute():void {
 			trace("ClearUserStatusCommand.execute() - clear status");
-			userService.lowerHand(userID, userSession.userList.me.userID);
+			userService.clearUserStatus(userID);
 		}
 	}
 }

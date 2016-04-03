@@ -35,26 +35,12 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.sendMessage("participants.assignPresenter", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function changeMood(userID:String, mood:String):void {
-			trace("UsersMessageSender::changeMood() -- Sending participants.setParticipantStatus] message to server with " + mood + " status");
+		public function emojiStatus(userID:String, emoji:String):void
+		{
 			var message:Object = new Object();
-			message["userID"] = userID;
-			message["status"] = "mood";
-			message["value"] = mood;
-			userSession.mainConnection.sendMessage("participants.setParticipantStatus", defaultSuccessResponse, defaultFailureResponse, message);
-		}
-		
-		public function raiseHand():void {
-			trace("UsersMessageSender::raiseHand() -- Sending [participants.userRaiseHand] message to server");
-			userSession.mainConnection.sendMessage("participants.userRaiseHand", defaultSuccessResponse, defaultFailureResponse);
-		}
-		
-		public function lowerHand(userID:String, loweredBy:String):void {
-			trace("UsersMessageSender::raiseHand() -- Sending [participants.lowerHand] message to server with message: [userId:" + userID + ", loweredBy:" + userID + "]");
-			var message:Object = new Object();
+			message["emojiStatus"] = emoji;
 			message["userId"] = userID;
-			message["loweredBy"] = loweredBy;
-			userSession.mainConnection.sendMessage("participants.lowerHand", defaultSuccessResponse, defaultFailureResponse, message);
+			userSession.mainConnection.sendMessage("participants.userEmojiStatus", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function addStream(userID:String, streamName:String):void {

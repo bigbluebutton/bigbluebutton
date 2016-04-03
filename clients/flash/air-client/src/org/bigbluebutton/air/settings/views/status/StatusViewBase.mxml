@@ -10,34 +10,22 @@
 				  height="100%"
 				  horizontalAlign="center">
 
-			<s:List id="moodList0"
+			<s:List id="statusList0"
 					width="100%"
 					itemRenderer="org.bigbluebutton.air.settings.views.status.StatusItemRenderer"
 					height="100%"
 					labelField="data">
 				<s:ArrayList>
-					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.clearMood')}"
-							   signal="NO_STATUS" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.clearStatus')}"
+							   signal="none" />
 					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.handRaise')}"
-							   signal="RAISE_HAND" />
-					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.agree')}"
-							   signal="AGREE" />
-					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.disagree')}"
-							   signal="DISAGREE" />
-					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.speakLouder')}"
-							   signal="SPEAK_LOUDER" />
-					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.speakSofter')}"
-							   signal="SPEAK_LOWER" />
-					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.speakFaster')}"
-							   signal="SPEAK_FASTER" />
-					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.speakSlower')}"
-							   signal="SPEAK_SLOWER" />
+							   signal="raiseHand" />
 					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.beRightBack')}"
-							   signal="BE_RIGHT_BACK" />
+							   signal="away" />
 					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.laughter')}"
-							   signal="LAUGHTER" />
+							   signal="happy" />
 					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.sad')}"
-							   signal="SAD" />
+							   signal="sad" />
 				</s:ArrayList>
 			</s:List>
 		</s:VGroup>
