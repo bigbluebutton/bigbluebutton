@@ -2,12 +2,10 @@ package org.bigbluebutton.air.settings.views.audio {
 	
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.events.StageOrientationEvent;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
 	import mx.core.FlexGlobals;
-	import mx.events.ItemClickEvent;
 	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
 	
@@ -69,7 +67,7 @@ package org.bigbluebutton.air.settings.views.audio {
 		}
 		
 		private function stageOrientationChangingHandler(e:Event):void {
-			var tabletLandscape = FlexGlobals.topLevelApplication.isTabletLandscape();
+			var tabletLandscape:Boolean = FlexGlobals.topLevelApplication.isTabletLandscape();
 			if (tabletLandscape) {
 				userUISession.popPage();
 				if (userUISession.currentPage == PagesENUM.PROFILE) {
