@@ -2,9 +2,9 @@ package org.bigbluebutton.lib.whiteboard.models {
 	
 	import mx.graphics.SolidColorStroke;
 	
-	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
-	
 	import spark.primitives.Line;
+	
+	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
 	
 	public class LineAnnotation extends Annotation {
 		private var _thickness:int = 1;

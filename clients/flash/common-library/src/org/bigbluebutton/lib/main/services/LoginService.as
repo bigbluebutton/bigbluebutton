@@ -2,8 +2,6 @@ package org.bigbluebutton.lib.main.services {
 	
 	import flash.net.URLRequest;
 	
-	import mx.utils.ObjectUtil;
-	
 	import org.bigbluebutton.lib.common.utils.URLParser;
 	import org.bigbluebutton.lib.main.models.Config;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;

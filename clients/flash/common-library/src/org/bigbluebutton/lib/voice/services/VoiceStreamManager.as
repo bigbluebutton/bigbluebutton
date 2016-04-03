@@ -12,6 +12,7 @@ package org.bigbluebutton.lib.voice.services {
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.utils.Timer;
+	
 	import mx.utils.ObjectUtil;
 	
 	public class VoiceStreamManager {

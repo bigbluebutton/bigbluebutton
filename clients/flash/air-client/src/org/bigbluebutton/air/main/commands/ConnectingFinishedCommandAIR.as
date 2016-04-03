@@ -29,11 +29,7 @@ package org.bigbluebutton.air.main.commands {
 			}
 			userUISession.loading = false;
 			userUISession.pushPage(PagesENUM.PRESENTATION);
-			if (conferenceParameters.serverIsMconf && !userSession.lockSettings.loaded) {
-				userSession.lockSettings.disableMicSignal.add(displayAudioSettings);
-			} else {
-				displayAudioSettings();
-			}
+			displayAudioSettings();
 			if (userSession.videoAutoStart && !userSession.skipCamSettingsCheck) {
 				userUISession.pushPage(PagesENUM.CAMERASETTINGS);
 			}

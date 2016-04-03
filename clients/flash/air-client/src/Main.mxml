@@ -27,14 +27,11 @@
 			import com.adobe.utils.LocaleUtil;
 			
 			import mx.events.FlexEvent;
-			import mx.events.ResizeEvent;
 			import mx.resources.ResourceManager;
 			
 			import org.bigbluebutton.air.AppConfig;
 			import org.bigbluebutton.air.chat.ChatConfig;
 			import org.bigbluebutton.air.common.views.NoTabView;
-			import org.bigbluebutton.air.common.views.PagesENUM;
-			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 			import org.bigbluebutton.air.deskshare.views.DeskshareConfig;
 			import org.bigbluebutton.air.main.MainConfig;
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
@@ -46,7 +43,7 @@
 			import org.bigbluebutton.air.main.views.topbar.TopBarConfig;
 			import org.bigbluebutton.air.main.views.ui.videobutton.VideoButtonConfig;
 			import org.bigbluebutton.air.presentation.views.PresentationConfig;
-			import org.bigbluebutton.air.presentation.views.selectWebcam.SelectStreamConfig;
+			import org.bigbluebutton.air.presentation.views.selectwebcam.SelectStreamConfig;
 			import org.bigbluebutton.air.settings.views.audio.AudioSettingsConfig;
 			import org.bigbluebutton.air.settings.views.camera.CameraSettingsConfig;
 			import org.bigbluebutton.air.settings.views.lock.LockSettingsConfig;

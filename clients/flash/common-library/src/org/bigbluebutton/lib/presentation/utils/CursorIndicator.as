@@ -4,7 +4,6 @@ package org.bigbluebutton.lib.presentation.utils {
 	
 	import spark.components.Group;
 	import spark.primitives.Ellipse;
-	import spark.primitives.supportClasses.GraphicElement;
 	
 	public class CursorIndicator {
 		private static var SIZE:Number = 10;

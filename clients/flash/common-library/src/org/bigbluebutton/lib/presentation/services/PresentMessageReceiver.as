@@ -1,7 +1,5 @@
 package org.bigbluebutton.lib.presentation.services {
 	
-	import mx.utils.ObjectUtil;
-	
 	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.presentation.models.Presentation;

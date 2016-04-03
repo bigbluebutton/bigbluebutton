@@ -7,15 +7,6 @@
 		 width="100%"
 		 height="100%"
 		 styleName="bottomMenuStyle">
-	<fx:Script>
-		<![CDATA[
-			import mx.core.FlexGlobals;
-			import org.bigbluebutton.air.common.views.PagesENUM;
-		]]>
-	</fx:Script>
-	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
-	</fx:Declarations>
 
 	<s:Rect left="0"
 			right="0"

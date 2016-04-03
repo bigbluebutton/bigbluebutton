@@ -6,9 +6,13 @@ package org.bigbluebutton.lib.user.services {
 		public var userSession:IUserSession;
 		
 		// The default callbacks of userSession.mainconnection.sendMessage
-		private var defaultSuccessResponse:Function = function(result:String):void {trace(result);};
+		private var defaultSuccessResponse:Function = function(result:String):void {
+			trace(result);
+		};
 		
-		private var defaultFailureResponse:Function = function(status:String):void {trace(status);};
+		private var defaultFailureResponse:Function = function(status:String):void {
+			trace(status);
+		};
 		
 		public function UsersMessageSender() {
 		}
@@ -26,8 +30,7 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
-			trace("UsersMessageSender::assignPresenter() -- Sending [participants.assignPresenter] message to server with message " +
-				"[newPresenterID:" + userid + ", newPresenterName:" + name + ", assignedBy:" + assignedBy + "]");
+			trace("UsersMessageSender::assignPresenter() -- Sending [participants.assignPresenter] message to server with message " + "[newPresenterID:" + userid + ", newPresenterName:" + name + ", assignedBy:" + assignedBy + "]");
 			var message:Object = new Object();
 			message["newPresenterID"] = userid;
 			message["newPresenterName"] = name;
@@ -35,8 +38,7 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.sendMessage("participants.assignPresenter", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function emojiStatus(userID:String, emoji:String):void
-		{
+		public function emojiStatus(userID:String, emoji:String):void {
 			var message:Object = new Object();
 			message["emojiStatus"] = emoji;
 			message["userId"] = userID;

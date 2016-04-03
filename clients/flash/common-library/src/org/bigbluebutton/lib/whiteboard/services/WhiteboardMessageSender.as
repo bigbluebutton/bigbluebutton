@@ -95,15 +95,11 @@ package org.bigbluebutton.lib.whiteboard.services {
 			trace("Sending [whiteboard.requestAnnotationHistory] to server.");
 			var msg:Object = new Object();
 			msg["whiteboardId"] = whiteboardID;
-			userSession.mainConnection.sendMessage("whiteboard.requestAnnotationHistory",
-												   function(result:String):void { // On successful result
-													   trace(result);
-												   },
-												   function(status:String):void { // status - On error occurred
-													   trace(status);
-												   },
-												   msg
-												   );
+			userSession.mainConnection.sendMessage("whiteboard.requestAnnotationHistory", function(result:String):void { // On successful result
+				trace(result);
+			}, function(status:String):void { // status - On error occurred
+				trace(status);
+			}, msg);
 		}
 		
 		public function sendText():void {

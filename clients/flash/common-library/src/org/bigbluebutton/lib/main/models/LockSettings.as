@@ -106,7 +106,7 @@ package org.bigbluebutton.lib.main.models {
 		}
 		
 		public function set lockOnJoin(disable:Boolean):void {
-				_lockOnJoin = disable;
+			_lockOnJoin = disable;
 		}
 		
 		public function get lockOnJoinConfigurable():Boolean {

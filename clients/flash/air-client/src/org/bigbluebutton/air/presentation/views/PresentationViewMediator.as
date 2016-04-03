@@ -4,29 +4,20 @@ package org.bigbluebutton.air.presentation.views {
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
-	import flash.events.TouchEvent;
 	import flash.events.TransformGestureEvent;
 	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
-	import mx.core.DragSource;
 	import mx.core.FlexGlobals;
 	import mx.events.ResizeEvent;
-	import mx.managers.DragManager;
 	import mx.managers.PopUpManager;
 	import mx.resources.ResourceManager;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import spark.events.PopUpEvent;
+	
 	import org.bigbluebutton.air.main.models.IUserUISession;
-	import org.bigbluebutton.air.presentation.views.selectWebcam.SelectStreamPopUp;
-	import org.bigbluebutton.air.presentation.views.selectWebcam.SelectStreamPopUpBase;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.presentation.commands.LoadSlideSignal;
-	import org.bigbluebutton.lib.presentation.models.Presentation;
-	import org.bigbluebutton.lib.presentation.models.Slide;
-	import org.bigbluebutton.lib.presentation.models.SlideModel;
+	import org.bigbluebutton.air.presentation.views.selectwebcam.SelectStreamPopUp;
 	import org.bigbluebutton.lib.presentation.services.IPresentationService;
-	import org.bigbluebutton.lib.presentation.utils.CursorIndicator;
 	import org.bigbluebutton.lib.presentation.views.PresentationMediator;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.models.UserList;
@@ -34,10 +25,6 @@ package org.bigbluebutton.air.presentation.views {
 	import org.bigbluebutton.lib.video.models.VideoProfile;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
-	
-	import spark.components.SkinnablePopUpContainer;
-	import spark.components.VideoDisplay;
-	import spark.events.PopUpEvent;
 	
 	public class PresentationViewMediator extends PresentationMediator {
 		
@@ -72,7 +59,7 @@ package org.bigbluebutton.air.presentation.views {
 		
 		private var videoMovedDistanceY:Number = 0;
 		
-		var overlayTimer:Timer = new Timer(3.5 * 1000, 1);
+		private var overlayTimer:Timer = new Timer(3.5 * 1000, 1);
 		
 		override public function initialize():void {
 			super.initialize();

@@ -33,7 +33,7 @@ package org.bigbluebutton.lib.chat.models {
 		/**
 		 * Create private chat for the new user
 		 *
-		 * */
+		 **/
 		public function addUserToPrivateMessages(userId:String, userName:String):PrivateChatMessage {
 			var pcm:PrivateChatMessage = new PrivateChatMessage();
 			pcm.privateChat.chatMessageChangeSignal.add(newPrivateChatMessageDispatchSignal);

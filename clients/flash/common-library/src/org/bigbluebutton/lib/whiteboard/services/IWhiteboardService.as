@@ -1,7 +1,6 @@
-package org.bigbluebutton.lib.whiteboard.services
-{
-	public interface IWhiteboardService
-	{
+package org.bigbluebutton.lib.whiteboard.services {
+	
+	public interface IWhiteboardService {
 		function setupMessageSenderReceiver():void;
 		function getAnnotationHistory(presentationID:String, pageNumber:int):void;
 		function changePage(pageNum:Number):void;

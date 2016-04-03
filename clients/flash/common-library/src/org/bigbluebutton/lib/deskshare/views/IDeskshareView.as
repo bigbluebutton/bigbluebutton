@@ -3,7 +3,6 @@ package org.bigbluebutton.lib.deskshare.views {
 	import flash.net.NetConnection;
 	
 	import spark.components.Group;
-	import spark.components.Label;
 	
 	public interface IDeskshareView {
 		function get deskshareGroup():Group;

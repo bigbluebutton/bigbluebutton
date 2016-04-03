@@ -1,12 +1,5 @@
 package org.bigbluebutton.lib.deskshare.views {
 	
-	import flash.events.Event;
-	
-	import mx.core.FlexGlobals;
-	import mx.events.ResizeEvent;
-	import mx.resources.ResourceManager;
-	
-	import org.bigbluebutton.lib.deskshare.views.IDeskshareView;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	

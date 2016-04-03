@@ -60,27 +60,21 @@ package org.bigbluebutton.lib.deskshare.services {
 		}
 		
 		private function checkIfStreamIsPublishing():void {
-			baseConnection.connection.call("deskshare.checkIfStreamIsPublishing",
-				new Responder(
-					function(result:Object):void {
-						if (result != null && (result.publishing as Boolean)) {
-							streamHeight = result.height as Number;
-							streamWidth = result.width as Number;
-							
-							trace("Deskshare stream is streaming [" + streamWidth + "," + streamHeight + "]");
-							
-							// if we receive result from the server, then somebody is sharing their desktop - dispatch the notification signal
-							isStreaming = true;
-						} else {
-							trace("No deskshare stream being published");
-						}
-					},
-					function(status:Object):void {
-						trace("Error while trying to call remote method on the server");
-					}
-				),
-				_room
-			);
+			baseConnection.connection.call("deskshare.checkIfStreamIsPublishing", new Responder(function(result:Object):void {
+				if (result != null && (result.publishing as Boolean)) {
+					streamHeight = result.height as Number;
+					streamWidth = result.width as Number;
+					
+					trace("Deskshare stream is streaming [" + streamWidth + "," + streamHeight + "]");
+					
+					// if we receive result from the server, then somebody is sharing their desktop - dispatch the notification signal
+					isStreaming = true;
+				} else {
+					trace("No deskshare stream being published");
+				}
+			}, function(status:Object):void {
+				trace("Error while trying to call remote method on the server");
+			}), _room);
 		}
 		
 		public function onConnectionUnsuccess(reason:String):void {

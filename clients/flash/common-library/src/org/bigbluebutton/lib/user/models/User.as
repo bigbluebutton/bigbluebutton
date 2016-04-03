@@ -1,8 +1,5 @@
 package org.bigbluebutton.lib.user.models {
 	
-	import org.bigbluebutton.lib.chat.models.ChatMessages;
-	import org.osflash.signals.ISignal;
-	
 	[Bindable]
 	public class User {
 		public static const MODERATOR:String = "MODERATOR";
@@ -16,9 +13,9 @@ package org.bigbluebutton.lib.user.models {
 		public static const NO_STATUS:String = "none";
 		
 		public static const RAISE_HAND:String = "raiseHand";
-	
+		
 		public static const HAPPY:String = "happy";
-
+		
 		public static const NEUTRAL:String = "neutral";
 		
 		public static const SAD:String = "sad";

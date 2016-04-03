@@ -1,7 +1,8 @@
 package org.bigbluebutton.lib.main.commands {
 	
-	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.user.services.IUsersService;
+	
 	import robotlegs.bender.bundles.mvcs.Command;
 	
 	public class RaiseHandCommand extends Command {

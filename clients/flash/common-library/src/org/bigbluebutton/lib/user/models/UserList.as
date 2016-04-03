@@ -32,7 +32,7 @@ package org.bigbluebutton.lib.user.models {
 		
 		public static const HAPPY:int = 11;
 		
-		public static const NEUTRAL:int = 12;	
+		public static const NEUTRAL:int = 12;
 		
 		public static const SAD:int = 13;
 		
@@ -303,7 +303,7 @@ package org.bigbluebutton.lib.user.models {
 					user.hasStream = true;
 					if (user.streamName == "") {
 						user.streamName = streamName;
-					} else if (user.streamName.indexOf(streamName) == -1){
+					} else if (user.streamName.indexOf(streamName) == -1) {
 						user.streamName += "|" + streamName;
 					}
 				} else {

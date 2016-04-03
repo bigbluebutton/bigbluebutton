@@ -2,7 +2,6 @@ package org.bigbluebutton.lib.whiteboard.views {
 	
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.whiteboard.models.IAnnotation;
-	import org.bigbluebutton.lib.whiteboard.views.IWhiteboardCanvas;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	

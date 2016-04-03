@@ -2,10 +2,10 @@ package org.bigbluebutton.lib.presentation.views {
 	
 	import mx.controls.SWFLoader;
 	
+	import spark.components.Group;
+	
 	import org.bigbluebutton.lib.presentation.models.Slide;
 	import org.bigbluebutton.lib.whiteboard.views.WhiteboardCanvas;
-	
-	import spark.components.Group;
 	
 	public interface IPresentationView {
 		function get content():Group;
