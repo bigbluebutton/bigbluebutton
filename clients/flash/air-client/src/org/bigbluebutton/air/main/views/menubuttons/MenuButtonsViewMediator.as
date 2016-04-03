@@ -9,38 +9,24 @@ package org.bigbluebutton.air.main.views.menubuttons {
 	import flash.events.Event;
 	import flash.events.InvokeEvent;
 	import flash.events.MouseEvent;
-	import flash.events.StageOrientationEvent;
-	import flash.events.TouchEvent;
-	import flash.geom.Point;
 	
 	import mx.core.FlexGlobals;
-	import mx.core.mx_internal;
-	import mx.events.FlexEvent;
-	import mx.events.ResizeEvent;
-	import mx.managers.PopUpManager;
 	import mx.resources.ResourceManager;
 	
 	import org.bigbluebutton.air.common.views.PagesENUM;
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.main.views.menubuttons.changestatus.ChangeStatusPopUp;
-	import org.bigbluebutton.air.main.views.menubuttons.changestatus.StatusItemRenderer;
-	import org.bigbluebutton.air.main.views.skins.NavigationButtonSkin;
 	import org.bigbluebutton.air.main.views.skins.PresentationButtonSkin;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.models.UserList;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
-	
-	import spark.events.PopUpEvent;
-	import spark.transitions.ViewTransitionBase;
 	
 	public class MenuButtonsViewMediator extends Mediator {
 		

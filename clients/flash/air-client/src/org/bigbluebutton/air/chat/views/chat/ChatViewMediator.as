@@ -6,8 +6,13 @@ package org.bigbluebutton.air.chat.views.chat {
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.StageOrientationEvent;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.ui.Keyboard;
 	import flash.utils.Dictionary;
+	
+	import flashx.textLayout.events.ScrollEvent;
+	import flashx.textLayout.events.ScrollEventDirection;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
@@ -18,6 +23,7 @@ package org.bigbluebutton.air.chat.views.chat {
 	
 	import org.bigbluebutton.air.common.views.PagesENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
+	import org.bigbluebutton.lib.chat.models.ChatMessage;
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.ChatMessages;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
@@ -28,6 +34,7 @@ package org.bigbluebutton.air.chat.views.chat {
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
+	import spark.components.DataGroup;
 	import spark.components.List;
 	import spark.components.View;
 	import spark.events.ViewNavigatorEvent;
@@ -55,7 +62,7 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		protected var list:List;
 		
-		protected var publicChat:Boolean = true;
+		protected var _publicChat:Boolean = true;
 		
 		protected var user:User;
 		
@@ -63,16 +70,24 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		protected var deltaHeight:Number;
 		
+		protected var newMessages:Number;
+		
+		protected var firstNewMessageIndex:Number;
+		
 		override public function initialize():void {
 			var userMe:User = userSession.userList.me;
 			data = userUISession.currentPageDetails;
 			if (data is User) {
 				createNewChat(data as User);
 			} else {
+				var chatMessages:ChatMessages = data.chatMessages as ChatMessages;
+				if (chatMessages.newMessages > 0) {
+					newMessages = chatMessages.newMessages;
+				}
 				openChat(data);
 			}
 			var userLocked:Boolean = (!userSession.userList.me.presenter && userSession.userList.me.locked && userSession.userList.me.role != User.MODERATOR);
-			if (publicChat) {
+			if (_publicChat) {
 				disableChat(userSession.lockSettings.disablePublicChat && !userMe.presenter && userMe.locked);
 				userSession.lockSettings.disablePublicChatSignal.add(disableChat);
 			} else {
@@ -81,10 +96,54 @@ package org.bigbluebutton.air.chat.views.chat {
 			}
 			chatMessageService.sendMessageOnSuccessSignal.add(onSendSucess);
 			chatMessageService.sendMessageOnFailureSignal.add(onSendFailure);
-			list.addEventListener(FlexEvent.UPDATE_COMPLETE, scrollUpdate);
+			chatMessagesSession.newChatMessageSignal.add(scrollUpdate);
+			list.addEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			userSession.userList.userAddedSignal.add(userAdded);
 			(view as View).addEventListener(ViewNavigatorEvent.VIEW_DEACTIVATE, viewDeactivateHandler);
+		}
+		
+		private function updateComplete(e:FlexEvent):void {
+			view.list.ensureIndexIsVisible(view.list.dataProvider.length - 1);
+			var visibleIndices:Vector.<int> = view.list.dataGroup.getItemIndicesInView();
+			displayNewMessagesBar((visibleIndices.length < newMessages));
+			list.removeEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
+		}
+		
+		private function displayNewMessagesBar(value:Boolean):void {
+			firstNewMessageIndex = dataProvider.length - newMessages;
+			var time:String = (dataProvider.getItemAt(firstNewMessageIndex) as ChatMessage).time;
+			view.newMessagesLabel.text = newMessages.toString() + " " + ResourceManager.getInstance().getString('resources', 'chat.unreadMessages') + " " + time;
+			view.newMessages.visible = value;
+			view.newMessages.includeInLayout = value;
+			if (value) {
+				view.list.addEventListener(MouseEvent.MOUSE_MOVE, isNewMessageVisible);
+				view.newMessages.addEventListener(MouseEvent.CLICK, goToFirstNewMessage);
+			} else {
+				view.list.removeEventListener(MouseEvent.MOUSE_MOVE, isNewMessageVisible);
+				view.newMessages.removeEventListener(MouseEvent.CLICK, goToFirstNewMessage);
+			}
+		}
+		
+		private function isNewMessageVisible(e:MouseEvent = null):void {
+			if (isIndexVisible(firstNewMessageIndex)) {
+				displayNewMessagesBar(false);
+			}
+		}
+		
+		private function isIndexVisible(i:int):Boolean {
+			var visibleIndices:Vector.<int> = view.list.dataGroup.getItemIndicesInView();
+			for each (var index:int in visibleIndices) {
+				if (index == i) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		private function goToFirstNewMessage(e:MouseEvent):void {
+			view.list.ensureIndexIsVisible(firstNewMessageIndex);
+			displayNewMessagesBar(false);
 		}
 		
 		private function disableChat(disable:Boolean):void {
@@ -143,7 +202,7 @@ package org.bigbluebutton.air.chat.views.chat {
 		}
 		
 		protected function createNewChat(user:User):void {
-			publicChat = false;
+			_publicChat = false;
 			this.user = user;
 			view.pageName.text = user.name;
 			view.inputMessage.enabled = chatMessagesSession.getPrivateMessages(user.userID, user.name).userOnline;
@@ -153,10 +212,10 @@ package org.bigbluebutton.air.chat.views.chat {
 		}
 		
 		protected function openChat(currentPageDetails:Object):void {
-			publicChat = currentPageDetails.hasOwnProperty("publicChat") ? currentPageDetails.publicChat : null;
+			_publicChat = currentPageDetails.hasOwnProperty("publicChat") ? currentPageDetails.publicChat : null;
 			user = currentPageDetails.user;
 			view.pageName.text = currentPageDetails.name;
-			if (!publicChat) {
+			if (!_publicChat) {
 				view.inputMessage.enabled = currentPageDetails.online;
 				// if user went offline, and 'OFFLINE' marker is not already part of the string, add OFFLINE to the username
 				if ((currentPageDetails.online == false) && (view.pageName.text.indexOf(ResourceManager.getInstance().getString('resources', 'userDetail.userOffline')) == -1)) {
@@ -170,13 +229,11 @@ package org.bigbluebutton.air.chat.views.chat {
 			list.dataProvider = dataProvider;
 		}
 		
-		private function scrollUpdate(e:Event):void {
-			if (list.dataGroup.contentHeight > list.dataGroup.height) {
-				if (list.dataGroup.getElementAt(0) && !deltaHeight) {
-					deltaHeight = list.dataGroup.getElementAt(0).height / 2;
+		private function scrollUpdate(userId:String = null, publicChat:Boolean = true):void {
+			if ((user && userId == user.userID) || publicChat == _publicChat) {
+				if (isIndexVisible(view.list.dataProvider.length - 2)) {
+					view.list.ensureIndexIsVisible(view.list.dataProvider.length - 1);
 				}
-				//included deltaHeight to fix spacing issue
-				list.dataGroup.verticalScrollPosition = list.dataGroup.contentHeight - list.dataGroup.height + deltaHeight;
 			}
 		}
 		
@@ -193,9 +250,9 @@ package org.bigbluebutton.air.chat.views.chat {
 			m.fromTimezoneOffset = currentDate.timezoneOffset;
 			m.fromLang = "en";
 			m.message = view.inputMessage.text;
-			m.toUserID = publicChat ? "public_chat_userid" : user.userID;
-			m.toUsername = publicChat ? "public_chat_username" : user.name;
-			if (publicChat) {
+			m.toUserID = _publicChat ? "public_chat_userid" : user.userID;
+			m.toUsername = _publicChat ? "public_chat_username" : user.name;
+			if (_publicChat) {
 				m.chatType = "PUBLIC_CHAT";
 				chatMessageService.sendPublicMessage(m);
 			} else {
@@ -216,7 +273,8 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		override public function destroy():void {
 			super.destroy();
-			list.removeEventListener(FlexEvent.UPDATE_COMPLETE, scrollUpdate);
+			chatMessagesSession.newChatMessageSignal.remove(scrollUpdate);
+			list.removeEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
 			view.sendButton.removeEventListener(MouseEvent.CLICK, onSendButtonClick);
 			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSucess);
 			chatMessageService.sendMessageOnFailureSignal.remove(onSendFailure);

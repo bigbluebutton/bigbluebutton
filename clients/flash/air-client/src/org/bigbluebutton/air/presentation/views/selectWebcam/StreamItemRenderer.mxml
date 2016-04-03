@@ -21,6 +21,15 @@
 				selectionIcon.setCurrentState(this.currentState);
 			}
 			
+			private function setFirstLetters(participantName:String):void {
+				var names:Array = participantName.split(" ");
+				var firstLettersText:String = names[0].charAt(0);
+				if (names[1]) {
+					firstLettersText += names[1].charAt(0);
+				}
+				participantIcon.firstLetters.text = firstLettersText.toUpperCase();
+			}
+			
 			override public function set data(obj:Object):void {
 				
 				this.addEventListener(StateChangeEvent.CURRENT_STATE_CHANGE, selectionChange);
@@ -30,7 +39,7 @@
 					title.text = obj.user.name;
 					presenter.visible = obj.user.presenter;
 					presenter.includeInLayout = obj.user.presenter;
-					participantIcon.participantName = obj.user.name;
+					setFirstLetters(obj.user.name);
 					if (obj.user.me) {
 						title.text += " " + resourceManager.getString('resources', 'userDetail.you');
 					}

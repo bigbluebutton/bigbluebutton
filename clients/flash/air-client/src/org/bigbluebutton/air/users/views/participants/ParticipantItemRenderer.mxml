@@ -10,6 +10,15 @@
 			import mx.events.FlexEvent;
 			import org.bigbluebutton.lib.user.models.User;
 			
+			private function setFirstLetters(participantName:String):void {
+				var names:Array = participantName.split(" ");
+				var firstLettersText:String = names[0].charAt(0);
+				if (names[1]) {
+					firstLettersText += names[1].charAt(0);
+				}
+				participantIcon.firstLetters.text = firstLettersText.toUpperCase();
+			}
+			
 			override public function set data(obj:Object):void {
 				super.data = obj;
 				if (obj) {
@@ -25,7 +34,7 @@
 					} else {
 						labelDisplay.text = obj.name;
 					}
-					participantIcon.participantName = obj.name;
+					setFirstLetters(obj.name);
 					if (obj.presenter) {
 						subLabelDisplay.visible = subLabelDisplay.includeInLayout = true;
 						subLabelDisplay.text = resourceManager.getString('resources', 'participants.status.presenter');

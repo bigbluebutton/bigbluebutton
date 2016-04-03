@@ -28,8 +28,12 @@ package org.bigbluebutton.air.main.commands {
 				FlexGlobals.topLevelApplication.bottomMenu.includeInLayout = true;
 			}
 			userUISession.loading = false;
-			userUISession.pushPage(PagesENUM.VIDEO_CHAT);
-			displayAudioSettings();
+			userUISession.pushPage(PagesENUM.PRESENTATION);
+			if (conferenceParameters.serverIsMconf && !userSession.lockSettings.loaded) {
+				userSession.lockSettings.disableMicSignal.add(displayAudioSettings);
+			} else {
+				displayAudioSettings();
+			}
 			if (userSession.videoAutoStart && !userSession.skipCamSettingsCheck) {
 				userUISession.pushPage(PagesENUM.CAMERASETTINGS);
 			}

@@ -9,8 +9,31 @@
 	<s:Group width="100%"
 			 height="100%">
 		<s:layout>
-			<s:VerticalLayout />
+			<s:VerticalLayout gap="0" />
 		</s:layout>
+
+		<s:Group id="newMessagesBar"
+				 visible="false"
+				 includeInLayout="false"
+				 height="{getStyle('unreadMessagesBarHeight')}"
+				 width="100%">
+			<s:Rect width="100%"
+					height="100%">
+				<s:fill>
+					<s:SolidColor color="{getStyle('barColor')}" />
+				</s:fill>
+			</s:Rect>
+			<s:HGroup horizontalAlign="center"
+					  verticalAlign="middle"
+					  styleName="unreadMessagesBar"
+					  width="100%"
+					  height="100%">
+				<s:Image styleName="smallIconStyle oldMessagesIconStyle" />
+				<s:Label id="newMessagesLabel0"
+						 styleName="subContentFontSize" />
+			</s:HGroup>
+		</s:Group>
+
 		<s:Scroller width="100%"
 					height="100%">
 			<s:VGroup height="100%"

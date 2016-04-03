@@ -146,6 +146,8 @@ s|Button.logoutButtonStyle
 {
 	backgroundColor: #3385FF;
 	textColor:#FFFFFF;
+}
+
 s|Label.showSharedCamsLabel {
 	color:#CCCDCE;
 	textDecoration: underline;
@@ -226,7 +228,7 @@ s|Image.bbbLogoStyle
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.BBBLogoSkin");
 }
 
-s|Image.iconStyle, s|Image.userDetailIconStyle
+s|Image.iconStyle, s|Image.smallIconStyle, s|Image.userDetailIconStyle
 {
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.IconSkin");
 }
@@ -291,6 +293,12 @@ s|Image.bigbbbLogoStyle
 s|View.chatViewStyle
 {
 	backgroundColor: #F1F3F7;
+	barColor: #4998D0;
+}
+
+s|HGroup.unreadMessagesBar
+{
+	color: #FFFFFF;
 }
 
 s|TextInput.msgInputBoxStyle
@@ -497,6 +505,7 @@ s|TextInput.msgInputBoxStyle
 	
 	s|View.chatViewStyle
 	{
+		unreadMessagesBarHeight: 36;
 		chatInputTextHeight:48;
 		btnWidth:40;
 	}
@@ -659,10 +668,21 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/video.png");
 	}
 	
+	s|Image.smallIconStyle
+	{
+		width: 16;
+		height: 16;
+	}
+	
 	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 32;
 		height: 32;
+	}
+	
+	s|Image.oldMessagesIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/arrow_messages.png");
 	}
 	
 	s|Image.cameraIconStyle
@@ -1073,6 +1093,7 @@ s|TextInput.msgInputBoxStyle
 	
 	s|View.chatViewStyle
 	{
+		unreadMessagesBarHeight: 54;
 		chatInputTextHeight:72;
 		btnWidth:60;
 	}
@@ -1214,10 +1235,21 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/video.png");
 	}
 	
+	s|Image.smallIconStyle
+	{
+		width: 24;
+		height: 24;
+	}
+	
 	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 48;
 		height: 48;
+	}
+	
+	s|Image.oldMessagesIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/arrow_messages.png");
 	}
 	
 	s|Image.cameraIconStyle
@@ -1627,6 +1659,7 @@ s|TextInput.msgInputBoxStyle
 	
 	s|View.chatViewStyle
 	{
+		unreadMessagesBarHeight: 72;
 		chatInputTextHeight:96;
 		btnWidth:80;
 	}
@@ -1776,10 +1809,21 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/video.png");
 	}
 	
+	s|Image.smallIconStyle
+	{
+		width: 32;
+		height: 32;
+	}
+	
 	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 64;
 		height: 64;
+	}
+	
+	s|Image.oldMessagesIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/arrow_messages.png");
 	}
 	
 	s|Image.cameraIconStyle
@@ -2184,6 +2228,7 @@ s|TextInput.msgInputBoxStyle
 	
 	s|View.chatViewStyle
 	{
+		unreadMessagesBarHeight: 108;
 		chatInputTextHeight:144;
 		btnWidth:120;
 	}
@@ -2342,10 +2387,21 @@ s|TextInput.msgInputBoxStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/video.png");
 	}
 	
+	s|Image.smallIconStyle
+	{
+		width: 48;
+		height: 48;
+	}
+	
 	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 96;
 		height: 96;
+	}
+	
+	s|Image.oldMessagesIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/arrow_messages.png");
 	}
 	
 	s|Image.cameraIconStyle

@@ -1,25 +1,8 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 styleName="participantIconStyle"
-		 creationComplete="init()">
-	<fx:Script>
-		<![CDATA[
-			public var participantName:String;
-			
-			public function init():void {
-				//create first letters icon
-				if (participantName) {
-					var names:Array = participantName.split(" ");
-					var firstLettersText:String = names[0].charAt(0);
-					if (names[1]) {
-						firstLettersText += names[1].charAt(0);
-					}
-					firstLetters.text = firstLettersText.toUpperCase();
-				}
-			}
-		]]>
-	</fx:Script>
+		 styleName="participantIconStyle">
+
 	<s:HGroup horizontalAlign="center"
 			  verticalAlign="middle"
 			  width="{getStyle('width')}"
