@@ -32,7 +32,6 @@
 			
 			import org.bigbluebutton.air.AppConfig;
 			import org.bigbluebutton.air.chat.ChatConfig;
-			import org.bigbluebutton.air.chat.views.split.SplitChatView;
 			import org.bigbluebutton.air.common.views.NoTabView;
 			import org.bigbluebutton.air.common.views.PagesENUM;
 			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
@@ -43,15 +42,15 @@
 			import org.bigbluebutton.air.main.views.guest.GuestPageConfig;
 			import org.bigbluebutton.air.main.views.loginpage.openroom.OpenRoomConfig;
 			import org.bigbluebutton.air.main.views.loginpage.openroom.recentrooms.RecentRoomsConfig;
+			import org.bigbluebutton.air.main.views.menubuttons.changestatus.ChangeStatusConfig;
+			import org.bigbluebutton.air.main.views.topbar.TopBarConfig;
 			import org.bigbluebutton.air.main.views.ui.videobutton.VideoButtonConfig;
 			import org.bigbluebutton.air.presentation.views.PresentationConfig;
+			import org.bigbluebutton.air.presentation.views.selectWebcam.SelectStreamConfig;
 			import org.bigbluebutton.air.settings.views.audio.AudioSettingsConfig;
 			import org.bigbluebutton.air.settings.views.camera.CameraSettingsConfig;
 			import org.bigbluebutton.air.settings.views.lock.LockSettingsConfig;
-			import org.bigbluebutton.air.settings.views.split.SplitSettingsConfig;
-			import org.bigbluebutton.air.settings.views.status.StatusConfig;
 			import org.bigbluebutton.air.users.views.participants.ParticipantsConfig;
-			import org.bigbluebutton.air.users.views.split.SplitParticipantsConfig;
 			import org.bigbluebutton.air.users.views.userdetails.UserDetailsConfig;
 			import org.bigbluebutton.air.video.views.swapcamera.SwapCameraConfig;
 			import org.bigbluebutton.air.video.views.videochat.VideoChatConfig;
@@ -104,7 +103,7 @@
 			private function setupContext():void {
 				context = new Context().install(MVCSBundle, SignalCommandMapExtension).configure(AppConfig)
 					
-					.configure(MainConfig).configure(PresentationConfig).configure(ChatConfig).configure(VideoChatConfig).configure(UserDetailsConfig).configure(ParticipantsConfig).configure(MicButtonConfig).configure(SwapCameraConfig).configure(DeskshareConfig).configure(CameraSettingsConfig).configure(AudioSettingsConfig).configure(StatusConfig).configure(VideoButtonConfig).configure(OpenRoomConfig).configure(RecentRoomsConfig).configure(LockSettingsConfig).configure(ExitPageConfig).configure(SplitSettingsConfig).configure(SplitParticipantsConfig).configure(PresentationConfig).configure(GuestPageConfig).configure(WhiteboardConfig)
+					.configure(MainConfig).configure(PresentationConfig).configure(ChatConfig).configure(VideoChatConfig).configure(UserDetailsConfig).configure(ParticipantsConfig).configure(MicButtonConfig).configure(SwapCameraConfig).configure(DeskshareConfig).configure(CameraSettingsConfig).configure(AudioSettingsConfig).configure(VideoButtonConfig).configure(OpenRoomConfig).configure(RecentRoomsConfig).configure(LockSettingsConfig).configure(ExitPageConfig).configure(PresentationConfig).configure(GuestPageConfig).configure(WhiteboardConfig).configure(SelectStreamConfig).configure(ChangeStatusConfig).configure(TopBarConfig)
 					
 					.configure(new ContextView(this));
 				// If you wish to change the log level then uncomment the line below and set 
@@ -128,29 +127,17 @@
 			
 			protected function applicationCompleteHandler(event:FlexEvent):void {
 				NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
-				stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 				// setup a custom orientation calculator based on the accelerometer because the default one doesn't work
 				//_orientationCalc = new OrientationCalculator(pagesNavigatorView, accelerometerCallback);
 				//_orientationCalc.active = true;
 				//currentOrientation = _orientationCalc.currentOrientation;
 			}
 			
-			private function stageOrientationChangingHandler(e:Event):void {
-				// profileBtn.navigateTo = isTabletLandscape() ? [PagesENUM.SPLITSETTINGS] : [PagesENUM.PROFILE];
-			}
-			
 			private function accelerometerCallback():void {
-				trace("++ accelerometer callback");
 				stage.setOrientation(_orientationCalc.currentOrientation);
 				stage.dispatchEvent(new StageOrientationEvent(StageOrientationEvent.ORIENTATION_CHANGE, true, true, currentOrientation, _orientationCalc.currentOrientation));
 				currentOrientation = _orientationCalc.currentOrientation;
 				(pagesNavigatorView.activeView as NoTabView).rotationHandler(_orientationCalc.currentOrientation);
-			}
-			
-			public function isTabletLandscape():Boolean {
-				var landscape:Boolean = (this.width > this.height);
-				var tablet:Boolean = ((Math.max(this.width, this.height) / Capabilities.screenDPI) >= 7)
-				return landscape && tablet;
 			}
 		]]>
 	</fx:Script>
@@ -167,7 +154,8 @@
 			 id="mainshell"
 			 visible="false">
 		<s:layout>
-			<s:VerticalLayout gap="0" />
+			<s:VerticalLayout gap="0"
+							  horizontalAlign="center" />
 		</s:layout>
 
 		<topbar:TopBarView id="topActionBar"
@@ -183,5 +171,6 @@
 		<menubuttons:MenuButtonsView id="bottomMenu"
 									 width="100%"
 									 height="{getStyle('bottomToolBarHeight')}" />
+
 	</s:Group>
 </s:Application>

@@ -6,8 +6,6 @@ package org.bigbluebutton.air.chat {
 	import org.bigbluebutton.air.chat.views.chatrooms.IChatRoomsView;
 	import org.bigbluebutton.air.chat.views.selectparticipant.ISelectParticipantView;
 	import org.bigbluebutton.air.chat.views.selectparticipant.SelectParticipantViewMediator;
-	import org.bigbluebutton.air.chat.views.split.ISplitChatView;
-	import org.bigbluebutton.air.chat.views.split.SplitChatViewMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
@@ -46,7 +44,6 @@ package org.bigbluebutton.air.chat {
 			mediatorMap.map(IChatView).toMediator(ChatViewMediator);
 			mediatorMap.map(IChatRoomsView).toMediator(ChatRoomsViewMediator);
 			mediatorMap.map(ISelectParticipantView).toMediator(SelectParticipantViewMediator);
-			mediatorMap.map(ISplitChatView).toMediator(SplitChatViewMediator);
 		}
 		
 		/**

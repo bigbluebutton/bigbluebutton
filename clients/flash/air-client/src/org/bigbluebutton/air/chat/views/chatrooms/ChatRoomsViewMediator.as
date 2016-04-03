@@ -74,23 +74,11 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			chatMessagesSession.publicChat.chatMessageChangeSignal.add(refreshList);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			userSession.userList.userAddedSignal.add(userAdded);
-			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			setPageTitle();
 			chatMessagesSession.chatMessageChangeSignal.add(newMessageReceived);
-			FlexGlobals.topLevelApplication.backBtn.visible = false;
-			FlexGlobals.topLevelApplication.profileBtn.visible = true;
-			if (FlexGlobals.topLevelApplication.isTabletLandscape()) {
-				selectChat();
-			} else {
-				userUISession.pushPage(PagesENUM.CHATROOMS);
-			}
-		}
-		
-		private function stageOrientationChangingHandler(e:Event):void {
-			var tabletLandscape = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.pushPage(PagesENUM.SPLITCHAT);
-			}
+			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = false;
+			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = true;
+			userUISession.pushPage(PagesENUM.CHATROOMS);
 		}
 		
 		private function selectChat() {
@@ -123,10 +111,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			pcm.privateChat.chatMessageChangeSignal.add(populateList);
 			if (pcm.privateChat.messages.length > 0) {
 				addChat({name: pcm.userName, publicChat: false, user: user, chatMessages: pcm.privateChat, userID: pcm.userID, online: true}, dataProvider.length - 1);
-				if (FlexGlobals.topLevelApplication.isTabletLandscape() && userUISession.currentPageDetails.userID == pcm.userID) {
-					pcm.privateChat.resetNewMessages();
-					view.list.setSelectedIndex(dataProvider.length - 2);
-				}
 			}
 		}
 		
@@ -181,7 +165,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		 **/
 		public function setPageTitle():void {
 			if (dataProvider != null) {
-				FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'chat.title') + " (" + (dataProvider.length - 1) + ")";
+				FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'chat.title') + " (" + (dataProvider.length - 1) + ")";
 			}
 		}
 		
@@ -260,22 +244,9 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			var item:Object = dataProvider.getItemAt(event.newIndex);
 			if (item) {
 				if (item.hasOwnProperty("button")) {
-					if (FlexGlobals.topLevelApplication.isTabletLandscape()) {
-						eventDispatcher.dispatchEvent(new SplitViewEvent(SplitViewEvent.CHANGE_VIEW, PagesENUM.getClassfromName(PagesENUM.SELECT_PARTICIPANT), item, true));
-						eventDispatcher.addEventListener(SplitViewEvent.CHANGE_VIEW, userSelected);
-						view.list.selectedIndex = -1;
-					} else {
-						userUISession.pushPage(PagesENUM.SELECT_PARTICIPANT, item, TransitionAnimationENUM.SLIDE_LEFT)
-					}
+					userUISession.pushPage(PagesENUM.SELECT_PARTICIPANT, item, TransitionAnimationENUM.SLIDE_LEFT)
 				} else {
-					if (FlexGlobals.topLevelApplication.isTabletLandscape()) {
-						item.chatMessages.resetNewMessages();
-						dataProvider.refresh();
-						view.list.selectedIndex = event.newIndex;
-						eventDispatcher.dispatchEvent(new SplitViewEvent(SplitViewEvent.CHANGE_VIEW, PagesENUM.getClassfromName(PagesENUM.CHAT), item, true))
-					} else {
-						userUISession.pushPage(PagesENUM.CHAT, item, TransitionAnimationENUM.SLIDE_LEFT)
-					}
+					userUISession.pushPage(PagesENUM.CHAT, item, TransitionAnimationENUM.SLIDE_LEFT)
 				}
 			} else {
 				throw new Error("item null on ChatRoomsViewMediator");
@@ -339,7 +310,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			userSession.userList.userAddedSignal.remove(userAdded);
 			chatMessagesSession.chatMessageChangeSignal.remove(newMessageReceived);
 			eventDispatcher.removeEventListener(SplitViewEvent.CHANGE_VIEW, userSelected);
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			list.removeEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
 			//view.sendButton.removeEventListener(MouseEvent.CLICK, onSendButtonClick);
 			view.dispose();

@@ -53,22 +53,9 @@ package org.bigbluebutton.air.chat.views.selectparticipant {
 			userSession.userList.userChangeSignal.add(userChanged);
 			userSession.userList.userAddedSignal.add(userAdded);
 			userSession.userList.userRemovedSignal.add(userRemoved);
-			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'selectParticipant.title');
-			FlexGlobals.topLevelApplication.backBtn.visible = false;
-			FlexGlobals.topLevelApplication.profileBtn.visible = true;
-			adjustForScreenRotation();
-		}
-		
-		private function adjustForScreenRotation():void {
-			var tabletLandscape:Boolean = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.pushPage(PagesENUM.SPLITCHAT, userUISession.currentPageDetails);
-			}
-		}
-		
-		private function stageOrientationChangingHandler(e:Event):void {
-			adjustForScreenRotation();
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'selectParticipant.title');
+			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = false;
+			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = true;
 		}
 		
 		private function userAdded(user:User):void {
@@ -90,18 +77,13 @@ package org.bigbluebutton.air.chat.views.selectparticipant {
 		
 		protected function onSelectUser(event:IndexChangeEvent):void {
 			var user:User = dataProvider.getItemAt(event.newIndex) as User;
-			if (FlexGlobals.topLevelApplication.isTabletLandscape()) {
-				eventDispatcher.dispatchEvent(new SplitViewEvent(SplitViewEvent.CHANGE_VIEW, PagesENUM.getClassfromName(PagesENUM.CHAT), user, true));
-			} else {
-				userUISession.pushPage(PagesENUM.CHAT, user, TransitionAnimationENUM.SLIDE_LEFT);
-			}
+			userUISession.pushPage(PagesENUM.CHAT, user, TransitionAnimationENUM.SLIDE_LEFT);
 		}
 		
 		override public function destroy():void {
 			super.destroy();
 			view.dispose();
 			view = null;
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			userSession.userList.userChangeSignal.remove(userChanged);
 			userSession.userList.userAddedSignal.remove(userAdded);
 			userSession.userList.userRemovedSignal.remove(userRemoved);

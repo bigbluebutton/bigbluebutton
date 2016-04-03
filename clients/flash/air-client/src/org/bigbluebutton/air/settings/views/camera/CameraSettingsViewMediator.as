@@ -81,20 +81,13 @@ package org.bigbluebutton.air.settings.views.camera {
 			view.startCameraButton.addEventListener(MouseEvent.CLICK, onShareCameraClick);
 			view.rotateCameraButton.addEventListener(MouseEvent.CLICK, onRotateCameraClick);
 			view.cameraProfilesList.addEventListener(IndexChangeEvent.CHANGE, onCameraQualitySelected);
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'cameraSettings.title');
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'cameraSettings.title');
 			displayPreviewCamera();
 		}
 		
 		private function stageOrientationChangingHandler(e:Event):void {
-			var tabletLandscape = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.popPage();
-				userUISession.popPage();
-				userUISession.pushPage(PagesENUM.SPLITSETTINGS, PagesENUM.CAMERASETTINGS);
-			} else {
-				userUISession.popPage();
-				userUISession.pushPage(PagesENUM.CAMERASETTINGS);
-			}
+			userUISession.popPage();
+			userUISession.pushPage(PagesENUM.CAMERASETTINGS);
 		}
 		
 		private function disableCam(disable:Boolean):void {

@@ -1,17 +1,13 @@
 package org.bigbluebutton.air.settings.views.lock {
 	
-	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.events.StageOrientationEvent;
 	
 	import mx.core.FlexGlobals;
-	import mx.events.ItemClickEvent;
-	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.models.UserSession;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
@@ -44,18 +40,13 @@ package org.bigbluebutton.air.settings.views.lock {
 			loadLockSettings();
 			view.applyButton.addEventListener(MouseEvent.CLICK, onApply);
 			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
-			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			FlexGlobals.topLevelApplication.backBtn.visible = true;
 			FlexGlobals.topLevelApplication.profileBtn.visible = false;
 		}
 		
-		private function stageOrientationChangingHandler(e:Event):void {
-			var tabletLandscape = FlexGlobals.topLevelApplication.isTabletLandscape();
-			if (tabletLandscape) {
-				userUISession.popPage();
-				userUISession.popPage();
-				userUISession.pushPage(PagesENUM.SPLITSETTINGS, PagesENUM.LOCKSETTINGS);
-			}
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
+			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = true;
+			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = false;
 		}
 		
 		private function onApply(event:MouseEvent):void {
@@ -69,13 +60,11 @@ package org.bigbluebutton.air.settings.views.lock {
 			newLockSettings.lockOnJoinConfigurable = userSession.lockSettings.lockOnJoinConfigurable;
 			userService.saveLockSettings(newLockSettings);
 			userUISession.popPage();
-			if (!FlexGlobals.topLevelApplication.isTabletLandscape()) {
-				userUISession.popPage();
-			}
+			userUISession.popPage();
 		}
 		
 		private function loadLockSettings() {
-			view.cameraSwitch.selected = !userSession.lockSettings.disableCam;
+			view.cameraSwitch.selected = !UserSession.lockSettings.disableCam;
 			view.micSwitch.selected = !userSession.lockSettings.disableMic;
 			view.publicChatSwitch.selected = !userSession.lockSettings.disablePublicChat;
 			view.privateChatSwitch.selected = !userSession.lockSettings.disablePrivateChat;
@@ -84,7 +73,6 @@ package org.bigbluebutton.air.settings.views.lock {
 		
 		override public function destroy():void {
 			super.destroy();
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 		}
 	}
 }

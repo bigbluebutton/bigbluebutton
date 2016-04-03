@@ -64,7 +64,6 @@ package org.bigbluebutton.air.main.views.menubuttons {
 			view.pushToTalkButton.addEventListener(FlexEvent.BUTTON_DOWN, pushToTalkOn);
 			view.pushToTalkButton.addEventListener(MouseEvent.MOUSE_UP, pushToTalkOff);
 			view.pushToTalkButton.addEventListener(MouseEvent.MOUSE_OUT, pushToTalkOff);
-			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			userUISession.loadingSignal.add(loadingFinished);
 			userUISession.pageChangedSignal.add(pageChanged);
 			userSession.guestList.userAddedSignal.add(guestAdded);
@@ -79,11 +78,6 @@ package org.bigbluebutton.air.main.views.menubuttons {
 			pushToTalkChange();
 		}
 		
-		private function stageOrientationChangingHandler(e:Event):void {
-			view.chatBtn0.navigateTo = FlexGlobals.topLevelApplication.isTabletLandscape() ? [PagesENUM.SPLITCHAT] : [PagesENUM.CHATROOMS, PagesENUM.CHAT, PagesENUM.SELECT_PARTICIPANT]
-			view.participantsBtn0.navigateTo = FlexGlobals.topLevelApplication.isTabletLandscape() ? [PagesENUM.SPLITPARTICIPANTS] : [PagesENUM.PARTICIPANTS, PagesENUM.USER_DETAILS]
-			//e.preventDefault();
-		}
 		
 		private function isPushToTalkOn() {
 			var micEnabled:Boolean = (userSession.voiceStreamManager && userSession.voiceStreamManager.mic && userSession.voiceConnection.callActive) ? true : false;

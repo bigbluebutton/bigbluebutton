@@ -5,7 +5,6 @@ package org.bigbluebutton.air.common.views {
 	import org.bigbluebutton.air.chat.views.chat.ChatView;
 	import org.bigbluebutton.air.chat.views.chatrooms.ChatRoomsView;
 	import org.bigbluebutton.air.chat.views.selectparticipant.SelectParticipantView;
-	import org.bigbluebutton.air.chat.views.split.SplitChatView;
 	import org.bigbluebutton.air.deskshare.views.DeskshareView;
 	import org.bigbluebutton.air.main.views.disconnectpage.DisconnectPageView;
 	import org.bigbluebutton.air.main.views.exit.ExitPageView;
@@ -18,10 +17,8 @@ package org.bigbluebutton.air.common.views {
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsView;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
-	import org.bigbluebutton.air.settings.views.split.SplitSettingsView;
 	import org.bigbluebutton.air.settings.views.status.StatusView;
 	import org.bigbluebutton.air.users.views.participants.ParticipantsView;
-	import org.bigbluebutton.air.users.views.split.SplitParticipantsView;
 	import org.bigbluebutton.air.users.views.userdetails.UserDetailsView;
 	import org.bigbluebutton.air.video.views.videochat.VideoChatView;
 	
@@ -96,9 +93,6 @@ package org.bigbluebutton.air.common.views {
 				dic[OPENROOM] = OpenRoomView;
 				dic[RECENTROOMS] = RecentRoomsView;
 				dic[LOCKSETTINGS] = LockSettingsView;
-				dic[SPLITSETTINGS] = SplitSettingsView;
-				dic[SPLITPARTICIPANTS] = SplitParticipantsView;
-				dic[SPLITCHAT] = SplitChatView;
 				dicInitiated = true;
 			}
 		}
