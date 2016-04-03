@@ -2,9 +2,9 @@ type = 'mobile'
 
 srcDirs = ['src']
 
-localeDir = 'src/locale'
+localeDir = 'locale'
 
-locales = ['en_US']
+locales = ['en_US', 'pt_BR']
 
 additionalCompilerOptions = [
     "-target-player=11.2"
