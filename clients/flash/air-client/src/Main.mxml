@@ -4,7 +4,6 @@
 			   xmlns:main="org.bigbluebutton.air.main.views.*"
 			   xmlns:voice="org.bigbluebutton.air.voice.views.*"
 			   applicationComplete="applicationCompleteHandler(event)"
-			   creationComplete="creationCompleteHandler(event)"
 			   preinitialize="preinitializeHandler(event)"
 			   runtimeDPIProvider="CustomRuntimeDPIProvider"
 			   styleName="mainshellStyle"
@@ -31,7 +30,6 @@
 			
 			import org.bigbluebutton.air.AppConfig;
 			import org.bigbluebutton.air.chat.ChatConfig;
-			import org.bigbluebutton.air.common.views.NoTabView;
 			import org.bigbluebutton.air.deskshare.views.DeskshareConfig;
 			import org.bigbluebutton.air.main.MainConfig;
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
@@ -70,30 +68,9 @@
 			protected function preinitializeHandler(event:FlexEvent):void {
 				setupContext();
 				resizeForSoftKeyboard = true;
-				//NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE, onInvokeEvent);
 				ResourceManager.getInstance().localeChain = LocaleUtil.sortLanguagesByPreference(['en_US'], Capabilities.languages, "en_US");
 			}
 			
-			/*
-			   public function onInvokeEvent(invocation:InvokeEvent):void
-			   {
-			   var traceString:String = "";
-			
-			   var arguments:Array = invocation.arguments;
-			   var currentDir:File = invocation.currentDirectory;
-			   var reason:String = invocation.reason;
-			   traceString += "-----InvokeEvent.INVOKE----\n";
-			   traceString += "arguments: "+arguments.toString()+"\n\n";
-			   traceString += "currentDir: "+currentDir+"\n\n";
-			   traceString += "reason: "+reason+"\n\n";
-			
-			   var url:String = arguments.toString().replace('bigbluebutton://', 'http://');
-			
-			   traceString += "url: "+url+"\n\n";
-			
-			   traceText.text += traceString;
-			   }
-			 */
 			/**
 			 * Sets up the Robotlegs context.
 			 */
@@ -119,22 +96,8 @@
 				context.logLevel = LogLevel.WARN;
 			}
 			
-			protected function creationCompleteHandler(event:FlexEvent):void {
-			}
-			
 			protected function applicationCompleteHandler(event:FlexEvent):void {
 				NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
-				// setup a custom orientation calculator based on the accelerometer because the default one doesn't work
-				//_orientationCalc = new OrientationCalculator(pagesNavigatorView, accelerometerCallback);
-				//_orientationCalc.active = true;
-				//currentOrientation = _orientationCalc.currentOrientation;
-			}
-			
-			private function accelerometerCallback():void {
-				stage.setOrientation(_orientationCalc.currentOrientation);
-				stage.dispatchEvent(new StageOrientationEvent(StageOrientationEvent.ORIENTATION_CHANGE, true, true, currentOrientation, _orientationCalc.currentOrientation));
-				currentOrientation = _orientationCalc.currentOrientation;
-				(pagesNavigatorView.activeView as NoTabView).rotationHandler(_orientationCalc.currentOrientation);
 			}
 		]]>
 	</fx:Script>
