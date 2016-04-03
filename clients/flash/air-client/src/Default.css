@@ -48,8 +48,7 @@ s|Button.guestResponseButtonStyle
 
 s|SkinnableContainer.topToolBarStyle
 {
-	gradientColorTop: #4A4C58;
-	gradientColorBottom: #43434B;
+	gradientColor: #2A2D33;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.TopToolBarSkin");
 }
 
@@ -121,10 +120,8 @@ s|Label.participantStatusStyle, s|Label.roomUrlStyle
 
 s|Button.topButtonStyle
 {
-	gradientColorTop:#4A4C58;
-	gradientColorBottom:#43434B;
-	selectedGradientColorTop:#454852;
-	selectedGradientColorBottom:#393942;
+	verticalAlign: middle;
+	horizontalAlign: middle;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.TopButtonSkin");
 }
 
@@ -475,16 +472,6 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/clear.png");
 	}
 	
-	s|Button.lowerAllHandsButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-mdpi/icon-3-high-five.png");
-	}
-	
-	s|Button.raiseHandButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-mdpi/icon-3-high-five.png");
-	}
-	
 	s|Button.audioSettingsListenOnlyButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/sound.png");
@@ -492,6 +479,8 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.topButtonStyle
 	{
+		paddingLeft: 24;
+		paddingRight: 24;
 		width: 48;
 		height: 48;
 	}
@@ -573,11 +562,6 @@ s|Image.bigbbbLogoStyle
 	s|Image.presentationIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/presentation.png");
-	}
-	
-	s|Image.handIconStyle, s|Button.handStatusButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-mdpi/icon-3-high-five.png");
 	}
 	
 	s|Image.agreeIconStyle, s|Button.agreeStatusButtonStyle
@@ -930,16 +914,6 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/clear.png");
 	}
 	
-	s|Button.lowerAllHandsButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-hdpi/icon-3-high-five.png");
-	}
-	
-	s|Button.raiseHandButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-hdpi/icon-3-high-five.png");
-	}
-	
 	s|Button.audioSettingsListenOnlyButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/sound.png");
@@ -1057,11 +1031,6 @@ s|Image.bigbbbLogoStyle
 	s|Image.agreeIconStyle, s|Button.agreeStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/icon-6-thumb-up.png");
-	}
-	
-	s|Image.handIconStyle, s|Button.handStatusButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-hdpi/icon-3-high-five.png");
 	}
 	
 	s|Image.disagreeIconStyle, s|Button.disagreeStatusButtonStyle
@@ -1274,6 +1243,8 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.topButtonStyle
 	{
+		paddingLeft: 48;
+		paddingRight: 48;
 		width: 96;
 		height: 96;
 	}
@@ -1409,16 +1380,6 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/clear.png");
 	}
 	
-	s|Button.lowerAllHandsButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-xhdpi/icon-3-high-five.png");
-	}
-	
-	s|Button.raiseHandButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-xhdpi/icon-3-high-five.png");
-	}
-	
 	s|Button.audioSettingsListenOnlyButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/sound.png");
@@ -1536,11 +1497,6 @@ s|Image.bigbbbLogoStyle
 	s|Image.agreeIconStyle, s|Button.agreeStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/icon-6-thumb-up.png");
-	}
-	
-	s|Image.handIconStyle, s|Button.handStatusButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-xhdpi/icon-3-high-five.png");
 	}
 	
 	s|Image.disagreeIconStyle, s|Button.disagreeStatusButtonStyle
@@ -1914,16 +1870,6 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/clear.png");
 	}
 	
-	s|Button.lowerAllHandsButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/icon-3-high-five.png");
-	}
-	
-	s|Button.raiseHandButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/icon-3-high-five.png");
-	}
-	
 	s|Button.audioSettingsListenOnlyButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/sound.png");
@@ -1931,6 +1877,8 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.topButtonStyle
 	{
+		paddingLeft: 72;
+		paddingRight: 72;
 		width: 144;
 		height: 144;
 	}
@@ -2017,11 +1965,6 @@ s|Image.bigbbbLogoStyle
 	s|Image.agreeIconStyle, s|Button.agreeStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/icon-6-thumb-up.png");
-	}
-	
-	s|Image.handIconStyle, s|Button.handStatusButtonStyle
-	{
-		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/icon-3-high-five.png");
 	}
 	
 	s|Image.disagreeIconStyle, s|Button.disagreeStatusButtonStyle
