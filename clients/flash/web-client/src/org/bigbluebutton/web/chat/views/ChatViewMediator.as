@@ -6,13 +6,17 @@ package org.bigbluebutton.web.chat.views {
 	import mx.events.FlexEvent;
 	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
+	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
+	import spark.components.List;
+	
 	public class ChatViewMediator extends Mediator {
+		
 		[Inject]
 		public var view:ChatView;
 		
@@ -22,6 +26,9 @@ package org.bigbluebutton.web.chat.views {
 		[Inject]
 		public var chatMessageService:IChatMessageService;
 		
+		[Inject]
+		public var chatMessageSession:IChatMessagesSession;
+		
 		private var publicChat:Boolean;
 		
 		override public function initialize():void {
@@ -29,13 +36,19 @@ package org.bigbluebutton.web.chat.views {
 			
 			chatMessageService.sendMessageOnSuccessSignal.add(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.add(onSendFailure);
-			
+			if (publicChat) {
+				chatMessageSession.publicChat.chatMessageChangeSignal.add(newPublicMessage);
+			}
 			view.messageList.addEventListener(FlexEvent.UPDATE_COMPLETE, listUpdateCompleteHandler);
 			view.sendButton.addEventListener(MouseEvent.CLICK, sendButtonClickHandler);
 			view.inputArea.addEventListener(KeyboardEvent.KEY_DOWN, inputAreaKeyDownHandler);
 			
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			userSession.userList.userAddedSignal.add(userAdded);
+		}
+		
+		protected function newPublicMessage(userID:String):void {
+			view.messageList.dataProvider = chatMessageSession.publicChat.messages;
 		}
 		
 		protected function userRemoved(userID:String):void {
