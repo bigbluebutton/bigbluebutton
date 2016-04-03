@@ -1,4 +1,4 @@
-package org.bigbluebutton.air.deskshare.views {
+package org.bigbluebutton.lib.deskshare.views {
 	
 	import flash.net.NetConnection;
 	
@@ -9,7 +9,6 @@ package org.bigbluebutton.air.deskshare.views {
 		function get deskshareGroup():Group;
 		function stopStream():void;
 		function startStream(connection:NetConnection, name:String, streamName:String, userID:String, width:Number, height:Number):void;
-		function get noDeskshareMessage():Label;
 		function changeMouseLocation(x:Number, y:Number):void;
 	}
 }

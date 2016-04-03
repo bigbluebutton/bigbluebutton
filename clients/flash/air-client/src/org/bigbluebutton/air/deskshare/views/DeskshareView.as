@@ -8,7 +8,7 @@ package org.bigbluebutton.air.deskshare.views {
 	import spark.components.Group;
 	import spark.components.Label;
 	
-	public class DeskshareView extends DeskshareViewBase implements IDeskshareView {
+	public class DeskshareView extends DeskshareViewBase implements IDeskshareViewAir {
 		private var deskshareVideoView:DeskshareVideoView;
 		
 		/**
