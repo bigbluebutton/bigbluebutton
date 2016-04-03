@@ -49,9 +49,9 @@ package org.bigbluebutton.air.video.views.videochat {
 			userSession.globalVideoSignal.add(globalVideoStreamNameHandler);
 			view.streamlist.addEventListener(MouseEvent.CLICK, onSelectStream);
 			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'video.title');
-			FlexGlobals.topLevelApplication.backBtn.visible = false;
-			FlexGlobals.topLevelApplication.profileBtn.visible = true;
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'video.title');
+			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = false;
+			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = true;
 			dataProvider = new ArrayCollection();
 			view.streamlist.dataProvider = dataProvider;
 			var users:ArrayCollection = userSession.userList.users;

@@ -1,15 +1,16 @@
 package org.bigbluebutton.air.main.views.profile {
 	
 	import org.bigbluebutton.air.common.views.IView;
-	
 	import spark.components.Button;
+	import spark.components.Label;
 	
 	public interface IProfileView extends IView {
+		function get firstLetters():Label;
+		function get userName():Label;
 		function get shareCameraButton():Button;
 		function get shareCameraBtnLabel():String;
 		function get shareMicButton():Button;
 		function get shareMicBtnLabel():String;
-		function get statusButton():Button;
 		function get logoutButton():Button;
 		function get currentState():String;
 		function set currentState(value:String):void;

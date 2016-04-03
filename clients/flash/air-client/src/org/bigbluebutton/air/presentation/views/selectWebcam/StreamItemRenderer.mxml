@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:selection="org.bigbluebutton.air.common.views.*"
+				xmlns:participanticon="org.bigbluebutton.air.common.views.*"
+				styleName="streamItemStyle"
+				dataChange="onDataChange(event)"
+				height="100%"
+				xmlns:views="org.bigbluebutton.air.common.views.*">
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="selected" />
+	</s:states>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.StateChangeEvent;
+			
+			private function selectionChange(evt:StateChangeEvent):void {
+				selectionIcon.setCurrentState(this.currentState);
+			}
+			
+			override public function set data(obj:Object):void {
+				
+				this.addEventListener(StateChangeEvent.CURRENT_STATE_CHANGE, selectionChange);
+				
+				super.data = obj;
+				if (obj) {
+					title.text = obj.user.name;
+					presenter.visible = obj.user.presenter;
+					presenter.includeInLayout = obj.user.presenter;
+					participantIcon.participantName = obj.user.name;
+					if (obj.user.me) {
+						title.text += " " + resourceManager.getString('resources', 'userDetail.you');
+					}
+				}
+			}
+			
+			protected function onDataChange(event:Event):void {
+				invalidateRendererState();
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%"
+			 height="{getStyle('itemHeight')}"
+			 id="content">
+
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle"
+								horizontalAlign="center"
+								paddingTop="{getStyle('paddingTop')}"
+								paddingBottom="{getStyle('paddingBottom')}" />
+		</s:layout>
+
+		<participanticon:ParticipantIcon width="10%"
+										 id="participantIcon" />
+
+		<s:VGroup width="100%"
+				  height="100%"
+				  verticalAlign="middle">
+			<s:Label id="title"
+					 styleName="videoStreamName contentFontSize" />
+
+			<s:Label id="presenter"
+					 text="{resourceManager.getString('resources', 'participants.status.presenting')}"
+					 styleName="videoStreamNamePresenter subContentFontSize" />
+		</s:VGroup>
+
+
+		<s:Spacer width="25%" />
+
+		<views:SelectionIcon id="selectionIcon" />
+	</s:Group>
+
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="{getStyle('lineColor')}"
+								weight="{getStyle('lineWeight')}" />
+		</s:stroke>
+	</s:Line>
+
+</s:ItemRenderer>

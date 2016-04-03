@@ -1,14 +1,11 @@
-package org.bigbluebutton.air.settings.views.status {
-	
-	import org.bigbluebutton.lib.main.commands.EmojiCommand;
-	import org.bigbluebutton.lib.main.commands.EmojiSignal;
+package org.bigbluebutton.air.presentation.views.selectWebcam {
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
 	
-	public class StatusConfig implements IConfig {
+	public class SelectStreamConfig implements IConfig {
 		
 		[Inject]
 		public var injector:IInjector;
@@ -37,14 +34,13 @@ package org.bigbluebutton.air.settings.views.status {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(IStatusView).toMediator(StatusViewMediator);
+			mediatorMap.map(ISelectStreamPopUp).toMediator(SelectStreamPopUpMediator);
 		}
 		
 		/**
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			signalCommandMap.map(EmojiSignal).toCommand(EmojiCommand);
 		}
 	}
 }

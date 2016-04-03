@@ -2,11 +2,9 @@ package org.bigbluebutton.air.main.views.profile {
 	
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	
 	import mx.core.FlexGlobals;
 	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
-	
 	import org.bigbluebutton.air.common.views.PagesENUM;
 	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.main.models.IUserUISession;
@@ -18,7 +16,6 @@ package org.bigbluebutton.air.main.views.profile {
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.services.IUsersService;
-	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
 	public class ProfileViewMediator extends Mediator {
@@ -54,7 +51,6 @@ package org.bigbluebutton.air.main.views.profile {
 		
 		override public function initialize():void {
 			var userMe:User = userSession.userList.me;
-			changeStatusIcon(userMe.status);
 			disableCamButton(userSession.lockSettings.disableCam && !userMe.presenter && userMe.locked && userMe.role != User.MODERATOR);
 			userSession.lockSettings.disableCamSignal.add(disableCamButton);
 			if (userMe.role != User.MODERATOR) {
@@ -68,42 +64,28 @@ package org.bigbluebutton.air.main.views.profile {
 			}
 			userSession.userList.userChangeSignal.add(userChanged);
 			view.logoutButton.addEventListener(MouseEvent.CLICK, logoutClick);
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'profile.title');
-			FlexGlobals.topLevelApplication.profileBtn.visible = false;
-			FlexGlobals.topLevelApplication.backBtn.visible = true;
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'profile.title');
 			addNavigationListeners();
+			setNameLabels();
 		}
 		
-		private function changeStatusIcon(status:String) {
-			switch (status) {
-				case User.RAISE_HAND:
-					view.statusButton.styleName = "handStatusButtonStyle videoAudioSettingStyle contentFontSize";
-					break;
-				case User.AWAY:
-					view.statusButton.styleName = "beRightBackStatusButtonStyle";
-					break;
-				case User.HAPPY:
-					view.statusButton.styleName = "laughterStatusButtonStyle";
-					break;
-				case User.SAD:
-					view.statusButton.styleName = "sadStatusButtonStyle";
-					break;
-				case User.NO_STATUS:
-					view.statusButton.styleName = "noStatusButtonStyle";
-					break;
+		private function setNameLabels():void {
+			view.userName.text = userSession.userList.me.name;
+			var names:Array = view.userName.text.split(" ");
+			var firstLetters:String = names[0].charAt(0);
+			if (names[1]) {
+				firstLetters += names[1].charAt(0);
 			}
-			view.statusButton.styleName += " profileSettingsButtonStyle videoAudioSettingStyle contentFontSize";
+			view.firstLetters.text = firstLetters.toUpperCase();
 		}
 		
 		private function addNavigationListeners():void {
-			view.statusButton.addEventListener(MouseEvent.CLICK, navigateToStatus);
 			view.shareCameraButton.addEventListener(MouseEvent.CLICK, navigateToCameraSettings);
 			view.shareMicButton.addEventListener(MouseEvent.CLICK, navigateToAudioSettings);
 			view.lockViewersButton.addEventListener(MouseEvent.CLICK, navigateToLockSettings);
 		}
 		
 		private function removeNavigationListeners():void {
-			view.statusButton.removeEventListener(MouseEvent.CLICK, navigateToStatus);
 			view.shareCameraButton.removeEventListener(MouseEvent.CLICK, navigateToCameraSettings);
 			view.shareMicButton.removeEventListener(MouseEvent.CLICK, navigateToAudioSettings);
 			view.lockViewersButton.removeEventListener(MouseEvent.CLICK, navigateToLockSettings);
@@ -191,7 +173,6 @@ package org.bigbluebutton.air.main.views.profile {
 		
 		private function userChanged(user:User, type:int):void {
 			if (userSession.userList.me.userID == user.userID) {
-				changeStatusIcon(user.status);
 				if (userSession.userList.me.role == User.MODERATOR) {
 					displayManagementButtons(true);
 					setMuteState(userSession.meetingMuted);

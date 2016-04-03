@@ -14,6 +14,8 @@ package org.bigbluebutton.air.users.views.participants {
 	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.users.views.participants.guests.GuestResponseEvent;
+	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
+	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.services.IUsersService;
@@ -37,6 +39,11 @@ package org.bigbluebutton.air.users.views.participants {
 		[Inject]
 		public var usersService:IUsersService;
 		
+		[Inject]
+		public var chatMessagesSession:IChatMessagesSession;
+		
+		protected var dataProviderConversations:ArrayCollection;
+		
 		protected var dataProvider:ArrayCollection;
 		
 		protected var dataProviderGuests:ArrayCollection;
@@ -48,6 +55,8 @@ package org.bigbluebutton.air.users.views.participants {
 		protected var usersSignal:ISignal;
 		
 		private var _userMe:User;
+		
+		private var _usersAdded:Array = new Array();
 		
 		override public function initialize():void {
 			dataProvider = new ArrayCollection();
@@ -65,11 +74,10 @@ package org.bigbluebutton.air.users.views.participants {
 			userSession.userList.userAddedSignal.add(addUser);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			setPageTitle();
-			FlexGlobals.topLevelApplication.profileBtn.visible = true;
-			FlexGlobals.topLevelApplication.backBtn.visible = false;
 			dataProviderGuests = new ArrayCollection();
 			view.guestsList.dataProvider = dataProviderGuests;
 			view.guestsList.addEventListener(GuestResponseEvent.GUEST_RESPONSE, onSelectGuest);
+			view.conversationsList.addEventListener(IndexChangeEvent.CHANGE, onSelectChat);
 			view.allowAllButton.addEventListener(MouseEvent.CLICK, allowAllGuests);
 			view.denyAllButton.addEventListener(MouseEvent.CLICK, denyAllGuests);
 			dicUserIdtoGuest = new Dictionary();
@@ -84,11 +92,89 @@ package org.bigbluebutton.air.users.views.participants {
 				view.guestsList.includeInLayout = true;
 				view.allGuests.visible = true;
 				view.allGuests.includeInLayout = true;
+			}
+			userUISession.pushPage(PagesENUM.PARTICIPANTS);
+			initializeDataProviderConversations();
+		}
+		
+		protected function onSelectChat(event:IndexChangeEvent):void {
+			var item:Object = dataProviderConversations.getItemAt(event.newIndex);
+			if (item) {
+				if (item.hasOwnProperty("button")) {
+					userUISession.pushPage(PagesENUM.SELECT_PARTICIPANT, item, TransitionAnimationENUM.SLIDE_LEFT)
+				} else {
+					userUISession.pushPage(PagesENUM.CHAT, item, TransitionAnimationENUM.SLIDE_LEFT)
+				}
 			} else {
 				throw new Error("item null on ChatRoomsViewMediator");
 			}
 		}
 		
+		private function initializeDataProviderConversations() {
+			dataProviderConversations = new ArrayCollection();
+			dataProviderConversations.addItem({name: ResourceManager.getInstance().getString('resources', 'chat.item.publicChat'), publicChat: true, user: null, chatMessages: chatMessagesSession.publicChat});
+			for each (var chatObject:PrivateChatMessage in chatMessagesSession.privateChats) {
+				chatObject.userOnline = userSession.userList.hasUser(chatObject.userID);
+				chatObject.privateChat.chatMessageChangeSignal.add(populateList);
+				if (chatObject.privateChat.messages.length > 0) {
+					addChat({name: chatObject.userName, publicChat: false, user: userSession.userList.getUser(chatObject.userID), chatMessages: chatObject.privateChat, userID: chatObject.userID, online: chatObject.userOnline});
+				}
+			}
+			view.conversationsList.dataProvider = dataProviderConversations;
+		}
+		
+		public function populateList(UserID:String = null):void {
+			var newUser:User = userSession.userList.getUserByUserId(UserID);
+			if ((newUser != null) && (!isExist(newUser, dataProviderConversations)) && (!newUser.me)) {
+				var pcm:PrivateChatMessage = chatMessagesSession.getPrivateMessages(newUser.userID, newUser.name);
+				addChat({name: pcm.userName, publicChat: false, user: newUser, chatMessages: pcm.privateChat, userID: pcm.userID, online: true}, dataProvider.length - 1);
+			}
+			dataProviderConversations.refresh();
+		}
+		
+		/**
+		 * If user wasn't already added, adding to the data provider
+		 **/
+		private function addChat(chat:Object, pos:Number = NaN):void {
+			if (!userAlreadyAdded(chat.userID)) {
+				_usersAdded.push(chat.userID);
+				if (isNaN(pos)) {
+					dataProviderConversations.addItem(chat);
+				} else {
+					dataProviderConversations.addItemAt(chat, pos);
+				}
+			}
+			//dataProvider.setItemAt(button, dataProvider.length-1);
+			dataProviderConversations.refresh();
+			setPageTitle();
+			//dicUsertoChat[chat.user] = chat;				
+		}
+		
+		/**
+		 * Check if User was already added to the data provider
+		 **/
+		private function userAlreadyAdded(userID:String):Boolean {
+			for each (var str:String in _usersAdded) {
+				if (userID == str) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		/**
+		 * Check if User is already added to the dataProvider
+		 *
+		 * @param User
+		 */
+		private function isExist(user:User, dp:ArrayCollection):Boolean {
+			for (var i:int = 0; i < dp.length; i++) {
+				if (dp.getItemAt(i).userID == user.userID) {
+					return true;
+				}
+			}
+			return false;
+		}
 		
 		private function addUser(user:User):void {
 			dataProvider.addItem(user);
@@ -171,7 +257,7 @@ package org.bigbluebutton.air.users.views.participants {
 		 **/
 		private function setPageTitle():void {
 			if (dataProvider != null) {
-				FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'participants.title') + " (" + dataProvider.length + ")";
+				FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'participants.title');
 			}
 		}
 		

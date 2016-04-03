@@ -34,8 +34,8 @@ package org.bigbluebutton.air.main.views.loginpage.openroom {
 		public var userUISession:IUserUISession;
 		
 		override public function initialize():void {
-			FlexGlobals.topLevelApplication.profileBtn.visible = false;
-			FlexGlobals.topLevelApplication.backBtn.visible = false;
+			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = false;
+			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = false;
 			FlexGlobals.topLevelApplication.bottomMenu.includeInLayout = false;
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
 			(view as View).addEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);

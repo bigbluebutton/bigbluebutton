@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
-				xmlns:mx="library://ns.adobe.com/flex/mx">
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:participanticon="org.bigbluebutton.air.common.views.*">
 
 	<fx:Script>
 		<![CDATA[
@@ -14,6 +15,12 @@
 				var m:ChatMessage = obj as ChatMessage;
 				if (m) {
 					username.text = m.name;
+					participantIcon.participantName = m.name;
+					if (m.name == " ") {
+						participantIcon.visible = false;
+						username.visible = false;
+						username.includeInLayout = false;
+					}
 					time.text = m.time
 					if (!isHTMLString(m.senderText)) {
 						message.text = m.senderText;
@@ -54,29 +61,30 @@
 		<s:State name="others_state" />
 		<s:State name="me_state" />
 	</s:states>
-	<s:Group width="100%">
-		<s:layout>
-			<s:VerticalLayout verticalAlign="middle" />
-		</s:layout>
-		<s:Group id="nameTimeGroup"
-				 width="100%">
-			<s:layout>
-				<s:HorizontalLayout />
-			</s:layout>
-			<s:Label id="username"
-					 width="50%"
-					 styleName="chatNameTimeStyle subContentFontSize" />
-			<s:Label id="time"
-					 width="50%"
-					 textAlign="right"
-					 styleName="chatTimeColor chatNameTimeStyle subContentFontSize" />
-		</s:Group>
-		<s:Group width="100%">
-			<s:RichEditableText editable="false"
-								selectable="false"
-								id="message"
-								width="100%"
-								styleName="msgTextStyle contentFontSize" />
-		</s:Group>
-	</s:Group>
+	<s:HGroup width="100%">
+		<participanticon:ParticipantIcon id="participantIcon"
+										 height="100%" />
+		<s:VGroup width="100%">
+			<s:Spacer height="10%" />
+			<s:Group id="nameTimeGroup"
+					 width="100%"
+					 height="100%">
+				<s:layout>
+					<s:HorizontalLayout verticalAlign="bottom" />
+				</s:layout>
+				<s:Label id="username"
+						 styleName="contentFontSize" />
+				<s:Label id="time"
+						 styleName="chatTimeColor subContentFontSize" />
+			</s:Group>
+			<s:HGroup width="100%">
+				<s:RichEditableText editable="false"
+									selectable="false"
+									id="message"
+									width="100%"
+									styleName="msgTextStyle contentFontSize" />
+			</s:HGroup>
+			<s:Spacer height="{nameTimeGroup.height}" />
+		</s:VGroup>
+	</s:HGroup>
 </s:ItemRenderer>

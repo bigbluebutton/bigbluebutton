@@ -3,7 +3,8 @@
 				  xmlns:s="library://ns.adobe.com/flex/spark"
 				  xmlns:mx="library://ns.adobe.com/flex/mx"
 				  xmlns:common="org.bigbluebutton.air.common.views.*"
-				  xmlns:whiteboard="org.bigbluebutton.lib.whiteboard.views.*">
+				  xmlns:whiteboard="org.bigbluebutton.lib.whiteboard.views.*"
+				  styleName="presentationStyle">
 
 	<s:Group id="content0"
 			 width="100%"
@@ -26,5 +27,38 @@
 						 height="100%" />
 			<whiteboard:WhiteboardCanvas id="whiteboardCanvas0" />
 		</s:Group>
+
+		<s:Spacer height="2%" />
+
+		<s:Group id="videoGroup0"
+				 width="{videostream.width}">
+			<s:filters>
+				<s:DropShadowFilter distance="0"
+									quality="1"
+									strength="1"
+									blurX="14"
+									blurY="14"
+									alpha="0.8" />
+			</s:filters>
+			<s:VideoDisplay id="videostream"
+							width="100%"
+							styleName="videoTextFieldStyle" />
+		</s:Group>
+
+		<s:HGroup id="showSharedCamsGroup0"
+				  horizontalAlign="center"
+				  visible="false"
+				  includeInLayout="false">
+			<s:Image id="cameraIcon"
+					 height="100%"
+					 styleName="iconStyle cameraIconStyle" />
+
+			<s:Label id="showSharedCams0"
+					 height="100%"
+					 styleName="showSharedCamsLabel" />
+		</s:HGroup>
+
+
 	</s:Group>
+
 </common:NoTabView>

@@ -2,6 +2,7 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:participanticon="org.bigbluebutton.air.common.views.*"
 				styleName="chatRoomItemStyle">
 
 	<fx:Script>
@@ -13,6 +14,14 @@
 				if (obj) {
 					if (!obj.hasOwnProperty("button")) {
 						title.text = obj.name;
+						if (obj.name == resourceManager.getString('resources', 'chat.item.publicChat')) {
+							publicChatIcon.visible = true;
+							publicChatIcon.includeInLayout = true;
+						} else {
+							participantIcon.participantName = obj.name;
+							participantIcon.visible = true;
+							participantIcon.includeInLayout = true;
+						}
 						if (obj.online == false) {
 							title.text += resourceManager.getString('resources', 'userDetail.userOffline');
 						}
@@ -23,6 +32,7 @@
 						} else {
 							newMessages.visible = false;
 						}
+						
 					} else {
 						newMessages.visible = false;
 						title.text = "+" + resourceManager.getString('resources', 'chat.item.privateChat');
@@ -31,21 +41,28 @@
 			}
 		]]>
 	</fx:Script>
-	<s:Group width="100%">
+	<s:Group width="100%"
+			 height="{getStyle('itemHeight')}">
 		<s:layout>
-			<s:HorizontalLayout verticalAlign="middle" />
+			<s:HorizontalLayout verticalAlign="middle"
+								horizontalAlign="center"
+								paddingLeft="{getStyle('itemPaddingLeft')}"
+								paddingRight="{getStyle('itemPaddingRight')}" />
 		</s:layout>
+		<s:Image id="publicChatIcon"
+				 visible="false"
+				 includeInLayout="false"
+				 styleName="iconStyle publicChatIconStyle" />
+		<participanticon:ParticipantIcon id="participantIcon"
+										 visible="false"
+										 includeInLayout="false" />
 		<s:Label id="title"
 				 width="100%"
-				 styleName="contentFontSize chatRoomLabelStyle"
-				 verticalCenter="0"
-				 horizontalCenter="0" />
+				 height="100%"
+				 styleName="contentFontSize" />
 		<s:Button id="newMessages"
 				  buttonMode="false"
 				  styleName="newMessagesButtonStyle" />
-		<s:Image styleName="iconStyle arrowRightStyle"
-				 horizontalCenter="0"
-				 verticalCenter="0" />
 	</s:Group>
 	<s:Line width="100%">
 		<s:stroke>

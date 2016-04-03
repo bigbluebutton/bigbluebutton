@@ -22,9 +22,9 @@ package org.bigbluebutton.air.deskshare.views {
 		public override function initialize():void {
 			showDeskshare(userSession.deskshareConnection.streamWidth, userSession.deskshareConnection.streamHeight);
 			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'deskshare.title');
-			FlexGlobals.topLevelApplication.backBtn.visible = false;
-			FlexGlobals.topLevelApplication.profileBtn.visible = true;
+			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'deskshare.title');
+			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = false;
+			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = true;
 			super.initialize();
 		}
 		

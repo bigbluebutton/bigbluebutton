@@ -1,6 +1,7 @@
 package org.bigbluebutton.air.main.views.profile {
 	
 	import spark.components.Button;
+	import spark.components.Label;
 	
 	public class ProfileView extends ProfileViewBase implements IProfileView {
 		override protected function childrenCreated():void {
@@ -8,6 +9,14 @@ package org.bigbluebutton.air.main.views.profile {
 		}
 		
 		public function dispose():void {
+		}
+		
+		public function get firstLetters():Label {
+			return firstLetters0;
+		}
+		
+		public function get userName():Label {
+			return userName0;
 		}
 		
 		public function get shareCameraButton():Button {
@@ -20,10 +29,6 @@ package org.bigbluebutton.air.main.views.profile {
 		
 		public function get shareMicButton():Button {
 			return shareMicBtn0;
-		}
-		
-		public function get statusButton():Button {
-			return statusBtn0;
 		}
 		
 		public function get shareMicBtnLabel():String {

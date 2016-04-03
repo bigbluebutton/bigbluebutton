@@ -4,6 +4,8 @@
 @namespace navigationbutton "org.bigbluebutton.air.main.views.ui.navigationbutton.*";
 @namespace skins "org.bigbluebutton.air.main.views.skins.*";
 @namespace common "org.bigbluebutton.view.navigation.pages.common.*";
+@namespace presentation "org.bigbluebutton.air.presentation.views.*";
+@namespace selectWebcam "org.bigbluebutton.air.presentation.views.selectWebcam.*";
 
 s|List.cameraProfilesListStyle
 {
@@ -11,7 +13,82 @@ s|List.cameraProfilesListStyle
 }
 
 s|Button {
-	fontWeight: normal;	
+	fontWeight: normal;
+}
+
+selectWebcam|SelectStreamPopUpBase
+{
+	modalTransparency: .8;
+	modalTransparencyBlur: .25;
+	modalTransparencyColor: #000000;
+}
+
+.selectStreamTitle {
+	color: #8898A5;
+}
+
+.selectStreamPopUp {
+	closeButtonColor: #8F9EAA; 
+}
+
+.streamItemStyle
+{
+	selectedColor: #63D79F;
+	normalColor: #D0D6DC;
+	selectionColor: #FFFFFF;
+	lineColor: #F4F6F7;
+	lineWeight: 1;
+}
+
+s|Group.participantIconStyle
+{
+	circleColor: #8898A5;	
+}
+
+s|Button.bottomPresentationBtnStyle
+{
+	backgroundColor: #4998D0;
+	selectedBackgroundColor: #DBDBDB;
+	color: #FFFFFF;
+	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.PresentationButtonSkin");
+}
+
+s|View.participantsViewStyle
+{
+	subRectangleColor: #F1F3F7;
+}
+
+s|Group.bottomMenuStyle
+{
+	gradientColor: #2A2D33;
+}
+
+.settingsStyle
+{
+	backgroundColor: #FFFFFF;
+	rectangleColor: #4998D0;
+	subRectangleColor: #F1F3F7;
+	circleColor: #FFFFFF;
+}
+
+.videoStreamNamePresenter
+{
+	color: #A3AFB9;
+}
+
+s|Label.settingsUserNameStyle
+{
+	color: #FFFFFF;
+}
+
+s|Label.settingsSubtitleStyle
+{
+	color: #ABB6C0;
+}
+
+.settingsUserFirstLettersStyle
+{
+	color: #FFFFFF;
 }
 
 s|Group.videoTextFieldStyle
@@ -62,18 +139,25 @@ navigationbutton|NavigationButton
 
 s|Label.chatTimeColor
 {
-	color: #C3C3C3;
+	color: #8898A5;
 }
 
 s|Button.logoutButtonStyle
 {
 	backgroundColor: #3385FF;
 	textColor:#FFFFFF;
+s|Label.showSharedCamsLabel {
+	color:#CCCDCE;
+	textDecoration: underline;
 }
 
 s|Button.userSettingsButtonStyle
 {	
 	onClickBackgroundColor:#DBDBDB;
+	backgroundColor: #4998D0;
+	disabledBackgroundColor: #A4CBE7;
+	textColor:#FDFEFE;
+	disabledTextColor:#CCE2F1;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.UserSettingsParticipantBtnSkin");
 }
 
@@ -96,7 +180,7 @@ s|Button.pushToTalkStyle
 
 s|Button.videoAudioSettingStyle
 {
-	backgroundColor:#FFFFFF;
+	backgroundColor:#F1F3F7;
 	onClickBackgroundColor:#DBDBDB;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.VideoAudioSettingsBtnSkin");
 	labelTextAlign:left;
@@ -127,7 +211,7 @@ s|Button.topButtonStyle
 
 s|Button.newMessagesButtonStyle
 {
-	fillColor: #777777;
+	fillColor: #F0625F;
 	textColor: #FFFFFF;
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.NewMessagesButtonSkin");
 }
@@ -166,6 +250,11 @@ s|SkinnableContainer.containerStyle
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.ProfileViewContainerSkin");
 }
 
+s|Button
+{
+	fontWeight: normal;	
+}
+
 global
 {
 	font-family: Helvetica;
@@ -175,13 +264,19 @@ global
 	content-background-color: #FFFFFF;
 	symbol-color: #F6F2F2;
 	chrome-color: #0C0B0B;
-	color: #777777;
+	color: #43474F;
+}
+
+common|NoTabView
+{
+	backgroundColor: #FFFFFF;
 }
 
 .presentationStyle, .loadingScreenStyle
 {
 	backgroundColor: #2A2D33;
 }
+
 .loadingScreenStyle
 {
 	lineColor: #959699;
@@ -192,6 +287,17 @@ s|Image.bigbbbLogoStyle
 {
 	skinClass: ClassReference("org.bigbluebutton.air.main.views.skins.BBBLogoSkin");
 }
+
+s|View.chatViewStyle
+{
+	backgroundColor: #F1F3F7;
+}
+
+s|TextInput.msgInputBoxStyle
+{
+	borderVisible: false;
+}
+
 
 @media (application-dpi: 160) {
 	
@@ -206,6 +312,13 @@ s|Image.bigbbbLogoStyle
 		toolBarHeight:48;
 		itemPaddingLeft:6;
 		itemPaddingRight:6;
+		itemHeight:32;
+	}
+	
+	s|View.settingsStyle
+	{
+		itemHeight:32;
+		topRectHeight:160;
 	}
 	
 	s|Button.recordingStatusIconStyle
@@ -321,6 +434,11 @@ s|Image.bigbbbLogoStyle
 		fontSize:18;
 	}
 	
+	.selectStreamTitle 
+	{
+		fontSize:18;
+	}
+	
 	.loadingScreenTitle
 	{
 		fontSize:21;
@@ -348,6 +466,11 @@ s|Image.bigbbbLogoStyle
 		lineWeight:0.5;
 		itemPaddingLeft:6;
 		itemPaddingRight:6;
+	}
+	
+	s|ItemRenderer.streamItemStyle
+	{
+		itemHeight:64;
 	}
 	
 	s|ItemRenderer.cameraProfileItemStyle
@@ -462,6 +585,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/chat.png");
 	}
 	
+	s|Button.chatNewMessagesButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/chat_new_message.png");
+	}
+	
 	s|Button.MuteButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/micOffIcon_dark.png");
@@ -505,6 +633,16 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/settings.png");
 	}
 	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/presentation.png");
+	}
+	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/presentation.png");
+	}
+	
 	s|Button.backButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/backButton.png");
@@ -521,7 +659,7 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/video.png");
 	}
 	
-	s|Image.iconStyle
+	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 32;
 		height: 32;
@@ -530,6 +668,16 @@ s|Image.bigbbbLogoStyle
 	s|Image.cameraIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/video.png");
+	}
+	
+	s|Image.selectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/selected.png");
+	}
+	
+	s|Image.unselectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/unselected.png");
 	}
 	
 	s|Image.userDetailIconStyle
@@ -579,54 +727,99 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/presentation.png");
 	}
 	
+	s|Image.handIconStyle, s|Button.handStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/hand.png");
+	}
+	
+	s|Button.camOnButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/cam.png");
+	}
+	
+	s|Button.camOffButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/cam_off.png");
+	}
+	
+	s|Button.micOnButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/mic.png");
+	}
+	
+	s|Button.micOffButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/mic_off.png");
+	}
+	
 	s|Image.agreeIconStyle, s|Button.agreeStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/icon-6-thumb-up.png");
 	}
 	
-	s|Image.disagreeIconStyle, s|Button.disagreeStatusButtonStyle
+	s|Button.disagreeStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/icon-7-thumb-down.png");
 	}
 	
-	s|Image.speakLouderIconStyle, s|Button.speakLouderStatusButtonStyle
+	s|Button.speakLouderStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/ic_volume_up.png");
 	}
 	
-	s|Image.speakSofterIconStyle, s|Button.speakSofterStatusButtonStyle
+	s|Button.speakSofterStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/ic_volume_down.png");
 	}
 	
-	s|Image.speakFasterIconStyle, s|Button.speakFasterStatusButtonStyle
+	s|Button.speakFasterStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/ic_fast_forward.png");
 	}
 	
-	s|Image.speakSlowerIconStyle, s|Button.speakSlowerStatusButtonStyle
+	s|Button.speakSlowerStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/ic_fast_rewind.png");
 	}
 	
-	s|Image.beRightBackIconStyle, s|Button.beRightBackStatusButtonStyle
+	s|Button.beRightBackStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/ic_access_time.png");
 	}
 	
-	s|Image.laughterIconStyle, s|Button.laughterStatusButtonStyle
+	s|Button.confusedStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/confused.png");
+	}
+	
+	s|Button.undecidedStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/undecided.png");
+	}
+	
+	s|Button.happyStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/icon-6-smiling-face.png");
 	}
 	
-	s|Image.sadIconStyle, s|Button.sadStatusButtonStyle
+	s|Button.sadStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-mdpi/icon-7-sad-face.png");
 	}
 	
-	s|Image.userIconStyle, s|Button.noStatusButtonStyle
+	s|Button.clearStatusButtonStyle
 	{
-		backgroundImage: Embed(source="assets/res/drawable-mdpi/user.png");
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/clear_status.png");
+	}
+	
+	s|Image.publicChatIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/publicChat.png");
+	}
+	
+	s|Image.participantInitialsCircleIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-mdpi/participantCircle.png");
 	}
 	
 	s|Image.arrowRightStyle
@@ -636,10 +829,10 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.newMessagesButtonStyle
 	{
-		width: 38;
+		width: 41;
 		height: 30;
-		radiusX: 4;
-		radiusY: 4;
+		radiusX: 16;
+		radiusY: 16;
 		fontSize:12;
 	}
 	
@@ -678,6 +871,13 @@ s|Image.bigbbbLogoStyle
 		toolBarHeight:72;
 		itemPaddingLeft:9;
 		itemPaddingRight:9;
+		itemHeight:48;
+	}
+	
+	s|View.settingsStyle
+	{
+		itemHeight:48;
+		topRectHeight:240;
 	}
 	
 	s|Button.recordingStatusIconStyle
@@ -725,7 +925,6 @@ s|Image.bigbbbLogoStyle
 	
 	s|RichEditableText.msgTextStyle
 	{
-		paddingLeft:18;
 		paddingRight:18;
 		paddingBottom:18;
 	}
@@ -792,6 +991,16 @@ s|Image.bigbbbLogoStyle
 		fontSize:27;
 	}
 	
+	.selectStreamTitle 
+	{
+		fontSize:27;
+	}
+	
+	.settingsUserFirstLettersStyle
+	{
+		fontSize:35;
+	}
+	
 	s|Button.topButtonStyle
 	{
 		width: 72;
@@ -813,13 +1022,23 @@ s|Image.bigbbbLogoStyle
 		fontSize:18;
 	}
 	
-	s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle
+	.nameIconText
+	{
+		fontSize:12;
+	}
+	
+	s|ItemRenderer.chatRoomItemStyle, s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle, s|ItemRenderer.statusItemStyle
 	{
 		itemHeight:96;
 		lineColor: #F2F2F2;
 		lineWeight:0.75;
 		itemPaddingLeft:9;
 		itemPaddingRight:9;
+	}
+	
+	s|ItemRenderer.streamItemStyle
+	{
+		itemHeight:96;
 	}
 	
 	s|ItemRenderer.cameraProfileItemStyle
@@ -904,6 +1123,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/chat.png");
 	}
 	
+	s|Button.chatNewMessagesButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/chat_new_message.png");
+	}
+	
 	s|Button.MuteButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/micOffIcon_dark.png");
@@ -969,6 +1193,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/settings.png");
 	}
 	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/presentation.png");
+	}
+	
 	s|Button.backButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/backButton.png");
@@ -985,7 +1214,7 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/video.png");
 	}
 	
-	s|Image.iconStyle
+	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 48;
 		height: 48;
@@ -994,6 +1223,16 @@ s|Image.bigbbbLogoStyle
 	s|Image.cameraIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/video.png");
+	}
+	
+	s|Image.selectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/selected.png");
+	}
+	
+	s|Image.unselectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/unselected.png");
 	}
 	
 	s|Image.userDetailIconStyle
@@ -1048,49 +1287,94 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/icon-6-thumb-up.png");
 	}
 	
-	s|Image.disagreeIconStyle, s|Button.disagreeStatusButtonStyle
+	s|Image.handIconStyle, s|Button.handStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/hand.png");
+	}
+	
+	s|Button.camOnButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/cam.png");
+	}
+	
+	s|Button.camOffButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/cam_off.png");
+	}
+	
+	s|Button.micOnButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/mic.png");
+	}
+	
+	s|Button.micOffButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/mic_off.png");
+	}
+	
+	s|Button.disagreeStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/icon-7-thumb-down.png");
 	}
 	
-	s|Image.speakLouderIconStyle, s|Button.speakLouderStatusButtonStyle
+	s|Button.speakLouderStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/ic_volume_up.png");
 	}
 	
-	s|Image.speakSofterIconStyle, s|Button.speakSofterStatusButtonStyle
+	s|Button.speakSofterStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/ic_volume_down.png");
 	}
 	
-	s|Image.speakFasterIconStyle, s|Button.speakFasterStatusButtonStyle
+	s|Button.speakFasterStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/ic_fast_forward.png");
 	}
 	
-	s|Image.speakSlowerIconStyle, s|Button.speakSlowerStatusButtonStyle
+	s|Button.speakSlowerStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/ic_fast_rewind.png");
 	}
 	
-	s|Image.beRightBackIconStyle, s|Button.beRightBackStatusButtonStyle
+	s|Button.beRightBackStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/ic_access_time.png");
 	}
 	
-	s|Image.laughterIconStyle, s|Button.laughterStatusButtonStyle
+	s|Button.confusedStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/confused.png");
+	}
+	
+	s|Button.undecidedStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/undecided.png");
+	}
+	
+	s|Button.happyStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/icon-6-smiling-face.png");
 	}
 	
-	s|Image.sadIconStyle, s|Button.sadStatusButtonStyle
+	s|Button.sadStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-hdpi/icon-7-sad-face.png");
 	}
 	
-	s|Image.userIconStyle, s|Button.noStatusButtonStyle
+	s|Button.clearStatusButtonStyle
 	{
-		backgroundImage: Embed(source="assets/res/drawable-hdpi/user.png");
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/clear_status.png");
+	}
+	
+	s|Image.publicChatIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/publicChat.png");
+	}
+	
+	s|Image.participantInitialsCircleIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-hdpi/participantCircle.png");
 	}
 	
 	s|Image.arrowRightStyle
@@ -1100,10 +1384,10 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.newMessagesButtonStyle
 	{
-		width: 45;
+		width: 50;
 		height: 45;
-		radiusX: 6;
-		radiusY: 6;
+		radiusX: 24;
+		radiusY: 24;
 		fontSize:18;
 	}
 	
@@ -1141,6 +1425,13 @@ s|Image.bigbbbLogoStyle
 		toolBarHeight:72;
 		itemPaddingLeft:12;
 		itemPaddingRight:12;
+		itemHeight:64;
+	}
+	
+	s|View.settingsStyle
+	{
+		itemHeight:64;
+		topRectHeight:320;
 	}
 	
 	s|Button.recordingStatusIconStyle
@@ -1188,7 +1479,6 @@ s|Image.bigbbbLogoStyle
 	
 	s|RichEditableText.msgTextStyle
 	{
-		paddingLeft:24;
 		paddingRight:24;
 		paddingBottom:24;
 	}
@@ -1256,6 +1546,16 @@ s|Image.bigbbbLogoStyle
 		fontSize:36;
 	}
 	
+	.selectStreamTitle
+	{
+		fontSize:36;
+	}
+	
+	.settingsUserFirstLettersStyle
+	{
+		fontSize:46;
+	}
+	
 	.loadingScreenTitle
 	{
 		fontSize:46;
@@ -1284,13 +1584,23 @@ s|Image.bigbbbLogoStyle
 		fontSize:24;
 	}
 	
-	s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle
+	.nameIconText
+	{
+		fontSize:16;
+	}
+	
+	s|ItemRenderer.chatRoomItemStyle, s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle, s|ItemRenderer.statusItemStyle
 	{
 		itemHeight:128;
 		lineColor: #F2F2F2;
 		lineWeight:1;
 		itemPaddingLeft:12;
 		itemPaddingRight:12;
+	}
+	
+	s|ItemRenderer.streamItemStyle
+	{
+		itemHeight:128;
 	}
 	
 	s|ItemRenderer.cameraProfileItemStyle
@@ -1375,6 +1685,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/chat.png");
 	}
 	
+	s|Button.chatNewMessagesButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/chat_new_message.png");
+	}
+	
 	s|Button.MuteButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/micOffIcon_dark.png");
@@ -1440,6 +1755,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/settings.png");
 	}
 	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/presentation.png");
+	}
+	
 	s|Button.backButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/backButton.png");
@@ -1456,7 +1776,7 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/video.png");
 	}
 	
-	s|Image.iconStyle
+	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 64;
 		height: 64;
@@ -1465,6 +1785,16 @@ s|Image.bigbbbLogoStyle
 	s|Image.cameraIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/video.png");
+	}
+	
+	s|Image.selectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/selected.png");
+	}
+	
+	s|Image.unselectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/unselected.png");
 	}
 	
 	s|Image.userDetailIconStyle
@@ -1519,49 +1849,94 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/icon-6-thumb-up.png");
 	}
 	
-	s|Image.disagreeIconStyle, s|Button.disagreeStatusButtonStyle
+	s|Image.handIconStyle, s|Button.handStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/hand.png");
+	}
+	
+	s|Button.camOnButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/cam.png");
+	}
+	
+	s|Button.camOffButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/cam_off.png");
+	}
+	
+	s|Button.micOnButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/mic.png");
+	}
+	
+	s|Button.micOffButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/mic_off.png");
+	}
+	
+	s|Button.disagreeStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/icon-7-thumb-down.png");
 	}
 	
-	s|Image.speakLouderIconStyle, s|Button.speakLouderStatusButtonStyle
+	s|Button.speakLouderStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/ic_volume_up.png");
 	}
 	
-	s|Image.speakSofterIconStyle, s|Button.speakSofterStatusButtonStyle
+	s|Button.speakSofterStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/ic_volume_down.png");
 	}
 	
-	s|Image.speakFasterIconStyle, s|Button.speakFasterStatusButtonStyle
+	s|Button.speakFasterStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/ic_fast_forward.png");
 	}
 	
-	s|Image.speakSlowerIconStyle, s|Button.speakSlowerStatusButtonStyle
+	s|Button.speakSlowerStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/ic_fast_rewind.png");
 	}
 	
-	s|Image.beRightBackIconStyle, s|Button.beRightBackStatusButtonStyle
+	s|Button.beRightBackStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/ic_access_time.png");
 	}
 	
-	s|Image.laughterIconStyle, s|Button.laughterStatusButtonStyle
+	s|Button.confusedStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/confused.png");
+	}
+	
+	s|Button.undecidedStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/undecided.png");
+	}
+	
+	s|Button.happyStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/icon-6-smiling-face.png");
 	}
 	
-	s|Image.sadIconStyle, s|Button.sadStatusButtonStyle
+	s|Button.sadStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xhdpi/icon-7-sad-face.png");
 	}
 	
-	s|Image.userIconStyle, s|Button.noStatusButtonStyle
+	s|Button.clearStatusButtonStyle
 	{
-		backgroundImage: Embed(source="assets/res/drawable-xhdpi/user.png");
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/clear_status.png");
+	}
+	
+	s|Image.publicChatIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/publicChat.png");
+	}
+	
+	s|Image.participantInitialsCircleIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xhdpi/participantCircle.png");
 	}
 	
 	s|Image.arrowRightStyle
@@ -1612,6 +1987,13 @@ s|Image.bigbbbLogoStyle
 		toolBarHeight:144;
 		itemPaddingLeft:18;
 		itemPaddingRight:18;
+		itemHeight:86;
+	}
+	
+	s|View.settingsStyle
+	{
+		itemHeight:86;
+		topRectHeight:430;
 	}
 	
 	s|Button.recordingStatusIconStyle
@@ -1727,6 +2109,17 @@ s|Image.bigbbbLogoStyle
 		fontSize:54;
 	}
 	
+	
+	.selectStreamTitle
+	{
+		fontSize:54;
+	}
+	
+	.settingsUserFirstLettersStyle
+	{
+		fontSize:70;
+	}
+	
 	.loadingScreenTitle
 	{
 		fontSize:70;
@@ -1747,13 +2140,23 @@ s|Image.bigbbbLogoStyle
 		fontSize:36;
 	}
 	
-	s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle
+	.nameIconText
+	{
+		fontSize:24;
+	}
+	
+	s|ItemRenderer.chatRoomItemStyle, s|ItemRenderer.participantItemStyle, s|ItemRenderer.roomItemStyle, s|ItemRenderer.statusItemStyle
 	{
 		itemHeight:192;
 		lineColor: #F2F2F2;
 		lineWeight:1.5;
 		itemPaddingLeft:18;
 		itemPaddingRight:18;
+	}
+	
+	s|ItemRenderer.streamItemStyle
+	{
+		itemHeight:192;
 	}
 	
 	s|ItemRenderer.cameraProfileItemStyle
@@ -1869,6 +2272,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/chat.png");
 	}
 	
+	s|Button.chatNewMessagesButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/chat_new_message.png");
+	}
+	
 	s|Button.MuteButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/micOffIcon_dark.png");
@@ -1913,6 +2321,11 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/settings.png");
 	}
 	
+	s|Button.presentationButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/presentation.png");
+	}
+	
 	s|Button.backButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/backButton.png");
@@ -1929,7 +2342,7 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/video.png");
 	}
 	
-	s|Image.iconStyle
+	s|Image.iconStyle, s|Group.participantIconStyle
 	{
 		width: 96;
 		height: 96;
@@ -1938,6 +2351,16 @@ s|Image.bigbbbLogoStyle
 	s|Image.cameraIconStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/video.png");
+	}
+	
+	s|Image.selectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/selected.png");
+	}
+	
+	s|Image.unselectedIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/unselected.png");
 	}
 	
 	s|Image.userDetailIconStyle
@@ -1992,49 +2415,94 @@ s|Image.bigbbbLogoStyle
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/icon-6-thumb-up.png");
 	}
 	
-	s|Image.disagreeIconStyle, s|Button.disagreeStatusButtonStyle
+	s|Image.handIconStyle, s|Button.handStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/hand.png");
+	}
+	
+	s|Button.camOnButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/cam.png");
+	}
+	
+	s|Button.camOffButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/cam_off.png");
+	}
+	
+	s|Button.micOnButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/mic.png");
+	}
+	
+	s|Button.micOffButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/mic_off.png");
+	}
+	
+	s|Button.disagreeStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/icon-7-thumb-down.png");
 	}
 	
-	s|Image.speakLouderIconStyle, s|Button.speakLouderStatusButtonStyle
+	s|Button.speakLouderStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/ic_volume_up.png");
 	}
 	
-	s|Image.speakSofterIconStyle, s|Button.speakSofterStatusButtonStyle
+	s|Button.speakSofterStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/ic_volume_down.png");
 	}
 	
-	s|Image.speakFasterIconStyle, s|Button.speakFasterStatusButtonStyle
+	s|Button.speakFasterStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/ic_fast_forward.png");
 	}
 	
-	s|Image.speakSlowerIconStyle, s|Button.speakSlowerStatusButtonStyle
+	s|Button.speakSlowerStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/ic_fast_rewind.png");
 	}
 		
-	s|Image.beRightBackIconStyle, s|Button.beRightBackStatusButtonStyle
+	s|Button.beRightBackStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/ic_access_time.png");
 	}
 	
-	s|Image.laughterIconStyle, s|Button.laughterStatusButtonStyle
+	s|Button.confusedStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/confused.png");
+	}
+	
+	s|Button.undecidedStatusButtonStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/undecided.png");
+	}
+	
+	s|Button.happyStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/icon-6-smiling-face.png");
 	}
 	
-	s|Image.sadIconStyle, s|Button.sadStatusButtonStyle
+	s|Button.sadStatusButtonStyle
 	{
 		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/icon-7-sad-face.png");
 	}
 	
-	s|Image.userIconStyle, s|Button.noStatusButtonStyle
+	s|Button.clearStatusButtonStyle
 	{
-		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/user.png");
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/clear_status.png");
+	}
+	
+	s|Image.publicChatIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/publicChat.png");
+	}
+	
+	s|Image.participantInitialsCircleIconStyle
+	{
+		backgroundImage: Embed(source="assets/res/drawable-xxhdpi/participantCircle.png");
 	}
 	
 	s|Image.arrowRightStyle
@@ -2044,10 +2512,10 @@ s|Image.bigbbbLogoStyle
 	
 	s|Button.newMessagesButtonStyle
 	{
-		width: 75;
+		width: 82;
 		height: 60;
-		radiusX: 12;
-		radiusY: 12;
+		radiusX: 48;
+		radiusY: 48;
 		fontSize:36;
 	}
 	

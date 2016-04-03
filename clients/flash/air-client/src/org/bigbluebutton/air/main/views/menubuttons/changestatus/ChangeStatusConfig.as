@@ -1,16 +1,14 @@
-package org.bigbluebutton.air.main.views.menubuttons {
+package org.bigbluebutton.air.main.views.menubuttons.changestatus {
 	
-	import org.bigbluebutton.air.video.commands.ShareCameraCommand;
-	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneCommand;
-	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
+	import org.bigbluebutton.lib.main.commands.EmojiCommand;
+	import org.bigbluebutton.lib.main.commands.EmojiSignal;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
 	
-	public class MenuButtonsConfig implements IConfig {
+	public class ChangeStatusConfig implements IConfig {
 		
 		[Inject]
 		public var injector:IInjector;
@@ -39,15 +37,14 @@ package org.bigbluebutton.air.main.views.menubuttons {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(IMenuButtonsView).toMediator(MenuButtonsViewMediator);
+			mediatorMap.map(IChangeStatusPopUp).toMediator(ChangeStatusPopUpMediator);
 		}
 		
 		/**
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			signalCommandMap.map(ShareCameraSignal).toCommand(ShareCameraCommand);
-			signalCommandMap.map(ShareMicrophoneSignal).toCommand(ShareMicrophoneCommand);
+			signalCommandMap.map(EmojiSignal).toCommand(EmojiCommand);
 		}
 	}
 }

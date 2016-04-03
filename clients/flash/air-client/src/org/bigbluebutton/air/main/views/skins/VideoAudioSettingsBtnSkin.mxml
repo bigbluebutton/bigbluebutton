@@ -16,9 +16,7 @@
 		<s:State name="upAndSelected" />
 		<s:State name="downAndSelected" />
 	</s:states>
-	<s:Rect radiusX="{getStyle('radiusX')}"
-			radiusY="{getStyle('radiusY')}"
-			height="{hostComponent.getStyle('height')}"
+	<s:Rect height="{hostComponent.getStyle('height')}"
 			width="100%">
 		<s:fill>
 			<s:SolidColor color="{hostComponent.getStyle('backgroundColor')}"

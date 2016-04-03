@@ -36,7 +36,7 @@ package org.bigbluebutton.air.main.views.disconnectpage {
 			view.reconnectButton.addEventListener(MouseEvent.CLICK, reconnect);
 			changeConnectionStatus(userUISession.currentPageDetails as int);
 			if (FlexGlobals.topLevelApplication.hasOwnProperty("pageName")) {
-				FlexGlobals.topLevelApplication.pageName.text = "";
+				FlexGlobals.topLevelApplication.topActionBar.pageName.text = "";
 				FlexGlobals.topLevelApplication.topActionBar.visible = false;
 				FlexGlobals.topLevelApplication.bottomMenu.visible = false;
 			}

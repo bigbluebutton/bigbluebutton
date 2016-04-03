@@ -17,7 +17,6 @@ package org.bigbluebutton.air.common.views {
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsView;
 	import org.bigbluebutton.air.settings.views.camera.CameraSettingsView;
 	import org.bigbluebutton.air.settings.views.lock.LockSettingsView;
-	import org.bigbluebutton.air.settings.views.status.StatusView;
 	import org.bigbluebutton.air.users.views.participants.ParticipantsView;
 	import org.bigbluebutton.air.users.views.userdetails.UserDetailsView;
 	import org.bigbluebutton.air.video.views.videochat.VideoChatView;
@@ -77,7 +76,6 @@ package org.bigbluebutton.air.common.views {
 				dic[PRESENTATION] = PresentationView;
 				dic[LOGIN] = LoginPageView;
 				dic[PROFILE] = ProfileView;
-				dic[STATUS] = StatusView;
 				dic[USER_DETAILS] = UserDetailsView;
 				dic[VIDEO_CHAT] = VideoChatView;
 				dic[CHATROOMS] = ChatRoomsView;

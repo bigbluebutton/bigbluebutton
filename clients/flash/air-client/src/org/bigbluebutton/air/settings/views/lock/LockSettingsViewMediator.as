@@ -7,7 +7,6 @@ package org.bigbluebutton.air.settings.views.lock {
 	
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.models.UserSession;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
@@ -39,11 +38,6 @@ package org.bigbluebutton.air.settings.views.lock {
 		override public function initialize():void {
 			loadLockSettings();
 			view.applyButton.addEventListener(MouseEvent.CLICK, onApply);
-			FlexGlobals.topLevelApplication.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
-			FlexGlobals.topLevelApplication.backBtn.visible = true;
-			FlexGlobals.topLevelApplication.profileBtn.visible = false;
-		}
-		
 			FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'lockSettings.title');
 			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = true;
 			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = false;
@@ -63,8 +57,8 @@ package org.bigbluebutton.air.settings.views.lock {
 			userUISession.popPage();
 		}
 		
-		private function loadLockSettings() {
-			view.cameraSwitch.selected = !UserSession.lockSettings.disableCam;
+		private function loadLockSettings():void {
+			view.cameraSwitch.selected = !userSession.lockSettings.disableCam;
 			view.micSwitch.selected = !userSession.lockSettings.disableMic;
 			view.publicChatSwitch.selected = !userSession.lockSettings.disablePublicChat;
 			view.privateChatSwitch.selected = !userSession.lockSettings.disablePrivateChat;

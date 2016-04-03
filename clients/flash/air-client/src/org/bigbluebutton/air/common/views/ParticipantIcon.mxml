@@ -1,0 +1,45 @@
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 styleName="participantIconStyle"
+		 creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			public var participantName:String;
+			
+			public function init():void {
+				//create first letters icon
+				if (participantName) {
+					var names:Array = participantName.split(" ");
+					var firstLettersText:String = names[0].charAt(0);
+					if (names[1]) {
+						firstLettersText += names[1].charAt(0);
+					}
+					firstLetters.text = firstLettersText.toUpperCase();
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup horizontalAlign="center"
+			  verticalAlign="middle"
+			  width="{getStyle('width')}"
+			  height="{getStyle('height')}">
+		<s:Label id="firstLetters"
+				 styleName="nameIconText" />
+	</s:HGroup>
+
+	<s:Ellipse id="circle"
+			   height="{firstLetters.height * 2.5}"
+			   width="{circle.height}"
+			   x="{firstLetters.x - (circle.width - firstLetters.width)/2}"
+			   y="{firstLetters.y - (circle.height - firstLetters.height)/2}">
+		<s:stroke>
+			<s:SolidColorStroke id="circleColor"
+								color="{getStyle('circleColor')}"
+								weight="1" />
+		</s:stroke>
+	</s:Ellipse>
+
+
+</s:Group>
+

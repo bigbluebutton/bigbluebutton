@@ -21,22 +21,27 @@
 			</s:VGroup>
 		</s:Scroller>
 
-		<s:Group width="100%"
-				 height="{getStyle('chatInputTextHeight')}">
+		<s:HGroup width="100%"
+				  height="{getStyle('chatInputTextHeight')}"
+				  verticalAlign="middle"
+				  horizontalAlign="center">
 			<!-- soft keyboard fix: http://stackoverflow.com/a/14337230/4793308 -->
-			<s:TextInput showPromptWhenFocused="false"
-						 skinClass="spark.skins.mobile.TextInputSkin"
-						 id="inputMessage0"
-						 width="100%"
-						 height="100%"
-						 prompt="{resourceManager.getString('resources','chat.textInput.text')}"
-						 styleName="contentFontSize msgInputBoxStyle" />
+
 			<s:Button id="sendButton0"
 					  width="{getStyle('btnWidth')}"
 					  height="100%"
 					  right="0"
 					  enabled="{inputMessage0.text!=''}"
 					  styleName="sendButtonStyle" />
-		</s:Group>
+
+			<s:TextInput showPromptWhenFocused="false"
+						 skinClass="spark.skins.mobile.TextInputSkin"
+						 id="inputMessage0"
+						 width="90%"
+						 height="90%"
+						 prompt="{resourceManager.getString('resources','chat.textInput.text')}"
+						 styleName="contentFontSize msgInputBoxStyle" />
+
+		</s:HGroup>
 	</s:Group>
 </common:NoTabView>
