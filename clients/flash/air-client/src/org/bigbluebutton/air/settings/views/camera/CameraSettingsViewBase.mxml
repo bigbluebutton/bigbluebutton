@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:NoTabView xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:view="org.bigbluebutton.air.common.views.*"
+				styleName="cameraSettingsViewStyle"
+				xmlns:cameraprofiles="org.bigbluebutton.air.settings.views.cameraprofiles.*">
+
+	<s:VGroup width="100%"
+			  height="100%"
+			  horizontalAlign="center">
+
+
+		<s:Scroller id="cameraSettingsScroller0"
+					width="100%"
+					height="100%">
+			<s:Group>
+				<s:Group id="videoGroup0"
+						 width="100%"
+						 height="100%">
+					<s:VideoDisplay id="previewvideo"
+									height="100%" />
+					<s:Label id="noVideoMessage0"
+							 visible="false"
+							 styleName="noVideoMsgStyle contentFontSize"
+							 textAlign="center"
+							 width="100%"
+							 height="100%"
+							 text="{resourceManager.getString('resources', 'video.noVideo')}" />
+				</s:Group>
+
+				<s:Group width="100%"
+						 height="100%"
+						 id="settingsGroup0">
+					<s:layout>
+						<s:VerticalLayout horizontalAlign="center"
+										  gap="1" />
+					</s:layout>
+					<cameraprofiles:CameraProfilesList id="cameraprofileslist"
+													   width="100%" />
+
+					<s:HGroup width="100%">
+						<s:Button visible="false"
+								  includeInLayout="false"
+								  width="100%"
+								  id="rotateCameraBtn0"
+								  styleName="cameraSettingsRotateButtonStyle videoAudioSettingStyle contentFontSize"
+								  label="{resourceManager.getString('resources', 'cameraSettings.rotate')}" />
+					</s:HGroup>
+					<s:Button id="swapCameraBtn0"
+							  styleName="cameraSettingsSwapButtonStyle videoAudioSettingStyle contentFontSize"
+							  width="100%"
+							  label="{resourceManager.getString('resources', 'cameraSettings.swap')}" />
+					<s:Button id="startCameraButton0"
+							  styleName="cameraSettingsStartButtonStyle videoAudioSettingStyle contentFontSize"
+							  width="100%"
+							  label="{resourceManager.getString('resources', 'userDetail.cameraBtn.text')}" />
+				</s:Group>
+
+			</s:Group>
+		</s:Scroller>
+
+
+	</s:VGroup>
+</view:NoTabView>

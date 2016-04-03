@@ -1,8 +1,4 @@
 package org.bigbluebutton.lib.video.services {
-	import flash.events.Event;
-	import flash.events.HTTPStatusEvent;
-	import flash.events.IOErrorEvent;
-	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
 	import org.bigbluebutton.lib.common.utils.URLFetcher;
@@ -30,7 +26,7 @@ package org.bigbluebutton.lib.video.services {
 			fetcher.fetch(ProfileUrl, urlRequest);
 		}
 		
-		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest):void {
+		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:String = null):void {
 			try {
 				successSignal.dispatch(new XML(data));
 			} catch (e:Error) {

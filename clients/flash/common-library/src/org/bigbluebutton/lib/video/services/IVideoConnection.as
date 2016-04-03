@@ -18,7 +18,10 @@ package org.bigbluebutton.lib.video.services {
 		function set camera(value:Camera):void
 		function get selectedCameraQuality():VideoProfile;
 		function set selectedCameraQuality(profile:VideoProfile):void
+		function get selectedCameraRotation():int
+		function set selectedCameraRotation(rotation:int):void
 		function connect():void
+		function disconnect(onUserCommand:Boolean):void
 		function startPublishing(camera:Camera, streamName:String):void
 		function getStreamNameForCamera(camera:Camera):String;
 		function stopPublishing(camera:Camera):void

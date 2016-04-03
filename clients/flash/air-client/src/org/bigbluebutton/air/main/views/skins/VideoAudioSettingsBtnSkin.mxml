@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Button")]
+	</fx:Metadata>
+
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+		<s:State name="upAndSelected" />
+		<s:State name="downAndSelected" />
+	</s:states>
+	<s:Rect radiusX="{getStyle('radiusX')}"
+			radiusY="{getStyle('radiusY')}"
+			height="{hostComponent.getStyle('height')}"
+			width="100%">
+		<s:fill>
+			<s:SolidColor color="{hostComponent.getStyle('backgroundColor')}"
+						  color.down="{hostComponent.getStyle('onClickBackgroundColor')}" />
+		</s:fill>
+	</s:Rect>
+	<s:BitmapImage source="{getStyle('backgroundImage')}"
+				   verticalCenter="0"
+				   id="iconImage"
+				   left="{getStyle('imageAlign')}"
+				   alpha.disabled="0.5" />
+
+	<s:Label width="100%"
+			 left="{getStyle('imageAlign') + iconImage.width}"
+			 id="labelDisplay"
+			 text="{hostComponent.label}"
+			 paddingLeft="{getStyle('labelPaddingLeft')}"
+			 textAlign="{getStyle('labelTextAlign')}"
+			 verticalCenter="0"
+			 alpha.disabled="0.5" />
+	<s:BitmapImage source="{getStyle('navigateImage')}"
+				   verticalCenter="0"
+				   right="{getStyle('imageAlign')}"
+				   alpha.disabled="0.5" />
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="{getStyle('lineColor')}"
+								weight="{getStyle('lineWeight')}" />
+		</s:stroke>
+	</s:Line>
+</s:Skin>

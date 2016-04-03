@@ -2,6 +2,7 @@ package org.bigbluebutton.lib.user.services {
 	
 	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
+	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
@@ -17,6 +18,9 @@ package org.bigbluebutton.lib.user.services {
 		[Inject]
 		public var authenticationSignal:AuthenticationSignal;
 		
+		[Inject]
+		public var disconnectUserSignal:DisconnectUserSignal;
+		
 		public var usersMessageSender:UsersMessageSender;
 		
 		public var usersMessageReceiver:UsersMessageReceiver;
@@ -29,6 +33,7 @@ package org.bigbluebutton.lib.user.services {
 		public function setupMessageSenderReceiver():void {
 			usersMessageReceiver.userSession = userSession;
 			usersMessageReceiver.authenticationSignal = authenticationSignal;
+			usersMessageReceiver.disconnectUserSignal = disconnectUserSignal;
 			usersMessageSender.userSession = userSession;
 			userSession.mainConnection.addMessageListener(usersMessageReceiver as IMessageListener);
 			userSession.logoutSignal.add(logout);
@@ -73,24 +78,29 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.disconnect(onUserAction);
 		}
 		
-		public function raiseHand():void {
-			usersMessageSender.raiseHand();
+		public function changeMood(mood:String):void {
+			usersMessageSender.changeMood(userSession.userList.me.userID, mood);
+			if (mood == User.RAISE_HAND) {
+				usersMessageSender.raiseHand();
+			} else if (mood == User.NO_STATUS) {
+				usersMessageSender.lowerHand(userSession.userList.me.userID, userSession.userList.me.userID);
+			}
 		}
 		
-		public function lowerHand(userID:String):void {
-			usersMessageSender.lowerHand(userID, userSession.userId);
+		public function clearUserStatus(userID:String):void {
+			usersMessageSender.changeMood(userID, User.NO_STATUS);
 		}
 		
 		public function kickUser(userID:String):void {
-			usersMessageSender.kickUser(userID, userSession.userId);
+			usersMessageSender.kickUser(userID);
 		}
 		
 		public function queryForParticipants():void {
 			usersMessageSender.queryForParticipants();
 		}
 		
-		public function assignPresenter(userid:String, name:String):void {
-			usersMessageSender.assignPresenter(userid, name, userSession.userId);
+		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
+			usersMessageSender.assignPresenter(userid, name, assignedBy);
 		}
 		
 		public function queryForRecordingStatus():void {
@@ -101,8 +111,12 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.changeRecordingStatus(userID, recording);
 		}
 		
-		public function muteAllUsers(mute:Boolean, dontMuteThese:Array = null):void {
-			usersMessageSender.muteAllUsers(mute, dontMuteThese);
+		public function muteAllUsers(mute:Boolean):void {
+			usersMessageSender.muteAllUsers(mute);
+		}
+		
+		public function muteAllUsersExceptPresenter(mute:Boolean):void {
+			usersMessageSender.muteAllUsersExceptPresenter(mute);
 		}
 		
 		public function muteUnmuteUser(userid:String, mute:Boolean):void {
@@ -137,8 +151,32 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageSender.saveLockSettings(newLockSettings);
 		}
 		
+		public function sendJoinMeetingMessage():void {
+			usersMessageSender.sendJoinMeetingMessage(conferenceParameters.internalUserID);
+		}
+		
+		public function getGuestPolicy():void {
+			usersMessageSender.getGuestPolicy();
+		}
+		
+		public function responseToGuest(userId:String, response:Boolean):void {
+			usersMessageSender.responseToGuest(userId, response);
+		}
+		
+		public function lowerHand(userID:String, loweredBy:String):void {
+			usersMessageSender.lowerHand(userID, loweredBy);
+		}
+		
+		public function responseToAllGuests(response:Boolean):void {
+			usersMessageSender.responseToAllGuests(response);
+		}
+		
 		public function validateToken():void {
 			usersMessageSender.validateToken(conferenceParameters.internalUserID, conferenceParameters.authToken);
+		}
+		
+		public function changeRole(userID:String, role:String):void {
+			usersMessageSender.changeRole(userID, role)
 		}
 	}
 }

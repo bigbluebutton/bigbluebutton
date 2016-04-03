@@ -23,15 +23,15 @@ package org.bigbluebutton.lib.main.services {
 			var configUrl:String = serverUrl + "/bigbluebutton/api/configXML?a=" + new Date().time;
 			var fetcher:URLFetcher = new URLFetcher;
 			fetcher.successSignal.add(onSuccess);
-			fetcher.failureSignal.add(onFailure);
+			fetcher.failureSignal.add(onUnsuccess);
 			fetcher.fetch(configUrl, urlRequest);
 		}
 		
-		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest):void {
+		protected function onSuccess(data:Object, responseUrl:String, urlRequest:URLRequest, httpStatusCode:Number = 0):void {
 			successSignal.dispatch(new XML(data));
 		}
 		
-		protected function onFailure(reason:String):void {
+		protected function onUnsuccess(reason:String):void {
 			failureSignal.dispatch(reason);
 		}
 	}

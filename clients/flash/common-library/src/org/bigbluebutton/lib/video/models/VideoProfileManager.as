@@ -1,12 +1,5 @@
 package org.bigbluebutton.lib.video.models {
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	
-	import mx.core.FlexGlobals;
-	import mx.utils.ObjectUtil;
-	import mx.utils.URLUtil;
 	
 	public class VideoProfileManager extends EventDispatcher {
 		public static const PROFILES_XML:String = "client/conf/profiles.xml";

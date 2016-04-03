@@ -11,7 +11,7 @@ package org.bigbluebutton.lib.main.models {
 	 *
 	 */
 	public class ConferenceParameters implements IConferenceParameters {
-		private var _changedSignal:Signal = new Signal();
+		private var _changedSignal:Signal;
 		
 		private var _meetingName:String;
 		
@@ -79,11 +79,24 @@ package org.bigbluebutton.lib.main.models {
 		
 		private var _record:Boolean;
 		
+		private var _guest:Boolean;
+		
+		private var _guestDefined:Boolean;
+		
 		private var _authToken:String;
+		
+		private var _metadata:Object;
+		
+		private var _muteOnStart:Boolean;
 		
 		private var _avatarUrl:String;
 		
-		public function ConferenceParameters() {
+		public function ConferenceParameters(signal:Signal = null) {
+			if (signal) {
+				_changedSignal = signal;
+			} else {
+				_changedSignal = new Signal();
+			}
 		}
 		
 		/**
@@ -105,6 +118,10 @@ package org.bigbluebutton.lib.main.models {
 		
 		public function get externMeetingID():String {
 			return _externMeetingID;
+		}
+		
+		public function get meetingID():String {
+			return _meetingID;
 		}
 		
 		public function set externMeetingID(externMeetingID:String):void {
@@ -237,12 +254,25 @@ package org.bigbluebutton.lib.main.models {
 			_authToken = authToken;
 		}
 		
-		public function get avatarUrl():String {
-			return _avatarUrl;
+		public function get metadata():Object {
+			return _metadata;
 		}
 		
-		public function set avatarUrl(value:String):void {
-			_avatarUrl = value;
+		public function set metadata(metadata:Object):void {
+			metadata = metadata;
+		}
+		
+		public function get guest():Boolean {
+			return _guest;
+		}
+		
+		public function set guest(value:Boolean):void {
+			_guest = value;
+			_changedSignal.dispatch();
+		}
+		
+		public function isGuestDefined():Boolean {
+			return _guestDefined;
 		}
 		
 		public function load(obj:Object):void {
@@ -260,9 +290,42 @@ package org.bigbluebutton.lib.main.models {
 			_internalUserID = obj.internalUserId;
 			_logoutUrl = obj.logoutUrl;
 			_record = !(obj.record == "false");
-			_authToken = obj.authToken;
+			_guest = (obj.guest == "true");
 			_avatarUrl = obj.avatarURL;
+			_guestDefined = (obj.guest != undefined);
+			_authToken = obj.authToken;
 			_changedSignal.dispatch();
+			_metadata = new Object();
+			for (var n:String in obj.metadata) {
+				for (var id:String in obj.metadata[n]) {
+					_metadata[id] = obj.metadata[n][id];
+				}
+			}
+			try {
+				_muteOnStart = (obj.muteOnStart as String).toUpperCase() == "TRUE";
+			} catch (e:Error) {
+				_muteOnStart = false;
+			}
+			for (var key:String in obj) {
+				var value:Object = obj[key];
+				trace(key + " = " + value);
+			}
+		}
+		
+		public function set muteOnStart(mute:Boolean):void {
+			_muteOnStart = mute;
+		}
+		
+		public function get muteOnStart():Boolean {
+			return _muteOnStart;
+		}
+		
+		public function get avatarUrl():String {
+			return _avatarUrl;
+		}
+		
+		public function set avatarUrl(value:String):void {
+			_avatarUrl = value;
 		}
 	}
 }

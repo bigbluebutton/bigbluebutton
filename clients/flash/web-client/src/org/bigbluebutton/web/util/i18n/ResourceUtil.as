@@ -95,7 +95,7 @@ package org.bigbluebutton.web.util.i18n {
 		}
 		
 		private function buildRequestURL():String {
-			return "http://143.54.10.144/";
+			return " http://test-install.blindsidenetworks.com/";
 			var swfURL:String = FlexGlobals.topLevelApplication.url;
 			var protocol:String = URLUtil.getProtocol(swfURL);
 			var serverName:String = URLUtil.getServerNameWithPort(swfURL);

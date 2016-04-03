@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:NoTabView xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:view="org.bigbluebutton.air.common.views.*"
+				xmlns:ui="org.bigbluebutton.view.ui.*">
+	<s:Scroller width="100%"
+				height="100%">
+		<s:VGroup width="100%"
+				  height="100%"
+				  horizontalAlign="center">
+
+			<s:List id="moodList0"
+					width="100%"
+					itemRenderer="org.bigbluebutton.air.settings.views.status.StatusItemRenderer"
+					height="100%"
+					labelField="data">
+				<s:ArrayList>
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.clearMood')}"
+							   signal="NO_STATUS" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.handRaise')}"
+							   signal="RAISE_HAND" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.agree')}"
+							   signal="AGREE" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.disagree')}"
+							   signal="DISAGREE" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.speakLouder')}"
+							   signal="SPEAK_LOUDER" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.speakSofter')}"
+							   signal="SPEAK_LOWER" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.speakFaster')}"
+							   signal="SPEAK_FASTER" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.speakSlower')}"
+							   signal="SPEAK_SLOWER" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.beRightBack')}"
+							   signal="BE_RIGHT_BACK" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.laughter')}"
+							   signal="LAUGHTER" />
+					<fx:Object data="{resourceManager.getString('resources', 'profile.settings.sad')}"
+							   signal="SAD" />
+				</s:ArrayList>
+			</s:List>
+		</s:VGroup>
+	</s:Scroller>
+</view:NoTabView>

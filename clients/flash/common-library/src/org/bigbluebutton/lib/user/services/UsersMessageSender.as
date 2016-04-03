@@ -6,23 +6,18 @@ package org.bigbluebutton.lib.user.services {
 		public var userSession:IUserSession;
 		
 		// The default callbacks of userSession.mainconnection.sendMessage
-		private var defaultSuccessResponse:Function = function(result:String):void {
-			trace(result);
-		};
+		private var defaultSuccessResponse:Function = function(result:String):void {trace(result);};
 		
-		private var defaultFailureResponse:Function = function(status:String):void {
-			trace(status);
-		};
+		private var defaultFailureResponse:Function = function(status:String):void {trace(status);};
 		
 		public function UsersMessageSender() {
 		}
 		
-		public function kickUser(userID:String, ejectedBy:String):void {
+		public function kickUser(userID:String):void {
 			trace("UsersMessageSender::kickUser() -- Sending [participants.kickUser] message to server.. with message [userID:" + userID + "]");
 			var message:Object = new Object();
-			message["userId"] = userID;
-			message["ejectedBy"] = ejectedBy;
-			userSession.mainConnection.sendMessage("participants.ejectUserFromMeeting", defaultSuccessResponse, defaultFailureResponse, message);
+			message["userID"] = userID;
+			userSession.mainConnection.sendMessage("participants.kickUser", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function queryForParticipants():void {
@@ -31,12 +26,22 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function assignPresenter(userid:String, name:String, assignedBy:String):void {
-			trace("UsersMessageSender::assignPresenter() -- Sending [participants.assignPresenter] message to server with message " + "[newPresenterID:" + userid + ", newPresenterName:" + name + ", assignedBy:" + assignedBy + "]");
+			trace("UsersMessageSender::assignPresenter() -- Sending [participants.assignPresenter] message to server with message " +
+				"[newPresenterID:" + userid + ", newPresenterName:" + name + ", assignedBy:" + assignedBy + "]");
 			var message:Object = new Object();
 			message["newPresenterID"] = userid;
 			message["newPresenterName"] = name;
 			message["assignedBy"] = assignedBy;
 			userSession.mainConnection.sendMessage("participants.assignPresenter", defaultSuccessResponse, defaultFailureResponse, message);
+		}
+		
+		public function changeMood(userID:String, mood:String):void {
+			trace("UsersMessageSender::changeMood() -- Sending participants.setParticipantStatus] message to server with " + mood + " status");
+			var message:Object = new Object();
+			message["userID"] = userID;
+			message["status"] = "mood";
+			message["value"] = mood;
+			userSession.mainConnection.sendMessage("participants.setParticipantStatus", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function raiseHand():void {
@@ -75,15 +80,18 @@ package org.bigbluebutton.lib.user.services {
 			userSession.mainConnection.sendMessage("participants.setRecordingStatus", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
-		public function muteAllUsers(mute:Boolean, dontMuteThese:Array = null):void {
-			trace("UsersMessageSender::muteAllUsers() -- Sending [voice.muteAllUsers] message to server");
-			if (dontMuteThese == null) {
-				dontMuteThese = [];
-			}
+		public function muteAllUsers(mute:Boolean):void {
+			trace("UsersMessageSender::muteAllUsers() -- Sending [voice.muteAllUsers] message to server. mute=[" + mute + "]");
 			var message:Object = new Object();
 			message["mute"] = mute;
-			message["exceptUsers"] = dontMuteThese;
 			userSession.mainConnection.sendMessage("voice.muteAllUsers", defaultSuccessResponse, defaultFailureResponse, message);
+		}
+		
+		public function muteAllUsersExceptPresenter(mute:Boolean):void {
+			trace("UsersMessageSender::muteAllUsers() -- Sending [voice.muteAllUsersExceptPresenter] message to server. mute=[" + mute + "]");
+			var message:Object = new Object();
+			message["mute"] = mute;
+			userSession.mainConnection.sendMessage("voice.muteAllUsersExceptPresenter", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function muteUnmuteUser(userid:String, mute:Boolean):void {
@@ -116,7 +124,11 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		public function setUserLock(internalUserID:String, lock:Boolean):void {
-			trace("UsersMessageSender::setUserLock() -- Sending [setUserLock] message to server");
+			trace("UsersMessageSender::setUserLock() -- Sending [setUserLock] message to server - userId: [" + internalUserID + "] lock: [" + lock + "]");
+			var message:Object = new Object();
+			message["userId"] = internalUserID;
+			message["lock"] = lock;
+			userSession.mainConnection.sendMessage("lock.setUserLock", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 		
 		public function getLockSettings():void {
@@ -126,6 +138,7 @@ package org.bigbluebutton.lib.user.services {
 		
 		public function saveLockSettings(newLockSettings:Object):void {
 			trace("UsersMessageSender::saveLockSettings() -- Sending [saveLockSettings] message to server");
+			userSession.mainConnection.sendMessage("lock.setLockSettings", defaultSuccessResponse, defaultFailureResponse, newLockSettings);
 		}
 		
 		public function validateToken(internalUserID:String, authToken:String):void {
@@ -134,6 +147,37 @@ package org.bigbluebutton.lib.user.services {
 			message["userId"] = internalUserID;
 			message["authToken"] = authToken;
 			userSession.mainConnection.sendMessage("validateToken", defaultSuccessResponse, defaultFailureResponse, message);
+		}
+		
+		public function sendJoinMeetingMessage(internalUserID:String):void {
+			trace("UsersMessageSender::sendJoinMeetingMessage() -- Sending [joinMeeting] message to server with message [userID: " + internalUserID + "]");
+			userSession.mainConnection.sendMessage("joinMeeting", defaultSuccessResponse, defaultFailureResponse, internalUserID);
+		}
+		
+		public function getGuestPolicy():void {
+			trace("getGuestPolicy");
+			userSession.mainConnection.sendMessage("participants.getGuestPolicy", defaultSuccessResponse, defaultFailureResponse);
+		}
+		
+		public function responseToGuest(userId:String, response:Boolean):void {
+			trace("responseToGuest - guestID:[" + userId + "] response:[" + response + "]");
+			var message:Object = new Object();
+			message["userId"] = userId;
+			message["response"] = response;
+			userSession.mainConnection.sendMessage("participants.responseToGuest", defaultSuccessResponse, defaultFailureResponse, message);
+		}
+		
+		public function responseToAllGuests(response:Boolean):void {
+			trace("responseToAllGuests - response:[" + response + "]");
+			responseToGuest(null, response);
+		}
+		
+		public function changeRole(userID:String, role:String):void {
+			trace("UsersMessageSender::setParticipantRole() -- Sending [participants.setParticipantRole] message to server.. with message [userID:" + userID + ", role:" + role + "]");
+			var message:Object = new Object();
+			message["userId"] = userID;
+			message["role"] = role;
+			userSession.mainConnection.sendMessage("participants.setParticipantRole", defaultSuccessResponse, defaultFailureResponse, message);
 		}
 	}
 }

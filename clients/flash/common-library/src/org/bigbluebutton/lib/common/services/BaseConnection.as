@@ -10,6 +10,7 @@ package org.bigbluebutton.lib.common.services {
 	import mx.utils.ObjectUtil;
 	
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
+	import org.bigbluebutton.lib.main.models.ConnectionFailedEvent;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
@@ -20,7 +21,7 @@ package org.bigbluebutton.lib.common.services {
 		[Inject]
 		public var disconnectUserSignal:DisconnectUserSignal;
 		
-		protected var _connectionSuccessSignal:ISignal = new Signal();
+		protected var _successConnected:ISignal = new Signal();
 		
 		protected var _connectionFailureSignal:ISignal = new Signal();
 		
@@ -46,8 +47,8 @@ package org.bigbluebutton.lib.common.services {
 			return _connectionFailureSignal;
 		}
 		
-		public function get connectionSuccessSignal():ISignal {
-			return _connectionSuccessSignal;
+		public function get successConnected():ISignal {
+			return _successConnected;
 		}
 		
 		public function get connection():NetConnection {
@@ -63,7 +64,8 @@ package org.bigbluebutton.lib.common.services {
 			parameters[7] = false;
 			parameters[8] = false;
 			try {
-				trace(LOG + "Trying to connect to [" + uri + "] ...");
+				trace("Trying to connect to [" + uri + "] ...");
+				trace("parameters: " + parameters);
 				// passing an array to a method that expects a variable number of parameters
 				// http://stackoverflow.com/a/3852920
 				_netConnection.connect.apply(null, new Array(uri).concat(parameters));
@@ -78,12 +80,16 @@ package org.bigbluebutton.lib.common.services {
 						trace(LOG + "UNKNOWN Error! Invalid server location: " + uri);
 						break;
 				}
-				sendDisconnectUserSignal();
+				sendConnectionFailedEvent(e.message);
 			}
 		}
 		
 		public function disconnect(onUserCommand:Boolean):void {
 			_onUserCommand = onUserCommand;
+			_netConnection.removeEventListener(NetStatusEvent.NET_STATUS, netStatus);
+			_netConnection.removeEventListener(AsyncErrorEvent.ASYNC_ERROR, netASyncError);
+			_netConnection.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, netSecurityError);
+			_netConnection.removeEventListener(IOErrorEvent.IO_ERROR, netIOError);
 			_netConnection.close();
 		}
 		
@@ -93,75 +99,73 @@ package org.bigbluebutton.lib.common.services {
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					trace(LOG + " Connection succeeded. Uri: " + _uri);
-					sendConnectionSuccessSignal();
+					sendConnectionSuccessEvent();
 					break;
 				case "NetConnection.Connect.Failed":
 					trace(LOG + " Connection failed. Uri: " + _uri);
-					sendDisconnectUserSignal();
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
 					break;
 				case "NetConnection.Connect.Closed":
 					trace(LOG + " Connection closed. Uri: " + _uri);
-					sendDisconnectUserSignal();
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);
 					break;
 				case "NetConnection.Connect.InvalidApp":
 					trace(LOG + " application not found on server. Uri: " + _uri);
-					sendDisconnectUserSignal();
+					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);
 					break;
 				case "NetConnection.Connect.AppShutDown":
 					trace(LOG + " application has been shutdown. Uri: " + _uri);
-					sendDisconnectUserSignal();
+					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);
 					break;
 				case "NetConnection.Connect.Rejected":
 					trace(LOG + " Connection to the server rejected. Uri: " + _uri + ". Check if the red5 specified in the uri exists and is running");
-					sendDisconnectUserSignal();
+					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);
 					break;
 				case "NetConnection.Connect.NetworkChange":
 					trace("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 				default:
 					trace(LOG + " Default status");
-					sendDisconnectUserSignal();
+					sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 					break;
 			}
 		}
 		
-		protected function sendConnectionSuccessSignal():void {
-			connectionSuccessSignal.dispatch();
+		protected function sendConnectionSuccessEvent():void {
+			successConnected.dispatch();
 		}
 		
-		protected function sendDisconnectUserSignal():void {
+		protected function sendConnectionFailedEvent(reason:String):void {
+			//unsuccessConnected.dispatch(reason);
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_CONNECTION_DROPPED);
 		}
 		
 		protected function netSecurityError(event:SecurityErrorEvent):void {
 			trace(LOG + "Security error - " + event.text);
-			sendDisconnectUserSignal();
+			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		protected function netIOError(event:IOErrorEvent):void {
 			trace(LOG + "Input/output error - " + event.text);
-			sendDisconnectUserSignal();
+			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		protected function netASyncError(event:AsyncErrorEvent):void {
 			trace(LOG + "Asynchronous code error - " + event.error);
-			sendDisconnectUserSignal();
+			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object = null):void {
 			trace(LOG + "SENDING MESSAGE: [" + service + "]");
-			var responder:Responder = new Responder(
-				function(result:Object):void { // On successful result
-					onSuccess("SUCCESSFULLY SENT: [" + service + "].");
-				},
-				function(status:Object):void { // status - On error occurred
-					var errorReason:String = "FAILED TO SEND: [" + service + "]:";
-					for (var x:Object in status) {
-						errorReason += "\n - " + x + " : " + status[x];
-					}
-					onFailure(errorReason);
+			var responder:Responder = new Responder(function(result:Object):void { // On successful result
+				onSuccess("SUCCESSFULLY SENT: [" + service + "].");
+			}, function(status:Object):void { // status - On error occurred
+				var errorReason:String = "FAILED TO SEND: [" + service + "]:";
+				for (var x:Object in status) {
+					errorReason += "\n - " + x + " : " + status[x];
 				}
-				);
+				onFailure(errorReason);
+			});
 			if (message == null) {
 				_netConnection.call(service, responder);
 			} else {

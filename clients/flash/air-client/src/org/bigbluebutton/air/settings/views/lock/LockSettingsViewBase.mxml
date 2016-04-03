@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:NoTabView xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:view="org.bigbluebutton.air.common.views.*"
+				styleName="lockSettingsStyle">
+
+	<s:Scroller width="100%"
+				height="100%">
+		<s:VGroup width="100%"
+				  height="100%"
+				  horizontalAlign="center">
+			<s:Line width="90%">
+				<s:stroke>
+					<s:SolidColorStroke color="{getStyle('lineColor')}"
+										weight="{getStyle('lineWeight')}" />
+				</s:stroke>
+			</s:Line>
+			<s:HGroup width="90%"
+					  height="7%"
+					  verticalAlign="middle"
+					  horizontalAlign="right">
+				<s:Label width="100%"
+						 text="{resourceManager.getString('resources', 'lockSettings.cam')}" />
+				<s:ToggleSwitch id="cam" />
+			</s:HGroup>
+			<s:Line width="90%">
+				<s:stroke>
+					<s:SolidColorStroke color="{getStyle('lineColor')}"
+										weight="{getStyle('lineWeight')}" />
+				</s:stroke>
+			</s:Line>
+			<s:HGroup width="90%"
+					  height="7%"
+					  verticalAlign="middle"
+					  horizontalAlign="right">
+
+				<s:Label width="100%"
+						 text="{resourceManager.getString('resources', 'lockSettings.mic')}" />
+				<s:ToggleSwitch id="mic" />
+			</s:HGroup>
+			<s:Line width="190%">
+				<s:stroke>
+					<s:SolidColorStroke color="{getStyle('lineColor')}"
+										weight="{getStyle('lineWeight')}" />
+				</s:stroke>
+			</s:Line>
+			<s:HGroup width="90%"
+					  height="7%"
+					  verticalAlign="middle"
+					  horizontalAlign="right">
+				<s:Label width="100%"
+						 text="{resourceManager.getString('resources', 'lockSettings.publicChat')}" />
+				<s:ToggleSwitch id="publicChat" />
+			</s:HGroup>
+			<s:Line width="90%">
+				<s:stroke>
+					<s:SolidColorStroke color="{getStyle('lineColor')}"
+										weight="{getStyle('lineWeight')}" />
+				</s:stroke>
+			</s:Line>
+			<s:HGroup width="90%"
+					  height="7%"
+					  verticalAlign="middle"
+					  horizontalAlign="right">
+				<s:Label width="100%"
+						 text="{resourceManager.getString('resources', 'lockSettings.privateChat')}" />
+				<s:ToggleSwitch id="privateChat" />
+			</s:HGroup>
+			<s:Line width="90%">
+				<s:stroke>
+					<s:SolidColorStroke color="{getStyle('lineColor')}"
+										weight="{getStyle('lineWeight')}" />
+				</s:stroke>
+			</s:Line>
+			<s:HGroup width="90%"
+					  height="7%"
+					  verticalAlign="middle"
+					  horizontalAlign="right">
+				<s:Label width="100%"
+						 text="{resourceManager.getString('resources', 'lockSettings.layout')}" />
+				<s:ToggleSwitch id="layout0" />
+			</s:HGroup>
+			<s:Line width="90%">
+				<s:stroke>
+					<s:SolidColorStroke color="{getStyle('lineColor')}"
+										weight="{getStyle('lineWeight')}" />
+				</s:stroke>
+			</s:Line>
+			<s:Spacer height="10%" />
+			<s:Button id="apply"
+					  width="90%"
+					  label="{resourceManager.getString('resources', 'lockSettings.apply')}"
+					  styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize" />
+
+
+		</s:VGroup>
+	</s:Scroller>
+</view:NoTabView>

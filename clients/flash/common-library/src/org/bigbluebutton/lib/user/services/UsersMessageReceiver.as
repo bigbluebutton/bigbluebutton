@@ -1,7 +1,11 @@
 package org.bigbluebutton.lib.user.services {
+	import mx.utils.ObjectUtil;
+	
 	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
+	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
+	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.bigbluebutton.lib.user.models.User;
 	
 	public class UsersMessageReceiver implements IMessageListener {
@@ -10,6 +14,10 @@ package org.bigbluebutton.lib.user.services {
 		public var userSession:IUserSession;
 		
 		public var authenticationSignal:AuthenticationSignal;
+		
+		public var disconnectUserSignal:DisconnectUserSignal;
+		
+		private var lastSipEvent:Object = null;
 		
 		public function UsersMessageReceiver() {
 		}
@@ -38,6 +46,7 @@ package org.bigbluebutton.lib.user.services {
 					handleUserUnsharedWebcam(message);
 					break;
 				case "user_listening_only":
+				case "userListeningOnly":
 					handleUserListeningOnly(message);
 					break;
 				case "assignPresenterCallback":
@@ -46,18 +55,12 @@ package org.bigbluebutton.lib.user.services {
 				case "voiceUserMuted":
 					handleVoiceUserMuted(message);
 					break;
-				case "userRaisedHand":
-					handleUserRaisedHand(message);
-					break;
-				case "userLoweredHand":
-					handleUserLoweredHand(message);
-					break;
 				case "recordingStatusChanged":
 					handleRecordingStatusChanged(message);
 					break;
 				case "joinMeetingReply":
 					handleJoinedMeeting(message);
-					break;
+					break
 				case "getUsersReply":
 					handleGetUsersReply(message);
 					break;
@@ -65,10 +68,18 @@ package org.bigbluebutton.lib.user.services {
 					handleGetRecordingStatusReply(message);
 					break;
 				case "meetingHasEnded":
+				case "meetingEnded":
 					handleMeetingHasEnded(message);
 					break;
-				case "meetingEnded":
-					handleLogout(message);
+				case "participantStatusChange":
+					handleStatusChange(message);
+					break;
+				case "guest_access_denied":
+				case "response_to_guest":
+					handleGuestResponse(message);
+					break;
+				case "get_guest_policy_reply":
+					handleGuestPolicy(message);
 					break;
 				case "validateAuthTokenTimedOut":
 					handleValidateAuthTokenTimedOut(message);
@@ -76,14 +87,165 @@ package org.bigbluebutton.lib.user.services {
 				case "validateAuthTokenReply":
 					handleValidateAuthTokenReply(message);
 					break;
+				case "participantRoleChange":
+					handleParticipantRoleChange(message);
+					break;
+				case "userRaisedHand":
+					handleParticipantRaisedHand(message);
+					break;
+				case "userLoweredHand":
+					handleParticipantLoweredHand(message);
+					break;
+				case "meetingState":
+					handleMeetingState(message);
+					break;
+				case "permissionsSettingsChanged":
+					handlePermissionsSettingsChanged(message);
+					break;
+				case "meetingMuted":
+					handleMeetingMuted(message);
+					break;
+				case "userLocked":
+					handleUserLocked(message);
+					break;
+				case "sipVideoUpdate":
+					handleSipVideoUpdate(message);
+					break;
 				default:
+					break;
+			}
+		}
+		
+		private function handleSipVideoUpdate(msg:Object):void {
+			trace("handleSipVideoUpdate " + msg.msg);
+			var map:Object = JSON.parse(msg.msg);
+			if (lastSipEvent != map) {
+				if (userSession.globalVideoStreamName != map.sipVideoStreamName) {
+					userSession.setGlobalVideoProfileDimensions(map.width, map.height);
+					userSession.globalVideoStreamName = map.sipVideoStreamName;
+				}
+				lastSipEvent = map;
+			}
+		}
+		
+		private function handleUserLocked(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("handleUserLocked: " + ObjectUtil.toString(msg));
+			trace("your id: " + userSession.userList.me.userID)
+			var user:User = userSession.userList.getUserByUserId(msg.user);
+			user.locked = msg.lock;
+			if (userSession.userList.me.userID == msg.user) {
+				userSession.dispatchLockSettings();
+			}
+		}
+		
+		private function handleMeetingMuted(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("handleMeetingMuted: " + ObjectUtil.toString(msg));
+			userSession.meetingMuted = msg.meetingMuted;
+		}
+		
+		private function handleMeetingState(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			userSession.meetingMuted = msg.meetingMuted;
+			updateLockSettings(msg.permissions);
+		}
+		
+		private function handlePermissionsSettingsChanged(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("permissionsSettingsChanged: " + ObjectUtil.toString(msg));
+			updateLockSettings(msg);
+		}
+		
+		private function handleParticipantRaisedHand(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("ParticipantRaisedHand: " + ObjectUtil.toString(msg));
+			userSession.userList.statusChange(msg.userId, User.RAISE_HAND);
+		}
+		
+		private function updateLockSettings(msg:Object):void {
+			userSession.lockSettings.disableCam = msg.disableCam;
+			userSession.lockSettings.disableMic = msg.disableMic;
+			// bbb 1.0 compatibility: different variable names
+			userSession.lockSettings.disablePrivateChat = msg.hasOwnProperty("disablePrivChat") ? msg.disablePrivChat : msg.disablePrivateChat;
+			userSession.lockSettings.disablePublicChat = msg.hasOwnProperty("disablePubChat") ? msg.disablePubChat : msg.disablePublicChat;
+			userSession.lockSettings.lockedLayout = msg.lockedLayout;
+			userSession.dispatchLockSettings();
+		}
+		
+		private function handleParticipantLoweredHand(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("ParticipantLoweredHand: " + ObjectUtil.toString(msg));
+			userSession.userList.statusChange(msg.userId, User.NO_STATUS);
+		}
+		
+		private function handleParticipantRoleChange(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("ParticipantRoleChange: " + ObjectUtil.toString(msg));
+			userSession.userList.roleChange(msg.userID, msg.role);
+		}
+		
+		private function handleGuestPolicy(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("guestPolicy");
+			userSession.guestPolicySignal.dispatch(msg.guestPolicy);
+		}
+		
+		private function handleGuestResponse(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("GuestResponse: " + ObjectUtil.toString(msg));
+			userSession.guestList.removeUser(msg.userId);
+			if (msg.userId == userSession.userId) {
+				userSession.guestEntranceSignal.dispatch(msg.response);
+			}
+		}
+		
+		private function handleStatusChange(m:Object):void {
+			var msg:Object = JSON.parse(m.msg);
+			trace("UsersMessageReceiver::handleStatusChange() -- user [" + msg.userID + "," + msg.value + "] ");
+			var value:String = msg.value;
+			switch (value.substr(0, value.indexOf(","))) {
+				case "RAISE_HAND":
+					userSession.userList.statusChange(msg.userID, User.RAISE_HAND);
+					break;
+				case "CLEAR_STATUS":
+				case "CLEAR_MOOD":
+				case "NO_STATUS":
+					userSession.userList.statusChange(msg.userID, User.NO_STATUS);
+					break;
+				case "AGREE":
+					userSession.userList.statusChange(msg.userID, User.AGREE);
+					break;
+				case "DISAGREE":
+					userSession.userList.statusChange(msg.userID, User.DISAGREE);
+					break;
+				case "SPEAK_LOUDER":
+					userSession.userList.statusChange(msg.userID, User.SPEAK_LOUDER);
+					break;
+				case "SPEAK_LOWER":
+					userSession.userList.statusChange(msg.userID, User.SPEAK_LOWER);
+					break;
+				case "SPEAK_FASTER":
+					userSession.userList.statusChange(msg.userID, User.SPEAK_FASTER);
+					break;
+				case "SPEAK_SLOWER":
+					userSession.userList.statusChange(msg.userID, User.SPEAK_SLOWER);
+					break;
+				case "BE_RIGHT_BACK":
+					userSession.userList.statusChange(msg.userID, User.BE_RIGHT_BACK);
+					break;
+				case "LAUGHTER":
+					userSession.userList.statusChange(msg.userID, User.LAUGHTER);
+					break;
+				case "SAD":
+					userSession.userList.statusChange(msg.userID, User.SAD);
 					break;
 			}
 		}
 		
 		private function handleVoiceUserTalking(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleVoiceUserTalking() -- user [" + +msg.voiceUserId + "," + msg.talking + "] ");
+			//trace(LOG + "handleVoiceUserTalking() -- user [" + +msg.voiceUserId + "," + msg.talking + "] ");
 			userSession.userList.userTalkingChange(msg.voiceUserId, msg.talking);
 		}
 		
@@ -103,14 +265,13 @@ package org.bigbluebutton.lib.user.services {
 		}
 		
 		private function addParticipant(newUser:Object):void {
-			var user:User = new User();
+			var user:User = new User;
 			user.hasStream = newUser.hasStream;
 			user.streamName = newUser.webcamStream;
 			user.locked = newUser.locked;
 			user.name = newUser.name;
 			user.phoneUser = newUser.phoneUser;
 			user.presenter = newUser.presenter;
-			user.raiseHand = newUser.raiseHand;
 			user.role = newUser.role;
 			user.userID = newUser.userId;
 			user.voiceJoined = newUser.voiceUser.joined;
@@ -118,15 +279,68 @@ package org.bigbluebutton.lib.user.services {
 			user.isLeavingFlag = false;
 			user.listenOnly = newUser.listenOnly;
 			user.muted = newUser.voiceUser.muted;
-			userSession.userList.addUser(user);
-			// The following properties are 'special', in that they have view changes associated with them.
-			// The UserList changes the model appropriately, then dispatches a signal to the views.
+			user.guest = newUser.guest;
+			user.waitingForAcceptance = newUser.waitingForAcceptance;
+			var mood:String = newUser.mood;
+			if (newUser.raiseHand) {
+				user.status = User.RAISE_HAND;
+			}
+			if (mood) {
+				switch (mood.substr(0, mood.indexOf(","))) {
+					case "AGREE":
+						user.status = User.AGREE;
+						break;
+					case "DISAGREE":
+						user.status = User.DISAGREE;
+						break;
+					case "SPEAK_LOUDER":
+						user.status = User.SPEAK_LOUDER;
+						break;
+					case "SPEAK_LOWER":
+						user.status = User.SPEAK_LOWER;
+						break;
+					case "SPEAK_FASTER":
+						user.status = User.SPEAK_FASTER;
+						break;
+					case "SPEAK_SLOWER":
+						user.status = User.SPEAK_SLOWER;
+						break;
+					case "BE_RIGHT_BACK":
+						user.status = User.BE_RIGHT_BACK;
+						break;
+					case "LAUGHTER":
+						user.status = User.LAUGHTER;
+						break;
+					case "SAD":
+						user.status = User.SAD;
+						break;
+					case "RAISE_HAND":
+						user.status = User.RAISE_HAND;
+						break;
+					case "":
+					case "CLEAR_MOOD":
+						user.status = User.NO_STATUS;
+						break;
+				}
+			}
+			if (user.waitingForAcceptance) {
+				userSession.guestList.addUser(user);
+			} else {
+				userSession.guestList.removeUser(user.userID);
+				//if we are adding the userMe and he is already in the userList,we don't dispatch the guest signal
+				// because we have already been accepted and connected
+				if (!userSession.userList.getUser(user.userID) && user.userID == userSession.userId && user.guest) {
+					userSession.guestEntranceSignal.dispatch(true);
+				}
+				userSession.userList.addUser(user);
+			}
 		}
 		
 		private function handleParticipantLeft(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace(LOG + "handleParticipantLeft() -- user [" + msg.user.userId + "] has left the meeting");
 			userSession.userList.removeUser(msg.user.userId);
+			userSession.guestList.removeUser(msg.user.userId);
 		}
 		
 		private function handleAssignPresenterCallback(m:Object):void {
@@ -138,7 +352,7 @@ package org.bigbluebutton.lib.user.services {
 		private function handleUserJoinedVoice(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			var voiceUser:Object = msg.user.voiceUser;
-			trace(LOG + "handleUserJoinedVoice() -- user [" + msg.user.externUserID + "] has joined voice with voiceId [" + voiceUser.userId + "]");
+			trace(LOG + "handleUserJoinedVoice() -- user [" + msg.user.userId + "] has joined voice with voiceId [" + voiceUser.userId + "]");
 			userSession.userList.userJoinAudio(msg.user.userId, voiceUser.userId, voiceUser.muted, voiceUser.talking, voiceUser.locked);
 		}
 		
@@ -162,10 +376,8 @@ package org.bigbluebutton.lib.user.services {
 		
 		private function handleUserListeningOnly(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			//It seems that listenOnly keeps to be true
-			//Temp solution to set listenOnly to false when user drop listen only mode.
-			trace(LOG + "handleUserListeningOnly -- user [" + msg.userId + "] has listen only set to [" + msg.listenOnly + "]");
-			userSession.userList.listenOnlyChange(msg.userId, msg.listenOnly);
+			trace(LOG + "handleUserListeningOnly -- user [" + msg.userId + "] has listen only set to [" + userSession.userList.me.listenOnly + "]");
+			userSession.userList.listenOnlyChange(msg.userId, userSession.userList.me.listenOnly);
 		}
 		
 		private function handleVoiceUserMuted(m:Object):void {
@@ -174,22 +386,11 @@ package org.bigbluebutton.lib.user.services {
 			userSession.userList.userMuteChange(msg.voiceUserId, msg.muted);
 		}
 		
-		private function handleUserRaisedHand(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleUserRaisedHand() -- user [" + msg.userId + "]'s hand was raised");
-			userSession.userList.raiseHandChange(msg.userId, true);
-		}
-		
-		private function handleUserLoweredHand(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleUserLoweredHand() -- user [" + msg.userId + "]'s hand was lowered");
-			userSession.userList.raiseHandChange(msg.userId, false);
-		}
-		
 		private function handleMeetingHasEnded(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace(LOG + "handleMeetingHasEnded() -- meeting has ended");
 			userSession.logoutSignal.dispatch();
+			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MEETING_ENDED);
 		}
 		
 		private function handleLogout(m:Object):void {
@@ -200,7 +401,7 @@ package org.bigbluebutton.lib.user.services {
 		
 		private function handleJoinedMeeting(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleJoinedMeeting()");
+			trace(LOG + "handleJoinedMeeting() -- Joining meeting");
 			userSession.joinMeetingResponse(msg);
 		}
 		
@@ -229,6 +430,10 @@ package org.bigbluebutton.lib.user.services {
 			trace(LOG + "handleValidateAuthTokenReply() valid=" + tokenValid);
 			if (!tokenValid) {
 				authenticationSignal.dispatch("invalid");
+			} else {
+				// why 2 different signals for authentication??  
+				//userUISession.loading = false; in authentication command can break order of functions
+				userSession.authTokenSignal.dispatch(true);
 			}
 		}
 	}

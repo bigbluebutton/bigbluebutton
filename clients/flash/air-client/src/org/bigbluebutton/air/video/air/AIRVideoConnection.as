@@ -12,7 +12,7 @@ package org.bigbluebutton.air.video.air {
 		}
 		
 		
-		override protected function loadCameraSettings():void {
+		private function loadCameraSettings():void {
 			if (saveData.read("cameraQuality") != null) {
 				_selectedCameraQuality = userSession.videoProfileManager.getVideoProfileById(saveData.read("cameraQuality") as String);
 				if (!_selectedCameraQuality) {
@@ -22,9 +22,14 @@ package org.bigbluebutton.air.video.air {
 			} else {
 				_selectedCameraQuality = userSession.videoProfileManager.defaultVideoProfile;
 			}
+			if (saveData.read("cameraRotation") != null) {
+				_selectedCameraRotation = saveData.read("cameraRotation") as int;
+			} else {
+				_selectedCameraRotation = 0;
+			}
 			if (saveData.read("cameraPosition") != null) {
 				_cameraPosition = saveData.read("cameraPosition") as String;
-			} else if (this.hasOwnProperty("CameraPosition")) {
+			} else {
 				_cameraPosition = CameraPosition.FRONT;
 			}
 		}

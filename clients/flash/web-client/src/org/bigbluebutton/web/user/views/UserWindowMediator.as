@@ -32,16 +32,16 @@ package org.bigbluebutton.web.user.views {
 		
 		private function userChangeHandler(user:User, type:int):void {
 			if (user.me && type == UserList.RAISE_HAND) {
-				view.raiseHandButton.selected = user.raiseHand;
+				view.raiseHandButton.selected = (user.status == User.RAISE_HAND);
 			}
 		}
 		
 		private function onLowerHandSignal(userID:String):void {
-			usersService.lowerHand(userID);
+			usersService.lowerHand(userID, userSession.userId);
 		}
 		
 		private function onChangePresenterSignal(userID:String):void {
-			usersService.assignPresenter(userID, "temp");
+			usersService.assignPresenter(userID, "temp", userSession.userId);
 		}
 		
 		private function onChangeMuteSignal(userID:String, mute:Boolean):void {
@@ -54,9 +54,9 @@ package org.bigbluebutton.web.user.views {
 		
 		private function handleRaiseHandButtonClick(e:MouseEvent):void {
 			if (view.raiseHandButton.selected) {
-				usersService.raiseHand();
+				usersService.changeMood(User.RAISE_HAND);
 			} else {
-				usersService.lowerHand(userSession.userId);
+				usersService.changeMood(User.NO_STATUS);
 			}
 		}
 		

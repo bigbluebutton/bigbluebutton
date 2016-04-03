@@ -4,7 +4,7 @@ package org.bigbluebutton.lib.common.services {
 	
 	import org.bigbluebutton.lib.common.models.IMessageListener;
 	
-	public class DefaultConnectionCallback {
+	public class DefaultConnectionCallback implements IDefaultConnectionCallback {
 		private const LOG:String = "DefaultConnectionCallback::";
 		
 		private var _messageListeners:Array = new Array();
@@ -39,6 +39,9 @@ package org.bigbluebutton.lib.common.services {
 					break;
 				}
 			}
+		}
+		
+		public function clearMessageListeners():void {
 		}
 		
 		private function notifyListeners(messageName:String, message:Object):void {

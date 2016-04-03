@@ -1,5 +1,6 @@
 package org.bigbluebutton.lib.video.models {
 	import flash.utils.Dictionary;
+	
 	import mx.resources.ResourceManager;
 	
 	public class VideoProfile {
@@ -111,6 +112,14 @@ package org.bigbluebutton.lib.video.models {
 		
 		public function get height():int {
 			return _height;
+		}
+		
+		public function set width(value:int):void {
+			_width = value;
+		}
+		
+		public function set height(value:int):void {
+			_height = value;
 		}
 		
 		public function get keyFrameInterval():int {

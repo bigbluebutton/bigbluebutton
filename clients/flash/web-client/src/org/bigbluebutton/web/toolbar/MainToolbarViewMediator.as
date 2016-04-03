@@ -24,7 +24,6 @@ package org.bigbluebutton.web.toolbar {
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
 	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.web.shortcuthelp.ShortcutHelpWindow;
-	import org.bigbluebutton.web.shortcuthelp.ShortcutHelpWindow;
 	import org.bigbluebutton.web.toolbar.micbutton.toolbarbutton.ToolbarButton;
 	import org.bigbluebutton.web.toolbar.webcambutton.cameradisplaysettings.CameraDisplaySettings;
 	import org.bigbluebutton.web.toolbar.webcambutton.toolbarpopupbutton.ToolbarPopupButton;

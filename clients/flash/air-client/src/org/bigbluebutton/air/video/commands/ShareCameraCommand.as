@@ -100,7 +100,7 @@ package org.bigbluebutton.air.video.commands {
 		}
 		
 		private function disableCamera():void {
-			usersService.removeStream(userSession.userId, "");
+			usersService.removeStream(userSession.userId, userSession.userList.me.streamName);
 			userSession.videoConnection.stopPublishing(setupCamera(position));
 		}
 	}

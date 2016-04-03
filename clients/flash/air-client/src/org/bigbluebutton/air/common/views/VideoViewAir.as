@@ -1,5 +1,7 @@
 package org.bigbluebutton.air.common.views {
 	import flash.media.Video;
+	import flash.net.NetConnection;
+	import flash.system.Capabilities;
 	
 	import org.bigbluebutton.lib.common.views.VideoView;
 	
@@ -18,6 +20,13 @@ package org.bigbluebutton.air.common.views {
 		protected var topMenuBarHeight:Number;
 		
 		protected var bottomMenuBarHeight:Number;
+		
+		override public function startStream(connection:NetConnection, name:String, streamName:String, userID:String):void {
+			if (connection.uri.indexOf("/video/") != -1 && Capabilities.version.indexOf("IOS") >= 0) {
+				streamName = "h263/" + streamName;
+			}
+			super.startStream(connection, name, streamName, userID);
+		}
 		
 		public function initializeScreenSizeValues(originalVideoWidth0:Number, originalVideoHeight0:Number, screenHeight0:Number, screenWidth0:Number, topMenuBarHeight0:Number, bottomMenuBarHeight0:Number):void {
 			this.screenHeight = screenHeight0;

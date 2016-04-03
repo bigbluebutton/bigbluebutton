@@ -2,13 +2,15 @@ package org.bigbluebutton.air.main.commands {
 	
 	import flash.net.URLRequest;
 	
+	import mx.utils.ObjectUtil;
+	
+	import org.bigbluebutton.air.main.services.JoinService;
 	import org.bigbluebutton.lib.main.commands.ConnectSignal;
 	import org.bigbluebutton.lib.main.commands.ConnectingFailedSignal;
 	import org.bigbluebutton.lib.main.models.Config;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.services.ILoginService;
-	import org.bigbluebutton.air.main.services.JoinService;
 	import org.bigbluebutton.lib.video.models.VideoProfileManager;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
