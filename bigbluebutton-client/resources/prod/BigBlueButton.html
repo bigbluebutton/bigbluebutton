@@ -154,7 +154,8 @@
     <div>
       <audio id="remote-media" autoplay="autoplay"></audio>
     </div>
-
+    <div id="accessibile-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="visually-hidden">0 %</div>
+    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="content">
       <div id="altFlash"  style="width:50%; margin-left: auto; margin-right: auto; ">
         <h2>You need Flash installed and enabled in order to use the Flash client.</h2>
@@ -170,7 +171,6 @@
         </div>
       </div>
     </div>
-    <button id="enterFlash" type="button" class="visually-hidden" onclick="startFlashFocus();">Set focus to client</button>
     <div id="clientReady" aria-atomic="false" aria-live="polite" class="visually-hidden"></div>
   </body>
 </html>
