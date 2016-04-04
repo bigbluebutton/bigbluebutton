@@ -59,7 +59,7 @@ package org.bigbluebutton.lib.video.services {
 		public function init():void {
 			baseConnection.init(this);
 			userSession.successJoiningMeetingSignal.add(loadCameraSettings);
-			baseConnection.successConnected.add(onConnectionSuccess);
+			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
 			baseConnection.connectionFailureSignal.add(onConnectionUnsuccess);
 			userSession.lockSettings.disableCamSignal.add(disableCam);
 		}

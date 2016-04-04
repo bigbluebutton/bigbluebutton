@@ -44,6 +44,5 @@ package org.bigbluebutton.air.main.commands {
 			}
 		}
 	
-	
 	}
 }

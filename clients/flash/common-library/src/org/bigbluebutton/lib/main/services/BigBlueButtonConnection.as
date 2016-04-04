@@ -37,7 +37,7 @@ package org.bigbluebutton.lib.main.services {
 		[PostConstruct]
 		public function init():void {
 			baseConnection.init(this);
-			baseConnection.successConnected.add(onConnectionSuccess);
+			baseConnection.connectionSuccessSignal.add(onConnectionSuccess);
 			baseConnection.connectionFailureSignal.add(onConnectionFailure);
 		}
 		
