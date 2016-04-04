@@ -106,7 +106,9 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     fsconf foreach {fc => 
       logger.info("Web user has joined voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
       fc.addUser(msg.user)
-      if (fc.numUsersInVoiceConference == 1 && fc.recorded) {
+      // test if we already sent a recording command to FS before sending another
+      // we only set fc.isRecording to true when we receive a FsRecording message
+      if (fc.numUsersInVoiceConference > 0 && fc.recorded && ! fc.isRecording) {
         logger.info("Meeting is recorded. Tell FreeSWITCH to start recording. mid[" + fc.meetingId + "]")
         fsproxy.startRecording(fc.conferenceNum, fc.meetingId)
       }
@@ -121,7 +123,8 @@ class FreeswitchConferenceActor(fsproxy: FreeswitchManagerProxy, bbbInGW: IBigBl
     fsconf foreach {fc => 
       fc.addUser(msg.user)
       logger.info("Web user has left voice. mid[" + fc.meetingId + "] wid=[" + msg.user.userID + "], vid=[" + msg.user.voiceUser.userId + "]")
-      if (fc.numUsersInVoiceConference == 0 && fc.recorded) {
+      // test if we already sent a recording command to FS before sending another
+      if (fc.numUsersInVoiceConference == 0 && fc.recorded && fc.isRecording) {
         logger.info("Meeting is recorded. No more users in voice conference. Tell FreeSWITCH to stop recording. mid[" + fc.meetingId + "]")
         fsproxy.stopRecording(fc.conferenceNum)
       }
