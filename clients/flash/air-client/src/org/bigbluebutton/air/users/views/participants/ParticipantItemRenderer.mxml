@@ -7,9 +7,6 @@
 
 	<fx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			import org.bigbluebutton.lib.user.models.User;
-			
 			private function setFirstLetters(participantName:String):void {
 				var names:Array = participantName.split(" ");
 				var firstLettersText:String = names[0].charAt(0);

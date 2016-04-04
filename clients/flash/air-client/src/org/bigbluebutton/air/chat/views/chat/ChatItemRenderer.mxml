@@ -8,8 +8,6 @@
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
 			
-			import mx.utils.ObjectUtil;
-			
 			import org.bigbluebutton.lib.chat.models.ChatMessage;
 			
 			private function setFirstLetters(participantName:String):void {

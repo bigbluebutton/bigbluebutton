@@ -9,10 +9,6 @@ package org.bigbluebutton.air.deskshare.views {
 	import org.bigbluebutton.air.common.views.PagesENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.deskshare.views.DeskshareMediator;
-	import org.bigbluebutton.lib.main.models.IConferenceParameters;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	
-	import robotlegs.bender.bundles.mvcs.Mediator;
 	
 	public class DeskshareViewMediator extends DeskshareMediator {
 		
@@ -37,7 +33,8 @@ package org.bigbluebutton.air.deskshare.views {
 		}
 		
 		private function stageOrientationChangingHandler(e:Event):void {
-			if (userUISession.currentPage == PagesENUM.DESKSHARE) { //apply rotation only if user didn´t change view at the same time
+			if (userUISession.currentPage == PagesENUM.DESKSHARE) {
+				//apply rotation only if user didn´t change view at the same time
 				//reload deskshare page in order to load with the correct orientation
 				userUISession.popPage();
 				userUISession.pushPage(PagesENUM.DESKSHARE);

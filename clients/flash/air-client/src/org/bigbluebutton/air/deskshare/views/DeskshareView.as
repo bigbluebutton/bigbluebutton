@@ -5,18 +5,8 @@ package org.bigbluebutton.air.deskshare.views {
 	
 	import mx.core.FlexGlobals;
 	
-	import spark.components.Group;
-	import spark.components.Label;
-	
 	public class DeskshareView extends DeskshareViewBase implements IDeskshareViewAir {
 		private var deskshareVideoView:DeskshareVideoView;
-		
-		/**
-		 * Provide access to the group containing video
-		 */
-		public function get deskshareGroup():Group {
-			return deskshareGroup0;
-		}
 		
 		/**
 		 *  Create VideoView with the desktop sharing stream and add it to the layout
@@ -53,13 +43,6 @@ package org.bigbluebutton.air.deskshare.views {
 				}
 				deskshareVideoView = null;
 			}
-		}
-		
-		/**
-		 * Provide access to the notification message
-		 */
-		public function get noDeskshareMessage():Label {
-			return noDeskshareMessage0;
 		}
 		
 		override public function rotationHandler(rotation:String):void {
