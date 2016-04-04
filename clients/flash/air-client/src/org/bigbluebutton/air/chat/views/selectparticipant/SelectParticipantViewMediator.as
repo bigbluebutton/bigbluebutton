@@ -1,24 +1,20 @@
 package org.bigbluebutton.air.chat.views.selectparticipant {
 	
-	import flash.events.Event;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
-	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
 	
+	import spark.events.IndexChangeEvent;
+	
 	import org.bigbluebutton.air.common.views.PagesENUM;
-	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
-	import org.osflash.signals.ISignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.events.IndexChangeEvent;
 	
 	public class SelectParticipantViewMediator extends Mediator {
 		
@@ -34,10 +30,6 @@ package org.bigbluebutton.air.chat.views.selectparticipant {
 		protected var dataProvider:ArrayCollection;
 		
 		protected var dicUserIdtoUser:Dictionary
-		
-		protected var usersSignal:ISignal;
-		
-		protected var guestsSignal:ISignal;
 		
 		override public function initialize():void {
 			dataProvider = new ArrayCollection();

@@ -1,14 +1,13 @@
 package org.bigbluebutton.air.chat.views.chatrooms {
 	
-	import flash.events.Event;
-	import flash.events.StageOrientationEvent;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
-	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
-	import mx.utils.ObjectUtil;
+	
+	import spark.components.List;
+	import spark.events.IndexChangeEvent;
 	
 	import org.bigbluebutton.air.common.views.PagesENUM;
 	import org.bigbluebutton.air.common.views.SplitViewEvent;
@@ -21,9 +20,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 	import org.osflash.signals.ISignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.List;
-	import spark.events.IndexChangeEvent;
 	
 	public class ChatRoomsViewMediator extends Mediator {
 		
@@ -81,7 +77,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			userUISession.pushPage(PagesENUM.CHATROOMS);
 		}
 		
-		private function selectChat() {
+		private function selectChat():void {
 			if (userUISession.currentPageDetails is User) {
 				//screen just rotated back to tablet mode from a user private chat.
 				var item:Object = getItemFromDataProvider(userUISession.currentPageDetails.userID);
@@ -253,7 +249,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			}
 		}
 		
-		private function userSelected(event:SplitViewEvent) {
+		private function userSelected(event:SplitViewEvent):void {
 			if (userUISession.currentPageDetails is User) {
 				var item:Object = getItemFromDataProvider(userUISession.currentPageDetails.userID);
 				view.list.selectedItem = item;

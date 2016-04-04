@@ -6,10 +6,8 @@ package org.bigbluebutton.air.settings.views.audio {
 	import flash.utils.Timer;
 	
 	import mx.core.FlexGlobals;
-	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -63,14 +61,14 @@ package org.bigbluebutton.air.settings.views.audio {
 			view.continueBtn.visible = userSession.phoneOptions.autoJoin;
 		}
 		
-		private function loadMicGain() {
+		private function loadMicGain():void {
 			var gain = saveData.read("micGain");
 			if (gain) {
 				view.gainSlider.value = gain / 10;
 			}
 		}
 		
-		private function setMicGain(gain:Number) {
+		private function setMicGain(gain:Number):void {
 			if (userSession.voiceStreamManager) {
 				userSession.voiceStreamManager.setDefaultMicGain(gain);
 				if (!userSession.pushToTalk && userSession.voiceStreamManager.mic) {
@@ -79,7 +77,7 @@ package org.bigbluebutton.air.settings.views.audio {
 			}
 		}
 		
-		private function gainChange(e:Event) {
+		private function gainChange(e:Event):void {
 			var gain:Number = e.target.value * 10
 			saveData.save("micGain", gain);
 			setMicGain(gain);
