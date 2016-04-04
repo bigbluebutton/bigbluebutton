@@ -33,7 +33,7 @@
 			[Bindable] private var baseIndex:int;
 			[Bindable] private var toolbarVisible:Boolean = false;
 			[Bindable] private var bgColor:Number = 0xCCCCCC;
-			[Bindable] private var clrBtnVisible = false;
+			[Bindable] private var clrBtnVisible:Boolean = false;
 
 			private var mousedOver:Boolean = false;
 			private var globalDispatcher:Dispatcher;
