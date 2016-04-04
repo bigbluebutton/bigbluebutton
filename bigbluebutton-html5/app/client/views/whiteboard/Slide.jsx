@@ -56,26 +56,21 @@ Slide = React.createClass({
       shapes = Meteor.Shapes.find({
         whiteboardId: currentSlide.slide.id
       }).fetch();
-
-      pointer = Meteor.Cursor.findOne();
-      pointer.x = (-currentSlide.slide.x_offset * 2 + currentSlide.slide.width_ratio * pointer.x) / 100;
-      pointer.y = (-currentSlide.slide.y_offset * 2 + currentSlide.slide.height_ratio * pointer.y) / 100;
     }
 
     return {
       current_slide: currentSlide,
       shapes: shapes,
-      pointer: pointer
     };
   },
 
   componentDidMount: function() {
-    console.log('componentDidMount');
+    //console.log('componentDidMount');
     this.reactOnSlideChange();
   },
 
   shouldComponentUpdate: function() {
-    console.log('shouldComponentUpdate');
+    //console.log('shouldComponentUpdate');
   },
 
   componentWillUpdate: function() {
@@ -84,20 +79,25 @@ Slide = React.createClass({
       wpm.clearShapes();
       //this.manuallyDisplayShapes();
     }
-    console.log('componentWillUpdate');
+    //console.log('componentWillUpdate');
   },
 
   componentDidUpdate: function() {
-    console.log('componentDidUpdate');
-    if(this.data.shapes){
-      this.data.shapes.map((shape) =>
-      this.renderShape(shape));
+    //console.log('componentDidUpdate');
+    console.log(this.data.current_slide);
+    if(this.data.current_slide){
+      this.reactOnSlideChange();
+      if(this.data.shapes){
+        this.data.shapes.map((shape) =>
+        this.renderShape(shape));
+      }
+    } else {
+      this.clearSlide();
     }
-    this.reactOnSlideChange();
   },
 
   componentWillUnmount: function() {
-    console.log('componentWillUnmount');
+    //console.log('componentWillUnmount');
   },
 
   createWhiteboardPaper: function(callback) {
@@ -117,6 +117,16 @@ Slide = React.createClass({
     );
     this.manuallyDisplayShapes();
     return wpm.scale(adjustedDimensions.width, adjustedDimensions.height);
+  },
+
+  clearSlide() {
+    let ref;
+    //clear the slide
+    if(typeof this.whiteboardPaperModel !== "undefined" && this.whiteboardPaperModel !== null) {
+      this.whiteboardPaperModel.removeAllImagesFromPaper();
+    }
+    //hide the cursor
+    return typeof this.whiteboardPaperModel !== "undefined" && this.whiteboardPaperModel !== null ? (ref = this.whiteboardPaperModel.cursor) != null ? ref.remove() : void 0 : void 0;
   },
 
   manuallyDisplayShapes: function() {
