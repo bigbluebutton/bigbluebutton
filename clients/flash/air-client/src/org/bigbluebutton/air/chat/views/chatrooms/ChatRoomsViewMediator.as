@@ -282,12 +282,12 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		   m.toUserID = "FAKE_USERID";
 		   m.toUsername = "XXfromUsernameXX";
 		
-		   chatMessageSender.sendPublicMessageOnSucessSignal.add(onSendSucess);
+		   chatMessageSender.sendPublicMessageOnSuccessSignal.add(onSendSuccess);
 		   chatMessageSender.sendPublicMessageOnFailureSignal.add(onSendFailure);
 		   chatMessageSender.sendPublicMessage(m);
 		   }
 		
-		   private function onSendSucess(result:String):void
+		   private function onSendSuccess(result:String):void
 		   {
 		   view.inputMessage.enabled = true;
 		   view.inputMessage.text = "";

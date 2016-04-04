@@ -1,14 +1,9 @@
 package org.bigbluebutton.air.main.views.loginpage {
 	
-	import flash.desktop.NativeApplication;
 	import flash.events.Event;
-	import flash.events.InvokeEvent;
 	import flash.events.MouseEvent;
-	import flash.filesystem.File;
-	import flash.net.URLVariables;
 	import flash.system.Capabilities;
 	
-	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
 	
 	import org.bigbluebutton.air.common.views.PagesENUM;
@@ -19,8 +14,6 @@ package org.bigbluebutton.air.main.views.loginpage {
 	import org.bigbluebutton.lib.main.services.ILoginService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.Application;
 	
 	public class LoginPageViewMediator extends Mediator {
 		private const LOG:String = "LoginPageViewMediator::";
@@ -46,14 +39,14 @@ package org.bigbluebutton.air.main.views.loginpage {
 		private var count:Number = 0;
 		
 		override public function initialize():void {
-			//loginService.unsuccessJoinedSignal.add(onUnsucess);
-			userUISession.joinFailureSignal.add(onUnsucess);
+			//loginService.unsuccessJoinedSignal.add(onUnsuccess);
+			userUISession.joinFailureSignal.add(onUnsuccess);
 			view.tryAgainButton.addEventListener(MouseEvent.CLICK, tryAgain);
 			joinRoom(userSession.joinUrl);
 		}
 		
-		private function onUnsucess(reason:String):void {
-			trace(LOG + "onUnsucess() " + reason);
+		private function onUnsuccess(reason:String):void {
+			trace(LOG + "onUnsuccess() " + reason);
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = false;
 			switch (reason) {
@@ -90,7 +83,7 @@ package org.bigbluebutton.air.main.views.loginpage {
 			// view.messageText.text = reason;
 		}
 		
-		public function joinRoom(url:String) {
+		public function joinRoom(url:String):void {
 			if (Capabilities.isDebugger) {
 				//saveData.save("rooms", null);
 				// test-install server no longer works with 0.9 mobile client
@@ -116,8 +109,8 @@ package org.bigbluebutton.air.main.views.loginpage {
 		
 		override public function destroy():void {
 			super.destroy();
-			//loginService.unsuccessJoinedSignal.remove(onUnsucess);
-			userUISession.joinFailureSignal.remove(onUnsucess);
+			//loginService.unsuccessJoinedSignal.remove(onUnsuccess);
+			userUISession.joinFailureSignal.remove(onUnsuccess);
 			view.dispose();
 			view = null;
 		}

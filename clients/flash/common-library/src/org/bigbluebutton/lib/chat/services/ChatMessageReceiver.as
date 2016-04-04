@@ -12,9 +12,6 @@ package org.bigbluebutton.lib.chat.services {
 		
 		public var chatMessagesSession:IChatMessagesSession;
 		
-		[Inject]
-		public var chatService:IChatMessageService;
-		
 		public function ChatMessageReceiver(userSession:IUserSession, chatMessagesSession:IChatMessagesSession) {
 			this.userSession = userSession;
 			this.chatMessagesSession = chatMessagesSession;

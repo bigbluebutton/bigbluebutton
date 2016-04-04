@@ -3,13 +3,13 @@
 				  xmlns:s="library://ns.adobe.com/flex/spark"
 				  xmlns:common="org.bigbluebutton.air.common.views.*">
 
-	<s:Group id="deskshareGroup"
+	<s:Group id="deskshareGroup0"
 			 width="100%"
 			 height="100%">
 		<s:layout>
 			<s:VerticalLayout verticalAlign="middle" />
 		</s:layout>
-		<s:Label id="noDeskshareMessage"
+		<s:Label id="noDeskshareMessage0"
 				 styleName="contentFontSize"
 				 textAlign="center"
 				 width="100%"

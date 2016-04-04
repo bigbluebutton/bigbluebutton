@@ -94,7 +94,7 @@ package org.bigbluebutton.air.chat.views.chat {
 				disableChat(userSession.lockSettings.disablePrivateChat && !userMe.presenter && userMe.locked);
 				userSession.lockSettings.disablePrivateChatSignal.add(disableChat);
 			}
-			chatMessageService.sendMessageOnSuccessSignal.add(onSendSucess);
+			chatMessageService.sendMessageOnSuccessSignal.add(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.add(onSendFailure);
 			chatMessagesSession.newChatMessageSignal.add(scrollUpdate);
 			list.addEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
@@ -261,7 +261,7 @@ package org.bigbluebutton.air.chat.views.chat {
 			}
 		}
 		
-		private function onSendSucess(result:String):void {
+		private function onSendSuccess(result:String):void {
 			view.inputMessage.enabled = true;
 			view.inputMessage.text = "";
 		}
@@ -276,7 +276,7 @@ package org.bigbluebutton.air.chat.views.chat {
 			chatMessagesSession.newChatMessageSignal.remove(scrollUpdate);
 			list.removeEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
 			view.sendButton.removeEventListener(MouseEvent.CLICK, onSendButtonClick);
-			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSucess);
+			chatMessageService.sendMessageOnSuccessSignal.remove(onSendSuccess);
 			chatMessageService.sendMessageOnFailureSignal.remove(onSendFailure);
 			userSession.lockSettings.disablePublicChatSignal.remove(disableChat);
 			userSession.lockSettings.disablePrivateChatSignal.remove(disableChat);
