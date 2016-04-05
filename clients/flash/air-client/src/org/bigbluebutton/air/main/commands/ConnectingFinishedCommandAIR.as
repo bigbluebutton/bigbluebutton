@@ -1,7 +1,7 @@
 package org.bigbluebutton.air.main.commands {
 	import mx.core.FlexGlobals;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
@@ -28,17 +28,17 @@ package org.bigbluebutton.air.main.commands {
 				FlexGlobals.topLevelApplication.bottomMenu.includeInLayout = true;
 			}
 			userUISession.loading = false;
-			userUISession.pushPage(PagesENUM.PRESENTATION);
+			userUISession.pushPage(PageEnum.PRESENTATION);
 			displayAudioSettings();
 			if (userSession.videoAutoStart && !userSession.skipCamSettingsCheck) {
-				userUISession.pushPage(PagesENUM.CAMERASETTINGS);
+				userUISession.pushPage(PageEnum.CAMERASETTINGS);
 			}
 		}
 		
 		private function displayAudioSettings(micLocked:Boolean = false):void {
 			userSession.lockSettings.disableMicSignal.remove(displayAudioSettings);
 			if (userSession.phoneOptions.autoJoin && !userSession.phoneOptions.skipCheck && (userSession.userList.me.isModerator() || !userSession.lockSettings.disableMic)) {
-				userUISession.pushPage(PagesENUM.AUDIOSETTINGS);
+				userUISession.pushPage(PageEnum.AUDIOSETTINGS);
 			} else {
 				userSession.phoneOptions.autoJoin = false;
 			}

@@ -5,7 +5,7 @@ package org.bigbluebutton.air.main.views.profile {
 	import mx.core.FlexGlobals;
 	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
@@ -41,13 +41,13 @@ package org.bigbluebutton.air.main.views.profile {
 		[Inject]
 		public var userService:IUsersService;
 		
-		private var navigateToStatus:Function = navigateTo(PagesENUM.STATUS);
+		private var navigateToStatus:Function = navigateTo(PageEnum.STATUS);
 		
-		private var navigateToCameraSettings:Function = navigateTo(PagesENUM.CAMERASETTINGS);
+		private var navigateToCameraSettings:Function = navigateTo(PageEnum.CAMERASETTINGS);
 		
-		private var navigateToAudioSettings:Function = navigateTo(PagesENUM.AUDIOSETTINGS);
+		private var navigateToAudioSettings:Function = navigateTo(PageEnum.AUDIOSETTINGS);
 		
-		private var navigateToLockSettings:Function = navigateTo(PagesENUM.LOCKSETTINGS);
+		private var navigateToLockSettings:Function = navigateTo(PageEnum.LOCKSETTINGS);
 		
 		override public function initialize():void {
 			var userMe:User = userSession.userList.me;
@@ -129,7 +129,7 @@ package org.bigbluebutton.air.main.views.profile {
 		 * User pressed log out button
 		 */
 		public function logoutClick(event:MouseEvent):void {
-			userUISession.pushPage(PagesENUM.EXIT);
+			userUISession.pushPage(PageEnum.EXIT);
 		}
 		
 		protected function onClearAllButton(event:MouseEvent):void {

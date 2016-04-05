@@ -5,7 +5,7 @@ package org.bigbluebutton.air.settings.views.split {
 	import mx.core.FlexGlobals;
 	import mx.events.ResizeEvent;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	
@@ -26,11 +26,11 @@ package org.bigbluebutton.air.settings.views.split {
 		}
 		
 		private function loadView():void {
-			var backFromRotation:Boolean = PagesENUM.contain(userUISession.currentPageDetails as String);
+			var backFromRotation:Boolean = PageEnum.contain(userUISession.currentPageDetails as String);
 			if (backFromRotation) {
-				view.settingsNavigator.pushView(PagesENUM.getClassfromName(userUISession.currentPageDetails as String));
+				view.settingsNavigator.pushView(PageEnum.getClassfromName(userUISession.currentPageDetails as String));
 			} else {
-				view.settingsNavigator.pushView(PagesENUM.getClassfromName(PagesENUM.AUDIOSETTINGS));
+				view.settingsNavigator.pushView(PageEnum.getClassfromName(PageEnum.AUDIOSETTINGS));
 			}
 		}
 		
@@ -38,7 +38,7 @@ package org.bigbluebutton.air.settings.views.split {
 			var tabletLandscape:Boolean = FlexGlobals.topLevelApplication.isTabletLandscape();
 			if (!tabletLandscape) {
 				userUISession.popPage();
-				userUISession.pushPage(PagesENUM.PROFILE);
+				userUISession.pushPage(PageEnum.PROFILE);
 				var pageName:String = view.settingsNavigator.activeView.className.replace('View', '');
 				userUISession.pushPage(pageName);
 			}

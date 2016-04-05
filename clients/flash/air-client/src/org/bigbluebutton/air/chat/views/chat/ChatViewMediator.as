@@ -1,27 +1,17 @@
 package org.bigbluebutton.air.chat.views.chat {
 	
-	import flash.display.DisplayObject;
-	import flash.events.Event;
-	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
-	import flash.events.StageOrientationEvent;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	import flash.ui.Keyboard;
-	import flash.utils.Dictionary;
-	
-	import flashx.textLayout.events.ScrollEvent;
-	import flashx.textLayout.events.ScrollEventDirection;
 	
 	import mx.collections.ArrayCollection;
-	import mx.core.FlexGlobals;
 	import mx.events.FlexEvent;
-	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
-	import mx.utils.ObjectUtil;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import spark.components.List;
+	import spark.components.View;
+	import spark.events.ViewNavigatorEvent;
+	
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.chat.models.ChatMessage;
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
@@ -30,14 +20,8 @@ package org.bigbluebutton.air.chat.views.chat {
 	import org.bigbluebutton.lib.chat.services.IChatMessageService;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
-	import org.osflash.signals.ISignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.DataGroup;
-	import spark.components.List;
-	import spark.components.View;
-	import spark.events.ViewNavigatorEvent;
 	
 	public class ChatViewMediator extends Mediator {
 		
@@ -57,8 +41,6 @@ package org.bigbluebutton.air.chat.views.chat {
 		public var chatMessagesSession:IChatMessagesSession;
 		
 		protected var dataProvider:ArrayCollection;
-		
-		protected var usersSignal:ISignal;
 		
 		protected var list:List;
 		

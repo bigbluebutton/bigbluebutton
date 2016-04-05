@@ -386,7 +386,7 @@ package org.bigbluebutton.air.presentation.views {
 			}
 		}
 		
-		private function removeUserFromDataProvider(userID:String) {
+		private function removeUserFromDataProvider(userID:String):void {
 			for (var item:int; item < dataProvider.length; item++) {
 				if ((dataProvider.getItemAt(item).user as User).userID == userID) {
 					// -- in the end. see: http://stackoverflow.com/questions/4255226/how-to-remove-an-item-while-iterating-over-collection
@@ -423,7 +423,7 @@ package org.bigbluebutton.air.presentation.views {
 			return userStreamNames;
 		}
 		
-		private function changeWebcamStream(e:MouseEvent) {
+		private function changeWebcamStream(e:MouseEvent):void {
 			e.stopPropagation();
 			if (changeStream) {
 				var popUp:SelectStreamPopUp = new SelectStreamPopUp();
@@ -448,7 +448,7 @@ package org.bigbluebutton.air.presentation.views {
 			}
 		}
 		
-		private function showOverlay(e:MouseEvent) {
+		private function showOverlay(e:MouseEvent):void {
 			FlexGlobals.topLevelApplication.topActionBar.visible = true;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = true;
 			overlayTimer.addEventListener(TimerEvent.TIMER_COMPLETE, hideOverlay);
@@ -459,7 +459,7 @@ package org.bigbluebutton.air.presentation.views {
 			}
 		}
 		
-		private function hideOverlay(e:Event) {
+		private function hideOverlay(e:Event):void {
 			overlayTimer.stop();
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = false;

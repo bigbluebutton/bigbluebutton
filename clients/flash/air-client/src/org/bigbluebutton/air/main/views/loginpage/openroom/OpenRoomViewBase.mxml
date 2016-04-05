@@ -6,7 +6,7 @@
 				xmlns:navigationbutton="org.bigbluebutton.air.main.views.ui.navigationbutton.*">
 	<fx:Script>
 		<![CDATA[
-			import org.bigbluebutton.air.common.views.PagesENUM;
+			import org.bigbluebutton.air.common.PageEnum;
 			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 		]]>
 	</fx:Script>
@@ -53,7 +53,7 @@
 			<navigationbutton:NavigationButton id="recentRoomsBtn"
 											   width="90%"
 											   label="{resourceManager.getString('resources', 'openRoom.showRecentRooms')}"
-											   navigateTo="{[PagesENUM.RECENTROOMS]}"
+											   navigateTo="{[PageEnum.RECENTROOMS]}"
 											   styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize"
 											   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
 		</s:Group>

@@ -9,7 +9,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 	import spark.components.List;
 	import spark.events.IndexChangeEvent;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
@@ -17,7 +17,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
-	import org.osflash.signals.ISignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -36,8 +35,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		public var userUISession:IUserUISession;
 		
 		protected var dataProvider:ArrayCollection;
-		
-		protected var usersSignal:ISignal;
 		
 		protected var list:List;
 		
@@ -74,7 +71,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			chatMessagesSession.chatMessageChangeSignal.add(newMessageReceived);
 			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = false;
 			FlexGlobals.topLevelApplication.topActionBar.profileBtn.visible = true;
-			userUISession.pushPage(PagesENUM.CHATROOMS);
+			userUISession.pushPage(PageEnum.CHATROOMS);
 		}
 		
 		private function selectChat():void {
@@ -85,7 +82,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 					view.list.setSelectedIndex(dataProvider.getItemIndex(item), true);
 				} else {
 					//private chat was not added in the list
-					eventDispatcher.dispatchEvent(new SplitViewEvent(SplitViewEvent.CHANGE_VIEW, PagesENUM.getClassfromName(PagesENUM.CHAT), userUISession.currentPageDetails, true))
+					eventDispatcher.dispatchEvent(new SplitViewEvent(SplitViewEvent.CHANGE_VIEW, PageEnum.getClassfromName(PageEnum.CHAT), userUISession.currentPageDetails, true))
 				}
 			} else if (userUISession.currentPageDetails && userUISession.currentPageDetails.hasOwnProperty("user") && userUISession.currentPageDetails.user) {
 				//screen also just rotated back to tablet mode from a user private chat.
@@ -240,9 +237,9 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			var item:Object = dataProvider.getItemAt(event.newIndex);
 			if (item) {
 				if (item.hasOwnProperty("button")) {
-					userUISession.pushPage(PagesENUM.SELECT_PARTICIPANT, item, TransitionAnimationENUM.SLIDE_LEFT)
+					userUISession.pushPage(PageEnum.SELECT_PARTICIPANT, item, TransitionAnimationENUM.SLIDE_LEFT)
 				} else {
-					userUISession.pushPage(PagesENUM.CHAT, item, TransitionAnimationENUM.SLIDE_LEFT)
+					userUISession.pushPage(PageEnum.CHAT, item, TransitionAnimationENUM.SLIDE_LEFT)
 				}
 			} else {
 				throw new Error("item null on ChatRoomsViewMediator");

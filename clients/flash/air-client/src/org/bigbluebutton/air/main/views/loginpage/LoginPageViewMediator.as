@@ -6,7 +6,7 @@ package org.bigbluebutton.air.main.views.loginpage {
 	
 	import mx.core.FlexGlobals;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
@@ -95,7 +95,7 @@ package org.bigbluebutton.air.main.views.loginpage {
 			if (url.lastIndexOf("://") != -1) {
 				url = getEndURL(url);
 			} else {
-				userUISession.pushPage(PagesENUM.OPENROOM);
+				userUISession.pushPage(PageEnum.OPENROOM);
 			}
 			joinMeetingSignal.dispatch(url);
 		}
@@ -118,7 +118,7 @@ package org.bigbluebutton.air.main.views.loginpage {
 		private function tryAgain(event:Event):void {
 			FlexGlobals.topLevelApplication.mainshell.visible = false;
 			userUISession.popPage();
-			userUISession.pushPage(PagesENUM.LOGIN);
+			userUISession.pushPage(PageEnum.LOGIN);
 		}
 	}
 }

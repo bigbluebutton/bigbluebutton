@@ -1,16 +1,15 @@
 package org.bigbluebutton.air.users.views.participants {
 	
-	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
-	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
-	import org.bigbluebutton.air.common.views.SplitViewEvent;
+	import spark.events.IndexChangeEvent;
+	
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.users.views.participants.guests.GuestResponseEvent;
@@ -19,11 +18,8 @@ package org.bigbluebutton.air.users.views.participants {
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.services.IUsersService;
-	import org.osflash.signals.ISignal;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.events.IndexChangeEvent;
 	
 	public class ParticipantsViewMediator extends Mediator {
 		
@@ -51,8 +47,6 @@ package org.bigbluebutton.air.users.views.participants {
 		protected var dicUserIdtoUser:Dictionary;
 		
 		protected var dicUserIdtoGuest:Dictionary
-		
-		protected var usersSignal:ISignal;
 		
 		private var _userMe:User;
 		
@@ -93,7 +87,7 @@ package org.bigbluebutton.air.users.views.participants {
 				view.allGuests.visible = true;
 				view.allGuests.includeInLayout = true;
 			}
-			userUISession.pushPage(PagesENUM.PARTICIPANTS);
+			userUISession.pushPage(PageEnum.PARTICIPANTS);
 			initializeDataProviderConversations();
 		}
 		
@@ -101,16 +95,16 @@ package org.bigbluebutton.air.users.views.participants {
 			var item:Object = dataProviderConversations.getItemAt(event.newIndex);
 			if (item) {
 				if (item.hasOwnProperty("button")) {
-					userUISession.pushPage(PagesENUM.SELECT_PARTICIPANT, item, TransitionAnimationENUM.SLIDE_LEFT)
+					userUISession.pushPage(PageEnum.SELECT_PARTICIPANT, item, TransitionAnimationENUM.SLIDE_LEFT)
 				} else {
-					userUISession.pushPage(PagesENUM.CHAT, item, TransitionAnimationENUM.SLIDE_LEFT)
+					userUISession.pushPage(PageEnum.CHAT, item, TransitionAnimationENUM.SLIDE_LEFT)
 				}
 			} else {
 				throw new Error("item null on ChatRoomsViewMediator");
 			}
 		}
 		
-		private function initializeDataProviderConversations() {
+		private function initializeDataProviderConversations():void {
 			dataProviderConversations = new ArrayCollection();
 			dataProviderConversations.addItem({name: ResourceManager.getInstance().getString('resources', 'chat.item.publicChat'), publicChat: true, user: null, chatMessages: chatMessagesSession.publicChat});
 			for each (var chatObject:PrivateChatMessage in chatMessagesSession.privateChats) {
@@ -236,7 +230,7 @@ package org.bigbluebutton.air.users.views.participants {
 		protected function onSelectParticipant(event:IndexChangeEvent):void {
 			if (event.newIndex >= 0) {
 				var user:User = dataProvider.getItemAt(event.newIndex) as User;
-				userUISession.pushPage(PagesENUM.USER_DETAILS, user, TransitionAnimationENUM.SLIDE_LEFT);
+				userUISession.pushPage(PageEnum.USER_DETAILS, user, TransitionAnimationENUM.SLIDE_LEFT);
 			}
 		}
 		

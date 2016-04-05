@@ -1,4 +1,4 @@
-package org.bigbluebutton.air.common.views {
+package org.bigbluebutton.air.common {
 	
 	import flash.utils.Dictionary;
 	
@@ -21,7 +21,7 @@ package org.bigbluebutton.air.common.views {
 	import org.bigbluebutton.air.users.views.userdetails.UserDetailsView;
 	import org.bigbluebutton.air.video.views.videochat.VideoChatView;
 	
-	public class PagesENUM {
+	public class PageEnum {
 		public static const PRESENTATION:String = "presentation";
 		
 		public static const LOGIN:String = "login";

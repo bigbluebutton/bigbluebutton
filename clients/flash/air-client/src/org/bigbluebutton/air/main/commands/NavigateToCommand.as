@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.main.commands {
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	
 	import robotlegs.bender.bundles.mvcs.Command;
@@ -22,7 +22,7 @@ package org.bigbluebutton.air.main.commands {
 		override public function execute():void {
 			if (to == null || to == "")
 				throw new Error("NavigateTo should not be empty");
-			if (to == PagesENUM.LAST) {
+			if (to == PageEnum.LAST) {
 				userUISession.popPage(transitionAnimation);
 			} else {
 				userUISession.pushPage(to, details, transitionAnimation);

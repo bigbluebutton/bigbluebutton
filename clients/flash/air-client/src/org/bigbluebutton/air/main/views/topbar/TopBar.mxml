@@ -13,7 +13,7 @@
 		<![CDATA[
 			import mx.core.FlexGlobals;
 			
-			import org.bigbluebutton.air.common.views.PagesENUM;
+			import org.bigbluebutton.air.common.PageEnum;
 			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 		]]>
 	</fx:Script>
@@ -29,18 +29,18 @@
 
 			<navigationbutton:NavigationButton id="leftPresentationBtn0"
 											   styleName="presentationButtonStyle topButtonStyle"
-											   navigateTo="{[PagesENUM.PRESENTATION]}"
+											   navigateTo="{[PageEnum.PRESENTATION]}"
 											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
 
 			<navigationbutton:NavigationButton id="participantsBtn0"
 											   styleName="chatButtonStyle topButtonStyle"
-											   navigateTo="{[PagesENUM.PARTICIPANTS]}"
+											   navigateTo="{[PageEnum.PARTICIPANTS]}"
 											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
 
 
 			<navigationbutton:NavigationButton id="backBtn0"
 											   styleName="backButtonStyle topButtonStyle"
-											   navigateTo="{[PagesENUM.LAST]}"
+											   navigateTo="{[PageEnum.LAST]}"
 											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
 			<s:Label id="pageName0"
 					 styleName="pageNameStyle"
@@ -48,12 +48,12 @@
 					 height="100%" />
 			<navigationbutton:NavigationButton id="profileBtn0"
 											   styleName="profileButtonStyle topButtonStyle"
-											   navigateTo="{[PagesENUM.PROFILE]}"
+											   navigateTo="{[PageEnum.PROFILE]}"
 											   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
 
 			<navigationbutton:NavigationButton id="rightPresentationBtn0"
 											   styleName="presentationButtonStyle topButtonStyle"
-											   navigateTo="{[PagesENUM.PRESENTATION]}"
+											   navigateTo="{[PageEnum.PRESENTATION]}"
 											   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
 		</s:HGroup>
 	</s:HGroup>

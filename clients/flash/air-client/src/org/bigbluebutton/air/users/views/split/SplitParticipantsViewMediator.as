@@ -5,7 +5,7 @@ package org.bigbluebutton.air.users.views.split {
 	import mx.core.FlexGlobals;
 	import mx.events.ResizeEvent;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	
@@ -23,7 +23,7 @@ package org.bigbluebutton.air.users.views.split {
 		
 		override public function initialize():void {
 			eventDispatcher.addEventListener(SplitViewEvent.CHANGE_VIEW, changeView);
-			view.participantsList.pushView(PagesENUM.getClassfromName(PagesENUM.PARTICIPANTS));
+			view.participantsList.pushView(PageEnum.getClassfromName(PageEnum.PARTICIPANTS));
 			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 		}
 		
@@ -31,11 +31,11 @@ package org.bigbluebutton.air.users.views.split {
 			var tabletLandscape:Boolean = FlexGlobals.topLevelApplication.isTabletLandscape();
 			if (currentParticipant) {
 				if (tabletLandscape) {
-					userUISession.pushPage(PagesENUM.SPLITPARTICIPANTS, currentParticipant);
+					userUISession.pushPage(PageEnum.SPLITPARTICIPANTS, currentParticipant);
 				} else {
 					userUISession.popPage();
-					userUISession.pushPage(PagesENUM.PARTICIPANTS);
-					userUISession.pushPage(PagesENUM.USER_DETAILS, currentParticipant);
+					userUISession.pushPage(PageEnum.PARTICIPANTS);
+					userUISession.pushPage(PageEnum.USER_DETAILS, currentParticipant);
 				}
 			}
 		}
@@ -43,7 +43,7 @@ package org.bigbluebutton.air.users.views.split {
 		private function changeView(event:SplitViewEvent):void {
 			view.participantDetails.pushView(event.view);
 			currentParticipant = event.details
-			userUISession.pushPage(PagesENUM.SPLITPARTICIPANTS, event.details);
+			userUISession.pushPage(PageEnum.SPLITPARTICIPANTS, event.details);
 		}
 		
 		override public function destroy():void {

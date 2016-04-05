@@ -6,7 +6,7 @@ package org.bigbluebutton.air.deskshare.views {
 	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.deskshare.views.DeskshareMediator;
 	
@@ -33,11 +33,11 @@ package org.bigbluebutton.air.deskshare.views {
 		}
 		
 		private function stageOrientationChangingHandler(e:Event):void {
-			if (userUISession.currentPage == PagesENUM.DESKSHARE) {
+			if (userUISession.currentPage == PageEnum.DESKSHARE) {
 				//apply rotation only if user didn´t change view at the same time
 				//reload deskshare page in order to load with the correct orientation
 				userUISession.popPage();
-				userUISession.pushPage(PagesENUM.DESKSHARE);
+				userUISession.pushPage(PageEnum.DESKSHARE);
 			}
 		}
 		

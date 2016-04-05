@@ -10,7 +10,7 @@ package org.bigbluebutton.air.video.views.videochat {
 	import mx.resources.ResourceManager;
 	import mx.utils.ObjectUtil;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
@@ -183,7 +183,7 @@ package org.bigbluebutton.air.video.views.videochat {
 		}
 		
 		private function onPageTransitionStart(lastPage:String):void {
-			if (lastPage == PagesENUM.VIDEO_CHAT) {
+			if (lastPage == PageEnum.VIDEO_CHAT) {
 				view.dispose();
 			}
 		}
@@ -228,7 +228,7 @@ package org.bigbluebutton.air.video.views.videochat {
 			}
 		}
 		
-		private function removeUserFromDataProvider(userID:String) {
+		private function removeUserFromDataProvider(userID:String):void {
 			for (var item:int; item < dataProvider.length; item++) {
 				if ((dataProvider.getItemAt(item).user as User).userID == userID) {
 					// -- in the end. see: http://stackoverflow.com/questions/4255226/how-to-remove-an-item-while-iterating-over-collection

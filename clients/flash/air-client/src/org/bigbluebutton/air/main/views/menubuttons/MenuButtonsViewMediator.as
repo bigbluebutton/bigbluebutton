@@ -13,7 +13,7 @@ package org.bigbluebutton.air.main.views.menubuttons {
 	import mx.core.FlexGlobals;
 	import mx.resources.ResourceManager;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.main.views.menubuttons.changestatus.ChangeStatusPopUp;
 	import org.bigbluebutton.air.main.views.skins.PresentationButtonSkin;
@@ -119,7 +119,7 @@ package org.bigbluebutton.air.main.views.menubuttons {
 						userSession.deskshareConnection.disconnect(true);
 					FlexGlobals.topLevelApplication.mainshell.visible = false;
 					userUISession.popPage();
-					userUISession.pushPage(PagesENUM.LOGIN);
+					userUISession.pushPage(PageEnum.LOGIN);
 				}
 			}
 		}

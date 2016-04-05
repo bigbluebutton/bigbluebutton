@@ -8,7 +8,7 @@
 		<![CDATA[
 			import mx.core.FlexGlobals;
 			import mx.events.FlexEvent;
-			import org.bigbluebutton.air.common.views.PagesENUM
+			import org.bigbluebutton.air.common.PageEnum
 			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 		]]>
 	</fx:Script>

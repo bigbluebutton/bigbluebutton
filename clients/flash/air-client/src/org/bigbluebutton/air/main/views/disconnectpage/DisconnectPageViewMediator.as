@@ -7,7 +7,7 @@ package org.bigbluebutton.air.main.views.disconnectpage {
 	
 	import mx.core.FlexGlobals;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.main.utils.DisconnectEnum;
@@ -77,7 +77,7 @@ package org.bigbluebutton.air.main.views.disconnectpage {
 			if (FlexGlobals.topLevelApplication.hasOwnProperty("mainshell")) {
 				FlexGlobals.topLevelApplication.mainshell.visible = false;
 			}
-			userUISession.pushPage(PagesENUM.LOGIN);
+			userUISession.pushPage(PageEnum.LOGIN);
 		}
 	}
 }

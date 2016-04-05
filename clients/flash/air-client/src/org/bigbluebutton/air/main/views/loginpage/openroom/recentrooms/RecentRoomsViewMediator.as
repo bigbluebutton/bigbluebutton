@@ -52,7 +52,7 @@ package org.bigbluebutton.air.main.views.loginpage.openroom.recentrooms {
 			if (view.roomsList.selectedIndex >= 0) {
 				trace(dataProvider[view.roomsList.selectedIndex].url);
 				if (dataProvider[view.roomsList.selectedIndex].url) {
-					var urlReq = new URLRequest(dataProvider[view.roomsList.selectedIndex].url);
+					var urlReq:URLRequest = new URLRequest(dataProvider[view.roomsList.selectedIndex].url);
 					navigateToURL(urlReq);
 				}
 			}

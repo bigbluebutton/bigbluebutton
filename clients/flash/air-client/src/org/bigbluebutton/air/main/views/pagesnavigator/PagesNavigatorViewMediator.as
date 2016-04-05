@@ -6,7 +6,7 @@ package org.bigbluebutton.air.main.views.pagesnavigator {
 	
 	import mx.events.FlexEvent;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	
@@ -28,14 +28,14 @@ package org.bigbluebutton.air.main.views.pagesnavigator {
 		override public function initialize():void {
 			NativeApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true)
 			userUISession.pageChangedSignal.add(changePage);
-			userUISession.pushPage(PagesENUM.LOGIN);
+			userUISession.pushPage(PageEnum.LOGIN);
 		}
 		
 		private function onKeyDown(event:KeyboardEvent):void {
 			if (event.keyCode == Keyboard.BACK) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
-				userUISession.pushPage(PagesENUM.EXIT);
+				userUISession.pushPage(PageEnum.EXIT);
 			}
 		}
 		
@@ -68,13 +68,13 @@ package org.bigbluebutton.air.main.views.pagesnavigator {
 					break;
 				}
 			}
-			if (pageName == PagesENUM.PARTICIPANTS || pageName == PagesENUM.PRESENTATION || pageName == PagesENUM.VIDEO_CHAT || pageName == PagesENUM.CHATROOMS) {
+			if (pageName == PageEnum.PARTICIPANTS || pageName == PageEnum.PRESENTATION || pageName == PageEnum.VIDEO_CHAT || pageName == PageEnum.CHATROOMS) {
 				view.popAll();
-				view.pushView(PagesENUM.getClassfromName(pageName), null, null, transition);
+				view.pushView(PageEnum.getClassfromName(pageName), null, null, transition);
 			} else if (pageRemoved) {
 				view.popView(transition);
 			} else if (pageName != null && pageName != "") {
-				view.pushView(PagesENUM.getClassfromName(pageName), null, null, transition);
+				view.pushView(PageEnum.getClassfromName(pageName), null, null, transition);
 			}
 		}
 		

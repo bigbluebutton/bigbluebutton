@@ -16,7 +16,7 @@ package org.bigbluebutton.air.settings.views.camera {
 	
 	import spark.events.IndexChangeEvent;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
@@ -87,7 +87,7 @@ package org.bigbluebutton.air.settings.views.camera {
 		
 		private function stageOrientationChangingHandler(e:Event):void {
 			userUISession.popPage();
-			userUISession.pushPage(PagesENUM.CAMERASETTINGS);
+			userUISession.pushPage(PageEnum.CAMERASETTINGS);
 		}
 		
 		private function disableCam(disable:Boolean):void {
@@ -184,7 +184,7 @@ package org.bigbluebutton.air.settings.views.camera {
 				}
 				if (isCamRotatedSideways()) {
 					camera.setMode(profile.height, profile.width, profile.modeFps);
-					var temp = myCam.width;
+					var temp:Number = myCam.width;
 					myCam.width = myCam.height;
 					myCam.height = temp;
 				} else {

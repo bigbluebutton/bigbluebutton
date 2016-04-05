@@ -6,7 +6,7 @@ package org.bigbluebutton.air.main.views.topbar {
 	import mx.core.FlexGlobals;
 	import mx.events.ResizeEvent;
 	
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.chat.models.ChatMessages;
@@ -59,25 +59,25 @@ package org.bigbluebutton.air.main.views.topbar {
 		
 		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationENUM.APPEAR, transition:ViewTransitionBase = null):void {
 			switch (pageName) {
-				case PagesENUM.PRESENTATION:
+				case PageEnum.PRESENTATION:
 					selectLeftButton("participants");
 					selectRightButton("profile");
 					break;
-				case PagesENUM.PROFILE:
+				case PageEnum.PROFILE:
 					selectLeftButton("presentation");
 					selectRightButton("none");
 					break;
-				case PagesENUM.PARTICIPANTS:
+				case PageEnum.PARTICIPANTS:
 					selectLeftButton("none");
 					selectRightButton("presentation");
 					break;
-				case PagesENUM.CAMERASETTINGS:
-				case PagesENUM.AUDIOSETTINGS:
-				case PagesENUM.LOCKSETTINGS:
+				case PageEnum.CAMERASETTINGS:
+				case PageEnum.AUDIOSETTINGS:
+				case PageEnum.LOCKSETTINGS:
 					selectLeftButton("back");
 					selectRightButton("none");
 					break;
-				case PagesENUM.CHAT:
+				case PageEnum.CHAT:
 					selectLeftButton("back");
 					selectRightButton("presentation");
 					break;
@@ -145,7 +145,7 @@ package org.bigbluebutton.air.main.views.topbar {
 		}
 		
 		private function stageOrientationChangingHandler(e:Event):void {
-			view.profileBtn.navigateTo = [PagesENUM.PROFILE];
+			view.profileBtn.navigateTo = [PageEnum.PROFILE];
 		}
 		
 		public override function destroy():void {

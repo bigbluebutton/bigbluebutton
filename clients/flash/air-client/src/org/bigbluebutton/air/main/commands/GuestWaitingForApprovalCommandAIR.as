@@ -1,5 +1,5 @@
 package org.bigbluebutton.air.main.commands {
-	import org.bigbluebutton.air.common.views.PagesENUM;
+	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
@@ -19,7 +19,7 @@ package org.bigbluebutton.air.main.commands {
 		public var conferenceParameters:IConferenceParameters;
 		
 		override public function execute():void {
-			userUISession.pushPage(PagesENUM.GUEST);
+			userUISession.pushPage(PageEnum.GUEST);
 			userUISession.loading = false;
 		}
 	
