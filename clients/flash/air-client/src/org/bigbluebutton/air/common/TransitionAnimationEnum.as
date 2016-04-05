@@ -1,6 +1,6 @@
-package org.bigbluebutton.air.common.views {
+package org.bigbluebutton.air.common {
 	
-	public class TransitionAnimationENUM {
+	public class TransitionAnimationEnum {
 		// the type of animation when a view changes:
 		public static const APPEAR:int = 0;
 		

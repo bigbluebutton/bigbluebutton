@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.main.models {
 	
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.osflash.signals.ISignal;
 	
 	public interface IUserUISession {
@@ -10,8 +10,8 @@ package org.bigbluebutton.air.main.models {
 		function get joinFailureSignal():ISignal;
 		function get currentPage():String;
 		function get lastPage():String;
-		function popPage(animation:int = TransitionAnimationENUM.APPEAR):void;
-		function pushPage(value:String, details:Object = null, animation:int = TransitionAnimationENUM.APPEAR):void;
+		function popPage(animation:int = TransitionAnimationEnum.APPEAR):void;
+		function pushPage(value:String, details:Object = null, animation:int = TransitionAnimationEnum.APPEAR):void;
 		function get currentPageDetails():Object;
 		function get loading():Boolean;
 		function set loading(value:Boolean):void;

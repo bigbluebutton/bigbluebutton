@@ -11,7 +11,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.views.SplitViewEvent;
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
@@ -237,9 +237,9 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			var item:Object = dataProvider.getItemAt(event.newIndex);
 			if (item) {
 				if (item.hasOwnProperty("button")) {
-					userUISession.pushPage(PageEnum.SELECT_PARTICIPANT, item, TransitionAnimationENUM.SLIDE_LEFT)
+					userUISession.pushPage(PageEnum.SELECT_PARTICIPANT, item, TransitionAnimationEnum.SLIDE_LEFT)
 				} else {
-					userUISession.pushPage(PageEnum.CHAT, item, TransitionAnimationENUM.SLIDE_LEFT)
+					userUISession.pushPage(PageEnum.CHAT, item, TransitionAnimationEnum.SLIDE_LEFT)
 				}
 			} else {
 				throw new Error("item null on ChatRoomsViewMediator");

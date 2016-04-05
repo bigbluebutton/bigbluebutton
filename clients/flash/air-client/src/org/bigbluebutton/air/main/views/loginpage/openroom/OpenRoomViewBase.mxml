@@ -7,7 +7,7 @@
 	<fx:Script>
 		<![CDATA[
 			import org.bigbluebutton.air.common.PageEnum;
-			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+			import org.bigbluebutton.air.common.TransitionAnimationEnum;
 		]]>
 	</fx:Script>
 	<s:Group width="100%"
@@ -55,7 +55,7 @@
 											   label="{resourceManager.getString('resources', 'openRoom.showRecentRooms')}"
 											   navigateTo="{[PageEnum.RECENTROOMS]}"
 											   styleName="userSettingsButtonStyle logoutButtonStyle contentFontSize"
-											   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
+											   transitionAnimation="{TransitionAnimationEnum.SLIDE_LEFT}" />
 		</s:Group>
 	</s:Group>
 </view:NoTabView>

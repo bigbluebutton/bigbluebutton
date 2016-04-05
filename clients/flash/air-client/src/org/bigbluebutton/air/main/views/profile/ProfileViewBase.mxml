@@ -9,7 +9,7 @@
 			import mx.core.FlexGlobals;
 			import mx.events.FlexEvent;
 			import org.bigbluebutton.air.common.PageEnum
-			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+			import org.bigbluebutton.air.common.TransitionAnimationEnum;
 		]]>
 	</fx:Script>
 

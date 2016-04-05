@@ -6,16 +6,16 @@ package org.bigbluebutton.air.main.views.pagesnavigator {
 	
 	import mx.events.FlexEvent;
 	
-	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
-	import org.bigbluebutton.air.main.models.IUserUISession;
-	
-	import robotlegs.bender.bundles.mvcs.Mediator;
-	
 	import spark.transitions.CrossFadeViewTransition;
 	import spark.transitions.SlideViewTransition;
 	import spark.transitions.ViewTransitionBase;
 	import spark.transitions.ViewTransitionDirection;
+	
+	import org.bigbluebutton.air.common.PageEnum;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
+	import org.bigbluebutton.air.main.models.IUserUISession;
+	
+	import robotlegs.bender.bundles.mvcs.Mediator;
 	
 	public class PagesNavigatorViewMediator extends Mediator {
 		
@@ -39,16 +39,16 @@ package org.bigbluebutton.air.main.views.pagesnavigator {
 			}
 		}
 		
-		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationENUM.APPEAR, transition:ViewTransitionBase = null):void {
+		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationEnum.APPEAR, transition:ViewTransitionBase = null):void {
 			switch (animation) {
-				case TransitionAnimationENUM.APPEAR:  {
+				case TransitionAnimationEnum.APPEAR:  {
 					var appear:CrossFadeViewTransition = new CrossFadeViewTransition;
 					appear.duration = 50;
 					appear.addEventListener(FlexEvent.TRANSITION_START, onTransitionStart);
 					transition = appear;
 					break;
 				}
-				case TransitionAnimationENUM.SLIDE_LEFT:  {
+				case TransitionAnimationEnum.SLIDE_LEFT:  {
 					var slideLeft:SlideViewTransition = new SlideViewTransition();
 					slideLeft.duration = 300;
 					slideLeft.direction = ViewTransitionDirection.LEFT;
@@ -56,7 +56,7 @@ package org.bigbluebutton.air.main.views.pagesnavigator {
 					transition = slideLeft;
 					break;
 				}
-				case TransitionAnimationENUM.SLIDE_RIGHT:  {
+				case TransitionAnimationEnum.SLIDE_RIGHT:  {
 					var slideRight:SlideViewTransition = new SlideViewTransition();
 					slideRight.duration = 300;
 					slideRight.direction = ViewTransitionDirection.RIGHT;

@@ -7,7 +7,7 @@ package org.bigbluebutton.air.main.views.topbar {
 	import mx.events.ResizeEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.chat.models.ChatMessages;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
@@ -57,7 +57,7 @@ package org.bigbluebutton.air.main.views.topbar {
 		}
 		
 		
-		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationENUM.APPEAR, transition:ViewTransitionBase = null):void {
+		protected function changePage(pageName:String, pageRemoved:Boolean = false, animation:int = TransitionAnimationEnum.APPEAR, transition:ViewTransitionBase = null):void {
 			switch (pageName) {
 				case PageEnum.PRESENTATION:
 					selectLeftButton("participants");

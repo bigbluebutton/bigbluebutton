@@ -9,7 +9,7 @@ package org.bigbluebutton.air.chat.views.selectparticipant {
 	import spark.events.IndexChangeEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
@@ -69,7 +69,7 @@ package org.bigbluebutton.air.chat.views.selectparticipant {
 		
 		protected function onSelectUser(event:IndexChangeEvent):void {
 			var user:User = dataProvider.getItemAt(event.newIndex) as User;
-			userUISession.pushPage(PageEnum.CHAT, user, TransitionAnimationENUM.SLIDE_LEFT);
+			userUISession.pushPage(PageEnum.CHAT, user, TransitionAnimationEnum.SLIDE_LEFT);
 		}
 		
 		override public function destroy():void {

@@ -3,7 +3,7 @@ package org.bigbluebutton.air.main.models {
 	import mx.collections.ArrayList;
 	import mx.utils.ObjectUtil;
 	
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.osflash.signals.ISignal;
 	import org.osflash.signals.Signal;
 	
@@ -68,7 +68,7 @@ package org.bigbluebutton.air.main.models {
 			return s;
 		}
 		
-		public function pushPage(value:String, details:Object = null, animation:int = TransitionAnimationENUM.APPEAR):void {
+		public function pushPage(value:String, details:Object = null, animation:int = TransitionAnimationEnum.APPEAR):void {
 			if (value != currentPage) {
 				_listPages.addItem({value: value, details: details});
 				var removeView:Boolean = false;
@@ -78,7 +78,7 @@ package org.bigbluebutton.air.main.models {
 			}
 		}
 		
-		public function popPage(animation:int = TransitionAnimationENUM.APPEAR):void {
+		public function popPage(animation:int = TransitionAnimationEnum.APPEAR):void {
 			if (_listPages.length > 0) {
 				_listPages.removeItemAt(_listPages.length - 1);
 				var removeView:Boolean = true;

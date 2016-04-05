@@ -7,7 +7,7 @@ package org.bigbluebutton.air.users.views.userdetails {
 	import mx.events.ResizeEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.commands.ChangeRoleSignal;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
@@ -82,11 +82,11 @@ package org.bigbluebutton.air.users.views.userdetails {
 		}
 		
 		protected function onShowCameraButton(event:MouseEvent):void {
-			userUISession.pushPage(PageEnum.VIDEO_CHAT, _user, TransitionAnimationENUM.APPEAR);
+			userUISession.pushPage(PageEnum.VIDEO_CHAT, _user, TransitionAnimationEnum.APPEAR);
 		}
 		
 		protected function onShowPrivateChatButton(event:MouseEvent):void {
-			userUISession.pushPage(PageEnum.CHAT, _user, TransitionAnimationENUM.APPEAR);
+			userUISession.pushPage(PageEnum.CHAT, _user, TransitionAnimationEnum.APPEAR);
 		}
 		
 		protected function onClearStatusButton(event:MouseEvent):void {

@@ -14,7 +14,7 @@
 			import mx.core.FlexGlobals;
 			
 			import org.bigbluebutton.air.common.PageEnum;
-			import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+			import org.bigbluebutton.air.common.TransitionAnimationEnum;
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -30,18 +30,18 @@
 			<navigationbutton:NavigationButton id="leftPresentationBtn0"
 											   styleName="presentationButtonStyle topButtonStyle"
 											   navigateTo="{[PageEnum.PRESENTATION]}"
-											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
+											   transitionAnimation="{TransitionAnimationEnum.SLIDE_RIGHT}" />
 
 			<navigationbutton:NavigationButton id="participantsBtn0"
 											   styleName="chatButtonStyle topButtonStyle"
 											   navigateTo="{[PageEnum.PARTICIPANTS]}"
-											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
+											   transitionAnimation="{TransitionAnimationEnum.SLIDE_RIGHT}" />
 
 
 			<navigationbutton:NavigationButton id="backBtn0"
 											   styleName="backButtonStyle topButtonStyle"
 											   navigateTo="{[PageEnum.LAST]}"
-											   transitionAnimation="{TransitionAnimationENUM.SLIDE_RIGHT}" />
+											   transitionAnimation="{TransitionAnimationEnum.SLIDE_RIGHT}" />
 			<s:Label id="pageName0"
 					 styleName="pageNameStyle"
 					 width="100%"
@@ -49,12 +49,12 @@
 			<navigationbutton:NavigationButton id="profileBtn0"
 											   styleName="profileButtonStyle topButtonStyle"
 											   navigateTo="{[PageEnum.PROFILE]}"
-											   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
+											   transitionAnimation="{TransitionAnimationEnum.SLIDE_LEFT}" />
 
 			<navigationbutton:NavigationButton id="rightPresentationBtn0"
 											   styleName="presentationButtonStyle topButtonStyle"
 											   navigateTo="{[PageEnum.PRESENTATION]}"
-											   transitionAnimation="{TransitionAnimationENUM.SLIDE_LEFT}" />
+											   transitionAnimation="{TransitionAnimationEnum.SLIDE_LEFT}" />
 		</s:HGroup>
 	</s:HGroup>
 

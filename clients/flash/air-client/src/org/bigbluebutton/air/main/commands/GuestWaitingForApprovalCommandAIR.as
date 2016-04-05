@@ -1,6 +1,6 @@
 package org.bigbluebutton.air.main.commands {
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.common.views.TransitionAnimationENUM;
+	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
