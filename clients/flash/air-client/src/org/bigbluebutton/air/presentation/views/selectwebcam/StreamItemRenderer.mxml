@@ -2,12 +2,10 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
-				xmlns:selection="org.bigbluebutton.air.common.views.*"
-				xmlns:participanticon="org.bigbluebutton.air.common.views.*"
+				xmlns:views="org.bigbluebutton.air.common.views.*"
 				styleName="streamItemStyle"
 				dataChange="onDataChange(event)"
-				height="100%"
-				xmlns:views="org.bigbluebutton.air.common.views.*">
+				height="100%">
 	<s:states>
 		<s:State name="normal" />
 		<s:State name="selected" />
@@ -62,7 +60,7 @@
 								paddingBottom="{getStyle('paddingBottom')}" />
 		</s:layout>
 
-		<participanticon:ParticipantIcon width="10%"
+		<views:ParticipantIcon width="10%"
 										 id="participantIcon" />
 
 		<s:VGroup width="100%"

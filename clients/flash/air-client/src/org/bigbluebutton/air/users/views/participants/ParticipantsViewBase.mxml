@@ -5,8 +5,13 @@
 				  xmlns:participants="org.bigbluebutton.air.users.views.participants.*"
 				  xmlns:guests="org.bigbluebutton.air.users.views.participants.guests.*"
 				  xmlns:common="org.bigbluebutton.air.common.views.*"
-				  xmlns:chatrooms="org.bigbluebutton.air.chat.views.chatrooms.*"
 				  styleName="participantsViewStyle">
+
+	<fx:Script>
+		<![CDATA[
+			import org.bigbluebutton.air.chat.views.chatrooms.ChatRoomsItemRenderer;
+		]]>
+	</fx:Script>
 	<s:Scroller width="100%"
 				height="100%">
 		<s:Group width="100%"
@@ -32,8 +37,16 @@
 				</s:HGroup>
 			</s:Group>
 
-			<chatrooms:ChatRoomsList id="conversationslist"
-									 width="100%" />
+			<s:List id="conversationslist"
+					width="100%"
+					itemRenderer="org.bigbluebutton.air.chat.views.chatrooms.ChatRoomsItemRenderer"
+					verticalScrollPolicy="off">
+				<s:layout>
+					<s:VerticalLayout horizontalAlign="contentJustify"
+									  requestedRowCount="-1" />
+				</s:layout>
+			</s:List>
+
 			<s:Group width="100%"
 					 height="{getStyle('itemHeight')}">
 				<s:Rect width="100%"

@@ -11,7 +11,6 @@ package org.bigbluebutton.air.main.views.loginpage {
 	import org.bigbluebutton.lib.common.models.ISaveData;
 	import org.bigbluebutton.lib.main.commands.JoinMeetingSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.main.services.ILoginService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
@@ -25,9 +24,6 @@ package org.bigbluebutton.air.main.views.loginpage {
 		public var joinMeetingSignal:JoinMeetingSignal;
 		
 		[Inject]
-		public var loginService:ILoginService;
-		
-		[Inject]
 		public var userSession:IUserSession;
 		
 		[Inject]
@@ -38,12 +34,12 @@ package org.bigbluebutton.air.main.views.loginpage {
 		
 		override public function initialize():void {
 			//loginService.unsuccessJoinedSignal.add(onUnsuccess);
-			userUISession.joinFailureSignal.add(onUnsuccess);
+			userUISession.joinFailureSignal.add(onFailure);
 			view.tryAgainButton.addEventListener(MouseEvent.CLICK, tryAgain);
 			joinRoom(userSession.joinUrl);
 		}
 		
-		private function onUnsuccess(reason:String):void {
+		private function onFailure(reason:String):void {
 			trace(LOG + "onUnsuccess() " + reason);
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = false;
@@ -84,7 +80,6 @@ package org.bigbluebutton.air.main.views.loginpage {
 		public function joinRoom(url:String):void {
 			if (Capabilities.isDebugger) {
 				//saveData.save("rooms", null);
-				// test-install server no longer works with 0.9 mobile client
 				url = "bigbluebutton://test-install.blindsidenetworks.com/bigbluebutton/api/join?fullName=AIR&meetingID=Demo+Meeting&password=mp&redirect=false&checksum=3fdf56e9915c1031c3ea012b4ec8823cedd7c272";
 			}
 			if (!url) {
@@ -107,8 +102,8 @@ package org.bigbluebutton.air.main.views.loginpage {
 		
 		override public function destroy():void {
 			super.destroy();
-			//loginService.unsuccessJoinedSignal.remove(onUnsuccess);
-			userUISession.joinFailureSignal.remove(onUnsuccess);
+			//loginService.unsuccessJoinedSignal.remove(onFailure);
+			userUISession.joinFailureSignal.remove(onFailure);
 			view.dispose();
 			view = null;
 		}

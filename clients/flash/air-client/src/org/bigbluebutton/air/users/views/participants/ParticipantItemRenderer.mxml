@@ -2,7 +2,7 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
-				xmlns:participanticon="org.bigbluebutton.air.common.views.*"
+				xmlns:views="org.bigbluebutton.air.common.views.*"
 				styleName="participantItemStyle">
 
 	<fx:Script>
@@ -50,7 +50,7 @@
 								paddingRight="{getStyle('itemPaddingRight')}" />
 		</s:layout>
 
-		<participanticon:ParticipantIcon id="participantIcon" />
+		<views:ParticipantIcon id="participantIcon" />
 
 		<s:Group width="100%">
 			<s:layout>

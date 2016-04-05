@@ -2,7 +2,7 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
-				xmlns:participanticon="org.bigbluebutton.air.common.views.*">
+				xmlns:views="org.bigbluebutton.air.common.views.*">
 
 	<fx:Script>
 		<![CDATA[
@@ -76,7 +76,7 @@
 		<s:Spacer height="{nameTimeGroup.height}"
 				  id="messageSpacer" />
 		<s:HGroup width="100%">
-			<participanticon:ParticipantIcon id="participantIcon"
+			<views:ParticipantIcon id="participantIcon"
 											 height="100%" />
 			<s:VGroup width="100%">
 				<s:Spacer height="10%" />
