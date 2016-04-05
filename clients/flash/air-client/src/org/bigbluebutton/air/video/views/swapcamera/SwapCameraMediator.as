@@ -25,10 +25,10 @@ package org.bigbluebutton.air.video.views.swapcamera {
 		public override function initialize():void {
 			if (Camera.names.length > 1) {
 				view.setVisibility(userSession.userList.me.hasStream);
-				(view as SwapCameraButton).addEventListener(MouseEvent.CLICK, mouseClickHandler);
+				view.addEventListener(MouseEvent.CLICK, mouseClickHandler);
 				userSession.userList.userChangeSignal.add(userChangeHandler);
 			} else {
-				(view as SwapCameraButton).includeInLayout = false;
+				view.includeInLayout = false;
 			}
 		}
 		

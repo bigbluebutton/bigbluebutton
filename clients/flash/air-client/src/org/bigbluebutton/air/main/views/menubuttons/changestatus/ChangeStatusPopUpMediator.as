@@ -1,22 +1,20 @@
 package org.bigbluebutton.air.main.views.menubuttons.changestatus {
 	import flash.events.MouseEvent;
 	
-	import flashx.textLayout.container.ScrollPolicy;
-	
 	import mx.collections.ArrayCollection;
 	import mx.core.ClassFactory;
 	import mx.core.FlexGlobals;
 	import mx.events.FlexMouseEvent;
 	
-	import org.bigbluebutton.air.main.models.IUserUISession;
+	import spark.components.SkinnablePopUpContainer;
+	import spark.layouts.HorizontalLayout;
+	
+	import flashx.textLayout.container.ScrollPolicy;
+	
 	import org.bigbluebutton.lib.main.commands.EmojiSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.SkinnablePopUpContainer;
-	import spark.layouts.HorizontalLayout;
-	import spark.layouts.VerticalLayout;
 	
 	public class ChangeStatusPopUpMediator extends Mediator {
 		
@@ -41,7 +39,7 @@ package org.bigbluebutton.air.main.views.menubuttons.changestatus {
 				}
 			}
 			updateListOrientation();
-			(view as SkinnablePopUpContainer).addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);
+			view.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);
 		}
 		
 		private function closePopUp(e:FlexMouseEvent):void {

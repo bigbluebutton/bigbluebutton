@@ -53,11 +53,11 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 				}
 			}
 			updateSelectedIndex();
-			(view as SkinnablePopUpContainer).addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);
+			view.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);
 		}
 		
 		private function closePopUp(e:FlexMouseEvent):void {
-			(view as SkinnablePopUpContainer).close(false);
+			view.close(false);
 		}
 		
 		/**

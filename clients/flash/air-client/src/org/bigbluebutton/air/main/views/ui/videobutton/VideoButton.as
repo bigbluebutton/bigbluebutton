@@ -1,9 +1,5 @@
 package org.bigbluebutton.air.main.views.ui.videobutton {
 	
-	import flash.events.MouseEvent;
-	import mx.events.FlexEvent;
-	import mx.states.SetStyle;
-	import mx.states.State;
 	import spark.components.Button;
 	
 	public class VideoButton extends Button implements IVideoButton {

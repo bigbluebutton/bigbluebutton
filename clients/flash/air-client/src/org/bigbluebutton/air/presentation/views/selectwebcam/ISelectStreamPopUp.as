@@ -8,5 +8,6 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 	public interface ISelectStreamPopUp extends IView {
 		function get streamList():List;
 		function get actionButton():Button;
+		function close(commit:Boolean = false, data:* = undefined):void;
 	}
 }

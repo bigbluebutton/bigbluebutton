@@ -80,7 +80,7 @@ package org.bigbluebutton.air.chat.views.chat {
 			list.addEventListener(FlexEvent.UPDATE_COMPLETE, updateComplete);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			userSession.userList.userAddedSignal.add(userAdded);
-			(view as View).addEventListener(ViewNavigatorEvent.VIEW_DEACTIVATE, viewDeactivateHandler);
+			view.addEventListener(ViewNavigatorEvent.VIEW_DEACTIVATE, viewDeactivateHandler);
 		}
 		
 		private function updateComplete(e:FlexEvent):void {
@@ -130,12 +130,12 @@ package org.bigbluebutton.air.chat.views.chat {
 			if (disable) {
 				view.inputMessage.enabled = false;
 				view.sendButton.enabled = false;
-				(view as View).removeEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);
+				view.removeEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);
 				view.sendButton.removeEventListener(MouseEvent.CLICK, onSendButtonClick);
 			} else {
 				view.inputMessage.enabled = true;
 				view.sendButton.enabled = true;
-				(view as View).addEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);
+				view.addEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);
 				view.sendButton.addEventListener(MouseEvent.CLICK, onSendButtonClick);
 			}
 		}
@@ -262,7 +262,7 @@ package org.bigbluebutton.air.chat.views.chat {
 			userSession.lockSettings.disablePrivateChatSignal.remove(disableChat);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			userSession.userList.userAddedSignal.remove(userAdded);
-			(view as View).removeEventListener(ViewNavigatorEvent.VIEW_DEACTIVATE, viewDeactivateHandler);
+			view.removeEventListener(ViewNavigatorEvent.VIEW_DEACTIVATE, viewDeactivateHandler);
 			view.dispose();
 			view = null;
 		}

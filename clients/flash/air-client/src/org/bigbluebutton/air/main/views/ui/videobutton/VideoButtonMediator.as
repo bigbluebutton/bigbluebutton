@@ -23,7 +23,7 @@ package org.bigbluebutton.air.main.views.ui.videobutton {
 		 * Initialize listeners and Mediator initial state
 		 */
 		override public function initialize():void {
-			(view as VideoButton).addEventListener(MouseEvent.CLICK, mouseEventClickHandler);
+			view.addEventListener(MouseEvent.CLICK, mouseEventClickHandler);
 			userSession.userList.userChangeSignal.add(userChangeHandler);
 			view.setVisibility(userSession.userList.me.hasStream);
 		}
@@ -32,7 +32,7 @@ package org.bigbluebutton.air.main.views.ui.videobutton {
 		 * Destroy view and listeners
 		 */
 		override public function destroy():void {
-			(view as VideoButton).removeEventListener(MouseEvent.CLICK, mouseEventClickHandler);
+			view.removeEventListener(MouseEvent.CLICK, mouseEventClickHandler);
 			userSession.userList.userChangeSignal.remove(userChangeHandler);
 			super.destroy();
 			view.dispose();

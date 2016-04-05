@@ -38,7 +38,7 @@ package org.bigbluebutton.air.main.views.loginpage.openroom {
 			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = false;
 			FlexGlobals.topLevelApplication.bottomMenu.includeInLayout = false;
 			FlexGlobals.topLevelApplication.topActionBar.visible = false;
-			(view as View).addEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);
+			view.addEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);
 			view.goButton.addEventListener(MouseEvent.CLICK, onGoButtonClick);
 		}
 		
@@ -59,7 +59,7 @@ package org.bigbluebutton.air.main.views.loginpage.openroom {
 		
 		override public function destroy():void {
 			super.destroy();
-			(view as View).removeEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);
+			view.removeEventListener(KeyboardEvent.KEY_DOWN, KeyHandler);
 			view.goButton.removeEventListener(MouseEvent.CLICK, onGoButtonClick);
 			view.dispose();
 			view = null;
