@@ -80,7 +80,7 @@ package org.bigbluebutton.lib.common.services {
 						trace(LOG + "UNKNOWN Error! Invalid server location: " + uri);
 						break;
 				}
-				sendConnectionFailedEvent(e.message);
+				sendConnectionFailedSignal(e.message);
 			}
 		}
 		
@@ -103,30 +103,30 @@ package org.bigbluebutton.lib.common.services {
 					break;
 				case "NetConnection.Connect.Failed":
 					trace(LOG + " Connection failed. Uri: " + _uri);
-					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
+					sendConnectionFailedSignal(ConnectionFailedEvent.CONNECTION_FAILED);
 					break;
 				case "NetConnection.Connect.Closed":
 					trace(LOG + " Connection closed. Uri: " + _uri);
-					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);
+					sendConnectionFailedSignal(ConnectionFailedEvent.CONNECTION_CLOSED);
 					break;
 				case "NetConnection.Connect.InvalidApp":
 					trace(LOG + " application not found on server. Uri: " + _uri);
-					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);
+					sendConnectionFailedSignal(ConnectionFailedEvent.INVALID_APP);
 					break;
 				case "NetConnection.Connect.AppShutDown":
 					trace(LOG + " application has been shutdown. Uri: " + _uri);
-					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);
+					sendConnectionFailedSignal(ConnectionFailedEvent.APP_SHUTDOWN);
 					break;
 				case "NetConnection.Connect.Rejected":
 					trace(LOG + " Connection to the server rejected. Uri: " + _uri + ". Check if the red5 specified in the uri exists and is running");
-					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);
+					sendConnectionFailedSignal(ConnectionFailedEvent.CONNECTION_REJECTED);
 					break;
 				case "NetConnection.Connect.NetworkChange":
 					trace("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 					break;
 				default:
 					trace(LOG + " Default status");
-					sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
+					sendConnectionFailedSignal(ConnectionFailedEvent.UNKNOWN_REASON);
 					break;
 			}
 		}
@@ -135,24 +135,24 @@ package org.bigbluebutton.lib.common.services {
 			connectionSuccessSignal.dispatch();
 		}
 		
-		protected function sendConnectionFailedEvent(reason:String):void {
+		protected function sendConnectionFailedSignal(reason:String):void {
 			//unsuccessConnected.dispatch(reason);
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_CONNECTION_DROPPED);
 		}
 		
 		protected function netSecurityError(event:SecurityErrorEvent):void {
 			trace(LOG + "Security error - " + event.text);
-			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
+			sendConnectionFailedSignal(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		protected function netIOError(event:IOErrorEvent):void {
 			trace(LOG + "Input/output error - " + event.text);
-			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
+			sendConnectionFailedSignal(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		protected function netASyncError(event:AsyncErrorEvent):void {
 			trace(LOG + "Asynchronous code error - " + event.error);
-			sendConnectionFailedEvent(ConnectionFailedEvent.UNKNOWN_REASON);
+			sendConnectionFailedSignal(ConnectionFailedEvent.UNKNOWN_REASON);
 		}
 		
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object = null):void {
