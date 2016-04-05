@@ -804,7 +804,7 @@ body {
     -ms-transition: transform 0.3s linear;
     -o-transition: transform 0.3s linear;
 
-    .userItem {
+    .user-list-item {
       transition: transform 0.7s;
       -moz-transition: -moz-transform 0.7s;
       -webkit-transition: -webkit-transform 0.7s;
@@ -824,7 +824,7 @@ body {
       -ms-transform: translateX(@userListMenuPortaitWidth);
       -o-transform: translateX(@userListMenuPortaitWidth);
 
-      .userItem {
+      .user-list-item {
         transform: translateX(0);
         -moz-transform: translateX(0);
         -webkit-transform: translateX(0);
@@ -833,7 +833,7 @@ body {
       }
 
       .generateUserItemAnimation(@n, @i: 1) when (@i =< @n) {
-        .userItem:nth-child(@{i}) {
+        .user-list-item:nth-child(@{i}) {
           transform: @i * 50ms;
           transition-delay: @i * 50ms;
           -moz-transition-delay: @i * 50ms;
