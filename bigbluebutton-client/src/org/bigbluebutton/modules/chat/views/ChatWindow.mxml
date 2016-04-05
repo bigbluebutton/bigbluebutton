@@ -83,6 +83,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				// Get sent to chatBox
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.changeColour') as String)] = ShortcutEvent.CHANGE_FONT_COLOUR;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.sendMessage') as String)] = ShortcutEvent.SEND_MESSAGE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.closePrivate') as String)] = ShortcutEvent.CLOSE_PRIVATE;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_CHAT;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_CHAT;
 			}

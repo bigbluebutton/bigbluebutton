@@ -67,11 +67,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var progress:Number = modules[key] as Number;
           totalProgress += progress;
         }
+        
+        ExternalInterface.call("setProgressBar", int(totalProgress/numModules));
         //LogUtil.debug("Progress: " + totalProgress);
         this.setProgress(totalProgress/numModules, 100);
       }
 
       private function allModulesLoaded(e:ModuleLoadEvent):void{
+        ExternalInterface.call("removeProgressBar");
         if (parent != null) parent.removeChild(this);
       }
 						

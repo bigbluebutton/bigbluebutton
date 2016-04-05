@@ -7,6 +7,19 @@ function clientReady(message){
 	if (target) target.innerHTML = message;
 }
 
+function setProgressBar(percent){
+	var bar = document.getElementById("accessibile-progress");
+	if (bar) {
+		bar.setAttribute("aria-valuenow", percent);
+		bar.innerHTML = percent + " " + "%";
+	}
+}
+
+function removeProgressBar(){
+	var bar = document.getElementById("accessibile-progress");
+	if (bar) bar.parentNode.removeChild(bar);
+}
+
 function determineModifier()
 {
 	var browser = determineBrowser()[0];
