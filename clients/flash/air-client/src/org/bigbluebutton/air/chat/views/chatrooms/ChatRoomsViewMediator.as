@@ -1,7 +1,5 @@
 package org.bigbluebutton.air.chat.views.chatrooms {
 	
-	import flash.utils.Dictionary;
-	
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
 	import mx.resources.ResourceManager;
@@ -38,14 +36,11 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		
 		protected var list:List;
 		
-		protected var dicUsertoChat:Dictionary;
-		
 		protected var button:Object;
 		
 		private var _usersAdded:Array = new Array();
 		
 		override public function initialize():void {
-			dicUsertoChat = new Dictionary();
 			dataProvider = new ArrayCollection();
 			dataProvider.addItem({name: ResourceManager.getInstance().getString('resources', 'chat.item.publicChat'), publicChat: true, user: null, chatMessages: chatMessagesSession.publicChat});
 			for each (var chatObject:PrivateChatMessage in chatMessagesSession.privateChats) {
@@ -212,21 +207,10 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 					dataProvider.addItemAt(chat, pos);
 				}
 			}
-			//dataProvider.setItemAt(button, dataProvider.length-1);
 			dataProvider.refresh();
 			setPageTitle();
-			//dicUsertoChat[chat.user] = chat;				
 		}
 		
-		/*
-		   private function userRemoved(userID:String):void
-		   {
-		   var user:User = dicUsertoChat[userID] as User;
-		   var index:uint = dataProvider.getItemIndex(user);
-		   dataProvider.removeItemAt(index);
-		   dicUsertoChat[user.userID] = null;
-		   }
-		 */
 		private function userChanged(user:User, property:String = null):void {
 			dataProvider.refresh();
 		}
@@ -252,57 +236,14 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			eventDispatcher.removeEventListener(SplitViewEvent.CHANGE_VIEW, userSelected);
 		}
 		
-		/*
-		   private function onSendButtonClick(e:MouseEvent):void
-		   {
-		   view.inputMessage.enabled = false;
-		   view.sendButton.enabled = false;
-		
-		   var currentDate:Date = new Date();
-		
-		   //TODO get info from the right source
-		   var m:ChatMessageVO = new ChatMessageVO();
-		   m.chatType = "PUBLIC";
-		   m.fromUserID = userSession.userId;
-		   m.fromUsername = "XXfromUsernameXX";
-		   m.fromColor = "0";
-		   m.fromTime = currentDate.time;
-		   m.fromTimezoneOffset = currentDate.timezoneOffset;
-		   m.fromLang = "en";
-		   m.message = view.inputMessage.text;
-		   m.toUserID = "FAKE_USERID";
-		   m.toUsername = "XXfromUsernameXX";
-		
-		   chatMessageSender.sendPublicMessageOnSuccessSignal.add(onSendSuccess);
-		   chatMessageSender.sendPublicMessageOnFailureSignal.add(onSendFailure);
-		   chatMessageSender.sendPublicMessage(m);
-		   }
-		
-		   private function onSendSuccess(result:String):void
-		   {
-		   view.inputMessage.enabled = true;
-		   view.inputMessage.text = "";
-		   }
-		
-		   private function onSendFailure(status:String):void
-		   {
-		   view.inputMessage.enabled = true;
-		   view.sendButton.enabled = true;
-		   }
-		 */
 		override public function destroy():void {
 			super.destroy();
-			//			list.removeEventListener(FlexEvent.UPDATE_COMPLETE, scrollUpdate);
-			//userSession.userlist.userChangeSignal.add(userChanged);
-			//userSession.userList.userAddedSignal.remove(addChat);
-			//userSession.userlist.userRemovedSignal.add(userRemoved);
 			chatMessagesSession.publicChat.chatMessageChangeSignal.remove(refreshList);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			userSession.userList.userAddedSignal.remove(userAdded);
 			chatMessagesSession.chatMessageChangeSignal.remove(newMessageReceived);
 			eventDispatcher.removeEventListener(SplitViewEvent.CHANGE_VIEW, userSelected);
 			list.removeEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
-			//view.sendButton.removeEventListener(MouseEvent.CLICK, onSendButtonClick);
 			view.dispose();
 			view = null;
 		}
