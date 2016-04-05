@@ -10,8 +10,8 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 	import spark.events.IndexChangeEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
+	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
@@ -41,8 +41,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		protected var dicUsertoChat:Dictionary;
 		
 		protected var button:Object;
-		
-		private var _users:ArrayCollection;
 		
 		private var _usersAdded:Array = new Array();
 		

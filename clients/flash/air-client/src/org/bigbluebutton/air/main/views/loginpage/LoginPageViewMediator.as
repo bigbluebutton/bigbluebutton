@@ -36,8 +36,6 @@ package org.bigbluebutton.air.main.views.loginpage {
 		[Inject]
 		public var saveData:ISaveData;
 		
-		private var count:Number = 0;
-		
 		override public function initialize():void {
 			//loginService.unsuccessJoinedSignal.add(onUnsuccess);
 			userUISession.joinFailureSignal.add(onUnsuccess);

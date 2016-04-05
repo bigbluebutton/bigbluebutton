@@ -25,16 +25,6 @@ package org.bigbluebutton.air.settings.views.lock {
 		[Inject]
 		public var userUISession:IUserUISession;
 		
-		private var _disableCam:Boolean;
-		
-		private var _disableMic:Boolean;
-		
-		private var _disablePublicChat:Boolean;
-		
-		private var _disablePrivateChat:Boolean;
-		
-		private var layout:Boolean;
-		
 		override public function initialize():void {
 			loadLockSettings();
 			view.applyButton.addEventListener(MouseEvent.CLICK, onApply);

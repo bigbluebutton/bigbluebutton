@@ -3,8 +3,7 @@
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				xmlns:view="org.bigbluebutton.air.common.views.*"
-				styleName="cameraSettingsViewStyle"
-				xmlns:cameraprofiles="org.bigbluebutton.air.settings.views.cameraprofiles.*">
+				styleName="cameraSettingsViewStyle">
 
 	<s:VGroup width="100%"
 			  height="100%"
@@ -36,9 +35,17 @@
 						<s:VerticalLayout horizontalAlign="center"
 										  gap="1" />
 					</s:layout>
-					<cameraprofiles:CameraProfilesList id="cameraprofileslist"
-													   width="100%" />
-
+					<s:List id="cameraprofileslist"
+							width="100%"
+							styleName="cameraProfilesListStyle"
+							itemRenderer="org.bigbluebutton.air.settings.views.cameraprofiles.CameraProfileItemRenderer">
+						<s:layout>
+							<s:VerticalLayout horizontalAlign="contentJustify"
+											  gap="0"
+											  verticalAlign="middle"
+											  variableRowHeight="false" />
+						</s:layout>
+					</s:List>
 					<s:HGroup width="100%">
 						<s:Button visible="false"
 								  includeInLayout="false"

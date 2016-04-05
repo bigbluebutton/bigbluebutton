@@ -1,21 +1,17 @@
 package org.bigbluebutton.air.main.views.profile {
 	
-	import flash.events.Event;
 	import flash.events.MouseEvent;
+	
 	import mx.core.FlexGlobals;
-	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
+	
 	import org.bigbluebutton.air.common.PageEnum;
-	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
-	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
-	import org.bigbluebutton.lib.main.commands.EmojiSignal;
-	import org.bigbluebutton.lib.main.commands.RaiseHandSignal;
-	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	import org.bigbluebutton.lib.user.services.IUsersService;
+	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
 	public class ProfileViewMediator extends Mediator {
@@ -30,18 +26,10 @@ package org.bigbluebutton.air.main.views.profile {
 		public var userUISession:IUserUISession;
 		
 		[Inject]
-		public var emojiSignal:EmojiSignal;
-		
-		[Inject]
-		public var conferenceParameters:IConferenceParameters;
-		
-		[Inject]
 		public var clearUserStatusSignal:ClearUserStatusSignal;
 		
 		[Inject]
 		public var userService:IUsersService;
-		
-		private var navigateToStatus:Function = navigateTo(PageEnum.STATUS);
 		
 		private var navigateToCameraSettings:Function = navigateTo(PageEnum.CAMERASETTINGS);
 		

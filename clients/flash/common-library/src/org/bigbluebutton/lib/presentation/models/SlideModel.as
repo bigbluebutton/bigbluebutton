@@ -24,14 +24,6 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		public var loaderY:Number = 0;
 		
-		private var _viewedRegionX:Number = 0;
-		
-		private var _viewedRegionY:Number = 0;
-		
-		private var _viewedRegionW:Number = HUNDRED_PERCENT;
-		
-		private var _viewedRegionH:Number = HUNDRED_PERCENT;
-		
 		private var _pageOrigW:Number = 0;
 		
 		private var _pageOrigH:Number = 0;

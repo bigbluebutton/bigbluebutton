@@ -346,12 +346,6 @@ package org.bigbluebutton.lib.user.services {
 			disconnectUserSignal.dispatch(DisconnectEnum.CONNECTION_STATUS_MEETING_ENDED);
 		}
 		
-		private function handleLogout(m:Object):void {
-			var msg:Object = JSON.parse(m.msg);
-			trace(LOG + "handleLogout() -- logging out!");
-			userSession.logoutSignal.dispatch();
-		}
-		
 		private function handleJoinedMeeting(m:Object):void {
 			var msg:Object = JSON.parse(m.msg);
 			trace(LOG + "handleJoinedMeeting() -- Joining meeting");

@@ -1,31 +1,19 @@
 package org.bigbluebutton.air.main.views.topbar {
-	import assets.BackButton;
-	
 	import flash.events.Event;
 	
-	import mx.core.FlexGlobals;
 	import mx.events.ResizeEvent;
+	
+	import spark.transitions.ViewTransitionBase;
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
-	import org.bigbluebutton.lib.chat.models.ChatMessages;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
-	import org.bigbluebutton.lib.main.models.IUserSession;
-	import org.bigbluebutton.lib.user.services.IUsersService;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
 	
-	import spark.transitions.ViewTransitionBase;
-	
 	public class TopBarViewMediator extends Mediator {
-		
-		[Inject]
-		public var userSession:IUserSession;
-		
-		[Inject]
-		public var usersService:IUsersService;
 		
 		[Inject]
 		public var userUISession:IUserUISession;

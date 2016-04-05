@@ -29,11 +29,7 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 		
 		protected var dataProvider:ArrayCollection;
 		
-		private var manualSelection:Boolean = false;
-		
 		private var speaker:User = null;
-		
-		private var currentUser:User = null;
 		
 		private var selectedIndex:int = -1;
 		

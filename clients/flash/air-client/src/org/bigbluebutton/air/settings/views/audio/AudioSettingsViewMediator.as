@@ -34,8 +34,6 @@ package org.bigbluebutton.air.settings.views.audio {
 		[Inject]
 		public var shareMicrophoneSignal:ShareMicrophoneSignal;
 		
-		private var autoJoined:Boolean;
-		
 		private var micActivityTimer:Timer = null;
 		
 		override public function initialize():void {
