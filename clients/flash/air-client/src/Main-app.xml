@@ -130,18 +130,29 @@
 	specify the path to a PNG file included in the AIR package. Optional. -->
 	<icon>
 		<!-- http://help.adobe.com/en_US/air/build/WSfffb011ac560372f2fea1812938a6e463-8000.html#WSfffb011ac560372f-6fd06f0f1293d3b33ea-7ffc -->
-		<image16x16>assets/icons/sizes/icon-16.png</image16x16>
 		<image29x29>assets/icons/sizes/icon-29.png</image29x29>
 		<image32x32>assets/icons/sizes/icon-32.png</image32x32>
+		<image40x40>assets/icons/sizes/icon-40.png</image40x40>
 		<image48x48>assets/icons/sizes/icon-48.png</image48x48>
+		<image50x50>assets/icons/sizes/icon-50.png</image50x50>
 		<image57x57>assets/icons/sizes/icon-57.png</image57x57>
+		<image58x58>assets/icons/sizes/icon-58.png</image58x58>
+		<image60x60>assets/icons/sizes/icon-60.png</image60x60>
 		<image72x72>assets/icons/sizes/icon-72.png</image72x72>
+		<image75x75>assets/icons/sizes/icon-75.png</image75x75>
 		<image76x76>assets/icons/sizes/icon-76.png</image76x76>
+		<image80x80>assets/icons/sizes/icon-80.png</image80x80>
+		<image87x87>assets/icons/sizes/icon-87.png</image87x87>
+		<image96x96>assets/icons/sizes/icon-96.png</image96x96>
 		<image114x114>assets/icons/sizes/icon-114.png</image114x114>
+		<image100x100>assets/icons/sizes/icon-100.png</image100x100>
 		<image120x120>assets/icons/sizes/icon-120.png</image120x120>
-		<image128x128>assets/icons/sizes/icon-128.png</image128x128>
+		<image144x144>assets/icons/sizes/icon-144.png</image144x144>
 		<image152x152>assets/icons/sizes/icon-152.png</image152x152>
+		<image167x167>assets/icons/sizes/icon-167.png</image167x167>
+		<image180x180>assets/icons/sizes/icon-180.png</image180x180>
 		<image512x512>assets/icons/sizes/icon-512.png</image512x512>
+		<image1024x1024>assets/icons/sizes/icon-1024.png</image1024x1024>
 	</icon>
 
 	<!-- Whether the application handles the update when a user double-clicks an update version
@@ -313,7 +324,9 @@
 					<string>org.bigbluebutton</string>
 				</dict>
 			</array>
-	 
+			
+			<key>UIPrerenderedIcon</key> 
+            <true/>
 		]]>
 		</InfoAdditions>
 		<requestedDisplayResolution>high</requestedDisplayResolution>
