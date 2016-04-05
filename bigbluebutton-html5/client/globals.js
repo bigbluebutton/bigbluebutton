@@ -296,6 +296,17 @@ Handlebars.registerHelper('getPollQuestions', () => {
   }
 });
 
+Template.registerHelper('emojiIcons', function () {
+  return [
+    { name: 'sad', icon: 'sad-face', title: '' },
+    { name: 'happy', icon: 'happy-face', title: ''},
+    { name: 'confused', icon: 'confused-face', title: ''},
+    { name: 'neutral', icon: 'neutral-face', title: ''},
+    { name: 'away', icon: 'clock', title: ''},
+    { name: 'raiseHand', icon: 'hand', title: 'Lower your Hand'}
+  ];
+});
+
 this.getSortedUserList = function (users) {
   if ((users != null ? users.length : void 0) > 1) {
     users.sort((a, b) => {
