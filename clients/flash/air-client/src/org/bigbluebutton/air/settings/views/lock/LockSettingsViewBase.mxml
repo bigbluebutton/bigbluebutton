@@ -39,7 +39,7 @@
 						 text="{resourceManager.getString('resources', 'lockSettings.mic')}" />
 				<s:ToggleSwitch id="mic" />
 			</s:HGroup>
-			<s:Line width="190%">
+			<s:Line width="90%">
 				<s:stroke>
 					<s:SolidColorStroke color="{getStyle('lineColor')}"
 										weight="{getStyle('lineWeight')}" />

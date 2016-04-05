@@ -50,8 +50,6 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		protected var data:Object;
 		
-		protected var deltaHeight:Number;
-		
 		protected var newMessages:Number;
 		
 		protected var firstNewMessageIndex:Number;

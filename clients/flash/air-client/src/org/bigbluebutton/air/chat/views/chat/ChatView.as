@@ -1,7 +1,5 @@
 package org.bigbluebutton.air.chat.views.chat {
 	
-	import flash.events.MouseEvent;
-	
 	import mx.core.FlexGlobals;
 	
 	import spark.components.Button;
@@ -25,15 +23,6 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		public function get pageName():Label {
 			return FlexGlobals.topLevelApplication.topActionBar.pageName;
-		}
-		
-		override protected function childrenCreated():void {
-			super.childrenCreated();
-			//this.addEventListener(MouseEvent.CLICK, onClick);
-		}
-		
-		public function onClick(e:MouseEvent):void {
-			//buttonTestSignal.dispatch();
 		}
 		
 		public function get newMessages():Group {
