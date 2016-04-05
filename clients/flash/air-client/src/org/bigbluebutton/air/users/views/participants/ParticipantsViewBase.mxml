@@ -7,11 +7,6 @@
 				  xmlns:common="org.bigbluebutton.air.common.views.*"
 				  styleName="participantsViewStyle">
 
-	<fx:Script>
-		<![CDATA[
-			import org.bigbluebutton.air.chat.views.chatrooms.ChatRoomsItemRenderer;
-		]]>
-	</fx:Script>
 	<s:Scroller width="100%"
 				height="100%">
 		<s:Group width="100%"
@@ -64,9 +59,11 @@
 				</s:HGroup>
 			</s:Group>
 
-			<participants:ParticipantsList id="participantslist"
-										   width="100%"
-										   height="100%" />
+			<s:List id="participantslist"
+					width="100%"
+					height="100%"
+					itemRenderer="org.bigbluebutton.air.users.views.participants.ParticipantItemRenderer"
+					verticalScrollPolicy="off" />
 
 			<s:SkinnableContainer includeInLayout="false"
 								  visible="false"
@@ -102,11 +99,12 @@
 				</s:HGroup>
 			</s:SkinnableContainer>
 
-			<guests:GuestsList includeInLayout="false"
-							   visible="false"
-							   id="guestslist"
-							   width="100%"
-							   height="100%" />
+			<s:List itemRenderer="org.bigbluebutton.air.users.views.participants.guests.GuestItemRenderer"
+					includeInLayout="false"
+					visible="false"
+					id="guestslist"
+					width="100%"
+					height="100%" />
 		</s:Group>
 
 	</s:Scroller>

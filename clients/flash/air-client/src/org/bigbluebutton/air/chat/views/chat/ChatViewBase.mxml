@@ -38,9 +38,10 @@
 					height="100%">
 			<s:VGroup height="100%"
 					  width="100%">
-				<chat:ChatList id="chatlist"
-							   width="100%"
-							   height="100%" />
+				<s:List id="chatlist"
+						width="100%"
+						height="100%"
+						itemRenderer="org.bigbluebutton.air.chat.views.chat.ChatItemRenderer" />
 			</s:VGroup>
 		</s:Scroller>
 

@@ -6,9 +6,6 @@
 
 	<fx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			import mx.utils.ObjectUtil;
-			
 			private var guestID:String;
 			
 			override public function set data(obj:Object):void {
