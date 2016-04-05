@@ -1,5 +1,6 @@
 import {Button} from '../Button.jsx';
 import {Icon} from '../Icon.jsx';
+import {EmojiIcon} from '../EmojiIcon.jsx';
 import {Tooltip} from '../Tooltip.jsx';
 import classNames from 'classnames';
 
@@ -40,6 +41,12 @@ export let UserListItem = React.createClass({
   renderStatusIcons() {
     const user = this.props.user;
     let statusIcons = [];
+
+    if(user.emoji !== 'none' && !user.isPresenter) {
+      statusIcons.push((
+        <EmojiIcon key="1" iconName={user.emoji}/>
+      ));
+    }
 
     if (this.props.currentUser.isModerator && !user.isPresenter) {
       statusIcons.push((
