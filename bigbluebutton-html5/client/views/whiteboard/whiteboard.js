@@ -60,7 +60,7 @@ Template.whiteboard.events({
     }
   },
 
-  'click .sadEmojiButton'(event) {
+  'click .sadEmojiButton.inactiveEmojiButton'(event) {
     if ($('.sadEmojiButton').css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
@@ -74,7 +74,7 @@ Template.whiteboard.events({
     }
   },
 
-  'click .happyEmojiButton'(event) {
+  'click .happyEmojiButton.inactiveEmojiButton'(event) {
     if ($('.happyEmojiButton').css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
@@ -88,7 +88,7 @@ Template.whiteboard.events({
     }
   },
 
-  'click .confusedEmojiButton'(event) {
+  'click .confusedEmojiButton.inactiveEmojiButton'(event) {
     if ($('.confusedEmojiButton').css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
@@ -102,7 +102,7 @@ Template.whiteboard.events({
     }
   },
 
-  'click .neutralEmojiButton'(event) {
+  'click .neutralEmojiButton.inactiveEmojiButton'(event) {
     if ($('.neutralEmojiButton').css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
@@ -116,7 +116,7 @@ Template.whiteboard.events({
     }
   },
 
-  'click .awayEmojiButton'(event) {
+  'click .awayEmojiButton.inactiveEmojiButton'(event) {
     if ($('.awayEmojiButton').css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
@@ -130,7 +130,7 @@ Template.whiteboard.events({
     }
   },
 
-  'click .raiseHandEmojiButton'(event) {
+  'click .raiseHandEmojiButton.inactiveEmojiButton'(event) {
     if ($('.raiseHandEmojiButton').css('opacity') === '1') {
       BBB.setEmojiStatus(
         BBB.getMeetingId(),
@@ -138,6 +138,20 @@ Template.whiteboard.events({
         getInSession('userId'),
         getInSession('authToken'),
         'raiseHand'
+      );
+      $('.FABTriggerButton').blur();
+      return toggleEmojisFAB();
+    }
+  },
+
+  'click .activeEmojiButton'(event) {
+    if ($('.activeEmojiButton').css('opacity') === '1') {
+      BBB.setEmojiStatus(
+        BBB.getMeetingId(),
+        getInSession('userId'),
+        getInSession('userId'),
+        getInSession('authToken'),
+        'none'
       );
       $('.FABTriggerButton').blur();
       return toggleEmojisFAB();
