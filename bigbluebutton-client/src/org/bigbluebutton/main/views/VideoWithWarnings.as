@@ -98,9 +98,17 @@ package org.bigbluebutton.main.views
         public function set successCallback(f:Function):void {
             _successCallback = f;
         }
+        
+        public function get successCallback():Function {
+            return _successCallback;
+        }
 
         public function set failCallback(f:Function):void {
             _failCallback = f;
+        }
+        
+        public function get failCallback():Function {
+            return _failCallback;
         }
 
         private function onSuccessCallback():void {
