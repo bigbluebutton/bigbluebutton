@@ -20,7 +20,7 @@ package org.bigbluebutton.lib.video.models {
 		public function parseConfigXml(configXML:XML):void {
 			var resolutionsString:String = configXML.@resolutions;
 			var resolutions:Array = resolutionsString.split(",");
-			for (var resolution in resolutions) {
+			for (var resolution:String in resolutions) {
 				var profileXml:XML = <profile></profile>
 				profileXml.@['id'] = resolutions[resolution];
 				profileXml.locale.en_US = resolutions[resolution];

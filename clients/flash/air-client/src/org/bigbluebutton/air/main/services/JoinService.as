@@ -52,11 +52,11 @@ package org.bigbluebutton.air.main.services {
 			// AirCapabilities ANE to get the device information
 			var airCap:AirCapabilities = new AirCapabilities();
 			var deviceName:String = airCap.getMachineName();
-			
+			var userAgent:Array;
 			if (deviceName != "") {
 				// include device name in the user agent looking for the first ")" character as follows:
 				// Mozilla/5.0 (Android; U; pt-BR<; DEVICE NAME>) AppleWebKit/533.19.4 (KHTML, like Gecko) AdobeAIR/16.0
-				var userAgent:Array = urlRequest.userAgent.split(")");
+				userAgent = urlRequest.userAgent.split(")");
 				userAgent[0] += "; " + deviceName;
 				urlRequest.userAgent = userAgent.join(")");
 			}
@@ -64,7 +64,7 @@ package org.bigbluebutton.air.main.services {
 			if (OSVersion != "") {
 				// include os version in the user agent looking for the first ";" character as follows:
 				// Mozilla/5.0 (Android< OSVERSION>; U; pt-BR) AppleWebKit/533.19.4 (KHTML, like Gecko) AdobeAIR/16.0
-				var userAgent:Array = urlRequest.userAgent.split(";");
+				userAgent = urlRequest.userAgent.split(";");
 				userAgent[0] += " " + OSVersion;
 				urlRequest.userAgent = userAgent.join(";");
 			}

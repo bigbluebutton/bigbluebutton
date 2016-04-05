@@ -8,7 +8,6 @@ package org.bigbluebutton.air.video.views.videochat {
 	import mx.core.FlexGlobals;
 	import mx.events.ResizeEvent;
 	import mx.resources.ResourceManager;
-	import mx.utils.ObjectUtil;
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.main.models.IUserUISession;
@@ -19,8 +18,6 @@ package org.bigbluebutton.air.video.views.videochat {
 	import org.bigbluebutton.lib.video.models.VideoProfile;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.events.IndexChangeEvent;
 	
 	public class VideoChatViewMediator extends Mediator {
 		
@@ -346,8 +343,9 @@ package org.bigbluebutton.air.video.views.videochat {
 				// get any user that has video stream
 				var userWithCamera:User = getUserWithCamera();
 				var newUser:User;
+				var userStreamNames:Array;
 				if (changedUser) {
-					var userStreamNames:Array = getUserStreamNamesByUserID(changedUser.userID);
+					userStreamNames = getUserStreamNamesByUserID(changedUser.userID);
 					// Priority state machine
 					if (changedUser.presenter && changedUser.hasStream) {
 						if (view)
@@ -363,7 +361,7 @@ package org.bigbluebutton.air.video.views.videochat {
 								view.stopStream();
 							startStream(changedUser, userStreamNames[0].streamName);
 						} else if (!changedUser.hasStream && userWithCamera.me) {
-							var userStreamNames:Array = getUserStreamNamesByUserID(userWithCamera.userID);
+							userStreamNames = getUserStreamNamesByUserID(userWithCamera.userID);
 							if (view)
 								view.stopStream();
 							startStream(userWithCamera, userStreamNames[0].streamName);
@@ -386,7 +384,7 @@ package org.bigbluebutton.air.video.views.videochat {
 						return;
 					}
 					if (newUser) {
-						var userStreamNames:Array = getUserStreamNamesByUserID(newUser.userID);
+						userStreamNames = getUserStreamNamesByUserID(newUser.userID);
 						var displayUserStreamName:UserStreamName = userStreamNames[0];
 						for each (var userStreamName:UserStreamName in userStreamNames) {
 							if (userStreamName.user.hasStream && userUISession.currentStreamName == userStreamName.streamName) {

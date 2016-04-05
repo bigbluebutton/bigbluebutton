@@ -60,8 +60,8 @@ package org.bigbluebutton.air.settings.views.audio {
 		}
 		
 		private function loadMicGain():void {
-			var gain = saveData.read("micGain");
-			if (gain) {
+			var gain:Number = saveData.read("micGain") as Number;
+			if (!isNaN(gain)) {
 				view.gainSlider.value = gain / 10;
 			}
 		}

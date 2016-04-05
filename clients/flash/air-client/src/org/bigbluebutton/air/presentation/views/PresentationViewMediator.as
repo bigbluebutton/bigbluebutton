@@ -90,9 +90,9 @@ package org.bigbluebutton.air.presentation.views {
 			}
 			setTemporaryOverlay();
 			var displayUser:User;
-			for each (var u:User in users) {
-				if (u.streamName && u.streamName != "") {
-					displayUser = u;
+			for each (var user:User in users) {
+				if (user.streamName && user.streamName != "") {
+					displayUser = user;
 				}
 			}
 			if (displayUser) {
@@ -265,8 +265,9 @@ package org.bigbluebutton.air.presentation.views {
 				// get any user that has video stream
 				var userWithCamera:User = getUserWithCamera();
 				var newUser:User;
+				var userStreamNames:Array;
 				if (changedUser) {
-					var userStreamNames:Array = getUserStreamNamesByUserID(changedUser.userID);
+					userStreamNames = getUserStreamNamesByUserID(changedUser.userID);
 					// Priority state machine
 					if (changedUser.presenter && changedUser.hasStream) {
 						if ((view as IPresentationViewAir))
@@ -282,7 +283,7 @@ package org.bigbluebutton.air.presentation.views {
 								(view as IPresentationViewAir).stopStream();
 							startStream(changedUser, userStreamNames[0].streamName);
 						} else if (!changedUser.hasStream && userWithCamera.me) {
-							var userStreamNames:Array = getUserStreamNamesByUserID(userWithCamera.userID);
+							userStreamNames = getUserStreamNamesByUserID(userWithCamera.userID);
 							if (view)
 								(view as IPresentationViewAir).stopStream();
 							startStream(userWithCamera, userStreamNames[0].streamName);
@@ -305,7 +306,7 @@ package org.bigbluebutton.air.presentation.views {
 						return;
 					}
 					if (newUser) {
-						var userStreamNames:Array = getUserStreamNamesByUserID(newUser.userID);
+						userStreamNames = getUserStreamNamesByUserID(newUser.userID);
 						var displayUserStreamName:UserStreamName = userStreamNames[0];
 						for each (var userStreamName:UserStreamName in userStreamNames) {
 							if (userStreamName.user.hasStream && userUISession.currentStreamName == userStreamName.streamName) {
