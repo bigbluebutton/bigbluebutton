@@ -1,7 +1,6 @@
 package org.bigbluebutton.air.main.models {
 	
 	import mx.collections.ArrayList;
-	import mx.utils.ObjectUtil;
 	
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
 	import org.osflash.signals.ISignal;

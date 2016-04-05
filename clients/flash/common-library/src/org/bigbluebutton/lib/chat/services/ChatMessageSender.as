@@ -6,6 +6,8 @@ package org.bigbluebutton.lib.chat.services {
 	import org.osflash.signals.Signal;
 	
 	public class ChatMessageSender {
+		private const LOG:String = "ChatMessageSender::";
+		
 		public var userSession:IUserSession;
 		
 		private var successSendingMessageSignal:ISignal;
@@ -19,7 +21,7 @@ package org.bigbluebutton.lib.chat.services {
 		}
 		
 		public function getPublicChatMessages():void {
-			trace("Sending [chat.getPublicMessages] to server.");
+			trace(LOG + "Sending [chat.getPublicMessages] to server.");
 			userSession.mainConnection.sendMessage("chat.sendPublicChatHistory", function(result:String):void { // On successful result
 				publicChatMessagesOnSuccessSignal.dispatch(result);
 			}, function(status:String):void { // status - On error occurred
@@ -28,7 +30,7 @@ package org.bigbluebutton.lib.chat.services {
 		}
 		
 		public function sendPublicMessage(message:ChatMessageVO):void {
-			trace("Sending [chat.sendPublicMessage] to server. [" + message.message + "]");
+			trace(LOG + "Sending [chat.sendPublicMessage] to server. [" + message.message + "]");
 			userSession.mainConnection.sendMessage("chat.sendPublicMessage", function(result:String):void { // On successful result
 				successSendingMessageSignal.dispatch(result);
 			}, function(status:String):void { // status - On error occurred
@@ -37,8 +39,8 @@ package org.bigbluebutton.lib.chat.services {
 		}
 		
 		public function sendPrivateMessage(message:ChatMessageVO):void {
-			trace("Sending [chat.sendPrivateMessage] to server.");
-			trace("Sending fromUserID [" + message.fromUserID + "] to toUserID [" + message.toUserID + "]");
+			trace(LOG + "Sending [chat.sendPrivateMessage] to server.");
+			trace(LOG + "Sending fromUserID [" + message.fromUserID + "] to toUserID [" + message.toUserID + "]");
 			userSession.mainConnection.sendMessage("chat.sendPrivateMessage", function(result:String):void { // On successful result
 				successSendingMessageSignal.dispatch(result);
 			}, function(status:String):void { // status - On error occurred

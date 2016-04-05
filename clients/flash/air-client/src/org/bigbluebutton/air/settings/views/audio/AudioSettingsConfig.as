@@ -1,6 +1,5 @@
 package org.bigbluebutton.air.settings.views.audio {
 	
-	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;

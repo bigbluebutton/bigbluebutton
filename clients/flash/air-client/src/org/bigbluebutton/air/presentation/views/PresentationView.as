@@ -1,21 +1,21 @@
 package org.bigbluebutton.air.presentation.views {
 	
 	import flash.display.StageOrientation;
-	import flash.events.Event;
-	import flash.events.MouseEvent;
 	import flash.media.Video;
 	import flash.net.NetConnection;
 	import flash.system.ApplicationDomain;
 	import flash.system.LoaderContext;
+	
 	import mx.controls.SWFLoader;
 	import mx.core.FlexGlobals;
-	import org.bigbluebutton.air.video.views.videochat.VideoChatVideoView;
-	import org.bigbluebutton.lib.presentation.models.Slide;
-	import org.bigbluebutton.lib.presentation.views.IPresentationView;
-	import org.bigbluebutton.lib.whiteboard.views.WhiteboardCanvas;
+	
 	import spark.components.Group;
 	import spark.components.Label;
 	import spark.components.VideoDisplay;
+	
+	import org.bigbluebutton.air.video.views.videochat.VideoChatVideoView;
+	import org.bigbluebutton.lib.presentation.models.Slide;
+	import org.bigbluebutton.lib.whiteboard.views.WhiteboardCanvas;
 	
 	public class PresentationView extends PresentationViewBase implements IPresentationViewAir {
 		private var webcam:VideoChatVideoView;
