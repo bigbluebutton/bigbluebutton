@@ -1,0 +1,18 @@
+body {font-family:Arial,Helvetica,sans-serif;}
+dl dt {font-weight:bold;margin-bottom:10px;}
+dl dd {margin-bottom:20px;}
+p {color:#666;}
+ul {margin-left:30px;padding-left:0;list-style-type:none;}
+li {margin-bottom:5px;}
+a {color:#3678c1;}
+h3 {border-bottom:1px solid #666;padding-bottom:5px;margin-top:30px;}
+
+#main {width:960px;margin: 0 auto;}
+#status {background-color:#fff;border: solid 1px #ccc;padding:20px;text-align:center;}
+#TOC {float:right;margin-left:20px;margin-bottom:20px;padding:0px;padding-left:0;border:1px solid #ccc;width:300px;}
+#tocheader {background-color:#666;color:white;padding:10px;font-weight:bold;}
+
+.method {padding-left:20px;background-color:#d7ffd9;border:1px solid #97e59b;margin-top:0px;}
+.methodname {font-weight:bold;color:#000;}
+.example {padding-left:40px;padding-right:40px; background-color:#fff;border:1px solid #ccc;}
+.code {background-color:#eee;padding:20px;border:1px solid #ccc;}

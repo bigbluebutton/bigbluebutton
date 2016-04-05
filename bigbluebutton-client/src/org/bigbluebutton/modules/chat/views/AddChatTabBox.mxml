@@ -150,6 +150,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" change="changeFontSize()" 
                      selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmbFontSize.toolTip')}" />
     </mx:HBox>
-	<mx:CheckBox id="chatNoiseCheckBox"  label="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.audibleChatNotification')}" labelPlacement="left" 
+	<mx:CheckBox id="chatNoiseCheckBox"  label="Audible Chat Notification" labelPlacement="left" 
 				 change="changeChatNoise()" styleName="chatOptionsLabel" />
 </mx:VBox>

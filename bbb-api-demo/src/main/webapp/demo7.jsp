@@ -101,7 +101,7 @@
 
 		
 		String joinURL = getJoinURLXML(uname, "Join and Upload example", welcomeMsg, xml );
-		if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) { 
+		if (joinURL.startsWith("http://")) { 
 			%>
 			<script language="javascript" type="text/javascript">
 			  window.location.href="<%=joinURL%>";

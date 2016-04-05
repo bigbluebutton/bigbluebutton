@@ -1,0 +1,340 @@
+@import "variables";
+@import "mixins";
+
+.statusIcon {
+  font-size: 18px;
+}
+
+#usericons {
+  float: right;
+  padding: 0 5px;
+  text-align: right;
+  color: white;
+  span i {
+    @media @landscape, @desktop-portrait {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+  }
+}
+.unreadChatNumber {
+  @media @landscape, @desktop-portrait{
+    float: left;
+    margin-top: 5px;
+    width: 28px;
+    height: 18px;
+    border-radius: 41%;
+    font-size: 12px;
+    color: #fff;
+    text-align: center;
+    background: #3896D3;
+  }
+}
+
+.usernameEntry {
+  cursor: pointer;
+  line-height: 1.1;
+  float:left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: calc(~'100% - 120px');
+  // 120px is size of the icon list with all icons enabled (lock, cam, mic/listen)
+
+  @media @landscape {
+    min-height: 30px;
+    font-size: 4.5mm;
+  }
+  @media @desktop-portrait {
+    min-height: 30px;
+    font-size: 4.5mm;
+  }
+  @media @phone-portrait, @phone-portrait-with-keyboard {
+    font-size: 15px;
+  }
+  @media @tablet-portrait, @tablet-portrait-with-keyboard {
+    font-size: 17px;
+  }
+}
+
+#users {
+  border-radius: 0px;
+  @media @landscape {
+    width: 100%;
+    border-left: 0px;
+    border-top: 0px;
+  }
+  @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: #34495E;
+  }
+  order: 0;
+  height: 100%;
+}
+
+.darkening-in {
+  opacity: 0;
+  animation: darken-in 0.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes darken-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+
+#user-contents {
+  overflow-y: auto;
+
+  @media @phone-landscape {
+    height: calc(~'100% - 46px');
+  }
+  @media @tablet-landscape, @desktop-landscape,
+  @mobile-portrait, @mobile-portrait-with-keyboard, @desktop-portrait {
+    height: calc(~'100% - 50px'); /* user-contents = user-contens - meetingTitle */
+  }
+  @media @landscape, @desktop-portrait{
+    background-color: #34495E;
+  }
+  .userlist {
+    max-height: 100% !important;
+    height: 100%;
+
+    #content{
+      .setPresenter{
+        color: #A0A0A0;
+      }
+
+      @media @desktop-landscape, @desktop-portrait {
+        .kickUser, .setPresenter{
+          cursor: pointer;
+          opacity:0;
+          color: #fff;
+          cursor: pointer;
+          display: none;
+          -webkit-animation: fadeInAnimation .5s;
+          animation: fadeInAnimation .5s;
+        }
+      }
+    }
+    #content:hover {
+        @media @landscape, @desktop-portrait {
+          background-color: #2C4155;
+
+          .kickUser, .setPresenter{
+            display: inline;
+            opacity:1;
+          }
+        }
+      }
+    #content {
+      span:hover {
+        @media @mobile-portrait-with-keyboard, @desktop-portrait, @mobile-portrait {
+          background: transparent;
+        }
+      }
+      margin-top: 10px;
+      &:first-child { margin-top: 0px; }
+      overflow: hidden;
+      width: 100%;
+      @media @mobile-portrait, @mobile-portrait-with-keyboard {
+        /*background: #E6F0FA;*/
+        background: transparent;
+        color: white;
+      }
+    }
+
+    @media @landscape {
+      padding:10px;
+      max-height:83vh;
+    }
+    @media @desktop-portrait {
+      padding-top: 10px;
+      padding-left: 10px;
+      padding-right: 10px;
+      color: white;
+    }
+    @media @desktop-portrait, @mobile-portrait {
+      max-height: 58vw; //for longer userlist a scrollbar appears
+      padding-top: 10px;
+    }
+  }
+}
+
+.userCurrent {
+  font-weight: bold;
+}
+
+.toggleUserlistButton, .toggleMenuButton {
+  span {
+    @media @tablet-landscape {
+      width: 26px;
+    }
+    @media @phone-landscape {
+      width: 35px;
+    }
+    @media @desktop-landscape {
+      width: 26px;
+    }
+
+    @media @landscape, @desktop-portrait {
+      margin-left: auto;
+      margin-right: auto;
+      height: 8%;
+    }
+  }
+}
+
+// changing mute/unmute icons on hover:
+.muteIcon .ion-ios-mic-outline:hover:before {
+  content: "\f45f";
+}
+.muteIcon .ion-ios-mic:hover:before {
+  content: "\f45f";
+}
+.muteIcon .ion-ios-mic-off:hover:before {
+  content: "\f461";
+}
+
+.userName {
+  color: #E6E6E6;
+  line-height: 1.5;
+}
+
+.status {
+  float: left;
+  width: 15px;
+  min-width: 15px;
+  height: 27px;
+  margin-right: 15px;
+  font-size: 18px;
+  color: #FFFFFF;
+  span {
+    padding-left: 5px;
+  }
+}
+
+@-webkit-keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.table-user-fixed() {
+  background-color: transparent;
+  color: #fff;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  table-layout: fixed;
+  width: 100%;
+  font-size: 16px;
+
+  @media @mobile-portrait {
+    font-size: 14px;
+  }
+}
+
+
+// Everything is using EM to be easier to shrink sizes on mobile
+.user-list {
+  .table-user-fixed;
+  margin-bottom: 0.625em;
+
+  &-item {
+    background-color: transparent !important; //need this here to reset bg-color
+
+    @media @desktop-landscape, @desktop-portrait {
+      .kickUser, .setPresenter{
+        opacity:0;
+        color: #fff;
+        cursor: pointer;
+        display: none;
+        -webkit-animation: fadeInAnimation .5s;
+        animation: fadeInAnimation .5s;
+      }
+    }
+
+    &:hover{
+      background-color: #2C4155 !important;
+
+      @media @landscape, @desktop-portrait {
+        background-color: #2C4155;
+
+        .kickUser, .setPresenter{
+          display: inline;
+          opacity:1;
+        }
+      }
+    }
+
+    &-status {
+      color: inherit;
+      width: 1.6em;
+      font-size: 1.25em;
+      text-align: center;
+      padding: 0;
+    }
+
+    &-name {
+      color: inherit;
+      width: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 1em;
+      padding: 0.625em;
+      cursor: pointer;
+
+      .is-current & {
+        font-weight: bold;
+      }
+
+      .has-messages & {
+        padding-right: 30px;
+        position: relative;
+      }
+    }
+
+    &-messages {
+      position: absolute;
+      width: 28px;
+      height: 18px;
+      border-radius: 41%;
+      font-size: 12px;
+      color: #fff;
+      text-align: center;
+      background: #3896D3;
+      right: 0;
+      top: 9px;
+    }
+
+    &-sharing {
+      padding-right: 10px;
+      color: inherit;
+      width: 7.2em;
+      padding: 0.625em 0.625em 0.625em 0;
+
+      &-list {
+        .table-user-fixed;
+
+        td, th {
+          padding: 0;
+          width: 25%;
+          color: inherit;
+          font-size: 1.25em;
+          text-align: right;
+        }
+      }
+    }
+  }
+}

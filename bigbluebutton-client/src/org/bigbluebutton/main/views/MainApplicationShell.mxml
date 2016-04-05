@@ -56,6 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{WebRTCMediaEvent.WEBRTC_MEDIA_REQUEST}" method="handleWebRTCMediaRequestEvent"  />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_STARTED}" method="handleWebRTCCallStartedEvent" />
 	<mate:Listener type="{WebRTCCallEvent.WEBRTC_CALL_ENDED}" method="handleWebRTCCallEndedEvent" />
+	<mate:Listener type="{WebRTCAskUserToChangeMicEvent.WEBRTC_ASK_USER_TO_CHANGE_MIC}" method="handleWebRTCAskUserToChangeMicEvent"  />
 	<mate:Listener type="{AudioSelectionWindowEvent.SHOW_AUDIO_SELECTION}" method="handleShowAudioSelectionWindowEvent" />
 	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" method="handleShareCameraRequestEvent" />
   
@@ -110,6 +111,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.modules.phone.events.AudioSelectionWindowEvent;
 			import org.bigbluebutton.modules.phone.events.FlashMicSettingsEvent;
+			import org.bigbluebutton.modules.phone.events.WebRTCAskUserToChangeMicEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCCallEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCEchoTestEvent;
 			import org.bigbluebutton.modules.phone.events.WebRTCMediaEvent;
@@ -432,6 +434,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		PopUpManager.centerPopUp(audioSelection);
 	  }
           
+      private function handleWebRTCAskUserToChangeMicEvent(event:WebRTCAskUserToChangeMicEvent):void {
+        var browser:String = event.browser;
+        if (browser == "Firefox") {
+          var ffBrowser:FirefoxChangeMicImage = PopUpManager.createPopUp(mdiCanvas, FirefoxChangeMicImage, true) as FirefoxChangeMicImage;
+          ffBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width/2;
+            point1.y = height/2;
+            ffBrowser.x = point1.x - (ffBrowser.width/2);
+            ffBrowser.y = point1.y - (ffBrowser.height/2);
+            ffBrowser.x = 100;
+            ffBrowser.y = 150;
+          }); 
+        } else if (browser == "Chrome") {
+          var chromeBrowser:ChromeChangeMicImage = PopUpManager.createPopUp(mdiCanvas, ChromeChangeMicImage, true) as ChromeChangeMicImage;
+          chromeBrowser.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:Event):void {
+            var point1:Point = new Point();
+            // Calculate position of TitleWindow in Application's coordinates. 
+            point1.x = width;
+            point1.y = 20;
+            chromeBrowser.x = point1.x - (chromeBrowser.width);
+            chromeBrowser.y = point1.y;           
+          });          
+        }        
+      }
+         
       private function handleWebRTCMediaRequestEvent(event:WebRTCMediaEvent):void {
         var browser:String = ExternalInterface.call("determineBrowser")[0];
         if (browser == "Firefox") {
@@ -497,11 +526,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           logoutWindow.y = point1.y - (logoutWindow.height/2);
           
           logoutWindow.setReason(reason);
-          mdiCanvas.removeAllPopUps();
-		  removeToolBars();
+          mdiCanvas.removeAllWindows(); 				
         } else {
-          mdiCanvas.removeAllPopUps();
-		  removeToolBars();
+          mdiCanvas.removeAllWindows();
           var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
           var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
           LOGGER.debug("SingOut to [{0}//{1}/bigbluebutton/api/signOut]", [pageHost, pageURL]);
@@ -512,15 +539,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           urlLoader.load(request);
         }	        
       }
-	
-	  /**
-	   * Removes toolbars from the display list.
-	   * Used only when the user completely logged out.
-	   */
-	  private function removeToolBars():void{
-		  this.removeChild(toolbar);
-		  this.removeChild(controlBar);
-	  }
       
       public function getLogoutUrl():String {
         var logoutUrl:String = BBB.initUserConfigManager().getLogoutUrl();

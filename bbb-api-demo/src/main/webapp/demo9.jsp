@@ -92,7 +92,7 @@ if (request.getParameterMap().isEmpty()) {
     //
 	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null);
 
-	if (joinURL.startsWith("http://") || joinURL.startsWith("https://")) { 
+	if (joinURL.startsWith("http://")) { 
 %>
 
 <script language="javascript" type="text/javascript">
