@@ -17,11 +17,8 @@ package org.bigbluebutton.air.main.views.menubuttons {
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.air.main.views.menubuttons.changestatus.ChangeStatusPopUp;
 	import org.bigbluebutton.air.main.views.skins.PresentationButtonSkin;
-	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
-	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
-	import org.bigbluebutton.lib.user.services.IUsersService;
 	import org.bigbluebutton.lib.video.commands.ShareCameraSignal;
 	import org.bigbluebutton.lib.voice.commands.ShareMicrophoneSignal;
 	
@@ -34,19 +31,10 @@ package org.bigbluebutton.air.main.views.menubuttons {
 		public var userSession:IUserSession;
 		
 		[Inject]
-		public var usersService:IUsersService;
-		
-		[Inject]
-		public var chatMessagesSession:IChatMessagesSession;
-		
-		[Inject]
 		public var userUISession:IUserUISession;
 		
 		[Inject]
-		public var view:MenuButtonsView;
-		
-		[Inject]
-		public var disconnectUserSignal:DisconnectUserSignal;
+		public var view:IMenuButtonsView;
 		
 		[Inject]
 		public var shareCameraSignal:ShareCameraSignal;
