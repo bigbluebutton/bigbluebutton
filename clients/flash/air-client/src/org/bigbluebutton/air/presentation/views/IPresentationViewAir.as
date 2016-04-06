@@ -7,12 +7,12 @@ package org.bigbluebutton.air.presentation.views {
 	import spark.components.Label;
 	import spark.components.VideoDisplay;
 	
+	import org.bigbluebutton.air.common.views.IView;
 	import org.bigbluebutton.lib.presentation.views.IPresentationView;
 	
-	public interface IPresentationViewAir extends IPresentationView {
+	public interface IPresentationViewAir extends IPresentationView, IView {
 		function get videoStream():VideoDisplay;
 		function rotationHandler(rotation:String):void;
-		function dispose():void;
 		function get showSharedCams():Label;
 		function get showSharedCamsGroup():Group;
 		function get videoGroup():Group

@@ -98,9 +98,13 @@ package org.bigbluebutton.air.presentation.views {
 			if (displayUser) {
 				startStream(displayUser, displayUser.streamName);
 			}
-			(view as IPresentationViewAir).videoStream.addEventListener(MouseEvent.CLICK, changeWebcamStream);
-			(view as IPresentationViewAir).showSharedCamsGroup.addEventListener(MouseEvent.CLICK, changeWebcamStream);
+			getView().videoStream.addEventListener(MouseEvent.CLICK, changeWebcamStream);
+			getView().showSharedCamsGroup.addEventListener(MouseEvent.CLICK, changeWebcamStream);
 			view.slide.addEventListener(ResizeEvent.RESIZE, presentationUpdated);
+		}
+		
+		private function getView():IPresentationViewAir {
+			return IPresentationViewAir(view);
 		}
 		
 		private function presentationUpdated(e:ResizeEvent):void {
@@ -126,29 +130,29 @@ package org.bigbluebutton.air.presentation.views {
 		}
 		
 		private function isVideoOutsideOfTheScreen():Boolean {
-			return ((view as IPresentationViewAir).slide.height + (view as IPresentationViewAir).video.height > FlexGlobals.topLevelApplication.height)
+			return (getView().slide.height + getView().video.height > FlexGlobals.topLevelApplication.height)
 		}
 		
 		private function setCamPosition():void {
 			
-			(view as IPresentationViewAir).videoStream.x = 0;
-			(view as IPresentationViewAir).videoStream.y = 0;
+			getView().videoStream.x = 0;
+			getView().videoStream.y = 0;
 			
-			if ((view as IPresentationViewAir).video && isVideoOutsideOfTheScreen()) {
-				(view as IPresentationViewAir).videoStream.addEventListener(MouseEvent.MOUSE_DOWN, moveCamBegin);
-				(view as IPresentationViewAir).videoStream.addEventListener(MouseEvent.MOUSE_UP, moveCamEnd);
-				(view as IPresentationViewAir).videoGroup.includeInLayout = false;
-				(view as IPresentationViewAir).videoGroup.y = FlexGlobals.topLevelApplication.height - (view as IPresentationViewAir).videoGroup.height * 1.1;
+			if (getView().video && isVideoOutsideOfTheScreen()) {
+				getView().videoStream.addEventListener(MouseEvent.MOUSE_DOWN, moveCamBegin);
+				getView().videoStream.addEventListener(MouseEvent.MOUSE_UP, moveCamEnd);
+				getView().videoGroup.includeInLayout = false;
+				getView().videoGroup.y = FlexGlobals.topLevelApplication.height - getView().videoGroup.height * 1.1;
 				if (FlexGlobals.topLevelApplication.aspectRatio == "landscape") {
-					(view as IPresentationViewAir).videoGroup.x = FlexGlobals.topLevelApplication.width - (view as IPresentationViewAir).video.width / 1.7;
+					getView().videoGroup.x = FlexGlobals.topLevelApplication.width - getView().video.width / 1.7;
 				} else {
-					(view as IPresentationViewAir).videoGroup.x = (FlexGlobals.topLevelApplication.width - (view as IPresentationViewAir).videoGroup.width) / 2;
+					getView().videoGroup.x = (FlexGlobals.topLevelApplication.width - getView().videoGroup.width) / 2;
 				}
 			} else {
-				(view as IPresentationViewAir).videoStream.removeEventListener(MouseEvent.MOUSE_DOWN, moveCamBegin);
-				(view as IPresentationViewAir).videoStream.removeEventListener(MouseEvent.MOUSE_UP, moveCamEnd);
-				if ((view as IPresentationViewAir).videoGroup.visible) {
-					(view as IPresentationViewAir).videoGroup.includeInLayout = true;
+				getView().videoStream.removeEventListener(MouseEvent.MOUSE_DOWN, moveCamBegin);
+				getView().videoStream.removeEventListener(MouseEvent.MOUSE_UP, moveCamEnd);
+				if (getView().videoGroup.visible) {
+					getView().videoGroup.includeInLayout = true;
 				}
 				
 			}
@@ -159,22 +163,22 @@ package org.bigbluebutton.air.presentation.views {
 			videoOffsetX = e.stageX - e.target.x;
 			videoOffsetY = e.stageY - e.target.y;
 			
-			originalVideoX = (view as IPresentationViewAir).videoStream.x;
-			originalVideoY = (view as IPresentationViewAir).videoStream.y;
+			originalVideoX = getView().videoStream.x;
+			originalVideoY = getView().videoStream.y;
 			
-			(view as IPresentationViewAir).content.addEventListener(MouseEvent.MOUSE_MOVE, dragCam);
+			getView().content.addEventListener(MouseEvent.MOUSE_MOVE, dragCam);
 		}
 		
 		private function dragCam(e:MouseEvent):void {
 			
-			var oldXPos:Number = (view as IPresentationViewAir).videoStream.x;
-			var oldYPos:Number = (view as IPresentationViewAir).videoStream.y;
+			var oldXPos:Number = getView().videoStream.x;
+			var oldYPos:Number = getView().videoStream.y;
 			
-			(view as IPresentationViewAir).videoStream.x = e.stageX - videoOffsetX;
-			(view as IPresentationViewAir).videoStream.y = e.stageY - videoOffsetY;
+			getView().videoStream.x = e.stageX - videoOffsetX;
+			getView().videoStream.y = e.stageY - videoOffsetY;
 			
-			videoMovedDistanceX += Math.abs((view as IPresentationViewAir).videoStream.x - oldXPos);
-			videoMovedDistanceY += Math.abs((view as IPresentationViewAir).videoStream.y - oldYPos);
+			videoMovedDistanceX += Math.abs(getView().videoStream.x - oldXPos);
+			videoMovedDistanceY += Math.abs(getView().videoStream.y - oldYPos);
 			
 			e.updateAfterEvent();
 		}
@@ -182,15 +186,15 @@ package org.bigbluebutton.air.presentation.views {
 		private function moveCamEnd(e:MouseEvent):void {
 			e.target.alpha = 1;
 			if (videoMovedDistanceX < 10 || videoMovedDistanceY < 10) {
-				(view as IPresentationViewAir).videoStream.x = originalVideoX;
-				(view as IPresentationViewAir).videoStream.y = originalVideoY;
+				getView().videoStream.x = originalVideoX;
+				getView().videoStream.y = originalVideoY;
 				changeStream = true;
 			} else {
 				changeStream = false;
 			}
 			videoMovedDistanceX = 0;
 			videoMovedDistanceY = 0;
-			(view as IPresentationViewAir).content.removeEventListener(MouseEvent.MOUSE_MOVE, dragCam);
+			getView().content.removeEventListener(MouseEvent.MOUSE_MOVE, dragCam);
 		}
 		
 		private function updatePresentationDimensions():void {
@@ -270,22 +274,22 @@ package org.bigbluebutton.air.presentation.views {
 					userStreamNames = getUserStreamNamesByUserID(changedUser.userID);
 					// Priority state machine
 					if (changedUser.presenter && changedUser.hasStream) {
-						if ((view as IPresentationViewAir))
-							(view as IPresentationViewAir).stopStream();
+						if (getView())
+							getView().stopStream();
 						startStream(changedUser, userStreamNames[0].streamName);
 					} else if (currentUser && changedUser.userID == currentUser.userID) {
 						if (view)
-							(view as IPresentationViewAir).stopStream();
+							getView().stopStream();
 						startStream(changedUser, userStreamNames[0].streamName);
 					} else if (userWithCamera) {
 						if (userWithCamera.userID == changedUser.userID) {
 							if (view)
-								(view as IPresentationViewAir).stopStream();
+								getView().stopStream();
 							startStream(changedUser, userStreamNames[0].streamName);
 						} else if (!changedUser.hasStream && userWithCamera.me) {
 							userStreamNames = getUserStreamNamesByUserID(userWithCamera.userID);
 							if (view)
-								(view as IPresentationViewAir).stopStream();
+								getView().stopStream();
 							startStream(userWithCamera, userStreamNames[0].streamName);
 						}
 					}
@@ -315,7 +319,7 @@ package org.bigbluebutton.air.presentation.views {
 							}
 						}
 						if (view) {
-							(view as IPresentationViewAir).stopStream();
+							getView().stopStream();
 							startStream(newUser, displayUserStreamName.streamName);
 							displayVideo(true && !camerasHidden);
 						}
@@ -340,9 +344,9 @@ package org.bigbluebutton.air.presentation.views {
 		}
 		
 		private function displayVideo(value:Boolean):void {
-			if ((view as IPresentationViewAir).videoGroup) {
-				(view as IPresentationViewAir).videoGroup.visible = value;
-				(view as IPresentationViewAir).videoGroup.includeInLayout = value;
+			if (getView().videoGroup) {
+				getView().videoGroup.visible = value;
+				getView().videoGroup.includeInLayout = value;
 			}
 			if (!value) {
 				userUISession.currentStreamName = "";
@@ -353,13 +357,13 @@ package org.bigbluebutton.air.presentation.views {
 		}
 		
 		private function enableShowCamsButton(enable:Boolean):void {
-			(view as IPresentationViewAir).showSharedCamsGroup.visible = enable;
-			(view as IPresentationViewAir).showSharedCamsGroup.includeInLayout = enable;
-			(view as IPresentationViewAir).showSharedCams.text = dataProvider.length.toString();
+			getView().showSharedCamsGroup.visible = enable;
+			getView().showSharedCamsGroup.includeInLayout = enable;
+			getView().showSharedCams.text = dataProvider.length.toString();
 			if (dataProvider.length > 1) {
-				(view as IPresentationViewAir).showSharedCams.text += " " + ResourceManager.getInstance().getString('resources', 'presentation.sharedWebcams');
+				getView().showSharedCams.text += " " + ResourceManager.getInstance().getString('resources', 'presentation.sharedWebcams');
 			} else {
-				(view as IPresentationViewAir).showSharedCams.text += " " + ResourceManager.getInstance().getString('resources', 'presentation.sharedWebcam');
+				getView().showSharedCams.text += " " + ResourceManager.getInstance().getString('resources', 'presentation.sharedWebcam');
 			}
 		}
 		
@@ -482,23 +486,23 @@ package org.bigbluebutton.air.presentation.views {
 		private function startStream(user:User, streamName:String):void {
 			if (view) {
 				var videoProfile:VideoProfile = (user == speaker) ? userSession.globalVideoProfile : userSession.videoProfileManager.getVideoProfileByStreamName(streamName);
-				var screenWidth:Number = (view as IPresentationViewAir).content.width / 3;
-				var screenHeight:Number = (view as IPresentationViewAir).content.height / 3;
+				var screenWidth:Number = getView().content.width / 3;
+				var screenHeight:Number = getView().content.height / 3;
 				if (FlexGlobals.topLevelApplication.aspectRatio == "landscape") {
 					var temp:Number = screenWidth;
 					screenWidth = screenHeight;
 					screenHeight = temp;
 				}
-				(view as IPresentationViewAir).startStream(userSession.videoConnection.connection, user.name, streamName, user.userID, videoProfile.width, videoProfile.height, screenWidth, screenHeight);
+				getView().startStream(userSession.videoConnection.connection, user.name, streamName, user.userID, videoProfile.width, videoProfile.height, screenWidth, screenHeight);
 				userUISession.currentStreamName = streamName;
 				//currentUser = user;
-				(view as IPresentationViewAir).videoGroup.height = (view as IPresentationViewAir).video.height;
+				getView().videoGroup.height = getView().video.height;
 			}
 		}
 		
 		private function stopStream(userID:String):void {
 			if (view) {
-				(view as IPresentationViewAir).stopStream();
+				getView().stopStream();
 				userUISession.currentStreamName = "";
 			}
 		}
@@ -509,8 +513,8 @@ package org.bigbluebutton.air.presentation.views {
 		override public function destroy():void {
 			view.slide.removeEventListener(ResizeEvent.RESIZE, presentationUpdated);
 			userSession.userList.userChangeSignal.remove(userChangeHandler);
-			(view as IPresentationViewAir).videoStream.removeEventListener(MouseEvent.CLICK, changeWebcamStream);
-			(view as IPresentationViewAir).showSharedCamsGroup.removeEventListener(MouseEvent.CLICK, changeWebcamStream);
+			getView().videoStream.removeEventListener(MouseEvent.CLICK, changeWebcamStream);
+			getView().showSharedCamsGroup.removeEventListener(MouseEvent.CLICK, changeWebcamStream);
 			FlexGlobals.topLevelApplication.topActionBar.skin.setCurrentState("normal");
 			FlexGlobals.topLevelApplication.topActionBar.includeInLayout = true;
 			FlexGlobals.topLevelApplication.topActionBar.visible = true;
@@ -518,7 +522,7 @@ package org.bigbluebutton.air.presentation.views {
 			view.content.removeEventListener(MouseEvent.CLICK, showOverlay);
 			overlayTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, hideOverlay);
 			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
-			(view as IPresentationViewAir).dispose();
+			getView().dispose();
 			super.destroy();
 		}
 	}
