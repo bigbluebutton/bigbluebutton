@@ -1,0 +1,222 @@
+<template name="header">
+  <nav id="navbar" class="myNavbar top-bar" role="navigation">
+    {{> makeButton btn_class="btn toggleUserlistButton navbarButton" i_class="ion-navicon" rel="tooltip" title="Toggle Userlist" span=true notification="all_chats"}}
+
+      {{#if amIInAudio}}
+        <div class="audioNavbarSection">
+          {{#if amIListenOnlyAudio}}
+            {{> makeButton btn_class="navbarButton leaveAudioButton" i_class="icon fi-volume-none" rel="tooltip" title="Exit Audio"}}
+          {{else}}
+            {{#if isCurrentUserMuted}}
+              <!-- if you are muted the button representing your status will show volume off -->
+              {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic-off" rel="tooltip" title="Unmute"}}
+            {{else}}
+              {{#if isCurrentUserTalking}}
+                <!-- you are talking. Display a high volume/volume up representing voice activity -->
+                {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic" rel="tooltip" title="Mute"}}
+              {{else}}
+                <!-- you are not talking. Display low volume/volume down representing no voice activity -->
+                {{> makeButton btn_class="navbarButton muteIcon" i_class="ion-ios-mic-outline" rel="tooltip" title="Mute"}}
+              {{/if}}
+            {{/if}}
+          {{/if}}
+        </div>
+        <span class="navbarTitle shiftedTitle">
+          {{getWhiteboardTitle}}
+        </span>
+      {{else}}
+        <span class="navbarTitle defaultTitle">
+          {{getWhiteboardTitle}}
+        </span>
+      {{/if}}
+
+    <div class="rightNavbarSection">
+      {{> makeButton id="settingsIcon" btn_class="settingsIcon navbarButton" i_class="ion-gear-b" rel="tooltip"
+      title="BigBlueButton Settings"}}
+
+      {{> makeButton id="logout" btn_class="signOutIcon navbarButton" i_class="ion-log-out" rel="tooltip"
+      title="Logout"}}
+    </div>
+    {{> makeButton btn_class="btn toggleMenuButton navbarButton" i_class="ion-android-more-vertical" rel="tooltip" title="Toggle Menu" span=true}}
+  </nav>
+</template>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<template name="main">
+  <div id="container" class="{{containerPosition}}">
+    {{#if isDisconnected}}
+      {{>status}}
+    {{else}}
+      <div class="userlistMenu ui-resizable">
+        <div id="users" class="component" style="display:block;">
+          <h3 class="meetingTitle">
+            Demo Meeting
+          </h3>
+          <div id="user-contents">
+            <table class="user-list">
+              <tbody>
+                <tr class="user-list-item is-current">
+                  <td class="user-list-item-status"><i class="fi-projection-screen"></i></td>
+                  <td class="user-list-item-name">Oswaldo Acauan com o Nome super Longo (you)</td>
+                  <td class="user-list-item-sharing">
+                    <table class="user-list-item-sharing-list">
+                      <tr>
+                        <td><i class="ion-ios-mic"></i></td><!-- mic sharing -->
+                        <td><i class="fi-video"></i></td><!-- webcam sharing -->
+                        <td><i class="fi-lock"></i></td><!-- lock status -->
+                        <td><i class="fi-x-circle"></i></td><!-- kick button -->
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr class="user-list-item">
+                  <td class="user-list-item-status"></td>
+                  <td class="user-list-item-name">Oswaldo Acauan com o Nome super Longo</td>
+                  <td class="user-list-item-sharing">
+                    <table class="user-list-item-sharing-list">
+                      <tr>
+                        <td><i class="fi-volume-none"></i></td><!-- mic sharing -->
+                        <td><i class="fi-video"></i></td><!-- webcam sharing -->
+                        <td></td><!-- lock status -->
+                        <td></td><!-- kick button -->
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr class="user-list-item">
+                  <td class="user-list-item-status"></td>
+                  <td class="user-list-item-name">Oswaldo Acauan com o Nome super Longo</td>
+                  <td class="user-list-item-sharing">
+                    <table class="user-list-item-sharing-list">
+                      <tr>
+                        <td><i class="ion-ios-mic"></i></td><!-- mic sharing -->
+                        <td><i class="fi-video"></i></td><!-- webcam sharing -->
+                        <td></td><!-- lock status -->
+                        <td></td><!-- kick button -->
+                      </tr>
+                    </table>
+                  </td>
+                </tr><tr class="user-list-item">
+                  <td class="user-list-item-status"></td>
+                  <td class="user-list-item-name">Oswaldo Acauan com o Nome super Longo</td>
+                  <td class="user-list-item-sharing">
+                    <table class="user-list-item-sharing-list">
+                      <tr>
+                        <td><i class="ion-ios-mic"></i></td><!-- mic sharing -->
+                        <td><i class="fi-video"></i></td><!-- webcam sharing -->
+                        <td></td><!-- lock status -->
+                        <td></td><!-- kick button -->
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="settingsMenu">
+        {{> menu id="menu"}}
+      </div>
+      <div id="main">
+        {{> header}}
+        <div id="panels">
+          <div class="shield"></div>
+          {{> whiteboard id="whiteboard" name="whiteboard"}}
+          {{#if getInSession "display_chatbar"}}
+            {{> chatbar id="chat" title="Chat" name="chatbar"}}
+          {{/if}}
+        </div>
+        {{> modals}}
+      </div>
+    {{/if}}
+  </div>
+</template>
+
+<template name="modals">
+  <div id="settingsModal" class="reveal-modal small" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog" data-options="close_on_background_click:false">
+    {{> settingsModal}}
+  </div>
+  <div id="logoutModal" class="reveal-modal tiny" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog" data-options="close_on_background_click:false">
+    {{> logoutModal}}
+  </div>
+  <audio id="remote-media" autoplay="autoplay"></audio>
+</template>
+
+<template name="recordingStatus">
+</template>
+
+<template name="menu">
+  <div id="{{id}}">
+    {{> makeButton btn_class="slideButton toggleChatButton" i_class="ion-chatbubble" label="Chat"}}
+    {{> makeButton btn_class="slideButton settingsIcon" i_class="ion-gear-b" label="Settings"}}
+    {{> makeButton btn_class="slideButton signOutIcon" i_class="ion-log-out" label="Log out"}}
+  </div>
+</template>
+
+<template name="loading">
+<div id="floatingCirclesG">
+  <div class="f_circleG" id="frotateG_01"></div>
+  <div class="f_circleG" id="frotateG_02"></div>
+  <div class="f_circleG" id="frotateG_03"></div>
+  <div class="f_circleG" id="frotateG_04"></div>
+  <div class="f_circleG" id="frotateG_05"></div>
+  <div class="f_circleG" id="frotateG_06"></div>
+  <div class="f_circleG" id="frotateG_07"></div>
+  <div class="f_circleG" id="frotateG_08"></div>
+</div>
+</template>
+
+<template name="icon">
+  {{#if equals name "hand"}}
+    <span rel="tooltip" data-placement="bottom" title="{{title}}">
+      <i class="ion-android-hand"></i>
+    </span>
+  {{else}}
+    <svg width="{{size}}" height="{{size}}" viewBox="0 0 50 50">
+      {{> Template.dynamic template=name}}
+    </svg>
+  {{/if}}
+</template>
+
+<template name="happy-face">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <path d="m18 30 C 21 33, 29 33, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+</template>
+
+<template name="neutral-face">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <path d="m18 30 l 14 0" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</template>
+
+<template name="confused-face">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <path d="M18 30 C 20 28, 22 28, 25 30 S 30 32, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</template>
+
+<template name="sad-face">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <circle cx="19" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <circle cx="31" cy="22" r="1" stroke="white" stroke-width="2" fill="white"/>
+  <path d="m18 30 C 21 27, 29 27, 32 30" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+</template>
+
+<template name="clock">
+  <circle cx="25" cy="25" r="14" stroke="white" stroke-width="3" fill="transparent"/>
+  <path d="m25 25 l 0 -8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="m25 25 l 5 5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</template>
+
+<template name="plus">
+  <path d="m25 18 l 0 14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="m18 25 l 14 0" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</template>
