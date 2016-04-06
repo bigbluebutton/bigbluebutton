@@ -270,6 +270,7 @@ package org.bigbluebutton.air.users.views.participants {
 			userSession.userList.userAddedSignal.remove(addUser);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			userSession.guestList.userAddedSignal.remove(addGuest);
+			userSession.guestList.userRemovedSignal.remove(guestRemoved);
 			super.destroy();
 			view.dispose();
 			view = null;

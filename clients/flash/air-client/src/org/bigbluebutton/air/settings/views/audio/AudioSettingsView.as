@@ -6,9 +6,6 @@ package org.bigbluebutton.air.settings.views.audio {
 	import spark.primitives.Rect;
 	
 	public class AudioSettingsView extends AudioSettingsViewBase implements IAudioSettingsView {
-		override protected function childrenCreated():void {
-			super.childrenCreated();
-		}
 		
 		public function dispose():void {
 		}

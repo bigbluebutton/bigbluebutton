@@ -14,10 +14,6 @@ package org.bigbluebutton.air.video.views.videochat {
 	public class VideoChatView extends VideoChatViewBase implements IVideoChatView {
 		private var webcam:VideoChatVideoView;
 		
-		override protected function childrenCreated():void {
-			super.childrenCreated();
-		}
-		
 		public function startStream(connection:NetConnection, name:String, streamName:String, userID:String, width:Number, height:Number, screenHeight:Number, screenWidth:Number):void {
 			if (webcam)
 				stopStream();

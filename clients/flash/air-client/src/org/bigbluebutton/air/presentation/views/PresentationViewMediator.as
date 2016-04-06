@@ -63,7 +63,7 @@ package org.bigbluebutton.air.presentation.views {
 		
 		override public function initialize():void {
 			super.initialize();
-			view.slide.addEventListener(TransformGestureEvent.GESTURE_SWIPE, swipehandler);
+			view.slide.addEventListener(TransformGestureEvent.GESTURE_SWIPE, swipeHandler);
 			userSession.userList.userChangeSignal.add(userChangeHandler);
 			FlexGlobals.topLevelApplication.stage.addEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
 			FlexGlobals.topLevelApplication.topActionBar.backBtn.visible = false;
@@ -470,7 +470,7 @@ package org.bigbluebutton.air.presentation.views {
 			FlexGlobals.topLevelApplication.bottomMenu.visible = false;
 		}
 		
-		private function swipehandler(e:TransformGestureEvent):void {
+		private function swipeHandler(e:TransformGestureEvent):void {
 			if (userSession.userList.me.presenter) {
 				if (e.offsetX == -1 && _currentSlideNum < _currentPresentation.slides.length - 1) {
 					setCurrentSlideNum(_currentSlideNum + 1);

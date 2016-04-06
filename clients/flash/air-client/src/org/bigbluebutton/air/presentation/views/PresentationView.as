@@ -20,10 +20,6 @@ package org.bigbluebutton.air.presentation.views {
 	public class PresentationView extends PresentationViewBase implements IPresentationViewAir {
 		private var webcam:VideoChatVideoView;
 		
-		override protected function childrenCreated():void {
-			super.childrenCreated();
-		}
-		
 		public function get videoStream():VideoDisplay {
 			return videostream;
 		}

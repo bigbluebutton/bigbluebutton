@@ -4,9 +4,6 @@ package org.bigbluebutton.air.main.views.profile {
 	import spark.components.Label;
 	
 	public class ProfileView extends ProfileViewBase implements IProfileView {
-		override protected function childrenCreated():void {
-			super.childrenCreated();
-		}
 		
 		public function dispose():void {
 		}

@@ -4,14 +4,10 @@ package org.bigbluebutton.air.settings.views.camera {
 	import spark.components.Group;
 	import spark.components.Label;
 	import spark.components.List;
-	import spark.components.RadioButtonGroup;
 	import spark.components.Scroller;
 	import spark.components.VideoDisplay;
 	
 	public class CameraSettingsView extends CameraSettingsViewBase implements ICameraSettingsView {
-		override protected function childrenCreated():void {
-			super.childrenCreated();
-		}
 		
 		public function dispose():void {
 		}
