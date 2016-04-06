@@ -49,9 +49,9 @@ package org.bigbluebutton.air.chat.views.chat {
 		
 		protected var data:Object;
 		
-		protected var newMessages:Number;
+		protected var newMessages:Number = 0;
 		
-		protected var firstNewMessageIndex:Number;
+		protected var firstNewMessageIndex:Number = 0;
 		
 		override public function initialize():void {
 			var userMe:User = userSession.userList.me;
@@ -90,14 +90,17 @@ package org.bigbluebutton.air.chat.views.chat {
 		}
 		
 		private function displayNewMessagesBar(value:Boolean):void {
-			firstNewMessageIndex = dataProvider.length - newMessages;
-			var time:String = (dataProvider.getItemAt(firstNewMessageIndex) as ChatMessage).time;
-			view.newMessagesLabel.text = newMessages.toString() + " " + ResourceManager.getInstance().getString('resources', 'chat.unreadMessages') + " " + time;
-			view.newMessages.visible = value;
-			view.newMessages.includeInLayout = value;
+			
 			if (value) {
-				view.list.addEventListener(MouseEvent.MOUSE_MOVE, isNewMessageVisible);
-				view.newMessages.addEventListener(MouseEvent.CLICK, goToFirstNewMessage);
+				firstNewMessageIndex = dataProvider.length - newMessages;
+				if (firstNewMessageIndex > 0) {
+					var time:String = (dataProvider.getItemAt(firstNewMessageIndex) as ChatMessage).time;
+					view.newMessagesLabel.text = newMessages.toString() + " " + ResourceManager.getInstance().getString('resources', 'chat.unreadMessages') + " " + time;
+					view.newMessages.visible = value;
+					view.newMessages.includeInLayout = value;
+					view.list.addEventListener(MouseEvent.MOUSE_MOVE, isNewMessageVisible);
+					view.newMessages.addEventListener(MouseEvent.CLICK, goToFirstNewMessage);
+				}
 			} else {
 				view.list.removeEventListener(MouseEvent.MOUSE_MOVE, isNewMessageVisible);
 				view.newMessages.removeEventListener(MouseEvent.CLICK, goToFirstNewMessage);
