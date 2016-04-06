@@ -59,6 +59,10 @@ package org.bigbluebutton.air.main.views.topbar {
 					selectLeftButton("none");
 					selectRightButton("presentation");
 					break;
+				case PageEnum.USER_DETAILS:
+					selectLeftButton("back");
+					selectRightButton("presentation");
+					break;
 				case PageEnum.CAMERASETTINGS:
 				case PageEnum.AUDIOSETTINGS:
 				case PageEnum.LOCKSETTINGS:
