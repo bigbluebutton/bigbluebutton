@@ -1,11 +1,16 @@
-package org.bigbluebutton.air.presentation.views.selectwebcam {
+package org.bigbluebutton.air.presentation {
+	
+	import org.bigbluebutton.air.presentation.views.PresentationViewMediator;
+	import org.bigbluebutton.air.presentation.views.selectwebcam.ISelectStreamPopUp;
+	import org.bigbluebutton.air.presentation.views.selectwebcam.SelectStreamPopUpMediator;
+	import org.bigbluebutton.lib.presentation.views.IPresentationView;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
 	
-	public class SelectStreamConfig implements IConfig {
+	public class PresentationConfig implements IConfig {
 		
 		[Inject]
 		public var injector:IInjector;
@@ -34,6 +39,7 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
+			mediatorMap.map(IPresentationView).toMediator(PresentationViewMediator);
 			mediatorMap.map(ISelectStreamPopUp).toMediator(SelectStreamPopUpMediator);
 		}
 		

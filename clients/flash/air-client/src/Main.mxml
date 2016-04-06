@@ -30,26 +30,15 @@
 			
 			import org.bigbluebutton.air.AppConfig;
 			import org.bigbluebutton.air.chat.ChatConfig;
-			import org.bigbluebutton.air.deskshare.views.DeskshareConfig;
+			import org.bigbluebutton.air.deskshare.DeskshareConfig;
 			import org.bigbluebutton.air.main.MainConfig;
 			import org.bigbluebutton.air.main.utils.OrientationCalculator;
-			import org.bigbluebutton.air.main.views.exit.ExitPageConfig;
-			import org.bigbluebutton.air.main.views.guest.GuestPageConfig;
-			import org.bigbluebutton.air.main.views.loginpage.openroom.OpenRoomConfig;
 			import org.bigbluebutton.air.main.views.loginpage.openroom.recentrooms.RecentRoomsConfig;
-			import org.bigbluebutton.air.main.views.menubuttons.changestatus.ChangeStatusConfig;
-			import org.bigbluebutton.air.main.views.topbar.TopBarConfig;
-			import org.bigbluebutton.air.main.views.ui.videobutton.VideoButtonConfig;
-			import org.bigbluebutton.air.presentation.views.PresentationConfig;
-			import org.bigbluebutton.air.presentation.views.selectwebcam.SelectStreamConfig;
-			import org.bigbluebutton.air.settings.views.audio.AudioSettingsConfig;
-			import org.bigbluebutton.air.settings.views.camera.CameraSettingsConfig;
-			import org.bigbluebutton.air.settings.views.lock.LockSettingsConfig;
-			import org.bigbluebutton.air.users.views.participants.ParticipantsConfig;
-			import org.bigbluebutton.air.users.views.userdetails.UserDetailsConfig;
-			import org.bigbluebutton.air.video.views.swapcamera.SwapCameraConfig;
-			import org.bigbluebutton.air.video.views.videochat.VideoChatConfig;
-			import org.bigbluebutton.air.voice.views.MicButtonConfig;
+			import org.bigbluebutton.air.presentation.PresentationConfig;
+			import org.bigbluebutton.air.settings.SettingsConfig;
+			import org.bigbluebutton.air.users.UsersConfig;
+			import org.bigbluebutton.air.video.VideoConfig;
+			import org.bigbluebutton.air.voice.VoiceConfig;
 			import org.bigbluebutton.lib.whiteboard.views.WhiteboardConfig;
 			
 			import robotlegs.bender.bundles.mvcs.MVCSBundle;
@@ -58,6 +47,9 @@
 			import robotlegs.bender.framework.api.IContext;
 			import robotlegs.bender.framework.api.LogLevel;
 			import robotlegs.bender.framework.impl.Context;
+			
+			
+			
 			
 			protected var context:IContext;
 			
@@ -75,9 +67,9 @@
 			 * Sets up the Robotlegs context.
 			 */
 			private function setupContext():void {
-				context = new Context().install(MVCSBundle, SignalCommandMapExtension).configure(AppConfig)
+				context = new Context().install(MVCSBundle, SignalCommandMapExtension).configure(AppConfig).
 					
-					.configure(MainConfig).configure(PresentationConfig).configure(ChatConfig).configure(VideoChatConfig).configure(UserDetailsConfig).configure(ParticipantsConfig).configure(MicButtonConfig).configure(SwapCameraConfig).configure(DeskshareConfig).configure(CameraSettingsConfig).configure(AudioSettingsConfig).configure(VideoButtonConfig).configure(OpenRoomConfig).configure(RecentRoomsConfig).configure(LockSettingsConfig).configure(ExitPageConfig).configure(PresentationConfig).configure(GuestPageConfig).configure(WhiteboardConfig).configure(SelectStreamConfig).configure(ChangeStatusConfig).configure(TopBarConfig)
+					configure(MainConfig).configure(PresentationConfig).configure(ChatConfig).configure(VideoConfig).configure(UsersConfig).configure(VoiceConfig).configure(DeskshareConfig).configure(SettingsConfig).configure(RecentRoomsConfig).configure(PresentationConfig).configure(WhiteboardConfig)
 					
 					.configure(new ContextView(this));
 				// If you wish to change the log level then uncomment the line below and set 

@@ -1,13 +1,16 @@
-package org.bigbluebutton.air.presentation.views {
+package org.bigbluebutton.air.voice {
 	
-	import org.bigbluebutton.lib.presentation.views.IPresentationView;
+	import org.bigbluebutton.air.voice.views.IMicButton;
+	import org.bigbluebutton.air.voice.views.MicButtonMediator;
+	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteCommand;
+	import org.bigbluebutton.lib.voice.commands.MicrophoneMuteSignal;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
 	
-	public class PresentationConfig implements IConfig {
+	public class VoiceConfig implements IConfig {
 		
 		[Inject]
 		public var injector:IInjector;
@@ -36,13 +39,14 @@ package org.bigbluebutton.air.presentation.views {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(IPresentationView).toMediator(PresentationViewMediator);
+			mediatorMap.map(IMicButton).toMediator(MicButtonMediator);
 		}
 		
 		/**
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
+			signalCommandMap.map(MicrophoneMuteSignal).toCommand(MicrophoneMuteCommand);
 		}
 	}
 }

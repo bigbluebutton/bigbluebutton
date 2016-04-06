@@ -41,7 +41,7 @@ package org.bigbluebutton.lib.whiteboard.views {
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			//signalCommandMap.map(ButtonTestSignal).toCommand(ButtonTestCommand);
+		
 		}
 	}
 }

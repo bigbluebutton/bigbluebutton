@@ -56,7 +56,6 @@ package org.bigbluebutton.air {
 	import org.bigbluebutton.lib.whiteboard.services.WhiteboardService;
 	
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
-	import robotlegs.bender.extensions.signalCommandMap.impl.SignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
 	

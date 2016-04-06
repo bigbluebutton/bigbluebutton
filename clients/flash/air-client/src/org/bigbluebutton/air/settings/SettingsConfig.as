@@ -1,14 +1,18 @@
-package org.bigbluebutton.air.users.views.userdetails {
+package org.bigbluebutton.air.settings {
 	
-	import org.bigbluebutton.lib.main.commands.ClearUserStatusCommand;
-	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
+	import org.bigbluebutton.air.settings.views.audio.AudioSettingsViewMediator;
+	import org.bigbluebutton.air.settings.views.audio.IAudioSettingsView;
+	import org.bigbluebutton.air.settings.views.camera.CameraSettingsViewMediator;
+	import org.bigbluebutton.air.settings.views.camera.ICameraSettingsView;
+	import org.bigbluebutton.air.settings.views.lock.ILockSettingsView;
+	import org.bigbluebutton.air.settings.views.lock.LockSettingsViewMediator;
 	
 	import robotlegs.bender.extensions.mediatorMap.api.IMediatorMap;
 	import robotlegs.bender.extensions.signalCommandMap.api.ISignalCommandMap;
 	import robotlegs.bender.framework.api.IConfig;
 	import robotlegs.bender.framework.api.IInjector;
 	
-	public class UserDetailsConfig implements IConfig {
+	public class SettingsConfig implements IConfig {
 		
 		[Inject]
 		public var injector:IInjector;
@@ -37,15 +41,15 @@ package org.bigbluebutton.air.users.views.userdetails {
 		 * Maps view mediators to views.
 		 */
 		private function mediators():void {
-			mediatorMap.map(IUserDetailsView).toMediator(UserDetailsViewMediator);
+			mediatorMap.map(IAudioSettingsView).toMediator(AudioSettingsViewMediator);
+			mediatorMap.map(ICameraSettingsView).toMediator(CameraSettingsViewMediator);
+			mediatorMap.map(ILockSettingsView).toMediator(LockSettingsViewMediator);
 		}
 		
 		/**
 		 * Maps signals to commands using the signalCommandMap.
 		 */
 		private function signals():void {
-			signalCommandMap.map(ClearUserStatusSignal).toCommand(ClearUserStatusCommand);
-			//signalCommandMap.map(ButtonTestSignal).toCommand(ButtonTestCommand);
 		}
 	}
 }
