@@ -72,7 +72,6 @@ package org.bigbluebutton.air.settings.views.camera {
 			} else {
 				setSwapCameraButtonEnable(!userMe.hasStream);
 				view.swapCameraButton.addEventListener(MouseEvent.CLICK, mouseClickHandler);
-				userSession.userList.userChangeSignal.add(userChangeHandler);
 			}
 			userSession.lockSettings.disableCamSignal.add(disableCam);
 			setQualityListEnable(!userSession.userList.me.hasStream);
@@ -259,12 +258,13 @@ package org.bigbluebutton.air.settings.views.camera {
 			super.destroy();
 			userSession.lockSettings.disableCamSignal.remove(disableCam);
 			userSession.userList.userChangeSignal.remove(userChangeHandler);
-			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
-			view.startCameraButton.removeEventListener(MouseEvent.CLICK, onShareCameraClick);
 			if (Camera.names.length > 1) {
-				view.swapCameraButton.addEventListener(MouseEvent.CLICK, mouseClickHandler);
+				view.swapCameraButton.removeEventListener(MouseEvent.CLICK, mouseClickHandler);
 			}
 			view.cameraProfilesList.removeEventListener(ItemClickEvent.ITEM_CLICK, onCameraQualitySelected);
+			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
+			view.startCameraButton.removeEventListener(MouseEvent.CLICK, onShareCameraClick);
+			view.rotateCameraButton.removeEventListener(MouseEvent.CLICK, onRotateCameraClick);
 			view.dispose();
 			view = null;
 			userSession.videoAutoStart = false;

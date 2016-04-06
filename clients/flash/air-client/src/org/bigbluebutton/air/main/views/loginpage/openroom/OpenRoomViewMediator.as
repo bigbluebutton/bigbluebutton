@@ -1,26 +1,17 @@
 package org.bigbluebutton.air.main.views.loginpage.openroom {
 	
-	import flash.desktop.NativeApplication;
-	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
 	import flash.ui.Keyboard;
-	import flash.utils.describeType;
 	
-	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
-	import mx.events.ItemClickEvent;
-	import mx.resources.ResourceManager;
 	
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.View;
-	import spark.events.IndexChangeEvent;
 	
 	public class OpenRoomViewMediator extends Mediator {
 		

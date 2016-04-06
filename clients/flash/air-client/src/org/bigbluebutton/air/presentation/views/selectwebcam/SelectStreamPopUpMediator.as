@@ -142,6 +142,9 @@ package org.bigbluebutton.air.presentation.views.selectwebcam {
 			userSession.userList.userAddedSignal.remove(userAddedHandler);
 			userSession.userList.userChangeSignal.remove(userChangeHandler);
 			userSession.globalVideoSignal.remove(globalVideoStreamNameHandler);
+			view.streamList.removeEventListener(MouseEvent.CLICK, onSelectStream);
+			view.actionButton.removeEventListener(MouseEvent.CLICK, clickedActionButton);
+			view.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);
 			view.dispose();
 			view = null;
 			super.destroy();

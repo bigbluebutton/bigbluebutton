@@ -256,13 +256,23 @@ package org.bigbluebutton.air.users.views.participants {
 		}
 		
 		override public function destroy():void {
-			super.destroy();
-			view.dispose();
-			view = null;
+			view.list.removeEventListener(IndexChangeEvent.CHANGE, onSelectParticipant);
+			view.guestsList.removeEventListener(GuestResponseEvent.GUEST_RESPONSE, onSelectGuest);
+			view.conversationsList.removeEventListener(IndexChangeEvent.CHANGE, onSelectChat);
+			view.allowAllButton.removeEventListener(MouseEvent.CLICK, allowAllGuests);
+			view.denyAllButton.removeEventListener(MouseEvent.CLICK, denyAllGuests);
+			
+			for each (var chatObject:PrivateChatMessage in chatMessagesSession.privateChats) {
+				chatObject.privateChat.chatMessageChangeSignal.remove(populateList);
+			}
+			
 			userSession.userList.userChangeSignal.remove(userChanged);
 			userSession.userList.userAddedSignal.remove(addUser);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			userSession.guestList.userAddedSignal.remove(addGuest);
+			super.destroy();
+			view.dispose();
+			view = null;
 		}
 	}
 }

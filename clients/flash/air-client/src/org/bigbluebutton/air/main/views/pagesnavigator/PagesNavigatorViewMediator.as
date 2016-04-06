@@ -26,7 +26,7 @@ package org.bigbluebutton.air.main.views.pagesnavigator {
 		public var userUISession:IUserUISession
 		
 		override public function initialize():void {
-			NativeApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true)
+			NativeApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true);
 			userUISession.pageChangedSignal.add(changePage);
 			userUISession.pushPage(PageEnum.LOGIN);
 		}
@@ -79,11 +79,12 @@ package org.bigbluebutton.air.main.views.pagesnavigator {
 		}
 		
 		protected function onTransitionStart(event:FlexEvent):void {
-			// TODO Auto-generated method stub
 			userUISession.pageTransitionStartSignal.dispatch(userUISession.lastPage);
 		}
 		
 		override public function destroy():void {
+			NativeApplication.nativeApplication.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			userUISession.pageChangedSignal.remove(changePage);
 			super.destroy();
 			view.dispose();
 			view = null;

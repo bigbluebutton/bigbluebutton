@@ -62,6 +62,7 @@ package org.bigbluebutton.lib.deskshare.views {
 		 * Stop desktop sharing stream
 		 */
 		override public function destroy():void {
+			userSession.assignedDeskshareSignal.remove(assignedDeskshare)
 			userSession.deskshareConnection.isStreamingSignal.remove(onDeskshareStreamChange);
 			userSession.deskshareConnection.mouseLocationChangedSignal.remove(onMouseLocationChanged);
 			view.stopStream();

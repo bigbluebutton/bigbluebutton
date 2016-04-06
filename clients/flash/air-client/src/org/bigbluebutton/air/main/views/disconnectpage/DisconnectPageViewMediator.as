@@ -65,6 +65,13 @@ package org.bigbluebutton.air.main.views.disconnectpage {
 			}
 		}
 		
+		override public function destroy():void {
+			if (Capabilities.version.indexOf('IOS') < 0) {
+				view.exitButton.removeEventListener(MouseEvent.CLICK, applicationExit);
+			}
+			view.reconnectButton.removeEventListener(MouseEvent.CLICK, reconnect);
+		}
+		
 		private function applicationExit(event:Event):void {
 			trace("DisconnectPageViewMediator.applicationExit - exitting the application!");
 			userSession.logoutSignal.dispatch();

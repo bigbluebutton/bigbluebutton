@@ -33,7 +33,6 @@ package org.bigbluebutton.air.main.views.loginpage {
 		public var saveData:ISaveData;
 		
 		override public function initialize():void {
-			//loginService.unsuccessJoinedSignal.add(onUnsuccess);
 			userUISession.joinFailureSignal.add(onFailure);
 			view.tryAgainButton.addEventListener(MouseEvent.CLICK, tryAgain);
 			joinRoom(userSession.joinUrl);
@@ -103,6 +102,7 @@ package org.bigbluebutton.air.main.views.loginpage {
 		override public function destroy():void {
 			super.destroy();
 			//loginService.unsuccessJoinedSignal.remove(onFailure);
+			view.tryAgainButton.removeEventListener(MouseEvent.CLICK, tryAgain);
 			userUISession.joinFailureSignal.remove(onFailure);
 			view.dispose();
 			view = null;

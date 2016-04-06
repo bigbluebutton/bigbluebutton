@@ -137,6 +137,9 @@ package org.bigbluebutton.air.main.views.topbar {
 		}
 		
 		public override function destroy():void {
+			view.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
+			userUISession.pageChangedSignal.remove(changePage);
+			chatMessagesSession.newChatMessageSignal.remove(updateChatIcon);
 		}
 	}
 }

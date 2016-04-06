@@ -5,7 +5,6 @@ package org.bigbluebutton.air.main.views.exit {
 	import flash.events.MouseEvent;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
-	import flash.system.Capabilities;
 	
 	import mx.core.FlexGlobals;
 	
@@ -17,8 +16,6 @@ package org.bigbluebutton.air.main.views.exit {
 	import org.bigbluebutton.lib.main.utils.DisconnectType;
 	
 	import robotlegs.bender.bundles.mvcs.Mediator;
-	
-	import spark.components.Application;
 	
 	public class ExitPageViewMediator extends Mediator {
 		
@@ -91,6 +88,8 @@ package org.bigbluebutton.air.main.views.exit {
 		}
 		
 		public override function destroy():void {
+			view.yesButton.removeEventListener(MouseEvent.CLICK, applicationExit);
+			view.noButton.removeEventListener(MouseEvent.CLICK, backToApplication);
 			FlexGlobals.topLevelApplication.topActionBar.visible = _topBar;
 			FlexGlobals.topLevelApplication.bottomMenu.visible = _bottomMenu;
 		}

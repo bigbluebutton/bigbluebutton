@@ -172,6 +172,19 @@ package org.bigbluebutton.air.main.views.profile {
 		
 		override public function destroy():void {
 			super.destroy();
+			if (view.clearAllStatusButton.hasEventListener(MouseEvent.CLICK)) {
+				view.clearAllStatusButton.removeEventListener(MouseEvent.CLICK, onClearAllButton);
+			}
+			if (view.unmuteAllButton.hasEventListener(MouseEvent.CLICK)) {
+				view.unmuteAllButton.removeEventListener(MouseEvent.CLICK, onUnmuteAllButton);
+			}
+			if (view.muteAllButton.hasEventListener(MouseEvent.CLICK)) {
+				view.muteAllButton.removeEventListener(MouseEvent.CLICK, onMuteAllButton);
+			}
+			if (view.muteAllExceptPresenterButton.hasEventListener(MouseEvent.CLICK)) {
+				view.muteAllExceptPresenterButton.removeEventListener(MouseEvent.CLICK, onMuteAllExceptPresenterButton);
+			}
+			
 			view.logoutButton.removeEventListener(MouseEvent.CLICK, logoutClick);
 			userSession.lockSettings.disableCamSignal.remove(disableCamButton);
 			userSession.userList.userChangeSignal.remove(userChanged);

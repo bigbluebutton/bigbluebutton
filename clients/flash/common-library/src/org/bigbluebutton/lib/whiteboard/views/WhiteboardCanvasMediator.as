@@ -71,7 +71,6 @@ package org.bigbluebutton.lib.whiteboard.views {
 			userSession.presentationList.annotationClearSignal.remove(annotationClearHandler);
 			userSession.presentationList.slideChangeSignal.remove(slideChangeHandler);
 			super.destroy();
-			//view.dispose();
 			view = null;
 		}
 	}

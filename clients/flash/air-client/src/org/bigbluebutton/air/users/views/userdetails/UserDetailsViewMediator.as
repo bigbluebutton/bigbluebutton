@@ -1,10 +1,8 @@
 package org.bigbluebutton.air.users.views.userdetails {
 	
-	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
 	import mx.core.FlexGlobals;
-	import mx.events.ResizeEvent;
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
@@ -125,6 +123,11 @@ package org.bigbluebutton.air.users.views.userdetails {
 		
 		override public function destroy():void {
 			super.destroy();
+			view.clearStatusButton.removeEventListener(MouseEvent.CLICK, onClearStatusButton);
+			view.makePresenterButton.removeEventListener(MouseEvent.CLICK, onMakePresenterButton);
+			view.promoteButton.removeEventListener(MouseEvent.CLICK, onPromoteButton);
+			view.lockButton.removeEventListener(MouseEvent.CLICK, onLockUser);
+			view.unlockButton.removeEventListener(MouseEvent.CLICK, onUnlockUser);
 			view.showCameraButton.removeEventListener(MouseEvent.CLICK, onShowCameraButton);
 			view.showPrivateChat.removeEventListener(MouseEvent.CLICK, onShowPrivateChatButton);
 			userSession.userList.userChangeSignal.remove(userChanged);

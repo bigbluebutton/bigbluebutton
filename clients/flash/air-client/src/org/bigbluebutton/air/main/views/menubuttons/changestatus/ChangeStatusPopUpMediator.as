@@ -66,6 +66,7 @@ package org.bigbluebutton.air.main.views.menubuttons.changestatus {
 		
 		override public function destroy():void {
 			view.statusList.addEventListener(MouseEvent.CLICK, onSelectStatus);
+			view.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, closePopUp);
 			view.dispose();
 			view = null;
 			super.destroy();

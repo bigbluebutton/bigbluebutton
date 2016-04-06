@@ -142,6 +142,15 @@ package org.bigbluebutton.air.main.views.menubuttons {
 		}
 		
 		public override function destroy():void {
+			NativeApplication.nativeApplication.removeEventListener(Event.ACTIVATE, fl_Activate);
+			NativeApplication.nativeApplication.removeEventListener(Event.DEACTIVATE, fl_Deactivate);
+			NativeApplication.nativeApplication.removeEventListener(InvokeEvent.INVOKE, onInvokeEvent);
+			userUISession.loadingSignal.remove(loadingFinished);
+			userSession.userList.userChangeSignal.remove(userChanged);
+			userSession.logoutSignal.remove(loggingOutHandler);
+			view.camButton.removeEventListener(MouseEvent.CLICK, camOnOff);
+			view.micButton.removeEventListener(MouseEvent.CLICK, micOnOff);
+			view.statusButton.removeEventListener(MouseEvent.CLICK, changeStatus);
 		}
 		
 		private function fl_Activate(event:Event = null):void {

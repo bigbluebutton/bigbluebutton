@@ -32,6 +32,9 @@ package org.bigbluebutton.air.main.views.guest {
 		}
 		
 		private function applicationExit(event:Event):void {
+			if (Capabilities.version.indexOf('IOS') < 0) {
+				view.exitButton.removeEventListener(MouseEvent.CLICK, applicationExit);
+			}
 			NativeApplication.nativeApplication.exit();
 		}
 	}

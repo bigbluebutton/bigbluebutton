@@ -9,7 +9,6 @@ package org.bigbluebutton.air.chat.views.chat {
 	import mx.resources.ResourceManager;
 	
 	import spark.components.List;
-	import spark.components.View;
 	import spark.events.ViewNavigatorEvent;
 	
 	import org.bigbluebutton.air.main.models.IUserUISession;

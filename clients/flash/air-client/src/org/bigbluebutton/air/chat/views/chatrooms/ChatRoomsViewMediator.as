@@ -55,8 +55,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			list = view.list;
 			list.dataProvider = dataProvider;
 			list.addEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
-			// userSession.userlist.userChangeSignal.add(userChanged);
-			// userSession.userList.userAddedSignal.add(newUserAdded);
 			chatMessagesSession.publicChat.chatMessageChangeSignal.add(refreshList);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			userSession.userList.userAddedSignal.add(userAdded);
@@ -94,6 +92,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		public function newMessageReceived(userID:String):void {
 			var user:User = userSession.userList.getUser(userID);
 			var pcm:PrivateChatMessage = chatMessagesSession.getPrivateMessages(user.userID, user.name);
+			// TODO : check if this needs to be removed on destroy
 			pcm.privateChat.chatMessageChangeSignal.add(populateList);
 			if (pcm.privateChat.messages.length > 0) {
 				addChat({name: pcm.userName, publicChat: false, user: user, chatMessages: pcm.privateChat, userID: pcm.userID, online: true}, dataProvider.length - 1);
@@ -238,12 +237,18 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		
 		override public function destroy():void {
 			super.destroy();
+			
+			for each (var chatObject:PrivateChatMessage in chatMessagesSession.privateChats) {
+				chatObject.privateChat.chatMessageChangeSignal.remove(populateList);
+			}
+			
 			chatMessagesSession.publicChat.chatMessageChangeSignal.remove(refreshList);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			userSession.userList.userAddedSignal.remove(userAdded);
 			chatMessagesSession.chatMessageChangeSignal.remove(newMessageReceived);
 			eventDispatcher.removeEventListener(SplitViewEvent.CHANGE_VIEW, userSelected);
 			list.removeEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
+			
 			view.dispose();
 			view = null;
 		}

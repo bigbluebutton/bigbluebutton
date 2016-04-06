@@ -51,5 +51,12 @@ package org.bigbluebutton.air.video.views.swapcamera {
 				view.setVisibility(user.hasStream);
 			}
 		}
+		
+		override public function destroy():void {
+			if (Camera.names.length > 1) {
+				view.removeEventListener(MouseEvent.CLICK, mouseClickHandler);
+				userSession.userList.userChangeSignal.remove(userChangeHandler);
+			}
+		}
 	}
 }

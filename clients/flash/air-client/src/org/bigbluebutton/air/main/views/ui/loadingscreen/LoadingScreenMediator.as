@@ -29,7 +29,6 @@ package org.bigbluebutton.air.main.views.ui.loadingscreen {
 		 */
 		override public function destroy():void {
 			super.destroy();
-			//view.dispose();
 			view = null;
 			userUISettings.loadingSignal.remove(update);
 		}

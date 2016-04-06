@@ -57,6 +57,7 @@ package org.bigbluebutton.air.settings.views.lock {
 		
 		override public function destroy():void {
 			super.destroy();
+			view.applyButton.removeEventListener(MouseEvent.CLICK, onApply);
 		}
 	}
 }

@@ -210,6 +210,7 @@ package org.bigbluebutton.air.video.views.videochat {
 			userSession.globalVideoSignal.remove(globalVideoStreamNameHandler);
 			userUISession.pageTransitionStartSignal.remove(onPageTransitionStart);
 			FlexGlobals.topLevelApplication.stage.removeEventListener(ResizeEvent.RESIZE, stageOrientationChangingHandler);
+			view.streamlist.removeEventListener(MouseEvent.CLICK, onSelectStream);
 			view.dispose();
 			view = null;
 			super.destroy();

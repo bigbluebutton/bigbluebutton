@@ -73,12 +73,12 @@ package org.bigbluebutton.air.chat.views.selectparticipant {
 		}
 		
 		override public function destroy():void {
-			super.destroy();
-			view.dispose();
-			view = null;
 			userSession.userList.userChangeSignal.remove(userChanged);
 			userSession.userList.userAddedSignal.remove(userAdded);
 			userSession.userList.userRemovedSignal.remove(userRemoved);
+			super.destroy();
+			view.dispose();
+			view = null;
 		}
 	}
 }

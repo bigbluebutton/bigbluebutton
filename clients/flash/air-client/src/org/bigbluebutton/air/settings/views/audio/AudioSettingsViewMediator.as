@@ -142,12 +142,13 @@ package org.bigbluebutton.air.settings.views.audio {
 			super.destroy();
 			userSession.lockSettings.disableMicSignal.remove(disableMic);
 			view.continueBtn.removeEventListener(MouseEvent.CLICK, onContinueClick);
-			view.enableAudio.removeEventListener(MouseEvent.CLICK, onEnableAudioClick);
-			view.enableMic.removeEventListener(MouseEvent.CLICK, onEnableMicClick);
+			view.enableAudio.removeEventListener(Event.CHANGE, onEnableAudioClick);
+			view.enableMic.removeEventListener(Event.CHANGE, onEnableMicClick);
 			if (micActivityTimer) {
 				micActivityTimer.removeEventListener(TimerEvent.TIMER, micActivity);
 			}
-			view.enablePushToTalk.removeEventListener(MouseEvent.CLICK, onEnablePushToTalkClick);
+			view.enablePushToTalk.removeEventListener(Event.CHANGE, onEnablePushToTalkClick);
+			view.gainSlider.removeEventListener(Event.CHANGE, gainChange);
 			userSession.userList.userChangeSignal.remove(userChangeHandler);
 			userSession.phoneOptions.autoJoin = false;
 		}
