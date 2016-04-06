@@ -9,7 +9,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 	
 	import org.bigbluebutton.air.common.PageEnum;
 	import org.bigbluebutton.air.common.TransitionAnimationEnum;
-	import org.bigbluebutton.air.common.views.SplitViewEvent;
 	import org.bigbluebutton.air.main.models.IUserUISession;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
 	import org.bigbluebutton.lib.chat.models.PrivateChatMessage;
@@ -65,31 +64,10 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			userUISession.pushPage(PageEnum.CHATROOMS);
 		}
 		
-		private function selectChat():void {
-			if (userUISession.currentPageDetails is User) {
-				//screen just rotated back to tablet mode from a user private chat.
-				var item:Object = getItemFromDataProvider(userUISession.currentPageDetails.userID);
-				if (item) {
-					view.list.setSelectedIndex(dataProvider.getItemIndex(item), true);
-				} else {
-					//private chat was not added in the list
-					eventDispatcher.dispatchEvent(new SplitViewEvent(SplitViewEvent.CHANGE_VIEW, PageEnum.getClassfromName(PageEnum.CHAT), userUISession.currentPageDetails, true))
-				}
-			} else if (userUISession.currentPageDetails && userUISession.currentPageDetails.hasOwnProperty("user") && userUISession.currentPageDetails.user) {
-				//screen also just rotated back to tablet mode from a user private chat.
-				view.list.setSelectedIndex(dataProvider.getItemIndex(getItemFromDataProvider(userUISession.currentPageDetails.user.userID)), true);
-			} else if (userUISession.currentPageDetails && userUISession.currentPageDetails.hasOwnProperty("button")) {
-				//screen just rotated back to tablet mode from selecparticipants.
-				view.list.setSelectedIndex(dataProvider.length - 1, true);
-			} else {
-				view.list.setSelectedIndex(0, true);
-			}
-		}
-		
 		/**
 		 * When new message is received, add user to private messages and subscribe to messages update
 		 * */
-		public function newMessageReceived(userID:String):void {
+		private function newMessageReceived(userID:String):void {
 			var user:User = userSession.userList.getUser(userID);
 			var pcm:PrivateChatMessage = chatMessagesSession.getPrivateMessages(user.userID, user.name);
 			// TODO : check if this needs to be removed on destroy
@@ -102,7 +80,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		/**
 		 * if user removed, sets online property to false and updates data provider
 		 **/
-		public function userRemoved(userID:String):void {
+		private function userRemoved(userID:String):void {
 			var userLeft:Object = getItemFromDataProvider(userID);
 			if (userLeft != null) {
 				userLeft.online = false;
@@ -113,7 +91,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		/**
 		 * if user added, sets online property to true and updates data provider
 		 **/
-		public function userAdded(user:Object):void {
+		private function userAdded(user:Object):void {
 			var userAdded:Object = getItemFromDataProvider(user.userID);
 			if (userAdded != null) {
 				userAdded.online = true;
@@ -124,7 +102,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		/**
 		 * Get item from data provider based on user id
 		 **/
-		public function getItemFromDataProvider(UserID:String):Object {
+		private function getItemFromDataProvider(UserID:String):Object {
 			for (var i:int = 0; i < dataProvider.length; i++) {
 				if (dataProvider.getItemAt(i).userID == UserID) {
 					return dataProvider.getItemAt(i);
@@ -133,10 +111,10 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			return null;
 		}
 		
-		/*
-		   When new message is being added to public chat, we only need to refresh data provider
+		/**
+		 * When new message is being added to public chat, we only need to refresh data provider
 		 */
-		public function refreshList(UserID:String = null):void {
+		private function refreshList(UserID:String = null):void {
 			if (userUISession.currentPageDetails.publicChat) {
 				// split view with public chat open: no new messages to show
 				chatMessagesSession.publicChat.resetNewMessages();
@@ -147,8 +125,8 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		
 		/**
 		 * Count chat rooms and set page title accordingly
-		 **/
-		public function setPageTitle():void {
+		 */
+		private function setPageTitle():void {
 			if (dataProvider != null) {
 				FlexGlobals.topLevelApplication.topActionBar.pageName.text = ResourceManager.getInstance().getString('resources', 'chat.title') + " (" + (dataProvider.length - 1) + ")";
 			}
@@ -159,7 +137,7 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 		 *
 		 * @param UserID
 		 */
-		public function populateList(UserID:String = null):void {
+		private function populateList(UserID:String = null):void {
 			var newUser:User = userSession.userList.getUserByUserId(UserID);
 			if ((newUser != null) && (!isExist(newUser)) && (!newUser.me)) {
 				var pcm:PrivateChatMessage = chatMessagesSession.getPrivateMessages(newUser.userID, newUser.name);
@@ -210,10 +188,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			setPageTitle();
 		}
 		
-		private function userChanged(user:User, property:String = null):void {
-			dataProvider.refresh();
-		}
-		
 		protected function onIndexChangeHandler(event:IndexChangeEvent):void {
 			var item:Object = dataProvider.getItemAt(event.newIndex);
 			if (item) {
@@ -227,14 +201,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			}
 		}
 		
-		private function userSelected(event:SplitViewEvent):void {
-			if (userUISession.currentPageDetails is User) {
-				var item:Object = getItemFromDataProvider(userUISession.currentPageDetails.userID);
-				view.list.selectedItem = item;
-			}
-			eventDispatcher.removeEventListener(SplitViewEvent.CHANGE_VIEW, userSelected);
-		}
-		
 		override public function destroy():void {
 			super.destroy();
 			
@@ -246,7 +212,6 @@ package org.bigbluebutton.air.chat.views.chatrooms {
 			userSession.userList.userRemovedSignal.remove(userRemoved);
 			userSession.userList.userAddedSignal.remove(userAdded);
 			chatMessagesSession.chatMessageChangeSignal.remove(newMessageReceived);
-			eventDispatcher.removeEventListener(SplitViewEvent.CHANGE_VIEW, userSelected);
 			list.removeEventListener(IndexChangeEvent.CHANGE, onIndexChangeHandler);
 			
 			view.dispose();
