@@ -110,14 +110,8 @@ package org.bigbluebutton.air.chat.views.chat {
 			}
 		}
 		
-		private function isIndexVisible(i:int):Boolean {
-			var visibleIndices:Vector.<int> = view.list.dataGroup.getItemIndicesInView();
-			for each (var index:int in visibleIndices) {
-				if (index == i) {
-					return true;
-				}
-			}
-			return false;
+		private function isIndexVisible(itemIndex:int):Boolean {
+			return view.list.dataGroup.getItemIndicesInView().indexOf(itemIndex) > -1;
 		}
 		
 		private function goToFirstNewMessage(e:MouseEvent):void {
