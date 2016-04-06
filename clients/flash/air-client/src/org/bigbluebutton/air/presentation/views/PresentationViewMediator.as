@@ -84,7 +84,6 @@ package org.bigbluebutton.air.presentation.views {
 			}
 			if (displayUserStreamName) {
 				startStream(selectedUserProfile, displayUserStreamName.streamName);
-					//displayVideo(true);
 			} else {
 				globalVideoStreamNameHandler();
 			}
@@ -486,14 +485,14 @@ package org.bigbluebutton.air.presentation.views {
 		private function startStream(user:User, streamName:String):void {
 			if (view) {
 				var videoProfile:VideoProfile = (user == speaker) ? userSession.globalVideoProfile : userSession.videoProfileManager.getVideoProfileByStreamName(streamName);
-				var screenWidth:Number = getView().content.width / 3;
-				var screenHeight:Number = getView().content.height / 3;
+				var videoWidth:Number = getView().content.width / 3;
+				var videoHeight:Number = getView().content.height / 3;
 				if (FlexGlobals.topLevelApplication.aspectRatio == "landscape") {
-					var temp:Number = screenWidth;
-					screenWidth = screenHeight;
-					screenHeight = temp;
+					var temp:Number = videoWidth;
+					videoWidth = videoHeight;
+					videoHeight = temp;
 				}
-				getView().startStream(userSession.videoConnection.connection, user.name, streamName, user.userID, videoProfile.width, videoProfile.height, screenWidth, screenHeight);
+				getView().startStream(userSession.videoConnection.connection, user.name, streamName, user.userID, videoProfile.width, videoProfile.height, videoWidth, videoHeight);
 				userUISession.currentStreamName = streamName;
 				//currentUser = user;
 				getView().videoGroup.height = getView().video.height;

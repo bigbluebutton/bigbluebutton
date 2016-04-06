@@ -8,8 +8,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 	import org.bigbluebutton.lib.user.models.User;
 	
 	public class UserDetailsView extends UserDetailsViewBase implements IUserDetailsView {
-		public function UserDetaisView():void {
-		}
 		
 		protected var _user:User;
 		

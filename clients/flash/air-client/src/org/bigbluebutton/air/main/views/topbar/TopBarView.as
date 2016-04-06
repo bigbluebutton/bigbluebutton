@@ -1,9 +1,8 @@
 package org.bigbluebutton.air.main.views.topbar {
 	
-	import org.bigbluebutton.air.main.views.ui.navigationbutton.NavigationButton;
-	
-	import spark.components.Button;
 	import spark.components.Label;
+	
+	import org.bigbluebutton.air.main.views.ui.navigationbutton.NavigationButton;
 	
 	public class TopBarView extends TopBar implements ITopBarView {
 		

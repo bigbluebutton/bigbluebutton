@@ -117,7 +117,7 @@ package org.bigbluebutton.air.users.views.participants {
 			view.conversationsList.dataProvider = dataProviderConversations;
 		}
 		
-		public function populateList(UserID:String = null):void {
+		public function populateList(UserID:String):void {
 			var newUser:User = userSession.userList.getUserByUserId(UserID);
 			if ((newUser != null) && (!isExist(newUser, dataProviderConversations)) && (!newUser.me)) {
 				var pcm:PrivateChatMessage = chatMessagesSession.getPrivateMessages(newUser.userID, newUser.name);
