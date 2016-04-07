@@ -4,7 +4,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 	
 	import spark.components.Button;
 	
-	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.user.models.User;
 	
 	public class UserDetailsView extends UserDetailsViewBase implements IUserDetailsView {
@@ -12,12 +11,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 		protected var _user:User;
 		
 		protected var _userMe:User;
-		
-		protected var _conferenceParameters:IConferenceParameters;
-		
-		public function set conferenceParameters(c:IConferenceParameters):void {
-			_conferenceParameters = c;
-		}
 		
 		public function set user(u:User):void {
 			_user = u;

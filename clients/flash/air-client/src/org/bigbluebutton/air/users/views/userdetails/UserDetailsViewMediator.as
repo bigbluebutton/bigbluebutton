@@ -11,7 +11,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 	import org.bigbluebutton.lib.main.commands.ClearUserStatusSignal;
 	import org.bigbluebutton.lib.main.commands.LockUserSignal;
 	import org.bigbluebutton.lib.main.commands.PresenterSignal;
-	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.bigbluebutton.lib.user.models.User;
 	
@@ -40,9 +39,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 		[Inject]
 		public var lockUserSignal:LockUserSignal;
 		
-		[Inject]
-		public var conferenceParameters:IConferenceParameters;
-		
 		protected var _user:User;
 		
 		override public function initialize():void {
@@ -50,7 +46,6 @@ package org.bigbluebutton.air.users.views.userdetails {
 			userSession.userList.userChangeSignal.add(userChanged);
 			userSession.userList.userRemovedSignal.add(userRemoved);
 			view.user = _user;
-			view.conferenceParameters = conferenceParameters;
 			view.userMe = userSession.userList.me;
 			view.showCameraButton.addEventListener(MouseEvent.CLICK, onShowCameraButton);
 			view.showPrivateChat.addEventListener(MouseEvent.CLICK, onShowPrivateChatButton);
