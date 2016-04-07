@@ -57,6 +57,8 @@ config.deskshareExtensionKey = "your-extension-key"
 # Allows a caller to access a FreeSWITCH dialplan
 config.freeswitchProfilePassword = "1234"
 
+config.vertoPort = "8082"
+
 # specifies whether to use SIP.js for audio over mod_verto
 config.useSIPAudio = false
 
