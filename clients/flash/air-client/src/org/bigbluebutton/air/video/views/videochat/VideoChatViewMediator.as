@@ -228,7 +228,7 @@ package org.bigbluebutton.air.video.views.videochat {
 		
 		private function removeUserFromDataProvider(userID:String):void {
 			for (var item:int; item < dataProvider.length; item++) {
-				if ((dataProvider.getItemAt(item).user as User).userID == userID) {
+				if ((dataProvider.getItemAt(item).user).userID == userID) {
 					// -- in the end. see: http://stackoverflow.com/questions/4255226/how-to-remove-an-item-while-iterating-over-collection
 					dataProvider.removeItemAt(item--);
 				}

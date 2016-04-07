@@ -72,9 +72,6 @@ package org.bigbluebutton.air.main.views.menubuttons {
 				changeStatusPopUp.x = view.x + view.statusButton.x;
 				changeStatusPopUp.y = view.y - changeStatusPopUp.height * 2;
 			} else {
-				//(changeStatusPopUp.statusList.dataProvider.getItemAt(0) as StatusItemRenderer).icon;
-				//var popUpButtonPadding = ((changeStatusPopUp.statusList.itemRenderer as StatusItemRenderer).icon.width - (changeStatusPopUp.statusList.itemRenderer as StatusItemRenderer).clearStatusIcon.width) / 2;
-				//trace("++ isso " + ((changeStatusPopUp.statusList.itemRenderer as StatusItemRenderer).icon.width - (changeStatusPopUp.statusList.itemRenderer as StatusItemRenderer).clearStatusIcon.width) / 2);
 				changeStatusPopUp.x = -(view.width - view.statusButton.x - view.statusButton.width) / 2 - (view.statusButton.width - (view.statusButton.skin as PresentationButtonSkin).backgroundEllipse.width) / 2 + 6;
 				changeStatusPopUp.y = view.y - changeStatusPopUp.height * changeStatusPopUp.statusList.dataProvider.length;
 			}

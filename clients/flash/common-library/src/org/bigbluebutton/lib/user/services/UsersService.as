@@ -1,6 +1,5 @@
 package org.bigbluebutton.lib.user.services {
 	
-	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.commands.AuthenticationSignal;
 	import org.bigbluebutton.lib.main.commands.DisconnectUserSignal;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
@@ -35,7 +34,7 @@ package org.bigbluebutton.lib.user.services {
 			usersMessageReceiver.authenticationSignal = authenticationSignal;
 			usersMessageReceiver.disconnectUserSignal = disconnectUserSignal;
 			usersMessageSender.userSession = userSession;
-			userSession.mainConnection.addMessageListener(usersMessageReceiver as IMessageListener);
+			userSession.mainConnection.addMessageListener(usersMessageReceiver);
 			userSession.logoutSignal.add(logout);
 		}
 		

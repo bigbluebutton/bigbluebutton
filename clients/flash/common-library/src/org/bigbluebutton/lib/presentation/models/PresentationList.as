@@ -46,7 +46,7 @@ package org.bigbluebutton.lib.presentation.models {
 		public function addPresentation(presentationName:String, id:String, numberOfSlides:int, current:Boolean):Presentation {
 			trace("Adding presentation " + presentationName);
 			for (var i:int = 0; i < _presentations.length; i++) {
-				var p:Presentation = _presentations[i] as Presentation;
+				var p:Presentation = _presentations[i];
 				if (p.id == id) {
 					return p;
 				}
@@ -59,7 +59,7 @@ package org.bigbluebutton.lib.presentation.models {
 		
 		public function removePresentation(presentationName:String):void {
 			for (var i:int = 0; i < _presentations.length; i++) {
-				var p:Presentation = _presentations[i] as Presentation;
+				var p:Presentation = _presentations[i];
 				if (p.fileName == presentationName) {
 					trace("Removing presentation " + presentationName);
 					_presentations.removeItemAt(i);
@@ -70,7 +70,7 @@ package org.bigbluebutton.lib.presentation.models {
 		public function getPresentation(presentationName:String):Presentation {
 			trace("PresentProxy::getPresentation: presentationName=" + presentationName);
 			for (var i:int = 0; i < _presentations.length; i++) {
-				var p:Presentation = _presentations[i] as Presentation;
+				var p:Presentation = _presentations[i];
 				if (p.fileName == presentationName) {
 					return p;
 				}
@@ -81,7 +81,7 @@ package org.bigbluebutton.lib.presentation.models {
 		public function getPresentationByID(presentationID:String):Presentation {
 			trace("PresentProxy::getPresentation: presentationID=" + presentationID);
 			for (var i:int = 0; i < _presentations.length; i++) {
-				var p:Presentation = _presentations[i] as Presentation;
+				var p:Presentation = _presentations[i];
 				if (p.id == presentationID) {
 					return p;
 				}

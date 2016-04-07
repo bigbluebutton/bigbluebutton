@@ -52,7 +52,7 @@ package org.bigbluebutton.lib.main.services {
 		private function getMyUserId():void {
 			baseConnection.connection.call("participants.getMyUserId", new Responder(function(result:String):void {
 				trace("Success connected: My user ID is [" + result + "]");
-				_userId = result as String;
+				_userId = result;
 				connectionSuccessSignal.dispatch();
 			}, function(status:Object):void {
 				trace("Error occurred");

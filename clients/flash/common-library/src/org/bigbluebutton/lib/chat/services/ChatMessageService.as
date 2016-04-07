@@ -2,7 +2,6 @@ package org.bigbluebutton.lib.chat.services {
 	
 	import org.bigbluebutton.lib.chat.models.ChatMessageVO;
 	import org.bigbluebutton.lib.chat.models.IChatMessagesSession;
-	import org.bigbluebutton.lib.common.models.IMessageListener;
 	import org.bigbluebutton.lib.main.models.IConferenceParameters;
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	import org.osflash.signals.ISignal;
@@ -41,7 +40,7 @@ package org.bigbluebutton.lib.chat.services {
 		public function setupMessageSenderReceiver():void {
 			chatMessageSender = new ChatMessageSender(userSession, _sendMessageOnSuccessSignal, _sendMessageOnFailureSignal);
 			chatMessageReceiver = new ChatMessageReceiver(userSession, chatMessagesSession);
-			userSession.mainConnection.addMessageListener(chatMessageReceiver as IMessageListener);
+			userSession.mainConnection.addMessageListener(chatMessageReceiver);
 		}
 		
 		public function getPublicChatMessages():void {

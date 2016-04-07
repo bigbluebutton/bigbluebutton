@@ -24,11 +24,15 @@ package org.bigbluebutton.air.deskshare.views {
 			super.initialize();
 		}
 		
+		public function getView():IDeskshareViewAir {
+			return view as IDeskshareViewAir;
+		}
+		
 		/**
 		 * On Deskshare View initialization - start the video stream
 		 */
 		override protected function showDeskshare(width:Number, height:Number):void {
-			(view as DeskshareView).noDeskshareMessage.visible = (view as DeskshareView).noDeskshareMessage.includeInLayout = false;
+			getView().noDeskshareMessage.visible = getView().noDeskshareMessage.includeInLayout = false;
 			super.showDeskshare(width, height);
 		}
 		
@@ -46,7 +50,7 @@ package org.bigbluebutton.air.deskshare.views {
 		 * else show the desktop sharing stream and cursor
 		 */
 		override public function onDeskshareStreamChange(isDeskshareStreaming:Boolean):void {
-			(view as DeskshareView).noDeskshareMessage.visible = (view as DeskshareView).noDeskshareMessage.includeInLayout = !isDeskshareStreaming;
+			getView().noDeskshareMessage.visible = getView().noDeskshareMessage.includeInLayout = !isDeskshareStreaming;
 			super.onDeskshareStreamChange(isDeskshareStreaming);
 		}
 		

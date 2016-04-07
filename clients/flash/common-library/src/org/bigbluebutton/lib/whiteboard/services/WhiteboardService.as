@@ -1,5 +1,5 @@
 package org.bigbluebutton.lib.whiteboard.services {
-	import org.bigbluebutton.lib.common.models.IMessageListener;
+	
 	import org.bigbluebutton.lib.main.models.IUserSession;
 	
 	public class WhiteboardService implements IWhiteboardService {
@@ -17,7 +17,7 @@ package org.bigbluebutton.lib.whiteboard.services {
 		public function setupMessageSenderReceiver():void {
 			whiteboardMessageSender = new WhiteboardMessageSender(userSession);
 			whiteboardMessageReceiver = new WhiteboardMessageReceiver(userSession);
-			userSession.mainConnection.addMessageListener(whiteboardMessageReceiver as IMessageListener);
+			userSession.mainConnection.addMessageListener(whiteboardMessageReceiver);
 		}
 		
 		public function getAnnotationHistory(presentationID:String, pageNumber:int):void {
