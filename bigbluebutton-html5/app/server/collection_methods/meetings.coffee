@@ -76,19 +76,17 @@
 		funct(callback)
 
 
-@handleDeskShareChange = (meetingId, deskShareInfo) ->
-	console.error "__#{meetingId}__deskShareInfo=" + JSON.stringify deskShareInfo
+@handleDeskShareChange = (meetingId, deskshareInfo) ->
+	console.error "__#{meetingId}__deskshareInfo=" + JSON.stringify deskshareInfo
 	presenter = Meteor.Users.findOne({meetingId:meetingId, "user.presenter": true})?.user.userid
-	Meteor.Meetings.update({meetingId: meetingId}, {$set: {
-		"deskshare.broadcasting": deskShareInfo.broadcasting
+	Meteor.Deskshare.upsert({meetingId: meetingId}, {$set: {
+		"deskshare.broadcasting": deskshareInfo.broadcasting
 		"deskshare.timestamp": "now"
-		"deskshare.vw": deskShareInfo.vw
-		"deskshare.vh": deskShareInfo.vh
-		"deskshare.voice_bridge": "71786"
+		"deskshare.vw": deskshareInfo.vw
+		"deskshare.vh": deskshareInfo.vh
+		"deskshare.voice_bridge": deskshareInfo.voice_bridge
 		"deskshare.startedBy": presenter
 	}})
-	# TODO have to send the voicebridge!
-
 
 @clearDeskshareCollection = (meetingId) ->
 	if meetingId?
