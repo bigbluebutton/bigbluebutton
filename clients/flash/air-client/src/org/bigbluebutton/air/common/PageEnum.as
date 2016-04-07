@@ -10,8 +10,6 @@ package org.bigbluebutton.air.common {
 	import org.bigbluebutton.air.main.views.exit.ExitPageView;
 	import org.bigbluebutton.air.main.views.guest.GuestPageView;
 	import org.bigbluebutton.air.main.views.loginpage.LoginPageView;
-	import org.bigbluebutton.air.main.views.loginpage.openroom.OpenRoomView;
-	import org.bigbluebutton.air.main.views.loginpage.openroom.recentrooms.RecentRoomsView;
 	import org.bigbluebutton.air.main.views.profile.ProfileView;
 	import org.bigbluebutton.air.presentation.views.PresentationView;
 	import org.bigbluebutton.air.settings.views.audio.AudioSettingsView;
@@ -54,10 +52,6 @@ package org.bigbluebutton.air.common {
 		
 		public static const EXIT:String = "Exit";
 		
-		public static const OPENROOM:String = "OpenRoom";
-		
-		public static const RECENTROOMS:String = "RecentRoom";
-		
 		public static const LOCKSETTINGS:String = "LockSettings";
 		
 		public static const SPLITSETTINGS:String = "SplitSettings";
@@ -88,8 +82,6 @@ package org.bigbluebutton.air.common {
 				dic[CAMERASETTINGS] = CameraSettingsView;
 				dic[AUDIOSETTINGS] = AudioSettingsView;
 				dic[EXIT] = ExitPageView;
-				dic[OPENROOM] = OpenRoomView;
-				dic[RECENTROOMS] = RecentRoomsView;
 				dic[LOCKSETTINGS] = LockSettingsView;
 				dicInitiated = true;
 			}

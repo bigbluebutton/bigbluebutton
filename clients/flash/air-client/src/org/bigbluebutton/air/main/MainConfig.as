@@ -12,8 +12,6 @@ package org.bigbluebutton.air.main {
 	import org.bigbluebutton.air.main.views.guest.IGuestPageView;
 	import org.bigbluebutton.air.main.views.loginpage.ILoginPageView;
 	import org.bigbluebutton.air.main.views.loginpage.LoginPageViewMediator;
-	import org.bigbluebutton.air.main.views.loginpage.openroom.IOpenRoomView;
-	import org.bigbluebutton.air.main.views.loginpage.openroom.OpenRoomViewMediator;
 	import org.bigbluebutton.air.main.views.menubuttons.IMenuButtonsView;
 	import org.bigbluebutton.air.main.views.menubuttons.MenuButtonsViewMediator;
 	import org.bigbluebutton.air.main.views.menubuttons.changestatus.ChangeStatusPopUpMediator;
@@ -87,7 +85,6 @@ package org.bigbluebutton.air.main {
 			mediatorMap.map(IExitPageView).toMediator(ExitPageViewMediator);
 			mediatorMap.map(ITopBarView).toMediator(TopBarViewMediator);
 			mediatorMap.map(IGuestPageView).toMediator(GuestPageViewMediator);
-			mediatorMap.map(IOpenRoomView).toMediator(OpenRoomViewMediator);
 		}
 		
 		/**

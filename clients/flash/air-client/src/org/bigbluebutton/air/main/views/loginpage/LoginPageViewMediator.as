@@ -86,8 +86,6 @@ package org.bigbluebutton.air.main.views.loginpage {
 			}
 			if (url.lastIndexOf("://") != -1) {
 				url = getEndURL(url);
-			} else {
-				userUISession.pushPage(PageEnum.OPENROOM);
 			}
 			joinMeetingSignal.dispatch(url);
 		}
