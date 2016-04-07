@@ -56,7 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 height="100%"
 					 width="30%"
 					 horizontalAlign="center">
-				<mx:Image source="@Embed('assets/images/microphone80.png')" />
+				<mx:Image source="assets/images/microphone80.png" />
 				<mx:Button id="btnMicrophone"
 						   label="Microphone"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnMicrophone.toolTip')}" />
@@ -68,7 +68,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 height="100%"
 					 width="30%"
 					 horizontalAlign="center">
-				<mx:Image source="@Embed('assets/images/speaker80.png')" />
+				<mx:Image source="assets/images/speaker80.png" />
 				<mx:Button id="btnListenOnly"
 						   label="Listen Only"
 						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.audioSelection.btnListenOnly.toolTip')}" />
@@ -80,7 +80,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					 height="100%"
 					 width="30%"
 					 horizontalAlign="center">
-				<mx:Image source="@Embed('assets/images/phone80.png')" />
+				<mx:Image source="assets/images/phone80.png" />
 				<mx:Text id="txtPhone"
 						 width="100%" />
 			</mx:VBox>
